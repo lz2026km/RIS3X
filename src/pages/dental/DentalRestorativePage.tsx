@@ -15,6 +15,7 @@ import { DentalPageLayout, EmptyState, TreatmentActions } from "./DentalShared";
 import type { DentalTreatment } from "./DentalShared";
 // [v3.0.6.11-88 Round10] raw fetch → dentalApi.listTreatments/createTreatment (后端 /dental/treatments 真实存在)
 import { dentalApi } from "../../services/api/dentalApi";
+import { t } from "../../i18n/appI18n";
 
 export const DentalRestorativePage: React.FC = () => {
   const [treats, setT] = useState<DentalTreatment[]>([]);
@@ -44,11 +45,11 @@ export const DentalRestorativePage: React.FC = () => {
       const v = await form.validateFields();
       const d = await dentalApi.createTreatment({ ...v, type: "Restorative" });
       if (d.success) {
-        message.success("已创建修复治疗");
+        message.success(t("dentalRestorative.created"));
         setModalOpen(false);
         form.resetFields();
         load();
-      } else message.error(d.error?.message || "创建失败");
+      } else message.error(d.error?.message || t("dentalRestorative.createFailed"));
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
@@ -56,27 +57,27 @@ export const DentalRestorativePage: React.FC = () => {
   return (
     <DentalPageLayout
       header={{
-        title: "修复 (CAD/CAM)",
+        title: t("dentalRestorative.title"),
         extra: (
           <Button
             type="primary"
             icon={<Plus size={14} />}
             onClick={() => setModalOpen(true)}
           >
-            新建修复
+            {t("dentalRestorative.createNew")}
           </Button>
         ),
       }}
     >
       {loading ? (
         <div style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}>
-          加载中...
+          {t("dentalRestorative.loading")}
         </div>
       ) : treats.length === 0 ? (
         <EmptyState
-          tip="暂无修复记录"
+          tip={t("dentalRestorative.noRecords")}
           onCreate={() => setModalOpen(true)}
-          createLabel="新建修复"
+          createLabel={t("dentalRestorative.createNew")}
         />
       ) : (
         <Table
@@ -85,77 +86,77 @@ export const DentalRestorativePage: React.FC = () => {
           pagination={{ current: page, pageSize: PAGE_SIZE, total, onChange: setPage, showSizeChanger: false }}
           dataSource={treats}
           columns={[
-            { title: "患者", dataIndex: "patientName", width: 100 },
+            { title: t('dentalShared.patient'), dataIndex: "patientName", width: 100 },
             {
-              title: "牙位",
+              title: t('dentalShared.toothNo'),
               dataIndex: "toothNo",
               width: 80,
               render: (n?: number) => (n ? <Tag color="blue">#{n}</Tag> : "-"),
             },
-            { title: "面", dataIndex: "toothSurface", width: 60 },
+            { title: t('dentalShared.surface'), dataIndex: "toothSurface", width: 60 },
             {
-              title: "材料",
+              title: t("dentalRestorative.material"),
               dataIndex: "material",
               width: 100,
               render: (m?: string) => (m ? <Tag color="cyan">{m}</Tag> : "-"),
             },
             {
-              title: "费用",
+              title: t('dentalShared.cost'),
               dataIndex: "cost",
               width: 80,
               render: (v?: number) => (v != null ? `¥${v}` : "-"),
             },
             {
-              title: "状态",
+              title: t('dentalShared.status'),
               dataIndex: "status",
               width: 90,
               render: (s?: string) => <Tag>{s || "-"}</Tag>,
             },
             {
-              title: "操作",
+              title: t('dentalShared.actions'),
               width: 180,
-              render: (_, t) => <TreatmentActions record={t} />,
+              render: (_, rec) => <TreatmentActions record={rec} />,
             },
           ]}
         scroll={{ x: 'max-content' }}
         />
       )}
       <Modal
-        title="新建修复治疗"
+        title={t("dentalRestorative.modalTitle")}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={onCreate}
-        okText="创建"
+        okText={t("dentalRestorative.create")}
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            label="患者ID"
+            label={t('dentalShared.patientId')}
             name="patientId"
             rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
-          <Form.Item label="牙位" name="toothNo">
+          <Form.Item label={t('dentalShared.toothNo')} name="toothNo">
             <InputNumber min={11} max={48} style={{ width: "100%" }} />
           </Form.Item>
-          <Form.Item label="面" name="toothSurface">
+          <Form.Item label={t('dentalShared.surface')} name="toothSurface">
             <Select
               options={[
-                { value: "O", label: "O 颌面" },
-                { value: "M", label: "M 近中" },
-                { value: "D", label: "D 远中" },
-                { value: "B", label: "B 颊侧" },
-                { value: "L", label: "L 舌侧" },
+                { value: "O", label: t("dentalRestorative.surfaceO") },
+                { value: "M", label: t("dentalRestorative.surfaceM") },
+                { value: "D", label: t("dentalRestorative.surfaceD") },
+                { value: "B", label: t("dentalRestorative.surfaceB") },
+                { value: "L", label: t("dentalRestorative.surfaceL") },
               ]}
             />
           </Form.Item>
-          <Form.Item label="材料" name="material">
+          <Form.Item label={t("dentalRestorative.material")} name="material">
             <Select
               options={[
-                { value: "Z350", label: "Z350 树脂" },
-                { value: "P60", label: "P60 后牙树脂" },
-                { value: "Glass", label: "玻璃离子" },
-                { value: "Zirconia", label: "二氧化锆" },
+                { value: "Z350", label: t("dentalRestorative.materialZ350") },
+                { value: "P60", label: t("dentalRestorative.materialP60") },
+                { value: "Glass", label: t("dentalRestorative.materialGlass") },
+                { value: "Zirconia", label: t("dentalRestorative.materialZirconia") },
               ]}
             />
           </Form.Item>

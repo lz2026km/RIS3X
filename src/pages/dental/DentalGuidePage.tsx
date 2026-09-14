@@ -20,12 +20,13 @@ import {
 } from "antd";
 import { CheckCircle2, Download, Eye, Layers, Save } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { t } from "../../i18n/appI18n";
 
-const GUIDE_TYPES = [
-  { value: "fully-guided", label: "全程导板 (Fully Guided)" },
-  { value: "partially-guided", label: "半程导板 (Partially)" },
-  { value: "pilot-drill", label: "先锋钻导向" },
-  { value: "sleeveless", label: "无套筒导航" },
+const guideTypes = () => [
+  { value: "fully-guided", label: t('dentalGuide.typeFullyGuided') },
+  { value: "partially-guided", label: t('dentalGuide.typePartiallyGuided') },
+  { value: "pilot-drill", label: t('dentalGuide.typePilotDrill') },
+  { value: "sleeveless", label: t('dentalGuide.typeSleeveless') },
 ];
 
 export const DentalGuidePage: React.FC = () => {
@@ -106,13 +107,13 @@ export const DentalGuidePage: React.FC = () => {
 
   const handleCreate = async () => {
     if (!newGuide.plan3dId) {
-      message.warning("请选择种植规划");
+      message.warning(t('dentalGuide.selectPlan'));
       return;
     }
     setBusy(true);
     try {
       await dentalApi.createSurgicalGuide(newGuide);
-      message.success("导板设计已创建");
+      message.success(t('dentalGuide.guideCreated'));
       const list = await dentalApi.listSurgicalGuides();
       if (Array.isArray(list)) setGuides(list);
     } catch (e) {
@@ -125,7 +126,7 @@ export const DentalGuidePage: React.FC = () => {
     setBusy(true);
     try {
       const res = (await dentalApi.exportSurgicalGuide(id)) as any;
-      message.success(`导板已生成: ${res.size}`);
+      message.success(t('dentalGuide.guideGenerated', { size: res.size }));
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
@@ -139,15 +140,15 @@ export const DentalGuidePage: React.FC = () => {
     try {
       const res = await dentalApi.updateGuideSleeve(g.id, { sleeveType: sleeveModal.sleeveType });
       if (res.success) {
-        message.success(`套筒已更新: ${sleeveModal.sleeveType}`);
+        message.success(t('dentalGuide.sleeveUpdated', { type: sleeveModal.sleeveType }));
         setSleeveModal({ open: false, guide: null, sleeveType: "", saving: false });
         await loadGuides();
       } else {
-        message.error(res.error?.message ?? '套筒更新失败');
+        message.error(res.error?.message ?? t('dentalGuide.sleeveUpdateFailed'));
         setSleeveModal(prev => ({ ...prev, saving: false }));
       }
     } catch (e: any) {
-      message.error(e?.message ?? '套筒更新失败');
+      message.error(e?.message ?? t('dentalGuide.sleeveUpdateFailed'));
       setSleeveModal(prev => ({ ...prev, saving: false }));
     }
   };
@@ -157,21 +158,21 @@ export const DentalGuidePage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
-          手术导板设计 · 种植上部系统
+          {t('dentalGuide.title')}
         </span>
         <Tag color="cyan">v3.0.6.8-89</Tag>
-        <Tag color="purple">导板模块</Tag>
+        <Tag color="purple">{t('dentalGuide.guideModuleTag')}</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="导板总数" value={guides.length} />
+            <Statistic title={t('dentalGuide.totalGuides')} value={guides.length} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
             <Statistic
-              title="设计中"
+              title={t('dentalGuide.designing')}
               value={guides.filter((g: any) => g.status === "designing").length}
               styles={{ content: {  color: "#faad14"  } }}
             />
@@ -180,7 +181,7 @@ export const DentalGuidePage: React.FC = () => {
         <Col span={4}>
           <Card size="small">
             <Statistic
-              title="已导出STL"
+              title={t('dentalGuide.exportedStl')}
               value={guides.filter((g: any) => g.guideFile).length}
               styles={{ content: {  color: "#52c41a"  } }}
             />
@@ -188,7 +189,7 @@ export const DentalGuidePage: React.FC = () => {
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="基台选项" value={abutments.length} />
+            <Statistic title={t('dentalGuide.abutmentOptions')} value={abutments.length} />
           </Card>
         </Col>
       </Row>
@@ -198,14 +199,14 @@ export const DentalGuidePage: React.FC = () => {
         items={[
           {
             key: "guides",
-            label: "手术导板",
+            label: t('dentalGuide.tabGuides'),
             children: (
               <>
                 <Row gutter={16}>
                   <Col span={8}>
-                    <Card size="small" title="新建导板">
+                    <Card size="small" title={t('dentalGuide.newGuide')}>
                       <Form layout="vertical" size="small">
-                        <Form.Item label="关联规划">
+                        <Form.Item label={t('dentalGuide.linkedPlan')}>
                           <Select
                             value={newGuide.plan3dId}
                             onChange={(v) => {
@@ -219,16 +220,16 @@ export const DentalGuidePage: React.FC = () => {
                             }))}
                           />
                         </Form.Item>
-                        <Form.Item label="导板类型">
+                        <Form.Item label={t('dentalGuide.guideType')}>
                           <Select
                             value={newGuide.type}
                             onChange={(v) =>
                               setNewGuide({ ...newGuide, type: v })
                             }
-                            options={GUIDE_TYPES}
+                            options={guideTypes()}
                           />
                         </Form.Item>
-                        <Form.Item label="材料">
+                        <Form.Item label={t('dentalGuide.material')}>
                           <Select
                             value={newGuide.material}
                             onChange={(v) =>
@@ -240,7 +241,7 @@ export const DentalGuidePage: React.FC = () => {
                             }))}
                           />
                         </Form.Item>
-                        <Form.Item label="金属套筒">
+                        <Form.Item label={t('dentalGuide.metalSleeve')}>
                           <Select
                             value={newGuide.sleeveType}
                             onChange={(v) =>
@@ -259,13 +260,13 @@ export const DentalGuidePage: React.FC = () => {
                           onClick={handleCreate}
                           loading={busy}
                         >
-                          创建设计
+                          {t('dentalGuide.createDesign')}
                         </Button>
                       </Form>
                     </Card>
                   </Col>
                   <Col span={16}>
-                    <Card size="small" title="导板列表">
+                    <Card size="small" title={t('dentalGuide.guideList')}>
                       {guides.map((g: any) => (
                         <Card
                           key={g.id}
@@ -304,15 +305,15 @@ export const DentalGuidePage: React.FC = () => {
                               marginTop: 4,
                             }}
                           >
-                            {g.material} | {g.sleeveType || "待选择套筒"} |{" "}
-                            {g.fixationPin ? "含固定钉" : "不含固定钉"} |{" "}
+                            {g.material} | {g.sleeveType || t('dentalGuide.sleeveToSelect')} |{" "}
+                            {g.fixationPin ? t('dentalGuide.withPin') : t('dentalGuide.withoutPin')} |{" "}
                             {g.createdAt?.slice(0, 10)}
                           </div>
                           <Divider style={{ margin: "4px 0" }} />
                           <Space>
                             {g.status === "designing" && (
                               <Button size="small" icon={<Eye size={10} />}>
-                                预览
+                                {t('dentalGuide.preview')}
                               </Button>
                             )}
                             {g.status === "designing" && (
@@ -322,7 +323,7 @@ export const DentalGuidePage: React.FC = () => {
                                 icon={<Save size={10} />}
                                 onClick={() => setSleeveModal({ open: true, guide: g, sleeveType: g.sleeveType || sleeves[0]?.type || "", saving: false })}
                               >
-                                配置套筒
+                                {t('dentalGuide.configureSleeve')}
                               </Button>
                             )}
                             <Button
@@ -330,14 +331,14 @@ export const DentalGuidePage: React.FC = () => {
                               icon={<Download size={10} />}
                               onClick={() => handleExportStl(g.id)}
                             >
-                              导出 STL
+                              {t('dentalGuide.exportStl')}
                             </Button>
                             {g.guideFile && (
                               <Tag
                                 color="green"
                                 icon={<CheckCircle2 size={10} />}
                               >
-                                已导出
+                                {t('dentalGuide.exported')}
                               </Tag>
                             )}
                           </Space>
@@ -351,14 +352,14 @@ export const DentalGuidePage: React.FC = () => {
           },
           {
             key: "abutment",
-            label: "基台/上部选择",
+            label: t('dentalGuide.tabAbutment'),
             children: (
               <>
                 <Row gutter={12}>
                   <Col span={12}>
-                    <Card size="small" title="基台选项">
+                    <Card size="small" title={t('dentalGuide.abutmentOptions')}>
                       <Select
-                        placeholder="选择品牌"
+                        placeholder={t('dentalGuide.selectBrand')}
                         onChange={handleBrandChange}
                         style={{ width: 200, marginBottom: 12 }}
                         options={[
@@ -394,9 +395,9 @@ export const DentalGuidePage: React.FC = () => {
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card size="small" title="金属套筒选择">
+                    <Card size="small" title={t('dentalGuide.sleeveSelection')}>
                       <Select
-                        placeholder="选择品牌"
+                        placeholder={t('dentalGuide.selectBrand')}
                         onChange={(v) =>
                           dentalApi.getGuideSleeves(v as string).then((r) => {
                             if (Array.isArray(r)) setSleeves(r);
@@ -421,7 +422,7 @@ export const DentalGuidePage: React.FC = () => {
                                 Ø{s.diameter} × {s.height}mm
                               </span>
                               <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
-                                适配: {s.compatible?.slice(0, 2).join(", ")}...
+                                {t('dentalGuide.compatible')}: {s.compatible?.slice(0, 2).join(", ")}...
                               </span>
                             </Space>
                           </List.Item>
@@ -436,7 +437,7 @@ export const DentalGuidePage: React.FC = () => {
         ]}
       />
       <Modal
-        title={`配置金属套筒 - ${sleeveModal.guide?.id ?? ''}`}
+        title={t('dentalGuide.configSleeveTitle', { id: sleeveModal.guide?.id ?? '' })}
         open={sleeveModal.open}
         onCancel={() => setSleeveModal({ open: false, guide: null, sleeveType: "", saving: false })}
         onOk={() => void handleUpdateSleeve()}
@@ -444,13 +445,13 @@ export const DentalGuidePage: React.FC = () => {
         width={400}
       >
         <div style={{ fontSize: 13, marginBottom: 8 }}>
-          导板: {sleeveModal.guide?.patientName ?? '-'} · FDI #{sleeveModal.guide?.toothNo ?? '-'}
+          {t('dentalGuide.guideLabel')}: {sleeveModal.guide?.patientName ?? '-'} · FDI #{sleeveModal.guide?.toothNo ?? '-'}
         </div>
         <Select
           value={sleeveModal.sleeveType}
           onChange={(v) => setSleeveModal(prev => ({ ...prev, sleeveType: v }))}
           style={{ width: '100%' }}
-          placeholder="选择套筒型号"
+          placeholder={t('dentalGuide.selectSleeveModel')}
           options={sleeves.map((s: any) => ({
             value: s.type,
             label: `${s.type} (Ø${s.diameter}mm × ${s.height}mm)`,

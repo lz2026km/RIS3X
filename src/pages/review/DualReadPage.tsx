@@ -6,6 +6,7 @@ import { dualReadApi, type DualReadAssignment, type DualReadReportLink } from '.
 import { useAuth } from '../../hooks/useAuth'
 import { usePagination } from '../../hooks/usePagination'
 import { useNavigate } from 'react-router-dom'
+import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -61,10 +62,10 @@ const DualReadPage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setAssignments(res.data)
       } else {
-        setError(res.error?.message ?? '双阅列表加载失败')
+        setError(res.error?.message ?? t('dualRead.listLoadFailed'))
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '网络错误')
+      setError((e as Error)?.message ?? t('dualRead.networkError'))
     } finally {
       setLoading(false)
     }
@@ -111,17 +112,17 @@ const DualReadPage: React.FC = () => {
         setAssignments(prev => prev.map(a => a.id === assignment.id ? updated : a))
         const link = res.data.report
         if (link) setReportLinks(prev => ({ ...prev, [assignment.id]: link }))
-        message.success(res.data.created ? `报告已自动创建 (${link?.reportId})` : '已关联已有报告并写入双阅结论')
+        message.success(res.data.created ? `报告已自动创建 (${link?.reportId})` : t('dualRead.linkedExistingReport'))
         if (link?.examId) {
           navigate(`/reports/v3-write?examId=${encodeURIComponent(link.examId)}`)
         } else if (link?.reportId) {
           navigate(`/reports/v3-write?examId=${encodeURIComponent(link.reportId)}`)
         }
       } else {
-        message.error(res.error?.message ?? '双阅完成失败')
+        message.error(res.error?.message ?? t('dualRead.completeFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '双阅完成失败')
+      message.error((e as Error)?.message ?? t('dualRead.completeFailed'))
     } finally {
       setActionLoading(false)
     }
@@ -129,7 +130,7 @@ const DualReadPage: React.FC = () => {
 
   const handleArbitrate = async () => {
     if (!selectedAssignment || !arbitrateReport.trim()) {
-      message.warning('请填写仲裁报告')
+      message.warning(t('dualRead.arbitrateReportRequired'))
       return
     }
     setActionLoading(true)
@@ -141,12 +142,12 @@ const DualReadPage: React.FC = () => {
       })
       if (res.success && res.data) {
         setAssignments(prev => prev.map(a => a.id === selectedAssignment.id ? res.data as DualReadAssignment : a))
-        message.success('仲裁完成')
+        message.success(t('dualRead.arbitrateDone'))
       } else {
-        message.error(res.error?.message ?? '仲裁失败')
+        message.error(res.error?.message ?? t('dualRead.arbitrateFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '仲裁失败')
+      message.error((e as Error)?.message ?? t('dualRead.arbitrateFailed'))
     } finally {
       setActionLoading(false)
       setArbitrateOpen(false)
@@ -156,7 +157,7 @@ const DualReadPage: React.FC = () => {
 
   const handleAssign = async () => {
     if (!newAssign.studyId || !newAssign.patientName || !newAssign.patientId) {
-      message.warning('请填写检查号/患者姓名/患者ID')
+      message.warning(t('dualRead.fillAssignFields'))
       return
     }
     setActionLoading(true)
@@ -164,12 +165,12 @@ const DualReadPage: React.FC = () => {
       const res = await dualReadApi.createAssignment(newAssign)
       if (res.success && res.data) {
         setAssignments(prev => [res.data as DualReadAssignment, ...prev])
-        message.success('双阅分配成功')
+        message.success(t('dualRead.assignSuccess'))
       } else {
-        message.error(res.error?.message ?? '分配失败')
+        message.error(res.error?.message ?? t('dualRead.assignFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '分配失败')
+      message.error((e as Error)?.message ?? t('dualRead.assignFailed'))
     } finally {
       setActionLoading(false)
       setAssignOpen(false)
@@ -185,7 +186,7 @@ const DualReadPage: React.FC = () => {
 
   const handleSubmitReader = async () => {
     if (!submitTarget || !submitReport.trim()) {
-      message.warning('请填写阅片报告')
+      message.warning(t('dualRead.fillReaderReport'))
       return
     }
     setActionLoading(true)
@@ -196,12 +197,12 @@ const DualReadPage: React.FC = () => {
       })
       if (res.success && res.data) {
         setAssignments(prev => prev.map(a => a.id === submitTarget.assignment.id ? res.data as DualReadAssignment : a))
-        message.success('阅片结果已提交')
+        message.success(t('dualRead.submitSuccess'))
       } else {
-        message.error(res.error?.message ?? '提交失败')
+        message.error(res.error?.message ?? t('dualRead.submitFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '提交失败')
+      message.error((e as Error)?.message ?? t('dualRead.submitFailed'))
     } finally {
       setActionLoading(false)
       setSubmitOpen(false)
@@ -220,20 +221,20 @@ const DualReadPage: React.FC = () => {
   const discArbitrated = discStats ? discStats.arbitratedCount : arbitrated
 
   const columns = [
-    { title: '检查号', dataIndex: 'studyId', key: 'studyId' },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName' },
-    { title: '模态', dataIndex: 'modality', key: 'modality' },
-    { title: '医师一', dataIndex: 'reader1Name', key: 'reader1Name' },
-    { title: '医师二', dataIndex: 'reader2Name', key: 'reader2Name' },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.label || s}</Tag> },
-    { title: '不一致率', dataIndex: 'discrepancyScore', key: 'discrepancyScore', render: (v: number) => v != null ? `${(v * 100).toFixed(0)}%` : '-' },
+    { title: t('dualRead.colStudyId'), dataIndex: 'studyId', key: 'studyId' },
+    { title: t('dualRead.colPatient'), dataIndex: 'patientName', key: 'patientName' },
+    { title: t('dualRead.colModality'), dataIndex: 'modality', key: 'modality' },
+    { title: t('dualRead.colReader1'), dataIndex: 'reader1Name', key: 'reader1Name' },
+    { title: t('dualRead.colReader2'), dataIndex: 'reader2Name', key: 'reader2Name' },
+    { title: t('dualRead.colStatus'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.label || s}</Tag> },
+    { title: t('dualRead.colDiscrepancy'), dataIndex: 'discrepancyScore', key: 'discrepancyScore', render: (v: number) => v != null ? `${(v * 100).toFixed(0)}%` : '-' },
     // [G-21 Wave3C] 双阅结论展示 (仲裁报告优先, 可点击查看全文)
     {
-      title: '双阅结论',
+      title: t('dualRead.colConclusion'),
       key: 'conclusion',
       render: (_: unknown, r: DualReadAssignment) => {
         const text = conclusionOf(r)
-        if (!text) return <Text type="secondary">未提交</Text>
+        if (!text) return <Text type="secondary">{t('dualRead.notSubmitted')}</Text>
         return (
           <Tooltip title={text}>
             <Button size="small" type="link" icon={<FileText size={12} />} onClick={() => { setConclusionTarget(r); setConclusionOpen(true) }}>
@@ -244,22 +245,22 @@ const DualReadPage: React.FC = () => {
       },
     },
     {
-      title: '操作',
+      title: t('dualRead.colActions'),
       key: 'action',
       render: (_: unknown, r: DualReadAssignment) => {
         const link = reportLinks[r.id]
         return (
           <Space>
-            {r.status !== 'arbitrated' && r.status !== 'completed' && !r.report1 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 1)}>读一提交</Button>}
-            {r.status !== 'arbitrated' && r.status !== 'completed' && !r.report2 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 2)}>读二提交</Button>}
-            {r.status === 'both_done' && <Button size="small" type="primary" icon={<CheckCircle size={14} />} onClick={() => { setSelectedAssignment(r); setArbitrateOpen(true) }}>仲裁</Button>}
+            {r.status !== 'arbitrated' && r.status !== 'completed' && !r.report1 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 1)}>{t('dualRead.submitReader1')}</Button>}
+            {r.status !== 'arbitrated' && r.status !== 'completed' && !r.report2 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 2)}>{t('dualRead.submitReader2')}</Button>}
+            {r.status === 'both_done' && <Button size="small" type="primary" icon={<CheckCircle size={14} />} onClick={() => { setSelectedAssignment(r); setArbitrateOpen(true) }}>{t('dualRead.arbitrate')}</Button>}
             {(r.status === 'both_done' || r.status === 'arbitrated') && (
-              <Button size="small" type="primary" icon={<FileText size={14} />} loading={actionLoading} onClick={() => void handleComplete(r)}>完成并生成报告</Button>
+              <Button size="small" type="primary" icon={<FileText size={14} />} loading={actionLoading} onClick={() => void handleComplete(r)}>{t('dualRead.completeAndGenerate')}</Button>
             )}
-            {r.status === 'arbitrated' && !r.arbitrationReport && <Text type="secondary">已仲裁: {r.arbitratorName}</Text>}
+            {r.status === 'arbitrated' && !r.arbitrationReport && <Text type="secondary">{t('dualRead.arbitratorPrefix')}: {r.arbitratorName}</Text>}
             {link && (
               <Button size="small" icon={<ExternalLink size={14} />} onClick={() => navigate(link.examId ? `/reports/v3-write?examId=${encodeURIComponent(link.examId)}` : `/reports/v3-write?examId=${encodeURIComponent(link.reportId)}`)}>
-                关联报告
+                {t('dualRead.linkedReport')}
               </Button>
             )}
           </Space>
@@ -272,28 +273,28 @@ const DualReadPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>双阅片工作流</span>
-        <Tag color="blue">真实 API 数据</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>刷新</Button>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dualRead.title')}</span>
+        <Tag color="blue">{t('dualRead.realApiData')}</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>{t('dualRead.refresh')}</Button>
       </Space>
       {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title="总分配" value={discTotal} prefix={<GitBranch size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已仲裁" value={discArbitrated} prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="平均不一致率" value={`${(discAvg * 100).toFixed(1)}%`} prefix={<BarChart3 size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="待处理" value={assignments.filter(a => a.status === 'both_done').length} prefix={<AlertTriangle size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dualRead.totalAssignments')} value={discTotal} prefix={<GitBranch size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dualRead.arbitrated')} value={discArbitrated} prefix={<CheckCircle size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dualRead.avgDiscrepancy')} value={`${(discAvg * 100).toFixed(1)}%`} prefix={<BarChart3 size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dualRead.pending')} value={assignments.filter(a => a.status === 'both_done').length} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>
-      <Card extra={<Button type="primary" icon={<UserCheck size={14} />} loading={actionLoading} onClick={() => setAssignOpen(true)}>分配双阅</Button>}>
+      <Card extra={<Button type="primary" icon={<UserCheck size={14} />} loading={actionLoading} onClick={() => setAssignOpen(true)}>{t('dualRead.assignDualRead')}</Button>}>
         <Table rowKey="id" dataSource={assignPagination.pageData} columns={columns} pagination={assignPagination.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       {selectedAssignment && (
         <Modal title={`仲裁 - ${selectedAssignment.studyId}`} open={arbitrateOpen} onOk={() => void handleArbitrate()} onCancel={() => setArbitrateOpen(false)} width={700} confirmLoading={actionLoading}>
           <Row gutter={16}>
-            <Col span={12}><Card size="small" title={`读一: ${selectedAssignment.reader1Name}`}><Text>{selectedAssignment.report1 || '暂无'}</Text></Card></Col>
-            <Col span={12}><Card size="small" title={`读二: ${selectedAssignment.reader2Name}`}><Text>{selectedAssignment.report2 || '暂无'}</Text></Card></Col>
+            <Col span={12}><Card size="small" title={`读一: ${selectedAssignment.reader1Name}`}><Text>{selectedAssignment.report1 || t('dualRead.none')}</Text></Card></Col>
+            <Col span={12}><Card size="small" title={`读二: ${selectedAssignment.reader2Name}`}><Text>{selectedAssignment.report2 || t('dualRead.none')}</Text></Card></Col>
           </Row>
           <Divider />
-          <Text strong>仲裁报告:</Text>
+          <Text strong>{t('dualRead.arbitrationReport')}:</Text>
           <TextArea rows={4} value={arbitrateReport} onChange={e => setArbitrateReport(e.target.value)} style={{ marginTop: 8 }} />
         </Modal>
       )}
@@ -304,13 +305,13 @@ const DualReadPage: React.FC = () => {
         onCancel={() => { setSubmitOpen(false); setSubmitTarget(null) }}
         confirmLoading={actionLoading}
       >
-        <TextArea rows={6} value={submitReport} onChange={e => setSubmitReport(e.target.value)} placeholder="请输入阅片所见及诊断意见" />
+        <TextArea rows={6} value={submitReport} onChange={e => setSubmitReport(e.target.value)} placeholder={t('dualRead.readerFindingsPlaceholder')} />
       </Modal>
-      <Modal title="分配双阅" open={assignOpen} onOk={() => void handleAssign()} onCancel={() => setAssignOpen(false)} confirmLoading={actionLoading}>
+      <Modal title={t('dualRead.assignModal')} open={assignOpen} onOk={() => void handleAssign()} onCancel={() => setAssignOpen(false)} confirmLoading={actionLoading}>
         <Space direction="vertical" style={{ width: '100%' }}>
-          <Input placeholder="检查号" value={newAssign.studyId} onChange={e => setNewAssign(prev => ({ ...prev, studyId: e.target.value }))} />
-          <Input placeholder="患者姓名" value={newAssign.patientName} onChange={e => setNewAssign(prev => ({ ...prev, patientName: e.target.value }))} />
-          <Input placeholder="患者ID" value={newAssign.patientId} onChange={e => setNewAssign(prev => ({ ...prev, patientId: e.target.value }))} />
+          <Input placeholder={t('dualRead.studyIdPlaceholder')} value={newAssign.studyId} onChange={e => setNewAssign(prev => ({ ...prev, studyId: e.target.value }))} />
+          <Input placeholder={t('dualRead.patientNamePlaceholder')} value={newAssign.patientName} onChange={e => setNewAssign(prev => ({ ...prev, patientName: e.target.value }))} />
+          <Input placeholder={t('dualRead.patientIdPlaceholder')} value={newAssign.patientId} onChange={e => setNewAssign(prev => ({ ...prev, patientId: e.target.value }))} />
           <Select value={newAssign.modality} onChange={v => setNewAssign(prev => ({ ...prev, modality: v }))} options={[{ value: 'CT', label: 'CT' }, { value: 'MR', label: 'MR' }, { value: 'DX', label: 'DX' }]} />
         </Space>
       </Modal>
@@ -324,11 +325,11 @@ const DualReadPage: React.FC = () => {
       >
         {conclusionTarget && (
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Card size="small" title={`读一: ${conclusionTarget.reader1Name}`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.report1 || '暂无'}</Text></Card>
-            <Card size="small" title={`读二: ${conclusionTarget.reader2Name}`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.report2 || '暂无'}</Text></Card>
+            <Card size="small" title={`读一: ${conclusionTarget.reader1Name}`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.report1 || t('dualRead.none')}</Text></Card>
+            <Card size="small" title={`读二: ${conclusionTarget.reader2Name}`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.report2 || t('dualRead.none')}</Text></Card>
             {conclusionTarget.arbitrationReport && <Card size="small" title={`仲裁 (${conclusionTarget.arbitratorName})`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.arbitrationReport}</Text></Card>}
             <Divider style={{ margin: '4px 0' }} />
-            <Alert type="info" showIcon message="双阅结论 (写入报告 impression)" description={<Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionOf(conclusionTarget)}</Text>} />
+            <Alert type="info" showIcon message={t('dualRead.conclusionAlert')} description={<Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionOf(conclusionTarget)}</Text>} />
           </Space>
         )}
       </Modal>

@@ -5,6 +5,7 @@ import { Printer, Film, Clock, CheckCircle, XCircle, Loader2, Plus, RefreshCw } 
 import { printQueueManager, PrintJob } from '../../data/printQueue'
 import { printApi, type PrintTaskDto } from '../../services/api/printApi'
 import { PageContainer, PageHeader } from '../../components/common'
+import { t } from '../../i18n/appI18n'
 
 // 深蓝色主题
 const C = {
@@ -65,7 +66,7 @@ const SimpleTable: React.FC<{
   columns: { key: string; title: string; width?: string; render?: (value: unknown, record: PrintJob) => React.ReactNode }[]
   data: PrintJob[]
   emptyText?: string
-}> = ({ columns, data, emptyText = '暂无数据' }) => {
+}> = ({ columns, data, emptyText = t('dicomPrint.noData') }) => {
   if (data.length === 0) {
     return (
       <div style={{ padding: '40px 20px', textAlign: 'center', color: C.textLight }}>
@@ -158,23 +159,23 @@ const DicomPrintPage: React.FC = () => {
     queued: 'Pending', printing: 'Printing', completed: 'Completed', failed: 'Failed',
   }
 
-  const toPrintJob = (t: PrintTaskDto): PrintJob => ({
-    id: t.id,
-    filmId: t.filmId ?? t.id,
-    patientName: t.patientName,
-    patientId: t.patientId ?? '',
+  const toPrintJob = (task: PrintTaskDto): PrintJob => ({
+    id: task.id,
+    filmId: task.filmId ?? task.id,
+    patientName: task.patientName,
+    patientId: task.patientId ?? '',
     studyUid: '',
-    examType: t.modality ?? 'CT',
-    filmCount: t.copies ?? 1,
+    examType: task.modality ?? 'CT',
+    filmCount: task.copies ?? 1,
     layout: '2×2',
     medium: 'Blue Film',
-    copies: t.copies ?? 1,
-    printer: (t.printer as PrintJob['printer']) ?? '直连',
-    status: statusMap[t.status],
-    createTime: t.submitTime,
-    completeTime: t.completeTime ?? undefined,
-    progress: t.progress ?? 0,
-    errorMsg: t.errorMsg,
+    copies: task.copies ?? 1,
+    printer: (task.printer as PrintJob['printer']) ?? '直连',
+    status: statusMap[task.status],
+    createTime: task.submitTime,
+    completeTime: task.completeTime ?? undefined,
+    progress: task.progress ?? 0,
+    errorMsg: task.errorMsg,
   })
 
   const loadFromApi = async (): Promise<boolean> => {
@@ -226,7 +227,7 @@ const DicomPrintPage: React.FC = () => {
           void loadFromApi()
         }, 5000)
       } else {
-        setError('打印 API 不可用，已回退本地模拟队列（演示数据）')
+        setError(t('dicomPrint.apiUnavailable'))
         unsubscribeLocal = fallbackToLocal()
       }
       setLoading(false)
@@ -249,11 +250,11 @@ const DicomPrintPage: React.FC = () => {
   // 提交新打印任务
   const handleSubmit = async () => {
     if (!form.patientName.trim()) {
-      showMessage('请输入患者姓名', 'error')
+      showMessage(t('dicomPrint.patientNameRequired'), 'error')
       return
     }
     if (!form.studyUid.trim()) {
-      showMessage('请输入检查UID', 'error')
+      showMessage(t('dicomPrint.studyUidRequired'), 'error')
       return
     }
 
@@ -267,9 +268,9 @@ const DicomPrintPage: React.FC = () => {
         printer: form.printer,
       })
       if (!res.success) {
-        showMessage(res.error?.message ?? '提交失败', 'error')
+        showMessage(res.error?.message ?? t('dicomPrint.submitFailed'), 'error')
       } else {
-        showMessage('打印任务已提交', 'success')
+        showMessage(t('dicomPrint.jobSubmitted'), 'success')
         await loadFromApi()
       }
       setForm({
@@ -282,7 +283,7 @@ const DicomPrintPage: React.FC = () => {
         filmCount: 1,
       })
     } catch {
-      showMessage('提交失败，请稍后重试', 'error')
+      showMessage(t('dicomPrint.submitFailedRetry'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -293,9 +294,9 @@ const DicomPrintPage: React.FC = () => {
     const ok = await printApi.cancelJob(jobId)
     if (ok.success) {
       await loadFromApi()
-      showMessage('任务已取消', 'success')
+      showMessage(t('dicomPrint.jobCancelled'), 'success')
     } else {
-      showMessage('取消失败', 'error')
+      showMessage(t('dicomPrint.cancelFailed'), 'error')
     }
   }
 
@@ -304,9 +305,9 @@ const DicomPrintPage: React.FC = () => {
     const ok = await printApi.retryJob(jobId)
     if (ok.success) {
       await loadFromApi()
-      showMessage('任务已重新提交', 'success')
+      showMessage(t('dicomPrint.jobResubmitted'), 'success')
     } else {
-      showMessage('重试失败', 'error')
+      showMessage(t('dicomPrint.retryFailed'), 'error')
     }
   }
 
@@ -314,7 +315,7 @@ const DicomPrintPage: React.FC = () => {
   const queueColumns = [
     {
       key: 'filmId',
-      title: '胶片ID',
+      title: t('dicomPrint.colFilmId'),
       width: '140px',
       render: (value: unknown) => (
         <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{String(value)}</span>
@@ -322,12 +323,12 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'patientName',
-      title: '患者姓名',
+      title: t('dicomPrint.colPatientName'),
       width: '100px',
     },
     {
       key: 'filmCount',
-      title: '胶片数',
+      title: t('dicomPrint.colFilmCount'),
       width: '80px',
       render: (value: unknown) => (
         <span style={{ textAlign: 'center', display: 'block' }}>{String(value)}</span>
@@ -335,7 +336,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'createTime',
-      title: '创建时间',
+      title: t('dicomPrint.colCreateTime'),
       width: '150px',
       render: (value: unknown) => (
         <span style={{ fontSize: 12, color: C.textMid }}>{String(value)}</span>
@@ -343,7 +344,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'status',
-      title: '状态',
+      title: t('dicomPrint.colStatus'),
       width: '100px',
       render: (_: unknown, record: PrintJob) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -356,12 +357,12 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'progress',
-      title: '进度',
+      title: t('dicomPrint.colProgress'),
       width: '120px',
       render: (_: unknown, record: PrintJob) => {
-        if (record.status === 'Pending') return <span style={{ color: C.textLight }}>等待中</span>
-        if (record.status === 'Completed') return <span style={{ color: C.success }}>已完成</span>
-        if (record.status === 'Failed') return <span style={{ color: C.danger }}>{record.errorMsg || '失败'}</span>
+        if (record.status === 'Pending') return <span style={{ color: C.textLight }}>{t('dicomPrint.statusPending')}</span>
+        if (record.status === 'Completed') return <span style={{ color: C.success }}>{t('dicomPrint.statusCompleted')}</span>
+        if (record.status === 'Failed') return <span style={{ color: C.danger }}>{record.errorMsg || t('dicomPrint.statusFailed')}</span>
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ flex: 1, height: 6, background: C.border, borderRadius: 3, overflow: 'hidden' }}>
@@ -379,7 +380,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'action',
-      title: '操作',
+      title: t('dicomPrint.colActions'),
       width: '100px',
       render: (_: unknown, record: PrintJob) => (
         <div style={{ display: 'flex', gap: 8 }}>
@@ -396,7 +397,7 @@ const DicomPrintPage: React.FC = () => {
                 cursor: 'pointer',
               }}
             >
-              取消
+              {t('dicomPrint.cancel')}
             </button>
           )}
           {record.status === 'Failed' && (
@@ -412,7 +413,7 @@ const DicomPrintPage: React.FC = () => {
                 cursor: 'pointer',
               }}
             >
-              重试
+              {t('dicomPrint.retryBtn')}
             </button>
           )}
         </div>
@@ -424,7 +425,7 @@ const DicomPrintPage: React.FC = () => {
   const historyColumns = [
     {
       key: 'filmId',
-      title: '胶片ID',
+      title: t('dicomPrint.colFilmId'),
       width: '140px',
       render: (value: unknown) => (
         <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{String(value)}</span>
@@ -432,12 +433,12 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'patientName',
-      title: '患者姓名',
+      title: t('dicomPrint.colPatientName'),
       width: '100px',
     },
     {
       key: 'examType',
-      title: '检查类型',
+      title: t('dicomPrint.colExamType'),
       width: '80px',
       render: (value: unknown) => (
         <span style={{ textAlign: 'center', display: 'block' }}>{String(value)}</span>
@@ -445,7 +446,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'filmCount',
-      title: '胶片数',
+      title: t('dicomPrint.colFilmCount'),
       width: '70px',
       render: (value: unknown) => (
         <span style={{ textAlign: 'center', display: 'block' }}>{String(value)}</span>
@@ -453,7 +454,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'layout',
-      title: '布局',
+      title: t('dicomPrint.colLayout'),
       width: '70px',
       render: (value: unknown) => (
         <span style={{ textAlign: 'center', display: 'block' }}>{String(value)}</span>
@@ -461,7 +462,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'medium',
-      title: '介质',
+      title: t('dicomPrint.colMedium'),
       width: '100px',
       render: (value: unknown) => {
         const MEDIUM_LABELS: Record<string, string> = {
@@ -478,7 +479,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'copies',
-      title: '份数',
+      title: t('dicomPrint.colCopies'),
       width: '60px',
       render: (value: unknown) => (
         <span style={{ textAlign: 'center', display: 'block' }}>{String(value)}</span>
@@ -486,12 +487,12 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'printer',
-      title: '打印机',
+      title: t('dicomPrint.colPrinter'),
       width: '90px',
     },
     {
       key: 'createTime',
-      title: '创建时间',
+      title: t('dicomPrint.colCreateTime'),
       width: '150px',
       render: (value: unknown) => (
         <span style={{ fontSize: 12, color: C.textMid }}>{String(value)}</span>
@@ -499,7 +500,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'completeTime',
-      title: '完成时间',
+      title: t('dicomPrint.colCompleteTime'),
       width: '150px',
       render: (value: unknown) => (
         <span style={{ fontSize: 12, color: C.textMid }}>{value ? String(value) : '-'}</span>
@@ -507,7 +508,7 @@ const DicomPrintPage: React.FC = () => {
     },
     {
       key: 'status',
-      title: '状态',
+      title: t('dicomPrint.colStatus'),
       width: '90px',
       render: (_: unknown, record: PrintJob) => (
         <span style={{
@@ -554,8 +555,8 @@ const DicomPrintPage: React.FC = () => {
 
       {/* 顶部标题栏 */}
       <PageHeader
-        title="DICOM打印管理"
-        subtitle="DICOM Print SCP 胶片打印管理子系统"
+        title={t('dicomPrint.title')}
+        subtitle={t('dicomPrint.subtitle')}
         icon={
           <div style={{
             width: 48,
@@ -582,7 +583,7 @@ const DicomPrintPage: React.FC = () => {
               background: source === 'api' ? 'rgba(56,161,105,0.25)' : 'rgba(214,158,46,0.25)',
               color: source === 'api' ? '#c6f6d5' : '#fefcbf',
             }}>
-              {source === 'api' ? '数据来源: /print/* API（演示数据）' : '数据来源: 本地模拟队列（回退）'}
+              {source === 'api' ? t('dicomPrint.sourceApi') : t('dicomPrint.sourceLocal')}
             </span>
             {error && <span style={{ fontSize: 12, color: '#feb2b2' }}>{error}</span>}
           </div>
@@ -609,7 +610,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
             <div>
               <div style={{ fontSize: 24, fontWeight: 700, color: C.textDark }}>{pendingCount}</div>
-              <div style={{ fontSize: 12, color: C.textMid }}>等待中</div>
+              <div style={{ fontSize: 12, color: C.textMid }}>{t('dicomPrint.statusPending')}</div>
             </div>
           </div>
         </div>
@@ -625,7 +626,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
             <div>
               <div style={{ fontSize: 24, fontWeight: 700, color: C.textDark }}>{printingCount}</div>
-              <div style={{ fontSize: 12, color: C.textMid }}>打印中</div>
+              <div style={{ fontSize: 12, color: C.textMid }}>{t('dicomPrint.statusPrinting')}</div>
             </div>
           </div>
         </div>
@@ -641,7 +642,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
             <div>
               <div style={{ fontSize: 24, fontWeight: 700, color: C.textDark }}>{completedCount}</div>
-              <div style={{ fontSize: 12, color: C.textMid }}>已完成</div>
+              <div style={{ fontSize: 12, color: C.textMid }}>{t('dicomPrint.statusCompleted')}</div>
             </div>
           </div>
         </div>
@@ -657,7 +658,7 @@ const DicomPrintPage: React.FC = () => {
             </div>
             <div>
               <div style={{ fontSize: 24, fontWeight: 700, color: C.textDark }}>{failedCount}</div>
-              <div style={{ fontSize: 12, color: C.textMid }}>失败</div>
+              <div style={{ fontSize: 12, color: C.textMid }}>{t('dicomPrint.statusFailed')}</div>
             </div>
           </div>
         </div>
@@ -681,7 +682,7 @@ const DicomPrintPage: React.FC = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Film size={18} color={C.primary} />
-              <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>打印机队列</span>
+              <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t('dicomPrint.queueTitle')}</span>
               <span style={{
                 display: 'inline-block',
                 padding: '2px 8px',
@@ -718,7 +719,7 @@ const DicomPrintPage: React.FC = () => {
               }}
             >
               <RefreshCw size={14} />
-              刷新
+              {t('dicomPrint.refresh')}
             </button>
           </div>
           <SimpleTable columns={queueColumns} data={queue} />
@@ -739,17 +740,17 @@ const DicomPrintPage: React.FC = () => {
             gap: 8,
           }}>
             <Plus size={18} color={C.primary} />
-            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>新建打印任务</span>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t('dicomPrint.newJobTitle')}</span>
           </div>
           <div style={{ padding: 16 }}>
             {/* 患者姓名 */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
-                患者姓名
+                {t('dicomPrint.labelPatientName')}
               </label>
               <input
                 type="text"
-                placeholder="请输入患者姓名"
+                placeholder={t('dicomPrint.patientNamePlaceholder')}
                 value={form.patientName}
                 onChange={e => setForm({ ...form, patientName: e.target.value })}
                 style={{
@@ -769,11 +770,11 @@ const DicomPrintPage: React.FC = () => {
             {/* 检查UID */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
-                检查UID
+                {t('dicomPrint.labelStudyUid')}
               </label>
               <input
                 type="text"
-                placeholder="请输入检查UID"
+                placeholder={t('dicomPrint.studyUidPlaceholder')}
                 value={form.studyUid}
                 onChange={e => setForm({ ...form, studyUid: e.target.value })}
                 style={{
@@ -794,7 +795,7 @@ const DicomPrintPage: React.FC = () => {
             {/* 打印机选择 */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
-                打印机
+                {t('dicomPrint.labelPrinter')}
               </label>
               <select
                 value={form.printer}
@@ -820,7 +821,7 @@ const DicomPrintPage: React.FC = () => {
             {/* 胶片布局 */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
-                胶片布局
+                {t('dicomPrint.labelLayout')}
               </label>
               <select
                 value={form.layout}
@@ -847,7 +848,7 @@ const DicomPrintPage: React.FC = () => {
             {/* 介质 */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
-                介质
+                {t('dicomPrint.labelMedium')}
               </label>
               <select
                 value={form.medium}
@@ -864,15 +865,15 @@ const DicomPrintPage: React.FC = () => {
                   cursor: 'pointer',
                 }}
               >
-                <option value="Blue Film">蓝膜</option>
-                <option value="Clear Film">透明膜</option>
+                <option value="Blue Film">{t('dicomPrint.blueFilm')}</option>
+                <option value="Clear Film">{t('dicomPrint.clearFilm')}</option>
               </select>
             </div>
 
             {/* 复制份数 */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
-                复制份数 (1-9)
+                {t('dicomPrint.labelCopies')}
               </label>
               <input
                 type="number"
@@ -897,7 +898,7 @@ const DicomPrintPage: React.FC = () => {
             {/* 胶片数量 */}
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: C.textMid }}>
-                胶片数量
+                {t('dicomPrint.labelFilmCount')}
               </label>
               <input
                 type="number"
@@ -938,7 +939,7 @@ const DicomPrintPage: React.FC = () => {
               onMouseEnter={e => { if (!submitting) (e.currentTarget as HTMLButtonElement).style.background = C.primaryLight }}
               onMouseLeave={e => { if (!submitting) (e.currentTarget as HTMLButtonElement).style.background = C.primary }}
             >
-              {submitting ? '提交中...' : '提交打印任务'}
+              {submitting ? t('dicomPrint.submitting') : t('dicomPrint.submitJob')}
             </button>
           </div>
         </div>
@@ -960,7 +961,7 @@ const DicomPrintPage: React.FC = () => {
           gap: 8,
         }}>
           <Clock size={18} color={C.primary} />
-          <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>打印历史记录</span>
+          <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t('dicomPrint.historyTitle')}</span>
           <span style={{
             display: 'inline-block',
             padding: '2px 8px',
@@ -987,7 +988,7 @@ const DicomPrintPage: React.FC = () => {
         borderRadius: 8,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 13, color: C.textMid }}>共 {history.length} 条 · 第 {historyPage}/{totalHistoryPages} 页</span>
+          <span style={{ fontSize: 13, color: C.textMid }}>{t('dicomPrint.pagination', { total: history.length, page: historyPage, pages: totalHistoryPages })}</span>
           <div style={{ display: 'flex', gap: 4 }}>
             <button disabled={historyPage <= 1} onClick={() => setHistoryPage(p => Math.max(1, p - 1))} style={{
               padding: '6px 12px',
@@ -998,7 +999,7 @@ const DicomPrintPage: React.FC = () => {
               color: historyPage <= 1 ? C.textLight : C.textMid,
               cursor: historyPage <= 1 ? 'not-allowed' : 'pointer',
             }}>
-              上一页
+              {t('dicomPrint.prevPage')}
             </button>
             <button disabled={historyPage >= totalHistoryPages} onClick={() => setHistoryPage(p => Math.min(totalHistoryPages, p + 1))} style={{
               padding: '6px 12px',
@@ -1009,7 +1010,7 @@ const DicomPrintPage: React.FC = () => {
               color: historyPage >= totalHistoryPages ? C.textLight : C.textMid,
               cursor: historyPage >= totalHistoryPages ? 'not-allowed' : 'pointer',
             }}>
-              下一页
+              {t('dicomPrint.nextPage')}
             </button>
           </div>
         </div>

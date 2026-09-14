@@ -17,6 +17,7 @@ import { AppEmpty } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePagination } from "@/hooks/usePagination";
 import { eyeApi } from "@/services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 const ACCEPTANCE_TREND_DATA = [
   { day: '周一', rate: 65, target: 80 },
@@ -130,7 +131,7 @@ const EyeAiPage: React.FC = () => {
 
   // [G005 Wave1B] 运行推理: POST /eye/ai/inferences (runInference)
   const handleRunInference = async () => {
-    if (!inferModal.studyId.trim()) { message.warning('请填写检查 ID (studyId)'); return; }
+    if (!inferModal.studyId.trim()) { message.warning(t('eyeAi.studyIdRequired')); return; }
     setInferModal(prev => ({ ...prev, running: true }));
     try {
       const res = await eyeApi.runInference({ studyId: inferModal.studyId.trim(), modelId: inferModal.modelId });
@@ -140,11 +141,11 @@ const EyeAiPage: React.FC = () => {
         const diagRes = await eyeApi.listInferences();
         if (diagRes.success && Array.isArray(diagRes.data)) setAiDiagnoses(diagRes.data);
       } else {
-        message.error(res.error?.message ?? '推理失败');
+        message.error(res.error?.message ?? t('eyeAi.inferenceFailed'));
         setInferModal(prev => ({ ...prev, running: false }));
       }
     } catch (e: any) {
-      message.error(e?.message ?? '推理失败, 服务不可用');
+      message.error(e?.message ?? t('eyeAi.inferenceFailedUnavailable'));
       setInferModal(prev => ({ ...prev, running: false }));
     }
   };
@@ -205,15 +206,15 @@ const EyeAiPage: React.FC = () => {
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-ai-page">
       <PageHeader
-        title="AI 辅助诊断中心"
+        title={t('eyeAi.title')}
         icon={<Brain size={24} color="#8b5cf6" />}
         variant="inline"
         actions={
           <>
-            <Tag color="purple">{totalDiag} 条诊断</Tag>
-            <Tag color="warning">{Math.max(pendingDiag.length, pendingInferenceCount)} 待审核</Tag>
-            <Tag color="green">{acceptedDiag.length} 已采纳</Tag>
-            <Tag color="cyan">热图 {heatmapCount}</Tag>
+            <Tag color="purple">{t('eyeAi.diagCount', { count: totalDiag })}</Tag>
+            <Tag color="warning">{t('eyeAi.pendingReview', { count: Math.max(pendingDiag.length, pendingInferenceCount) })}</Tag>
+            <Tag color="green">{t('eyeAi.acceptedCount', { count: acceptedDiag.length })}</Tag>
+            <Tag color="cyan">{t('eyeAi.heatmapCount', { count: heatmapCount })}</Tag>
           </>
         }
       />
@@ -222,7 +223,7 @@ const EyeAiPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="AI 模型数"
+              title={t('eyeAi.modelCount')}
               value={aiModels.length}
               prefix={<Brain size={18} color="#8b5cf6" />}
             />
@@ -231,7 +232,7 @@ const EyeAiPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="已诊断检查"
+              title={t('eyeAi.diagnosedStudies')}
               value={totalDiag}
               prefix={<Activity size={18} color="#2563eb" />}
             />
@@ -240,7 +241,7 @@ const EyeAiPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="阳性发现"
+              title={t('eyeAi.positiveFindings')}
               value={
                 aiDiagnoses.filter((d) => d.severity !== "none").length
               }
@@ -251,7 +252,7 @@ const EyeAiPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="AI 采纳率"
+              title={t('eyeAi.acceptanceRate')}
               value={acceptanceRate}
               suffix="%"
               prefix={<CheckCircle size={18} color="#22c55e" />}
@@ -272,7 +273,7 @@ const EyeAiPage: React.FC = () => {
                   title={`待审核 ${pendingDiag.length}`}
                   style={{ backgroundColor: "#f59e0b" }}
                 />
-                <Tag color="purple">{totalDiag} 总</Tag>
+                <Tag color="purple">{t('eyeAi.totalCount', { count: totalDiag })}</Tag>
               </Space>
             }
             items={[
@@ -286,7 +287,7 @@ const EyeAiPage: React.FC = () => {
                         size="small"
                         title={
                           <>
-                            <Clock size={14} /> 待审核诊断 ({pendingDiag.length}
+                            <Clock size={14} /> {t('eyeAi.pendingDiagnoses')} ({pendingDiag.length}
                             )
                           </>
                         }
@@ -294,7 +295,7 @@ const EyeAiPage: React.FC = () => {
                         {pendingDiag.length === 0 ? (
                           <AppEmpty
                             variant="no-data"
-                            description="全部已审核"
+                            description={t('eyeAi.allReviewed')}
                             minHeight={isNarrow ? 120 : 160}
                           />
                         ) : (
@@ -309,7 +310,7 @@ const EyeAiPage: React.FC = () => {
                         size="small"
                         title={
                           <>
-                            <CheckCircle size={14} /> 已审核诊断
+                            <CheckCircle size={14} /> {t('eyeAi.reviewedDiagnoses')}
                           </>
                         }
                       >
@@ -332,20 +333,20 @@ const EyeAiPage: React.FC = () => {
                     pagination={modelsPagination.pagination}
                     columns={[
                       {
-                        title: "模型名称",
+                        title: t('eyeAi.colModelName'),
                         dataIndex: "name",
                         key: "name",
                         width: 140,
                       },
                       {
-                        title: "厂商",
+                        title: t('eyeAi.colVendor'),
                         dataIndex: "vendor",
                         key: "vendor",
                         width: 100,
                         render: (v: string) => <Tag>{MODALITY_LABELS[v] || v}</Tag>,
                       },
                       {
-                        title: "诊断病种",
+                        title: t('eyeAi.colConditions'),
                         dataIndex: "conditions",
                         key: "conditions",
                         width: 200,
@@ -357,7 +358,7 @@ const EyeAiPage: React.FC = () => {
                           )),
                       },
                       {
-                        title: "准确率",
+                        title: t('eyeAi.colAccuracy'),
                         dataIndex: "accuracy",
                         key: "accuracy",
                         width: 80,
@@ -370,21 +371,21 @@ const EyeAiPage: React.FC = () => {
                         ),
                       },
                       {
-                        title: "敏感度",
+                        title: t('eyeAi.colSensitivity'),
                         dataIndex: "sensitivity",
                         key: "sensitivity",
                         width: 70,
                         render: (v: number) => `${(v * 100).toFixed(1)}%`,
                       },
                       {
-                        title: "特异度",
+                        title: t('eyeAi.colSpecificity'),
                         dataIndex: "specificity",
                         key: "specificity",
                         width: 70,
                         render: (v: number) => `${(v * 100).toFixed(1)}%`,
                       },
                       {
-                        title: "审批",
+                        title: t('eyeAi.colApproval'),
                         key: "approval",
                         width: 80,
                         render: () => (
@@ -398,7 +399,7 @@ const EyeAiPage: React.FC = () => {
                         ),
                       },
                       {
-                        title: "操作",
+                        title: t('eyeAi.colActions'),
                         key: "actions",
                         width: 100,
                         render: (_: unknown, m: any) => (
@@ -406,9 +407,9 @@ const EyeAiPage: React.FC = () => {
                             size="small"
                             type="primary"
                             icon={<PlayCircle size={12} />}
-                            onClick={() => setInferModal({ open: true, modelId: String(m.id ?? m.modelId ?? ''), modelName: String(m.name ?? m.id ?? '模型'), studyId: 'ST001', running: false })}
+                            onClick={() => setInferModal({ open: true, modelId: String(m.id ?? m.modelId ?? ''), modelName: String(m.name ?? m.id ?? t('eyeAi.defaultModel')), studyId: 'ST001', running: false })}
                           >
-                            运行推理
+                            {t('eyeAi.runInference')}
                           </Button>
                         ),
                       },
@@ -419,11 +420,11 @@ const EyeAiPage: React.FC = () => {
               },
               {
                 key: "stats",
-                label: "AI 统计",
+                label: t('eyeAi.tabStats'),
                 children: (
                   <Row gutter={12}>
                     <Col span={8}>
-                      <Card size="small" title={<span>各病种AI诊断分布 <Tag color={distSource === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }}>{distSource === 'api' ? 'API' : '演示'}</Tag></span>}>
+                      <Card size="small" title={<span>{t('eyeAi.diseaseDistributionTitle')} <Tag color={distSource === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }}>{distSource === 'api' ? 'API' : t('eyeAi.demo')}</Tag></span>}>
                         <Table
                           size="small"
                           scroll={{ x: 'max-content' }}
@@ -431,15 +432,15 @@ const EyeAiPage: React.FC = () => {
                           dataSource={distPagination.pageData}
                           rowKey="condition"
                           columns={[
-                            { title: "病种", dataIndex: "condition" },
-                            { title: "诊断数", dataIndex: "count" },
+                            { title: t('eyeAi.colDisease'), dataIndex: "condition" },
+                            { title: t('eyeAi.colDiagCount'), dataIndex: "count" },
                           ]}
                         />
                       </Card>
                     </Col>
                     <Col span={8}>
-                      <Card size="small" title="AI 采纳率趋势">
-                        <ChartContainer height={180} state={acceptanceTrendData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+                      <Card size="small" title={t('eyeAi.acceptanceTrend')}>
+                          <ChartContainer height={180} state={acceptanceTrendData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('eyeAi.noData')}>
                             <LineChart
                               data={acceptanceTrendData}
                               margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
@@ -462,12 +463,12 @@ const EyeAiPage: React.FC = () => {
                                   borderRadius: 6,
                                   border: "1px solid var(--border-color)",
                                 }}
-                                formatter={(v: number) => [`${v}%`, "采纳率"]}
+                                formatter={(v: number) => [`${v}%`, t('eyeAi.acceptanceRate')]}
                               />
                               <Line
                                 type="monotone"
                                 dataKey="rate"
-                                name="采纳率"
+                                name={t('eyeAi.acceptanceRate')}
                                 stroke="#8b5cf6"
                                 strokeWidth={2}
                                 dot={{ r: 3, fill: "#8b5cf6" }}
@@ -476,7 +477,7 @@ const EyeAiPage: React.FC = () => {
                               <Line
                                 type="monotone"
                                 dataKey="target"
-                                name="目标"
+                                name={t('eyeAi.target')}
                                 stroke="#94a3b8"
                                 strokeDasharray="4 4"
                                 strokeWidth={1.5}
@@ -487,8 +488,8 @@ const EyeAiPage: React.FC = () => {
                       </Card>
                     </Col>
                     <Col span={8}>
-                      <Card size="small" title={<span>模型表现对比 (ROC) {rocMeta && <Tag color="green" style={{ fontSize: 10 }}>API AUC {rocMeta.auc.toFixed(3)}</Tag>}</span>}>
-                        <ChartContainer height={180} state={ROC_CURVE_DATA.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+                      <Card size="small" title={<span>{t('eyeAi.rocComparison')} {rocMeta && <Tag color="green" style={{ fontSize: 10 }}>API AUC {rocMeta.auc.toFixed(3)}</Tag>}</span>}>
+                          <ChartContainer height={180} state={ROC_CURVE_DATA.length > 0 ? 'ready' : 'empty'} emptyDescription={t('eyeAi.noData')}>
                             <LineChart
                               data={ROC_CURVE_DATA}
                               margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
@@ -518,7 +519,7 @@ const EyeAiPage: React.FC = () => {
                               <Line
                                 type="monotone"
                                 dataKey="auc_dr"
-                                name="DR 分级"
+                                name={t('eyeAi.drGrade')}
                                 stroke="#2563eb"
                                 strokeWidth={2}
                                 dot={false}
@@ -526,7 +527,7 @@ const EyeAiPage: React.FC = () => {
                               <Line
                                 type="monotone"
                                 dataKey="auc_glaucoma"
-                                name="青光眼"
+                                name={t('eyeAi.glaucoma')}
                                 stroke="#10b981"
                                 strokeWidth={2}
                                 dot={false}
@@ -542,7 +543,7 @@ const EyeAiPage: React.FC = () => {
                               <Line
                                 type="monotone"
                                 dataKey="random"
-                                name="随机"
+                                name={t('eyeAi.random')}
                                 stroke="#94a3b8"
                                 strokeDasharray="4 4"
                                 strokeWidth={1}
@@ -566,19 +567,19 @@ const EyeAiPage: React.FC = () => {
         open={inferModal.open}
         onCancel={() => setInferModal(prev => ({ ...prev, open: false, running: false }))}
         onOk={() => void handleRunInference()}
-        okText="开始推理"
+        okText={t('eyeAi.startInference')}
         confirmLoading={inferModal.running}
         width={420}
       >
         <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>检查 ID (studyId)</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t('eyeAi.studyIdLabel')}</div>
           <Input
             value={inferModal.studyId}
             onChange={e => setInferModal(prev => ({ ...prev, studyId: e.target.value }))}
-            placeholder="如: ST001"
+            placeholder={t('eyeAi.studyIdPlaceholder')}
           />
           <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8 }}>
-            模型: <Tag color="purple">{inferModal.modelId}</Tag> · 推理结果将写入诊断列表
+            {t('eyeAi.modelPrefix')} <Tag color="purple">{inferModal.modelId}</Tag> · {t('eyeAi.inferenceResultHint')}
           </div>
         </div>
       </Modal>

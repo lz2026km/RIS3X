@@ -1678,7 +1678,7 @@ export default function DevicePage() {
         <div style={{ display: 'flex', gap: 16, marginTop: 12, padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
           <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.avgRoi')}<strong style={{ color: C.success }}>{ROI_DEVICE_DATA.reduce((s, d) => s + (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)) / d.purchaseCost * 100, 0) / ROI_DEVICE_DATA.length}%</strong></span>
           <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.shortestPayback')}<strong style={{ color: C.info }}>{t('devicePage.yearsSuffix', { count: Math.min(...ROI_DEVICE_DATA.filter(d => d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2) > 0).map(d => d.purchaseCost / (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)))).toFixed(1) })}</strong></span>
-          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.totalInvestment')}<strong style={{ color: C.textDark }}>¥{(ROI_DEVICE_DATA.reduce((s, d) => s + d.purchaseCost, 0) / 100000000).toFixed(2)}亿</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.totalInvestment')}<strong style={{ color: C.textDark }}>¥{(ROI_DEVICE_DATA.reduce((s, d) => s + d.purchaseCost, 0) / 100000000).toFixed(2)}{t('devicePage.unitYi')}</strong></span>
         </div>
       </div>
     </div>

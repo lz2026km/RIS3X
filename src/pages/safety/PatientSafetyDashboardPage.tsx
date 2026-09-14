@@ -12,19 +12,20 @@ import {
 import { Shield, AlertTriangle, Activity, Heart, RefreshCw } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const SEVERITY_LABELS: Record<string, string> = {
-  'near-miss': '未遂事件', minor: '轻微', moderate: '中度', severe: '严重', catastrophic: '灾难性',
+  'near-miss': t('psd.sev.nearMiss'), minor: t('psd.sev.minor'), moderate: t('psd.sev.moderate'), severe: t('psd.sev.severe'), catastrophic: t('psd.sev.catastrophic'),
 }
 const STATUS_LABELS: Record<string, string> = {
-  reported: '已上报', investigating: '调查中', resolved: '已解决', closed: '已关闭',
+  reported: t('psd.status.reported'), investigating: t('psd.status.investigating'), resolved: t('psd.status.resolved'), closed: t('psd.status.closed'),
 }
 const RISK_LEVEL_META: Record<string, { color: string; label: string }> = {
-  'very-high': { color: '#dc2626', label: '极高' },
-  high: { color: '#f59e0b', label: '高' },
-  medium: { color: '#3b82f6', label: '中' },
-  low: { color: '#10b981', label: '低' },
-  'very-low': { color: '#94a3b8', label: '极低' },
+  'very-high': { color: '#dc2626', label: t('psd.risk.veryHigh') },
+  high: { color: '#f59e0b', label: t('psd.risk.high') },
+  medium: { color: '#3b82f6', label: t('psd.risk.medium') },
+  low: { color: '#10b981', label: t('psd.risk.low') },
+  'very-low': { color: '#94a3b8', label: t('psd.risk.veryLow') },
 }
 
 const PatientSafetyDashboardPage: React.FC = () => {
@@ -48,7 +49,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
       setRisks(riskRes ?? [])
       setTrend(Array.isArray(trendData) ? trendData : [])
     } catch (e) {
-      setError(e instanceof Error ? e.message : '安全数据加载失败')
+      setError(e instanceof Error ? e.message : t('psd.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -84,34 +85,34 @@ const PatientSafetyDashboardPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Shield size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>患者安全与质量仪表板</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('psd.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
-        <Tag color="red" icon={<AlertTriangle size={10} />}>实时</Tag>
+        <Tag color="red" icon={<AlertTriangle size={10} />}>{t('psd.realtime')}</Tag>
         <Segmented value={range} onChange={setRange as any}
-          options={[{ value: 'today', label: '今日' }, { value: 'week', label: '近周' }, { value: 'month', label: '近月' }]} />
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+          options={[{ value: 'today', label: t('psd.range.today') }, { value: 'week', label: t('psd.range.week') }, { value: 'month', label: t('psd.range.month') }]} />
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('psd.refresh')}</Button>
       </Space>
 
       {error && (
-        <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="error" showIcon message={t('psd.loadError')} description={error} style={{ marginBottom: 16 }}
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('psd.retry')}</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="安全评分" value={loading ? 0 : safetyScore} suffix="/100" prefix={<Shield size={14} />} loading={loading} styles={{ content: { color: safetyScore >= 90 ? '#52c41a' : '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="未关闭事件" value={openCount} loading={loading} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已关闭" value={closedCount} loading={loading} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="高风险项" value={highRiskCount} loading={loading} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" prefix={<Shield size={14} />} loading={loading} styles={{ content: { color: safetyScore >= 90 ? '#52c41a' : '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiOpen')} value={openCount} loading={loading} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiClosed')} value={closedCount} loading={loading} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
       </Row>
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
         <Col xs={24} lg={16}>
-          <Card size="small" title={<Space><Activity size={14} />不良事件分布与趋势</Space>} loading={loading}>
+          <Card size="small" title={<Space><Activity size={14} />{t('psd.distTrend')}</Space>} loading={loading}>
             <Tabs
               items={[
                 {
                   key: 'severity',
-                  label: '严重程度',
+                  label: t('psd.tabSeverity'),
                   children: (
                     <Row gutter={[8, 8]}>
                       {severityDist(events).map((s) => (
@@ -128,7 +129,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                 },
                 {
                   key: 'category',
-                  label: '事件类别',
+                  label: t('psd.tabCategory'),
                   children: (
                     <Row gutter={[8, 8]}>
                       {categoryDist(events).map((c) => (
@@ -145,7 +146,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                 },
                 {
                   key: 'trend',
-                  label: '月度趋势',
+                  label: t('psd.tabTrend'),
                   children: (
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 120, paddingTop: 12 }}>
                       {trendWindow.map((t) => (
@@ -155,7 +156,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                           <span style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>{t.period}</span>
                         </div>
                       ))}
-                      {trendWindow.length === 0 && <Empty description="暂无趋势数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+                      {trendWindow.length === 0 && <Empty description={t('psd.noTrend')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
                     </div>
                   ),
                 },
@@ -165,7 +166,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
         </Col>
 
         <Col xs={24} lg={8}>
-          <Card size="small" title={<Space><AlertTriangle size={14} />高风险项 (RPN)</Space>} loading={loading} style={{ marginBottom: 12 }}>
+          <Card size="small" title={<Space><AlertTriangle size={14} />{t('psd.highRiskRpn')}</Space>} loading={loading} style={{ marginBottom: 12 }}>
             {risks.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
               <List
                 size="small"
@@ -190,18 +191,18 @@ const PatientSafetyDashboardPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card size="small" title={<Space><Heart size={14} />最新安全事件</Space>} loading={loading}>
-        {events.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无安全事件" /> : (
+      <Card size="small" title={<Space><Heart size={14} />{t('psd.latestEvents')}</Space>} loading={loading}>
+        {events.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('psd.noEvents')} /> : (
           <Table
             dataSource={events.slice(0, 10)} rowKey="id" pagination={false} size="small"
             columns={[
-              { title: '时间', dataIndex: 'reportedAt', width: 150, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
-              { title: '类型', dataIndex: 'eventType', render: (v: string) => <Tag color="blue">{CATEGORY_LABELS[v] ?? v}</Tag> },
-              { title: '患者', dataIndex: 'patientName', width: 110, render: (v?: string) => v ?? '-' },
-              { title: '严重程度', dataIndex: 'severity', width: 100, render: (v: string) => <Tag color={v === 'severe' || v === 'catastrophic' ? 'red' : v === 'moderate' ? 'orange' : 'blue'}>{SEVERITY_LABELS[v] ?? v}</Tag> },
-              { title: '科室', dataIndex: 'department', width: 100 },
-              { title: '描述', dataIndex: 'description', ellipsis: true },
-              { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Badge status={v === 'closed' ? 'success' : v === 'investigating' ? 'processing' : 'warning'} text={STATUS_LABELS[v] ?? v} /> },
+              { title: t('psd.colTime'), dataIndex: 'reportedAt', width: 150, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
+              { title: t('psd.colType'), dataIndex: 'eventType', render: (v: string) => <Tag color="blue">{CATEGORY_LABELS[v] ?? v}</Tag> },
+              { title: t('psd.colPatient'), dataIndex: 'patientName', width: 110, render: (v?: string) => v ?? '-' },
+              { title: t('psd.tabSeverity'), dataIndex: 'severity', width: 100, render: (v: string) => <Tag color={v === 'severe' || v === 'catastrophic' ? 'red' : v === 'moderate' ? 'orange' : 'blue'}>{SEVERITY_LABELS[v] ?? v}</Tag> },
+              { title: t('psd.colDepartment'), dataIndex: 'department', width: 100 },
+              { title: t('psd.colDescription'), dataIndex: 'description', ellipsis: true },
+              { title: t('psd.colStatus'), dataIndex: 'status', width: 90, render: (v: string) => <Badge status={v === 'closed' ? 'success' : v === 'investigating' ? 'processing' : 'warning'} text={STATUS_LABELS[v] ?? v} /> },
             ]}
           scroll={{ x: 'max-content' }}
           />
@@ -212,9 +213,9 @@ const PatientSafetyDashboardPage: React.FC = () => {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  'medication-error': '用药错误', 'patient-identification': '患者身份识别', 'contrast-reaction': '对比剂反应',
-  'radiation-overdose': '辐射过量', fall: '跌倒', 'specimen-error': '标本错误', 'communication-failure': '沟通失败',
-  'equipment-malfunction': '设备故障', 'information-loss': '信息丢失', other: '其他',
+  'medication-error': t('psd.cat.medicationError'), 'patient-identification': t('psd.cat.patientId'), 'contrast-reaction': t('psd.cat.contrastReaction'),
+  'radiation-overdose': t('psd.cat.radiationOverdose'), fall: t('psd.cat.fall'), 'specimen-error': t('psd.cat.specimenError'), 'communication-failure': t('psd.cat.communicationFailure'),
+  'equipment-malfunction': t('psd.cat.equipmentMalfunction'), 'information-loss': t('psd.cat.informationLoss'), other: t('psd.cat.other'),
 }
 
 export default PatientSafetyDashboardPage

@@ -28,17 +28,18 @@ import {
   type RadPathStats,
 } from "../../services/api/radpathApi";
 import { message } from "antd";
+import { t } from "../../i18n/appI18n";
 
 const consistencyColor: Record<string, string> = {
   concordant: "#10b981",
   discordant: "#ef4444",
   pending: "#94a3b8",
 };
-const consistencyLabel: Record<string, string> = {
-  concordant: "一致",
-  discordant: "不一致",
-  pending: "待审",
-};
+const consistencyLabel = (c: string): string => ({
+  concordant: t('radPath.concordant'),
+  discordant: t('radPath.discordant'),
+  pending: t('radPath.pending'),
+}[c] ?? c);
 
 const RadPathPage: React.FC = () => {
   const [records, setRecords] = useState<RadPathRecord[]>([]);
@@ -86,7 +87,7 @@ const RadPathPage: React.FC = () => {
     try {
       const res = await radPathApi.matchReport(matchReportId, matchPathologyId);
       if (res.success) {
-        message.success("匹配成功");
+        message.success(t('radPath.matchSuccess'));
         setShowMatchModal(false);
         fetchRecords();
       }
@@ -104,7 +105,7 @@ const RadPathPage: React.FC = () => {
 
   const columns = [
     {
-      title: "报告ID",
+      title: t('radPath.colReportId'),
       dataIndex: "reportId",
       key: "reportId",
       render: (id: string) => (
@@ -112,7 +113,7 @@ const RadPathPage: React.FC = () => {
       ),
     },
     {
-      title: "病理ID",
+      title: t('radPath.colPathologyId'),
       dataIndex: "pathologyId",
       key: "pathologyId",
       render: (id: string) => (
@@ -120,12 +121,12 @@ const RadPathPage: React.FC = () => {
       ),
     },
     {
-      title: "患者",
+      title: t('radPath.colPatient'),
       key: "patient",
       render: (_: unknown, r: RadPathRecord) => r.report.patient.name,
     },
     {
-      title: "检查",
+      title: t('radPath.colExam'),
       key: "exam",
       render: (_: unknown, r: RadPathRecord) =>
         r.report.exam
@@ -133,15 +134,15 @@ const RadPathPage: React.FC = () => {
           : "-",
     },
     {
-      title: "一致性",
+      title: t('radPath.colConsistency'),
       dataIndex: "consistency",
       key: "consistency",
       render: (c: string) => (
-        <Tag color={consistencyColor[c]}>{consistencyLabel[c]}</Tag>
+        <Tag color={consistencyColor[c]}>{consistencyLabel(c)}</Tag>
       ),
     },
     {
-      title: "操作",
+      title: t('radPath.colActions'),
       key: "actions",
       render: (_: unknown, r: RadPathRecord) => (
         <Button
@@ -151,7 +152,7 @@ const RadPathPage: React.FC = () => {
             setShowDetail(true);
           }}
         >
-          详情
+          {t('radPath.detail')}
         </Button>
       ),
     },
@@ -168,14 +169,14 @@ const RadPathPage: React.FC = () => {
         }}
       >
         <Activity size={20} color="#8b5cf6" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Rad-Path 放射-病理联动</h1>
-        <Tag color="purple">影像病理对照</Tag>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('radPath.title')}</h1>
+        <Tag color="purple">{t('radPath.radPathTag')}</Tag>
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="总对照数"
+              title={t('radPath.totalComparisons')}
               value={stats?.total ?? records.length}
               prefix={<FileText size={16} />}
             />
@@ -184,7 +185,7 @@ const RadPathPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="一致"
+              title={t('radPath.concordant')}
               value={stats?.concordant ?? 0}
               styles={{ content: {  color: "#52c41a"  } }}
               prefix={<CheckCircle2 size={16} />}
@@ -194,7 +195,7 @@ const RadPathPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="不一致"
+              title={t('radPath.discordant')}
               value={stats?.discordant ?? 0}
               styles={{ content: {  color: "#ff4d4f"  } }}
               prefix={<XCircle size={16} />}
@@ -204,7 +205,7 @@ const RadPathPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="一致率"
+              title={t('radPath.consistencyRate')}
               value={stats?.positiveConsistency ?? 0}
               suffix="%"
               prefix={<TrendingUp size={16} />}
@@ -216,7 +217,7 @@ const RadPathPage: React.FC = () => {
         extra={
           <Space>
             <Input
-              placeholder="搜索"
+              placeholder={t('radPath.search')}
               prefix={<Search size={14} />}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -227,7 +228,7 @@ const RadPathPage: React.FC = () => {
               icon={<Plus size={14} />}
               onClick={() => setShowMatchModal(true)}
             >
-              手动匹配
+              {t('radPath.manualMatch')}
             </Button>
             <Button
               icon={<RefreshCw size={14} />}
@@ -236,7 +237,7 @@ const RadPathPage: React.FC = () => {
                 fetchStats();
               }}
             >
-              刷新
+              {t('radPath.refresh')}
             </Button>
           </Space>
         }
@@ -246,13 +247,13 @@ const RadPathPage: React.FC = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ current: recordPage, pageSize: 10, total: filteredRecords.length, onChange: setRecordPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
+          pagination={{ current: recordPage, pageSize: 10, total: filteredRecords.length, onChange: setRecordPage, showSizeChanger: false, showTotal: (total) => t('radPath.totalItems', { count: total }) }}
           size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>
       <Modal
-        title="Rad-Path 对照详情"
+        title={t('radPath.detailTitle')}
         open={showDetail}
         onCancel={() => {
           setShowDetail(false);
@@ -269,28 +270,28 @@ const RadPathPage: React.FC = () => {
               size="small"
               style={{ marginBottom: 16 }}
             >
-              <Descriptions.Item label="报告ID">
+              <Descriptions.Item label={t('radPath.colReportId')}>
                 {selectedRecord.reportId}
               </Descriptions.Item>
-              <Descriptions.Item label="病理ID">
+              <Descriptions.Item label={t('radPath.colPathologyId')}>
                 {selectedRecord.pathologyId}
               </Descriptions.Item>
-              <Descriptions.Item label="一致性">
+              <Descriptions.Item label={t('radPath.colConsistency')}>
                 <Tag color={consistencyColor[selectedRecord.consistency]}>
-                  {consistencyLabel[selectedRecord.consistency]}
+                  {consistencyLabel(selectedRecord.consistency)}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="创建时间">
+              <Descriptions.Item label={t('radPath.createdAt')}>
                 {new Date(selectedRecord.createdAt).toLocaleString("zh-CN")}
               </Descriptions.Item>
             </Descriptions>
             <Row gutter={16}>
               <Col span={12}>
-                <Card size="small" title="影像报告">
+                <Card size="small" title={t('radPath.imagingReport')}>
                   <div
                     style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}
                   >
-                    所见
+                    {t('radPath.findings')}
                   </div>
                   <div
                     style={{
@@ -311,7 +312,7 @@ const RadPathPage: React.FC = () => {
                       margin: "12px 0 4px",
                     }}
                   >
-                    结论
+                    {t('radPath.conclusion')}
                   </div>
                   <div
                     style={{
@@ -326,11 +327,11 @@ const RadPathPage: React.FC = () => {
                 </Card>
               </Col>
               <Col span={12}>
-                <Card size="small" title="病理报告">
+                <Card size="small" title={t('radPath.pathologyReport')}>
                   <div
                     style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}
                   >
-                    病理结果
+                    {t('radPath.pathResult')}
                   </div>
                   <div
                     style={{
@@ -350,7 +351,7 @@ const RadPathPage: React.FC = () => {
         )}
       </Modal>
       <Modal
-        title="手动匹配"
+        title={t('radPath.manualMatch')}
         open={showMatchModal}
         onOk={handleMatch}
         onCancel={() => {
@@ -360,19 +361,19 @@ const RadPathPage: React.FC = () => {
         }}
       >
         <div style={{ marginBottom: 16 }}>
-          <div style={{ marginBottom: 8 }}>报告ID</div>
+          <div style={{ marginBottom: 8 }}>{t('radPath.colReportId')}</div>
           <Input
             value={matchReportId}
             onChange={(e) => setMatchReportId(e.target.value)}
-            placeholder="输入影像报告ID"
+            placeholder={t('radPath.reportIdPlaceholder')}
           />
         </div>
         <div>
-          <div style={{ marginBottom: 8 }}>病理ID</div>
+          <div style={{ marginBottom: 8 }}>{t('radPath.colPathologyId')}</div>
           <Input
             value={matchPathologyId}
             onChange={(e) => setMatchPathologyId(e.target.value)}
-            placeholder="输入病理报告ID"
+            placeholder={t('radPath.pathologyIdPlaceholder')}
           />
         </div>
       </Modal>

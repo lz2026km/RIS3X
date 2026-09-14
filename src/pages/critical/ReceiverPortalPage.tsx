@@ -11,6 +11,7 @@ import { criticalExtApi } from '../../services/api/criticalExtApi'
 import { criticalApi } from '../../services/api/criticalApi'
 import { invalidateApiCache } from '../../services/api/client'
 import { usePagination } from '../../hooks/usePagination'
+import { t } from '../../i18n/appI18n'
 
 const { TextArea } = Input
 
@@ -53,12 +54,12 @@ export default function ReceiverPortalPage() {
           setLoadError(null)
         } else {
           setItems([])
-          setLoadError(res.error?.message ?? '加载失败')
+          setLoadError(res.error?.message ?? t('receiverPortal.loadFailed'))
         }
       })
       .catch((err: Error) => {
         setItems([])
-        setLoadError(err?.message ?? '网络错误')
+        setLoadError(err?.message ?? t('receiverPortal.networkError'))
       })
       .finally(() => setLoading(false))
   }, [])
@@ -75,10 +76,10 @@ export default function ReceiverPortalPage() {
             : ((res.data as { items?: unknown[] } | null)?.items ?? [])
           setItems(list as ReceiverItem[])
         } else {
-          setLoadError(res.error?.message ?? '加载失败')
+          setLoadError(res.error?.message ?? t('receiverPortal.loadFailed'))
         }
       })
-      .catch((err: Error) => { if (!cancelled) setLoadError(err?.message ?? '网络错误') })
+      .catch((err: Error) => { if (!cancelled) setLoadError(err?.message ?? t('receiverPortal.networkError')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [])
@@ -96,13 +97,13 @@ export default function ReceiverPortalPage() {
     try {
       const res = await criticalApi.acknowledge(String(id))
       if (res.success) {
-        message.success(`已确认接收: ${item.patientName ?? id}`)
+        message.success(t('receiverPortal.acknowledged', { name: item.patientName ?? id }))
         await refresh()
       } else {
-        message.error(res.error?.message ?? '确认失败')
+        message.error(res.error?.message ?? t('receiverPortal.ackFailed'))
       }
     } catch (err) {
-      message.error((err as Error)?.message ?? '确认失败')
+      message.error((err as Error)?.message ?? t('receiverPortal.ackFailed'))
     }
     setActing(false)
   }
@@ -118,43 +119,43 @@ export default function ReceiverPortalPage() {
     const item = receiptItem
     const id = item?.id ?? item?.criticalId
     if (!id) return
-    if (!receiptDoctor.trim()) { message.warning('请输入确认医生姓名'); return }
+    if (!receiptDoctor.trim()) { message.warning(t('receiverPortal.doctorRequired')); return }
     setActing(true)
     try {
       const res = await criticalApi.clinicalReceipt(String(id), { confirmedBy: receiptDoctor.trim(), comment: receiptComment.trim() })
       if (res.success) {
-        message.success('临床回执已提交')
+        message.success(t('receiverPortal.receiptSubmitted'))
         setReceiptItem(null)
         await refresh()
       } else {
-        message.error(res.error?.message ?? '回执失败')
+        message.error(res.error?.message ?? t('receiverPortal.receiptFailed'))
       }
     } catch (err) {
-      message.error((err as Error)?.message ?? '回执失败')
+      message.error((err as Error)?.message ?? t('receiverPortal.receiptFailed'))
     }
     setActing(false)
   }
 
   const columns = [
     {
-      title: '患者',
+      title: t('receiverPortal.colPatient'),
       dataIndex: 'patientName',
       key: 'patientName',
       render: (v: string, r: ReceiverItem) => (
         <div>
-          <div style={{ fontWeight: 600 }}>{v ?? '未知患者'}</div>
+          <div style={{ fontWeight: 600 }}>{v ?? t('receiverPortal.unknownPatient')}</div>
           {r.patientId && <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.patientId}</div>}
         </div>
       ),
     },
     {
-      title: '危急发现',
+      title: t('receiverPortal.colFinding'),
       dataIndex: 'finding',
       key: 'finding',
       render: (v: string) => (v ? <span style={{ fontWeight: 600, color: '#dc2626' }}>{v}</span> : '-'),
     },
     {
-      title: '严重度',
+      title: t('receiverPortal.colSeverity'),
       dataIndex: 'severity',
       key: 'severity',
       render: (v: string) => (
@@ -162,7 +163,7 @@ export default function ReceiverPortalPage() {
       ),
     },
     {
-      title: '接收人',
+      title: t('receiverPortal.colReceiver'),
       key: 'receiver',
       render: (_: unknown, r: ReceiverItem) => (
         <div>
@@ -172,13 +173,13 @@ export default function ReceiverPortalPage() {
       ),
     },
     {
-      title: '触发时间',
+      title: t('receiverPortal.colTriggeredAt'),
       dataIndex: 'triggeredAt',
       key: 'triggeredAt',
       render: (v: string, r: ReceiverItem) => String(v ?? r.notifiedAt ?? r.createdAt ?? '-').replace('T', ' ').slice(0, 19),
     },
     {
-      title: '状态',
+      title: t('receiverPortal.colStatus'),
       dataIndex: 'status',
       key: 'status',
       render: (v: string) => {
@@ -187,19 +188,19 @@ export default function ReceiverPortalPage() {
       },
     },
     {
-      title: '操作',
+      title: t('receiverPortal.colActions'),
       key: 'actions',
       render: (_: unknown, r: ReceiverItem) => {
         const st = String(r.status ?? 'PENDING').toUpperCase()
         return (
           <div style={{ display: 'flex', gap: 6 }}>
             {st !== 'ACKNOWLEDGED' && st !== 'RECEIPTED' && st !== 'RESOLVED' && (
-              <Button size="small" type="primary" icon={<CheckCircle size={12} />} loading={acting} onClick={() => void handleAcknowledge(r)}>确认接收</Button>
+              <Button size="small" type="primary" icon={<CheckCircle size={12} />} loading={acting} onClick={() => void handleAcknowledge(r)}>{t('receiverPortal.acknowledge')}</Button>
             )}
             {(st === 'ACKNOWLEDGED' || st === 'RECEIPTED') && (
-              <Button size="small" type="primary" icon={<FileCheck size={12} />} loading={acting} onClick={() => openReceipt(r)}>临床回执</Button>
+              <Button size="small" type="primary" icon={<FileCheck size={12} />} loading={acting} onClick={() => openReceipt(r)}>{t('receiverPortal.clinicalReceipt')}</Button>
             )}
-            {st === 'RESOLVED' || st === 'CLOSED_LOOP' ? <Tag color="green">已完成</Tag> : null}
+            {st === 'RESOLVED' || st === 'CLOSED_LOOP' ? <Tag color="green">{t('receiverPortal.completed')}</Tag> : null}
           </div>
         )
       },
@@ -215,23 +216,23 @@ export default function ReceiverPortalPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>危急值接收端门户</h1>
-          <Tag color="red">临床接收</Tag>
+          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('receiverPortal.title')}</h1>
+          <Tag color="red">{t('receiverPortal.clinicalReceiptTag')}</Tag>
         </div>
-        <Button icon={<RefreshCw size={14} />} onClick={() => void refresh()} loading={loading}>刷新</Button>
+        <Button icon={<RefreshCw size={14} />} onClick={() => void refresh()} loading={loading}>{t('receiverPortal.refresh')}</Button>
       </div>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
-          <Card size="small"><Statistic title="待确认通知" value={pendingCount} valueStyle={{ color: '#dc2626' }} prefix={<Bell size={14} />} /></Card>
+          <Card size="small"><Statistic title={t('receiverPortal.pendingNotifications')} value={pendingCount} valueStyle={{ color: '#dc2626' }} prefix={<Bell size={14} />} /></Card>
         </Col>
         <Col span={6}>
-          <Card size="small"><Statistic title="今日通知" value={items.length} prefix={<ShieldAlert size={14} />} /></Card>
+          <Card size="small"><Statistic title={t('receiverPortal.todayNotifications')} value={items.length} prefix={<ShieldAlert size={14} />} /></Card>
         </Col>
         <Col span={12}>
           <Card size="small">
             <div style={{ fontSize: 12, color: '#64748b' }}>
-              接收端门户数据来源: GET /critical-ext/receiver (后端 criticalValueNotification status=PENDING),确认接收与临床回执直接写入危急值记录。
+              {t('receiverPortal.sourceHint')}
             </div>
           </Card>
         </Col>
@@ -239,11 +240,11 @@ export default function ReceiverPortalPage() {
 
       {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 16 }} />}
 
-      <Card title="待接收危急值列表">
+      <Card title={t('receiverPortal.listTitle')}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
         ) : items.length === 0 ? (
-          <Empty description={loadError ? '加载失败' : '暂无待接收的危急值通知'} image={<Inbox size={48} color="#94a3b8" />} />
+          <Empty description={loadError ? t('receiverPortal.loadFailed') : t('receiverPortal.noPending')} image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
           <Table dataSource={listPagination.pageData} columns={columns} rowKey={(r) => String(r.id ?? r.criticalId ?? '')} size="small" pagination={listPagination.pagination} scroll={{ x: 'max-content' }}/>
         )}
@@ -251,27 +252,27 @@ export default function ReceiverPortalPage() {
 
       {/* 临床回执 Modal */}
       <Modal
-        title="临床回执"
+        title={t('receiverPortal.clinicalReceipt')}
         open={!!receiptItem}
         onOk={() => void handleConfirmReceipt()}
         onCancel={() => setReceiptItem(null)}
         confirmLoading={acting}
-        okText="提交回执"
-        cancelText="取消"
+        okText={t('receiverPortal.submitReceipt')}
+        cancelText={t('receiverPortal.cancel')}
       >
         {receiptItem && (
           <div>
             <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626' }}>{receiptItem.patientName ?? '未知患者'} · {receiptItem.finding ?? '危急值'}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626' }}>{receiptItem.patientName ?? t('receiverPortal.unknownPatient')} · {receiptItem.finding ?? t('receiverPortal.criticalValue')}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{receiptItem.id ?? ''}</div>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>确认医生 *</div>
-              <Input value={receiptDoctor} onChange={(e) => setReceiptDoctor(e.target.value)} placeholder="请输入确认医生姓名" />
+              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('receiverPortal.confirmDoctor')}</div>
+              <Input value={receiptDoctor} onChange={(e) => setReceiptDoctor(e.target.value)} placeholder={t('receiverPortal.doctorRequired')} />
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>临床意见/备注</div>
-              <TextArea rows={3} value={receiptComment} onChange={(e) => setReceiptComment(e.target.value)} placeholder="请输入临床处理意见" />
+              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('receiverPortal.clinicalComment')}</div>
+              <TextArea rows={3} value={receiptComment} onChange={(e) => setReceiptComment(e.target.value)} placeholder={t('receiverPortal.clinicalCommentPlaceholder')} />
             </div>
           </div>
         )}

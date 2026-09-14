@@ -3,6 +3,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Modal, Input, Select, message, Spin } from 'antd'
 import { Search, Plus, Edit3, ToggleLeft, ToggleRight, DollarSign, X, Check, List, Trash2, RefreshCw } from 'lucide-react'
 import { financeApi, type ChargeItemDto } from '../../services/api/financeApi'
+import { t } from '../../i18n/appI18n'
 
 const CATEGORY_OPTIONS = ['检查', '增强', '造影', '介入', '放射治疗', '其他']
 
@@ -52,10 +53,10 @@ export default function ChargeItemPage() {
       if (res.success) {
         setItems(normalizeItems(res))
       } else {
-        setError(res.error?.message ?? '加载失败')
+        setError(res.error?.message ?? t('chargeItem.loadFailed'))
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败')
+      setError((e as Error)?.message ?? t('chargeItem.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -89,9 +90,9 @@ export default function ChargeItemPage() {
   }
 
   const handleSave = async () => {
-    if (!editor.name.trim()) { message.warning('请填写项目名称'); return }
+    if (!editor.name.trim()) { message.warning(t('chargeItem.nameRequired')); return }
     const price = Number(editor.unitPrice)
-    if (Number.isNaN(price) || price < 0) { message.warning('请填写有效单价'); return }
+    if (Number.isNaN(price) || price < 0) { message.warning(t('chargeItem.priceInvalid')); return }
     setSaving(true)
     const payload = {
       name: editor.name.trim(),
@@ -106,14 +107,14 @@ export default function ChargeItemPage() {
         ? await financeApi.updateChargeItem(editor.id, payload)
         : await financeApi.createChargeItem(payload)
       if (res.success) {
-        message.success(editor.id ? '收费项目已更新' : '收费项目已创建')
+        message.success(editor.id ? t('chargeItem.updated') : t('chargeItem.created'))
         setEditorOpen(false)
         void load()
       } else {
-        message.error(res.error?.message ?? '保存失败')
+        message.error(res.error?.message ?? t('chargeItem.saveFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '保存失败')
+      message.error((e as Error)?.message ?? t('chargeItem.saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -121,22 +122,22 @@ export default function ChargeItemPage() {
 
   const handleDelete = (item: ChargeItemDto) => {
     Modal.confirm({
-      title: '删除收费项目',
+      title: t('chargeItem.deleteTitle'),
       content: `确认删除「${item.name}」?该操作不可恢复。`,
-      okText: '删除',
+      okText: t('chargeItem.delete'),
       okButtonProps: { style: { background: '#ef4444', borderColor: '#ef4444' } },
-      cancelText: '取消',
+      cancelText: t('chargeItem.cancel'),
       onOk: async () => {
         try {
           const res = await financeApi.deleteChargeItem(item.id)
           if (res.success) {
-            message.success('已删除收费项目')
+            message.success(t('chargeItem.deleted'))
             void load()
           } else {
-            message.error(res.error?.message ?? '删除失败')
+            message.error(res.error?.message ?? t('chargeItem.deleteFailed'))
           }
         } catch (e) {
-          message.error((e as Error)?.message ?? '删除失败')
+          message.error((e as Error)?.message ?? t('chargeItem.deleteFailed'))
         }
       },
     })
@@ -146,13 +147,13 @@ export default function ChargeItemPage() {
     try {
       const res = await financeApi.updateChargeItem(item.id, { active: !item.active })
       if (res.success) {
-        message.success(item.active ? '已停用' : '已启用')
+        message.success(item.active ? t('chargeItem.disabled') : t('chargeItem.enabled'))
         void load()
       } else {
-        message.error(res.error?.message ?? '操作失败')
+        message.error(res.error?.message ?? t('chargeItem.operationFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '操作失败')
+      message.error((e as Error)?.message ?? t('chargeItem.operationFailed'))
     }
   }
 
@@ -163,12 +164,12 @@ export default function ChargeItemPage() {
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <DollarSign size={24} />
-          <span style={{ fontSize: 20, fontWeight: 600 }}>收费项目管理</span>
-          <span style={{ fontSize: 12, padding: '2px 8px', background: 'rgba(255,255,255,0.2)', borderRadius: 4 }}>financeApi 已接入</span>
+          <span style={{ fontSize: 20, fontWeight: 600 }}>{t('chargeItem.title')}</span>
+          <span style={{ fontSize: 12, padding: '2px 8px', background: 'rgba(255,255,255,0.2)', borderRadius: 4 }}>{t('chargeItem.apiConnected')}</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" onClick={() => void load()} style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><RefreshCw size={14} />刷新</button>
-          <button type="button" onClick={openCreate} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}><Plus size={14} />新增项目</button>
+          <button type="button" onClick={() => void load()} style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><RefreshCw size={14} />{t('chargeItem.refresh')}</button>
+          <button type="button" onClick={openCreate} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}><Plus size={14} />{t('chargeItem.newItem')}</button>
         </div>
       </div>
 
@@ -177,44 +178,44 @@ export default function ChargeItemPage() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
-              <input type="text" placeholder="搜索项目名称/编号..." value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 240, outline: 'none' }} />
+              <input type="text" placeholder={t('chargeItem.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 240, outline: 'none' }} />
             </div>
-            <button type="button" onClick={() => setCategoryFilter('all')} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: categoryFilter === 'all' ? '#1e40af' : '#21262d', color: categoryFilter === 'all' ? '#fff' : '#8b949e' }}><List size={14} />全部</button>
+            <button type="button" onClick={() => setCategoryFilter('all')} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: categoryFilter === 'all' ? '#1e40af' : '#21262d', color: categoryFilter === 'all' ? '#fff' : '#8b949e' }}><List size={14} />{t('chargeItem.all')}</button>
             {CATEGORY_OPTIONS.map(cat => (
               <button key={cat} type="button" onClick={() => setCategoryFilter(cat)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: categoryFilter === cat ? '#1e40af' : '#21262d', color: categoryFilter === cat ? '#fff' : '#8b949e' }}>{cat}</button>
             ))}
             <button type="button" onClick={() => setShowInactive(!showInactive)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: showInactive ? '#f59e0b20' : '#21262d', color: showInactive ? '#f59e0b' : '#8b949e' }}>
-              {showInactive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}显示已停用
+              {showInactive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}{t('chargeItem.showInactive')}
             </button>
           </div>
-          <span style={{ fontSize: 13, color: '#6e7681' }}>共 {filteredItems.length} 项 / 全部 {items.length} 项</span>
+          <span style={{ fontSize: 13, color: '#6e7681' }}>{t('chargeItem.total', { filtered: filteredItems.length, total: items.length })}</span>
         </div>
 
         {error && (
           <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
-            加载失败:{error}
-            <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            {t('chargeItem.loadFailed')}:{error}
+            <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('chargeItem.retry')}</button>
           </div>
         )}
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 100px 110px 80px 140px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>编号</span>
-            <span>项目名称</span>
-            <span>类别</span>
-            <span>医保</span>
-            <span>状态</span>
-            <span style={{ textAlign: 'right' }}>单价(元)</span>
-            <span>操作</span>
+            <span>{t('chargeItem.colId')}</span>
+            <span>{t('chargeItem.colName')}</span>
+            <span>{t('chargeItem.colCategory')}</span>
+            <span>{t('chargeItem.colInsurance')}</span>
+            <span>{t('chargeItem.colStatus')}</span>
+            <span style={{ textAlign: 'right' }}>{t('chargeItem.colPrice')}</span>
+            <span>{t('chargeItem.colActions')}</span>
           </div>
 
           {loading ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, fontSize: 13 }}>加载收费项目...</div>
+              <div style={{ marginTop: 12, fontSize: 13 }}>{t('chargeItem.loading')}</div>
             </div>
           ) : filteredItems.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>暂无收费项目,点击右上角「新增项目」创建</div>
+            <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('chargeItem.empty')}</div>
           ) : (
             filteredItems.map((item, idx) => (
               <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 100px 110px 80px 140px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
@@ -224,15 +225,15 @@ export default function ChargeItemPage() {
                   {item.description && <div style={{ fontSize: 12, color: '#6e7681' }}>{item.description}</div>}
                 </div>
                 <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: `${CATEGORY_COLORS[item.category] ?? '#6b7280'}20`, color: CATEGORY_COLORS[item.category] ?? '#6b7280', textAlign: 'center', width: 'fit-content' }}>{item.category ?? '检查'}</span>
-                <span style={{ fontSize: 12, color: item.insuranceEligible ? '#22c55e' : '#f59e0b' }}>{item.insuranceEligible ? '可报销' : '自费'}</span>
+                <span style={{ fontSize: 12, color: item.insuranceEligible ? '#22c55e' : '#f59e0b' }}>{item.insuranceEligible ? t('chargeItem.reimbursable') : t('chargeItem.selfPay')}</span>
                 <span style={{ fontSize: 12, color: item.active ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  {item.active ? <Check size={12} /> : <X size={12} />}{item.active ? '启用' : '停用'}
+                  {item.active ? <Check size={12} /> : <X size={12} />}{item.active ? t('chargeItem.enabled') : t('chargeItem.disabled')}
                 </span>
                 <span style={{ fontSize: 14, fontWeight: 600, textAlign: 'right', color: '#22c55e' }}>¥{(item.unitPrice ?? 0).toLocaleString()}</span>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button type="button" onClick={() => openEdit(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />编辑</button>
-                  <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: item.active ? '#f59e0b' : '#22c55e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? '停用' : '启用'}</button>
-                  <button type="button" onClick={() => handleDelete(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#fca5a5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Trash2 size={12} />删除</button>
+                  <button type="button" onClick={() => openEdit(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />{t('chargeItem.edit')}</button>
+                  <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: item.active ? '#f59e0b' : '#22c55e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? t('chargeItem.disabled') : t('chargeItem.enabled')}</button>
+                  <button type="button" onClick={() => handleDelete(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#fca5a5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Trash2 size={12} />{t('chargeItem.delete')}</button>
                 </div>
               </div>
             ))
@@ -242,9 +243,9 @@ export default function ChargeItemPage() {
 
       <Modal
         open={editorOpen}
-        title={editor.id ? '编辑收费项目' : '新增收费项目'}
-        okText="保存"
-        cancelText="取消"
+        title={editor.id ? t('chargeItem.editTitle') : t('chargeItem.newTitle')}
+        okText={t('chargeItem.save')}
+        cancelText={t('chargeItem.cancel')}
         confirmLoading={saving}
         onOk={() => void handleSave()}
         onCancel={() => setEditorOpen(false)}
@@ -253,31 +254,31 @@ export default function ChargeItemPage() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 }}>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>项目名称 *</div>
-            <Input value={editor.name} onChange={e => setEditor({ ...editor, name: e.target.value })} placeholder="例如:CT平扫(头颅)" />
+            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.fieldName')}</div>
+            <Input value={editor.name} onChange={e => setEditor({ ...editor, name: e.target.value })} placeholder={t('chargeItem.namePlaceholder')} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>类别</div>
+              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.colCategory')}</div>
               <Select value={editor.category} onChange={v => setEditor({ ...editor, category: v })} style={{ width: '100%' }} options={CATEGORY_OPTIONS.map(c => ({ value: c, label: c }))} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>单价(元) *</div>
+              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.fieldPrice')}</div>
               <Input type="number" min={0} value={editor.unitPrice} onChange={e => setEditor({ ...editor, unitPrice: e.target.value })} />
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>描述</div>
-            <Input.TextArea value={editor.description} onChange={e => setEditor({ ...editor, description: e.target.value })} rows={2} placeholder="项目说明(可选)" />
+            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.fieldDescription')}</div>
+            <Input.TextArea value={editor.description} onChange={e => setEditor({ ...editor, description: e.target.value })} rows={2} placeholder={t('chargeItem.descriptionPlaceholder')} />
           </div>
           <div style={{ display: 'flex', gap: 24 }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
               <input type="checkbox" checked={editor.insuranceEligible} onChange={e => setEditor({ ...editor, insuranceEligible: e.target.checked })} style={{ width: 15, height: 15 }} />
-              医保可报销
+              {t('chargeItem.insuranceEligible')}
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
               <input type="checkbox" checked={editor.active} onChange={e => setEditor({ ...editor, active: e.target.checked })} style={{ width: 15, height: 15 }} />
-              启用
+              {t('chargeItem.enabled')}
             </label>
           </div>
         </div>

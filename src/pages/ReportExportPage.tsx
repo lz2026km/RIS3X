@@ -44,6 +44,7 @@ import {
 import { FileDown, Inbox } from 'lucide-react'
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 格式图标（未使用，但保留以备扩展）
@@ -92,9 +93,9 @@ export default function ReportExportPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const filteredTemplates = filterFormat === 'all' ? EXPORT_TEMPLATES : EXPORT_TEMPLATES.filter(t => t.format === filterFormat);
+  const filteredTemplates = filterFormat === 'all' ? EXPORT_TEMPLATES : EXPORT_TEMPLATES.filter(tpl => tpl.format === filterFormat);
 
-  const selectedTemplate = EXPORT_TEMPLATES.find(t => t.id === selectedTemplateId);
+  const selectedTemplate = EXPORT_TEMPLATES.find(tpl => tpl.id === selectedTemplateId);
 
   // [v3.0.6.11-70] P0 真实化: KPI 由真实报告列表统计 (代替 DELIVERY_KPI 常量)
   const deliveryKpi = useMemo(() => {
@@ -121,7 +122,7 @@ export default function ReportExportPage() {
     const fileName = d.fileName || decodeURIComponent((d.downloadUrl.split('/').pop() ?? ''));
     try {
       const res = await reportApi.downloadExportFile(fileName);
-      if (!res.success || !res.data) throw new Error('下载失败');
+      if (!res.success || !res.data) throw new Error(t('rex.downloadFailed'));
       const blob = res.data as unknown as Blob;
       const objUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -151,7 +152,7 @@ export default function ReportExportPage() {
       const id = ids[0]!;
       const res = await reportApi.exportReport(id, selectedTemplate.format);
       if (!res.success) {
-        setBatchError(res.error?.message ?? '导出失败');
+        setBatchError(res.error?.message ?? t('rex.exportFailed'));
         setExporting(false);
         return;
       }
@@ -160,7 +161,7 @@ export default function ReportExportPage() {
         await downloadExport(engine);
         setExportProgress(100);
       } else {
-        setBatchError('报告文件生成失败');
+        setBatchError(t('rex.fileGenFailed'));
       }
       setExporting(false);
       setExportElapsedMs(Date.now() - start);
@@ -170,7 +171,7 @@ export default function ReportExportPage() {
     // 多份报告 → 批量任务 + 轮询
     const created = await reportApi.batchExport(ids, selectedTemplate.format);
     if (!created.success || !created.data?.taskId) {
-      setBatchError(created.error?.message ?? '批量导出任务创建失败');
+      setBatchError(created.error?.message ?? t('rex.batchCreateFailed'));
       setExporting(false);
       return;
     }
@@ -202,7 +203,7 @@ export default function ReportExportPage() {
           return;
         }
         if (task.status === 'failed' || attempts > 60) {
-          setBatchError(task.error ?? '批量导出任务失败或超时');
+          setBatchError(task.error ?? t('rex.batchTimeout'));
           setExporting(false);
           return;
         }
@@ -229,12 +230,12 @@ export default function ReportExportPage() {
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Download size={20} color="#dc2626" /> 报告导出中心
+            <Download size={20} color="#dc2626" /> {t('rex.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            v3.0.5.1 增强:HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 升级点
+            {t('rex.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -249,28 +250,28 @@ export default function ReportExportPage() {
               />
             }
             items={[
-              { key: 'v2', label: <span><Layers className="w-3 h-3 inline mr-1" />导出中心 V2</span> },
-              { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.INTEGRATION 增强</span> },
-              { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
+              { key: 'v2', label: <span><Layers className="w-3 h-3 inline mr-1" />{t('rex.tabV2')}</span> },
+              { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />{t('rex.tabV3')}</span> },
+              { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />{t('rex.tabClassic')}</span> },
             ]}
           />
           <button
             onClick={() => navigate('/report-delivery')}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
           >
-            推送中心
+            {t('rex.pushCenter')}
           </button>
           <button onClick={() => navigate('/export/approval')} style={btnOutlinePrimary}>
-            <ShieldCheck size={12} /> 导出审批
+            <ShieldCheck size={12} /> {t('rex.exportApproval')}
           </button>
           <button onClick={handleBulkExport} style={btnOutlinePrimary}>
-            <FileDown size={12} /> 批量导出
+            <FileDown size={12} /> {t('rex.bulkExport')}
           </button>
           <button onClick={() => setPptxOpen(true)} style={btnOutlinePrimary}>
             <Presentation size={12} /> PPTX
           </button>
           <button onClick={() => setEmailOpen(true)} style={btnOutlinePrimary}>
-            <Mail size={12} /> 邮件
+            <Mail size={12} /> {t('rex.email')}
           </button>
         </div>
       </div>
@@ -287,7 +288,7 @@ export default function ReportExportPage() {
             tabBarExtraContent={
               <Badge
                 count={4}
-                title="集成导出格式 4 项"
+                title={t('rex.integrationFormats')}
                 style={{ backgroundColor: '#7c3aed' }}
               />
             }
@@ -304,10 +305,10 @@ export default function ReportExportPage() {
 
       {/* KPI 卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={Download} label="报告总数" value={deliveryKpi.totalThisMonth} color="#3b82f6" />
-        <KpiCard icon={CheckCircle2} label="成功率" value={`${deliveryKpi.successRate}%`} color="#10b981" />
-        <KpiCard icon={Zap} label="平均耗时" value={deliveryKpi.avgDeliveryTime} color="#7c3aed" />
-        <KpiCard icon={Eye} label="已发布占比" value={`${deliveryKpi.readRate}%`} color="#f59e0b" />
+        <KpiCard icon={Download} label={t('rex.kpiTotal')} value={deliveryKpi.totalThisMonth} color="#3b82f6" />
+        <KpiCard icon={CheckCircle2} label={t('rex.kpiSuccessRate')} value={`${deliveryKpi.successRate}%`} color="#10b981" />
+        <KpiCard icon={Zap} label={t('rex.kpiAvgTime')} value={deliveryKpi.avgDeliveryTime} color="#7c3aed" />
+        <KpiCard icon={Eye} label={t('rex.kpiPublishedRate')} value={`${deliveryKpi.readRate}%`} color="#f59e0b" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
@@ -316,23 +317,23 @@ export default function ReportExportPage() {
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
               <Layers size={13} color="#1e40af" />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>导出模板 ({filteredTemplates.length})</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('rex.templatesTitle')} ({filteredTemplates.length})</span>
             </div>
             <select value={filterFormat} onChange={e => setFilterFormat(e.target.value)} style={selectStyle}>
-              <option value="all">全部格式</option>
+              <option value="all">{t('rex.allFormats')}</option>
               <option value="pdf">PDF</option>
-              <option value="word">Word 文档</option>
+              <option value="word">{t('rex.wordDoc')}</option>
               <option value="html">HTML</option>
               <option value="dicom-sr">DICOM-SR</option>
             </select>
           </div>
           <div style={{ maxHeight: 600, overflowY: 'auto' }}>
-            {filteredTemplates.map(t => {
-              const isSelected = selectedTemplateId === t.id;
+            {filteredTemplates.map(tpl => {
+              const isSelected = selectedTemplateId === tpl.id;
               return (
                 <div
-                  key={t.id}
-                  onClick={() => setSelectedTemplateId(t.id)}
+                  key={tpl.id}
+                  onClick={() => setSelectedTemplateId(tpl.id)}
                   style={{
                     padding: 12, borderBottom: '1px solid var(--border-light)',
                     background: isSelected ? '#fef2f2' : 'transparent',
@@ -341,16 +342,16 @@ export default function ReportExportPage() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    <span style={{ fontSize: 18 }}>{t.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{t.name}</span>
+                    <span style={{ fontSize: 18 }}>{tpl.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{tpl.name}</span>
                     {isSelected && <CheckCircle2 size={14} color="#dc2626" />}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t.description}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{tpl.description}</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    {t.hasImages && <Tag color="#3b82f6">📷 图像</Tag>}
-                    {t.hasSignature && <Tag color="#7c3aed">✍️ 签名</Tag>}
-                    {t.hasQRCode && <Tag color="#10b981">📱 二维码</Tag>}
-                    {t.hasWatermark && <Tag color="#f59e0b">💧 水印</Tag>}
+                    {tpl.hasImages && <Tag color="#3b82f6">📷 {t('rex.tagImage')}</Tag>}
+                    {tpl.hasSignature && <Tag color="#7c3aed">✍️ {t('rex.tagSignature')}</Tag>}
+                    {tpl.hasQRCode && <Tag color="#10b981">📱 {t('rex.tagQr')}</Tag>}
+                    {tpl.hasWatermark && <Tag color="#f59e0b">💧 {t('rex.tagWatermark')}</Tag>}
                   </div>
                 </div>
               );
@@ -376,37 +377,37 @@ export default function ReportExportPage() {
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{selectedTemplate.description}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>预估大小</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('rex.estimatedSize')}</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: selectedTemplate.color }}>{selectedTemplate.estimatedSize}</div>
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 12 }}>
-                  <SpecCell label="格式" value={selectedTemplate.format.toUpperCase()} color={FORMAT_COLOR[selectedTemplate.format]} />
-                  <SpecCell label="页面" value={selectedTemplate.pageSize} />
-                  <SpecCell label="图像" value={selectedTemplate.hasImages ? '✓ 含' : '✗ 不含'} color={selectedTemplate.hasImages ? '#10b981' : '#94a3b8'} />
-                  <SpecCell label="签名" value={selectedTemplate.hasSignature ? '✓ 含' : '✗ 不含'} color={selectedTemplate.hasSignature ? '#10b981' : '#94a3b8'} />
-                  <SpecCell label="二维码" value={selectedTemplate.hasQRCode ? '✓ 含' : '✗ 不含'} color={selectedTemplate.hasQRCode ? '#10b981' : '#94a3b8'} />
+                  <SpecCell label={t('rex.format')} value={selectedTemplate.format.toUpperCase()} color={FORMAT_COLOR[selectedTemplate.format]} />
+                  <SpecCell label={t('rex.page')} value={selectedTemplate.pageSize} />
+                  <SpecCell label={t('rex.tagImage')} value={selectedTemplate.hasImages ? t('rex.included') : t('rex.notIncluded')} color={selectedTemplate.hasImages ? '#10b981' : '#94a3b8'} />
+                  <SpecCell label={t('rex.tagSignature')} value={selectedTemplate.hasSignature ? t('rex.included') : t('rex.notIncluded')} color={selectedTemplate.hasSignature ? '#10b981' : '#94a3b8'} />
+                  <SpecCell label={t('rex.tagQr')} value={selectedTemplate.hasQRCode ? t('rex.included') : t('rex.notIncluded')} color={selectedTemplate.hasQRCode ? '#10b981' : '#94a3b8'} />
                 </div>
 
                 {/* 报告选择 */}
                 <div style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <FileText size={13} /> 选择报告（{selectedReports.size}）
+                      <FileText size={13} /> {t('rex.selectReports')}（{selectedReports.size}）
                     </div>
                     <button
                       onClick={() => setSelectedReports(new Set(reports.slice(0, 5).map(r => r.reportId || r.id)))}
                       style={{ padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
                     >
-                      全选前 5
+                      {t('rex.selectFirst5')}
                     </button>
                   </div>
                   <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 4 }}>
                     {reportsLoading ? (
-                      <div style={{ padding: 20, textAlign: 'center' }}><Spin size="small" /> 加载报告中...</div>
+                      <div style={{ padding: 20, textAlign: 'center' }}><Spin size="small" /> {t('rex.loadingReports')}</div>
                     ) : reports.length === 0 ? (
-                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无报告" imageStyle={{ height: 48 }} />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('rex.noReports')} imageStyle={{ height: 48 }} />
                     ) : (
                       reports.slice(0, 8).map(r => (
                         <label key={r.reportId || r.id} style={{
@@ -434,8 +435,8 @@ export default function ReportExportPage() {
                   <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: '#1e40af' }}>
                       <Loader2 size={11} className="spin" />
-                      正在生成 {selectedTemplate.name}... {exportProgress}%
-                      {batchTaskId && <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>任务号 {batchTaskId}</span>}
+                      {t('rex.generating', { name: selectedTemplate.name, percent: exportProgress })}
+                      {batchTaskId && <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>{t('rex.taskNo')}{batchTaskId}</span>}
                     </div>
                     <div style={{ height: 6, background: 'var(--color-info-bg)', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{ width: `${exportProgress}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #dc2626)', transition: 'width 0.15s' }} />
@@ -452,12 +453,12 @@ export default function ReportExportPage() {
                 {batchDownloads.length > 0 && !exporting && (
                   <div style={{ marginBottom: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 6, border: '1px solid #bbf7d0' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#15803d' }}>
-                      <CheckCircle2 size={14} /> 批量导出完成 · 共 {batchDownloads.length} 个文件
+                      <CheckCircle2 size={14} /> {t('rex.batchDone', { count: batchDownloads.length })}
                       <button
                         onClick={() => { batchDownloads.forEach(d => void downloadBatchFile(d)); }}
                         style={{ marginLeft: 'auto', padding: '3px 10px', border: '1px solid #86efac', borderRadius: 4, background: 'var(--bg-card)', color: '#15803d', fontSize: 12, cursor: 'pointer' }}
                       >
-                        全部下载
+                        {t('rex.downloadAll')}
                       </button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 160, overflowY: 'auto' }}>
@@ -472,7 +473,7 @@ export default function ReportExportPage() {
                             onClick={() => void downloadBatchFile(d)}
                             style={{ padding: '2px 8px', border: 'none', borderRadius: 4, background: '#16a34a', color: '#fff', fontSize: 11, cursor: 'pointer' }}
                           >
-                            下载
+                            {t('rex.download')}
                           </button>
                         </div>
                       ))}
@@ -486,7 +487,7 @@ export default function ReportExportPage() {
                     onClick={() => {
                       const sampleReport = reports.find(r => selectedReports.has(r.reportId || r.id)) ?? reports[0];
                       if (!selectedTemplate || !sampleReport) {
-                        message.warning('请先选择模板和报告');
+                        message.warning(t('rex.selectTemplateAndReport'));
                         return;
                       }
                       const previewHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>预览 · ${selectedTemplate.name}</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:24px;color:#1e293b"><h2 style="color:#1e40af;border-bottom:2px solid #1e40af;padding-bottom:8px">${sampleReport.patientName} · ${sampleReport.modality} ${sampleReport.bodyPart}</h2><div><strong>报告ID:</strong> ${sampleReport.reportId || sampleReport.id}</div><div><strong>模板:</strong> ${selectedTemplate.name} (${selectedTemplate.format})</div><div><strong>预估大小:</strong> ${selectedTemplate.estimatedSize}</div><h3>所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.findings || '暂无').slice(0, 400)}...</pre><h3>诊断</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.diagnosis || '暂无').slice(0, 300)}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">这是预览样例 · 仅用于检查版式与字段</p></body></html>`;
@@ -496,13 +497,13 @@ export default function ReportExportPage() {
                       if (win) {
                         message.success(`预览已生成 · 模板 ${selectedTemplate.name}`);
                       } else {
-                        message.info('浏览器拦截了新窗口，请允许弹窗后重试');
+                        message.info(t('rex.popupBlocked'));
                       }
                       setTimeout(() => URL.revokeObjectURL(url), 60_000);
                     }}
                     style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   >
-                    <Eye size={12} /> 预览样例
+                    <Eye size={12} /> {t('rex.previewSample')}
                   </button>
                   <button
                     onClick={handleExport}
@@ -516,7 +517,7 @@ export default function ReportExportPage() {
                       boxShadow: '0 2px 4px rgba(220, 38, 38, 0.3)',
                     }}
                   >
-                    <Download size={12} /> 导出 {selectedReports.size} 份报告
+                    <Download size={12} /> {t('rex.exportReports', { count: selectedReports.size })}
                   </button>
                 </div>
               </div>
@@ -524,20 +525,20 @@ export default function ReportExportPage() {
               {/* 模板对比 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Sparkles size={13} /> 模板用途速查
+                  <Sparkles size={13} /> {t('rex.templateQuickRef')}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-                  {EXPORT_TEMPLATES.slice(0, 4).map(t => (
-                    <div key={t.id} style={{
-                      padding: 8, background: t.id === selectedTemplateId ? `${t.color}15` : 'var(--bg-card)',
-                      border: `1px solid ${t.id === selectedTemplateId ? t.color : '#e2e8f0'}`,
+                  {EXPORT_TEMPLATES.slice(0, 4).map(tpl => (
+                    <div key={tpl.id} style={{
+                      padding: 8, background: tpl.id === selectedTemplateId ? `${tpl.color}15` : 'var(--bg-card)',
+                      border: `1px solid ${tpl.id === selectedTemplateId ? tpl.color : '#e2e8f0'}`,
                       borderRadius: 6, fontSize: 12,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                        <span>{t.icon}</span>
-                        <strong style={{ color: 'var(--text-primary)' }}>{t.name}</strong>
+                        <span>{tpl.icon}</span>
+                        <strong style={{ color: 'var(--text-primary)' }}>{tpl.name}</strong>
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.description}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{tpl.description}</div>
                     </div>
                   ))}
                 </div>

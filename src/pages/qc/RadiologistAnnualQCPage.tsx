@@ -14,6 +14,7 @@ import { THEME_TOKENS } from "../../components/common/ThemeTokens";
 import { DOCTOR_MASTER } from '../../data/master';
 import { DOCTOR_PERFORMANCE_PRE } from "../../data/_generators";
 import { qcextApi, type RadiologistAnnualDto } from '../../services/api/qcextApi';
+import { t } from '../../i18n/appI18n';
 
 function downloadCsv(filename: string, sections: Array<{ title: string; rows: (string | number)[][] }>) {
   const lines: string[] = [];
@@ -60,12 +61,12 @@ export default function RadiologistAnnualQCPage() {
     const avg = (arr: number[]) => (arr.length ? arr.reduce((s, n) => s + n, 0) / arr.length : 0);
     if (mine.length === 0) return [];
     return [
-      { metric: '月均报告量', selected: Math.round(avg(mine.map((h) => h.reportCount))), dept: Math.round(avg(dept.map((h) => h.reportCount))), unit: '份', better: 'high' },
-      { metric: '平均质控分', selected: avg(mine.map((h) => h.qcScore)).toFixed(1), dept: avg(dept.map((h) => h.qcScore)).toFixed(1), unit: '分', better: 'high' },
-      { metric: '缺陷率', selected: avg(mine.map((h) => h.defectRate)).toFixed(1), dept: avg(dept.map((h) => h.defectRate)).toFixed(1), unit: '%', better: 'low' },
-      { metric: '及时率', selected: avg(mine.map((h) => h.timelyRate)).toFixed(1), dept: avg(dept.map((h) => h.timelyRate)).toFixed(1), unit: '%', better: 'high' },
-      { metric: '平均报告 TAT', selected: Math.round(avg(mine.map((h) => h.avgTAT))), dept: Math.round(avg(dept.map((h) => h.avgTAT))), unit: '分', better: 'low' },
-      { metric: '月均危急值', selected: Math.round(avg(mine.map((h) => h.criticalValueCount))), dept: Math.round(avg(dept.map((h) => h.criticalValueCount))), unit: '例', better: 'low' },
+      { metric: 'annualQc.metric.monthlyReports', selected: Math.round(avg(mine.map((h) => h.reportCount))), dept: Math.round(avg(dept.map((h) => h.reportCount))), unit: 'annualQc.unit.copies', better: 'high' },
+      { metric: 'annualQc.metric.avgQcScore', selected: avg(mine.map((h) => h.qcScore)).toFixed(1), dept: avg(dept.map((h) => h.qcScore)).toFixed(1), unit: 'annualQc.unit.points', better: 'high' },
+      { metric: 'annualQc.metric.defectRate', selected: avg(mine.map((h) => h.defectRate)).toFixed(1), dept: avg(dept.map((h) => h.defectRate)).toFixed(1), unit: '%', better: 'low' },
+      { metric: 'annualQc.metric.timelyRate', selected: avg(mine.map((h) => h.timelyRate)).toFixed(1), dept: avg(dept.map((h) => h.timelyRate)).toFixed(1), unit: '%', better: 'high' },
+      { metric: 'annualQc.metric.avgTat', selected: Math.round(avg(mine.map((h) => h.avgTAT))), dept: Math.round(avg(dept.map((h) => h.avgTAT))), unit: 'annualQc.unit.points', better: 'low' },
+      { metric: 'annualQc.metric.monthlyCritical', selected: Math.round(avg(mine.map((h) => h.criticalValueCount))), dept: Math.round(avg(dept.map((h) => h.criticalValueCount))), unit: 'annualQc.unit.cases', better: 'low' },
     ];
   }, [selectedHistory]);
 
@@ -114,13 +115,13 @@ export default function RadiologistAnnualQCPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
         icon={<Users size={20} color="#7c3aed" />}
-        title="医生年度质控档案"
-        subtitle="每位医生全年质控 KPI 趋势 / 评分历史 / 绩效分析"
+        title={t('annualQc.title')}
+        subtitle={t('annualQc.subtitle')}
       />
       <StickyActionBar
         actions={[
-          { key: "export", label: "导出档案", onClick: handleExportAnnual, type: "primary", ariaLabel: "导出医生档案" },
-          { key: "compare", label: showCompare ? "关闭对比" : "对比分析", onClick: () => setShowCompare((v) => !v), type: "default", ariaLabel: "对比分析" },
+          { key: "export", label: t('annualQc.exportProfile'), onClick: handleExportAnnual, type: "primary", ariaLabel: t('annualQc.exportProfileAria') },
+          { key: "compare", label: showCompare ? t('annualQc.closeCompare') : t('annualQc.compare'), onClick: () => setShowCompare((v) => !v), type: "default", ariaLabel: t('annualQc.compareAria') },
         ]}
         theme="light"
       />
@@ -128,18 +129,18 @@ export default function RadiologistAnnualQCPage() {
         <div style={{ padding: "0 24px 16px" }}>
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 12px" }}>
-              对比分析: {selected.name} vs 科室平均 (6 个月)
-              <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>演示数据 (本地生成器)</span>
+              {t('annualQc.compareTitle', { name: selected.name })}
+              <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t('annualQc.demoData')}</span>
             </h3>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-card)" }}>
-                    <th style={{ padding: 8, textAlign: "left", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>指标</th>
+                    <th style={{ padding: 8, textAlign: "left", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colMetric')}</th>
                     <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: "#1e40af" }}>{selected.name}</th>
-                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>科室平均</th>
-                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>差值</th>
-                    <th style={{ padding: 8, textAlign: "center", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>结论</th>
+                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colDeptAvg')}</th>
+                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colDiff')}</th>
+                    <th style={{ padding: 8, textAlign: "center", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colConclusion')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -148,15 +149,15 @@ export default function RadiologistAnnualQCPage() {
                     const better = c.better === "low" ? diff < 0 : diff > 0;
                     return (
                       <tr key={c.metric} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                        <td style={{ padding: 8 }}>{c.metric}</td>
-                        <td style={{ padding: 8, textAlign: "right", fontWeight: 700, color: "var(--text-primary)" }}>{c.selected} {c.unit}</td>
-                        <td style={{ padding: 8, textAlign: "right" }}>{c.dept} {c.unit}</td>
+                        <td style={{ padding: 8 }}>{t(c.metric)}</td>
+                        <td style={{ padding: 8, textAlign: "right", fontWeight: 700, color: "var(--text-primary)" }}>{c.selected} {t(c.unit)}</td>
+                        <td style={{ padding: 8, textAlign: "right" }}>{c.dept} {t(c.unit)}</td>
                         <td style={{ padding: 8, textAlign: "right", color: diff === 0 ? "#64748b" : diff > 0 ? "#059669" : "#dc2626", fontWeight: 600 }}>
-                          {diff > 0 ? "+" : ""}{Math.abs(diff) < 0.05 ? "0" : diff.toFixed(1)} {c.unit}
+                          {diff > 0 ? "+" : ""}{Math.abs(diff) < 0.05 ? "0" : diff.toFixed(1)} {t(c.unit)}
                         </td>
                         <td style={{ padding: 8, textAlign: "center" }}>
                           <span style={{ padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: better ? "var(--color-success-bg)" : "var(--color-error-bg)", color: better ? "#065f46" : "#991b1b" }}>
-                            {better ? "优于平均" : "低于平均"}
+                            {better ? t('annualQc.betterThanAvg') : t('annualQc.belowAvg')}
                           </span>
                         </td>
                       </tr>
@@ -174,7 +175,7 @@ export default function RadiologistAnnualQCPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="搜索医生..."
+            placeholder={t('annualQc.searchDoctor')}
             style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, marginBottom: 12 }}
           />
           {filteredDoctors.slice(0, 50).map((d) => (
@@ -218,26 +219,26 @@ export default function RadiologistAnnualQCPage() {
                 <div style={{ flex: 1 }}>
                   <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{selected.name}</h2>
                   <AppText size="sm" color="secondary" style={{ marginTop: 4, display: "block" }}>
-                    {selected.id} · {selected.title} · {selected.subspecialty} · 工龄 {selected.yearsOfExperience} 年
+                    {selected.id} · {selected.title} · {selected.subspecialty} · {t('annualQc.yearsOfService', { years: selected.yearsOfExperience })}
                   </AppText>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: 26, fontWeight: 700, color: selected.annualQCScore >= 90 ? "#10b981" : "#f59e0b" }}>{selected.annualQCScore}</div>
-                  <AppText size="xs" color="muted" as="div">年度质控分</AppText>
+                  <AppText size="xs" color="muted" as="div">{t('annualQc.annualScore')}</AppText>
                 </div>
               </div>
               <StatCardGrid columns={5} gap={8}>
-                <StatCard label="月报告" value={selected.monthlyReportCount} icon={<Award size={16} />} color="#1e40af" />
-                <StatCard label="月危急值" value={selected.monthlyCriticalValueCount} icon={<Award size={16} />} color="#dc2626" />
-                <StatCard label="月双签" value={selected.monthlyCosignCount} icon={<Award size={16} />} color="#f59e0b" />
-                <StatCard label="缺陷率" value={selected.defectRate as unknown as string} icon={<TrendingDown size={16} />} color="#dc2626" />
-                <StatCard label="及时率" value={selected.timelyRate as unknown as string} icon={<TrendingUp size={16} />} color="#10b981" />
+                <StatCard label={t('annualQc.monthlyReports')} value={selected.monthlyReportCount} icon={<Award size={16} />} color="#1e40af" />
+                <StatCard label={t('annualQc.monthlyCritical')} value={selected.monthlyCriticalValueCount} icon={<Award size={16} />} color="#dc2626" />
+                <StatCard label={t('annualQc.monthlyCosign')} value={selected.monthlyCosignCount} icon={<Award size={16} />} color="#f59e0b" />
+                <StatCard label={t('annualQc.defectRate')} value={selected.defectRate as unknown as string} icon={<TrendingDown size={16} />} color="#dc2626" />
+                <StatCard label={t('annualQc.timelyRate')} value={selected.timelyRate as unknown as string} icon={<TrendingUp size={16} />} color="#10b981" />
               </StatCardGrid>
             </div>
 
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>月度质控趋势
-                <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>演示数据 (本地生成器)</span>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>{t('annualQc.monthlyTrend')}
+                <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t('annualQc.demoData')}</span>
               </h3>
               {selectedHistory.length > 0 ? (
                 <div>
@@ -251,11 +252,11 @@ export default function RadiologistAnnualQCPage() {
                     ))}
                   </div>
                   <div style={{ marginTop: 16, fontSize: 12, color: "#475569" }}>
-                    <strong>6 个月累计:</strong> {selectedHistory.length} 个月 · 平均分 {(selectedHistory.reduce((s, h) => s + h.qcScore, 0) / selectedHistory.length).toFixed(1)} · 趋势 {selectedHistory[selectedHistory.length - 1]!.qcScore > selectedHistory[0]!.qcScore ? "↑ 上升" : "↓ 下降"}
+                    <strong>{t('annualQc.sixMonthCumulative')}</strong> {t('annualQc.summary', { months: selectedHistory.length, avg: (selectedHistory.reduce((s, h) => s + h.qcScore, 0) / selectedHistory.length).toFixed(1), trend: selectedHistory[selectedHistory.length - 1]!.qcScore > selectedHistory[0]!.qcScore ? t('annualQc.trendUp') : t('annualQc.trendDown') })}
                   </div>
                 </div>
               ) : (
-                <EmptyState description="暂无历史评分数据" />
+                <EmptyState description={t('annualQc.noHistory')} />
               )}
             </div>
           </div>

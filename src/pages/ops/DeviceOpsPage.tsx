@@ -10,6 +10,7 @@ import { replayDeviceEvent } from '../../utils/deviceStateAdapter'
 // [W1-B] 剂量追踪接 deviceMgmtApi.getDoseTracking/recordDose (POST /device-mgmt/dose-tracking)
 import { deviceMgmtApi, type DoseRecord } from '../../services/api/deviceMgmtApi'
 import { oeeApi } from '../../services/api/oeeApi'
+import { t } from '../../i18n/appI18n'
 
 interface Device {
   id: string; name: string; type: string; location: string; status: 'online' | 'offline' | 'maintenance' | 'fault'
@@ -85,7 +86,7 @@ export default function DeviceOpsPage() {
           }))
         : [])
     } catch (e) {
-      setDoseError(e instanceof Error ? e.message : '剂量记录加载失败, 展示空列表')
+      setDoseError(e instanceof Error ? e.message : t('deviceOps.doseLoadFailed'))
     } finally {
       setDoseLoading(false)
     }
@@ -94,9 +95,9 @@ export default function DeviceOpsPage() {
   useEffect(() => { void loadDoses() }, [loadDoses])
 
   const handleRecordDose = async () => {
-    if (!doseForm.patientId.trim() || !doseForm.deviceId.trim()) { setDoseError('请填写患者ID和设备ID'); return }
+    if (!doseForm.patientId.trim() || !doseForm.deviceId.trim()) { setDoseError(t('deviceOps.fillPatientDevice')); return }
     const value = Number(doseForm.doseValue)
-    if (!Number.isFinite(value) || value <= 0) { setDoseError('剂量值必须为正数'); return }
+    if (!Number.isFinite(value) || value <= 0) { setDoseError(t('deviceOps.dosePositive')); return }
     setDoseSaving(true)
     setDoseError('')
     try {
@@ -111,10 +112,10 @@ export default function DeviceOpsPage() {
         setDoseRecords(prev => [{ ...res.data, recordedAt: res.data.recordedAt || new Date().toISOString() }, ...prev])
         setDoseForm({ patientId: '', deviceId: '', doseValue: '', doseUnit: 'mGy', examType: 'CT' })
       } else {
-        setDoseError(res.error?.message ?? '剂量记录提交失败')
+        setDoseError(res.error?.message ?? t('deviceOps.doseSubmitFailed'))
       }
     } catch (e) {
-      setDoseError(e instanceof Error ? e.message : '剂量记录提交失败')
+      setDoseError(e instanceof Error ? e.message : t('deviceOps.doseSubmitFailed'))
     } finally {
       setDoseSaving(false)
     }
@@ -136,10 +137,10 @@ export default function DeviceOpsPage() {
         setDevices(prev => prev.map(d => d.id === id ? { ...d, status: stateStatusMap[state] ?? d.status } : d))
         message.success(`设备 ${id} 状态已更新: ${state}`)
       } else {
-        message.error(res.error?.message ?? '状态更新失败')
+        message.error(res.error?.message ?? t('deviceOps.statusUpdateFailed'))
       }
     } catch {
-      message.error('状态更新失败')
+      message.error(t('deviceOps.statusUpdateFailed'))
     }
     setUpdatingId(null)
   }
@@ -168,7 +169,7 @@ export default function DeviceOpsPage() {
       const anyReal = life.length > 0 || oee.length > 0 || faultList.length > 0 || plans.length > 0 || devList.length > 0
       if (!anyReal) {
         setDataSource('demo')
-        setApiError('deviceMgmtApi 暂不可用，当前展示内置演示数据')
+        setApiError(t('deviceOps.apiUnavailable'))
         return
       }
       setDataSource('api')
@@ -255,7 +256,7 @@ export default function DeviceOpsPage() {
       }
     } catch (e) {
       setDataSource('demo')
-      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+      setApiError(e instanceof Error ? e.message : t('deviceOps.loadFailedFallback'))
     } finally {
       setLoading(false)
     }
@@ -274,8 +275,8 @@ export default function DeviceOpsPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Monitor size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>设备运营管理</span></div>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>共 {devices.length} 台设备 · {dataSource === 'api' ? 'deviceMgmtApi 实时' : '演示数据'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Monitor size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deviceOps.title')}</span></div>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('deviceOps.summary', { count: devices.length, source: dataSource === 'api' ? t('deviceOps.realtime') : t('deviceOps.demo') })}</span>
       </div>
 
       <div style={{ padding: '20px 24px' }}>
@@ -285,26 +286,26 @@ export default function DeviceOpsPage() {
             background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600,
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
-            {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: deviceMgmtApi/oeeApi 实时' : '数据源: 演示数据'}
+            {loading ? t('deviceOps.syncing') : dataSource === 'api' ? t('deviceOps.sourceApi') : t('deviceOps.sourceDemo')}
           </span>
           {apiError && (
             <span style={{ color: '#ef4444' }}>
               {apiError}
-              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.retry')}</button>
             </span>
           )}
         </div>
 
         <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-          {['all', ...types].map(t => (
-            <button key={t} onClick={() => setFilterType(t)}
-              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filterType === t ? '#1e40af' : '#21262d', color: filterType === t ? '#fff' : '#8b949e' }}>
-              {t === 'all' ? '全部' : t}
+          {['all', ...types].map(ty => (
+            <button key={ty} onClick={() => setFilterType(ty)}
+              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filterType === ty ? '#1e40af' : '#21262d', color: filterType === ty ? '#fff' : '#8b949e' }}>
+              {ty === 'all' ? t('deviceOps.all') : ty}
             </button>
           ))}
           <div style={{ position: 'relative', marginLeft: 'auto' }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e7681' }} />
-            <input placeholder="搜索设备..." value={search} onChange={e => setSearch(e.target.value)}
+            <input placeholder={t('deviceOps.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)}
               style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none', width: 200 }} />
           </div>
         </div>
@@ -312,33 +313,33 @@ export default function DeviceOpsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart size={16} color="#3b82f6" />设备使用率
+              <BarChart size={16} color="#3b82f6" />{t('deviceOps.utilizationTitle')}
             </div>
-            <ChartContainer height={200} state={utilData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备使用率数据">
+            <ChartContainer height={200} state={utilData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deviceOps.noUtilization')}>
               <BarChart data={utilData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} unit="%" />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
-                <Bar dataKey="utilization" fill="#3b82f6" radius={[4, 4, 0, 0]} name="使用率" />
+                <Bar dataKey="utilization" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('deviceOps.utilization')} />
               </BarChart>
             </ChartContainer>
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertTriangle size={16} />设备故障/维护预警
+              <AlertTriangle size={16} />{t('deviceOps.faultTitle')}
             </div>
             {faults.map((f, i) => (
               <div key={i} style={{ padding: '10px 0', borderBottom: i < faults.length - 1 ? '1px solid #21262d' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 13, color: '#f0f6fc' }}>{f.device}</span>
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, background: f.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: f.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
-                    {f.severity === 'critical' ? '严重' : '警告'}
+                    {f.severity === 'critical' ? t('deviceOps.severityCritical') : t('deviceOps.severityWarning')}
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>{f.issue}</div>
-                <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>预计修复: {f.eta}</div>
+                <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>{t('deviceOps.etaPrefix')}: {f.eta}</div>
               </div>
             ))}
           </div>
@@ -346,7 +347,7 @@ export default function DeviceOpsPage() {
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr 80px 90px 100px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span /><span>设备名称</span><span>状态</span><span>类型</span><span>位置</span><span>下次维护</span>
+            <span /><span>{t('deviceOps.colDeviceName')}</span><span>{t('deviceOps.colStatus')}</span><span>{t('deviceOps.colType')}</span><span>{t('deviceOps.colLocation')}</span><span>{t('deviceOps.colNextMaintenance')}</span>
           </div>
           {filtered.map((d, idx) => {
             const sc = STATUS_CONFIG[d.status]
@@ -369,14 +370,14 @@ export default function DeviceOpsPage() {
                 </div>
                 {isOpen && (
                   <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d', display: 'flex', gap: 24, fontSize: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <div><span style={{ color: '#6e7681' }}>固件: </span><span>{d.firmware}</span></div>
+                    <div><span style={{ color: '#6e7681' }}>{t('deviceOps.firmware')}: </span><span>{d.firmware}</span></div>
                     <div><span style={{ color: '#6e7681' }}>IP: </span><span>{d.ip}</span></div>
-                    <div><span style={{ color: '#6e7681' }}>上一次维护: </span><span>{d.lastMaintenance}</span></div>
-                    <div><span style={{ color: '#6e7681' }}>使用率: </span><span style={{ color: d.utilization > 80 ? '#22c55e' : '#f59e0b' }}>{d.utilization}%</span></div>
+                    <div><span style={{ color: '#6e7681' }}>{t('deviceOps.lastMaintenance')}: </span><span>{d.lastMaintenance}</span></div>
+                    <div><span style={{ color: '#6e7681' }}>{t('deviceOps.utilization')}: </span><span style={{ color: d.utilization > 80 ? '#22c55e' : '#f59e0b' }}>{d.utilization}%</span></div>
                     {/* [G005 Wave1B] 状态流转: deviceMgmtApi.updateDevice */}
                     {dataSource === 'api' && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ color: '#6e7681' }}>状态: </span>
+                        <span style={{ color: '#6e7681' }}>{t('deviceOps.status')}: </span>
                         <select
                           value={({ online: 'IDLE', offline: 'OFFLINE', maintenance: 'MAINTENANCE' } as Record<string, string>)[d.status] ?? 'IDLE'}
                           onChange={e => void handleUpdateDeviceState(d.id, e.target.value)}
@@ -396,16 +397,16 @@ export default function DeviceOpsPage() {
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Clock size={16} color="#8b5cf6" />维护记录 {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(maintenance-plans 实时)</span>}
+            <Clock size={16} color="#8b5cf6" />{t('deviceOps.maintRecords')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('deviceOps.maintRealtime')}</span>}
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>设备</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>维护内容</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>执行人</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>日期</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>结果</th>
+                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colDevice')}</th>
+                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colMaintContent')}</th>
+                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colPerformer')}</th>
+                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colDate')}</th>
+                <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colResult')}</th>
               </tr>
             </thead>
             <tbody>
@@ -425,8 +426,8 @@ export default function DeviceOpsPage() {
         {/* [W1-B] 剂量追踪: deviceMgmtApi.getDoseTracking / recordDose */}
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Gauge size={16} color="#22d3ee" />剂量追踪 <span style={{ fontSize: 11, color: '#22d3ee' }}>(/device-mgmt/dose-tracking 实时)</span>
-            <button onClick={() => void loadDoses()} style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>刷新</button>
+            <Gauge size={16} color="#22d3ee" />{t('deviceOps.doseTracking')} <span style={{ fontSize: 11, color: '#22d3ee' }}>{t('deviceOps.doseRealtime')}</span>
+            <button onClick={() => void loadDoses()} style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.refresh')}</button>
           </div>
           {doseError && <div style={{ fontSize: 12, color: '#ef4444', marginBottom: 8 }}>{doseError}</div>}
           <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16, marginBottom: 12 }}>
@@ -434,11 +435,11 @@ export default function DeviceOpsPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>患者ID</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>设备ID</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>剂量</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>检查类型</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>记录时间</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colPatientId')}</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colDeviceId')}</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colDose')}</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colExamType')}</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('deviceOps.colRecordedAt')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -452,18 +453,18 @@ export default function DeviceOpsPage() {
                     </tr>
                   ))}
                   {doseRecords.length === 0 && (
-                    <tr><td colSpan={5} style={{ padding: '16px', textAlign: 'center', color: '#6e7681' }}>{doseLoading ? '剂量记录加载中...' : '暂无剂量记录, 请在右侧登记'}</td></tr>
+                    <tr><td colSpan={5} style={{ padding: '16px', textAlign: 'center', color: '#6e7681' }}>{doseLoading ? t('deviceOps.doseLoading') : t('deviceOps.noDoseRecords')}</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
             <div style={{ background: '#0d1117', borderRadius: 6, padding: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#f0f6fc', marginBottom: 10 }}>登记剂量记录</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#f0f6fc', marginBottom: 10 }}>{t('deviceOps.registerDose')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <input placeholder="患者ID *" value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
-                <input placeholder="设备ID *" value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
+                <input placeholder={t('deviceOps.patientIdPlaceholder')} value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
+                <input placeholder={t('deviceOps.deviceIdPlaceholder')} value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
-                  <input type="number" placeholder="剂量值 *" value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
+                  <input type="number" placeholder={t('deviceOps.doseValuePlaceholder')} value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
                   <select value={doseForm.doseUnit} onChange={e => setDoseForm({ ...doseForm, doseUnit: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
                     <option>mGy</option><option>mGy·cm</option><option>dGy</option>
                   </select>
@@ -471,7 +472,7 @@ export default function DeviceOpsPage() {
                 <select value={doseForm.examType} onChange={e => setDoseForm({ ...doseForm, examType: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
                   <option>CT</option><option>DR</option><option>DSA</option><option>MG</option><option>X-ray</option>
                 </select>
-                <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 13, fontWeight: 600 }}>{doseSaving ? '提交中...' : '登记剂量'}</button>
+                <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 13, fontWeight: 600 }}>{doseSaving ? t('deviceOps.submitting') : t('deviceOps.registerDoseBtn')}</button>
               </div>
             </div>
           </div>

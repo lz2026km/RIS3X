@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Inbox } from 'lucide-react'
+import { t } from "../../i18n/appI18n";
 
 interface ModalityTatRow {
   modality: string;
@@ -103,11 +104,11 @@ export default function TatDashboardPage() {
 
   const handleDrillDown = async () => {
     if (!selectedCube) {
-      message.warning("请选择数据立方体");
+      message.warning(t('tatDashboard.selectCube'));
       return;
     }
     if (!drillValue.trim()) {
-      message.warning("请输入钻取维度值 (如: CT)");
+      message.warning(t('tatDashboard.enterDrillValue'));
       return;
     }
     setDrillLoading(true);
@@ -123,12 +124,12 @@ export default function TatDashboardPage() {
         setDrillRows(res.data.rows);
         setDrillColumns(Array.isArray(res.data.columns) ? res.data.columns : []);
       } else {
-        setDrillError(res.error?.message ?? "钻取失败");
+        setDrillError(res.error?.message ?? t('tatDashboard.drillFailed'));
         setDrillRows([]);
         setDrillColumns([]);
       }
     } catch (e) {
-      setDrillError((e as Error)?.message ?? "钻取失败");
+      setDrillError((e as Error)?.message ?? t('tatDashboard.drillFailed'));
       setDrillRows([]);
       setDrillColumns([]);
     } finally {
@@ -179,7 +180,7 @@ export default function TatDashboardPage() {
             .sort((a, b) => b.examCount - a.examCount),
         );
       } else {
-        setError(aggRes.error?.message ?? "TAT 汇总数据加载失败");
+        setError(aggRes.error?.message ?? t('tatDashboard.summaryLoadFailed'));
       }
       if (
         docRes.success &&
@@ -200,11 +201,11 @@ export default function TatDashboardPage() {
         );
       } else {
         setError(
-          (prev) => prev || (docRes.error?.message ?? "医生 TAT 数据加载失败"),
+          (prev) => prev || (docRes.error?.message ?? t('tatDashboard.doctorLoadFailed')),
         );
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "TAT 数据加载失败");
+      setError((e as Error)?.message ?? t('tatDashboard.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -322,20 +323,20 @@ export default function TatDashboardPage() {
 
   const columns: ColumnsType<ModalityTatRow> = [
     {
-      title: "设备",
+      title: t('tatDashboard.colModality'),
       dataIndex: "modality",
       key: "modality",
       render: (v: string) => <Tag color="blue">{v}</Tag>,
     },
     {
-      title: "检查数",
+      title: t('tatDashboard.colExamCount'),
       dataIndex: "examCount",
       key: "examCount",
       sorter: (a, b) => a.examCount - b.examCount,
     },
-    { title: "报告数", dataIndex: "reportCount", key: "reportCount" },
+    { title: t('tatDashboard.colReportCount'), dataIndex: "reportCount", key: "reportCount" },
     {
-      title: "平均TAT",
+      title: t('tatDashboard.colAvgTat'),
       dataIndex: "avgTatMinutes",
       key: "avgTatMinutes",
       width: 100,
@@ -359,7 +360,7 @@ export default function TatDashboardPage() {
       },
     },
     {
-      title: "按时完成率",
+      title: t('tatDashboard.colTimelyRate'),
       dataIndex: "timelyRate",
       key: "timelyRate",
       width: 130,
@@ -408,7 +409,7 @@ export default function TatDashboardPage() {
               }}
             >
               <Clock size={24} />
-              报告完成率 TAT 统计
+              {t('tatDashboard.title')}
             </h1>
             <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>
               Turnaround Time Analytics Dashboard · OLAP 实时统计
@@ -418,7 +419,7 @@ export default function TatDashboardPage() {
             <Select
               value={selectedDoctor || undefined}
               onChange={(v) => setSelectedDoctor(v || "")}
-              placeholder="全部医生"
+              placeholder={t('tatDashboard.allDoctors')}
               allowClear
               style={{ width: 140 }}
               options={doctorRows.map((d) => ({
@@ -429,7 +430,7 @@ export default function TatDashboardPage() {
             <Select
               value={selectedModality || undefined}
               onChange={(v) => setSelectedModality(v || "")}
-              placeholder="全部设备"
+              placeholder={t('tatDashboard.allModalities')}
               allowClear
               style={{ width: 120 }}
               options={MODALITIES.map((m) => ({ value: m, label: m }))}
@@ -439,9 +440,9 @@ export default function TatDashboardPage() {
               loading={loading}
               onClick={() => void load()}
             >
-              刷新
+              {t('tatDashboard.refresh')}
             </Button>
-            <Button icon={<Download size={14} />} onClick={handleExport}>导出</Button>
+            <Button icon={<Download size={14} />} onClick={handleExport}>{t('tatDashboard.export')}</Button>
           </Space>
         </div>
       </div>
@@ -454,7 +455,7 @@ export default function TatDashboardPage() {
             style={{ marginBottom: 16 }}
             title={error}
             action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-                重试
+                {t('tatDashboard.retry')}
               </Button>
             }
           />
@@ -464,7 +465,7 @@ export default function TatDashboardPage() {
             <Col span={6}>
               <Card size="small" style={{ borderRadius: 8 }}>
                 <Statistic
-                  title="平均 TAT"
+                  title={t('tatDashboard.avgTat')}
                   value={stats.avgTat}
                   suffix="min"
                   styles={{ content: { 
@@ -490,7 +491,7 @@ export default function TatDashboardPage() {
             <Col span={6}>
               <Card size="small" style={{ borderRadius: 8 }}>
                 <Statistic
-                  title="按时完成率"
+                  title={t('tatDashboard.onTimeRate')}
                   value={stats.onTimeRate}
                   suffix="%"
                   styles={{ content: { 
@@ -516,7 +517,7 @@ export default function TatDashboardPage() {
             <Col span={6}>
               <Card size="small" style={{ borderRadius: 8 }}>
                 <Statistic
-                  title="报告完成率"
+                  title={t('tatDashboard.completionRate')}
                   value={stats.completionRate}
                   suffix="%"
                   styles={{ content: { 
@@ -531,7 +532,7 @@ export default function TatDashboardPage() {
             <Col span={6}>
               <Card size="small" style={{ borderRadius: 8 }}>
                 <Statistic
-                  title="总检查数"
+                  title={t('tatDashboard.totalExams')}
                   value={stats.total}
                   styles={{ content: { 
                     color: "#1e40af",
@@ -547,17 +548,17 @@ export default function TatDashboardPage() {
           <Row gutter={16} style={{ marginBottom: 20 }}>
             <Col span={12}>
               <Card
-                title="各设备 TAT 分布"
+                title={t('tatDashboard.modalityDistribution')}
                 size="small"
                 style={{ borderRadius: 8 }}
                 extra={
                   <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                    按设备平均报告时长
+                    {t('tatDashboard.byModalityAvg')}
                   </span>
                 }
               >
                 {modalityRows.length === 0 ? (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} />
                 ) : (
                   <div
                     style={{ display: "flex", flexDirection: "column", gap: 8 }}
@@ -625,17 +626,17 @@ export default function TatDashboardPage() {
             </Col>
             <Col span={12}>
               <Card
-                title="医生 TAT 排名"
+                title={t('tatDashboard.doctorRanking')}
                 size="small"
                 style={{ borderRadius: 8 }}
                 extra={
                   <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                    平均 TAT 越低越好
+                    {t('tatDashboard.lowerBetter')}
                   </span>
                 }
               >
                 {filteredDoctorRows.length === 0 ? (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} />
                 ) : (
                   <div
                     style={{ display: "flex", flexDirection: "column", gap: 8 }}
@@ -671,7 +672,7 @@ export default function TatDashboardPage() {
                             }}
                           >
                             <span style={{ fontSize: 11, color: "#64748b" }}>
-                              {d.count}例 · 按时率 {d.timelyRate}%
+                              {d.count}{t('tatDashboard.caseUnit')} · {t('tatDashboard.timelyRateLabel')} {d.timelyRate}%
                             </span>
                             <span
                               style={{
@@ -712,15 +713,15 @@ export default function TatDashboardPage() {
           </Row>
 
           <Card
-            title="设备 TAT 明细"
+            title={t('tatDashboard.modalityDetail')}
             size="small"
             style={{ borderRadius: 8 }}
             extra={
               <Space>
-                <Tag color="green">优秀: {stats.excellent}</Tag>
-                <Tag color="blue">正常: {stats.normal}</Tag>
-                <Tag color="orange">预警: {stats.warning}</Tag>
-                <Tag color="red">超时: {stats.critical}</Tag>
+                <Tag color="green">{t('tatDashboard.excellent')}: {stats.excellent}</Tag>
+                <Tag color="blue">{t('tatDashboard.normal')}: {stats.normal}</Tag>
+                <Tag color="orange">{t('tatDashboard.warning')}: {stats.warning}</Tag>
+                <Tag color="red">{t('tatDashboard.critical')}: {stats.critical}</Tag>
               </Space>
             }
           >
@@ -731,26 +732,26 @@ export default function TatDashboardPage() {
               size="small"
               pagination={false}
               scroll={{ x: 700 }}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} /> }}
             />
           </Card>
 
           {/* [Wave1B P2] 多维分析: olapApi.listCubes + drillDown + 柱状图 (简化版) */}
           <Card
-            title={<Space><Layers size={16} />多维分析 (OLAP 钻取)</Space>}
+            title={<Space><Layers size={16} />{t('tatDashboard.olapTitle')}</Space>}
             size="small"
             style={{ borderRadius: 8, marginTop: 16 }}
             extra={
               <Space>
-                <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadCubes()}>刷新立方体</Button>
-                <Button size="small" type="primary" icon={<BarChart3 size={12} />} loading={drillLoading} onClick={() => void handleDrillDown()}>钻取</Button>
+                <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadCubes()}>{t('tatDashboard.refreshCubes')}</Button>
+                <Button size="small" type="primary" icon={<BarChart3 size={12} />} loading={drillLoading} onClick={() => void handleDrillDown()}>{t('tatDashboard.drill')}</Button>
               </Space>
             }
           >
             <Space wrap style={{ marginBottom: 12 }}>
               <Select
                 style={{ width: 220 }}
-                placeholder="选择数据立方体"
+                placeholder={t('tatDashboard.selectCubePlaceholder')}
                 value={selectedCube || undefined}
                 onChange={setSelectedCube}
                 options={cubes.map((c) => ({ value: c.id, label: c.name || c.id }))}
@@ -763,7 +764,7 @@ export default function TatDashboardPage() {
               />
               <Input
                 style={{ width: 140 }}
-                placeholder="维度值 (如: CT)"
+                placeholder={t('tatDashboard.dimensionValuePlaceholder')}
                 value={drillValue}
                 onChange={(e) => setDrillValue(e.target.value)}
                 onPressEnter={() => void handleDrillDown()}
@@ -771,7 +772,7 @@ export default function TatDashboardPage() {
               <Select
                 style={{ width: 200 }}
                 mode="multiple"
-                placeholder="度量"
+                placeholder={t('tatDashboard.measures')}
                 value={drillMeasures}
                 onChange={setDrillMeasures}
                 options={(selectedCubeMeta?.measures ?? ["exam_count", "report_count", "avg_report_time", "report_timely_rate"]).map((m) => ({ value: m, label: m }))}
@@ -779,11 +780,11 @@ export default function TatDashboardPage() {
             </Space>
             {drillError && <Alert type="error" showIcon style={{ marginBottom: 12 }} message={drillError} />}
             {drillRows.length === 0 && !drillError ? (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择立方体与维度值后点击「钻取」查看下钻结果" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.drillHint')} />
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>柱状图: {chartMeasure}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>{t('tatDashboard.barChart')}: {chartMeasure}</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {drillRows.slice(0, 15).map((r, i) => {
                       const label = String(r[drillColumns[0]?.code ?? "dimension"] ?? r.dimension ?? `行${i + 1}`)
@@ -810,7 +811,7 @@ export default function TatDashboardPage() {
                     columns={[
                       ...(drillColumns.length > 0
                         ? drillColumns.map((c) => ({ title: c.name || c.code, key: c.code, dataIndex: c.code }))
-                        : [{ title: "维度", key: "dimension", render: (_: unknown, r: Record<string, unknown>) => String(r.dimension ?? r[drillDimension] ?? "-") }]),
+                        : [{ title: t('tatDashboard.dimension'), key: "dimension", render: (_: unknown, r: Record<string, unknown>) => String(r.dimension ?? r[drillDimension] ?? "-") }]),
                       { title: chartMeasure, key: chartMeasure, render: (_: unknown, r: Record<string, unknown>) => Number(r[chartMeasure]) || 0 },
                     ]}
                   />

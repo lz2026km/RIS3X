@@ -20,6 +20,7 @@ import { PageContainer, PageHeader } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { eyeApi } from '@/services/api/eyeApi';
+import { t } from '../../i18n/appI18n';
 
 const { Text } = Typography;
 
@@ -41,17 +42,17 @@ interface QuickLink {
 }
 
 const KPI_CARDS: KpiCard[] = [
-  { key: 'appt', title: '今日预约', Icon: Calendar, color: '#2563eb', href: '/appointments' },
-  { key: 'exam', title: '今日检查', Icon: ScanLine, color: '#10b981', href: '/eye/pacs/studies' },
-  { key: 'rpt', title: '待写报告', Icon: FileText, color: '#f59e0b', href: '/eye/report/drafts' },
-  { key: 'crit', title: '危急值', Icon: AlertTriangle, color: '#ef4444', href: '/eye/ris/emergency' },
+  { key: 'appt', title: 'eyeWs.kpi.appt', Icon: Calendar, color: '#2563eb', href: '/appointments' },
+  { key: 'exam', title: 'eyeWs.kpi.exam', Icon: ScanLine, color: '#10b981', href: '/eye/pacs/studies' },
+  { key: 'rpt', title: 'eyeWs.kpi.rpt', Icon: FileText, color: '#f59e0b', href: '/eye/report/drafts' },
+  { key: 'crit', title: 'eyeWs.kpi.crit', Icon: AlertTriangle, color: '#ef4444', href: '/eye/ris/emergency' },
 ];
 
 const QUICK_LINKS: QuickLink[] = [
-  { key: 'pacs', title: 'PACS 检查', description: 'OCT / 眼底 / 视野 / FA / ICG', Icon: Activity, color: '#2563eb', href: '/eye/pacs/studies' },
-  { key: 'ai', title: 'AI 辅助诊断', description: '多模型 · 智能预筛', Icon: Microscope, color: '#8b5cf6', href: '/eye/ai' },
-  { key: 'emr', title: '眼科 EMR', description: '电子病历 · 视力量表', Icon: Stethoscope, color: '#06b6d4', href: '/eye/emr' },
-  { key: 'iol', title: 'IOL 计算器', description: '8 公式 · 在线测算', Icon: Pill, color: '#10b981', href: '/eye/ris/iol-calculator' },
+  { key: 'pacs', title: 'eyeWs.quick.pacsTitle', description: 'eyeWs.quick.pacsDesc', Icon: Activity, color: '#2563eb', href: '/eye/pacs/studies' },
+  { key: 'ai', title: 'eyeWs.quick.aiTitle', description: 'eyeWs.quick.aiDesc', Icon: Microscope, color: '#8b5cf6', href: '/eye/ai' },
+  { key: 'emr', title: 'eyeWs.quick.emrTitle', description: 'eyeWs.quick.emrDesc', Icon: Stethoscope, color: '#06b6d4', href: '/eye/emr' },
+  { key: 'iol', title: 'eyeWs.quick.iolTitle', description: 'eyeWs.quick.iolDesc', Icon: Pill, color: '#10b981', href: '/eye/ris/iol-calculator' },
 ];
 
 const EyeWorkspacePage: React.FC = () => {
@@ -163,8 +164,8 @@ const EyeWorkspacePage: React.FC = () => {
         setDraftCount(drafts);
         setCriticalCount(0);
         setQuickLinkMeta({
-          ai: aiCount > 0 ? `${aiCount} 模型 · 智能预筛` : '智能预筛',
-          iol: '8 公式 · 在线测算',
+          ai: aiCount > 0 ? t('eyeWs.aiModelCount', { count: aiCount }) : t('eyeWs.smartPrescreen'),
+          iol: t('eyeWs.iolFormulaDesc'),
         });
       } finally {
         if (!cancelled) setLoading(false);
@@ -180,12 +181,12 @@ const EyeWorkspacePage: React.FC = () => {
     crit: criticalCount,
   }), [appointmentCount, examCount, draftCount, criticalCount]);
 
-  const displayName = user?.name ?? '医生';
+  const displayName = user?.name ?? t('eyeWs.doctorFallback');
 
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-workspace-page">
       <PageHeader
-        title={`眼科工作台 · 欢迎,${displayName}`}
+        title={t('eyeWs.welcomeTitle', { name: displayName })}
         subtitle={today}
         icon={<Eye className="v4-icon" style={{ width: 28, height: 28, color: '#2563eb' }} />}
         variant="inline"
@@ -207,7 +208,7 @@ const EyeWorkspacePage: React.FC = () => {
             }}
           >
             <UserPlus size={14} />
-            新建预约
+            {t('eyeWs.newAppointment')}
           </button>
         }
       />
@@ -225,7 +226,7 @@ const EyeWorkspacePage: React.FC = () => {
               >
                 <Statistic
                   title={
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{k.title}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t(k.title)}</span>
                   }
                   value={kpiValues[k.key as keyof typeof kpiValues]}
                   prefix={<k.Icon className="v4-icon" style={{ color: k.color }} />}
@@ -250,9 +251,9 @@ const EyeWorkspacePage: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <q.Icon color={q.color} style={{ width: 32, height: 32, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>{q.title}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>{t(q.title)}</div>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    {quickLinkMeta[q.key] ?? q.description}
+                    {quickLinkMeta[q.key] ?? t(q.description)}
                   </Text>
                 </div>
                 <ArrowRight size={14} className="v4-icon" style={{ color: 'var(--text-secondary)' }} />
@@ -265,29 +266,29 @@ const EyeWorkspacePage: React.FC = () => {
       {/* [G005 Wave1A P0] IOL 库存区块: GET /eye/iol/inventory + low-stock + expiring (MaterialsPage /materials 明细) */}
       <Card
         size="small"
-        title={<Space><Box size={15} color="#10b981" />IOL 库存摘要</Space>}
+        title={<Space><Box size={15} color="#10b981" />{t('eyeWs.iolInventory')}</Space>}
         style={{ marginBottom: 16 }}
         extra={
           <a onClick={() => navigate('/materials')} style={{ fontSize: 12 }}>
-            库存明细 <ArrowRight size={12} className="v4-icon" />
+            {t('eyeWs.inventoryDetail')} <ArrowRight size={12} className="v4-icon" />
           </a>
         }
       >
         <Row gutter={12}>
           <Col xs={8} md={4}>
-            <Statistic title="库存总数" value={iolSummary.total} prefix={<Package size={14} />} valueStyle={{ fontSize: 20 }} />
+            <Statistic title={t('eyeWs.inventoryTotal')} value={iolSummary.total} prefix={<Package size={14} />} valueStyle={{ fontSize: 20 }} />
           </Col>
           <Col xs={8} md={4}>
-            <Statistic title="低库存" value={iolSummary.lowStock} valueStyle={{ color: iolSummary.lowStock > 0 ? '#faad14' : undefined, fontSize: 20 }} />
+            <Statistic title={t('eyeWs.lowStock')} value={iolSummary.lowStock} valueStyle={{ color: iolSummary.lowStock > 0 ? '#faad14' : undefined, fontSize: 20 }} />
           </Col>
           <Col xs={8} md={4}>
-            <Statistic title="90天内过期" value={iolSummary.expiring} valueStyle={{ color: iolSummary.expiring > 0 ? '#ff4d4f' : undefined, fontSize: 20 }} />
+            <Statistic title={t('eyeWs.expiring90')} value={iolSummary.expiring} valueStyle={{ color: iolSummary.expiring > 0 ? '#ff4d4f' : undefined, fontSize: 20 }} />
           </Col>
           <Col xs={24} md={12} style={{ display: 'flex', alignItems: 'center' }}>
             <Space size={6} wrap>
-              {iolSummary.lowStock > 0 && <Tag color="warning">⚠ {iolSummary.lowStock} 项需补货</Tag>}
-              {iolSummary.expiring > 0 && <Tag color="error">⏳ {iolSummary.expiring} 项即将到期</Tag>}
-              {iolSummary.total === 0 && iolSummary.lowStock === 0 && <Tag>接口未返回数据 (离线模式)</Tag>}
+              {iolSummary.lowStock > 0 && <Tag color="warning">{t('eyeWs.lowStockTag', { count: iolSummary.lowStock })}</Tag>}
+              {iolSummary.expiring > 0 && <Tag color="error">{t('eyeWs.expiringTag', { count: iolSummary.expiring })}</Tag>}
+              {iolSummary.total === 0 && iolSummary.lowStock === 0 && <Tag>{t('eyeWs.offlineNoData')}</Tag>}
             </Space>
           </Col>
         </Row>
@@ -296,18 +297,18 @@ const EyeWorkspacePage: React.FC = () => {
       {/* [Wave1B P2] IOL 计算记录: GET /eye/iol/calculations (eyeApi.listIolCalculations) */}
       <Card
         size="small"
-        title={<Space><FileText size={15} color="#10b981" />IOL 计算记录</Space>}
+        title={<Space><FileText size={15} color="#10b981" />{t('eyeWs.iolRecords')}</Space>}
         style={{ marginBottom: 16 }}
         extra={
           <a onClick={() => navigate('/eye/ris/iol-calculator')} style={{ fontSize: 12 }}>
-            IOL 计算器 <ArrowRight size={12} className="v4-icon" />
+            {t('eyeWs.iolCalculator')} <ArrowRight size={12} className="v4-icon" />
           </a>
         }
       >
         <Spin spinning={iolRecordsLoading}>
           {iolRecords.length === 0 ? (
             <Empty
-              description="暂无计算记录"
+              description={t('eyeWs.noCalcRecords')}
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               style={{ padding: '8px 0' }}
             />
@@ -331,7 +332,7 @@ const EyeWorkspacePage: React.FC = () => {
                     {r.iolPower != null ? `${r.iolPower}D` : (r.power != null ? `${r.power}D` : '-')}
                   </span>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    {r.patientName || r.patientId || '未绑定患者'}
+                    {r.patientName || r.patientId || t('eyeWs.unboundPatient')}
                     {r.eyeSide ? ` · ${r.eyeSide}` : ''}
                   </Text>
                   <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>
@@ -348,36 +349,36 @@ const EyeWorkspacePage: React.FC = () => {
         <Col xs={24} md={12}>
           <Card
             size="small"
-            title="今日手术安排"
+            title={t('eyeWs.todaySurgeries')}
             extra={
               <a onClick={() => navigate('/eye/ris')} style={{ fontSize: 12 }}>
-                查看全部 <ArrowRight size={12} className="v4-icon" />
+                {t('eyeWs.viewAll')} <ArrowRight size={12} className="v4-icon" />
               </a>
             }
           >
             <Empty
-              description="暂无手术安排"
+              description={t('eyeWs.noSurgeries')}
               image={Empty.PRESENTED_IMAGE_SIMPLE}
             >
-              <Tag color="blue">对接 /api/v1/eye/ris/surgeries</Tag>
+              <Tag color="blue">{t('eyeWs.surgeriesEndpoint')}</Tag>
             </Empty>
           </Card>
         </Col>
         <Col xs={24} md={12}>
           <Card
             size="small"
-            title="待办事项"
+            title={t('eyeWs.todoItems')}
             extra={
               <a onClick={() => navigate('/worklist')} style={{ fontSize: 12 }}>
-                工作清单 <ArrowRight size={12} className="v4-icon" />
+                {t('eyeWs.worklist')} <ArrowRight size={12} className="v4-icon" />
               </a>
             }
           >
             <Empty
-              description="暂无待办"
+              description={t('eyeWs.noTodos')}
               image={Empty.PRESENTED_IMAGE_SIMPLE}
             >
-              <Tag color="processing">对接 /api/v1/eye/ris/appointments</Tag>
+              <Tag color="processing">{t('eyeWs.appointmentsEndpoint')}</Tag>
             </Empty>
           </Card>
         </Col>

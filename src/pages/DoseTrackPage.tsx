@@ -109,7 +109,7 @@ export default function DoseTrackPage() {
         if (alertsRes.success && Array.isArray(alertsRes.data)) {
           setAlerts((alertsRes.data as RdsrDoseAlert[]).map((a) => ({
             id: a.id,
-            patientName: a.patientName ?? '未知患者',
+            patientName: a.patientName ?? t('doseTrack.unknownPatient'),
             modality: a.modality,
             examItem: a.bodyPart,
             doseValue: a.dlp,
@@ -121,7 +121,7 @@ export default function DoseTrackPage() {
           })));
         }
       } catch (e) {
-        if (!cancelled) setDataError(e instanceof Error ? e.message : '剂量接口不可用');
+        if (!cancelled) setDataError(e instanceof Error ? e.message : t('doseTrack.apiUnavailable'));
       }
     })();
     return () => { cancelled = true; };
@@ -148,7 +148,7 @@ export default function DoseTrackPage() {
     gender: '-',
     age: 0,
     modality: 'CT',
-    examItem: '累计剂量',
+    examItem: t('doseTrack.cumulativeDose'),
     examDate: p.lastExamDate,
     doseType: 'DLP',
     doseValue: p.totalDlp1y,
@@ -205,11 +205,11 @@ export default function DoseTrackPage() {
 
       {dataSource === 'api' ? (
         <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-success-bg)', color: '#16a34a', borderRadius: 8, fontSize: 12 }}>
-          数据源: /rdsr/today + /rdsr/patients + /rdsr/alerts（真实接口）· 日期 {today?.date ?? '-'}
+          {t('doseTrack.dataSourceLine')} {today?.date ?? '-'}
         </div>
       ) : (
         <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 8, fontSize: 12 }}>
-          {dataError ? `剂量接口不可用: ${dataError}; ` : ''}演示数据（rdsrApi 未返回, 已回退 mockData）
+          {dataError ? t('doseTrack.apiErrorPrefix', { error: dataError }) : ''}{t('doseTrack.demoDataNote')}
         </div>
       )}
 
@@ -399,7 +399,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
       <PrimaryStat
         label={t("doseTrack.stats.highDose")}
         value={stats.highDosePatients}
-        delta="+2人"
+        delta={t('doseTrack.deltaNewPatients')}
         deltaColor="#dc2626"
         icon={<AlertTriangle size={18} />}
         iconBg="#fef2f2"
@@ -419,7 +419,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
       <PrimaryStat
         label={t("doseTrack.stats.doseAlerts")}
         value={stats.doseAlertsToday}
-        delta={`${stats.criticalAlerts}危 / ${stats.warningAlerts}警`}
+        delta={t('doseTrack.criticalWarningDelta', { critical: stats.criticalAlerts, warning: stats.warningAlerts })}
         deltaColor="#64748b"
         icon={<ShieldAlert size={18} />}
         iconBg="var(--color-warning-bg)"
@@ -428,7 +428,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
       <PrimaryStat
         label={t("doseTrack.stats.devicesOnline")}
         value={stats.deviceOnlineCount}
-        delta={`平均CTDI: ${stats.averageCTDIvol} mGy`}
+        delta={t('doseTrack.avgCtdiDelta', { value: stats.averageCTDIvol })}
         deltaColor="#64748b"
         icon={<Monitor size={18} />}
         iconBg="#ecfdf5"
@@ -629,13 +629,8 @@ function FooterInfo() {
       >
         <Info size={14} style={{ color: "var(--text-secondary)", marginTop: 2, flexShrink: 0 }} />
         <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-          <strong style={{ color: "var(--text-primary)" }}>剂量参考：</strong>
-          CT头颅平扫 DLP参考值约700-800 mGy·cm；胸部CT平扫约400-600
-          mGy·cm；冠脉CTA约800-1200 mGy·cm； DSA冠脉造影约2000-4000
-          mGy·m²；乳腺钼靶约3-6 mGy。 根据《医疗照射放射防护标准》GBZ
-          130-2020要求，对超出指导水平的检查应进行患者剂量优化分析。
-          法规阈值标注依据国家标准制定，超出阈值时系统自动触发预警机制。
-          AAPM参考值基于美国医学物理师协会建议；欧盟参考值基于欧盟委员会指南。
+          <strong style={{ color: "var(--text-primary)" }}>{t('doseTrack.refTitle')}</strong>
+          {t('doseTrack.refText')}
         </div>
       </div>
       <div
@@ -646,7 +641,7 @@ function FooterInfo() {
           color: "var(--text-secondary)",
         }}
       >
-        DoseTrackPage v0.3.0 · G005-001渐进式修改规范 · 最后更新: 2026-05-03
+        {t('doseTrack.footerVersion')}
       </div>
     </>
   );
@@ -697,7 +692,7 @@ function DoseAnalyticsSection({
       if (!cancelled) {
         setAnalyticsSource('demo');
         setStatsTrend(Array.from({ length: 30 }, (_, i) => ({
-          date: `${Math.floor(i / 2) + 1}${i % 2 ? '下半' : '上半'}`,
+          date: `${Math.floor(i / 2) + 1}${i % 2 ? t('doseTrack.secondHalf') : t('doseTrack.firstHalf')}`,
           avgCtdiVol: Math.round(11 + Math.sin(i / 3.5) * 2.6 + (i % 5)),
           avgDlp: Math.round(320 + Math.sin(i / 4) * 48 + (i % 7) * 9),
         })));
@@ -721,7 +716,7 @@ function DoseAnalyticsSection({
   const drlOverDevice = useMemo(() => {
     const map = new Map<string, { device: string; modality: string; total: number; over: number; avgExceed: number }>();
     alerts.forEach(a => {
-      const dev = a.device || a.modality || '未知设备';
+      const dev = a.device || a.modality || t('doseTrack.unknownDevice');
       const item = map.get(dev) ?? { device: dev, modality: a.modality, total: 0, over: 0, avgExceed: 0 };
       item.total += 1;
       if (a.alertLevel === 'warning' || a.alertLevel === 'critical') item.over += 1;
@@ -748,11 +743,11 @@ function DoseAnalyticsSection({
     }
     const map: Record<string, { count: number; avgDlp: number; over: number }> = {};
     patientDoseRecords.forEach(r => {
-      const t = r.examItem || '其他';
-      const slot = map[t] ?? { count: 0, avgDlp: 0, over: 0 };
+      const label = r.examItem || t('doseTrack.other');
+      const slot = map[label] ?? { count: 0, avgDlp: 0, over: 0 };
       slot.count += 1;
       slot.avgDlp += r.doseValue;
-      map[t] = slot;
+      map[label] = slot;
     });
     return Object.entries(map).map(([type, v]) => ({ type, count: v.count, avgDlp: Math.round(v.avgDlp / Math.max(1, v.count)), over: v.over })).sort((a, b) => b.count - a.count).slice(0, 8);
   }, [today, patientDoseRecords]);
@@ -770,17 +765,17 @@ function DoseAnalyticsSection({
         color: analyticsSource === 'api' ? '#15803d' : '#92400e',
       }} data-testid="dose-analytics-source">
         {analyticsSource === 'api'
-          ? '数据源: /rdsr/stats + /rdsr/patients + /rdsr/alerts (真实接口)'
-          : '数据源: 演示回退 (rdsrApi 不可用, 基于 mockData 派生)'}
-        <span style={{ marginLeft: 'auto', opacity: 0.75 }}>更新于 {new Date().toLocaleTimeString('zh-CN')}</span>
+          ? t('doseTrack.sourceReal')
+          : t('doseTrack.sourceDemo')}
+        <span style={{ marginLeft: 'auto', opacity: 0.75 }}>{t('doseTrack.updatedAt', { time: new Date().toLocaleTimeString('zh-CN') })}</span>
       </div>
 
       {/* G2. 剂量趋势 (近 30 日) */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginBottom: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <TrendingUp size={14} /> 剂量趋势 (近 30 日)
+          <TrendingUp size={14} /> {t('doseTrack.trendTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
-            总量 {statsMeta.totalExams} 项 · 峰值 CTDIvol <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol}</b> mGy
+            {t('doseTrack.trendMeta', { total: statsMeta.totalExams })} <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol}</b> mGy
           </span>
         </div>
         <div style={{ height: 220 }}>
@@ -791,24 +786,24 @@ function DoseAnalyticsSection({
               <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} />
               <Tooltip />
-              <Line yAxisId="left" type="monotone" dataKey="avgCtdiVol" name="平均CTDIvol (mGy)" stroke="#3b82f6" strokeWidth={2} dot={false} />
-              <Line yAxisId="right" type="monotone" dataKey="avgDlp" name="平均DLP (mGy·cm)" stroke="#d97706" strokeWidth={2} dot={false} />
+              <Line yAxisId="left" type="monotone" dataKey="avgCtdiVol" name={t('doseTrack.avgCtdiVol')} stroke="#3b82f6" strokeWidth={2} dot={false} />
+              <Line yAxisId="right" type="monotone" dataKey="avgDlp" name={t('doseTrack.avgDlp')} stroke="#d97706" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
-          <span>最高 CTDIvol: <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol} mGy</b></span>
-          <span>最高 DLP: <b style={{ color: '#d97706' }}>{statsMeta.maxDlp} mGy·cm</b></span>
-          <span>预警 {statsMeta.warningCount} · 危急 {statsMeta.criticalCount}</span>
-          <span style={{ marginLeft: 'auto' }}>参考: 成人头部CT DLP 参考值 ~700-800 mGy·cm</span>
+          <span>{t('doseTrack.maxCtdi')} <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol} mGy</b></span>
+          <span>{t('doseTrack.maxDlp')} <b style={{ color: '#d97706' }}>{statsMeta.maxDlp} mGy·cm</b></span>
+          <span>{t('doseTrack.warningCritical', { warning: statsMeta.warningCount, critical: statsMeta.criticalCount })}</span>
+          <span style={{ marginLeft: 'auto' }}>{t('doseTrack.headCtdiReference')}</span>
         </div>
       </div>
 
       {/* G1. 患者剂量排行 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginBottom: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Award size={14} /> 患者累计有效剂量排行 TOP 10
-          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>按近 1 年累计 DLP 排序 · 年度限值 20 mSv (≈1000 mGy·cm 成人)</span>
+          <Award size={14} /> {t('doseTrack.patientRankTitle')}
+          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.patientRankSubtitle')}</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {patientRank.map((p, i) => {
@@ -822,9 +817,9 @@ function DoseAnalyticsSection({
                   <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 6, opacity: 0.85 }} />
                 </div>
                 <span style={{ width: 90, fontSize: 12, fontWeight: 700, color: '#1e293b', textAlign: 'right' }}>{p.dlp1y.toLocaleString()} mGy·cm</span>
-                <span style={{ width: 56, fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>{p.exams} 次检查</span>
+                <span style={{ width: 56, fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>{t('doseTrack.examCount', { count: p.exams })}</span>
                 {p.overDrl > 0 && (
-                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'var(--color-error-bg)', color: '#dc2626' }}>超标 {p.overDrl}</span>
+                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'var(--color-error-bg)', color: '#dc2626' }}>{t('doseTrack.overCount', { count: p.overDrl })}</span>
                 )}
               </div>
             );
@@ -835,9 +830,9 @@ function DoseAnalyticsSection({
       {/* G3. DRL 超标清单 (按设备) */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginBottom: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <ShieldAlert size={14} /> DRL 超标清单 (按设备)
+          <ShieldAlert size={14} /> {t('doseTrack.drlOverTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
-            超标 {overTotal} 例 / 监测 {drlOverDevice.reduce((s, d) => s + d.total, 0)} 例
+            {t('doseTrack.drlOverMeta', { over: overTotal, total: drlOverDevice.reduce((s, d) => s + d.total, 0) })}
           </span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
@@ -857,23 +852,23 @@ function DoseAnalyticsSection({
                   <b style={{ fontSize: 13, color: rate > 12 ? '#dc2626' : '#d97706', width: 34, textAlign: 'right' }}>{rate}%</b>
                 </div>
                 <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-                  <span>超标 <b style={{ color: '#dc2626' }}>{d.over}</b> / {d.total} 例</span>
-                  <span>平均超 <b style={{ color: '#d97706' }}>{d.avgExceed}</b> mGy·cm</span>
+                  <span>{t('doseTrack.overLabel')} <b style={{ color: '#dc2626' }}>{d.over}</b> / {d.total} {t('doseTrack.casesUnit')}</span>
+                  <span>{t('doseTrack.avgExceed')} <b style={{ color: '#d97706' }}>{d.avgExceed}</b> mGy·cm</span>
                 </div>
               </div>
             );
           })}
         </div>
         <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          依据 GBZ 130-2020 医疗照射防护标准: 超出指导水平 (DRL) 的检查应进行剂量优化分析; 超标率 &gt; 12% 的设备建议列入优先优化队列。
+           {t('doseTrack.drlNote')}
         </div>
       </div>
 
       {/* G4. 检查类型剂量对比 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <BarChart3 size={14} /> 检查类型剂量对比
-          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>平均 DLP 对比 · 红条为超标项</span>
+          <BarChart3 size={14} /> {t('doseTrack.typeCompareTitle')}
+          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.typeCompareSubtitle')}</span>
         </div>
         <div style={{ height: Math.max(180, typeCompare.length * 36) }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -881,7 +876,7 @@ function DoseAnalyticsSection({
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <XAxis type="number" tick={{ fontSize: 10 }} />
               <YAxis type="category" dataKey="type" tick={{ fontSize: 11 }} width={70} />
-              <Tooltip formatter={(v: any, name: any) => [name === 'avgDlp' ? `${v} mGy·cm` : v, name === 'avgDlp' ? '平均DLP' : '检查量']} />
+              <Tooltip formatter={(v: any, name: any) => [name === 'avgDlp' ? `${v} mGy·cm` : v, name === 'avgDlp' ? t('doseTrack.avgDlpShort') : t('doseTrack.examVolume')]} />
               <Bar dataKey="avgDlp" barSize={16} radius={[0, 4, 4, 0]}>
                 {typeCompare.map((t, i) => (
                   <Cell key={i} fill={t.avgDlp > 700 ? '#dc2626' : t.avgDlp > 500 ? '#d97706' : '#3b82f6'} />
@@ -891,8 +886,8 @@ function DoseAnalyticsSection({
           </ResponsiveContainer>
         </div>
         <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-          <span>对比范围: {typeCompare.length} 类检查 · 参考胸部平扫 400-600 mGy·cm</span>
-          <span>红色 = 高于常规水平</span>
+          <span>{t('doseTrack.compareRange', { count: typeCompare.length })}</span>
+          <span>{t('doseTrack.redAboveNormal')}</span>
         </div>
       </div>
 
@@ -900,8 +895,8 @@ function DoseAnalyticsSection({
       <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16, marginTop: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <TrendingDown size={14} /> DRL 超标月度趋势
-            <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>近 6 个月超标例数</span>
+            <TrendingDown size={14} /> {t('doseTrack.monthlyTrendTitle')}
+            <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.monthlyTrendSubtitle')}</span>
           </div>
           {(() => {
             const months = ['3月', '4月', '5月', '6月', '7月', '8月'];
@@ -923,20 +918,20 @@ function DoseAnalyticsSection({
             );
           })()}
           <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-            <span>本季度环比 <b style={{ color: '#16a34a' }}>-38.5%</b></span>
-            <span>优化目标: 月度超标 ≤ 5 例</span>
+            <span>{t('doseTrack.quarterOnQuarter')} <b style={{ color: '#16a34a' }}>-38.5%</b></span>
+            <span>{t('doseTrack.optimizationTarget')}</span>
           </div>
         </div>
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <AlertTriangle size={14} /> 预警等级构成
+            <AlertTriangle size={14} /> {t('doseTrack.alertCompositionTitle')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              { label: '危急 (≥2×DRL)', value: statsMeta.criticalCount, color: '#dc2626' },
-              { label: '预警 (1-2×DRL)', value: statsMeta.warningCount, color: '#d97706' },
-              { label: '正常 (<DRL)', value: Math.max(0, statsMeta.totalExams - statsMeta.criticalCount - statsMeta.warningCount), color: '#16a34a' },
+              { label: t('doseTrack.levelCritical'), value: statsMeta.criticalCount, color: '#dc2626' },
+              { label: t('doseTrack.levelWarning'), value: statsMeta.warningCount, color: '#d97706' },
+              { label: t('doseTrack.levelNormal'), value: Math.max(0, statsMeta.totalExams - statsMeta.criticalCount - statsMeta.warningCount), color: '#16a34a' },
             ].map(l => {
               const pct = statsMeta.totalExams > 0 ? Math.round((l.value / statsMeta.totalExams) * 100) : 0;
               return (
@@ -954,7 +949,7 @@ function DoseAnalyticsSection({
           </div>
           <div style={{ marginTop: 12, padding: '8px 10px', background: statsMeta.criticalCount > 0 ? 'var(--color-error-bg)' : 'var(--color-success-bg)', borderRadius: 6, fontSize: 11, color: statsMeta.criticalCount > 0 ? '#b91c1c' : '#15803d', display: 'flex', alignItems: 'center', gap: 5 }}>
             <ShieldAlert size={12} />
-            {statsMeta.criticalCount > 0 ? `存在 ${statsMeta.criticalCount} 例危急剂量, 建议立即核查扫描协议` : '当前无危急剂量预警'}
+            {statsMeta.criticalCount > 0 ? t('doseTrack.criticalExists', { count: statsMeta.criticalCount }) : t('doseTrack.noCriticalWarning')}
           </div>
         </div>
       </div>
@@ -962,20 +957,20 @@ function DoseAnalyticsSection({
       {/* G7. 剂量优化建议 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginTop: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Zap size={14} /> 剂量优化建议
+          <Zap size={14} /> {t('doseTrack.optimizationTitle')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {[
-            { icon: '⚡', title: '头部CT平扫协议检查', desc: `近30日头部检查平均 DLP ${statsTrend.length > 0 ? Math.round(statsTrend.reduce((s, t) => s + t.avgDlp, 0) / statsTrend.length) : 620} mGy·cm, 建议核对扫描范围与 kVp 设置`, priority: '高' },
-            { icon: '🎯', title: '冠脉CTA 心率控制', desc: '心率 >75bpm 患者建议使用 β 受体阻滞剂后扫描, 可降低约 20% 剂量', priority: '中' },
-            { icon: '🛡️', title: '儿童协议专项', desc: `儿童检查应使用年龄/体重分组协议, 当前儿童协议引用率 ${Math.min(96, 82 + overTotal)}%`, priority: '高' },
-            { icon: '📉', title: 'DSA 透视时间控制', desc: 'DSA 检查平均透视时间偏长, 建议启用剂量报告页与限时提示', priority: '中' },
+            { icon: '⚡', title: t('doseTrack.sug1Title'), desc: t('doseTrack.sug1Desc', { dlp: statsTrend.length > 0 ? Math.round(statsTrend.reduce((s, tr) => s + tr.avgDlp, 0) / statsTrend.length) : 620 }), priority: t('doseTrack.priorityHigh') },
+            { icon: '🎯', title: t('doseTrack.sug2Title'), desc: t('doseTrack.sug2Desc'), priority: t('doseTrack.priorityMedium') },
+            { icon: '🛡️', title: t('doseTrack.sug3Title'), desc: t('doseTrack.sug3Desc', { rate: Math.min(96, 82 + overTotal) }), priority: t('doseTrack.priorityHigh') },
+            { icon: '📉', title: t('doseTrack.sug4Title'), desc: t('doseTrack.sug4Desc'), priority: t('doseTrack.priorityMedium') },
           ].map(s => (
             <div key={s.title} style={{ padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <span style={{ fontSize: 16 }}>{s.icon}</span>
                 <b style={{ fontSize: 12, color: '#1e293b' }}>{s.title}</b>
-                <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: s.priority === '高' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: s.priority === '高' ? '#dc2626' : '#d97706' }}>{s.priority}优先级</span>
+                <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: s.priority === t('doseTrack.priorityHigh') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: s.priority === t('doseTrack.priorityHigh') ? '#dc2626' : '#d97706' }}>{t('doseTrack.prioritySuffix', { priority: s.priority })}</span>
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{s.desc}</div>
             </div>
@@ -986,8 +981,8 @@ function DoseAnalyticsSection({
       {/* G8. 设备剂量水平对比 (平均 DLP / CTDIvol) */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginTop: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Monitor size={14} /> 设备平均剂量水平
-          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>各设备近 30 日平均 DLP / CTDIvol</span>
+          <Monitor size={14} /> {t('doseTrack.deviceLevelTitle')}
+          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.deviceLevelSubtitle')}</span>
         </div>
         {(() => {
           const devices = deviceDoseData.slice(0, 6);
@@ -1003,7 +998,7 @@ function DoseAnalyticsSection({
                     <b style={{ width: 130, fontSize: 12, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.device}</b>
                     <div style={{ flex: 1, height: 12, background: '#f1f5f9', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
                       <div style={{ width: `${(dlp / maxDlp) * 100}%`, height: '100%', background: over ? '#dc2626' : '#3b82f6', borderRadius: 6, opacity: 0.9 }} />
-                      <div style={{ position: 'absolute', left: '55%', top: 0, bottom: 0, width: 2, background: '#94a3b8', opacity: 0.6 }} title="参考线 (DRL 550)" />
+                      <div style={{ position: 'absolute', left: '55%', top: 0, bottom: 0, width: 2, background: '#94a3b8', opacity: 0.6 }} title={t('doseTrack.referenceLine')} />
                     </div>
                     <span style={{ width: 90, fontSize: 12, fontWeight: 700, color: over ? '#dc2626' : '#1e293b', textAlign: 'right' }}>{dlp.toLocaleString()} mGy·cm</span>
                     <span style={{ width: 90, fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>CTDIvol {ctdi} mGy</span>
@@ -1011,8 +1006,8 @@ function DoseAnalyticsSection({
                 );
               })}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-                <span>虚线 = 550 mGy·cm (DRL 参考线)</span>
-                <span>红色 = 超过参考线</span>
+                <span>{t('doseTrack.dashedLine')}</span>
+                <span>{t('doseTrack.redExceed')}</span>
               </div>
             </div>
           );
@@ -1022,9 +1017,9 @@ function DoseAnalyticsSection({
       {/* G9. 复查患者剂量叠加关注清单 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginTop: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Info size={14} /> 复查患者剂量叠加关注清单
+          <Info size={14} /> {t('doseTrack.reviewListTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
-            30 日内多次检查 · 累计剂量接近/超过年度限值 (成人 20 mSv ≈ 1000 mGy·cm)
+            {t('doseTrack.reviewListSubtitle')}
           </span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1041,23 +1036,23 @@ function DoseAnalyticsSection({
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                   <b style={{ fontSize: 12, color: '#1e293b' }}>{p.name}</b>
                   <code style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{p.id}</code>
-                  <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.exams} 次检查</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('doseTrack.examCount', { count: p.exams })}</span>
                   {p.watch && (
                     <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'var(--color-error-bg)', color: '#dc2626' }}>
-                      30日累计偏高
+                      {t('doseTrack.cumulativeHigh')}
                     </span>
                   )}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
-                    <span style={{ width: 84, color: 'var(--text-secondary)' }}>30日累计 DLP</span>
+                    <span style={{ width: 84, color: 'var(--text-secondary)' }}>{t('doseTrack.cumulative30d')}</span>
                     <div style={{ flex: 1, height: 7, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${Math.min(100, p.pct30)}%`, height: '100%', background: p.pct30 > 60 ? '#dc2626' : p.pct30 > 30 ? '#d97706' : '#3b82f6', borderRadius: 999 }} />
                     </div>
                     <b style={{ width: 90, textAlign: 'right', color: '#1e293b' }}>{p.dlp30d} mGy·cm</b>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
-                    <span style={{ width: 84, color: 'var(--text-secondary)' }}>1年累计 DLP</span>
+                    <span style={{ width: 84, color: 'var(--text-secondary)' }}>{t('doseTrack.cumulative1y')}</span>
                     <div style={{ flex: 1, height: 7, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${Math.min(100, p.pct1y)}%`, height: '100%', background: p.pct1y > 100 ? '#dc2626' : p.pct1y > 60 ? '#d97706' : '#16a34a', borderRadius: 999 }} />
                     </div>
@@ -1069,7 +1064,7 @@ function DoseAnalyticsSection({
           })()}
         </div>
         <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          依据 GBZ 130-2020: 对反复接受高剂量检查的患者, 系统应生成累计剂量提醒并建议医生评估检查必要性。
+           {t('doseTrack.reviewNote')}
         </div>
       </div>
     </div>

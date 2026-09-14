@@ -108,10 +108,10 @@ export default function RetakeRateAnalyticsPage() {
         setOpinion('')
         await Promise.all([loadQueue(), load(dimension, rangeDays)])
       } else {
-        message.error(res.error?.message ?? '审批失败')
+        message.error(res.error?.message ?? t('retakeAnalytics.reviewFailed'))
       }
     } catch {
-      message.error('审批失败')
+      message.error(t('retakeAnalytics.reviewFailed'))
     } finally {
       setReviewBusy(false)
     }
@@ -132,10 +132,10 @@ export default function RetakeRateAnalyticsPage() {
         setStats(res.data)
         setSource('api')
       } else {
-        setError(res.error?.message ?? '重拍统计加载失败')
+        setError(res.error?.message ?? t('retakeAnalytics.loadFailed'))
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : '重拍统计加载失败')
+      setError(e instanceof Error ? e.message : t('retakeAnalytics.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -178,13 +178,13 @@ export default function RetakeRateAnalyticsPage() {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <PageHeader
         icon={<BarChart3 size={20} color="#7c3aed" />}
-        title="重拍率统计与分析"
-        subtitle="趋势 / 原因分类 / 技师模态热力"
+        title={t('retakeAnalytics.title')}
+        subtitle={t('retakeAnalytics.subtitle')}
         actions={
           <>
             <Tag color="purple">v3.0.6.11-100 Wave 1B</Tag>
-            <Tag color="geekblue">趋势 / 原因分类 / 技师模态热力</Tag>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load(dimension, rangeDays)}>刷新</Button>
+            <Tag color="geekblue">{t('retakeAnalytics.subtitle')}</Tag>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load(dimension, rangeDays)}>{t('retakeAnalytics.refresh')}</Button>
           </>
         }
       />
@@ -204,28 +204,28 @@ export default function RetakeRateAnalyticsPage() {
           value={rangeDays}
           onChange={(e) => setRangeDays(e.target.value as number)}
         />
-        {stats && <AppText size="xs" color="muted">统计区间 {stats.from.slice(0, 10)} ~ {stats.to.slice(0, 10)}</AppText>}
+        {stats && <AppText size="xs" color="muted">{t('retakeAnalytics.rangePrefix')} {stats.from.slice(0, 10)} ~ {stats.to.slice(0, 10)}</AppText>}
       </Space>
 
       {error && (
-        <Alert type="warning" showIcon message="统计加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load(dimension, rangeDays)}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="warning" showIcon message={t('retakeAnalytics.statsLoadFailed')} description={error} style={{ marginBottom: 16 }}
+          action={<Button size="small" onClick={() => void load(dimension, rangeDays)}><RefreshCw size={14} /> {t('retakeAnalytics.retry')}</Button>} />
       )}
 
       <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
-        <StatCard title="完成检查数" value={stats?.summary.totalCompleted ?? 0} icon={<Camera size={16} />} color="primary" loading={loading} />
-        <StatCard title="重拍次数" value={stats?.summary.totalRetakes ?? 0} icon={<Camera size={16} />} color="error" loading={loading} />
-        <StatCard title="重拍率" value={stats?.summary.retakeRate ?? 0} suffix="%" color={rateColor(stats?.summary.retakeRate ?? 0)} loading={loading} />
-        <StatCard title="重拍检查数" value={stats?.summary.examRetakeCount ?? 0} icon={<BarChart3 size={16} />} color="warning" loading={loading} />
+        <StatCard title={t('retakeAnalytics.totalCompleted')} value={stats?.summary.totalCompleted ?? 0} icon={<Camera size={16} />} color="primary" loading={loading} />
+        <StatCard title={t('retakeAnalytics.totalRetakes')} value={stats?.summary.totalRetakes ?? 0} icon={<Camera size={16} />} color="error" loading={loading} />
+        <StatCard title={t('retakeAnalytics.retakeRate')} value={stats?.summary.retakeRate ?? 0} suffix="%" color={rateColor(stats?.summary.retakeRate ?? 0)} loading={loading} />
+        <StatCard title={t('retakeAnalytics.examRetakeCount')} value={stats?.summary.examRetakeCount ?? 0} icon={<BarChart3 size={16} />} color="warning" loading={loading} />
       </StatCardGrid>
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={14}>
-          <Card size="small" title={<Space><TrendingUp size={14} />重拍率趋势 (按日)</Space>} extra={<Tag>{trendChart.length} 天</Tag>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><TrendingUp size={14} />{t('retakeAnalytics.trendTitle')}</Space>} extra={<Tag>{trendChart.length} {t('retakeAnalytics.daysUnit')}</Tag>} style={{ marginBottom: 16 }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
             ) : trendChart.length === 0 ? (
-              <EmptyState description="暂无趋势数据" />
+              <EmptyState description={t('retakeAnalytics.noTrend')} />
             ) : (
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={trendChart} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
@@ -235,8 +235,8 @@ export default function RetakeRateAnalyticsPage() {
                   <YAxis yAxisId="count" orientation="right" tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend />
-                  <Line yAxisId="rate" type="monotone" dataKey="rate" name="重拍率 %" stroke="#dc2626" strokeWidth={2} dot={{ r: 2 }} />
-                  <Line yAxisId="count" type="monotone" dataKey="retakes" name="重拍次数" stroke="#7c3aed" strokeWidth={2} dot={{ r: 2 }} />
+                  <Line yAxisId="rate" type="monotone" dataKey="rate" name={t('retakeAnalytics.retakeRatePct')} stroke="#dc2626" strokeWidth={2} dot={{ r: 2 }} />
+                  <Line yAxisId="count" type="monotone" dataKey="retakes" name={t('retakeAnalytics.retakeCount')} stroke="#7c3aed" strokeWidth={2} dot={{ r: 2 }} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -244,11 +244,11 @@ export default function RetakeRateAnalyticsPage() {
         </Col>
 
         <Col xs={24} lg={10}>
-          <Card size="small" title={<Space><PieIcon size={14} />{dimension === 'reason' ? '原因分布' : `${dimension === 'tech' ? '技师' : '模态'}重拍占比`}</Space>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><PieIcon size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonDistribution') : `${dimension === 'tech' ? t('retakeAnalytics.tech') : t('retakeAnalytics.modality')}${t('retakeAnalytics.retakeRatioSuffix')}`}</Space>} style={{ marginBottom: 16 }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
             ) : pieData.length === 0 ? (
-              <EmptyState description="暂无重拍记录" />
+              <EmptyState description={t('retakeAnalytics.noRetakeRecords')} />
             ) : (
               <>
                 <ResponsiveContainer width="100%" height={200}>
@@ -275,11 +275,11 @@ export default function RetakeRateAnalyticsPage() {
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={14}>
-          <Card size="small" title={<Space><BarChart3 size={14} />{dimension === 'reason' ? '原因维度明细' : dimension === 'tech' ? '技师维度明细' : '模态维度明细'}</Space>} extra={<Tag>{heatRows.length} 项</Tag>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><BarChart3 size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonDetail') : dimension === 'tech' ? t('retakeAnalytics.techDetail') : t('retakeAnalytics.modalityDetail')}</Space>} extra={<Tag>{heatRows.length} {t('retakeAnalytics.itemsUnit')}</Tag>} style={{ marginBottom: 16 }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
             ) : heatRows.length === 0 ? (
-              <EmptyState description="暂无明细" />
+              <EmptyState description={t('retakeAnalytics.noDetail')} />
             ) : (
               <ResponsiveContainer width="100%" height={Math.max(220, heatRows.length * 44)}>
                 <BarChart data={heatRows} layout="vertical" margin={{ top: 4, right: 16, left: 24, bottom: 0 }}>
@@ -288,8 +288,8 @@ export default function RetakeRateAnalyticsPage() {
                   <YAxis type="category" dataKey="label" width={90} tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="completed" name="完成数" fill="#cbd5e1" barSize={14} />
-                  <Bar dataKey="retakes" name="重拍数" fill={palette('')} barSize={14} radius={[0, 3, 3, 0]}>
+                  <Bar dataKey="completed" name={t('retakeAnalytics.completedCount')} fill="#cbd5e1" barSize={14} />
+                  <Bar dataKey="retakes" name={t('retakeAnalytics.retakeCountBar')} fill={palette('')} barSize={14} radius={[0, 3, 3, 0]}>
                     {heatRows.map((b) => <Cell key={b.key} fill={palette(b.key)} />)}
                   </Bar>
                 </BarChart>
@@ -299,11 +299,11 @@ export default function RetakeRateAnalyticsPage() {
         </Col>
 
         <Col xs={24} lg={10}>
-          <Card size="small" title={<Space><Wrench size={14} />{dimension === 'reason' ? '原因热力图' : dimension === 'tech' ? '技师热力图' : '模态热力图'} (重拍率)</Space>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={<Space><Wrench size={14} />{dimension === 'reason' ? t('retakeAnalytics.reasonHeatmap') : dimension === 'tech' ? t('retakeAnalytics.techHeatmap') : t('retakeAnalytics.modalityHeatmap')} {t('retakeAnalytics.heatmapSuffix')}</Space>} style={{ marginBottom: 16 }}>
             {loading && !stats ? (
-              <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+              <div style={{ textAlign: 'center', padding: 40 }}>{t('retakeAnalytics.loading')}</div>
             ) : heatRows.length === 0 ? (
-              <EmptyState description="暂无热力数据" />
+              <EmptyState description={t('retakeAnalytics.noHeatData')} />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {heatRows.map((b) => (
@@ -329,16 +329,16 @@ export default function RetakeRateAnalyticsPage() {
                       })}
                     </div>
                     <span style={{ width: 96, fontSize: 11, color: '#94a3b8', textAlign: 'right' }}>
-                      {b.completed} 检 / {b.retakes} 重
+                      {b.completed} {t('retakeAnalytics.examUnit')} / {b.retakes} {t('retakeAnalytics.retakeUnit')}
                     </span>
                   </div>
                 ))}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 11, color: '#94a3b8' }}>
-                  低
+                  {t('retakeAnalytics.low')}
                   {[0, 20, 40, 60, 80, 100].map((v) => (
                     <span key={v} style={{ width: 14, height: 12, borderRadius: 2, background: heatBg(v), border: '1px solid var(--border-color)' }} />
                   ))}
-                  高 (重拍率阈值 0/20/40/60/80/100%)
+                  {t('retakeAnalytics.high')}
                 </div>
               </div>
             )}
@@ -369,8 +369,8 @@ export default function RetakeRateAnalyticsPage() {
           pagination={{ pageSize: 8, hideOnSinglePage: true }}
           locale={{ emptyText: t('w3d.retake.queueEmpty') }}
           columns={[
-            { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 120, render: (_: unknown, r: WorklistItemDto) => r.patientName ?? r.patient?.name ?? '--' },
-            { title: '检查', key: 'exam', width: 180, render: (_: unknown, r: WorklistItemDto) => `${r.modality ?? ''} · ${r.examName ?? r.bodyPart ?? ''}` },
+            { title: t('retakeAnalytics.colPatient'), dataIndex: 'patientName', key: 'patientName', width: 120, render: (_: unknown, r: WorklistItemDto) => r.patientName ?? r.patient?.name ?? '--' },
+            { title: t('retakeAnalytics.colExam'), key: 'exam', width: 180, render: (_: unknown, r: WorklistItemDto) => `${r.modality ?? ''} · ${r.examName ?? r.bodyPart ?? ''}` },
             { title: t('w3d.retake.reason'), dataIndex: 'retakeReason', key: 'retakeReason', width: 120, render: (v: string) => RETAKE_REASON_OPTIONS.find(o => o.value === v)?.label ?? (v || '--') },
             { title: t('w3d.retake.applicant'), dataIndex: 'retakeRequestedBy', key: 'retakeRequestedBy', width: 110, render: (v: string) => v || '--' },
             {
@@ -382,7 +382,7 @@ export default function RetakeRateAnalyticsPage() {
             },
             { title: t('w3d.retake.approver'), dataIndex: 'retakeApprover', key: 'retakeApprover', width: 110, render: (v: string) => v || '--' },
             {
-              title: '操作', key: 'action', width: 150,
+              title: t('retakeAnalytics.colActions'), key: 'action', width: 150,
               render: (_: unknown, r: WorklistItemDto) => (
                 <Space size={4}>
                   <Button size="small" type="primary" onClick={() => { setReview({ item: r, action: 'approve' }); setOpinion('') }}>{t('w3d.retake.approve')}</Button>
@@ -400,8 +400,8 @@ export default function RetakeRateAnalyticsPage() {
           <Database size={14} color={source === 'api' ? '#10b981' : '#f59e0b'} />
           <span style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>
             {source === 'api'
-              ? '数据源: GET /worklist/retake-stats (后端聚合) · 维度 ' + (dimension === 'tech' ? '技师' : dimension === 'modality' ? '模态' : '原因')
-              : '数据源: 演示回退 (接口不可用, 基于 seed 派生)'}
+              ? t('retakeAnalytics.sourceApi', { dim: dimension === 'tech' ? t('retakeAnalytics.tech') : dimension === 'modality' ? t('retakeAnalytics.modality') : t('retakeAnalytics.reason') })
+              : t('retakeAnalytics.sourceDemo')}
           </span>
         </Space>
       </Card>

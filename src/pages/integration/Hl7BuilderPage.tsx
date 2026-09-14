@@ -7,6 +7,7 @@ import { hl7Api } from "../../services/api/integrationApi";
 import { hl7Api as rawHl7Api } from "../../services/api/hl7Api";
 import type { Hl7Report, Hl7ArchiveRecord } from "../../services/api/integrationApi";
 import { usePagination } from "../../hooks/usePagination";
+import { t } from "../../i18n/appI18n";
 
 const { RangePicker } = DatePicker;
 
@@ -78,10 +79,10 @@ export const Hl7BuilderPage: React.FC = () => {
       if (res.success) {
         setHistory(Array.isArray(res.data) ? res.data : []);
       } else {
-        setError(res.error?.message ?? "发送历史加载失败");
+        setError(res.error?.message ?? t('hl7Builder.loadHistoryFailed'));
       }
     } catch {
-      setError("发送历史加载失败");
+      setError(t('hl7Builder.loadHistoryFailed'));
     }
     setHistoryLoading(false);
   }, []);
@@ -157,13 +158,13 @@ export const Hl7BuilderPage: React.FC = () => {
           setPreview(d.message);
           setPreviewMeta({ controlId: d.controlId ?? "", messageType: d.messageType ?? activeTab, bytes: d.bytes ?? d.message.length });
         } else {
-          setError("响应中缺少 message 字段");
+          setError(t('hl7Builder.missingMessage'));
         }
       } else {
-        setError(res.error?.message ?? "生成预览失败");
+        setError(res.error?.message ?? t('hl7Builder.previewFailed'));
       }
     } catch {
-      setError("生成预览请求失败");
+      setError(t('hl7Builder.previewRequestFailed'));
     }
     setLoading((p) => ({ ...p, preview: false }));
   };
@@ -219,17 +220,17 @@ export const Hl7BuilderPage: React.FC = () => {
         message.success(`消息已发送 (控制ID: ${d?.controlId ?? "-"})`);
         fetchHistory();
       } else {
-        setError(res.error?.message ?? "发送失败");
+        setError(res.error?.message ?? t('hl7Builder.sendFailed'));
       }
     } catch {
-      setError("发送请求失败");
+      setError(t('hl7Builder.sendRequestFailed'));
     }
     setLoading((p) => ({ ...p, send: false }));
   };
 
   const historyColumns = [
-    { title: "类型", dataIndex: "messageType", key: "messageType", width: 110, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: "控制 ID", dataIndex: "controlId", key: "controlId", ellipsis: true },
+    { title: t('hl7Builder.colType'), dataIndex: "messageType", key: "messageType", width: 110, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: t('hl7Builder.colControlId'), dataIndex: "controlId", key: "controlId", ellipsis: true },
     {
       title: "ACK",
       dataIndex: "ackStatus",
@@ -240,8 +241,8 @@ export const Hl7BuilderPage: React.FC = () => {
         return <Tag color={map[v] || "default"}>{v}</Tag>;
       },
     },
-    { title: "重试", dataIndex: "retryCount", key: "retryCount", width: 60 },
-    { title: "时间", dataIndex: "createdAt", key: "createdAt", width: 180, render: (v: string) => new Date(v).toLocaleString() },
+    { title: t('hl7Builder.colRetry'), dataIndex: "retryCount", key: "retryCount", width: 60 },
+    { title: t('hl7Builder.colTime'), dataIndex: "createdAt", key: "createdAt", width: 180, render: (v: string) => new Date(v).toLocaleString() },
   ];
 
   const isSiu = activeTab === "SIU^S12";
@@ -258,10 +259,10 @@ export const Hl7BuilderPage: React.FC = () => {
         message.success(`批量 ORU 已发送 (${res.data?.count ?? reports.length} 条, POST /hl7/batch)`);
         fetchHistory();
       } else {
-        setError(res.error?.message ?? "批量发送失败");
+        setError(res.error?.message ?? t('hl7Builder.batchFailed'));
       }
     } catch {
-      setError("批量发送请求失败");
+      setError(t('hl7Builder.batchRequestFailed'));
     }
     setBatchSending(false);
   };
@@ -273,7 +274,7 @@ export const Hl7BuilderPage: React.FC = () => {
     try {
       const values = getValues();
       if (!values.examId.trim()) {
-        setError("请填写检查 ID (examId) 以推送 ORU");
+        setError(t('hl7Builder.examIdRequired'));
         return;
       }
       const res = await hl7Api.pushOru(values.examId.trim(), values.examId.trim());
@@ -281,10 +282,10 @@ export const Hl7BuilderPage: React.FC = () => {
         message.success(`ORU 已推送至外部系统`);
         fetchHistory();
       } else {
-        setError(res.error?.message ?? "推送失败");
+        setError(res.error?.message ?? t('hl7Builder.pushFailed'));
       }
     } catch {
-      setError("推送请求失败");
+      setError(t('hl7Builder.pushRequestFailed'));
     }
     setPushSending(false);
   };
@@ -296,11 +297,11 @@ export const Hl7BuilderPage: React.FC = () => {
           <Space>
             <Hammer className="w-5 h-5 text-amber-600" />
             <div>
-              <div className="text-base font-semibold">HL7 消息构造器</div>
-              <div className="text-xs text-slate-500">ORU^R01 / ORM^O01 / DFT^P03 / SIU^S12 消息构建与发送</div>
+              <div className="text-base font-semibold">{t('hl7Builder.title')}</div>
+              <div className="text-xs text-slate-500">{t('hl7Builder.subtitle')}</div>
             </div>
           </Space>
-          <Tag color="amber">构造器</Tag>
+          <Tag color="amber">{t('hl7Builder.builderTag')}</Tag>
         </div>
       </Card>
 
@@ -316,59 +317,59 @@ export const Hl7BuilderPage: React.FC = () => {
           label: <Space size={4}><FileText className="w-3 h-3" />{mt.label}</Space>,
           children: (
             <div className="space-y-3">
-              <Card size="small" className="shadow-sm" title={<Space><Code className="w-4 h-4" /><span>表单</span></Space>}>
+              <Card size="small" className="shadow-sm" title={<Space><Code className="w-4 h-4" /><span>{t('hl7Builder.form')}</span></Space>}>
                 <Form form={form} layout="vertical" size="small" initialValues={defaultForm}>
                   <div className="grid grid-cols-3 gap-4">
-                    <Form.Item label="患者 ID" name="patientId">
+                    <Form.Item label={t('hl7Builder.patientId')} name="patientId">
                       <Input placeholder="P00123456" />
                     </Form.Item>
-                    <Form.Item label="患者姓名" name="patientName">
-                      <Input placeholder="张三" />
+                    <Form.Item label={t('hl7Builder.patientName')} name="patientName">
+                      <Input placeholder={t('hl7Builder.patientNamePlaceholder')} />
                     </Form.Item>
-                    <Form.Item label="性别" name="patientSex">
+                    <Form.Item label={t('hl7Builder.sex')} name="patientSex">
                       <Select options={[{ value: "M", label: "M" }, { value: "F", label: "F" }, { value: "O", label: "O" }]} />
                     </Form.Item>
-                    <Form.Item label="检查 ID" name="examId">
+                    <Form.Item label={t('hl7Builder.examId')} name="examId">
                       <Input placeholder="E2026001" />
                     </Form.Item>
-                    <Form.Item label="检查号" name="accessionNumber">
+                    <Form.Item label={t('hl7Builder.accessionNumber')} name="accessionNumber">
                       <Input placeholder="ACC20260001" />
                     </Form.Item>
-                    <Form.Item label="检查/收费代码" name="procedureCode">
+                    <Form.Item label={t('hl7Builder.procedureCode')} name="procedureCode">
                       <Input placeholder={isSiu ? "CTCHEST" : "CTCHEST"} />
                     </Form.Item>
                     {!isSiu && (
-                      <Form.Item label="设备" name="modality">
+                      <Form.Item label={t('hl7Builder.modality')} name="modality">
                         <Select options={[{ value: "CT", label: "CT" }, { value: "MR", label: "MR" }, { value: "US", label: "US" }, { value: "XA", label: "XA" }, { value: "DX", label: "DX" }]} />
                       </Form.Item>
                     )}
-                    <Form.Item label="医生 ID" name="doctorId">
+                    <Form.Item label={t('hl7Builder.doctorId')} name="doctorId">
                       <Input placeholder="D001" />
                     </Form.Item>
-                    <Form.Item label="医生姓名" name="doctorName">
-                      <Input placeholder="李医生" />
+                    <Form.Item label={t('hl7Builder.doctorName')} name="doctorName">
+                      <Input placeholder={t('hl7Builder.doctorNamePlaceholder')} />
                     </Form.Item>
                     {isSiu && (
                       <>
-                        <Form.Item label="科室" name="department">
-                          <Input placeholder="放射科" />
+                        <Form.Item label={t('hl7Builder.department')} name="department">
+                          <Input placeholder={t('hl7Builder.departmentPlaceholder')} />
                         </Form.Item>
-                        <Form.Item label="排班时间" name="scheduleRange">
+                        <Form.Item label={t('hl7Builder.scheduleTime')} name="scheduleRange">
                           <RangePicker showTime style={{ width: "100%" }} />
                         </Form.Item>
-                        <Form.Item label="备注 (NTE)" name="note">
-                          <Input placeholder="可选备注" />
+                        <Form.Item label={t('hl7Builder.note')} name="note">
+                          <Input placeholder={t('hl7Builder.notePlaceholder')} />
                         </Form.Item>
                       </>
                     )}
                   </div>
                   {!isSiu && (
                     <>
-                      <Form.Item label="报告所见 (Finding)" name="reportFinding">
-                        <Input.TextArea rows={3} placeholder="双肺纹理清晰，未见实变..." />
+                      <Form.Item label={t('hl7Builder.reportFinding')} name="reportFinding">
+                        <Input.TextArea rows={3} placeholder={t('hl7Builder.findingPlaceholder')} />
                       </Form.Item>
-                      <Form.Item label="报告结论 (Impression)" name="reportImpression">
-                        <Input.TextArea rows={2} placeholder="未见明显异常" />
+                      <Form.Item label={t('hl7Builder.reportImpression')} name="reportImpression">
+                        <Input.TextArea rows={2} placeholder={t('hl7Builder.impressionPlaceholder')} />
                       </Form.Item>
                     </>
                   )}
@@ -382,14 +383,14 @@ export const Hl7BuilderPage: React.FC = () => {
                   onClick={handlePreview}
                   loading={loading.preview}
                 >
-                  生成预览
+                  {t('hl7Builder.generatePreview')}
                 </Button>
                 <Button
                   icon={<Send className="w-3 h-3" />}
                   onClick={handleSend}
                   loading={loading.send}
                 >
-                  发送到远端
+                  {t('hl7Builder.sendToRemote')}
                 </Button>
                 {activeTab === "ORU^R01" && (
                   <>
@@ -398,14 +399,14 @@ export const Hl7BuilderPage: React.FC = () => {
                       onClick={handleBatchSend}
                       loading={batchSending}
                     >
-                      批量 ORU (/hl7/batch)
+                      {t('hl7Builder.batchOru')}
                     </Button>
                     <Button
                       icon={<Send className="w-3 h-3" />}
                       onClick={handlePushOru}
                       loading={pushSending}
                     >
-                      推送 ORU (/hl7/push-oru)
+                      {t('hl7Builder.pushOru')}
                     </Button>
                   </>
                 )}
@@ -415,7 +416,7 @@ export const Hl7BuilderPage: React.FC = () => {
                 <Card
                   size="small"
                   className="shadow-sm"
-                  title={<Space><Code className="w-4 h-4" /><span>HL7 原始消息</span><Tag>{previewMeta?.messageType}</Tag><span className="text-xs text-slate-400">{previewMeta?.controlId} · {previewMeta?.bytes} bytes</span></Space>}
+                  title={<Space><Code className="w-4 h-4" /><span>{t('hl7Builder.rawMessage')}</span><Tag>{previewMeta?.messageType}</Tag><span className="text-xs text-slate-400">{previewMeta?.controlId} · {previewMeta?.bytes} bytes</span></Space>}
                 >
                   <pre className="bg-slate-900 text-slate-100 p-3 rounded text-xs font-mono overflow-auto max-h-80 whitespace-pre-wrap">
                     {preview}
@@ -430,8 +431,8 @@ export const Hl7BuilderPage: React.FC = () => {
       <Card
         size="small"
         className="shadow-sm"
-        title={<Space><History className="w-4 h-4" /><span>发送历史</span></Space>}
-        extra={<Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={fetchHistory}>刷新</Button>}
+        title={<Space><History className="w-4 h-4" /><span>{t('hl7Builder.sendHistory')}</span></Space>}
+        extra={<Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={fetchHistory}>{t('hl7Builder.refresh')}</Button>}
       >
         <Table
           rowKey="id"

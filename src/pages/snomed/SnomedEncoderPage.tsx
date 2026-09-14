@@ -4,6 +4,7 @@ import { Card, Input, Button, Table, Tag, Space, Typography, Tooltip, message, R
 import { Code, Search, CheckCircle, AlertTriangle, FileText, BookOpen, ThumbsUp, Clipboard } from 'lucide-react'
 import React, { useState, useCallback } from 'react'
 import { SearchX } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const { Text, Title, TextArea: _AntTextArea } = Typography
 
@@ -24,13 +25,13 @@ const SnomedEncoderPage: React.FC = () => {
       if (res.success) {
         setCodes(res.data?.codes ?? [])
         if (res.data?.codes?.length === 0) {
-          message.info('未匹配到 SNOMED CT 编码')
+          message.info(t('snomedEncoder.noMatch'))
         }
       } else {
-        message.error(res.error?.message || '编码失败')
+        message.error(res.error?.message || t('snomedEncoder.encodeFailed'))
       }
     } catch {
-      message.error('编码请求失败')
+      message.error(t('snomedEncoder.encodeRequestFailed'))
     } finally {
       setLoading(false)
     }
@@ -44,10 +45,10 @@ const SnomedEncoderPage: React.FC = () => {
       if (res.success) {
         setSearchResults(res.data ?? [])
       } else {
-        message.error(res.error?.message || '搜索失败')
+        message.error(res.error?.message || t('snomedEncoder.searchFailed'))
       }
     } catch {
-      message.error('搜索请求失败')
+      message.error(t('snomedEncoder.searchRequestFailed'))
     } finally {
       setSearchLoading(false)
     }
@@ -64,16 +65,16 @@ const SnomedEncoderPage: React.FC = () => {
 
   const confirmAll = () => {
     setConfirmed(new Set(codes.map(c => c.conceptId)))
-    message.success(`已确认 ${codes.length} 个编码`)
+    message.success(t('snomedEncoder.confirmedCount', { count: codes.length }))
   }
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => message.success('已复制'))
+    navigator.clipboard.writeText(text).then(() => message.success(t('snomedEncoder.copied')))
   }
 
   const columns = [
     {
-      title: '确认',
+      title: t('snomedEncoder.colConfirmed'),
       key: 'confirmed',
       width: 60,
       render: (_: unknown, record: SnomedCode) => (
@@ -86,7 +87,7 @@ const SnomedEncoderPage: React.FC = () => {
       ),
     },
     {
-      title: '首选术语 (PT)',
+      title: t('snomedEncoder.colPt'),
       dataIndex: 'pt',
       key: 'pt',
       render: (pt: string, _record: SnomedCode) => (
@@ -99,7 +100,7 @@ const SnomedEncoderPage: React.FC = () => {
       ),
     },
     {
-      title: '概念 ID',
+      title: t('snomedEncoder.colConceptId'),
       dataIndex: 'conceptId',
       key: 'conceptId',
       render: (id: string) => (
@@ -112,29 +113,29 @@ const SnomedEncoderPage: React.FC = () => {
       ),
     },
     {
-      title: '完整名称 (FSN)',
+      title: t('snomedEncoder.colFsn'),
       dataIndex: 'fsn',
       key: 'fsn',
       render: (fsn: string) => <Text type="secondary" style={{ fontSize: 12 }}>{fsn}</Text>,
     },
     {
-      title: '语义标签',
+      title: t('snomedEncoder.colSemanticTag'),
       dataIndex: 'semanticTag',
       key: 'semanticTag',
       render: (tag: string) => <Tag>{tag}</Tag>,
     },
     {
-      title: '匹配类型',
+      title: t('snomedEncoder.colMatchType'),
       dataIndex: 'matchType',
       key: 'matchType',
       render: (type: string) => (
         <Tag color={type === 'exact' ? 'green' : type === 'partial' ? 'orange' : 'blue'}>
-          {type === 'exact' ? '精确' : type === 'partial' ? '部分' : '建议'}
+          {type === 'exact' ? t('snomedEncoder.matchExact') : type === 'partial' ? t('snomedEncoder.matchPartial') : t('snomedEncoder.matchSuggested')}
         </Tag>
       ),
     },
     {
-      title: '置信度',
+      title: t('snomedEncoder.colConfidence'),
       dataIndex: 'confidence',
       key: 'confidence',
       sorter: (a: SnomedCode, b: SnomedCode) => a.confidence - b.confidence,
@@ -157,30 +158,30 @@ const SnomedEncoderPage: React.FC = () => {
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Code size={24} color="#3b82f6" />
-          <Title level={4} style={{ margin: 0 }}>SNOMED CT 智能编码器</Title>
+          <Title level={4} style={{ margin: 0 }}>{t('snomedEncoder.title')}</Title>
         </Space>
-        <Text type="secondary">将放射报告文本自动映射到 SNOMED CT 标准术语编码，支持精确/部分匹配和置信度评分</Text>
+        <Text type="secondary">{t('snomedEncoder.subtitle')}</Text>
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="匹配编码" value={codes.length} styles={{ content: {  color: '#2563eb'  } }} />
+            <Statistic title={t('snomedEncoder.statMatched')} value={codes.length} styles={{ content: {  color: '#2563eb'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="精确匹配" value={exactCount} styles={{ content: {  color: '#52c41a'  } }} />
+            <Statistic title={t('snomedEncoder.statExact')} value={exactCount} styles={{ content: {  color: '#52c41a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="部分匹配" value={partialCount} styles={{ content: {  color: '#fa8c16'  } }} />
+            <Statistic title={t('snomedEncoder.statPartial')} value={partialCount} styles={{ content: {  color: '#fa8c16'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="平均置信度" value={avgConfidence > 0 ? `${(avgConfidence * 100).toFixed(0)}%` : '-'} />
+            <Statistic title={t('snomedEncoder.statAvgConfidence')} value={avgConfidence > 0 ? `${(avgConfidence * 100).toFixed(0)}%` : '-'} />
           </Card>
         </Col>
       </Row>
@@ -188,7 +189,7 @@ const SnomedEncoderPage: React.FC = () => {
       <Row gutter={16}>
         <Col span={12}>
           <Card
-            title={<Space><FileText size={14} color="#3b82f6" />报告文本输入</Space>}
+            title={<Space><FileText size={14} color="#3b82f6" />{t('snomedEncoder.reportInput')}</Space>}
             extra={
               <Space>
                 <Button
@@ -198,11 +199,11 @@ const SnomedEncoderPage: React.FC = () => {
                   loading={loading}
                   disabled={!text.trim()}
                 >
-                  {loading ? '编码中...' : 'SNOMED 编码'}
+                  {loading ? t('snomedEncoder.encoding') : t('snomedEncoder.encode')}
                 </Button>
                 {codes.length > 0 && (
                   <Button icon={<ThumbsUp size={14} />} onClick={confirmAll}>
-                    全部确认 ({codes.length})
+                    {t('snomedEncoder.confirmAllCount', { count: codes.length })}
                   </Button>
                 )}
               </Space>
@@ -212,16 +213,16 @@ const SnomedEncoderPage: React.FC = () => {
               value={text}
               onChange={e => setText(e.target.value)}
               rows={8}
-              placeholder="输入放射科报告文本，例如：&#10;右肺上叶可见一大小约8mm磨玻璃结节，边界清晰，密度均匀。左肺未见明显异常。"
+              placeholder={t('snomedEncoder.textPlaceholder')}
               style={{ fontFamily: 'monospace', fontSize: 13, lineHeight: 1.6 }}
             />
             <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between' }}>
               <Text type="secondary" style={{ fontSize: 12 }}>
-                {text.length} 字符 | 支持中英文放射报告
+                {t('snomedEncoder.charCount', { count: text.length })}
               </Text>
               {confirmed.size > 0 && (
                 <Tag color="green">
-                  <CheckCircle size={12} /> 已确认 {confirmed.size}/{codes.length}
+                  <CheckCircle size={12} /> {t('snomedEncoder.confirmedCountLabel', { confirmed: confirmed.size, total: codes.length })}
                 </Tag>
               )}
             </div>
@@ -230,17 +231,17 @@ const SnomedEncoderPage: React.FC = () => {
 
         <Col span={12}>
           <Card
-            title={<Space><Search size={14} color="#8b5cf6" />SNOMED CT 术语搜索</Space>}
+            title={<Space><Search size={14} color="#8b5cf6" />{t('snomedEncoder.searchTitle')}</Space>}
           >
             <Space.Compact style={{ width: '100%', marginBottom: 12 }}>
               <Input
                 value={searchQ}
                 onChange={e => setSearchQ(e.target.value)}
                 onPressEnter={handleSearch}
-                placeholder="搜索 SNOMED CT 术语，如: nodule, fracture, 肺炎"
+                placeholder={t('snomedEncoder.searchPlaceholder')}
               />
               <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={searchLoading}>
-                搜索
+                {t('snomedEncoder.search')}
               </Button>
             </Space.Compact>
 
@@ -256,7 +257,7 @@ const SnomedEncoderPage: React.FC = () => {
                     onClick={() => {
                       if (!codes.some(code => code.conceptId === c.conceptId)) {
                         setCodes(prev => [...prev, c])
-                        message.success(`已添加: ${c.pt}`)
+                        message.success(t('snomedEncoder.added', { name: c.pt }))
                       }
                     }}
                   >
@@ -274,7 +275,7 @@ const SnomedEncoderPage: React.FC = () => {
                 ))}
               </div>
             ) : searchQ && !searchLoading ? (
-              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未找到匹配的 SNOMED CT 术语" style={{ padding: 24 }} />
+              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('snomedEncoder.noTermMatch')} style={{ padding: 24 }} />
             ) : null}
           </Card>
         </Col>
@@ -285,8 +286,8 @@ const SnomedEncoderPage: React.FC = () => {
           title={
             <Space>
               <AlertTriangle size={14} color="#3b82f6" />
-              编码结果
-              <Tag>{codes.length} 个编码</Tag>
+              {t('snomedEncoder.results')}
+              <Tag>{t('snomedEncoder.codeCount', { count: codes.length })}</Tag>
             </Space>
           }
           style={{ marginTop: 16 }}
@@ -304,7 +305,7 @@ const SnomedEncoderPage: React.FC = () => {
 
       {codes.length === 0 && !loading && text && (
         <Card style={{ marginTop: 16, textAlign: 'center', padding: 40 }}>
-          <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未匹配到 SNOMED CT 编码" />
+          <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('snomedEncoder.noMatch')} />
         </Card>
       )}
     </div>

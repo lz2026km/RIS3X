@@ -3,6 +3,7 @@ import { Card, Space, Tag, Button, Input, Descriptions, Timeline, message, Divid
 import { Search, Send, Activity, User, Clock } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { VisitState } from '../../services/api/integrationApi';
+import { t } from '../../i18n/appI18n';
 
 const STATE_TAGS: Record<string, { color: string; label: string }> = {
   registered: { color: 'default', label: '已登记' },
@@ -26,7 +27,7 @@ export const VisitPage: React.FC = () => {
   const [adtTriggering, setAdtTriggering] = useState(false);
 
   const handleSearch = useCallback(async () => {
-    if (!patientId.trim()) { message.warning('请输入患者 ID'); return; }
+    if (!patientId.trim()) { message.warning(t('iheVisit.enterPatientId')); return; }
     setLoading(true);
     const res = await iheApi.getVisit(patientId);
     if (res.success) {
@@ -76,32 +77,32 @@ export const VisitPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 就诊管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheVisit.title')}</span>
         <Tag color="cyan">v3.0.6.0</Tag>
       </Space>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space.Compact style={{ width: 400 }}>
           <Input value={patientId} onChange={e => setPatientId(e.target.value)}
-            placeholder="输入患者 ID 搜索" onPressEnter={handleSearch} />
-          <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={loading}>搜索</Button>
+            placeholder={t('iheVisit.searchPlaceholder')} onPressEnter={handleSearch} />
+          <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={loading}>{t('iheVisit.search')}</Button>
         </Space.Compact>
       </Card>
 
       {visit && (
         <Space orientation="vertical" style={{ width: '100%' }} size={16}>
-          <Card size="small" title={<Space><User size={14} />就诊信息</Space>}>
+          <Card size="small" title={<Space><User size={14} />{t('iheVisit.info')}</Space>}>
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="患者 ID">{visit.patientId}</Descriptions.Item>
-              <Descriptions.Item label="就诊号"><Tag color="blue">{visit.visitNumber}</Tag></Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label={t('iheVisit.colPatientId')}>{visit.patientId}</Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.colVisitNo')}><Tag color="blue">{visit.visitNumber}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.colStatus')}>
                 <Badge status={STATE_TAGS[currentState]?.color as any} text={STATE_TAGS[currentState]?.label ?? currentState} />
               </Descriptions.Item>
-              <Descriptions.Item label="类别代码">{visit.classCode}</Descriptions.Item>
-              <Descriptions.Item label="位置">{visit.assignedLocation}</Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.colClassCode')}>{visit.classCode}</Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.colLocation')}>{visit.assignedLocation}</Descriptions.Item>
             </Descriptions>
 
-            <Divider orientation="left" style={{ fontSize: 13 }}>5 态徽章</Divider>
+            <Divider orientation="left" style={{ fontSize: 13 }}>{t('iheVisit.badges')}</Divider>
             <Space wrap>
               {Object.entries(STATE_TAGS).map(([k, v]) => (
                 <Tag key={k} color={k === currentState ? v.color : 'default'}
@@ -111,17 +112,17 @@ export const VisitPage: React.FC = () => {
               ))}
             </Space>
 
-            <Divider orientation="left" style={{ fontSize: 13 }}>状态时间戳</Divider>
+            <Divider orientation="left" style={{ fontSize: 13 }}>{t('iheVisit.timestamps')}</Divider>
             <Descriptions column={2} size="small">
-              <Descriptions.Item label="入院时间">{visit.admitDateTime ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="开始时间">{visit.inProgressAt ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="完成时间">{visit.completedAt ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="出院时间">{visit.dischargeDateTime ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.admitTime')}>{visit.admitDateTime ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.startTime')}>{visit.inProgressAt ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.completeTime')}>{visit.completedAt ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheVisit.dischargeTime')}>{visit.dischargeDateTime ?? '-'}</Descriptions.Item>
             </Descriptions>
           </Card>
 
-          <Card size="small" title={<Space><Send size={14} />手动 ADT 触发</Space>}
-            extra={adtTriggering ? <Tag color="processing">发送中...</Tag> : null}>
+          <Card size="small" title={<Space><Send size={14} />{t('iheVisit.manualAdt')}</Space>}
+            extra={adtTriggering ? <Tag color="processing">{t('iheVisit.sending')}</Tag> : null}>
             <Space wrap>
               {Object.entries(ADT_TRANSITIONS).map(([key, cfg]) => {
                 const disabled = currentState !== key.split('→')[0] || adtTriggering;
@@ -133,13 +134,13 @@ export const VisitPage: React.FC = () => {
                 );
               })}
             </Space>
-            <div style={{ fontSize: 11, color: '#999', marginTop: 8 }}>按钮当前状态为 {STATE_TAGS[currentState]?.label}，仅活跃状态转移按钮可用</div>
+            <div style={{ fontSize: 11, color: '#999', marginTop: 8 }}>{t('iheVisit.hint', { status: STATE_TAGS[currentState]?.label })}</div>
           </Card>
 
-          <Card size="small" title={<Space><Clock size={14} />时间线</Space>}>
-            <Timeline items={visit.timeline?.map((t: any) => ({
-              color: t.event.includes('A01') ? 'blue' : t.event.includes('A03') ? 'red' : 'gray',
-              children: <>{t.timestamp} - <Tag color="blue">{t.event}</Tag> {t.description}</>,
+          <Card size="small" title={<Space><Clock size={14} />{t('iheVisit.timeline')}</Space>}>
+            <Timeline items={visit.timeline?.map((ev: any) => ({
+              color: ev.event.includes('A01') ? 'blue' : ev.event.includes('A03') ? 'red' : 'gray',
+              children: <>{ev.timestamp} - <Tag color="blue">{ev.event}</Tag> {ev.description}</>,
             })) ?? []} />
           </Card>
         </Space>

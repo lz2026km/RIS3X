@@ -4,6 +4,7 @@ import { eyeApi } from '@/services/api/eyeApi';
 import { Card, Row, Col, Tag, Spin, Empty, Button, Space, Segmented, Select, message, Alert, Descriptions } from 'antd';
 import { Activity, RefreshCw, Ruler, Layers } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { t } from '../../../i18n/appI18n';
 
 interface OctStudy {
   id: string;
@@ -111,7 +112,7 @@ const OctCanvas: React.FC<{
     ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(80,200,255,0.85)';
     ctx.font = '11px sans-serif';
-    ctx.fillText('中心凹', cx + 48, 52);
+    ctx.fillText(t('octViewer.fovea'), cx + 48, 52);
 
     // 测量标记: 十字 + 连线 + 像素距离标签
     if (measurePoints && measurePoints.length > 0) {
@@ -186,11 +187,11 @@ const OctViewerPage: React.FC = () => {
           if (first) setSelectedId(first.id);
         }
       } else {
-        setError(res.error?.message ?? '检查列表加载失败');
+        setError(res.error?.message ?? t('octViewer.loadFailed'));
       }
     } catch (e) {
       console.error('[OCT] load:', e);
-      setError('OCT 检查列表加载失败');
+      setError(t('octViewer.loadFailedDetail'));
     } finally {
       setLoading(false);
     }
@@ -213,12 +214,12 @@ const OctViewerPage: React.FC = () => {
     setMeasureMode(kind);
     setMeasurePoints([]);
     setMeasureResult(null);
-    message.info('请在影像上依次点击两点，计算两点距离（示例比例 560px ↔ 6000μm）');
+    message.info(t('octViewer.measureHint'));
   };
 
   const handleMeasurePoint = (x: number, y: number) => {
     if (measureMode !== 'distance') return;
-    if (measurePoints.length >= 2) { message.warning('已记录两点，点击「测量」可重新开始'); return; }
+    if (measurePoints.length >= 2) { message.warning(t('octViewer.measureReset')); return; }
     const next = [...measurePoints, { x, y }];
     setMeasurePoints(next);
     if (next.length === 2) {
@@ -228,10 +229,10 @@ const OctViewerPage: React.FC = () => {
       const um = px * UM_PER_PX;
       setMeasuring(false);
       setMeasureResult({ px, um });
-      message.success(`两点距离: ${um.toFixed(1)}μm (${px.toFixed(1)}px，示例比例换算)`);
+      message.success(t('octViewer.measureResultMsg', { um: um.toFixed(1), px: px.toFixed(1) }));
     } else {
       setMeasuring(true);
-      message.info('已选第 1 点，请在影像上点击第 2 点');
+      message.info(t('octViewer.measureSecondPoint'));
     }
   };
 
@@ -239,19 +240,19 @@ const OctViewerPage: React.FC = () => {
     <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <Activity className="v4-icon" style={{ width: 24, height: 24, color: '#0891b2' }} />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>OCT 专用查看器</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('octViewer.title')}</span>
         {study?.eyeSide && <EyeLateralityBadge eyeSide={study.eyeSide as 'OD' | 'OS' | 'OU'} />}
         <Tag color="cyan" style={{ fontSize: 12 }}>{study?.device ?? '-'}</Tag>
         <Tag color="blue">Macular Cube 512×128</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('octViewer.retry')}</Button>} />}
 
       <Row gutter={12}>
         <Col span={5}>
           <Card
             size="small"
-            title="OCT 检查列表"
+            title={t('octViewer.studyList')}
             extra={<Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} />}
             bodyStyle={{ padding: 8 }}
           >
@@ -260,12 +261,12 @@ const OctViewerPage: React.FC = () => {
               block
               value={eyeFilter}
               onChange={(v) => setEyeFilter(v as typeof eyeFilter)}
-              options={[{ label: '全部', value: 'ALL' }, { label: 'OD', value: 'OD' }, { label: 'OS', value: 'OS' }, { label: 'OU', value: 'OU' }]}
+              options={[{ label: t('octViewer.all'), value: 'ALL' }, { label: 'OD', value: 'OD' }, { label: 'OS', value: 'OS' }, { label: 'OU', value: 'OU' }]}
               style={{ marginBottom: 8 }}
             />
             <Spin spinning={loading}>
               <div style={{ maxHeight: 460, overflow: 'auto' }}>
-                {filtered.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无 OCT 检查" />}
+                {filtered.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('octViewer.noStudies')} />}
                 {filtered.map(s => (
                   <div
                     key={s.id}
@@ -281,7 +282,7 @@ const OctViewerPage: React.FC = () => {
                   >
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{s.patientName} <Tag style={{ margin: 0, fontSize: 10 }}>{s.eyeSide}</Tag></div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.id} · {s.studyDate ? s.studyDate.slice(0, 10) : '-'}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.images?.length ?? 0} 帧影像 · {s.device ?? ''}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('octViewer.frameCount', { count: s.images?.length ?? 0 })} · {s.device ?? ''}</div>
                   </div>
                 ))}
               </div>
@@ -291,7 +292,7 @@ const OctViewerPage: React.FC = () => {
         <Col span={12}>
           <Card
             size="small"
-            title={<Space><Layers size={14} />断层扫描 B-Scan {study ? `(${study.id})` : ''}</Space>}
+            title={<Space><Layers size={14} />{t('octViewer.bScan')} {study ? `(${study.id})` : ''}</Space>}
             extra={
               <Space>
                 <Select
@@ -300,7 +301,7 @@ const OctViewerPage: React.FC = () => {
                   value={study?.images?.[0]?.description ?? 'Macular Cube 512x128'}
                   options={(study?.images ?? []).map(img => ({ value: img.description ?? img.id, label: img.description ?? img.id }))}
                 />
-                <Button size="small" icon={<Ruler size={12} />} loading={measuring} onClick={() => measure('distance')}>测量</Button>
+                <Button size="small" icon={<Ruler size={12} />} loading={measuring} onClick={() => measure('distance')}>{t('octViewer.measure')}</Button>
               </Space>
             }
           >
@@ -310,30 +311,30 @@ const OctViewerPage: React.FC = () => {
                 {measureMode === 'distance' && (
                   <div style={{ marginTop: 8 }}>
                     <Alert type="info" showIcon message={measureResult
-                      ? `测量结果: ${measureResult.um.toFixed(1)}μm（${measureResult.px.toFixed(1)}px）· 示例比例 560px ↔ 6000μm（页面无真实比例尺数据，由合成影像派生）`
-                      : `测量工具已启用: 在影像上依次点击两点测量距离（示例比例 560px ↔ 6000μm，点击「测量」重新开始）`} style={{ fontSize: 12 }} />
+                      ? t('octViewer.measureResultAlert', { um: measureResult.um.toFixed(1), px: measureResult.px.toFixed(1) })
+                      : t('octViewer.measureToolEnabled')} style={{ fontSize: 12 }} />
                   </div>
                 )}
                 <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)' }}>
-                  <div>扫描模式: Macular Cube 512×128</div>
-                  <div>中心凹厚度: <b>{study.measurements?.centralRetinalThickness ?? (etdrsData[0]?.od ?? '-')}μm</b></div>
-                  <div>RNFL 平均厚度: <b>{study.measurements?.avgRnfThickness ?? '-'}μm</b></div>
-                  <div>GCIPL 平均: <b>{study.measurements?.gciplAvg ?? '-'}μm</b></div>
-                  <div>脉络膜厚度: <b>{study.measurements?.choroidalThickness ?? '-'}μm</b></div>
+                  <div>{t('octViewer.scanMode')}: Macular Cube 512×128</div>
+                  <div>{t('octViewer.centralThickness')}: <b>{study.measurements?.centralRetinalThickness ?? (etdrsData[0]?.od ?? '-')}μm</b></div>
+                  <div>{t('octViewer.avgRnf')}: <b>{study.measurements?.avgRnfThickness ?? '-'}μm</b></div>
+                  <div>{t('octViewer.gciplAvg')}: <b>{study.measurements?.gciplAvg ?? '-'}μm</b></div>
+                  <div>{t('octViewer.choroidalThickness')}: <b>{study.measurements?.choroidalThickness ?? '-'}μm</b></div>
                 </div>
                 {study.report && (
                   <div style={{ marginTop: 10, padding: 8, background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
-                    <b>AI 描述: </b>{study.report}
+                    <b>{t('octViewer.aiDescription')}: </b>{study.report}
                   </div>
                 )}
               </>
             ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请选择左侧检查" />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('octViewer.selectStudy')} />
             )}
           </Card>
         </Col>
         <Col span={7}>
-          <Card size="small" title="ETDRS 9 区厚度 (μm)">
+          <Card size="small" title={t('octViewer.etdrsTitle')}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
               {etdrsData.map((e, i) => (
                 <div key={e.key} style={{
@@ -347,17 +348,17 @@ const OctViewerPage: React.FC = () => {
               ))}
             </div>
           </Card>
-          <Card size="small" title="测量摘要" style={{ marginTop: 12 }}>
+          <Card size="small" title={t('octViewer.measureSummary')} style={{ marginTop: 12 }}>
             {study?.measurements ? (
               <Descriptions column={1} size="small" bordered>
-                <Descriptions.Item label="中央视网膜厚度">{study.measurements.centralRetinalThickness ?? '-'} μm</Descriptions.Item>
-                <Descriptions.Item label="RNFL 平均">{study.measurements.avgRnfThickness ?? '-'} μm</Descriptions.Item>
-                <Descriptions.Item label="视盘沿面积">{study.measurements.rimArea ?? '-'} mm²</Descriptions.Item>
-                <Descriptions.Item label="视杯容积">{study.measurements.cupVolume ?? '-'} mm³</Descriptions.Item>
-                <Descriptions.Item label="GCIPL 平均">{study.measurements.gciplAvg ?? '-'} μm</Descriptions.Item>
+                <Descriptions.Item label={t('octViewer.centralRetinalThickness')}>{study.measurements.centralRetinalThickness ?? '-'} μm</Descriptions.Item>
+                <Descriptions.Item label={t('octViewer.rnflAvg')}>{study.measurements.avgRnfThickness ?? '-'} μm</Descriptions.Item>
+                <Descriptions.Item label={t('octViewer.rimArea')}>{study.measurements.rimArea ?? '-'} mm²</Descriptions.Item>
+                <Descriptions.Item label={t('octViewer.cupVolume')}>{study.measurements.cupVolume ?? '-'} mm³</Descriptions.Item>
+                <Descriptions.Item label={t('octViewer.gciplAvg')}>{study.measurements.gciplAvg ?? '-'} μm</Descriptions.Item>
               </Descriptions>
             ) : (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>暂无测量数据</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('octViewer.noMeasurements')}</div>
             )}
           </Card>
         </Col>

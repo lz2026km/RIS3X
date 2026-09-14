@@ -4,9 +4,10 @@ import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Stat
 import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
 import { usePagination } from '../hooks/usePagination'
 import { PageHeader } from '../components/common/PageHeader'
+import { t } from '../i18n/appI18n'
 
-const BACKUP_TYPE_LABEL: Record<string, string> = { FULL: '全量', INCREMENTAL: '增量' }
-const BACKUP_STATUS_LABEL: Record<string, string> = { COMPLETED: '已完成', RUNNING: '运行中', FAILED: '失败', PENDING: '等待中' }
+const BACKUP_TYPE_LABEL: Record<string, string> = { FULL: t('bk.type.full'), INCREMENTAL: t('bk.type.incremental') }
+const BACKUP_STATUS_LABEL: Record<string, string> = { COMPLETED: t('bk.status.completed'), RUNNING: t('bk.status.running'), FAILED: t('bk.status.failed'), PENDING: t('bk.status.pending') }
 
 export default function BackupPage() {
   const [list, setList] = useState<BackupDto[]>([])
@@ -30,7 +31,7 @@ export default function BackupPage() {
     setCreating(true)
     const res = await backupApi.create(type)
     if (res.success) {
-      message.success('备份创建成功')
+      message.success(t('bk.createSuccess'))
       fetchList()
     }
     setCreating(false)
@@ -38,30 +39,30 @@ export default function BackupPage() {
 
   const handleRestore = (id: string) => {
     Modal.confirm({
-      title: '恢复备份',
-      content: '确定要恢复此备份吗？此操作将覆盖当前数据。',
+      title: t('bk.restoreTitle'),
+      content: t('bk.restoreConfirm'),
       onOk: async () => {
         const res = await backupApi.restore(id)
-        if (res.success) message.success('恢复成功')
+        if (res.success) message.success(t('bk.restoreSuccess'))
       },
     })
   }
 
   const columns = [
-    { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
-    { title: '类型', dataIndex: 'type', key: 'type', width: 100, render: (v: string) => <Tag color={v === 'FULL' ? 'blue' : 'green'}>{BACKUP_TYPE_LABEL[v] ?? v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 120, render: (v: string) => {
+    { title: t('bk.colCreatedAt'), dataIndex: 'createdAt', key: 'createdAt', width: 180, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
+    { title: t('bk.colType'), dataIndex: 'type', key: 'type', width: 100, render: (v: string) => <Tag color={v === 'FULL' ? 'blue' : 'green'}>{BACKUP_TYPE_LABEL[v] ?? v}</Tag> },
+    { title: t('bk.colStatus'), dataIndex: 'status', key: 'status', width: 120, render: (v: string) => {
       const colorMap: Record<string, string> = { COMPLETED: 'success', RUNNING: 'processing', FAILED: 'error', PENDING: 'warning' }
       return <Tag color={colorMap[v] ?? 'default'} icon={v === 'RUNNING' ? <SyncOutlined spin /> : undefined}>{BACKUP_STATUS_LABEL[v] ?? v}</Tag>
     }},
-    { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024 / 1024).toFixed(2)} MB` : '-' },
-    { title: '创建人', dataIndex: 'createdBy', key: 'createdBy', width: 120 },
+    { title: t('bk.colSize'), dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024 / 1024).toFixed(2)} MB` : '-' },
+    { title: t('bk.colCreatedBy'), dataIndex: 'createdBy', key: 'createdBy', width: 120 },
     {
-      title: '操作', key: 'actions', width: 160,
+      title: t('bk.colActions'), key: 'actions', width: 160,
       render: (_: unknown, r: BackupDto) => (
         <Space>
-          <Tooltip title="下载备份文件"><Button size="small" icon={<DownloadOutlined />} onClick={() => backupApi.download(r.id)}>下载</Button></Tooltip>
-          <Tooltip title="恢复到此备份"><Button size="small" icon={<UndoOutlined />} onClick={() => handleRestore(r.id)}>恢复</Button></Tooltip>
+          <Tooltip title={t('bk.downloadTip')}><Button size="small" icon={<DownloadOutlined />} onClick={() => backupApi.download(r.id)}>{t('bk.download')}</Button></Tooltip>
+          <Tooltip title={t('bk.restoreTip')}><Button size="small" icon={<UndoOutlined />} onClick={() => handleRestore(r.id)}>{t('bk.restore')}</Button></Tooltip>
         </Space>
       ),
     },
@@ -75,42 +76,42 @@ export default function BackupPage() {
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
           <Row justify="space-between" align="middle">
-            <PageHeader variant="flex" icon={<SafetyOutlined />} title="备份管理" style={{ marginBottom: 0 }} />
+            <PageHeader variant="flex" icon={<SafetyOutlined />} title={t('bk.title')} style={{ marginBottom: 0 }} />
             <Space>
               <Select
-                placeholder="备份类型"
+                placeholder={t('bk.backupType')}
                 style={{ width: 140 }}
                 value={backupType}
                 onChange={(v: string) => setBackupType(v)}
                 options={[
-                  { value: 'FULL', label: '全量备份' },
-                  { value: 'INCREMENTAL', label: '增量备份' },
+                  { value: 'FULL', label: t('bk.fullBackup') },
+                  { value: 'INCREMENTAL', label: t('bk.incrementalBackup') },
                 ]}
               />
-              <Button type="primary" icon={<CloudUploadOutlined />} loading={creating} disabled={!backupType} onClick={() => { if (backupType) handleCreate(backupType); }}>开始备份</Button>
-              <Button icon={<ReloadOutlined />} onClick={fetchList}>刷新</Button>
+              <Button type="primary" icon={<CloudUploadOutlined />} loading={creating} disabled={!backupType} onClick={() => { if (backupType) handleCreate(backupType); }}>{t('bk.startBackup')}</Button>
+              <Button icon={<ReloadOutlined />} onClick={fetchList}>{t('bk.refresh')}</Button>
             </Space>
           </Row>
 
           <Row gutter={16}>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="备份总数" value={list.length} prefix={<CloudUploadOutlined />} />
+                <Statistic title={t('bk.total')} value={list.length} prefix={<CloudUploadOutlined />} />
               </Card>
             </Col>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="全量备份" value={list.filter((b) => b.type === 'FULL').length} prefix={<DatabaseOutlined />} />
+                <Statistic title={t('bk.fullBackup')} value={list.filter((b) => b.type === 'FULL').length} prefix={<DatabaseOutlined />} />
               </Card>
             </Col>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="增量备份" value={list.filter((b) => b.type === 'INCREMENTAL').length} prefix={<SyncOutlined />} />
+                <Statistic title={t('bk.incrementalBackup')} value={list.filter((b) => b.type === 'INCREMENTAL').length} prefix={<SyncOutlined />} />
               </Card>
             </Col>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="总存储" value={(totalSize / 1024 / 1024).toFixed(1)} suffix="MB" prefix={<CloudUploadOutlined />} />
+                <Statistic title={t('bk.totalStorage')} value={(totalSize / 1024 / 1024).toFixed(1)} suffix="MB" prefix={<CloudUploadOutlined />} />
               </Card>
             </Col>
           </Row>
@@ -118,25 +119,25 @@ export default function BackupPage() {
           <Tabs items={[
             {
               key: 'list',
-              label: <span><ClockCircleOutlined /> 备份记录</span>,
+              label: <span><ClockCircleOutlined /> {t('bk.tabRecords')}</span>,
               children: (
                 <Table dataSource={pageData} columns={columns} rowKey="id" loading={loading} pagination={pagination} size="small" scroll={{ x: 'max-content' }}/>
               ),
             },
             {
               key: 'schedule',
-              label: <span><SyncOutlined /> 自动备份</span>,
+              label: <span><SyncOutlined /> {t('bk.tabSchedule')}</span>,
               children: (
                 <Card size="small">
                   <Descriptions bordered column={2}>
-                    <Descriptions.Item label="自动备份">
-                      <Tag color={autoBackup ? 'green' : 'default'}>{autoBackup ? '已启用' : '已禁用'}</Tag>
+                    <Descriptions.Item label={t('bk.autoBackup')}>
+                      <Tag color={autoBackup ? 'green' : 'default'}>{autoBackup ? t('bk.enabled') : t('bk.disabled')}</Tag>
                     </Descriptions.Item>
-                    <Descriptions.Item label="备份计划">{schedule}</Descriptions.Item>
-                    <Descriptions.Item label="保留策略">最近 7 次全量 + 30 天增量</Descriptions.Item>
-                    <Descriptions.Item label="下次执行">每天凌晨 2:00</Descriptions.Item>
-                    <Descriptions.Item label="备份位置">/data/backups/ris/</Descriptions.Item>
-                    <Descriptions.Item label="加密状态"><Tag color="success">AES-256</Tag></Descriptions.Item>
+                    <Descriptions.Item label={t('bk.scheduleLabel')}>{schedule}</Descriptions.Item>
+                    <Descriptions.Item label={t('bk.retentionLabel')}>{t('bk.retentionValue')}</Descriptions.Item>
+                    <Descriptions.Item label={t('bk.nextRunLabel')}>{t('bk.nextRunValue')}</Descriptions.Item>
+                    <Descriptions.Item label={t('bk.locationLabel')}>/data/backups/ris/</Descriptions.Item>
+                    <Descriptions.Item label={t('bk.encryptionLabel')}><Tag color="success">AES-256</Tag></Descriptions.Item>
                   </Descriptions>
                 </Card>
               ),

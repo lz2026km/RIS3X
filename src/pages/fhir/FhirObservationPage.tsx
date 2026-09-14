@@ -3,6 +3,7 @@ import { Card, Table, Button, Space, Tag, Form, Input, message, Empty, Modal, De
 import { Activity, Search, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
+import { t } from '../../i18n/appI18n'
 
 const PAGE_SIZE = 10
 
@@ -26,10 +27,10 @@ export const FhirObservationPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedObs(res.data)
       } else {
-        message.warning(res.error?.message ?? '观察记录详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? t('fhirObs.detailLoadFailed'))
       }
     } catch {
-      message.warning('观察记录详情加载失败，展示列表数据')
+      message.warning(t('fhirObs.detailLoadFailed'))
     }
     setDetailLoading(false)
   }
@@ -44,7 +45,7 @@ export const FhirObservationPage: React.FC = () => {
         setTotal(res.data.total || entries.length)
       }
     } catch {
-      message.warning('观察记录列表加载失败，使用演示数据')
+      message.warning(t('fhirObs.listLoadFailed'))
       setObservations([
         { id: 'obs1', resourceType: 'Observation', status: 'final', code: { coding: [{ system: 'http://loinc.org', code: '8310-5', display: 'Body temperature' }], text: '体温' }, valueQuantity: { value: 36.5, unit: '°C' }, effectiveDateTime: '2026-01-15' },
         { id: 'obs2', resourceType: 'Observation', status: 'final', code: { coding: [{ system: 'http://loinc.org', code: '8867-4', display: 'Heart rate' }], text: '心率' }, valueQuantity: { value: 72, unit: 'bpm' }, effectiveDateTime: '2026-01-15' },
@@ -64,14 +65,14 @@ export const FhirObservationPage: React.FC = () => {
 
   const columns = [
     {
-      title: '编号',
+      title: t('fhirObs.colId'),
       dataIndex: 'id',
       key: 'id',
       width: 100,
       render: (id: string) => <Tooltip title={id}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{id?.slice(0, 10)}...</span></Tooltip>,
     },
     {
-      title: '状态',
+      title: t('fhirObs.colStatus'),
       dataIndex: 'status',
       key: 'status',
       render: (s: string) => {
@@ -80,14 +81,14 @@ export const FhirObservationPage: React.FC = () => {
       },
     },
     {
-      title: '代码',
+      title: t('fhirObs.colCode'),
       key: 'code',
       render: (_: any, r: FhirObservation) => (
         <span>{r.code?.text || r.code?.coding?.[0]?.display || r.code?.coding?.[0]?.code || '-'}</span>
       ),
     },
     {
-      title: '值',
+      title: t('fhirObs.colValue'),
       key: 'value',
       render: (_: any, r: FhirObservation) => {
         if (r.valueQuantity) return `${r.valueQuantity.value} ${r.valueQuantity.unit || ''}`
@@ -95,12 +96,12 @@ export const FhirObservationPage: React.FC = () => {
       },
     },
     {
-      title: '时间',
+      title: t('fhirObs.colTime'),
       dataIndex: 'effectiveDateTime',
       key: 'effectiveDateTime',
     },
     {
-      title: '操作',
+      title: t('fhirObs.colAction'),
       key: 'action',
       width: 80,
       render: (_: any, r: FhirObservation) => (
@@ -113,19 +114,19 @@ export const FhirObservationPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Observation 管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirObs.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
-          <Form.Item name="patient" label="患者 ID">
-            <Input placeholder="患者 ID / 参考" allowClear style={{ width: 240 }} />
+          <Form.Item name="patient" label={t('fhirObs.patientId')}>
+            <Input placeholder={t('fhirObs.patientIdPlaceholder')} allowClear style={{ width: 240 }} />
           </Form.Item>
           <Form.Item>
             <Space>
-              <Button type="primary" icon={<Search size={14} />} htmlType="submit" loading={loading}>搜索</Button>
-              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); setSearch({}); setPage(1) }}>刷新</Button>
+              <Button type="primary" icon={<Search size={14} />} htmlType="submit" loading={loading}>{t('fhirObs.search')}</Button>
+              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); setSearch({}); setPage(1) }}>{t('fhirObs.refresh')}</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -144,30 +145,30 @@ export const FhirObservationPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="观察记录详情"
+        title={t('fhirObs.detailTitle')}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
-        footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
+        footer={<Button onClick={() => setDetailOpen(false)}>{t('fhirObs.close')}</Button>}
         width={600}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fhirObs.loadingDetail')}</div>
         ) : selectedObs ? (
           <Descriptions column={2} size="small" bordered>
             <Descriptions.Item label="ID">{selectedObs.id}</Descriptions.Item>
-            <Descriptions.Item label="状态"><Tag color="green">{selectedObs.status}</Tag></Descriptions.Item>
-            <Descriptions.Item label="代码">{selectedObs.code?.text || selectedObs.code?.coding?.[0]?.display}</Descriptions.Item>
-            <Descriptions.Item label="编码">{selectedObs.code?.coding?.[0]?.code}</Descriptions.Item>
-            <Descriptions.Item label="值">{selectedObs.valueQuantity ? `${selectedObs.valueQuantity.value} ${selectedObs.valueQuantity.unit}` : '-'}</Descriptions.Item>
-            <Descriptions.Item label="时间">{selectedObs.effectiveDateTime || '-'}</Descriptions.Item>
-            <Descriptions.Item label="参考范围" span={2}>
+            <Descriptions.Item label={t('fhirObs.colStatus')}><Tag color="green">{selectedObs.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label={t('fhirObs.colCode')}>{selectedObs.code?.text || selectedObs.code?.coding?.[0]?.display}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirObs.coding')}>{selectedObs.code?.coding?.[0]?.code}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirObs.colValue')}>{selectedObs.valueQuantity ? `${selectedObs.valueQuantity.value} ${selectedObs.valueQuantity.unit}` : '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirObs.colTime')}>{selectedObs.effectiveDateTime || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirObs.referenceRange')} span={2}>
               {selectedObs.referenceRange?.[0] ? `${selectedObs.referenceRange[0].low?.value ?? '?'} - ${selectedObs.referenceRange[0].high?.value ?? '?'}` : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label="解读" span={2}>
+            <Descriptions.Item label={t('fhirObs.interpretation')} span={2}>
               {selectedObs.interpretation?.map(i => i.coding?.[0]?.code).join(', ') || '-'}
             </Descriptions.Item>
           </Descriptions>
-        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
+        ) : <Empty description={t('fhirObs.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

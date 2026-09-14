@@ -11,13 +11,14 @@ import { realtime } from '../../services/realtime'
 import { PageHeader } from '../../components/common/PageHeader'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { EmptyState } from '../../components/common/EmptyState'
+import { t } from '../../i18n/appI18n'
 
 const STATUS_META: Record<RoomStatusItemDto['status'], { label: string; color: string; bg: string; border: string }> = {
-  in_use: { label: '检查中', color: '#059669', bg: '#d1fae5', border: '#34d399' },
-  paused: { label: '已暂停', color: '#d97706', bg: '#fef3c7', border: '#fbbf24' },
-  overdue: { label: '超时待检', color: '#dc2626', bg: '#fee2e2', border: '#f87171' },
-  waiting: { label: '排队中', color: '#2563eb', bg: '#dbeafe', border: '#60a5fa' },
-  idle: { label: '空闲', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1' },
+  in_use: { label: 'examRoom.status.in_use', color: '#059669', bg: '#d1fae5', border: '#34d399' },
+  paused: { label: 'examRoom.status.paused', color: '#d97706', bg: '#fef3c7', border: '#fbbf24' },
+  overdue: { label: 'examRoom.status.overdue', color: '#dc2626', bg: '#fee2e2', border: '#f87171' },
+  waiting: { label: 'examRoom.status.waiting', color: '#2563eb', bg: '#dbeafe', border: '#60a5fa' },
+  idle: { label: 'examRoom.status.idle', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1' },
 }
 
 const MODALITY_COLORS: Record<string, string> = {
@@ -58,10 +59,10 @@ export default function ExamRoomStatusBoard() {
         setError('')
         setUpdatedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }))
       } else {
-        setError(res.error?.message ?? '房间状态加载失败')
+        setError(res.error?.message ?? t('examRoom.loadFailed'))
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : '房间状态加载失败')
+      setError(e instanceof Error ? e.message : t('examRoom.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -115,35 +116,35 @@ export default function ExamRoomStatusBoard() {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <PageHeader
         icon={<Monitor size={20} color="#3b82f6" />}
-        title="检查间实时状态看板"
-        subtitle={updatedAt ? `更新于 ${updatedAt} · 第 ${tick} 次轮询` : '房间级 / 30s 轮询 + 实时推送'}
+        title={t('examRoom.title')}
+        subtitle={updatedAt ? `更新于 ${updatedAt} · 第 ${tick} 次轮询` : t('examRoom.subtitleFallback')}
         actions={
           <>
             <Tag color="cyan">v3.0.6.11-100 Wave 1B</Tag>
-            <Tag color="geekblue">房间级 / 30s 轮询 + 实时推送</Tag>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+            <Tag color="geekblue">{t('examRoom.subtitleFallback')}</Tag>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('examRoom.refresh')}</Button>
           </>
         }
       />
 
       {error && (
-        <Alert type="warning" showIcon message="部分数据未加载" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="warning" showIcon message={t('examRoom.partialLoad')} description={error} style={{ marginBottom: 16 }}
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('examRoom.retry')}</Button>} />
       )}
 
       <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 16 }}>
-        <StatCard title="房间总数" value={stats.total} icon={<DoorOpen size={16} />} color="info" loading={loading} />
-        <StatCard title="检查中" value={stats.inUse} icon={<Activity size={16} />} color="success" loading={loading} />
-        <StatCard title="超时待检" value={stats.overdue} icon={<AlertTriangle size={16} />} color="error" loading={loading} />
-        <StatCard title="已暂停" value={stats.paused} icon={<PauseCircle size={16} />} color="warning" loading={loading} />
-        <StatCard title="排队等待" value={stats.waiting} icon={<Hourglass size={16} />} color="info" loading={loading} />
-        <StatCard title="待检人次" value={stats.queue} icon={<Users size={16} />} color="primary" loading={loading} />
+        <StatCard title={t('examRoom.totalRooms')} value={stats.total} icon={<DoorOpen size={16} />} color="info" loading={loading} />
+        <StatCard title={t('examRoom.inUse')} value={stats.inUse} icon={<Activity size={16} />} color="success" loading={loading} />
+        <StatCard title={t('examRoom.overdue')} value={stats.overdue} icon={<AlertTriangle size={16} />} color="error" loading={loading} />
+        <StatCard title={t('examRoom.paused')} value={stats.paused} icon={<PauseCircle size={16} />} color="warning" loading={loading} />
+        <StatCard title={t('examRoom.waiting')} value={stats.waiting} icon={<Hourglass size={16} />} color="info" loading={loading} />
+        <StatCard title={t('examRoom.queue')} value={stats.queue} icon={<Users size={16} />} color="primary" loading={loading} />
       </StatCardGrid>
 
       {loading && rooms.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60 }}><Spin size="large" /></div>
       ) : statusOrder.length === 0 ? (
-        <EmptyState description="暂无检查间数据" />
+        <EmptyState description={t('examRoom.noData')} />
       ) : (
         <Row gutter={[14, 14]}>
           {statusOrder.map((room) => {
@@ -165,10 +166,10 @@ export default function ExamRoomStatusBoard() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                     <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: meta.bg, color: meta.color }}>
-                      {meta.label}
+                      {t(meta.label)}
                     </span>
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                      <Users size={11} style={{ verticalAlign: -1, marginRight: 3 }} />待检 {room.queueLength}
+                      <Users size={11} style={{ verticalAlign: -1, marginRight: 3 }} />{t('examRoom.queueLength', { count: room.queueLength })}
                     </span>
                   </div>
 
@@ -179,22 +180,22 @@ export default function ExamRoomStatusBoard() {
                         {room.currentExam.patientName}
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: '#64748b' }}>
-                        <span>状态 {room.currentExam.state}</span>
-                        <span style={{ fontFamily: 'monospace' }}>{formatClock(room.currentExam.startedAt)} 开始</span>
+                        <span>{t('examRoom.state', { state: room.currentExam.state })}</span>
+                        <span style={{ fontFamily: 'monospace' }}>{formatClock(room.currentExam.startedAt)} {t('examRoom.start')}</span>
                       </div>
                     </div>
                   ) : (
                     <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: 12, border: '1px dashed var(--border-color)' }}>
                       <Camera size={16} style={{ marginBottom: 4, opacity: 0.5 }} />
-                      <div>当前无在检患者</div>
+                      <div>{t('examRoom.noCurrentPatient')}</div>
                     </div>
                   )}
 
                   <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#94a3b8' }}>
                     <Clock size={11} />
-                    空闲时长 {formatIdle(room.idleSince)}
+                    {t('examRoom.idleDuration', { duration: formatIdle(room.idleSince) })}
                     {room.status === 'overdue' && (
-                      <Tooltip title="最早到达患者已等待超过 30 分钟">
+                      <Tooltip title={t('examRoom.overdueTip')}>
                         <AlertTriangle size={11} color="#dc2626" style={{ marginLeft: 4 }} />
                       </Tooltip>
                     )}
@@ -212,8 +213,8 @@ export default function ExamRoomStatusBoard() {
           <CheckCircle2 size={14} color={source === 'api' ? '#10b981' : '#f59e0b'} />
           <span style={{ fontSize: 12, color: '#64748b' }}>
             {source === 'api'
-              ? '数据源: GET /worklist/room-status (后端房间聚合实时) · WS room-status-refresh 推送'
-              : '数据源: 演示回退 (接口不可用, 基于本地派生)'}
+              ? t('examRoom.dataSourceApi')
+              : t('examRoom.dataSourceDemo')}
           </span>
           <Database size={14} color="#94a3b8" />
         </Space>

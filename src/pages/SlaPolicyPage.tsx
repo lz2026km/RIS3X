@@ -5,12 +5,13 @@ import type { ColumnsType } from 'antd/es/table';
 import { workflowApi } from '../services/api/workflowApi';
 import type { SLAPolicyDto } from '../services/api/workflowApi';
 import { usePagination } from '../hooks/usePagination';
+import { t } from '../i18n/appI18n';
 
 const MODALITIES = ['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'PET-CT'];
 const PRIORITIES = [
-  { value: 'critical', label: '危急', color: '#ef4444' },
-  { value: 'urgent', label: '紧急', color: '#f59e0b' },
-  { value: 'normal', label: '常规', color: '#3b82f6' },
+  { value: 'critical', label: t('sla.priority.critical'), color: '#ef4444' },
+  { value: 'urgent', label: t('sla.priority.urgent'), color: '#f59e0b' },
+  { value: 'normal', label: t('sla.priority.normal'), color: '#3b82f6' },
 ];
 
 export default function SlaPolicyPage() {
@@ -52,9 +53,9 @@ export default function SlaPolicyPage() {
       for (const p of policies) {
         await workflowApi.updateSlaPolicy(p.id, p);
       }
-      message.success('全部策略已保存');
+      message.success(t('sla.saveAllSuccess'));
     } catch {
-      message.error('保存失败');
+      message.error(t('sla.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -79,22 +80,22 @@ export default function SlaPolicyPage() {
         const res = await workflowApi.updateSlaPolicy(editing.id, values);
         if (res.success) {
           setPolicies(prev => prev.map(p => p.id === editing.id ? { ...p, ...values } as SLAPolicyDto : p));
-          message.success('策略已更新');
+          message.success(t('sla.updated'));
         } else {
-          message.error(res.error?.message ?? '更新失败');
+          message.error(res.error?.message ?? t('sla.updateFailed'));
         }
       } else {
         const res = await workflowApi.createSlaPolicy({ ...values, active: true });
         if (res.success) {
           setPolicies(prev => [...prev, res.data as SLAPolicyDto]);
-          message.success('策略已创建');
+          message.success(t('sla.created'));
         } else {
-          message.error(res.error?.message ?? '创建失败');
+          message.error(res.error?.message ?? t('sla.createFailed'));
         }
       }
       setModalOpen(false);
     } catch {
-      message.error('操作失败');
+      message.error(t('sla.opFailed'));
     }
   };
 
@@ -104,9 +105,9 @@ export default function SlaPolicyPage() {
     const res = await workflowApi.updateSlaPolicy(id, { active: !p.active });
     if (res.success) {
       setPolicies(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
-      message.success('状态已切换');
+      message.success(t('sla.toggled'));
     } else {
-      message.error(res.error?.message ?? '切换失败');
+      message.error(res.error?.message ?? t('sla.toggleFailed'));
     }
   };
 
@@ -116,45 +117,45 @@ export default function SlaPolicyPage() {
       const res = await workflowApi.deleteSlaPolicy(id);
       if (res.success) {
         setPolicies(prev => prev.filter(p => p.id !== id));
-        message.success('策略已删除');
+        message.success(t('sla.deleted'));
       } else {
-        message.error(res.error?.message ?? '删除失败');
+        message.error(res.error?.message ?? t('sla.deleteFailed'));
       }
     } catch {
-      message.error('删除失败');
+      message.error(t('sla.deleteFailed'));
     } finally {
       setDeletingId(null);
     }
   };
 
   const columns: ColumnsType<SLAPolicyDto> = [
-    { title: '策略名称', dataIndex: 'name', key: 'name', width: 160 },
+    { title: t('sla.colName'), dataIndex: 'name', key: 'name', width: 160 },
     {
-      title: '设备类型', dataIndex: 'modality', key: 'modality', width: 100,
+      title: t('sla.colModality'), dataIndex: 'modality', key: 'modality', width: 100,
       render: (m: string) => <Tag color="blue">{m}</Tag>,
     },
     {
-      title: '优先级', dataIndex: 'priority', key: 'priority', width: 100,
+      title: t('sla.colPriority'), dataIndex: 'priority', key: 'priority', width: 100,
       render: (p: string) => {
         const pr = PRIORITIES.find(x => x.value === p);
         return <Tag color={pr?.color}>{pr?.label}</Tag>;
       },
     },
-    { title: '目标(分钟)', dataIndex: 'targetMinutes', key: 'targetMinutes', width: 110 },
-    { title: '预警(分钟)', dataIndex: 'warningMinutes', key: 'warningMinutes', width: 110 },
-    { title: '升级(分钟)', dataIndex: 'escalationMinutes', key: 'escalationMinutes', width: 110 },
+    { title: t('sla.colTarget'), dataIndex: 'targetMinutes', key: 'targetMinutes', width: 110 },
+    { title: t('sla.colWarning'), dataIndex: 'warningMinutes', key: 'warningMinutes', width: 110 },
+    { title: t('sla.colEscalation'), dataIndex: 'escalationMinutes', key: 'escalationMinutes', width: 110 },
     {
-      title: '状态', dataIndex: 'active', key: 'active', width: 90,
-      render: (a: boolean) => <Tag icon={a ? <ToggleRight size={12} /> : <ToggleLeft size={12} />} color={a ? 'green' : 'default'}>{a ? '启用' : '停用'}</Tag>,
+      title: t('sla.colStatus'), dataIndex: 'active', key: 'active', width: 90,
+      render: (a: boolean) => <Tag icon={a ? <ToggleRight size={12} /> : <ToggleLeft size={12} />} color={a ? 'green' : 'default'}>{a ? t('sla.enabled') : t('sla.disabled')}</Tag>,
     },
     {
-      title: '操作', key: 'action', width: 160,
+      title: t('sla.colAction'), key: 'action', width: 160,
       render: (_, record) => (
         <Space size="small">
-          <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEdit(record)}>编辑</Button>
-          <Button size="small" icon={record.active ? <ToggleLeft size={12} /> : <ToggleRight size={12} />} onClick={() => toggleActive(record.id)}>{record.active ? '停用' : '启用'}</Button>
-          <Popconfirm title="确定删除该策略?" onConfirm={() => handleDelete(record.id)} okText="确定" cancelText="取消">
-            <Button size="small" danger icon={<Trash2 size={12} />} loading={deletingId === record.id}>删除</Button>
+          <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEdit(record)}>{t('sla.edit')}</Button>
+          <Button size="small" icon={record.active ? <ToggleLeft size={12} /> : <ToggleRight size={12} />} onClick={() => toggleActive(record.id)}>{record.active ? t('sla.disabled') : t('sla.enabled')}</Button>
+          <Popconfirm title={t('sla.deleteConfirm')} onConfirm={() => handleDelete(record.id)} okText={t('sla.ok')} cancelText={t('sla.cancel')}>
+            <Button size="small" danger icon={<Trash2 size={12} />} loading={deletingId === record.id}>{t('sla.delete')}</Button>
           </Popconfirm>
         </Space>
       ),
@@ -167,15 +168,15 @@ export default function SlaPolicyPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={20} />
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800 }}>SLA 策略配置</div>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>设备类型 × 优先级 × 时效阈值 · 共 {policies.length} 条策略</div>
+            <div style={{ fontSize: 16, fontWeight: 800 }}>{t('sla.title')}</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>{t('sla.subtitle', { count: policies.length })}</div>
           </div>
         </div>
       </header>
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <Input placeholder="搜索策略名称/设备/优先级..." prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 300 }} allowClear />
-          <Button type="primary" icon={<Plus size={14} />} onClick={openAdd} disabled={loading}>新增策略</Button>
+          <Input placeholder={t('sla.searchPlaceholder')} prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 300 }} allowClear />
+          <Button type="primary" icon={<Plus size={14} />} onClick={openAdd} disabled={loading}>{t('sla.addPolicy')}</Button>
         </div>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
@@ -183,27 +184,27 @@ export default function SlaPolicyPage() {
           <Table columns={columns} dataSource={pagedPolicies} rowKey="id" pagination={policiesPagination} size="middle" scroll={{ x: 'max-content' }}/>
         )}
         <div style={{ marginTop: 16, textAlign: 'right' }}>
-          <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>保存全部</Button>
+          <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>{t('sla.saveAll')}</Button>
         </div>
       </div>
-      <Modal title={editing ? '编辑策略' : '新增策略'} open={modalOpen} onOk={handleOk} onCancel={() => setModalOpen(false)} width={520}>
+      <Modal title={editing ? t('sla.editPolicy') : t('sla.newPolicy')} open={modalOpen} onOk={handleOk} onCancel={() => setModalOpen(false)} width={520}>
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="策略名称" rules={[{ required: true, message: '请输入策略名称' }]}>
+          <Form.Item name="name" label={t('sla.colName')} rules={[{ required: true, message: t('sla.nameRequired') }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="modality" label="设备类型" rules={[{ required: true, message: '请选择设备类型' }]}>
+          <Form.Item name="modality" label={t('sla.colModality')} rules={[{ required: true, message: t('sla.modalityRequired') }]}>
             <Select options={MODALITIES.map(m => ({ value: m, label: m }))} />
           </Form.Item>
-          <Form.Item name="priority" label="优先级" rules={[{ required: true, message: '请选择优先级' }]}>
+          <Form.Item name="priority" label={t('sla.colPriority')} rules={[{ required: true, message: t('sla.priorityRequired') }]}>
             <Select options={PRIORITIES.map(p => ({ value: p.value, label: p.label }))} />
           </Form.Item>
-          <Form.Item name="targetMinutes" label="目标完成时间(分钟)" rules={[{ required: true, message: '请输入目标分钟数' }]}>
+          <Form.Item name="targetMinutes" label={t('sla.targetLabel')} rules={[{ required: true, message: t('sla.targetRequired') }]}>
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="warningMinutes" label="预警时间(分钟)" rules={[{ required: true, message: '请输入预警分钟数' }]}>
+          <Form.Item name="warningMinutes" label={t('sla.warningLabel')} rules={[{ required: true, message: t('sla.warningRequired') }]}>
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="escalationMinutes" label="升级时间(分钟)">
+          <Form.Item name="escalationMinutes" label={t('sla.escalationLabel')}>
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
         </Form>

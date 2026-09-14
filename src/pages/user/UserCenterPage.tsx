@@ -33,6 +33,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RefreshCw } from 'lucide-react'
+import { t } from "../../i18n/appI18n";
 
 const { Title, Text } = Typography;
 
@@ -59,7 +60,7 @@ export default function UserCenterPage() {
     if (res.success && res.data) {
       setMe(res.data);
     } else {
-      setError(res.error?.message ?? "获取用户信息失败");
+      setError(res.error?.message ?? t("userCenter.loadUserInfoFailed"));
     }
     setLoading(false);
   }, []);
@@ -70,7 +71,7 @@ export default function UserCenterPage() {
 
   const handleChangePassword = async (values: PasswordFormValues) => {
     if (values.newPassword !== values.confirmPassword) {
-      antdMessage.error("两次输入的新密码不一致");
+      antdMessage.error(t("userCenter.passwordMismatch"));
       return;
     }
     setChanging(true);
@@ -80,12 +81,12 @@ export default function UserCenterPage() {
         values.newPassword,
       );
       if (res.success && res.data?.ok) {
-        antdMessage.success("密码修改成功，请使用新密码重新登录");
+        antdMessage.success(t("userCenter.passwordChanged"));
         form.resetFields();
         // 后端 change-password 会递增 tokenVersion, 当前 token 已失效, 强制重新登录
         await handleLogout(true);
       } else {
-        antdMessage.error(res.error?.message ?? "密码修改失败");
+        antdMessage.error(res.error?.message ?? t("userCenter.passwordChangeFailed"));
       }
     } finally {
       setChanging(false);
@@ -97,7 +98,7 @@ export default function UserCenterPage() {
     if (!silent) {
       const res = await authApi.logout();
       if (!res.success) {
-        antdMessage.warning(res.error?.message ?? "登出请求失败，已清理本地会话");
+        antdMessage.warning(res.error?.message ?? t("userCenter.logoutFailed"));
       }
     }
     try {
@@ -111,13 +112,13 @@ export default function UserCenterPage() {
 
   const displayName = me?.fullName || localUser?.name || me?.username || "—";
   const department =
-    me?.department || localUser?.department || "放射科";
+    me?.department || localUser?.department || t("userCenter.defaultDepartment");
   const role = me?.role || localUser?.role || "—";
 
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-        <Spin size="large" tip="加载用户信息...">
+        <Spin size="large" tip={t("userCenter.loadingUserInfo")}>
           <div style={{ minWidth: 200, minHeight: 80 }} />
         </Spin>
       </div>
@@ -130,17 +131,17 @@ export default function UserCenterPage() {
         level={3}
         style={{ display: "flex", alignItems: "center", gap: 8 }}
       >
-        <UserRound size={22} /> 个人中心
+        <UserRound size={22} /> {t("userCenter.title")}
       </Title>
 
       {error && (
         <Alert
           type="error"
           showIcon
-          message="加载失败"
+          message={t("userCenter.loadFailed")}
           description={error}
           action={<Button size="small" onClick={() => void loadMe()}><RefreshCw size={14} /> 
-              重试
+              {t("userCenter.retry")}
             </Button>
           }
           style={{ marginBottom: 16 }}
@@ -151,12 +152,12 @@ export default function UserCenterPage() {
         <Col xs={24} lg={10}>
           <Card
             style={{ borderRadius: 8, marginBottom: 16 }}
-            title="个人资料"
+            title={t("userCenter.profile")}
             extra={
               me?.totpEnabled ? (
-                <Tag color="green">TOTP 已启用</Tag>
+                <Tag color="green">{t("userCenter.totpEnabled")}</Tag>
               ) : (
-                <Tag color="orange">TOTP 未启用</Tag>
+                <Tag color="orange">{t("userCenter.totpDisabled")}</Tag>
               )
             }
           >
@@ -185,28 +186,28 @@ export default function UserCenterPage() {
               </div>
             </div>
             <Descriptions column={1} size="small">
-              <Descriptions.Item label="用户名">
+              <Descriptions.Item label={t("userCenter.username")}>
                 {me?.username ?? localUser?.username ?? "—"}
               </Descriptions.Item>
-              <Descriptions.Item label="科室">
+              <Descriptions.Item label={t("userCenter.department")}>
                 {department}
               </Descriptions.Item>
-              <Descriptions.Item label="角色">
+              <Descriptions.Item label={t("userCenter.role")}>
                 {roleLabel(role)}
               </Descriptions.Item>
-              <Descriptions.Item label="用户ID">
+              <Descriptions.Item label={t("userCenter.userId")}>
                 <Text code>{me?.id ?? localUser?.id ?? "—"}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="TOTP 双因素认证">
-                {me?.totpEnabled ? "已启用" : "未启用"}
+              <Descriptions.Item label={t("userCenter.totpLabel")}>
+                {me?.totpEnabled ? t("userCenter.totpEnabled") : t("userCenter.totpDisabled")}
               </Descriptions.Item>
             </Descriptions>
             <Divider />
             <Popconfirm
-              title="确认退出登录？"
-              description="退出后需重新登录才能继续使用系统。"
-              okText="退出"
-              cancelText="取消"
+              title={t("userCenter.logoutConfirm")}
+              description={t("userCenter.logoutConfirmDesc")}
+              okText={t("userCenter.logoutOk")}
+              cancelText={t("userCenter.cancel")}
               okButtonProps={{ danger: true }}
               onConfirm={() => void handleLogout()}
             >
@@ -216,7 +217,7 @@ export default function UserCenterPage() {
                 icon={<LogOut size={16} />}
                 loading={loggingOut}
               >
-                退出登录
+                {t("userCenter.logout")}
               </Button>
             </Popconfirm>
           </Card>
@@ -227,7 +228,7 @@ export default function UserCenterPage() {
             style={{ borderRadius: 8, marginBottom: 16 }}
             title={
               <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <KeyRound size={16} /> 修改密码
+                <KeyRound size={16} /> {t("userCenter.changePassword")}
               </span>
             }
           >
@@ -238,54 +239,54 @@ export default function UserCenterPage() {
             >
               <Form.Item
                 name="oldPassword"
-                label="旧密码"
-                rules={[{ required: true, message: "请输入旧密码" }]}
+                label={t("userCenter.oldPassword")}
+                rules={[{ required: true, message: t("userCenter.oldPasswordRequired") }]}
               >
                 <Input.Password
                   prefix={<Lock size={14} />}
-                  placeholder="请输入当前密码"
+                  placeholder={t("userCenter.currentPasswordPlaceholder")}
                   autoComplete="current-password"
                 />
               </Form.Item>
               <Form.Item
                 name="newPassword"
-                label="新密码"
+                label={t("userCenter.newPassword")}
                 rules={[
-                  { required: true, message: "请输入新密码" },
-                  { min: 8, message: "新密码长度至少 8 位" },
-                  { max: 128, message: "新密码长度不能超过 128 位" },
+                  { required: true, message: t("userCenter.newPasswordRequired") },
+                  { min: 8, message: t("userCenter.newPasswordMin") },
+                  { max: 128, message: t("userCenter.newPasswordMax") },
                 ]}
               >
                 <Input.Password
                   prefix={<KeyRound size={14} />}
-                  placeholder="至少 8 位"
+                  placeholder={t("userCenter.newPasswordPlaceholder")}
                   autoComplete="new-password"
                 />
               </Form.Item>
               <Form.Item
                 name="confirmPassword"
-                label="确认新密码"
+                label={t("userCenter.confirmNewPassword")}
                 dependencies={["newPassword"]}
                 rules={[
-                  { required: true, message: "请再次输入新密码" },
+                  { required: true, message: t("userCenter.confirmNewPasswordRequired") },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
                       if (!value || getFieldValue("newPassword") === value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error("两次输入的新密码不一致"));
+                      return Promise.reject(new Error(t("userCenter.passwordMismatch")));
                     },
                   }),
                 ]}
               >
                 <Input.Password
                   prefix={<KeyRound size={14} />}
-                  placeholder="再次输入新密码"
+                  placeholder={t("userCenter.confirmNewPasswordPlaceholder")}
                   autoComplete="new-password"
                 />
               </Form.Item>
               <Button type="primary" htmlType="submit" loading={changing}>
-                确认修改
+                {t("userCenter.confirmChange")}
               </Button>
             </Form>
           </Card>
@@ -294,21 +295,21 @@ export default function UserCenterPage() {
             style={{ borderRadius: 8 }}
             title={
               <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <ShieldCheck size={16} /> 安全信息
+                <ShieldCheck size={16} /> {t("userCenter.securityInfo")}
               </span>
             }
           >
             <Descriptions column={1} size="small">
-              <Descriptions.Item label="TOTP 双因素认证">
+              <Descriptions.Item label={t("userCenter.totpLabel")}>
                 {me?.totpEnabled ? (
-                  <Tag color="green">已启用</Tag>
+                  <Tag color="green">{t("userCenter.totpEnabled")}</Tag>
                 ) : (
-                  <Tag color="orange">未启用</Tag>
+                  <Tag color="orange">{t("userCenter.totpDisabled")}</Tag>
                 )}
               </Descriptions.Item>
             </Descriptions>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              修改密码后所有已登录会话将失效，请重新登录。
+              {t("userCenter.sessionInvalidated")}
             </Text>
           </Card>
         </Col>

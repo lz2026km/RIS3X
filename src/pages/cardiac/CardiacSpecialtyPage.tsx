@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { t } from "../../i18n/appI18n";
 
 const CADRADS_COLORS: Record<string, string> = {
   0: "#16a34a",
@@ -30,16 +31,16 @@ const CADRADS_COLORS: Record<string, string> = {
   N: "#94a3b8",
 };
 const CORONARY_SEGMENTS = [
-  { key: "LM", name: "左主干 (LM)" },
-  { key: "LAD-p", name: "LAD 近段" },
-  { key: "LAD-m", name: "LAD 中段" },
-  { key: "LAD-d", name: "LAD 远段" },
-  { key: "LCX-p", name: "LCX 近段" },
-  { key: "LCX-m", name: "LCX 中段" },
-  { key: "LCX-d", name: "LCX 远段" },
-  { key: "RCA-p", name: "RCA 近段" },
-  { key: "RCA-m", name: "RCA 中段" },
-  { key: "RCA-d", name: "RCA 远段" },
+  { key: "LM", name: "cardiacSpec.seg.lm" },
+  { key: "LAD-p", name: "cardiacSpec.seg.ladP" },
+  { key: "LAD-m", name: "cardiacSpec.seg.ladM" },
+  { key: "LAD-d", name: "cardiacSpec.seg.ladD" },
+  { key: "LCX-p", name: "cardiacSpec.seg.lcxP" },
+  { key: "LCX-m", name: "cardiacSpec.seg.lcxM" },
+  { key: "LCX-d", name: "cardiacSpec.seg.lcxD" },
+  { key: "RCA-p", name: "cardiacSpec.seg.rcaP" },
+  { key: "RCA-m", name: "cardiacSpec.seg.rcaM" },
+  { key: "RCA-d", name: "cardiacSpec.seg.rcaD" },
 ];
 
 const CadRadsTag = ({ v }: { v: string | number }) => {
@@ -81,10 +82,10 @@ const CardiacSpecialtyPage = () => {
   // [W1-B] 数据源标注: real=cardiacAiApi(/ai-diagnosis/cardiac-ai) / demo=cardiacSpecialtyApi 演示回退
   const [dataSource, setDataSource] = useState<"real" | "demo">("demo");
   const tabs = [
-    { key: "coronary" as const, label: "冠脉评估" },
-    { key: "function" as const, label: "心功能分析" },
-    { key: "analysis" as const, label: "心脏分析" },
-    { key: "stats" as const, label: "统计分析" },
+    { key: "coronary" as const, label: "cardiacSpec.tab.coronary" },
+    { key: "function" as const, label: "cardiacSpec.tab.function" },
+    { key: "analysis" as const, label: "cardiacSpec.tab.analysis" },
+    { key: "stats" as const, label: "cardiacSpec.tab.stats" },
   ];
 
   const load = useCallback(async () => {
@@ -103,7 +104,7 @@ const CardiacSpecialtyPage = () => {
           list = Array.isArray(res.data) ? res.data : [];
           setDataSource("demo");
         } else {
-          setError(res.error?.message ?? "加载失败");
+          setError(res.error?.message ?? t('cardiacSpec.loadFailed'));
           setDataSource("demo");
         }
       }
@@ -112,7 +113,7 @@ const CardiacSpecialtyPage = () => {
         setSelectedId(list[0]!.id);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t('cardiacSpec.loadFailed'));
       setAnalyses([]);
       setDataSource("demo");
     } finally {
@@ -241,12 +242,12 @@ const CardiacSpecialtyPage = () => {
               gap: 8,
             }}
           >
-            <Heart size={24} color="#1e40af" /> 心脏专科 <span style={{           fontSize: 11,
+            <Heart size={24} color="#1e40af" /> {t('cardiacSpec.title')} <span style={{           fontSize: 11,
           padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
-          color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? 'AI 接口实时' : '演示数据(回退)'}</span>
+          color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
-            Cardiac Imaging Specialty · 冠脉评估 · 心功能分析 · 血流动力学
+            {t('cardiacSpec.subtitle')}
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -256,7 +257,7 @@ const CardiacSpecialtyPage = () => {
             loading={loading}
             onClick={() => void load()}
           >
-            刷新
+            {t('cardiacSpec.refresh')}
           </Button>
           <button
             onClick={handleExport}
@@ -269,7 +270,7 @@ const CardiacSpecialtyPage = () => {
               fontSize: 13,
             }}
           >
-            <FileText size={14} /> 导出
+            <FileText size={14} /> {t('cardiacSpec.export')}
           </button>
         </div>
       </div>
@@ -282,7 +283,7 @@ const CardiacSpecialtyPage = () => {
             style={{ marginBottom: 16 }}
             title={error}
             action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-                重试
+                {t('cardiacSpec.retry')}
               </Button>
             }
           />
@@ -298,35 +299,35 @@ const CardiacSpecialtyPage = () => {
         >
           {[
             {
-              label: "分析总数",
+              label: "cardiacSpec.kpi.total",
               value: String(analyses.length),
               icon: Activity,
               color: "#1e40af",
               bg: "var(--color-info-bg)",
             },
             {
-              label: "重度狭窄",
+              label: "cardiacSpec.kpi.severeStenosis",
               value: String(highStenosis),
               icon: AlertTriangle,
               color: "#dc2626",
               bg: "var(--color-error-bg)",
             },
             {
-              label: "平均 EF",
+              label: "cardiacSpec.kpi.avgEf",
               value: `${avgEf}%`,
               icon: Gauge,
               color: "#16a34a",
               bg: "var(--color-success-bg)",
             },
             {
-              label: "平均钙化积分",
+              label: "cardiacSpec.kpi.avgCalcium",
               value: String(avgCalcium),
               icon: BarChart3,
               color: "#ea580c",
               bg: "var(--color-warning-bg)",
             },
             {
-              label: "待报告",
+              label: "cardiacSpec.kpi.pendingReport",
               value: String(
                 analyses.filter(
                   (a) =>
@@ -367,17 +368,17 @@ const CardiacSpecialtyPage = () => {
                 {k.value}
               </div>
               <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
-                {k.label}
+                {t(k.label)}
               </div>
             </div>
           ))}
         </div>
 
         <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
-          {tabs.map((t) => (
+          {tabs.map((tb) => (
             <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
+              key={tb.key}
+              onClick={() => setTab(tb.key)}
               style={{
                 padding: "8px 16px",
                 borderRadius: 8,
@@ -385,11 +386,11 @@ const CardiacSpecialtyPage = () => {
                 cursor: "pointer",
                 fontSize: 13,
                 fontWeight: 600,
-                background: tab === t.key ? "#1e40af" : "var(--content-bg)",
-                color: tab === t.key ? "#fff" : "#64748b",
+                background: tab === tb.key ? "#1e40af" : "var(--content-bg)",
+                color: tab === tb.key ? "#fff" : "#64748b",
               }}
             >
-              {t.label}
+              {t(tb.label)}
             </button>
           ))}
         </div>
@@ -421,7 +422,7 @@ const CardiacSpecialtyPage = () => {
                   gap: 8,
                 }}
               >
-                <Activity size={16} color="#1e40af" /> 冠脉评估列表
+                <Activity size={16} color="#1e40af" /> {t('cardiacSpec.coronaryList')}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <div
@@ -435,7 +436,7 @@ const CardiacSpecialtyPage = () => {
                 >
                   <Search size={16} color="#64748b" />
                   <input
-                    placeholder="搜索患者..."
+                    placeholder={t('cardiacSpec.searchPatient')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     style={{
@@ -458,17 +459,17 @@ const CardiacSpecialtyPage = () => {
                     fontSize: 13,
                   }}
                 >
-                  <option value="">全部模态</option>
+                  <option value="">{t('cardiacSpec.allModalities')}</option>
                   <option value="CCTA">CCTA</option>
                   <option value="CMR">CMR</option>
-                  <option value="Echo">超声心动图 (Echo)</option>
-                  <option value="Cath">心导管</option>
+                  <option value="Echo">{t('cardiacSpec.modality.echo')}</option>
+                  <option value="Cath">{t('cardiacSpec.modality.cath')}</option>
                 </select>
               </div>
             </div>
             <div style={{ maxHeight: 320, overflowY: "auto" }}>
               {filtered.length === 0 ? (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
               ) : (
                 <table
                   style={{
@@ -488,7 +489,7 @@ const CardiacSpecialtyPage = () => {
                           fontWeight: 600,
                         }}
                       >
-                        编号
+                        {t('cardiacSpec.colId')}
                       </th>
                       <th
                         style={{
@@ -499,7 +500,7 @@ const CardiacSpecialtyPage = () => {
                           fontWeight: 600,
                         }}
                       >
-                        患者
+                        {t('cardiacSpec.colPatient')}
                       </th>
                       <th
                         style={{
@@ -510,7 +511,7 @@ const CardiacSpecialtyPage = () => {
                           fontWeight: 600,
                         }}
                       >
-                        模态
+                        {t('cardiacSpec.colModality')}
                       </th>
                       <th
                         style={{
@@ -543,7 +544,7 @@ const CardiacSpecialtyPage = () => {
                           fontWeight: 600,
                         }}
                       >
-                        钙化积分
+                        {t('cardiacSpec.colCalcium')}
                       </th>
                       <th
                         style={{
@@ -554,7 +555,7 @@ const CardiacSpecialtyPage = () => {
                           fontWeight: 600,
                         }}
                       >
-                        最大狭窄
+                        {t('cardiacSpec.colMaxStenosis')}
                       </th>
                       <th
                         style={{
@@ -565,7 +566,7 @@ const CardiacSpecialtyPage = () => {
                           fontWeight: 600,
                         }}
                       >
-                        日期
+                        {t('cardiacSpec.colDate')}
                       </th>
                     </tr>
                   </thead>
@@ -734,7 +735,7 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <Gauge size={16} color="#1e40af" /> 心功能概览
+                <Gauge size={16} color="#1e40af" /> {t('cardiacSpec.functionOverview')}
               </div>
               {analyses
                 .filter((a) => a.lvFunction)
@@ -794,7 +795,7 @@ const CardiacSpecialtyPage = () => {
                   </div>
                 ))}
               {analyses.filter((a) => a.lvFunction).length === 0 && (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无心功能数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noFunctionData')} />
               )}
             </div>
             <div
@@ -813,7 +814,7 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <Zap size={16} color="#ca8a04" /> 心功能参数
+                <Zap size={16} color="#ca8a04" /> {t('cardiacSpec.functionParams')}
               </div>
               {analyses
                 .filter((a) => a.lvFunction)
@@ -847,7 +848,7 @@ const CardiacSpecialtyPage = () => {
                   </div>
                 ))}
               {analyses.filter((a) => a.lvFunction).length === 0 && (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无心功能参数" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noFunctionParams')} />
               )}
             </div>
           </div>
@@ -877,7 +878,7 @@ const CardiacSpecialtyPage = () => {
                 }}
               >
                 <span>
-                  <Stethoscope size={16} color="#1e40af" /> 冠脉分段
+                  <Stethoscope size={16} color="#1e40af" /> {t('cardiacSpec.coronarySegments')}
                 </span>
                 <Select
                   size="small"
@@ -918,7 +919,7 @@ const CardiacSpecialtyPage = () => {
                       <span
                         style={{ width: 140, fontSize: 13, fontWeight: 500 }}
                       >
-                        {seg.name}
+                        {t(seg.name)}
                       </span>
                       <div
                         style={{
@@ -952,7 +953,7 @@ const CardiacSpecialtyPage = () => {
                   );
                 })
               ) : (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该分析暂无冠脉分段数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noSegmentData')} />
               )}
             </div>
             <div
@@ -971,12 +972,12 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <Heart size={16} color="#dc2626" /> 钙化积分分布
+                <Heart size={16} color="#dc2626" /> {t('cardiacSpec.calciumDistribution')}
               </div>
               {selected?.calciumScore ? (
                 <>
                   {[
-                    { label: "左主干 (LM)", score: selected.calciumScore.lm },
+                    { label: "cardiacSpec.seg.lm", score: selected.calciumScore.lm },
                     { label: "LAD", score: selected.calciumScore.lad },
                     { label: "LCX", score: selected.calciumScore.lcx },
                     { label: "RCA", score: selected.calciumScore.rca },
@@ -993,7 +994,7 @@ const CardiacSpecialtyPage = () => {
                             marginBottom: 4,
                           }}
                         >
-                          <span>{c.label}</span>
+                          <span>{t(c.label)}</span>
                           <span style={{ fontWeight: 700 }}>
                             {c.score} ({pct}%)
                           </span>
@@ -1035,15 +1036,15 @@ const CardiacSpecialtyPage = () => {
                         marginBottom: 4,
                       }}
                     >
-                      Agatston 总分: {selected.calciumScore.totalAgatston}
+                      {t('cardiacSpec.agatstonTotal', { score: selected.calciumScore.totalAgatston })}
                     </div>
                     <div style={{ fontSize: 12, color: "#9a3412" }}>
-                      百分位: {selected.calciumScore.percentile}th
+                      {t('cardiacSpec.percentile', { value: selected.calciumScore.percentile })}
                     </div>
                   </div>
                 </>
               ) : (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该分析暂无钙化积分数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noCalciumData')} />
               )}
             </div>
           </div>
@@ -1069,10 +1070,10 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <BarChart3 size={16} color="#1e40af" /> CAD-RADS 分布
+                <BarChart3 size={16} color="#1e40af" /> {t('cardiacSpec.cadRadsDistribution')}
               </div>
               {cadRadsDistribution.length === 0 ? (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
               ) : (
                 cadRadsDistribution.map(([c, count]) => {
                   const color = CADRADS_COLORS[c] ?? "#94a3b8";
@@ -1148,14 +1149,14 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <TrendingUp size={16} color="#16a34a" /> EF 趋势
+                <TrendingUp size={16} color="#16a34a" /> {t('cardiacSpec.efTrend')}
               </div>
               {efTrend.length === 0 ? (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
               ) : (
-                efTrend.map((t) => (
+                efTrend.map((tr) => (
                   <div
-                    key={t.month}
+                    key={tr.month}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -1164,7 +1165,7 @@ const CardiacSpecialtyPage = () => {
                     }}
                   >
                     <span style={{ width: 80, fontSize: 12, color: "#64748b" }}>
-                      {t.month}
+                      {tr.month}
                     </span>
                     <div
                       style={{
@@ -1184,7 +1185,7 @@ const CardiacSpecialtyPage = () => {
                       />
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 600, width: 40 }}>
-                      {t.avgEf}%
+                      {tr.avgEf}%
                     </span>
                   </div>
                 ))

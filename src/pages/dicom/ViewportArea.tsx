@@ -240,19 +240,19 @@ export default function ViewportArea(props: Props) {
   return (
     <div style={s.centerArea}>
       <div style={s.roiToolbar}>
-        <span style={s.roiLabel}>ROI工具:</span>
+        <span style={s.roiLabel}>{t('dcmView.roiTools')}</span>
         {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue', 'cobb', 'polygon'] as const).map(type => (
           <button key={type} style={{ ...s.roiToolBtn, ...(measureSubMenu === type ? s.roiToolBtnActive : {}) }}
             onClick={() => { setMeasureSubMenu(type); setActiveTool('measure') }} title={type}>
-            {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : type === 'ctvalue' ? 'CT值' : type === 'cobb' ? 'Cobb角' : '多边形面积'}
+            {type === 'length' ? t('dcmView.roi.length') : type === 'angle' ? t('dcmView.roi.angle') : type === 'ellipse' ? t('dcmView.roi.ellipse') : type === 'rectangle' ? t('dcmView.roi.rectangle') : type === 'circle' ? t('dcmView.roi.circle') : type === 'ctvalue' ? t('dcmView.roi.ctvalue') : type === 'cobb' ? t('dcmView.roi.cobb') : t('dcmView.roi.polygon')}
           </button>
         ))}
         {isDrawingMeasure && measureSubMenu === 'polygon' && (
-          <button style={{ ...s.roiToolBtn, background: '#22c55e', borderColor: '#22c55e', color: '#fff' }} onClick={finishPolygonMeasure}>完成 ({drawingPoints.length}点)</button>
+          <button style={{ ...s.roiToolBtn, background: '#22c55e', borderColor: '#22c55e', color: '#fff' }} onClick={finishPolygonMeasure}>{t('dcmView.finishPolygon', { count: drawingPoints.length })}</button>
         )}
         <div style={s.roiToolDivider} />
-        <button style={{ ...s.roiToolBtn, color: '#ef4444' }} onClick={clearAllMeasures}>清空</button>
-        <button style={s.exportBtn} onClick={() => exportMeasurements('clipboard')}>导出报告</button>
+        <button style={{ ...s.roiToolBtn, color: '#ef4444' }} onClick={clearAllMeasures}>{t('dcmView.clear')}</button>
+        <button style={s.exportBtn} onClick={() => exportMeasurements('clipboard')}>{t('dcmView.exportReport')}</button>
       </div>
 
       <div style={s.topToolbar}>
@@ -315,7 +315,7 @@ export default function ViewportArea(props: Props) {
         {isCompareMode ? (
           <div style={s.compareSplitContainer}>
             <div style={s.compareSplitPane}>
-              <span style={s.compareLabel}>当前: {exam.examDate}</span>
+              <span style={s.compareLabel}>{t('dcmView.currentLabel', { date: exam.examDate })}</span>
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
                   activeTool={activeTool} panX={panX} panY={panY}
@@ -329,7 +329,7 @@ export default function ViewportArea(props: Props) {
             </div>
             <div style={s.compareDivider}><div style={s.compareDividerHandle}><ArrowLeftRight size={8} /></div></div>
             <div style={s.compareSplitPane}>
-              <span style={{ ...s.compareLabel, ...s.compareLabelRight }}>历史: {compareExam?.examDate}</span>
+              <span style={{ ...s.compareLabel, ...s.compareLabelRight }}>{t('dcmView.historyLabel', { date: compareExam?.examDate })}</span>
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
                   activeTool={activeTool} panX={panX} panY={panY}
@@ -339,7 +339,7 @@ export default function ViewportArea(props: Props) {
                 ))}
               </div>
               <div style={s.overlayBL}><span style={{ color: '#60a5fa' }}>WW:{ww} WL:{wl}</span><span style={{ color: '#86efac' }}>Img:{syncScroll ? imageIndex + 1 : compareImageIndex + 1}/{images.length}</span></div>
-              <div style={s.overlayBR}><span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>{!syncScroll && <span style={{ color: '#fbbf24' }}>独立滚动</span>}</div>
+              <div style={s.overlayBR}><span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>{!syncScroll && <span style={{ color: '#fbbf24' }}>{t('dcmView.independentScroll')}</span>}</div>
             </div>
           </div>
         ) : (
@@ -363,7 +363,7 @@ export default function ViewportArea(props: Props) {
               <span style={{ color: '#60a5fa', fontWeight: 700 }}>{exam.patientName}</span>
               <span style={{ color: '#94a3b8' }}>#{exam.accessionNumber}</span>
               <span style={{ color: '#86efac' }}>{exam.examItemName}</span>
-              {viewMode !== 'MPR' && <span style={{ color: '#fbbf24' }}>{viewMode}模式</span>}
+              {viewMode !== 'MPR' && <span style={{ color: '#fbbf24' }}>{t('dcmView.modeLabel', { mode: viewMode })}</span>}
             </div>
             <div style={s.overlayTR}>
               <span style={{ color: '#fbbf24' }}>{exam.deviceName?.split('（')[0]}</span>
@@ -381,7 +381,7 @@ export default function ViewportArea(props: Props) {
                     style={{ padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{p.name}</button>
                 ))}
               </div>
-              <span style={{ color: '#86efac', fontSize: 12 }}>滚轮调整WW/WL</span>
+              <span style={{ color: '#86efac', fontSize: 12 }}>{t('dcmView.scrollHint')}</span>
             </div>
             <div style={s.overlayBR}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
@@ -395,10 +395,10 @@ export default function ViewportArea(props: Props) {
                 <input type="number" value={Math.round(wl)} onChange={e => { setWl(Number(e.target.value)); setActivePresetIdx(null) }} style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }} />
               </div>
               <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
-              <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? '反色 ' : ''}亮度:{brightness}% 对比度:{contrast}%</span>
-              {measureSubMenu && <span style={{ color: '#fbbf24' }}>测量模式:{measureSubMenu === 'length' ? '长度(2点)' : measureSubMenu === 'angle' ? '角度(顶点+2点)' : measureSubMenu === 'cobb' ? 'Cobb角(两条线4点)' : measureSubMenu === 'polygon' ? '多边形(逐点+完成)' : measureSubMenu === 'ellipse' || measureSubMenu === 'rectangle' || measureSubMenu === 'circle' ? '面积(2点)' : 'CT值(1点)'}</span>}
-              {pseudoColorMode !== 'none' && <span style={{ color: '#f97316' }}>伪彩:{pseudoColorMode === 'hotIron' ? '热铁' : pseudoColorMode === 'coolBlue' ? '冷蓝' : pseudoColorMode === 'pet' ? 'PET' : '软组织'}</span>}
-              {gsofEnabled && <span style={{ color: '#22d3ee' }}>GSOF: {GSOF_MODE_LABELS[gsofMode] ?? '标准'} (PS3.14)</span>}
+              <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? `${t('dcmView.invertShort')} ` : ''}{t('dcmView.brightnessContrast', { brightness, contrast })}</span>
+              {measureSubMenu && <span style={{ color: '#fbbf24' }}>{t('dcmView.measureMode')}{measureSubMenu === 'length' ? t('dcmView.measure.length') : measureSubMenu === 'angle' ? t('dcmView.measure.angle') : measureSubMenu === 'cobb' ? t('dcmView.measure.cobb') : measureSubMenu === 'polygon' ? t('dcmView.measure.polygon') : measureSubMenu === 'ellipse' || measureSubMenu === 'rectangle' || measureSubMenu === 'circle' ? t('dcmView.measure.area') : t('dcmView.measure.ctvalue')}</span>}
+              {pseudoColorMode !== 'none' && <span style={{ color: '#f97316' }}>{t('dcmView.pseudoColor')}{pseudoColorMode === 'hotIron' ? t('dcmView.pseudo.hotIron') : pseudoColorMode === 'coolBlue' ? t('dcmView.pseudo.coolBlue') : pseudoColorMode === 'pet' ? 'PET' : t('dcmView.pseudo.softTissue')}</span>}
+              {gsofEnabled && <span style={{ color: '#22d3ee' }}>GSOF: {GSOF_MODE_LABELS[gsofMode] ?? t('dcmView.standard')} (PS3.14)</span>}
             </div>
 
             {showMeasurementsOverlay && (measureSubMenu || isDrawingMeasure || interactiveMeasures.length > 0) && (
@@ -503,35 +503,35 @@ export default function ViewportArea(props: Props) {
               <input type="range" min={-1000} max={1000} value={wl} aria-label={t('dcm.wlLabel')} onChange={e => { setWl(+e.target.value); setActivePresetIdx(null) }} style={s.wlSlider} />
               <span style={s.wlVal}>{wl}</span>
             </div>
-            <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }} role="group" aria-label="窗位预设">
+            <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }} role="group" aria-label={t('dcmView.windowPresetsAria')}>
               {currentPresets.map((p, i) => (
                 <button key={p.name} style={{ ...s.presetBtn, fontSize: 12, padding: '3px 6px', ...(activePresetIdx === i ? s.presetBtnActive : {}) }} onClick={() => handlePresetClick(p, i)} title={`WW:${p.ww} WL:${p.wl}`}>{p.name}</button>
               ))}
             </div>
             <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
-              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(CT_DEFAULT_WW); setWl(CT_DEFAULT_WL); setActivePresetIdx(null) }}>重置</button>
-              <button style={{ ...s.reportBtn, background: 'var(--border-color)', color: 'var(--text-secondary)', flex: 1 }} onClick={closeWlPopup}>关闭 (Esc)</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(CT_DEFAULT_WW); setWl(CT_DEFAULT_WL); setActivePresetIdx(null) }}>{t('dcmView.reset')}</button>
+              <button style={{ ...s.reportBtn, background: 'var(--border-color)', color: 'var(--text-secondary)', flex: 1 }} onClick={closeWlPopup}>{t('dcmView.closeEsc')}</button>
             </div>
           </div>
         )}
 
         {activeTool === 'measure' && measureSubMenu !== null && (
-          <div ref={measureMenuRef} role="dialog" aria-modal="true" aria-label="测量工具" style={s.measureMenu} onClick={e => e.stopPropagation()}>
+          <div ref={measureMenuRef} role="dialog" aria-modal="true" aria-label={t('dcmView.measureToolsAria')} style={s.measureMenu} onClick={e => e.stopPropagation()}>
             {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue', 'cobb', 'polygon'] as MeasureSubMenu[]).map(type => (
               <button key={type} style={{ ...s.measureMenuItem, ...(measureSubMenu === type ? { background: `${PRIMARY}15`, color: PRIMARY } : {}) }} onClick={() => setMeasureSubMenu(type)}>
-                {type === 'length' ? '长度测量 (2点)' : type === 'angle' ? '角度测量 (顶点+2点)' : type === 'ellipse' ? '椭圆ROI面积' : type === 'rectangle' ? '矩形ROI面积' : type === 'circle' ? '圆ROI面积' : type === 'cobb' ? 'Cobb角测量 (两条线/4点)' : type === 'polygon' ? '多边形面积 (逐点+完成)' : 'CT值(HU)'}
+                {type === 'length' ? t('dcmView.measureMenu.length') : type === 'angle' ? t('dcmView.measureMenu.angle') : type === 'ellipse' ? t('dcmView.measureMenu.ellipse') : type === 'rectangle' ? t('dcmView.measureMenu.rectangle') : type === 'circle' ? t('dcmView.measureMenu.circle') : type === 'cobb' ? t('dcmView.measureMenu.cobb') : type === 'polygon' ? t('dcmView.measureMenu.polygon') : t('dcmView.measureMenu.ctvalue')}
               </button>
             ))}
             <div style={{ borderTop: '1px solid var(--border-color)', marginTop: 4, paddingTop: 4 }}>
-              <button style={{ ...s.measureMenuItem, color: '#ef4444' }} onClick={clearAllMeasures}>清除测量</button>
+              <button style={{ ...s.measureMenuItem, color: '#ef4444' }} onClick={clearAllMeasures}>{t('dcmView.clearMeasures')}</button>
             </div>
-            <button style={{ ...s.measureMenuItem, color: 'var(--text-muted)', justifyContent: 'center' }} onClick={closeMeasureMenu}>关闭 (Esc)</button>
+            <button style={{ ...s.measureMenuItem, color: 'var(--text-muted)', justifyContent: 'center' }} onClick={closeMeasureMenu}>{t('dcmView.closeEsc')}</button>
           </div>
         )}
 
         {showPseudoColorPanel && (
-          <div ref={pseudoColorPanelRef} role="dialog" aria-modal="true" aria-label="伪彩显示" style={s.pseudoColorPanel} onClick={e => e.stopPropagation()}>
-            <div style={s.pseudoColorPanelTitle}><Palette size={14} color={PRIMARY} />伪彩显示</div>
+          <div ref={pseudoColorPanelRef} role="dialog" aria-modal="true" aria-label={t('dcmView.pseudoColorTitle')} style={s.pseudoColorPanel} onClick={e => e.stopPropagation()}>
+            <div style={s.pseudoColorPanelTitle}><Palette size={14} color={PRIMARY} />{t('dcmView.pseudoColorTitle')}</div>
             {pseudoColorTools.map(({ mode, icon, label }) => (
               <button key={mode} style={{ ...s.pseudoColorBtn, ...(pseudoColorMode === mode ? s.pseudoColorBtnActive : {}) }}
                 onClick={() => { setPseudoColorMode(mode); if (mode !== 'none') setActiveTool('wl') }}>
@@ -540,24 +540,24 @@ export default function ViewportArea(props: Props) {
                 {pseudoColorMode === mode && <CheckCircle size={12} />}
               </button>
             ))}
-            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 4 }} onClick={closePseudoColor}>关闭 (Esc)</button>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 4 }} onClick={closePseudoColor}>{t('dcmView.closeEsc')}</button>
           </div>
         )}
 
         {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 灰阶校准设置面板 */}
         {showGsofPanel && (
-          <div ref={gsofPanelRef} role="dialog" aria-modal="true" aria-label="GSOF 校准设置" style={s.gsofPanel} onClick={e => e.stopPropagation()} data-testid="gsof-panel">
-            <div style={s.gsofPanelTitle}><Gauge size={14} color={PRIMARY} />GSOF 灰阶校准</div>
+          <div ref={gsofPanelRef} role="dialog" aria-modal="true" aria-label={t('dcmView.gsofSettingsAria')} style={s.gsofPanel} onClick={e => e.stopPropagation()} data-testid="gsof-panel">
+            <div style={s.gsofPanelTitle}><Gauge size={14} color={PRIMARY} />{t('dcmView.gsofTitle')}</div>
             <button
               style={{ ...s.reportBtn, width: '100%', background: gsofEnabled ? PRIMARY : 'var(--border-color)', color: gsofEnabled ? '#fff' : 'var(--text-secondary)', marginBottom: 8 }}
               onClick={() => setGsofEnabled(!gsofEnabled)}
               aria-pressed={gsofEnabled}
               data-testid="gsof-enable-toggle"
             >
-              <MonitorCheck size={14} />{gsofEnabled ? 'GSOF 校准已启用' : '启用 GSOF 校准'}
+              <MonitorCheck size={14} />{gsofEnabled ? t('dcmView.gsofEnabled') : t('dcmView.gsofEnable')}
             </button>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6 }}>对比度档位</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }} role="group" aria-label="GSOF 对比度档位">
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6 }}>{t('dcmView.contrastLevel')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }} role="group" aria-label={t('dcmView.contrastLevelAria')}>
               {(Object.keys(GSOF_MODE_LABELS) as GsofMode[]).map(mode => (
                 <button
                   key={mode}
@@ -576,7 +576,7 @@ export default function ViewportArea(props: Props) {
               ))}
             </div>
             <div style={s.gsofDoc}>{GSOF_DOC_TEXT}</div>
-            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 8, width: '100%' }} onClick={() => setShowGsofPanel(false)}>关闭 (Esc)</button>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 8, width: '100%' }} onClick={() => setShowGsofPanel(false)}>{t('dcmView.closeEsc')}</button>
           </div>
         )}
       </div>
@@ -587,7 +587,7 @@ export default function ViewportArea(props: Props) {
             onClick={() => handleSeriesSelect(idx)} title={`${sItem.seriesDescription} (${sItem.imageCount}幅)`}>
             <div style={{ ...s.seriesThumbInner, background: sItem.thumbnail, opacity: activeSeriesIdx === idx ? 1 : 0.7 }}><Layers size={16} /></div>
             <span style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{sItem.seriesNumber}</span>
-            <span style={{ fontSize: 8, color: '#6b7280' }}>{sItem.imageCount}幅</span>
+            <span style={{ fontSize: 8, color: '#6b7280' }}>{t('dcmView.framesUnit', { count: sItem.imageCount })}</span>
           </div>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>

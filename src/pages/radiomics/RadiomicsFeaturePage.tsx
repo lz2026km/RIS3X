@@ -3,6 +3,7 @@ import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty } 
 import { Activity, Search, RefreshCw, Download, BarChart3 } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState } from 'react'
+import { t } from '../../i18n/appI18n'
 
 export const RadiomicsFeaturePage: React.FC = () => {
   const [instanceId, setInstanceId] = useState('')
@@ -17,7 +18,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
   const fetchFeatures = async () => {
     if (!instanceId.trim()) {
-      message.warning('请输入实例 ID')
+      message.warning(t('radiomics.enterInstanceId'))
       return
     }
     setLoading(true)
@@ -28,7 +29,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
         if (result) setFeatures(result.features)
       }
     } catch {
-      message.warning('特征加载失败，使用演示数据')
+      message.warning(t('radiomics.loadFailedDemo'))
       setFeatures([
         { category: 'Shape', name: 'Volume', value: 1234.5, unit: 'mm³' },
         { category: 'Shape', name: 'Surface Area', value: 567.8, unit: 'mm²' },
@@ -47,12 +48,12 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
   const handleExtract = async () => {
     if (!instanceId.trim()) {
-      message.warning('请输入实例 ID')
+      message.warning(t('radiomics.enterInstanceId'))
       return
     }
     const coords = roiCoords.split(',').map(Number)
     if (coords.length < 4 || coords.some(isNaN)) {
-      message.warning('ROI 坐标格式错误，应为: x,y,width,height')
+      message.warning(t('radiomics.roiCoordInvalid'))
       return
     }
     setExtracting(true)
@@ -62,11 +63,11 @@ export const RadiomicsFeaturePage: React.FC = () => {
         coordinates: coords,
       })
       if (res.success) {
-        message.success('特征提取完成')
+        message.success(t('radiomics.extractDone'))
         fetchFeatures()
       }
     } catch {
-      message.warning('特征提取服务不可用')
+      message.warning(t('radiomics.extractUnavailable'))
     }
     setExtracting(false)
   }
@@ -74,7 +75,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
   const handleCompare = async () => {
     const ids = compareIds.split(',').map(s => s.trim()).filter(Boolean)
     if (ids.length < 2) {
-      message.warning('请输入至少 2 个实例 ID (逗号分隔)')
+      message.warning(t('radiomics.compareMinIds'))
       return
     }
     setComparing(true)
@@ -92,7 +93,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
         message.success(`比较完成: ${ids.length} 个实例`)
       }
     } catch {
-      message.warning('比较服务不可用')
+      message.warning(t('radiomics.compareUnavailable'))
     }
     setComparing(false)
   }
@@ -104,45 +105,45 @@ export const RadiomicsFeaturePage: React.FC = () => {
   }, {})
 
   const featureColumns = [
-    { title: '分类', dataIndex: 'category', key: 'category', render: (c: string) => <Tag color="blue">{c}</Tag> },
-    { title: '特征名称', dataIndex: 'name', key: 'name' },
-    { title: '值', dataIndex: 'value', key: 'value', render: (v: number) => typeof v === 'number' ? v.toFixed(4) : v },
-    { title: '单位', dataIndex: 'unit', key: 'unit', render: (u: string) => u || '-' },
+    { title: t('radiomics.colCategory'), dataIndex: 'category', key: 'category', render: (c: string) => <Tag color="blue">{c}</Tag> },
+    { title: t('radiomics.colName'), dataIndex: 'name', key: 'name' },
+    { title: t('radiomics.colValue'), dataIndex: 'value', key: 'value', render: (v: number) => typeof v === 'number' ? v.toFixed(4) : v },
+    { title: t('radiomics.colUnit'), dataIndex: 'unit', key: 'unit', render: (u: string) => u || '-' },
   ]
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <BarChart3 size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>影像组学特征提取</span>
-        <Tag color="blue">影像组学</Tag>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('radiomics.title')}</span>
+        <Tag color="blue">{t('radiomics.tag')}</Tag>
       </Space>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space wrap>
           <Input
-            placeholder="实例 ID"
+            placeholder={t('radiomics.instanceIdPlaceholder')}
             value={instanceId}
             onChange={e => setInstanceId(e.target.value)}
             style={{ width: 200 }}
             onPressEnter={fetchFeatures}
           />
-          <Button type="primary" icon={<Search size={14} />} onClick={fetchFeatures} loading={loading}>加载特征</Button>
-          <Button icon={<RefreshCw size={14} />} onClick={() => { setInstanceId(''); setFeatures([]); setCompareResults([]) }}>清空</Button>
+          <Button type="primary" icon={<Search size={14} />} onClick={fetchFeatures} loading={loading}>{t('radiomics.loadFeatures')}</Button>
+          <Button icon={<RefreshCw size={14} />} onClick={() => { setInstanceId(''); setFeatures([]); setCompareResults([]) }}>{t('radiomics.clear')}</Button>
         </Space>
       </Card>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <Card size="small" title="ROI 特征提取">
+        <Card size="small" title={t('radiomics.roiExtract')}>
           <Form layout="inline" size="small">
-            <Form.Item label="ROI 类型">
+            <Form.Item label={t('radiomics.roiType')}>
               <Select value={roiType} onChange={(v: any) => setRoiType(v)} style={{ width: 120 }}>
-                <Select.Option value="rectangle">矩形</Select.Option>
-                <Select.Option value="ellipse">椭圆</Select.Option>
-                <Select.Option value="polygon">多边形</Select.Option>
+                <Select.Option value="rectangle">{t('radiomics.roiRectangle')}</Select.Option>
+                <Select.Option value="ellipse">{t('radiomics.roiEllipse')}</Select.Option>
+                <Select.Option value="polygon">{t('radiomics.roiPolygon')}</Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item label="坐标">
+            <Form.Item label={t('radiomics.coordinates')}>
               <Input
                 placeholder="x,y,width,height"
                 value={roiCoords}
@@ -151,20 +152,20 @@ export const RadiomicsFeaturePage: React.FC = () => {
               />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" icon={<Activity size={14} />} onClick={handleExtract} loading={extracting}>提取</Button>
+              <Button type="primary" icon={<Activity size={14} />} onClick={handleExtract} loading={extracting}>{t('radiomics.extract')}</Button>
             </Form.Item>
           </Form>
         </Card>
 
-        <Card size="small" title="多实例比较">
+        <Card size="small" title={t('radiomics.compareTitle')}>
           <Space>
             <Input
-              placeholder="实例 ID (逗号分隔)"
+              placeholder={t('radiomics.compareIdsPlaceholder')}
               value={compareIds}
               onChange={e => setCompareIds(e.target.value)}
               style={{ width: 280 }}
             />
-            <Button icon={<BarChart3 size={14} />} onClick={handleCompare} loading={comparing}>比较</Button>
+            <Button icon={<BarChart3 size={14} />} onClick={handleCompare} loading={comparing}>{t('radiomics.compare')}</Button>
           </Space>
         </Card>
       </div>
@@ -178,8 +179,8 @@ export const RadiomicsFeaturePage: React.FC = () => {
           a.href = url
           a.download = `radiomics_${instanceId || 'features'}.csv`
           a.click()
-          message.success('已导出 CSV')
-        }}>导出 CSV</Button>}>
+          message.success(t('radiomics.exportedCsv'))
+        }}>{t('radiomics.exportCsv')}</Button>}>
           {Object.entries(groupedFeatures).map(([category, feats]) => (
             <div key={category} style={{ marginBottom: 16 }}>
               <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13, color: '#2563eb' }}>{category}</div>
@@ -190,7 +191,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
       )}
 
       {compareResults.length > 0 && (
-        <Card size="small" title="比较结果" style={{ marginTop: 16 }}>
+        <Card size="small" title={t('radiomics.compareResults')} style={{ marginTop: 16 }}>
           <Table
             dataSource={compareResults}
             rowKey="instanceId"
@@ -198,9 +199,9 @@ export const RadiomicsFeaturePage: React.FC = () => {
             pagination={false}
             scroll={{ x: 'max-content' }}
             columns={[
-              { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId' },
-              { title: '特征数', key: 'count', render: (_: any, r: RadiomicsResult) => r.features?.length || 0 },
-              { title: '体积', key: 'volume', render: (_: any, r: RadiomicsResult) => r.features?.find(f => f.name === 'Volume')?.value?.toFixed(2) || '-' },
+              { title: t('radiomics.colInstanceId'), dataIndex: 'instanceId', key: 'instanceId' },
+              { title: t('radiomics.colFeatureCount'), key: 'count', render: (_: any, r: RadiomicsResult) => r.features?.length || 0 },
+              { title: t('radiomics.colVolume'), key: 'volume', render: (_: any, r: RadiomicsResult) => r.features?.find(f => f.name === 'Volume')?.value?.toFixed(2) || '-' },
             ]}
           />
         </Card>
@@ -208,7 +209,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
       {features.length === 0 && compareResults.length === 0 && !loading && (
         <Card>
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请输入实例 ID 并加载特征" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('radiomics.emptyHint')} />
         </Card>
       )}
     </div>

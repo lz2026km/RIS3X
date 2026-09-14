@@ -4,6 +4,11 @@ import React, { useState, useEffect } from 'react';
 // [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
 import { KpiCard, KpiCardGrid, DashboardCard, ProgressRing, SkeletonKpi } from '../components/dashboard';
 import { Users, FileCheck2, AlertTriangle, Clock3, Monitor, Cpu, Activity } from 'lucide-react';
+import { t } from '../i18n/appI18n';
+
+const DEVICE_STATUS_I18N: Record<string, string> = { '运行中': 'deptDash.status.running', '空闲': 'deptDash.status.idle', '维护中': 'deptDash.status.maintenance' }
+const DEVICE_TYPE_I18N: Record<string, string> = { 'X线': 'deptDash.type.xray', '超声': 'deptDash.type.ultrasound', '乳腺': 'deptDash.type.mammography' }
+const EXAM_TYPE_I18N: Record<string, string> = { 'CT平扫': 'deptDash.exam.ctPlain', 'CT增强': 'deptDash.exam.ctContrast', 'MRI平扫': 'deptDash.exam.mriPlain', 'MRI增强': 'deptDash.exam.mriContrast', 'X线摄影': 'deptDash.exam.xray', '超声检查': 'deptDash.exam.ultrasound', 'DSA造影': 'deptDash.exam.dsa', 'MG': 'MG', 'PET-CT': 'PET-CT', 'SPECT-CT': 'SPECT-CT' }
 
 // 放射科设备数据 - 扩充版
 const devices = [
@@ -321,8 +326,8 @@ const DepartmentDashboardPage: React.FC = () => {
   if (!dataAvailable) {
     return (
       <div data-testid="dept-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无科室数据</div>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请等待数据同步或检查设备状态</div>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('deptDash.noData')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('deptDash.noDataHint')}</div>
       </div>
     );
   }
@@ -332,43 +337,43 @@ const DepartmentDashboardPage: React.FC = () => {
       {/* 头部 */}
       <div style={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={styles.headerTitle}>放射科实时看板</div>
+          <div style={styles.headerTitle}>{t('deptDash.title')}</div>
           {/* [G005 Wave4A P1] 数据源徽标 */}
           <span style={{
             fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
             background: dataMode === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
             color: dataMode === 'real' ? '#15803d' : '#92400e',
           }}>
-            {dataMode === 'real' ? '真实数据' : '演示数据'}
+            {dataMode === 'real' ? t('deptDash.realData') : t('deptDash.demoData')}
           </span>
         </div>
         <div style={styles.headerSubtitle}>
-          科室: 放射科 (RIS) | v0.7.0 | {currentTime.toLocaleString('zh-CN')}
-          {dataMode === 'demo' && <span style={{ marginLeft: 8 }}>(示例数据, 未接实时接口)</span>}
+          {t('deptDash.subtitle', { time: currentTime.toLocaleString('zh-CN') })}
+          {dataMode === 'demo' && <span style={{ marginLeft: 8 }}>{t('deptDash.demoNote')}</span>}
         </div>
       </div>
 
       {/* 统计卡片 (v3.0.6.11-103 Wave 6: KpiCard 卡片化) */}
       <KpiCardGrid minWidth={230} style={{ marginBottom: 24 }}>
-        <KpiCard title="今日接诊总数" value={kpi.totalPatients} icon={<Users size={20} />} color="primary" />
-        <KpiCard title="已完成检查" value={kpi.completedToday} icon={<FileCheck2 size={20} />} color="success" />
-        <KpiCard title="待撰写报告" value={kpi.pendingReports} icon={<AlertTriangle size={20} />} color="error" />
-        <KpiCard title="平均候检时间" value={kpi.avgWaitTime} icon={<Clock3 size={20} />} color="warning" />
-        <KpiCard title="设备运行状态" value={`${kpi.activeDevices}/${kpi.totalDevices}`} suffix="台" icon={<Monitor size={20} />} color="info" />
+        <KpiCard title={t('deptDash.kpiTotalPatients')} value={kpi.totalPatients} icon={<Users size={20} />} color="primary" />
+        <KpiCard title={t('deptDash.kpiCompleted')} value={kpi.completedToday} icon={<FileCheck2 size={20} />} color="success" />
+        <KpiCard title={t('deptDash.kpiPendingReports')} value={kpi.pendingReports} icon={<AlertTriangle size={20} />} color="error" />
+        <KpiCard title={t('deptDash.kpiAvgWait')} value={kpi.avgWaitTime} icon={<Clock3 size={20} />} color="warning" />
+        <KpiCard title={t('deptDash.kpiDeviceStatus')} value={`${kpi.activeDevices}/${kpi.totalDevices}`} suffix={t('deptDash.unitDevices')} icon={<Monitor size={20} />} color="info" />
       </KpiCardGrid>
 
       {/* 双栏布局 */}
       <div style={styles.sectionGrid}>
         {/* 设备状态 */}
         <DashboardCard
-          title="设备状态监控"
+          title={t('deptDash.deviceMonitor')}
           icon={<Cpu size={14} />}
           extra={
             <ProgressRing
               percent={Math.round((kpi.activeDevices / Math.max(kpi.totalDevices, 1)) * 100)}
               size={52}
               strokeWidth={6}
-              subLabel="运行率"
+              subLabel={t('deptDash.runningRate')}
             />
           }
         >
@@ -385,13 +390,13 @@ const DepartmentDashboardPage: React.FC = () => {
                   </div>
                   <div>
                     <div style={styles.deviceName}>{device.name}</div>
-                    <div style={styles.deviceType}>{device.type} | {device.id}</div>
+                    <div style={styles.deviceType}>{DEVICE_TYPE_I18N[device.type] ? t(DEVICE_TYPE_I18N[device.type]) : device.type} | {device.id}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   {device.patients > 0 && (
                     <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      {device.patients}人检查中
+                      {t('deptDash.patientsInExam', { count: device.patients })}
                     </span>
                   )}
                   <span style={{
@@ -399,7 +404,7 @@ const DepartmentDashboardPage: React.FC = () => {
                     backgroundColor: statusColor.bg,
                     color: statusColor.text,
                   }}>
-                    {device.status}
+                    {t(DEVICE_STATUS_I18N[device.status] ?? device.status)}
                   </span>
                 </div>
               </div>
@@ -408,7 +413,7 @@ const DepartmentDashboardPage: React.FC = () => {
         </DashboardCard>
 
         {/* 检查类型统计 */}
-        <DashboardCard title="各类型检查统计" icon={<Activity size={14} />}>
+        <DashboardCard title={t('deptDash.examStats')} icon={<Activity size={14} />}>
           {examStats.map((exam) => {
             const completionRate = (exam.completed / exam.total * 100).toFixed(0);
             return (
@@ -417,10 +422,10 @@ const DepartmentDashboardPage: React.FC = () => {
                   <span style={{ fontSize: '20px' }}>{getExamIcon(exam.type)}</span>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-primary)' }}>
-                      {exam.type}
+                      {t(EXAM_TYPE_I18N[exam.type] ?? exam.type)}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      待检 {exam.pending} | 已完成 {exam.completed}
+                      {t('deptDash.examProgress', { pending: exam.pending, completed: exam.completed })}
                     </div>
                   </div>
                 </div>
@@ -452,7 +457,7 @@ const DepartmentDashboardPage: React.FC = () => {
         color: 'var(--text-secondary)',
         fontSize: '13px',
       }}>
-        放射科信息系统 (RIS) v0.7.0 | 示例数据 (设备/统计为演示数据, 未接实时接口) | 如有异常请联系: 放射科信息中心 ☎ 8001
+        {t('deptDash.footer')}
       </div>
     </div>
   );

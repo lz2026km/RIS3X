@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { FileSpreadsheet, Download, Printer, BarChart3, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { financeApi } from '../../services/api/financeApi'
 import { statsApi } from '../../services/api/statsApi'
+import { t } from '../../i18n/appI18n'
 
 interface PLRow { item: string; amount: number; type: 'revenue' | 'cost' | 'expense' }
 
@@ -67,7 +68,7 @@ export default function FinancialReportsPage() {
       const daily = dailyR.status === 'fulfilled' && dailyR.value.success ? dailyR.value.data as any : null
       if (!rev && !cost) {
         setDataSource('demo')
-        setApiError('financeApi 暂不可用，当前展示内置演示数据')
+        setApiError(t('financeReport.apiUnavailable'))
         return
       }
       setDataSource('api')
@@ -118,7 +119,7 @@ export default function FinancialReportsPage() {
       }
     } catch (e) {
       setDataSource('demo')
-      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+      setApiError(e instanceof Error ? e.message : t('financeReport.loadFailedFallback'))
     } finally {
       setLoading(false)
     }
@@ -190,28 +191,28 @@ export default function FinancialReportsPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><FileSpreadsheet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>财务报表</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><FileSpreadsheet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('financeReport.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={handlePrint} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Printer size={14} />打印</button>
-          <button onClick={handleExportCsv} disabled={!financialReports || financialReports.length === 0} title={!financialReports || financialReports.length === 0 ? '暂无 financeApi 报表数据, 无法导出' : '基于 financeApi 真实数据导出'} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: !financialReports || financialReports.length === 0 ? 'not-allowed' : 'pointer', opacity: !financialReports || financialReports.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出CSV</button>
+          <button onClick={handlePrint} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Printer size={14} />{t('financeReport.print')}</button>
+          <button onClick={handleExportCsv} disabled={!financialReports || financialReports.length === 0} title={!financialReports || financialReports.length === 0 ? t('financeReport.exportDisabledTitle') : t('financeReport.exportEnabledTitle')} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: !financialReports || financialReports.length === 0 ? 'not-allowed' : 'pointer', opacity: !financialReports || financialReports.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />{t('financeReport.exportCsv')}</button>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '20px 24px 0' }}>
-        {(['pl', 'kpi'] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === t ? '#1e40af' : '#21262d', color: tab === t ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
-            {t === 'pl' ? <BarChart3 size={14} /> : <Activity size={14} />}
-            {t === 'pl' ? '损益表' : 'KPI指标'}
+        {(['pl', 'kpi'] as const).map(tabKey => (
+          <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === tabKey ? '#1e40af' : '#21262d', color: tab === tabKey ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {tabKey === 'pl' ? <BarChart3 size={14} /> : <Activity size={14} />}
+            {tabKey === 'pl' ? t('financeReport.pl') : t('financeReport.kpi')}
           </button>
         ))}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 6, fontSize: 12, background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600 }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
-          {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: financeApi 实时' : '数据源: 演示数据'}
+          {loading ? t('financeReport.syncing') : dataSource === 'api' ? t('financeReport.sourceApi') : t('financeReport.sourceDemo')}
         </span>
         {apiError && (
           <span style={{ fontSize: 12, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 8 }}>
             {apiError}
-            <button onClick={() => void loadFinance()} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            <button onClick={() => void loadFinance()} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('financeReport.retry')}</button>
           </span>
         )}
       </div>
@@ -220,8 +221,8 @@ export default function FinancialReportsPage() {
         {tab === 'pl' ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>损益表 — {periodLabel} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(financeApi 实时 · 成本按结构分摊)</span>}</div>
-              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 16 }}>单位: 元</div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{t('financeReport.plTitle')} — {periodLabel} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('financeReport.realtimeNote')}</span>}</div>
+              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 16 }}>{t('financeReport.unitYuan')}</div>
               {plData.map((r, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #21262d', fontSize: 13 }}>
                   <span style={{ color: r.type === 'revenue' ? '#22c55e' : r.type === 'cost' ? '#ef4444' : '#f59e0b' }}>
@@ -233,16 +234,16 @@ export default function FinancialReportsPage() {
                 </div>
               ))}
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 15, fontWeight: 700, borderTop: '2px solid #30363d', marginTop: 8 }}>
-                <span>净利润</span>
+                <span>{t('financeReport.netIncome')}</span>
                 <span style={{ color: netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{netIncome.toLocaleString()}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#8b949e', marginTop: 4 }}>
-                <span>毛利率: {((totalRevenue + totalCost) / totalRevenue * 100).toFixed(1)}%</span>
-                <span>净利率: {profitRate.toFixed(1)}%</span>
+                <span>{t('financeReport.grossMargin')}: {((totalRevenue + totalCost) / totalRevenue * 100).toFixed(1)}%</span>
+                <span>{t('financeReport.netMargin')}: {profitRate.toFixed(1)}%</span>
               </div>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>月度净利润趋势(元) {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(financeApi 实时)</span>}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('financeReport.monthlyTrend')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('financeReport.realtimeShort')}</span>}</div>
               {monthlyPl.map(m => {
                 const maxNI = Math.max(...monthlyPl.map(x => x.netIncome)) || 1
                 const barPct = (m.netIncome / maxNI) * 100
@@ -252,22 +253,22 @@ export default function FinancialReportsPage() {
                     <div style={{ flex: 1, height: 20, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{ width: `${barPct}%`, height: '100%', background: m.netIncome >= 0 ? '#22c55e' : '#ef4444', borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
-                    <span style={{ width: 80, textAlign: 'right', fontSize: 12, fontWeight: 600 }}>¥{(m.netIncome / 10000).toFixed(1)}万</span>
+                    <span style={{ width: 80, textAlign: 'right', fontSize: 12, fontWeight: 600 }}>¥{(m.netIncome / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
                   </div>
                 )
               })}
                 <div style={{ marginTop: 20 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>月度汇总</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('financeReport.monthlySummary')}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>
-                    <span>月份</span><span style={{ textAlign: 'right' }}>收入</span><span style={{ textAlign: 'right' }}>成本</span><span style={{ textAlign: 'right' }}>毛利</span><span style={{ textAlign: 'right' }}>净利</span>
+                    <span>{t('financeReport.colMonth')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colRevenue')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colCost')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colGrossProfit')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colNetIncome')}</span>
                   </div>
                   {monthlyPl.map(m => (
                     <div key={m.month} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12 }}>
                       <span>{m.month}</span>
-                      <span style={{ textAlign: 'right', color: '#22c55e' }}>¥{(m.revenue / 10000).toFixed(1)}万</span>
-                      <span style={{ textAlign: 'right', color: '#ef4444' }}>¥{(m.cost / 10000).toFixed(1)}万</span>
-                      <span style={{ textAlign: 'right' }}>¥{(m.grossProfit / 10000).toFixed(1)}万</span>
-                      <span style={{ textAlign: 'right', fontWeight: 600, color: m.netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{(m.netIncome / 10000).toFixed(1)}万</span>
+                      <span style={{ textAlign: 'right', color: '#22c55e' }}>¥{(m.revenue / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
+                      <span style={{ textAlign: 'right', color: '#ef4444' }}>¥{(m.cost / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
+                      <span style={{ textAlign: 'right' }}>¥{(m.grossProfit / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
+                      <span style={{ textAlign: 'right', fontWeight: 600, color: m.netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{(m.netIncome / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
                     </div>
                   ))}
                 </div>
@@ -276,7 +277,7 @@ export default function FinancialReportsPage() {
         ) : (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, color: '#8b949e' }}>
-              前 3 项指标由 financeApi + statsApi 实时计算; 人均创收/单设备产值/应收账款周转暂无数据源，展示演示数据
+              {t('financeReport.kpiNote')}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
               {kpiData.map(kpi => (
@@ -289,12 +290,12 @@ export default function FinancialReportsPage() {
                     </span>
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700 }}>{kpi.value}</div>
-                  <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{kpi.trend === 'up' ? '较上月提升' : '较上月下降'}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{kpi.trend === 'up' ? t('financeReport.trendUp') : t('financeReport.trendDown')}</div>
                 </div>
               ))}
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>财务指标说明</div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('financeReport.kpiExplain')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {[
                   { title: '次均收入', desc: '每项检查平均收入金额，反映定价水平和服务结构' },

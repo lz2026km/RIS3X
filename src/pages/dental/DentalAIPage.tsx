@@ -5,6 +5,7 @@ import { Card, Space, Tag, Button, Row, Col, Statistic, message, Divider, Alert,
 import { Brain, CheckCircle2, Scan, Eye, RefreshCw, History, Sparkles } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
+import { t } from '../../i18n/appI18n';
 
 interface AiFindingRecord {
   id: string;
@@ -50,10 +51,10 @@ export const DentalAIPage: React.FC = () => {
     try {
       const res = await dentalApi.listAiFindings();
       if (res.success && Array.isArray(res.data)) setFindings(res.data);
-      else setError(res.error?.message ?? '检测记录加载失败');
+      else setError(res.error?.message ?? t('dentalAi.loadFindingsFailed'));
     } catch (err) {
       console.error('[DentalAI] loadFindings:', err);
-      setError('检测记录加载失败');
+      setError(t('dentalAi.loadFindingsFailed'));
     } finally {
       setListLoading(false);
     }
@@ -81,13 +82,13 @@ export const DentalAIPage: React.FC = () => {
     if (key === 'boneloss') {
       return {
         type: key, label: meta.label,
-        tags: [<Tag key="mx" color="orange">上颌: {data?.boneLoss?.maxilla}%</Tag>, <Tag key="md" color="blue">下颌: {data?.boneLoss?.mandible}%</Tag>],
+        tags: [<Tag key="mx" color="orange">{t('dentalAi.maxilla')}: {data?.boneLoss?.maxilla}%</Tag>, <Tag key="md" color="blue">{t('dentalAi.mandible')}: {data?.boneLoss?.mandible}%</Tag>],
         summary: `牙周骨丧失评估，置信度 ${((data?.confidence ?? 0) * 100).toFixed(0)}%`,
       };
     }
     if (key === 'rootcanal') {
       const tags = (data?.canals ?? []).map((c: any, i: number) => (
-        <Tag key={i} color="purple">{c.toothNo} ({c.canalCount}根管)</Tag>
+        <Tag key={i} color="purple">{c.toothNo} ({c.canalCount}{t('dentalAi.canalUnit')})</Tag>
       ));
       return { type: key, label: meta.label, tags, summary: `检查 ${tags.length} 颗牙根管状态` };
     }
@@ -119,10 +120,10 @@ export const DentalAIPage: React.FC = () => {
         if (finding.success) void loadFindings();
         message.success(`${TYPE_META[key]?.label ?? key} 完成`);
       } else {
-        message.error(res.error?.message ?? 'AI 检测失败');
+        message.error(res.error?.message ?? t('dentalAi.detectFailed'));
       }
     } catch (e: any) {
-      message.error(e?.message ?? 'AI 服务不可用');
+      message.error(e?.message ?? t('dentalAi.serviceUnavailable'));
     } finally {
       setLoading(false);
     }
@@ -140,13 +141,13 @@ export const DentalAIPage: React.FC = () => {
       });
       if (res.success) {
         setFindings((prev) => prev.map((f) => f.id === r.id ? { ...f, status } : f));
-        message.success(status === 'confirmed' ? '已确认该 AI 发现' : status === 'rejected' ? '已驳回该 AI 发现' : '已提交复核');
+        message.success(status === 'confirmed' ? t('dentalAi.confirmedFinding') : status === 'rejected' ? t('dentalAi.rejectedFinding') : t('dentalAi.submittedReview'));
         setDetail(null);
       } else {
-        message.error(res.error?.message ?? '操作失败');
+        message.error(res.error?.message ?? t('dentalAi.operationFailed'));
       }
     } catch (e: any) {
-      message.error(e?.message ?? '服务不可用');
+      message.error(e?.message ?? t('dentalAi.serviceUnavailable'));
     }
   };
 
@@ -154,26 +155,26 @@ export const DentalAIPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Brain size={20} color="#722ed1" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 AI 辅助诊断</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalAi.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
-        <Tag color="magenta">混合推理 (ONNX + API)</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadFindings()} loading={listLoading}>刷新记录</Button>
+        <Tag color="magenta">{t('dentalAi.hybridInference')}</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadFindings()} loading={listLoading}>{t('dentalAi.refreshRecords')}</Button>
       </Space>
 
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="检测记录" value={findings.length} prefix={<History size={14} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="已确认" value={confirmedCount} styles={{ content: { color: '#52c41a' } }} prefix={<CheckCircle2 size={14} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="待复核" value={findings.filter((f) => f.status !== 'confirmed').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title="平均置信度" value={findings.length ? `${Math.round((findings.reduce((s, f) => s + (f.confidence ?? 0), 0) / findings.length) * 100)}%` : '-'} prefix={<Sparkles size={14} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.records')} value={findings.length} prefix={<History size={14} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.confirmed')} value={confirmedCount} styles={{ content: { color: '#52c41a' } }} prefix={<CheckCircle2 size={14} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.pendingReview')} value={findings.filter((f) => f.status !== 'confirmed').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.avgConfidence')} value={findings.length ? `${Math.round((findings.reduce((s, f) => s + (f.confidence ?? 0), 0) / findings.length) * 100)}%` : '-'} prefix={<Sparkles size={14} />} /></Card></Col>
       </Row>
 
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
         items={[
-          { key: 'detect', label: 'AI 检测' },
+          { key: 'detect', label: t('dentalAi.detectTab') },
           { key: 'records', label: `检测记录 (${findings.length})` },
         ]}
         style={{ marginBottom: 16 }}
@@ -189,7 +190,7 @@ export const DentalAIPage: React.FC = () => {
                 <Card
                   size="small"
                   title={<Space><Scan size={12} color={meta.color} />{meta.label}</Space>}
-                  extra={<Button size="small" type="primary" loading={loading && activeTab === key} icon={<Scan size={12} />} onClick={() => void handleInfer(key)}>运行</Button>}
+                  extra={<Button size="small" type="primary" loading={loading && activeTab === key} icon={<Scan size={12} />} onClick={() => void handleInfer(key)}>{t('dentalAi.run')}</Button>}
                 >
                   {result ? (
                     <>
@@ -197,7 +198,7 @@ export const DentalAIPage: React.FC = () => {
                       <Alert type="success" showIcon message={result.summary} style={{ fontSize: 12 }} />
                     </>
                   ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="尚未运行检测" style={{ margin: '8px 0' }} />
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalAi.notRun')} style={{ margin: '8px 0' }} />
                   )}
                 </Card>
               </Col>
@@ -207,7 +208,7 @@ export const DentalAIPage: React.FC = () => {
       )}
 
       {activeTab === 'records' && (
-        <Card size="small" title={<Space><History size={14} />AI 检测记录</Space>}>
+        <Card size="small" title={<Space><History size={14} />{t('dentalAi.recordsTitle')}</Space>}>
           <Spin spinning={listLoading}>
             <Table
               dataSource={findingPageData}
@@ -215,17 +216,17 @@ export const DentalAIPage: React.FC = () => {
               pagination={findingPagination}
               columns={[
                 { title: 'ID', dataIndex: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
-                { title: '患者', dataIndex: 'patientName', render: (v?: string) => v ?? '—' },
-                { title: '类型', dataIndex: 'type', render: (t: string) => <Tag color={TYPE_META[t]?.color ?? 'default'}>{TYPE_META[t]?.label ?? t}</Tag> },
-                { title: '牙位', dataIndex: 'toothNo', render: (v?: string) => v && v !== '-' ? <Tag color="blue">#{v}</Tag> : '—' },
-                { title: '发现', dataIndex: 'finding', ellipsis: true },
+                { title: t('dentalAi.patient'), dataIndex: 'patientName', render: (v?: string) => v ?? '—' },
+                { title: t('dentalAi.type'), dataIndex: 'type', render: (type: string) => <Tag color={TYPE_META[type]?.color ?? 'default'}>{TYPE_META[type]?.label ?? type}</Tag> },
+                { title: t('dentalAi.toothNo'), dataIndex: 'toothNo', render: (v?: string) => v && v !== '-' ? <Tag color="blue">#{v}</Tag> : '—' },
+                { title: t('dentalAi.finding'), dataIndex: 'finding', ellipsis: true },
                 {
-                  title: '置信度', dataIndex: 'confidence',
+                  title: t('dentalAi.confidence'), dataIndex: 'confidence',
                   render: (c: number) => <Progress percent={Math.round((c ?? 0) * 100)} size="small" />,
                 },
-                { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'confirmed' ? 'success' : 'processing'} text={s === 'confirmed' ? '已确认' : '待复核'} /> },
-                { title: '时间', dataIndex: 'createdAt', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
-                { title: '操作', render: (_, r: AiFindingRecord) => <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>查看</Button> },
+                { title: t('dentalAi.status'), dataIndex: 'status', render: (s: string) => <Badge status={s === 'confirmed' ? 'success' : 'processing'} text={s === 'confirmed' ? t('dentalAi.confirmed') : t('dentalAi.pendingReview')} /> },
+                { title: t('dentalAi.time'), dataIndex: 'createdAt', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+                { title: t('dentalAi.actions'), render: (_, r: AiFindingRecord) => <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>{t('dentalAi.view')}</Button> },
               ]}
             scroll={{ x: 'max-content' }}
             />
@@ -237,17 +238,17 @@ export const DentalAIPage: React.FC = () => {
         {detail && (
           <>
             <Descriptions bordered column={2} size="small">
-              <Descriptions.Item label="类型"><Tag color={TYPE_META[detail.type ?? '']?.color ?? 'default'}>{TYPE_META[detail.type ?? '']?.label ?? detail.type}</Tag></Descriptions.Item>
-              <Descriptions.Item label="患者">{detail.patientName ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label="牙位">{detail.toothNo && detail.toothNo !== '-' ? `#${detail.toothNo}` : '—'}</Descriptions.Item>
-              <Descriptions.Item label="置信度">{(detail.confidence ?? 0) * 100}%</Descriptions.Item>
-              <Descriptions.Item label="发现" span={2}>{detail.finding ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalAi.type')}><Tag color={TYPE_META[detail.type ?? '']?.color ?? 'default'}>{TYPE_META[detail.type ?? '']?.label ?? detail.type}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dentalAi.patient')}>{detail.patientName ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalAi.toothNo')}>{detail.toothNo && detail.toothNo !== '-' ? `#${detail.toothNo}` : '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalAi.confidence')}>{(detail.confidence ?? 0) * 100}%</Descriptions.Item>
+              <Descriptions.Item label={t('dentalAi.finding')} span={2}>{detail.finding ?? '—'}</Descriptions.Item>
             </Descriptions>
             <Divider style={{ margin: '12px 0' }} />
             <Space>
-              <Button type="primary" size="small" onClick={() => void updateFindingStatus(detail, 'confirmed')}>确认</Button>
-              <Button size="small" onClick={() => void updateFindingStatus(detail, 'pending')}>复核</Button>
-              <Button size="small" danger onClick={() => void updateFindingStatus(detail, 'rejected')}>驳回</Button>
+              <Button type="primary" size="small" onClick={() => void updateFindingStatus(detail, 'confirmed')}>{t('dentalAi.confirm')}</Button>
+              <Button size="small" onClick={() => void updateFindingStatus(detail, 'pending')}>{t('dentalAi.review')}</Button>
+              <Button size="small" danger onClick={() => void updateFindingStatus(detail, 'rejected')}>{t('dentalAi.reject')}</Button>
             </Space>
           </>
         )}

@@ -9,6 +9,7 @@ import {
 import type { Dayjs } from 'dayjs';
 import { CalendarDays, Clock, Monitor, Users, Plus, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const STATE_COLOR: Record<string, string> = {
   SCHEDULED: 'blue', CONFIRMED: 'cyan', CHECKED_IN: 'geekblue', IN_PROGRESS: 'orange',
@@ -16,12 +17,12 @@ const STATE_COLOR: Record<string, string> = {
 };
 
 const STATE_LABEL: Record<string, string> = {
-  SCHEDULED: '已预约', CONFIRMED: '已确认', CHECKED_IN: '已签到', IN_PROGRESS: '进行中',
-  COMPLETED: '已完成', CANCELLED: '已取消', NO_SHOW: '未到场',
+  SCHEDULED: t('sch.state.scheduled'), CONFIRMED: t('sch.state.confirmed'), CHECKED_IN: t('sch.state.checkedIn'), IN_PROGRESS: t('sch.state.inProgress'),
+  COMPLETED: t('sch.state.completed'), CANCELLED: t('sch.state.cancelled'), NO_SHOW: t('sch.state.noShow'),
 };
 
 const PRIORITY_LABEL: Record<string, string> = {
-  STAT: '紧急', URGENT: '加急', ROUTINE: '常规',
+  STAT: t('sch.priority.stat'), URGENT: t('sch.priority.urgent'), ROUTINE: t('sch.priority.routine'),
 };
 
 function getAptDate(a: AppointmentDto): string {
@@ -62,7 +63,7 @@ export const SchedulingCenterPage: React.FC = () => {
         setDeviceStats({ total: d.total ?? d.totalDevices, inUse: d.inUse, maintenance: d.maintenance });
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败');
+      setError((e as Error)?.message ?? t('sch.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -120,7 +121,7 @@ export const SchedulingCenterPage: React.FC = () => {
         startAt: dayjs(values.datetime).format('YYYY-MM-DDTHH:mm:ss'),
         endAt: dayjs(values.datetime).add(30, 'minute').format('YYYY-MM-DDTHH:mm:ss'),
         deviceId: values.deviceId ?? 'DEV-AUTO',
-        deviceName: values.deviceId ?? '自动排程设备',
+        deviceName: values.deviceId ?? t('sch.autoDevice'),
         room: values.room,
         priority: values.priority ?? 'ROUTINE',
         note: values.note,
@@ -129,12 +130,12 @@ export const SchedulingCenterPage: React.FC = () => {
       };
       const res = await appointmentApi.create(payload as any);
       if (res.success) {
-        message.success('预约创建成功');
+        message.success(t('sch.createSuccess'));
         setBookingOpen(false);
         form.resetFields();
         void load();
       } else {
-        message.error(res.error?.message ?? '创建失败');
+        message.error(res.error?.message ?? t('sch.createFailed'));
       }
     } catch {
       // validateFields 失败或用户取消
@@ -144,13 +145,13 @@ export const SchedulingCenterPage: React.FC = () => {
   };
 
   const columns = [
-    { title: '时间', key: 'time', width: 90, render: (_: unknown, r: AppointmentDto) => getAptTime(r) },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 110 },
-    { title: '检查项目', key: 'item', width: 130, render: (_: unknown, r: AppointmentDto) => r.bodyPart ?? r.modality },
-    { title: '设备', dataIndex: 'deviceName', key: 'deviceName', width: 150 },
-    { title: '优先级', dataIndex: 'priority', key: 'priority', width: 90, render: (v: string) =>
+    { title: t('sch.colTime'), key: 'time', width: 90, render: (_: unknown, r: AppointmentDto) => getAptTime(r) },
+    { title: t('sch.colPatient'), dataIndex: 'patientName', key: 'patientName', width: 110 },
+    { title: t('sch.colItem'), key: 'item', width: 130, render: (_: unknown, r: AppointmentDto) => r.bodyPart ?? r.modality },
+    { title: t('sch.colDevice'), dataIndex: 'deviceName', key: 'deviceName', width: 150 },
+    { title: t('sch.colPriority'), dataIndex: 'priority', key: 'priority', width: 90, render: (v: string) =>
       <Tag color={v === 'STAT' ? 'red' : v === 'URGENT' ? 'orange' : 'blue'}>{PRIORITY_LABEL[v] ?? v}</Tag> },
-    { title: '状态', dataIndex: 'state', key: 'state', width: 100, render: (v: string) =>
+    { title: t('sch.colStatus'), dataIndex: 'state', key: 'state', width: 100, render: (v: string) =>
       <Badge status={(STATE_COLOR[v] ?? 'default') as any} text={STATE_LABEL[v] ?? v} /> },
   ];
 
@@ -158,26 +159,26 @@ export const SchedulingCenterPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <CalendarDays size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>全院资源排程中心</span>
-        <Tag color="green">实时占用</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sch.title')}</span>
+        <Tag color="green">{t('sch.realtimeOccupancy')}</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('sch.refresh')}</Button>
       </Space>
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('sch.retry')}</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="预约总数" value={stats.total} prefix={<Clock size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="今日预约" value={todayCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="进行中" value={activeCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="在线设备" value={deviceStats.inUse ?? '-'} suffix={`/ ${deviceStats.total ?? '-'}`} prefix={<Monitor size={14} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('sch.totalAppointments')} value={stats.total} prefix={<Clock size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('sch.todayAppointments')} value={todayCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('sch.state.inProgress')} value={activeCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('sch.onlineDevices')} value={deviceStats.inUse ?? '-'} suffix={`/ ${deviceStats.total ?? '-'}`} prefix={<Monitor size={14} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
 
       <Row gutter={16}>
         <Col span={10}>
-          <Card size="small" title={<Space><Users size={14} />排班日历</Space>}>
+          <Card size="small" title={<Space><Users size={14} />{t('sch.calendarTitle')}</Space>}>
             <Spin spinning={loading}>
               <Calendar
                 fullCellRender={(date) => (
@@ -195,11 +196,11 @@ export const SchedulingCenterPage: React.FC = () => {
         <Col span={14}>
           <Card
             size="small"
-            title={<Space><Clock size={14} />{selectedDate.format('YYYY-MM-DD')} 预约列表 ({dayAppointments.length})</Space>}
-            extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setBookingOpen(true)}>新建预约</Button>}
+            title={<Space><Clock size={14} />{selectedDate.format('YYYY-MM-DD')} {t('sch.appointmentList')} ({dayAppointments.length})</Space>}
+            extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setBookingOpen(true)}>{t('sch.newAppointment')}</Button>}
           >
             {dayAppointments.length === 0 && !loading ? (
-              <Empty description="当天暂无预约" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('sch.noAppointments')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               <Table rowKey="id" size="small" dataSource={dayAppointments} columns={columns} pagination={false} scroll={{ x: 'max-content' }}/>
             )}
@@ -208,7 +209,7 @@ export const SchedulingCenterPage: React.FC = () => {
       </Row>
 
       <Modal
-        title="新建预约"
+        title={t('sch.newAppointment')}
         open={bookingOpen}
         onCancel={() => setBookingOpen(false)}
         onOk={() => void handleCreate()}
@@ -218,33 +219,33 @@ export const SchedulingCenterPage: React.FC = () => {
         <Form form={form} layout="vertical" size="small">
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item label="患者姓名" name="patientName" rules={[{ required: true, message: '请输入患者姓名' }]}>
-                <Select showSearch placeholder="选择或输入患者" options={['张伟', '李娜', '王芳', '赵敏', '陈杰', '刘洋'].map(n => ({ value: n, label: n }))} />
+              <Form.Item label={t('sch.patientName')} name="patientName" rules={[{ required: true, message: t('sch.patientNameRequired') }]}>
+                <Select showSearch placeholder={t('sch.selectPatient')} options={['张伟', '李娜', '王芳', '赵敏', '陈杰', '刘洋'].map(n => ({ value: n, label: n }))} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="检查项目" name="bodyPart">
-                <Select placeholder="选择项目" options={['胸部CT平扫', '头颅MRI增强', '腹部CT增强', '颈椎DR', '口腔CBCT', '乳腺钼靶'].map(n => ({ value: n, label: n }))} />
+              <Form.Item label={t('sch.colItem')} name="bodyPart">
+                <Select placeholder={t('sch.selectItem')} options={['胸部CT平扫', '头颅MRI增强', '腹部CT增强', '颈椎DR', '口腔CBCT', '乳腺钼靶'].map(n => ({ value: n, label: n }))} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="模态" name="modality" initialValue="CT">
+              <Form.Item label={t('sch.modality')} name="modality" initialValue="CT">
                 <Select options={['CT', 'MR', 'DR', 'CBCT', 'MG', 'PET-CT'].map(m => ({ value: m, label: m }))} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="预约时间" name="datetime" rules={[{ required: true, message: '请选择时间' }]}>
+              <Form.Item label={t('sch.appointmentTime')} name="datetime" rules={[{ required: true, message: t('sch.timeRequired') }]}>
                 <DatePicker showTime format="YYYY-MM-DD HH:mm" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="优先级" name="priority" initialValue="ROUTINE">
+              <Form.Item label={t('sch.colPriority')} name="priority" initialValue="ROUTINE">
                 <Select options={['ROUTINE', 'URGENT', 'STAT'].map(p => ({ value: p, label: PRIORITY_LABEL[p] ?? p }))} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="诊室/备注" name="note">
-                <Select allowClear placeholder="选择诊室" options={['CT 检查室 1', 'CT 检查室 2', 'MR 检查室 1', 'DR 检查室 1', 'CBCT 检查室'].map(n => ({ value: n, label: n }))} />
+              <Form.Item label={t('sch.roomNote')} name="note">
+                <Select allowClear placeholder={t('sch.selectRoom')} options={['CT 检查室 1', 'CT 检查室 2', 'MR 检查室 1', 'DR 检查室 1', 'CBCT 检查室'].map(n => ({ value: n, label: n }))} />
               </Form.Item>
             </Col>
           </Row>

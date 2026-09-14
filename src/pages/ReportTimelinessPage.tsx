@@ -14,12 +14,13 @@ import { notificationsApi } from '../services/api';
 // [W2-A] biApi 真实及时率: getReportTimeliness + getTrend + getCriticalSla; 失败回退 TIMELINESS_DATA
 import { biApi } from '../services/api/biApi';
 import { statsApi } from '../services/api/statsApi';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 主组件
 // ============================================================
 export default function ReportTimelinessPage() {
-  const t = TIMELINESS_DATA;
+  const data = TIMELINESS_DATA;
   const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [escalated, setEscalated] = useState<Record<string, boolean>>({});
@@ -52,14 +53,14 @@ export default function ReportTimelinessPage() {
       const daily = dailyRes?.success ? (dailyRes.data as any) ?? null : null;
       if (!timing && trend.length === 0 && !sla && !daily) {
         setDataSource('demo');
-        setApiError('biApi 暂不可用，当前展示内置演示数据');
+        setApiError(t('timeliness.apiUnavailable'));
         return;
       }
       setDataSource('api');
       setLive({ timing, trend, sla, daily });
     } catch (e) {
       setDataSource('demo');
-      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据');
+      setApiError(e instanceof Error ? e.message : t('timeliness.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -72,19 +73,19 @@ export default function ReportTimelinessPage() {
   const bucketPercent = (b: string) => Number(live?.timing?.buckets?.find((x: any) => x.bucket === b)?.percent ?? 0);
   const onTimeRate = live?.timing
     ? Math.round((['<30min', '30min-1h', '1h-2h'].reduce((s, b) => s + bucketPercent(b), 0)) * 10) / 10
-    : t.overallOnTimeRate;
-  const avgSignTime = live?.timing ? Number(live.timing.medianMinutes) || t.avgSignTime : t.avgSignTime;
-  const overdueCount = live?.timing ? bucketCount('>4h') || 0 : t.overdue.length;
+    : data.overallOnTimeRate;
+  const avgSignTime = live?.timing ? Number(live.timing.medianMinutes) || data.avgSignTime : data.avgSignTime;
+  const overdueCount = live?.timing ? bucketCount('>4h') || 0 : data.overdue.length;
   const priorityData = live?.timing
     ? [
         { priority: '急诊', onTime: bucketCount('<30min'), target: 5, rate: bucketPercent('<30min') },
         { priority: '加急', onTime: bucketCount('30min-1h') + bucketCount('1h-2h'), target: 30, rate: Math.round((bucketPercent('30min-1h') + bucketPercent('1h-2h')) * 10) / 10 },
         { priority: '普通', onTime: bucketCount('2h-4h') + bucketCount('>4h'), target: 1440, rate: Math.round((bucketPercent('2h-4h') + bucketPercent('>4h')) * 10) / 10 },
       ]
-    : t.onTimeByPriority;
+    : data.onTimeByPriority;
   const trendData = live?.trend?.length
     ? live.trend.map((p: any) => ({ date: String(p.date || '').slice(5), onTimeRate: Math.round(Number(p.completionRate ?? 0) * 10) / 10 }))
-    : t.trend;
+    : data.trend;
 
   const currentUserId = (() => {
     try {
@@ -111,22 +112,22 @@ export default function ReportTimelinessPage() {
   const handleUrgeOne = async (o: { reportId: string; patientName: string; doctor: string }) => {
     const ok = await sendUrge(o);
     if (ok) message.success(`已催办 ${o.doctor}: ${o.reportId}`);
-    else message.warning('催办接口不可用，已记录本地催办日志');
+      else message.warning(t('timeliness.urgeUnavailable'));
   };
 
   const handleUrgeAll = async () => {
     setReminding(true);
     try {
-      const results = await Promise.all(t.overdue.map(o => sendUrge(o)));
+      const results = await Promise.all(data.overdue.map(o => sendUrge(o)));
       const ok = results.filter(Boolean).length;
       if (ok > 0) message.success(`已批量催办 ${ok} 位医生`);
-      else message.warning('催办接口不可用，已记录本地催办日志');
+    else message.warning(t('timeliness.urgeUnavailable'));
     } finally { setReminding(false); }
   };
 
   const handleEscalate = (o: { reportId: string; patientName: string; doctor: string }) => {
     setEscalated(prev => ({ ...prev, [o.reportId]: true }));
-    void sendUrge({ ...o, doctor: '科主任' });
+    void sendUrge({ ...o, doctor: t('timeliness.deptDirector') });
     message.success(`已升级至科主任: ${o.reportId}`);
   };
 
@@ -136,11 +137,11 @@ export default function ReportTimelinessPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Clock size={20} color="#1e40af" /> 报告及时率监控
+            <Clock size={20} color="#1e40af" /> {t('timeliness.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            急诊5min / 加急30min / 普通24h · 实时超时预警 · 智能调度
+            {t('timeliness.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -156,7 +157,7 @@ export default function ReportTimelinessPage() {
                   fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 }}
               >
-                {p === 'today' ? '今日' : p === 'week' ? '近7天' : '本月'}
+                {p === 'today' ? t('timeliness.today') : p === 'week' ? t('timeliness.last7') : t('timeliness.thisMonth')}
               </button>
             ))}
           </div>
@@ -170,7 +171,7 @@ export default function ReportTimelinessPage() {
               display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            <Activity size={12} /> {autoRefresh ? '实时刷新中' : '已暂停'}
+            <Activity size={12} /> {autoRefresh ? t('timeliness.autoRefreshing') : t('timeliness.paused')}
           </button>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 4,
@@ -180,7 +181,7 @@ export default function ReportTimelinessPage() {
             border: '1px solid ' + (dataSource === 'api' ? '#a7f3d0' : '#fde68a'),
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: loading ? '#94a3b8' : dataSource === 'api' ? '#10b981' : '#f59e0b' }} />
-            {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: biApi 实时' : '数据源: 演示数据'}
+            {loading ? t('timeliness.syncing') : dataSource === 'api' ? t('timeliness.dataSourceApi') : t('timeliness.dataSourceDemo')}
           </span>
           {apiError && (
             <button
@@ -188,7 +189,7 @@ export default function ReportTimelinessPage() {
               title={apiError}
               style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--bg-card)', color: '#dc2626', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 4 }}
             >
-              <AlertTriangle size={12} /> 重试
+              <AlertTriangle size={12} /> {t('timeliness.retry')}
             </button>
           )}
         </div>
@@ -196,25 +197,25 @@ export default function ReportTimelinessPage() {
 
       {/* 大数字 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
-        <BigStat icon={CheckCircle2} label="整体及时率" value={onTimeRate} suffix="%" color="#10b981" trend="up" trendValue="2.3%" />
-        <BigStat icon={Timer} label="平均签发" value={avgSignTime} suffix="分钟" color="#7c3aed" trend="down" trendValue="3.1m" />
-        <BigStat icon={AlertTriangle} label="超时工单" value={overdueCount} suffix="单" color="#dc2626" alert />
-        <BigStat icon={Bell} label="预警通知" value={3} suffix="条(演示)" color="#f59e0b" />
+        <BigStat icon={CheckCircle2} label={t('timeliness.overallOnTimeRate')} value={onTimeRate} suffix="%" color="#10b981" trend="up" trendValue="2.3%" />
+        <BigStat icon={Timer} label={t('timeliness.avgSignTime')} value={avgSignTime} suffix={t('timeliness.unitMinutes')} color="#7c3aed" trend="down" trendValue="3.1m" />
+        <BigStat icon={AlertTriangle} label={t('timeliness.overdueTickets')} value={overdueCount} suffix={t('timeliness.unitTickets')} color="#dc2626" alert />
+        <BigStat icon={Bell} label={t('timeliness.alertNotifications')} value={3} suffix={t('timeliness.unitDemoTickets')} color="#f59e0b" />
       </div>
 
       {/* 优先级及时率 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按优先级 - 及时签发率</div>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{dataSource === 'api' ? 'biApi TAT 桶分布' : 'TAT 监控'}</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byPriority')}</div>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{dataSource === 'api' ? t('timeliness.apiBuckets') : t('timeliness.tatMonitor')}</span>
           </div>
           {priorityData.map(p => (
             <div key={p.priority} style={{ marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <PriorityBadge priority={p.priority} />
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>目标 {p.target}min · 已发 {p.onTime}单</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.priorityTarget', { target: p.target, onTime: p.onTime })}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: p.rate >= 90 ? '#10b981' : p.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{p.rate}%</span>
@@ -234,15 +235,15 @@ export default function ReportTimelinessPage() {
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按设备 - 及时签发率</div>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>演示数据</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byModality')}</div>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.demoData')}</span>
           </div>
-          {t.onTimeByModality.map(m => (
+          {data.onTimeByModality.map(m => (
             <div key={m.modality} style={{ marginBottom: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 8, height: 8, borderRadius: 4, background: modalityColor(m.modality) }} />
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.modality} · {m.onTime}/{m.target}单</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.modalityTarget', { modality: m.modality, onTime: m.onTime, target: m.target })}</span>
                 </div>
                 <span style={{ fontSize: 13, fontWeight: 700, color: m.rate >= 90 ? '#10b981' : m.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{m.rate}%</span>
               </div>
@@ -261,9 +262,9 @@ export default function ReportTimelinessPage() {
       {/* 7日趋势 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>近 7 日及时率趋势</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.trend7d')}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#10b981' }}>
-            <TrendingUp size={12} /> {dataSource === 'api' ? `biApi 实时 (${period === 'month' ? '近30日' : '近7日'})` : '整体上升 2.3%'}
+            <TrendingUp size={12} /> {dataSource === 'api' ? `biApi 实时 (${period === 'month' ? '近30日' : '近7日'})` : t('timeliness.overallUp')}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 140, gap: 6, padding: '0 8px' }}>
@@ -291,25 +292,25 @@ export default function ReportTimelinessPage() {
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <AlertTriangle size={13} /> 超时工单实时列表
-            <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 6 }}>演示数据 (biApi 无超时工单明细端点)</span>
+            <AlertTriangle size={13} /> {t('timeliness.overdueList')}
+            <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 6 }}>{t('timeliness.overdueDemoNote')}</span>
           </div>
           <button onClick={() => void handleUrgeAll()} disabled={reminding} style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: reminding ? 'wait' : 'pointer', opacity: reminding ? 0.7 : 1 }}>
-            {reminding ? '催办中...' : '一键催办'}
+            {reminding ? t('timeliness.urging') : t('timeliness.urgeAll')}
           </button>
         </div>
         <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--color-error-bg)', borderBottom: '1px solid #fecaca' }}>
-              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>报告ID</th>
-              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>患者</th>
-              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>责任医生</th>
-              <th style={{ padding: 8, textAlign: 'right', color: '#7f1d1d', fontWeight: 600 }}>超时</th>
-              <th style={{ padding: 8, textAlign: 'center', color: '#7f1d1d', fontWeight: 600 }}>操作</th>
+              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colReportId')}</th>
+              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colPatient')}</th>
+              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colDoctor')}</th>
+              <th style={{ padding: 8, textAlign: 'right', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colOverdue')}</th>
+              <th style={{ padding: 8, textAlign: 'center', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colActions')}</th>
             </tr>
           </thead>
           <tbody>
-            {t.overdue.map(o => (
+            {data.overdue.map(o => (
               <tr key={o.reportId} style={{ borderBottom: '1px solid #fee2e2' }}>
                 <td style={{ padding: 8, fontFamily: 'monospace', color: '#7f1d1d' }}>{o.reportId}</td>
                 <td style={{ padding: 8 }}><User size={10} /> {o.patientName}</td>
@@ -317,10 +318,10 @@ export default function ReportTimelinessPage() {
                 <td style={{ padding: 8, textAlign: 'right', color: o.minutes > 60 ? '#dc2626' : '#f59e0b', fontWeight: 700 }}>+{o.minutes} min</td>
                 <td style={{ padding: 8, textAlign: 'center' }}>
                   <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
-                    催办
+                    {t('timeliness.urge')}
                   </button>
                   <button onClick={() => handleEscalate(o)} disabled={!!escalated[o.reportId]} style={{ padding: '2px 8px', background: escalated[o.reportId] ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: escalated[o.reportId] ? 'default' : 'pointer' }}>
-                    {escalated[o.reportId] ? '已升级' : '升级'}
+                    {escalated[o.reportId] ? t('timeliness.escalated') : t('timeliness.escalate')}
                   </button>
                 </td>
               </tr>

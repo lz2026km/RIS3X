@@ -7,6 +7,7 @@ import { ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Camera, ChevronLeft, Chev
 import { Inbox, SearchX } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { t } from '../../i18n/appI18n';
 
 export const DentalViewerPage: React.FC = () => {
   const [search] = useSearchParams();
@@ -26,7 +27,7 @@ export const DentalViewerPage: React.FC = () => {
     (async () => {
       setLoading(true);
       try { const r = await fetch(`/api/v1/dental/studies/${studyId}`); const d = await r.json(); if (d.success) setStudy(d.data); }
-      catch { message.error('加载失败'); }
+      catch { message.error(t("dViewer.loadFailed")); }
       finally { setLoading(false); }
     })();
   }, [studyId]);
@@ -37,13 +38,13 @@ export const DentalViewerPage: React.FC = () => {
       const res = await dentalApi.detectCaries({ modality });
       if (res.success && res.data) {
         setAiResult(res.data);
-        message.success('AI 分析完成');
+        message.success(t("dViewer.aiDone"));
       } else {
-        message.warning('AI 接口暂不可用，已返回本地模拟结果');
+        message.warning(t("dViewer.aiUnavailable"));
         setAiResult({ cariesDetected: 2, boneLossLevel: '中', periapicalLesions: 1, confidence: 0.87, modelVersion: 'demo-v1' });
       }
     } catch {
-      message.warning('AI 接口暂不可用，已返回本地模拟结果');
+      message.warning(t("dViewer.aiUnavailable"));
       setAiResult({ cariesDetected: 2, boneLossLevel: '中', periapicalLesions: 1, confidence: 0.87, modelVersion: 'demo-v1' });
     } finally {
       setAiRunning(false);
@@ -51,7 +52,7 @@ export const DentalViewerPage: React.FC = () => {
   };
 
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
-  if (!study) return <div style={{ padding: 24 }}><Card><Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未找到检查" /></Card></div>;
+  if (!study) return <div style={{ padding: 24 }}><Card><Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t("dViewer.notFound")} /></Card></div>;
 
   const modality = study.modality || modParam;
   const isCBCT = modality === 'CBCT';
@@ -65,18 +66,18 @@ export const DentalViewerPage: React.FC = () => {
       {/* Top Bar */}
       <div style={{ background: '#001529', color: '#fff', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Space>
-          <span style={{ fontSize: 16, fontWeight: 600 }}>口腔影像查看器</span>
+          <span style={{ fontSize: 16, fontWeight: 600 }}>{t("dViewer.title")}</span>
           <Tag color="blue">{MODALITY_LABELS[modality]}</Tag>
           <Tag color="cyan">{study.id}</Tag>
           <Tag color="purple">v3.0.6.8-54</Tag>
         </Space>
         <Space>
-          <Tooltip title="窗宽"><InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} suffix="W" /></Tooltip>
-          <Tooltip title="窗位"><InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} suffix="C" /></Tooltip>
+          <Tooltip title={t("dViewer.windowWidth")}><InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} suffix="W" /></Tooltip>
+          <Tooltip title={t("dViewer.windowCenter")}><InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} suffix="C" /></Tooltip>
           <Slider min={50} max={300} value={zoom} onChange={setZoom} style={{ width: 100 }} />
-          <Tooltip title="放大"><Button size="small" icon={<ZoomIn size={14} />} onClick={() => setZoom(z => Math.min(300, z + 20))} /></Tooltip>
-          <Tooltip title="缩小"><Button size="small" icon={<ZoomOut size={14} />} onClick={() => setZoom(z => Math.max(50, z - 20))} /></Tooltip>
-          <Tooltip title="重置"><Button size="small" icon={<RotateCcw size={14} />} onClick={() => { setZoom(1); setWw(400); setWc(40); }} /></Tooltip>
+          <Tooltip title={t("dViewer.zoomIn")}><Button size="small" icon={<ZoomIn size={14} />} onClick={() => setZoom(z => Math.min(300, z + 20))} /></Tooltip>
+          <Tooltip title={t("dViewer.zoomOut")}><Button size="small" icon={<ZoomOut size={14} />} onClick={() => setZoom(z => Math.max(50, z - 20))} /></Tooltip>
+          <Tooltip title={t("dViewer.reset")}><Button size="small" icon={<RotateCcw size={14} />} onClick={() => { setZoom(1); setWw(400); setWc(40); }} /></Tooltip>
         </Space>
       </div>
 
@@ -87,7 +88,7 @@ export const DentalViewerPage: React.FC = () => {
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: 480, height: 360, background: '#1a1a1a', border: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transform: `scale(${zoom / 100})` }}>
                 <Layers size={48} color="var(--text-secondary)" />
-                <div style={{ color: 'var(--text-secondary)', marginTop: 12, fontSize: 14 }}>CBCT 轴向切片 #{currentSlice + 1}</div>
+                <div style={{ color: 'var(--text-secondary)', marginTop: 12, fontSize: 14 }}>{t("dViewer.cbctAxial")}{currentSlice + 1}</div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>WW: {ww} WC: {wc} | 512×512 | 16bit</div>
                 {/* Simulated CBCT MPR grid */}
                 <div style={{ display: 'flex', gap: 2, marginTop: 20 }}>
@@ -110,9 +111,9 @@ export const DentalViewerPage: React.FC = () => {
                 <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>WW: {ww} WC: {wc} | {study.imageCount || 1} frame</div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 20, border: '1px solid #333', padding: '4px 12px', borderRadius: 4 }}>
                   {/* Simulated dental arch outline for panoramic */}
-                  {isPanoramic && '⌣ (下颌骨轮廓示意)'}
-                  {isPeriapical && '🦷 (牙根及根尖周示意)'}
-                  {isScan && '🦷 (口扫 3D 模型待渲染)'}
+                  {isPanoramic && t("dViewer.panoramicHint")}
+                  {isPeriapical && t("dViewer.periapicalHint")}
+                  {isScan && t("dViewer.scanHint")}
                 </div>
               </div>
             </div>
@@ -123,50 +124,50 @@ export const DentalViewerPage: React.FC = () => {
         <div style={{ width: 380, background: 'var(--bg-card)', overflowY: 'auto', borderLeft: '1px solid #1f1f1f' }}>
           <Tabs activeKey={activeTab} onChange={setActiveTab} size="small" tabBarStyle={{ padding: '0 8px', margin: 0 }}
             items={[
-              { key: 'info', label: '信息', children: <Card size="small" styles={{ body: { padding: 8 } }}>
+              { key: 'info', label: t("dViewer.tabInfo"), children: <Card size="small" styles={{ body: { padding: 8 } }}>
                   <Descriptions column={1} size="small">
-                    <Descriptions.Item label="患者">{study.patientName}</Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.patient")}>{study.patientName}</Descriptions.Item>
                     <Descriptions.Item label="ID">{study.id}</Descriptions.Item>
-                    <Descriptions.Item label="模态">{MODALITY_LABELS[study.modality]}</Descriptions.Item>
-                    <Descriptions.Item label="设备">{study.deviceModel}</Descriptions.Item>
-                    <Descriptions.Item label="视野">{study.fieldOfView}</Descriptions.Item>
-                    <Descriptions.Item label="分辨率">{study.voxelSize}mm</Descriptions.Item>
-                    {study.radiationDose && <Descriptions.Item label="剂量">{study.radiationDose} mGy</Descriptions.Item>}
-                    <Descriptions.Item label="检查日期">{study.acquisitionDate}</Descriptions.Item>
-                    <Descriptions.Item label="检查指征">{study.indications}</Descriptions.Item>
-                    <Descriptions.Item label="医生">{study.referringDentist}</Descriptions.Item>
-                    <Descriptions.Item label="质量"><Tag color={study.quality === 'Diagnostic' ? 'green' : 'orange'}>{study.quality}</Tag></Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.modality")}>{MODALITY_LABELS[study.modality]}</Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.device")}>{study.deviceModel}</Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.fov")}>{study.fieldOfView}</Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.resolution")}>{study.voxelSize}mm</Descriptions.Item>
+                    {study.radiationDose && <Descriptions.Item label={t("dViewer.dose")}>{study.radiationDose} mGy</Descriptions.Item>}
+                    <Descriptions.Item label={t("dViewer.acquisitionDate")}>{study.acquisitionDate}</Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.indications")}>{study.indications}</Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.doctor")}>{study.referringDentist}</Descriptions.Item>
+                    <Descriptions.Item label={t("dViewer.quality")}><Tag color={study.quality === 'Diagnostic' ? 'green' : 'orange'}>{study.quality}</Tag></Descriptions.Item>
                   </Descriptions>
                 </Card>
               },
-              { key: 'measurements', label: '测量', children: <Card size="small" styles={{ body: { padding: 8 } }}>
+              { key: 'measurements', label: t("dViewer.tabMeasurements"), children: <Card size="small" styles={{ body: { padding: 8 } }}>
                   {(study.measurements && study.measurements.length > 0) ? study.measurements.map((m: any, i: number) => (
                     <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.label}</div>
                       <div style={{ fontSize: 16, fontWeight: 600 }}>{m.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 4 }}>{m.unit}</span></div>
                     </div>
-                  )) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无测量" />}
+                  )) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("dViewer.noMeasurements")} />}
                 </Card>
               },
-              { key: 'segments', label: '分割', children: <Card size="small" styles={{ body: { padding: 8 } }}>
+              { key: 'segments', label: t("dViewer.tabSegments"), children: <Card size="small" styles={{ body: { padding: 8 } }}>
                   {(study.segments && study.segments.length > 0) ? <Row gutter={[8,8]}>
                     {study.segments.map((s: any, i: number) => <Col key={i} span={12}>
                       <div style={{ padding: 8, background: s.color || '#f0f0f0', borderRadius: 4, fontSize: 12, fontWeight: 600, color: '#fff' }}>{s.label} ({s.volume}mm³)</div>
                     </Col>)}
-                  </Row> : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无分割" />}
+                  </Row> : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("dViewer.noSegments")} />}
                 </Card>
               },
-              { key: 'ai', label: 'AI 分析', children: (study.aiAnalysis || aiResult) ? (
+              { key: 'ai', label: t("dViewer.tabAi"), children: (study.aiAnalysis || aiResult) ? (
                 <Card size="small" styles={{ body: { padding: 8 } }}>
-                  <div>龋齿检出: <Tag color="red">{aiResult?.cariesDetected ?? study.aiAnalysis.cariesDetected}</Tag></div>
-                  <div>骨丧失: <Tag color="orange">{aiResult?.boneLossLevel ?? study.aiAnalysis.boneLossLevel}</Tag></div>
-                  <div>根尖周病变: <Tag color="purple">{aiResult?.periapicalLesions ?? study.aiAnalysis.periapicalLesions}</Tag></div>
-                  <div>置信度: {((aiResult?.confidence ?? study.aiAnalysis.confidence) * 100).toFixed(0)}%</div>
-                  <div>模型: {aiResult?.modelVersion ?? study.aiAnalysis.modelVersion}</div>
+                  <div>{t("dViewer.cariesDetected")}<Tag color="red">{aiResult?.cariesDetected ?? study.aiAnalysis.cariesDetected}</Tag></div>
+                  <div>{t("dViewer.boneLoss")}<Tag color="orange">{aiResult?.boneLossLevel ?? study.aiAnalysis.boneLossLevel}</Tag></div>
+                  <div>{t("dViewer.periapical")}<Tag color="purple">{aiResult?.periapicalLesions ?? study.aiAnalysis.periapicalLesions}</Tag></div>
+                  <div>{t("dViewer.confidence")}{((aiResult?.confidence ?? study.aiAnalysis.confidence) * 100).toFixed(0)}%</div>
+                  <div>{t("dViewer.model")}{aiResult?.modelVersion ?? study.aiAnalysis.modelVersion}</div>
                   <Divider style={{ margin: '8px 0' }} />
-                  <Button size="small" icon={<Activity size={12} />} loading={aiRunning} onClick={() => void handleRunAi()}>运行 AI 分析</Button>
+                  <Button size="small" icon={<Activity size={12} />} loading={aiRunning} onClick={() => void handleRunAi()}>{t("dViewer.runAi")}</Button>
                 </Card>
-              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无 AI 分析" /></Card>,
+              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("dViewer.noAi")} /></Card>,
               },
             ]}
           />

@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { BookOpen, Plus, Search, Eye, X, Save, RefreshCw } from 'lucide-react'
 import { cdsApi, type CdsGuidelineDto } from '../../services/api/cdsApi'
+import { t } from '../../i18n/appI18n'
 
 const INITIAL_FORM = { name: '', category: '通用', version: '1.0', status: 'draft', description: '', source: '' }
 
@@ -47,8 +48,8 @@ export default function GuidelineLibraryPage() {
 
   useEffect(() => {
     if (!toast.show) return
-    const t = setTimeout(() => setToast((t0) => ({ ...t0, show: false })), 2000)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setToast((t0) => ({ ...t0, show: false })), 2000)
+    return () => clearTimeout(timer)
   }, [toast.show])
 
   const fetchGuidelines = useCallback(async () => {
@@ -58,9 +59,9 @@ export default function GuidelineLibraryPage() {
       const res = await cdsApi.listGuidelines()
       const items = normalizeList(res)
       setGuidelines(items)
-      if (!res.success) setError(res.error?.message ?? '指南列表加载失败')
+      if (!res.success) setError(res.error?.message ?? t('guideline.listLoadFailed'))
     } catch (e) {
-      setError((e as Error)?.message || '指南列表加载失败')
+      setError((e as Error)?.message || t('guideline.listLoadFailed'))
     }
     setLoading(false)
   }, [])
@@ -77,19 +78,19 @@ export default function GuidelineLibraryPage() {
         const d = res.data as unknown
         const item = Array.isArray(d) ? (d as CdsGuidelineDto[])[0] : (d as CdsGuidelineDto)
         if (item?.id) setDetail(item)
-        else showToast('未找到该指南', 'error')
+        else showToast(t('guideline.notFound'), 'error')
       } else {
-        showToast(res.error?.message ?? '指南详情加载失败', 'error')
+        showToast(res.error?.message ?? t('guideline.detailLoadFailed'), 'error')
       }
     } catch (e) {
-      showToast((e as Error)?.message || '指南详情加载失败', 'error')
+      showToast((e as Error)?.message || t('guideline.detailLoadFailed'), 'error')
     }
     setDetailLoading(false)
   }
 
   const handleCreate = async () => {
     if (!form.name.trim()) {
-      showToast('指南名称不能为空', 'error')
+      showToast(t('guideline.nameRequired'), 'error')
       return
     }
     setCreating(true)
@@ -108,10 +109,10 @@ export default function GuidelineLibraryPage() {
         showToast(`指南「${form.name.trim()}」已创建`, 'success')
         fetchGuidelines()
       } else {
-        showToast(res.error?.message ?? '创建失败', 'error')
+        showToast(res.error?.message ?? t('guideline.createFailed'), 'error')
       }
     } catch (e) {
-      showToast((e as Error)?.message || '创建失败', 'error')
+      showToast((e as Error)?.message || t('guideline.createFailed'), 'error')
     }
     setCreating(false)
   }
@@ -130,14 +131,14 @@ export default function GuidelineLibraryPage() {
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BookOpen size={24} />
-          <span style={{ fontSize: 20, fontWeight: 600 }}>CDS 指南库</span>
+          <span style={{ fontSize: 20, fontWeight: 600 }}>{t('guideline.title')}</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => { fetchGuidelines() }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-            <RefreshCw size={14} />刷新
+            <RefreshCw size={14} />{t('guideline.refresh')}
           </button>
           <button onClick={() => { setForm({ ...INITIAL_FORM }); setShowCreateModal(true) }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-            <Plus size={14} />新建指南
+            <Plus size={14} />{t('guideline.newGuideline')}
           </button>
         </div>
       </div>
@@ -148,34 +149,34 @@ export default function GuidelineLibraryPage() {
             <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
             <input
               type="text"
-              placeholder="搜索指南名称/分类/ID..."
+              placeholder={t('guideline.searchPlaceholder')}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 260, outline: 'none' }}
             />
           </div>
-          <span style={{ fontSize: 13, color: '#6e7681' }}>共 {filtered.length} 条</span>
+          <span style={{ fontSize: 13, color: '#6e7681' }}>{t('guideline.total', { count: filtered.length })}</span>
         </div>
 
         {error && (
           <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 13, marginBottom: 16 }}>
-            加载失败: {error}
+            {t('guideline.loadFailed')}: {error}
           </div>
         )}
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 80px 140px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>指南名称</span>
-            <span>分类</span>
-            <span>版本</span>
-            <span>状态</span>
-            <span>更新时间</span>
-            <span>操作</span>
+            <span>{t('guideline.colName')}</span>
+            <span>{t('guideline.colCategory')}</span>
+            <span>{t('guideline.colVersion')}</span>
+            <span>{t('guideline.colStatus')}</span>
+            <span>{t('guideline.colUpdatedAt')}</span>
+            <span>{t('guideline.colActions')}</span>
           </div>
           {loading ? (
-            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>加载指南列表...</div>
+            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('guideline.loadingList')}</div>
           ) : filtered.length === 0 ? (
-            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>暂无指南，点击右上角「新建指南」创建</div>
+            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('guideline.emptyList')}</div>
           ) : (
             filtered.map((g, idx) => (
               <div key={g.id} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 80px 140px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22', cursor: 'pointer' }} onClick={() => handleOpenDetail(g.id)}>
@@ -188,7 +189,7 @@ export default function GuidelineLibraryPage() {
                 <span style={{ fontSize: 12, color: STATUS_COLORS[g.status] || '#8b949e' }}>{STATUS_LABELS[g.status] || g.status}</span>
                 <span style={{ fontSize: 12, color: '#6e7681' }}>{g.updatedAt ? new Date(g.updatedAt).toLocaleString('zh-CN') : '-'}</span>
                 <button onClick={(e) => { e.stopPropagation(); handleOpenDetail(g.id) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, justifySelf: 'start' }}>
-                  <Eye size={12} />详情
+                  <Eye size={12} />{t('guideline.detail')}
                 </button>
               </div>
             ))
@@ -201,7 +202,7 @@ export default function GuidelineLibraryPage() {
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BookOpen size={18} style={{ color: '#3b82f6' }} /> 新建指南
+                <BookOpen size={18} style={{ color: '#3b82f6' }} /> {t('guideline.newGuideline')}
               </div>
               <button onClick={() => setShowCreateModal(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
                 <X size={18} />
@@ -209,42 +210,42 @@ export default function GuidelineLibraryPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>指南名称 *</label>
-                <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="输入指南名称" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelName')}</label>
+                <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder={t('guideline.namePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>分类</label>
+                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.colCategory')}</label>
                   <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}>
                     {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>版本号</label>
+                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelVersion')}</label>
                   <input value={form.version} onChange={(e) => setForm((f) => ({ ...f, version: e.target.value }))} placeholder="2025" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>状态</label>
+                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.colStatus')}</label>
                   <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}>
-                    <option value="draft">草稿</option>
-                    <option value="active">启用</option>
-                    <option value="archived">归档</option>
+                    <option value="draft">{t('guideline.statusDraft')}</option>
+                    <option value="active">{t('guideline.statusActive')}</option>
+                    <option value="archived">{t('guideline.statusArchived')}</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>来源</label>
-                  <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder="如: ACR / Fleischner" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelSource')}</label>
+                  <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder={t('guideline.sourcePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>描述</label>
-                <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} placeholder="指南内容摘要(可选)" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelDescription')}</label>
+                <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} placeholder={t('guideline.descriptionPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 20 }}>
-              <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>取消</button>
+              <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>{t('guideline.cancel')}</button>
               <button onClick={handleCreate} disabled={creating} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Save size={14} />{creating ? '创建中...' : '创建指南'}
+                <Save size={14} />{creating ? t('guideline.creating') : t('guideline.createGuideline')}
               </button>
             </div>
           </div>
@@ -256,24 +257,24 @@ export default function GuidelineLibraryPage() {
           <div style={{ width: 480, maxWidth: '92vw', height: '100%', background: '#161b22', borderLeft: '1px solid #30363d', padding: 24, overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BookOpen size={18} style={{ color: '#3b82f6' }} /> 指南详情
+                <BookOpen size={18} style={{ color: '#3b82f6' }} /> {t('guideline.detailTitle')}
               </div>
               <button onClick={() => setDetailOpen(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
             {detailLoading ? (
-              <div style={{ textAlign: 'center', color: '#6e7681', padding: '48px 0', fontSize: 13 }}>加载详情...</div>
+              <div style={{ textAlign: 'center', color: '#6e7681', padding: '48px 0', fontSize: 13 }}>{t('guideline.loadingDetail')}</div>
             ) : detail ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
                   { label: 'ID', value: detail.id },
-                  { label: '名称', value: detail.name },
-                  { label: '分类', value: detail.category },
-                  { label: '版本', value: `v${detail.version}` },
-                  { label: '状态', value: STATUS_LABELS[detail.status] || detail.status },
-                  { label: '来源', value: detail.source || '-' },
-                  { label: '更新时间', value: detail.updatedAt ? new Date(detail.updatedAt).toLocaleString('zh-CN') : '-' },
+                  { label: t('guideline.detailName'), value: detail.name },
+                  { label: t('guideline.colCategory'), value: detail.category },
+                  { label: t('guideline.detailVersion'), value: `v${detail.version}` },
+                  { label: t('guideline.colStatus'), value: STATUS_LABELS[detail.status] || detail.status },
+                  { label: t('guideline.labelSource'), value: detail.source || '-' },
+                  { label: t('guideline.colUpdatedAt'), value: detail.updatedAt ? new Date(detail.updatedAt).toLocaleString('zh-CN') : '-' },
                 ].map((row) => (
                   <div key={row.label} style={{ display: 'flex', gap: 12, padding: '10px 12px', background: '#0d1117', borderRadius: 6 }}>
                     <span style={{ width: 80, fontSize: 12, color: '#8b949e', flexShrink: 0 }}>{row.label}</span>
@@ -281,12 +282,12 @@ export default function GuidelineLibraryPage() {
                   </div>
                 ))}
                 <div style={{ display: 'flex', gap: 12, padding: '10px 12px', background: '#0d1117', borderRadius: 6 }}>
-                  <span style={{ width: 80, fontSize: 12, color: '#8b949e', flexShrink: 0 }}>描述</span>
+                  <span style={{ width: 80, fontSize: 12, color: '#8b949e', flexShrink: 0 }}>{t('guideline.labelDescription')}</span>
                   <span style={{ fontSize: 13, color: '#f0f6fc', lineHeight: 1.6 }}>{detail.description || '-'}</span>
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', color: '#6e7681', padding: '48px 0', fontSize: 13 }}>未找到该指南</div>
+              <div style={{ textAlign: 'center', color: '#6e7681', padding: '48px 0', fontSize: 13 }}>{t('guideline.notFound')}</div>
             )}
           </div>
         </div>

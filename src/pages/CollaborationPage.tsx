@@ -19,6 +19,7 @@ import {
 } from '../data/reviewRevisionCollabMock';
 import { consultationApi } from '../services/api/consultationApi';
 import { message } from 'antd';
+import { t } from '../i18n/appI18n';
 
 // 评论者颜色 (按名称稳定派生)
 function colorOf(name: string): string {
@@ -32,22 +33,22 @@ function colorOf(name: string): string {
 // 状态配置
 // ============================================================
 const STATUS_CONFIG: Record<CollabUser['status'], { label: string; color: string; bg: string }> = {
-  online:  { label: '在线', color: '#10b981', bg: '#22c55e22' },
-  away:    { label: '离开', color: '#f59e0b', bg: '#f59e0b22' },
-  offline: { label: '离线', color: 'var(--text-secondary)', bg: 'var(--bg-deep)' },
+  online:  { label: 'collab.status.online', color: '#10b981', bg: '#22c55e22' },
+  away:    { label: 'collab.status.away', color: '#f59e0b', bg: '#f59e0b22' },
+  offline: { label: 'collab.status.offline', color: 'var(--text-secondary)', bg: 'var(--bg-deep)' },
 };
 
 // ============================================================
 // 活动类型配置
 // ============================================================
 const ACTIVITY_CONFIG: Record<CollabActivity['action'], { icon: any; color: string; label: string }> = {
-  join:    { icon: UserCheck, color: '#10b981', label: '加入' },
-  leave:   { icon: UserX,    color: '#dc2626', label: '离开' },
-  edit:    { icon: Edit2,    color: '#3b82f6', label: '编辑' },
-  comment: { icon: MessageSquare, color: '#7c3aed', label: '评论' },
-  select:  { icon: MousePointer,   color: '#0891b2', label: '选中' },
-  mention: { icon: AtSign,    color: '#f59e0b', label: '提及' },
-  save:    { icon: Save,      color: '#10b981', label: '保存' },
+  join:    { icon: UserCheck, color: '#10b981', label: 'collab.action.join' },
+  leave:   { icon: UserX,    color: '#dc2626', label: 'collab.action.leave' },
+  edit:    { icon: Edit2,    color: '#3b82f6', label: 'collab.action.edit' },
+  comment: { icon: MessageSquare, color: '#7c3aed', label: 'collab.action.comment' },
+  select:  { icon: MousePointer,   color: '#0891b2', label: 'collab.action.select' },
+  mention: { icon: AtSign,    color: '#f59e0b', label: 'collab.action.mention' },
+  save:    { icon: Save,      color: '#10b981', label: 'collab.action.save' },
 };
 
 // ============================================================
@@ -175,7 +176,7 @@ export default function CollaborationPage() {
         }
       } catch (e) {
         setSource('demo');
-        setError(e instanceof Error ? e.message : '会诊加载失败，已回退演示数据');
+        setError(e instanceof Error ? e.message : t('collab.loadFailed'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -269,13 +270,13 @@ export default function CollaborationPage() {
     setComments(comments.map(c => c.id === id ? { ...c, resolved: !c.resolved } : c));
   };
 
-  if (loading) return <div role="status" data-testid="collab-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="collab-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('collab.loading')}</div>;
   if (error && source === 'demo') return <div role="alert" data-testid="collab-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (users.length === 0) {
     return (
       <div data-testid="collab-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无在线用户</div>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>正在连接 WebSocket...,请稍候或检查网络</div>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('collab.noOnlineUsers')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('collab.wsConnecting')}</div>
       </div>
     );
   }
@@ -291,7 +292,7 @@ export default function CollaborationPage() {
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Users size={20} />
-              多人协同编辑
+              {t('collab.title')}
               <span style={{
                 fontSize: 12, padding: '2px 6px',
                 background: '#10b981', color: '#fff',
@@ -299,13 +300,13 @@ export default function CollaborationPage() {
               }}>R3</span>
             </div>
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>
-              实时同步 · 光标位置 · 选区高亮 · @提醒 · 评论批注
+              {t('collab.subtitle')}
               <span style={{
                 fontSize: 11, padding: '1px 8px', borderRadius: 10, marginLeft: 8,
                 background: source === 'api' ? 'rgba(34,197,94,0.35)' : 'rgba(245,158,11,0.35)',
                 color: '#fff', border: `1px solid ${source === 'api' ? '#22c55e' : '#f59e0b'}`,
               }}>
-                {source === 'api' ? '数据源: 会诊接口实时 (列表/评论)' : '演示数据(评论接口不可用)'}
+                {source === 'api' ? t('collab.dataSourceApi') : t('collab.dataSourceDemo')}
               </span>
             </div>
           </div>
@@ -329,14 +330,14 @@ export default function CollaborationPage() {
             </select>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
               <Wifi size={12} />
-              <span>WebSocket 已连接</span>
+              <span>{t('collab.wsConnected')}</span>
             </div>
           </div>
         </div>
 
         {/* 在线用户 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, opacity: 0.85, marginRight: 4 }}>在线 {reportOnlineUsers.filter(u => u.status === 'online').length} 人：</span>
+          <span style={{ fontSize: 12, opacity: 0.85, marginRight: 4 }}>{t('collab.onlineCount', { count: reportOnlineUsers.filter(u => u.status === 'online').length })}</span>
           {reportOnlineUsers.map(u => {
             const conf = STATUS_CONFIG[u.status];
             return (
@@ -354,7 +355,7 @@ export default function CollaborationPage() {
                 }}>{u.avatar}</div>
                 <span style={{ fontSize: 12 }}>{u.name}</span>
                 <span style={{ fontSize: 12, opacity: 0.7 }}>·</span>
-                <span style={{ fontSize: 12, color: conf.color, fontWeight: 600 }}>{conf.label}</span>
+                <span style={{ fontSize: 12, color: conf.color, fontWeight: 600 }}>{t(conf.label)}</span>
               </div>
             );
           })}
@@ -371,7 +372,7 @@ export default function CollaborationPage() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <FileText size={14} /> 报告正文（实时协同） <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>演示数据</span>
+                <FileText size={14} /> {t('collab.reportBody')} <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{t('collab.demoTag')}</span>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 {(['findings', 'diagnosis', 'impression'] as const).map(f => (
@@ -385,7 +386,7 @@ export default function CollaborationPage() {
                       fontSize: 12, fontWeight: 600, cursor: 'pointer',
                     }}
                   >
-                    {f === 'findings' ? '检查所见' : f === 'diagnosis' ? '诊断' : '意见'}
+                    {f === 'findings' ? t('collab.field.findings') : f === 'diagnosis' ? t('collab.field.diagnosis') : t('collab.field.impression')}
                   </button>
                 ))}
               </div>
@@ -429,23 +430,23 @@ export default function CollaborationPage() {
                 fontSize: 13, color: 'var(--text-primary)',
                 pointerEvents: 'none',
               }}>
-                增强扫描示不均匀强化
+                {t('collab.highlightText')}
               </div>
             </div>
 
             {/* 实时状态 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Save size={11} /> <span style={{ color: '#10b981' }}>已自动保存</span>
+                <Save size={11} /> <span style={{ color: '#10b981' }}>{t('collab.autoSaved')}</span>
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Clock size={11} /> 最后同步 2 秒前
+                <Clock size={11} /> {t('collab.lastSync', { seconds: 2 })}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Edit2 size={11} /> 李慧敏 正在编辑
+                <Edit2 size={11} /> {t('collab.userEditing', { name: '李慧敏' })}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#f59e0b' }}>
-                <MousePointer size={11} /> 2 个光标
+                <MousePointer size={11} /> {t('collab.cursorCount', { count: 2 })}
               </span>
             </div>
           </div>
@@ -461,7 +462,7 @@ export default function CollaborationPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <MessageSquare size={13} /> 评论批注
+              <MessageSquare size={13} /> {t('collab.comments')}
               <span style={{
                 fontSize: 12, padding: '0 5px', borderRadius: 3,
                 background: reportComments.length > 0 ? '#dc2626' : '#94a3b8',
@@ -474,7 +475,7 @@ export default function CollaborationPage() {
                 checked={showResolved}
                 onChange={e => setShowResolved(e.target.checked)}
               />
-              显示已解决
+              {t('collab.showResolved')}
             </label>
           </div>
 
@@ -504,7 +505,7 @@ export default function CollaborationPage() {
                       <span style={{
                         fontSize: 12, padding: '0 4px', borderRadius: 2,
                         background: '#8b5cf622', color: '#7c3aed', fontWeight: 600,
-                      }}>{comment.fieldRef === 'findings' ? '所见' : comment.fieldRef === 'impression' ? '意见' : comment.fieldRef}</span>
+                      }}>{comment.fieldRef === 'findings' ? t('collab.fieldRef.findings') : comment.fieldRef === 'impression' ? t('collab.fieldRef.impression') : comment.fieldRef}</span>
                     )}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 6, lineHeight: 1.6 }}>
@@ -528,7 +529,7 @@ export default function CollaborationPage() {
                       border: '1px solid #c4b5fd', borderRadius: 3,
                       fontSize: 12, color: '#5b21b6', fontStyle: 'italic',
                     }}>
-                      📌 选区：{comment.selectionRef}
+                      📌 {t('collab.selection')}{comment.selectionRef}
                     </div>
                   )}
 
@@ -552,7 +553,7 @@ export default function CollaborationPage() {
                         fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
                       }}
                     >
-                      <CheckCircle2 size={10} /> {comment.resolved ? '已解决' : '解决'}
+                      <CheckCircle2 size={10} /> {comment.resolved ? t('collab.resolved') : t('collab.resolve')}
                     </button>
                     <button
                       onClick={() => { setReplyTo(replyTo === comment.id ? null : comment.id); setReplyText(''); }}
@@ -562,11 +563,11 @@ export default function CollaborationPage() {
                         display: 'flex', alignItems: 'center', gap: 2,
                       }}
                     >
-                      <Reply size={10} /> 回复
+                      <Reply size={10} /> {t('collab.reply')}
                     </button>
                     {comment.mentions.length > 0 && (
                       <span style={{ marginLeft: 'auto', fontSize: 12, color: '#f59e0b' }}>
-                        @ {comment.mentions.length} 人
+                        {t('collab.mentionCount', { count: comment.mentions.length })}
                       </span>
                     )}
                   </div>
@@ -592,7 +593,7 @@ export default function CollaborationPage() {
                           opacity: replyingId === comment.id || !replyText.trim() ? 0.5 : 1,
                         }}
                       >
-                        {replyingId === comment.id ? '发送中...' : '发送'}
+                        {replyingId === comment.id ? t('collab.sending') : t('collab.send')}
                       </button>
                     </div>
                   )}
@@ -601,7 +602,7 @@ export default function CollaborationPage() {
             })}
             {reportComments.length === 0 && (
               <div style={{ padding: 30, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-                暂无评论
+                {t('collab.noComments')}
               </div>
             )}
           </div>
@@ -611,7 +612,7 @@ export default function CollaborationPage() {
             <textarea
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
-              placeholder="添加评论...（用 @ 提及他人）"
+              placeholder={t('collab.addCommentPlaceholder')}
               rows={2}
               style={{
                 width: '100%', padding: 6, border: '1px solid var(--border-color)', borderRadius: 4,
@@ -646,7 +647,7 @@ export default function CollaborationPage() {
                   display: 'flex', alignItems: 'center', gap: 4,
                 }}
               >
-                <Send size={11} /> 发送
+                <Send size={11} /> {t('collab.send')}
               </button>
             </div>
           </div>
@@ -660,7 +661,7 @@ export default function CollaborationPage() {
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
             fontSize: 12, fontWeight: 700, color: '#0891b2', display: 'flex', alignItems: 'center', gap: 6,
           }}>
-            <Activity size={13} /> 实时活动
+            <Activity size={13} /> {t('collab.realtimeActivity')}
           </div>
           <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
             {reportActivities.map(act => {
@@ -687,7 +688,7 @@ export default function CollaborationPage() {
                         background: `${conf.color}15`, color: conf.color, fontWeight: 600,
                         display: 'flex', alignItems: 'center', gap: 2,
                       }}>
-                        <Icon size={8} /> {conf.label}
+                        <Icon size={8} /> {t(conf.label)}
                       </span>
                     </div>
                     <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{act.detail}</div>
@@ -698,7 +699,7 @@ export default function CollaborationPage() {
             })}
             {reportActivities.length === 0 && (
               <div style={{ padding: 30, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-                暂无活动
+                {t('collab.noActivity')}
               </div>
             )}
           </div>
@@ -710,7 +711,7 @@ export default function CollaborationPage() {
                 checked={autoScroll}
                 onChange={e => setAutoScroll(e.target.checked)}
               />
-              自动滚动
+              {t('collab.autoScroll')}
             </label>
           </div>
         </div>

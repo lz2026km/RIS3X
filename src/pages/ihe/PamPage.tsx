@@ -4,6 +4,7 @@ import { Send, Activity, History, Wifi, Server } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { PamMessagesResponse } from '../../services/api/integrationApi';
 import { usePagination } from '../../hooks/usePagination';
+import { t } from '../../i18n/appI18n';
 
 const MSG_TYPES = ['A01', 'A03', 'A04', 'A05', 'A08', 'A11', 'A13'];
 
@@ -40,7 +41,7 @@ export const PamPage: React.FC = () => {
   };
 
   const handleSend = useCallback(async () => {
-    if (!patientId || !visitNumber) { message.warning('请填写 patientId 和 visitNumber'); return; }
+    if (!patientId || !visitNumber) { message.warning(t('pam.fillRequired')); return; }
     setLoading(true);
     const res = await iheApi.pamMessage({
       messageType: `ADT^${messageType}`,
@@ -52,11 +53,11 @@ export const PamPage: React.FC = () => {
     });
     if (res.success) {
       setAckResult(JSON.stringify(res.data, null, 2));
-      message.success('PAM 消息已发送');
+      message.success(t('pam.sendSuccess'));
       loadMessages();
     } else {
       setAckResult(JSON.stringify({ ack: 'AE', message: '发送失败' }, null, 2));
-      message.error('PAM 消息发送失败');
+      message.error(t('pam.sendFailed'));
     }
     setLoading(false);
   }, [messageType, patientId, visitNumber, classCode, assignedLocation]);
@@ -65,7 +66,7 @@ export const PamPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE PAM 患者管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('pam.title')}</span>
         <Tag color="cyan">v3.0.6.0</Tag>
         <Tag color="blue">PAM</Tag>
       </Space>
@@ -73,43 +74,43 @@ export const PamPage: React.FC = () => {
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
           {
-            key: 'send', label: <span><Send size={14} style={{ marginRight: 4 }} />发送 PAM 消息</span>,
+            key: 'send', label: <span><Send size={14} style={{ marginRight: 4 }} />{t('pam.tabSend')}</span>,
             children: (
               <Row gutter={16}>
                 <Col span={8}>
-                  <Card size="small" title="消息配置">
+                  <Card size="small" title={t('pam.messageConfig')}>
                     <Form layout="vertical" size="small">
-                      <Form.Item label="消息类型">
+                      <Form.Item label={t('pam.messageType')}>
                         <Select value={messageType} onChange={setMessageType}
-                          options={MSG_TYPES.map(t => ({ value: t, label: `ADT^${t}` }))} />
+                          options={MSG_TYPES.map(mt => ({ value: mt, label: `ADT^${mt}` }))} />
                       </Form.Item>
-                      <Form.Item label="患者 ID" required>
+                      <Form.Item label={t('pam.patientId')} required>
                         <Input value={patientId} onChange={e => setPatientId(e.target.value)} placeholder="P0001" />
                       </Form.Item>
-                      <Form.Item label="就诊号" required>
+                      <Form.Item label={t('pam.visitNumber')} required>
                         <Input value={visitNumber} onChange={e => setVisitNumber(e.target.value)} placeholder="V20260001" />
                       </Form.Item>
-                      <Form.Item label="类别代码">
+                      <Form.Item label={t('pam.classCode')}>
                         <Select value={classCode} onChange={setClassCode}
                           options={[{ value: 'AMB', label: 'AMB' }, { value: 'IMP', label: 'IMP' }, { value: 'EMR', label: 'EMR' }, { value: 'OBS', label: 'OBS' }]} />
                       </Form.Item>
-                      <Form.Item label="分配位置">
+                      <Form.Item label={t('pam.assignedLocation')}>
                         <Input value={assignedLocation} onChange={e => setAssignedLocation(e.target.value)} placeholder="RAD-A01" />
                       </Form.Item>
                       <Button type="primary" icon={<Send size={14} />} onClick={handleSend} loading={loading} block>
-                        发送
+                        {t('pam.send')}
                       </Button>
                     </Form>
                   </Card>
                 </Col>
                 <Col span={16}>
-                  <Card size="small" title="ACK 响应">
+                  <Card size="small" title={t('pam.ackResponse')}>
                     {ackResult ? (
                       <pre style={{ fontSize: 12, maxHeight: 400, overflow: 'auto', background: 'var(--color-success-bg)', padding: 8, borderRadius: 4, border: '1px solid var(--color-success-border)' }}>
                         {ackResult}
                       </pre>
                     ) : (
-                      <Alert title="发送 PAM 消息后将在此处显示 HL7 ACK 响应" type="info" showIcon />
+                      <Alert title={t('pam.ackHint')} type="info" showIcon />
                     )}
                   </Card>
                 </Col>
@@ -117,35 +118,35 @@ export const PamPage: React.FC = () => {
             ),
           },
           {
-            key: 'audit', label: <span><History size={14} style={{ marginRight: 4 }} />PAM 审计日志</span>,
+            key: 'audit', label: <span><History size={14} style={{ marginRight: 4 }} />{t('pam.tabAudit')}</span>,
             children: (
-              <Card size="small" extra={<Button size="small" icon={<Activity size={12} />} onClick={loadMessages}>刷新</Button>}
-                title="PAM 消息记录">
+              <Card size="small" extra={<Button size="small" icon={<Activity size={12} />} onClick={loadMessages}>{t('pam.refresh')}</Button>}
+                title={t('pam.messageRecords')}>
                 <Table dataSource={msgPageData} rowKey="messageId" pagination={msgPagination} scroll={{ x: 'max-content' }}
                   columns={[
-                    { title: '消息类型', dataIndex: ['message', 'messageType'], render: (t: string) => <Tag color="blue">{t}</Tag> },
-                    { title: '患者 ID', dataIndex: ['message', 'patientId'], width: 140 },
+                    { title: t('pam.messageType'), dataIndex: ['message', 'messageType'], render: (mtype: string) => <Tag color="blue">{mtype}</Tag> },
+                    { title: t('pam.patientId'), dataIndex: ['message', 'patientId'], width: 140 },
                     { title: 'ACK', dataIndex: 'ack', render: (a: string) => <Tag color={a === 'AA' ? 'green' : a === 'AE' ? 'orange' : 'red'}>{a}</Tag> },
-                    { title: '时间戳', dataIndex: 'ts' },
+                    { title: t('pam.timestamp'), dataIndex: 'ts' },
                   ]} />
               </Card>
             ),
           },
           {
-            key: 'mllp', label: <span><Wifi size={14} style={{ marginRight: 4 }} />MLLP 连接状态</span>,
+            key: 'mllp', label: <span><Wifi size={14} style={{ marginRight: 4 }} />{t('pam.tabMllp')}</span>,
             children: (
-              <Card size="small" title={<Space><Server size={14} />MLLP 监听器</Space>}>
+              <Card size="small" title={<Space><Server size={14} />{t('pam.mllpListener')}</Space>}>
                 {listenerStatus ? (
                   <Descriptions column={2} size="small" bordered>
-                    <Descriptions.Item label="状态">
-                      <Badge status={listenerStatus.running ? 'success' : 'error'} text={listenerStatus.running ? '运行中' : '已停止'} />
+                    <Descriptions.Item label={t('pam.status')}>
+                      <Badge status={listenerStatus.running ? 'success' : 'error'} text={listenerStatus.running ? t('pam.running') : t('pam.stopped')} />
                     </Descriptions.Item>
-                    <Descriptions.Item label="端口">{listenerStatus.port ?? 2575}</Descriptions.Item>
-                    <Descriptions.Item label="运行时长">{listenerStatus.uptime ?? '-'}</Descriptions.Item>
-                    <Descriptions.Item label="连接">{listenerStatus.connections ?? 0}</Descriptions.Item>
+                    <Descriptions.Item label={t('pam.port')}>{listenerStatus.port ?? 2575}</Descriptions.Item>
+                    <Descriptions.Item label={t('pam.uptime')}>{listenerStatus.uptime ?? '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('pam.connections')}>{listenerStatus.connections ?? 0}</Descriptions.Item>
                   </Descriptions>
                 ) : (
-                  <Alert title="正在加载 MLLP 状态..." type="info" showIcon />
+                  <Alert title={t('pam.mllpLoading')} type="info" showIcon />
                 )}
               </Card>
             ),

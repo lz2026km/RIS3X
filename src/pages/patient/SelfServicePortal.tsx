@@ -41,7 +41,7 @@ const MOCK_FOLLOWUPS = [
 ]
 
 const FOLLOWUP_STATE_LABEL: Record<string, string> = {
-  PENDING: '待随访', IN_PROGRESS: '随访中', COMPLETED: '已完成', OVERDUE: '已逾期',
+  PENDING: t('ssp.state.pending'), IN_PROGRESS: t('ssp.state.inProgress'), COMPLETED: t('ssp.state.completed'), OVERDUE: t('ssp.state.overdue'),
 }
 
 const TIME_SLOTS = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00']
@@ -49,12 +49,12 @@ const TIME_SLOTS = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00
 const FEEDBACK_CATEGORIES = [t('selfService.feedbackCategory.experience'), t('selfService.feedbackCategory.process'), t('selfService.feedbackCategory.report'), t('selfService.feedbackCategory.imaging'), t('selfService.feedbackCategory.other')]
 
 const APPOINTMENT_STATE_LABEL: Record<string, string> = {
-  SCHEDULED: '已预约', CONFIRMED: '已确认', REGISTERED: '已登记', CHECKED_IN: '已到检',
-  IN_PROGRESS: '检查中', COMPLETED: '已完成', CANCELLED: '已取消', NO_SHOW: '未到检',
+  SCHEDULED: t('ssp.apptState.scheduled'), CONFIRMED: t('ssp.apptState.confirmed'), REGISTERED: t('ssp.apptState.registered'), CHECKED_IN: t('ssp.apptState.checkedIn'),
+  IN_PROGRESS: t('ssp.apptState.inProgress'), COMPLETED: t('ssp.apptState.completed'), CANCELLED: t('ssp.apptState.cancelled'), NO_SHOW: t('ssp.apptState.noShow'),
 }
 
 const REPORT_STATE_LABEL: Record<string, string> = {
-  PUBLISHED: '已发布', AMENDED: '已修订', SIGNED: '已签发', SUBMITTED: '审核中',
+  PUBLISHED: t('ssp.reportState.published'), AMENDED: t('ssp.reportState.amended'), SIGNED: t('ssp.reportState.signed'), SUBMITTED: t('ssp.reportState.submitted'),
 }
 
 // ===== Styles =====
@@ -270,28 +270,28 @@ export default function SelfServicePortal() {
 
   const downloadReportText = (report: PortalReportDto) => {
     const lines = [
-      '========== 影像检查报告 ==========',
-      `检查项目：${report.modality ?? '-'}（${report.bodyPart ?? '未指定部位'}）`,
+      t('ssp.text.examReportHeader'),
+      `检查项目：${report.modality ?? '-'}（${report.bodyPart ?? t('ssp.unspecifiedPart')}）`,
       `检查日期：${fmtDateTime(report.examDate)}`,
       `报告状态：${REPORT_STATE_LABEL[report.state] ?? report.state}`,
       `签发时间：${fmtDateTime(report.signedAt)}`,
       '',
-      '【检查所见】',
+      t('ssp.text.findings'),
       report.findings || '-',
       '',
-      '【诊断意见】',
+      t('ssp.text.diagnosis'),
       report.diagnosis || '-',
       '',
-      '【影像印象】',
+      t('ssp.text.impression'),
       report.impression || '-',
       '',
-      '【结论】',
+      t('ssp.text.conclusion'),
       report.conclusion || '-',
       '',
-      '【建议】',
+      t('ssp.text.recommendations'),
       report.recommendations || '-',
       '',
-      '电子报告与纸质报告具有同等法律效力。',
+      t('ssp.text.legalFull'),
     ].join('\n')
     const blob = new Blob(['\ufeff' + lines], { type: 'text/plain;charset=utf-8;' })
     const link = document.createElement('a')
@@ -308,23 +308,23 @@ export default function SelfServicePortal() {
       if (res.success && res.data) {
         const report = res.data
         const lines = [
-          '========== 历史检查报告 ==========',
-          `检查项目：${report.modality ?? '影像检查'}（${report.bodyPart ?? '未指定部位'}）`,
+          t('ssp.text.historyReportHeader'),
+          `检查项目：${report.modality ?? '影像检查'}（${report.bodyPart ?? t('ssp.unspecifiedPart')}）`,
           `检查日期：${report.examDate ? fmtDateTime(report.examDate) : '-'} · 状态：${REPORT_STATE_LABEL[report.state] ?? report.state}`,
           '',
-          '【检查所见】',
+          t('ssp.text.findings'),
           report.findings ?? '-',
           '',
-          '【诊断意见】',
+          t('ssp.text.diagnosis'),
           report.diagnosis ?? '-',
           '',
-          '【影像印象】',
+          t('ssp.text.impression'),
           report.impression ?? '-',
           '',
-          '【结论】',
+          t('ssp.text.conclusion'),
           report.conclusion ?? '-',
           '',
-          '【建议】',
+          t('ssp.text.recommendations'),
           report.recommendations ?? '-',
         ].join('\n')
         const blob = new Blob(['\ufeff' + lines], { type: 'text/plain;charset=utf-8;' })
@@ -611,7 +611,7 @@ export default function SelfServicePortal() {
     let code = ''
     for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)]
     setVoucherCode(code)
-    message.info('凭证由客户端演示生成（后端 voucher 端点待实现）')
+    message.info(t('ssp.voucher.localNotice'))
   }
 
   const handleWindowChange = (id: string, type: 'width' | 'center', value: number) => {
@@ -732,9 +732,9 @@ export default function SelfServicePortal() {
                   <div key={a.id} style={styles.todoItem}>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
-                        {a.modality} · {a.bodyPart ?? '未指定部位'}
+                        {a.modality} · {a.bodyPart ?? t('ssp.unspecifiedPart')}
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)} 检查</div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)}{t('ssp.home.examSuffix')}</div>
                     </div>
                     <Tag color="processing">{t('selfService.home.appointmentReminder')}</Tag>
                   </div>
@@ -743,7 +743,7 @@ export default function SelfServicePortal() {
                   <div style={styles.todoItem}>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
-                        {latestReport?.modality ?? ''} · {latestReport?.bodyPart ?? '影像'} 报告已发布
+                        {latestReport?.modality ?? ''} · {latestReport?.bodyPart ?? t('ssp.home.imageFallback')}{t('ssp.home.reportPublished')}
                       </div>
                       <div style={{ fontSize: 12, color: '#64748b' }}>{t('selfService.home.signedTime')} {fmtDateTime(latestReport?.signedAt)}</div>
                     </div>
@@ -782,12 +782,12 @@ export default function SelfServicePortal() {
             <Card bordered={false} style={{ ...styles.card, border: '1px solid var(--color-success-border)', background: 'var(--color-success-bg)' }} styles={{ body: { padding: 0 } }}>
               <h3 style={{ ...styles.subTitle, color: 'var(--color-success)' }}>{t('selfService.booking.success')}</h3>
               <div style={styles.grid2}>
-                <div><div style={styles.label}>{t('selfService.booking.examType')}</div><div style={styles.value}>{bookingDone.modality}（{bookingDone.bodyPart ?? '未指定部位'}）</div></div>
+                <div><div style={styles.label}>{t('selfService.booking.examType')}</div><div style={styles.value}>{bookingDone.modality}（{bookingDone.bodyPart ?? t('ssp.unspecifiedPart')}）</div></div>
                 <div><div style={styles.label}>{t('selfService.booking.appointmentTime')}</div><div style={styles.value}>{fmtDateTime(bookingDone.scheduledAt)}</div></div>
                 <div><div style={styles.label}>{t('selfService.booking.appointmentId')}</div><div style={styles.value}>{bookingDone.id}</div></div>
                 <div><div style={styles.label}>{t('selfService.booking.status')}</div><div style={styles.value}>{APPOINTMENT_STATE_LABEL[bookingDone.state] ?? bookingDone.state}</div></div>
               </div>
-              <p style={{ fontSize: 12, color: '#059669', marginTop: 12 }}>请按预约时间提前 15 分钟到放射科登记台报到，检查当天请携带本人有效证件。</p>
+              <p style={{ fontSize: 12, color: '#059669', marginTop: 12 }}>{t('ssp.booking.arrivalNotice')}</p>
             </Card>
           )}
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
@@ -918,36 +918,36 @@ export default function SelfServicePortal() {
           {selectedReport && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>报告详情 — {selectedReport.modality ?? '影像'}（{selectedReport.bodyPart ?? '未指定'}）</span>
-                {selectedReport.isCritical && <Tag color="error">危急值</Tag>}
+                <span>{t('ssp.reports.detailTitle')} — {selectedReport.modality ?? t('ssp.home.imageFallback')}（{selectedReport.bodyPart ?? t('ssp.reports.unspecified')}）</span>
+                {selectedReport.isCritical && <Tag color="error">{t('ssp.reports.critical')}</Tag>}
               </h3>
               <Descriptions
                 column={1}
                 size="small"
                 bordered
                 items={[
-                  { key: 'state', label: '报告状态', children: <Tag color={stateColor(selectedReport.state)}>{REPORT_STATE_LABEL[selectedReport.state] ?? selectedReport.state}</Tag> },
-                  { key: 'examDate', label: '检查日期', children: fmtDateTime(selectedReport.examDate) },
-                  { key: 'signedAt', label: '报告签发时间', children: fmtDateTime(selectedReport.signedAt) },
-                  { key: 'findings', label: '检查所见', children: selectedReport.findings || '-' },
-                  { key: 'diagnosis', label: '诊断意见', children: selectedReport.diagnosis || '-' },
-                  { key: 'impression', label: '影像印象', children: selectedReport.impression || '-' },
-                  { key: 'recommendations', label: '建议', children: selectedReport.recommendations || '-' },
-                  { key: 'conclusion', label: '结论', children: selectedReport.conclusion || '-' },
+                  { key: 'state', label: t('ssp.reports.reportState'), children: <Tag color={stateColor(selectedReport.state)}>{REPORT_STATE_LABEL[selectedReport.state] ?? selectedReport.state}</Tag> },
+                  { key: 'examDate', label: t('ssp.reports.examDate'), children: fmtDateTime(selectedReport.examDate) },
+                  { key: 'signedAt', label: t('ssp.reports.signedAt'), children: fmtDateTime(selectedReport.signedAt) },
+                  { key: 'findings', label: t('ssp.reports.findings'), children: selectedReport.findings || '-' },
+                  { key: 'diagnosis', label: t('ssp.reports.diagnosis'), children: selectedReport.diagnosis || '-' },
+                  { key: 'impression', label: t('ssp.reports.impression'), children: selectedReport.impression || '-' },
+                  { key: 'recommendations', label: t('ssp.reports.recommendations'), children: selectedReport.recommendations || '-' },
+                  { key: 'conclusion', label: t('ssp.reports.conclusion'), children: selectedReport.conclusion || '-' },
                 ]}
               />
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
                 <button style={{ ...styles.btn, background: '#059669', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => downloadReportText(selectedReport)}>
                   <Download size={13} />
-                  下载报告
+                  {t('ssp.reports.download')}
                 </button>
                 <button style={{ ...styles.btnGreen, background: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => window.print()}>
                   <Printer size={13} />
-                  打印报告
+                  {t('ssp.reports.print')}
                 </button>
               </div>
               <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
-                电子报告与纸质报告具有同等法律效力；如有疑问请携带报告咨询临床医生。
+                {t('ssp.reports.legalNote')}
               </p>
             </Card>
           )}
@@ -965,7 +965,7 @@ export default function SelfServicePortal() {
                       {expandedReport === exam.id ? t('selfService.reports.collapse') : t('selfService.reports.view')}
                     </button>
                     <button style={{ ...styles.btnGreen, background: '#059669' }} onClick={() => void downloadExamReport(exam.id)}>
-                      下载
+                      {t('ssp.reports.downloadShort')}
                     </button>
                   </div>
                 </div>
@@ -998,7 +998,7 @@ export default function SelfServicePortal() {
             ) : (
               <table style={styles.table}>
                 <thead><tr>
-                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>日期</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th>
+                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('ssp.images.date')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th>
                   <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
                 </tr></thead>
                 <tbody>
@@ -1026,11 +1026,11 @@ export default function SelfServicePortal() {
               {study && study.series.length > 0 && (
                 <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
-                    DICOM 检查号：{study.studyInstanceUid} · WADO-RS：<code style={{ fontSize: 11 }}>{study.wadoRs.study}</code>
+                    {t('ssp.images.dicomExamNo')}{study.studyInstanceUid} · WADO-RS：<code style={{ fontSize: 11 }}>{study.wadoRs.study}</code>
                   </div>
                   {study.series.map(s => (
                     <div key={s.seriesInstanceUid} style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                      序列 {s.seriesNumber ?? '-'}（{s.modality}）：{s.instanceCount} 帧
+                      {t('ssp.images.seriesPrefix')}{s.seriesNumber ?? '-'}（{s.modality}）：{s.instanceCount}{t('ssp.images.framesSuffix')}
                       <span style={{ color: '#94a3b8', marginLeft: 8 }}>{s.wadoRs.instances}</span>
                     </div>
                   ))}
@@ -1048,8 +1048,8 @@ export default function SelfServicePortal() {
                       </div>
                     </div>
                     <div style={{ marginTop: 8 }}>
-                      <div><label style={styles.label}>窗宽</label><input type="range" min={100} max={2000} value={img.windowWidth} onChange={e => handleWindowChange(img.id, 'width', +e.target.value)} style={styles.slider} /></div>
-                      <div><label style={styles.label}>窗位</label><input type="range" min={-100} max={500} value={img.windowCenter} onChange={e => handleWindowChange(img.id, 'center', +e.target.value)} style={styles.slider} /></div>
+                      <div><label style={styles.label}>{t('ssp.images.windowWidth')}</label><input type="range" min={100} max={2000} value={img.windowWidth} onChange={e => handleWindowChange(img.id, 'width', +e.target.value)} style={styles.slider} /></div>
+                      <div><label style={styles.label}>{t('ssp.images.windowCenter')}</label><input type="range" min={-100} max={500} value={img.windowCenter} onChange={e => handleWindowChange(img.id, 'center', +e.target.value)} style={styles.slider} /></div>
                       <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, cursor: 'pointer', background: img.invert ? '#3b82f6' : 'var(--bg-card)', color: img.invert ? '#fff' : '#64748b' }}>
                         {img.invert ? t('selfService.images.cancelInvert') : t('selfService.images.invert')}
                       </button>
@@ -1101,9 +1101,9 @@ export default function SelfServicePortal() {
                           {title}
                           {contentType === 'video' && <Tag color="blue">{t('selfService.education.video')}</Tag>}
                           {contentType === 'audio' && <Tag color="purple">{t('selfService.education.audio')}</Tag>}
-                          {contentType === 'text' && <Tag>图文</Tag>}
-                          {edu.category === 'pre_exam' && <Tag color="orange">检查前</Tag>}
-                          {edu.category === 'post_exam' && <Tag color="cyan">检查后</Tag>}
+                          {contentType === 'text' && <Tag>{t('ssp.education.text')}</Tag>}
+                          {edu.category === 'pre_exam' && <Tag color="orange">{t('ssp.education.preExam')}</Tag>}
+                          {edu.category === 'post_exam' && <Tag color="cyan">{t('ssp.education.postExam')}</Tag>}
                         </div>
                         {summary && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{summary}</div>}
                       </div>
@@ -1116,7 +1116,7 @@ export default function SelfServicePortal() {
                     {isOpen && body && (
                       <div style={{ marginTop: 12, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                         {body}
-                        {edu.duration && <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>预计阅读时长：约 {edu.duration} 秒</div>}
+                        {edu.duration && <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>{t('ssp.education.readTimePrefix')}{edu.duration}{t('ssp.education.readTimeSuffix')}</div>}
                       </div>
                     )}
                   </div>
@@ -1139,7 +1139,7 @@ export default function SelfServicePortal() {
             ) : (
               <table style={styles.table}>
                 <thead><tr>
-                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th><th style={styles.th}>日期</th>
+                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th><th style={styles.th}>{t('ssp.images.date')}</th>
                   <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
                 </tr></thead>
                 <tbody>
@@ -1151,7 +1151,7 @@ export default function SelfServicePortal() {
                       <td style={styles.td}><span style={styles.badge(d.reportStatus ?? '')}>{d.reportStatus ?? '-'}</span></td>
                       <td style={styles.td}>
                         <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => void openClinicalDetail(d.id)}>
-                          查看详情
+                          {t('ssp.clinical.viewDetail')}
                         </button>
                       </td>
                     </tr>
@@ -1205,7 +1205,7 @@ export default function SelfServicePortal() {
                 ))}
               </div>
             )}
-            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>联系电话仅供就医咨询使用，工作时间 08:00-17:00。</p>
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>{t('ssp.contacts.notice')}</p>
           </Card>
         </div>
       ),
@@ -1219,37 +1219,37 @@ export default function SelfServicePortal() {
             <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>{t('selfService.followup.title')}（{followups.length}）</span>
               {followupSource === 'api'
-                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>followupApi 实时</span>
-                : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>演示回退（followupApi 不可用）</span>}
+                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{t('ssp.followup.apiRealtime')}</span>
+                : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('ssp.followup.demoFallback')}</span>}
             </h3>
             {followupLoading ? (
-              <div style={{ textAlign: 'center', padding: 40 }}><Spin tip="加载随访计划..." /></div>
+              <div style={{ textAlign: 'center', padding: 40 }}><Spin tip={t('ssp.followup.loading')} /></div>
             ) : followups.length === 0 ? (
-              <Empty description="暂无随访计划，可自助预约随访" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('ssp.followup.empty')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               // [v3.0.6.11-99 Wave7B] 移动卡片化: 响应式 grid (桌面 2 列 / 手机 1 列) + 提醒展示
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
                 {followups.map(p => (
                   <div key={p.id} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14, borderLeft: `4px solid ${p.status === 'COMPLETED' ? '#059669' : p.status === 'OVERDUE' ? '#dc2626' : p.status === 'IN_PROGRESS' ? '#0d9488' : '#d97706'}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{p.note || '随访计划'}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{p.note || t('ssp.followup.defaultPlan')}</div>
                       <Tag color={p.status === 'COMPLETED' ? 'success' : p.status === 'OVERDUE' ? 'error' : p.status === 'IN_PROGRESS' ? 'processing' : 'warning'}>
                         {FOLLOWUP_STATE_LABEL[p.status] ?? p.status}
                       </Tag>
                     </div>
                     <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 4 }}>
-                      <span>计划 {p.planDate ? fmtDateTime(p.planDate) : '-'}</span>
-                      <span>下次 {p.nextDate ? fmtDateTime(p.nextDate) : '-'}</span>
-                      {p.intervalDays ? <span>每 {p.intervalDays} 天</span> : null}
+                      <span>{t('ssp.followup.planPrefix')}{p.planDate ? fmtDateTime(p.planDate) : '-'}</span>
+                      <span>{t('ssp.followup.nextPrefix')}{p.nextDate ? fmtDateTime(p.nextDate) : '-'}</span>
+                      {p.intervalDays ? <span>{t('ssp.followup.everyPrefix')}{p.intervalDays}{t('ssp.followup.daySuffix')}</span> : null}
                     </div>
                     {/* 提醒展示 */}
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                       <Tag color={p.reminderEnabled ? 'green' : 'default'} style={{ margin: 0 }}>
-                        {p.reminderEnabled ? '提醒已开启' : '未开启提醒'}
+                        {p.reminderEnabled ? t('ssp.followup.reminderOn') : t('ssp.followup.reminderOff')}
                       </Tag>
                       {p.status === 'OVERDUE' && <Tag color="error" style={{ margin: 0 }}>{t('selfService.followup.overdue')}</Tag>}
                       {p.status === 'COMPLETED' && p.completedAt && (
-                        <Tag color="success" style={{ margin: 0 }}>完成于 {fmtDateTime(p.completedAt)}</Tag>
+                        <Tag color="success" style={{ margin: 0 }}>{t('ssp.followup.completedAt')}{fmtDateTime(p.completedAt)}</Tag>
                       )}
                     </div>
                     {p.status !== 'COMPLETED' && (
@@ -1292,7 +1292,7 @@ export default function SelfServicePortal() {
                 {followupCreating ? t('selfService.followup.submitting') : t('selfService.followup.submit')}
               </button>
             </div>
-            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>提交后将在预约日期到期时提醒，检查时请携带既往影像资料。</p>
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>{t('ssp.followup.submitNotice')}</p>
           </Card>
         </div>
       ),
@@ -1303,7 +1303,7 @@ export default function SelfServicePortal() {
       children: (
         <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
           <h3 style={styles.subTitle}>{t('selfService.feedback.title')}</h3>
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>您的评价将帮助我们持续改进服务品质，感谢您的参与。</p>
+          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>{t('ssp.feedback.intro')}</p>
           <div style={{ marginBottom: 24 }}>
             <div style={styles.label}>{t('selfService.feedback.overallSatisfaction')}</div>
             <Rate
@@ -1360,7 +1360,7 @@ export default function SelfServicePortal() {
             width: 56, height: 56, borderRadius: '50%', background: '#1e40af', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700,
           }}>
-            {(user?.name ?? '患').slice(0, 1)}
+            {(user?.name ?? t('ssp.patientCard.patientFallback')).slice(0, 1)}
           </div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{user?.name ?? '-'}</div>
@@ -1368,7 +1368,7 @@ export default function SelfServicePortal() {
           </div>
         </div>
         <div style={styles.grid2}>
-          <div><div style={styles.label}>{t('selfService.patientCard.genderAge')}</div><div style={styles.value}>{user?.gender ?? '-'} / {user?.age ?? '-'}岁</div></div>
+          <div><div style={styles.label}>{t('selfService.patientCard.genderAge')}</div><div style={styles.value}>{user?.gender ?? '-'} / {user?.age ?? '-'}{t('ssp.patientCard.ageSuffix')}</div></div>
           <div><div style={styles.label}>{t('selfService.patientCard.idNumber')}</div><div style={styles.value}>{user?.idNumber ?? '-'}</div></div>
           <div><div style={styles.label}>{t('selfService.patientCard.phone')}</div><div style={styles.value}>{user?.phone ?? '-'}</div></div>
           <div><div style={styles.label}>{t('selfService.patientCard.registerDate')}</div><div style={styles.value}>{user?.createdAt ? fmtDate(new Date(user.createdAt)) : '-'}</div></div>
@@ -1384,7 +1384,7 @@ export default function SelfServicePortal() {
 
       {/* [W2-B] 临床数据详情 Drawer */}
       <Drawer
-        title={clinicalDetail ? `临床数据详情 — ${clinicalDetail.examType ?? clinicalDetail.id}` : '临床数据详情'}
+        title={clinicalDetail ? `${t('ssp.clinicalDrawer.title')} — ${clinicalDetail.examType ?? clinicalDetail.id}` : t('ssp.clinicalDrawer.title')}
         open={clinicalDrawerOpen}
         onClose={() => setClinicalDrawerOpen(false)}
         width={520}
@@ -1397,14 +1397,14 @@ export default function SelfServicePortal() {
               size="small"
               bordered
               items={[
-                { key: 'patient', label: '患者', children: `${clinicalDetail.patientName ?? '-'}（${clinicalDetail.patientId ?? '-'}）` },
-                { key: 'examType', label: '检查项目', children: clinicalDetail.examType ?? '-' },
-                { key: 'bodyPart', label: '部位', children: clinicalDetail.bodyPart ?? '-' },
-                { key: 'modality', label: '设备类型', children: clinicalDetail.modality ?? '-' },
-                { key: 'examDate', label: '检查日期', children: clinicalDetail.examDate ?? '-' },
-                { key: 'status', label: '报告状态', children: <Tag color={stateColor(clinicalDetail.reportStatus ?? '')}>{clinicalDetail.reportStatus ?? '-'}</Tag> },
-                { key: 'findings', label: '检查所见', children: clinicalDetail.findings || '-' },
-                { key: 'diagnosis', label: '诊断意见', children: clinicalDetail.diagnosis || '-' },
+                { key: 'patient', label: t('ssp.clinicalDrawer.patient'), children: `${clinicalDetail.patientName ?? '-'}（${clinicalDetail.patientId ?? '-'}）` },
+                { key: 'examType', label: t('ssp.clinicalDrawer.examType'), children: clinicalDetail.examType ?? '-' },
+                { key: 'bodyPart', label: t('ssp.clinicalDrawer.bodyPart'), children: clinicalDetail.bodyPart ?? '-' },
+                { key: 'modality', label: t('ssp.clinicalDrawer.modality'), children: clinicalDetail.modality ?? '-' },
+                { key: 'examDate', label: t('ssp.clinicalDrawer.examDate'), children: clinicalDetail.examDate ?? '-' },
+                { key: 'status', label: t('ssp.clinicalDrawer.reportStatus'), children: <Tag color={stateColor(clinicalDetail.reportStatus ?? '')}>{clinicalDetail.reportStatus ?? '-'}</Tag> },
+                { key: 'findings', label: t('ssp.clinicalDrawer.findings'), children: clinicalDetail.findings || '-' },
+                { key: 'diagnosis', label: t('ssp.clinicalDrawer.diagnosis'), children: clinicalDetail.diagnosis || '-' },
               ]}
             />
             {(clinicalDetail as any).labValues && (

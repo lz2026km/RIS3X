@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Clock, AlertTriangle, CheckCircle, Search, Download, Wallet } from 'lucide-react'
 import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
+import { t } from '../../i18n/appI18n'
 
 type AgingBucket = '0-30' | '31-60' | '61-90' | '90+'
 type PayerFilter = 'all' | '医保(城镇职工)' | '医保(城乡居民)' | '商业保险' | '自费'
@@ -44,10 +45,10 @@ const MOCK_RECEIVABLES: ReceivableItem[] = [
 ]
 
 const AGING_BUCKETS: { key: AgingBucket; label: string; color: string }[] = [
-  { key: '0-30', label: '0-30天', color: '#22c55e' },
-  { key: '31-60', label: '31-60天', color: '#f59e0b' },
-  { key: '61-90', label: '61-90天', color: '#fb923c' },
-  { key: '90+', label: '90天以上', color: '#ef4444' },
+  { key: '0-30', label: 'ar.aging.0_30', color: '#22c55e' },
+  { key: '31-60', label: 'ar.aging.31_60', color: '#f59e0b' },
+  { key: '61-90', label: 'ar.aging.61_90', color: '#fb923c' },
+  { key: '90+', label: 'ar.aging.90plus', color: '#ef4444' },
 ]
 
 const DAY_MS = 86400000
@@ -89,7 +90,7 @@ export default function AccountsReceivablePage() {
     setError(null)
     try {
       const res = await financeApi.listInvoices()
-      if (!res.success) throw new Error((res.error as { message?: string })?.message || '发票加载失败')
+      if (!res.success) throw new Error((res.error as { message?: string })?.message || t('ar.invoiceLoadFailed'))
       const list = (Array.isArray(res.data) ? res.data : []).map(toReceivable)
       if (list.length > 0) {
         setItems(list)
@@ -99,7 +100,7 @@ export default function AccountsReceivablePage() {
         setUsingFallback(true)
       }
     } catch (e) {
-      setError((e as Error)?.message || '加载失败')
+      setError((e as Error)?.message || t('ar.loadFailed'))
       setItems(MOCK_RECEIVABLES)
       setUsingFallback(true)
     } finally {
@@ -157,36 +158,36 @@ export default function AccountsReceivablePage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 700 }}>应收账款管理</span></div>
-        <button onClick={handleExportCsv} disabled={items.length === 0} title={items.length === 0 ? '暂无应收数据, 无法导出' : '基于 financeApi.listInvoices 真实数据导出'} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: items.length === 0 ? 'not-allowed' : 'pointer', opacity: items.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报表</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 700 }}>{t('ar.title')}</span></div>
+        <button onClick={handleExportCsv} disabled={items.length === 0} title={items.length === 0 ? t('ar.exportDisabled') : t('ar.exportHint')} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: items.length === 0 ? 'not-allowed' : 'pointer', opacity: items.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />{t('ar.exportReport')}</button>
       </div>
 
       <div style={{ padding: '12px 24px 0', display: 'flex', gap: 12, alignItems: 'center' }}>
-        {loading && <span style={{ fontSize: 13, color: '#8b949e' }}>加载中...</span>}
+        {loading && <span style={{ fontSize: 13, color: '#8b949e' }}>{t('ar.loading')}</span>}
         {error && (
           <span style={{ fontSize: 13, color: '#f85149' }}>
-            {error} — 已回退到演示数据
-            <button onClick={fetchReceivables} style={{ marginLeft: 8, padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#21262d', color: '#f0f6fc', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            {error} {t('ar.fallbackSuffix')}
+            <button onClick={fetchReceivables} style={{ marginLeft: 8, padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#21262d', color: '#f0f6fc', cursor: 'pointer', fontSize: 12 }}>{t('ar.retry')}</button>
           </span>
         )}
-        {!error && usingFallback && <span style={{ fontSize: 13, color: '#d29922' }}>数据来源：演示数据（接口未返回应收条目）</span>}
-        {!error && !usingFallback && !loading && <span style={{ fontSize: 13, color: '#22c55e' }}>数据来源：/finance/invoices（真实接口）</span>}
+        {!error && usingFallback && <span style={{ fontSize: 13, color: '#d29922' }}>{t('ar.fallbackSource')}</span>}
+        {!error && !usingFallback && !loading && <span style={{ fontSize: 13, color: '#22c55e' }}>{t('ar.realSource')}</span>}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>应收总额</div>
+          <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('ar.totalReceivable')}</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>¥{summary.total.toLocaleString()}</div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>逾期金额</div>
+          <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('ar.overdueAmount')}</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>¥{summary.overdue.toLocaleString()}</div>
         </div>
         {summary.byAging.map(b => (
           <div key={b.key} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{b.label}</div>
+            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t(b.label)}</div>
             <div style={{ fontSize: 28, fontWeight: 700, color: b.color }}>¥{b.amount.toLocaleString()}</div>
-            <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>{b.count} 笔</div>
+            <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>{t('ar.countUnit', { count: b.count })}</div>
           </div>
         ))}
       </div>
@@ -196,22 +197,22 @@ export default function AccountsReceivablePage() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
-              <input type="text" placeholder="搜索患者/检查项目..." value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 240, outline: 'none' }} />
+              <input type="text" placeholder={t('ar.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 240, outline: 'none' }} />
             </div>
             <select value={payerFilter} onChange={e => setPayerFilter(e.target.value as PayerFilter)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
-              <option value="all">全部支付方</option>
+              <option value="all">{t('ar.allPayers')}</option>
               <option value="医保(城镇职工)">医保(城镇职工)</option>
               <option value="医保(城乡居民)">医保(城乡居民)</option>
               <option value="商业保险">商业保险</option>
               <option value="自费">自费</option>
             </select>
           </div>
-          <span style={{ fontSize: 13, color: '#6e7681' }}>共 {filteredItems.length} 笔应收</span>
+          <span style={{ fontSize: 13, color: '#6e7681' }}>{t('ar.totalCount', { count: filteredItems.length })}</span>
         </div>
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 120px 120px 120px 100px 100px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>患者</span><span>检查项目</span><span>支付方</span><span>总额</span><span>已付</span><span>余额</span><span>账龄</span><span>状态</span>
+            <span>{t('ar.colPatient')}</span><span>{t('ar.colExamItem')}</span><span>{t('ar.colPayer')}</span><span>{t('ar.colTotal')}</span><span>{t('ar.colPaid')}</span><span>{t('ar.colBalance')}</span><span>{t('ar.colAging')}</span><span>{t('ar.colStatus')}</span>
           </div>
           {filteredItems.map((item, idx) => (
             <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 120px 120px 120px 100px 100px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
@@ -226,7 +227,7 @@ export default function AccountsReceivablePage() {
               <span style={{ fontSize: 14, fontWeight: 600, color: item.balance > 0 ? '#f59e0b' : '#22c55e' }}>¥{item.balance.toLocaleString()}</span>
               <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: item.aging === '0-30' ? '#22c55e20' : item.aging === '31-60' ? '#f59e0b20' : item.aging === '61-90' ? '#fb923c20' : '#ef444420', color: item.aging === '0-30' ? '#22c55e' : item.aging === '31-60' ? '#f59e0b' : item.aging === '61-90' ? '#fb923c' : '#ef4444', textAlign: 'center' }}>{item.aging}</span>
               <span style={{ fontSize: 12, color: item.status === 'current' ? '#22c55e' : item.status === 'overdue' ? '#ef4444' : '#6e7681', display: 'flex', alignItems: 'center', gap: 4 }}>
-                {item.status === 'current' ? <Clock size={12} /> : item.status === 'overdue' ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}{item.status === 'current' ? '当期' : item.status === 'overdue' ? '逾期' : '已销'}
+                {item.status === 'current' ? <Clock size={12} /> : item.status === 'overdue' ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}{item.status === 'current' ? t('ar.status.current') : item.status === 'overdue' ? t('ar.status.overdue') : t('ar.status.writeoff')}
               </span>
             </div>
           ))}

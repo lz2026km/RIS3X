@@ -7,6 +7,7 @@ import {
   PieChart as RePieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
 } from "recharts";
+import { t } from "../../i18n/appI18n";
 
 const C = {
   primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
@@ -57,12 +58,12 @@ const LeaveRow = ({ leave, onApprove, onReject }) => {
       <div style={{ flex: 1, fontWeight: 500, color: C.textDark }}>{leave.name}</div>
       <div style={{ flex: 1, color: C.primary }}>{leave.type}</div>
       <div style={{ flex: 1, color: C.textDark }}>{leave.startDate} ~ {leave.endDate}</div>
-      <div style={{ flex: 1, color: C.textMid }}>{leave.days}天</div>
-      <div style={{ flex: 1 }}><span style={{ padding: "2px 8px", borderRadius: 4, background: s.bg, color: s.color, fontSize: 12 }}>{leave.status === "pending" ? "待审批" : leave.status === "approved" ? "已批准" : "已驳回"}</span></div>
+      <div style={{ flex: 1, color: C.textMid }}>{leave.days}{t("deptSched.days")}</div>
+      <div style={{ flex: 1 }}><span style={{ padding: "2px 8px", borderRadius: 4, background: s.bg, color: s.color, fontSize: 12 }}>{leave.status === "pending" ? t("deptSched.leavePending") : leave.status === "approved" ? t("deptSched.leaveApproved") : t("deptSched.leaveRejected")}</span></div>
       {leave.status === "pending" && (
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={onApprove} style={{ padding: "4px 12px", background: C.success, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>批准</button>
-          <button onClick={onReject} style={{ padding: "4px 12px", background: C.danger, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>驳回</button>
+          <button onClick={onApprove} style={{ padding: "4px 12px", background: C.success, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.approve")}</button>
+          <button onClick={onReject} style={{ padding: "4px 12px", background: C.danger, color: "white", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.reject")}</button>
         </div>
       )}
     </div>
@@ -90,7 +91,7 @@ export default function DepartmentSchedule() {
       const rows = res.success && Array.isArray(res.data) && res.data.length > 0 ? res.data : ATTENDANCE_DATA;
       setAttendanceRows(rows.map((r, i) => ({
         staffId: r.staffId || `S${String(i + 1).padStart(3, '0')}`,
-        name: r.staffName || r.name || "员工",
+        name: r.staffName || r.name || t("deptSched.staffFallback"),
         date: r.workDate || dateFrom,
         shift: r.shift || "day",
         checkIn: r.checkIn || "-",
@@ -102,14 +103,14 @@ export default function DepartmentSchedule() {
       setAttendResult(`已按 ${dateFrom} ~ ${dateTo} 查询，获取 ${rows.length} 条排班/考勤记录`);
     } catch {
       setAttendanceRows(ATTENDANCE_DATA);
-      setAttendResult("排班接口不可用，已展示本地示例数据");
+      setAttendResult(t("deptSched.scheduleUnavailable"));
     } finally {
       setQuerying(false);
     }
   };
 
   const handleCreateLeave = () => {
-    if (!newLeave.name.trim() || !newLeave.startDate || !newLeave.endDate) { alert("请填写姓名和请假日期"); return; }
+    if (!newLeave.name.trim() || !newLeave.startDate || !newLeave.endDate) { alert(t("deptSched.fillRequired")); return; }
     setLeaveList(prev => [...prev, {
       id: `L${Date.now()}`,
       staffId: `S${String(Date.now()).slice(-4)}`,
@@ -133,46 +134,46 @@ export default function DepartmentSchedule() {
     <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 }}>
       <div style={panelStyle}>
         <div style={panelHeaderStyle}>
-          <span>考勤记录 {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据 · 考勤本地生成</span></span>
+          <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-            <span style={{ fontSize: 12, color: C.textMid }}>至</span>
+            <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-            <button onClick={() => void handleQuery()} disabled={querying} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: querying ? "wait" : "pointer", fontSize: 12 }}>{querying ? "查询中..." : "查询"}</button>
+            <button onClick={() => void handleQuery()} disabled={querying} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: querying ? "wait" : "pointer", fontSize: 12 }}>{querying ? t("deptSched.querying") : t("deptSched.query")}</button>
           </div>
         </div>
         {attendResult && <div style={{ padding: "8px 16px", background: C.infoBg, color: C.info, fontSize: 12 }}>{attendResult}</div>}
         <div style={{ overflow: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead><tr style={{ background: "var(--bg-primary)" }}>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>姓名</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>班次</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>签到</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>签退</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>状态</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>异常</th>
+              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colName")}</th>
+              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colShift")}</th>
+              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colCheckIn")}</th>
+              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colCheckOut")}</th>
+              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colStatus")}</th>
+              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colAbnormal")}</th>
             </tr></thead>
             <tbody>{attendanceRows.map((a) => (
               <tr key={a.staffId} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
                 <td style={{ padding: "10px 12px", fontWeight: 500, color: C.textDark }}>{a.name}</td>
-                <td style={{ padding: "10px 12px", color: C.textMid }}>{a.shift === "morning" ? "早班" : a.shift === "afternoon" ? "午班" : a.shift === "night" ? "夜班" : "常日班"}</td>
+                <td style={{ padding: "10px 12px", color: C.textMid }}>{a.shift === "morning" ? t("deptSched.shiftMorning") : a.shift === "afternoon" ? t("deptSched.shiftAfternoon") : a.shift === "night" ? t("deptSched.shiftNight") : t("deptSched.shiftDay")}</td>
                 <td style={{ padding: "10px 12px", color: C.textMid }}>{a.checkIn}</td>
                 <td style={{ padding: "10px 12px", color: C.textMid }}>{a.checkOut}</td>
-                <td style={{ padding: "10px 12px" }}><span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: a.status === "normal" ? C.successBg : C.warningBg, color: a.status === "normal" ? C.success : C.warning }}>{a.status === "normal" ? "正常" : "异常"}</span></td>
-                <td style={{ padding: "10px 12px", color: a.late > 0 ? C.danger : a.early > 0 ? C.warning : C.success }}>{a.late > 0 ? `迟到${a.late}次` : a.early > 0 ? `早退${a.early}次` : "无"}</td>
+                <td style={{ padding: "10px 12px" }}><span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: a.status === "normal" ? C.successBg : C.warningBg, color: a.status === "normal" ? C.success : C.warning }}>{a.status === "normal" ? t("deptSched.statusNormal") : t("deptSched.statusAbnormal")}</span></td>
+                <td style={{ padding: "10px 12px", color: a.late > 0 ? C.danger : a.early > 0 ? C.warning : C.success }}>{a.late > 0 ? t("deptSched.lateTimes", { count: a.late }) : a.early > 0 ? t("deptSched.earlyTimes", { count: a.early }) : t("deptSched.none")}</td>
               </tr>
             ))}</tbody>
           </table>
         </div>
         <div style={{ padding: 16, borderTop: `1px solid ${C.borderLight}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>月度考勤趋势</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptSched.monthlyTrend")}</div>
           <div style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={ATTENDANCE_MONTHLY}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} domain={[90, 105]} /><Tooltip />
-                <Area type="monotone" dataKey="present" stackId="1" stroke={C.success} fill={C.successBg} name="出勤率%" />
-                <Area type="monotone" dataKey="late" stackId="2" stroke={C.warning} fill={C.warningBg} name="迟到%" />
+                <Area type="monotone" dataKey="present" stackId="1" stroke={C.success} fill={C.successBg} name={t("deptSched.presentRate")} />
+                <Area type="monotone" dataKey="late" stackId="2" stroke={C.warning} fill={C.warningBg} name={t("deptSched.lateRate")} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -180,24 +181,24 @@ export default function DepartmentSchedule() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div style={panelStyle}>
-          <div style={panelHeaderStyle}><span>请假申请</span><button onClick={() => setShowLeaveForm(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus style={{ width: 12, height: 12 }} /> 新申请</button></div>
+          <div style={panelHeaderStyle}><span>{t("deptSched.leaveRequests")}</span><button onClick={() => setShowLeaveForm(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus style={{ width: 12, height: 12 }} /> {t("deptSched.newRequest")}</button></div>
           {showLeaveForm && (
             <div style={{ padding: 12, borderBottom: `1px solid ${C.borderLight}`, display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", gap: 8 }}>
-                <input placeholder="姓名" value={newLeave.name} onChange={e => setNewLeave({ ...newLeave, name: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+                <input placeholder={t("deptSched.namePlaceholder")} value={newLeave.name} onChange={e => setNewLeave({ ...newLeave, name: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
                 <select value={newLeave.type} onChange={e => setNewLeave({ ...newLeave, type: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}>
                   <option>年假</option><option>病假</option><option>事假</option><option>调休</option>
                 </select>
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <input type="date" value={newLeave.startDate} onChange={e => setNewLeave({ ...newLeave, startDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-                <span style={{ fontSize: 12, color: C.textMid }}>至</span>
+                <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>
                 <input type="date" value={newLeave.endDate} onChange={e => setNewLeave({ ...newLeave, endDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               </div>
-              <input placeholder="事由" value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+              <input placeholder={t("deptSched.reasonPlaceholder")} value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-                <button onClick={() => setShowLeaveForm(false)} style={{ padding: "4px 10px", background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>取消</button>
-                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Send size={11} />提交</button>
+                <button onClick={() => setShowLeaveForm(false)} style={{ padding: "4px 10px", background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{t("deptSched.cancel")}</button>
+                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Send size={11} />{t("deptSched.submit")}</button>
               </div>
             </div>
           )}
@@ -206,18 +207,18 @@ export default function DepartmentSchedule() {
           </div>
         </div>
         <div style={panelStyle}>
-          <div style={panelHeaderStyle}><span>迟到/早退统计</span><span style={{ fontSize: 12, color: C.textMid }}>本月</span></div>
+          <div style={panelHeaderStyle}><span>{t("deptSched.lateEarlyStats")}</span><span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.thisMonth")}</span></div>
           <div style={{ padding: 16 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div style={{ textAlign: "center", padding: 16, background: C.warningBg, borderRadius: 8 }}>
                 <AlertTriangle style={{ width: 24, height: 24, color: C.warning, margin: "0 auto 8px" }} />
                 <div style={{ fontSize: 24, fontWeight: 700, color: C.warning }}>8</div>
-                <div style={{ fontSize: 12, color: C.textMid }}>迟到次数</div>
+                <div style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.lateCount")}</div>
               </div>
               <div style={{ textAlign: "center", padding: 16, background: C.infoBg, borderRadius: 8 }}>
                 <Clock style={{ width: 24, height: 24, color: C.info, margin: "0 auto 8px" }} />
                 <div style={{ fontSize: 24, fontWeight: 700, color: C.info }}>4</div>
-                <div style={{ fontSize: 12, color: C.textMid }}>早退次数</div>
+                <div style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.earlyCount")}</div>
               </div>
             </div>
           </div>

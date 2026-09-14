@@ -9,6 +9,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { templatesApi, type TemplateCategoryDto, type TemplateDto } from '../services/api/templatesApi';
+import { t } from '../i18n/appI18n';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
   ChevronRight, ChevronDown, Search, Tag, Layers,
@@ -174,7 +175,7 @@ const TreeNode: React.FC<{
           background: node.level === 'modality' ? 'var(--color-info-bg)' : node.level === 'bodyPart' ? '#8b5cf622' : 'var(--color-info-bg)',
           color: node.level === 'modality' ? '#1e40af' : node.level === 'bodyPart' ? '#7c3aed' : '#0e7490',
           fontWeight: 700,
-        }}>{node.level === 'modality' ? '设备' : node.level === 'bodyPart' ? '部位' : '病种'}</span>
+        }}>{node.level === 'modality' ? t('tplCategory.levelModality') : node.level === 'bodyPart' ? t('tplCategory.levelBodyPart') : t('tplCategory.levelDisease')}</span>
       </div>
       {isExpanded && hasChildren && (
         <div>
@@ -302,7 +303,7 @@ export default function TemplateCategoryPage() {
   };
 
   const saveCategory = async () => {
-    if (!catForm.name.trim()) { alert('请填写分类名称'); return; }
+    if (!catForm.name.trim()) { alert(t('tplCategory.nameRequired')); return; }
     setCatSaving(true);
     try {
       if (catModal?.mode === 'edit' && catModal.cat) {
@@ -310,7 +311,7 @@ export default function TemplateCategoryPage() {
         if (res.success && res.data) {
           setRealCategories(prev => prev.map(c => c.id === catModal.cat.id ? res.data as TemplateCategoryDto : c));
         } else {
-          alert(res.error?.message ?? '更新失败');
+          alert(res.error?.message ?? t('tplCategory.updateFailed'));
           setCatModal(null);
           setCatSaving(false);
           return;
@@ -320,7 +321,7 @@ export default function TemplateCategoryPage() {
         if (res.success && res.data) {
           setRealCategories(prev => [...prev, res.data as TemplateCategoryDto]);
         } else {
-          alert(res.error?.message ?? '创建失败');
+          alert(res.error?.message ?? t('tplCategory.createFailed'));
           setCatModal(null);
           setCatSaving(false);
           return;
@@ -336,28 +337,28 @@ export default function TemplateCategoryPage() {
       }
       setCategorySource('fallback');
       setCatModal(null);
-      alert('分类服务暂不可用，已本地回退保存（标注: 待同步后端）');
+      alert(t('tplCategory.serviceUnavailableSave'));
     } finally {
       setCatSaving(false);
     }
   };
 
   const deleteCategory = async (cat: TemplateCategoryNode) => {
-    if (!window.confirm(`确认删除分类「${cat.name}」？其下子分类将保留为静态展示。`)) return;
+    if (!window.confirm(t('tplCategory.confirmDelete', { name: cat.name }))) return;
     try {
       const res = await templatesApi.deleteCategory(cat.id);
       if (res.success) {
         setRealCategories(prev => prev.filter(c => c.id !== cat.id));
         if (selectedId === cat.id) setSelectedId(null);
       } else {
-        alert(res.error?.message ?? '删除失败');
+        alert(res.error?.message ?? t('tplCategory.deleteFailed'));
       }
     } catch {
       // [v3.0.6.11-96 Wave3B P1] 失败回退: 本地移除 + 标注
       setRealCategories(prev => prev.filter(c => c.id !== cat.id));
       setCategorySource('fallback');
       if (selectedId === cat.id) setSelectedId(null);
-      alert('分类服务暂不可用，已本地移除（标注: 待同步后端）');
+      alert(t('tplCategory.serviceUnavailableRemove'));
     }
   };
 
@@ -384,11 +385,11 @@ export default function TemplateCategoryPage() {
       const res = await templatesApi.updateCategory(cat.id, { sortOrder: nextOrder.find(c => c.id === cat.id)?.sortOrder ?? 1 });
       if (res.success) {
         setRealCategories(nextOrder);
-        message.success(`分类「${cat.name}」已移动到目标分类之后（sortOrder=${nextOrder.find(c => c.id === cat.id)?.sortOrder ?? 1}）`);
+        message.success(t('tplCategory.movedSuccess', { name: cat.name, order: nextOrder.find(c => c.id === cat.id)?.sortOrder ?? 1 }));
       } else {
         setRealCategories(nextOrder);
         setCategorySource('fallback');
-        message.warning('分类服务暂不可用，已本地重排序（标注: 待同步后端）');
+        message.warning(t('tplCategory.serviceUnavailableReorder'));
       }
     } catch {
       setRealCategories(prev => {
@@ -396,7 +397,7 @@ export default function TemplateCategoryPage() {
         return [...others, prev.find(c => c.id === cat.id)!].map((c, i) => ({ ...c, sortOrder: i + 1 }));
       });
       setCategorySource('fallback');
-      message.warning('分类服务暂不可用，已本地重排序（标注: 待同步后端）');
+      message.warning(t('tplCategory.serviceUnavailableReorder'));
     } finally {
       setMoveSaving(false);
       setMoveModal(null);
@@ -423,14 +424,14 @@ export default function TemplateCategoryPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <FolderTree size={20} color="#0891b2" /> 模板分类管理
+            <FolderTree size={20} color="#0891b2" /> {t('tplCategory.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
             {categorySource === 'api'
-              ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>/templates/categories 实时</span>
-              : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>本地静态（后端不可用, 回退）</span>}
+              ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{t('tplCategory.realtimeTag')}</span>
+              : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('tplCategory.staticTag')}</span>}
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            按设备 → 部位 → 病种 三级分类管理标准模板分类 {categorySource === 'api' ? `（真实分类 ${realCategories.length} 个）` : '（静态数据）'}
+            {t('tplCategory.subtitle')} {categorySource === 'api' ? t('tplCategory.realCategories', { count: realCategories.length }) : t('tplCategory.staticData')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -442,7 +443,7 @@ export default function TemplateCategoryPage() {
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            <Plus size={12} /> 新建分类
+            <Plus size={12} /> {t('tplCategory.newCategory')}
           </button>
           <button
             onClick={() => navigate('/template-management')}
@@ -452,17 +453,17 @@ export default function TemplateCategoryPage() {
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            <ArrowLeft size={12} /> 返回模板列表
+            <ArrowLeft size={12} /> {t('tplCategory.backToList')}
           </button>
         </div>
       </div>
 
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
-        <StatCard icon={Layers} label="总分类数" value={stats.total} color="#3b82f6" />
-        <StatCard icon={Folder} label="设备分类" value={stats.modality} color="#1e40af" />
-        <StatCard icon={FolderOpen} label="部位分类" value={stats.bodyPart} color="#7c3aed" />
-        <StatCard icon={Tag} label="病种分类" value={stats.disease} color="#0891b2" />
+        <StatCard icon={Layers} label={t('tplCategory.totalCategories')} value={stats.total} color="#3b82f6" />
+        <StatCard icon={Folder} label={t('tplCategory.modalityCategories')} value={stats.modality} color="#1e40af" />
+        <StatCard icon={FolderOpen} label={t('tplCategory.bodyPartCategories')} value={stats.bodyPart} color="#7c3aed" />
+        <StatCard icon={Tag} label={t('tplCategory.diseaseCategories')} value={stats.disease} color="#0891b2" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 12 }}>
@@ -476,7 +477,7 @@ export default function TemplateCategoryPage() {
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
             <FolderTree size={12} color="#1e40af" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', flex: 1 }}>分类树</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', flex: 1 }}>{t('tplCategory.categoryTree')}</span>
             <div style={{ display: 'flex', gap: 4 }}>
               <button
                 onClick={() => setViewMode('tree')}
@@ -486,7 +487,7 @@ export default function TemplateCategoryPage() {
                   color: viewMode === 'tree' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
-              ><List size={12} /> 树</button>
+              ><List size={12} /> {t('tplCategory.tree')}</button>
               <button
                 onClick={() => setViewMode('flat')}
                 style={{
@@ -495,7 +496,7 @@ export default function TemplateCategoryPage() {
                   color: viewMode === 'flat' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
-              ><Grid size={12} /> 平铺</button>
+              ><Grid size={12} /> {t('tplCategory.grid')}</button>
             </div>
           </div>
 
@@ -507,7 +508,7 @@ export default function TemplateCategoryPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="搜索分类..."
+                placeholder={t('tplCategory.searchPlaceholder')}
                 style={{
                   width: '100%', padding: '6px 8px 6px 26px',
                   border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
@@ -570,7 +571,7 @@ export default function TemplateCategoryPage() {
                   {selectedNode.name}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-                  编码：<code style={{ background: 'var(--bg-card)', padding: '1px 4px', borderRadius: 3 }}>{selectedNode.code}</code> · 层级：<strong>{selectedNode.level === 'modality' ? '设备' : selectedNode.level === 'bodyPart' ? '部位' : '病种'}</strong>
+                   {t('tplCategory.code')}<code style={{ background: 'var(--bg-card)', padding: '1px 4px', borderRadius: 3 }}>{selectedNode.code}</code> · {t('tplCategory.level')}<strong>{selectedNode.level === 'modality' ? t('tplCategory.levelModality') : selectedNode.level === 'bodyPart' ? t('tplCategory.levelBodyPart') : t('tplCategory.levelDisease')}</strong>
                 </div>
                 {selectedNode.description && (
                   <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-primary)', padding: 8, background: 'var(--bg-card)', borderRadius: 4, border: '1px solid #bae6fd' }}>
@@ -587,7 +588,7 @@ export default function TemplateCategoryPage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <Plus size={11} /> 在此分类下新建模板
+                    <Plus size={11} /> {t('tplCategory.newTemplateUnderCategory')}
                   </button>
                   <button
                     onClick={() => openEditModal(selectedNode)}
@@ -597,7 +598,7 @@ export default function TemplateCategoryPage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <Edit2 size={11} /> 编辑分类
+                    <Edit2 size={11} /> {t('tplCategory.editCategory')}
                   </button>
                   <button
                     onClick={() => void deleteCategory(selectedNode)}
@@ -607,7 +608,7 @@ export default function TemplateCategoryPage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <Trash2 size={11} /> 删除分类
+                    <Trash2 size={11} /> {t('tplCategory.deleteCategory')}
                   </button>
                   <button
                     onClick={() => openMoveModal(selectedNode)}
@@ -617,7 +618,7 @@ export default function TemplateCategoryPage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <Move size={11} /> 移动
+                    <Move size={11} /> {t('tplCategory.move')}
                   </button>
                 </div>
               </div>
@@ -627,7 +628,7 @@ export default function TemplateCategoryPage() {
                 {selectedChildren.length > 0 && (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Folder size={12} /> 子分类 ({selectedChildren.length})
+                      <Folder size={12} /> {t('tplCategory.subCategories', { count: selectedChildren.length })}
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
                       {selectedChildren.map(c => (
@@ -662,30 +663,30 @@ export default function TemplateCategoryPage() {
                 {/* 该分类下的模板 */}
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <FileText size={12} /> 模板列表 (本分类 {templateCount[selectedNode.id] || 0} / 全部后代 {selectedStats})
+                    <FileText size={12} /> {t('tplCategory.templateList', { own: templateCount[selectedNode.id] || 0, all: selectedStats })}
                   </div>
                   <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 12, color: 'var(--text-secondary)' }}>
                     {categoryTemplateList.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {categoryTemplateList.map(t => (
-                          <div key={t.id} style={{
+                        {categoryTemplateList.map(tpl => (
+                          <div key={tpl.id} style={{
                             padding: 8, background: 'var(--bg-card)', borderRadius: 4,
                             border: '1px solid var(--border-color)',
                             display: 'flex', alignItems: 'center', gap: 8,
                           }}>
                             <FileText size={12} color="#3b82f6" />
-                            <span style={{ fontWeight: 600, color: '#1e40af' }}>{t.name}</span>
-                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.bodyPart}{t.modality ? ` · ${t.modality}` : ''}</span>
-                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.createdAt ? t.createdAt.slice(0, 10) : ''}</span>
+                            <span style={{ fontWeight: 600, color: '#1e40af' }}>{tpl.name}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{tpl.bodyPart}{tpl.modality ? ` · ${tpl.modality}` : ''}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{tpl.createdAt ? tpl.createdAt.slice(0, 10) : ''}</span>
                             <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: 'var(--color-success-bg)', color: '#047857', borderRadius: 2 }}>
-                              {t.status === 'approved' ? '已启用' : t.status === 'pending' ? '待审批' : t.status === 'rejected' ? '已驳回' : '草稿'}
+                              {tpl.status === 'approved' ? t('tplCategory.statusEnabled') : tpl.status === 'pending' ? t('tplCategory.statusPending') : tpl.status === 'rejected' ? t('tplCategory.statusRejected') : t('tplCategory.statusDraft')}
                             </span>
                           </div>
                         ))}
                       </div>
                     ) : (
                       <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-                        该分类暂无模板
+                        {t('tplCategory.noTemplates')}
                         <div style={{ marginTop: 8 }}>
                           <button
                             onClick={() => navigate('/template-designer')}
@@ -695,7 +696,7 @@ export default function TemplateCategoryPage() {
                               cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4,
                             }}
                           >
-                            <Plus size={11} /> 创建第一个模板
+                            <Plus size={11} /> {t('tplCategory.createFirstTemplate')}
                           </button>
                         </div>
                       </div>
@@ -706,7 +707,7 @@ export default function TemplateCategoryPage() {
                 {/* 路径面包屑 */}
                 <div style={{ marginTop: 16, padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6, fontSize: 12 }}>
                   <div style={{ fontWeight: 700, color: '#92400e', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <GitBranch size={12} /> 分类路径
+                    <GitBranch size={12} /> {t('tplCategory.categoryPath')}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap', color: '#78350f' }}>
                     {(() => {
@@ -727,7 +728,7 @@ export default function TemplateCategoryPage() {
             </>
           ) : (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-              请从左侧选择分类查看详情
+               {t('tplCategory.selectCategoryHint')}
             </div>
           )}
         </div>
@@ -739,31 +740,31 @@ export default function TemplateCategoryPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 440, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <FolderTree size={16} color="#0891b2" /> {catModal.mode === 'edit' ? `编辑分类 · ${catModal.cat.name}` : '新建分类'}
+                <FolderTree size={16} color="#0891b2" /> {catModal.mode === 'edit' ? t('tplCategory.editCategoryWithName', { name: catModal.cat.name }) : t('tplCategory.newCategory')}
               </div>
               <button onClick={() => setCatModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>分类名称 *</label>
-                <input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} placeholder="如 CT / MR / MG / 特殊检查" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.nameLabel')}</label>
+                <input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} placeholder={t('tplCategory.namePlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>分类描述</label>
-                <textarea value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} rows={3} placeholder="该分类下模板的用途说明（选填）" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.descriptionLabel')}</label>
+                <textarea value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} rows={3} placeholder={t('tplCategory.descriptionPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>排序序号</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.sortOrderLabel')}</label>
                 <input type="number" min={1} value={catForm.sortOrder} onChange={e => setCatForm({ ...catForm, sortOrder: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
               </div>
               {categorySource === 'fallback' && (
                 <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
-                  当前为本地回退模式：保存将仅在本地生效，待后端 /templates/categories 可用后需重新同步。
+                  {t('tplCategory.localFallbackHint')}
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setCatModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-                <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? '保存中...' : '保存分类'}</button>
+                <button onClick={() => setCatModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
+                <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? t('tplCategory.saving') : t('tplCategory.saveCategory')}</button>
               </div>
             </div>
           </div>
@@ -775,30 +776,30 @@ export default function TemplateCategoryPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Move size={16} color="#0891b2" /> 移动分类 · {moveModal.cat.name}
+                <Move size={16} color="#0891b2" /> {t('tplCategory.moveCategory')} · {moveModal.cat.name}
               </div>
               <button onClick={() => setMoveModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>移动到目标分类之后</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.moveTargetLabel')}</label>
                 <select
                   value={moveTargetId}
                   onChange={e => setMoveTargetId(e.target.value)}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', background: 'var(--bg-card)' }}
                 >
-                  <option value="">置顶（第一个）</option>
+                  <option value="">{t('tplCategory.moveTopOption')}</option>
                   {realCategories.filter(c => c.id !== moveModal.cat.id).map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
-                  说明：后端分类 DTO 暂无 parent 字段，移动将调整 sortOrder 排序并本地重排（标注: 层级移动待后端支持）。
+                  {t('tplCategory.moveHint')}
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setMoveModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-                <button onClick={() => void saveMove()} disabled={moveSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: moveSaving ? 'wait' : 'pointer' }}>{moveSaving ? '移动中...' : '确认移动'}</button>
+                <button onClick={() => setMoveModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
+                <button onClick={() => void saveMove()} disabled={moveSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: moveSaving ? 'wait' : 'pointer' }}>{moveSaving ? t('tplCategory.moving') : t('tplCategory.confirmMove')}</button>
               </div>
             </div>
           </div>

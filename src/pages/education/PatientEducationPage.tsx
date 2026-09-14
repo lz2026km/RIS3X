@@ -94,13 +94,13 @@ export default function PatientEducationPage() {
       try {
         await loadMaterials()
         if (cancelled) return
-        const [r, t] = await Promise.all([svc.getPatientRecords('P001'), svc.getTemplates()])
-        if (!cancelled) { setRecords(r); setTemplates(t) }
+        const [r, tmpls] = await Promise.all([svc.getPatientRecords('P001'), svc.getTemplates()])
+        if (!cancelled) { setRecords(r); setTemplates(tmpls) }
       } catch {
         if (!cancelled) {
-          setLoadError('宣教资料加载失败，请稍后重试')
-          const [r, t] = await Promise.all([svc.getPatientRecords('P001'), svc.getTemplates()])
-          setRecords(r); setTemplates(t)
+          setLoadError(t('patientEdu.loadFailedRetry'))
+          const [r, tmpls] = await Promise.all([svc.getPatientRecords('P001'), svc.getTemplates()])
+          setRecords(r); setTemplates(tmpls)
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -112,7 +112,7 @@ export default function PatientEducationPage() {
   // [W5] 新建宣教资料 → POST /patient-portal/education
   const handleCreateMaterial = async () => {
     if (!createForm.title.trim() || !createForm.content.trim()) {
-      message.warning('标题与内容为必填项')
+      message.warning(t('patientEdu.titleContentRequired'))
       return
     }
     setCreating(true)
@@ -124,7 +124,7 @@ export default function PatientEducationPage() {
         content: createForm.content.trim(),
         summary: createForm.summary.trim() || undefined,
         duration: createForm.duration,
-        tags: createForm.tags.split(/[,，]/).map(t => t.trim()).filter(Boolean),
+        tags: createForm.tags.split(/[,，]/).map(tag => tag.trim()).filter(Boolean),
       }
       const res = await patientPortalApi.createEducation(input)
       if (res.success) {
@@ -133,10 +133,10 @@ export default function PatientEducationPage() {
         setCreateForm({ title: '', category: 'general', contentType: 'text', summary: '', content: '', tags: '' })
         await loadMaterials()
       } else {
-        message.error(res.error?.message || '新建宣教资料失败')
+        message.error(res.error?.message || t('patientEdu.createFailed'))
       }
     } catch {
-      message.error('新建宣教资料失败')
+      message.error(t('patientEdu.createFailed'))
     }
     setCreating(false)
   }
@@ -150,10 +150,10 @@ export default function PatientEducationPage() {
         message.success(`已删除: ${m.title}`)
         await loadMaterials()
       } else {
-        message.error(res.error?.message || '删除失败')
+        message.error(res.error?.message || t('patientEdu.deleteFailedRes'))
       }
     } catch {
-      message.error('删除宣教资料失败')
+      message.error(t('patientEdu.deleteMaterialFailed'))
     }
   }
 
@@ -191,7 +191,7 @@ export default function PatientEducationPage() {
   if (loading) {
     return (
       <div style={{ ...s.container, textAlign: 'center', padding: 80 }}>
-        <Spin size="large" tip="正在加载宣教资料...">
+        <Spin size="large" tip={t('patientEdu.loadingMaterials')}>
           <div style={{ height: 60 }} />
         </Spin>
       </div>
@@ -200,14 +200,14 @@ export default function PatientEducationPage() {
 
   return (
     <div style={s.container}>
-      <h2 style={s.title}>患者教育与沟通</h2>
+      <h2 style={s.title}>{t('patientEdu.title')}</h2>
       {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 16 }} />}
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', padding: 4, borderRadius: 10 }}>
         {(['materials', 'records', 'communication'] as const).map(tab => (
           <button key={tab} style={s.tab(activeTab === tab)} onClick={() => setActiveTab(tab)}>
-            {tab === 'materials' ? `教育资料 (${materials.length})` : tab === 'records' ? '学习记录' : '沟通模板'}
+            {tab === 'materials' ? t('patientEdu.tabMaterials', { count: materials.length }) : tab === 'records' ? t('patientEdu.tabRecords') : t('patientEdu.tabCommunication')}
           </button>
         ))}
       </div>
@@ -217,11 +217,11 @@ export default function PatientEducationPage() {
         <>
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>健康教育资料库</h3>
+            <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>{t('patientEdu.healthLibrary')}</h3>
             <div style={{ display: 'flex', gap: 8 }}>
-                <button style={{ ...s.btn, background: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setCreateOpen(true)}><Plus size={13} /> 新建宣教资料</button>
+                <button style={{ ...s.btn, background: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setCreateOpen(true)}><Plus size={13} /> {t('patientEdu.newMaterial')}</button>
               <select style={{ ...s.select, width: 180 }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
-                <option value="">全部分类</option>
+                <option value="">{t('patientEdu.allCategories')}</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </div>
@@ -229,7 +229,7 @@ export default function PatientEducationPage() {
 
           {selectedMaterial ? (
             <div>
-              <button style={{ ...s.btn, background: '#64748b', marginBottom: 16 }} onClick={() => setSelectedMaterial(null)}>← 返回列表</button>
+              <button style={{ ...s.btn, background: '#64748b', marginBottom: 16 }} onClick={() => setSelectedMaterial(null)}>{t('patientEdu.backToList')}</button>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedMaterial.title}</div>
               <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[selectedMaterial.category] || selectedMaterial.category}</span>
               {selectedMaterial.modality && <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 8 }}>{selectedMaterial.modality}</span>}
@@ -238,7 +238,7 @@ export default function PatientEducationPage() {
               </span>
               {selectedMaterial.duration && (
                 <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>
-                  {Math.floor((selectedMaterial.duration || 0) / 60)}分{(selectedMaterial.duration || 0) % 60}秒
+                  {Math.floor((selectedMaterial.duration || 0) / 60)}{t('patientEdu.minuteUnit')}{(selectedMaterial.duration || 0) % 60}{t('patientEdu.secondUnit')}
                 </span>
               )}
 
@@ -253,14 +253,14 @@ export default function PatientEducationPage() {
                   <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
                     <button style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 13, cursor: 'pointer' }}
                       onClick={() => setPlaying(v => !v)}>
-                      {playing ? '⏸ 暂停' : playerProgress >= 100 ? '🔁 重新播放' : '▶ 播放'}
+                      {playing ? t('patientEdu.pause') : playerProgress >= 100 ? t('patientEdu.replay') : t('patientEdu.play')}
                     </button>
                     <button style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 13, cursor: 'pointer' }}
                       onClick={() => void markComplete(selectedMaterial)}>
-                      ✅ 标记完成
+                      {t('patientEdu.markComplete')}
                     </button>
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>{Math.round(playerProgress)}% · 演示播放器</div>
+                  <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>{Math.round(playerProgress)}% · {t('patientEdu.demoPlayer')}</div>
                 </div>
               )}
 
@@ -272,14 +272,14 @@ export default function PatientEducationPage() {
               </div>
             </div>
           ) : materials.length === 0 ? (
-            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无宣教资料" />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('patientEdu.noMaterials')} />
           ) : (
             <div style={s.grid2}>
               {filtered.map(m => (
                 <div key={m.id} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer', position: 'relative' }}
                   onClick={() => handlePlay(m)}>
                   <button
-                    title="删除该宣教资料"
+                    title={t('patientEdu.deleteMaterialTitle')}
                     style={{ position: 'absolute', top: 8, right: 8, border: 'none', background: 'transparent', color: '#94a3b8', fontSize: 14, cursor: 'pointer', lineHeight: 1 }}
                     onClick={e => { e.stopPropagation(); void handleDeleteMaterial(m) }}
                   >×</button>
@@ -290,7 +290,7 @@ export default function PatientEducationPage() {
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{m.summary}</div>
                   <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[m.category] || m.category}</span>
                   <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{CONTENT_TYPE_LABELS[m.contentType] || m.contentType}</span>
-                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{Math.floor(m.duration / 60)}分{m.duration % 60}秒</span>}
+                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{Math.floor(m.duration / 60)}{t('patientEdu.minuteUnit')}{m.duration % 60}{t('patientEdu.secondUnit')}</span>}
                 </div>
               ))}
             </div>
@@ -302,7 +302,7 @@ export default function PatientEducationPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>{t('w3d.edu.title')}</h3>
             <select style={{ ...s.select, width: 200 }} value={eduCategory} onChange={e => setEduCategory(e.target.value)}>
-              <option value="">{t('w3d.edu.structured')} · 全部分类</option>
+              <option value="">{t('w3d.edu.structured')} · {t('patientEdu.allCategories')}</option>
               {[...new Set(PATIENT_EDUCATION_MATERIALS.map(m => m.category))].map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -326,7 +326,7 @@ export default function PatientEducationPage() {
               </div>
             ))}
           </div>
-          {eduFiltered.length === 0 && <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无结构化宣教资料" />}
+          {eduFiltered.length === 0 && <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description={t('patientEdu.noStructuredMaterials')} />}
         </Card>
         </>
       )}
@@ -334,36 +334,36 @@ export default function PatientEducationPage() {
       {/* Records Tab */}
       {activeTab === 'records' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={{ ...s.title, fontSize: 16 }}>患者学习记录</h3>
+          <h3 style={{ ...s.title, fontSize: 16 }}>{t('patientEdu.learningRecords')}</h3>
           {records.map(r => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.materialTitle}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>分配时间：{new Date(r.assignedAt).toLocaleString()}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientEdu.assignedAt')}{new Date(r.assignedAt).toLocaleString()}</div>
               </div>
               <span style={s.badge(r.completed ? 'var(--color-success)' : 'var(--color-warning)', r.completed ? 'var(--color-success-bg)' : 'var(--color-warning-bg)')}>
-                {r.completed ? '已学习' : '未学习'}
+                {r.completed ? t('patientEdu.learned') : t('patientEdu.notLearned')}
               </span>
             </div>
           ))}
-          {records.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: 24 }}>暂无学习记录</div>}
+          {records.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: 24 }}>{t('patientEdu.noRecords')}</div>}
         </Card>
       )}
 
       {/* Communication Tab */}
       {activeTab === 'communication' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={{ ...s.title, fontSize: 16 }}>沟通模板</h3>
-          {templates.map(t => (
-            <div key={t.id} style={{ padding: 16, marginBottom: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+          <h3 style={{ ...s.title, fontSize: 16 }}>{t('patientEdu.tabCommunication')}</h3>
+          {templates.map(tpl => (
+            <div key={tpl.id} style={{ padding: 16, marginBottom: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t.name}</span>
-                <span style={s.badge('#fff', { 'sms': '#0369a1', 'wechat': '#166534', 'email': '#92400e', 'app_push': '#7c3aed' }[t.channel] || '#64748b')}>{t.channel}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{tpl.name}</span>
+                <span style={s.badge('#fff', { 'sms': '#0369a1', 'wechat': '#166534', 'email': '#92400e', 'app_push': '#7c3aed' }[tpl.channel] || '#64748b')}>{tpl.channel}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>标题：{t.title}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)' }}>{t.body}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('patientEdu.commTitle')}{tpl.title}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)' }}>{tpl.body}</div>
               <div style={{ marginTop: 6, display: 'flex', gap: 4 }}>
-                {t.variables.map(v => <span key={v} style={s.badge('#7c3aed', '#f3e8ff')}>{`{${v}}`}</span>)}
+                {tpl.variables.map(v => <span key={v} style={s.badge('#7c3aed', '#f3e8ff')}>{`{${v}}`}</span>)}
               </div>
             </div>
           ))}
@@ -423,47 +423,47 @@ export default function PatientEducationPage() {
 
       {/* [W5] 新建宣教资料 */}
       <Modal
-        title="新建宣教资料"
+        title={t('patientEdu.newMaterial')}
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
         onOk={() => void handleCreateMaterial()}
         confirmLoading={creating}
-        okText="创建"
-        cancelText="取消"
+        okText={t('patientEdu.create')}
+        cancelText={t('patientEdu.cancel')}
       >
         <div style={{ display: 'grid', gap: 12, paddingTop: 8 }}>
           <div>
-            <label style={s.label}>标题 *</label>
-            <Input value={createForm.title} onChange={e => setCreateForm(f => ({ ...f, title: e.target.value }))} placeholder="请输入宣教资料标题" />
+            <label style={s.label}>{t('patientEdu.fieldTitle')}</label>
+            <Input value={createForm.title} onChange={e => setCreateForm(f => ({ ...f, title: e.target.value }))} placeholder={t('patientEdu.titlePlaceholder')} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <label style={s.label}>分类</label>
+              <label style={s.label}>{t('patientEdu.category')}</label>
               <Select value={createForm.category} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, category: v }))}
                 options={Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }))} />
             </div>
             <div>
-              <label style={s.label}>内容类型</label>
+              <label style={s.label}>{t('patientEdu.contentType')}</label>
               <Select value={createForm.contentType} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, contentType: v }))}
                 options={Object.entries(CONTENT_TYPE_LABELS).map(([value, label]) => ({ value, label }))} />
             </div>
           </div>
           <div>
-            <label style={s.label}>简介</label>
-            <Input value={createForm.summary} onChange={e => setCreateForm(f => ({ ...f, summary: e.target.value }))} placeholder="一句话简介（选填）" />
+            <label style={s.label}>{t('patientEdu.summary')}</label>
+            <Input value={createForm.summary} onChange={e => setCreateForm(f => ({ ...f, summary: e.target.value }))} placeholder={t('patientEdu.summaryPlaceholder')} />
           </div>
           <div>
-            <label style={s.label}>内容 *</label>
-            <Input.TextArea rows={4} value={createForm.content} onChange={e => setCreateForm(f => ({ ...f, content: e.target.value }))} placeholder="请输入宣教正文内容" />
+            <label style={s.label}>{t('patientEdu.fieldContent')}</label>
+            <Input.TextArea rows={4} value={createForm.content} onChange={e => setCreateForm(f => ({ ...f, content: e.target.value }))} placeholder={t('patientEdu.contentPlaceholder')} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <label style={s.label}>时长（秒）</label>
-              <InputNumber min={1} value={createForm.duration} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, duration: v ?? undefined }))} placeholder="视频/音频时长（选填）" />
+              <label style={s.label}>{t('patientEdu.duration')}</label>
+              <InputNumber min={1} value={createForm.duration} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, duration: v ?? undefined }))} placeholder={t('patientEdu.durationPlaceholder')} />
             </div>
             <div>
-              <label style={s.label}>标签（逗号分隔）</label>
-              <Input value={createForm.tags} onChange={e => setCreateForm(f => ({ ...f, tags: e.target.value }))} placeholder="如: CT,检查准备" />
+              <label style={s.label}>{t('patientEdu.tags')}</label>
+              <Input value={createForm.tags} onChange={e => setCreateForm(f => ({ ...f, tags: e.target.value }))} placeholder={t('patientEdu.tagsPlaceholder')} />
             </div>
           </div>
         </div>

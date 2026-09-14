@@ -5,6 +5,7 @@ import { pushService } from '../../services/mobile/push/PushService'
 import { mobileApi, notificationsApi } from '../../services/api'
 import type { PushPayload, PushSubscription } from '../../types/mobile'
 import type { NotificationSubscriptionType } from '../../services/api/notificationsApi'
+import { t } from '../../i18n/appI18n'
 
 interface PushNotificationItem {
   id: string
@@ -25,20 +26,20 @@ const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: 
 }
 const DEFAULT_SEVERITY = { bg: 'var(--color-info-bg)', color: 'var(--color-info)', borderColor: 'var(--color-info-border)', icon: Bell }
 
-const TOPIC_LABELS: Record<string, string> = {
-  critical: '危急值',
-  report: '报告',
-  appointment: '预约',
-  system: '系统',
-}
+const topicLabel = (topic: string): string => ({
+  critical: t('mobilePush.topicCritical'),
+  report: t('mobilePush.topicReport'),
+  appointment: t('mobilePush.topicAppointment'),
+  system: t('mobilePush.topicSystem'),
+}[topic] ?? t('mobilePush.topicSystem'))
 
 // [v3.0.6.11-99 Wave7B] 推送订阅类型 (与通知中心订阅管理共享后端 GET/PUT /notifications/subscriptions)
-const SUBSCRIPTION_OPTIONS: Array<{ key: NotificationSubscriptionType; label: string }> = [
-  { key: 'CRITICAL', label: '危急值' },
-  { key: 'REPORT', label: '报告完成' },
-  { key: 'FOLLOWUP', label: '随访提醒' },
-  { key: 'QUALITY', label: '质控通知' },
-  { key: 'SYSTEM', label: '系统公告' },
+const subscriptionOptions = (): Array<{ key: NotificationSubscriptionType; label: string }> => [
+  { key: 'CRITICAL', label: t('mobilePush.subCritical') },
+  { key: 'REPORT', label: t('mobilePush.subReport') },
+  { key: 'FOLLOWUP', label: t('mobilePush.subFollowup') },
+  { key: 'QUALITY', label: t('mobilePush.subQuality') },
+  { key: 'SYSTEM', label: t('mobilePush.subSystem') },
 ]
 
 const SUB_STORAGE_KEY = 'notify-subscription-types'
@@ -79,8 +80,8 @@ export default function MobilePushPage() {
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushPermission, setPushPermission] = useState(pushService.permission)
   const [showTestPanel, setShowTestPanel] = useState(false)
-  const [testTitle, setTestTitle] = useState('测试推送通知')
-  const [testBody, setTestBody] = useState('这是一条测试推送消息')
+  const [testTitle, setTestTitle] = useState(t('mobilePush.testTitleDefault'))
+  const [testBody, setTestBody] = useState(t('mobilePush.testBodyDefault'))
   // [v3.0.6.11-99 Wave7B] 推送订阅类型: 后端 /notifications/subscriptions + localStorage 持久化
   const [subTypes, setSubTypes] = useState<string[]>(loadLocalSubTypes)
 
@@ -153,7 +154,7 @@ export default function MobilePushPage() {
         if (!cancelled && res.data && Array.isArray(res.data)) {
           setNotifications(res.data.map((n: any) => ({
             id: n.id || `PN${Date.now()}`,
-            title: n.title || '通知',
+        title: n.title || t('mobilePush.notification'),
             body: n.body || '',
             tag: n.tag || '',
             topic: n.topic || 'system',
@@ -185,14 +186,14 @@ export default function MobilePushPage() {
       const sub = await pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
       if (sub) {
         void registerDeviceToken(sub)
-        message.success('推送通知已开启 (浏览器推送)')
+        message.success(t('mobilePush.pushEnabled'))
       } else {
-        message.warning('订阅失败: 浏览器或后端推送通道不可用')
+        message.warning(t('mobilePush.subscribeFailed'))
       }
     } else if (perm === 'denied') {
-      message.warning('推送通知被拒绝，请在系统设置中允许通知')
+      message.warning(t('mobilePush.pushDenied'))
     } else {
-      message.info('浏览器不支持推送通知')
+      message.info(t('mobilePush.pushUnsupported'))
     }
   }
 
@@ -202,17 +203,17 @@ export default function MobilePushPage() {
 
   const handleMarkAllRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-    message.success('已全部标记为已读')
+    message.success(t('mobilePush.allMarkedRead'))
   }
 
   const handleDelete = (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id))
-    message.success('已删除')
+    message.success(t('mobilePush.deleted'))
   }
 
   const handleClearAll = () => {
     setNotifications([])
-    message.success('已清空所有通知')
+    message.success(t('mobilePush.allCleared'))
   }
 
   const handleTestPush = async () => {
@@ -235,7 +236,7 @@ export default function MobilePushPage() {
       receivedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
     }
     setNotifications((prev) => [newItem, ...prev])
-    message.success('测试推送已发送')
+    message.success(t('mobilePush.testPushSent'))
   }
 
   const containerStyle: React.CSSProperties = {
@@ -265,10 +266,10 @@ export default function MobilePushPage() {
       <div style={headerStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>移动端推送管理</div>
-            <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>推送通知配置 · 历史记录 · 测试</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{t('mobilePush.title')}</div>
+            <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('mobilePush.subtitle')}</div>
             {/* [v3.0.6.11-88 Round10] /mobile/push-notifications 后端未实现, MSW 演示数据 */}
-            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>数据源: MSW 演示数据</div>
+            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>{t('mobilePush.dataSource')}</div>
           </div>
           <div style={{
             width: 44, height: 44, borderRadius: 10,
@@ -280,9 +281,9 @@ export default function MobilePushPage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {[
-            { value: unreadCount, label: '未读', bg: 'rgba(255,255,255,0.15)' },
-            { value: notifications.length, label: '总计', bg: 'rgba(255,255,255,0.15)' },
-            { value: notifications.filter(n => n.severity === 'critical').length, label: '危急', bg: 'rgba(239,68,68,0.3)' },
+            { value: unreadCount, label: t('mobilePush.labelUnread'), bg: 'rgba(255,255,255,0.15)' },
+            { value: notifications.length, label: t('mobilePush.labelTotal'), bg: 'rgba(255,255,255,0.15)' },
+            { value: notifications.filter(n => n.severity === 'critical').length, label: t('mobilePush.labelCritical'), bg: 'rgba(239,68,68,0.3)' },
           ].map((s) => (
             <div key={s.label} style={{ background: s.bg, borderRadius: 8, padding: '8px 4px', textAlign: 'center' }}>
               <div style={{ fontSize: 20, fontWeight: 800 }}>{s.value}</div>
@@ -306,25 +307,25 @@ export default function MobilePushPage() {
             }}
           >
             {pushEnabled ? <CheckCircle size={14} /> : <Bell size={14} />}
-            {pushEnabled ? '已开启' : '开启推送'}
+            {pushEnabled ? t('mobilePush.enabled') : t('mobilePush.enablePush')}
           </button>
           <button onClick={() => setShowTestPanel(!showTestPanel)} style={{ ...btnBase, background: 'var(--bg-card)', color: '#64748b', gap: 6 }}>
-            <Send size={14} />测试推送
+            <Send size={14} />{t('mobilePush.testPush')}
           </button>
         </div>
         <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
-          推送状态: <span style={{ color: pushPermission === 'granted' ? '#059669' : '#dc2626', fontWeight: 600 }}>
-            {pushPermission === 'granted' ? '已授权' : pushPermission === 'denied' ? '已拒绝' : pushPermission === 'unsupported' ? '不支持' : '未授权'}
+          {t('mobilePush.pushStatus')} <span style={{ color: pushPermission === 'granted' ? '#059669' : '#dc2626', fontWeight: 600 }}>
+            {pushPermission === 'granted' ? t('mobilePush.authorized') : pushPermission === 'denied' ? t('mobilePush.denied') : pushPermission === 'unsupported' ? t('mobilePush.unsupported') : t('mobilePush.unauthorized')}
           </span>
-          <span style={{ marginLeft: 8 }}>渠道: <span style={{ fontWeight: 600 }}>{pushService.supported ? '浏览器推送' : 'N/A'}</span></span>
+          <span style={{ marginLeft: 8 }}>{t('mobilePush.channel')} <span style={{ fontWeight: 600 }}>{pushService.supported ? t('mobilePush.browserPush') : 'N/A'}</span></span>
         </div>
       </div>
 
       {showTestPanel && (
         <div style={{ ...cardStyle, padding: 12, border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>推送测试面板</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
           <div style={{ marginBottom: 8 }}>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>标题</label>
+            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('mobilePush.formTitle')}</label>
             <input
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
@@ -332,7 +333,7 @@ export default function MobilePushPage() {
             />
           </div>
           <div style={{ marginBottom: 8 }}>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>内容</label>
+            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('mobilePush.formBody')}</label>
             <textarea
               value={testBody}
               onChange={(e) => setTestBody(e.target.value)}
@@ -341,16 +342,16 @@ export default function MobilePushPage() {
             />
           </div>
           <button onClick={handleTestPush} style={{ ...btnBase, width: '100%', background: '#2563eb', color: '#fff', gap: 6 }}>
-            <Send size={14} />发送测试推送
+            <Send size={14} />{t('mobilePush.sendTestPush')}
           </button>
         </div>
       )}
 
       {/* [v3.0.6.11-99 Wave7B] 推送订阅类型: 危急值/报告完成/随访提醒/质控通知/系统公告 */}
       <div style={{ ...cardStyle, padding: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>推送订阅类型</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('mobilePush.subscriptionTypes')}</div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {SUBSCRIPTION_OPTIONS.map(opt => {
+          {subscriptionOptions().map(opt => {
             const checked = subTypes.includes(opt.key)
             return (
               <button
@@ -369,14 +370,14 @@ export default function MobilePushPage() {
           })}
         </div>
         <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>
-          订阅设置与通知中心同步（GET/PUT /notifications/subscriptions），危急值通知始终推荐开启。
+          {t('mobilePush.subscriptionHint')}
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <Filter size={12} color="#64748b" />
-          <span style={{ fontSize: 12, color: '#64748b' }}>分类:</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('mobilePush.category')}</span>
         </div>
         {['all', 'critical', 'report', 'appointment', 'system'].map((topic) => (
           <button
@@ -388,21 +389,21 @@ export default function MobilePushPage() {
               color: filterTopic === topic ? '#fff' : '#64748b',
             }}
           >
-            {topic === 'all' ? '全部' : TOPIC_LABELS[topic] || topic}
+            {topic === 'all' ? t('mobilePush.filterAll') : topicLabel(topic)}
           </button>
         ))}
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontSize: 12, color: '#64748b' }}>
-          共 <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> 条通知
+          {t('mobilePush.totalPrefix')} <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> {t('mobilePush.totalSuffix')}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 11, cursor: 'pointer' }}>
-            <CheckCircle size={11} style={{ marginRight: 3 }} />全部已读
+            <CheckCircle size={11} style={{ marginRight: 3 }} />{t('mobilePush.markAllRead')}
           </button>
           <button onClick={handleClearAll} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-error-border)', background: 'var(--bg-card)', color: '#dc2626', fontSize: 11, cursor: 'pointer' }}>
-            <Trash2 size={11} style={{ marginRight: 3 }} />清空
+            <Trash2 size={11} style={{ marginRight: 3 }} />{t('mobilePush.clear')}
           </button>
         </div>
       </div>
@@ -436,7 +437,7 @@ export default function MobilePushPage() {
                     padding: '1px 6px', borderRadius: 8, fontSize: 10, fontWeight: 600,
                     background: cfg.bg, color: cfg.color,
                   }}>
-                    {TOPIC_LABELS[n.topic || 'system'] || '系统'}
+                    {topicLabel(n.topic || 'system')}
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{n.body}</div>
@@ -461,17 +462,17 @@ export default function MobilePushPage() {
       {filtered.length === 0 && (
         <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
           <BellOff size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
-          <div style={{ fontSize: 14 }}>暂无推送通知</div>
+          <div style={{ fontSize: 14 }}>{t('mobilePush.noNotifications')}</div>
         </div>
       )}
 
       <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8 }}>
         <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
-          <strong>推送配置说明</strong><br />
-          - 危急值通知: 实时推送危急检查结果，需立即处理<br />
-          - 报告完成: 报告审核完成后推送给申请医生<br />
-          - 预约提醒: 检查预约前30分钟推送提醒<br />
-          - 系统公告: 系统维护和更新通知
+          <strong>{t('mobilePush.configTitle')}</strong><br />
+          {t('mobilePush.configLine1')}<br />
+          {t('mobilePush.configLine2')}<br />
+          {t('mobilePush.configLine3')}<br />
+          {t('mobilePush.configLine4')}
         </div>
       </div>
     </div>

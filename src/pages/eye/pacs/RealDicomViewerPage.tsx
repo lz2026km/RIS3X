@@ -29,6 +29,7 @@ import {
   Crosshair,
 } from "lucide-react";
 import { eyeApi } from "@/services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 import {
   useCornerstone3D,
   useViewport,
@@ -230,7 +231,7 @@ export const RealDicomViewerPage: React.FC = () => {
       if (res.success && res.data) {
         setHistogram(res.data);
         setShowHistogram(true);
-        message.success("直方图已加载");
+        message.success(t('realDicom.histogramLoaded'));
         return;
       }
     } catch (e: any) {
@@ -240,7 +241,7 @@ export const RealDicomViewerPage: React.FC = () => {
     const local = computeLocalHistogram(imageIds[currentIndex]!, modality);
     setHistogram(local);
     setShowHistogram(true);
-    message.warning("后端直方图不可达, 已回退本地计算");
+    message.warning(t('realDicom.histogramFallback'));
   };
 
   // 伪彩?
@@ -300,7 +301,7 @@ export const RealDicomViewerPage: React.FC = () => {
   const handleSave = useCallback(
     async (m: Omit<MeasurementItem, "id" | "createdAt" | "createdBy">) => {
       if (!studyId) {
-        message.warning("请先选择检查");
+        message.warning(t('realDicom.selectStudyFirst'));
         return;
       }
       try {
@@ -322,7 +323,7 @@ export const RealDicomViewerPage: React.FC = () => {
               createdBy: res.data.createdBy,
             },
           ]);
-          message.success("已保存");
+          message.success(t('realDicom.saved'));
         } else {
           const id = `M${Date.now()}`;
           setMeasurements((prev) => [
@@ -393,14 +394,14 @@ export const RealDicomViewerPage: React.FC = () => {
         }}
       >
         <Space>
-          <span style={{ fontSize: 16, fontWeight: 600 }}>眼科 DICOM 视口</span>
+          <span style={{ fontSize: 16, fontWeight: 600 }}>{t('realDicom.title')}</span>
           <Tag color="cyan">{MODALITY_LABELS[modality] || modality}</Tag>
           {studyId && <Tag color="blue">{studyId}</Tag>}
           <Tag color="purple">v3.0.6.8-43</Tag>
-          <Tag color="magenta">PR10 真实像素</Tag>
+          <Tag color="magenta">{t('realDicom.tagRealPixel')}</Tag>
           {/* [v3.0.6.11-88 Round10] /eye/pixel 后端真实 (Wave10A: histogram/colormap/instance/sharpness/mpr/artifact), 失败回退本地计算 */}
-          <Tag color="green">像素后端真实 (Wave10A)</Tag>
-          <Tag>失败回退本地</Tag>
+          <Tag color="green">{t('realDicom.tagPixelBackend')}</Tag>
+          <Tag>{t('realDicom.tagFallbackLocal')}</Tag>
         </Space>
         <Space>
           <Select
@@ -415,7 +416,7 @@ export const RealDicomViewerPage: React.FC = () => {
               label: v,
             }))}
           />
-          <Tooltip title="窗宽">
+          <Tooltip title={t('realDicom.windowWidth')}>
             <InputNumber
               size="small"
               value={ww}
@@ -429,7 +430,7 @@ export const RealDicomViewerPage: React.FC = () => {
               suffix="W"
             />
           </Tooltip>
-          <Tooltip title="窗位">
+          <Tooltip title={t('realDicom.windowCenter')}>
             <InputNumber
               size="small"
               value={wc}
@@ -451,21 +452,21 @@ export const RealDicomViewerPage: React.FC = () => {
             style={{ width: 80 }}
             tooltip={{ formatter: (v) => `${(v || 100) / 100}x` }}
           />
-          <Tooltip title="放大">
+          <Tooltip title={t('realDicom.zoomIn')}>
             <Button
               size="small"
               icon={<ZoomIn size={14} />}
               onClick={() => setZoom((z) => Math.min(200, z + 20))}
             />
           </Tooltip>
-          <Tooltip title="缩小">
+          <Tooltip title={t('realDicom.zoomOut')}>
             <Button
               size="small"
               icon={<ZoomOut size={14} />}
               onClick={() => setZoom((z) => Math.max(50, z - 20))}
             />
           </Tooltip>
-          <Tooltip title="重置">
+          <Tooltip title={t('realDicom.reset')}>
             <Button
               size="small"
               icon={<RotateCcw size={14} />}
@@ -526,31 +527,31 @@ export const RealDicomViewerPage: React.FC = () => {
               gap: 4,
             }}
           >
-            <Tooltip title="直方图">
+            <Tooltip title={t('realDicom.histogram')}>
               <Button
                 size="small"
                 icon={<Activity size={12} />}
                 onClick={handleHistogram}
               >
-                直方图
+                {t('realDicom.histogram')}
               </Button>
             </Tooltip>
-            <Tooltip title="伪彩色">
+            <Tooltip title={t('realDicom.colormap')}>
               <Button
                 size="small"
                 icon={<Layers size={12} />}
                 onClick={handleColormap}
               >
-                伪彩色
+                {t('realDicom.colormap')}
               </Button>
             </Tooltip>
-            <Tooltip title="锐度">
+            <Tooltip title={t('realDicom.sharpness')}>
               <Button
                 size="small"
                 icon={<Aperture size={12} />}
                 onClick={handleSharpness}
               >
-                锐度
+                {t('realDicom.sharpness')}
               </Button>
             </Tooltip>
             <Tooltip title="MPR">
@@ -562,13 +563,13 @@ export const RealDicomViewerPage: React.FC = () => {
                 MPR
               </Button>
             </Tooltip>
-            <Tooltip title="伪影 AI">
+            <Tooltip title={t('realDicom.artifactAi')}>
               <Button
                 size="small"
                 icon={<Crosshair size={12} />}
                 onClick={handleDetectArtifact}
               >
-                伪影AI
+                {t('realDicom.artifactAi')}
               </Button>
             </Tooltip>
           </div>
@@ -616,7 +617,7 @@ export const RealDicomViewerPage: React.FC = () => {
                 </Tag>
               )}
               {measurements.length > 0 && (
-                <Tag color="orange">标注 {measurements.length}</Tag>
+                <Tag color="orange">{t('realDicom.annotations')} {measurements.length}</Tag>
               )}
             </Space>
           </div>
@@ -634,7 +635,7 @@ export const RealDicomViewerPage: React.FC = () => {
             size="small"
             title={
               <Space>
-                <Ruler size={16} /> 测量 & 标注 <Tag color="cyan">PR1</Tag>
+                <Ruler size={16} /> {t('realDicom.measurementAnnotation')} <Tag color="cyan">PR1</Tag>
               </Space>
             }
             styles={{ body: { padding: 0 } }}
@@ -670,7 +671,7 @@ export const RealDicomViewerPage: React.FC = () => {
         >
           <Space style={{ marginBottom: 8 }}>
             <Activity size={14} color="#52c41a" />
-            <span>直方图</span>
+            <span>{t('realDicom.histogram')}</span>
             <Button size="small" onClick={() => setShowHistogram(false)}>
               X
             </Button>
@@ -719,18 +720,18 @@ export const RealDicomViewerPage: React.FC = () => {
         >
           <Space>
             <Layers size={14} />
-            <span>伪彩色映射</span>
+            <span>{t('realDicom.colormapMapping')}</span>
             <Button size="small" onClick={() => setShowColormap(false)}>
               X
             </Button>
           </Space>
           <div style={{ marginTop: 8, fontSize: 12 }}>
-            <div>类型: {colormap.type}</div>
-            <div>通道: {colormap.channels}</div>
+            <div>{t('realDicom.type')}: {colormap.type}</div>
+            <div>{t('realDicom.channels')}: {colormap.channels}</div>
             <div>
-              范围: [{colormap.range[0]}, {colormap.range[1]}]
+              {t('realDicom.range')}: [{colormap.range[0]}, {colormap.range[1]}]
             </div>
-            {colormap.colormap && <div>色表: {colormap.colormap}</div>}
+            {colormap.colormap && <div>{t('realDicom.colorTable')}: {colormap.colormap}</div>}
             {/* [G005 Wave10A] 后端返回 256 色 LUT → 真实渲染色条 */}
             {Array.isArray(colormap.lut) && (
               <div style={{ marginTop: 6 }}>
@@ -756,7 +757,7 @@ export const RealDicomViewerPage: React.FC = () => {
                     ))}
                 </div>
                 <div style={{ fontSize: 10, marginTop: 2, color: "var(--text-secondary)" }}>
-                  {colormap.name} · 256 色 LUT
+                  {colormap.name} · {t('realDicom.lut256')}
                 </div>
               </div>
             )}
@@ -780,7 +781,7 @@ export const RealDicomViewerPage: React.FC = () => {
         >
           <Space>
             <Aperture size={14} color="#52c41a" />
-            <span>锐度评估</span>
+            <span>{t('realDicom.sharpnessAssessment')}</span>
             <Button size="small" onClick={() => setShowSharpness(false)}>
               X
             </Button>
@@ -788,11 +789,11 @@ export const RealDicomViewerPage: React.FC = () => {
           <div style={{ marginTop: 8 }}>
             <div>Laplacian: {sharpness.sharpness.laplacian}</div>
             <div>Tenengrad: {sharpness.sharpness.tenengrad}</div>
-            <div>方差: {sharpness.sharpness.variance}</div>
+            <div>{t('realDicom.variance')}: {sharpness.sharpness.variance}</div>
             <div>
-              总分: <Tag color="green">{sharpness.sharpness.overall}</Tag>
+              {t('realDicom.totalScore')}: <Tag color="green">{sharpness.sharpness.overall}</Tag>
             </div>
-            <div>等级: {sharpness.grade}</div>
+            <div>{t('realDicom.grade')}: {sharpness.grade}</div>
           </div>
         </div>
       )}
@@ -813,7 +814,7 @@ export const RealDicomViewerPage: React.FC = () => {
         >
           <Space>
             <Maximize size={14} color="#722ed1" />
-            <span>MPR 多平面重建</span>
+            <span>{t('realDicom.mprTitle')}</span>
             <Button size="small" onClick={() => setShowMpr(false)}>
               X
             </Button>
@@ -826,16 +827,16 @@ export const RealDicomViewerPage: React.FC = () => {
                 onChange={setMprAxis}
                 style={{ width: "100%", marginBottom: 8 }}
                 options={[
-                  { value: "axial", label: "横断面 Axial" },
-                  { value: "sagittal", label: "矢状面 Sagittal" },
-                  { value: "coronal", label: "冠状面 Coronal" },
+                  { value: "axial", label: t('realDicom.axial') },
+                  { value: "sagittal", label: t('realDicom.sagittal') },
+                  { value: "coronal", label: t('realDicom.coronal') },
                 ]}
               />
-              <div>切片: {mprInfo.sliceCount}</div>
-              <div>分辨率: {mprInfo.resolution}</div>
-              <div>格式: {mprInfo.format}</div>
+              <div>{t('realDicom.slices')}: {mprInfo.sliceCount}</div>
+              <div>{t('realDicom.resolution')}: {mprInfo.resolution}</div>
+              <div>{t('realDicom.format')}: {mprInfo.format}</div>
               <Button size="small" block onClick={handleMpr}>
-                重建
+                {t('realDicom.rebuild')}
               </Button>
             </div>
           )}
@@ -858,7 +859,7 @@ export const RealDicomViewerPage: React.FC = () => {
         >
           <Space>
             <Crosshair size={14} color="#f5222d" />
-            <span>伪影 AI 检测</span>
+            <span>{t('realDicom.artifactDetection')}</span>
             <Button size="small" onClick={() => setShowArtifacts(false)}>
               X
             </Button>
@@ -867,10 +868,10 @@ export const RealDicomViewerPage: React.FC = () => {
             <div>
               质量评分: <Tag color="green">{artifacts.qualityScore}</Tag>
             </div>
-            <div>通过: {artifacts.passed ? "是" : "否"}</div>
+            <div>{t('realDicom.passed')}: {artifacts.passed ? t('realDicom.yes') : t('realDicom.no')}</div>
             {artifacts.artifacts?.map((a: any, i: number) => (
               <div key={i}>
-                • {a.type} 严重度 {(a.severity * 100).toFixed(0)}%
+                • {a.type} {t('realDicom.severity')} {(a.severity * 100).toFixed(0)}%
               </div>
             ))}
             {artifacts.recommendations?.map((r: string, i: number) => (

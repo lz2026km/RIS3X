@@ -34,12 +34,12 @@ import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useRef } from "react";
 
 const ANALYSIS_TYPES = [
-  { value: "steiner", label: "Steiner 分析法 (SNA/SNB/ANB)" },
-  { value: "downs", label: "Downs 分析法" },
-  { value: "mcmamara", label: "McNamara 分析法 (线距)" },
-  { value: "ricketts", label: "Ricketts 分析法 (面部生长)" },
-  { value: "tweeds", label: "Tweed 分析法 (诊断三角)" },
-  { value: "coben", label: "Coben 分析法 (颅底三角)" },
+  { value: "steiner", label: t("ceph.analysis.steiner") },
+  { value: "downs", label: t("ceph.analysis.downs") },
+  { value: "mcmamara", label: t("ceph.analysis.mcnamara") },
+  { value: "ricketts", label: t("ceph.analysis.ricketts") },
+  { value: "tweeds", label: t("ceph.analysis.tweed") },
+  { value: "coben", label: t("ceph.analysis.coben") },
 ];
 
 export const DentalCephPage: React.FC = () => {
@@ -118,7 +118,7 @@ export const DentalCephPage: React.FC = () => {
   });
   const handleCreateStudy = async () => {
     if (!cephForm.patientName.trim()) {
-      message.warning("请输入患者姓名");
+      message.warning(t("ceph.enterPatientName"));
       return;
     }
     setCreating(true);
@@ -129,15 +129,15 @@ export const DentalCephPage: React.FC = () => {
         status: "pending",
       });
       if (res.success && res.data) {
-        message.success("头影检查已登记");
+        message.success(t("ceph.registered"));
         setCreateModal(false);
         setCephForm({ ...cephForm, patientName: "" });
         await fetchStudies();
       } else {
-        message.error(res.error?.message ?? "登记失败");
+        message.error(res.error?.message ?? t("ceph.registerFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? "登记失败");
+      message.error((e as Error)?.message ?? t("ceph.registerFailed"));
     } finally {
       setCreating(false);
     }
@@ -149,7 +149,7 @@ export const DentalCephPage: React.FC = () => {
     try {
       const r = await dentalApi.runCephAnalysis(current.id, selType);
       if (r.success && r.data) setAnalysis(r.data);
-      message.success("头影测量分析完成");
+      message.success(t("ceph.analysisDone"));
     } catch (e: any) {
       message.error(e.message);
     }
@@ -161,7 +161,7 @@ export const DentalCephPage: React.FC = () => {
     try {
       const r = await dentalApi.analyzeDentalArch();
       if (r.success && r.data) setArchData(r.data);
-      message.success("牙弓分析完成");
+      message.success(t("ceph.archDone"));
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
@@ -284,26 +284,26 @@ export const DentalCephPage: React.FC = () => {
         <Space style={{ marginBottom: 16 }}>
           <Crosshair size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            头影测量分析中心
+            {t("ceph.title")}
           </span>
           <Tag color="cyan">v3.0.6.8-90</Tag>
-          <Tag color="blue">Sidexis Ceph 对标</Tag>
-          <Tag color="purple">Dolphin 对标</Tag>
+          <Tag color="blue">{t("ceph.benchSidexis")}</Tag>
+          <Tag color="purple">{t("ceph.benchDolphin")}</Tag>
           {/* [G005 Wave1B] /dental/ceph/* + /dental/ortho/arch-analysis 后端真实实现, dentalApi 封装 */}
-          <Tag color="green">真实后端 /dental/ceph/*</Tag>
+          <Tag color="green">{t("ceph.realBackend")}</Tag>
           {/* [G005 W3-B] 新建头影检查: POST /dental/ceph/studies (createCephStudy) */}
           <Button size="small" type="primary" onClick={() => setCreateModal(true)}>{t("w3b.cephCreate")}</Button>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">
-              <Statistic title="总片数" value={studies.length} />
+              <Statistic title={t("ceph.totalStudies")} value={studies.length} />
             </Card>
           </Col>
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="已分析"
+                title={t("ceph.analyzed")}
                 value={
                   studies.filter((s: any) => s.status === "analyzed").length
                 }
@@ -314,7 +314,7 @@ export const DentalCephPage: React.FC = () => {
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="待分析"
+                title={t("ceph.pending")}
                 value={
                   studies.filter((s: any) => s.status === "pending").length
                 }
@@ -324,7 +324,7 @@ export const DentalCephPage: React.FC = () => {
           </Col>
           <Col span={4}>
             <Card size="small">
-              <Statistic title="分析类型" value={analysisTypes.length} />
+              <Statistic title={t("ceph.analysisTypes")} value={analysisTypes.length} />
             </Card>
           </Col>
         </Row>
@@ -351,8 +351,8 @@ export const DentalCephPage: React.FC = () => {
                   />
                 </Space>
                 <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
-                  {s.age}岁 {s.gender === "M" ? "男" : "女"} |{" "}
-                  {s.analysisType || "未分析"} | {s.acquisitionDate}
+                  {s.age}{t("ceph.ageSuffix")} {s.gender === "M" ? t("ceph.male") : t("ceph.female")} |{" "}
+                  {s.analysisType || t("ceph.notAnalyzed")} | {s.acquisitionDate}
                 </div>
               </Card>
             </Col>
@@ -373,22 +373,22 @@ export const DentalCephPage: React.FC = () => {
               <Input
                 value={cephForm.patientName}
                 onChange={(e) => setCephForm({ ...cephForm, patientName: e.target.value })}
-                placeholder="请输入患者姓名"
+                placeholder={t("ceph.enterPatientName")}
               />
             </Col>
             <Col span={6}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>年龄</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("ceph.age")}</div>
               <InputNumber min={3} max={90} style={{ width: "100%" }} value={cephForm.age}
                 onChange={(v) => setCephForm({ ...cephForm, age: v ?? 12 })} />
             </Col>
             <Col span={6}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>性别</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("ceph.gender")}</div>
               <Select style={{ width: "100%" }} value={cephForm.gender}
                 onChange={(v) => setCephForm({ ...cephForm, gender: v })}
-                options={[{ value: "M", label: "男" }, { value: "F", label: "女" }]} />
+                options={[{ value: "M", label: t("ceph.male") }, { value: "F", label: t("ceph.female") }]} />
             </Col>
             <Col span={24} style={{ marginTop: 8 }}>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>分析类型</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("ceph.analysisTypes")}</div>
               <Select style={{ width: "100%" }} value={cephForm.analysisType}
                 onChange={(v) => setCephForm({ ...cephForm, analysisType: v })}
                 options={ANALYSIS_TYPES} />
@@ -403,14 +403,14 @@ export const DentalCephPage: React.FC = () => {
     <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
-          返回
+          {t("ceph.back")}
         </Button>
         <Crosshair size={18} color="#2563eb" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
-          头影测量 - {current?.patientName}
+          {t("ceph.shortTitle")} - {current?.patientName}
         </span>
         <Tag color="cyan">v3.0.6.8-90</Tag>
-        <Tag color="blue">{current?.age}岁</Tag>
+        <Tag color="blue">{current?.age}{t("ceph.ageSuffix")}</Tag>
       </Space>
       <Row gutter={12}>
         <Col span={16}>
@@ -419,12 +419,12 @@ export const DentalCephPage: React.FC = () => {
             title={
               <Space>
                 <Target size={14} />
-                解剖标志点标记
+                {t("ceph.landmarkMarking")}
               </Space>
             }
             extra={
-              <Tooltip title="点击添加标记点, 拖拽移动已有标记点">
-                <Tag>点击/拖拽</Tag>
+              <Tooltip title={t("ceph.canvasHint")}>
+                <Tag>{t("ceph.clickDrag")}</Tag>
               </Tooltip>
             }
           >
@@ -468,9 +468,9 @@ export const DentalCephPage: React.FC = () => {
                 type="primary"
                 loading={busy}
               >
-                运行{" "}
+                {t("ceph.run")}{" "}
                 {ANALYSIS_TYPES.find((a) => a.value === selType)?.label ||
-                  "分析"}
+                  t("ceph.analysis")}
               </Button>
               <Button
                 size="small"
@@ -478,13 +478,13 @@ export const DentalCephPage: React.FC = () => {
                 onClick={async () => {
                   try {
                     const r = await dentalApi.saveCephLandmarks(current.id, landmarks);
-                    if (r.success) message.success("已保存");
+                    if (r.success) message.success(t("ceph.saved"));
                   } catch (e) {
                     console.warn("[F03] Error:", (e as Error)?.message);
                   }
                 }}
               >
-                保存标记
+                {t("ceph.saveLandmarks")}
               </Button>
               <Select
                 value={selType}
@@ -499,7 +499,7 @@ export const DentalCephPage: React.FC = () => {
                 onClick={handleArchAnalysis}
                 loading={busy}
               >
-                牙弓分析
+                {t("ceph.archAnalysis")}
               </Button>
             </Space>
           </Card>
@@ -511,12 +511,12 @@ export const DentalCephPage: React.FC = () => {
               title={
                 <Space>
                   <BarChart3 size={14} />
-                  测量结果 - {analysis.analysisType}
+                  {t("ceph.measureResults")} - {analysis.analysisType}
                 </Space>
               }
             >
               <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
-                诊断: {analysis.diagnosis}
+                {t("ceph.diagnosis")}{analysis.diagnosis}
               </div>
               <Table
                 dataSource={analysis.measurements}
@@ -524,22 +524,22 @@ export const DentalCephPage: React.FC = () => {
                 size="small"
                 pagination={false}
                 columns={[
-                  { title: "测量项", dataIndex: "label", width: 100 },
+                  { title: t("ceph.colItem"), dataIndex: "label", width: 100 },
                   {
-                    title: "值",
+                    title: t("ceph.colValue"),
                     dataIndex: "value",
                     width: 60,
                     render: (v: number) => <b>{v}</b>,
                   },
-                  { title: "单位", dataIndex: "unit", width: 40 },
+                  { title: t("ceph.colUnit"), dataIndex: "unit", width: 40 },
                   {
-                    title: "正常范围",
+                    title: t("ceph.colNorm"),
                     dataIndex: "norm",
                     width: 80,
                     render: (n: any) => `${n.min}-${n.max}`,
                   },
                   {
-                    title: "状态",
+                    title: t("ceph.colStatus"),
                     dataIndex: "status",
                     width: 80,
                     render: (s: string) => (
@@ -554,8 +554,8 @@ export const DentalCephPage: React.FC = () => {
               />
             </Card>
           ) : (
-            <Card size="small" title="分析结果">
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击「运行分析」生成测量结果" />
+            <Card size="small" title={t("ceph.analysisResult")}>
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("ceph.emptyAnalysis")} />
             </Card>
           )}
           {archData && (
@@ -564,20 +564,20 @@ export const DentalCephPage: React.FC = () => {
               title={
                 <Space>
                   <TrendingUp size={14} />
-                  牙弓分析
+                  {t("ceph.archAnalysis")}
                 </Space>
               }
               style={{ marginTop: 8 }}
             >
               <Space wrap>
-                <Tag>上颌弓长 {archData.maxillaArch.archLength}mm</Tag>
-                <Tag>下颌弓长 {archData.mandibleArch.archLength}mm</Tag>
-                <Tag>上颌拥挤 {archData.discrepancy.maxillaCrowding}mm</Tag>
-                <Tag>下颌拥挤 {archData.discrepancy.mandibleCrowding}mm</Tag>
+                <Tag>{t("ceph.maxillaArch")}{archData.maxillaArch.archLength}mm</Tag>
+                <Tag>{t("ceph.mandibleArch")}{archData.mandibleArch.archLength}mm</Tag>
+                <Tag>{t("ceph.maxillaCrowding")}{archData.discrepancy.maxillaCrowding}mm</Tag>
+                <Tag>{t("ceph.mandibleCrowding")}{archData.discrepancy.mandibleCrowding}mm</Tag>
                 <Tag
                   color={archData.discrepancy.needExtraction ? "red" : "green"}
                 >
-                  {archData.discrepancy.needExtraction ? "需拔牙" : "非拔牙"}
+                  {archData.discrepancy.needExtraction ? t("ceph.needExtraction") : t("ceph.noExtraction")}
                 </Tag>
               </Space>
             </Card>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Table, Tabs, Row, Col, Statistic, message, Input, Descriptions, Modal, Form, Select, Alert } from 'antd';
 import { Globe, Send, Search, RefreshCw, Plus } from 'lucide-react';
+import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
@@ -58,9 +59,9 @@ export const FhirServerPage: React.FC = () => {
       const r = await fetch(`/api/v1/fhir/${resourceType}?${fhirQuery || '_count=5'}`);
       const d = await r.json();
       setQueryResult(d);
-      message.success('FHIR 查询完成');
+      message.success(t('fhirServer.queryDone'));
     } catch {
-      message.warning('FHIR 查询 endpoint 未配置 (使用演示数据)');
+      message.warning(t('fhirServer.queryNotConfigured'));
       setQueryResult({ entry: Array.from({length:3}, (_, i) => ({ resource: { id:`q-${i}`, resourceType, name: `查询结果 ${i+1}` }})) });
     }
   };
@@ -71,81 +72,81 @@ export const FhirServerPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Server 集成</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirServer.title')}</span>
         <Tag color="cyan">v3.0.6.8-61</Tag>
         <Tag color="purple">SMART on FHIR R4</Tag>
         <Tag color="blue">{capability?.fhirVersion || '4.0.1'}</Tag>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title="能力声明" value="1" /></Card></Col>
-        <Col span={4}><Card><Statistic title="资源类型" value="5" /></Card></Col>
-        <Col span={4}><Card><Statistic title="交互" value="4" suffix="种" /></Card></Col>
-        <Col span={4}><Card><Statistic title="OAuth2 授权" value="SMART" /></Card></Col>
+        <Col span={4}><Card><Statistic title={t('fhirServer.capability')} value="1" /></Card></Col>
+        <Col span={4}><Card><Statistic title={t('fhirServer.resourceType')} value="5" /></Card></Col>
+        <Col span={4}><Card><Statistic title={t('fhirServer.interaction')} value="4" suffix={t('fhirServer.kinds')} /></Card></Col>
+        <Col span={4}><Card><Statistic title={t('fhirServer.oauth2')} value="SMART" /></Card></Col>
       </Row>
 
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
-          { key:'capability', label:'能力声明', children:
-            capability ? <Card size="small" title={<Space>FHIR {capability.fhirVersion} 服务器能力声明 <Tag color="orange">静态声明（FHIR 规范文档, 非接口数据）</Tag></Space>}>
+          { key:'capability', label:t('fhirServer.tabCapability'), children:
+            capability ? <Card size="small" title={<Space>{t('fhirServer.capabilityTitle', { version: capability.fhirVersion })} <Tag color="orange">{t('fhirServer.staticDeclaration')}</Tag></Space>}>
               <Descriptions column={2} size="small">
-                <Descriptions.Item label="状态"><Tag color="green">{({active:'活跃', draft:'草稿', retired:'已停用'} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
-                <Descriptions.Item label="发布者">{capability.publisher}</Descriptions.Item>
-                <Descriptions.Item label="交互">{capability.rest?.[0]?.interaction?.join(', ') ?? '-'}</Descriptions.Item>
-                <Descriptions.Item label="安全">{capability.rest?.[0]?.security?.cors ? 'CORS + SMART OAuth2 授权' : '无'}</Descriptions.Item>
+                <Descriptions.Item label={t('fhirServer.status')}><Tag color="green">{({active:'活跃', draft:'草稿', retired:'已停用'} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
+                <Descriptions.Item label={t('fhirServer.publisher')}>{capability.publisher}</Descriptions.Item>
+                <Descriptions.Item label={t('fhirServer.interaction')}>{capability.rest?.[0]?.interaction?.join(', ') ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('fhirServer.security')}>{capability.rest?.[0]?.security?.cors ? t('fhirServer.corsSmart') : t('fhirServer.none')}</Descriptions.Item>
               </Descriptions>
-              <div style={{fontWeight:600,marginTop:12,marginBottom:4}}>资源类型:</div>
+              <div style={{fontWeight:600,marginTop:12,marginBottom:4}}>{t('fhirServer.resourceTypes')}</div>
               {(capability.rest?.[0]?.resource ?? []).map((r: any) => <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>)}
-              <Alert type="info" showIcon style={{ marginTop: 12 }} message="能力声明依据 FHIR R4 规范静态声明（POST /fhir/metadata 尚未实现），真实能力以后端实现为准。" />
+              <Alert type="info" showIcon style={{ marginTop: 12 }} message={t('fhirServer.capabilityAlert')} />
             </Card> : null
           },
-          { key:'browse', label:'资源浏览器', children:
+          { key:'browse', label:t('fhirServer.tabBrowse'), children:
             <Card size="small" extra={
               <Space>
                 <Select size="small" value={resourceType} onChange={(v) => { setResourceType(v); loadResources(v); }}
-                  options={resourceTypes.map(t=>({value:t,label:t}))} />
-                <Button icon={<RefreshCw size={12}/>} onClick={() => loadResources(resourceType)}>刷新</Button>
+                  options={resourceTypes.map(rt=>({value:rt,label:rt}))} />
+                <Button icon={<RefreshCw size={12}/>} onClick={() => loadResources(resourceType)}>{t('fhirServer.refresh')}</Button>
               </Space>
             } title={`资源: ${resourceType} (${resources.length})`}>
               <Table dataSource={resources} rowKey="id" pagination={false}
                 columns={[
-                  {title:'编号', dataIndex:'id'},
-                  {title:'类型', dataIndex:'resourceType', render:(t)=><Tag color="blue">{t}</Tag>},
-                  {title:'名称', render:(_,r)=>r.name?.[0]?.text || r.code?.text || r.id},
-                  {title:'性别', dataIndex:'gender'},
-                  {title:'出生日期', dataIndex:'birthDate'},
+                  {title:t('fhirServer.colId'), dataIndex:'id'},
+                  {title:t('fhirServer.colType'), dataIndex:'resourceType', render:(v)=><Tag color="blue">{v}</Tag>},
+                  {title:t('fhirServer.colName'), render:(_,r)=>r.name?.[0]?.text || r.code?.text || r.id},
+                  {title:t('fhirServer.colGender'), dataIndex:'gender'},
+                  {title:t('fhirServer.colBirthDate'), dataIndex:'birthDate'},
                 ]} 
               scroll={{ x: 'max-content' }}/>
             </Card>
           },
-          { key:'query', label:'FHIR 查询', children:
+          { key:'query', label:t('fhirServer.tabQuery'), children:
             <Space orientation="vertical" style={{width:'100%'}}>
               <Card size="small">
                 <Space.Compact style={{width:'100%'}}>
                   <Input value={fhirQuery} onChange={e=>setFhirQuery(e.target.value)} placeholder='_count=5&name:contains=张' />
-                  <Button type="primary" icon={<Search size={14}/>} onClick={handleQuery}>查询</Button>
+                  <Button type="primary" icon={<Search size={14}/>} onClick={handleQuery}>{t('fhirServer.query')}</Button>
                 </Space.Compact>
-                <div style={{fontSize:11,color:'#999',marginTop:4}}>FHIR 查询语法: _count / _sort / name:contains / birthdate=gt2020</div>
+                <div style={{fontSize:11,color:'#999',marginTop:4}}>{t('fhirServer.querySyntax')}</div>
               </Card>
-              {queryResult && <Card size="small" title="查询结果">
+              {queryResult && <Card size="small" title={t('fhirServer.queryResult')}>
                 <pre style={{fontSize:12,maxHeight:400,overflow:'auto',background:'var(--bg-card)',padding:8,borderRadius:4}}>
                   {JSON.stringify(queryResult, null, 2).slice(0, 2000)}
                 </pre>
               </Card>}
             </Space>
           },
-          { key:'send', label:'发送 FHIR', children:
-            <Card size="small" extra={<Button type="primary" icon={<Send size={12}/>} onClick={() => setSendModal(true)}>发送资源</Button>}>
-              <Button block icon={<Plus size={14}/>} onClick={() => setSendModal(true)}>新建并发送 FHIR 资源</Button>
-              <div style={{fontSize:12,color:'#999',marginTop:8}}>支持 POST/PUT 方式创建或更新 Patient/Observation/DiagnosticReport</div>
+          { key:'send', label:t('fhirServer.tabSend'), children:
+            <Card size="small" extra={<Button type="primary" icon={<Send size={12}/>} onClick={() => setSendModal(true)}>{t('fhirServer.sendResource')}</Button>}>
+              <Button block icon={<Plus size={14}/>} onClick={() => setSendModal(true)}>{t('fhirServer.newAndSend')}</Button>
+              <div style={{fontSize:12,color:'#999',marginTop:8}}>{t('fhirServer.sendHint')}</div>
             </Card>
           },
         ]}
       />
-      <Modal title="创建 FHIR 资源" open={sendModal} onCancel={() => setSendModal(false)} onOk={() => { message.success('FHIR 资源已创建'); setSendModal(false); }}>
+      <Modal title={t('fhirServer.createResource')} open={sendModal} onCancel={() => setSendModal(false)} onOk={() => { message.success(t('fhirServer.resourceCreated')); setSendModal(false); }}>
         <Form layout="vertical" size="small">
-          <Form.Item label="资源类型"><Select options={resourceTypes.map(t=>({value:t,label:t}))} /></Form.Item>
-          <Form.Item label="JSON 请求体"><TextArea rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>
+          <Form.Item label={t('fhirServer.resourceType')}><Select options={resourceTypes.map(rt=>({value:rt,label:rt}))} /></Form.Item>
+          <Form.Item label={t('fhirServer.jsonBody')}><TextArea rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>
         </Form>
       </Modal>
     </div>

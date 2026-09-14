@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { Inbox } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const { TextArea } = Input;
 
@@ -176,10 +177,10 @@ export const ReportWorkflowPage: React.FC = () => {
     <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>报告流程核心</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reportWf.title')}</span>
         <Tag color="cyan">PR1 (v3.0.6.8-45)</Tag>
-        <Tag color="purple">Nuance PowerScribe 对标</Tag>
-        <Tag color="green">8 端点 + 9 客户端</Tag>
+        <Tag color="purple">{t('reportWf.benchmark')}</Tag>
+        <Tag color="green">{t('reportWf.endpointsTag')}</Tag>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -209,7 +210,7 @@ export const ReportWorkflowPage: React.FC = () => {
         <Tabs.TabPane
           tab={
             <span>
-              <GitBranch size={14} /> 工作流操作
+              <GitBranch size={14} /> {t('reportWf.workflowOps')}
             </span>
           }
           key="workflow"
@@ -217,13 +218,13 @@ export const ReportWorkflowPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={10}>
               <Card
-                title="报告列表"
+                title={t('reportWf.reportList')}
                 size="small"
                 extra={
                   <Space>
                     <Select
                       size="small"
-                      placeholder="状态"
+                      placeholder={t('reportWf.statusPlaceholder')}
                       value={filter.status || undefined}
                       onChange={(v) => setFilter({ ...filter, status: v })}
                       allowClear
@@ -235,7 +236,7 @@ export const ReportWorkflowPage: React.FC = () => {
                     />
                     <Input.Search
                       size="small"
-                      placeholder="搜索患者ID"
+                      placeholder={t('reportWf.searchPatientId')}
                       value={filter.keyword}
                       onChange={(e) =>
                         setFilter({ ...filter, keyword: e.target.value })
@@ -246,7 +247,7 @@ export const ReportWorkflowPage: React.FC = () => {
                       icon={<RefreshCw size={12} />}
                       onClick={loadReports}
                     >
-                      刷新
+                      {t('reportWf.refresh')}
                     </Button>
                   </Space>
                 }
@@ -278,7 +279,7 @@ export const ReportWorkflowPage: React.FC = () => {
                         }
                         description={
                           <span style={{ fontSize: 11, color: "#999" }}>
-                            {r.id} | {r.diagnosis || r.impression || "暂无诊断"}
+                            {r.id} | {r.diagnosis || r.impression || t('reportWf.noDiagnosis')}
                           </span>
                         }
                       />
@@ -295,7 +296,7 @@ export const ReportWorkflowPage: React.FC = () => {
                     title={
                       <Space>
                         <FileText size={16} color="#2563eb" />
-                        报告详情
+                        {t('reportWf.reportDetail')}
                         <Tag color={STATE_COLORS[selectedReport.status]}>
                           {STATE_LABELS[selectedReport.status] ||
                             selectedReport.status}
@@ -318,7 +319,7 @@ export const ReportWorkflowPage: React.FC = () => {
                               })
                             }
                           >
-                            提交审核
+                            {t('reportWf.submitReview')}
                           </Button>
                         )}
                         {(selectedReport.status === "INITIAL_REVIEW" ||
@@ -335,7 +336,7 @@ export const ReportWorkflowPage: React.FC = () => {
                                 })
                               }
                             >
-                              通过审核
+                              {t('reportWf.approveReview')}
                             </Button>
                             {selectedReport.status === "FINAL_REVIEW" && (
                               <Button
@@ -348,7 +349,7 @@ export const ReportWorkflowPage: React.FC = () => {
                                   })
                                 }
                               >
-                                双签
+                                {t('reportWf.cosign')}
                               </Button>
                             )}
                             <Button
@@ -362,7 +363,7 @@ export const ReportWorkflowPage: React.FC = () => {
                                 })
                               }
                             >
-                              驳回
+                              {t('reportWf.reject')}
                             </Button>
                           </>
                         )}
@@ -378,7 +379,7 @@ export const ReportWorkflowPage: React.FC = () => {
                               })
                             }
                           >
-                            签署
+                            {t('reportWf.sign')}
                           </Button>
                         )}
                         {selectedReport.status === "SIGNED" && (
@@ -393,37 +394,37 @@ export const ReportWorkflowPage: React.FC = () => {
                               })
                             }
                           >
-                            发布
+                            {t('reportWf.publish')}
                           </Button>
                         )}
                       </Space>
                     }
                   >
                     <Descriptions column={2} size="small" bordered>
-                      <Descriptions.Item label="患者">
+                      <Descriptions.Item label={t('reportWf.labelPatient')}>
                         {selectedReport.patientName}
                       </Descriptions.Item>
                       <Descriptions.Item label="ID">
                         {selectedReport.id}
                       </Descriptions.Item>
-                      <Descriptions.Item label="模态">
+                      <Descriptions.Item label={t('reportWf.labelModality')}>
                         {selectedReport.modality}
                       </Descriptions.Item>
-                      <Descriptions.Item label="部位">
+                      <Descriptions.Item label={t('reportWf.labelBodyPart')}>
                         {selectedReport.bodyPart}
                       </Descriptions.Item>
-                      <Descriptions.Item label="诊断" span={2}>
+                      <Descriptions.Item label={t('reportWf.labelDiagnosis')} span={2}>
                         {selectedReport.diagnosis ||
                           selectedReport.impression ||
                           "-"}
                       </Descriptions.Item>
-                      <Descriptions.Item label="建议" span={2}>
+                      <Descriptions.Item label={t('reportWf.labelRecommendation')} span={2}>
                         {selectedReport.recommendations || "-"}
                       </Descriptions.Item>
-                      <Descriptions.Item label="创建">
+                      <Descriptions.Item label={t('reportWf.labelCreated')}>
                         {selectedReport.createdTime}
                       </Descriptions.Item>
-                      <Descriptions.Item label="修改">
+                      <Descriptions.Item label={t('reportWf.labelUpdated')}>
                         {selectedReport.updatedTime}
                       </Descriptions.Item>
                     </Descriptions>
@@ -437,7 +438,7 @@ export const ReportWorkflowPage: React.FC = () => {
                         key: "diff",
                         label: (
                           <span>
-                            <GitBranch size={12} /> 版本对比 (diff)
+                            <GitBranch size={12} /> {t('reportWf.versionDiff')}
                           </span>
                         ),
                         children: diffData ? (
@@ -454,14 +455,14 @@ export const ReportWorkflowPage: React.FC = () => {
                             </pre>
                           </Card>
                         ) : (
-                          <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
+                          <Empty description={t('reportWf.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />
                         ),
                       },
                       {
                         key: "audit",
                         label: (
                           <span>
-                            <History size={12} /> 审计轨迹 (auditTrail)
+                            <History size={12} /> {t('reportWf.auditTrail')}
                           </span>
                         ),
                         children: auditTrail?.events ? (
@@ -492,7 +493,7 @@ export const ReportWorkflowPage: React.FC = () => {
                                           color: "#f5222d",
                                         }}
                                       >
-                                        原因: {e.reason}
+                                        {t('reportWf.reason')}: {e.reason}
                                       </div>
                                     )}
                                   </div>
@@ -501,7 +502,7 @@ export const ReportWorkflowPage: React.FC = () => {
                             />
                           </Card>
                         ) : (
-                          <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
+                          <Empty description={t('reportWf.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />
                         ),
                       },
                     ]}
@@ -509,7 +510,7 @@ export const ReportWorkflowPage: React.FC = () => {
                 </>
               ) : (
                 <Card>
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择左侧报告查看详情" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportWf.selectReportHint')} />
                 </Card>
               )}
             </Col>
@@ -520,7 +521,7 @@ export const ReportWorkflowPage: React.FC = () => {
         <Tabs.TabPane
           tab={
             <span>
-              <Activity size={14} /> 状态机
+              <Activity size={14} /> {t('reportWf.stateMachine')}
             </span>
           }
           key="state"
@@ -538,27 +539,27 @@ export const ReportWorkflowPage: React.FC = () => {
                 ),
                 description: (
                   <span style={{ fontSize: 12, color: "#666" }}>
-                    {s === "PENDING_ASSIGNMENT" && "报告创建待分配"}
-                    {s === "ASSIGNED" && "已指派医生书写"}
-                    {s === "WRITING" && "医生编辑报告内容"}
-                    {s === "SUBMITTED" && "提交审核"}
-                    {s === "INITIAL_REVIEW" && "初审 (通过/驳回)"}
-                    {s === "FINAL_REVIEW" && "终审 (通过/双签/驳回)"}
-                    {s === "CO_SIGN_REVIEW" && "双签专家复核"}
-                    {s === "REVIEWED" && "审核通过"}
-                    {s === "SIGNING" && "签发中"}
-                    {s === "SIGNED" && "已签发"}
-                    {s === "PUBLISHED" && "正式发布, 患者可见"}
-                    {s === "AMENDING" && "修订中"}
-                    {s === "AMENDED" && "已修订, 重新签署"}
-                    {s === "REJECTED" && "驳回, 返工书写后重提"}
-                    {s === "RECTIFYING" && "整改, 完成后直接审核"}
-                    {s === "SUPPLEMENTING" && "补充中"}
-                    {s === "SUPPLEMENTED" && "已补充, 可发布"}
-                    {s === "WITHDRAWN" && "已撤回 (终态)"}
-                    {s === "ARCHIVED" && "已归档 (终态)"}
-                    {s === "ESCALATED" && "已升级"}
-                    {s === "REDISTRIBUTING" && "跨院区重分配"}
+                    {s === "PENDING_ASSIGNMENT" && t('reportWf.stateDesc.PENDING_ASSIGNMENT')}
+                    {s === "ASSIGNED" && t('reportWf.stateDesc.ASSIGNED')}
+                    {s === "WRITING" && t('reportWf.stateDesc.WRITING')}
+                    {s === "SUBMITTED" && t('reportWf.stateDesc.SUBMITTED')}
+                    {s === "INITIAL_REVIEW" && t('reportWf.stateDesc.INITIAL_REVIEW')}
+                    {s === "FINAL_REVIEW" && t('reportWf.stateDesc.FINAL_REVIEW')}
+                    {s === "CO_SIGN_REVIEW" && t('reportWf.stateDesc.CO_SIGN_REVIEW')}
+                    {s === "REVIEWED" && t('reportWf.stateDesc.REVIEWED')}
+                    {s === "SIGNING" && t('reportWf.stateDesc.SIGNING')}
+                    {s === "SIGNED" && t('reportWf.stateDesc.SIGNED')}
+                    {s === "PUBLISHED" && t('reportWf.stateDesc.PUBLISHED')}
+                    {s === "AMENDING" && t('reportWf.stateDesc.AMENDING')}
+                    {s === "AMENDED" && t('reportWf.stateDesc.AMENDED')}
+                    {s === "REJECTED" && t('reportWf.stateDesc.REJECTED')}
+                    {s === "RECTIFYING" && t('reportWf.stateDesc.RECTIFYING')}
+                    {s === "SUPPLEMENTING" && t('reportWf.stateDesc.SUPPLEMENTING')}
+                    {s === "SUPPLEMENTED" && t('reportWf.stateDesc.SUPPLEMENTED')}
+                    {s === "WITHDRAWN" && t('reportWf.stateDesc.WITHDRAWN')}
+                    {s === "ARCHIVED" && t('reportWf.stateDesc.ARCHIVED')}
+                    {s === "ESCALATED" && t('reportWf.stateDesc.ESCALATED')}
+                    {s === "REDISTRIBUTING" && t('reportWf.stateDesc.REDISTRIBUTING')}
                   </span>
                 ),
                 status:
@@ -588,7 +589,7 @@ export const ReportWorkflowPage: React.FC = () => {
         {actionModal?.type === "reject" && (
           <>
             <Alert
-              title="请填写驳回原因 (至少 5 字)"
+              title={t('reportWf.rejectReasonTitle')}
               type="warning"
               showIcon
               style={{ marginBottom: 8 }}
@@ -597,14 +598,14 @@ export const ReportWorkflowPage: React.FC = () => {
               rows={3}
               value={actionReason}
               onChange={(e) => setActionReason(e.target.value)}
-              placeholder="例如: 影像征象描述不完整"
+              placeholder={t('reportWf.rejectReasonPlaceholder')}
             />
           </>
         )}
         {actionModal?.type === "publish" && (
           <>
             <Alert
-              title="请确认质量评分 (0-100)"
+              title={t('reportWf.qualityScoreTitle')}
               type="info"
               showIcon
               style={{ marginBottom: 8 }}
@@ -621,7 +622,7 @@ export const ReportWorkflowPage: React.FC = () => {
         {actionModal?.type === "cosign" && (
           <>
             <Alert
-              title="选择双签专家"
+              title={t('reportWf.selectCosignerTitle')}
               type="info"
               showIcon
               style={{ marginBottom: 8 }}

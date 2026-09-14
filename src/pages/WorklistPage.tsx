@@ -92,12 +92,12 @@ function toRadiologyExam(item: Record<string, unknown>): RadiologyExam {
   return {
     id: String(item.id ?? item.reportId ?? item.examId ?? ''),
     patientId: String(item.patientId ?? patient.id ?? ''),
-    patientName: String(patient.name ?? patient.patientName ?? item.patientName ?? '未知患者'),
-    gender: (patient.gender ?? item.gender ?? '其他') as RadiologyExam['gender'],
+    patientName: String(patient.name ?? patient.patientName ?? item.patientName ?? t('worklistPage.unknownPatient')),
+    gender: (patient.gender ?? item.gender ?? t('worklistPage.other')) as RadiologyExam['gender'],
     age: Number(patient.age ?? item.patientAge ?? item.age ?? 0),
     patientType: (item.patientType ?? patient.patientType ?? '门诊') as RadiologyExam['patientType'],
     examItemId: String(item.examItemId ?? item.examItemCode ?? ''),
-    examItemName: String(item.examItem ?? item.examItemName ?? item.examName ?? item.accessionNumber ?? '检查'),
+    examItemName: String(item.examItem ?? item.examItemName ?? item.examName ?? item.accessionNumber ?? t('worklistPage.exam')),
     modality: (item.modality ?? 'CT') as RadiologyExam['modality'],
     bodyPart: (item.bodyPart ?? '胸部') as RadiologyExam['bodyPart'],
     examDate: String(item.scheduledAt ?? item.examAt ?? item.examDate ?? ''),
@@ -348,7 +348,7 @@ export default function WorklistPage() {
       setLoading(false)
     } catch (err: unknown) {
       if (!mountedRef.current) return
-      setLoadError(err instanceof Error ? err.message : '轮询失败')
+      setLoadError(err instanceof Error ? err.message : t('worklistPage.pollingFailed'))
       setLoading(false)
     }
   }, [fetchExams])
@@ -573,7 +573,7 @@ export default function WorklistPage() {
         setConfirmModalConfig({
           open: true,
           title: t('worklistPage.checkin.failTitle'),
-          message: `检查 ${matchedExam.accessionNumber || matchedExam.id} 当前状态为「${displayExamStatus(matchedExam.status)}」，无法签到`,
+          message: t('worklistPage.msg.cannotCheckIn', { exam: matchedExam.accessionNumber || matchedExam.id, status: displayExamStatus(matchedExam.status) }),
           onConfirm: () => setConfirmModalConfig(null),
         })
         return
@@ -605,7 +605,7 @@ export default function WorklistPage() {
 
   const handlePrintLabel = () => {
     if (selectedIds.size === 0) {
-      setConfirmModalConfig({ open: true, title: '提示', message: t('worklistPage.msg.selectPrintItems'), onConfirm: () => setConfirmModalConfig(null) })
+      setConfirmModalConfig({ open: true, title: t('worklistPage.msg.tip'), message: t('worklistPage.msg.selectPrintItems'), onConfirm: () => setConfirmModalConfig(null) })
       return
     }
     setPrintPreviewModalData({ open: true, examIds: Array.from(selectedIds) })
@@ -709,7 +709,7 @@ export default function WorklistPage() {
     try {
       const res = await dicomWebApi.prefetch(studyUids)
       if (res.success && res.data) {
-        showPrefetchMsg(`影像预取已提交: 新入队 ${res.data.queued} 项, 已缓存 ${res.data.cached} 项`)
+        showPrefetchMsg(t('worklistPage.prefetchSubmitted', { queued: res.data.queued, cached: res.data.cached }))
       } else {
         showPrefetchMsg(res.error?.message ?? t('worklistPage.prefetch.failed'))
       }
@@ -954,7 +954,7 @@ export default function WorklistPage() {
   const modalitySla = useMemo(() => {
     const map: Record<string, { modality: string; total: number; critical: number; avgWait: number }> = {}
     filteredExams.forEach(e => {
-      const m = e.modality || '其他'
+      const m = e.modality || t('worklistPage.other')
       const info = getSLAInfo(e.createdTime)
       const slot = map[m] ?? { modality: m, total: 0, critical: 0, avgWait: 0 }
       slot.total += 1
@@ -1027,10 +1027,10 @@ export default function WorklistPage() {
     const action = batch.operation || 'print'
     const ids = Array.from(selectedIds)
     const actionLabels: Record<string, string> = {
-      priority: `修改优先级为：${batch.priorityValue}`,
-      room: `分配检查室：${initialExamRooms.find(r => r.id === batch.roomValue)?.name || '-'}`,
-      print: '打印条码',
-      export: '导出Excel',
+      priority: t('worklistPage.actionLabel.priority', { value: batch.priorityValue }),
+      room: t('worklistPage.actionLabel.room', { name: initialExamRooms.find(r => r.id === batch.roomValue)?.name || '-' }),
+      print: t('worklistPage.actionLabel.print'),
+      export: t('worklistPage.actionLabel.export'),
     }
 
     if (action === 'print') {
@@ -1039,12 +1039,12 @@ export default function WorklistPage() {
       return
     }
     if (action === 'export') {
-      recordBatchActivity('导出Excel', ids.length, 'local')
+      recordBatchActivity(t('worklistPage.actionLabel.export'), ids.length, 'local')
       setBatchResultModalData({
         open: true,
         action: actionLabels[action] || action,
         count: ids.length,
-        results: [`已对 ${ids.length} 项执行「${actionLabels[action] || action}」操作`],
+        results: [t('worklistPage.batchExecuted', { count: ids.length, action: actionLabels[action] || action })],
       })
       resetBatchSelection()
       return
@@ -1056,18 +1056,18 @@ export default function WorklistPage() {
     let failCount = 0
     try {
       if (action === 'room') {
-        recordBatchActivity('分配检查室', ids.length, 'api')
+        recordBatchActivity(t('worklistPage.actionLabel.roomAssign'), ids.length, 'api')
         const res = await worklistApi.batchAssign(ids, { roomId: batch.roomValue })
         if (res.success) {
           okCount = Number((res.data as { updated?: number } | null)?.updated ?? ids.length)
-          results.push(`检查室已批量分配`)
+          results.push(t('worklistPage.roomAssigned'))
           ids.forEach(id => log('batch_assign_room', id, { roomId: batch.roomValue }))
         } else {
           failCount = ids.length
-          results.push(res.error?.message ?? '批量分配检查室失败')
+          results.push(res.error?.message ?? t('worklistPage.roomAssignFailed'))
         }
       } else {
-        recordBatchActivity('修改优先级', ids.length, 'api')
+        recordBatchActivity(t('worklistPage.actionLabel.priorityChange'), ids.length, 'api')
         for (const id of ids) {
           try {
             const res = await worklistApi.updatePriority(id, batch.priorityValue)
@@ -1076,17 +1076,17 @@ export default function WorklistPage() {
               log('batch_update_priority', id, { priority: batch.priorityValue })
             } else {
               failCount += 1
-              results.push(`${id}: ${res.error?.message ?? '失败'}`)
+              results.push(`${id}: ${res.error?.message ?? t('worklistPage.failed')}`)
             }
           } catch (err) {
             failCount += 1
-            results.push(`${id}: ${err instanceof Error ? err.message : '失败'}`)
+            results.push(`${id}: ${err instanceof Error ? err.message : t('worklistPage.failed')}`)
           }
         }
       }
     } catch (err) {
       failCount = ids.length
-      results.push(err instanceof Error ? err.message : '批量操作失败')
+      results.push(err instanceof Error ? err.message : t('worklistPage.batchFailed'))
     }
 
     await refreshAfterMutation()
@@ -1095,7 +1095,7 @@ export default function WorklistPage() {
       action: actionLabels[action] || action,
       count: ids.length,
       results: [
-        `成功 ${okCount} 项${failCount > 0 ? `，失败 ${failCount} 项` : ''}，已刷新列表`,
+        t('worklistPage.batchSuccessRefreshed', { ok: okCount, failSuffix: failCount > 0 ? t('worklistPage.batchFailSuffix', { fail: failCount }) : '' }),
         ...results.slice(0, 20),
       ],
     })
@@ -1113,10 +1113,10 @@ export default function WorklistPage() {
     let okCount = 0
     let failCount = 0
     const labels: Record<string, string> = {
-      assign: '批量签到',
-      start: '批量开始',
-      complete: '批量完成',
-      cancel: '批量取消',
+      assign: t('worklistPage.batch.assign'),
+      start: t('worklistPage.batch.start'),
+      complete: t('worklistPage.batch.complete'),
+      cancel: t('worklistPage.batch.cancel'),
     }
     try {
       if (action === 'assign' || action === 'start' || action === 'complete') {
@@ -1133,29 +1133,29 @@ export default function WorklistPage() {
           ;(data.succeeded ?? []).forEach(s => log(action, s.id))
         } else {
           failCount = ids.length
-          results.push(batch.error?.message ?? `批量${labels[action] ?? action}失败`)
+          results.push(batch.error?.message ?? t('worklistPage.batchActionFailed', { action: labels[action] ?? action }))
         }
       } else {
         for (const id of ids) {
           let res: { success: boolean; error?: { message?: string } }
           try {
-            res = await examApi.cancel(id, '批量取消')
+            res = await examApi.cancel(id, t('worklistPage.batch.cancel'))
             if (res.success) {
               okCount += 1
               log(action, id)
             } else {
               failCount += 1
-              results.push(`${id}: ${res.error?.message ?? '失败'}`)
+              results.push(`${id}: ${res.error?.message ?? t('worklistPage.failed')}`)
             }
           } catch (err) {
             failCount += 1
-            results.push(`${id}: ${err instanceof Error ? err.message : '失败'}`)
+            results.push(`${id}: ${err instanceof Error ? err.message : t('worklistPage.failed')}`)
           }
         }
       }
     } catch (err) {
       failCount = ids.length
-      results.push(err instanceof Error ? err.message : `批量${labels[action] ?? action}失败`)
+      results.push(err instanceof Error ? err.message : t('worklistPage.batchActionFailed', { action: labels[action] ?? action }))
     }
     await refreshAfterMutation()
     setBatchResultModalData({
@@ -1163,7 +1163,7 @@ export default function WorklistPage() {
       action: labels[action] ?? action,
       count: ids.length,
       results: [
-        `成功 ${okCount} 项${failCount > 0 ? `，失败 ${failCount} 项` : ''}`,
+        t('worklistPage.batchSuccessSimple', { ok: okCount, failSuffix: failCount > 0 ? t('worklistPage.batchFailSuffix', { fail: failCount }) : '' }),
         ...results.slice(0, 20),
       ],
     })
@@ -1185,7 +1185,7 @@ export default function WorklistPage() {
 
   const batchActionQuick = useCallback((action: string) => {
     if (selectedIds.size === 0) {
-      setConfirmModalConfig({ open: true, title: '提示', message: t('worklistPage.msg.selectForBatch'), onConfirm: () => setConfirmModalConfig(null) })
+      setConfirmModalConfig({ open: true, title: t('worklistPage.msg.tip'), message: t('worklistPage.msg.selectForBatch'), onConfirm: () => setConfirmModalConfig(null) })
       return
     }
     handleBatchAction(action)
@@ -1379,7 +1379,7 @@ export default function WorklistPage() {
     if (selectedIds.size === 0) {
       setConfirmModalConfig({
         open: true,
-        title: '提示',
+        title: t('worklistPage.msg.tip'),
         message: t('worklistPage.msg.selectPrintReports'),
         onConfirm: () => setConfirmModalConfig(null)
       })
@@ -1429,7 +1429,7 @@ export default function WorklistPage() {
         setConfirmModalConfig({
           open: true,
           title: t('worklistPage.msg.operationFailed'),
-          message: res.error?.message ?? `无法切换到「${EXAM_STATUS_TO_CN[target] ?? target}」`,
+          message: res.error?.message ?? t('worklistPage.cannotSwitchStatus', { status: EXAM_STATUS_TO_CN[target] ?? target }),
           onConfirm: () => setConfirmModalConfig(null),
         })
         void refreshAfterMutation()
@@ -1449,7 +1449,7 @@ export default function WorklistPage() {
     setConfirmModalConfig({
       open: true,
       title: t('worklistPage.msg.startExam'),
-      message: `确认开始检查 ${exam.patientName} 的 ${exam.examItemName}？`,
+      message: t('worklistPage.confirmStart', { patient: exam.patientName, exam: exam.examItemName }),
       onConfirm: () => {
         replayExamActorTo(exam, { type: 'START_EXAM', by: exam.technologistId ?? 'system', technologistId: exam.technologistId ?? 'system', imagesAcquired: 0 })
         setConfirmModalConfig(null)
@@ -1462,10 +1462,10 @@ export default function WorklistPage() {
     setConfirmModalConfig({
       open: true,
       title: t('worklistPage.msg.cancelExam'),
-      message: `确认取消 ${exam.patientName} 的检查?该操作不可撤销。`,
+      message: t('worklistPage.confirmCancel', { patient: exam.patientName }),
       variant: 'danger',
       onConfirm: () => {
-        replayExamActorTo(exam, { type: 'CANCEL', reason: '技师取消', by: exam.technologistId ?? 'system', imagesAcquired: 0 })
+        replayExamActorTo(exam, { type: 'CANCEL', reason: t('worklistPage.techCancel'), by: exam.technologistId ?? 'system', imagesAcquired: 0 })
         setConfirmModalConfig(null)
         void transitionExamTo(exam, 'CANCELLED')
       }
@@ -1580,7 +1580,7 @@ export default function WorklistPage() {
             size="compact"
             onClick={() => setShowColumnConfig(true)}
             icon={<LayoutList size={12} />}
-            title={allColumnsShown ? '配置列表列显隐' : `已隐藏 ${hiddenColumnKeys.length} 列`}
+            title={allColumnsShown ? t('worklistPage.configureColumns') : t('worklistPage.hiddenColumns', { count: hiddenColumnKeys.length })}
             testId="column-config-btn"
           >
             {t('worklistPage.columnConfig.title')}{!allColumnsShown && <span style={{ color: '#d97706', marginLeft: 4 }}>({hiddenColumnKeys.length})</span>}
@@ -1591,7 +1591,7 @@ export default function WorklistPage() {
             size="compact"
             onClick={handleRefresh}
           >
-            刷新列表
+            {t('worklistPage.refreshList')}
           </ActionButton>
 
           {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取按钮 (勾选行或全部) */}
@@ -1603,7 +1603,7 @@ export default function WorklistPage() {
               disabled={prefetchBusy}
               icon={<Download size={12} />}
               testId="prefetch-selected"
-              title={`预取已勾选的 ${selectedIds.size} 项检查影像`}
+              title={t('worklistPage.prefetchSelectedTitle', { count: selectedIds.size })}
             >
               {t('worklistPage.btn.prefetch')}{selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
             </AppButton>
@@ -1614,9 +1614,9 @@ export default function WorklistPage() {
               disabled={prefetchBusy}
               icon={<CloudDownload size={12} />}
               testId="prefetch-all"
-              title="预取当前列表全部检查影像"
+              title={t('worklistPage.prefetchAllTitle')}
             >
-              预取全部
+              {t('worklistPage.prefetchAll')}
             </AppButton>
           </div>
         </div>
@@ -1823,7 +1823,7 @@ export default function WorklistPage() {
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 34 }}>
               {slaTrend7d.map(d => (
-                <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }} title={`${d.day}: ${d.overdue}/${d.total} 超期`}>
+                <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }} title={t('worklistPage.slaTrendTip', { day: d.day, overdue: d.overdue, total: d.total })}>
                   <div style={{
                     width: '72%', height: Math.max(2, Math.round((d.rate / 100) * 28)), borderRadius: 2,
                     background: d.rate > 50 ? '#dc2626' : d.rate > 25 ? '#d97706' : '#22c55e',
@@ -1916,7 +1916,7 @@ export default function WorklistPage() {
                       }} />
                     </div>
                     <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 110, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      {m.total} 项 · 超时 {m.critical} ({rate}%)
+                      {t('worklistPage.modalitySlaLine', { total: m.total, critical: m.critical, rate })}
                     </span>
                   </div>
                 )
@@ -1929,10 +1929,10 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <ClipboardList size={13} /> {t('worklistPage.hourly.title')} (7-20时)
+            <ClipboardList size={13} /> {t('worklistPage.hourly.title')} {t('worklistPage.hourRange')}
             {todayHourly.peakCount > 0 && (
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
-                {t('worklistPage.hourly.peak')} <b style={{ color: '#d97706' }}>{todayHourly.peakHour}</b> ({todayHourly.peakCount} 项)
+                {t('worklistPage.hourly.peak')} <b style={{ color: '#d97706' }}>{todayHourly.peakHour}</b> {t('worklistPage.itemsCount', { count: todayHourly.peakCount })}
               </span>
             )}
           </div>
@@ -1970,7 +1970,7 @@ export default function WorklistPage() {
           </div>
           {batchActivity.length === 0 ? (
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>
-              暂无批量操作记录 · 使用上方「批量签到/开始/完成」后自动记录
+               {t('worklistPage.noBatchRecords')}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 150, overflow: 'auto' }}>
@@ -1980,11 +1980,11 @@ export default function WorklistPage() {
                     padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap',
                     background: a.source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                     color: a.source === 'api' ? '#059669' : '#d97706',
-                  }}>{a.source === 'api' ? 'API' : '本地'}</span>
+                  }}>{a.source === 'api' ? 'API' : t('worklistPage.local')}</span>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    {a.action === 'assign' ? '批量签到' : a.action === 'start' ? '批量开始' : a.action === 'complete' ? '批量完成' : a.action === 'cancel' ? '批量取消' : a.action}
+                    {a.action === 'assign' ? t('worklistPage.batch.assign') : a.action === 'start' ? t('worklistPage.batch.start') : a.action === 'complete' ? t('worklistPage.batch.complete') : a.action === 'cancel' ? t('worklistPage.batch.cancel') : a.action}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)', marginLeft: 'auto', whiteSpace: 'nowrap' }}>{a.count} 项</span>
+                  <span style={{ color: 'var(--text-secondary)', marginLeft: 'auto', whiteSpace: 'nowrap' }}>{t('worklistPage.itemsCount', { count: a.count })}</span>
                   <span style={{ color: 'var(--text-secondary)', fontSize: 11, whiteSpace: 'nowrap' }}>
                     {new Date(a.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
                   </span>
@@ -2004,7 +2004,7 @@ export default function WorklistPage() {
         border: `1px solid ${dataSourceIsReal ? '#bbf7d0' : '#fde68a'}`,
       }} data-testid="worklist-data-source-badge">
         <Wifi size={12} />
-        {dataSourceIsReal ? '数据源: 真实接口 (/exams + /worklist) · 列配置/视图模式已本地持久化' : '数据源: 本地 initialData 回退 (后端不可用) · 分析卡基于回退数据'}
+        {dataSourceIsReal ? t('worklistPage.dataSourceReal') : t('worklistPage.dataSourceFallback')}
       </div>
 
       {/* [W1-B] 服务器状态分布: GET /worklist/stats */}
@@ -2014,8 +2014,8 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12,
           padding: '10px 16px', marginBottom: 16, fontSize: 12,
         }} styles={{ body: { padding: 0 } }}>
-          <span style={{ fontWeight: 700, color: '#1e40af' }}>服务器统计</span>
-          <span style={{ color: 'var(--text-secondary)' }}>总量: <b style={{ color: 'var(--text-primary)' }}>{serverStats.total}</b></span>
+          <span style={{ fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.serverStats')}</span>
+          <span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.total')} <b style={{ color: 'var(--text-primary)' }}>{serverStats.total}</b></span>
           {Object.entries(serverStats.byStatus ?? {}).map(([status, count]) => (
             <span key={status} style={{
               padding: '2px 10px', borderRadius: 999, background: 'var(--bg-card)', color: 'var(--text-secondary)',
@@ -2024,7 +2024,7 @@ export default function WorklistPage() {
             </span>
           ))}
           {Object.keys(serverStats.byStatus ?? {}).length === 0 && (
-            <span style={{ color: 'var(--text-secondary)' }}>暂无状态分布数据</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.noStatusDistData')}</span>
           )}
         </Card>
       )}
@@ -2049,7 +2049,7 @@ export default function WorklistPage() {
               )}
             </div>
             {!overview ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('worklistPage.noData')}</div>
             ) : (
               <div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
@@ -2070,7 +2070,7 @@ export default function WorklistPage() {
                     const hour = Number(h.hour.slice(0, 2))
                     return hour >= 8 && hour <= 20
                   }).map(h => (
-                    <div key={h.hour} title={`${h.hour} 共 ${h.count} 项`} style={{
+                    <div key={h.hour} title={t('worklistPage.hourCountTip', { hour: h.hour, count: h.count })} style={{
                       flex: 1, height: `${Math.max(3, Math.min(100, Math.round((h.count / Math.max(1, Math.max(...(overview.byHour ?? []).map(x => x.count), 1))) * 100)))}%`,
                       background: '#3b82f6', borderRadius: '2px 2px 0 0', opacity: 0.75,
                     }} />
@@ -2086,7 +2086,7 @@ export default function WorklistPage() {
                     </span>
                   ))}
                   {Object.keys(overview.byStatus ?? {}).length === 0 && (
-                    <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>暂无状态分布</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('worklistPage.noStatusDist')}</span>
                   )}
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
                     {t('worklist.overview.peakHour', { hour: overview.peakHour })}
@@ -2107,7 +2107,7 @@ export default function WorklistPage() {
               </span>
             </div>
             {byModality.length === 0 ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('worklistPage.noData')}</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {byModality.map(m => {
@@ -2122,7 +2122,7 @@ export default function WorklistPage() {
                         }} />
                       </div>
                       <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 150, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        {m.total} 项 · {t('worklist.byModality.inProgress')} {m.inProgress} · {t('worklist.byModality.todayCompleted')} {m.todayCompleted}
+                        {t('worklistPage.modalityLine', { total: m.total, inProgress: m.inProgress, todayCompleted: m.todayCompleted })}
                       </span>
                       <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 60, textAlign: 'right', whiteSpace: 'nowrap' }}>
                         {t('worklist.byModality.avgDuration', { min: m.avgDurationMin })}
@@ -2145,7 +2145,7 @@ export default function WorklistPage() {
               </span>
             </div>
             {!technicianStats || (technicianStats.technicians ?? []).length === 0 ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('worklistPage.noData')}</div>
             ) : (
               <div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
@@ -2309,7 +2309,7 @@ export default function WorklistPage() {
           size="compact"
           onClick={handlePrintSelected}
           style={{ width: 48, height: 48, borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-          title="打印选中的报告"
+          title={t('worklistPage.printSelectedReports')}
         >
           <Printer size={20} />
         </AppButton>
@@ -2319,7 +2319,7 @@ export default function WorklistPage() {
           size="compact"
           onClick={handleRefresh}
           style={{ width: 48, height: 48, borderRadius: 12, boxShadow: '0 4px 12px rgba(30,58,95,0.3)' }}
-          title="刷新数据"
+          title={t('worklistPage.refreshData')}
           testId="fab-refresh"
         >
           <RefreshCw size={20} />
@@ -2338,7 +2338,7 @@ export default function WorklistPage() {
           ref={patientInfoFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label="修改患者信息"
+          aria-label={t('worklistPage.editPatientInfo')}
           style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -2373,7 +2373,7 @@ export default function WorklistPage() {
           ref={deviceSelectFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label="分配检查设备"
+          aria-label={t('worklistPage.assignDevice')}
           style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -2416,7 +2416,7 @@ export default function WorklistPage() {
           ref={doctorSelectFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label="分配报告医生"
+          aria-label={t('worklistPage.assignDoctor')}
           style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -2435,7 +2435,7 @@ export default function WorklistPage() {
             <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>
               {t('worklistPage.doctorSelect.currentExam')}{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
               <span style={{ marginLeft: 8, color: 'var(--text-secondary)', fontSize: 12 }}>
-                {t('worklistPage.doctorSelect.currentDoctor')}{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : '未分配')}
+                {t('worklistPage.doctorSelect.currentDoctor')}{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : t('worklistPage.unassigned'))}
               </span>
             </div>
             {doctorOptionsLoading && (
@@ -2443,7 +2443,7 @@ export default function WorklistPage() {
             )}
             {!doctorOptionsLoading && doctorOptions.length === 0 && (
               <div style={{ padding: 12, fontSize: 12, color: '#b45309', textAlign: 'center' }}>
-                未获取到医生列表，请检查后端 /users 接口
+                {t('worklistPage.noDoctorList')}
               </div>
             )}
             <div style={{ display: 'grid', gap: 8 }}>
@@ -2498,7 +2498,7 @@ export default function WorklistPage() {
               </button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.patient')}</span>{reportModalExam.patientName}（{reportModalExam.gender}，{reportModalExam.age}岁）</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.patient')}</span>{reportModalExam.patientName}{t('worklistPage.report.patientInfo', { gender: reportModalExam.gender, age: reportModalExam.age })}</div>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.examItem')}</span>{reportModalExam.examItemName}</div>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.clinicalDiag')}</span>{reportModalExam.clinicalDiagnosis}</div>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.findings')}</span><textarea value={reportForm?.findings ?? ''} onChange={e => setReportForm(f => f ? { ...f, findings: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder={t('worklistPage.report.findingsPlaceholder')} /></div>
@@ -2544,7 +2544,7 @@ export default function WorklistPage() {
           ref={batchResultFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label="批量操作结果"
+          aria-label={t('worklistPage.batchResult')}
           style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -2582,7 +2582,7 @@ export default function WorklistPage() {
           ref={printPreviewFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label="打印预览"
+          aria-label={t('worklistPage.printPreview')}
           style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -2627,7 +2627,7 @@ export default function WorklistPage() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="列配置"
+          aria-label={t('worklistPage.columnConfig')}
           style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
             background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
@@ -2642,12 +2642,12 @@ export default function WorklistPage() {
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <SlidersHorizontal size={16} /> {t('worklistPage.columnConfig.panelTitle')}
               </h3>
-              <button onClick={() => setShowColumnConfig(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }} aria-label="关闭">
+              <button onClick={() => setShowColumnConfig(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }} aria-label={t('worklistPage.close')}>
                 <X size={18} />
               </button>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
-              选择列表视图要显示的列（配置自动保存到本地，刷新后保留）
+               {t('worklistPage.columnConfigHint')}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 16 }}>
               {WORKLIST_COLUMNS.map(c => {

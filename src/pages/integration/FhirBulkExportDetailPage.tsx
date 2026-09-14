@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Tag, Button, message, Alert, Table, Collapse, Typography, Descriptions, Badge } from 'antd';
 import { Globe, Download, Activity, Loader2, Eye, FileText } from 'lucide-react';
+import { t } from '../../i18n/appI18n';
 
 interface NdjsonFile {
   type: string;
@@ -75,7 +76,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
         setPreviews(prev => ({ ...prev, [file.type]: text }));
       } else {
         setPreviews(prev => ({ ...prev, [file.type]: DEMO_NDJSON[file.type as keyof typeof DEMO_NDJSON] || '' }));
-        message.info('无法加载远程数据，已使用本地演示数据');
+        message.info(t('fhirExport.loadRemoteFailed'));
       }
     } catch {
       setPreviews(prev => ({ ...prev, [file.type]: DEMO_NDJSON[file.type as keyof typeof DEMO_NDJSON] || '' }));
@@ -84,14 +85,14 @@ export const FhirBulkExportDetailPage: React.FC = () => {
   };
 
   const ndjsonColumns = [
-    { title: '资源类型', dataIndex: 'type', key: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
-    { title: '文件', dataIndex: 'url', key: 'url', render: (u: string) => <Typography.Text copyable style={{ fontSize: 12, fontFamily: 'monospace' }}>{u}</Typography.Text> },
-    { title: '大小', dataIndex: 'size', key: 'size', render: (s: number) => s ? `${(s / 1024).toFixed(1)} KB` : '-' },
+    { title: t('fhirExport.colResourceType'), dataIndex: 'type', key: 'type', render: (rt: string) => <Tag color="blue">{rt}</Tag> },
+    { title: t('fhirExport.colFile'), dataIndex: 'url', key: 'url', render: (u: string) => <Typography.Text copyable style={{ fontSize: 12, fontFamily: 'monospace' }}>{u}</Typography.Text> },
+    { title: t('fhirExport.colSize'), dataIndex: 'size', key: 'size', render: (s: number) => s ? `${(s / 1024).toFixed(1)} KB` : '-' },
     {
-      title: '操作', key: 'actions', render: (_: any, r: NdjsonFile) => (
+      title: t('fhirExport.colActions'), key: 'actions', render: (_: any, r: NdjsonFile) => (
         <Space>
-          <Button size="small" icon={<Eye size={12} />} loading={loadingPreview[r.type]} onClick={() => handlePreview(r)}>预览</Button>
-          <Button size="small" icon={<Download size={12} />} href={r.url} target="_blank">下载</Button>
+          <Button size="small" icon={<Eye size={12} />} loading={loadingPreview[r.type]} onClick={() => handlePreview(r)}>{t('fhirExport.preview')}</Button>
+          <Button size="small" icon={<Download size={12} />} href={r.url} target="_blank">{t('fhirExport.download')}</Button>
         </Space>
       ),
     },
@@ -101,42 +102,42 @@ export const FhirBulkExportDetailPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 批量导出详情</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirExport.title')}</span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Badge status={status.status === 'completed' ? 'success' : status.status === 'failed' ? 'error' : 'processing'} text={status.status} />
       </Space>
       {/* [W2-C] 演示端点标注 */}
       <Alert type="info" showIcon style={{ marginBottom: 12 }}
-        message="演示端点"
-        description="本页轮询 /fhir/r4/$export-status/demo-job 演示端点；轮询失败时回退本地演示数据（DEMO_NDJSON）。真实环境请配置 FHIR 服务器的 $export 异步任务端点。" />
+        message={t('fhirExport.demoEndpoint')}
+        description={t('fhirExport.demoEndpointDesc')} />
 
-      <Card size="small" title={<Space><Activity size={14} />任务状态</Space>}
-        extra={<Space>{status.status === 'running' && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> 轮询中...</>}</Space>}>
+      <Card size="small" title={<Space><Activity size={14} />{t('fhirExport.taskStatus')}</Space>}
+        extra={<Space>{status.status === 'running' && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('fhirExport.polling')}</>}</Space>}>
         <Descriptions column={2} size="small">
-          <Descriptions.Item label="任务 ID"><Typography.Text copyable>{status.jobId}</Typography.Text></Descriptions.Item>
-          <Descriptions.Item label="状态">
+          <Descriptions.Item label={t('fhirExport.jobId')}><Typography.Text copyable>{status.jobId}</Typography.Text></Descriptions.Item>
+          <Descriptions.Item label={t('fhirExport.status')}>
             <Tag color={status.status === 'completed' ? 'green' : status.status === 'failed' ? 'red' : 'blue'}>{status.status}</Tag>
           </Descriptions.Item>
-          {status.transactionTime && <Descriptions.Item label="事务时间">{status.transactionTime}</Descriptions.Item>}
-          {status.startedAt && <Descriptions.Item label="开始时间">{status.startedAt}</Descriptions.Item>}
-          {status.progress && <Descriptions.Item label="进度">{status.progress}</Descriptions.Item>}
+          {status.transactionTime && <Descriptions.Item label={t('fhirExport.transactionTime')}>{status.transactionTime}</Descriptions.Item>}
+          {status.startedAt && <Descriptions.Item label={t('fhirExport.startedAt')}>{status.startedAt}</Descriptions.Item>}
+          {status.progress && <Descriptions.Item label={t('fhirExport.progress')}>{status.progress}</Descriptions.Item>}
         </Descriptions>
         {status.error && <Alert type="error" title={status.error} showIcon style={{ marginTop: 8 }} />}
       </Card>
 
       {status.files && status.files.length > 0 && (
-        <Card size="small" title={<Space><FileText size={14} />输出文件 ({status.files.length})</Space>} style={{ marginTop: 16 }}>
+        <Card size="small" title={<Space><FileText size={14} />{t('fhirExport.outputFiles', { count: status.files.length })}</Space>} style={{ marginTop: 16 }}>
           <Table dataSource={status.files} rowKey="url" pagination={false} columns={ndjsonColumns} size="small" scroll={{ x: 'max-content' }} />
 
           <Collapse style={{ marginTop: 12 }} items={status.files.map(f => ({
             key: f.type,
-            label: <Space><Tag color="blue">{f.type}</Tag>NDJSON 内容预览</Space>,
+            label: <Space><Tag color="blue">{f.type}</Tag>{t('fhirExport.ndjsonPreview')}</Space>,
             children: previews[f.type] ? (
               <pre style={{ fontSize: 11, maxHeight: 400, overflow: 'auto', background: 'var(--bg-card)', padding: 8, borderRadius: 4, margin: 0 }}>
                 {previews[f.type]}
               </pre>
             ) : (
-              <Button size="small" icon={<Eye size={12} />} loading={loadingPreview[f.type]} onClick={() => handlePreview(f)}>加载预览</Button>
+              <Button size="small" icon={<Eye size={12} />} loading={loadingPreview[f.type]} onClick={() => handlePreview(f)}>{t('fhirExport.loadPreview')}</Button>
             ),
           }))} />
         </Card>

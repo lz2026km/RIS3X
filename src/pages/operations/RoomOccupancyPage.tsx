@@ -6,6 +6,7 @@ import RoomOccupancyExtendedSection from './RoomOccupancyExtendedSection';
 import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Select, Alert, Spin } from 'antd';
 import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
@@ -29,7 +30,7 @@ export const RoomOccupancyPage: React.FC = () => {
       setRooms(res.data ?? []);
       setError(null);
     } else {
-      setError(res.error?.message ?? '检查室数据加载失败');
+      setError(res.error?.message ?? t('roomOccupancy.loadFailed'));
     }
     return res.success;
   }, []);
@@ -43,7 +44,7 @@ export const RoomOccupancyPage: React.FC = () => {
     setLoading(true);
     const [okRooms] = await Promise.all([fetchRooms(), fetchTrends()]);
     setLoading(false);
-    if (!okRooms) setError('检查室数据加载失败');
+    if (!okRooms) setError(t('roomOccupancy.loadFailed'));
   }, [fetchRooms, fetchTrends]);
 
   useEffect(() => {
@@ -69,10 +70,10 @@ export const RoomOccupancyPage: React.FC = () => {
     const res = await occupancyApi.updateRoomStatus(roomId, status);
     setUpdating(false);
     if (res.success) {
-      message.success('状态已更新');
+      message.success(t('roomOccupancy.statusUpdated'));
       void fetchRooms();
     } else {
-      message.error(res.error?.message ?? '更新失败');
+      message.error(res.error?.message ?? t('roomOccupancy.updateFailed'));
     }
   };
 
@@ -85,7 +86,7 @@ export const RoomOccupancyPage: React.FC = () => {
   if (loading && rooms.length === 0) {
     return (
       <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Spin size="large" description="加载中..." />
+        <Spin size="large" description={t('roomOccupancy.loading')} />
       </div>
     );
   }
@@ -95,32 +96,32 @@ export const RoomOccupancyPage: React.FC = () => {
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <LayoutDashboard size={20} color="#2563eb" />
-          <span style={{ fontSize: 18, fontWeight: 600 }}>检查室占用率 & 排队预测</span>
-          <Tag color="cyan">实时</Tag>
-          <Tag color="default">每 30s 自动刷新</Tag>
+          <span style={{ fontSize: 18, fontWeight: 600 }}>{t('roomOccupancy.title')}</span>
+          <Tag color="cyan">{t('roomOccupancy.realtime')}</Tag>
+          <Tag color="default">{t('roomOccupancy.autoRefresh30s')}</Tag>
         </Space>
-        <Button size="small" icon={<RefreshCw size={14} />} loading={loading} onClick={() => void refresh()}>刷新</Button>
+        <Button size="small" icon={<RefreshCw size={14} />} loading={loading} onClick={() => void refresh()}>{t('roomOccupancy.refresh')}</Button>
       </Space>
 
       <RoomOccupancyExtendedSection />
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 16 }} message="加载失败"
-          description={error} action={<Button size="small" onClick={() => void refresh()}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="error" showIcon style={{ marginBottom: 16 }} message={t('roomOccupancy.loadFailedTitle')}
+          description={error} action={<Button size="small" onClick={() => void refresh()}><RefreshCw size={14} /> {t('roomOccupancy.retry')}</Button>} />
       )}
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="总检查室" value={total} suffix={`间 · 占用率 ${rate}%`} prefix={<LayoutDashboard size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="当前占用" value={occupied} styles={{ content: { color: '#2563eb' } }} prefix={<Users size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="空闲" value={idle} styles={{ content: { color: '#52c41a' } }} prefix={<Circle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="故障" value={fault} styles={{ content: { color: fault ? '#ff4d4f' : undefined } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.totalRooms')} value={total} suffix={`间 · 占用率 ${rate}%`} prefix={<LayoutDashboard size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.occupied')} value={occupied} styles={{ content: { color: '#2563eb' } }} prefix={<Users size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.idle')} value={idle} styles={{ content: { color: '#52c41a' } }} prefix={<Circle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.fault')} value={fault} styles={{ content: { color: fault ? '#ff4d4f' : undefined } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>
 
       <Row gutter={[16, 16]}>
         <Col span={16}>
-          <Card size="small" title={<Space><LayoutDashboard size={14} />检查室平面布局</Space>}>
+          <Card size="small" title={<Space><LayoutDashboard size={14} />{t('roomOccupancy.layout')}</Space>}>
             {rooms.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>暂无检查室数据</div>
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>{t('roomOccupancy.noRoomData')}</div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
                 {rooms.map(r => {
@@ -130,10 +131,10 @@ export const RoomOccupancyPage: React.FC = () => {
                     <Tooltip key={r.id} title={
                       <div>
                         <div>{r.roomNo} - {meta.label}</div>
-                        {r.currentPatient && <div>患者: {r.currentPatient}</div>}
-                        {r.examItem && <div>项目: {r.examItem}</div>}
-                        {r.expectedEnd && <div>预计结束: {new Date(r.expectedEnd).toLocaleTimeString()}</div>}
-                        {isOverdue && <div style={{ color: '#ff4d4f' }}>超时 &gt;15min</div>}
+                        {r.currentPatient && <div>{t('roomOccupancy.patient')}: {r.currentPatient}</div>}
+                        {r.examItem && <div>{t('roomOccupancy.examItem')}: {r.examItem}</div>}
+                        {r.expectedEnd && <div>{t('roomOccupancy.expectedEnd')}: {new Date(r.expectedEnd).toLocaleTimeString()}</div>}
+                        {isOverdue && <div style={{ color: '#ff4d4f' }}>{t('roomOccupancy.overdue15')}</div>}
                       </div>
                     }>
                       <div
@@ -162,9 +163,9 @@ export const RoomOccupancyPage: React.FC = () => {
             )}
           </Card>
 
-          <Card size="small" title={<Space><TrendingUp size={14} />占用率趋势（过去 24h）</Space>} style={{ marginTop: 16 }}>
+          <Card size="small" title={<Space><TrendingUp size={14} />{t('roomOccupancy.trendTitle')}</Space>} style={{ marginTop: 16 }}>
             {trends.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>暂无趋势数据</div>
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>{t('roomOccupancy.noTrendData')}</div>
             ) : (
               <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 2, padding: '0 4px' }}>
                 {trends.map((p, i) => (
@@ -184,29 +185,29 @@ export const RoomOccupancyPage: React.FC = () => {
         </Col>
 
         <Col span={8}>
-          <Card size="small" title={<Space><Clock size={14} />排队队列 {selectedRoom ? `- ${rooms.find(r => r.id === selectedRoom)?.roomNo ?? ''}` : ''}</Space>}>
+          <Card size="small" title={<Space><Clock size={14} />{t('roomOccupancy.queueTitle')} {selectedRoom ? `- ${rooms.find(r => r.id === selectedRoom)?.roomNo ?? ''}` : ''}</Space>}>
             {!selectedRoom ? (
-              <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>点击左侧房间查看排队</div>
+              <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>{t('roomOccupancy.clickRoomHint')}</div>
             ) : (
               <>
                 <div style={{ marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>等候人数: {queue.length} 人</span>
-                  <span style={{ marginLeft: 16, fontSize: 13 }}>预计等待: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} 分钟</span>
+                  <span style={{ fontSize: 13, fontWeight: 500 }}>{t('roomOccupancy.waitingCount')}: {queue.length} {t('roomOccupancy.people')}</span>
+                  <span style={{ marginLeft: 16, fontSize: 13 }}>{t('roomOccupancy.estimatedWait')}: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} {t('roomOccupancy.minutes')}</span>
                 </div>
                 <Table dataSource={queue} rowKey="position" size="small" pagination={false} scroll={{ x: 'max-content' }}
                   columns={[
                     { title: '#', dataIndex: 'position', width: 40 },
-                    { title: '患者', dataIndex: 'patientName', ellipsis: true },
-                    { title: '项目', dataIndex: 'examItem', ellipsis: true },
-                    { title: '预计等待', dataIndex: 'estimatedWaitMin', render: v => `${v}min` },
+                    { title: t('roomOccupancy.patient'), dataIndex: 'patientName', ellipsis: true },
+                    { title: t('roomOccupancy.examItem'), dataIndex: 'examItem', ellipsis: true },
+                    { title: t('roomOccupancy.estimatedWait'), dataIndex: 'estimatedWaitMin', render: v => `${v}min` },
                   ]} />
               </>
             )}
           </Card>
 
-          <Card size="small" title={<Space><AlertTriangle size={14} />超时告警</Space>} style={{ marginTop: 16 }}>
+          <Card size="small" title={<Space><AlertTriangle size={14} />{t('roomOccupancy.overdueTitle')}</Space>} style={{ marginTop: 16 }}>
             {rooms.filter(r => r.overdue).length === 0 ? (
-              <div style={{ color: '#52c41a', padding: 12, textAlign: 'center' }}>暂无超时房间</div>
+              <div style={{ color: '#52c41a', padding: 12, textAlign: 'center' }}>{t('roomOccupancy.noOverdue')}</div>
             ) : (
               rooms.filter(r => r.overdue).map(r => (
                 <Alert key={r.id} type="error" showIcon title={`${r.roomNo} 超时 >15min`} style={{ marginBottom: 8 }}
@@ -216,21 +217,21 @@ export const RoomOccupancyPage: React.FC = () => {
             )}
           </Card>
 
-          <Card size="small" title={<Space><Circle size={14} />手动更新状态</Space>} style={{ marginTop: 16 }}>
+          <Card size="small" title={<Space><Circle size={14} />{t('roomOccupancy.manualStatusTitle')}</Space>} style={{ marginTop: 16 }}>
             <Space orientation="vertical" style={{ width: '100%' }}>
-              <Select placeholder="选择房间" style={{ width: '100%' }}
+              <Select placeholder={t('roomOccupancy.selectRoom')} style={{ width: '100%' }}
                 options={rooms.map(r => ({ value: r.id, label: r.roomNo }))}
                 onChange={v => setSelectedRoom(v)}
               />
-              <Select placeholder="目标状态" style={{ width: '100%' }} disabled={updating}
+              <Select placeholder={t('roomOccupancy.targetStatus')} style={{ width: '100%' }} disabled={updating}
                 options={[
-                  { value: 'idle', label: '空闲' },
-                  { value: 'occupied', label: '占用中' },
-                  { value: 'disinfecting', label: '消毒中' },
-                  { value: 'fault', label: '故障' },
+                  { value: 'idle', label: t('roomOccupancy.idle') },
+                  { value: 'occupied', label: t('roomOccupancy.occupied') },
+                  { value: 'disinfecting', label: t('roomOccupancy.disinfecting') },
+                  { value: 'fault', label: t('roomOccupancy.fault') },
                 ]}
                 onChange={async (v) => {
-                  if (!selectedRoom) { message.warning('请先选择房间'); return; }
+                  if (!selectedRoom) { message.warning(t('roomOccupancy.selectRoomFirst')); return; }
                   await handleStatusUpdate(selectedRoom, v as RoomStatusValue);
                 }}
               />

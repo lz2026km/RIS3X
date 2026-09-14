@@ -8,6 +8,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line, Area, AreaChart
 } from 'recharts'
 import ChartContainer from '../../components/charts/ChartContainer'
+import { t } from '../../i18n/appI18n'
 
 // ============================================================
 // TodayTrendCard
@@ -30,7 +31,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
             <div style={{ background: `${ACCENT}20`, padding: 8, borderRadius: 8 }}>
               <Activity size={18} color={ACCENT} />
             </div>
-            <span style={{ fontSize: 12, color: GRAY }}>今日操作</span>
+            <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.todayOps')}</span>
           </div>
           <span style={{
             fontSize: 12, padding: '2px 6px', borderRadius: 4,
@@ -42,13 +43,13 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{todayCount}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
-          昨日 {yesterdayCount}，{isPositive ? '↑' : '↓'}{Math.abs(parseFloat(trendPercent))}%
+          {t('logStats.yesterday')} {yesterdayCount}，{isPositive ? '↑' : '↓'}{Math.abs(parseFloat(trendPercent))}%
         </div>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 16 }}>24小时趋势</div>
-        <ChartContainer height={80} state={todayTrend.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 16 }}>{t('logStats.trend24h')}</div>
+        <ChartContainer height={80} state={todayTrend.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <AreaChart data={todayTrend.map((v, i) => ({ hour: `${String(i).padStart(2, '0')}:00`, value: v }))}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -59,7 +60,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
             <XAxis dataKey="hour" tick={{ fontSize: 12 }} interval={3} />
             <YAxis hide />
             <Tooltip
-              formatter={(value: number) => [`${value}次`, '操作次数']}
+              formatter={(value: number) => [`${value}次`, t('logStats.opCount')]}
               contentStyle={{ borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12 }}
             />
             <Area type="monotone" dataKey="value" stroke={ACCENT} fill="url(#colorValue)" strokeWidth={2} />
@@ -72,11 +73,11 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Flame size={18} color={WARNING} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>高峰时段</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.peakHour')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{peakHour}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
-          <Users size={10} style={{ verticalAlign: 'middle' }} /> 最活跃用户: {topUser}
+          <Users size={10} style={{ verticalAlign: 'middle' }} /> {t('logStats.mostActiveUser')}: {topUser}
         </div>
       </div>
     </div>
@@ -94,7 +95,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
           <div style={{ background: `${PRIMARY}20`, padding: 8, borderRadius: 8 }}>
             <Activity size={18} color={PRIMARY} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>今日操作总数</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.todayTotal')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{stats.todayTotal}</div>
       </div>
@@ -104,7 +105,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
           <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
             <AlertTriangle size={18} color={DANGER} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>异常操作数</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.abnormalCount')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: stats.abnormalCount > 0 ? DANGER : SUCCESS }}>{stats.abnormalCount}</div>
       </div>
@@ -114,7 +115,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
           <div style={{ background: `${SUCCESS}20`, padding: 8, borderRadius: 8 }}>
             <User size={18} color={SUCCESS} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>最活跃用户</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.mostActiveUser')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{stats.mostActiveUser}</div>
       </div>
@@ -124,7 +125,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Shield size={18} color={WARNING} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>最高风险操作</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.highestRisk')}</span>
         </div>
         <div style={{ fontSize: 14, fontWeight: 700, color: WARNING }}>{stats.highestRiskOperation}</div>
       </div>
@@ -145,7 +146,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
           padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
           display: 'inline-flex', alignItems: 'center', gap: 4,
         }}>
-          <AlertTriangle size={12} /> 违规
+          <AlertTriangle size={12} /> {t('logStats.violation')}
         </span>
       )
     }
@@ -157,7 +158,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
           padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
           display: 'inline-flex', alignItems: 'center', gap: 4,
         }}>
-          <AlertCircle size={12} /> 警告
+          <AlertCircle size={12} /> {t('logStats.warning')}
         </span>
       )
     }
@@ -168,7 +169,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
         padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
         display: 'inline-flex', alignItems: 'center', gap: 4,
       }}>
-        <CheckCircle size={12} /> 合规
+        <CheckCircle size={12} /> {t('logStats.compliant')}
       </span>
     )
   }
@@ -182,13 +183,13 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
         background: PRIMARY,
         fontSize: 12, fontWeight: 600, color: WHITE,
       }}>
-        <div>时间</div>
-        <div>操作用户</div>
-        <div>操作类型</div>
-        <div>对象</div>
-        <div>IP地址</div>
-        <div>操作详情</div>
-        <div>是否合规</div>
+        <div>{t('logStats.colTime')}</div>
+        <div>{t('logStats.colUser')}</div>
+        <div>{t('logStats.colActionType')}</div>
+        <div>{t('logStats.colTarget')}</div>
+        <div>{t('logStats.colIp')}</div>
+        <div>{t('logStats.colDetail')}</div>
+        <div>{t('logStats.colCompliance')}</div>
       </div>
 
       {logs.map((log, index) => (
@@ -230,8 +231,8 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
             </span>
           </div>
           <div style={{ color: '#475569' }}>
-            {log.patientId && <div style={{ fontSize: 12 }}>患者: {log.patientId}</div>}
-            {log.reportId && <div style={{ fontSize: 12 }}>报告: {log.reportId}</div>}
+            {log.patientId && <div style={{ fontSize: 12 }}>{t('logStats.patient')}: {log.patientId}</div>}
+            {log.reportId && <div style={{ fontSize: 12 }}>{t('logStats.report')}: {log.reportId}</div>}
             {!log.patientId && !log.reportId && (
               <div style={{ fontSize: 12, color: GRAY }}>{log.targetId}</div>
             )}
@@ -252,7 +253,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
                   display: 'flex', alignItems: 'center', gap: 2,
                 }}
               >
-                <Eye size={10} /> 详情
+                <Eye size={10} /> {t('logStats.detailBtn')}
               </button>
             )}
           </div>
@@ -288,7 +289,7 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
             <Clock size={18} color={DANGER} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>非工作时间访问</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.nonWorkHours')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{alertStats.nonWorkHours}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>22:00 - 06:00</div>
@@ -299,10 +300,10 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
             <Users size={18} color={DANGER} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>跨科室访问</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.crossDepartment')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{alertStats.crossDepartment}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>权限范围外访问</div>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.outOfScope')}</div>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
@@ -310,10 +311,10 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Download size={18} color={WARNING} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>批量导出</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.batchExport')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{alertStats.batchExport}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>超出正常频率</div>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.overFrequency')}</div>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
@@ -321,10 +322,10 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Activity size={18} color={WARNING} />
           </div>
-          <span style={{ fontSize: 12, color: GRAY }}>高频访问</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.highFrequency')}</span>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{alertStats.highFrequency}</div>
-        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>同一患者多次访问</div>
+        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.samePatientMulti')}</div>
       </div>
     </div>
   )
@@ -368,18 +369,18 @@ function HipaaExportPanel({
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
         <FileCheck size={18} color={PRIMARY} />
-        <span style={{ fontSize: 16, fontWeight: 600, color: PRIMARY }}>日志导出与报告</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t('logStats.exportPanel')}</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>日期范围:</span>
+        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>{t('logStats.dateRange')}</span>
         <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={inputStyle} />
         <span style={{ color: GRAY }}>-</span>
         <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={inputStyle} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>操作类型:</span>
+        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>{t('logStats.actionType')}</span>
         <select value={actionFilter} onChange={e => setActionFilter(e.target.value)} style={selectStyle}>
           {HIPAA_ACTION_TYPES.map(type => (
             <option key={type} value={type}>{type}</option>
@@ -388,7 +389,7 @@ function HipaaExportPanel({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>用户:</span>
+        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>{t('logStats.user')}</span>
         <select value={userFilter} onChange={e => setUserFilter(e.target.value)} style={selectStyle}>
           {allUserNames.map(name => <option key={name} value={name}>{name}</option>)}
         </select>
@@ -400,21 +401,21 @@ function HipaaExportPanel({
           background: `${SUCCESS}10`, color: SUCCESS,
           fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
         }}>
-          <FileSpreadsheet size={14} />导出CSV
+          <FileSpreadsheet size={14} />{t('logStats.exportCsv')}
         </button>
         <button onClick={onExportPDF} style={{
           padding: '6px 14px', borderRadius: 6, border: `1px solid ${DANGER}`,
           background: `${DANGER}10`, color: DANGER,
           fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
         }}>
-          <FileText size={14} />导出PDF
+          <FileText size={14} />{t('logStats.exportPdf')}
         </button>
         <button onClick={onGenerateReport} style={{
           padding: '6px 14px', borderRadius: 6, border: `1px solid ${PRIMARY}`,
           background: `${PRIMARY}10`, color: PRIMARY,
           fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
         }}>
-          <Shield size={14} />生成合规报告
+          <Shield size={14} />{t('logStats.generateReport')}
         </button>
       </div>
     </div>
@@ -490,7 +491,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Timer size={16} />操作类型耗时排名
+          <Timer size={16} />{t('logStats.durationRanking')}
         </div>
         <div style={{ maxHeight: 300, overflow: 'auto' }}>
           {durationByAction.map((item, index) => (
@@ -507,11 +508,11 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, color: PRIMARY, fontWeight: 500 }}>{item.action}</div>
-                <div style={{ fontSize: 12, color: GRAY }}>共 {item.count} 次操作</div>
+                <div style={{ fontSize: 12, color: GRAY }}>{t('logStats.totalOps', { count: item.count })}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>{formatDuration(item.avgDuration)}</div>
-                <div style={{ fontSize: 12, color: GRAY }}>平均耗时</div>
+                <div style={{ fontSize: 12, color: GRAY }}>{t('logStats.avgDuration')}</div>
               </div>
             </div>
           ))}
@@ -520,11 +521,11 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <PieChartIcon size={16} />耗时分布
+          <PieChartIcon size={16} />{t('logStats.durationDistribution')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <ChartContainer height={180} state={durationDistribution.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+            <ChartContainer height={180} state={durationDistribution.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
               <PieChart>
                 <Pie data={durationDistribution} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={2} dataKey="count" nameKey="label">
                   {durationDistribution.map((entry, idx) => (
@@ -543,7 +544,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
               <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
                 <span style={{ fontSize: 12, color: GRAY, flex: 1 }}>{item.label}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{item.count}次</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{item.count}{t('logStats.timesUnit')}</span>
               </div>
             ))}
           </div>
@@ -552,15 +553,15 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Activity size={16} />24小时平均耗时趋势
+          <Activity size={16} />{t('logStats.durationTrend24h')}
         </div>
-        <ChartContainer height={200} state={durationTrend.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+        <ChartContainer height={200} state={durationTrend.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <LineChart data={durationTrend}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="hour" tick={{ fontSize: 12 }} interval={2} />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${Math.round(v / 60)}分`} />
             <Tooltip
-              formatter={(value: number) => [formatDuration(value), '平均耗时']}
+              formatter={(value: number) => [formatDuration(value), t('logStats.avgDuration')]}
               contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }}
             />
             <Line type="monotone" dataKey="avgDuration" stroke={PRIMARY} strokeWidth={2} dot={{ fill: PRIMARY, r: 3 }} />
@@ -627,11 +628,11 @@ function UserActivityHeatmap({  }: { logs: OperationLog[] }) {
         ))}
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: GRAY }}>低</span>
+        <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.low')}</span>
         {[5, 15, 25, 35, 45, 55].map((val) => (
           <div key={val} style={{ width: 14, height: 14, background: getHeatColor(val), borderRadius: 2 }} />
         ))}
-        <span style={{ fontSize: 12, color: GRAY }}>高</span>
+        <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.high')}</span>
       </div>
     </div>
   )
@@ -686,9 +687,9 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <PieChartIcon size={16} />操作类型分布
+          <PieChartIcon size={16} />{t('logStats.actionDistribution')}
         </div>
-        <ChartContainer height={220} state={actionStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+        <ChartContainer height={220} state={actionStats.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <PieChart>
             <Pie data={actionStats} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value"
               label={({ name, percent }: { name: string; percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -696,21 +697,21 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
             >
               {actionStats.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
             </Pie>
-            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
+            <Tooltip formatter={(value: number) => [`${value}次`, t('logStats.opCount')]} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
           </PieChart>
         </ChartContainer>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <BarChart3 size={16} />用户操作量 TOP10
+          <BarChart3 size={16} />{t('logStats.userTop10')}
         </div>
-        <ChartContainer height={220} state={userStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+        <ChartContainer height={220} state={userStats.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <BarChart data={userStats} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis type="number" tick={{ fontSize: 12 }} />
             <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={60} />
-            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
+            <Tooltip formatter={(value: number) => [`${value}次`, t('logStats.opCount')]} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
             <Bar dataKey="value" fill={ACCENT} radius={[0, 4, 4, 0]} />
           </BarChart>
         </ChartContainer>
@@ -718,14 +719,14 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Activity size={16} />24小时操作趋势
+          <Activity size={16} />{t('logStats.opTrend24h')}
         </div>
-        <ChartContainer height={180} state={hourStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+        <ChartContainer height={180} state={hourStats.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <BarChart data={hourStats}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="hour" tick={{ fontSize: 12 }} interval={2} />
             <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
+            <Tooltip formatter={(value: number) => [`${value}次`, t('logStats.opCount')]} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
             <Bar dataKey="value" fill={PRIMARY_LIGHT} radius={[2, 2, 0, 0]} />
           </BarChart>
         </ChartContainer>
@@ -733,7 +734,7 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Clock size={16} />操作高峰时段热力图
+          <Clock size={16} />{t('logStats.peakHeatmap')}
         </div>
         <div style={{ overflow: 'auto' }}>
           <div style={{ display: 'flex', marginLeft: 50, marginBottom: 4 }}>
@@ -754,11 +755,11 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 12, color: GRAY }}>低</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.low')}</span>
           {[5, 15, 25, 35, 45, 55].map((val) => (
             <div key={val} style={{ width: 14, height: 14, background: getHeatColor(val), borderRadius: 2 }} />
           ))}
-          <span style={{ fontSize: 12, color: GRAY }}>高</span>
+          <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.high')}</span>
         </div>
       </div>
     </div>

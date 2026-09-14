@@ -21,23 +21,24 @@ import {
 import { checkKeywords, type KeywordCheckOutput, type KeywordIssue } from '../utils/keywordChecker';
 import { extendedReportMock } from '../data/reportSubsystemMock';
 import { reportApi } from '../services/api/reportApi';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 严重度配置
 // ============================================================
 const SEVERITY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  error:   { label: '错误', color: '#ef4444', bg: '#ef444422', icon: XCircle },
-  warning: { label: '警告', color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
-  info:    { label: '提示', color: '#3b82f6', bg: '#3b82f622', icon: Info },
+  error:   { label: t('kwc.sev.error'), color: '#ef4444', bg: '#ef444422', icon: XCircle },
+  warning: { label: t('kwc.sev.warning'), color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
+  info:    { label: t('kwc.sev.info'), color: '#3b82f6', bg: '#3b82f622', icon: Info },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  anatomy: '解剖方位',
-  logic: '逻辑矛盾',
-  punctuation: '标点格式',
-  format: '标准格式',
-  completeness: '病灶完整',
-  critical: '危急值',
+  anatomy: t('kwc.cat.anatomy'),
+  logic: t('kwc.cat.logic'),
+  punctuation: t('kwc.cat.punctuation'),
+  format: t('kwc.cat.format'),
+  completeness: t('kwc.cat.completeness'),
+  critical: t('kwc.cat.critical'),
 };
 
 // 扫描用报告行 (reportApi 归一化 / 演示报告回退)
@@ -92,11 +93,11 @@ export default function KeywordCheckPage() {
         setSource('api');
       } else {
         setSource('demo');
-        setApiError('接口暂不可用，当前展示内置演示报告');
+        setApiError(t('kwc.apiUnavailable'));
       }
     } catch (e) {
       setSource('demo');
-      setApiError(e instanceof Error ? e.message : '报告加载失败，已回退演示数据');
+      setApiError(e instanceof Error ? e.message : t('kwc.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -165,7 +166,7 @@ export default function KeywordCheckPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Search size={20} color="#3b82f6" /> 关键字全量扫描
+            <Search size={20} color="#3b82f6" /> {t('kwc.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
@@ -174,11 +175,11 @@ export default function KeywordCheckPage() {
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
-              {loading ? '同步中...' : source === 'api' ? '数据源: 报告接口实时' : '演示数据(接口不可用)'}
+              {loading ? t('kwc.syncing') : source === 'api' ? t('kwc.sourceApi') : t('kwc.sourceDemo')}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            6 大类 · {ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion}+ 条规则 · 0-100 评分
+            {t('kwc.subtitle', { count: ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion })}
             {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
@@ -196,19 +197,19 @@ export default function KeywordCheckPage() {
             }}
           >
             {scanning ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
-            {scanning ? `扫描中 ${scanProgress}%` : '开始扫描'}
+            {scanning ? `扫描中 ${scanProgress}%` : t('kwc.startScan')}
           </button>
         </div>
       </div>
 
       {/* 规则库统计 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 16 }}>
-        <RuleStatCard icon={Activity} label="解剖方位" count={ruleStats.anatomy} color="#3b82f6" />
-        <RuleStatCard icon={ShieldAlert} label="逻辑矛盾" count={ruleStats.logic} color="#dc2626" />
-        <RuleStatCard icon={XCircle} label="否定词" count={ruleStats.negation} color="#f59e0b" />
-        <RuleStatCard icon={Tag} label="标点" count={ruleStats.punctuation} color="#7c3aed" />
-        <RuleStatCard icon={Settings} label="标准格式" count={ruleStats.format} color="#0891b2" />
-        <RuleStatCard icon={Database} label="病灶关键词" count={ruleStats.lesion} color="#10b981" />
+        <RuleStatCard icon={Activity} label={t('kwc.cat.anatomy')} count={ruleStats.anatomy} color="#3b82f6" />
+        <RuleStatCard icon={ShieldAlert} label={t('kwc.cat.logic')} count={ruleStats.logic} color="#dc2626" />
+        <RuleStatCard icon={XCircle} label={t('kwc.negation')} count={ruleStats.negation} color="#f59e0b" />
+        <RuleStatCard icon={Tag} label={t('kwc.rulePunctuation')} count={ruleStats.punctuation} color="#7c3aed" />
+        <RuleStatCard icon={Settings} label={t('kwc.standardFormat')} count={ruleStats.format} color="#0891b2" />
+        <RuleStatCard icon={Database} label={t('kwc.lesionKeywords')} count={ruleStats.lesion} color="#10b981" />
       </div>
 
       {/* 报告选择器 + 扫描区 */}
@@ -220,7 +221,7 @@ export default function KeywordCheckPage() {
         }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={12} /> 选择报告 ({reports.length})
+              <FileText size={12} /> {t('kwc.selectReport')} ({reports.length})
             </div>
           </div>
           <div style={{ maxHeight: 600, overflowY: 'auto' }}>
@@ -258,7 +259,7 @@ export default function KeywordCheckPage() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
                     {currentReport.patientName} · {currentReport.modality} {currentReport.bodyPart}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>报告 ID：{currentReport.id}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('kwc.reportIdLabel')}{currentReport.id}</div>
                 </div>
                 {scanResult && (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -267,9 +268,9 @@ export default function KeywordCheckPage() {
                       color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? '#3b82f6' : scanResult.score >= 60 ? '#f59e0b' : '#dc2626',
                     }}>{scanResult.score}</div>
                     <div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>总评分</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('kwc.totalScore')}</div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: scanResult.passed ? '#10b981' : '#dc2626' }}>
-                        {scanResult.passed ? '✓ 检查通过' : '✗ 需修改'}
+                        {scanResult.passed ? t('kwc.passed') : t('kwc.failed')}
                       </div>
                     </div>
                   </div>
@@ -287,7 +288,7 @@ export default function KeywordCheckPage() {
                     }} />
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, textAlign: 'center' }}>
-                    正在扫描 {scanProgress}%
+                    {t('kwc.scanning', { percent: scanProgress })}
                   </div>
                 </div>
               )}
@@ -298,10 +299,10 @@ export default function KeywordCheckPage() {
           {scanResult && !scanning && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <ScoreCard icon={XCircle} label="错误" count={scanResult.errorCount} color="#dc2626" />
-                <ScoreCard icon={AlertTriangle} label="警告" count={scanResult.warningCount} color="#f59e0b" />
-                <ScoreCard icon={Info} label="提示" count={scanResult.infoCount} color="#3b82f6" />
-                <ScoreCard icon={CheckCircle2} label="总问题" count={scanResult.totalIssues} color="#7c3aed" />
+                <ScoreCard icon={XCircle} label={t('kwc.sev.error')} count={scanResult.errorCount} color="#dc2626" />
+                <ScoreCard icon={AlertTriangle} label={t('kwc.sev.warning')} count={scanResult.warningCount} color="#f59e0b" />
+                <ScoreCard icon={Info} label={t('kwc.sev.info')} count={scanResult.infoCount} color="#3b82f6" />
+                <ScoreCard icon={CheckCircle2} label={t('kwc.totalIssues')} count={scanResult.totalIssues} color="#7c3aed" />
               </div>
 
               {/* 过滤器 */}
@@ -310,21 +311,21 @@ export default function KeywordCheckPage() {
                 display: 'flex', alignItems: 'center', gap: 8,
               }}>
                 <Filter size={12} color="var(--text-secondary)" />
-                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>过滤：</span>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('kwc.filterLabel')}</span>
                 <select value={filterSeverity} onChange={e => setFilterSeverity(e.target.value)} style={selectStyle}>
-                  <option value="all">全部严重度</option>
-                  <option value="error">错误</option>
-                  <option value="warning">警告</option>
-                  <option value="info">提示</option>
+                  <option value="all">{t('kwc.allSeverities')}</option>
+                  <option value="error">{t('kwc.sev.error')}</option>
+                  <option value="warning">{t('kwc.sev.warning')}</option>
+                  <option value="info">{t('kwc.sev.info')}</option>
                 </select>
                 <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={selectStyle}>
-                  <option value="all">全部类别</option>
+                  <option value="all">{t('kwc.allCategories')}</option>
                   {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
                   ))}
                 </select>
                 <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-secondary)' }}>
-                  显示 <strong style={{ color: '#1e40af' }}>{filteredIssues.length}</strong> / {scanResult.totalIssues} 个问题
+                  {t('kwc.showCount', { shown: filteredIssues.length, total: scanResult.totalIssues })}
                 </span>
               </div>
 
@@ -338,8 +339,8 @@ export default function KeywordCheckPage() {
                   {filteredIssues.length === 0 ? (
                     <div style={{ padding: 40, textAlign: 'center', color: '#10b981' }}>
                       <CheckCircle2 size={48} style={{ display: 'block', margin: '0 auto 8px' }} />
-                      <div style={{ fontSize: 13, fontWeight: 700 }}>未发现问题</div>
-                      <div style={{ fontSize: 12, marginTop: 4 }}>报告内容符合所有规则</div>
+                      <div style={{ fontSize: 13, fontWeight: 700 }}>{t('kwc.noIssues')}</div>
+                      <div style={{ fontSize: 12, marginTop: 4 }}>{t('kwc.noIssuesHint')}</div>
                     </div>
                   ) : (
                     filteredIssues.map(issue => {
@@ -393,19 +394,19 @@ export default function KeywordCheckPage() {
                 }}>
                   {selectedIssue ? (
                     <>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>问题详情</div>
-                      <DetailRow label="严重度" value={SEVERITY_CONFIG[selectedIssue.severity].label} color={SEVERITY_CONFIG[selectedIssue.severity].color} />
-                      <DetailRow label="类别" value={CATEGORY_LABELS[selectedIssue.category]} />
-                      <DetailRow label="规则 ID" value={selectedIssue.ruleId} />
-                      <DetailRow label="位置" value={selectedIssue.position >= 0 ? `字符 ${selectedIssue.position}` : '全文'} />
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('kwc.issueDetail')}</div>
+                      <DetailRow label={t('kwc.severity')} value={SEVERITY_CONFIG[selectedIssue.severity].label} color={SEVERITY_CONFIG[selectedIssue.severity].color} />
+                      <DetailRow label={t('kwc.categoryLabel')} value={CATEGORY_LABELS[selectedIssue.category]} />
+                      <DetailRow label={t('kwc.ruleId')} value={selectedIssue.ruleId} />
+                      <DetailRow label={t('kwc.position')} value={selectedIssue.position >= 0 ? t('kwc.charPosition', { pos: selectedIssue.position }) : t('kwc.fullText')} />
                       <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
-                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>建议：</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('kwc.suggestionLabel')}</div>
                         <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedIssue.suggestion}</div>
                       </div>
                     </>
                   ) : (
                     <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12, padding: 20 }}>
-                      点击左侧问题查看详情
+                      {t('kwc.clickIssue')}
                     </div>
                   )}
                 </div>
@@ -419,9 +420,9 @@ export default function KeywordCheckPage() {
               border: '1px dashed var(--border-color)',
             }}>
               <Search size={48} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 8px' }} />
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>点击"开始扫描"对当前报告执行关键字检查</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('kwc.scanPrompt')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-                系统将按 6 大类规则进行全量扫描
+                {t('kwc.scanPromptHint')}
               </div>
             </div>
           )}
@@ -456,7 +457,7 @@ const RuleStatCard: React.FC<{ icon: any; label: string; count: number; color: s
     </div>
     <div>
       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{count} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>条</span></div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{count} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('kwc.unitCount')}</span></div>
     </div>
   </div>
 );

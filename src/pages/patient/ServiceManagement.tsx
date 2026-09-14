@@ -3,6 +3,7 @@ import { appointmentApi } from '../../services/api/appointmentApi'
 import { templatesApi } from '../../services/api/templatesApi'
 import { getCurrentUser } from '../../utils/auth'
 import { Card } from 'antd'
+import { t } from '../../i18n/appI18n'
 
 // ===== Types =====
 export interface PushTemplate {
@@ -145,10 +146,10 @@ export default function ServiceManagement() {
         live = true
       }
       setSource(live ? 'api' : 'demo')
-      if (!live) setError('appointmentApi/templatesApi 暂不可用，当前展示内置演示数据')
+      if (!live) setError(t('serviceMgmt.apiUnavailable'))
     } catch (e) {
       setSource('demo')
-      setError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+      setError(e instanceof Error ? e.message : t('serviceMgmt.loadFailedFallback'))
     } finally {
       setLoading(false)
     }
@@ -197,14 +198,14 @@ export default function ServiceManagement() {
   }
 
   const toggleTemplate = (id: string) => {
-    setTemplates(prev => prev.map(t => t.id === id ? { ...t, enabled: !t.enabled } : t))
+    setTemplates(prev => prev.map(tpl => tpl.id === id ? { ...tpl, enabled: !tpl.enabled } : tpl))
   }
 
   return (
     <div style={s.container}>
       {/* 数据源状态条 */}
       <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', border: `1px solid ${source === 'api' ? 'var(--color-success-border)' : 'var(--color-warning-border)'}`, fontSize: 12, color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', display: 'flex', alignItems: 'center', gap: 8 }}>
-        {loading ? '数据同步中...' : source === 'api' ? '数据源: appointmentApi / templatesApi 实时（预约、推送模板）' : '数据源: 演示数据（接口不可用，已回退）'}
+        {loading ? t('serviceMgmt.syncing') : source === 'api' ? t('serviceMgmt.sourceApi') : t('serviceMgmt.sourceDemo')}
         {error && <span style={{ color: '#dc2626', marginLeft: 'auto' }}>{error}</span>}
       </div>
 
@@ -216,7 +217,7 @@ export default function ServiceManagement() {
             background: activeTab === tab ? 'var(--bg-elevated)' : 'transparent', color: activeTab === tab ? '#1e40af' : '#64748b',
             cursor: 'pointer', boxShadow: activeTab === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
           }}>
-            {tab === 'appointment' ? '预约挂号' : tab === 'push' ? '推送管理' : '偏好设置'}
+            {tab === 'appointment' ? t('serviceMgmt.tabAppointment') : tab === 'push' ? t('serviceMgmt.tabPush') : t('serviceMgmt.tabPreference')}
           </button>
         ))}
       </div>
@@ -225,39 +226,39 @@ export default function ServiceManagement() {
       {activeTab === 'appointment' && (
         <>
           <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={s.title}>新建预约</h3>
+            <h3 style={s.title}>{t('serviceMgmt.newBooking')}</h3>
             <div style={s.grid2}>
               <div>
-                <label style={s.label}>科室</label>
+                <label style={s.label}>{t('serviceMgmt.department')}</label>
                 <select value={bookingForm.department} onChange={e => setBookingForm(p => ({ ...p, department: e.target.value }))} style={s.select}>
-                  <option value="">请选择科室</option>
+                  <option value="">{t('serviceMgmt.selectDepartment')}</option>
                   {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div>
-                <label style={s.label}>预约日期</label>
+                <label style={s.label}>{t('serviceMgmt.appointmentDate')}</label>
                 <input type="date" value={bookingForm.date} onChange={e => setBookingForm(p => ({ ...p, date: e.target.value }))} style={s.input} />
               </div>
               <div>
-                <label style={s.label}>时段</label>
+                <label style={s.label}>{t('serviceMgmt.timeSlot')}</label>
                 <select value={bookingForm.timeSlot} onChange={e => setBookingForm(p => ({ ...p, timeSlot: e.target.value }))} style={s.select}>
-                  <option value="">请选择时段</option>
-                  {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                  <option value="">{t('serviceMgmt.selectTimeSlot')}</option>
+                  {TIME_SLOTS.map(slot => <option key={slot} value={slot}>{slot}</option>)}
                 </select>
               </div>
               <div>
-                <label style={s.label}>联系电话</label>
-                <input placeholder="手机号" value={bookingForm.phone} onChange={e => setBookingForm(p => ({ ...p, phone: e.target.value }))} style={s.input} />
+                <label style={s.label}>{t('serviceMgmt.phone')}</label>
+                <input placeholder={t('serviceMgmt.phonePlaceholder')} value={bookingForm.phone} onChange={e => setBookingForm(p => ({ ...p, phone: e.target.value }))} style={s.input} />
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={s.label}>备注</label>
-                <input placeholder="病情描述或特殊要求" value={bookingForm.notes} onChange={e => setBookingForm(p => ({ ...p, notes: e.target.value }))} style={s.input} />
+                <label style={s.label}>{t('serviceMgmt.notes')}</label>
+                <input placeholder={t('serviceMgmt.notesPlaceholder')} value={bookingForm.notes} onChange={e => setBookingForm(p => ({ ...p, notes: e.target.value }))} style={s.input} />
               </div>
             </div>
-            <button style={{ ...s.btn, marginTop: 12 }} onClick={() => void handleBook()}>提交预约</button>
+            <button style={{ ...s.btn, marginTop: 12 }} onClick={() => void handleBook()}>{t('serviceMgmt.submitBooking')}</button>
             {successCode && (
               <div style={{ marginTop: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, textAlign: 'center' }}>
-                <div style={{ fontSize: 14, color: 'var(--color-success)', fontWeight: 600 }}>预约成功！</div>
+                <div style={{ fontSize: 14, color: 'var(--color-success)', fontWeight: 600 }}>{t('serviceMgmt.bookingSuccess')}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#059669', fontFamily: 'monospace', letterSpacing: 2, marginTop: 8 }}>{successCode}</div>
               </div>
             )}
@@ -265,18 +266,18 @@ export default function ServiceManagement() {
 
           {appointments.length > 0 && (
             <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={s.title}>我的预约 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? '(appointmentApi 实时)' : '(演示)'}</span></h3>
+              <h3 style={s.title}>{t('serviceMgmt.myAppointments')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? t('serviceMgmt.apptRealtime') : t('serviceMgmt.demo')}</span></h3>
               {appointments.map(a => (
                 <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{a.department}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{a.date} {a.timeSlot}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>编号：{a.code}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('serviceMgmt.codePrefix')}{a.code}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={s.badge(a.status)}>{a.status}</span>
                     {a.status !== '已取消' && a.status !== '已完成' && (
-                      <button style={{ ...s.btnSmall, background: 'var(--color-error-bg)', color: 'var(--color-error)' }} onClick={() => void handleCancel(a.id)}>取消</button>
+                      <button style={{ ...s.btnSmall, background: 'var(--color-error-bg)', color: 'var(--color-error)' }} onClick={() => void handleCancel(a.id)}>{t('serviceMgmt.cancel')}</button>
                     )}
                   </div>
                 </div>
@@ -289,44 +290,44 @@ export default function ServiceManagement() {
       {/* Push Templates Tab */}
       {activeTab === 'push' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={s.title}>推送模板管理 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? '(templatesApi.snippets 实时)' : '(演示)'}</span></h3>
-          {templates.map(t => (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginBottom: 8, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+          <h3 style={s.title}>{t('serviceMgmt.pushTemplates')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? t('serviceMgmt.templatesRealtime') : t('serviceMgmt.demo')}</span></h3>
+          {templates.map(tpl => (
+            <div key={tpl.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginBottom: 8, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {t.name}
+                  {tpl.name}
                   <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                    background: t.channel === '短信' ? 'var(--color-info-bg)' : t.channel === '微信' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                    color: t.channel === '短信' ? 'var(--color-info)' : t.channel === '微信' ? 'var(--color-success)' : 'var(--color-warning)',
-                  }}>{t.channel}</span>
+                    background: tpl.channel === '短信' ? 'var(--color-info-bg)' : tpl.channel === '微信' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+                    color: tpl.channel === '短信' ? 'var(--color-info)' : tpl.channel === '微信' ? 'var(--color-success)' : 'var(--color-warning)',
+                  }}>{tpl.channel}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{t.content}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{tpl.content}</div>
               </div>
-              <button onClick={() => toggleTemplate(t.id)} style={{
+              <button onClick={() => toggleTemplate(tpl.id)} style={{
                 ...s.btnSmall, minWidth: 48,
-                background: t.enabled ? '#059669' : 'var(--bg-card)',
-                color: t.enabled ? '#fff' : '#94a3b8',
+                background: tpl.enabled ? '#059669' : 'var(--bg-card)',
+                color: tpl.enabled ? '#fff' : '#94a3b8',
               }}>
-                {t.enabled ? '开启' : '关闭'}
+                {tpl.enabled ? t('serviceMgmt.on') : t('serviceMgmt.off')}
               </button>
             </div>
           ))}
-          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>说明：模板内容来自 templatesApi；开启/关闭状态为本地演示（无后端开关端点）。</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t('serviceMgmt.templatesNote')}</div>
         </Card>
       )}
 
       {/* Preference Tab */}
       {activeTab === 'preference' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={s.title}>通知偏好 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>(本地存储)</span></h3>
+          <h3 style={s.title}>{t('serviceMgmt.notifyPrefs')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('serviceMgmt.localStorage')}</span></h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              { key: 'smsNotify' as const, label: '短信通知' },
-              { key: 'wechatNotify' as const, label: '微信通知' },
-              { key: 'emailNotify' as const, label: '邮件通知' },
-              { key: 'reportReadyAlert' as const, label: '报告完成提醒' },
-              { key: 'appointmentReminder' as const, label: '预约提醒' },
-              { key: 'marketingAllowed' as const, label: '接收推广信息' },
+              { key: 'smsNotify' as const, label: t('serviceMgmt.notifySms') },
+              { key: 'wechatNotify' as const, label: t('serviceMgmt.notifyWechat') },
+              { key: 'emailNotify' as const, label: t('serviceMgmt.notifyEmail') },
+              { key: 'reportReadyAlert' as const, label: t('serviceMgmt.notifyReportReady') },
+              { key: 'appointmentReminder' as const, label: t('serviceMgmt.notifyAppointment') },
+              { key: 'marketingAllowed' as const, label: t('serviceMgmt.notifyMarketing') },
             ].map(item => (
               <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer' }}>
                 <input type="checkbox" checked={prefs[item.key] as boolean} onChange={() => setPrefs(p => ({ ...p, [item.key]: !p[item.key] }))} style={{ width: 16, height: 16 }} />
@@ -335,10 +336,10 @@ export default function ServiceManagement() {
             ))}
           </div>
           <div style={{ marginTop: 16 }}>
-            <label style={s.label}>语言偏好</label>
+            <label style={s.label}>{t('serviceMgmt.language')}</label>
             <select value={prefs.language} onChange={e => setPrefs(p => ({ ...p, language: e.target.value as 'zh-CN' | 'en' }))} style={s.select}>
-              <option value="zh-CN">中文</option>
-              <option value="en">英文</option>
+              <option value="zh-CN">{t('serviceMgmt.langZh')}</option>
+              <option value="en">{t('serviceMgmt.langEn')}</option>
             </select>
           </div>
           <button
@@ -346,7 +347,7 @@ export default function ServiceManagement() {
             onClick={() => {
               try {
                 window.localStorage.setItem('ris_patient_prefs', JSON.stringify(prefs));
-                const verb = navigator?.language?.startsWith('zh') ? '已保存偏好设置' : 'Preferences saved';
+                const verb = t('serviceMgmt.prefsSaved');
                 window.alert?.(verb);
                 setSuccessCode(verb);
                 setTimeout(() => setSuccessCode(null), 3000);
@@ -354,7 +355,7 @@ export default function ServiceManagement() {
                 window.alert?.('保存失败: ' + (e as Error).message);
               }
             }}
-          >保存设置</button>
+          >{t('serviceMgmt.saveSettings')}</button>
         </Card>
       )}
     </div>

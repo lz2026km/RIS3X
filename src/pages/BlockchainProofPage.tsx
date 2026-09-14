@@ -15,15 +15,22 @@ import {
   type BlockchainRecord,
 } from '../data/deliveryExportSignatureMock';
 import { auditApi } from '../services/api/auditApi';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 状态配置
 // ============================================================
 const STATUS_CONFIG = {
-  pending:   { label: '待确认', color: '#f59e0b', bg: '#f59e0b22' },
-  confirmed: { label: '已确认', color: '#10b981', bg: '#22c55e22' },
-  invalid:   { label: '无效',   color: '#ef4444', bg: '#ef444422' },
+  pending:   { color: '#f59e0b', bg: '#f59e0b22' },
+  confirmed: { color: '#10b981', bg: '#22c55e22' },
+  invalid:   { color: '#ef4444', bg: '#ef444422' },
 };
+
+const blockchainStatusLabel = (s: string): string => ({
+  pending: t('blockchain.statusPending'),
+  confirmed: t('blockchain.statusConfirmed'),
+  invalid: t('blockchain.statusInvalid'),
+}[s] ?? s);
 
 // FNV-1a 32bit → hex (本地一致性校验用, 非密码学哈希)
 function fnv1a(str: string): string {
@@ -79,10 +86,10 @@ export default function BlockchainProofPage() {
               reportHash: '0x' + recordDigest({ reportId, timestamp, signers: [e.username ?? e.userId ?? 'system'], blockNumber: 182300 + i }),
               blockHash: '0x' + pad64(fnv1a(`block-${e.id ?? i}`)),
               blockNumber: 182300 + i,
-              chainName: '审计链（审计事件派生）',
+              chainName: t('blockchain.chainName'),
               txHash: `0xtx-${String(e.id ?? i)}`,
               timestamp,
-              signers: [e.username ?? e.userId ?? '系统'],
+              signers: [e.username ?? e.userId ?? t('blockchain.systemSigner')],
               status: e.status === 'SUCCESS' ? 'confirmed' : 'pending',
               confirmations: 6 + i,
               merkleRoot: '0x' + pad64(fnv1a(`merkle-${e.id ?? i}`)),
@@ -98,7 +105,7 @@ export default function BlockchainProofPage() {
           }
         }
       } catch (e) {
-        setApiError(e instanceof Error ? e.message : '存证加载失败，已回退演示数据')
+        setApiError(e instanceof Error ? e.message : t('blockchain.loadFailed'))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -110,10 +117,10 @@ export default function BlockchainProofPage() {
   const filteredRecords = records.filter(r => {
     if (filterStatus !== 'all' && r.status !== filterStatus) return false;
     if (search) {
-      const t = search.toLowerCase();
-      if (!r.reportId.toLowerCase().includes(t) &&
-          !r.txHash.toLowerCase().includes(t) &&
-          !r.reportHash.toLowerCase().includes(t)) return false;
+      const q = search.toLowerCase();
+      if (!r.reportId.toLowerCase().includes(q) &&
+          !r.txHash.toLowerCase().includes(q) &&
+          !r.reportHash.toLowerCase().includes(q)) return false;
     }
     return true;
   });
@@ -149,7 +156,7 @@ export default function BlockchainProofPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Link2 size={20} color="#7c3aed" /> 区块链存证
+            <Link2 size={20} color="#7c3aed" /> {t('blockchain.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
@@ -158,11 +165,11 @@ export default function BlockchainProofPage() {
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
-              {loading ? '同步中...' : source === 'api' ? '数据源: 审计事件派生' : '演示数据(后端无存证端点)'}
+              {loading ? t('blockchain.syncing') : source === 'api' ? t('blockchain.sourceApi') : t('blockchain.sourceDemo')}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            国密联盟链（GMCA）· SHA-256 报告哈希 · Merkle 根 · 6 次确认 · 区块浏览器
+            {t('blockchain.subtitle')}
             {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
@@ -171,17 +178,17 @@ export default function BlockchainProofPage() {
             onClick={() => navigate('/ca-signature')}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
           >
-            CA 签名
+            {t('blockchain.caSignature')}
           </button>
         </div>
       </div>
 
       {/* KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={Database} label="累计存证" value={records.length} color="#7c3aed" />
-        <KpiCard icon={CheckCircle2} label="已确认" value={records.filter(r => r.status === 'confirmed').length} color="#10b981" />
-        <KpiCard icon={Clock} label="待确认" value={records.filter(r => r.status === 'pending').length} color="#f59e0b" />
-        <KpiCard icon={Shield} label="最近区块" value={records[0]?.blockNumber.toLocaleString() || '182360'} color="#3b82f6" />
+        <KpiCard icon={Database} label={t('blockchain.statTotal')} value={records.length} color="#7c3aed" />
+        <KpiCard icon={CheckCircle2} label={t('blockchain.statConfirmed')} value={records.filter(r => r.status === 'confirmed').length} color="#10b981" />
+        <KpiCard icon={Clock} label={t('blockchain.statPending')} value={records.filter(r => r.status === 'pending').length} color="#f59e0b" />
+        <KpiCard icon={Shield} label={t('blockchain.statLatestBlock')} value={records[0]?.blockNumber.toLocaleString() || '182360'} color="#3b82f6" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 12 }}>
@@ -195,14 +202,14 @@ export default function BlockchainProofPage() {
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="搜索报告 ID / 交易哈希 / 报告哈希..."
+                  placeholder={t('blockchain.searchPlaceholder')}
                   style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
                 />
               </div>
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
-                <option value="all">全部</option>
-                <option value="confirmed">已确认</option>
-                <option value="pending">待确认</option>
+                <option value="all">{t('blockchain.filterAll')}</option>
+                <option value="confirmed">{t('blockchain.filterConfirmed')}</option>
+                <option value="pending">{t('blockchain.filterPending')}</option>
               </select>
             </div>
           </div>
@@ -223,13 +230,13 @@ export default function BlockchainProofPage() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                     <Box size={11} color="#7c3aed" />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>区块 #{r.blockNumber}</span>
-                    <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 600, marginLeft: 'auto' }}>{sConf.label}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t('blockchain.blockPrefix')}{r.blockNumber}</span>
+                    <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 600, marginLeft: 'auto' }}>{blockchainStatusLabel(r.status)}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>报告 {r.reportId}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('blockchain.reportPrefix')}{r.reportId}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace', marginTop: 2 }}>{r.txHash.slice(0, 24)}...</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Clock size={9} /> {r.timestamp} · {r.confirmations} 确认
+                    <Clock size={9} /> {r.timestamp} · {t('blockchain.confirmations', { count: r.confirmations })}
                   </div>
                 </div>
               );
@@ -252,27 +259,27 @@ export default function BlockchainProofPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: '#5b21b6' }}>{selected.chainName}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>区块 #{selected.blockNumber}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{t('blockchain.blockPrefix')}{selected.blockNumber}</div>
                 </div>
                 <span style={{
                   fontSize: 12, padding: '3px 10px', borderRadius: 4,
                   background: STATUS_CONFIG[selected.status].bg,
                   color: STATUS_CONFIG[selected.status].color, fontWeight: 700,
-                }}>{STATUS_CONFIG[selected.status].label} · {selected.confirmations} 确认</span>
+                }}>{blockchainStatusLabel(selected.status)} · {t('blockchain.confirmations', { count: selected.confirmations })}</span>
               </div>
             </div>
 
             {/* 哈希详情 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Hash size={13} /> 哈希与签名
+                <Hash size={13} /> {t('blockchain.hashAndSignature')}
               </div>
-              <HashRow label="报告哈希 SHA-256" value={selected.reportHash} />
-              <HashRow label="交易哈希" value={selected.txHash} />
-              <HashRow label="区块哈希" value={selected.blockHash} />
-              <HashRow label="Merkle 根" value={selected.merkleRoot} />
+              <HashRow label={t('blockchain.reportHash')} value={selected.reportHash} />
+              <HashRow label={t('blockchain.txHash')} value={selected.txHash} />
+              <HashRow label={t('blockchain.blockHash')} value={selected.blockHash} />
+              <HashRow label={t('blockchain.merkleRoot')} value={selected.merkleRoot} />
               <div style={{ marginTop: 8, padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12, color: '#1e40af' }}>
-                <strong>签名人：</strong> {selected.signers.join('、')}
+                <strong>{t('blockchain.signers')}</strong> {selected.signers.join('、')}
               </div>
             </div>
 
@@ -291,38 +298,38 @@ export default function BlockchainProofPage() {
                   }}
                 >
                   {verifying ? <Loader2 size={12} className="spin" /> : <Shield size={12} />}
-                  {verifying ? '验证中...' : '验证真伪'}
+                  {verifying ? t('blockchain.verifying') : t('blockchain.verify')}
                 </button>
                 <button
                   onClick={() => selected.explorerUrl && window.open(selected.explorerUrl, '_blank')}
                   style={{ padding: '10px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                 >
-                  <ExternalLink size={12} /> 区块浏览器
+                  <ExternalLink size={12} /> {t('blockchain.blockExplorer')}
                 </button>
               </div>
 
               {verifyResult === 'success' && (
                 <div style={{ marginTop: 12, padding: 12, background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
-                    <CheckCircle2 size={14} /> ✓ 验证通过
+                    <CheckCircle2 size={14} /> {t('blockchain.verifyPassed')}
                   </div>
                   <div style={{ fontSize: 12, color: '#065f46', lineHeight: 1.6 }}>
-                    • 区块 #{selected.blockNumber} 存在于 {selected.chainName}<br/>
-                    • Merkle 根匹配 ✓<br/>
-                    • 报告哈希未篡改 ✓{source === 'api' ? '（本地一致性重算比对）' : '（演示数据 · 结构完整性校验）'}<br/>
-                    • 签名人身份有效 ✓<br/>
-                    • 上链时间 {selected.timestamp}
+                    {t('blockchain.passLine1', { block: selected.blockNumber, chain: selected.chainName })}<br/>
+                    {t('blockchain.passLine2')}<br/>
+                    {t('blockchain.passLine3')}{source === 'api' ? t('blockchain.passLine3Api') : t('blockchain.passLine3Demo')}<br/>
+                    {t('blockchain.passLine4')}<br/>
+                    {t('blockchain.passLine5', { time: selected.timestamp })}
                   </div>
                 </div>
               )}
               {verifyResult === 'failed' && (
                 <div style={{ marginTop: 12, padding: 12, background: 'var(--color-error-bg)', border: '1px solid #fca5a5', borderRadius: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#b91c1c' }}>
-                    <XCircle size={14} /> ✗ 验证失败
+                    <XCircle size={14} /> {t('blockchain.verifyFailed')}
                   </div>
                   <div style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6 }}>
-                    • 记录状态为「无效」或哈希与本地一致性重算结果不符<br/>
-                    • 该存证疑似被篡改，请勿作为司法证据使用
+                    {t('blockchain.failLine1')}<br/>
+                    {t('blockchain.failLine2')}
                   </div>
                 </div>
               )}
@@ -331,15 +338,15 @@ export default function BlockchainProofPage() {
             {/* 区块可视化 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <GitBranch size={13} /> 区块结构
+                <GitBranch size={13} /> {t('blockchain.blockStructure')}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, fontSize: 12 }}>
                 {[
-                  { label: '区块头', desc: '# ' + selected.blockNumber, color: '#7c3aed' },
-                  { label: '前一哈希', desc: 'prev_block', color: '#3b82f6' },
-                  { label: 'Merkle 根', desc: 'tx_root', color: '#10b981' },
-                  { label: '时间戳', desc: 'ts', color: '#f59e0b' },
-                  { label: '难度/Nonce', desc: '0x0001', color: '#dc2626' },
+                  { label: t('blockchain.blockHeader'), desc: '# ' + selected.blockNumber, color: '#7c3aed' },
+                  { label: t('blockchain.prevHash'), desc: 'prev_block', color: '#3b82f6' },
+                  { label: t('blockchain.merkleRoot'), desc: 'tx_root', color: '#10b981' },
+                  { label: t('blockchain.timestamp'), desc: 'ts', color: '#f59e0b' },
+                  { label: t('blockchain.difficultyNonce'), desc: '0x0001', color: '#dc2626' },
                 ].map((c, i) => (
                   <div key={i} style={{
                     padding: 6, background: '#8b5cf622', border: `1px solid ${c.color}`, borderRadius: 4, textAlign: 'center',
@@ -350,7 +357,7 @@ export default function BlockchainProofPage() {
                 ))}
               </div>
               <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                📊 当前区块包含 {selected.signers.length} 个报告存证交易 · 6 节点共识完成
+                {t('blockchain.blockSummary', { count: selected.signers.length })}
               </div>
             </div>
           </div>
@@ -370,7 +377,7 @@ const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
       <button
         onClick={() => navigator.clipboard?.writeText(value)}
         style={{ padding: 1, border: 'none', background: 'transparent', color: '#3b82f6', cursor: 'pointer' }}
-        title="复制"
+        title={t('blockchain.copy')}
       >
         <Copy size={10} />
       </button>

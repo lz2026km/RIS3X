@@ -26,6 +26,7 @@ import {
 } from "recharts";
 import { rdsrApi } from "../../services/api/rdsrApi";
 import { ChartContainer } from "../../components/charts";
+import { t } from "../../i18n/appI18n";
 import type {
   DrlEntry,
   TodayDoseStats,
@@ -203,9 +204,9 @@ export default function DoseLiveMonitor() {
       try {
         const res = await rdsrApi.getStats(from || undefined, to || undefined);
         if (res.success && res.data) setStats(res.data);
-        else setStatsError(res.error?.message ?? "剂量统计加载失败");
+        else setStatsError(res.error?.message ?? t('doseLive.statsLoadFailed'));
       } catch (e) {
-        setStatsError((e as Error)?.message ?? "剂量统计加载失败");
+        setStatsError((e as Error)?.message ?? t('doseLive.statsLoadFailed'));
       } finally {
         setStatsLoading(false);
       }
@@ -216,9 +217,9 @@ export default function DoseLiveMonitor() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [t, d, a, s] = await Promise.all([rdsrApi.getToday(), rdsrApi.getDrls(), rdsrApi.getAlerts(), rdsrApi.getStats()]);
+      const [todayRes, d, a, s] = await Promise.all([rdsrApi.getToday(), rdsrApi.getDrls(), rdsrApi.getAlerts(), rdsrApi.getStats()]);
       if (!alive) return;
-      if (t.success && t.data) setToday(t.data);
+      if (todayRes.success && todayRes.data) setToday(todayRes.data);
       if (d.success && d.data) {
         setDrls(d.data);
         const init: Record<string, { ctdivolDrl: string; dlpDrl: string }> = {};
@@ -307,7 +308,7 @@ export default function DoseLiveMonitor() {
   if (loading) {
     return (
       <div style={{ ...card, textAlign: "center", padding: 40, color: "#94a3b8", fontSize: 13 }}>
-        实时剂量数据加载中...
+        {t('doseLive.loadingRealtime')}
       </div>
     );
   }
@@ -315,38 +316,38 @@ export default function DoseLiveMonitor() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af", display: "flex", alignItems: "center", gap: 8 }}>
-        <Activity size={18} /> 剂量实时监测
+        <Activity size={18} /> {t('doseLive.title')}
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button style={btn} onClick={handleRefresh}>
-          <RefreshCw size={13} /> 刷新
+          <RefreshCw size={13} /> {t('doseLive.refresh')}
         </button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
-        <StatCard label="今日检查数" value={String(today?.totalExams ?? 0)} sub="次" icon={<Activity size={18} />} color="#3b82f6" />
-        <StatCard label="今日平均 DLP" value={fmt(today?.avgDlp)} sub="mGy·cm" icon={<TrendingUp size={18} />} color="#8b5cf6" />
-        <StatCard label="今日平均 CTDIvol" value={fmt(today?.avgCtdiVol)} sub="mGy" icon={<Activity size={18} />} color="#059669" />
-        <StatCard label="超 DRL 阈值" value={String(today?.overDrlCount ?? 0)} sub={`${today?.warningCount ?? 0}警 / ${today?.criticalCount ?? 0}危`} icon={<ShieldAlert size={18} />} color="#dc2626" />
+        <StatCard label={t('doseLive.todayExams')} value={String(today?.totalExams ?? 0)} sub={t('doseLive.timesUnit')} icon={<Activity size={18} />} color="#3b82f6" />
+        <StatCard label={t('doseLive.avgDlp')} value={fmt(today?.avgDlp)} sub="mGy·cm" icon={<TrendingUp size={18} />} color="#8b5cf6" />
+        <StatCard label={t('doseLive.avgCtdiVol')} value={fmt(today?.avgCtdiVol)} sub="mGy" icon={<Activity size={18} />} color="#059669" />
+        <StatCard label={t('doseLive.overDrl')} value={String(today?.overDrlCount ?? 0)} sub={`${today?.warningCount ?? 0}警 / ${today?.criticalCount ?? 0}危`} icon={<ShieldAlert size={18} />} color="#dc2626" />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={card}>
           <div style={cardTitle}>
-            <BarChart3 size={14} /> 今日各部位平均 DLP vs DRL 阈值
+            <BarChart3 size={14} /> {t('doseLive.distributionTitle')}
           </div>
           {distributionData.length === 0 ? (
-            <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>今日暂无检查记录</div>
+            <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noExamToday')}</div>
           ) : (
-          <ChartContainer height={240} state={distributionData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量分布数据">
+          <ChartContainer height={240} state={distributionData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noDistribution')}>
             <BarChart data={distributionData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="bodyPart" tick={{ fontSize: 12, fill: "#94a3b8" }} />
                 <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number | string) => [`${v} mGy·cm`]} />
                 <Legend iconSize={10} />
-                <Bar dataKey="avgDlp" fill="#3b82f6" name="平均DLP" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="drlDlp" fill="#f59e0b" name="DRL阈值" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="avgDlp" fill="#3b82f6" name={t('doseLive.avgDlpSeries')} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="drlDlp" fill="#f59e0b" name={t('doseLive.drlThreshold')} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ChartContainer>
           )}
@@ -354,12 +355,12 @@ export default function DoseLiveMonitor() {
 
         <div style={card}>
           <div style={cardTitle}>
-            <Users size={14} /> 患者累计剂量搜索
+            <Users size={14} /> {t('doseLive.patientSearchTitle')}
           </div>
           <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <input
               style={{ ...input, flex: 1 }}
-              placeholder="输入患者姓名 / ID 搜索"
+              placeholder={t('doseLive.searchPlaceholder')}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={(e) => {
@@ -367,7 +368,7 @@ export default function DoseLiveMonitor() {
               }}
             />
             <button style={btnPrimary} onClick={handleSearch} disabled={searching}>
-              <Search size={13} /> 搜索
+              <Search size={13} /> {t('doseLive.search')}
             </button>
           </div>
           {patientResults.length > 0 && (
@@ -391,7 +392,7 @@ export default function DoseLiveMonitor() {
                     {p.patientName} <span style={{ color: "#94a3b8" }}>({p.patientId})</span>
                   </span>
                   <span style={{ color: p.overDrlCount > 0 ? "#dc2626" : "#64748b" }}>
-                    {p.examCount} 次 · 30天 {fmt(p.totalDlp30d)} · 1年 {fmt(p.totalDlp1y)}
+                    {p.examCount} {t('doseLive.timesUnit')} · 30{t('doseLive.daysUnit')} {fmt(p.totalDlp30d)} · 1{t('doseLive.yearUnit')} {fmt(p.totalDlp1y)}
                     {p.overDrlCount > 0 ? ` · 超限${p.overDrlCount}` : ""}
                   </span>
                 </div>
@@ -400,7 +401,7 @@ export default function DoseLiveMonitor() {
           )}
           {selectedPatient && (
             <div style={{ marginTop: 10, fontSize: 12, color: "#64748b" }}>
-              已选患者：<strong style={{ color: "#1e40af" }}>{selectedPatient.patientName}</strong>（{selectedPatient.patientId}）
+              {t('doseLive.selectedPatient')}<strong style={{ color: "#1e40af" }}>{selectedPatient.patientName}</strong>（{selectedPatient.patientId}）
             </div>
           )}
         </div>
@@ -410,28 +411,28 @@ export default function DoseLiveMonitor() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div style={card}>
           <div style={cardTitle}>
-            <TrendingUp size={14} /> {cumulative?.patientName ?? selectedPatient.patientName} 年度累计趋势（DLP）
+            <TrendingUp size={14} /> {cumulative?.patientName ?? selectedPatient.patientName} {t('doseLive.annualTrend')}
           </div>
             {cumLoading ? (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>加载中...</div>
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.loading')}</div>
             ) : cumulative ? (
               <>
-          <ChartContainer height={220} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无趋势数据">
+          <ChartContainer height={220} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noTrend')}>
             <LineChart data={trendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} />
                     <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
                     <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number | string) => [`${v} mGy·cm`, "月度DLP"]} />
                     <Legend iconSize={10} />
-                    <ReferenceLine y={cumulative.annualLimit / 12} stroke="#dc2626" strokeDasharray="5 5" label={{ value: "月均限额", fontSize: 11, fill: "#dc2626", position: "insideTopRight" }} />
-                    <Line type="monotone" dataKey="totalDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="月度DLP" />
+                    <ReferenceLine y={cumulative.annualLimit / 12} stroke="#dc2626" strokeDasharray="5 5" label={{ value: t('doseLive.monthlyLimit'), fontSize: 11, fill: "#dc2626", position: "insideTopRight" }} />
+                    <Line type="monotone" dataKey="totalDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name={t('doseLive.monthlyDlp')} />
                   </LineChart>
                 </ChartContainer>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8, marginTop: 10 }}>
-                  <MiniInfo label="30天累计 DLP" value={`${fmt(cumulative.totalDlp30d)} mGy·cm`} />
-                  <MiniInfo label="年度累计 DLP" value={`${fmt(cumulative.totalDlp1y)} mGy·cm`} />
-                  <MiniInfo label="年度限额占比" value={`${fmt(cumulative.percentOfLimit1y)}%`} warn={cumulative.percentOfLimit1y >= 80} />
-                  <MiniInfo label="累计检查次数" value={`${cumulative.totalExams} 次`} />
+                  <MiniInfo label={t('doseLive.cum30dDlp')} value={`${fmt(cumulative.totalDlp30d)} mGy·cm`} />
+                  <MiniInfo label={t('doseLive.cumYearDlp')} value={`${fmt(cumulative.totalDlp1y)} mGy·cm`} />
+                  <MiniInfo label={t('doseLive.annualLimitPercent')} value={`${fmt(cumulative.percentOfLimit1y)}%`} warn={cumulative.percentOfLimit1y >= 80} />
+                  <MiniInfo label={t('doseLive.totalExamCount')} value={`${cumulative.totalExams} 次`} />
                 </div>
               </>
             ) : null}
@@ -439,21 +440,21 @@ export default function DoseLiveMonitor() {
 
           <div style={card}>
           <div style={cardTitle}>
-            <Users size={14} /> 剂量记录明细
+            <Users size={14} /> {t('doseLive.doseDetail')}
           </div>
             {cumLoading ? (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>加载中...</div>
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.loading')}</div>
             ) : cumulative && cumulative.exams.length > 0 ? (
               <div style={{ maxHeight: 300, overflowY: "auto" }}>
                 <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr>
-                      <Th>日期</Th>
-                      <Th>部位</Th>
+                      <Th>{t('doseLive.colDate')}</Th>
+                      <Th>{t('doseLive.colBodyPart')}</Th>
                       <Th>CTDIvol</Th>
                       <Th>DLP</Th>
                       <Th>SSDE</Th>
-                      <Th>等级</Th>
+                      <Th>{t('doseLive.colLevel')}</Th>
                     </tr>
                   </thead>
                   <tbody>
@@ -475,7 +476,7 @@ export default function DoseLiveMonitor() {
                 </table></div>
               </div>
             ) : (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>无记录</div>
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noRecords')}</div>
             )}
           </div>
         </div>
@@ -484,9 +485,9 @@ export default function DoseLiveMonitor() {
       <div style={card}>
         <div style={{ ...cardTitle, justifyContent: "space-between" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Bell size={14} /> 超 DRL 告警列表
+            <Bell size={14} /> {t('doseLive.alertList')}
             <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700 }}>
-              {alerts.filter((a) => !a.acknowledged).length} 待处理
+              {alerts.filter((a) => !a.acknowledged).length} {t('doseLive.pendingCount')}
             </span>
           </span>
           <select
@@ -494,27 +495,27 @@ export default function DoseLiveMonitor() {
             onChange={(e) => setAlertFilter(e.target.value as "all" | "pending" | "acknowledged")}
             style={{ ...input, width: 110 }}
           >
-            <option value="all">全部</option>
-            <option value="pending">待处理</option>
-            <option value="acknowledged">已确认</option>
+            <option value="all">{t('doseLive.filterAll')}</option>
+            <option value="pending">{t('doseLive.filterPending')}</option>
+            <option value="acknowledged">{t('doseLive.filterAcknowledged')}</option>
           </select>
         </div>
         {visibleAlerts.length === 0 ? (
-          <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>暂无告警</div>
+          <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noAlerts')}</div>
         ) : (
           <div style={{ maxHeight: 320, overflowY: "auto" }}>
             <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <Th>日期</Th>
-                  <Th>患者</Th>
-                  <Th>部位</Th>
+                  <Th>{t('doseLive.colDate')}</Th>
+                  <Th>{t('doseLive.colPatient')}</Th>
+                  <Th>{t('doseLive.colBodyPart')}</Th>
                   <Th>CTDIvol</Th>
                   <Th>DLP</Th>
-                  <Th>DRL 阈值</Th>
-                  <Th>等级</Th>
-                  <Th>状态</Th>
-                  <Th align="center">操作</Th>
+                  <Th>{t('doseLive.colDrlThreshold')}</Th>
+                  <Th>{t('doseLive.colLevel')}</Th>
+                  <Th>{t('doseLive.colStatus')}</Th>
+                  <Th align="center">{t('doseLive.colActions')}</Th>
                 </tr>
               </thead>
               <tbody>
@@ -530,24 +531,24 @@ export default function DoseLiveMonitor() {
                     </Td>
                     <Td>
                       <span style={{ ...levelBadge[a.level], padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600 }}>
-                        {a.level === "critical" ? "严重" : "警告"}
+                        {a.level === "critical" ? t('doseLive.levelCritical') : t('doseLive.levelWarning')}
                       </span>
                     </Td>
                     <Td>
                       {a.acknowledged ? (
                         <span style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <CheckCircle2 size={13} /> 已确认
+                          <CheckCircle2 size={13} /> {t('doseLive.acknowledged')}
                         </span>
                       ) : (
                         <span style={{ color: "#b45309", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <AlertTriangle size={13} /> 待处理
+                          <AlertTriangle size={13} /> {t('doseLive.pending')}
                         </span>
                       )}
                     </Td>
                     <Td align="center">
                       {!a.acknowledged && (
                         <button style={btnPrimary} onClick={() => void handleAck(a.id)}>
-                          <CheckCircle2 size={12} /> 确认
+                          <CheckCircle2 size={12} /> {t('doseLive.acknowledge')}
                         </button>
                       )}
                     </Td>
@@ -562,7 +563,7 @@ export default function DoseLiveMonitor() {
       <div style={card}>
         <div style={{ ...cardTitle, justifyContent: "space-between" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <BarChart3 size={14} /> 剂量统计
+            <BarChart3 size={14} /> {t('doseLive.statsTitle')}
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 400 }}>
             <input
@@ -571,7 +572,7 @@ export default function DoseLiveMonitor() {
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
             />
-            <span style={{ color: "#94a3b8" }}>至</span>
+            <span style={{ color: "#94a3b8" }}>{t('doseLive.to')}</span>
             <input
               type="date"
               style={{ ...input, width: 150 }}
@@ -579,7 +580,7 @@ export default function DoseLiveMonitor() {
               onChange={(e) => setDateTo(e.target.value)}
             />
             <button style={btnPrimary} onClick={() => void loadStats()} disabled={statsLoading}>
-              <BarChart3 size={13} /> {statsLoading ? "统计中..." : "查询"}
+              <BarChart3 size={13} /> {statsLoading ? t('doseLive.calculating') : t('doseLive.query')}
             </button>
           </span>
         </div>
@@ -587,34 +588,34 @@ export default function DoseLiveMonitor() {
         {stats ? (
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginBottom: 14 }}>
-              <MiniInfo label="总检查数" value={`${stats.totalExams} 次`} />
-              <MiniInfo label="平均 CTDIvol" value={`${fmt(stats.avgCtdivol)} mGy`} />
-              <MiniInfo label="平均 DLP" value={`${fmt(stats.avgDlp)} mGy·cm`} />
-              <MiniInfo label="最大 CTDIvol" value={`${fmt(stats.maxCtdivol)} mGy`} warn={stats.maxCtdivol > 40} />
-              <MiniInfo label="最大 DLP" value={`${fmt(stats.maxDlp)} mGy·cm`} warn={stats.maxDlp > 900} />
-              <MiniInfo label="告警" value={`${stats.warningCount} 警 / ${stats.criticalCount} 危`} warn={stats.criticalCount > 0} />
+              <MiniInfo label={t('doseLive.totalExamCount')} value={`${stats.totalExams} 次`} />
+              <MiniInfo label={t('doseLive.avgCtdiVolLabel')} value={`${fmt(stats.avgCtdivol)} mGy`} />
+              <MiniInfo label={t('doseLive.avgDlpLabel')} value={`${fmt(stats.avgDlp)} mGy·cm`} />
+              <MiniInfo label={t('doseLive.maxCtdiVol')} value={`${fmt(stats.maxCtdivol)} mGy`} warn={stats.maxCtdivol > 40} />
+              <MiniInfo label={t('doseLive.maxDlp')} value={`${fmt(stats.maxDlp)} mGy·cm`} warn={stats.maxDlp > 900} />
+              <MiniInfo label={t('doseLive.alerts')} value={`${stats.warningCount} 警 / ${stats.criticalCount} 危`} warn={stats.criticalCount > 0} />
             </div>
             {statsTrendData.length > 0 ? (
-          <ChartContainer height={200} state={statsTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无统计趋势数据">
+          <ChartContainer height={200} state={statsTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noStatsTrend')}>
             <LineChart data={statsTrendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
                   <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
                   <Legend iconSize={10} />
-                  <Line type="monotone" dataKey="avgDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} name="平均DLP" />
-                  <Line type="monotone" dataKey="avgCtdivol" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} name="平均CTDIvol" />
+                  <Line type="monotone" dataKey="avgDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} name={t('doseLive.avgDlpLabel')} />
+                  <Line type="monotone" dataKey="avgCtdivol" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} name={t('doseLive.avgCtdiVolLabel')} />
                 </LineChart>
               </ChartContainer>
             ) : (
               <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 20 }}>
-                {statsLoading ? "统计中..." : "所选范围内暂无检查记录"}
+                {statsLoading ? t('doseLive.calculating') : t('doseLive.noRecordsInRange')}
               </div>
             )}
           </>
         ) : (
           <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>
-            {statsLoading ? "统计中..." : "暂无统计数据"}
+            {statsLoading ? t('doseLive.calculating') : t('doseLive.noStatsData')}
           </div>
         )}
       </div>
@@ -622,19 +623,19 @@ export default function DoseLiveMonitor() {
       <div style={card}>
         <div style={{ ...cardTitle, justifyContent: "space-between" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <ShieldAlert size={14} /> DRL 阈值配置表
+            <ShieldAlert size={14} /> {t('doseLive.drlConfigTitle')}
           </span>
-          <span style={{ fontSize: 11, color: "#94a3b8" }}>修改后点击保存，依据国家标准/自定义</span>
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>{t('doseLive.drlConfigHint')}</span>
         </div>
         <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <Th>模态</Th>
-              <Th>检查部位</Th>
-              <Th>CTDIvol 阈值 (mGy)</Th>
-              <Th>DLP 阈值 (mGy·cm)</Th>
-              <Th>来源</Th>
-              <Th align="center">操作</Th>
+              <Th>{t('doseLive.colModality')}</Th>
+              <Th>{t('doseLive.colExamBodyPart')}</Th>
+              <Th>{t('doseLive.colCtdiThreshold')}</Th>
+              <Th>{t('doseLive.colDlpThreshold')}</Th>
+              <Th>{t('doseLive.colSource')}</Th>
+              <Th align="center">{t('doseLive.colActions')}</Th>
             </tr>
           </thead>
           <tbody>
@@ -675,7 +676,7 @@ export default function DoseLiveMonitor() {
                   <Td style={{ color: "#64748b" }}>{d.source}</Td>
                   <Td align="center">
                     <button style={btnPrimary} disabled={saving === d.bodyPart} onClick={() => void handleSaveDrl(d)}>
-                      <Save size={12} /> {saving === d.bodyPart ? "保存中..." : "保存"}
+                      <Save size={12} /> {saving === d.bodyPart ? t('doseLive.saving') : t('doseLive.save')}
                     </button>
                   </Td>
                 </tr>

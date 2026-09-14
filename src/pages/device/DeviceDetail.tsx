@@ -5,6 +5,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import { C } from './DeviceStatusBadge'
+import { t } from '../../i18n/appI18n'
 
 interface DeviceDetailData {
   id: string
@@ -119,25 +120,25 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Settings size={13} /> 设备基本信息
+              <Settings size={13} /> {t('deviceDetail.basicInfo')}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
               {[
-                ['设备编号', device.id],
-                ['设备型号', device.model],
-                ['制造厂商', device.manufacturer],
-                ['设备类型', device.modality],
-                ['检查室', room?.name || '-'],
-                ['安装位置', extInfo.installationLocation || '-'],
-                ['购置年份', device.acquisitionYear ? `${device.acquisitionYear}年` : '-'],
-                ['当前状态', device.status],
-                ['序列号', extInfo.serialNumber || '-'],
-                ['购买日期', extInfo.purchaseDate || '-'],
-                ['保修截止', extInfo.warrantyExpiry || '-'],
-                ['资产编号', extInfo.assetCode || '-'],
+                ['deviceDetail.deviceId', device.id],
+                ['deviceDetail.deviceModel', device.model],
+                ['deviceDetail.manufacturer', device.manufacturer],
+                ['deviceDetail.deviceType', device.modality],
+                ['deviceDetail.examRoom', room?.name || '-'],
+                ['deviceDetail.installLocation', extInfo.installationLocation || '-'],
+                ['deviceDetail.acquisitionYear', device.acquisitionYear ? `${device.acquisitionYear}年` : '-'],
+                ['deviceDetail.currentStatus', device.status],
+                ['deviceDetail.serialNumber', extInfo.serialNumber || '-'],
+                ['deviceDetail.purchaseDate', extInfo.purchaseDate || '-'],
+                ['deviceDetail.warrantyExpiry', extInfo.warrantyExpiry || '-'],
+                ['deviceDetail.assetCode', extInfo.assetCode || '-'],
               ].map(([label, val]) => (
                 <div key={label} style={{ background: C.white, borderRadius: 8, padding: '8px 12px', border: `1px solid ${C.border}` }}>
-                  <div style={{ fontSize: 12, color: C.textLight }}>{label}</div>
+                  <div style={{ fontSize: 12, color: C.textLight }}>{t(label ?? '')}</div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{val}</div>
                 </div>
               ))}
@@ -150,7 +151,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               border: `1px solid ${C.border}`
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Camera size={13} /> 设备照片
+                <Camera size={13} /> {t('deviceDetail.devicePhoto')}
               </div>
               <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
                 <div style={{
@@ -161,30 +162,30 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                   gap: 8, flexShrink: 0
                 }}>
                   <Camera size={32} style={{ color: C.textLight }} />
-                  <span style={{ fontSize: 12, color: C.textLight, textAlign: 'center' }}>设备照片占位</span>
-                  <span style={{ fontSize: 12, color: C.textLight }}>点击上传</span>
+                  <span style={{ fontSize: 12, color: C.textLight, textAlign: 'center' }}>{t('deviceDetail.photoPlaceholder')}</span>
+                  <span style={{ fontSize: 12, color: C.textLight }}>{t('deviceDetail.clickToUpload')}</span>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 6 }}>设备名称：{device.name}</div>
-                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 6 }}>最后更新：{extInfo.purchaseDate}</div>
-                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>照片状态：待上传</div>
+                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('deviceDetail.deviceNameLabel')}{device.name}</div>
+                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('deviceDetail.lastUpdatedLabel')}{extInfo.purchaseDate}</div>
+                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('deviceDetail.photoStatusLabel')}{t('deviceDetail.pendingUpload')}</div>
                   <button style={{
                     padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
                     background: `${C.accent}10`, color: C.accent, fontSize: 12.5, fontWeight: 600, cursor: 'pointer'
                   }} onClick={async () => {
                     const btn = document.activeElement as HTMLButtonElement;
                     const originalText = btn.innerHTML;
-                    btn.innerHTML = '⏳ 上传中...';
+                    btn.innerHTML = `⏳ ${t('deviceDetail.uploading')}`;
                     btn.disabled = true;
                     await new Promise(r => setTimeout(r, 1500));
                     const photos = (() => { try { return JSON.parse(localStorage.getItem('g005_device_photos') || '[]') } catch { return [] } })();
                     photos.push({ deviceId: device.id, timestamp: new Date().toISOString() });
                     localStorage.setItem('g005_device_photos', JSON.stringify(photos));
-                    btn.innerHTML = '✅ 已上传';
+                    btn.innerHTML = `✅ ${t('deviceDetail.uploaded')}`;
                     btn.style.color = C.success;
                     setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.color = ''; }, 2000);
                   }}>
-                    上传照片
+                    {t('deviceDetail.uploadPhoto')}
                   </button>
                 </div>
               </div>
@@ -195,7 +196,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               border: `1px solid ${C.border}`, minWidth: 200
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <QrCode size={13} /> 设备二维码/条码
+                <QrCode size={13} /> {t('deviceDetail.qrBarcode')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
                 <div style={{
@@ -206,7 +207,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 }}>
                   <div style={{ textAlign: 'center' }}>
                     <QrCode size={48} style={{ color: C.primary }} />
-                    <div style={{ fontSize: 8, color: C.textLight, marginTop: 2 }}>二维码</div>
+                    <div style={{ fontSize: 8, color: C.textLight, marginTop: 2 }}>{t('deviceDetail.qrCode')}</div>
                   </div>
                 </div>
                 <div style={{
@@ -220,10 +221,10 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                     {device.id.replace('DEV-', '')}
                   </div>
                   <div style={{ height: 2, background: `${C.textDark}`, margin: '2px 4px', borderRadius: 1 }} />
-                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>设备条码</div>
+                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{t('deviceDetail.barcode')}</div>
                 </div>
                 <div style={{ fontSize: 12, color: C.textLight, textAlign: 'center' }}>
-                  扫码查看设备详情
+                  {t('deviceDetail.scanForDetails')}
                 </div>
               </div>
             </div>
@@ -234,28 +235,28 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Activity size={13} /> 实时统计（后端 /devices/:id/stats）
+              <Activity size={13} /> {t('deviceDetail.realtimeStats')}
             </div>
             {apiStats ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                 {[
-                  { label: '今日检查量', value: `${apiStats.todayExams} 例`, color: C.accent },
-                  { label: '累计检查量', value: `${apiStats.totalExams} 例`, color: C.primary },
-                  { label: '今日使用时长', value: `${apiStats.usageMinutes} 分钟`, color: C.warning },
-                  { label: '使用率(按8h)', value: `${Math.min(100, Math.round(apiStats.usageMinutes / 480 * 100))}%`, color: C.success },
+                  { label: 'deviceDetail.todayExams', value: `${apiStats.todayExams} 例`, color: C.accent },
+                  { label: 'deviceDetail.totalExams', value: `${apiStats.totalExams} 例`, color: C.primary },
+                  { label: 'deviceDetail.todayUsageDuration', value: `${apiStats.usageMinutes} 分钟`, color: C.warning },
+                  { label: 'deviceDetail.usageRate8h', value: `${Math.min(100, Math.round(apiStats.usageMinutes / 480 * 100))}%`, color: C.success },
                 ].map(item => (
                   <div key={item.label} style={{
                     background: C.white, borderRadius: 10, padding: '12px 14px',
                     border: `1px solid ${C.border}`, textAlign: 'center'
                   }}>
                     <div style={{ fontSize: 18, fontWeight: 800, color: item.color }}>{item.value}</div>
-                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>{item.label}</div>
+                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>{t(item.label)}</div>
                   </div>
                 ))}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: 12, color: C.textLight, fontSize: 12 }}>
-                正在加载实时统计...
+                {t('deviceDetail.loadingStats')}
               </div>
             )}
           </div>
@@ -265,29 +266,29 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={13} /> 今日使用时间轴（0-24时）
+              <Clock size={13} /> {t('deviceDetail.todayTimeline')}
             </div>
             <div style={{ display: 'flex', gap: 2, height: 60, alignItems: 'flex-end' }}>
-              {timelineHours.map((t, i) => (
+              {timelineHours.map((th, i) => (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                   <div style={{
                     width: '100%', borderRadius: '2px 2px 0 0',
-                    background: t.busy ? C.success : '#e2e8f0',
-                    height: `${Math.max(4, t.examCount * 15)}px`,
+                    background: th.busy ? C.success : '#e2e8f0',
+                    height: `${Math.max(4, th.examCount * 15)}px`,
                     transition: 'height 0.3s',
                   }} />
                   {i % 4 === 0 && (
-                    <span style={{ fontSize: 8, color: C.textLight }}>{t.hour}</span>
+                    <span style={{ fontSize: 8, color: C.textLight }}>{th.hour}</span>
                   )}
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5, color: C.textMid }}>
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: C.success }} /> 使用中
+                <span style={{ width: 10, height: 10, borderRadius: 2, background: C.success }} /> {t('deviceDetail.inUse')}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5, color: C.textMid }}>
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: '#e2e8f0' }} /> 空闲
+                <span style={{ width: 10, height: 10, borderRadius: 2, background: '#e2e8f0' }} /> {t('deviceDetail.idle')}
               </span>
             </div>
           </div>
@@ -298,7 +299,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               border: `1px solid ${C.border}`
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <TrendingUp size={13} /> 7天检查量趋势
+                <TrendingUp size={13} /> {t('deviceDetail.trend7d')}
               </div>
               <ResponsiveContainer width="100%" height={120}>
                 <AreaChart data={device7d}>
@@ -316,7 +317,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               border: `1px solid ${C.border}`
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Heart size={13} /> 设备健康状态评分
+                <Heart size={13} /> {t('deviceDetail.healthScore')}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 }}>
                 <div style={{ position: 'relative', width: 90, height: 90 }}>
@@ -336,15 +337,15 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                     alignItems: 'center', justifyContent: 'center'
                   }}>
                     <span style={{ fontSize: 18, fontWeight: 800, color: C.textDark }}>{device.healthScore}</span>
-                    <span style={{ fontSize: 8, color: C.textLight }}>健康分</span>
+                    <span style={{ fontSize: 8, color: C.textLight }}>{t('deviceDetail.healthScoreShort')}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, fontSize: 12, color: C.textMid }}>
-                  <span>运行时长：{device.totalRuntime}</span>
+                  <span>{t('deviceDetail.runtimeLabel')}{device.totalRuntime}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 10, fontSize: 12, color: C.textMid }}>
-                  <span>故障次数：{device.faultCount} 次</span>
-                  <span>维保次数：{device.maintCount} 次</span>
+                  <span>{t('deviceDetail.faultCountLabel', { count: device.faultCount })}</span>
+                  <span>{t('deviceDetail.maintCountLabel', { count: device.maintCount })}</span>
                 </div>
               </div>
             </div>
@@ -355,16 +356,16 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={13} /> 设备全生命周期
+              <Clock size={13} /> {t('deviceDetail.lifecycle')}
             </div>
             <div style={{ position: 'relative', paddingLeft: 20 }}>
               <div style={{ position: 'absolute', left: 8, top: 0, bottom: 0, width: 2, background: C.border, borderRadius: 1 }} />
               {[
-                { date: extInfo.purchaseDate || '2021-01', title: '采购入库', desc: `采购金额 ¥${(extInfo.purchasePrice || 5000000).toLocaleString()}`, color: C.accent },
-                { date: extInfo.installationDate || '2021-03', title: '安装调试', desc: `安装位置：${extInfo.installationLocation || '放射科'}`, color: C.info },
-                { date: '2021-06', title: '正式服役', desc: '通过验收，投入临床使用', color: C.success },
-                { date: extInfo.warrantyExpiry || '2026-01', title: '保修到期', desc: '原厂保修结束，续签维保合同', color: C.warning },
-                { date: new Date(Date.now() + 365 * 3 * 86400000).toISOString().slice(0, 10), title: '计划报废', desc: '预计使用寿命结束，启动更新计划', color: C.danger },
+                { date: extInfo.purchaseDate || '2021-01', title: 'deviceDetail.event.procurement', desc: `采购金额 ¥${(extInfo.purchasePrice || 5000000).toLocaleString()}`, color: C.accent },
+                { date: extInfo.installationDate || '2021-03', title: 'deviceDetail.event.installation', desc: `安装位置：${extInfo.installationLocation || '放射科'}`, color: C.info },
+                { date: '2021-06', title: 'deviceDetail.event.commissioning', desc: 'deviceDetail.event.commissioningDesc', color: C.success },
+                { date: extInfo.warrantyExpiry || '2026-01', title: 'deviceDetail.event.warrantyExpiry', desc: 'deviceDetail.event.warrantyExpiryDesc', color: C.warning },
+                { date: new Date(Date.now() + 365 * 3 * 86400000).toISOString().slice(0, 10), title: 'deviceDetail.event.retirement', desc: 'deviceDetail.event.retirementDesc', color: C.danger },
               ].map((event, i) => (
                 <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, position: 'relative' }}>
                   <div style={{
@@ -373,10 +374,10 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                   }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{event.title}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{t(event.title)}</span>
                       <span style={{ fontSize: 12.5, color: C.textLight }}>{event.date}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: C.textMid }}>{event.desc}</div>
+                    <div style={{ fontSize: 12, color: C.textMid }}>{t(event.desc)}</div>
                   </div>
                 </div>
               ))}
@@ -388,13 +389,13 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Gauge size={13} /> 性能指标
+              <Gauge size={13} /> {t('deviceDetail.performanceMetrics')}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {[
-                { label: '平均检查时长', value: `${device.avgExamTime} 分钟`, color: C.accent },
-                { label: '最大检查时长', value: `${device.maxExamTime} 分钟`, color: C.warning },
-                { label: '最小检查时长', value: `${device.minExamTime} 分钟`, color: C.success },
+                { label: 'deviceDetail.avgExamTime', value: `${device.avgExamTime} 分钟`, color: C.accent },
+                { label: 'deviceDetail.maxExamTime', value: `${device.maxExamTime} 分钟`, color: C.warning },
+                { label: 'deviceDetail.minExamTime', value: `${device.minExamTime} 分钟`, color: C.success },
               ].map(item => (
                 <div key={item.label} style={{
                   background: C.white, borderRadius: 10, padding: '12px 14px',
@@ -433,7 +434,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             border: `1px solid ${C.border}`
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Wrench size={13} /> 维保历史
+              <Wrench size={13} /> {t('deviceDetail.maintHistory')}
             </div>
             {maintRecords.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -453,7 +454,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: 20, color: C.textLight, fontSize: 12 }}>
-              暂无维保记录
+              {t('deviceDetail.noMaintRecords')}
               </div>
             )}
           </div>

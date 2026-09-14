@@ -21,6 +21,7 @@ import {
 import { Shield, Smartphone, Key, QrCode, CheckCircle, Copy, Mail, MessageSquare, Eye, EyeOff, Clock, AlertTriangle } from 'lucide-react';
 import { mfaApi } from "../../services/api/mfaApi";
 import { message as antdMessage } from "antd";
+import { t } from "../../i18n/appI18n";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -51,32 +52,32 @@ export default function MfaSetupPage() {
       setSecret(res.data.secret);
       setStep(1);
     } else {
-      antdMessage.error(res.error?.message || "获取TOTP密钥失败");
+      antdMessage.error(res.error?.message || t("mfaSetup.getSecretFailed"));
     }
   };
 
   const handleVerify = async () => {
     if (!code || code.length < 6) {
-      antdMessage.warning("请输入 6 位验证码");
+      antdMessage.warning(t("mfaSetup.enterCode"));
       return;
     }
     setVerifying(true);
     try {
       const res = await mfaApi.verifyTotp(code);
       if (res.success && res.data?.verified) {
-        setResult({ success: true, message: "验证成功！MFA 已启用" });
+        setResult({ success: true, message: t("mfaSetup.verifySuccess") });
         setEnabled(true);
         setBackupCodes(res.data.backupCodes || []);
         setStep(3);
-        antdMessage.success("MFA 验证通过");
+        antdMessage.success(t("mfaSetup.verifyPassed"));
       } else {
         setResult({
           success: false,
-          message: res.error?.message || "验证码错误",
+          message: res.error?.message || t("mfaSetup.invalidCode"),
         });
       }
     } catch {
-      setResult({ success: false, message: "验证失败，请重试" });
+      setResult({ success: false, message: t("mfaSetup.verifyFailed") });
     } finally {
       setVerifying(false);
     }
@@ -92,7 +93,7 @@ export default function MfaSetupPage() {
 
   const handleDisable = async () => {
     if (!code || code.length < 6) {
-      antdMessage.warning("请输入当前 6 位 TOTP 验证码");
+      antdMessage.warning(t("mfaSetup.enterCurrentCode"));
       return;
     }
     setVerifying(true);
@@ -104,9 +105,9 @@ export default function MfaSetupPage() {
         setSecret("");
         setCode("");
         setDisableOpen(false);
-        antdMessage.success("MFA 已禁用");
+        antdMessage.success(t("mfaSetup.disabled"));
       } else {
-        antdMessage.error(res.error?.message || "关闭失败");
+        antdMessage.error(res.error?.message || t("mfaSetup.disableFailed"));
       }
     } finally {
       setVerifying(false);
@@ -115,7 +116,7 @@ export default function MfaSetupPage() {
 
   const copyBackupCodes = () => {
     navigator.clipboard.writeText(backupCodes.join("\n"));
-    antdMessage.success("备用码已复制");
+    antdMessage.success(t("mfaSetup.backupCopied"));
   };
 
   return (
@@ -129,15 +130,15 @@ export default function MfaSetupPage() {
           marginBottom: 16,
         }}
       >
-        <Shield size={22} /> 多因素认证 (MFA) 设置
+        <Shield size={22} /> {t("mfaSetup.title")}
       </Title>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
           <Card size="small">
             <Statistic
-              title="当前状态"
-              value={enabled ? "已启用" : "未启用"}
+              title={t("mfaSetup.currentStatus")}
+              value={enabled ? t("mfaSetup.enabledTag") : t("mfaSetup.disabledTag")}
               styles={{ content: {  color: enabled ? "#059669" : "#dc2626"  } }}
               prefix={
                 enabled ? <Shield size={14} /> : <AlertTriangle size={14} />
@@ -148,9 +149,9 @@ export default function MfaSetupPage() {
         <Col span={8}>
           <Card size="small">
             <Statistic
-              title="认证方式"
+              title={t("mfaSetup.authMethod")}
               value={enabled ? 1 : 0}
-              suffix={`种`}
+              suffix={t("mfaSetup.methodUnit")}
               prefix={<Key size={14} />}
             />
           </Card>
@@ -158,8 +159,8 @@ export default function MfaSetupPage() {
         <Col span={8}>
           <Card size="small">
             <Statistic
-              title="上次使用"
-              value={enabled ? "最近" : "从未"}
+              title={t("mfaSetup.lastUsed")}
+              value={enabled ? t("mfaSetup.recent") : t("mfaSetup.never")}
               prefix={<Clock size={14} />}
             />
           </Card>
@@ -176,7 +177,7 @@ export default function MfaSetupPage() {
           }}
         >
           <Text strong style={{ fontSize: 15 }}>
-            启用/禁用 MFA
+            {t("mfaSetup.enableDisableMfa")}
           </Text>
           <Switch checked={enabled} onChange={handleToggle} />
         </div>
@@ -185,17 +186,17 @@ export default function MfaSetupPage() {
           current={step}
           style={{ marginBottom: 24 }}
           items={[
-            { title: "选择方式", icon: <Shield size={14} /> },
-            { title: "配置密钥", icon: <Key size={14} /> },
-            { title: "验证", icon: <CheckCircle size={14} /> },
-            { title: "完成", icon: <Smartphone size={14} /> },
+            { title: t("mfaSetup.selectMethod"), icon: <Shield size={14} /> },
+            { title: t("mfaSetup.configureKey"), icon: <Key size={14} /> },
+            { title: t("mfaSetup.verify"), icon: <CheckCircle size={14} /> },
+            { title: t("mfaSetup.done"), icon: <Smartphone size={14} /> },
           ]}
         />
 
         {step === 0 && (
           <div>
             <Paragraph type="secondary" style={{ marginBottom: 16 }}>
-              选择一个 MFA 方式来增强账户安全性
+              {t("mfaSetup.chooseMethod")}
             </Paragraph>
             <Space orientation="vertical" style={{ width: "100%" }}>
               <Button
@@ -205,7 +206,7 @@ export default function MfaSetupPage() {
                 icon={<QrCode size={16} />}
                 onClick={() => setMethod("totp")}
               >
-                TOTP 验证器 (Google / Microsoft Authenticator)
+                {t("mfaSetup.totpAuthenticator")}
               </Button>
               <Button
                 size="large"
@@ -214,7 +215,7 @@ export default function MfaSetupPage() {
                 icon={<MessageSquare size={16} />}
                 onClick={() => setMethod("sms")}
               >
-                短信验证码
+                {t("mfaSetup.smsCode")}
               </Button>
               <Button
                 size="large"
@@ -223,12 +224,12 @@ export default function MfaSetupPage() {
                 icon={<Mail size={16} />}
                 onClick={() => setMethod("email")}
               >
-                邮件验证码
+                {t("mfaSetup.emailCode")}
               </Button>
             </Space>
             <Divider />
             <Button type="primary" onClick={handleStart}>
-              下一步
+              {t("mfaSetup.nextStep")}
             </Button>
           </div>
         )}
@@ -236,7 +237,7 @@ export default function MfaSetupPage() {
         {step === 1 && (
           <div>
             <Alert
-              title="使用 TOTP 验证器扫描或手动输入密钥"
+              title={t("mfaSetup.scanHint")}
               type="info"
               showIcon
               style={{ marginBottom: 16 }}
@@ -281,7 +282,7 @@ export default function MfaSetupPage() {
                     icon={showSecret ? <EyeOff size={14} /> : <Eye size={14} />}
                     onClick={() => setShowSecret(!showSecret)}
                   >
-                    {showSecret ? "隐藏" : "显示"}密钥
+                    {t("mfaSetup.toggleSecretLabel", { action: showSecret ? t("mfaSetup.hide") : t("mfaSetup.show") })}
                   </Button>
                   <Button
                     type="link"
@@ -289,43 +290,43 @@ export default function MfaSetupPage() {
                     icon={<Copy size={14} />}
                     onClick={() => {
                       navigator.clipboard.writeText(secret);
-                      antdMessage.success("密钥已复制");
+                      antdMessage.success(t("mfaSetup.keyCopied"));
                     }}
                   >
-                    复制密钥
+                    {t("mfaSetup.copyKey")}
                   </Button>
                 </div>
                 <Paragraph style={{ marginTop: 8 }}>
                   <Text type="secondary">
-                    在验证器应用中输入此密钥或扫描二维码
+                    {t("mfaSetup.inputSecretHint")}
                   </Text>
                 </Paragraph>
               </div>
             )}
             {method === "sms" && (
               <Alert
-                title="短信验证码已发送至已绑定手机"
+                title={t("mfaSetup.smsSent")}
                 type="success"
                 showIcon
               />
             )}
             {method === "email" && (
               <Alert
-                title="验证码已发送至已绑定邮箱"
+                title={t("mfaSetup.emailSent")}
                 type="success"
                 showIcon
               />
             )}
             <Space>
               <Input
-                placeholder="输入 6 位验证码"
+                placeholder={t("mfaSetup.enterCodePlaceholder")}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 maxLength={6}
                 style={{ width: 180 }}
               />
               <Button type="primary" onClick={handleVerify} loading={verifying}>
-                验证
+                {t("mfaSetup.verify")}
               </Button>
             </Space>
             {result && (
@@ -342,32 +343,32 @@ export default function MfaSetupPage() {
         {step === 3 && (
           <div>
             <Alert
-              title="MFA 已成功启用"
+              title={t("mfaSetup.enabledSuccess")}
               type="success"
               showIcon
               icon={<CheckCircle size={16} />}
               style={{ marginBottom: 16 }}
             />
             <Descriptions column={1} bordered size="small">
-              <Descriptions.Item label="认证方式">
+              <Descriptions.Item label={t("mfaSetup.authMethod")}>
                 <Tag color="blue">{method.toUpperCase()}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="状态">
-                <Tag color="green">已启用</Tag>
+              <Descriptions.Item label={t("mfaSetup.status")}>
+                <Tag color="green">{t("mfaSetup.enabledTag")}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="注册时间">当前会话</Descriptions.Item>
-              <Descriptions.Item label="上次使用">当前会话</Descriptions.Item>
+              <Descriptions.Item label={t("mfaSetup.registeredAt")}>{t("mfaSetup.currentSession")}</Descriptions.Item>
+              <Descriptions.Item label={t("mfaSetup.lastUsed")}>{t("mfaSetup.currentSession")}</Descriptions.Item>
             </Descriptions>
             <Divider />
             <Title
               level={5}
               style={{ display: "flex", alignItems: "center", gap: 8 }}
             >
-              备用恢复码 <Tag color="orange">请妥善保管</Tag>
+              {t("mfaSetup.backupCodesTitle")} <Tag color="orange">{t("mfaSetup.keepSafe")}</Tag>
             </Title>
             <Paragraph>
               <Text type="secondary">
-                每个代码只能使用一次，建议保存到安全位置
+                {t("mfaSetup.backupCodesHint")}
               </Text>
             </Paragraph>
             <List
@@ -383,7 +384,7 @@ export default function MfaSetupPage() {
             />
             <Space>
               <Button icon={<Copy size={14} />} onClick={copyBackupCodes}>
-                复制备用码
+                {t("mfaSetup.copyBackupCodes")}
               </Button>
             </Space>
           </div>
@@ -391,19 +392,19 @@ export default function MfaSetupPage() {
       </Card>
 
       <Modal
-        title="关闭 MFA"
+        title={t("mfaSetup.disableMfaTitle")}
         open={disableOpen}
-        okText="确认关闭"
+        okText={t("mfaSetup.confirmDisable")}
         okButtonProps={{ danger: true }}
         confirmLoading={verifying}
         onCancel={() => setDisableOpen(false)}
         onOk={handleDisable}
       >
         <Paragraph>
-          关闭 MFA 需要二次认证，请输入当前 6 位 TOTP 验证码。
+          {t("mfaSetup.disableHint")}
         </Paragraph>
         <Input
-          placeholder="输入 6 位验证码"
+          placeholder={t("mfaSetup.enterCodePlaceholder")}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           maxLength={6}

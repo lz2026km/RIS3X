@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { GenderFilter, PatientTypeFilter, PatientFormData } from "./types";
 import { FormField, FormSubmitBar } from "../../components/common/FormField";
+import { t } from "../../i18n/appI18n";
 
 interface RegistrationWizardProps {
   open: boolean;
@@ -43,20 +44,20 @@ function RegistrationWizard({
   const validateStep = (): boolean => {
     const e: Partial<Record<string, string>> = {};
     if (step === 1) {
-      if (!formData.name.trim()) e.name = "请输入姓名";
-      if (!formData.idCard.trim()) e.idCard = "请输入身份证号";
-      else if (formData.idCard.length !== 18) e.idCard = "身份证号需18位";
-      if (!formData.phone.trim()) e.phone = "请输入手机号";
+      if (!formData.name.trim()) e.name = t('patientForm.enterName');
+      if (!formData.idCard.trim()) e.idCard = t('patientForm.enterIdCard');
+      else if (formData.idCard.length !== 18) e.idCard = t('patientForm.idCard18');
+      if (!formData.phone.trim()) e.phone = t('patientForm.enterPhone');
       else if (!/^1[3-9]\d{9}$/.test(formData.phone))
-        e.phone = "手机号格式不正确";
+        e.phone = t('patientForm.phoneInvalid');
     } else if (step === 2) {
       if (!formData.allergyHistory.trim())
-        e.allergyHistory = "请填写过敏史（无则填无）";
+        e.allergyHistory = t('patientForm.allergyRequired');
     } else if (step === 3) {
       if (!formData.emergencyContact.trim())
-        e.emergencyContact = "请输入联系人";
+        e.emergencyContact = t('patientForm.enterContact');
       if (!formData.emergencyPhone.trim())
-        e.emergencyPhone = "请输入联系人电话";
+        e.emergencyPhone = t('patientForm.enterContactPhone');
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -152,7 +153,7 @@ function RegistrationWizard({
               <UserPlus size={22} color="#fff" />
               <div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>
-                  新建患者档案
+                  {t('patientForm.newRecord')}
                 </div>
                 <div
                   style={{
@@ -161,7 +162,7 @@ function RegistrationWizard({
                     marginTop: 2,
                   }}
                 >
-                  第 {step}/3 步
+                  {t('patientForm.stepOf', { step })}
                 </div>
               </div>
             </div>
@@ -215,7 +216,7 @@ function RegistrationWizard({
                     color: step >= s ? "#fff" : "rgba(255,255,255,0.5)",
                   }}
                 >
-                  {s === 1 ? "基本信息" : s === 2 ? "医疗信息" : "紧急联系人"}
+                  {s === 1 ? t('patientForm.stepBasic') : s === 2 ? t('patientForm.stepMedical') : t('patientForm.stepEmergency')}
                 </div>
                 {s < 3 && (
                   <div
@@ -250,14 +251,14 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  姓名 <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.name')} <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="请输入患者姓名"
+                  placeholder={t('patientForm.namePlaceholder')}
                   style={inputStyle("name")}
                 />
                 {errors.name && (
@@ -276,11 +277,11 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  性别
+                  {t('patientForm.gender')}
                 </label>
                 <div
                   role="radiogroup"
-                  aria-label="性别"
+                  aria-label={t('patientForm.gender')}
                   style={{ display: "flex", gap: 16, paddingTop: 4 }}
                 >
                   {(["男", "女"] as GenderFilter[]).map((g) => (
@@ -319,7 +320,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  年龄
+                  {t('patientForm.age')}
                 </label>
                 <input
                   value={formData.age}
@@ -327,7 +328,7 @@ function RegistrationWizard({
                     setFormData({ ...formData, age: e.target.value })
                   }
                   type="number"
-                  placeholder="年龄"
+                  placeholder={t('patientForm.agePlaceholder')}
                   style={inputStyle("age")}
                 />
               </div>
@@ -341,14 +342,14 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  身份证号 <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.idCard')} <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   value={formData.idCard}
                   onChange={(e) =>
                     setFormData({ ...formData, idCard: e.target.value })
                   }
-                  placeholder="18位身份证号"
+                  placeholder={t('patientForm.idCardPlaceholder')}
                   maxLength={18}
                   style={inputStyle("idCard")}
                 />
@@ -368,14 +369,14 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  手机号 <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.phone')} <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   value={formData.phone}
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  placeholder="手机号"
+                  placeholder={t('patientForm.phonePlaceholder')}
                   maxLength={11}
                   style={inputStyle("phone")}
                 />
@@ -395,7 +396,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  患者类型
+                  {t('patientForm.patientType')}
                 </label>
                 <select
                   value={formData.patientType}
@@ -409,9 +410,9 @@ function RegistrationWizard({
                 >
                   {(
                     ["门诊", "住院", "体检", "急诊"] as PatientTypeFilter[]
-                  ).map((t) => (
-                    <option key={t} value={t}>
-                      {t}
+                  ).map((pt) => (
+                    <option key={pt} value={pt}>
+                      {pt}
                     </option>
                   ))}
                 </select>
@@ -426,14 +427,14 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  家庭住址
+                  {t('patientForm.address')}
                 </label>
                 <input
                   value={formData.address}
                   onChange={(e) =>
                     setFormData({ ...formData, address: e.target.value })
                   }
-                  placeholder="详细地址"
+                  placeholder={t('patientForm.addressPlaceholder')}
                   style={inputStyle("address")}
                 />
               </div>
@@ -458,18 +459,18 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  过敏史{" "}
-                  <span style={{ color: "#dc2626" }} aria-label="必填">
+                  {t('patientForm.allergyHistory')}{" "}
+                  <span style={{ color: "#dc2626" }} aria-label={t('patientForm.required')}>
                     *
                   </span>
                 </label>
                 <textarea
-                  aria-label="过敏史"
+                  aria-label={t('patientForm.allergyHistory')}
                   value={formData.allergyHistory}
                   onChange={(e) =>
                     setFormData({ ...formData, allergyHistory: e.target.value })
                   }
-                  placeholder="药物/食物过敏史（无则填'无'）"
+                  placeholder={t('patientForm.allergyPlaceholder')}
                   rows={3}
                   maxLength={500}
                   style={{
@@ -497,14 +498,14 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  既往史
+                  {t('patientForm.medicalHistory')}
                 </label>
                 <textarea
                   value={formData.medicalHistory}
                   onChange={(e) =>
                     setFormData({ ...formData, medicalHistory: e.target.value })
                   }
-                  placeholder="既往病史"
+                  placeholder={t('patientForm.medicalHistoryPlaceholder')}
                   rows={3}
                   style={{
                     ...inputStyle("medicalHistory"),
@@ -522,7 +523,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  医保类型
+                  {t('patientForm.insuranceType')}
                 </label>
                 <select
                   value={formData.insuranceType}
@@ -531,7 +532,7 @@ function RegistrationWizard({
                   }
                   style={inputStyle("insuranceType")}
                 >
-                  <option value="">请选择</option>
+                  <option value="">{t('patientForm.select')}</option>
                   <option value="城镇职工基本医疗保险">
                     城镇职工基本医疗保险
                   </option>
@@ -552,14 +553,14 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  床位号
+                  {t('patientForm.bedNumber')}
                 </label>
                 <input
                   value={formData.bedNumber}
                   onChange={(e) =>
                     setFormData({ ...formData, bedNumber: e.target.value })
                   }
-                  placeholder="如：3床"
+                  placeholder={t('patientForm.bedPlaceholder')}
                   style={inputStyle("bedNumber")}
                 />
               </div>
@@ -573,7 +574,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  主治医师
+                  {t('patientForm.attendingDoctor')}
                 </label>
                 <input
                   value={formData.attendingDoctor}
@@ -583,7 +584,7 @@ function RegistrationWizard({
                       attendingDoctor: e.target.value,
                     })
                   }
-                  placeholder="主治医师姓名"
+                  placeholder={t('patientForm.doctorPlaceholder')}
                   style={inputStyle("attendingDoctor")}
                 />
               </div>
@@ -608,7 +609,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  紧急联系人 <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.emergencyContact')} <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   value={formData.emergencyContact}
@@ -618,7 +619,7 @@ function RegistrationWizard({
                       emergencyContact: e.target.value,
                     })
                   }
-                  placeholder="联系人姓名"
+                  placeholder={t('patientForm.contactNamePlaceholder')}
                   style={inputStyle("emergencyContact")}
                 />
                 {errors.emergencyContact && (
@@ -637,14 +638,14 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  联系人电话 <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.contactPhone')} <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   value={formData.emergencyPhone}
                   onChange={(e) =>
                     setFormData({ ...formData, emergencyPhone: e.target.value })
                   }
-                  placeholder="联系人电话"
+                  placeholder={t('patientForm.contactPhonePlaceholder')}
                   maxLength={11}
                   style={inputStyle("emergencyPhone")}
                 />
@@ -668,7 +669,7 @@ function RegistrationWizard({
               >
                 <CheckCircle size={16} color="#16a34a" />
                 <span style={{ fontSize: 12, color: "#166534" }}>
-                  确认信息无误后，点击"完成注册"提交
+                  {t('patientForm.confirmHint')}
                 </span>
               </div>
             </div>
@@ -697,7 +698,7 @@ function RegistrationWizard({
               cursor: "pointer",
             }}
           >
-            取消
+            {t('patientForm.cancel')}
           </button>
           <div style={{ display: "flex", gap: 8 }}>
             {step > 1 && (
@@ -718,7 +719,7 @@ function RegistrationWizard({
                 }}
               >
                 <ChevronLeft size={14} />
-                上一步
+                {t('patientForm.prev')}
               </button>
             )}
             {step < 3 ? (
@@ -738,7 +739,7 @@ function RegistrationWizard({
                   gap: 6,
                 }}
               >
-                下一步 <ChevronRight size={14} />
+                {t('patientForm.next')} <ChevronRight size={14} />
               </button>
             ) : (
               <button
@@ -758,7 +759,7 @@ function RegistrationWizard({
                 }}
               >
                 <CheckCircle size={14} />
-                完成注册
+                {t('patientForm.finish')}
               </button>
             )}
           </div>
@@ -821,25 +822,25 @@ export function PatientCreateForm({
         </button>
         <div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}>
-            {selectedPatientForEdit ? "编辑患者信息" : "新建患者档案"}
+            {selectedPatientForEdit ? t('patientForm.editRecord') : t('patientForm.newRecord')}
           </div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
             {selectedPatientForEdit
               ? `患者ID: ${selectedPatientForEdit.id}`
-              : "请填写以下信息"}
+              : t('patientForm.fillInfo')}
           </div>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <FormField label="患者姓名" required error={formErrors.name}>
+        <FormField label={t('patientForm.name')} required error={formErrors.name}>
           <input
             type="text"
             value={formData.name}
             onChange={(e) =>
               onFormDataChange({ ...formData, name: e.target.value })
             }
-            placeholder="请输入患者姓名"
+            placeholder={t('patientForm.namePlaceholder')}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -851,10 +852,10 @@ export function PatientCreateForm({
             }}
           />
         </FormField>
-        <FormField label="性别" required>
+        <FormField label={t('patientForm.gender')} required>
           <div
             role="radiogroup"
-            aria-label="性别"
+            aria-label={t('patientForm.gender')}
             style={{ display: "flex", gap: 16, paddingTop: 4 }}
           >
             {(["男", "女"] as GenderFilter[]).map((g) => (
@@ -893,7 +894,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            年龄
+            {t('patientForm.age')}
           </label>
           <input
             type="number"
@@ -901,7 +902,7 @@ export function PatientCreateForm({
             onChange={(e) =>
               onFormDataChange({ ...formData, age: e.target.value })
             }
-            placeholder="请输入年龄"
+            placeholder={t('patientForm.enterAge')}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -913,14 +914,14 @@ export function PatientCreateForm({
             }}
           />
         </div>
-        <FormField label="身份证号" required error={formErrors.idCard}>
+        <FormField label={t('patientForm.idCard')} required error={formErrors.idCard}>
           <input
             type="text"
             value={formData.idCard}
             onChange={(e) =>
               onFormDataChange({ ...formData, idCard: e.target.value })
             }
-            placeholder="请输入18位身份证号"
+            placeholder={t('patientForm.enterIdCard18')}
             maxLength={18}
             style={{
               width: "100%",
@@ -933,14 +934,14 @@ export function PatientCreateForm({
             }}
           />
         </FormField>
-        <FormField label="联系电话" required error={formErrors.phone}>
+        <FormField label={t('patientForm.phone')} required error={formErrors.phone}>
           <input
             type="tel"
             value={formData.phone}
             onChange={(e) =>
               onFormDataChange({ ...formData, phone: e.target.value })
             }
-            placeholder="请输入手机号"
+            placeholder={t('patientForm.enterPhone')}
             maxLength={11}
             style={{
               width: "100%",
@@ -963,7 +964,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            患者类型
+            {t('patientForm.patientType')}
           </label>
           <select
             value={formData.patientType}
@@ -985,9 +986,9 @@ export function PatientCreateForm({
             }}
           >
             {(["门诊", "住院", "体检", "急诊"] as PatientTypeFilter[]).map(
-              (t) => (
-                <option key={t} value={t}>
-                  {t}
+              (pt) => (
+                <option key={pt} value={pt}>
+                  {pt}
                 </option>
               ),
             )}
@@ -1003,15 +1004,15 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            家庭住址
+            {t('patientForm.address')}
           </label>
           <textarea
-            aria-label="家庭住址"
+            aria-label={t('patientForm.address')}
             value={formData.address}
             onChange={(e) =>
               onFormDataChange({ ...formData, address: e.target.value })
             }
-            placeholder="请输入详细地址"
+            placeholder={t('patientForm.enterAddress')}
             rows={2}
             maxLength={200}
             style={{
@@ -1037,7 +1038,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            联系人姓名 <span style={{ color: "#dc2626" }}>*</span>
+            {t('patientForm.contactName')} <span style={{ color: "#dc2626" }}>*</span>
           </label>
           <input
             type="text"
@@ -1048,7 +1049,7 @@ export function PatientCreateForm({
                 emergencyContact: e.target.value,
               })
             }
-            placeholder="请输入联系人姓名"
+            placeholder={t('patientForm.enterContactName')}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -1075,7 +1076,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            联系人电话 <span style={{ color: "#dc2626" }}>*</span>
+            {t('patientForm.contactPhone')} <span style={{ color: "#dc2626" }}>*</span>
           </label>
           <input
             type="tel"
@@ -1083,7 +1084,7 @@ export function PatientCreateForm({
             onChange={(e) =>
               onFormDataChange({ ...formData, emergencyPhone: e.target.value })
             }
-            placeholder="请输入联系人电话"
+            placeholder={t('patientForm.enterContactPhone')}
             maxLength={11}
             style={{
               width: "100%",
@@ -1111,7 +1112,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            医保类型
+            {t('patientForm.insuranceType')}
           </label>
           <select
             value={formData.insuranceType}
@@ -1129,7 +1130,7 @@ export function PatientCreateForm({
               boxSizing: "border-box",
             }}
           >
-            <option value="">请选择</option>
+            <option value="">{t('patientForm.select')}</option>
             <option value="城镇职工基本医疗保险">城镇职工基本医疗保险</option>
             <option value="城乡居民基本医疗保险">城乡居民基本医疗保险</option>
             <option value="商业医疗保险">商业医疗保险</option>
@@ -1146,7 +1147,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            床位号
+            {t('patientForm.bedNumber')}
           </label>
           <input
             type="text"
@@ -1176,7 +1177,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            主治医师
+            {t('patientForm.attendingDoctor')}
           </label>
           <input
             type="text"
@@ -1184,7 +1185,7 @@ export function PatientCreateForm({
             onChange={(e) =>
               onFormDataChange({ ...formData, attendingDoctor: e.target.value })
             }
-            placeholder="请输入主治医师姓名"
+            placeholder={t('patientForm.enterDoctor')}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -1206,15 +1207,15 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            过敏史
+            {t('patientForm.allergyHistory')}
           </label>
           <textarea
-            aria-label="过敏史"
+            aria-label={t('patientForm.allergyHistory')}
             value={formData.allergyHistory}
             onChange={(e) =>
               onFormDataChange({ ...formData, allergyHistory: e.target.value })
             }
-            placeholder="请输入过敏史（无则填'无'）"
+            placeholder={t('patientForm.enterAllergy')}
             rows={2}
             maxLength={500}
             style={{
@@ -1240,15 +1241,15 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            既往史
+            {t('patientForm.medicalHistory')}
           </label>
           <textarea
-            aria-label="既往史"
+            aria-label={t('patientForm.medicalHistory')}
             value={formData.medicalHistory}
             onChange={(e) =>
               onFormDataChange({ ...formData, medicalHistory: e.target.value })
             }
-            placeholder="请输入既往病史"
+            placeholder={t('patientForm.enterMedicalHistory')}
             rows={3}
             maxLength={500}
             style={{
@@ -1279,7 +1280,7 @@ export function PatientCreateForm({
         <FormSubmitBar
           onCancel={onCancel}
           onSubmit={onSave}
-          submitText="保存患者信息"
+          submitText={t('patientForm.saveInfo')}
         />
       </div>
     </div>

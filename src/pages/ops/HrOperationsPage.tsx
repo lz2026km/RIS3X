@@ -4,6 +4,7 @@ import { ChartContainer } from '../../components/charts'
 import { Users, Search, TrendingUp, Award, Clock, CheckCircle, XCircle, ChevronDown, ChevronRight } from 'lucide-react'
 // [W2-A] 人员名册/工作量接 userApi 实时; 排班/满意度趋势无数据源 → 标注演示数据
 import { userApi } from '../../services/api/userApi'
+import { t } from '../../i18n/appI18n'
 
 interface Staff {
   id: string; name: string; role: string; department: string; status: 'active' | 'leave' | 'training'
@@ -73,14 +74,14 @@ export default function HrOperationsPage() {
       const users = res.success && Array.isArray(res.data) ? res.data : []
       if (users.length === 0) {
         setDataSource('demo')
-        setApiError('userApi 暂不可用，当前展示内置演示数据')
+        setApiError(t('hrOps.apiUnavailable'))
         return
       }
       setDataSource('api')
       const mapped: Staff[] = users.map((u: any) => ({
         id: u.id,
         name: u.name || u.fullName || u.username || '—',
-        role: u.title || u.role || '医师',
+        role: u.title || u.role || t('hrOps.physicianFallback'),
         department: u.subspecialty || u.department || '—',
         status: u.isActive === false ? 'leave' : 'active',
         shift: u.schedule || '白班',
@@ -94,11 +95,11 @@ export default function HrOperationsPage() {
       if (uniqRoles.length > 0) setRoles(uniqRoles)
       const certs = mapped
         .filter(s => s.certification && s.certification !== '—')
-        .map(s => ({ staff: s.name, cert: s.certification, expiry: '长期有效(演示)', status: 'valid' as const }))
+        .map(s => ({ staff: s.name, cert: s.certification, expiry: t('hrOps.longTermDemo'), status: 'valid' as const }))
       if (certs.length > 0) setCertRows(certs)
     } catch (e) {
       setDataSource('demo')
-      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+      setApiError(e instanceof Error ? e.message : t('hrOps.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -119,9 +120,9 @@ export default function HrOperationsPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Users size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>人力资源运营</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Users size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('hrOps.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>在岗 {staff.filter(s => s.status === 'active').length}/{staff.length} · {dataSource === 'api' ? 'userApi 实时' : '演示数据'}</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('hrOps.onDuty', { active: staff.filter(s => s.status === 'active').length, total: staff.length })} · {dataSource === 'api' ? t('hrOps.apiRealtime') : t('hrOps.demoData')}</span>
         </div>
       </div>
 
@@ -132,21 +133,21 @@ export default function HrOperationsPage() {
             background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600,
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
-            {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: userApi 实时 (人员/工作量/资质)' : '数据源: 演示数据'}
+            {loading ? t('hrOps.syncing') : dataSource === 'api' ? t('hrOps.dataSourceApi') : t('hrOps.dataSourceDemo')}
           </span>
           {apiError && (
             <span style={{ color: '#ef4444' }}>
               {apiError}
-              <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+              <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('hrOps.retry')}</button>
             </span>
           )}
-          <span style={{ color: '#8b949e' }}>排班表/满意度趋势为内置演示数据</span>
+          <span style={{ color: '#8b949e' }}>{t('hrOps.builtinDemoNote')}</span>
         </div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#21262d', padding: 4, borderRadius: 8 }}>
           {(['roster', 'shift', 'certs'] as const).map(v => (
             <button key={v} onClick={() => setView(v)}
               style={{ flex: 1, padding: '8px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: view === v ? '#1e40af' : 'transparent', color: view === v ? '#fff' : '#8b949e' }}>
-              {v === 'roster' ? '人员名册' : v === 'shift' ? '排班管理' : '资质证书'}
+              {v === 'roster' ? t('hrOps.tabRoster') : v === 'shift' ? t('hrOps.tabShift') : t('hrOps.tabCerts')}
             </button>
           ))}
         </div>
@@ -157,12 +158,12 @@ export default function HrOperationsPage() {
               {['all', ...roles].map(r => (
                 <button key={r} onClick={() => setRoleFilter(r)}
                   style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: roleFilter === r ? '#1e40af' : '#21262d', color: roleFilter === r ? '#fff' : '#8b949e' }}>
-                  {r === 'all' ? '全部' : r}
+                  {r === 'all' ? t('hrOps.all') : r}
                 </button>
               ))}
               <div style={{ position: 'relative', marginLeft: 'auto' }}>
                 <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e7681' }} />
-                <input placeholder="搜索姓名..." value={search} onChange={e => setSearch(e.target.value)}
+                <input placeholder={t('hrOps.searchName')} value={search} onChange={e => setSearch(e.target.value)}
                   style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none', width: 180 }} />
               </div>
             </div>
@@ -170,30 +171,30 @@ export default function HrOperationsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#22c55e" />本周工作量对比 (在职) {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(userApi 实时)</span>}
+                  <TrendingUp size={16} color="#22c55e" />{t('hrOps.weeklyWorkload')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('hrOps.apiRealtimeTag')}</span>}
                 </div>
-                <ChartContainer height={220} state={prodData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无工作量数据">
+                <ChartContainer height={220} state={prodData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('hrOps.noWorkload')}>
                   <BarChart data={prodData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
-                    <Bar dataKey="examsThisWeek" fill="#22c55e" radius={[4, 4, 0, 0]} name="检查量" />
+                    <Bar dataKey="examsThisWeek" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('hrOps.examVolume')} />
                   </BarChart>
                 </ChartContainer>
               </div>
 
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#8b5cf6" />员工满意度趋势 <span style={{ fontSize: 11, color: '#f59e0b' }}>(演示数据)</span>
+                  <TrendingUp size={16} color="#8b5cf6" />{t('hrOps.satisfactionTrend')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span>
                 </div>
-                <ChartContainer height={220} state={SATISFACTION_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无满意度数据">
+                <ChartContainer height={220} state={SATISFACTION_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription={t('hrOps.noSatisfaction')}>
                   <LineChart data={SATISFACTION_TREND}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}`, '满意度']} />
-                    <Line type="monotone" dataKey="satisfaction" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6' }} name="满意度" />
+                    <Line type="monotone" dataKey="satisfaction" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6' }} name={t('hrOps.satisfaction')} />
                   </LineChart>
                 </ChartContainer>
               </div>
@@ -201,7 +202,7 @@ export default function HrOperationsPage() {
 
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr 90px 80px 90px 80px 60px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-                <span /><span>姓名</span><span>角色</span><span>班组</span><span>排班</span><span>本周检查</span><span>加班(h)</span>
+                <span /><span>{t('hrOps.colName')}</span><span>{t('hrOps.colRole')}</span><span>{t('hrOps.colTeam')}</span><span>{t('hrOps.colShift')}</span><span>{t('hrOps.colWeeklyExams')}</span><span>{t('hrOps.colOvertime')}</span>
               </div>
               {filtered.map((s, idx) => {
                 const isOpen = expandedId === s.id
@@ -217,7 +218,7 @@ export default function HrOperationsPage() {
                       <span style={{ fontSize: 12, color: '#8b949e' }}>{s.role}</span>
                       <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: s.status === 'active' ? '#22c55e' : s.status === 'leave' ? '#ef4444' : '#f59e0b' }}>
                         {s.status === 'active' ? <CheckCircle size={12} /> : s.status === 'leave' ? <XCircle size={12} /> : <Clock size={12} />}
-                        {s.status === 'active' ? '在职' : s.status === 'leave' ? '休假' : '培训'}
+                        {s.status === 'active' ? t('hrOps.statusActive') : s.status === 'leave' ? t('hrOps.statusLeave') : t('hrOps.statusTraining')}
                       </span>
                       <span style={{ fontSize: 12, color: '#8b949e' }}>{s.shift}</span>
                       <span style={{ fontSize: 12, color: '#f0f6fc', fontWeight: 600 }}>{s.examsThisWeek}</span>
@@ -225,8 +226,8 @@ export default function HrOperationsPage() {
                     </div>
                     {isOpen && (
                       <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d', display: 'flex', gap: 24, fontSize: 12 }}>
-                        <div><span style={{ color: '#6e7681' }}>资质: </span><span>{s.certification}</span></div>
-                        <div><span style={{ color: '#6e7681' }}>满意度: </span><span style={{ color: s.satisfaction >= 85 ? '#22c55e' : '#f59e0b' }}>{s.satisfaction}%</span></div>
+                        <div><span style={{ color: '#6e7681' }}>{t('hrOps.certificationLabel')} </span><span>{s.certification}</span></div>
+                        <div><span style={{ color: '#6e7681' }}>{t('hrOps.satisfactionLabel')} </span><span style={{ color: s.satisfaction >= 85 ? '#22c55e' : '#f59e0b' }}>{s.satisfaction}%</span></div>
                       </div>
                     )}
                   </div>
@@ -238,14 +239,14 @@ export default function HrOperationsPage() {
 
         {view === 'shift' && (
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc' }}>本周排班表 <span style={{ fontSize: 11, color: '#f59e0b' }}>(演示数据)</span></div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc' }}>{t('hrOps.weeklyShift')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span></div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>日期</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>白班</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>夜班</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>备班</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colDate')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.dayShift')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.nightShift')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.backupShift')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -265,15 +266,15 @@ export default function HrOperationsPage() {
         {view === 'certs' && (
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Award size={16} color="#f59e0b" />资质证书到期提醒 {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(userApi 实时 · 到期日为演示)</span>}
+              <Award size={16} color="#f59e0b" />{t('hrOps.certExpiry')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('hrOps.certExpiryTag')}</span>}
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>姓名</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>证书</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>到期日</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>状态</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colName')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colCert')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colExpiry')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colStatus')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -284,7 +285,7 @@ export default function HrOperationsPage() {
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.expiry}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
                       <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.status === 'valid' ? '#22c55e20' : '#f59e0b20', color: c.status === 'valid' ? '#22c55e' : '#f59e0b' }}>
-                        {c.status === 'valid' ? '有效' : '即将过期'}
+                        {c.status === 'valid' ? t('hrOps.certValid') : t('hrOps.certExpiring')}
                       </span>
                     </td>
                   </tr>

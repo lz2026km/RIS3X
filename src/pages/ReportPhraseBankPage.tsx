@@ -21,6 +21,7 @@ import { reportApi } from '../services/api/reportApi';
 import { useSearchParams } from 'react-router-dom';
 // [v3.0.6.11-98 Wave1B P0-2] 模板变量自动填充: 预览优先用真实报告上下文, 无上下文时显示原占位符 + 说明
 import { resolveTemplateVariables, describeTemplateVariables } from '../utils/templateVariables';
+import { t } from '../i18n/appI18n';
 
 const CATEGORY_LABEL_TO_KEY: Record<string, PhraseCategory> = {
   '正常': 'normal',
@@ -94,17 +95,17 @@ export default function ReportPhraseBankPage() {
           const placeholders = Array.from(content.matchAll(/\{\{(\w+)\}\}/g)).map(m => m[1] ?? '');
           return {
             id: snip.id || `snp-${i}`,
-            title: snip.name || '未命名短语',
+            title: snip.name || t('rpb.unnamedPhrase'),
             content,
             category: CATEGORY_LABEL_TO_KEY[String(snip.category || '')] ?? 'normal',
             bodyPart: [],
             modality: [],
-            scene: '智能片段（templatesApi）',
+            scene: t('rpb.sceneApi'),
             placeholders,
             usageCount: Number(snip.usage ?? 0),
             rating: 5,
             tags: [],
-            author: '系统',
+            author: t('rpb.system'),
             createdAt: String(snip.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
           };
         });
@@ -113,11 +114,11 @@ export default function ReportPhraseBankPage() {
         setSource('api');
       } else {
         setSource('demo');
-        setApiError('templatesApi 暂不可用，当前展示内置演示短语');
+        setApiError(t('rpb.apiUnavailable'));
       }
     } catch (e) {
       setSource('demo');
-      setApiError(e instanceof Error ? e.message : '短语加载失败，已回退演示数据');
+      setApiError(e instanceof Error ? e.message : t('rpb.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -204,7 +205,7 @@ export default function ReportPhraseBankPage() {
       const { resolved, unresolved } = describeTemplateVariables(editedContent, varContext);
       return `真实上下文预览: ${resolved.length > 0 ? `已自动填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : '无可自动填充变量'}${unresolved.length > 0 ? `; ${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样` : ''}`;
     }
-    return '无报告上下文: 预览保留原 {{占位符}}, 书写页插入时自动填充患者信息';
+    return t('rpb.noContextNote');
   })();
 
   // 复制到剪贴板 (权限被拒时降级 execCommand / 提示)
@@ -212,7 +213,7 @@ export default function ReportPhraseBankPage() {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        message.success('已复制到剪贴板！');
+        message.success(t('rpb.copied'));
         return;
       }
       throw new Error('Clipboard API unavailable');
@@ -226,16 +227,16 @@ export default function ReportPhraseBankPage() {
         ta.select();
         const ok = document.execCommand('copy');
         document.body.removeChild(ta);
-        if (ok) { message.success('已复制到剪贴板！'); return; }
+        if (ok) { message.success(t('rpb.copied')); return; }
       } catch { /* fallthrough */ }
-      message.warning('复制失败: 浏览器未授予剪贴板权限，请手动选择复制');
+      message.warning(t('rpb.copyFailed'));
     }
   };
 
   // 新建短语: API 源 → templatesApi.createSnippet; 演示源 → 本地内存
   const handleCreate = async () => {
-    if (!newPhrase.title.trim()) { message.warning('请输入短语标题'); return; }
-    if (!newPhrase.content.trim()) { message.warning('请输入短语内容'); return; }
+    if (!newPhrase.title.trim()) { message.warning(t('rpb.titleRequired')); return; }
+    if (!newPhrase.content.trim()) { message.warning(t('rpb.contentRequired')); return; }
     const placeholders = Array.from(newPhrase.content.matchAll(/\{\{(\w+)\}\}/g)).map(m => m[1] ?? '');
     if (source === 'api') {
       try {
@@ -251,17 +252,17 @@ export default function ReportPhraseBankPage() {
           category: newPhrase.category,
           bodyPart: [],
           modality: [],
-          scene: '智能片段（templatesApi）',
+          scene: t('rpb.sceneApi'),
           placeholders,
           usageCount: 0,
           rating: 5,
           tags: [],
-          author: '当前用户',
+          author: t('rpb.currentUser'),
           createdAt: new Date().toISOString().slice(0, 10),
         };
         setPhrases(prev => [created, ...prev]);
         setSelectedPhraseId(created.id);
-        message.success('短语已创建（templatesApi）');
+        message.success(t('rpb.createdApi'));
       } catch (e) {
         message.error('创建失败: ' + (e instanceof Error ? e.message : '未知错误'));
         return;
@@ -274,17 +275,17 @@ export default function ReportPhraseBankPage() {
         category: newPhrase.category,
         bodyPart: [],
         modality: [],
-        scene: '自定义短语',
+        scene: t('rpb.customPhrase'),
         placeholders,
         usageCount: 0,
         rating: 5,
         tags: [],
-        author: '当前用户',
+        author: t('rpb.currentUser'),
         createdAt: new Date().toISOString().slice(0, 10),
       };
       setPhrases(prev => [phrase, ...prev]);
       setSelectedPhraseId(phrase.id);
-      message.success('短语已创建');
+      message.success(t('rpb.createdPhrase'));
     }
     setCreateOpen(false);
     setNewPhrase({ title: '', category: 'normal', content: '' });
@@ -295,7 +296,7 @@ export default function ReportPhraseBankPage() {
     if (!selected) return;
     setEditedContent(selected.content);
     setTimeout(() => editorRef.current?.focus(), 0);
-    message.info('已进入编辑模式，修改后内容实时预览');
+    message.info(t('rpb.editMode'));
   };
 
   // 评分：本地 +1（最高 5 星）
@@ -312,7 +313,7 @@ export default function ReportPhraseBankPage() {
     if (source === 'api') {
       try {
         await templatesApi.deleteSnippet(selected.id);
-        message.success('短语已删除（templatesApi）');
+        message.success(t('rpb.deletedApi'));
       } catch (e) {
         message.error('删除失败: ' + (e instanceof Error ? e.message : '未知错误'));
         return;
@@ -329,7 +330,7 @@ export default function ReportPhraseBankPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <MessageSquare size={20} color="#3b82f6" /> 报告短语库
+            <MessageSquare size={20} color="#3b82f6" /> {t('rpb.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
@@ -338,11 +339,11 @@ export default function ReportPhraseBankPage() {
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
-              {loading ? '同步中...' : source === 'api' ? '数据源: templatesApi.snippets 实时' : '演示数据(接口不可用)'}
+              {loading ? t('rpb.syncing') : source === 'api' ? t('rpb.sourceApi') : t('rpb.sourceDemo')}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            {phrases.length} 短语 · 6 分类 · 占位符替换 · 一键复制 · 评分系统
+            {t('rpb.subtitle', { count: phrases.length })}
             {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
@@ -354,7 +355,7 @@ export default function ReportPhraseBankPage() {
             display: 'flex', alignItems: 'center', gap: 4,
           }}
         >
-          <Plus size={12} /> 新建短语
+          <Plus size={12} /> {t('rpb.newPhrase')}
         </button>
       </div>
 
@@ -392,7 +393,7 @@ export default function ReportPhraseBankPage() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="搜索标题/内容/标签..."
+                placeholder={t('rpb.searchPlaceholder')}
                 style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
               />
             </div>
@@ -425,7 +426,7 @@ export default function ReportPhraseBankPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
                     <span>{'⭐'.repeat(p.rating)}</span>
                     <span>· ×{p.usageCount}</span>
-                    {p.placeholders.length > 0 && <span style={{ padding: '0 4px', background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 2 }}>{p.placeholders.length} 占位符</span>}
+                    {p.placeholders.length > 0 && <span style={{ padding: '0 4px', background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 2 }}>{t('rpb.placeholderCount', { count: p.placeholders.length })}</span>}
                   </div>
                 </div>
               );
@@ -457,7 +458,7 @@ export default function ReportPhraseBankPage() {
               {placeholders.length > 0 && (
                 <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6 }}>
                   <div style={{ fontSize: 12, color: '#92400e', fontWeight: 700, marginBottom: 6 }}>
-                    💡 本短语包含 {placeholders.length} 个占位符：
+                    {t('rpb.placeholdersHint', { count: placeholders.length })}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {placeholders.map(p => (
@@ -472,7 +473,7 @@ export default function ReportPhraseBankPage() {
               {/* 编辑区 */}
               <div style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>📝 原始（含占位符）</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('rpb.rawWithPlaceholders')}</span>
                 </div>
                 <textarea
                   ref={editorRef}
@@ -485,12 +486,12 @@ export default function ReportPhraseBankPage() {
 
               <div style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>✨ 渲染预览{varContext ? '（真实上下文）' : '（示例）'}</span>
+                  <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>{t('rpb.renderPreview')}{varContext ? t('rpb.realContext') : t('rpb.sample')}</span>
                   <button
                     onClick={() => handleCopy(copyContent)}
                     style={{ padding: '2px 8px', border: '1px solid #10b981', borderRadius: 3, background: 'var(--bg-card)', color: '#10b981', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
-                    <Copy size={10} /> 复制
+                    <Copy size={10} /> {t('rpb.copy')}
                   </button>
                 </div>
                 <div style={{ padding: 10, background: 'var(--color-success-bg)', border: '1px solid #bbf7d0', borderRadius: 6, fontSize: 12, color: '#065f46', lineHeight: 1.6 }}>
@@ -506,36 +507,36 @@ export default function ReportPhraseBankPage() {
               {/* 操作按钮 */}
               <div style={{ display: 'flex', gap: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
                 <button onClick={handleEditFocus} style={{ padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Edit2 size={11} /> 编辑
+                  <Edit2 size={11} /> {t('rpb.edit')}
                 </button>
                 <button onClick={handleRateUp} style={{ padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Star size={11} /> 评分
+                  <Star size={11} /> {t('rpb.rate')}
                 </button>
                 <button onClick={() => handleCopy(copyContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
-                  <Copy size={11} /> 一键复制
+                  <Copy size={11} /> {t('rpb.copyAll')}
                 </button>
                 <button onClick={() => void handleDelete()} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Trash2 size={11} /> 删除
+                  <Trash2 size={11} /> {t('rpb.delete')}
                 </button>
               </div>
             </div>
 
             {/* 元信息 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>📊 短语元信息</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('rpb.metaTitle')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <InfoCell label="作者" value={selected.author} />
-                <InfoCell label="创建" value={selected.createdAt} />
-                <InfoCell label="使用频次" value={selected.usageCount.toLocaleString()} color="#10b981" />
-                <InfoCell label="标签数" value={String(selected.tags.length)} color="#7c3aed" />
+                <InfoCell label={t('rpb.author')} value={selected.author} />
+                <InfoCell label={t('rpb.created')} value={selected.createdAt} />
+                <InfoCell label={t('rpb.usageCount')} value={selected.usageCount.toLocaleString()} color="#10b981" />
+                <InfoCell label={t('rpb.tagCount')} value={String(selected.tags.length)} color="#7c3aed" />
               </div>
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>🏷️ 标签</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('rpb.tags')}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.tags.map(t => (
                     <span key={t} style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 10 }}>#{t}</span>
                   ))}
-                  {selected.tags.length === 0 && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>（无标签）</span>}
+                  {selected.tags.length === 0 && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('rpb.noTags')}</span>}
                 </div>
               </div>
             </div>
@@ -544,35 +545,35 @@ export default function ReportPhraseBankPage() {
       </div>
       {/* 新建短语 Modal */}
       <Modal
-        title="新建短语"
+        title={t('rpb.newPhrase')}
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
         onOk={() => void handleCreate()}
-        okText="创建"
-        cancelText="取消"
+        okText={t('rpb.create')}
+        cancelText={t('rpb.cancel')}
         width={520}
       >
         <Form layout="vertical" size="small" style={{ marginTop: 12 }}>
-          <Form.Item label="短语标题" required>
+          <Form.Item label={t('rpb.phraseTitle')} required>
             <Input
               value={newPhrase.title}
               onChange={e => setNewPhrase(p => ({ ...p, title: e.target.value }))}
-              placeholder="如：胸部 CT 增强随访建议"
+              placeholder={t('rpb.titlePlaceholder')}
             />
           </Form.Item>
-          <Form.Item label="分类">
+          <Form.Item label={t('rpb.category')}>
             <Select
               value={newPhrase.category}
               onChange={v => setNewPhrase(p => ({ ...p, category: v }))}
               options={PHRASE_CATEGORIES.map(c => ({ value: c.key, label: `${c.label}（${c.description}）` }))}
             />
           </Form.Item>
-          <Form.Item label="短语内容（支持 {{占位符}}）" required>
+          <Form.Item label={t('rpb.contentLabel')} required>
             <Input.TextArea
               rows={5}
               value={newPhrase.content}
               onChange={e => setNewPhrase(p => ({ ...p, content: e.target.value }))}
-              placeholder="如：建议 {{timeframe}} 后复查，必要时穿刺活检明确病理。"
+              placeholder={t('rpb.contentPlaceholder')}
             />
           </Form.Item>
         </Form>

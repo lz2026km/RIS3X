@@ -7,6 +7,7 @@ import {
 import type { CriticalValue } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import { FilterBar, CriticalValueList } from './CriticalValueList'
+import { t } from '../../i18n/appI18n'
 
 const NATIONAL_CRITICAL_ITEMS: Record<string, { code: string; name: string; icon: any; color: string; description: string }[]> = {
   'CT/MR': [
@@ -46,10 +47,10 @@ const CriticalItemsDirectory = () => {
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`, borderRadius: '12px 12px 0 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <ShieldAlert size={18} style={{ color: '#fff' }} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>国家卫健委2024年版危急值目录</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{t('cvSection.catalogTitle')}</span>
           </div>
           <button onClick={() => setShowModal(true)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Eye size={12} />完整目录
+            <Eye size={12} />{t('cvSection.fullCatalog')}
           </button>
         </div>
         <div style={{ padding: 12 }}>
@@ -61,7 +62,7 @@ const CriticalItemsDirectory = () => {
                 <div onClick={() => setExpandedCategory(isExpanded ? null : category)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}>
                   <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
                   <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{category}</span>
-                  <span style={{ fontSize: 12, color: '#64748b', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{items.length}项</span>
+                  <span style={{ fontSize: 12, color: '#64748b', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
                   <ChevronRight size={14} style={{ color: '#64748b', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </div>
                 {isExpanded && (
@@ -89,14 +90,14 @@ const CriticalItemsDirectory = () => {
       </div>
 
       {showModal && (
-        <div onClick={() => setShowModal(false)} role="dialog" aria-modal="true" aria-label="国家卫健委2024年版放射科危急值目录" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 500)' }}>
+        <div onClick={() => setShowModal(false)} role="dialog" aria-modal="true" aria-label={t('cvSection.modalAria')} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 500)' }}>
           <div onClick={(e) => e.stopPropagation()} style={{ width: 700, maxHeight: '80vh', background: 'var(--bg-card)', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <ShieldAlert size={20} style={{ color: '#fff' }} />
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>国家卫健委2024年版放射科危急值目录</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>共{Object.values(NATIONAL_CRITICAL_ITEMS).flat().length}项危急值条目</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>{t('cvSection.modalTitle')}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{t('cvSection.modalSubtitle', { count: Object.values(NATIONAL_CRITICAL_ITEMS).flat().length })}</div>
                 </div>
               </div>
               <button onClick={() => setShowModal(false)} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -111,7 +112,7 @@ const CriticalItemsDirectory = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid ' + PRIMARY_COLOR }}>
                       <CategoryIcon size={16} style={{ color: PRIMARY_COLOR }} />
                       <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY_COLOR }}>{category}</span>
-                      <span style={{ fontSize: 12, color: '#fff', background: PRIMARY_COLOR, padding: '2px 8px', borderRadius: 10 }}>{items.length}项</span>
+                      <span style={{ fontSize: 12, color: '#fff', background: PRIMARY_COLOR, padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {items.map((item) => {
@@ -137,10 +138,10 @@ const CriticalItemsDirectory = () => {
               })}
             </div>
             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', gap: 12 }}>
-              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>关闭</button>
+              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('cvSection.close')}</button>
               <button onClick={() => { const blob = new Blob([JSON.stringify(NATIONAL_CRITICAL_ITEMS, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '危急值目录.json'; link.click(); URL.revokeObjectURL(url) }}
                 style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Download size={14} />导出目录
+                <Download size={14} />{t('cvSection.exportCatalog')}
               </button>
             </div>
           </div>

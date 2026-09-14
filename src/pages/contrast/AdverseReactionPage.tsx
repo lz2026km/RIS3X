@@ -15,10 +15,10 @@ import { t } from '../../i18n/appI18n'
 const svc = getAdverseReactionService()
 
 const TYPE_COLORS: Record<ReactionType, string> = { allergic: '#ef4444', nephrotoxic: '#f59e0b', extravasation: '#3b82f6', vasovagal: '#a855f7', other: '#6e7681' }
-const TYPE_LABELS: Record<ReactionType, string> = { allergic: '过敏', nephrotoxic: '肾毒性', extravasation: '外渗', vasovagal: '血管迷走', other: '其他' }
+const TYPE_LABELS: Record<ReactionType, string> = { allergic: t('advR.type.allergic'), nephrotoxic: t('advR.type.nephrotoxic'), extravasation: t('advR.type.extravasation'), vasovagal: t('advR.type.vasovagal'), other: t('advR.type.other') }
 const SEV_COLORS: Record<ReactionSeverity, string> = { mild: '#22c55e', moderate: '#f59e0b', severe: '#ef4444' }
-const SEV_LABELS: Record<ReactionSeverity, string> = { mild: '轻度', moderate: '中度', severe: '重度' }
-const OUTCOME_LABELS: Record<string, string> = { resolved: '已痊愈', improving: '好转中', ongoing: '持续中', fatal: '死亡' }
+const SEV_LABELS: Record<ReactionSeverity, string> = { mild: t('advR.sev.mild'), moderate: t('advR.sev.moderate'), severe: t('advR.sev.severe') }
+const OUTCOME_LABELS: Record<string, string> = { resolved: t('advR.outcome.resolved'), improving: t('advR.outcome.improving'), ongoing: t('advR.outcome.ongoing'), fatal: t('advR.outcome.fatal') }
 const OUTCOME_OPTIONS: ReactionOutcome[] = ['resolved', 'improving', 'ongoing', 'fatal']
 
 export default function AdverseReactionPage() {
@@ -47,9 +47,9 @@ export default function AdverseReactionPage() {
           setReactions(items.map((r: any) => ({
             id: String(r.id ?? ''),
             patientId: String(r.detail?.patientId ?? r.patientId ?? ''),
-            patientName: String(r.detail?.patientName ?? '未知患者'),
+            patientName: String(r.detail?.patientName ?? t('advR.unknownPatient')),
             examId: String(r.detail?.examId ?? ''),
-            contrastName: String(r.detail?.contrastType ?? r.contrastType ?? '未知'),
+            contrastName: String(r.detail?.contrastType ?? r.contrastType ?? t('advR.unknown')),
             batchId: String(r.detail?.batchId ?? ''),
             reactionType: 'other' as ReactionType,
             severity: (String(r.detail?.severity ?? r.severity ?? 'mild').toLowerCase().startsWith('sev') ? 'severe' : String(r.detail?.severity ?? r.severity ?? 'mild').toLowerCase().startsWith('mod') ? 'moderate' : 'mild') as ReactionSeverity,
@@ -98,8 +98,8 @@ export default function AdverseReactionPage() {
   }
 
   const handleSubmitForm = async () => {
-    if (!form.patientId.trim()) { message.warning('请填写患者ID'); return; }
-    if (!form.description.trim()) { message.warning('请填写反应描述'); return; }
+    if (!form.patientId.trim()) { message.warning(t('advR.patientIdRequired')); return; }
+    if (!form.description.trim()) { message.warning(t('advR.descriptionRequired')); return; }
     setSubmitting(true)
     try {
       const payload = {
@@ -132,7 +132,7 @@ export default function AdverseReactionPage() {
       if (form.observationId.trim() && saved) {
         void contrastSafetyApi.addObservationRecord(form.observationId.trim(), {
           symptoms: form.description,
-          action: form.action || '不良反应记录',
+          action: form.action || t('advR.defaultAction'),
           recordedBy: 'current-user',
           reactionId: saved.id,
         }).then(() => { message.success(t('contrastSafety.observationLinked')) }).catch(() => { /* 留观关联失败不阻断记录 */ })
@@ -145,12 +145,12 @@ export default function AdverseReactionPage() {
         reportedBy: 'current-user',
         patientId: form.patientId || undefined,
       }).catch(() => { /* 安全事件上报失败不阻断记录 */ })
-      message.success(editTarget ? '记录已更新并上报安全事件' : '不良反应记录已提交')
+      message.success(editTarget ? t('advR.updatedReported') : t('advR.recordSubmitted'))
       setShowForm(false)
       setEditTarget(null)
       setForm({ patientId: '', reactionType: 'allergic', severity: 'mild', description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing', observationId: '' })
     } catch {
-      message.error('提交失败，请稍后重试')
+      message.error(t('advR.submitFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -164,14 +164,14 @@ export default function AdverseReactionPage() {
   }, [reactions, typeFilter, searchText])
 
   if (loading) {
-    return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>加载中...</div>
+    return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{t('advR.loading')}</div>
   }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#dc2626,#991b1b)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <AlertTriangle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>对比剂不良反应管理</span>
+          <AlertTriangle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('advR.title')}</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {/* [v3.0.6.11-104 Wave 3D] 过敏分级处置指引 (CONTRAST_ALLERGY_TREATMENT) */}
@@ -179,10 +179,10 @@ export default function AdverseReactionPage() {
             <AlertTriangle size={14} />{t('w3d.allergy.open')}
           </button>
           <button onClick={() => void handleOpenStats()} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-            <PieChart size={14} />统计报表
+            <PieChart size={14} />{t('advR.statsReport')}
           </button>
           <button onClick={() => { setEditTarget(null); setForm({ patientId: '', reactionType: 'allergic', severity: 'mild', description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing', observationId: '' }); setShowForm(!showForm) }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: showForm ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-            <Plus size={14} />{editTarget ? '编辑记录' : '记录不良反应'}
+            <Plus size={14} />{editTarget ? t('advR.editRecord') : t('advR.recordReaction')}
           </button>
         </div>
       </div>
@@ -193,7 +193,7 @@ export default function AdverseReactionPage() {
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <div style={{ position: 'relative' }}>
                 <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
-                <input type="text" placeholder="搜索患者姓名/ID..." value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 200, outline: 'none' }} />
+                <input type="text" placeholder={t('advR.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 200, outline: 'none' }} />
               </div>
               {(Object.keys(TYPE_LABELS) as ReactionType[]).map(t => (
                 <button key={t} onClick={() => setTypeFilter(typeFilter === t ? '' : t)} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: typeFilter === t ? `${TYPE_COLORS[t]}20` : 'transparent', color: typeFilter === t ? TYPE_COLORS[t] : '#8b949e', cursor: 'pointer', fontSize: 12 }}>
@@ -201,12 +201,12 @@ export default function AdverseReactionPage() {
                 </button>
               ))}
             </div>
-            <span style={{ fontSize: 13, color: '#6e7681' }}>共 {filtered.length} 例</span>
+            <span style={{ fontSize: 13, color: '#6e7681' }}>{t('advR.totalCases', { count: filtered.length })}</span>
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-              <span></span><span>患者</span><span>类型</span><span>严重度</span><span>描述</span><span>发生时间</span><span>转归</span>
+              <span></span><span>{t('advR.col.patient')}</span><span>{t('advR.col.type')}</span><span>{t('advR.col.severity')}</span><span>{t('advR.col.description')}</span><span>{t('advR.col.time')}</span><span>{t('advR.col.outcome')}</span>
             </div>
             {filtered.map((r, idx) => (
               <div key={r.id}>
@@ -222,16 +222,16 @@ export default function AdverseReactionPage() {
                 {expandedId === r.id && (
                   <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                      <div><span style={{ color: '#8b949e' }}>症状: </span>{r.symptoms.join('、')}</div>
-                      <div><span style={{ color: '#8b949e' }}>对比剂: </span>{r.contrastName}</div>
-                      <div><span style={{ color: '#8b949e' }}>处理措施: </span>{r.action}</div>
-                      <div><span style={{ color: '#8b949e' }}>用药: </span>{r.medicationGiven || '无'}</div>
-                      <div><span style={{ color: '#8b949e' }}>报告人: </span>{r.reportedBy}</div>
-                      <div><span style={{ color: '#8b949e' }}>上报状态: </span>{r.isReported ? <span style={{ color: '#22c55e' }}>已上报</span> : <span style={{ color: '#f59e0b' }}>未上报</span>}</div>
+                      <div><span style={{ color: '#8b949e' }}>{t('advR.symptomsLabel')}</span>{r.symptoms.join('、')}</div>
+                      <div><span style={{ color: '#8b949e' }}>{t('advR.contrastLabel')}</span>{r.contrastName}</div>
+                      <div><span style={{ color: '#8b949e' }}>{t('advR.actionLabel')}</span>{r.action}</div>
+                      <div><span style={{ color: '#8b949e' }}>{t('advR.medicationLabel')}</span>{r.medicationGiven || '-'}</div>
+                      <div><span style={{ color: '#8b949e' }}>{t('advR.reporterLabel')}</span>{r.reportedBy}</div>
+                      <div><span style={{ color: '#8b949e' }}>{t('advR.reportStatusLabel')}</span>{r.isReported ? <span style={{ color: '#22c55e' }}>{t('advR.reported')}</span> : <span style={{ color: '#f59e0b' }}>{t('advR.notReported')}</span>}</div>
                     </div>
-                    {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: '#161b22', borderRadius: 4, fontSize: 12, color: '#8b949e' }}>随访: {r.followUpNotes}</div>}
+                    {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: '#161b22', borderRadius: 4, fontSize: 12, color: '#8b949e' }}>{t('advR.followupLabel')}{r.followUpNotes}</div>}
                     <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                      <button onClick={() => { openEdit(r); setShowForm(true) }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>编辑</button>
+                      <button onClick={() => { openEdit(r); setShowForm(true) }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>{t('advR.edit')}</button>
                       {!r.isReported && <button onClick={() => {
                         void (async () => {
                           try {
@@ -245,14 +245,14 @@ export default function AdverseReactionPage() {
                               patientName: r.patientName || undefined,
                               actionsTaken: r.action ? [r.action] : undefined,
                             })
-                            message.success('不良事件上报已提交')
+                            message.success(t('advR.adverseSubmitted'))
                           } catch (e) {
-                            message.error((e as Error)?.message || '上报失败')
+                            message.error((e as Error)?.message || t('advR.reportFailed'))
                             return
                           }
                           setReactions(prev => prev.map(a => a.id === r.id ? { ...a, isReported: true } : a))
                         })()
-                      }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>上报</button>}
+                      }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>{t('advR.report')}</button>}
                     </div>
                   </div>
                 )}
@@ -263,18 +263,18 @@ export default function AdverseReactionPage() {
 
         {showForm && (
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{editTarget ? `编辑记录 - ${editTarget.patientName}` : '记录不良反应'}</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{editTarget ? `编辑记录 - ${editTarget.patientName}` : t('advR.recordReaction')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>患者ID *</label><input value={form.patientId} onChange={e => setForm({ ...form, patientId: e.target.value })} placeholder="必填" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.patientIdLabel')}</label><input value={form.patientId} onChange={e => setForm({ ...form, patientId: e.target.value })} placeholder={t('advR.required')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastSafety.observationIdOptional')}</label><input value={form.observationId} onChange={e => setForm({ ...form, observationId: e.target.value })} placeholder="obs-0001" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>类型</label><select value={form.reactionType} onChange={e => setForm({ ...form, reactionType: e.target.value as ReactionType })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>严重程度</label><select value={form.severity} onChange={e => setForm({ ...form, severity: e.target.value as ReactionSeverity })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(SEV_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>症状</label><input value={form.symptoms} onChange={e => setForm({ ...form, symptoms: e.target.value })} placeholder="用顿号分隔" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>对比剂</label><input value={form.contrastName} onChange={e => setForm({ ...form, contrastName: e.target.value })} placeholder="如 碘海醇" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>处理措施</label><input value={form.action} onChange={e => setForm({ ...form, action: e.target.value })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>转归</label><select value={form.outcome} onChange={e => setForm({ ...form, outcome: e.target.value as ReactionOutcome })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{OUTCOME_OPTIONS.map(k => <option key={k} value={k}>{OUTCOME_LABELS[k]}</option>)}</select></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>描述 *</label><textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="反应经过及处理过程" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box', resize: 'vertical' }} /></div>
-              <button onClick={() => void handleSubmitForm()} disabled={submitting} style={{ padding: '8px', borderRadius: 6, border: 'none', cursor: submitting ? 'wait' : 'pointer', background: '#dc2626', color: '#fff', fontSize: 13 }}>{submitting ? '提交中...' : (editTarget ? '保存修改' : '提交记录')}</button>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.typeLabel')}</label><select value={form.reactionType} onChange={e => setForm({ ...form, reactionType: e.target.value as ReactionType })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.severityLabel')}</label><select value={form.severity} onChange={e => setForm({ ...form, severity: e.target.value as ReactionSeverity })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(SEV_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.symptoms')}</label><input value={form.symptoms} onChange={e => setForm({ ...form, symptoms: e.target.value })} placeholder={t('advR.symptomsPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.contrast')}</label><input value={form.contrastName} onChange={e => setForm({ ...form, contrastName: e.target.value })} placeholder={t('advR.contrastPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.action')}</label><input value={form.action} onChange={e => setForm({ ...form, action: e.target.value })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.outcomeLabel')}</label><select value={form.outcome} onChange={e => setForm({ ...form, outcome: e.target.value as ReactionOutcome })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{OUTCOME_OPTIONS.map(k => <option key={k} value={k}>{OUTCOME_LABELS[k]}</option>)}</select></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.descriptionLabel')}</label><textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder={t('advR.descriptionPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box', resize: 'vertical' }} /></div>
+              <button onClick={() => void handleSubmitForm()} disabled={submitting} style={{ padding: '8px', borderRadius: 6, border: 'none', cursor: submitting ? 'wait' : 'pointer', background: '#dc2626', color: '#fff', fontSize: 13 }}>{submitting ? t('advR.submitting') : (editTarget ? t('advR.saveChanges') : t('advR.submitRecord'))}</button>
             </div>
           </div>
         )}
@@ -284,14 +284,14 @@ export default function AdverseReactionPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStats(false)}>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 24, width: 520, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 600 }}>近90天不良反应统计</div>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>{t('advR.statsTitle')}</div>
               <button onClick={() => setShowStats(false)} style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div style={{ padding: 14, background: '#0d1117', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc' }}>{stats.totalReactions}</div><div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>总例数</div></div>
-              <div style={{ padding: 14, background: '#0d1117', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>{stats.bySeverity?.severe ?? 0}</div><div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>重度反应</div></div>
+              <div style={{ padding: 14, background: '#0d1117', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc' }}>{stats.totalReactions}</div><div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>{t('advR.totalCount')}</div></div>
+              <div style={{ padding: 14, background: '#0d1117', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>{stats.bySeverity?.severe ?? 0}</div><div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>{t('advR.severeReactions')}</div></div>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>按类型</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('advR.byType')}</div>
             {(Object.keys(TYPE_LABELS) as ReactionType[]).map(t => (
               <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                 <span style={{ width: 56, fontSize: 12, color: TYPE_COLORS[t] }}>{TYPE_LABELS[t]}</span>
@@ -299,9 +299,9 @@ export default function AdverseReactionPage() {
                 <span style={{ width: 30, textAlign: 'right', fontSize: 12 }}>{stats.byType?.[t] ?? 0}</span>
               </div>
             ))}
-            <div style={{ fontSize: 13, fontWeight: 600, margin: '12px 0 8px' }}>按转归</div>
+            <div style={{ fontSize: 13, fontWeight: 600, margin: '12px 0 8px' }}>{t('advR.byOutcome')}</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{OUTCOME_OPTIONS.map(k => (
-              <span key={k} style={{ padding: '4px 10px', borderRadius: 12, background: '#0d1117', border: '1px solid #30363d', fontSize: 12 }}>{OUTCOME_LABELS[k]}: {stats.byOutcome?.[k] ?? 0} 例</span>
+              <span key={k} style={{ padding: '4px 10px', borderRadius: 12, background: '#0d1117', border: '1px solid #30363d', fontSize: 12 }}>{OUTCOME_LABELS[k]}: {stats.byOutcome?.[k] ?? 0} {t('advR.caseUnit')}</span>
             ))}</div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 // [v3.0.6.11-60] Batch 3: 口腔运营仪表板 (dentalApi 真实数据 + loading/error)
 import { dentalApi } from '../../services/api/dentalApi';
 import { DentalPageLayout, EmptyState } from './DentalShared';
+import { t } from '../../i18n/appI18n';
 import { Card, Button, Row, Col, Statistic, Space, Alert, Tag, Spin, Empty, List, Table, message } from 'antd';
 import { RefreshCw, Calendar, Users, Scan, TrendingUp, Activity, Stethoscope } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -32,12 +33,12 @@ export const DentalDashboardPage: React.FC = () => {
         dentalApi.listTreatments({ pageSize: 50 }),
       ]);
       if (statsRes.success) setStats(statsRes.data);
-      else setError(statsRes.error?.message ?? '统计数据加载失败');
+      else setError(statsRes.error?.message ?? t('dentalDash.statsLoadFailed'));
       if (aptRes.success && Array.isArray(aptRes.data)) setAppointments(aptRes.data);
       if (treatRes.success && Array.isArray(treatRes.data)) setTreatments(treatRes.data);
       setRefreshAt(new Date());
     } catch {
-      setError('网络错误，统计加载失败');
+      setError(t('dentalDash.networkError'));
     } finally {
       setLoading(false);
     }
@@ -48,10 +49,10 @@ export const DentalDashboardPage: React.FC = () => {
   }, [load]);
 
   if (loading && !stats) {
-    return (<DentalPageLayout header={{ title: '口腔运营仪表板' }}><div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}><Spin /> 加载中...</div></DentalPageLayout>);
+    return (<DentalPageLayout header={{ title: t('dentalDash.title') }}><div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}><Spin /> {t('dentalDash.loading')}</div></DentalPageLayout>);
   }
   if (!stats && !loading) {
-    return (<DentalPageLayout header={{ title: '口腔运营仪表板' }}><EmptyState tip="暂无统计数据" onCreate={() => void load()} createLabel="重新加载" /></DentalPageLayout>);
+    return (<DentalPageLayout header={{ title: t('dentalDash.title') }}><EmptyState tip={t('dentalDash.noStats')} onCreate={() => void load()} createLabel={t('dentalDash.reload')} /></DentalPageLayout>);
   }
   const topTreat = stats?.topTreatments || {};
   const todayDone = appointments.filter((a: any) => a.state === 'DONE' || a.state === 'completed' || a.status === 'completed').length;
@@ -59,33 +60,33 @@ export const DentalDashboardPage: React.FC = () => {
   return (
     <DentalPageLayout
       header={{
-        title: '口腔运营仪表板',
+        title: t('dentalDash.title'),
         extra: (
           <Space>
             <Tag color="cyan">v3.0.6.11-60</Tag>
-            <Button size="small" icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>
+            <Button size="small" icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>{t('dentalDash.refresh')}</Button>
           </Space>
         ),
       }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalDash.retry')}</Button>} />}
 
       <Spin spinning={loading}>
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="今日患者" value={stats?.todayPatients ?? 0} prefix={<Users size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="本周患者" value={stats?.thisWeek ?? 0} prefix={<TrendingUp size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="今日收入" prefix="¥" value={stats?.revenueToday ?? 0} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="在治病例" value={treatments.length} prefix={<Stethoscope size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="今日预约" value={appointments.length} prefix={<Calendar size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="已完成" value={todayDone} prefix={<Activity size={14} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="今日影像" value={stats?.examCount ?? '-'} prefix={<Scan size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title="设备数" value={stats?.deviceCount ?? '-'} prefix={<Activity size={14} />} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.todayPatients')} value={stats?.todayPatients ?? 0} prefix={<Users size={14} />} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.weekPatients')} value={stats?.thisWeek ?? 0} prefix={<TrendingUp size={14} />} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.revenueToday')} prefix="¥" value={stats?.revenueToday ?? 0} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.inTreatment')} value={treatments.length} prefix={<Stethoscope size={14} />} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.todayAppointments')} value={appointments.length} prefix={<Calendar size={14} />} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.completed')} value={todayDone} prefix={<Activity size={14} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.todayExams')} value={stats?.examCount ?? '-'} prefix={<Scan size={14} />} /></Card></Col>
+          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.devices')} value={stats?.deviceCount ?? '-'} prefix={<Activity size={14} />} /></Card></Col>
         </Row>
       </Spin>
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
         <Col xs={24} md={12}>
-          <Card size="small" title="热门治疗分布" extra={<Tag>{Object.values(topTreat).reduce((a, b) => a + (b ?? 0), 0)} 例</Tag>}>
+          <Card size="small" title={t('dentalDash.topTreatments')} extra={<Tag>{t('dentalDash.caseCount', { count: Object.values(topTreat).reduce((a, b) => a + (b ?? 0), 0) })}</Tag>}>
             <Row gutter={8}>
               {Object.entries(topTreat).map(([key, value]) => (
                 <Col span={8} key={key} style={{ marginBottom: 8 }}>
@@ -96,9 +97,9 @@ export const DentalDashboardPage: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} md={12}>
-          <Card size="small" title="今日安排" extra={<Tag>{appointments.length} 条</Tag>}>
+          <Card size="small" title={t('dentalDash.todaySchedule')} extra={<Tag>{t('dentalDash.recordCount', { count: appointments.length })}</Tag>}>
             {appointments.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="今日暂无预约" />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalDash.noAppointmentsToday')} />
             ) : (
               <List
                 size="small"
@@ -106,8 +107,8 @@ export const DentalDashboardPage: React.FC = () => {
                 renderItem={(a: any) => (
                   <List.Item>
                     <Space>
-                      <Tag color="blue">{a.dentistName ?? a.dentist ?? '医生'}</Tag>
-                      <span>{a.patientName ?? a.patient ?? '患者'}</span>
+                      <Tag color="blue">{a.dentistName ?? a.dentist ?? t('dentalDash.doctor')}</Tag>
+                      <span>{a.patientName ?? a.patient ?? t('dentalDash.patient')}</span>
                       <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.scheduledAt ?? a.time ?? ''}</span>
                     </Space>
                     <Tag color={a.state === 'SCHEDULED' ? 'processing' : 'success'}>{a.state ?? a.status ?? 'SCHEDULED'}</Tag>
@@ -121,12 +122,12 @@ export const DentalDashboardPage: React.FC = () => {
 
       <Card
         size="small"
-        title="治疗计划一览"
+        title={t('dentalDash.treatmentPlanOverview')}
         extra={
           <Button size="small" onClick={() => {
             void load();
-            message.info('治疗数据已刷新');
-          }}>刷新</Button>
+            message.info(t('dentalDash.treatmentDataRefreshed'));
+          }}>{t('dentalDash.refresh')}</Button>
         }
       >
         <Table
@@ -135,17 +136,17 @@ export const DentalDashboardPage: React.FC = () => {
           size="small"
           pagination={false}
           columns={[
-            { title: '患者', dataIndex: 'patientName' },
-            { title: '诊断', dataIndex: 'diagnosis' },
-            { title: '计划', dataIndex: 'plan' },
-            { title: '费用', dataIndex: 'cost', render: (v: number) => `¥${v ?? '-'}` },
-            { title: '状态', dataIndex: 'status', render: (s: string) => <Tag color={s === 'Completed' ? 'green' : s === 'InProgress' ? 'orange' : 'default'}>{s === 'Completed' ? '已完成' : s === 'InProgress' ? '进行中' : s ?? '-'}</Tag> },
+            { title: t('dentalShared.patient'), dataIndex: 'patientName' },
+            { title: t('dentalShared.diagnosis'), dataIndex: 'diagnosis' },
+            { title: t('dentalShared.plan'), dataIndex: 'plan' },
+            { title: t('dentalShared.cost'), dataIndex: 'cost', render: (v: number) => `¥${v ?? '-'}` },
+            { title: t('dentalShared.status'), dataIndex: 'status', render: (s: string) => <Tag color={s === 'Completed' ? 'green' : s === 'InProgress' ? 'orange' : 'default'}>{s === 'Completed' ? t('dentalShared.statusCompleted') : s === 'InProgress' ? t('dentalShared.statusInProgress') : s ?? '-'}</Tag> },
           ]}
         scroll={{ x: 'max-content' }}
         />
       </Card>
 
-      <Alert title={`数据更新于 ${refreshAt.toLocaleTimeString('zh-CN')}`} type="success" showIcon style={{ marginTop: 16 }} />
+      <Alert title={t('dentalDash.dataUpdatedAt', { time: refreshAt.toLocaleTimeString('zh-CN') })} type="success" showIcon style={{ marginTop: 16 }} />
     </DentalPageLayout>
   );
 };

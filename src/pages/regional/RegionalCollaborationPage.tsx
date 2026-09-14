@@ -23,35 +23,35 @@ import { t } from "../../i18n/appI18n";
 const { Text } = Typography;
 
 const INST_STATUS_MAP: Record<string, { color: string; label: string }> = {
-  online: { color: "green", label: "在线" },
-  offline: { color: "red", label: "离线" },
-  busy: { color: "orange", label: "繁忙" },
+  online: { color: "green", label: "regionalCollab.instStatus.online" },
+  offline: { color: "red", label: "regionalCollab.instStatus.offline" },
+  busy: { color: "orange", label: "regionalCollab.instStatus.busy" },
 };
 
 const PRIORITY_MAP: Record<string, { color: string; label: string }> = {
-  normal: { color: "blue", label: "普通" },
-  urgent: { color: "orange", label: "紧急" },
-  critical: { color: "red", label: "危急" },
+  normal: { color: "blue", label: "regionalCollab.priority.normal" },
+  urgent: { color: "orange", label: "regionalCollab.priority.urgent" },
+  critical: { color: "red", label: "regionalCollab.priority.critical" },
 };
 
 const REQ_STATUS_MAP: Record<string, { color: string; label: string }> = {
-  open: { color: "orange", label: "待接诊" },
-  "in-progress": { color: "blue", label: "会诊中" },
-  completed: { color: "green", label: "已完成" },
+  open: { color: "orange", label: "regionalCollab.reqStatus.open" },
+  "in-progress": { color: "blue", label: "regionalCollab.reqStatus.inProgress" },
+  completed: { color: "green", label: "regionalCollab.reqStatus.completed" },
 };
 
 const SITE_STATUS_MAP: Record<string, { color: string; label: string }> = {
-  active: { color: "green", label: "在线" },
-  offline: { color: "red", label: "离线" },
-  syncing: { color: "blue", label: "同步中" },
-  maintenance: { color: "orange", label: "维护" },
+  active: { color: "green", label: "regionalCollab.siteStatus.active" },
+  offline: { color: "red", label: "regionalCollab.siteStatus.offline" },
+  syncing: { color: "blue", label: "regionalCollab.siteStatus.syncing" },
+  maintenance: { color: "orange", label: "regionalCollab.siteStatus.maintenance" },
 };
 
 const SYNC_TYPE_MAP: Record<string, { color: string; label: string }> = {
-  study_pushed: { color: "blue", label: "检查推送" },
-  study_pulled: { color: "cyan", label: "检查拉取" },
-  user_sync: { color: "purple", label: "用户同步" },
-  config_sync: { color: "geekblue", label: "配置同步" },
+  study_pushed: { color: "blue", label: "regionalCollab.syncType.studyPushed" },
+  study_pulled: { color: "cyan", label: "regionalCollab.syncType.studyPulled" },
+  user_sync: { color: "purple", label: "regionalCollab.syncType.userSync" },
+  config_sync: { color: "geekblue", label: "regionalCollab.syncType.configSync" },
 };
 
 const RegionalCollaborationPage: React.FC = () => {
@@ -143,21 +143,21 @@ const RegionalCollaborationPage: React.FC = () => {
         patientId: study.patientId,
         studyType: `${study.modality} ${study.studyDescription}`,
         hospital: study.institution,
-        purpose: "跨院调阅阅片",
-        accessor: "当前用户",
+        purpose: t('regionalCollab.purposeCrossAccess'),
+        accessor: t('regionalCollab.currentUser'),
       });
       if (res.success && res.data) {
         setAccessRecords((prev) => [res.data, ...prev]);
         message.success(`已记录调阅 ${study.patientName} 的检查 (${study.institution})`);
       } else {
-        throw new Error("记录失败");
+        throw new Error(t('regionalCollab.recordFailed'));
       }
     } catch {
       message.warning(t('regionalCollab.accessRecordOffline'));
       const local: AccessRecordDto = {
         id: `ARC-${Date.now()}`, patientName: study.patientName, patientId: study.patientId,
         studyType: `${study.modality} ${study.studyDescription}`, hospital: study.institution,
-        accessTime: new Date().toISOString().slice(0, 16).replace("T", " "), accessor: "当前用户", purpose: "跨院调阅阅片",
+        accessTime: new Date().toISOString().slice(0, 16).replace("T", " "), accessor: t('regionalCollab.currentUser'), purpose: t('regionalCollab.purposeCrossAccess'),
       };
       setAccessRecords((prev) => [local, ...prev]);
     }
@@ -181,7 +181,7 @@ const RegionalCollaborationPage: React.FC = () => {
         setApplyOpen(false);
         applyForm.resetFields();
       } else {
-        throw new Error("提交失败");
+        throw new Error(t('regionalCollab.submitFailed'));
       }
     } catch (e: any) {
       if (e?.errorFields) return;
@@ -244,7 +244,7 @@ const RegionalCollaborationPage: React.FC = () => {
     } },
     { title: t('regionalCollab.status'), dataIndex: "status", key: "status", width: 100, render: (s: string) => {
       const m = INST_STATUS_MAP[s] ?? { color: "default", label: s };
-      return <Tag color={m.color}><Badge status={s === "online" ? "success" : s === "busy" ? "processing" : "error"} />{m.label}</Tag>;
+      return <Tag color={m.color}><Badge status={s === "online" ? "success" : s === "busy" ? "processing" : "error"} />{t(m.label)}</Tag>;
     } },
   ];
 
@@ -273,7 +273,7 @@ const RegionalCollaborationPage: React.FC = () => {
         children: (
           <div style={{ fontSize: 12 }}>
             <Space wrap>
-              <Tag color={type.color}>{type.label}</Tag>
+              <Tag color={type.color}>{t(type.label)}</Tag>
               <span style={{ fontWeight: 600 }}>{site?.name ?? e.siteId}</span>
               <Tag color={e.status === "success" ? "green" : e.status === "failed" ? "red" : "orange"}>
                 {e.status === "success" ? t('regionalCollab.success') : e.status === "failed" ? t('regionalCollab.failed') : t('regionalCollab.inProgress')}
@@ -438,8 +438,8 @@ const RegionalCollaborationPage: React.FC = () => {
                             title={
                               <Space wrap>
                                 <span>{item.patientName}</span>
-                                <Tag color={pri.color}>{pri.label}</Tag>
-                                <Tag color={st.color}>{st.label}</Tag>
+                                <Tag color={pri.color}>{t(pri.label)}</Tag>
+                                <Tag color={st.color}>{t(st.label)}</Tag>
                                 <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>{item.hospital} · {item.createDate}</span>
                               </Space>
                             }
@@ -504,7 +504,7 @@ const RegionalCollaborationPage: React.FC = () => {
                     <Col span={6} key={s.id}>
                       <div style={{ border: "1px solid var(--border-color)", borderRadius: 8, padding: "8px 10px", fontSize: 12 }}>
                         <div style={{ fontWeight: 600 }}>{s.name}</div>
-                        <Tag color={SITE_STATUS_MAP[s.status]?.color} style={{ marginTop: 4 }}>{SITE_STATUS_MAP[s.status]?.label ?? s.status}</Tag>
+                        <Tag color={SITE_STATUS_MAP[s.status]?.color} style={{ marginTop: 4 }}>{t(SITE_STATUS_MAP[s.status]?.label ?? s.status)}</Tag>
                         <div style={{ color: "var(--text-secondary)", marginTop: 4 }}>{s.studies.toLocaleString()} {t('regionalCollab.studiesUnit')} · {s.latencyMs}ms · {t('regionalCollab.onlineRateLabel')} {s.uptimePct}%</div>
                         <div style={{ color: "var(--text-secondary)" }}>{t('regionalCollab.lastSyncLabel')} {String(s.lastSync).slice(11, 19)}</div>
                       </div>

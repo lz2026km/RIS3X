@@ -6,6 +6,7 @@ import {
 import { api } from "../../services/api/client";
 import { usePagination } from "../../hooks/usePagination";
 import dayjs from "dayjs";
+import { t } from '../../i18n/appI18n';
 
 interface MllpStatus {
   running: boolean;
@@ -53,35 +54,35 @@ export const MllpConfigPage: React.FC = () => {
   const handleToggleServer = async (start: boolean) => {
     const res = start ? await api.post("/hl7/mllp/start") : await api.post("/hl7/mllp/stop");
     if (res.success) {
-      message.success(start ? "MLLP 监听器已启动" : "MLLP 监听器已停止");
+      message.success(start ? t('mllp.listenerStarted') : t('mllp.listenerStopped'));
       fetchStatus();
     } else {
-      message.error("操作失败");
+      message.error(t('mllp.opFailed'));
     }
   };
 
   const handleRemoveWhitelist = async (cidr: string) => {
     const res = await api.post("/hl7/mllp/whitelist/remove", { cidr });
     if (res.success) {
-      message.success("已移除白名单");
+      message.success(t('mllp.whitelistRemoved'));
       fetchStatus();
     } else {
-      message.error("移除失败");
+      message.error(t('mllp.removeFailed'));
     }
   };
 
   const handleAddWhitelist = async () => {
     const cidr = newCidr.trim();
     if (!cidr) {
-      message.warning("请输入 CIDR");
+      message.warning(t('mllp.enterCidr'));
       return;
     }
     const res = await api.post("/hl7/mllp/whitelist/add", { cidr });
     if (res.success) {
-      message.success("白名单已添加");
+      message.success(t('mllp.whitelistAdded'));
       fetchStatus();
     } else {
-      message.error("添加失败");
+      message.error(t('mllp.addFailed'));
     }
     setNewCidr("");
     setWhitelistModalOpen(false);
@@ -90,21 +91,21 @@ export const MllpConfigPage: React.FC = () => {
   const handleToggleTls = async (enabled: boolean) => {
     const res = await api.post("/hl7/mllp/tls", { enabled });
     if (res.success) {
-      message.success(enabled ? "TLS 已启用" : "TLS 已禁用");
+      message.success(enabled ? t('mllp.tlsEnabled') : t('mllp.tlsDisabled'));
       fetchStatus();
     } else {
-      message.error("操作失败");
+      message.error(t('mllp.opFailed'));
     }
   };
 
   const whitelistColumns = [
     { title: "CIDR", dataIndex: "cidr", key: "cidr" },
     {
-      title: "操作",
+      title: t('mllp.colAction'),
       key: "action",
       width: 80,
       render: (_: unknown, record: { cidr: string }) => (
-        <Popconfirm title="确认移除?" onConfirm={() => handleRemoveWhitelist(record.cidr)}>
+        <Popconfirm title={t('mllp.removeConfirm')} onConfirm={() => handleRemoveWhitelist(record.cidr)}>
           <Button size="small" danger icon={<Trash2 className="w-3 h-3" />} />
         </Popconfirm>
       ),
@@ -112,10 +113,10 @@ export const MllpConfigPage: React.FC = () => {
   ];
 
   const logColumns = [
-    { title: "时间", dataIndex: "timestamp", key: "timestamp", render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm:ss"), width: 170 },
-    { title: "对端", dataIndex: "peer", key: "peer", width: 180 },
+    { title: t('mllp.colTime'), dataIndex: "timestamp", key: "timestamp", render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm:ss"), width: 170 },
+    { title: t('mllp.colPeer'), dataIndex: "peer", key: "peer", width: 180 },
     {
-      title: "事件",
+      title: t('mllp.colEvent'),
       dataIndex: "event",
       key: "event",
       render: (v: string) => {
@@ -124,7 +125,7 @@ export const MllpConfigPage: React.FC = () => {
       },
       width: 110,
     },
-    { title: "详情", dataIndex: "detail", key: "detail" },
+    { title: t('mllp.colDetail'), dataIndex: "detail", key: "detail" },
   ];
 
   return (
@@ -134,32 +135,32 @@ export const MllpConfigPage: React.FC = () => {
           <Space>
             <Server className="w-5 h-5 text-cyan-600" />
             <div>
-              <div className="text-base font-semibold">MLLP 配置</div>
-              <div className="text-xs text-slate-500">HL7 v2.x MLLP 监听器 · TCP 端口 / TLS / IP 白名单</div>
+              <div className="text-base font-semibold">{t('mllp.title')}</div>
+              <div className="text-xs text-slate-500">{t('mllp.subtitle')}</div>
             </div>
           </Space>
           <Space>
-            <Tag color={status?.running ? "green" : "red"}>{status?.running ? "运行中" : "已停止"}</Tag>
-            <Button size="small" icon={<Activity className="w-3 h-3" />} onClick={() => { fetchStatus(); fetchLogs(); }}>刷新</Button>
+            <Tag color={status?.running ? "green" : "red"}>{status?.running ? t('mllp.statusRunning') : t('mllp.statusStopped')}</Tag>
+            <Button size="small" icon={<Activity className="w-3 h-3" />} onClick={() => { fetchStatus(); fetchLogs(); }}>{t('mllp.refresh')}</Button>
           </Space>
         </div>
       </Card>
 
       <Row gutter={8}>
         <Col span={8}>
-          <Card size="small" className="shadow-sm" title={<Space><Server className="w-4 h-4" /><span>监听器状态</span></Space>}>
+          <Card size="small" className="shadow-sm" title={<Space><Server className="w-4 h-4" /><span>{t('mllp.listenerStatus')}</span></Space>}>
             <Space orientation="vertical" className="w-full">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">运行状态</span>
+                <span className="text-xs text-slate-500">{t('mllp.runState')}</span>
                 <Switch
                   checked={status?.running ?? false}
                   onChange={(v) => handleToggleServer(v)}
-                  checkedChildren="运行"
-                  unCheckedChildren="停止"
+                  checkedChildren={t('mllp.run')}
+                  unCheckedChildren={t('mllp.stop')}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">端口</span>
+                <span className="text-xs text-slate-500">{t('mllp.port')}</span>
                 <Tag color="cyan">{status?.port ?? 2575}</Tag>
               </div>
               <div className="flex items-center justify-between">
@@ -167,19 +168,19 @@ export const MllpConfigPage: React.FC = () => {
                 <Switch
                   checked={status?.tlsEnabled ?? false}
                   onChange={handleToggleTls}
-                  checkedChildren="启用"
-                  unCheckedChildren="禁用"
+                  checkedChildren={t('mllp.enable')}
+                  unCheckedChildren={t('mllp.disable')}
                   disabled={!status?.running}
                 />
               </div>
               {status?.tlsEnabled && (
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">TLS 端口</span>
+                  <span className="text-xs text-slate-500">{t('mllp.tlsPort')}</span>
                   <Tag color="green">{status.tlsPort ?? status.port + 1}</Tag>
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">运行时间</span>
+                <span className="text-xs text-slate-500">{t('mllp.uptime')}</span>
                 <span className="text-xs font-mono">{status ? `${Math.round(status.uptimeMs / 1000)}s` : "-"}</span>
               </div>
             </Space>
@@ -190,9 +191,9 @@ export const MllpConfigPage: React.FC = () => {
           <Card
             size="small"
             className="shadow-sm"
-            title={<Space><Shield className="w-4 h-4" /><span>IP 白名单</span></Space>}
+            title={<Space><Shield className="w-4 h-4" /><span>{t('mllp.whitelist')}</span></Space>}
             extra={
-              <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={() => setWhitelistModalOpen(true)}>添加</Button>
+              <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={() => setWhitelistModalOpen(true)}>{t('mllp.add')}</Button>
             }
           >
             <Table
@@ -202,7 +203,7 @@ export const MllpConfigPage: React.FC = () => {
               dataSource={(status?.whitelist ?? []).map((c) => ({ cidr: c }))}
               columns={whitelistColumns}
               pagination={false}
-              locale={{ emptyText: "暂无白名单" }}
+              locale={{ emptyText: t('mllp.noWhitelist') }}
             />
           </Card>
         </Col>
@@ -211,19 +212,19 @@ export const MllpConfigPage: React.FC = () => {
           <Row gutter={[8, 8]}>
             <Col span={12}>
               <Card size="small">
-                <Statistic title="总连接" value={status?.totalConnections ?? 0} prefix={<Wifi className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
+                <Statistic title={t('mllp.totalConnections')} value={status?.totalConnections ?? 0} prefix={<Wifi className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
               </Card>
             </Col>
             <Col span={12}>
               <Card size="small">
-                <Statistic title="总消息" value={status?.totalMessages ?? 0} prefix={<Terminal className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
+                <Statistic title={t('mllp.totalMessages')} value={status?.totalMessages ?? 0} prefix={<Terminal className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
               </Card>
             </Col>
           </Row>
         </Col>
       </Row>
 
-      <Card size="small" className="shadow-sm" title={<Space><Clock className="w-4 h-4" /><span>最近连接日志</span></Space>}>
+      <Card size="small" className="shadow-sm" title={<Space><Clock className="w-4 h-4" /><span>{t('mllp.recentLogs')}</span></Space>}>
         <Table
           size="small"
           rowKey="id"
@@ -232,25 +233,25 @@ export const MllpConfigPage: React.FC = () => {
           columns={logColumns}
           scroll={{ x: "max-content" }}
           pagination={logPagination}
-          locale={{ emptyText: "暂无日志" }}
+          locale={{ emptyText: t('mllp.noLogs') }}
         />
       </Card>
 
       <Modal
-        title="添加 IP 白名单"
+        title={t('mllp.addWhitelist')}
         open={whitelistModalOpen}
         onOk={() => void handleAddWhitelist()}
         onCancel={() => { setWhitelistModalOpen(false); setNewCidr(""); }}
-        okText="添加"
-        cancelText="取消"
+        okText={t('mllp.add')}
+        cancelText={t('mllp.cancel')}
         width={420}
       >
         <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>CIDR (如 10.0.0.0/8)</div>
+          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>{t('mllp.cidrLabel')}</div>
           <Input
             value={newCidr}
             onChange={(e) => setNewCidr(e.target.value)}
-            placeholder="如 10.0.0.0/8"
+            placeholder={t('mllp.cidrPlaceholder')}
             onPressEnter={() => void handleAddWhitelist()}
           />
         </div>

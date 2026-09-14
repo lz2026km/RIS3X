@@ -35,13 +35,13 @@ export const DentalOrthoPage: React.FC = () => {
       const res = await dentalApi.listOrthoPlans();
       if (res.success && Array.isArray(res.data)) {
         setPlans(res.data);
-        if (!res.data.length) message.info('暂无正畸病例，可点击"新建病例"创建');
+        if (!res.data.length) message.info(t('dentalOrtho.noCasesHint'));
       } else {
-        setError('正畸病例加载失败');
+        setError(t('dentalOrtho.loadFailed'));
       }
     } catch (err) {
       console.error('[F04]', err);
-      setError('网络错误，正畸病例加载失败');
+      setError(t('dentalOrtho.networkError'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export const DentalOrthoPage: React.FC = () => {
       form.resetFields();
       void load();
     } else {
-      message.error(fb.error?.message ?? '创建失败');
+      message.error(fb.error?.message ?? t('dentalOrtho.createFailed'));
     }
   };
 
@@ -105,7 +105,7 @@ export const DentalOrthoPage: React.FC = () => {
   const updateStage = async (plan: OrthoPlan, stage: string) => {
     const res = await dentalApi.updateTreatment(plan.id, { status: stage });
     if (res.success) { message.success(`已更新为「${stage}」`); void load(); }
-    else message.error(res.error?.message ?? '更新失败');
+    else message.error(res.error?.message ?? t('dentalOrtho.updateFailed'));
   };
 
   const stageIndex = (status?: string) => {
@@ -122,24 +122,24 @@ export const DentalOrthoPage: React.FC = () => {
   return (
     <DentalPageLayout
       header={{
-        title: '正畸管理',
+        title: t('dentalOrtho.title'),
         icon: <Smile size={20} color="#eb2f96" />,
-        tags: [<Tag color="cyan" key="v">v3.0.6.11-60</Tag>, <Tag color="green" key="real">真实后端 /dental/ortho/plans</Tag>],
+        tags: [<Tag color="cyan" key="v">v3.0.6.11-60</Tag>, <Tag color="green" key="real">{t('dentalOrtho.realBackend')}</Tag>],
         extra: (
           <Space>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
-            <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setModalOpen(true)}>新建病例</Button>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('dentalOrtho.refresh')}</Button>
+            <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setModalOpen(true)}>{t('dentalOrtho.newCase')}</Button>
           </Space>
         ),
       }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalOrtho.retry')}</Button>} />}
 
       <Spin spinning={loading}>
         {plans.length === 0 && !error ? (
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 40 }}>
-            <Empty image={<FolderOpen size={48} style={{opacity:0.4}}/>} description="暂无正畸病例">
-              <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建病例</Button>
+            <Empty image={<FolderOpen size={48} style={{opacity:0.4}}/>} description={t('dentalOrtho.empty')}>
+              <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>{t('dentalOrtho.newCase')}</Button>
             </Empty>
           </div>
         ) : (
@@ -147,14 +147,14 @@ export const DentalOrthoPage: React.FC = () => {
             dataSource={plans}
             rowKey="id"
             columns={[
-              { title: '患者', dataIndex: 'patientName' },
-              { title: '牙位', dataIndex: 'toothNo', render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
-              { title: '诊断', dataIndex: 'diagnosis' },
-              { title: '计划', dataIndex: 'plan' },
-              { title: '费用', render: (_, t: OrthoPlan) => '¥' + (t.cost ?? 0) },
-              { title: '状态', dataIndex: 'status', render: (s: string) => <Tag color={statusColor(s)}>{STATUS_LABELS[s] ?? (s || '计划中')}</Tag> },
+              { title: t('dentalOrtho.patient'), dataIndex: 'patientName' },
+              { title: t('dentalOrtho.toothNo'), dataIndex: 'toothNo', render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
+              { title: t('dentalOrtho.diagnosis'), dataIndex: 'diagnosis' },
+              { title: t('dentalOrtho.plan'), dataIndex: 'plan' },
+              { title: t('dentalOrtho.cost'), render: (_, row: OrthoPlan) => '¥' + (row.cost ?? 0) },
+              { title: t('dentalOrtho.status'), dataIndex: 'status', render: (s: string) => <Tag color={statusColor(s)}>{STATUS_LABELS[s] ?? (s || t('dentalOrtho.statusPlanned'))}</Tag> },
               {
-                title: '治疗阶段',
+                title: t('dentalOrtho.stage'),
                 dataIndex: 'status',
                 render: (s: string) => (
                   <Progress
@@ -165,12 +165,12 @@ export const DentalOrthoPage: React.FC = () => {
                 ),
               },
               {
-                title: '操作',
-                render: (_, t: OrthoPlan) => (
+                title: t('dentalOrtho.actions'),
+                render: (_, row: OrthoPlan) => (
                   <Space size={4}>
-                    <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(t)}>阶段</Button>
-                    <Button size="small" icon={<PlayCircle size={12} />} onClick={() => void updateStage(t, 'Active')}>启动</Button>
-                    <Button size="small" icon={<CheckCircle2 size={12} />} onClick={() => void updateStage(t, 'Completed')}>完成</Button>
+                    <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(row)}>{t('dentalOrtho.stageBtn')}</Button>
+                    <Button size="small" icon={<PlayCircle size={12} />} onClick={() => void updateStage(row, 'Active')}>{t('dentalOrtho.start')}</Button>
+                    <Button size="small" icon={<CheckCircle2 size={12} />} onClick={() => void updateStage(row, 'Completed')}>{t('dentalOrtho.complete')}</Button>
                   </Space>
                 ),
               },
@@ -183,29 +183,29 @@ export const DentalOrthoPage: React.FC = () => {
       </Spin>
 
       <Modal
-        title="新建正畸病例"
+        title={t('dentalOrtho.newCaseTitle')}
         open={modalOpen}
         onOk={() => void createPlan()}
         onCancel={() => setModalOpen(false)}
-        okText="创建"
+        okText={t('dentalOrtho.create')}
       >
         <Form form={form} layout="vertical" initialValues={{ cost: 0 }}>
-          <Form.Item name="patientName" label="患者姓名" rules={[{ required: true, message: '请输入患者姓名' }]}>
-            <Input placeholder="请输入患者姓名" />
+          <Form.Item name="patientName" label={t('dentalOrtho.patientName')} rules={[{ required: true, message: t('dentalOrtho.patientNameRequired') }]}>
+            <Input placeholder={t('dentalOrtho.patientNameRequired')} />
           </Form.Item>
-          <Form.Item name="patientId" label="患者 ID">
-            <Input placeholder="可选" />
+          <Form.Item name="patientId" label={t('dentalOrtho.patientId')}>
+            <Input placeholder={t('dentalOrtho.optional')} />
           </Form.Item>
-          <Form.Item name="diagnosis" label="诊断" rules={[{ required: true, message: '请输入诊断' }]}>
-            <Input placeholder="如：安氏 II 类 1 分类错颌" />
+          <Form.Item name="diagnosis" label={t('dentalOrtho.diagnosis')} rules={[{ required: true, message: t('dentalOrtho.diagnosisRequired') }]}>
+            <Input placeholder={t('dentalOrtho.diagnosisPlaceholder')} />
           </Form.Item>
-          <Form.Item name="plan" label="治疗计划">
-            <Input placeholder="如：固定矫治 + 拔牙设计" />
+          <Form.Item name="plan" label={t('dentalOrtho.treatmentPlan')}>
+            <Input placeholder={t('dentalOrtho.planPlaceholder')} />
           </Form.Item>
-          <Form.Item name="toothNo" label="涉及牙位">
-            <InputNumber style={{ width: '100%' }} placeholder="如 16" />
+          <Form.Item name="toothNo" label={t('dentalOrtho.toothNoLabel')}>
+            <InputNumber style={{ width: '100%' }} placeholder={t('dentalOrtho.toothNoPlaceholder')} />
           </Form.Item>
-          <Form.Item name="cost" label="预估费用 (元)">
+          <Form.Item name="cost" label={t('dentalOrtho.costLabel')}>
             <InputNumber style={{ width: '100%' }} min={0} />
           </Form.Item>
         </Form>
@@ -221,10 +221,10 @@ export const DentalOrthoPage: React.FC = () => {
         {detail && (
           <>
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="诊断">{detail.diagnosis}</Descriptions.Item>
-              <Descriptions.Item label="计划">{detail.plan}</Descriptions.Item>
-              <Descriptions.Item label="费用">¥{detail.cost ?? 0}</Descriptions.Item>
-              <Descriptions.Item label="当前状态"><Tag color={statusColor(detail.status)}>{STATUS_LABELS[detail.status ?? ''] ?? (detail.status || '计划中')}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dentalOrtho.diagnosis')}>{detail.diagnosis}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalOrtho.plan')}>{detail.plan}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalOrtho.cost')}>¥{detail.cost ?? 0}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalOrtho.currentStatus')}><Tag color={statusColor(detail.status)}>{STATUS_LABELS[detail.status ?? ''] ?? (detail.status || t('dentalOrtho.statusPlanned'))}</Tag></Descriptions.Item>
             </Descriptions>
             <Steps
               current={stageIndex(detail.status)}
@@ -233,12 +233,12 @@ export const DentalOrthoPage: React.FC = () => {
               items={STAGE_NAMES.map((name, i) => ({
                 title: name,
                 status: i < stageIndex(detail.status) ? 'finish' : i === stageIndex(detail.status) ? 'process' : 'wait',
-                description: i === stageIndex(detail.status) ? '当前阶段' : undefined,
+                description: i === stageIndex(detail.status) ? t('dentalOrtho.currentStage') : undefined,
               }))}
             />
             <Space style={{ marginTop: 16 }}>
-              <Button onClick={() => void updateStage(detail, STAGE_NAMES[Math.min(stageIndex(detail.status) + 1, STAGE_NAMES.length - 1)]!)}>进入下一阶段</Button>
-              <Button onClick={() => void updateStage(detail, '保持期')}>进入保持期</Button>
+              <Button onClick={() => void updateStage(detail, STAGE_NAMES[Math.min(stageIndex(detail.status) + 1, STAGE_NAMES.length - 1)]!)}>{t('dentalOrtho.nextStage')}</Button>
+              <Button onClick={() => void updateStage(detail, '保持期')}>{t('dentalOrtho.enterRetention')}</Button>
             </Space>
           </>
         )}

@@ -139,7 +139,7 @@ export default function ContrastInjectionWorkstationPage() {
   }
 
   const handleRecordAllergy = async () => {
-    const contrastType = allergyForm.contrastType || selectedProto?.contrastName || '碘海醇'
+    const contrastType = allergyForm.contrastType || selectedProto?.contrastName || t('contrastWs.defaultContrast')
     const payload = {
       patientId: PATIENT_ID,
       contrastType,
@@ -183,7 +183,7 @@ export default function ContrastInjectionWorkstationPage() {
       const res = await contrastSafetyApi.inject({
         examId: `E-${Date.now().toString().slice(-8)}`,
         patientId: PATIENT_ID,
-        patientName: '演示患者',
+        patientName: t('contrastWs.demoPatient'),
         protocolId: proto.id,
         protocolName: proto.name,
         contrastType: proto.contrastName,
@@ -211,7 +211,7 @@ export default function ContrastInjectionWorkstationPage() {
         setInjectionDone(true)
         message.warning(`后端不可用, 已回退本地演示: ${e instanceof Error ? e.message : '未知错误'}`)
       } catch {
-        message.error('注射指令发送失败')
+        message.error(t('contrastWs.injectionFailed'))
       }
     } finally {
       setInjecting(false)
@@ -307,23 +307,23 @@ export default function ContrastInjectionWorkstationPage() {
   }
 
   if (loading) {
-    return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>加载中...</div>
+    return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{t('contrastWs.loading')}</div>
   }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#0891b2,#164e63)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Syringe size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>对比剂注射工作站</span>
+          <Syringe size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('contrastWs.title')}</span>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {device && (
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', borderRadius: 6, background: device.status === 'online' ? '#22c55e20' : device.status === 'offline' ? '#ef444420' : '#f59e0b20', color: device.status === 'online' ? '#22c55e' : device.status === 'offline' ? '#ef4444' : '#f59e0b' }}>
-              <Monitor size={14} />{device.deviceName}: {device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : device.status === 'busy' ? '忙碌' : '错误'}
+              <Monitor size={14} />{device.deviceName}: {device.status === 'online' ? t('contrastWs.device.online') : device.status === 'offline' ? t('contrastWs.device.offline') : device.status === 'busy' ? t('contrastWs.device.busy') : t('contrastWs.device.error')}
             </span>
           )}
           <button onClick={() => setShowHistory(!showHistory)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: showHistory ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-            <List size={14} />注射历史
+            <List size={14} />{t('contrastWs.injectionHistory')}
           </button>
         </div>
       </div>
@@ -331,17 +331,17 @@ export default function ContrastInjectionWorkstationPage() {
       <div style={{ padding: '20px 24px', display: 'grid', gridTemplateColumns: showHistory ? '1fr 1fr' : '1fr', gap: 20 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={panelStyle}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>注射方案选择</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('contrastWs.selectProtocol')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <select value={selectedProtocol} onChange={e => { setSelectedProtocol(e.target.value); setCalculatedParams(null) }} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
-                <option value="">-- 选择方案 --</option>
+                <option value="">{t('contrastWs.selectProtocolPlaceholder')}</option>
                 {protocols.map(p => <option key={p.id} value={p.id}>{p.name} ({p.contrastName})</option>)}
               </select>
 
               {selectedProtocol && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 8 }}>
                   <div>
-                    <label style={{ fontSize: 12, color: '#8b949e' }}>体重 (kg)</label>
+                    <label style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastWs.weight')}</label>
                     <input type="number" value={weight} onChange={e => setWeight(Number(e.target.value))} style={inputStyle} />
                   </div>
                   <div>
@@ -352,15 +352,15 @@ export default function ContrastInjectionWorkstationPage() {
               )}
 
               <button onClick={handleCalculate} disabled={!selectedProtocol} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: selectedProtocol ? 'pointer' : 'not-allowed', background: selectedProtocol ? '#0891b2' : '#21262d', color: selectedProtocol ? '#fff' : '#484f58', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                <Settings size={14} />计算注射参数
+                <Settings size={14} />{t('contrastWs.calculateParams')}
               </button>
 
               {calculatedParams && (
                 <div style={{ marginTop: 8, padding: 12, background: '#0d1117', borderRadius: 6 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e', marginBottom: 8 }}>计算结果</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e', marginBottom: 8 }}>{t('contrastWs.calcResult')}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                    <div><span style={{ color: '#8b949e', fontSize: 12 }}>注射量</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.volumeMl} mL</div></div>
-                    <div><span style={{ color: '#8b949e', fontSize: 12 }}>流率</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.flowRateMls} mL/s</div></div>
+                    <div><span style={{ color: '#8b949e', fontSize: 12 }}>{t('contrastWs.volume')}</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.volumeMl} mL</div></div>
+                    <div><span style={{ color: '#8b949e', fontSize: 12 }}>{t('contrastWs.flowRate')}</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.flowRateMls} mL/s</div></div>
                   </div>
                   <div style={{ marginTop: 4, fontSize: 12, color: '#6e7681' }}>{calculatedParams.rationale}</div>
                 </div>
@@ -443,11 +443,11 @@ export default function ContrastInjectionWorkstationPage() {
             {showAllergyForm && (
               <div style={{ padding: 12, background: '#0d1117', borderRadius: 6, marginBottom: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: 12, color: '#8b949e' }}>对比剂</label>
-                  <input value={allergyForm.contrastType} onChange={e => setAllergyForm({ ...allergyForm, contrastType: e.target.value })} placeholder={selectedProto?.contrastName ?? '碘海醇'} style={inputStyle} />
+                  <label style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastWs.contrastAgent')}</label>
+                  <input value={allergyForm.contrastType} onChange={e => setAllergyForm({ ...allergyForm, contrastType: e.target.value })} placeholder={selectedProto?.contrastName ?? t('contrastWs.defaultContrast')} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, color: '#8b949e' }}>结果</label>
+                  <label style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastWs.result')}</label>
                   <select value={allergyForm.result} onChange={e => setAllergyForm({ ...allergyForm, result: e.target.value as ContrastAllergyResult })} style={inputStyle}>
                     <option value="negative">{t('contrastSafety.result.negative')}</option>
                     <option value="positive">{t('contrastSafety.result.positive')}</option>
@@ -547,28 +547,28 @@ export default function ContrastInjectionWorkstationPage() {
           </div>
 
           <div style={panelStyle}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>方案详情</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('contrastWs.protocolDetail')}</div>
             {selectedProto ? (
               <div>
                 <div style={{ display: 'flex', gap: 16, marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, color: '#8b949e' }}>总量: <span style={{ color: '#f0f6fc' }}>{selectedProto.totalVolumeMl}mL</span></span>
-                  <span style={{ fontSize: 12, color: '#8b949e' }}>浓度: <span style={{ color: '#f0f6fc' }}>{selectedProto.concentration}</span></span>
+                  <span style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastWs.totalVolume')} <span style={{ color: '#f0f6fc' }}>{selectedProto.totalVolumeMl}mL</span></span>
+                  <span style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastWs.concentration')} <span style={{ color: '#f0f6fc' }}>{selectedProto.concentration}</span></span>
                 </div>
-                <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8 }}>注射时相:</div>
+                <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8 }}>{t('contrastWs.phases')}</div>
                 {selectedProto.phases.map((phase, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', background: '#0d1117', borderRadius: 4, marginBottom: 4, fontSize: 12 }}>
-                    <span>{phase.phase === 'bolus' ? '团注' : phase.phase === 'chaser' ? '冲洗' : phase.phase === 'delay' ? '延迟' : '分次'}</span>
+                    <span>{phase.phase === 'bolus' ? t('contrastWs.phase.bolus') : phase.phase === 'chaser' ? t('contrastWs.phase.chaser') : phase.phase === 'delay' ? t('contrastWs.phase.delay') : t('contrastWs.phase.fractional')}</span>
                     <span>{phase.volumeMl > 0 ? `${phase.volumeMl}mL @ ${phase.flowRateMls}mL/s` : `延迟 ${phase.delaySec}s`}</span>
                     <span style={{ color: '#6e7681' }}>{phase.description}</span>
                   </div>
                 ))}
                 {calculatedParams && (
                   <button onClick={() => void handleStartInjection()} disabled={injecting || !canInject} title={canInject ? '' : t('contrastSafety.injectionBlocked')} style={{ marginTop: 12, width: '100%', padding: '10px', borderRadius: 6, border: 'none', cursor: injecting ? 'wait' : canInject ? 'pointer' : 'not-allowed', background: canInject ? '#22c55e' : '#21262d', color: canInject ? '#fff' : '#484f58', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    <Play size={16} />{injecting ? '指令发送中...' : canInject ? '开始注射' : t('contrastSafety.blocked')}
+                    <Play size={16} />{injecting ? t('contrastWs.commandSending') : canInject ? t('contrastWs.startInjection') : t('contrastSafety.blocked')}
                   </button>
                 )}
               </div>
-            ) : <div style={{ color: '#6e7681', fontSize: 13 }}>请先选择方案</div>}
+            ) : <div style={{ color: '#6e7681', fontSize: 13 }}>{t('contrastWs.selectFirst')}</div>}
           </div>
 
           {/* [v3.0.6.11-104 Wave 3D] 临床资料接入区块: eGFR 警告 + 安全核查清单 + 介入核查清单 */}
@@ -577,20 +577,20 @@ export default function ContrastInjectionWorkstationPage() {
 
         {showHistory && (
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, maxHeight: '80vh', overflowY: 'auto' }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>注射历史</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('contrastWs.injectionHistory')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {records.map(r => (
                 <div key={r.id} style={{ padding: '10px 12px', background: '#0d1117', borderRadius: 6 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 13 }}>{r.patientName}</span>
                      <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 3, background: r.status === 'completed' ? '#22c55e20' : r.status === 'in_progress' ? '#3b82f620' : '#ef444420', color: r.status === 'completed' ? '#22c55e' : r.status === 'in_progress' ? '#3b82f6' : '#ef4444' }}>
-                      {r.status === 'completed' ? '完成' : r.status === 'in_progress' ? '进行中' : r.status === 'cancelled' ? '取消' : '中断'}
+                      {r.status === 'completed' ? t('contrastWs.recStatus.completed') : r.status === 'in_progress' ? t('contrastWs.recStatus.inProgress') : r.status === 'cancelled' ? t('contrastWs.recStatus.cancelled') : t('contrastWs.recStatus.aborted')}
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: '#8b949e' }}>{r.protocolName} | {r.totalVolumeMl}mL | {new Date(r.startTime).toLocaleString('zh-CN')}</div>
                 </div>
               ))}
-              {records.length === 0 && <div style={{ color: '#6e7681', fontSize: 13 }}>暂无记录</div>}
+              {records.length === 0 && <div style={{ color: '#6e7681', fontSize: 13 }}>{t('contrastWs.noRecords')}</div>}
             </div>
           </div>
         )}

@@ -21,6 +21,7 @@ import { QUALITY_SCORES } from '../data/reportQualityMock';
 import { qualityService } from '../services/quality/qualityService';
 import type { QualityScore } from '../types/R3/R3.QUALITY';
 import { PageContainer, PageHeader } from '../components/common';
+import { t } from '../i18n/appI18n';
 
 const QualityControlPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -73,7 +74,7 @@ const QualityControlPage: React.FC = () => {
       } catch {
         if (!cancelled) {
           setDataSource('fallback');
-          setError('评分列表加载失败，当前展示演示数据');
+          setError(t('qcPage.scoresLoadFailed'));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -102,9 +103,9 @@ const QualityControlPage: React.FC = () => {
       );
       setSelectedScore(result);
       setScores(prev => [result, ...prev.filter(s => s.id !== result.id)]);
-      message.success('重评完成（reportQualityApi 评分引擎）');
+      message.success(t('qcPage.rescoreSuccess'));
     } catch (e) {
-      message.error('重评失败');
+      message.error(t('qcPage.rescoreFailed'));
     } finally {
       setRescoreBusy(false);
     }
@@ -113,15 +114,15 @@ const QualityControlPage: React.FC = () => {
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="quality-control-page">
       <PageHeader
-        title="质控管理"
-        subtitle="评分/危急值/缺陷/月报/实时仪表盘"
+        title={t('qcPage.title')}
+        subtitle={t('qcPage.subtitle')}
         icon={<ShieldCheck size={20} color="#1e40af" />}
         variant="inline"
         actions={
           <Space size={8}>
             {loading && <Spin size="small" />}
             <Tag color={dataSource === 'api' ? 'green' : 'orange'}>
-              {dataSource === 'api' ? '评分数据: reportApi/reportQualityApi' : '评分数据: 演示数据(API失败回退)'}
+              {dataSource === 'api' ? t('qcPage.dataSourceApi') : t('qcPage.dataSourceFallback')}
             </Tag>
             {error && <Alert type="warning" showIcon message={error} style={{ maxWidth: 320 }} />}
           </Space>
@@ -134,15 +135,15 @@ const QualityControlPage: React.FC = () => {
         tabBarExtraContent={
           <Badge
             count={6}
-            title="质控模块 6 项"
+            title={t('qcPage.moduleCount')}
             style={{ backgroundColor: '#1e40af' }}
           />
         }
         items={[
-          { key: 'dashboard', label: <Space><Activity size={14} />实时仪表盘</Space>, children: <QualityDashboard /> },
-          { key: 'score', label: <Space><BarChart3 size={14} />评分</Space>, children: (
+          { key: 'dashboard', label: <Space><Activity size={14} />{t('qcPage.tabDashboard')}</Space>, children: <QualityDashboard /> },
+          { key: 'score', label: <Space><BarChart3 size={14} />{t('qcPage.tabScore')}</Space>, children: (
             <Space orientation="vertical" style={{ width: '100%' }} size={12}>
-              <Card size="small" title="选择报告">
+              <Card size="small" title={t('qcPage.selectReport')}>
                 <Space wrap>
                   {scores.map((s) => (
                     <Card
@@ -162,7 +163,7 @@ const QualityControlPage: React.FC = () => {
               </Card>
               {/* [G005 Wave1B] 历史评分趋势: reportQualityApi.getTrend (失败回退不阻断) */}
               {trend.length > 0 && (
-                <Card size="small" title={<Space><TrendingUp size={14} />历史评分趋势</Space>} extra={<Tag color="green">reportQualityApi 实时</Tag>}>
+                <Card size="small" title={<Space><TrendingUp size={14} />{t('qcPage.scoreTrend')}</Space>} extra={<Tag color="green">{t('qcPage.realtimeTag')}</Tag>}>
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, minHeight: 90 }}>
                     {trend.slice(-14).map((p, i) => {
                       const max = Math.max(...trend.map((x) => x.totalScore), 1);
@@ -182,40 +183,40 @@ const QualityControlPage: React.FC = () => {
               <QualityScorePanel onRescore={() => { void handleRescore(); }} />
             </Space>
           ) },
-          { key: 'dimension', label: <Space><Layers size={14} />维度配置</Space>, children: <QualityDimensionCard /> },
-          { key: 'critical', label: <Space><AlertOctagon size={14} />危急值告警</Space>, children: (
+          { key: 'dimension', label: <Space><Layers size={14} />{t('qcPage.tabDimension')}</Space>, children: <QualityDimensionCard /> },
+          { key: 'critical', label: <Space><AlertOctagon size={14} />{t('qcPage.tabCritical')}</Space>, children: (
             <Tabs
               tabBarExtraContent={
                 <Badge
                   count={3}
-                  title="危急值子模块 3 项"
+                  title={t('qcPage.criticalSubCount')}
                   style={{ backgroundColor: '#dc2626' }}
                 />
               }
               items={[
-                { key: 'alert', label: '告警列表', children: <CriticalValueAlerter limit={20} /> },
-                { key: 'level', label: '分级配置', children: <CriticalValueLevelSelector /> },
-                { key: 'escalation', label: '升级规则', children: <CriticalValueEscalation /> },
+                { key: 'alert', label: t('qcPage.alertList'), children: <CriticalValueAlerter limit={20} /> },
+                { key: 'level', label: t('qcPage.levelConfig'), children: <CriticalValueLevelSelector /> },
+                { key: 'escalation', label: t('qcPage.escalationRules'), children: <CriticalValueEscalation /> },
               ]}
             />
           ) },
-          { key: 'defect', label: <Space><AlertTriangle size={14} />缺陷管理</Space>, children: (
+          { key: 'defect', label: <Space><AlertTriangle size={14} />{t('qcPage.tabDefect')}</Space>, children: (
             <Tabs
               tabBarExtraContent={
                 <Badge
                   count={3}
-                  title="缺陷子模块 3 项"
+                  title={t('qcPage.defectSubCount')}
                   style={{ backgroundColor: '#f59e0b' }}
                 />
               }
               items={[
-                { key: 'lib', label: '缺陷库', children: <DefectLibrary /> },
-                { key: 'tree', label: '分类树', children: <DefectCategoryTree /> },
-                { key: 'remediation', label: '整改追踪', children: <DefectRemediationTracker /> },
+                { key: 'lib', label: t('qcPage.defectLib'), children: <DefectLibrary /> },
+                { key: 'tree', label: t('qcPage.categoryTree'), children: <DefectCategoryTree /> },
+                { key: 'remediation', label: t('qcPage.remediation'), children: <DefectRemediationTracker /> },
               ]}
             />
           ) },
-          { key: 'monthly', label: <Space><FileText size={14} />月报</Space>, children: <QualityMonthlyReport /> },
+          { key: 'monthly', label: <Space><FileText size={14} />{t('qcPage.tabMonthly')}</Space>, children: <QualityMonthlyReport /> },
         ]}
       />
     </PageContainer>

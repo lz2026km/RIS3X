@@ -7,24 +7,28 @@ import { STATUS_CONFIG, SEVERITY_CONFIG, CN_STATUS_TO_STORE } from './types'
 // 把状态机 state value (found/notified/acknowledged/...) 映射到 store status,
 // 让 critical map 在 UI 层真正被消费。
 import { MACHINE_STATE_TO_STORE, useCriticalStore } from '../../store/criticalStore'
+import { t } from '../../i18n/appI18n'
 
 const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'DSA', '超声']
 // v3.0.6.11: STATUS_LIST 改为 criticalStore 英文状态 key + 中文 label,
 // 与 store 中的 pending/notified/acknowledged/resolving/resolved/escalated/cancelled/closed_loop/overdue 对齐。
 const STATUS_LIST = ['全部', 'pending', 'resolving', 'resolved', 'overdue']
 const STATUS_LABEL: Record<string, string> = {
-  pending: '待处理',
-  notified: '已通知',
-  acknowledged: '已接收',
-  resolving: '处理中',
-  resolved: '已处理',
-  closed_loop: '已闭环',
-  escalated: '已升级',
-  cancelled: '已取消',
-  overdue: '超时',
+  pending: 'cvList.status.pending',
+  notified: 'cvList.status.notified',
+  acknowledged: 'cvList.status.acknowledged',
+  resolving: 'cvList.status.resolving',
+  resolved: 'cvList.status.resolved',
+  closed_loop: 'cvList.status.closed_loop',
+  escalated: 'cvList.status.escalated',
+  cancelled: 'cvList.status.cancelled',
+  overdue: 'cvList.status.overdue',
 }
 const SEVERITY_LIST = ['全部', '危及生命', '危急', '高危', '紧急', '警告']
 const TIME_RANGE_LIST = ['全部', '30分钟内', '1小时内', '2小时内', '超时']
+const MODALITY_I18N: Record<string, string> = { '全部': 'cvList.all', '超声': 'cvList.ultrasound' }
+const SEVERITY_I18N: Record<string, string> = { '全部': 'cvList.all', '危及生命': 'cvList.sev.lifeThreatening', '危急': 'cvList.sev.critical', '高危': 'cvList.sev.high', '紧急': 'cvList.sev.urgent', '警告': 'cvList.sev.warning' }
+const TIME_RANGE_I18N: Record<string, string> = { '全部': 'cvList.all', '30分钟内': 'cvList.time.30min', '1小时内': 'cvList.time.1h', '2小时内': 'cvList.time.2h', '超时': 'cvList.time.overdue' }
 
 interface FilterBarProps {
   search: string
@@ -60,7 +64,7 @@ export const FilterBar = ({
     <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '8px 14px', border: '1px solid var(--border-color)' }}>
         <Search size={16} style={{ color: '#94a3b8' }} />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名/检查号/危急值ID..." style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('cvList.searchPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
         {search && <X size={14} style={{ color: '#94a3b8', cursor: 'pointer' }} onClick={() => setSearch('')} />}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -69,48 +73,48 @@ export const FilterBar = ({
       </div>
       <button onClick={onOpenSettings} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
         <Settings size={14} />
-        规则设置
+        {t('cvList.rulesSettings')}
       </button>
     </div>
     <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10, flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 8 }}>
         <Filter size={14} style={{ color: '#64748b' }} />
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>状态:</span>
+        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.statusLabel')}</span>
       </div>
       {STATUS_LIST.map(s => (
         <button key={s} onClick={() => setStatusFilter(s)} style={filterBtnStyle(statusFilter === s)}>
-          {STATUS_LABEL[s] ?? s}
+          {s === '全部' ? t('cvList.all') : t(STATUS_LABEL[s] ?? s)}
         </button>
       ))}
     </div>
     <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>设备:</span>
+        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.modalityLabel')}</span>
         {MODALITY_LIST.map(m => (
-          <button key={m} onClick={() => setModalityFilter(m)} style={filterBtnStyle(modalityFilter === m)}>{m}</button>
+          <button key={m} onClick={() => setModalityFilter(m)} style={filterBtnStyle(modalityFilter === m)}>{MODALITY_I18N[m] ? t(MODALITY_I18N[m]) : m}</button>
         ))}
       </div>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>紧急:</span>
+        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.severityLabel')}</span>
         {SEVERITY_LIST.map(s => (
-          <button key={s} onClick={() => setSeverityFilter(s)} style={filterBtnStyle(severityFilter === s)}>{s}</button>
+          <button key={s} onClick={() => setSeverityFilter(s)} style={filterBtnStyle(severityFilter === s)}>{t(SEVERITY_I18N[s] ?? s)}</button>
         ))}
       </div>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>时限:</span>
-        {TIME_RANGE_LIST.map(t => (
-          <button key={t} onClick={() => setTimeRangeFilter(t)} style={filterBtnStyle(timeRangeFilter === t)}>{t}</button>
+        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.timeRangeLabel')}</span>
+        {TIME_RANGE_LIST.map(tr => (
+          <button key={tr} onClick={() => setTimeRangeFilter(tr)} style={filterBtnStyle(timeRangeFilter === tr)}>{t(TIME_RANGE_I18N[tr] ?? tr)}</button>
         ))}
       </div>
     </div>
     {selectedCount > 0 && (
       <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
-        <span style={{ fontSize: 12, color: '#1e40af', fontWeight: 700 }}>已选中 {selectedCount} 项</span>
+        <span style={{ fontSize: 12, color: '#1e40af', fontWeight: 700 }}>{t('cvList.selectedCount', { count: selectedCount })}</span>
         <button onClick={onBatchNotify} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #d97706', background: 'var(--color-warning-bg)', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-          <Send size={13} />批量发送通知
+          <Send size={13} />{t('cvList.batchNotify')}
         </button>
         <button onClick={onBatchProcess} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #059669', background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-          <CheckCircle size={13} />批量标记处理
+          <CheckCircle size={13} />{t('cvList.batchProcess')}
         </button>
       </div>
     )}
@@ -166,7 +170,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.deviceName?.split('（')[0] || cv.modality}</div>
       <div>
         <div style={{ fontSize: 13, fontWeight: 800, color: '#dc2626' }}>{cv.resultValue} {cv.resultUnit}</div>
-        <div style={{ fontSize: 12, color: '#94a3b8' }}>危急: {cv.criticalRange}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('cvList.criticalPrefix')} {cv.criticalRange}</div>
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{cv.reportedByName}</div>
@@ -174,63 +178,63 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <StatusIcon size={14} style={{ color: statusCfg.color }} />
-        <span style={{ fontSize: 12, fontWeight: 700, color: statusCfg.color, background: statusCfg.bg, padding: '2px 10px', borderRadius: 10 }}>{statusCfg.label}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: statusCfg.color, background: statusCfg.bg, padding: '2px 10px', borderRadius: 10 }}>{t(STATUS_LABEL[cv.status] ?? cv.status)}</span>
       </div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingTime ? (cv.processingTime || '').split(' ')[1] || cv.processingTime : '-'}</div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
         {(cv.status === '待处理' || cv.status === 'pending' || cv.status === 'notified' || cv.status === 'voice_called' || cv.status === 'acknowledged' || cv.status === 'receipted') && (
           <button onClick={onProcess} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #059669', background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Edit3 size={10} />处理
+            <Edit3 size={10} />{t('cvList.process')}
           </button>
         )}
         <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #1e40af', background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Eye size={10} />详情
+          <Eye size={10} />{t('cvList.detail')}
         </button>
         {(cv.status === 'notified' || cv.status === '已通知') && (
           <button onClick={onVoiceCall} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c', background: 'var(--color-warning-bg)', color: '#ea580c', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Phone size={10} />电话
+            <Phone size={10} />{t('cvList.phone')}
           </button>
         )}
         {(cv.status === 'voice_called') && (
           <button onClick={onAcknowledge} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: 'var(--color-info-bg)', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-            <CheckCircle size={10} />确认
+            <CheckCircle size={10} />{t('cvList.confirm')}
           </button>
         )}
         {(cv.status === 'acknowledged' || cv.status === '已接收') && (
           <button onClick={onClinicalReceipt} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #16a34a', background: 'var(--color-success-bg)', color: '#16a34a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Edit3 size={10} />回执
+            <Edit3 size={10} />{t('cvList.receipt')}
           </button>
         )}
         <button onClick={onContactClinical} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #d97706', background: 'var(--bg-card)', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Phone size={10} />联系
+          <Phone size={10} />{t('cvList.contact')}
         </button>
         {cv.status !== 'closed_loop' && cv.status !== 'resolved' && cv.status !== '已处理' && (
           <button onClick={onCloseLoop} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #047857', background: 'var(--color-success-bg)', color: '#047857', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Archive size={10} />闭环
+            <Archive size={10} />{t('cvList.closeLoop')}
           </button>
         )}
         {cv.status !== 'escalated' && cv.status !== '已升级' && (
           <button onClick={onEscalate} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--color-info-bg)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-            <ArrowUp size={10} />升级
+            <ArrowUp size={10} />{t('cvList.escalate')}
           </button>
         )}
-        <button onClick={onGo5Step} title="5步闭环工作流" style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: 'var(--color-info-bg)', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-          <CheckCircle size={10} />5步
+        <button onClick={onGo5Step} title={t('cvList.fiveStepWorkflow')} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: 'var(--color-info-bg)', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <CheckCircle size={10} />{t('cvList.fiveStep')}
         </button>
-        <Popconfirm title="删除危急值" description="确定删除该危急值记录吗?此操作不可恢复。" onConfirm={onDelete} okText="删除" cancelText="取消" okButtonProps={{ danger: true }}>
+        <Popconfirm title={t('cvList.deleteTitle')} description={t('cvList.deleteDesc')} onConfirm={onDelete} okText={t('cvList.deleteOk')} cancelText={t('cvList.deleteCancel')} okButtonProps={{ danger: true }}>
           <button style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dc2626', background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Trash2 size={10} />删除
+            <Trash2 size={10} />{t('cvList.delete')}
           </button>
         </Popconfirm>
       </div>
       <div>
         {cv.transferredToFollowUp ? (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: '#059669', border: '1px solid var(--color-success-border)' }}>
-            <CheckCircle size={11} />已转随访
+            <CheckCircle size={11} />{t('cvList.transferred')}
           </span>
         ) : (
-          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--color-info-bg)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} title="转随访">
+          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--color-info-bg)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} title={t('cvList.transferToFollowUp')}>
             <ArrowUpRight size={12} />
           </button>
         )}
@@ -287,17 +291,17 @@ export const CriticalValueList = ({
             {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
           </div>
         </div>
-        <div style={{ width: 100 }}>危急值ID</div>
-        <div style={{ width: 90 }}>患者姓名</div>
-        <div style={{ width: 130 }}>检查项目</div>
-        <div style={{ width: 60 }}>设备</div>
-        <div style={{ width: 140 }}>检查结果</div>
-        <div style={{ width: 90 }}>上报医生</div>
-        <div style={{ width: 80 }}>状态</div>
-        <div style={{ width: 90 }}>处理时间</div>
-        <div style={{ width: 90 }}>处理耗时</div>
-        <div style={{ flex: 1 }}>操作</div>
-        <div style={{ width: 60 }}>转随访</div>
+        <div style={{ width: 100 }}>{t('cvList.colId')}</div>
+        <div style={{ width: 90 }}>{t('cvList.colPatient')}</div>
+        <div style={{ width: 130 }}>{t('cvList.colExamItem')}</div>
+        <div style={{ width: 60 }}>{t('cvList.colDevice')}</div>
+        <div style={{ width: 140 }}>{t('cvList.colResult')}</div>
+        <div style={{ width: 90 }}>{t('cvList.colReporter')}</div>
+        <div style={{ width: 80 }}>{t('cvList.colStatus')}</div>
+        <div style={{ width: 90 }}>{t('cvList.colProcessTime')}</div>
+        <div style={{ width: 90 }}>{t('cvList.colProcessDuration')}</div>
+        <div style={{ flex: 1 }}>{t('cvList.colActions')}</div>
+        <div style={{ width: 60 }}>{t('cvList.colTransfer')}</div>
         <div style={{ width: 60 }} />
       </div>
 
@@ -324,15 +328,15 @@ export const CriticalValueList = ({
       ) : (
         <div style={{ padding: '48px 24px', textAlign: 'center' }}>
           <ShieldAlert size={40} style={{ color: '#cbd5e1', marginBottom: 12 }} />
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>暂无危急值记录</div>
-          <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>根据筛选条件未找到匹配的危急值</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>{t('cvList.emptyTitle')}</div>
+          <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>{t('cvList.emptyDesc')}</div>
         </div>
       )}
 
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: 12, color: '#64748b' }}>
-          共 <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> 条记录，
-          已选中 <span style={{ fontWeight: 700, color: '#1e40af' }}>{selectedIds.size}</span> 项
+          {t('cvList.totalRecordsPrefix')} <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> {t('cvList.totalRecordsMid')}
+          {t('cvList.selectedPrefix')} <span style={{ fontWeight: 700, color: '#1e40af' }}>{selectedIds.size}</span> {t('cvList.selectedSuffix')}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {/* v3.0.6.11: STATUS_CONFIG 中英文键(pending/...)优先显示 machine-derived counts */}
@@ -340,13 +344,13 @@ export const CriticalValueList = ({
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />
               <span style={{ fontSize: 12, color: '#64748b' }}>
-                {STATUS_LABEL[key] ?? key}: {machineStatusCounts[key] ?? criticalValues.filter(c => c.status === key).length}
+                {t(STATUS_LABEL[key] ?? key)}: {machineStatusCounts[key] ?? criticalValues.filter(c => c.status === key).length}
               </span>
             </div>
           ))}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#7c3aed' }} />
-            <span style={{ fontSize: 12, color: '#64748b' }}>已转随访: {criticalValues.filter(c => c.transferredToFollowUp).length}</span>
+            <span style={{ fontSize: 12, color: '#64748b' }}>{t('cvList.transferredLabel')} {criticalValues.filter(c => c.transferredToFollowUp).length}</span>
           </div>
         </div>
       </div>

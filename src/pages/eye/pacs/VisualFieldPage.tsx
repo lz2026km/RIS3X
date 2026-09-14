@@ -3,6 +3,7 @@ import { Card, Row, Col, Tag, Space, Statistic, Spin } from "antd";
 import { Activity, Target } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 const VisualFieldPage: React.FC = () => {
   const [study, setStudy] = useState<any>(null);
@@ -32,8 +33,8 @@ const VisualFieldPage: React.FC = () => {
     return () => { cancelled = true; };
   }, []);
 
-  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
-  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>无视野检查数据</div>;
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('visualField.loading')} /></div>;
+  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>{t('visualField.noData')}</div>;
   return (
     <div
       style={{
@@ -49,10 +50,10 @@ const VisualFieldPage: React.FC = () => {
             title={
               <Space>
                 <Activity size={16} />
-                <span>视野分析</span>
+                <span>{t('visualField.analysis')}</span>
                 <EyeLateralityBadge eyeSide="OS" />
                 <Tag color="cyan">Zeiss Humphrey HFA3 24-2 SITA-Fast</Tag>
-                <Tag color="gold">部分演示数据 · 灰度图/解读为演示，MD/PSD 为真实 API 数据</Tag>
+                <Tag color="gold">{t('visualField.demoTag')}</Tag>
               </Space>
             }
           >
@@ -111,7 +112,7 @@ const VisualFieldPage: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  灰度图 (dB) — 数值越小越暗
+                  {t('visualField.grayscaleCaption')}
                 </div>
               </Col>
               <Col span={8}>
@@ -165,7 +166,7 @@ const VisualFieldPage: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  模式偏差图 (dB)
+                  {t('visualField.patternDeviation')}
                 </div>
               </Col>
               <Col span={8}>
@@ -182,15 +183,15 @@ const VisualFieldPage: React.FC = () => {
                   }}
                 >
                   <Target size={24} />
-                  <span style={{ fontSize: 12, marginTop: 4 }}>TD 曲线图</span>
+                  <span style={{ fontSize: 12, marginTop: 4 }}>{t('visualField.tdCurve')}</span>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    上方鼻侧阶梯状暗点
+                    {t('visualField.tdCurveDesc')}
                   </div>
                 </div>
               </Col>
             </Row>
           </Card>
-          <Card size="small" title="视野指数" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('visualField.indices')} style={{ marginTop: 8 }}>
             <Row gutter={16}>
               {[
                 {
@@ -211,16 +212,16 @@ const VisualFieldPage: React.FC = () => {
                   suffix: "%",
                   color: vf && vf.vfi < 75 ? "#ef4444" : "#0f172a",
                 },
-                { title: "中心阈值", value: vf?.fovealThreshold, suffix: "dB" },
+                { title: "visualField.centralThreshold", value: vf?.fovealThreshold, suffix: "dB" },
                 {
-                  title: "平均敏感度",
+                  title: "visualField.meanSensitivity",
                   value: vf?.meanSensitivity,
                   suffix: "dB",
                 },
               ].map((s) => (
                 <Col span={8} key={s.title} style={{ marginBottom: 8 }}>
                   <Statistic
-                    title={s.title}
+                    title={t(s.title)}
                     value={s.value}
                     suffix={s.suffix}
                     styles={{ content: {  fontSize: 20, color: s.color  } }}
@@ -229,18 +230,18 @@ const VisualFieldPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title="可靠性指标" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('visualField.reliability')} style={{ marginTop: 8 }}>
             <Row gutter={16}>
               {[
-                { title: "固视丢失", value: vf?.fixationLosses, suffix: "%" },
-                { title: "假阳性", value: vf?.falsePositives, suffix: "%" },
-                { title: "假阴性", value: vf?.falseNegatives, suffix: "%" },
+                { title: "visualField.fixationLosses", value: vf?.fixationLosses, suffix: "%" },
+                { title: "visualField.falsePositives", value: vf?.falsePositives, suffix: "%" },
+                { title: "visualField.falseNegatives", value: vf?.falseNegatives, suffix: "%" },
                 { title: "GHT", value: vf?.ght },
-                { title: "可靠性", value: vf?.reliability },
+                { title: "visualField.reliabilityShort", value: vf?.reliability },
               ].map((s) => (
                 <Col span={8} key={s.title}>
                   <Statistic
-                    title={s.title}
+                    title={t(s.title)}
                     value={s.value}
                     suffix={s.suffix || ""}
                     styles={{ content: {  fontSize: 16  } }}
@@ -251,30 +252,30 @@ const VisualFieldPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="患者信息">
+          <Card size="small" title={t('visualField.patientInfo')}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
-              患者: <strong>{study?.patientName}</strong>
+              {t('visualField.patient')} <strong>{study?.patientName}</strong>
               <br />
-              眼别: <EyeLateralityBadge eyeSide="OS" size="small" />
+              {t('visualField.eyeSide')} <EyeLateralityBadge eyeSide="OS" size="small" />
               <br />
-              检查日期:{" "}
+              {t('visualField.studyDate')}{" "}
               {study ? new Date(study.studyDate).toLocaleString() : "-"}
               <br />
-              诊断: <Tag color="orange">原发性开角型青光眼</Tag>
+              {t('visualField.diagnosis')} <Tag color="orange">{t('visualField.poag')}</Tag>
             </div>
           </Card>
-          <Card size="small" title="视野解读" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('visualField.interpretation')} style={{ marginTop: 8 }}>
             <div style={{ fontSize: 12, lineHeight: 1.8 }}>
               <div>
-                GHT: <Tag color="red">正常范围外</Tag>
+                GHT: <Tag color="red">{t('visualField.outsideNormal')}</Tag>
               </div>
-              <div>缺损模式: 上方鼻侧阶梯状暗点</div>
-              <div>缺损深度: {vf?.defectDepth}dB</div>
+              <div>{t('visualField.defectPattern')}</div>
+              <div>{t('visualField.defectDepth')} {vf?.defectDepth}dB</div>
               <div style={{ marginTop: 8, color: "var(--text-secondary)" }}>
-                • 颞上扇形敏感度显著下降(-12.5dB)
+                • {t('visualField.note1')}
               </div>
-              <div style={{ color: "var(--text-secondary)" }}>• 与 RNFL 颞上变薄一致</div>
-              <div style={{ color: "var(--text-secondary)" }}>• 功能损伤已达重度</div>
+              <div style={{ color: "var(--text-secondary)" }}>• {t('visualField.note2')}</div>
+              <div style={{ color: "var(--text-secondary)" }}>• {t('visualField.note3')}</div>
             </div>
           </Card>
         </Col>

@@ -114,16 +114,16 @@ export const DentalVolumeViewerPage: React.FC = () => {
       <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
         <Space style={{ marginBottom: 16 }}>
           <Box size={20} color="#2563eb" />
-          <span style={{ fontSize: 18, fontWeight: 600 }}>CBCT 体绘制 · 曲线 MPR</span>
+          <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dvv.title')}</span>
           <Tag color="cyan">v3.0.6.8-93</Tag>
-          <Tag color="purple">Romexis 对标</Tag>
+          <Tag color="purple">{t('dvv.benchRomexis')}</Tag>
           {/* [G005 Wave1B] /dental/volume/* 后端真实; [Wave10A] POST apply + curve-path + 8 预设 (seed 扩充) */}
-          <Tag color="green">真实后端 /dental/volume/*</Tag>
+          <Tag color="green">{t('dvv.realBackend')}</Tag>
           <Tag>apply=POST</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title="总 CBCT" value={studies.length} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="预设" value={presets.length} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('dvv.totalCbct')} value={studies.length} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('dvv.presets')} value={presets.length} /></Card></Col>
         </Row>
         <Row gutter={[12,12]}>
           {studies.map((s: any) => (
@@ -131,7 +131,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
               <Card size="small" hoverable onClick={() => handleSelect(s)} style={{cursor:'pointer'}}>
                 <Tag color="purple">CBCT</Tag>
                 <div style={{fontSize:13,fontWeight:600}}>{s.patientName}</div>
-                <div style={{fontSize:11,color:'var(--text-secondary)'}}>{s.device} | {s.fov} | {s.slices}层</div>
+                <div style={{fontSize:11,color:'var(--text-secondary)'}}>{s.device} | {s.fov} | {s.slices}{t('dvv.slicesSuffix')}</div>
                 <Badge status={s.status==='processed'?'success':'processing'} text={s.status} />
               </Card>
             </Col>
@@ -144,36 +144,36 @@ export const DentalVolumeViewerPage: React.FC = () => {
   return (
     <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 12 }}>
-        <Button icon={<RotateCcw size={14}/>} onClick={()=>setMode('list')}>返回</Button>
-        <span style={{fontSize:16,fontWeight:600}}>CBCT 体渲染 - {current?.patientName}</span>
+        <Button icon={<RotateCcw size={14}/>} onClick={()=>setMode('list')}>{t('dvv.back')}</Button>
+        <span style={{fontSize:16,fontWeight:600}}>{t('dvv.viewerTitle')} - {current?.patientName}</span>
         <Tag color="cyan">v3.0.6.8-93</Tag>
         <Tag color="blue">{current?.device}</Tag>
       </Space>
       <Row gutter={12}>
         <Col span={12}>
-          <Card size="small" title={<Space><Layers size={14}/>体绘制</Space>}
+          <Card size="small" title={<Space><Layers size={14}/>{t('dvv.volumeRendering')}</Space>}
             extra={<Select size="small" value={activePreset} onChange={v => {setActivePreset(v); dentalApi.applyVolumePreset(v).catch((err) => console.error('[F04]', err));}} options={presets.map((p:any)=>({value:p.id,label:p.name}))} />}>
             <canvas ref={canvasRef} width={480} height={360} style={{width:'100%',height:300,borderRadius:8}} />
             <Row gutter={8} style={{marginTop:8}}>
-              <Col span={8}><Form.Item label="窗宽" size="small"><InputNumber value={ww} onChange={v=>setWw(v||1500)} min={100} max={4000} step={100} style={{width:'100%'}} /></Form.Item></Col>
-              <Col span={8}><Form.Item label="窗位" size="small"><InputNumber value={wc} onChange={v=>setWc(v||500)} min={-1000} max={2000} step={100} style={{width:'100%'}} /></Form.Item></Col>
-              <Col span={8}><Form.Item label="切片" size="small"><InputNumber value={sliceIdx} onChange={v=>setSliceIdx(v||50)} min={0} max={current?.slices||400} style={{width:'100%'}} /></Form.Item></Col>
+              <Col span={8}><Form.Item label={t('dvv.windowWidth')} size="small"><InputNumber value={ww} onChange={v=>setWw(v||1500)} min={100} max={4000} step={100} style={{width:'100%'}} /></Form.Item></Col>
+              <Col span={8}><Form.Item label={t('dvv.windowCenter')} size="small"><InputNumber value={wc} onChange={v=>setWc(v||500)} min={-1000} max={2000} step={100} style={{width:'100%'}} /></Form.Item></Col>
+              <Col span={8}><Form.Item label={t('dvv.slice')} size="small"><InputNumber value={sliceIdx} onChange={v=>setSliceIdx(v||50)} min={0} max={current?.slices||400} style={{width:'100%'}} /></Form.Item></Col>
             </Row>
             <Slider value={sliceIdx} min={0} max={current?.slices||400} onChange={setSliceIdx} />
           </Card>
-          <Card size="small" title={<Space><Crosshair size={14}/>曲断重建</Space>} style={{marginTop:8}}
-            extra={<Button size="small" icon={<Eye size={10}/>} onClick={()=>setShowCurved(!showCurved)}>{showCurved?'隐藏':'显示'}</Button>}>
+          <Card size="small" title={<Space><Crosshair size={14}/>{t('dvv.curvedRecon')}</Space>} style={{marginTop:8}}
+            extra={<Button size="small" icon={<Eye size={10}/>} onClick={()=>setShowCurved(!showCurved)}>{showCurved?t('dvv.hide'):t('dvv.show')}</Button>}>
             {showCurved ? (
               <div style={{height:120,background:'#1a1a2e',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-secondary)'}}>
-                <div style={{textAlign:'center'}}><div>沿牙弓展开曲线重建</div><div style={{fontSize:11,marginTop:4}}>152mm × 256px  |  已展开</div></div>
+                <div style={{textAlign:'center'}}><div>{t('dvv.curveExpand')}</div><div style={{fontSize:11,marginTop:4}}>{t('dvv.curveInfo')}</div></div>
               </div>
-            ):<div style={{textAlign:'center',padding:20,color:'var(--text-secondary)',fontSize:12}}>点击「显示」查看曲断重建</div>}
+            ):<div style={{textAlign:'center',padding:20,color:'var(--text-secondary)',fontSize:12}}>{t('dvv.clickShow')}</div>}
           </Card>
         </Col>
         <Col span={12}>
           <Tabs activeKey={tab} onChange={setTab} items={[
-            {key:'vr', label:'体渲染参数', children:<>
-              <Card size="small" title="预设">
+            {key:'vr', label:t('dvv.tabVr'), children:<>
+              <Card size="small" title={t('dvv.presets')}>
                 <Row gutter={[8,8]}>
                   {presets.map((p:any)=>(
                     <Col span={12} key={p.id}>
@@ -186,23 +186,23 @@ export const DentalVolumeViewerPage: React.FC = () => {
                   ))}
                 </Row>
               </Card>
-              <Card size="small" title="3D 网格" style={{marginTop:8}}>
+              <Card size="small" title={t('dvv.mesh3d')} style={{marginTop:8}}>
                 <Space wrap>
-                  <Tag>顶点: 185K</Tag>
-                  <Tag>面: 92K</Tag>
-                  <Tag>质量: 高</Tag>
-                  <Tag>格式: GLB</Tag>
+                  <Tag>{t('dvv.vertexTag')}</Tag>
+                  <Tag>{t('dvv.faceTag')}</Tag>
+                  <Tag>{t('dvv.qualityTag')}</Tag>
+                  <Tag>{t('dvv.formatTag')}</Tag>
                 </Space>
                 <div style={{marginTop:8}}>
-                  <Button icon={<Download size={14}/>} size="small" onClick={() => handleExportMesh('stl')}>导出 STL</Button>
-                  <Button icon={<Download size={14}/>} size="small" style={{marginLeft:8}} onClick={() => handleExportMesh('obj')}>导出 OBJ</Button>
+                  <Button icon={<Download size={14}/>} size="small" onClick={() => handleExportMesh('stl')}>{t('dvv.exportStl')}</Button>
+                  <Button icon={<Download size={14}/>} size="small" style={{marginLeft:8}} onClick={() => handleExportMesh('obj')}>{t('dvv.exportObj')}</Button>
                 </div>
               </Card>
             </>},
-            {key:'curved', label:'曲断参数', children:<>
-              <Card size="small" title={<Space><Crosshair size={14}/>{t("w3b.volumeCurvePath")} {curvePath ? <Tag color="green">后端 /dental/volume/studies/:id/curve-path</Tag> : null}</Space>}>
+            {key:'curved', label:t('dvv.tabCurved'), children:<> 
+              <Card size="small" title={<Space><Crosshair size={14}/>{t("w3b.volumeCurvePath")} {curvePath ? <Tag color="green">{t('dvv.backendPrefix')}/dental/volume/studies/:id/curve-path</Tag> : null}</Space>}>
                 {curveLoading ? (
-                  <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>加载曲线路径中...</div>
+                  <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('dvv.loadingCurve')}</div>
                 ) : (
                 <>
                 <div style={{height:200,background:'#0a0a1a',borderRadius:6,padding:8}}>
@@ -226,20 +226,20 @@ export const DentalVolumeViewerPage: React.FC = () => {
                   </svg>
                 </div>
                 <Space wrap style={{marginTop:8}}>
-                  <Tag color="blue">点数: {curvePath?.points?.length ?? 25}</Tag>
-                  <Tag color="green">展开长度: {curvePath?.lengthMm ?? 152}mm</Tag>
-                  {curvePath?.spacingMm != null && <Tag>间距: {curvePath.spacingMm}mm</Tag>}
+                  <Tag color="blue">{t('dvv.pointsPrefix')}{curvePath?.points?.length ?? 25}</Tag>
+                  <Tag color="green">{t('dvv.lengthPrefix')}{curvePath?.lengthMm ?? 152}mm</Tag>
+                  {curvePath?.spacingMm != null && <Tag>{t('dvv.spacingPrefix')}{curvePath.spacingMm}mm</Tag>}
                 </Space>
                 </>
                 )}
               </Card>
-              <Card size="small" title="输出参数" style={{marginTop:8}}>
+              <Card size="small" title={t('dvv.outputParams')} style={{marginTop:8}}>
                 <Row gutter={8}>
-                  <Col span={8}><Form.Item label="宽度"><InputNumber defaultValue={256} min={128} max={1024} step={64} style={{width:'100%'}} /></Form.Item></Col>
-                  <Col span={8}><Form.Item label="高度"><InputNumber defaultValue={80} min={40} max={320} step={20} style={{width:'100%'}} /></Form.Item></Col>
-                  <Col span={8}><Form.Item label="层厚"><InputNumber defaultValue={0.5} min={0.1} max={2} step={0.1} style={{width:'100%'}} /></Form.Item></Col>
+                  <Col span={8}><Form.Item label={t('dvv.width')}><InputNumber defaultValue={256} min={128} max={1024} step={64} style={{width:'100%'}} /></Form.Item></Col>
+                  <Col span={8}><Form.Item label={t('dvv.height')}><InputNumber defaultValue={80} min={40} max={320} step={20} style={{width:'100%'}} /></Form.Item></Col>
+                  <Col span={8}><Form.Item label={t('dvv.sliceThickness')}><InputNumber defaultValue={0.5} min={0.1} max={2} step={0.1} style={{width:'100%'}} /></Form.Item></Col>
                 </Row>
-                <Button icon={<Download size={14}/>} block onClick={handleExportCurved}>导出曲断图像</Button>
+                <Button icon={<Download size={14}/>} block onClick={handleExportCurved}>{t('dvv.exportCurved')}</Button>
               </Card>
             </>},
           ]} />

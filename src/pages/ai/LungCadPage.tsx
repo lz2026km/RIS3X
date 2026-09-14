@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
+import { t } from "../../i18n/appI18n";
 
 const { Text } = Typography;
 
@@ -39,10 +40,10 @@ const riskColor: Record<string, string> = {
   very_high: "volcano",
 };
 const riskLabel: Record<string, string> = {
-  low: "低",
-  moderate: "中",
-  high: "高",
-  very_high: "很高",
+  low: "lungCad.risk.low",
+  moderate: "lungCad.risk.moderate",
+  high: "lungCad.risk.high",
+  very_high: "lungCad.risk.veryHigh",
 };
 
 const LungCadPage: React.FC = () => {
@@ -67,11 +68,11 @@ const LungCadPage: React.FC = () => {
       if (res.success) {
         setResults(res.data ?? []);
       } else {
-        setError(res.error?.message ?? "加载失败");
+        setError(res.error?.message ?? t("lungCad.loadFailed"));
         setResults([]);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t("lungCad.loadFailed"));
       setResults([]);
     } finally {
       setLoading(false);
@@ -86,10 +87,10 @@ const LungCadPage: React.FC = () => {
       if (res.success) {
         message.success(`模型重训已提交: ${res.data?.modelVersion} (${res.data?.status})`);
       } else {
-        message.error(res.error?.message ?? "重训提交失败");
+        message.error(res.error?.message ?? t("lungCad.retrainFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? "重训提交失败");
+      message.error((e as Error)?.message ?? t("lungCad.retrainFailed"));
     } finally {
       setRetraining(false);
     }
@@ -123,18 +124,18 @@ const LungCadPage: React.FC = () => {
   }, [load]);
 
   const columns = [
-    { title: "检查号", dataIndex: "studyId", key: "studyId" },
-    { title: "患者", dataIndex: "patientName", key: "patientName" },
-    { title: "模态", dataIndex: "modality", key: "modality" },
-    { title: "结节数", dataIndex: "noduleCount", key: "noduleCount" },
+    { title: t("lungCad.colStudyId"), dataIndex: "studyId", key: "studyId" },
+    { title: t("lungCad.colPatient"), dataIndex: "patientName", key: "patientName" },
+    { title: t("lungCad.colModality"), dataIndex: "modality", key: "modality" },
+    { title: t("lungCad.colNoduleCount"), dataIndex: "noduleCount", key: "noduleCount" },
     {
-      title: "整体风险",
+      title: t("lungCad.colOverallRisk"),
       dataIndex: "overallRisk",
       key: "overallRisk",
-      render: (v: string) => <Tag color={riskColor[v]}>{riskLabel[v] ?? v}</Tag>,
+      render: (v: string) => <Tag color={riskColor[v]}>{t(riskLabel[v] ?? v)}</Tag>,
     },
     {
-      title: "状态",
+      title: t("lungCad.colStatus"),
       dataIndex: "status",
       key: "status",
       render: (v: string) => (
@@ -148,7 +149,7 @@ const LungCadPage: React.FC = () => {
       ),
     },
     {
-      title: "操作",
+      title: t("lungCad.colAction"),
       key: "action",
       render: (_: unknown, r: LungCadResult) => (
         <Space>
@@ -161,7 +162,7 @@ const LungCadPage: React.FC = () => {
               setDetailOpen(true);
             }}
           >
-            查看详情
+            {t("lungCad.viewDetail")}
           </Button>
           <Button
             size="small"
@@ -169,7 +170,7 @@ const LungCadPage: React.FC = () => {
             data-testid={`goto-viewer-${r.id}`}
             onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
           >
-            去阅片叠加
+            {t("lungCad.gotoViewer")}
           </Button>
         </Space>
       ),
@@ -180,14 +181,14 @@ const LungCadPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <Crosshair size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>肺结节 AI 检测</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("lungCad.title")}</span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
           onClick={() => void load()}
           loading={loading}
         >
-          刷新
+          {t("lungCad.refresh")}
         </Button>
         <Button
           size="small"
@@ -195,7 +196,7 @@ const LungCadPage: React.FC = () => {
           onClick={() => void handleRetrain()}
           loading={retraining}
         >
-          重训模型
+          {t("lungCad.retrainModel")}
         </Button>
         {selectedRowKeys.length > 0 && (
           <>
@@ -206,7 +207,7 @@ const LungCadPage: React.FC = () => {
               loading={batchLoading}
               onClick={() => void handleBatch("confirmed")}
             >
-              批量确认 ({selectedRowKeys.length})
+              {t("lungCad.batchConfirm", { count: selectedRowKeys.length })}
             </Button>
             <Button
               size="small"
@@ -215,7 +216,7 @@ const LungCadPage: React.FC = () => {
               loading={batchLoading}
               onClick={() => void handleBatch("rejected")}
             >
-              批量驳回 ({selectedRowKeys.length})
+              {t("lungCad.batchReject", { count: selectedRowKeys.length })}
             </Button>
           </>
         )}
@@ -224,7 +225,7 @@ const LungCadPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="总检测"
+              title={t("lungCad.statTotal")}
               value={results.length}
               prefix={<Activity size={16} />}
             />
@@ -233,7 +234,7 @@ const LungCadPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="高风险"
+              title={t("lungCad.statHighRisk")}
               value={
                 results.filter(
                   (r) =>
@@ -248,7 +249,7 @@ const LungCadPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="已复核"
+              title={t("lungCad.statReviewed")}
               value={
                 results.filter(
                   (r) => r.status === "reviewed" || r.status === "confirmed",
@@ -261,7 +262,7 @@ const LungCadPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="总结节数"
+              title={t("lungCad.statTotalNodules")}
               value={results.reduce((s, r) => s + r.noduleCount, 0)}
               prefix={<Crosshair size={16} />}
             />
@@ -275,7 +276,7 @@ const LungCadPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-              重试
+              {t("lungCad.retry")}
             </Button>
           }
         />
@@ -313,7 +314,7 @@ const LungCadPage: React.FC = () => {
               pagination={nodulePagination.pagination}
               columns={[
                 {
-                  title: "位置",
+                  title: t("lungCad.colLocation"),
                   dataIndex: "sliceLocation",
                   key: "sliceLocation",
                   render: (
@@ -326,10 +327,10 @@ const LungCadPage: React.FC = () => {
                     },
                   ) => `层面 ${n.sliceLocation} (${n.x}, ${n.y}, ${n.z})`,
                 },
-                { title: "直径(mm)", dataIndex: "diameter", key: "diameter" },
-                { title: "密度", dataIndex: "density", key: "density" },
+                { title: t("lungCad.colDiameter"), dataIndex: "diameter", key: "diameter" },
+                { title: t("lungCad.colDensity"), dataIndex: "density", key: "density" },
                 {
-                  title: "恶性风险",
+                  title: t("lungCad.colMalignancyRisk"),
                   dataIndex: "malignancyRisk",
                   key: "malignancyRisk",
                   render: (v: number) => `${(v * 100).toFixed(0)}%`,
@@ -337,7 +338,7 @@ const LungCadPage: React.FC = () => {
               ]}
             />
             <Card size="small" style={{ marginTop: 16 }}>
-              <Text strong>建议: </Text>
+              <Text strong>{t("lungCad.recommendationLabel")} </Text>
               <Text>{selected.recommendation}</Text>
             </Card>
           </>

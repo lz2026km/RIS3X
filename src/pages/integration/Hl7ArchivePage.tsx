@@ -6,6 +6,7 @@ import { Archive, Filter, RotateCcw, Search, ChevronDown, ChevronRight, AlertCir
 import { hl7Api } from "../../services/api/integrationApi";
 import { usePagination } from "../../hooks/usePagination";
 import dayjs from "dayjs";
+import { t } from "../../i18n/appI18n";
 
 const { RangePicker } = DatePicker;
 
@@ -49,24 +50,24 @@ export const Hl7ArchivePage: React.FC = () => {
   const handleRetry = async (record: Hl7ArchiveRecord) => {
     const res = await hl7Api.retryBatch([record.id]);
     if (res.success) {
-      message.success("已触发重发");
+      message.success(t("hl7Archive.resendTriggered"));
       fetchData();
     } else {
-      message.error("重发失败");
+      message.error(t("hl7Archive.resendFailed"));
     }
   };
 
   const columns = [
     {
-      title: "消息类型",
+      title: t("hl7Archive.colMessageType"),
       dataIndex: "messageType",
       key: "messageType",
       render: (v: string) => <Tag color="purple">{v}</Tag>,
       width: 140,
     },
-    { title: "控制 ID", dataIndex: "controlId", key: "controlId", width: 180 },
+    { title: t("hl7Archive.colControlId"), dataIndex: "controlId", key: "controlId", width: 180 },
     {
-      title: "方向",
+      title: t("hl7Archive.colDirection"),
       dataIndex: "direction",
       key: "direction",
       render: (v: string) => {
@@ -76,7 +77,7 @@ export const Hl7ArchivePage: React.FC = () => {
       width: 110,
     },
     {
-      title: "ACK 状态",
+      title: t("hl7Archive.colAckStatus"),
       dataIndex: "ackStatus",
       key: "ackStatus",
       render: (v: string) => {
@@ -95,22 +96,22 @@ export const Hl7ArchivePage: React.FC = () => {
       },
       width: 130,
     },
-    { title: "重试次数", dataIndex: "retryCount", key: "retryCount", width: 90 },
+    { title: t("hl7Archive.colRetryCount"), dataIndex: "retryCount", key: "retryCount", width: 90 },
     {
-      title: "创建时间",
+      title: t("hl7Archive.colCreatedAt"),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm:ss"),
       width: 170,
     },
     {
-      title: "操作",
+      title: t("hl7Archive.colActions"),
       key: "action",
       width: 100,
       render: (_: unknown, record: Hl7ArchiveRecord) =>
         record.ackStatus === "FAILED" ? (
           <Button size="small" type="primary" danger icon={<Send className="w-3 h-3" />} onClick={() => handleRetry(record)}>
-            手动重发
+            {t("hl7Archive.manualResend")}
           </Button>
         ) : null,
     },
@@ -123,22 +124,22 @@ export const Hl7ArchivePage: React.FC = () => {
           <Space>
             <Archive className="w-5 h-5 text-purple-600" />
             <div>
-              <div className="text-base font-semibold">HL7 消息归档</div>
-              <div className="text-xs text-slate-500">消息归档列表（HL7 归档）</div>
+              <div className="text-base font-semibold">{t("hl7Archive.title")}</div>
+              <div className="text-xs text-slate-500">{t("hl7Archive.subtitle")}</div>
             </div>
           </Space>
           <Space>
-            <Tag color="purple">归档</Tag>
-            <Button size="small" icon={<RotateCcw className="w-3 h-3" />} onClick={fetchData}>刷新</Button>
+            <Tag color="purple">{t("hl7Archive.archiveTag")}</Tag>
+            <Button size="small" icon={<RotateCcw className="w-3 h-3" />} onClick={fetchData}>{t("hl7Archive.refresh")}</Button>
           </Space>
         </div>
       </Card>
 
-      <Card size="small" className="shadow-sm" title={<Space><Filter className="w-4 h-4" /><span>筛选</span></Space>}>
+      <Card size="small" className="shadow-sm" title={<Space><Filter className="w-4 h-4" /><span>{t("hl7Archive.filter")}</span></Space>}>
         <Space wrap>
           <Select
             allowClear
-            placeholder="消息类型"
+            placeholder={t("hl7Archive.colMessageType")}
             value={filterType}
             onChange={setFilterType}
             style={{ width: 150 }}
@@ -152,30 +153,30 @@ export const Hl7ArchivePage: React.FC = () => {
           />
           <Select
             allowClear
-            placeholder="方向"
+            placeholder={t("hl7Archive.colDirection")}
             value={filterDirection}
             onChange={setFilterDirection}
             style={{ width: 140 }}
             options={[
-              { value: "INBOUND", label: "入站" },
-              { value: "OUTBOUND", label: "出站" },
+              { value: "INBOUND", label: t("hl7Archive.inbound") },
+              { value: "OUTBOUND", label: t("hl7Archive.outbound") },
               { value: "ACK", label: "ACK" },
             ]}
           />
           <Select
             allowClear
-            placeholder="ACK 状态"
+            placeholder={t("hl7Archive.colAckStatus")}
             value={filterAck}
             onChange={setFilterAck}
             style={{ width: 150 }}
             options={[
-              { value: "SUCCESS", label: "成功" },
-              { value: "FAILED", label: "失败" },
-              { value: "PENDING", label: "待处理" },
+              { value: "SUCCESS", label: t("hl7Archive.success") },
+              { value: "FAILED", label: t("hl7Archive.failed") },
+              { value: "PENDING", label: t("hl7Archive.pending") },
             ]}
           />
           <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
-          <Button icon={<Search className="w-3 h-3" />} type="primary" onClick={fetchData}>查询</Button>
+          <Button icon={<Search className="w-3 h-3" />} type="primary" onClick={fetchData}>{t("hl7Archive.query")}</Button>
         </Space>
       </Card>
 

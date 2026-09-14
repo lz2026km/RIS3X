@@ -12,6 +12,7 @@ import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw, Datab
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SearchX } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
 
@@ -66,13 +67,13 @@ const CrossModalSearchPage: React.FC = () => {
     try {
       const res = await crossModalApi.reindex()
       if (res.success) {
-        message.success('索引重建已触发')
+        message.success(t('crossModal.reindexTriggered'))
         await loadIndexStatus()
       } else {
-        message.error(res.error?.message ?? '重建索引失败')
+        message.error(res.error?.message ?? t('crossModal.reindexFailed'))
       }
     } catch (e) {
-      message.error(e instanceof Error ? e.message : '重建索引失败')
+      message.error(e instanceof Error ? e.message : t('crossModal.reindexFailed'))
     } finally {
       setReindexing(false)
     }
@@ -93,7 +94,7 @@ const CrossModalSearchPage: React.FC = () => {
   const handleSearch = async () => {
     const combined = [query.trim(), patientQuery.trim()].filter(Boolean).join(' ')
     if (!combined) {
-      message.warning('请输入搜索关键词或患者信息')
+      message.warning(t('crossModal.enterQuery'))
       return
     }
     setLoading(true)
@@ -110,11 +111,11 @@ const CrossModalSearchPage: React.FC = () => {
         setResults(res.data)
         setSearched(true)
       } else {
-        setError(res.error?.message ?? '搜索失败')
+        setError(res.error?.message ?? t('crossModal.searchFailed'))
         setResults([])
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : '搜索失败,请稍后重试')
+      setError(e instanceof Error ? e.message : t('crossModal.searchFailedRetry'))
       setResults([])
     } finally {
       setLoading(false)
@@ -145,10 +146,10 @@ const CrossModalSearchPage: React.FC = () => {
         setSearched(true)
         setActiveTab('all')
       } else {
-        setError(res.error?.message ?? '相似检索失败')
+        setError(res.error?.message ?? t('crossModal.similarFailed'))
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : '相似检索失败')
+      setError(e instanceof Error ? e.message : t('crossModal.similarFailed'))
     } finally {
       setLoading(false)
     }
@@ -157,7 +158,7 @@ const CrossModalSearchPage: React.FC = () => {
   const handleSimilarButton = () => {
     const seed = results[0]
     if (!seed) {
-      message.warning('请先搜索后再进行相似检索')
+      message.warning(t('crossModal.searchFirst'))
       return
     }
     void handleSimilar(seed.id)
@@ -180,21 +181,21 @@ const CrossModalSearchPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <ScanSearch size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>跨模态检索</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('crossModal.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         {indexStatus && (
           <Tag color={indexStatus.status === 'ready' ? 'success' : 'warning'}>
-            索引 {indexStatus.totalDocuments} 份文档
+            {t('crossModal.indexPrefix')} {indexStatus.totalDocuments} {t('crossModal.docUnit')}
           </Tag>
         )}
       </Space>
 
-      <Card size="small" style={{ marginBottom: 16 }} title="检索条件">
+      <Card size="small" style={{ marginBottom: 16 }} title={t('crossModal.searchConditions')}>
         <Row gutter={[12, 12]}>
           <Col xs={24} md={10}>
             <Input
               prefix={<Search size={14} style={{ color: '#999' }} />}
-              placeholder="关键词: 肺结节 / 脑白质 / 肺炎..."
+              placeholder={t('crossModal.keywordPlaceholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onPressEnter={handleSearch}
@@ -202,7 +203,7 @@ const CrossModalSearchPage: React.FC = () => {
           </Col>
           <Col xs={24} md={6}>
             <Input
-              placeholder="患者姓名 / ID"
+              placeholder={t('crossModal.patientPlaceholder')}
               value={patientQuery}
               onChange={(e) => setPatientQuery(e.target.value)}
               onPressEnter={handleSearch}
@@ -212,7 +213,7 @@ const CrossModalSearchPage: React.FC = () => {
             <Select
               mode="multiple"
               allowClear
-              placeholder="模态筛选"
+              placeholder={t('crossModal.modalityFilter')}
               style={{ width: '100%' }}
               options={MODALITY_OPTIONS}
               value={modalities}
@@ -228,11 +229,11 @@ const CrossModalSearchPage: React.FC = () => {
           </Col>
           <Col xs={24} md={14}>
             <Space>
-              <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={loading}>搜索</Button>
-              <Button icon={<ScanSearch size={14} />} onClick={handleSimilarButton} disabled={results.length === 0}>相似检索</Button>
-              <Button icon={<RefreshCw size={14} />} onClick={() => void loadIndexStatus()}>索引状态</Button>
-              <Button icon={<DatabaseZap size={14} />} loading={reindexing} onClick={() => void handleReindex()}>重建索引</Button>
-              <Text type="secondary" style={{ fontSize: 12 }}>支持文本 + 患者 + 模态混合检索</Text>
+              <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={loading}>{t('crossModal.search')}</Button>
+              <Button icon={<ScanSearch size={14} />} onClick={handleSimilarButton} disabled={results.length === 0}>{t('crossModal.similarSearch')}</Button>
+              <Button icon={<RefreshCw size={14} />} onClick={() => void loadIndexStatus()}>{t('crossModal.indexStatus')}</Button>
+              <Button icon={<DatabaseZap size={14} />} loading={reindexing} onClick={() => void handleReindex()}>{t('crossModal.reindex')}</Button>
+              <Text type="secondary" style={{ fontSize: 12 }}>{t('crossModal.searchHint')}</Text>
             </Space>
           </Col>
           <Col span={24}>
@@ -240,7 +241,7 @@ const CrossModalSearchPage: React.FC = () => {
               <Spin size="small" />
             ) : suggestions.length > 0 ? (
               <Space size={6} wrap>
-                <Text type="secondary" style={{ fontSize: 12 }}>搜索建议:</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>{t('crossModal.suggestions')}</Text>
                 {suggestions.map((s) => (
                   <Tag key={s} color="blue" style={{ cursor: 'pointer' }} onClick={() => setQuery(s)}>{s}</Tag>
                 ))}
@@ -251,26 +252,26 @@ const CrossModalSearchPage: React.FC = () => {
       </Card>
 
       {error && (
-        <Alert type="error" showIcon message="检索失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={handleSearch}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="error" showIcon message={t('crossModal.searchFailedTitle')} description={error} style={{ marginBottom: 16 }}
+          action={<Button size="small" onClick={handleSearch}><RefreshCw size={14} /> {t('crossModal.retry')}</Button>} />
       )}
 
       {loading ? (
         <Spin size="large" style={{ display: 'block', margin: '60px auto' }} />
       ) : !searched ? (
-        <EmptyState description="输入检索条件开始搜索" style={{ marginTop: 48 }} />
+        <EmptyState description={t('crossModal.enterSearchHint')} style={{ marginTop: 48 }} />
       ) : results.length === 0 ? (
-        <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未找到匹配结果" style={{ marginTop: 48 }} />
+        <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('crossModal.noResults')} style={{ marginTop: 48 }} />
       ) : (
         <Card size="small">
           <Tabs
             activeKey={activeTab}
             onChange={setActiveTab}
             items={[
-              { key: 'all', label: `全部 (${groups.all.length})` },
-              { key: 'exam', label: `检查 (${groups.exam.length})` },
-              { key: 'report', label: `报告 (${groups.report.length})` },
-              { key: 'dicom', label: `影像 (${groups.dicom.length})` },
+              { key: 'all', label: t('crossModal.tabAll', { count: groups.all.length }) },
+              { key: 'exam', label: t('crossModal.tabExam', { count: groups.exam.length }) },
+              { key: 'report', label: t('crossModal.tabReport', { count: groups.report.length }) },
+              { key: 'dicom', label: t('crossModal.tabDicom', { count: groups.dicom.length }) },
             ]}
           />
           <Row gutter={[12, 12]}>
@@ -289,8 +290,8 @@ const CrossModalSearchPage: React.FC = () => {
                           </div>
                     }
                     actions={[
-                      <Button key="detail" size="small" type="link" icon={<ExternalLink size={12} />} onClick={() => goDetail(r)}>查看详情</Button>,
-                      <Button key="similar" size="small" type="link" onClick={() => handleSimilar(r.id)}>相似</Button>,
+                      <Button key="detail" size="small" type="link" icon={<ExternalLink size={12} />} onClick={() => goDetail(r)}>{t('crossModal.viewDetail')}</Button>,
+                      <Button key="similar" size="small" type="link" onClick={() => handleSimilar(r.id)}>{t('crossModal.similar')}</Button>,
                     ]}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
@@ -309,9 +310,9 @@ const CrossModalSearchPage: React.FC = () => {
             })}
           </Row>
           <div style={{ marginTop: 16, display: 'flex', gap: 24 }}>
-            <Statistic title="命中结果" value={results.length} />
-            <Statistic title="涉及模态" value={new Set(results.map((r) => r.modality)).size} />
-            <Statistic title="涉及患者" value={new Set(results.map((r) => r.patientId)).size} />
+            <Statistic title={t('crossModal.hitResults')} value={results.length} />
+            <Statistic title={t('crossModal.modalitiesInvolved')} value={new Set(results.map((r) => r.modality)).size} />
+            <Statistic title={t('crossModal.patientsInvolved')} value={new Set(results.map((r) => r.patientId)).size} />
           </div>
         </Card>
       )}

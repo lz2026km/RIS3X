@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Activity, Clock, Users, DollarSign, FlaskConical, TrendingUp, Package } from 'lucide-react'
 import { statsApi } from '../../services/api/statsApi'
+import { t } from '../../i18n/appI18n'
 
 type KpiCard = {
   label: string
@@ -80,10 +81,10 @@ export default function CvOperationsPage() {
           setSource('api')
           setError(null)
         } else {
-          setError(res.error?.message ?? '统计接口不可用')
+          setError(res.error?.message ?? t('cvOps.statsUnavailable'))
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : '统计接口不可用')
+        if (!cancelled) setError(e instanceof Error ? e.message : t('cvOps.statsUnavailable'))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -105,19 +106,19 @@ export default function CvOperationsPage() {
   return (
     <div style={{ padding: 24 }}>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
-        <Activity size={24} /> 心血管运营中心
+        <Activity size={24} /> {t('cvOps.title')}
         <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', padding: '2px 8px', borderRadius: 10 }}>
-          {source === 'api' ? '数据源: /stats/daily' : '演示数据(接口不可用)'}
+          {source === 'api' ? t('cvOps.dataSourceApi') : t('cvOps.demoDataUnavailable')}
         </span>
       </h1>
 
       {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        <button style={tabStyle('overview')} onClick={() => setSelectedTab('overview')}>总览</button>
-        <button style={tabStyle('protocols')} onClick={() => setSelectedTab('protocols')}>协议</button>
-        <button style={tabStyle('workload')} onClick={() => setSelectedTab('workload')}>工作量</button>
-        <button style={tabStyle('inventory')} onClick={() => setSelectedTab('inventory')}>库存</button>
+        <button style={tabStyle('overview')} onClick={() => setSelectedTab('overview')}>{t('cvOps.tabOverview')}</button>
+        <button style={tabStyle('protocols')} onClick={() => setSelectedTab('protocols')}>{t('cvOps.tabProtocols')}</button>
+        <button style={tabStyle('workload')} onClick={() => setSelectedTab('workload')}>{t('cvOps.tabWorkload')}</button>
+        <button style={tabStyle('inventory')} onClick={() => setSelectedTab('inventory')}>{t('cvOps.tabInventory')}</button>
       </div>
 
       {selectedTab === 'overview' && (
@@ -136,7 +137,7 @@ export default function CvOperationsPage() {
           </div>
 
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 16 }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>活动时间线 — 今日 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span></h3>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>{t('cvOps.timelineToday')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
             <div style={{ fontSize: 14, color: '#64748b' }}>
               {['08:00 — CCTA: 三联排除 (患者 #P1023)', '08:30 — CMR: 心肌病 (患者 #P1045)', '09:00 — 导管室: STEMI急诊PCI (患者 #P1067)', '10:00 — 超声: 负荷超声 (患者 #P1082)', '11:30 — 血管超声: 颈动脉超声 (患者 #P1095)', '13:00 — CMR: 心肌存活 (患者 #P1101)', '14:00 — CCTA: TAVR规划 (患者 #P1118)', '15:00 — 导管室: 分期PCI (患者 #P1132)'].map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 7 ? '1px solid var(--border-color)' : 'none' }}>
@@ -151,15 +152,15 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'protocols' && (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ padding: '10px 16px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', fontSize: 12, color: '#94a3b8' }}>数据源: 演示数据 (后端无 /cardiac/operations 端点)</div>
+          <div style={{ padding: '10px 16px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', fontSize: 12, color: '#94a3b8' }}>{t('cvOps.protocolsSource')}</div>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)' }}>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>协议</th>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>设备类型</th>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>适应证</th>
-                <th style={{ padding: '10px 16px', textAlign: 'center' }}>进行中病例</th>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>最近使用</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>{t('cvOps.colProtocol')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>{t('cvOps.colModality')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>{t('cvOps.colIndication')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center' }}>{t('cvOps.colActiveCases')}</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>{t('cvOps.colLastUsed')}</th>
               </tr>
             </thead>
             <tbody>
@@ -181,17 +182,17 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'workload' && (
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 16, background: 'var(--bg-card)' }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>心血管医生工作量 — 今日 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span></h3>
+          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>{t('cvOps.workloadToday')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                <th style={{ padding: '8px 12px', textAlign: 'left' }}>心血管医生</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left' }}>{t('cvOps.colCardiologist')}</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CCTA</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CMR</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>超声</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>心导管</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>合计</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>状态</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('cvOps.colEcho')}</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('cvOps.colCath')}</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('cvOps.colTotal')}</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('cvOps.colStatus')}</th>
               </tr>
             </thead>
             <tbody>
@@ -216,7 +217,7 @@ export default function CvOperationsPage() {
                       background: r.status === 'on-duty' ? 'var(--color-success-bg)' : r.status === 'on-call' ? 'var(--color-warning-bg)' : 'var(--bg-card)',
                       color: r.status === 'on-duty' ? 'var(--color-success)' : r.status === 'on-call' ? 'var(--color-warning)' : '#94a3b8',
                     }}>
-                      {r.status === 'on-duty' ? '在岗' : r.status === 'on-call' ? '备勤' : r.status === 'cath-lab' ? '导管室' : r.status === 'echo-lab' ? '超声室' : '休班'}
+                      {r.status === 'on-duty' ? t('cvOps.statusOnDuty') : r.status === 'on-call' ? t('cvOps.statusOnCall') : r.status === 'cath-lab' ? t('cvOps.statusCathLab') : r.status === 'echo-lab' ? t('cvOps.statusEchoLab') : t('cvOps.statusOffDuty')}
                     </span>
                   </td>
                 </tr>
@@ -230,10 +231,10 @@ export default function CvOperationsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 16, background: 'var(--bg-card)' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FlaskConical size={16} /> 对比剂库存 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span>
+              <FlaskConical size={16} /> {t('cvOps.contrastInventory')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
             </h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-              <thead><tr style={{ borderBottom: '1px solid var(--border-color)' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>库存</th><th style={{ padding: '8px', textAlign: 'center' }}>补货点</th></tr></thead>
+              <thead><tr style={{ borderBottom: '1px solid var(--border-color)' }}><th style={{ padding: '8px', textAlign: 'left' }}>{t('cvOps.colOperator')}</th><th style={{ padding: '8px', textAlign: 'center' }}>{t('cvOps.colStock')}</th><th style={{ padding: '8px', textAlign: 'center' }}>{t('cvOps.colReorder')}</th></tr></thead>
               <tbody>
                 {[
                   { agent: 'Iopamidol 370 (100mL)', stock: 24, reorder: 30 },
@@ -252,10 +253,10 @@ export default function CvOperationsPage() {
           </div>
           <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 16, background: 'var(--bg-card)' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Package size={16} /> 负荷药物库存 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span>
+              <Package size={16} /> {t('cvOps.stressDrugInventory')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
             </h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-              <thead><tr style={{ borderBottom: '1px solid var(--border-color)' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>剂量</th><th style={{ padding: '8px', textAlign: 'center' }}>有效期</th></tr></thead>
+              <thead><tr style={{ borderBottom: '1px solid var(--border-color)' }}><th style={{ padding: '8px', textAlign: 'left' }}>{t('cvOps.colOperator')}</th><th style={{ padding: '8px', textAlign: 'center' }}>{t('cvOps.colDose')}</th><th style={{ padding: '8px', textAlign: 'center' }}>{t('cvOps.colExpiry')}</th></tr></thead>
               <tbody>
                 {[
                   { agent: 'Dobutamine (250mg/20mL)', doses: 5, expiry: '2026-08' },

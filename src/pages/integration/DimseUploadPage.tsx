@@ -5,11 +5,12 @@ import { Card, Upload, Button, message, Table, Tag, Space, Alert, Typography, Pr
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { RefreshCw } from 'lucide-react';
 import { dicomDimseApi } from '../../services/api/dicomApi';
+import { t } from '../../i18n/appI18n';
 
-const DEST_OPTIONS = [
-  { value: 's3', label: 'S3 兼容对象存储' },
-  { value: 'vna', label: 'VNA 归档' },
-  { value: 'pacs', label: '本地 PACS' },
+const destOptions = () => [
+  { value: 's3', label: t('dimseUpload.destS3') },
+  { value: 'vna', label: t('dimseUpload.destVna') },
+  { value: 'pacs', label: t('dimseUpload.destPacs') },
 ];
 
 const STORAGE_KEY = 'dimse_upload_records_v1';
@@ -24,14 +25,14 @@ interface UploadRecord {
   uploadedAt: string;
 }
 
-const UPLOAD_COLUMNS = [
-  { title: '文件名', dataIndex: 'fileName', key: 'fileName', ellipsis: true, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
-  { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
-  { title: 'SOP 实例 UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
-  { title: '归档路径', dataIndex: 's3Url', key: 's3Url', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
-  { title: '目标', dataIndex: 'destination', key: 'destination', width: 120, render: (v?: string) => <Tag color="geekblue">{DEST_OPTIONS.find(o => o.value === v)?.label ?? v}</Tag> },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : v === 'UPLOADING' ? 'processing' : 'red'}>{v === 'UPLOADING' ? '上传中' : v === 'SUCCESS' ? '成功' : '失败'}</Tag> },
-  { title: '时间', dataIndex: 'uploadedAt', key: 'uploadedAt', width: 140, render: (v: string) => <span style={{ fontSize: 11, color: '#64748b' }}>{v}</span> },
+const uploadColumns = () => [
+  { title: t('dimseUpload.colFileName'), dataIndex: 'fileName', key: 'fileName', ellipsis: true, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+  { title: t('dimseUpload.colSize'), dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
+  { title: t('dimseUpload.colSopUid'), dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
+  { title: t('dimseUpload.colArchivePath'), dataIndex: 's3Url', key: 's3Url', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
+  { title: t('dimseUpload.colDestination'), dataIndex: 'destination', key: 'destination', width: 120, render: (v?: string) => <Tag color="geekblue">{destOptions().find(o => o.value === v)?.label ?? v}</Tag> },
+  { title: t('dimseUpload.colStatus'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : v === 'UPLOADING' ? 'processing' : 'red'}>{v === 'UPLOADING' ? t('dimseUpload.statusUploading') : v === 'SUCCESS' ? t('dimseUpload.statusSuccess') : t('dimseUpload.statusFail')}</Tag> },
+  { title: t('dimseUpload.colTime'), dataIndex: 'uploadedAt', key: 'uploadedAt', width: 140, render: (v: string) => <span style={{ fontSize: 11, color: '#64748b' }}>{v}</span> },
 ];
 
 export const DimseUploadPage: React.FC = () => {
@@ -48,14 +49,14 @@ export const DimseUploadPage: React.FC = () => {
       if (raw) {
         const list = JSON.parse(raw) as UploadRecord[];
         setRecords(Array.isArray(list) ? list : []);
-        message.success(`刷新完成, 从本地存储恢复 ${Array.isArray(list) ? list.length : 0} 条记录`);
+        message.success(t('dimseUpload.refreshRestored', { count: Array.isArray(list) ? list.length : 0 }));
       } else {
         setRecords([]);
-        message.info('本地无已保存的上传记录');
+        message.info(t('dimseUpload.noSavedRecords'));
       }
     } catch {
       setRecords([]);
-      message.warning('本地存储读取失败, 已清空列表');
+      message.warning(t('dimseUpload.storageReadFailed'));
     }
   };
 
@@ -84,7 +85,7 @@ export const DimseUploadPage: React.FC = () => {
     }, ...prev]);
     setUploading(true);
     setProgress(5);
-    setStage('读取文件...');
+    setStage(t('dimseUpload.readFile'));
     try {
       // 阶段1: 读取文件为 Base64 (进度 5%→35%)
       const base64 = await new Promise<string>((resolve, reject) => {
@@ -98,12 +99,12 @@ export const DimseUploadPage: React.FC = () => {
       });
 
       // 阶段2: 模拟 DICOM 解析 (35%→60%)
-      setStage('解析 DICOM 头信息...');
+      setStage(t('dimseUpload.parseDicom'));
       setProgress(55);
       await new Promise(r => setTimeout(r, 300));
 
       // 阶段3: 上传至 DIMSE 服务 (60%→100%)
-      setStage(`上传至 ${DEST_OPTIONS.find(o => o.value === destination)?.label}...`);
+      setStage(t('dimseUpload.uploadingTo', { dest: destOptions().find(o => o.value === destination)?.label ?? '' }));
       const sopInstanceUid = crypto.randomUUID().replace(/-/g, '');
       const res = await dicomDimseApi.uploadToS3({
         sopInstanceUid,
@@ -123,15 +124,15 @@ export const DimseUploadPage: React.FC = () => {
           s3Url: url,
           sopInstanceUid,
         } : r));
-        message.success(`${file.name} 上传成功`);
+        message.success(t('dimseUpload.uploadSuccess', { name: file.name }));
       } else {
         commit((prev) => prev.map(r => r.key === key ? { ...r, status: 'FAIL' } : r));
-        message.error(res.error?.message ?? '上传失败');
+        message.error(res.error?.message ?? t('dimseUpload.uploadFailed'));
       }
     } catch (e) {
       console.error('[DIMSE-Upload]', e);
       commit((prev) => prev.map(r => r.key === key ? { ...r, status: 'FAIL' } : r));
-      message.error('上传失败, 请检查网络后重试');
+      message.error(t('dimseUpload.uploadFailedRetry'));
     } finally {
       setUploading(false);
       setProgress(0);
@@ -150,26 +151,26 @@ export const DimseUploadPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <UploadOutlined style={{ fontSize: 20, color: '#2563eb' }} />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DIMSE 归档上传</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimseUpload.title')}</span>
         <Tag color="blue">v3.0.6.11-75 W3-2</Tag>
       </Space>
       <Alert
-        title="上传 DICOM 文件至归档存储: 支持标准 .dcm 格式, 上传过程分「读取 → 解析 → 上传」三个阶段实时显示进度"
+        title={t('dimseUpload.alert')}
         type="info"
         showIcon
         style={{ marginBottom: 16 }}
       />
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="总上传" value={records.length} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="成功" value={successCount} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="失败" value={failCount} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="总数据量" value={records.reduce((s, r) => s + r.sizeBytes, 0) / 1024} precision={1} suffix="KB" /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statTotal')} value={records.length} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statSuccess')} value={successCount} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statFail')} value={failCount} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statDataVolume')} value={records.reduce((s, r) => s + r.sizeBytes, 0) / 1024} precision={1} suffix="KB" /></Card></Col>
       </Row>
-      <Card size="small" title="文件上传">
+      <Card size="small" title={t('dimseUpload.cardUpload')}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space wrap>
-            <span style={{ fontSize: 13, color: '#475569' }}>归档目标:</span>
-            <Select value={destination} onChange={setDestination} options={DEST_OPTIONS} style={{ width: 180 }} />
+            <span style={{ fontSize: 13, color: '#475569' }}>{t('dimseUpload.archiveTarget')}</span>
+            <Select value={destination} onChange={setDestination} options={destOptions()} style={{ width: 180 }} />
             <Upload
               accept=".dcm"
               showUploadList={false}
@@ -178,10 +179,10 @@ export const DimseUploadPage: React.FC = () => {
               disabled={uploading}
             >
               <Button type="primary" icon={<UploadOutlined />} loading={uploading} disabled={uploading}>
-                {uploading ? '上传中...' : '选择 DICOM 文件'}
+                {uploading ? t('dimseUpload.uploadingEllipsis') : t('dimseUpload.selectDicomFiles')}
               </Button>
             </Upload>
-            <Button icon={<RefreshCw size={12} />} onClick={refreshRecords}>刷新</Button>
+            <Button icon={<RefreshCw size={12} />} onClick={refreshRecords}>{t('dimseUpload.refresh')}</Button>
           </Space>
           {uploading && (
             <div>
@@ -191,17 +192,17 @@ export const DimseUploadPage: React.FC = () => {
           )}
         </Space>
       </Card>
-      <Card size="small" title={`上传记录 (${records.length})`} style={{ marginTop: 16 }}>
+      <Card size="small" title={t('dimseUpload.recordsTitle', { count: records.length })} style={{ marginTop: 16 }}>
         <Table
           dataSource={records}
           rowKey="key"
-          columns={[...UPLOAD_COLUMNS, {
-            title: '操作', key: 'actions', width: 70,
-            render: (_: unknown, r: UploadRecord) => <Popconfirm title="移除该记录?" onConfirm={() => handleRemove(r.key)}><Button size="small" danger icon={<DeleteOutlined />} /></Popconfirm>,
+          columns={[...uploadColumns(), {
+            title: t('dimseUpload.colActions'), key: 'actions', width: 70,
+            render: (_: unknown, r: UploadRecord) => <Popconfirm title={t('dimseUpload.removeConfirm')} onConfirm={() => handleRemove(r.key)}><Button size="small" danger icon={<DeleteOutlined />} /></Popconfirm>,
           }]}
           pagination={false}
           scroll={{ x: 'max-content' }}
-          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无上传记录, 请选择 .dcm 文件上传" /> }}
+          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dimseUpload.emptyText')} /> }}
         />
       </Card>
     </div>

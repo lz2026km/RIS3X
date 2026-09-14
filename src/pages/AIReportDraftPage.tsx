@@ -27,6 +27,7 @@ import { reportApi } from '../services/api/reportApi';
 import { getCurrentUser } from '../utils/auth';
 // [v3.0.6.11-100 Wave 3A (G-19)] 高级生成 (LLM 多模型 + RAG)
 import { aiDraftApi, type LlmProviderId, type LlmProviderInfo, type AiDraftRagSource } from '../services/api/aiDraftApi';
+import { t } from '../i18n/appI18n';
 
 interface AiExamOption {
   examId: string;
@@ -66,7 +67,7 @@ export default function AIReportDraftPage() {
   const [advancedConfidence, setAdvancedConfidence] = useState<number | null>(null);
   const [advancedFallback, setAdvancedFallback] = useState(false);
 
-  const PROVIDER_LABEL: Record<LlmProviderId, string> = { mock: '确定性模板', deepseek: 'DeepSeek', hunyuan: '腾讯混元' };
+  const PROVIDER_LABEL: Record<LlmProviderId, string> = { mock: t('aiDraft.providerMock'), deepseek: 'DeepSeek', hunyuan: t('aiDraft.providerHunyuan') };
 
   // 生成状态
   const [generating, setGenerating] = useState(false);
@@ -117,10 +118,10 @@ export default function AIReportDraftPage() {
             return {
               examId: e.id ?? e.examId,
               patientId: e.patientId,
-              patientName: p?.name ?? e.patientName ?? '未知患者',
+              patientName: p?.name ?? e.patientName ?? t('aiDraft.unknownPatient'),
               modality: e.modality ?? 'CT',
-              bodyPart: e.bodyPart ?? '胸部',
-              examItemName: e.examItem ?? e.examItemName ?? '影像检查',
+              bodyPart: e.bodyPart ?? t('aiDraft.chest'),
+              examItemName: e.examItem ?? e.examItemName ?? t('aiDraft.imagingExam'),
               deviceName: e.deviceModel ?? e.deviceName ?? '—',
               examDate: e.scheduledAt ?? e.examAt ?? '',
             };
@@ -129,15 +130,15 @@ export default function AIReportDraftPage() {
           setPatientSource('api');
           const first = options[0];
           setSelectedExamId(first?.examId ?? 'rpt-013');
-          setClinicalHistory(`${first?.patientName ?? ''} ${first?.modality ?? ''}-${first?.bodyPart ?? ''} 检查,请结合影像所见生成报告初稿`);
+          setClinicalHistory(t('aiDraft.clinicalHistoryTemplate', { patient: first?.patientName ?? '', modality: first?.modality ?? '', bodyPart: first?.bodyPart ?? '' }));
         } else {
           setExamOptions(extendedReportMock.slice(0, 20).map((r) => ({
             examId: r.id,
             patientId: r.patientId ?? r.id,
-            patientName: r.patientName ?? '演示患者',
+            patientName: r.patientName ?? t('aiDraft.demoPatient'),
             modality: r.modality ?? 'CT',
-            bodyPart: r.bodyPart ?? '胸部',
-            examItemName: r.examItemName ?? '影像检查',
+            bodyPart: r.bodyPart ?? t('aiDraft.chest'),
+            examItemName: r.examItemName ?? t('aiDraft.imagingExam'),
             deviceName: r.deviceName ?? '—',
             examDate: r.examDate ?? '',
           })));
@@ -178,25 +179,25 @@ export default function AIReportDraftPage() {
   //   进度条仅为请求期间的视觉反馈, 内容与结果均来自真实响应; 失败回退模板 + 标注"离线模式"
   const handleGenerate = async () => {
     if (!clinicalHistory.trim() && !selectedTemplate) {
-      message.warning('请输入临床病史或选择 AI 场景模板');
+      message.warning(t('aiDraft.enterHistory'));
       return;
     }
     if (!currentExam && patientSource === 'api') {
-      message.warning('未找到可生成初稿的检查记录,请先选择患者/检查');
+      message.warning(t('aiDraft.noExamRecord'));
       return;
     }
 
     setGenerating(true);
     setGenProgress(0);
-    setGenStage('正在调用 AI 服务生成报告初稿...');
+    setGenStage(t('aiDraft.callingAi'));
     setGeneratedDraft(null);
     setDraftSource('api');
 
     const stages = [
-      { p: 25, s: '正在分析临床病史...' },
-      { p: 50, s: '匹配历史相似病例与术语规范...' },
-      { p: 75, s: 'AI 模型生成内容中...' },
-      { p: 95, s: '应用科室模板结构...' },
+      { p: 25, s: t('aiDraft.stageAnalyze') },
+      { p: 50, s: t('aiDraft.stageMatch') },
+      { p: 75, s: t('aiDraft.stageGenerate') },
+      { p: 95, s: t('aiDraft.stageTemplate') },
     ];
 
     let i = 0;
@@ -229,15 +230,15 @@ export default function AIReportDraftPage() {
           setAdvancedFallback(a.fallbackToMock ?? false);
           draft = {
             id: a.id ?? `draft-${Date.now()}`,
-            scenario: `LLM 生成 (${PROVIDER_LABEL[a.provider] ?? a.provider})`,
+            scenario: t('aiDraft.scenarioLlm', { provider: PROVIDER_LABEL[a.provider] ?? a.provider }),
             modality: currentExam?.modality ?? 'CT',
-            bodyPart: currentExam?.bodyPart ?? '胸部',
+            bodyPart: currentExam?.bodyPart ?? t('aiDraft.chest'),
             confidence: a.confidenceScore ?? 0.9,
             clinicalHistory,
             generatedFindings: findings,
             generatedDiagnosis: diagnosis,
             generatedImpression: impression,
-            sources: (a.sources ?? []).map((s) => `既往报告 ${s.reportId}`),
+            sources: (a.sources ?? []).map((s) => t('aiDraft.previousReport', { id: s.reportId })),
           };
         }
       } catch { draft = null; }
@@ -256,9 +257,9 @@ export default function AIReportDraftPage() {
         if (res.success && res.data) {
           draft = {
             id: res.data.id ?? `draft-${Date.now()}`,
-            scenario: selectedTemplate?.scenario ?? '智能生成',
+            scenario: selectedTemplate?.scenario ?? t('aiDraft.smartGenerate'),
             modality: currentExam?.modality ?? 'CT',
-            bodyPart: currentExam?.bodyPart ?? '胸部',
+            bodyPart: currentExam?.bodyPart ?? t('aiDraft.chest'),
             confidence: res.data.confidence ?? 0.85,
             clinicalHistory,
             generatedFindings: res.data.findings ?? '',
@@ -267,14 +268,14 @@ export default function AIReportDraftPage() {
             sources: res.data.sources ?? ['AI Model v2.3'],
           };
         } else {
-          throw new Error(res.error?.message || 'AI 生成失败');
+          throw new Error(res.error?.message || t('aiDraft.aiGenerateFailed'));
         }
       }
 
       if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = null;
       setGenProgress(100);
-      setGenStage('生成完成！');
+      setGenStage(t('aiDraft.generationComplete'));
       setGeneratedDraft(draft);
       setEditedFindings(draft.generatedFindings);
       setEditedDiagnosis(draft.generatedDiagnosis);
@@ -310,7 +311,7 @@ export default function AIReportDraftPage() {
         setEditedDiagnosis(draft.generatedDiagnosis);
         setEditedImpression(draft.generatedImpression);
         setSelectedTemplateId(draft.id);
-        message.warning(`AI 服务暂不可用，已回退离线模板: ${e?.message || ''}`);
+        message.warning(t('aiDraft.serviceUnavailable', { message: e?.message || '' }));
       } else {
         message.error('AI 生成失败: ' + (e?.message || String(e)));
       }
@@ -324,7 +325,7 @@ export default function AIReportDraftPage() {
   const createDraftReport = async () => {
     if (!generatedDraft) return null;
     if (!currentExam) {
-      message.error('缺少检查记录,无法创建报告草稿');
+      message.error(t('aiDraft.missingExamRecord'));
       return null;
     }
     const user = getCurrentUser();
@@ -341,11 +342,11 @@ export default function AIReportDraftPage() {
         conclusion: editedImpression || editedDiagnosis,
       });
       if (res.success && res.data) {
-        message.success(`已生成报告草稿 · 报告号 ${res.data.reportId ?? res.data.id}`);
+        message.success(t('aiDraft.draftGenerated', { reportId: res.data.reportId ?? res.data.id }));
         return res.data.reportId ?? res.data.id;
       }
     } catch {
-      message.error('创建报告草稿失败:网络异常,请稍后重试');
+      message.error(t('aiDraft.createDraftFailed'));
       return null;
     }
     return null;
@@ -359,7 +360,7 @@ export default function AIReportDraftPage() {
       if (reportId) {
         navigate(`/reports/v3-write?reportId=${encodeURIComponent(reportId)}`);
       } else {
-        message.warning(`已跳转到报告书写页 · 草稿创建失败`);
+        message.warning(t('aiDraft.jumpDraftFailed'));
         navigate(`/reports/v3-write`);
       }
     } catch (e: any) {
@@ -370,15 +371,15 @@ export default function AIReportDraftPage() {
   // [v3.0.6.11-95 Wave3B P1] 真实化: 保存草稿走 reportApi.create (真实报告), 替代 mock saveDraft
   const saveAsDraft = async () => {
     if (!generatedDraft) {
-      message.warning('请先生成 AI 草稿');
+      message.warning(t('aiDraft.generateFirst'));
       return;
     }
     try {
       const created = await createDraftReport();
       if (created) {
-        message.success(`草稿已保存为真实报告 · ID ${created}`);
+        message.success(t('aiDraft.draftSaved', { id: created }));
       } else {
-        message.error('保存失败,请稍后重试');
+        message.error(t('aiDraft.saveFailed'));
       }
     } catch (e: any) {
       message.error('保存失败: ' + (e?.message || String(e)));
@@ -402,18 +403,18 @@ export default function AIReportDraftPage() {
           </div>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-              AI 一键自动初稿
+              {t('aiDraft.title')}
               <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
               <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.25)', color: '#fff', fontWeight: 600 }}>
-                {patientSource === 'api' ? '真实数据 · 患者/检查来自 API' : '演示数据 · 患者下拉为演示样本'}
+                {patientSource === 'api' ? t('aiDraft.realDataHint') : t('aiDraft.demoDataHint')}
               </span>
             </h1>
             <p style={{ fontSize: 13, margin: '4px 0 0', opacity: 0.9 }}>
-              基于临床病史 + 影像特征 + 历史相似病例 · 一键生成规范报告初稿
+              {t('aiDraft.subtitle')}
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>LLM 模型</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>{t('aiDraft.llmModel')}</div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>{PROVIDER_LABEL[aiProvider]}</div>
           </div>
         </div>
@@ -427,13 +428,13 @@ export default function AIReportDraftPage() {
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={13} /> 选择患者 / 检查
-              {dataLoading && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>加载中…</span>}
+              <FileText size={13} /> {t('aiDraft.selectPatientExam')}
+              {dataLoading && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>{t('aiDraft.loading')}</span>}
               {!dataLoading && patientSource === 'api' && (
-                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(16,185,129,0.15)', color: '#059669', fontWeight: 600 }}>真实数据</span>
+                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(16,185,129,0.15)', color: '#059669', fontWeight: 600 }}>{t('aiDraft.realData')}</span>
               )}
               {!dataLoading && patientSource === 'demo' && (
-                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: '#d97706', fontWeight: 600 }}>演示数据</span>
+                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: '#d97706', fontWeight: 600 }}>{t('aiDraft.demoData')}</span>
               )}
             </div>
             <select
@@ -441,7 +442,7 @@ export default function AIReportDraftPage() {
               onChange={e => {
                 setSelectedExamId(e.target.value);
                 const opt = examOptions.find(o => o.examId === e.target.value);
-                if (opt) setClinicalHistory(`${opt.patientName} ${opt.modality}-${opt.bodyPart} 检查,请结合影像所见生成报告初稿`);
+                if (opt) setClinicalHistory(t('aiDraft.clinicalHistoryTemplate', { patient: opt.patientName, modality: opt.modality, bodyPart: opt.bodyPart }));
               }}
               style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
             >
@@ -451,9 +452,9 @@ export default function AIReportDraftPage() {
             </select>
             {currentExam && (
               <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                <div><strong>检查：</strong>{currentExam.examItemName}</div>
-                <div><strong>设备：</strong>{currentExam.deviceName || '—'}</div>
-                <div><strong>检查日期：</strong>{currentExam.examDate ? new Date(currentExam.examDate).toLocaleDateString() : '—'}</div>
+                <div><strong>{t('aiDraft.examLabel')}</strong>{currentExam.examItemName}</div>
+                <div><strong>{t('aiDraft.deviceLabel')}</strong>{currentExam.deviceName || '—'}</div>
+                <div><strong>{t('aiDraft.examDateLabel')}</strong>{currentExam.examDate ? new Date(currentExam.examDate).toLocaleDateString() : '—'}</div>
               </div>
             )}
           </div>
@@ -463,19 +464,19 @@ export default function AIReportDraftPage() {
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Stethoscope size={13} /> 临床病史
+              <Stethoscope size={13} /> {t('aiDraft.clinicalHistory')}
             </div>
             <textarea
               value={clinicalHistory}
               onChange={e => setClinicalHistory(e.target.value)}
               rows={5}
-              placeholder="例：55 岁男性，体检发现右肺结节 1 周。无咳嗽咳痰，无胸痛，无发热..."
+              placeholder={t('aiDraft.historyPlaceholder')}
               style={{
                 width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
               }}
             />
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{clinicalHistory.length} 字</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('aiDraft.charCount', { count: clinicalHistory.length })}</div>
           </div>
 
           {/* [v3.0.6.11-100 Wave 3A (G-19)] LLM 模型选择 + RAG 增强 */}
@@ -483,29 +484,29 @@ export default function AIReportDraftPage() {
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Cpu size={13} /> LLM 模型与 RAG
+              <Cpu size={13} /> {t('aiDraft.llmAndRag')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>LLM 提供方</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('aiDraft.llmProvider')}</div>
                 <select
                   value={aiProvider}
                   onChange={e => setAiProvider(e.target.value as LlmProviderId)}
                   style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
                 >
                   {(providers.length > 0 ? providers : [
-                    { id: 'mock' as LlmProviderId, name: '确定性模板引擎', available: true },
-                    { id: 'deepseek' as LlmProviderId, name: 'DeepSeek (未配置)', available: false },
-                    { id: 'hunyuan' as LlmProviderId, name: '腾讯混元 (未配置)', available: false },
+                    { id: 'mock' as LlmProviderId, name: t('aiDraft.providerMockEngine'), available: true },
+                    { id: 'deepseek' as LlmProviderId, name: t('aiDraft.providerDeepseek'), available: false },
+                    { id: 'hunyuan' as LlmProviderId, name: t('aiDraft.providerHunyuan'), available: false },
                   ]).map((p: any) => (
                     <option key={p.id} value={p.id} disabled={!p.available && p.id !== aiProvider}>
-                      {p.name}{p.available ? '' : ' (未配置 API Key)'}
+                      {p.name}{p.available ? '' : t('aiDraft.notConfiguredKey')}
                     </option>
                   ))}
                 </select>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>RAG 增强（检索既往报告作为上下文）</span>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('aiDraft.ragEnhance')}</span>
                 <input
                   type="checkbox"
                   checked={includeRag}
@@ -515,7 +516,7 @@ export default function AIReportDraftPage() {
               </div>
               {advancedFallback && (
                 <div style={{ fontSize: 11, color: '#d97706', background: 'rgba(245,158,11,0.1)', padding: '4px 8px', borderRadius: 4 }}>
-                  所选模型未配置 API Key，已回退确定性模板生成
+                  {t('aiDraft.modelNotConfigured')}
                 </div>
               )}
             </div>
@@ -526,28 +527,28 @@ export default function AIReportDraftPage() {
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Layers size={13} /> AI 场景模板 ({AI_DRAFT_TEMPLATES.length})
+              <Layers size={13} /> {t('aiDraft.scenarioTemplate')} ({AI_DRAFT_TEMPLATES.length})
             </div>
             <div style={{ maxHeight: 280, overflowY: 'auto' }}>
-              {AI_DRAFT_TEMPLATES.map(t => (
+              {AI_DRAFT_TEMPLATES.map(tpl => (
                 <div
-                  key={t.id}
-                  onClick={() => setSelectedTemplateId(t.id === selectedTemplateId ? null : t.id)}
+                  key={tpl.id}
+                  onClick={() => setSelectedTemplateId(tpl.id === selectedTemplateId ? null : tpl.id)}
                   style={{
                     padding: 8, marginBottom: 4,
-                    background: selectedTemplateId === t.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                    border: `1px solid ${selectedTemplateId === t.id ? '#3b82f6' : '#e2e8f0'}`,
+                    background: selectedTemplateId === tpl.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
+                    border: `1px solid ${selectedTemplateId === tpl.id ? '#3b82f6' : '#e2e8f0'}`,
                     borderRadius: 4, cursor: 'pointer',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                     <Sparkles size={11} color="#7c3aed" />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t.scenario}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{tpl.scenario}</span>
                     <span style={{ marginLeft: 'auto', fontSize: 12, color: '#7c3aed', fontWeight: 600 }}>
-                      {(t.confidence * 100).toFixed(0)}% 置信
+                      {(tpl.confidence * 100).toFixed(0)}% {t('aiDraft.confidence')}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.modality} · {t.bodyPart}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{tpl.modality} · {tpl.bodyPart}</div>
                 </div>
               ))}
             </div>
@@ -569,12 +570,12 @@ export default function AIReportDraftPage() {
             {generating ? (
               <>
                 <Loader2 size={16} className="spin" />
-                正在生成 {genProgress}%
+                 {t('aiDraft.generating', { progress: genProgress })}
               </>
             ) : (
               <>
                 <Wand2 size={16} />
-                一键生成 AI 报告初稿
+                 {t('aiDraft.generateButton')}
               </>
             )}
           </button>
@@ -605,8 +606,8 @@ export default function AIReportDraftPage() {
               border: '1px dashed var(--border-color)',
             }}>
               <Brain size={48} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 12px' }} />
-              <div style={{ fontSize: 14, color: 'var(--text-secondary)', fontWeight: 600 }}>填写临床病史或选择 AI 场景模板</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>点击"一键生成"自动生成报告初稿</div>
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('aiDraft.emptyTitle')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>{t('aiDraft.emptyHint')}</div>
             </div>
           ) : (
             <>
@@ -619,17 +620,17 @@ export default function AIReportDraftPage() {
                   <Sparkles size={16} color="#7c3aed" />
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#5b21b6' }}>
-                      AI 场景：{generatedDraft.scenario}
+                      {t('aiDraft.scenarioLabel')}{generatedDraft.scenario}
                     </div>
                     <div style={{ fontSize: 12, color: '#6b21a8', marginTop: 2 }}>
                       {/* [v3.0.6.11-100 Wave 3A (G-19)] 信心分优先展示高级生成结果 */}
-                      置信度 <strong>{((advancedConfidence ?? generatedDraft.confidence) * 100).toFixed(0)}%</strong> · 参考 {generatedDraft.sources.length} 个来源
+                      {t('aiDraft.confidenceLabel')} <strong>{((advancedConfidence ?? generatedDraft.confidence) * 100).toFixed(0)}%</strong> · {t('aiDraft.sourcesCount', { count: generatedDraft.sources.length })}
                       {advancedConfidence !== null && ragSources.length > 0 && (
-                        <span> · <Database size={10} style={{ display: 'inline', verticalAlign: -1 }} /> RAG {ragSources.length} 份既往报告</span>
+                        <span> · <Database size={10} style={{ display: 'inline', verticalAlign: -1 }} /> RAG {t('aiDraft.ragReports', { count: ragSources.length })}</span>
                       )}
                       {' · '}
                       <span style={{ fontWeight: 700, color: draftSource === 'api' ? '#059669' : '#d97706' }}>
-                        {draftSource === 'api' ? (advancedConfidence !== null ? `真实 AI 生成 (${PROVIDER_LABEL[aiProvider]})` : '真实 AI 生成') : '离线模板回退'}
+                        {draftSource === 'api' ? (advancedConfidence !== null ? t('aiDraft.realAiGenerateWithProvider', { provider: PROVIDER_LABEL[aiProvider] }) : t('aiDraft.realAiGenerate')) : t('aiDraft.offlineFallback')}
                       </span>
                     </div>
                     {/* [v3.0.6.11-100 Wave 3A (G-19)] 信心分进度条 */}
@@ -660,7 +661,7 @@ export default function AIReportDraftPage() {
                         background: 'rgba(6,182,212,0.12)', color: '#0891b2', fontWeight: 600,
                         display: 'flex', alignItems: 'center', gap: 3,
                       }}>
-                        <Database size={10} /> {ragSources.length} 份既往报告
+                        <Database size={10} /> {t('aiDraft.ragReports', { count: ragSources.length })}
                       </span>
                     )}
                   </div>
@@ -670,7 +671,7 @@ export default function AIReportDraftPage() {
                 {ragSources.length > 0 && (
                   <div style={{ marginTop: 8, padding: 8, background: 'rgba(6,182,212,0.06)', borderRadius: 6, fontSize: 11 }}>
                     <div style={{ fontWeight: 700, color: '#0e7490', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Database size={11} /> RAG 检索来源（既往报告摘要）
+                      <Database size={11} /> {t('aiDraft.ragSourcesTitle')}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                       {ragSources.map((s) => (
@@ -691,10 +692,10 @@ export default function AIReportDraftPage() {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <FileText size={13} /> 检查所见
+                    <FileText size={13} /> {t('aiDraft.findings')}
                   </div>
                   <span style={{ fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <CheckCircle2 size={10} /> AI 生成
+                    <CheckCircle2 size={10} /> {t('aiDraft.aiGenerated')}
                   </span>
                 </div>
                 <textarea
@@ -713,7 +714,7 @@ export default function AIReportDraftPage() {
                 background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Lightbulb size={13} /> 诊断
+                  <Lightbulb size={13} /> {t('aiDraft.diagnosis')}
                 </div>
                 <textarea
                   value={editedDiagnosis}
@@ -731,7 +732,7 @@ export default function AIReportDraftPage() {
                 background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Beaker size={13} /> 诊断意见 / 建议
+                  <Beaker size={13} /> {t('aiDraft.impressionAdvice')}
                 </div>
                 <textarea
                   value={editedImpression}
@@ -754,7 +755,7 @@ export default function AIReportDraftPage() {
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  <Save size={12} /> 保存草稿
+                  <Save size={12} /> {t('aiDraft.saveDraft')}
                 </button>
                 <button
                   onClick={handleGenerate}
@@ -764,7 +765,7 @@ export default function AIReportDraftPage() {
                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  <RefreshCw size={12} /> 重新生成
+                  <RefreshCw size={12} /> {t('aiDraft.regenerate')}
                 </button>
                 <button
                   onClick={applyToReport}
@@ -776,7 +777,7 @@ export default function AIReportDraftPage() {
                     boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)',
                   }}
                 >
-                  <ArrowRight size={12} /> 应用到报告书写
+                  <ArrowRight size={12} /> {t('aiDraft.applyToReport')}
                 </button>
               </div>
             </>

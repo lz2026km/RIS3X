@@ -5,6 +5,7 @@ import {
 import { ShieldCheck, KeyRound, RefreshCw, LogOut, SearchCheck, FileJson } from "lucide-react";
 import { smartAuthApi } from "../../services/api/smartAuthApi";
 import { fhirApi, type FhirPatient, type SmartConfiguration } from "../../services/api/fhirApi";
+import { t } from '../../i18n/appI18n';
 
 const { Text } = Typography;
 
@@ -60,10 +61,10 @@ export const SmartAuthPage: React.FC = () => {
       if (res.success && res.data) {
         setConfig(res.data);
       } else {
-        setConfigError(res.error?.message ?? "SMART 配置加载失败");
+        setConfigError(res.error?.message ?? t('smartAuth.configLoadFailed'));
       }
     } catch {
-      setConfigError("SMART 配置加载失败");
+      setConfigError(t('smartAuth.configLoadFailed'));
     }
     setConfigLoading(false);
   }, []);
@@ -104,24 +105,24 @@ export const SmartAuthPage: React.FC = () => {
         const code = match ? decodeURIComponent(match[1] ?? "") : null;
         if (code) {
           setAuthCode(code);
-          message.success("授权成功，已获取授权码");
+          message.success(t('smartAuth.authSuccess'));
         } else {
           setAuthCode(null);
-          setError("授权响应中未找到 code");
+          setError(t('smartAuth.noCode'));
         }
       } else {
-        setError(res.error?.message ?? "授权失败");
+        setError(res.error?.message ?? t('smartAuth.authFailed'));
       }
     } catch (err: unknown) {
       if ((err as { errorFields?: unknown })?.errorFields) return;
-      setError("授权请求失败");
+      setError(t('smartAuth.authRequestFailed'));
     } finally {
       setAuthLoading(false);
     }
   };
 
   const handleToken = async () => {
-    if (!authCode) { message.warning("请先执行授权流程"); return; }
+    if (!authCode) { message.warning(t('smartAuth.authorizeFirst')); return; }
     setError(null);
     setTokenLoading(true);
     try {
@@ -136,18 +137,18 @@ export const SmartAuthPage: React.FC = () => {
           patient: res.data.patient,
         });
         setIntrospect(null);
-        message.success("Token 获取成功");
+        message.success(t('smartAuth.tokenSuccess'));
       } else {
-        setError(res.error?.message ?? "Token 获取失败");
+        setError(res.error?.message ?? t('smartAuth.tokenFailed'));
       }
     } catch {
-      setError("Token 获取失败");
+      setError(t('smartAuth.tokenFailed'));
     }
     setTokenLoading(false);
   };
 
   const handleIntrospect = async () => {
-    if (!tokenInfo) { message.warning("请先获取 Token"); return; }
+    if (!tokenInfo) { message.warning(t('smartAuth.getTokenFirst')); return; }
     setError(null);
     setIntrospectLoading(true);
     try {
@@ -155,35 +156,35 @@ export const SmartAuthPage: React.FC = () => {
       if (res.success && res.data) {
         setIntrospect(res.data);
         if (res.data.active) {
-          message.success("Token 校验通过");
+          message.success(t('smartAuth.introspectPassed'));
         } else {
-          message.warning("Token 已失效");
+          message.warning(t('smartAuth.tokenExpired'));
         }
       } else {
-        setError(res.error?.message ?? "Introspect 失败");
+        setError(res.error?.message ?? t('smartAuth.introspectFailed'));
       }
     } catch {
-      setError("Introspect 请求失败");
+      setError(t('smartAuth.introspectRequestFailed'));
     }
     setIntrospectLoading(false);
   };
 
   const handleRevoke = async () => {
-    if (!tokenInfo) { message.warning("请先获取 Token"); return; }
+    if (!tokenInfo) { message.warning(t('smartAuth.getTokenFirst')); return; }
     setError(null);
     setRevokeLoading(true);
     try {
       const res = await smartAuthApi.revokeToken(tokenInfo.accessToken);
       if (res.success) {
-        message.success("Token 已吊销");
+        message.success(t('smartAuth.tokenRevoked'));
         setTokenInfo(null);
         setIntrospect(null);
         setAuthCode(null);
       } else {
-        setError(res.error?.message ?? "吊销失败");
+        setError(res.error?.message ?? t('smartAuth.revokeFailed'));
       }
     } catch {
-      setError("吊销请求失败");
+      setError(t('smartAuth.revokeRequestFailed'));
     }
     setRevokeLoading(false);
   };
@@ -192,7 +193,7 @@ export const SmartAuthPage: React.FC = () => {
     <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <ShieldCheck size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR SMART 授权</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('smartAuth.title')}</span>
         <Tag color="blue">SMART on FHIR</Tag>
         <Tag color="green">R4</Tag>
       </Space>
@@ -202,24 +203,24 @@ export const SmartAuthPage: React.FC = () => {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 16, marginBottom: 16 }}>
         <Card
           size="small"
-          title={<Space><FileJson size={14} />SMART 配置 (.well-known/smart-configuration)</Space>}
-          extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={fetchConfig} loading={configLoading}>刷新</Button>}
+          title={<Space><FileJson size={14} />{t('smartAuth.configTitle')}</Space>}
+          extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={fetchConfig} loading={configLoading}>{t('smartAuth.refresh')}</Button>}
         >
           {configError && <Alert type="warning" showIcon message={configError} style={{ marginBottom: 12 }} />}
           {config ? (
             <Descriptions column={1} size="small" bordered>
-              <Descriptions.Item label="授权端点">{config.authorization_endpoint || "-"}</Descriptions.Item>
-              <Descriptions.Item label="Token 端点">{config.token_endpoint || "-"}</Descriptions.Item>
-              <Descriptions.Item label="能力">
+              <Descriptions.Item label={t('smartAuth.authorizationEndpoint')}>{config.authorization_endpoint || "-"}</Descriptions.Item>
+              <Descriptions.Item label={t('smartAuth.tokenEndpoint')}>{config.token_endpoint || "-"}</Descriptions.Item>
+              <Descriptions.Item label={t('smartAuth.capabilities')}>
                 <Space wrap size={4}>
                   {(config.capabilities ?? []).map((c) => <Tag key={c} color="cyan">{c}</Tag>)}
                 </Space>
               </Descriptions.Item>
             </Descriptions>
-          ) : !configError ? <Text type="secondary">加载中...</Text> : null}
+          ) : !configError ? <Text type="secondary">{t('smartAuth.loading')}</Text> : null}
         </Card>
 
-        <Card size="small" title={<Space><KeyRound size={14} />授权参数</Space>}>
+        <Card size="small" title={<Space><KeyRound size={14} />{t('smartAuth.authParams')}</Space>}>
           <Form form={form} layout="vertical" size="small" initialValues={{
             clientId: "g005-ris-web",
             redirectUri: "https://app.g005.local/callback",
@@ -227,15 +228,15 @@ export const SmartAuthPage: React.FC = () => {
             scopes: ["openid", "fhirUser", "patient/*.read"],
           }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <Form.Item label="客户端 ID" name="clientId" rules={[{ required: true }]}>
+              <Form.Item label={t('smartAuth.clientId')} name="clientId" rules={[{ required: true }]}>
                 <Input placeholder="g005-ris-web" />
               </Form.Item>
-              <Form.Item label="回调地址" name="redirectUri" rules={[{ required: true }]}>
+              <Form.Item label={t('smartAuth.redirectUri')} name="redirectUri" rules={[{ required: true }]}>
                 <Input placeholder="https://app.g005.local/callback" />
               </Form.Item>
-              <Form.Item label="患者上下文" name="patientId">
+              <Form.Item label={t('smartAuth.patientContext')} name="patientId">
                 <Select
-                  placeholder="选择患者 (可选)"
+                  placeholder={t('smartAuth.selectPatient')}
                   allowClear
                   showSearch
                   loading={patientsLoading}
@@ -246,15 +247,15 @@ export const SmartAuthPage: React.FC = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="状态参数" name="state">
-                <Input placeholder="CSRF 状态参数" />
+              <Form.Item label={t('smartAuth.state')} name="state">
+                <Input placeholder={t('smartAuth.statePlaceholder')} />
               </Form.Item>
             </div>
-            <Form.Item label="作用域" name="scopes" rules={[{ required: true, message: "请至少选择一个 scope" }]}>
+            <Form.Item label={t('smartAuth.scopes')} name="scopes" rules={[{ required: true, message: t('smartAuth.scopeRequired') }]}>
               <Checkbox.Group options={SCOPE_OPTIONS} />
             </Form.Item>
             <Button type="primary" icon={<ShieldCheck size={14} />} loading={authLoading} onClick={handleAuthorize}>
-              1. 授权 (authorize)
+              {t('smartAuth.step1')}
             </Button>
           </Form>
         </Card>
@@ -262,7 +263,7 @@ export const SmartAuthPage: React.FC = () => {
 
       <Card
         size="small"
-        title={<Space><KeyRound size={14} />授权流程</Space>}
+        title={<Space><KeyRound size={14} />{t('smartAuth.flow')}</Space>}
         extra={authCode && <Tag color="green">code: {authCode}</Tag>}
         style={{ marginBottom: 16 }}
       >
@@ -273,7 +274,7 @@ export const SmartAuthPage: React.FC = () => {
             disabled={!authCode}
             onClick={handleToken}
           >
-            2. 获取 Token (token)
+            {t('smartAuth.step2')}
           </Button>
           <Button
             icon={<SearchCheck size={14} />}
@@ -281,7 +282,7 @@ export const SmartAuthPage: React.FC = () => {
             disabled={!tokenInfo}
             onClick={handleIntrospect}
           >
-            3. Introspect 校验
+            {t('smartAuth.step3')}
           </Button>
           <Button
             danger
@@ -290,7 +291,7 @@ export const SmartAuthPage: React.FC = () => {
             disabled={!tokenInfo}
             onClick={handleRevoke}
           >
-            4. 吊销 (revoke)
+            {t('smartAuth.step4')}
           </Button>
         </Space>
 
@@ -301,19 +302,19 @@ export const SmartAuthPage: React.FC = () => {
             </Descriptions.Item>
             <Descriptions.Item label="token_type">{tokenInfo.tokenType}</Descriptions.Item>
             <Descriptions.Item label="expires_in">{tokenInfo.expiresIn}s</Descriptions.Item>
-            <Descriptions.Item label="授权范围">{tokenInfo.scope}</Descriptions.Item>
-            <Descriptions.Item label="患者上下文">{tokenInfo.patient || "-"}</Descriptions.Item>
+            <Descriptions.Item label={t('smartAuth.scope')}>{tokenInfo.scope}</Descriptions.Item>
+            <Descriptions.Item label={t('smartAuth.patientContext')}>{tokenInfo.patient || "-"}</Descriptions.Item>
           </Descriptions>
         )}
 
         {introspect && (
           <Descriptions column={2} size="small" bordered style={{ marginTop: 16 }}>
-            <Descriptions.Item label="状态">
+            <Descriptions.Item label={t('smartAuth.status')}>
               <Tag color={introspect.active ? "green" : "red"}>{String(introspect.active)}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="主体">{introspect.sub || "-"}</Descriptions.Item>
-            <Descriptions.Item label="授权范围">{introspect.scope || "-"}</Descriptions.Item>
-            <Descriptions.Item label="过期时间">
+            <Descriptions.Item label={t('smartAuth.subject')}>{introspect.sub || "-"}</Descriptions.Item>
+            <Descriptions.Item label={t('smartAuth.scope')}>{introspect.scope || "-"}</Descriptions.Item>
+            <Descriptions.Item label={t('smartAuth.expiresAt')}>
               {introspect.exp ? new Date(introspect.exp * 1000).toLocaleString() : "-"}
             </Descriptions.Item>
           </Descriptions>

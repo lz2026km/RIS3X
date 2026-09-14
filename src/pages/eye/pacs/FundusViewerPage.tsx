@@ -6,6 +6,7 @@ import MeasurementPanel from "@/components/eye/MeasurementPanel";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import { eyeApi } from "../../../services/api/eyeApi";
 import { eyePacsApi, type EyeStudyDto, type EyeMeasurementDto, type KeyImageDto, type LesionSegmentationDto, type AiDiagnosisDto } from "../../../services/api/eyePacsApi";
+import { t } from "../../../i18n/appI18n";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
 const FundusViewerPage: React.FC = () => {
@@ -46,14 +47,14 @@ const FundusViewerPage: React.FC = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#e2e8f0";
     ctx.font = "bold 28px sans-serif";
-    ctx.fillText("眼底彩照查看器 - 导出摘要", 40, 60);
+    ctx.fillText(t('fundusViewer.exportSummaryTitle'), 40, 60);
     ctx.font = "20px sans-serif";
     ctx.fillStyle = "#94a3b8";
     [
-      `患者: ${study.patientName}  眼别: ${study.eyeSide ?? "-"}  设备: ${study.device}`,
-      `检查类型: ${MODALITY_LABELS[study.modality] || study.modality}  检查日期: ${new Date(study.studyDate).toLocaleString()}`,
-      `测量项: ${measurements.length}  病灶标注: ${lesions.length}  关键影像: ${keyImages.length}`,
-      `AI 诊断: ${aiDiag.length} 条`,
+      t('fundusViewer.exportPatient', { name: study.patientName, eye: study.eyeSide ?? "-", device: study.device }),
+      t('fundusViewer.exportExam', { type: MODALITY_LABELS[study.modality] || study.modality, date: new Date(study.studyDate).toLocaleString() }),
+      t('fundusViewer.exportCounts', { measure: measurements.length, lesion: lesions.length, key: keyImages.length }),
+      t('fundusViewer.exportAi', { count: aiDiag.length }),
     ].forEach((l, i) => ctx.fillText(l, 40, 120 + i * 36));
     const a = document.createElement("a");
     a.href = canvas.toDataURL("image/png");
@@ -94,7 +95,7 @@ const FundusViewerPage: React.FC = () => {
   if (loading) {
     return (
       <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)", textAlign: "center", paddingTop: 60 }}>
-        <Spin tip="加载眼底影像数据..." />
+        <Spin tip={t('fundusViewer.loadingData')} />
       </div>
     );
   }
@@ -102,7 +103,7 @@ const FundusViewerPage: React.FC = () => {
   if (!study) {
     return (
       <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
-        <Card><div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>暂无眼底影像数据</div></Card>
+        <Card><div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>{t('fundusViewer.noData')}</div></Card>
       </div>
     );
   }
@@ -122,7 +123,7 @@ const FundusViewerPage: React.FC = () => {
             title={
               <Space>
                 <Image size={16} />
-                <span>眼底彩照查看器</span>
+                <span>{t('fundusViewer.title')}</span>
                 <EyeLateralityBadge eyeSide="OD" />
                 <Tag color="cyan">{study.device}</Tag>
               </Space>
@@ -133,10 +134,10 @@ const FundusViewerPage: React.FC = () => {
                   1:1
                 </Button>
                 <Button size="small" icon={<Maximize size={14} />} onClick={toggleFullscreen}>
-                  全屏
+                  {t('fundusViewer.fullscreen')}
                 </Button>
                 <Button size="small" icon={<Download size={14} />} onClick={handleExport}>
-                  导出
+                  {t('fundusViewer.export')}
                 </Button>
               </Space>
             }
@@ -158,19 +159,19 @@ const FundusViewerPage: React.FC = () => {
               }}
             >
               <Target size={48} />
-              <span>眼底彩照影像区域 ({study.patientName})</span>
+              <span>{t('fundusViewer.imageArea', { name: study.patientName })}</span>
               {/* [v3.0.6.11-96 Wave5A P2] 病灶标签: 接口无病灶数据时展示「示例病灶标注」灰标 + 区块标注 (第 4 个 eye 查看器) */}
               {lesions.length === 0 ? (
                 <div style={{ display: "flex", gap: 8, fontSize: 12, alignItems: "center" }}>
-                  <Tag style={{ background: "var(--bg-primary)", color: "#64748b", borderColor: "#cbd5e1" }}>示例病灶标注</Tag>
-                  <span style={{ color: "#94a3b8" }}>演示数据 · 接口无病灶分段数据, 以下为本地示例</span>
+                  <Tag style={{ background: "var(--bg-primary)", color: "#64748b", borderColor: "#cbd5e1" }}>{t('fundusViewer.sampleLesionTag')}</Tag>
+                  <span style={{ color: "#94a3b8" }}>{t('fundusViewer.sampleLesionHint')}</span>
                 </div>
               ) : (
                 <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
-                  <Tag>视盘 C/D 0.55</Tag>
-                  <Tag color="red">微动脉瘤 ×8</Tag>
-                  <Tag color="orange">出血 ×2</Tag>
-                  <Tag color="gold">渗出 ×4</Tag>
+                  <Tag>{t('fundusViewer.lesionOpticDisc')}</Tag>
+                  <Tag color="red">{t('fundusViewer.lesionMicroaneurysm')}</Tag>
+                  <Tag color="orange">{t('fundusViewer.lesionHemorrhage')}</Tag>
+                  <Tag color="gold">{t('fundusViewer.lesionExudate')}</Tag>
                 </div>
               )}
             </div>
@@ -178,10 +179,10 @@ const FundusViewerPage: React.FC = () => {
           <div style={{ marginTop: 8 }}>
             <MeasurementPanel
               measurements={measurements as any}
-              title={`眼底测量 (${measurements.length}项)`}
+              title={t('fundusViewer.measurementTitle', { count: measurements.length })}
             />
           </div>
-          <Card size="small" title="AI 自动标注" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('fundusViewer.aiAnnotation')} style={{ marginTop: 8 }}>
             <Table
               dataSource={lesions}
               rowKey="id"
@@ -189,34 +190,34 @@ const FundusViewerPage: React.FC = () => {
               pagination={false}
               columns={[
                 {
-                  title: "病灶类型",
+                  title: t('fundusViewer.colLesionType'),
                   dataIndex: "type",
                   key: "type",
                   width: 100,
                   render: (v: string) => <Tag>{v}</Tag>,
                 },
                 {
-                  title: "面积",
+                  title: t('fundusViewer.colArea'),
                   dataIndex: "area",
                   key: "area",
                   width: 80,
                   render: (v: number) => `${v.toFixed(2)}mm²`,
                 },
                 {
-                  title: "距黄斑",
+                  title: t('fundusViewer.colDistanceFromFovea'),
                   dataIndex: "distanceFromFovea",
                   key: "distanceFromFovea",
                   width: 80,
                   render: (v: number) => `${v.toFixed(1)}mm`,
                 },
                 {
-                  title: "象限",
+                  title: t('fundusViewer.colQuadrant'),
                   dataIndex: "quadrant",
                   key: "quadrant",
                   width: 80,
                 },
                 {
-                  title: "置信度",
+                  title: t('fundusViewer.colConfidence'),
                   dataIndex: "confidence",
                   key: "confidence",
                   width: 60,
@@ -232,26 +233,26 @@ const FundusViewerPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="患者信息">
+          <Card size="small" title={t('fundusViewer.patientInfo')}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
               <Row>
-                <Col span={10}>姓名:</Col>
+                <Col span={10}>{t('fundusViewer.name')}:</Col>
                 <Col span={14}>
                   <strong>{study.patientName}</strong>
                 </Col>
               </Row>
               <Row>
-                <Col span={10}>检查:</Col>
+                <Col span={10}>{t('fundusViewer.exam')}:</Col>
                 <Col span={14}>
                   <Tag color="orange">{MODALITY_LABELS[study.modality] || study.modality}</Tag>
                 </Col>
               </Row>
               <Row>
-                <Col span={10}>设备:</Col>
+                <Col span={10}>{t('fundusViewer.device')}:</Col>
                 <Col span={14}>{study.device}</Col>
               </Row>
               <Row>
-                <Col span={10}>检查日期:</Col>
+                <Col span={10}>{t('fundusViewer.studyDate')}:</Col>
                 <Col span={14}>
                   {new Date(study.studyDate).toLocaleString()}
                 </Col>
@@ -261,7 +262,7 @@ const FundusViewerPage: React.FC = () => {
           {aiDiag.map((d) => (
             <AiDiagnosisCard key={d.id} diagnosis={d as any} />
           ))}
-          <Card size="small" title="关键影像标记" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('fundusViewer.keyImageMarkers')} style={{ marginTop: 8 }}>
             <Table
               dataSource={keyImages}
               rowKey="id"
@@ -270,25 +271,25 @@ const FundusViewerPage: React.FC = () => {
               pagination={false}
               columns={[
                 {
-                  title: "影像",
+                  title: t('fundusViewer.colImageNo'),
                   key: "imageNo",
                   width: 60,
                   render: (_: unknown, _r: KeyImageDto, i: number) => `#${i + 1}`,
                 },
                 {
-                  title: "原因",
+                  title: t('fundusViewer.colReason'),
                   dataIndex: "reason",
                   key: "reason",
                   ellipsis: true,
                 },
                 {
-                  title: "标记者",
+                  title: t('fundusViewer.colFlaggedBy'),
                   dataIndex: "flaggedBy",
                   key: "flaggedBy",
                   width: 60,
                 },
                 {
-                  title: "时间",
+                  title: t('fundusViewer.colTime'),
                   dataIndex: "flaggedAt",
                   key: "flaggedAt",
                   width: 110,

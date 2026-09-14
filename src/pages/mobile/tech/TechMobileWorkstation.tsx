@@ -3,6 +3,7 @@ import { message, Modal, Drawer } from 'antd'
 import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, AlertCircle, Wifi, WifiOff, XCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto, examApi, mobileApi, type TodaySummary, type WorklistItem, worklistApi, type WorklistItemDto } from '../../../services/api'
+import { t } from '../../../i18n/appI18n'
 
 export interface TechExamItem {
   id: string
@@ -234,10 +235,10 @@ export default function TechMobileWorkstation() {
         setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'in-progress' as const } : item))
         message.success(fellBack ? `已开始检查 (examApi 兼容回退): ${id}` : `已开始检查: ${id}`)
       } else {
-        message.error(res?.error?.message ?? '开始检查失败')
+        message.error(res?.error?.message ?? t('techMobile.startFailed'))
       }
     } catch {
-      message.error('开始检查失败: 网络错误')
+      message.error(t('techMobile.startFailedNetwork'))
     } finally {
       setOperatingId(null)
     }
@@ -263,10 +264,10 @@ export default function TechMobileWorkstation() {
         setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'completed' as const } : item))
         message.success(fellBack ? `检查完成 (examApi 兼容回退): ${id}` : `检查完成: ${id}`)
       } else {
-        message.error(res?.error?.message ?? '完成检查失败')
+        message.error(res?.error?.message ?? t('techMobile.completeFailed'))
       }
     } catch {
-      message.error('完成检查失败: 网络错误')
+      message.error(t('techMobile.completeFailedNetwork'))
     } finally {
       setOperatingId(null)
     }
@@ -281,10 +282,10 @@ export default function TechMobileWorkstation() {
         setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'arrived' as const } : item))
         message.success(`签到成功: ${id}`)
       } else {
-        message.error(res.error?.message ?? '签到失败')
+        message.error(res.error?.message ?? t('techMobile.checkInFailed'))
       }
     } catch {
-      message.error('签到失败: 网络错误')
+      message.error(t('techMobile.checkInFailedNetwork'))
     } finally {
       setOperatingId(null)
     }
@@ -293,11 +294,11 @@ export default function TechMobileWorkstation() {
   // [v3.0.6.11-95 Wave1B] 取消检查: worklistApi.cancel (确认后执行)
   const handleCancelExam = useCallback((id: string, name: string) => {
     Modal.confirm({
-      title: '取消检查',
+      title: t('techMobile.cancelExamTitle'),
       content: `确认取消 ${name} 的检查?该操作不可撤销。`,
-      okText: '确认取消',
+      okText: t('techMobile.confirmCancel'),
       okButtonProps: { danger: true },
-      cancelText: '返回',
+      cancelText: t('techMobile.back'),
       onOk: async () => {
         setOperatingId(id)
         try {
@@ -306,10 +307,10 @@ export default function TechMobileWorkstation() {
             setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'cancelled' as const } : item))
             message.success(`已取消检查: ${id}`)
           } else {
-            message.error(res.error?.message ?? '取消检查失败')
+            message.error(res.error?.message ?? t('techMobile.cancelFailed'))
           }
         } catch {
-          message.error('取消检查失败: 网络错误')
+          message.error(t('techMobile.cancelFailedNetwork'))
         } finally {
           setOperatingId(null)
         }
@@ -346,7 +347,7 @@ export default function TechMobileWorkstation() {
     try {
       const nav = navigator as any
       if (typeof nav?.mediaDevices?.getUserMedia === 'function' || typeof nav?.BarcodeDetector !== 'undefined') {
-        message.info('请对准检查申请单条形码扫描（已支持条形码扫描）')
+        message.info(t('techMobile.scanHint'))
       }
     } catch { /* ignore */ }
     if (scanInputRef.current) scanInputRef.current.click()
@@ -362,14 +363,14 @@ export default function TechMobileWorkstation() {
   return (
     <div style={s.container}>
       <div style={s.header}>
-        <div style={s.headerTitle}>技师移动工作站</div>
-        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 检查操作台{summary.date ? ` · ${summary.date}` : ''}</div>
+        <div style={s.headerTitle}>{t('techMobile.title')}</div>
+        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('techMobile.subtitle')}{summary.date ? ` · ${summary.date}` : ''}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 }}>
           {[
-            { value: summary.examsToday, label: '今日检查', bg: 'rgba(255,255,255,0.15)' },
-            { value: summary.pendingExams, label: '待检查', bg: 'rgba(255,255,255,0.15)' },
-            { value: summary.inProgressExams, label: '检查中', bg: 'rgba(255,255,255,0.15)' },
-            { value: summary.criticalValues, label: '危急值', bg: 'rgba(239,68,68,0.3)' },
+            { value: summary.examsToday, label: t('techMobile.todayExams'), bg: 'rgba(255,255,255,0.15)' },
+            { value: summary.pendingExams, label: t('techMobile.pendingExams'), bg: 'rgba(255,255,255,0.15)' },
+            { value: summary.inProgressExams, label: t('techMobile.inProgressExams'), bg: 'rgba(255,255,255,0.15)' },
+            { value: summary.criticalValues, label: t('techMobile.criticalValues'), bg: 'rgba(239,68,68,0.3)' },
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px 4px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 800 }}>{stat.value}</div>
@@ -380,9 +381,9 @@ export default function TechMobileWorkstation() {
         {/* [v3.0.6.11-95 Wave1B] 检查耗时统计: /worklist/stats 扩展字段 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
           {[
-            { value: techStats.completedToday, label: '今日完成', bg: 'rgba(255,255,255,0.15)' },
-            { value: techStats.avgDurationMin ? `${techStats.avgDurationMin} 分钟` : '--', label: '平均时长', bg: 'rgba(255,255,255,0.15)' },
-            { value: techStats.technicianCount, label: '技师', bg: 'rgba(255,255,255,0.15)' },
+            { value: techStats.completedToday, label: t('techMobile.completedToday'), bg: 'rgba(255,255,255,0.15)' },
+            { value: techStats.avgDurationMin ? `${techStats.avgDurationMin} 分钟` : '--', label: t('techMobile.avgDuration'), bg: 'rgba(255,255,255,0.15)' },
+            { value: techStats.technicianCount, label: t('techMobile.technician'), bg: 'rgba(255,255,255,0.15)' },
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '6px 4px', textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 800 }}>{stat.value}</div>
@@ -394,13 +395,13 @@ export default function TechMobileWorkstation() {
 
       {usingMock && (
         <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
-          ⚠ 预约接口不可用，检查队列已切换为 /mobile/worklist 演示数据
+          {t('techMobile.mockBanner')}
         </div>
       )}
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者、检查项目..." style={{ border: 'none', outline: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('techMobile.searchPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
         <Camera size={16} color="#94a3b8" style={{ cursor: 'pointer' }} onClick={handleScan} />
       </div>
 
@@ -413,10 +414,10 @@ export default function TechMobileWorkstation() {
       />
 
       <div style={s.tabRow}>
-        {[{ key: 'exams' as const, icon: ListChecks, label: '检查队列' }, { key: 'devices' as const, icon: Monitor, label: '设备状态' }].map(t => (
-          <div key={t.key} style={s.tab(tab === t.key)} onClick={() => setTab(t.key)}>
-            <t.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-            {t.label}
+        {[{ key: 'exams' as const, icon: ListChecks, label: t('techMobile.tabExams') }, { key: 'devices' as const, icon: Monitor, label: t('techMobile.tabDevices') }].map(tb => (
+          <div key={tb.key} style={s.tab(tab === tb.key)} onClick={() => setTab(tb.key)}>
+            <tb.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+            {tb.label}
           </div>
         ))}
       </div>
@@ -424,7 +425,7 @@ export default function TechMobileWorkstation() {
       {tab === 'exams' ? (
         <>
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
-            {[{ key: 'all', label: '全部' }, { key: 'scheduled', label: '待检查' }, { key: 'in-progress', label: '检查中' }].map(f => (
+            {[{ key: 'all', label: t('techMobile.filterAll') }, { key: 'scheduled', label: t('techMobile.filterScheduled') }, { key: 'in-progress', label: t('techMobile.filterInProgress') }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
                 style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#0f766e' : 'var(--bg-card)', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
@@ -442,44 +443,44 @@ export default function TechMobileWorkstation() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName}</span>
                     <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: item.priority === 'urgent' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: item.priority === 'urgent' ? 'var(--color-warning)' : '#64748b' }}>
-                      {item.priority === 'urgent' ? '紧急' : '普通'}
+                      {item.priority === 'urgent' ? t('techMobile.urgent') : t('techMobile.routine')}
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
-                    <span>{item.gender}/{item.age}岁</span>
+                    <span>{item.gender}/{item.age}{t('techMobile.ageUnit')}</span>
                     <span>{item.modality}</span>
                     <span>{item.bodyPart}</span>
                   </div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
-                    {item.deviceName ? `${item.deviceName}${item.roomName ? ` · ${item.roomName}` : ''}` : item.roomName || '未分配设备'} · {item.scheduledTime}
+                    {item.deviceName ? `${item.deviceName}${item.roomName ? ` · ${item.roomName}` : ''}` : item.roomName || t('techMobile.unassignedDevice')} · {item.scheduledTime}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} onClick={e => e.stopPropagation()}>
                   {item.status === 'scheduled' && (
                     <>
-                      <button onClick={() => void handleCheckIn(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#2563eb', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '签到'}</button>
-                      <button onClick={() => void handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '开始'}</button>
+                      <button onClick={() => void handleCheckIn(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#2563eb', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.checkIn')}</button>
+                      <button onClick={() => void handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.start')}</button>
                     </>
                   )}
                   {item.status === 'arrived' && (
                     <>
-                      <button onClick={() => void handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '开始'}</button>
-                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                      <button onClick={() => void handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.start')}</button>
+                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.cancel')}</button>
                     </>
                   )}
                   {item.status === 'in-progress' && (
                     <>
-                      <button onClick={() => void handleCompleteExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '完成'}</button>
-                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                      <button onClick={() => void handleCompleteExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.complete')}</button>
+                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.cancel')}</button>
                     </>
                   )}
                   {item.status === 'completed' && (
                     <>
-                      <span style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>✓ 已完成</span>
-                      <button onClick={() => handleQc(item)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>质控</button>
+                      <span style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>{t('techMobile.completed')}</span>
+                      <button onClick={() => handleQc(item)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.qc')}</button>
                     </>
                   )}
-                  {item.status === 'cancelled' && <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>已取消</span>}
+                  {item.status === 'cancelled' && <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>{t('techMobile.cancelled')}</span>}
                 </div>
               </div>
             ))}
@@ -492,8 +493,8 @@ export default function TechMobileWorkstation() {
               {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="#dc2626" /> : <AlertCircle size={18} color="#d97706" />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{device.name}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{device.modality} · {device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '维护中'}</div>
-                {device.currentPatient && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>当前患者: {device.currentPatient}</div>}
+                <div style={{ fontSize: 12, color: '#64748b' }}>{device.modality} · {device.status === 'online' ? t('techMobile.online') : device.status === 'offline' ? t('techMobile.offline') : t('techMobile.maintenance')}</div>
+                {device.currentPatient && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('techMobile.currentPatient')}: {device.currentPatient}</div>}
               </div>
             </div>
           ))}
@@ -501,7 +502,7 @@ export default function TechMobileWorkstation() {
       )}
 
       <Drawer
-        title={detail ? `${detail.patientName} · 检查详情` : '检查详情'}
+        title={detail ? `${detail.patientName} · ${t('techMobile.detailTitle')}` : t('techMobile.detailTitle')}
         open={!!detail}
         onClose={() => setDetail(null)}
         placement="right"
@@ -511,16 +512,16 @@ export default function TechMobileWorkstation() {
           <div style={{ fontSize: 13 }}>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{detail.patientName}</div>
             <div style={{ marginBottom: 14, fontSize: 12, color: '#64748b' }}>
-              {detail.gender} / {detail.age}岁 · {detail.modality} · {detail.bodyPart}
+              {detail.gender} / {detail.age}{t('techMobile.ageUnit')} · {detail.modality} · {detail.bodyPart}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
-                { label: '检查项目', value: detail.examItem },
-                { label: '设备', value: detail.deviceName || '未分配' },
-                { label: '检查室', value: detail.roomName || '未分配' },
-                { label: '预约时间', value: detail.scheduledTime },
-                { label: '状态', value: detail.status === 'scheduled' ? '待签到' : detail.status === 'arrived' ? '已签到' : detail.status === 'in-progress' ? '检查中' : detail.status === 'completed' ? '已完成' : '已取消' },
-                { label: '登记号', value: detail.accessionNumber || '-' },
+                { label: t('techMobile.fieldExamItem'), value: detail.examItem },
+                { label: t('techMobile.fieldDevice'), value: detail.deviceName || t('techMobile.unassigned') },
+                { label: t('techMobile.fieldRoom'), value: detail.roomName || t('techMobile.unassigned') },
+                { label: t('techMobile.fieldScheduledTime'), value: detail.scheduledTime },
+                { label: t('techMobile.fieldStatus'), value: detail.status === 'scheduled' ? t('techMobile.statusScheduled') : detail.status === 'arrived' ? t('techMobile.statusArrived') : detail.status === 'in-progress' ? t('techMobile.inProgressExams') : detail.status === 'completed' ? t('techMobile.completed') : t('techMobile.cancelled') },
+                { label: t('techMobile.fieldAccession'), value: detail.accessionNumber || '-' },
               ].map(f => (
                 <div key={f.label} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '8px 10px' }}>
                   <div style={{ fontSize: 11, color: '#94a3b8' }}>{f.label}</div>
@@ -528,13 +529,13 @@ export default function TechMobileWorkstation() {
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, margin: '14px 0 8px' }}>操作日志</div>
+            <div style={{ fontSize: 13, fontWeight: 700, margin: '14px 0 8px' }}>{t('techMobile.operationLog')}</div>
             {detailOps.length === 0 ? (
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无操作记录</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('techMobile.noOperationRecords')}</div>
             ) : (
               detailOps.map((o, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color)', fontSize: 12 }}>
-                  <span style={{ color: '#334155' }}>{o.actorName ?? '系统'} · {OP_LABELS[o.op] ?? o.op}</span>
+                  <span style={{ color: '#334155' }}>{o.actorName ?? t('techMobile.system')} · {OP_LABELS[o.op] ?? o.op}</span>
                   <span style={{ color: '#94a3b8' }}>{o.createdAt}</span>
                 </div>
               ))
@@ -545,10 +546,10 @@ export default function TechMobileWorkstation() {
 
       <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' }}>
         {[
-          { key: 'exams', icon: ListChecks, label: '检查' },
-          { key: 'devices', icon: Monitor, label: '设备' },
-          { key: 'scan', icon: Camera, label: '扫码' },
-          { key: 'bell', icon: AlertCircle, label: '通知' },
+          { key: 'exams', icon: ListChecks, label: t('techMobile.navExams') },
+          { key: 'devices', icon: Monitor, label: t('techMobile.navDevices') },
+          { key: 'scan', icon: Camera, label: t('techMobile.navScan') },
+          { key: 'bell', icon: AlertCircle, label: t('techMobile.navNotice') },
         ].map(nav => (
           <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#0f766e' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
             onClick={nav.key === 'scan' ? handleScan : () => nav.key !== 'scan' && setTab(nav.key as 'exams' | 'devices')}>

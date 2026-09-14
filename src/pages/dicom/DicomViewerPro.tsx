@@ -27,11 +27,12 @@ import {
 } from '../../constants/hangingProtocols'
 import AiFindingsOverlay from '../../components/dicom/AiFindingsOverlay'
 import { loadAiFindings, saveAiFindingsForReport, type AiFinding } from './aiFindings'
+import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
 
-const MODALITY_OPTIONS = [
-  { label: '全部', value: 'ALL' },
+const modalityOptions = () => [
+  { label: t('dicomViewer.all'), value: 'ALL' },
   { label: 'CT', value: 'CT' },
   { label: 'MR', value: 'MR' },
   { label: 'DR', value: 'DR' },
@@ -118,10 +119,10 @@ const DicomViewerProPage: React.FC = () => {
           if (!presetStudyUid) setSeriesList([])
         }
       } else {
-        setError(res.error?.message ?? '检查列表加载失败')
+        setError(res.error?.message ?? t('dicomViewer.loadStudiesFailed'))
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '检查列表加载失败')
+      setError((e as Error)?.message ?? t('dicomViewer.loadStudiesFailed'))
     } finally {
       setLoading(false)
     }
@@ -196,11 +197,11 @@ const DicomViewerProPage: React.FC = () => {
   const handleSendAnnotations = useCallback(async () => {
     const targetReportId = presetReportId || presetExamId
     if (!targetReportId) {
-      message.warning('未指定目标报告: 请携带 ?reportId= 或从报告书写页影像入口进入')
+      message.warning(t('dicomViewer.noTargetReport'))
       return
     }
     if (viewportAnnotations.length === 0) {
-      message.info('当前暂无标注 — 使用箭头/长度/椭圆等工具在图像上标注后发送')
+      message.info(t('dicomViewer.noAnnotations'))
       return
     }
     setSendingAnnotations(true)
@@ -215,12 +216,12 @@ const DicomViewerProPage: React.FC = () => {
         annotations: items,
       })
       if (res.success) {
-        message.success(`已发送 ${items.length} 条影像标注到报告 (可在报告「影像标注」查看)`)
+        message.success(t('dicomViewer.annotationsSent', { count: items.length }))
       } else {
-        message.error(res.error?.message ?? '标注发送失败')
+        message.error(res.error?.message ?? t('dicomViewer.annotationSendFailed'))
       }
     } catch {
-      message.error('标注发送失败:网络异常')
+      message.error(t('dicomViewer.annotationSendNetworkError'))
     } finally {
       setSendingAnnotations(false)
     }
@@ -232,17 +233,17 @@ const DicomViewerProPage: React.FC = () => {
   const [mipModalOpen, setMipModalOpen] = useState(false)
   const handleMipToReport = useCallback((payload: MipScreenshotPayload) => {
     if (!payload?.imageBase64) {
-      message.warning('MIP 图像生成失败, 请重试')
+      message.warning(t('dicomViewer.mipGenerateFailed'))
       return
     }
     try {
       sessionStorage.setItem('ris_mip_insert', JSON.stringify(payload))
     } catch {
-      message.error('MIP 缓存写入失败, 请稍后重试')
+      message.error(t('dicomViewer.mipCacheFailed'))
       return
     }
     setMipModalOpen(false)
-    message.success('MIP 已生成并缓存, 正在跳转报告书写页自动插入')
+    message.success(t('dicomViewer.mipGenerated'))
     const params = new URLSearchParams()
     if (presetReportId) params.set('reportId', presetReportId)
     if (presetExamId || selectedStudy?.patientID) params.set('examId', encodeURIComponent(presetExamId ?? selectedStudy?.patientID ?? ''))
@@ -276,10 +277,10 @@ const DicomViewerProPage: React.FC = () => {
         if (cancelled) return
         setAiFindings(list)
         setAiSelected(null)
-        if (list.length === 0) setAiError('当前检查无 AI 检出结果 (可能无匹配模型)')
+        if (list.length === 0) setAiError(t('dicomViewer.noAiFindings'))
       })
       .catch(() => {
-        if (!cancelled) setAiError('AI 检出加载失败')
+        if (!cancelled) setAiError(t('dicomViewer.aiLoadFailed'))
       })
       .finally(() => {
         if (!cancelled) setAiLoading(false)
@@ -293,10 +294,10 @@ const DicomViewerProPage: React.FC = () => {
     try {
       saveAiFindingsForReport(findings, presetReportId)
     } catch {
-      message.warning('浏览器存储不可用, 无法缓存 AI 检出')
+      message.warning(t('dicomViewer.storageUnavailable'))
       return
     }
-    message.success(`已缓存 ${findings.length} 条 AI 检出, 跳转报告书写页自动插入`)
+    message.success(t('dicomViewer.aiCached', { count: findings.length }))
     const q = new URLSearchParams()
     if (presetReportId) q.set('reportId', presetReportId)
     navigate(`/reports/v3-write${q.toString() ? `?${q.toString()}` : ''}`)
@@ -308,7 +309,7 @@ const DicomViewerProPage: React.FC = () => {
 
   const handleInsertAllAiToReport = useCallback(() => {
     if (aiFindings.length === 0) {
-      message.info('暂无 AI 检出可插入')
+      message.info(t('dicomViewer.noAiFindingsToInsert'))
       return
     }
     navigateToReportWithAi(aiFindings)
@@ -361,10 +362,10 @@ const DicomViewerProPage: React.FC = () => {
     const bodyPart = guessBodyPartFromDescription(selectedStudy?.studyDescription)
     const preset = matchHangingProtocol(mod, bodyPart)
     if (!preset) {
-      message.info('当前模态无匹配挂片协议')
+      message.info(t('dicomViewer.noHangingProtocol'))
       return
     }
-    message.success(`已应用挂片协议: ${preset.name} (${preset.layout.rows}×${preset.layout.cols})`)
+    message.success(t('dicomViewer.hangingApplied', { name: preset.name, rows: preset.layout.rows, cols: preset.layout.cols }))
     setHanging(buildHanging(preset))
   }, [selectedStudy, modality, buildHanging])
 
@@ -373,13 +374,13 @@ const DicomViewerProPage: React.FC = () => {
     const bodyPart = guessBodyPartFromDescription(selectedStudy?.studyDescription)
     const suggestedId = matchHangingProtocol(mod, bodyPart)?.id ?? null
     return [
-      { value: 'none', label: '无挂片 (单视口)' },
+      { value: 'none', label: t('dicomViewer.noHanging') },
       ...HANGING_PROTOCOL_PRESETS.map((p) => ({
         value: p.id,
         label: (
           <span>
             {p.name} ({p.layout.rows}×{p.layout.cols})
-            {p.id === suggestedId && <Tag color="green" style={{ marginLeft: 6 }}>推荐</Tag>}
+            {p.id === suggestedId && <Tag color="green" style={{ marginLeft: 6 }}>{t('dicomViewer.recommended')}</Tag>}
           </span>
         ),
       })),
@@ -397,17 +398,17 @@ const DicomViewerProPage: React.FC = () => {
           <Col flex="auto">
             <Space size={12} wrap>
               <MonitorPlay size={18} color="#3b82f6" />
-              <Text strong style={{ color: '#e2e8f0', fontSize: 15 }}>DICOM 专业版查看器</Text>
+              <Text strong style={{ color: '#e2e8f0', fontSize: 15 }}>{t('dicomViewer.title')}</Text>
               <Segmented
                 size="small"
-                options={MODALITY_OPTIONS}
+                options={modalityOptions()}
                 value={modality}
                 onChange={(v) => { setModality(String(v)); void loadStudies(String(v)) }}
               />
               <Select
                 size="small"
                 style={{ minWidth: 260 }}
-                placeholder="选择检查"
+                placeholder={t('dicomViewer.selectStudyPlaceholder')}
                 loading={loading}
                 value={studyUid}
                 onChange={(v) => setStudyUid(v)}
@@ -419,13 +420,13 @@ const DicomViewerProPage: React.FC = () => {
               <Select
                 size="small"
                 style={{ minWidth: 200 }}
-                placeholder="选择序列"
+                placeholder={t('dicomViewer.selectSeriesPlaceholder')}
                 loading={loadingSeries}
                 value={seriesUid}
                 onChange={(v) => setSeriesUid(v)}
                 options={seriesList.map((s) => ({
                   value: s.seriesInstanceUID,
-                  label: `#${s.seriesNumber} ${s.seriesDescription} (${s.numberOfSeriesRelatedInstances}帧)`,
+                  label: `#${s.seriesNumber} ${s.seriesDescription} (${s.numberOfSeriesRelatedInstances}${t('dicomViewer.framesUnit')})`,
                 }))}
               />
               <Button
@@ -434,7 +435,7 @@ const DicomViewerProPage: React.FC = () => {
                 onClick={() => void loadStudies()}
                 loading={loading}
               >
-                刷新
+                {t('dicomViewer.refresh')}
               </Button>
               {/* G-12: AI 检出叠加开关 */}
               <Button
@@ -444,13 +445,13 @@ const DicomViewerProPage: React.FC = () => {
                 onClick={() => setAiEnabled((v) => !v)}
                 data-testid="ai-overlay-toggle"
               >
-                AI 结果
+                {t('dicomViewer.aiResults')}
               </Button>
               {/* G-17: 挂片协议选择 + 自动挂片 */}
               <Select
                 size="small"
                 style={{ minWidth: 190 }}
-                placeholder="挂片协议"
+                placeholder={t('dicomViewer.hangingProtocolPlaceholder')}
                 value={hanging?.protocolId ?? 'none'}
                 onChange={applyProtocolById}
                 options={hpOptions}
@@ -462,7 +463,7 @@ const DicomViewerProPage: React.FC = () => {
                 onClick={autoApplyHanging}
                 data-testid="hp-auto-apply"
               >
-                自动挂片
+                {t('dicomViewer.autoHanging')}
               </Button>
               {/* [G005 放射流程P0] 阅片→报告: 从当前 study 直达完整书写页 */}
               <Button
@@ -472,7 +473,7 @@ const DicomViewerProPage: React.FC = () => {
                 onClick={() => navigate(`/reports/v3-write?examId=${encodeURIComponent(presetExamId ?? selectedStudy?.patientID ?? '')}&studyUid=${encodeURIComponent(studyUid ?? '')}`)}
                 data-testid="viewer-write-report"
               >
-                写报告
+                {t('dicomViewer.writeReport')}
               </Button>
               {/* [v3.0.6.11-100 Wave 2B] 标注完成 → 发送到报告 */}
               <Button
@@ -481,9 +482,9 @@ const DicomViewerProPage: React.FC = () => {
                 onClick={() => void handleSendAnnotations()}
                 loading={sendingAnnotations}
                 data-testid="viewer-send-annotations"
-                title={viewportAnnotations.length > 0 ? `发送 ${viewportAnnotations.length} 条标注到报告` : '发送标注到报告'}
+                title={viewportAnnotations.length > 0 ? t('dicomViewer.sendAnnotationsCount', { count: viewportAnnotations.length }) : t('dicomViewer.sendAnnotations')}
               >
-                发送到报告{viewportAnnotations.length > 0 ? ` (${viewportAnnotations.length})` : ''}
+                {t('dicomViewer.sendToReport')}{viewportAnnotations.length > 0 ? ` (${viewportAnnotations.length})` : ''}
               </Button>
               {/* [v3.0.6.11-100 Wave 6B (D-2)] 当前检查/序列 → 生成 MIP 截图 → 报告书写页自动插入 */}
               <Button
@@ -492,9 +493,9 @@ const DicomViewerProPage: React.FC = () => {
                 icon={<ScanLine size={12} />}
                 onClick={() => setMipModalOpen(true)}
                 data-testid="viewer-send-mip"
-                title="从当前检查/序列生成 MIP 截图并发送到报告 (自动插入图注)"
+                title={t('dicomViewer.sendMipTitle')}
               >
-                发送 MIP 到报告
+                {t('dicomViewer.sendMip')}
               </Button>
               {/* [v3.0.6.11-99 Wave 4A] 阅片→病灶追踪: 携带患者 ID 跳转工作台 */}
               <Button
@@ -503,7 +504,7 @@ const DicomViewerProPage: React.FC = () => {
                 onClick={() => navigate(`/dicom/lesion-tracking?patientId=${encodeURIComponent(selectedStudy?.patientID ?? '')}`)}
                 data-testid="viewer-lesion-tracking"
               >
-                病灶追踪
+                {t('dicomViewer.lesionTracking')}
               </Button>
             </Space>
           </Col>
@@ -517,7 +518,7 @@ const DicomViewerProPage: React.FC = () => {
                   {selectedStudy.studyDate}
                 </Tag>
                 <Tag icon={<Layers size={10} />} style={{ color: '#93c5fd' }}>
-                  {selectedStudy.modalitiesInStudy.join('/')} · {selectedStudy.numberOfStudyRelatedSeries} 序列
+                  {selectedStudy.modalitiesInStudy.join('/')} · {t('dicomViewer.seriesCount', { count: selectedStudy.numberOfStudyRelatedSeries })}
                 </Tag>
               </Space>
             )}
@@ -531,7 +532,7 @@ const DicomViewerProPage: React.FC = () => {
           showIcon
           style={{ margin: 12 }}
           message={error}
-          action={<Button size="small" onClick={() => void loadStudies()}><RefreshCw size={14} /> 重试</Button>}
+          action={<Button size="small" onClick={() => void loadStudies()}><RefreshCw size={14} /> {t('dicomViewer.retry')}</Button>}
         />
       )}
 
@@ -542,7 +543,7 @@ const DicomViewerProPage: React.FC = () => {
       <div style={{ padding: 8 }}>
         <Spin spinning={loading && studies.length === 0}>
           {studies.length === 0 && !loading ? (
-            <Empty image={<Inbox size={56} style={{opacity:0.4}}/>} description="暂无检查数据" style={{ padding: 60, color: '#64748b' }} />
+            <Empty image={<Inbox size={56} style={{opacity:0.4}}/>} description={t('dicomViewer.noStudyData')} style={{ padding: 60, color: '#64748b' }} />
           ) : (
             <div style={{ position: 'relative' }} data-testid="pro-viewer-area">
               {multiViewport ? (
@@ -575,7 +576,7 @@ const DicomViewerProPage: React.FC = () => {
                         tabIndex={0}
                         onClick={() => { if (cell.series) setSeriesUid(cell.series.seriesInstanceUID) }}
                         onKeyDown={(e) => { if (e.key === 'Enter' && cell.series) setSeriesUid(cell.series.seriesInstanceUID) }}
-                        title={cell.series ? `点击在主动视口加载: ${cell.series.seriesDescription}` : '无匹配序列'}
+                        title={cell.series ? t('dicomViewer.clickToLoad', { desc: cell.series.seriesDescription }) : t('dicomViewer.noMatchingSeries')}
                         style={{
                           position: 'relative',
                           background: '#0a0a0a',
@@ -590,10 +591,10 @@ const DicomViewerProPage: React.FC = () => {
                       >
                         <SyntheticFrame />
                         <div style={{ position: 'absolute', top: 8, left: 10, fontSize: 12, color: '#60a5fa', fontWeight: 700 }}>
-                          {i + 1}. {cell.series?.seriesDescription ?? '无匹配序列'}
+                          {i + 1}. {cell.series?.seriesDescription ?? t('dicomViewer.noMatchingSeries')}
                         </div>
                         <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 11, color: '#64748b' }}>
-                          {cell.series?.numberOfSeriesRelatedInstances ?? 0} 帧
+                          {t('dicomViewer.frames', { count: cell.series?.numberOfSeriesRelatedInstances ?? 0 })}
                         </div>
                       </div>
                     )
@@ -642,11 +643,11 @@ const DicomViewerProPage: React.FC = () => {
                   }}
                 >
                   <LayoutGrid size={12} color="#3b82f6" />
-                  <span>挂片: <b>{hanging.name}</b> ({hanging.rows}×{hanging.cols})</span>
+                  <span>{t('dicomViewer.hangingLabel')} <b>{hanging.name}</b> ({hanging.rows}×{hanging.cols})</span>
                   <button
                     onClick={() => setHanging(null)}
                     style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', padding: 2 }}
-                    aria-label="退出挂片"
+                    aria-label={t('dicomViewer.exitHanging')}
                     data-testid="hp-exit"
                   >
                     <X size={12} />
@@ -660,8 +661,8 @@ const DicomViewerProPage: React.FC = () => {
 
       {selectedSeries && (
         <div style={{ padding: '4px 16px 10px', color: '#64748b', fontSize: 12 }}>
-          当前序列: {selectedSeries.seriesDescription} · 实例数 {selectedSeries.numberOfSeriesRelatedInstances} ·
-          层厚 {selectedSeries.sliceThickness ?? '-'}mm · 帧数 {frameCount}
+          {t('dicomViewer.currentSeries')} {selectedSeries.seriesDescription} · {t('dicomViewer.instances')} {selectedSeries.numberOfSeriesRelatedInstances} ·
+          {t('dicomViewer.sliceThickness')} {selectedSeries.sliceThickness ?? '-'}mm · {t('dicomViewer.frameCount')} {frameCount}
         </div>
       )}
 

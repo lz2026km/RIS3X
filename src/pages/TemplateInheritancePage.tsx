@@ -12,6 +12,7 @@ import {
   TrendingUp, Users, Layers, BarChart3, Activity, FileCode,
 } from 'lucide-react';
 import { templatesApi } from '../services/api/templatesApi';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 模拟继承关系数据
@@ -100,18 +101,18 @@ export default function TemplateInheritancePage() {
     try {
       const res = await templatesApi.list();
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped: TemplateNode[] = res.data.map((t: any) => ({
-          id: t.id || '',
-          name: t.name || '未命名模板',
-          parentId: t.parentId ?? null,
-          version: `v${t.version ?? 1}.0`,
+        const mapped: TemplateNode[] = res.data.map((tpl: any) => ({
+          id: tpl.id || '',
+          name: tpl.name || t('tinh.unnamedTemplate'),
+          parentId: tpl.parentId ?? null,
+          version: `v${tpl.version ?? 1}.0`,
           childIds: [],
-          createdBy: t.createdById || '系统',
-          createdAt: String(t.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
-          usageCount: Number(t.usage ?? 0),
-          status: t.status === 'draft' ? 'draft' : t.status === 'deprecated' ? 'deprecated' : 'active',
-          type: t.parentId ? 'child' : 'parent',
-          description: String(t.body || '').slice(0, 60),
+          createdBy: tpl.createdById || t('tinh.system'),
+          createdAt: String(tpl.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
+          usageCount: Number(tpl.usage ?? 0),
+          status: tpl.status === 'draft' ? 'draft' : tpl.status === 'deprecated' ? 'deprecated' : 'active',
+          type: tpl.parentId ? 'child' : 'parent',
+          description: String(tpl.body || '').slice(0, 60),
         }));
         // 由 parentId 派生 childIds
         mapped.forEach(n => {
@@ -124,11 +125,11 @@ export default function TemplateInheritancePage() {
         setSource('api');
       } else {
         setSource('demo');
-        setApiError('templatesApi 暂不可用，当前展示内置演示继承树');
+        setApiError(t('tinh.apiUnavailable'));
       }
     } catch (e) {
       setSource('demo');
-      setApiError(e instanceof Error ? e.message : '模板加载失败，已回退演示数据');
+      setApiError(e instanceof Error ? e.message : t('tinh.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -171,7 +172,7 @@ export default function TemplateInheritancePage() {
           version: res.data ? `v${(res.data as any)?.version ?? 1}.0` : 'v1.0',
           childIds: [],
           parentId: id,
-          createdBy: res.data?.createdById || '当前医生',
+          createdBy: res.data?.createdById || t('tinh.currentDoctor'),
           createdAt: String(res.data?.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
           usageCount: 0,
           status: 'draft',
@@ -195,7 +196,7 @@ export default function TemplateInheritancePage() {
       version: 'v1.0',
       childIds: [],
       parentId: src.id,
-      createdBy: '当前医生',
+      createdBy: t('tinh.currentDoctor'),
       createdAt: new Date().toISOString().slice(0, 10),
       usageCount: 0,
       status: 'draft',
@@ -292,7 +293,7 @@ export default function TemplateInheritancePage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <GitBranch size={20} color="#7c3aed" /> 模板继承与克隆
+            <GitBranch size={20} color="#7c3aed" /> {t('tinh.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
@@ -301,11 +302,11 @@ export default function TemplateInheritancePage() {
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
-              {loading ? '同步中...' : source === 'api' ? '数据源: templatesApi 实时' : '演示数据(接口不可用)'}
+              {loading ? t('tinh.syncing') : source === 'api' ? t('tinh.sourceApi') : t('tinh.sourceDemo')}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            模板版本管理、克隆/继承、父子追溯、使用统计
+            {t('tinh.subtitle')}
             {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
@@ -318,7 +319,7 @@ export default function TemplateInheritancePage() {
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            <Plus size={12} /> 新建模板
+            <Plus size={12} /> {t('tinh.newTemplate')}
           </button>
           <button
             onClick={() => navigate('/template-management')}
@@ -328,18 +329,18 @@ export default function TemplateInheritancePage() {
               cursor: 'pointer',
             }}
           >
-            返回列表
+            {t('tinh.backToList')}
           </button>
         </div>
       </div>
 
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
-        <StatCard icon={Layers} label="模板总数" value={stats.total} color="#3b82f6" />
-        <StatCard icon={Activity} label="已启用" value={stats.active} color="#10b981" />
-        <StatCard icon={FileCode} label="草稿" value={stats.drafts} color="#f59e0b" />
-        <StatCard icon={GitFork} label="总使用次数" value={stats.totalUsage} color="#7c3aed" />
-        <StatCard icon={Users} label="父模板数" value={rootNodes.length} color="#0891b2" />
+        <StatCard icon={Layers} label={t('tinh.statTotal')} value={stats.total} color="#3b82f6" />
+        <StatCard icon={Activity} label={t('tinh.statActive')} value={stats.active} color="#10b981" />
+        <StatCard icon={FileCode} label={t('tinh.statDrafts')} value={stats.drafts} color="#f59e0b" />
+        <StatCard icon={GitFork} label={t('tinh.statTotalUsage')} value={stats.totalUsage} color="#7c3aed" />
+        <StatCard icon={Users} label={t('tinh.statParents')} value={rootNodes.length} color="#0891b2" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 12 }}>
@@ -353,7 +354,7 @@ export default function TemplateInheritancePage() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <GitBranch size={12} /> 继承关系树
+              <GitBranch size={12} /> {t('tinh.treeTitle')}
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
               <button
@@ -364,7 +365,7 @@ export default function TemplateInheritancePage() {
                   color: viewMode === 'tree' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
-              >树</button>
+              >{t('tinh.viewTree')}</button>
               <button
                 onClick={() => setViewMode('list')}
                 style={{
@@ -373,7 +374,7 @@ export default function TemplateInheritancePage() {
                   color: viewMode === 'list' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
-              >列表</button>
+              >{t('tinh.viewList')}</button>
             </div>
           </div>
           <div style={{ padding: 4, maxHeight: 600, overflowY: 'auto' }}>
@@ -384,7 +385,7 @@ export default function TemplateInheritancePage() {
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="搜索模板..."
+                    placeholder={t('tinh.searchPlaceholder')}
                     style={{
                       width: '100%', padding: '4px 8px',
                       border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12,
@@ -432,7 +433,7 @@ export default function TemplateInheritancePage() {
                       {selectedNode.name}
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-                      ID: {selectedNode.id} · {selectedNode.version} · 创建于 {selectedNode.createdAt}
+                      ID: {selectedNode.id} · {selectedNode.version} · {t('tinh.createdAtPrefix')}{selectedNode.createdAt}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
@@ -441,7 +442,7 @@ export default function TemplateInheritancePage() {
                       background: selectedNode.status === 'active' ? 'var(--color-success-bg)' : selectedNode.status === 'draft' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
                       color: selectedNode.status === 'active' ? '#047857' : selectedNode.status === 'draft' ? '#92400e' : '#b91c1c',
                       fontWeight: 700,
-                    }}>{selectedNode.status === 'active' ? '已启用' : selectedNode.status === 'draft' ? '草稿' : '已弃用'}</span>
+                    }}>{selectedNode.status === 'active' ? t('tinh.statusActive') : selectedNode.status === 'draft' ? t('tinh.statusDraft') : t('tinh.statusDeprecated')}</span>
                   </div>
                 </div>
 
@@ -460,7 +461,7 @@ export default function TemplateInheritancePage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <Copy size={11} /> 克隆
+                    <Copy size={11} /> {t('tinh.clone')}
                   </button>
                   <button
                     onClick={() => void inheritNode(selectedNode.id)}
@@ -470,7 +471,7 @@ export default function TemplateInheritancePage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <GitFork size={11} /> 继承
+                    <GitFork size={11} /> {t('tinh.inherit')}
                   </button>
                   <button
                     onClick={() => setPreviewNode(selectedNode)}
@@ -480,7 +481,7 @@ export default function TemplateInheritancePage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <Eye size={11} /> 预览
+                    <Eye size={11} /> {t('tinh.preview')}
                   </button>
                   <button
                     onClick={() => setShowStatsModal(true)}
@@ -490,7 +491,7 @@ export default function TemplateInheritancePage() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <BarChart3 size={11} /> 使用统计
+                    <BarChart3 size={11} /> {t('tinh.usageStats')}
                   </button>
                 </div>
               </div>
@@ -498,13 +499,13 @@ export default function TemplateInheritancePage() {
               {/* 关系图 */}
               <div style={{ padding: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <GitMerge size={12} /> 关系图谱
+                  <GitMerge size={12} /> {t('tinh.relationGraph')}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                   {/* 父节点 */}
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>父模板</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>{t('tinh.parentTemplate')}</div>
                     {selectedParent ? (
                       <div
                         onClick={() => setSelectedId(selectedParent.id)}
@@ -520,14 +521,14 @@ export default function TemplateInheritancePage() {
                       </div>
                     ) : (
                       <div style={{ padding: 8, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', background: 'var(--bg-card)', borderRadius: 6, border: '1px dashed var(--border-color)' }}>
-                        根模板
+                        {t('tinh.rootTemplate')}
                       </div>
                     )}
                   </div>
 
                   {/* 当前节点 */}
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>当前</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>{t('tinh.current')}</div>
                     <div style={{
                       padding: 10, background: 'var(--color-info-bg)', border: '2px solid #3b82f6',
                       borderRadius: 6, fontSize: 12,
@@ -542,7 +543,7 @@ export default function TemplateInheritancePage() {
 
                   {/* 子节点 */}
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>子模板 ({selectedChildren.length})</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>{t('tinh.childTemplate')} ({selectedChildren.length})</div>
                     {selectedChildren.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {selectedChildren.map(c => (
@@ -563,7 +564,7 @@ export default function TemplateInheritancePage() {
                       </div>
                     ) : (
                       <div style={{ padding: 8, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', background: 'var(--bg-card)', borderRadius: 6, border: '1px dashed var(--border-color)' }}>
-                        暂无子模板
+                        {t('tinh.noChildren')}
                       </div>
                     )}
                   </div>
@@ -573,7 +574,7 @@ export default function TemplateInheritancePage() {
                 {selectedSiblings.length > 0 && (
                   <div style={{ marginTop: 16 }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>
-                      同级模板 ({selectedSiblings.length})
+                      {t('tinh.siblings')} ({selectedSiblings.length})
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {selectedSiblings.map(s => (
@@ -598,19 +599,19 @@ export default function TemplateInheritancePage() {
                 {/* 使用统计 */}
                 <div style={{ marginTop: 16, padding: 12, background: 'var(--color-info-bg)', borderRadius: 6, border: '1px solid #bfdbfe' }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <TrendingUp size={12} /> 使用统计
+                    <TrendingUp size={12} /> {t('tinh.usageStats')}
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                     <div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>本月使用</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.monthUsage')}</div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{Math.floor(selectedNode.usageCount * 0.3)}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>总使用</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.totalUsage')}</div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{selectedNode.usageCount}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>创建者</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.creator')}</div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{selectedNode.createdBy}</div>
                     </div>
                   </div>
@@ -619,12 +620,12 @@ export default function TemplateInheritancePage() {
                 {/* 版本历史（模拟） */}
                 <div style={{ marginTop: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <History size={12} /> 版本历史
+                    <History size={12} /> {t('tinh.versionHistory')}
                   </div>
                   <div style={{ background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)', padding: 8 }}>
                     {[
-                      { v: selectedNode.version, time: selectedNode.createdAt, author: selectedNode.createdBy, action: '当前版本' },
-                      { v: 'v0.9', time: '...', author: '前一位作者', action: '历史' },
+                      { v: selectedNode.version, time: selectedNode.createdAt, author: selectedNode.createdBy, action: t('tinh.currentVersion') },
+                      { v: 'v0.9', time: '...', author: t('tinh.previousAuthor'), action: t('tinh.history') },
                     ].map((h, i) => (
                       <div key={i} style={{
                         padding: 6, marginBottom: 4, background: 'var(--bg-card)', borderRadius: 4,
@@ -646,7 +647,7 @@ export default function TemplateInheritancePage() {
             </>
           ) : (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-              请从左侧选择一个模板查看详情
+              {t('tinh.selectPrompt')}
             </div>
           )}
         </div>
@@ -658,7 +659,7 @@ export default function TemplateInheritancePage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Eye size={16} color="#0891b2" /> 模板内容预览
+                <Eye size={16} color="#0891b2" /> {t('tinh.previewTitle')}
               </div>
               <button onClick={() => setPreviewNode(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
@@ -666,7 +667,7 @@ export default function TemplateInheritancePage() {
               {previewNode.name} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({previewNode.version})</span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
-              ID: {previewNode.id} · 创建人: {previewNode.createdBy} · {previewNode.createdAt} · 类型: {previewNode.type === 'parent' ? '父模板' : previewNode.type === 'child' ? '继承克隆' : '同族'}
+              ID: {previewNode.id} · {t('tinh.creatorLabel')}{previewNode.createdBy} · {previewNode.createdAt} · {t('tinh.typeLabel')}{previewNode.type === 'parent' ? t('tinh.typeParent') : previewNode.type === 'child' ? t('tinh.typeChild') : t('tinh.typeSibling')}
             </div>
             {previewNode.description && (
               <div style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8, marginBottom: 12 }}>
@@ -674,11 +675,11 @@ export default function TemplateInheritancePage() {
               </div>
             )}
             <div style={{ fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)', padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
-              【检查所见】<br />（模板正文预览占位：结构化字段将由模板设计器填充）<br /><br />
-              【诊断意见】<br />（基于 {previewNode.name} 的结构化模板）
+              {t('tinh.findingsHeader')}<br />{t('tinh.bodyPlaceholder')}<br /><br />
+              {t('tinh.diagnosisHeader')}<br />{t('tinh.basedOn', { name: previewNode.name })}
             </div>
             <div style={{ marginTop: 14, display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setPreviewNode(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>关闭</button>
+              <button onClick={() => setPreviewNode(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>{t('tinh.close')}</button>
             </div>
           </div>
         </div>
@@ -690,21 +691,21 @@ export default function TemplateInheritancePage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={16} color="#0891b2" /> 使用统计 · {selectedNode.name}
+                <BarChart3 size={16} color="#0891b2" /> {t('tinh.usageStats')} · {selectedNode.name}
               </div>
               <button onClick={() => setShowStatsModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
               <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>本模板使用次数</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.templateUsageCount')}</div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#7c3aed' }}>{selectedNode.usageCount}</div>
               </div>
               <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>直接继承模板</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.directChildren')}</div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#0891b2' }}>{selectedChildren.length}</div>
               </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>家族使用汇总（本地派生）</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('tinh.familyUsageSummary')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
               {[selectedNode, ...selectedChildren, ...selectedSiblings].map(n => (
                 <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
@@ -715,10 +716,10 @@ export default function TemplateInheritancePage() {
               ))}
             </div>
             <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d', marginBottom: 14 }}>
-              使用次数为本地派生数据（标注: 待模板用量上报接口 templatesApi.usage）。
+              {t('tinh.usageNote')}
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowStatsModal(false)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>关闭</button>
+              <button onClick={() => setShowStatsModal(false)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>{t('tinh.close')}</button>
             </div>
           </div>
         </div>

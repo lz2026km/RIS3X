@@ -5,10 +5,11 @@ import type { ApiResponse } from '@/services/api/types'
 import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Badge, Alert, Button, Spin, Empty, Space } from 'antd'
 import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile, AlertTriangle, RefreshCw } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
+import { t } from '../../i18n/appI18n'
 
 const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="#2563eb" />, clinical: <BarChart3 size={16} color="#22c55e" />, operational: <Users size={16} color="#f59e0b" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> }
 const categoryColors: Record<string, string> = { productivity: '#2563eb', clinical: '#22c55e', operational: '#f59e0b', financial: '#10b981', satisfaction: '#8b5cf6' }
-const CATEGORY_LABELS_DICT: Record<string, string> = { productivity: '效率', clinical: '临床', operational: '运营', financial: '财务', satisfaction: '满意度' }
+const CATEGORY_LABELS_DICT: Record<string, string> = { productivity: 'eyeKpi.cat.productivity', clinical: 'eyeKpi.cat.clinical', operational: 'eyeKpi.cat.operational', financial: 'eyeKpi.cat.financial', satisfaction: 'eyeKpi.cat.satisfaction' }
 
 interface KpiMetric {
   id: string
@@ -68,10 +69,10 @@ const EyeKpiDashboardPage: React.FC = () => {
       if (Array.isArray(sat)) setPatientSatisfaction(sat)
       if (summary) setKpiData(summary)
       if (!qmRes.success && !satRes.success && !kpiRes.success) {
-        setError('眼科 KPI 数据加载失败')
+        setError(t('eyeKpi.loadFailed'))
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : '眼科 KPI 数据加载失败')
+      setError(e instanceof Error ? e.message : t('eyeKpi.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -89,21 +90,21 @@ const EyeKpiDashboardPage: React.FC = () => {
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-kpi-dashboard-page">
       <PageHeader
-        title="眼科质控看板"
+        title={t('eyeKpi.title')}
         icon={<BarChart3 size={24} color="#2563eb" />}
         variant="inline"
         actions={
           <Space>
             <Tag color="cyan">v3.0.6.11-75</Tag>
-            <Tag color="blue">{filtered.length} 指标</Tag>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+            <Tag color="blue">{t('eyeKpi.metricCount', { count: filtered.length })}</Tag>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('eyeKpi.refresh')}</Button>
           </Space>
         }
       />
 
       {error && (
-        <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 12 }}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="error" showIcon message={t('eyeKpi.loadError')} description={error} style={{ marginBottom: 12 }}
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('eyeKpi.retry')}</Button>} />
       )}
 
       {loading ? (
@@ -111,12 +112,12 @@ const EyeKpiDashboardPage: React.FC = () => {
       ) : (
         <>
           <div data-testid="eye-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
-            <Card size="small"><Statistic title="日均检查" value={kpiData.dailyExams} suffix="人次" prefix={<Activity size={16} />} /></Card>
-            <Card size="small"><Statistic title="AI采纳率" value={kpiData.aiAdoption} suffix="%" prefix={<BarChart3 size={16} />} styles={{ content: { color: '#22c55e' } }} /></Card>
-            <Card size="small"><Statistic title="月手术量" value={kpiData.surgeryCount ?? 0} suffix="台" prefix={<Users size={16} color="#f59e0b" />} /></Card>
-            <Card size="small"><Statistic title="患者满意度" value={avgSat.toFixed(1)} suffix="分" prefix={<Smile size={16} color="#8b5cf6" />} /></Card>
-            <Card size="small"><Statistic title="平均候诊" value={kpiData.avgWait} suffix="min" prefix={<AlertTriangle size={16} color="#f59e0b" />} /></Card>
-            <Card size="small"><Statistic title="月检查收入" value={kpiData.revenue ?? 0} suffix="万" prefix={<DollarSign size={16} color="#10b981" />} /></Card>
+            <Card size="small"><Statistic title={t('eyeKpi.dailyExams')} value={kpiData.dailyExams} suffix={t('eyeKpi.unitVisits')} prefix={<Activity size={16} />} /></Card>
+            <Card size="small"><Statistic title={t('eyeKpi.aiAdoption')} value={kpiData.aiAdoption} suffix="%" prefix={<BarChart3 size={16} />} styles={{ content: { color: '#22c55e' } }} /></Card>
+            <Card size="small"><Statistic title={t('eyeKpi.monthlySurgery')} value={kpiData.surgeryCount ?? 0} suffix={t('eyeKpi.unitCases')} prefix={<Users size={16} color="#f59e0b" />} /></Card>
+            <Card size="small"><Statistic title={t('eyeKpi.satisfaction')} value={avgSat.toFixed(1)} suffix={t('eyeKpi.unitPoints')} prefix={<Smile size={16} color="#8b5cf6" />} /></Card>
+            <Card size="small"><Statistic title={t('eyeKpi.avgWait')} value={kpiData.avgWait} suffix="min" prefix={<AlertTriangle size={16} color="#f59e0b" />} /></Card>
+            <Card size="small"><Statistic title={t('eyeKpi.monthlyRevenue')} value={kpiData.revenue ?? 0} suffix={t('eyeKpi.unitTenThousand')} prefix={<DollarSign size={16} color="#10b981" />} /></Card>
           </div>
 
           <Card size="small">
@@ -124,34 +125,34 @@ const EyeKpiDashboardPage: React.FC = () => {
               activeKey={tab}
               onChange={setTab}
               tabBarExtraContent={
-                <Badge count={filtered.length} title={`当前 ${filtered.length} 项指标`} style={{ backgroundColor: '#2563eb' }} />
+                <Badge count={filtered.length} title={t('eyeKpi.currentMetrics', { count: filtered.length })} style={{ backgroundColor: '#2563eb' }} />
               }
               items={[
-                { key: 'all', label: '全部指标' },
-                ...Object.keys(categoryIcons).map((k) => ({ key: k, label: CATEGORY_LABELS_DICT[k] || k })),
+                { key: 'all', label: t('eyeKpi.allMetrics') },
+                ...Object.keys(categoryIcons).map((k) => ({ key: k, label: t(CATEGORY_LABELS_DICT[k] || k) })),
               ]}
             />
-            {filtered.length === 0 ? <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无指标数据" /> : (
+            {filtered.length === 0 ? <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('eyeKpi.noMetrics')} /> : (
               <Table dataSource={metricPagination.pageData} rowKey="id" size="small" pagination={metricPagination.pagination}
                 columns={[
-                  { title: '类别', dataIndex: 'category', key: 'category', width: 80, render: (v: string) => <Tag color={categoryColors[v]}>{CATEGORY_LABELS_DICT[v] || v}</Tag> },
-                  { title: '指标', dataIndex: 'name', key: 'name', width: 200 },
-                  { title: '值', dataIndex: 'value', key: 'value', width: 90, render: (v: number, r: KpiMetric) => <span style={{ fontWeight: 600 }}>{v}{r.unit}</span> },
-                  { title: '目标', dataIndex: 'target', key: 'target', width: 70, render: (v: number) => v },
-                  { title: '达成率', key: 'rate', width: 140, render: (_, r: KpiMetric) => <PercentBar value={r.value} target={r.target} /> },
-                  { title: '趋势', dataIndex: 'trend', key: 'trend', width: 70, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="#22c55e" /> : v === 'down' ? <TrendingDown size={14} color="#ef4444" /> : <span style={{ color: 'var(--text-secondary)' }}>→</span> },
-                  { title: '周期', dataIndex: 'period', key: 'period', width: 60 },
+                  { title: t('eyeKpi.colCategory'), dataIndex: 'category', key: 'category', width: 80, render: (v: string) => <Tag color={categoryColors[v]}>{t(CATEGORY_LABELS_DICT[v] || v)}</Tag> },
+                  { title: t('eyeKpi.colMetric'), dataIndex: 'name', key: 'name', width: 200 },
+                  { title: t('eyeKpi.colValue'), dataIndex: 'value', key: 'value', width: 90, render: (v: number, r: KpiMetric) => <span style={{ fontWeight: 600 }}>{v}{r.unit}</span> },
+                  { title: t('eyeKpi.colTarget'), dataIndex: 'target', key: 'target', width: 70, render: (v: number) => v },
+                  { title: t('eyeKpi.colRate'), key: 'rate', width: 140, render: (_, r: KpiMetric) => <PercentBar value={r.value} target={r.target} /> },
+                  { title: t('eyeKpi.colTrend'), dataIndex: 'trend', key: 'trend', width: 70, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="#22c55e" /> : v === 'down' ? <TrendingDown size={14} color="#ef4444" /> : <span style={{ color: 'var(--text-secondary)' }}>→</span> },
+                  { title: t('eyeKpi.colPeriod'), dataIndex: 'period', key: 'period', width: 60 },
                 ]} 
               scroll={{ x: 'max-content' }}/>
             )}
           </Card>
 
-          <Card size="small" title="患者满意度趋势" style={{ marginTop: 8 }}>
-            {patientSatisfaction.length === 0 ? <Empty description="暂无满意度数据" image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
-              <Row gutter={12}>{['沟通', '候诊', '环境', '推荐'].map((s, i) => {
+          <Card size="small" title={t('eyeKpi.satisfactionTrend')} style={{ marginTop: 8 }}>
+            {patientSatisfaction.length === 0 ? <Empty description={t('eyeKpi.noSatisfaction')} image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
+              <Row gutter={12}>{['eyeKpi.sat.communication', 'eyeKpi.sat.wait', 'eyeKpi.sat.environment', 'eyeKpi.sat.recommend'].map((s, i) => {
                 const scores = patientSatisfaction.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i] ?? 0)
                 const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#2563eb' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>
+                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t(s)}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#2563eb' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}{t('eyeKpi.unitPoints')}</div></div></Col>
               })}</Row>
             )}
           </Card>

@@ -5,6 +5,7 @@ import { kioskApi, type KioskPatientDto, type KioskCheckInResultDto, type KioskT
 import { queueApi, type QueueCallDto } from '../../services/api/queueApi'
 // [v3.0.6.11-104 Wave 3D] 登记流程模板 (登记核对/妊娠询问)
 import WorkflowTemplatePanel from '../../components/common/WorkflowTemplatePanel'
+import { t } from '../../i18n/appI18n'
 
 // ===== Types =====
 export interface KioskState {
@@ -76,10 +77,10 @@ const s = {
         setSelectedPatient(res.data[0])
         setStep('confirm')
       } else {
-        message.warning('未找到匹配的患者，请确认身份证后4位')
+        message.warning(t('kiosk.notFound'))
       }
     } catch {
-      message.error('查询服务暂不可用，请稍后重试')
+      message.error(t('kiosk.lookupUnavailable'))
     } finally {
       setLoading(false)
     }
@@ -99,10 +100,10 @@ const s = {
         setResult(res.data)
         setStep('result')
       } else {
-        message.error(res.error?.message || '报到失败，请稍后重试')
+        message.error(res.error?.message || t('kiosk.checkInFailed'))
       }
     } catch {
-      message.error('报到服务暂不可用，请稍后重试')
+      message.error(t('kiosk.checkInUnavailable'))
     } finally {
       setLoading(false)
     }
@@ -122,15 +123,15 @@ const s = {
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         {step === 'idle' && (
           <>
-            <div style={s.title}>🏥 自助报到</div>
-            <div style={s.subtitle}>请输入身份证号后4位进行报到</div>
+            <div style={s.title}>{t('kiosk.title')}</div>
+            <div style={s.subtitle}>{t('kiosk.subtitle')}</div>
             {stats && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 20 }}>
                 {[
-                  { label: '今日报到', value: stats.todayCount },
-                  { label: '当前等待', value: stats.waitingCount },
-                  { label: '平均等待', value: `${stats.avgWaitMinutes}分` },
-                  { label: '开放诊室', value: stats.activeRooms },
+                  { label: t('kiosk.todayCount'), value: stats.todayCount },
+                  { label: t('kiosk.waitingCount'), value: stats.waitingCount },
+                  { label: t('kiosk.avgWait'), value: t('kiosk.minutes', { count: stats.avgWaitMinutes }) },
+                  { label: t('kiosk.activeRooms'), value: stats.activeRooms },
                 ].map(it => (
                   <div key={it.label} style={{ background: '#0f172a', borderRadius: 10, padding: '10px 8px', textAlign: 'center', border: '1px solid #334155' }}>
                     <div style={{ fontSize: 20, fontWeight: 800, color: '#3b82f6' }}>{it.value}</div>
@@ -154,46 +155,46 @@ const s = {
             )}
             {announcement && (
               <div style={{ background: '#0f172a', borderRadius: 10, padding: '10px 14px', marginBottom: 16, border: '1px solid #334155' }}>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>📌 签到机设置 · 公告</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>{t('kiosk.announcementLabel')}</div>
                 <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.6 }}>{announcement}</div>
               </div>
             )}
             <div style={{ background: '#0f172a', borderRadius: 10, padding: 12, marginBottom: 20, border: '1px solid #334155' }}>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>📋 今日就诊流程</div>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{t('kiosk.processLabel')}</div>
               <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.7 }}>
-                1️⃣ 输入身份证后4位 &nbsp;→&nbsp; 2️⃣ 核对患者信息 &nbsp;→&nbsp; 3️⃣ 获取排队号码 &nbsp;→&nbsp; 4️⃣ 前往等候区
+                {t('kiosk.processSteps')}
               </div>
             </div>
             {/* [v3.0.6.11-104 Wave 3D] 登记流程模板 (登记核对/妊娠询问) */}
             <div style={{ marginBottom: 20 }}>
               <WorkflowTemplatePanel compact />
             </div>
-            <input style={s.input} placeholder="后4位" maxLength={4} value={idInput}
+            <input style={s.input} placeholder={t('kiosk.idPlaceholder')} maxLength={4} value={idInput}
               onChange={e => /^\d{0,4}$/.test(e.target.value) && setIdInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && idInput.length === 4 && void handleIdSubmit()} />
             <button style={{ ...s.btn, background: '#3b82f6', color: '#fff', marginTop: 24, opacity: idInput.length === 4 && !loading ? 1 : 0.5 }}
               disabled={idInput.length !== 4 || loading} onClick={() => void handleIdSubmit()}>
-              {loading ? '查询中...' : '确认报到'}
+              {loading ? t('kiosk.querying') : t('kiosk.confirmCheckIn')}
             </button>
             <div style={{ marginTop: 16, fontSize: 12, color: '#64748b', textAlign: 'center' }}>
-              💡 如需帮助，请联系导诊台工作人员
+              {t('kiosk.helpHint')}
             </div>
           </>
         )}
 
         {step === 'confirm' && selectedPatient && (
           <>
-            <div style={s.title}>确认信息</div>
-            <div style={s.subtitle}>请核对您的个人信息</div>
+            <div style={s.title}>{t('kiosk.confirmTitle')}</div>
+            <div style={s.subtitle}>{t('kiosk.confirmSubtitle')}</div>
             <div style={{ margin: '24px 0' }}>
-              <div style={s.row}><span style={s.label}>姓名</span><span style={s.value}>{selectedPatient.patientName}</span></div>
-              <div style={s.row}><span style={s.label}>身份证</span><span style={s.value}>****{idInput}</span></div>
-              <div style={s.row}><span style={s.label}>检查项目</span><span style={s.value}>{selectedPatient.exams[0]?.name || '影像检查'}</span></div>
+              <div style={s.row}><span style={s.label}>{t('kiosk.name')}</span><span style={s.value}>{selectedPatient.patientName}</span></div>
+              <div style={s.row}><span style={s.label}>{t('kiosk.idCard')}</span><span style={s.value}>****{idInput}</span></div>
+              <div style={s.row}><span style={s.label}>{t('kiosk.examItem')}</span><span style={s.value}>{selectedPatient.exams[0]?.name || t('kiosk.imagingExam')}</span></div>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button style={{ ...s.btn, flex: 1, background: '#334155', color: '#94a3b8' }} onClick={handleReset}>返回</button>
+              <button style={{ ...s.btn, flex: 1, background: '#334155', color: '#94a3b8' }} onClick={handleReset}>{t('kiosk.back')}</button>
               <button style={{ ...s.btn, flex: 2, background: '#3b82f6', color: '#fff', opacity: loading ? 0.7 : 1 }}
-                disabled={loading} onClick={() => void handleConfirm()}>{loading ? '处理中...' : '确认报到'}</button>
+                disabled={loading} onClick={() => void handleConfirm()}>{loading ? t('kiosk.processing') : t('kiosk.confirmCheckIn')}</button>
             </div>
           </>
         )}
@@ -202,20 +203,20 @@ const s = {
           <>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 60, marginBottom: 8 }}>✅</div>
-              <div style={s.title}>报到成功</div>
-              <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>{result.patientName} · 请妥善保管排队号</div>
+              <div style={s.title}>{t('kiosk.successTitle')}</div>
+              <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>{result.patientName} · {t('kiosk.keepQueueNumber')}</div>
             </div>
             <div style={s.queueNumber}>{result.queueNumber}</div>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
-              <div style={{ color: '#94a3b8', fontSize: 13 }}>预计等待时间</div>
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#f8fafc' }}>{result.estimatedWaitMinutes} 分钟</div>
+              <div style={{ color: '#94a3b8', fontSize: 13 }}>{t('kiosk.estimatedWait')}</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#f8fafc' }}>{t('kiosk.minutes', { count: result.estimatedWaitMinutes })}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 12, background: '#0f172a', borderRadius: 8, marginBottom: 20 }}>
-              <span style={{ color: '#94a3b8', fontSize: 13 }}>请前往 </span>
+              <span style={{ color: '#94a3b8', fontSize: 13 }}>{t('kiosk.goTo')}</span>
               <span style={{ color: '#3b82f6', fontWeight: 700 }}>{result.roomName}</span>
-              <span style={{ color: '#94a3b8', fontSize: 13 }}> 等候叫号</span>
+              <span style={{ color: '#94a3b8', fontSize: 13 }}>{t('kiosk.waitForCall')}</span>
             </div>
-            <button style={{ ...s.btn, background: '#3b82f6', color: '#fff' }} onClick={handleReset}>完成</button>
+            <button style={{ ...s.btn, background: '#3b82f6', color: '#fff' }} onClick={handleReset}>{t('kiosk.done')}</button>
           </>
         )}
       </Card>
@@ -223,11 +224,11 @@ const s = {
       {(step === 'idle' || step === 'result') && (
         <Card bordered={false} style={{ maxWidth: 520, width: '100%', marginTop: 16, background: '#1e293b', borderRadius: 12, padding: 16, border: '1px solid #334155' }} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>📢 当前叫号队列</span>
-            {queueLoading && <span style={{ fontSize: 11, color: '#64748b' }}>加载中...</span>}
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{t('kiosk.queueTitle')}</span>
+            {queueLoading && <span style={{ fontSize: 11, color: '#64748b' }}>{t('kiosk.loading')}</span>}
           </div>
           {waitingQueue.length === 0 && !queueLoading ? (
-            <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: 8 }}>当前无排队患者</div>
+            <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: 8 }}>{t('kiosk.noWaiting')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {waitingQueue.map(q => (

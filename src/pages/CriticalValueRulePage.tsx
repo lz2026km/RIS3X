@@ -15,6 +15,7 @@ import {
 import { criticalExtApi } from "../services/api/criticalExtApi";
 import { AppModal } from "../components/common/AppModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { t } from "../i18n/appI18n";
 
 // ============================================================
 // 类别配置
@@ -23,18 +24,18 @@ const CATEGORY_CONFIG: Record<
   string,
   { label: string; color: string; bg: string }
 > = {
-  neuro: { label: "神经", color: "#7c3aed", bg: "#8b5cf622" },
-  cardio: { label: "心血管", color: "#ef4444", bg: "#ef444422" },
-  pulmo: { label: "胸部", color: "#0891b2", bg: "#06b6d422" },
-  abdomen: { label: "腹部", color: "#f59e0b", bg: "#f59e0b22" },
-  trauma: { label: "创伤", color: "#7f1d1d", bg: "#ef444422" },
-  vascular: { label: "血管", color: "#3b82f6", bg: "#3b82f622" },
-  contrast: { label: "造影剂", color: "#a855f7", bg: "#8b5cf622" },
+  neuro: { label: t("cvRule.cat.neuro"), color: "#7c3aed", bg: "#8b5cf622" },
+  cardio: { label: t("cvRule.cat.cardio"), color: "#ef4444", bg: "#ef444422" },
+  pulmo: { label: t("cvRule.cat.pulmo"), color: "#0891b2", bg: "#06b6d422" },
+  abdomen: { label: t("cvRule.cat.abdomen"), color: "#f59e0b", bg: "#f59e0b22" },
+  trauma: { label: t("cvRule.cat.trauma"), color: "#7f1d1d", bg: "#ef444422" },
+  vascular: { label: t("cvRule.cat.vascular"), color: "#3b82f6", bg: "#3b82f622" },
+  contrast: { label: t("cvRule.cat.contrast"), color: "#a855f7", bg: "#8b5cf622" },
 };
 
 const SEVERITY_CONFIG = {
-  high: { label: "高级", color: "#f59e0b", bg: "#f59e0b22" },
-  critical: { label: "危急", color: "#ef4444", bg: "#ef444422" },
+  high: { label: t("cvRule.sev.high"), color: "#f59e0b", bg: "#f59e0b22" },
+  critical: { label: t("cvRule.sev.critical"), color: "#ef4444", bg: "#ef444422" },
 };
 
 const CHANNEL_ICONS: Record<string, any> = {
@@ -45,10 +46,10 @@ const CHANNEL_ICONS: Record<string, any> = {
 };
 
 const CHANNEL_LABELS: Record<string, string> = {
-  phone: "电话",
-  sms: "短信",
-  wechat: "微信",
-  inApp: "站内",
+  phone: t("cvRule.channel.phone"),
+  sms: t("cvRule.channel.sms"),
+  wechat: t("cvRule.channel.wechat"),
+  inApp: t("cvRule.channel.inApp"),
 };
 
 // ============================================================
@@ -128,10 +129,10 @@ export default function CriticalValueRulePage() {
           setRuleList(mapped);
           setSource('api');
         } else {
-          setLoadError(res.error?.message ?? '规则接口不可用');
+          setLoadError(res.error?.message ?? t("cvRule.apiUnavailable"));
         }
       } catch (e) {
-        if (!cancelled) setLoadError(e instanceof Error ? e.message : '规则接口不可用');
+        if (!cancelled) setLoadError(e instanceof Error ? e.message : t("cvRule.apiUnavailable"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -228,7 +229,7 @@ export default function CriticalValueRulePage() {
               gap: 8,
             }}
           >
-            <Settings size={20} color="#7c2d12" /> 危急值规则配置
+            <Settings size={20} color="#7c2d12" /> {t("cvRule.title")}
             <span
               style={{
                 fontSize: 12,
@@ -251,13 +252,12 @@ export default function CriticalValueRulePage() {
                 color: source === 'api' ? '#16a34a' : '#d97706',
               }}
             >
-              {source === 'api' ? '数据源: /critical-ext/rules' : '演示数据(接口不可用)'}
+              {source === 'api' ? t("cvRule.sourceApi") : t("cvRule.sourceDemo")}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
-            {ruleList.length} 条危急值规则 · 7 类别 · 4 通报渠道 · 自动触发 +
-            人工标识
-            {loading && " · 加载中..."}
+            {t("cvRule.subtitle", { count: ruleList.length })}
+            {loading && t("cvRule.loadingSuffix")}
             {loadError && <span style={{ color: "#dc2626", marginLeft: 8 }}>{loadError}</span>}
           </p>
         </div>
@@ -277,7 +277,7 @@ export default function CriticalValueRulePage() {
               gap: 4,
             }}
           >
-            <BarChart3 size={12} /> 统计大屏
+            <BarChart3 size={12} /> {t("cvRule.statsScreen")}
           </button>
           <button
             onClick={() => navigate("/critical-value")}
@@ -291,7 +291,7 @@ export default function CriticalValueRulePage() {
               cursor: "pointer",
             }}
           >
-            返回危急值
+            {t("cvRule.backToCritical")}
           </button>
         </div>
       </div>
@@ -307,33 +307,33 @@ export default function CriticalValueRulePage() {
       >
         <KpiCard
           icon={AlertOctagon}
-          label="本月危急值"
+          label={t("cvRule.kpiMonthly")}
           value={kpi.totalThisMonth}
           color="#dc2626"
         />
         <KpiCard
           icon={Clock}
-          label="待通报"
+          label={t("cvRule.kpiPending")}
           value={kpi.pendingCount}
           color="#f59e0b"
           alert
         />
         <KpiCard
           icon={CheckCircle2}
-          label="已处理"
+          label={t("cvRule.kpiResolved")}
           value={kpi.resolvedCount}
           color="#10b981"
         />
         <KpiCard
           icon={Zap}
-          label="10分钟通报率"
+          label={t("cvRule.kpiOnTime")}
           value={`${kpi.onTimeNotificationRate}%`}
           color="#7c3aed"
           good
         />
         <KpiCard
           icon={Activity}
-          label="平均响应"
+          label={t("cvRule.kpiAvgResponse")}
           value={`${kpi.avgResponseTimeMinutes}m`}
           color="#0891b2"
         />
@@ -369,7 +369,7 @@ export default function CriticalValueRulePage() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="搜索规则/所见..."
+                  placeholder={t("cvRule.searchPlaceholder")}
                   style={{
                     width: "100%",
                     padding: "5px 8px 5px 26px",
@@ -385,16 +385,16 @@ export default function CriticalValueRulePage() {
                 onChange={(e) => setFilterSeverity(e.target.value)}
                 style={selectStyle}
               >
-                <option value="all">全部</option>
-                <option value="critical">危急</option>
-                <option value="high">高级</option>
+                <option value="all">{t("cvRule.filterAll")}</option>
+                <option value="critical">{t("cvRule.sev.critical")}</option>
+                <option value="high">{t("cvRule.sev.high")}</option>
               </select>
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               <strong style={{ color: "#7c2d12" }}>
                 {filteredRules.length}
               </strong>{" "}
-              / {ruleList.length} 条
+              / {ruleList.length} {t("cvRule.itemUnit")}
             </div>
           </div>
           <div style={{ maxHeight: 600, overflowY: "auto" }}>
@@ -534,7 +534,7 @@ export default function CriticalValueRulePage() {
                   {selectedRule.name}
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                  编码：{selectedRule.code}
+                  {t("cvRule.codeLabel")}{selectedRule.code}
                 </div>
               </div>
               <span
@@ -547,7 +547,7 @@ export default function CriticalValueRulePage() {
                   fontWeight: 700,
                 }}
               >
-                {SEVERITY_CONFIG[selectedRule.severity].label}级
+                {SEVERITY_CONFIG[selectedRule.severity].label}{t("cvRule.severityLevel")}
               </span>
             </div>
 
@@ -561,17 +561,17 @@ export default function CriticalValueRulePage() {
               }}
             >
               <InfoCell
-                label="分类"
+                label={t("cvRule.category")}
                 value={CATEGORY_CONFIG[selectedRule.category].label}
               />
               <InfoCell
-                label="响应时限"
-                value={`${selectedRule.responseDeadline} 分钟`}
+                label={t("cvRule.responseDeadline")}
+                value={`${selectedRule.responseDeadline} ${t("cvRule.minutes")}`}
                 color="#dc2626"
               />
               <InfoCell
-                label="状态"
-                value={selectedRule.isActive ? "✓ 已启用" : "✗ 已停用"}
+                label={t("cvRule.status")}
+                value={selectedRule.isActive ? t("cvRule.enabled") : t("cvRule.disabled")}
                 color={selectedRule.isActive ? "#10b981" : "#94a3b8"}
               />
             </div>
@@ -586,7 +586,7 @@ export default function CriticalValueRulePage() {
                   marginBottom: 4,
                 }}
               >
-                适用设备
+                {t("cvRule.applicableModalities")}
               </div>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                 {selectedRule.modality.map((m) => (
@@ -617,7 +617,7 @@ export default function CriticalValueRulePage() {
                   marginBottom: 4,
                 }}
               >
-                触发关键字
+                {t("cvRule.triggerKeywords")}
               </div>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                 {selectedRule.keywords.map((k) => (
@@ -656,7 +656,7 @@ export default function CriticalValueRulePage() {
                   marginBottom: 4,
                 }}
               >
-                触发所见模式
+                {t("cvRule.triggerFindings")}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
                 {selectedRule.findings}
@@ -673,7 +673,7 @@ export default function CriticalValueRulePage() {
                   marginBottom: 4,
                 }}
               >
-                通报渠道（同时触发）
+                {t("cvRule.notifyChannels")}
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 {selectedRule.notificationChannels.map((c) => {
@@ -719,7 +719,7 @@ export default function CriticalValueRulePage() {
                   marginBottom: 4,
                 }}
               >
-                📋 临床意义
+                📋 {t("cvRule.clinicalSignificance")}
               </div>
               <div style={{ fontSize: 12, color: "#78350f" }}>
                 {selectedRule.description}
@@ -764,7 +764,7 @@ export default function CriticalValueRulePage() {
                   gap: 4,
                 }}
               >
-                <Edit2 size={11} /> 编辑
+                <Edit2 size={11} /> {t("cvRule.edit")}
               </button>
               <button
                 onClick={() => setRuleTriggers(selectedRule)}
@@ -781,7 +781,7 @@ export default function CriticalValueRulePage() {
                   gap: 4,
                 }}
               >
-                <Activity size={11} /> 触发记录
+                <Activity size={11} /> {t("cvRule.triggerRecords")}
               </button>
               <button
                 onClick={() =>
@@ -804,7 +804,7 @@ export default function CriticalValueRulePage() {
                   marginLeft: "auto",
                 }}
               >
-                <Save size={11} /> 保存
+                <Save size={11} /> {t("cvRule.save")}
               </button>
               <button
                 onClick={() => setConfirmDisable(selectedRule)}
@@ -821,7 +821,7 @@ export default function CriticalValueRulePage() {
                   gap: 4,
                 }}
               >
-                <Trash2 size={11} /> 停用
+                <Trash2 size={11} /> {t("cvRule.disable")}
               </button>
             </div>
           </div>
@@ -832,7 +832,7 @@ export default function CriticalValueRulePage() {
       <AppModal
         open={!!ruleEdit}
         onClose={() => setRuleEdit(null)}
-        title="编辑规则"
+        title={t("cvRule.editRule")}
         subtitle={
           ruleEdit
             ? `${ruleEdit.code} · ${CATEGORY_CONFIG[ruleEdit.category]?.label || ""}`
@@ -857,7 +857,7 @@ export default function CriticalValueRulePage() {
                 cursor: "pointer",
               }}
             >
-              取消
+              {t("cvRule.cancel")}
             </button>
             <button
               onClick={saveEditRule}
@@ -875,7 +875,7 @@ export default function CriticalValueRulePage() {
                 gap: 6,
               }}
             >
-              <Save size={12} /> 保存修改
+              <Save size={12} /> {t("cvRule.saveChanges")}
             </button>
           </>
         }
@@ -893,7 +893,7 @@ export default function CriticalValueRulePage() {
                   display: "block",
                 }}
               >
-                规则名称
+                {t("cvRule.ruleName")}
               </label>
               <input
                 id="rule-name"
@@ -930,7 +930,7 @@ export default function CriticalValueRulePage() {
                     display: "block",
                   }}
                 >
-                  响应时限 (分钟)
+                  {t("cvRule.responseDeadlineMin")}
                 </label>
                 <input
                   id="rule-deadline"
@@ -968,7 +968,7 @@ export default function CriticalValueRulePage() {
                     display: "block",
                   }}
                 >
-                  状态
+                  {t("cvRule.status")}
                 </label>
                 <select
                   id="rule-status"
@@ -989,8 +989,8 @@ export default function CriticalValueRulePage() {
                     boxSizing: "border-box",
                   }}
                 >
-                  <option value="active">已启用</option>
-                  <option value="inactive">已停用</option>
+                  <option value="active">{t("cvRule.enabled")}</option>
+                  <option value="inactive">{t("cvRule.disabled")}</option>
                 </select>
               </div>
             </div>
@@ -1005,7 +1005,7 @@ export default function CriticalValueRulePage() {
                   display: "block",
                 }}
               >
-                临床意义
+                {t("cvRule.clinicalSignificance")}
               </label>
               <textarea
                 id="rule-description"
@@ -1038,7 +1038,7 @@ export default function CriticalValueRulePage() {
               }}
             >
               <div>
-                触发关键字：
+                {t("cvRule.triggerKeywordsLabel")}
                 <code
                   style={{
                     background: "var(--bg-card)",
@@ -1050,7 +1050,7 @@ export default function CriticalValueRulePage() {
                 </code>
               </div>
               <div style={{ marginTop: 4 }}>
-                通报渠道：
+                {t("cvRule.notifyChannelsLabel")}
                 {ruleEdit.notificationChannels
                   .map((c) => CHANNEL_LABELS[c])
                   .join("、")}
@@ -1064,7 +1064,7 @@ export default function CriticalValueRulePage() {
       <AppModal
         open={!!ruleTriggers}
         onClose={() => setRuleTriggers(null)}
-        title="触发记录"
+        title={t("cvRule.triggerRecords")}
         subtitle={ruleTriggers?.name}
         icon={<Activity size={18} />}
         iconBg="var(--color-success-bg)"
@@ -1086,7 +1086,7 @@ export default function CriticalValueRulePage() {
                 {ruleTriggers.name}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                编码 {ruleTriggers.code} · 响应时限{" "}
+                {t("cvRule.codeInline")}{ruleTriggers.code}{t("cvRule.responseDeadlineInline")}{" "}
                 {ruleTriggers.responseDeadline}m
               </div>
             </div>
@@ -1106,16 +1106,16 @@ export default function CriticalValueRulePage() {
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
-                  <span>触发 #{i + 1}</span>
+                  <span>{t("cvRule.triggerHash")}{i + 1}</span>
                   <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
                     2026-05-{(i + 1).toString().padStart(2, "0")} 0{i + 1}:
                     {(i * 7) % 60}
                   </span>
                 </div>
                 <div style={{ color: "var(--text-secondary)", marginTop: 4 }}>
-                  患者：测试 {String.fromCharCode(0x41 + i)} · 设备：
+                  {t("cvRule.patientTest")}{String.fromCharCode(0x41 + i)}{t("cvRule.deviceInline")}
                   {ruleTriggers.modality[i % ruleTriggers.modality.length]} ·
-                  通报渠道：
+                  {t("cvRule.notifyChannelsLabel")}
                   {ruleTriggers.notificationChannels
                     .map((c) => CHANNEL_LABELS[c])
                     .join("、")}
@@ -1130,7 +1130,7 @@ export default function CriticalValueRulePage() {
       <AppModal
         open={saveDialog.open}
         onClose={() => setSaveDialog((s) => ({ ...s, open: false }))}
-        title="保存成功"
+        title={t("cvRule.saveSuccess")}
         icon={<CheckCircle size={18} />}
         iconBg="var(--color-success-bg)"
         iconColor="#15803d"
@@ -1149,7 +1149,7 @@ export default function CriticalValueRulePage() {
               cursor: "pointer",
             }}
           >
-            知道了
+            {t("cvRule.gotIt")}
           </button>
         }
       >
@@ -1157,16 +1157,16 @@ export default function CriticalValueRulePage() {
           {saveDialog.message}
         </div>
         <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
-          规则配置已保存至系统,变更将立即生效。
+          {t("cvRule.savedNote")}
         </div>
       </AppModal>
 
       {/* 停用确认 Modal */}
       <ConfirmDialog
         open={!!confirmDisable}
-        title="停用规则"
+        title={t("cvRule.disableRule")}
         message={`确定停用规则 "${confirmDisable?.name}" 吗?停用后该规则将不再触发危急值通报。`}
-        confirmText="停用"
+        confirmText={t("cvRule.disable")}
         variant="danger"
         onCancel={() => setConfirmDisable(null)}
         onConfirm={performDisable}

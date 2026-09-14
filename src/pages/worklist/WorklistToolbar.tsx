@@ -6,6 +6,21 @@ import {
   XCircle, LayoutList, Printer, ArrowRight, ListChecks, FileText, Save,
 } from 'lucide-react'
 import { initialUsers, initialExamRooms } from '../../data/initialData'
+import { t } from '../../i18n/appI18n'
+
+const patientTypeLabel = (v: string): string => ({
+  '门诊': t('worklistToolbar.ptOutpatient'),
+  '住院': t('worklistToolbar.ptInpatient'),
+  '急诊': t('worklistToolbar.ptEmergency'),
+  '体检': t('worklistToolbar.ptPhysical'),
+}[v] ?? v)
+
+const priorityLabel = (v: string): string => ({
+  '普通': t('worklistToolbar.prNormal'),
+  '紧急': t('worklistToolbar.prUrgent'),
+  '危重': t('worklistToolbar.prCritical'),
+  '会诊': t('worklistToolbar.prConsult'),
+}[v] ?? v)
 
 // ============================================================
 // 常量
@@ -21,15 +36,15 @@ const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', 'MG', 'GI']
 const PATIENT_TYPE_LIST = ['门诊', '住院', '急诊', '体检']
 const PRIORITY_LIST = ['普通', '紧急', '危重', '会诊']
 // 状态筛选: 显示中文, 过滤用英文规范值 (EXAM_STATUS_MAP)
-const STATUS_OPTIONS: Array<{ label: string; value: string }> = [
-  { label: '已登记', value: 'SCHEDULED' },
-  { label: '已报到', value: 'ARRIVED' },
-  { label: '检查中', value: 'IN_PROGRESS' },
+const statusOptions = (): Array<{ label: string; value: string }> => [
+  { label: t('worklistToolbar.stScheduled'), value: 'SCHEDULED' },
+  { label: t('worklistToolbar.stArrived'), value: 'ARRIVED' },
+  { label: t('worklistToolbar.stInProgress'), value: 'IN_PROGRESS' },
   // [v3.0.6.11-95 Wave 1A] 暂停/质控退回 状态筛选
-  { label: '已暂停', value: 'PAUSED' },
-  { label: '质控退回', value: 'QC_REJECT' },
-  { label: '已完成', value: 'COMPLETED' },
-  { label: '已取消', value: 'CANCELLED' },
+  { label: t('worklistToolbar.stPaused'), value: 'PAUSED' },
+  { label: t('worklistToolbar.stQcReject'), value: 'QC_REJECT' },
+  { label: t('worklistToolbar.stCompleted'), value: 'COMPLETED' },
+  { label: t('worklistToolbar.stCancelled'), value: 'CANCELLED' },
 ]
 
 const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
@@ -114,7 +129,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
   return (
     <div
       role="search"
-      aria-label="搜索过滤器"
+      aria-label={t('worklistToolbar.searchFilter')}
       style={{
       background: 'var(--bg-card)',
       borderRadius: 12,
@@ -145,7 +160,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           <input
             value={filters.search}
             onChange={e => updateFilter('search', e.target.value)}
-            placeholder="搜索患者姓名 / 检查号 / 检查项目..."
+            placeholder={t('worklistToolbar.searchPlaceholder')}
             style={{
               border: 'none',
               outline: 'none',
@@ -168,7 +183,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Calendar size={14} style={{ color: 'var(--text-secondary)' }} />
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>日期</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('worklistToolbar.date')}</span>
           </div>
           <input
             type="date"
@@ -183,7 +198,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
               background: 'var(--bg-card)',
             }}
           />
-          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>至</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('worklistToolbar.to')}</span>
           <input
             type="date"
             value={filters.dateEnd}
@@ -215,7 +230,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           }}
         >
           <Filter size={14} />
-          高级筛选
+          {t('worklistToolbar.advancedFilter')}
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
 
@@ -235,7 +250,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           }}
         >
           <RefreshCw size={14} />
-          重置
+          {t('worklistToolbar.reset')}
         </button>
       </div>
 
@@ -251,7 +266,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
               <Monitor size={14} />
-              设备类型
+              {t('worklistToolbar.modalityType')}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {MODALITY_LIST.map(m => (
@@ -262,32 +277,32 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
               <User size={14} />
-              患者类型
+              {t('worklistToolbar.patientType')}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {PATIENT_TYPE_LIST.map(p => (
-                <FilterChip key={p} label={p} active={filters.patientTypes.includes(p)} onClick={() => toggleArrayFilter('patientTypes', p)} />
+                <FilterChip key={p} label={patientTypeLabel(p)} active={filters.patientTypes.includes(p)} onClick={() => toggleArrayFilter('patientTypes', p)} />
               ))}
             </div>
           </div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
               <Zap size={14} />
-              优先级
+              {t('worklistToolbar.priority')}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {PRIORITY_LIST.map(p => (
-                <FilterChip key={p} label={p} active={filters.priorities.includes(p)} onClick={() => toggleArrayFilter('priorities', p)} />
+                <FilterChip key={p} label={priorityLabel(p)} active={filters.priorities.includes(p)} onClick={() => toggleArrayFilter('priorities', p)} />
               ))}
             </div>
           </div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
               <Activity size={14} />
-              状态
+              {t('worklistToolbar.status')}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {STATUS_OPTIONS.map(s => (
+              {statusOptions().map(s => (
                 <FilterChip key={s.value} label={s.label} active={filters.statuses.includes(s.value)} onClick={() => toggleArrayFilter('statuses', s.value)} />
               ))}
             </div>
@@ -295,7 +310,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
               <Stethoscope size={14} />
-              检查医生
+              {t('worklistToolbar.examDoctor')}
             </div>
             <div style={{ position: 'relative' }}>
               <button
@@ -315,7 +330,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                   justifyContent: 'space-between',
                 }}
               >
-                <span>{filters.doctorId ? getDoctorById(filters.doctorId)?.name || filters.doctorId : '全部医生'}</span>
+                <span>{filters.doctorId ? getDoctorById(filters.doctorId)?.name || filters.doctorId : t('worklistToolbar.allDoctors')}</span>
                 <ChevronDown size={14} style={{ color: 'var(--text-secondary)' }} />
               </button>
               {showDoctorDropdown && (
@@ -348,7 +363,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                     onMouseEnter={e => { if (filters.doctorId) e.currentTarget.style.background = 'var(--bg-hover)' }}
                     onMouseLeave={e => { if (filters.doctorId) e.currentTarget.style.background = 'transparent' }}
                   >
-                    全部医生
+                    {t('worklistToolbar.allDoctors')}
                   </div>
                   {initialUsers
                     .filter(u => u.role === '医生')
@@ -387,7 +402,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-light)', paddingTop: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <BookmarkCheck size={14} color="#1e40af" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>筛选预设</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('worklistToolbar.filterPresets')}</span>
           </div>
           {presets && presets.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
@@ -404,8 +419,8 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             </div>
           )}
           <div style={{ display: 'flex', gap: 8 }}>
-            <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..." style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none' }} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={14} />保存当前</button>
+            <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder={t('worklistToolbar.presetNamePlaceholder')} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none' }} />
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={14} />{t('worklistToolbar.saveCurrent')}</button>
           </div>
         </div>
       )}
@@ -450,7 +465,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
         fontWeight: 600,
       }}>
         <CheckSquare size={16} style={{ color: '#4ade80' }} />
-        已选中 <span style={{ fontSize: 18, fontWeight: 800 }}>{totalSelected}</span> 项
+        {t('worklistToolbar.selectedPrefix')} <span style={{ fontSize: 18, fontWeight: 800 }}>{totalSelected}</span> {t('worklistToolbar.selectedSuffix')}
       </div>
 
       <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
@@ -472,7 +487,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           }}
         >
           <Zap size={14} />
-          批量修改优先级
+          {t('worklistToolbar.batchChangePriority')}
           <ChevronDown size={14} />
         </button>
         {showPriorityDropdown && (
@@ -518,7 +533,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
                   borderRadius: '50%',
                   background: PRIORITY_CONFIG[p]?.color || '#64748b',
                 }} />
-                {p}
+                {priorityLabel(p)}
               </div>
             ))}
           </div>
@@ -542,7 +557,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           }}
         >
           <LayoutList size={14} />
-          批量分配检查室
+          {t('worklistToolbar.batchAssignRoom')}
           <ChevronDown size={14} />
         </button>
         {showRoomDropdown && (
@@ -606,7 +621,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
         }}
       >
         <Barcode size={14} />
-        批量打印条码
+        {t('worklistToolbar.batchPrintBarcodes')}
       </button>
 
       <button
@@ -625,7 +640,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
         }}
       >
         <FileSpreadsheet size={14} />
-        批量导出Excel
+        {t('worklistToolbar.batchExportExcel')}
       </button>
 
       <button
@@ -646,7 +661,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
         }}
       >
         <Check size={14} />
-        确认执行
+        {t('worklistToolbar.confirmExecute')}
       </button>
 
       <button
@@ -665,7 +680,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
         }}
       >
         <XCircle size={14} />
-        清除
+        {t('worklistToolbar.clear')}
       </button>
     </div>
   )
@@ -681,18 +696,18 @@ interface QuickFilterProps {
 
 export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
   const quickViews = [
-    { label: '全部', icon: <ListChecks size={14} />, filter: {} },
-    { label: '待检查', icon: <Clock size={14} />, filter: { statuses: ['SCHEDULED', 'ARRIVED'] } },
-    { label: '检查中', icon: <Activity size={14} />, filter: { statuses: ['IN_PROGRESS'] } },
-    { label: '已完成', icon: <FileText size={14} />, filter: { statuses: ['COMPLETED'] } },
-    { label: '急诊优先', icon: <AlertTriangle size={14} />, filter: { priorities: ['危重', '紧急'] } },
-    { label: '今日', icon: <Calendar size={14} />, filter: { dateStart: new Date().toISOString().split('T')[0] ?? '', dateEnd: new Date().toISOString().split('T')[0] ?? '' } },
+    { label: t('worklistToolbar.qvAll'), icon: <ListChecks size={14} />, filter: {} },
+    { label: t('worklistToolbar.qvPending'), icon: <Clock size={14} />, filter: { statuses: ['SCHEDULED', 'ARRIVED'] } },
+    { label: t('worklistToolbar.qvInProgress'), icon: <Activity size={14} />, filter: { statuses: ['IN_PROGRESS'] } },
+    { label: t('worklistToolbar.qvCompleted'), icon: <FileText size={14} />, filter: { statuses: ['COMPLETED'] } },
+    { label: t('worklistToolbar.qvEmergency'), icon: <AlertTriangle size={14} />, filter: { priorities: ['危重', '紧急'] } },
+    { label: t('worklistToolbar.qvToday'), icon: <Calendar size={14} />, filter: { dateStart: new Date().toISOString().split('T')[0] ?? '', dateEnd: new Date().toISOString().split('T')[0] ?? '' } },
   ]
 
   return (
     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
       {quickViews.map((qv, i) => {
-        const isActive = qv.label === '全部'
+        const isActive = i === 0
           ? currentFilters.statuses.length === 0 && currentFilters.priorities.length === 0
           : (qv.filter.statuses && JSON.stringify(qv.filter.statuses) === JSON.stringify(currentFilters.statuses)) ||
             (qv.filter.priorities && JSON.stringify(qv.filter.priorities) === JSON.stringify(currentFilters.priorities)) ||
@@ -748,7 +763,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         value={input}
         onChange={e => setInput(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
-        placeholder="扫描或输入检查条码 / 检查号..."
+        placeholder={t('worklistToolbar.scanPlaceholder')}
         style={{
           flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)',
           fontSize: 13, outline: 'none', background: 'var(--bg-card)', fontFamily: 'monospace',
@@ -765,7 +780,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         }}
       >
         {isProcessing ? <RefreshCw size={14} /> : <ArrowRight size={14} />}
-        {isProcessing ? '处理中...' : '签到'}
+        {isProcessing ? t('worklistToolbar.processing') : t('worklistToolbar.checkIn')}
       </button>
       <button
         onClick={onPrintLabel}
@@ -776,12 +791,12 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         }}
       >
         <Printer size={14} />
-        打印标签
+        {t('worklistToolbar.printLabel')}
       </button>
       {lastScanned && (
         <div style={{ fontSize: 12, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
           <CheckCircle size={14} />
-          上次签到: {lastScanned}
+          {t('worklistToolbar.lastCheckIn')} {lastScanned}
         </div>
       )}
     </div>

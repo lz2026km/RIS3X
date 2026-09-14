@@ -95,12 +95,12 @@ export const DentalAlignerPage: React.FC = () => {
         wearDaysPerStage: values.wearDaysPerStage ?? 7,
       });
       if (res.success && res.data) {
-        message.success("矫治计划已创建");
+        message.success(t("dentalAligner.planCreated"));
         setCreateModal(false);
         createForm.resetFields();
         setPlans((prev) => [res.data, ...prev]);
       } else {
-        message.error(res.error?.message ?? "创建失败");
+        message.error(res.error?.message ?? t("dentalAligner.createFailed"));
       }
     } catch {
       // 表单校验失败或取消
@@ -115,11 +115,11 @@ export const DentalAlignerPage: React.FC = () => {
     try {
       const res = await dentalApi.generateAlignerStages(current.id);
       if (res.success) {
-        message.success("矫治阶段已生成");
+        message.success(t("dentalAligner.stagesGenerated"));
         const sr = await dentalApi.getAlignerStages(current.id);
         if (sr.success) setStages(sr.data || []);
       } else {
-        message.error(res.error?.message ?? "生成失败");
+        message.error(res.error?.message ?? t("dentalAligner.generateFailed"));
       }
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
@@ -135,11 +135,11 @@ export const DentalAlignerPage: React.FC = () => {
         patientCompliance: 0.9,
       });
       if (res.success) {
-        message.success("进度已更新");
+        message.success(t("dentalAligner.progressUpdated"));
         const pr = await dentalApi.getAlignerProgress(current.id);
         if (pr.success) setProgress(pr.data);
       } else {
-        message.error(res.error?.message ?? "更新失败");
+        message.error(res.error?.message ?? t("dentalAligner.updateFailed"));
       }
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
@@ -249,26 +249,26 @@ export const DentalAlignerPage: React.FC = () => {
         <Space style={{ marginBottom: 16 }}>
           <Activity size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            隐形矫治方案中心
+            {t('dentalAligner.title')}
           </span>
           {/* [G005 Wave1B] /dental/ortho/aligner-plans 后端真实实现, dentalApi 封装 */}
-          <Tag color="green">真实后端 /dental/ortho/*</Tag>
+          <Tag color="green">{t('dentalAligner.realBackendTag')}</Tag>
           <Tag color="cyan">v3.0.6.8-92</Tag>
-          <Tag color="blue">Planmeca Align 对标</Tag>
-          <Tag color="purple">Invisalign 对标</Tag>
+          <Tag color="blue">{t('dentalAligner.planmecaTag')}</Tag>
+          <Tag color="purple">{t('dentalAligner.invisalignTag')}</Tag>
           {/* [G005 W3-B] 新建矫治计划: POST /dental/ortho/aligner-plans (createAlignerPlan) */}
           <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setCreateModal(true)}>{t("w3b.alignerCreate")}</Button>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">
-              <Statistic title="总方案" value={plans.length} />
+              <Statistic title={t('dentalAligner.totalPlans')} value={plans.length} />
             </Card>
           </Col>
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="治疗中"
+                title={t('dentalAligner.inTreatment')}
                 value={
                   plans.filter((p: any) => p.status === "in-progress").length
                 }
@@ -279,7 +279,7 @@ export const DentalAlignerPage: React.FC = () => {
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="已完成"
+                title={t('dentalAligner.completed')}
                 value={
                   plans.filter((p: any) => p.status === "completed").length
                 }
@@ -290,7 +290,7 @@ export const DentalAlignerPage: React.FC = () => {
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="待开始"
+                title={t('dentalAligner.notStarted')}
                 value={plans.filter((p: any) => p.status === "pending").length}
                 styles={{ content: {  color: "#faad14"  } }}
               />
@@ -327,8 +327,8 @@ export const DentalAlignerPage: React.FC = () => {
                 <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
                   {p.diagnosis?.slice(0, 40)}...
                   <br />
-                  阶段 {p.currentStage}/{p.totalStages} | 每副{" "}
-                  {p.wearDaysPerStage}天 | {p.doctor}
+                   {t('dentalAligner.stageProgress', { current: p.currentStage, total: p.totalStages })} | {t('dentalAligner.perStage')}{" "}
+                   {t('dentalAligner.days', { count: p.wearDaysPerStage })} | {p.doctor}
                 </div>
                 {p.status === "in-progress" && (
                   <Progress
@@ -351,20 +351,20 @@ export const DentalAlignerPage: React.FC = () => {
           width={480}
         >
           <Form form={createForm} layout="vertical" size="small" initialValues={{ totalStages: 14, wearDaysPerStage: 7 }}>
-            <Form.Item name="patientName" label={t("w3b.patientName")} rules={[{ required: true, message: "请输入患者姓名" }]}>
-              <Input placeholder="请输入患者姓名" />
+            <Form.Item name="patientName" label={t("w3b.patientName")} rules={[{ required: true, message: t("dentalAligner.patientNameRequired") }]}>
+              <Input placeholder={t("dentalAligner.patientNamePlaceholder")} />
             </Form.Item>
             <Form.Item name="diagnosis" label={t("w3b.diagnosis")}>
-              <Input placeholder="如：牙列拥挤" />
+              <Input placeholder={t("dentalAligner.indicationPlaceholder")} />
             </Form.Item>
-            <Form.Item name="totalStages" label="总阶段数">
+            <Form.Item name="totalStages" label={t("dentalAligner.totalStages")}>
               <InputNumber style={{ width: "100%" }} min={4} max={60} />
             </Form.Item>
-            <Form.Item name="wearDaysPerStage" label="每副佩戴天数">
+            <Form.Item name="wearDaysPerStage" label={t("dentalAligner.wearDays")}>
               <InputNumber style={{ width: "100%" }} min={1} max={30} />
             </Form.Item>
-            <Form.Item name="doctor" label="主治医生">
-              <Input placeholder="可选" />
+            <Form.Item name="doctor" label={t("dentalAligner.doctor")}>
+              <Input placeholder={t("dentalAligner.optional")} />
             </Form.Item>
           </Form>
         </Modal>
@@ -380,15 +380,15 @@ export const DentalAlignerPage: React.FC = () => {
     <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
-          返回
+           {t('dentalAligner.back')}
         </Button>
         <Layers size={18} color="#2563eb" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
-          {current?.patientName} - 隐形矫治方案
+          {current?.patientName} - {t('dentalAligner.planSuffix')}
         </span>
         <Tag color="cyan">v3.0.6.8-92</Tag>
         <Tag color="blue">
-          {current?.currentStage}/{current?.totalStages} 阶段
+          {current?.currentStage}/{current?.totalStages} {t('dentalAligner.stagesUnit')}
         </Tag>
         <Badge
           status={current?.status === "in-progress" ? "processing" : "default"}
@@ -402,7 +402,7 @@ export const DentalAlignerPage: React.FC = () => {
             title={
               <Space>
                 <Box size={14} />
-                3D 牙移动模拟
+                {t('dentalAligner.simulation3d')}
               </Space>
             }
             extra={
@@ -452,7 +452,7 @@ export const DentalAlignerPage: React.FC = () => {
             title={
               <Space>
                 <BarChart3 size={14} />
-                阶段详情
+                {t('dentalAligner.stageDetail')}
               </Space>
             }
             style={{ marginTop: 8 }}
@@ -460,22 +460,22 @@ export const DentalAlignerPage: React.FC = () => {
             <Row gutter={8}>
               <Col span={6}>
                 <Statistic
-                  title="阶段编号"
+                  title={t('dentalAligner.stageNumber')}
                   value={`${currentStage + 1}/${stages.length}`}
                 />
               </Col>
               <Col span={6}>
-                <Statistic title="牙齿移动数" value={movements.length} />
+                <Statistic title={t('dentalAligner.toothMovements')} value={movements.length} />
               </Col>
               <Col span={6}>
                 <Statistic
-                  title="佩戴天数"
+                  title={t('dentalAligner.wearDaysTitle')}
                   value={current?.wearDaysPerStage || 7}
-                  suffix="天"
+                  suffix={t('dentalAligner.daysUnit')}
                 />
               </Col>
               <Col span={6}>
-                <Statistic title="完成度" value={progressPct} suffix="%" />
+                <Statistic title={t('dentalAligner.completion')} value={progressPct} suffix="%" />
               </Col>
             </Row>
             {movements.length > 0 && (
@@ -496,14 +496,14 @@ export const DentalAlignerPage: React.FC = () => {
             title={
               <Space>
                 <Eye size={14} />
-                治疗概览
+                {t('dentalAligner.treatmentOverview')}
               </Space>
             }
           >
             {progress && (
               <>
                 <div style={{ marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>依从性 </span>
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t('dentalAligner.compliance')} </span>
                   <Progress
                     percent={Math.round(progress.patientCompliance * 100)}
                     size="small"
@@ -522,18 +522,18 @@ export const DentalAlignerPage: React.FC = () => {
                   }
                 >
                   {progress.trackingQuality === "good"
-                    ? "追踪良好"
-                    : progress.trackingQuality === "fair"
-                      ? "一般"
-                      : "需警惕"}
+                    ? t('dentalAligner.trackingGood')
+                    : progressPct >= 50
+                      ? t('dentalAligner.trackingFair')
+                      : t('dentalAligner.trackingWarning')}
                 </Tag>
                 <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
-                  当前阶段已佩戴: {progress.lastStageWornDays}天<br />
-                  下一阶段: {progress.nextStageDate}
+                  {t('dentalAligner.currentStageWorn')}: {t('dentalAligner.days', { count: progress.lastStageWornDays })}<br />
+                  {t('dentalAligner.nextStage')}{progress.nextStageDate}
                 </div>
                 {progress.refinementSuggested && (
                   <Tag color="red" style={{ marginTop: 4 }}>
-                    建议精调 ({progress.refinementCount}次)
+                     {t('dentalAligner.suggestRefinement', { count: progress.refinementCount })}
                   </Tag>
                 )}
               </>
@@ -544,13 +544,13 @@ export const DentalAlignerPage: React.FC = () => {
             title={
               <Space>
                 <Save size={14} />
-                附件 & IPR
+                {t('dentalAligner.attachmentsIpr')}
               </Space>
             }
             style={{ marginTop: 8 }}
           >
             <div style={{ fontSize: 12 }}>
-              <b>附件 ({current?.attachments?.length || 0}个)</b>
+              <b>{t('dentalAligner.attachments', { count: current?.attachments?.length || 0 })}</b>
               {current?.attachments?.map((a: any, i: number) => (
                 <Tag key={i} color="purple" style={{ margin: 2 }}>
                   #{a.toothNo} {a.type}
@@ -558,7 +558,7 @@ export const DentalAlignerPage: React.FC = () => {
               ))}
             </div>
             <div style={{ marginTop: 6, fontSize: 12 }}>
-              <b>IPR (邻面去釉)</b>
+              <b>{t('dentalAligner.ipr')}</b>
               {current?.ipr?.map((i: any, idx: number) => (
                 <Tag key={idx} color="orange" style={{ margin: 2 }}>
                   #{i.toothNo} {i.amount}mm
@@ -566,17 +566,17 @@ export const DentalAlignerPage: React.FC = () => {
               ))}
             </div>
           </Card>
-          <Card size="small" title="操作" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('dentalAligner.actions')} style={{ marginTop: 8 }}>
             <Space orientation="vertical" style={{ width: "100%" }}>
               <Button
                 block
                 icon={<CheckCircle2 size={14} />}
                 onClick={async () => {
                   const r = await dentalApi.approveAlignerPlan(current.id);
-                  if (r.success) message.success("方案已审批");
+                  if (r.success) message.success(t('dentalAligner.planApproved'));
                 }}
               >
-                审批方案
+                {t('dentalAligner.approvePlan')}
               </Button>
               <Button
                 block
@@ -587,10 +587,10 @@ export const DentalAlignerPage: React.FC = () => {
                     quantity: 6,
                     shippingMethod: "express",
                   });
-                  if (r.success) message.success("已提交加工厂");
+                  if (r.success) message.success(t('dentalAligner.submittedToLab'));
                 }}
               >
-                提交加工 (6副)
+                {t('dentalAligner.submitProcessing')}
               </Button>
               {/* [G005 W3-B] 生成阶段 + 进度更新 (generateAlignerStages / updateAlignerProgress) */}
               <Button
@@ -618,8 +618,8 @@ export const DentalAlignerPage: React.FC = () => {
             items={stages
               .slice(0, Math.min(8, stages.length))
               .map((_: any, i: number) => ({
-                title: `第${i + 1} 副`,
-                description: i <= currentStage ? "已佩戴" : "待佩戴",
+                title: t('dentalAligner.stageTitle', { num: i + 1 }),
+                description: i <= currentStage ? t('dentalAligner.worn') : t('dentalAligner.notWorn'),
               }))}
             style={{ marginTop: 8 }}
           />

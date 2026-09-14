@@ -7,6 +7,7 @@ import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Spin, Empty, Aler
 import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import { t } from '../../i18n/appI18n';
 
 const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: '#2563eb' };
 
@@ -36,7 +37,7 @@ export const OEEDashboardPage: React.FC = () => {
     setError(null);
     const [listRes, statsRes] = await Promise.all([oeeApi.list(), oeeApi.getStats()]);
     if (!listRes.success) {
-      setError(listRes.error?.message ?? '设备 OEE 数据加载失败');
+      setError(listRes.error?.message ?? t('oeePage.loadFailed'));
       setLoading(false);
       return;
     }
@@ -53,10 +54,10 @@ export const OEEDashboardPage: React.FC = () => {
       const detail: OeeDeviceDetail | null = detailRes.success ? detailRes.data : null;
       if (detail) {
         setCauseData([
-          { name: '停机故障', value: detail.breakdownLoss },
-          { name: '换型调整', value: detail.setupLoss },
-          { name: '速度减速', value: detail.speedLoss },
-          { name: '缺陷返工', value: detail.defectLoss },
+          { name: t('oeePage.cause.breakdown'), value: detail.breakdownLoss },
+          { name: t('oeePage.cause.setup'), value: detail.setupLoss },
+          { name: t('oeePage.cause.speed'), value: detail.speedLoss },
+          { name: t('oeePage.cause.defect'), value: detail.defectLoss },
         ]);
       }
     } else {
@@ -86,14 +87,14 @@ export const OEEDashboardPage: React.FC = () => {
   const sorted = [...devices].sort((a, b) => b.oee - a.oee);
 
   const columns = [
-    { title: '设备名称', dataIndex: 'name', key: 'name' },
-    { title: '型号', dataIndex: 'model', key: 'model' },
-    { title: '设备类型', dataIndex: 'modality', key: 'modality' },
+    { title: t('oeePage.colName'), dataIndex: 'name', key: 'name' },
+    { title: t('oeePage.colModel'), dataIndex: 'model', key: 'model' },
+    { title: t('oeePage.colModality'), dataIndex: 'modality', key: 'modality' },
     { title: 'OEE%', dataIndex: 'oee', key: 'oee', render: (v: number) => <span style={{ color: oeeColor(v), fontWeight: 600 }}>{v}%</span>, sorter: (a: OeeDeviceMetric, b: OeeDeviceMetric) => a.oee - b.oee },
-    { title: '可用性%', dataIndex: 'availability', key: 'availability', render: (v: number) => `${v}%` },
-    { title: '性能%', dataIndex: 'performance', key: 'performance', render: (v: number) => `${v}%` },
-    { title: '质量%', dataIndex: 'quality', key: 'quality', render: (v: number) => `${v}%` },
-    { title: '趋势', dataIndex: 'trend', key: 'trend', render: (t: string) => trendIcon(t) },
+    { title: t('oeePage.colAvailability'), dataIndex: 'availability', key: 'availability', render: (v: number) => `${v}%` },
+    { title: t('oeePage.colPerformance'), dataIndex: 'performance', key: 'performance', render: (v: number) => `${v}%` },
+    { title: t('oeePage.colQuality'), dataIndex: 'quality', key: 'quality', render: (v: number) => `${v}%` },
+    { title: t('oeePage.colTrend'), dataIndex: 'trend', key: 'trend', render: (t: string) => trendIcon(t) },
   ];
 
   const KpiCard = ({ title, value, icon, color, suffix }: { title: string; value: number; icon: React.ReactNode; color: string; suffix?: string }) => (
@@ -105,7 +106,7 @@ export const OEEDashboardPage: React.FC = () => {
   if (loading && devices.length === 0) {
     return (
       <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Spin size="large" description="加载中..." />
+        <Spin size="large" description={t('oeePage.loading')} />
       </div>
     );
   }
@@ -116,12 +117,12 @@ export const OEEDashboardPage: React.FC = () => {
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
-            <span style={{ fontSize: 18, fontWeight: 600 }}>设备 OEE 看板</span>
-            <Tag color="blue">设备综合效率</Tag>
+            <span style={{ fontSize: 18, fontWeight: 600 }}>{t('oeePage.title')}</span>
+            <Tag color="blue">{t('oeePage.overallEquipment')}</Tag>
           </Space>
-          <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>重试</Button>
+          <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('oeePage.retry')}</Button>
         </Space>
-        <Alert type="error" showIcon message="加载失败" description={error} />
+        <Alert type="error" showIcon message={t('oeePage.loadError')} description={error} />
       </div>
     );
   }
@@ -132,13 +133,13 @@ export const OEEDashboardPage: React.FC = () => {
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
-            <span style={{ fontSize: 18, fontWeight: 600 }}>设备 OEE 看板</span>
-            <Tag color="blue">设备综合效率</Tag>
+            <span style={{ fontSize: 18, fontWeight: 600 }}>{t('oeePage.title')}</span>
+            <Tag color="blue">{t('oeePage.overallEquipment')}</Tag>
           </Space>
-          <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>刷新</Button>
+          <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('oeePage.refresh')}</Button>
         </Space>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, textAlign: 'center' }}>
-          <Empty description="暂无设备 OEE 数据" image={<Inbox size={48} color="var(--text-secondary)" />} />
+          <Empty description={t('oeePage.noData')} image={<Inbox size={48} color="var(--text-secondary)" />} />
         </div>
       </div>
     );
@@ -149,38 +150,38 @@ export const OEEDashboardPage: React.FC = () => {
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <Gauge size={20} color={COLORS.blue} />
-          <span style={{ fontSize: 18, fontWeight: 600 }}>设备 OEE 看板</span>
-          <Tag color="blue">设备综合效率</Tag>
-          {stats && <Tag color="purple">设备数 {stats.totalDevices} · 最高 {stats.highest}% · 最低 {stats.lowest}%</Tag>}
+          <span style={{ fontSize: 18, fontWeight: 600 }}>{t('oeePage.title')}</span>
+          <Tag color="blue">{t('oeePage.overallEquipment')}</Tag>
+          {stats && <Tag color="purple">{t('oeePage.statsTag', { total: stats.totalDevices, high: stats.highest, low: stats.lowest })}</Tag>}
         </Space>
         <Space>
           <Select
             value={selectedDevice ?? undefined}
             onChange={handleDeviceChange}
             style={{ width: 240 }}
-            placeholder="选择设备查看趋势"
+            placeholder={t('oeePage.selectDevice')}
             options={devices.map(d => ({ value: d.id, label: `${d.name} (${d.id})` }))}
           />
-          <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>刷新</Button>
+          <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('oeePage.refresh')}</Button>
         </Space>
       </Space>
 
-      {error && <Alert type="warning" showIcon style={{ marginBottom: 16 }} message="部分数据加载失败" description={error} closable onClose={() => setError(null)} />}
+      {error && <Alert type="warning" showIcon style={{ marginBottom: 16 }} message={t('oeePage.partialFailed')} description={error} closable onClose={() => setError(null)} />}
 
       <OeeOverviewSection />
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><KpiCard title="综合 OEE" value={avgOEE} icon={<Gauge size={16} />} color={oeeColor(avgOEE)} /></Col>
-        <Col span={6}><KpiCard title="可用性" value={avgAvail} icon={<Clock size={16} />} color={COLORS.blue} /></Col>
-        <Col span={6}><KpiCard title="性能" value={avgPerf} icon={<Zap size={16} />} color={COLORS.blue} /></Col>
-        <Col span={6}><KpiCard title="质量" value={avgQual} icon={<ShieldCheck size={16} />} color={COLORS.blue} /></Col>
+        <Col span={6}><KpiCard title={t('oeePage.kpiOee')} value={avgOEE} icon={<Gauge size={16} />} color={oeeColor(avgOEE)} /></Col>
+        <Col span={6}><KpiCard title={t('oeePage.kpiAvailability')} value={avgAvail} icon={<Clock size={16} />} color={COLORS.blue} /></Col>
+        <Col span={6}><KpiCard title={t('oeePage.kpiPerformance')} value={avgPerf} icon={<Zap size={16} />} color={COLORS.blue} /></Col>
+        <Col span={6}><KpiCard title={t('oeePage.kpiQuality')} value={avgQual} icon={<ShieldCheck size={16} />} color={COLORS.blue} /></Col>
       </Row>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
-          <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />OEE 趋势{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
+          <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />{t('oeePage.trendTitle')}{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
             {trendData.length === 0 ? (
-              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description="暂无趋势数据" style={{ padding: 40 }} />
+              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description={t('oeePage.noTrend')} style={{ padding: 40 }} />
             ) : (
               <ChartContainer height={260}>
                 <LineChart data={trendData}>
@@ -189,18 +190,18 @@ export const OEEDashboardPage: React.FC = () => {
                   <YAxis domain={[0, 100]} fontSize={12} />
                   <Tooltip />
                   <Line type="monotone" dataKey="oee" stroke={COLORS.blue} name="OEE" strokeWidth={2} dot={{ r: 3 }} />
-                  <Line type="monotone" dataKey="availability" stroke={COLORS.green} name="可用性" strokeWidth={1.5} dot={false} />
-                  <Line type="monotone" dataKey="performance" stroke={COLORS.yellow} name="性能" strokeWidth={1.5} dot={false} />
-                  <Line type="monotone" dataKey="quality" stroke="#722ed1" name="质量" strokeWidth={1.5} dot={false} />
+                  <Line type="monotone" dataKey="availability" stroke={COLORS.green} name={t('oeePage.kpiAvailability')} strokeWidth={1.5} dot={false} />
+                  <Line type="monotone" dataKey="performance" stroke={COLORS.yellow} name={t('oeePage.kpiPerformance')} strokeWidth={1.5} dot={false} />
+                  <Line type="monotone" dataKey="quality" stroke="#722ed1" name={t('oeePage.kpiQuality')} strokeWidth={1.5} dot={false} />
                 </LineChart>
               </ChartContainer>
             )}
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={<Space><Activity size={14} color={COLORS.blue} />低 OEE 原因分析{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
+          <Card size="small" title={<Space><Activity size={14} color={COLORS.blue} />{t('oeePage.causeTitle')}{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
             {causeData.length === 0 ? (
-              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description="暂无原因数据" style={{ padding: 40 }} />
+              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description={t('oeePage.noCause')} style={{ padding: 40 }} />
             ) : (
               <ChartContainer height={260}>
                 <PieChart>
@@ -215,7 +216,7 @@ export const OEEDashboardPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />设备 OEE 列表（按 OEE 降序）</Space>}>
+      <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />{t('oeePage.listTitle')}</Space>}>
         <Table dataSource={sorted} columns={columns} rowKey="id" size="small" pagination={{ current: devicePage, pageSize: 10, total: sorted.length, onChange: setDevicePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 台` }}
           rowClassName={(r: OeeDeviceMetric) => r.oee < 60 ? 'oee-row-red' : r.oee < 85 ? 'oee-row-yellow' : ''}
         scroll={{ x: 'max-content' }}

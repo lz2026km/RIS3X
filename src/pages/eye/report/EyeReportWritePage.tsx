@@ -9,6 +9,7 @@ import ReportDraftPanel from "@/components/eye/ReportDraftPanel";
 import { eyeApi } from "../../../services/api/eyeApi";
 import type { OphthalmologyReport, ReportTemplate, FindingLibraryItem, ReportAuditEntry } from '../../../types/eye';
 import { AppModal } from "@/components/common/AppModal";
+import { t } from "../../../i18n/appI18n";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
 const reportStatusColors: Record<string, string> = {
@@ -88,12 +89,12 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         status: 'draft',
       });
       if (res.success) {
-        message.success('草稿已保存');
+        message.success(t('eyeReport.draftSaved'));
       } else {
-        message.warning(res.error?.message ?? '草稿接口不可用，已本地暂存');
+        message.warning(res.error?.message ?? t('eyeReport.draftApiUnavailable'));
       }
     } catch {
-      message.warning('草稿接口不可用，已本地暂存');
+      message.warning(t('eyeReport.draftApiUnavailable'));
     } finally {
       setSavingDraft(false);
     }
@@ -104,21 +105,21 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
     try {
       const res = await eyeApi.submitReport(report.id);
       if (res.success) {
-        message.success('报告已提交审核');
+        message.success(t('eyeReport.submittedReview'));
         setStatus('pending_review');
       } else {
-        message.warning(res.error?.message ?? '提交接口不可用，已本地更新状态');
+        message.warning(res.error?.message ?? t('eyeReport.submitApiUnavailable'));
         setStatus('pending_review');
       }
     } catch {
       setStatus('pending_review');
-      message.success('报告已提交审核（本地状态更新）');
+      message.success(t('eyeReport.submittedReviewLocal'));
     } finally {
       setSubmittingReview(false);
     }
   };
 
-  const template = templates.find((t) => t.id === templateId);
+  const template = templates.find((tpl) => tpl.id === templateId);
   const findingsData = findingsLibrary.filter((f) =>
     findings.includes(f.id),
   );auditEntries.filter(
@@ -156,7 +157,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           onClick={() => setShowVoiceDialog(!showVoiceDialog)}
           type={showVoiceDialog ? "primary" : "default"}
         >
-          语音
+          {t('eyeReport.voice')}
         </Button>
         <Button
           size="small"
@@ -164,27 +165,27 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           onClick={() => setShowAiDialog(!showAiDialog)}
           type={showAiDialog ? "primary" : "default"}
         >
-          AI 续写
+          {t('eyeReport.aiContinue')}
         </Button>
         <Button size="small" icon={<Save size={14} />} loading={savingDraft} onClick={() => void handleSaveDraft()}>
-          保存草稿
+          {t('eyeReport.saveDraft')}
         </Button>
         <Button size="small" type="primary" icon={<Send size={14} />} loading={submittingReview} onClick={() => void handleSubmitReview()}>
-          提交审核
+          {t('eyeReport.submitReview')}
         </Button>
         <Button
           size="small"
           icon={<Stamp size={14} />}
           onClick={() => setSignModal(!signModal)}
         >
-          数字签名
+          {t('eyeReport.digitalSign')}
         </Button>
         <Button
           size="small"
           icon={<Printer size={14} />}
           onClick={() => setPrintModal(!printModal)}
         >
-          打印
+          {t('eyeReport.print')}
         </Button>
       </div>
 
@@ -192,14 +193,14 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
       <AppModal
         open={showVoiceDialog}
         onClose={() => setShowVoiceDialog(false)}
-        title="语音输入 (Demo)"
+        title={t('eyeReport.voiceInputTitle')}
         icon={<Mic size={18} />}
         iconBg="var(--color-info-bg)"
         iconColor="#1e40af"
         size="sm"
       >
         <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
-          请说出您要录入的所见内容,系统会自动转换为文本并填入当前编辑区域。
+          {t('eyeReport.voiceHint')}
         </div>
         <div
           style={{
@@ -213,21 +214,21 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             textAlign: "center",
           }}
         >
-          等待语音输入...
+          {t('eyeReport.waitingVoice')}
         </div>
       </AppModal>
       <AppModal
         open={showAiDialog}
         onClose={() => setShowAiDialog(false)}
-        title="AI 辅助所见 (Demo)"
+        title={t('eyeReport.aiTitle')}
         icon={<Brain size={18} />}
         iconBg="var(--color-warning-bg)"
         iconColor="#b45309"
         size="md"
         footer={
           <>
-            <Tag>忽略</Tag>
-            <Tag color="orange">修改</Tag>
+            <Tag>{t('eyeReport.tagIgnore')}</Tag>
+            <Tag color="orange">{t('eyeReport.tagModify')}</Tag>
             <button
               onClick={() => setShowAiDialog(false)}
               style={{
@@ -241,13 +242,13 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                 cursor: "pointer",
               }}
             >
-              采纳并关闭
+              {t('eyeReport.adoptAndClose')}
             </button>
           </>
         }
       >
         <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
-          基于当前影像数据, AI 建议:
+          {t('eyeReport.aiBasedOn')}
         </div>
         <ul
           style={{
@@ -258,15 +259,15 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             lineHeight: 1.8,
           }}
         >
-          <li>视盘边界清晰, 颜色正常</li>
-          <li>黄斑中心凹反光可见</li>
-          <li>视网膜血管走行自然, 未见明显出血或渗出</li>
+          <li>{t('eyeReport.aiItem1')}</li>
+          <li>{t('eyeReport.aiItem2')}</li>
+          <li>{t('eyeReport.aiItem3')}</li>
         </ul>
       </AppModal>
       <AppModal
         open={signModal}
         onClose={() => setSignModal(false)}
-        title="数字签名 (Demo)"
+        title={t('eyeReport.signTitle')}
         icon={<Stamp size={18} />}
         iconBg="var(--color-success-bg)"
         iconColor="#15803d"
@@ -285,34 +286,34 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               cursor: "pointer",
             }}
           >
-            确认签名
+            {t('eyeReport.confirmSign')}
           </button>
         }
       >
         <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.8 }}>
           <div>
-            <strong>签名医生:</strong> 张明远 主任医师
+            <strong>{t('eyeReport.signDoctor')}</strong> {t('eyeReport.signDoctorName')}
           </div>
           <div>
-            <strong>签名方式:</strong> <Tag color="green">CA 数字证书</Tag>{" "}
-            <Tag color="blue">手写板</Tag>
+            <strong>{t('eyeReport.signMethod')}</strong> <Tag color="green">{t('eyeReport.caCert')}</Tag>{" "}
+            <Tag color="blue">{t('eyeReport.handwritingPad')}</Tag>
           </div>
           <div>
-            <strong>签名时间:</strong> 2026-06-20 16:50
+            <strong>{t('eyeReport.signTime')}</strong> 2026-06-20 16:50
           </div>
         </div>
       </AppModal>
       <AppModal
         open={printModal}
         onClose={() => setPrintModal(false)}
-        title="打印 (Demo)"
+        title={t('eyeReport.printTitle')}
         icon={<Printer size={18} />}
         iconBg="var(--color-info-bg)"
         iconColor="#1e40af"
         size="sm"
         footer={
           <>
-            <Tag color="orange">取消</Tag>
+            <Tag color="orange">{t('eyeReport.cancel')}</Tag>
             <button
               onClick={() => setPrintModal(false)}
               style={{
@@ -326,7 +327,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                 cursor: "pointer",
               }}
             >
-              预览
+              {t('eyeReport.preview')}
             </button>
             <button
               onClick={() => setPrintModal(false)}
@@ -341,20 +342,20 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                 cursor: "pointer",
               }}
             >
-              打印
+              {t('eyeReport.print')}
             </button>
           </>
         }
       >
         <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.8 }}>
           <div>
-            <strong>打印机:</strong> DryView 8700
+            <strong>{t('eyeReport.printer')}</strong> DryView 8700
           </div>
           <div>
-            <strong>胶片:</strong> 4 张
+            <strong>{t('eyeReport.film')}</strong> 4 张
           </div>
           <div>
-            <strong>报告:</strong> 2 份
+            <strong>{t('eyeReport.reportCopies')}</strong> 2 份
           </div>
         </div>
       </AppModal>
@@ -370,8 +371,8 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             />
             {template && (
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
-                {template.sections.length} 段 ·{" "}
-                {template.sections.filter((s) => s.required).length} 必填 · 版本{" "}
+                {t('eyeReport.segments', { count: template.sections.length })} ·{" "}
+                {t('eyeReport.requiredCount', { count: template.sections.filter((s) => s.required).length })} · {t('eyeReport.version')}{" "}
                 {template.version}
               </div>
             )}
@@ -473,7 +474,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             title={
               <Space>
                 <FileText size={14} />
-                报告全文
+                {t('eyeReport.reportFullText')}
               </Space>
             }
             style={{ marginTop: 8 }}
@@ -482,7 +483,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               rows={6}
               value={currentContent}
               onChange={(e) => setCurrentContent(e.target.value)}
-              placeholder="编写报告正文..."
+              placeholder={t('eyeReport.reportPlaceholder')}
             />
             <div
               style={{
@@ -494,15 +495,14 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               }}
             >
               <span>
-                字数: {currentContent.length} | 征象: {findings.length} | 版本:{" "}
-                {report.version}
+                {t('eyeReport.charCount')} {currentContent.length} | {t('eyeReport.findingsLabel')} {findings.length} | {t('eyeReport.versionLabel')} {report.version}
               </span>
               <Space>
                 <Button size="small" icon={<Save size={12} />} loading={savingDraft} onClick={() => void handleSaveDraft()}>
-                  自动保存
+                  {t('eyeReport.autoSave')}
                 </Button>
                 <Button size="small" type="primary" icon={<Send size={12} />} loading={submittingReview} onClick={() => void handleSubmitReview()}>
-                  提交
+                  {t('eyeReport.submit')}
                 </Button>
               </Space>
             </div>
@@ -513,7 +513,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             <Alert
               title={
                 <span>
-                  <AlertTriangle size={14} /> 危急值触发: {report.criticalValue}
+                  <AlertTriangle size={14} /> {t('eyeReport.criticalValueTrigger')} {report.criticalValue}
                 </span>
               }
               type="error"
@@ -526,37 +526,37 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         {/* 右侧栏 */}
         <Col span={8}>
           {/* 患者+报告信息 */}
-          <Card size="small" title="报告信息">
+          <Card size="small" title={t('eyeReport.reportInfo')}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
-              患者: <strong>{report.patientName}</strong>
+              {t('eyeReport.patientLabel')} <strong>{report.patientName}</strong>
               <br />
-              检查: <Tag>{MODALITY_LABELS[report.modality] || report.modality}</Tag>
+              {t('eyeReport.examLabel')} <Tag>{MODALITY_LABELS[report.modality] || report.modality}</Tag>
               <br />
-              眼别:{" "}
+              {t('eyeReport.eyeSideLabel')}{" "}
               <EyeLateralityBadge
                 eyeSide={report.eyeSide as any}
                 size="small"
               />
               <br />
-              创建: {report.createdBy}{" "}
+              {t('eyeReport.createdLabel')} {report.createdBy}{" "}
               {new Date(report.createdAt).toLocaleString()}
               <br />
-              审核:{" "}
+              {t('eyeReport.reviewedLabel')}{" "}
               {report.reviewedBy &&
                 `${report.reviewedBy} ${report.reviewedAt ? new Date(report.reviewedAt).toLocaleString() : ""}`}
               <br />
-              发布:{" "}
+              {t('eyeReport.publishedLabel')}{" "}
               {report.publishedBy &&
                 `${report.publishedBy} ${report.publishedAt ? new Date(report.publishedAt).toLocaleString() : ""}`}
               <br />
-              签名: {report.signedBy} ({report.signMethod})
+              {t('eyeReport.signedLabel')} {report.signedBy} ({report.signMethod})
             </div>
           </Card>
 
           {/* 已选征象 */}
           <Card
             size="small"
-            title={`征象 (${findings.length})`}
+            title={t('eyeReport.findingsTitle', { count: findings.length })}
             style={{ marginTop: 8 }}
           >
             {findingsData.map((f) => (
@@ -577,7 +577,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </Card>
 
           {/* 状态切换 */}
-          <Card size="small" title="报告状态" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('eyeReport.reportStatus')} style={{ marginTop: 8 }}>
             <Radio.Group
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -592,22 +592,22 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </Card>
 
           {/* 印象+建议 */}
-          <Card size="small" title="印象/诊断" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('eyeReport.impressionDiagnosis')} style={{ marginTop: 8 }}>
             <Input.TextArea
               rows={2}
               value={impression}
               onChange={(e) => setImpression(e.target.value)}
               size="small"
-              placeholder="诊断印象..."
+              placeholder={t('eyeReport.impressionPlaceholder')}
             />
           </Card>
-          <Card size="small" title="治疗建议" style={{ marginTop: 4 }}>
+          <Card size="small" title={t('eyeReport.treatmentAdvice')} style={{ marginTop: 4 }}>
             <Input.TextArea
               rows={2}
               value={recommendations}
               onChange={(e) => setRecommendations(e.target.value)}
               size="small"
-              placeholder="建议..."
+              placeholder={t('eyeReport.advicePlaceholder')}
             />
           </Card>
 
@@ -651,7 +651,7 @@ const EyeReportWritePage: React.FC = () => {
           setTemplates(templatesRes.data as unknown as ReportTemplate[]);
         }
       } catch {
-        if (!cancelled) message.error("加载报告数据失败");
+        if (!cancelled) message.error(t('eyeReport.loadFailed'));
       }
       if (!cancelled) setLoading(false);
     })();
@@ -663,16 +663,16 @@ const EyeReportWritePage: React.FC = () => {
   if (loading) {
     return (
       <div style={{ padding: 24, textAlign: "center" }}>
-        <Spin tip="加载报告数据..." />
+        <Spin tip={t('eyeReport.loadingData')} />
       </div>
     );
   }
 
   if (reports.length === 0) {
-    return <Alert title="暂无报告数据" type="warning" showIcon style={{ margin: 24 }} />;
+    return <Alert title={t('eyeReport.noReports')} type="warning" showIcon style={{ margin: 24 }} />;
   }
 
-  if (!report) return <Alert title="未找到报告" type="warning" showIcon style={{ margin: 24 }} />;
+  if (!report) return <Alert title={t('eyeReport.reportNotFound')} type="warning" showIcon style={{ margin: 24 }} />;
   return (
     <>
       <div
@@ -689,7 +689,7 @@ const EyeReportWritePage: React.FC = () => {
         }}
       >
         <FileText size={24} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科报告书写</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeReport.title')}</span>
         <Select
           value={selectedReportId}
           onChange={setSelectedReportId}

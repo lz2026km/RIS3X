@@ -4,6 +4,7 @@ import { Card, Table, Button, Space, Tag, Modal, Form, Input, message, Popconfir
 import { FileText, Plus, Edit, Trash, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
+import { t } from '../../i18n/appI18n'
 
 export const DicomSrTemplatePage: React.FC = () => {
   const [templates, setTemplates] = useState<DicomSrTemplate[]>([])
@@ -25,7 +26,7 @@ export const DicomSrTemplatePage: React.FC = () => {
         setTemplates(res.data)
       }
     } catch {
-      message.warning('模板列表加载失败')
+      message.warning(t('srTpl.loadFailed'))
     }
     setLoading(false)
   }, [])
@@ -62,10 +63,10 @@ export const DicomSrTemplatePage: React.FC = () => {
       }
       if (editingTemplate) {
         setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? newTemplate : t))
-        message.success('模板已更新')
+        message.success(t('srTpl.updated'))
       } else {
         setTemplates(prev => [...prev, newTemplate])
-        message.success('模板已创建')
+        message.success(t('srTpl.created'))
       }
       setModalOpen(false)
     } catch (err: any) {
@@ -77,36 +78,36 @@ export const DicomSrTemplatePage: React.FC = () => {
 
   const handleDelete = (id: string) => {
     setTemplates(prev => prev.filter(t => t.id !== id))
-    message.success('模板已删除')
+    message.success(t('srTpl.deleted'))
   }
 
   const columns = [
     {
-      title: '编号',
+      title: t('srTpl.colId'),
       dataIndex: 'id',
       key: 'id',
       width: 120,
       render: (id: string) => <code style={{ fontSize: 12 }}>{id}</code>,
     },
-    { title: '名称 (中文)', dataIndex: 'label', key: 'label' },
-    { title: '英文名称', dataIndex: 'labelEn', key: 'labelEn' },
+    { title: t('srTpl.colLabel'), dataIndex: 'label', key: 'label' },
+    { title: t('srTpl.colLabelEn'), dataIndex: 'labelEn', key: 'labelEn' },
     {
       title: 'TID',
       dataIndex: 'tid',
       key: 'tid',
       render: (tid: string) => <Tag color="purple">{tid}</Tag>,
     },
-    { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
+    { title: t('srTpl.colDescription'), dataIndex: 'description', key: 'description', ellipsis: true },
     {
-      title: '操作',
+      title: t('srTpl.colAction'),
       key: 'action',
       width: 180,
       render: (_: any, r: DicomSrTemplate) => (
         <Space size="small">
-          <Button size="small" icon={<Eye size={12} />} onClick={() => { setSelectedTemplate(r); setDetailOpen(true) }}>详情</Button>
-          <Button size="small" icon={<Edit size={12} />} onClick={() => handleEdit(r)}>编辑</Button>
-          <Popconfirm title="确认删除此模板?" onConfirm={() => handleDelete(r.id)}>
-            <Button size="small" danger icon={<Trash size={12} />}>删除</Button>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => { setSelectedTemplate(r); setDetailOpen(true) }}>{t('srTpl.detail')}</Button>
+          <Button size="small" icon={<Edit size={12} />} onClick={() => handleEdit(r)}>{t('srTpl.edit')}</Button>
+          <Popconfirm title={t('srTpl.deleteConfirm')} onConfirm={() => handleDelete(r.id)}>
+            <Button size="small" danger icon={<Trash size={12} />}>{t('srTpl.delete')}</Button>
           </Popconfirm>
         </Space>
       ),
@@ -117,8 +118,8 @@ export const DicomSrTemplatePage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 模板管理</span>
-        <Tag color="cyan">结构化报告</Tag>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('srTpl.title')}</span>
+        <Tag color="cyan">{t('srTpl.structuredReport')}</Tag>
       </Space>
 
       <Card
@@ -126,8 +127,8 @@ export const DicomSrTemplatePage: React.FC = () => {
         title={`SR 模板列表 (${templates.length})`}
         extra={
           <Space>
-            <Button icon={<RefreshCw size={14} />} onClick={fetchTemplates}>刷新</Button>
-            <Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>新建模板</Button>
+            <Button icon={<RefreshCw size={14} />} onClick={fetchTemplates}>{t('srTpl.refresh')}</Button>
+            <Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>{t('srTpl.newTemplate')}</Button>
           </Space>
         }
       >
@@ -143,7 +144,7 @@ export const DicomSrTemplatePage: React.FC = () => {
       </Card>
 
       <Modal
-        title={editingTemplate ? '编辑模板' : '新建模板'}
+        title={editingTemplate ? t('srTpl.editTemplate') : t('srTpl.newTemplate')}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
@@ -151,37 +152,37 @@ export const DicomSrTemplatePage: React.FC = () => {
         width={600}
       >
         <Form form={form} layout="vertical" size="small">
-          <Form.Item name="label" label="名称 (中文)" rules={[{ required: true }]}>
-            <Input placeholder="结构化测量报告" />
+          <Form.Item name="label" label={t('srTpl.colLabel')} rules={[{ required: true }]}>
+            <Input placeholder={t('srTpl.labelPlaceholder')} />
           </Form.Item>
-          <Form.Item name="labelEn" label="英文名称" rules={[{ required: true }]}>
-            <Input placeholder="测量报告" />
+          <Form.Item name="labelEn" label={t('srTpl.colLabelEn')} rules={[{ required: true }]}>
+            <Input placeholder={t('srTpl.labelEnPlaceholder')} />
           </Form.Item>
-          <Form.Item name="tid" label="TID 模板标识" rules={[{ required: true }]}>
+          <Form.Item name="tid" label={t('srTpl.tidLabel')} rules={[{ required: true }]}>
             <Input placeholder="TID 1500" />
           </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input.TextArea rows={3} placeholder="模板用途说明" />
+          <Form.Item name="description" label={t('srTpl.colDescription')}>
+            <Input.TextArea rows={3} placeholder={t('srTpl.descriptionPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="模板详情"
+        title={t('srTpl.detailTitle')}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
-        footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
+        footer={<Button onClick={() => setDetailOpen(false)}>{t('srTpl.close')}</Button>}
         width={500}
       >
         {selectedTemplate ? (
           <Descriptions column={1} size="small" bordered>
-            <Descriptions.Item label="编号">{selectedTemplate.id}</Descriptions.Item>
-            <Descriptions.Item label="中文名称">{selectedTemplate.label}</Descriptions.Item>
-            <Descriptions.Item label="英文名称">{selectedTemplate.labelEn}</Descriptions.Item>
+            <Descriptions.Item label={t('srTpl.colId')}>{selectedTemplate.id}</Descriptions.Item>
+            <Descriptions.Item label={t('srTpl.cnName')}>{selectedTemplate.label}</Descriptions.Item>
+            <Descriptions.Item label={t('srTpl.colLabelEn')}>{selectedTemplate.labelEn}</Descriptions.Item>
             <Descriptions.Item label="TID">{selectedTemplate.tid}</Descriptions.Item>
-            <Descriptions.Item label="描述">{selectedTemplate.description}</Descriptions.Item>
+            <Descriptions.Item label={t('srTpl.colDescription')}>{selectedTemplate.description}</Descriptions.Item>
           </Descriptions>
-        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
+        ) : <Empty description={t('srTpl.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

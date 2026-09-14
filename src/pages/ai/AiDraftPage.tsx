@@ -4,6 +4,7 @@ import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity, Layo
 import { v3AiDraftApi, type AiDraftMeta, type AiDraftParagraph, type AiDraftResult, type DraftTemplate } from '../../services/api/v3Api'
 import { patientExamApi, type PatientInfo, type ExamInfo } from '../../services/api/patientExamApi'
 import { reportApi } from '../../services/api/reportApi'
+import { t } from '../../i18n/appI18n'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -70,7 +71,7 @@ const AiDraftPage: React.FC = () => {
   }), [selectedPatient, currentPatient, currentExam])
 
   const handleGenerate = useCallback(async () => {
-    if (!selectedExam) { message.warning('请选择检查'); return }
+    if (!selectedExam) { message.warning(t('aiDraft.selectExam')); return }
     setGenerating(true)
     setDraftResult(null)
     try {
@@ -78,15 +79,15 @@ const AiDraftPage: React.FC = () => {
       if (res.success && res.data) {
         setDraftResult(res.data)
       } else {
-        message.error(res.error?.message || '生成失败')
+        message.error(res.error?.message || t('aiDraft.generateFailed'))
       }
-    } catch (err) { console.error('[AiDraft] generate failed:', err); message.error('生成请求失败') } finally {
+    } catch (err) { console.error('[AiDraft] generate failed:', err); message.error(t('aiDraft.generateRequestFailed')) } finally {
       setGenerating(false)
     }
   }, [selectedExam, buildMeta])
 
   const handleContinue = useCallback(async () => {
-    if (!continuePrompt.trim()) { message.warning('请输入续写提示'); return }
+    if (!continuePrompt.trim()) { message.warning(t('aiDraft.enterContinuePrompt')); return }
     setGenerating(true)
     try {
       const existingContent = draftResult?.paragraphs.map(p => `## ${p.heading}\n${p.content}`).join('\n\n') ?? ''
@@ -97,16 +98,16 @@ const AiDraftPage: React.FC = () => {
           paragraphs: [...draftResult.paragraphs, ...res.data.paragraphs],
         })
       } else {
-        message.error(res.error?.message || '续写失败')
+        message.error(res.error?.message || t('aiDraft.continueFailed'))
       }
-    } catch (err) { console.error('[AiDraft] continue failed:', err); message.error('续写请求失败') } finally {
+    } catch (err) { console.error('[AiDraft] continue failed:', err); message.error(t('aiDraft.continueRequestFailed')) } finally {
       setContinuePrompt('')
       setGenerating(false)
     }
   }, [continuePrompt, draftResult, buildMeta])
 
   const handleRewrite = useCallback(async () => {
-    if (!rewriteTarget || !rewriteInstruction.trim()) { message.warning('请选择要改写的段落并输入指令'); return }
+    if (!rewriteTarget || !rewriteInstruction.trim()) { message.warning(t('aiDraft.selectRewrite')); return }
     setGenerating(true)
     try {
       const targetParagraph = draftResult?.paragraphs.find(p => p.id === rewriteTarget)
@@ -120,9 +121,9 @@ const AiDraftPage: React.FC = () => {
         )
         setDraftResult({ ...draftResult, paragraphs: newParagraphs })
       } else {
-        message.error(res.error?.message || '改写失败')
+        message.error(res.error?.message || t('aiDraft.rewriteFailed'))
       }
-    } catch (err) { console.error('[AiDraft] rewrite failed:', err); message.error('改写请求失败') } finally {
+    } catch (err) { console.error('[AiDraft] rewrite failed:', err); message.error(t('aiDraft.rewriteRequestFailed')) } finally {
       setRewriteInstruction('')
       setRewriteTarget(null)
       setGenerating(false)
@@ -138,7 +139,7 @@ const AiDraftPage: React.FC = () => {
     if (draftResult) {
       setDraftResult({ ...draftResult, paragraphs: draftResult.paragraphs.filter(p => p.id !== id) })
       setAcceptedIds(prev => prev.filter(x => x !== id))
-      message.info('已拒绝段落')
+      message.info(t('aiDraft.rejected'))
     }
   }
 
@@ -154,14 +155,14 @@ const AiDraftPage: React.FC = () => {
       )
       setDraftResult({ ...draftResult, paragraphs: newParagraphs })
       setEditingParagraph(null)
-      message.success('已保存修改')
+      message.success(t('aiDraft.saved'))
     }
   }
 
   // 全部接受并提交：接受所有段落 → 生成报告文本 → 写入报告（POST /reports）→ 提交过渡
   const handleAcceptAll = useCallback(async () => {
     if (!draftResult || draftResult.paragraphs.length === 0) return
-    if (!selectedExam) { message.warning('请选择检查'); return }
+    if (!selectedExam) { message.warning(t('aiDraft.selectExam')); return }
     const paragraphs = draftResult.paragraphs
     setAcceptedIds(paragraphs.map(p => p.id))
     const reportText = paragraphs.map(p => `## ${p.heading}\n${p.content}`).join('\n\n')
@@ -183,11 +184,11 @@ const AiDraftPage: React.FC = () => {
         setDraftResult(null)
         setAcceptedIds([])
       } else {
-        message.error(res.error?.message || '提交失败')
+        message.error(res.error?.message || t('aiDraft.submitFailed'))
       }
     } catch (err) {
       console.error('[AiDraft] submit failed:', err)
-      message.error('提交请求失败')
+      message.error(t('aiDraft.submitRequestFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -198,16 +199,16 @@ const AiDraftPage: React.FC = () => {
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Brain size={24} color="#7c3aed" />
-          <Title level={4} style={{ margin: 0 }}>AI 报告草稿（多模态段落生成）</Title>
-          {draftResult && <Tag color="purple">置信度 {(draftResult.overallConfidence * 100).toFixed(0)}%</Tag>}
+          <Title level={4} style={{ margin: 0 }}>{t('aiDraft.title')}</Title>
+          {draftResult && <Tag color="purple">{t('aiDraft.confidence')} {(draftResult.overallConfidence * 100).toFixed(0)}%</Tag>}
         </Space>
 
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
           <div style={{ minWidth: 200 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}><User size={12} /> 患者</Text>
+            <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}><User size={12} /> {t('aiDraft.patient')}</Text>
             <Select
               style={{ width: 220 }}
-              placeholder="选择患者"
+              placeholder={t('aiDraft.selectPatient')}
               value={selectedPatient}
               onChange={v => { setSelectedPatient(v); setSelectedExam(null); setDraftResult(null) }}
               options={patients.map(p => ({ label: `${p.name} (${p.gender}/${p.age})`, value: p.id }))}
@@ -215,10 +216,10 @@ const AiDraftPage: React.FC = () => {
             />
           </div>
           <div style={{ minWidth: 200 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}><Activity size={12} /> 检查</Text>
+            <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}><Activity size={12} /> {t('aiDraft.exam')}</Text>
             <Select
               style={{ width: 300 }}
-              placeholder="选择检查"
+              placeholder={t('aiDraft.selectExamPlaceholder')}
               value={selectedExam}
               onChange={v => { setSelectedExam(v); setDraftResult(null) }}
               options={patientExams.map(e => ({ label: `${e.description} · ${e.date}`, value: e.id }))}
@@ -236,22 +237,22 @@ const AiDraftPage: React.FC = () => {
 
         <Space>
           <Button type="primary" icon={<Brain size={14} />} onClick={handleGenerate} loading={generating} disabled={!selectedExam}>
-            生成 AI 草稿
+            {t('aiDraft.generate')}
           </Button>
         </Space>
       </Card>
 
       {templates.length > 0 && (
         <Card
-          title={<Space><Layout size={14} color="#7c3aed" />草稿模板</Space>}
+          title={<Space><Layout size={14} color="#7c3aed" />{t('aiDraft.templates')}</Space>}
           size="small"
           style={{ marginBottom: 16 }}
           loading={templatesLoading}
         >
           <Space wrap>
-            {templates.map(t => (
-              <Tag key={t.id} color="purple" style={{ cursor: 'pointer', padding: '4px 8px' }}>
-                {t.name} ({t.modality})
+            {templates.map(tpl => (
+              <Tag key={tpl.id} color="purple" style={{ cursor: 'pointer', padding: '4px 8px' }}>
+                {tpl.name} ({tpl.modality})
               </Tag>
             ))}
           </Space>
@@ -261,17 +262,17 @@ const AiDraftPage: React.FC = () => {
       {generating && (
         <Card style={{ marginBottom: 16, textAlign: 'center', padding: 40 }}>
           <Spin size="large" />
-          <div style={{ marginTop: 12, color: '#7c3aed', fontWeight: 600 }}>AI 正在生成报告段落...</div>
+          <div style={{ marginTop: 12, color: '#7c3aed', fontWeight: 600 }}>{t('aiDraft.generating')}</div>
         </Card>
       )}
 
       {draftResult && !generating && (
         <Card
-          title={<Space><Brain size={16} color="#7c3aed" />AI 生成的段落</Space>}
+          title={<Space><Brain size={16} color="#7c3aed" />{t('aiDraft.generatedParagraphs')}</Space>}
           extra={
             <Space>
-              <Tag color="default">模型: {draftResult.modelVersion}</Tag>
-              <Button size="small" icon={<RefreshCw size={12} />} onClick={handleGenerate}>重新生成</Button>
+              <Tag color="default">{t('aiDraft.model')}: {draftResult.modelVersion}</Tag>
+              <Button size="small" icon={<RefreshCw size={12} />} onClick={handleGenerate}>{t('aiDraft.regenerate')}</Button>
             </Space>
           }
           style={{ marginBottom: 16 }}
@@ -288,17 +289,17 @@ const AiDraftPage: React.FC = () => {
                   <Tag color="purple" style={{ fontSize: 11 }}>{(p.confidence * 100).toFixed(0)}%</Tag>
                 </Space>
                 <Space>
-                  <Tooltip title="接受"><Button size="small" type={acceptedIds.includes(p.id) ? 'primary' : 'text'} icon={<Check size={14} color={acceptedIds.includes(p.id) ? '#fff' : '#52c41a'} />} onClick={() => handleAccept(p.id)} /></Tooltip>
-                  <Tooltip title="修改"><Button size="small" type="text" icon={<Edit3 size={14} color="#2563eb" />} onClick={() => handleEdit(p)} /></Tooltip>
-                  <Tooltip title="拒绝"><Button size="small" type="text" icon={<X size={14} color="#ff4d4f" />} onClick={() => handleReject(p.id)} /></Tooltip>
+                  <Tooltip title={t('aiDraft.accept')}><Button size="small" type={acceptedIds.includes(p.id) ? 'primary' : 'text'} icon={<Check size={14} color={acceptedIds.includes(p.id) ? '#fff' : '#52c41a'} />} onClick={() => handleAccept(p.id)} /></Tooltip>
+                  <Tooltip title={t('aiDraft.edit')}><Button size="small" type="text" icon={<Edit3 size={14} color="#2563eb" />} onClick={() => handleEdit(p)} /></Tooltip>
+                  <Tooltip title={t('aiDraft.reject')}><Button size="small" type="text" icon={<X size={14} color="#ff4d4f" />} onClick={() => handleReject(p.id)} /></Tooltip>
                 </Space>
               </div>
               {editingParagraph === p.id ? (
                 <div>
                   <TextArea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} style={{ fontSize: 13 }} />
                   <Space style={{ marginTop: 6 }}>
-                    <Button size="small" type="primary" icon={<Save size={12} />} onClick={handleSaveEdit}>保存</Button>
-                    <Button size="small" onClick={() => setEditingParagraph(null)}>取消</Button>
+                    <Button size="small" type="primary" icon={<Save size={12} />} onClick={handleSaveEdit}>{t('aiDraft.save')}</Button>
+                    <Button size="small" onClick={() => setEditingParagraph(null)}>{t('aiDraft.cancel')}</Button>
                   </Space>
                 </div>
               ) : (
@@ -311,20 +312,20 @@ const AiDraftPage: React.FC = () => {
 
       {draftResult && !generating && (
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <Card size="small" title={<Space><Plus size={14} />续写</Space>} style={{ flex: 1, minWidth: 300 }}>
-            <TextArea value={continuePrompt} onChange={e => setContinuePrompt(e.target.value)} placeholder="输入续写提示，如：补充与既往对比" rows={2} style={{ marginBottom: 8 }} />
-            <Button size="small" type="primary" icon={<Plus size={12} />} onClick={handleContinue} loading={generating}>续写</Button>
+          <Card size="small" title={<Space><Plus size={14} />{t('aiDraft.continue')}</Space>} style={{ flex: 1, minWidth: 300 }}>
+            <TextArea value={continuePrompt} onChange={e => setContinuePrompt(e.target.value)} placeholder={t('aiDraft.continuePlaceholder')} rows={2} style={{ marginBottom: 8 }} />
+            <Button size="small" type="primary" icon={<Plus size={12} />} onClick={handleContinue} loading={generating}>{t('aiDraft.continue')}</Button>
           </Card>
-          <Card size="small" title={<Space><Edit3 size={14} />改写</Space>} style={{ flex: 1, minWidth: 300 }}>
+          <Card size="small" title={<Space><Edit3 size={14} />{t('aiDraft.rewrite')}</Space>} style={{ flex: 1, minWidth: 300 }}>
             <Select
               style={{ width: '100%', marginBottom: 8 }}
-              placeholder="选择要改写的段落"
+              placeholder={t('aiDraft.selectRewritePlaceholder')}
               value={rewriteTarget}
               onChange={setRewriteTarget}
               options={draftResult.paragraphs.map(p => ({ label: p.heading, value: p.id }))}
             />
-            <TextArea value={rewriteInstruction} onChange={e => setRewriteInstruction(e.target.value)} placeholder="改写指令，如：改用更专业的描述" rows={2} style={{ marginBottom: 8 }} />
-            <Button size="small" type="primary" icon={<RefreshCw size={12} />} onClick={handleRewrite} loading={generating}>改写</Button>
+            <TextArea value={rewriteInstruction} onChange={e => setRewriteInstruction(e.target.value)} placeholder={t('aiDraft.rewritePlaceholder')} rows={2} style={{ marginBottom: 8 }} />
+            <Button size="small" type="primary" icon={<RefreshCw size={12} />} onClick={handleRewrite} loading={generating}>{t('aiDraft.rewrite')}</Button>
           </Card>
         </div>
       )}
@@ -332,10 +333,10 @@ const AiDraftPage: React.FC = () => {
       {draftResult && !generating && (
         <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Button icon={<Check size={14} />} type="primary" onClick={() => void handleAcceptAll()} loading={submitting}>
-            全部接受并提交
+            {t('aiDraft.acceptAll')}
           </Button>
-          <Button icon={<X size={14} />} onClick={() => { setDraftResult(null); setAcceptedIds([]); message.info('已清空') }}>
-            全部拒绝
+          <Button icon={<X size={14} />} onClick={() => { setDraftResult(null); setAcceptedIds([]); message.info(t('aiDraft.cleared')) }}>
+            {t('aiDraft.rejectAll')}
           </Button>
         </div>
       )}
