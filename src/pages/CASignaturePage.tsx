@@ -14,6 +14,7 @@ import {
   type CaHistoryEntry,
 } from '../services/api/caApi';
 import { PermissionGate } from '../components/common/PermissionGate';
+import { t } from '../i18n/appI18n';
 
 type CertificateStatus = 'valid' | 'expiring' | 'expired' | 'revoked';
 type SignatureAlgorithm = 'RSA-SHA256' | 'SM2-SM3';
@@ -87,7 +88,7 @@ export default function CASignaturePage() {
         if (res.data.length > 0) setSelectedCertId(res.data[0]?.id ?? null);
         setListError(null);
       } else {
-        setListError(res.error?.message ?? '证书列表加载失败');
+        setListError(res.error?.message ?? t('caSignature.certsLoadFailed'));
       }
       setLoading(false);
     })();
@@ -99,7 +100,7 @@ export default function CASignaturePage() {
       setCerts(res.data);
       setListError(null);
     } else {
-      setListError(res.error?.message ?? '证书列表加载失败');
+      setListError(res.error?.message ?? t('caSignature.certsLoadFailed'));
     }
   }, []);
 
@@ -107,8 +108,8 @@ export default function CASignaturePage() {
     if (filterAlgo !== 'all' && c.algorithm !== filterAlgo) return false;
     if (filterStatus !== 'all' && c.status !== filterStatus) return false;
     if (search) {
-      const t = search.toLowerCase();
-      if (!c.holderName.includes(search) && !c.certId.toLowerCase().includes(t)) return false;
+      const q = search.toLowerCase();
+      if (!c.holderName.includes(search) && !c.certId.toLowerCase().includes(q)) return false;
     }
     return true;
   });
@@ -124,11 +125,11 @@ export default function CASignaturePage() {
 
   const handleSign = useCallback(async () => {
     if (!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked') {
-      message.warning('证书无效，无法签名');
+      message.warning(t('caSignature.certInvalid'));
       return;
     }
     if (!reportId.trim()) {
-      message.warning('请输入要签名的报告 ID');
+      message.warning(t('caSignature.enterReportId'));
 
       return;
     }
@@ -166,11 +167,11 @@ export default function CASignaturePage() {
   // ===== 上传证书 (文件 + 元数据) =====
   const handleUpload = useCallback(async () => {
     if (!uploadForm.holderName.trim()) {
-      message.warning('请输入证书持有者姓名');
+      message.warning(t('caSignature.enterHolderName'));
       return;
     }
     if (!uploadFile) {
-      message.warning('请选择证书文件');
+      message.warning(t('caSignature.selectCertFile'));
       return;
     }
     setUploading(true);
@@ -178,7 +179,7 @@ export default function CASignaturePage() {
       const certificateData = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result ?? ''));
-        reader.onerror = () => reject(new Error('文件读取失败'));
+        reader.onerror = () => reject(new Error(t('caSignature.fileReadFailed')));
         reader.readAsDataURL(uploadFile);
       });
       const res = await caApi.uploadCertificate({
@@ -201,7 +202,7 @@ export default function CASignaturePage() {
         setUploadFile(null);
         await refreshCertificates();
       } else {
-        message.error(res.error?.message || '上传失败');
+        message.error(res.error?.message || t('caSignature.uploadFailed'));
       }
     } catch (e: any) {
       message.error('上传失败: ' + (e?.message || String(e)));
@@ -214,7 +215,7 @@ export default function CASignaturePage() {
   const handleRevoke = useCallback(async () => {
     if (!selectedCert) return;
     if (!revokeReason.trim()) {
-      message.warning('请输入吊销原因');
+      message.warning(t('caSignature.enterRevokeReason'));
       return;
     }
     setRevoking(true);
@@ -226,7 +227,7 @@ export default function CASignaturePage() {
         setRevokeReason('');
         await refreshCertificates();
       } else {
-        message.error(res.error?.message || '吊销失败');
+        message.error(res.error?.message || t('caSignature.revokeFailed'));
       }
     } catch (e: any) {
       message.error('吊销失败: ' + (e?.message || String(e)));
@@ -238,7 +239,7 @@ export default function CASignaturePage() {
   // ===== 验签 =====
   const handleVerify = useCallback(async () => {
     if (!verifyForm.reportId.trim() || !verifyForm.verificationCode.trim()) {
-      message.warning('请输入报告 ID 与验证码');
+      message.warning(t('caSignature.enterReportIdAndCode'));
       return;
     }
     setVerifying(true);
@@ -251,7 +252,7 @@ export default function CASignaturePage() {
       if (res.success) {
         setVerifyResult(res.data);
       } else {
-        message.error(res.error?.message || '验签失败');
+        message.error(res.error?.message || t('caSignature.verifyFailed'));
       }
     } catch (e: any) {
       message.error('验签失败: ' + (e?.message || String(e)));
@@ -268,7 +269,7 @@ export default function CASignaturePage() {
     try {
       const res = await caApi.listSignatures();
       if (res.success) setSignatures(res.data);
-      else message.error(res.error?.message || '签名历史加载失败');
+      else message.error(res.error?.message || t('caSignature.signatureHistoryLoadFailed'));
     } catch (e: any) {
       message.error('签名历史加载失败: ' + (e?.message || String(e)));
     } finally {
@@ -282,7 +283,7 @@ export default function CASignaturePage() {
     try {
       const res = await caApi.getCaHistory();
       if (res.success) setHistory(res.data);
-      else message.error(res.error?.message || '操作历史加载失败');
+      else message.error(res.error?.message || t('caSignature.caHistoryLoadFailed'));
     } catch (e: any) {
       message.error('操作历史加载失败: ' + (e?.message || String(e)));
     } finally {
@@ -297,11 +298,11 @@ export default function CASignaturePage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Stamp size={20} color="#7c3aed" /> CA 数字签名
+            <Stamp size={20} color="#7c3aed" /> {t('caSignature.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            RSA-SHA256 + 国密 SM2-SM3 · 证书链 · 时间戳 · 签名验证 · 区块链对接
+            {t('caSignature.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -310,32 +311,32 @@ export default function CASignaturePage() {
               onClick={() => setShowUploadModal(true)}
               style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
             >
-              <FileUp size={12} /> 上传证书
+              <FileUp size={12} /> {t('caSignature.uploadCert')}
             </button>
           </PermissionGate>
           <button
             onClick={() => void openSignatures()}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            <FileSearch size={12} /> 签名历史
+            <FileSearch size={12} /> {t('caSignature.signatureHistory')}
           </button>
           <button
             onClick={() => void openHistory()}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            <HistoryIcon size={12} /> 操作历史
+            <HistoryIcon size={12} /> {t('caSignature.caHistory')}
           </button>
           <button
             onClick={() => { setVerifyResult(null); setVerifyForm({ reportId: '', verificationCode: '' }); setShowVerifyModal(true); }}
             style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            <ShieldX size={12} /> 签名验签
+            <ShieldX size={12} /> {t('caSignature.signVerify')}
           </button>
           <button
             onClick={() => navigate('/blockchain-proof')}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
           >
-            区块链存证
+            {t('caSignature.blockchainProof')}
           </button>
         </div>
       </div>
@@ -347,14 +348,14 @@ export default function CASignaturePage() {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)', fontSize: 14 }}>加载证书列表...</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)', fontSize: 14 }}>{t('caSignature.loadingCerts')}</div>
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-            <KpiCard icon={ShieldCheck} label="有效证书" value={certs.filter(c => c.status === 'valid').length} color="#10b981" />
-            <KpiCard icon={AlertTriangle} label="即将过期" value={certs.filter(c => c.status === 'expiring').length} color="#f59e0b" alert />
-            <KpiCard icon={XCircle} label="已过期" value={certs.filter(c => c.status === 'expired').length} color="#dc2626" />
-            <KpiCard icon={Activity} label="本月签名" value={totalUsage} color="#3b82f6" />
+            <KpiCard icon={ShieldCheck} label={t('caSignature.kpiValid')} value={certs.filter(c => c.status === 'valid').length} color="#10b981" />
+            <KpiCard icon={AlertTriangle} label={t('caSignature.kpiExpiring')} value={certs.filter(c => c.status === 'expiring').length} color="#f59e0b" alert />
+            <KpiCard icon={XCircle} label={t('caSignature.kpiExpired')} value={certs.filter(c => c.status === 'expired').length} color="#dc2626" />
+            <KpiCard icon={Activity} label={t('caSignature.kpiMonthSignatures')} value={totalUsage} color="#3b82f6" />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
@@ -367,22 +368,22 @@ export default function CASignaturePage() {
                       type="text"
                       value={search}
                       onChange={e => setSearch(e.target.value)}
-                      placeholder="搜索姓名/证书 ID..."
+                      placeholder={t('caSignature.searchPlaceholder')}
                       style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
                     />
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
                   <select value={filterAlgo} onChange={e => setFilterAlgo(e.target.value)} style={selectStyle}>
-                    <option value="all">全部算法</option>
+                    <option value="all">{t('caSignature.allAlgorithms')}</option>
                     <option value="RSA-SHA256">RSA</option>
-                    <option value="SM2-SM3">国密 SM</option>
+                    <option value="SM2-SM3">{t('caSignature.gmSm')}</option>
                   </select>
                   <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
-                    <option value="all">全部状态</option>
-                    <option value="valid">有效</option>
-                    <option value="expiring">即将过期</option>
-                    <option value="expired">过期</option>
+                    <option value="all">{t('caSignature.allStatus')}</option>
+                    <option value="valid">{t('caSignature.statusValid')}</option>
+                    <option value="expiring">{t('caSignature.kpiExpiring')}</option>
+                    <option value="expired">{t('caSignature.statusExpired')}</option>
                   </select>
                 </div>
               </div>
@@ -429,11 +430,11 @@ export default function CASignaturePage() {
             {selectedCert && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>待签名报告 ID</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>{t('caSignature.reportIdToSign')}</div>
                   <input
                     value={reportId}
                     onChange={(e) => setReportId(e.target.value)}
-                    placeholder="请输入报告 ID（如 RPT-xxxx）"
+                    placeholder={t('caSignature.reportIdPlaceholder')}
                     style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
@@ -457,16 +458,16 @@ export default function CASignaturePage() {
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
-                    <InfoCell label="证书 ID" value={selectedCert.certId} />
-                    <InfoCell label="序列号" value={selectedCert.serialNumber.slice(0, 16) + '...'} />
-                    <InfoCell label="颁发机构" value={selectedCert.issuer} />
-                    <InfoCell label="有效期起" value={selectedCert.validFrom} />
-                    <InfoCell label="有效期止" value={selectedCert.validTo} />
-                    <InfoCell label="已签次数" value={String(selectedCert.usageCount)} color="#10b981" />
+                    <InfoCell label={t('caSignature.certIdLabel')} value={selectedCert.certId} />
+                    <InfoCell label={t('caSignature.serialNumber')} value={selectedCert.serialNumber.slice(0, 16) + '...'} />
+                    <InfoCell label={t('caSignature.issuer')} value={selectedCert.issuer} />
+                    <InfoCell label={t('caSignature.validFrom')} value={selectedCert.validFrom} />
+                    <InfoCell label={t('caSignature.validTo')} value={selectedCert.validTo} />
+                    <InfoCell label={t('caSignature.usageCount')} value={String(selectedCert.usageCount)} color="#10b981" />
                   </div>
 
                   <div style={{ marginBottom: 12, padding: 10, background: '#8b5cf622', border: '1px solid var(--border-color)6fe', borderRadius: 6 }}>
-                    <div style={{ fontSize: 12, color: '#5b21b6', fontWeight: 600, marginBottom: 4 }}>🔐 证书指纹 (SHA-256)</div>
+                    <div style={{ fontSize: 12, color: '#5b21b6', fontWeight: 600, marginBottom: 4 }}>{t('caSignature.fingerprint')}</div>
                     <div style={{ fontSize: 12, color: '#5b21b6', fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: 1.4 }}>
                       {selectedCert.fingerprint}
                     </div>
@@ -485,14 +486,14 @@ export default function CASignaturePage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                         }}
                       >
-                        <Stamp size={12} /> {isSigning ? `签名中 ${signingProgress}%` : '立即签名'}
+                        <Stamp size={12} /> {isSigning ? `签名中 ${signingProgress}%` : t('caSignature.signNow')}
                       </button>
                     </PermissionGate>
                     <PermissionGate permission="report.sign">
                       <button
                         onClick={() => { setRevokeReason(''); setShowRevokeModal(true); }}
                         disabled={selectedCert.status === 'revoked'}
-                        title={selectedCert.status === 'revoked' ? '该证书已吊销' : '吊销证书'}
+                        title={selectedCert.status === 'revoked' ? t('caSignature.certRevoked') : t('caSignature.revokeCert')}
                         style={{
                           padding: '10px 16px', border: '1px solid #fca5a5', borderRadius: 6,
                           background: selectedCert.status === 'revoked' ? 'var(--bg-card)' : 'var(--bg-card)',
@@ -502,13 +503,13 @@ export default function CASignaturePage() {
                           opacity: selectedCert.status === 'revoked' ? 0.5 : 1,
                         }}
                       >
-                        <Ban size={12} /> 吊销
+                        <Ban size={12} /> {t('caSignature.revoke')}
                       </button>
                     </PermissionGate>
                     <button
                       onClick={async () => {
                         if (selectedCert.status === 'expired' || selectedCert.status === 'revoked') {
-                          message.warning('已过期或吊销的证书不可续期');
+                          message.warning(t('caSignature.expiredCannotRenew'));
                           return;
                         }
                         try {
@@ -518,7 +519,7 @@ export default function CASignaturePage() {
                           if (res.success) {
                             message.success(`已为 ${selectedCert.holderName} 提交续期申请 (证书 ${selectedCert.certId})`);
                           } else {
-                            message.error(res.error?.message || '续期失败');
+                            message.error(res.error?.message || t('caSignature.renewFailed'));
                           }
                         } catch (e: any) {
                           message.error('续期失败: ' + (e?.message || String(e)));
@@ -527,14 +528,14 @@ export default function CASignaturePage() {
                       disabled={!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked'}
                       style={{ padding: '10px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? '#94a3b8' : '#475569', fontSize: 12, cursor: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 0.5 : 1 }}
                     >
-                      <RefreshCw size={12} /> 续期
+                      <RefreshCw size={12} /> {t('caSignature.renew')}
                     </button>
                   </div>
 
                   {isSigning && (
                     <div style={{ marginTop: 12, padding: 10, background: 'var(--color-success-bg)', borderRadius: 6 }}>
                       <div style={{ fontSize: 12, color: '#047857', fontWeight: 600, marginBottom: 6 }}>
-                        🔐 正在使用 {ALGO_CONFIG[selectedCert.algorithm].label} 算法签名...
+                        {t('caSignature.signingWithPrefix')} {ALGO_CONFIG[selectedCert.algorithm].label} {t('caSignature.signingWithSuffix')}
                       </div>
                       <div style={{ height: 6, background: 'var(--color-success-bg)', borderRadius: 3, overflow: 'hidden' }}>
                         <div style={{ width: `${signingProgress}%`, height: '100%', background: 'linear-gradient(90deg, #10b981, #3b82f6)' }} />
@@ -545,14 +546,14 @@ export default function CASignaturePage() {
                   {showSignResult && !isSigning && (
                     <div style={{ marginTop: 12, padding: 12, background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
-                        <CheckCircle2 size={14} /> 签名成功
+                        <CheckCircle2 size={14} /> {t('caSignature.signSuccess')}
                       </div>
                       <div style={{ fontSize: 12, color: '#065f46', lineHeight: 1.6, fontFamily: 'monospace' }}>
-                        签名算法：{ALGO_CONFIG[selectedCert.algorithm].label}<br/>
-                        签名时间：{new Date().toISOString()}<br/>
-                        验证码：<b>{signResult.verificationCode}</b><br/>
-                        报告 ID：<b>{signResult.reportId}</b><br/>
-                        证书链：根 CA → 中间 CA → 用户证书
+                        {t('caSignature.signAlgorithm')}{ALGO_CONFIG[selectedCert.algorithm].label}<br/>
+                        {t('caSignature.signTime')}{new Date().toISOString()}<br/>
+                        {t('caSignature.verificationCode')}<b>{signResult.verificationCode}</b><br/>
+                        {t('caSignature.reportIdLabel')}<b>{signResult.reportId}</b><br/>
+                        {t('caSignature.certChainValue')}
                       </div>
                     </div>
                   )}
@@ -560,7 +561,7 @@ export default function CASignaturePage() {
 
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Key size={13} /> 证书链验证
+                    <Key size={13} /> {t('caSignature.certChainVerify')}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {[
@@ -575,7 +576,7 @@ export default function CASignaturePage() {
                         }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.name}</div>
                           <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{c.desc}</div>
-                          <div style={{ marginTop: 4, fontSize: 12, color: '#10b981' }}>✓ 已验证</div>
+                          <div style={{ marginTop: 4, fontSize: 12, color: '#10b981' }}>✓ {t('caSignature.verified')}</div>
                         </div>
                         {i < 2 && <ChevronRight size={14} color="var(--text-secondary)" />}
                       </React.Fragment>
@@ -590,18 +591,18 @@ export default function CASignaturePage() {
 
       {/* ===== 上传证书 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileUp size={14} color="#7c3aed" /> 上传证书（文件 + 元数据）</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileUp size={14} color="#7c3aed" /> {t('caSignature.uploadCertTitle')}</span>}
         open={showUploadModal}
         onCancel={() => setShowUploadModal(false)}
         onOk={() => void handleUpload()}
-        okText="上传"
-        cancelText="取消"
+        okText={t('caSignature.upload')}
+        cancelText={t('caSignature.cancel')}
         confirmLoading={uploading}
         width={480}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 8 }}>
           <div>
-            <div style={fieldLabelStyle}>证书文件（.cer / .pem / .crt）</div>
+            <div style={fieldLabelStyle}>{t('caSignature.certFileLabel')}</div>
             <label
               style={{
                 display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
@@ -610,7 +611,7 @@ export default function CASignaturePage() {
             >
               <FileUp size={14} color="#7c3aed" />
               <span style={{ fontSize: 12, color: uploadFile ? 'var(--text-primary)' : '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {uploadFile ? uploadFile.name : '选择证书文件...'}
+                {uploadFile ? uploadFile.name : t('caSignature.selectCertFileDots')}
               </span>
               <input
                 type="file"
@@ -622,21 +623,21 @@ export default function CASignaturePage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
-              <div style={fieldLabelStyle}>持有者姓名 *</div>
-              <Input size="small" value={uploadForm.holderName} placeholder="如：李四" onChange={e => setUploadForm(f => ({ ...f, holderName: e.target.value }))} />
+              <div style={fieldLabelStyle}>{t('caSignature.holderNameLabel')}</div>
+              <Input size="small" value={uploadForm.holderName} placeholder={t('caSignature.placeholderHolderName')} onChange={e => setUploadForm(f => ({ ...f, holderName: e.target.value }))} />
             </div>
             <div>
-              <div style={fieldLabelStyle}>职位</div>
-              <Input size="small" value={uploadForm.holderTitle} placeholder="如：主任医师" onChange={e => setUploadForm(f => ({ ...f, holderTitle: e.target.value }))} />
+              <div style={fieldLabelStyle}>{t('caSignature.holderTitle')}</div>
+              <Input size="small" value={uploadForm.holderTitle} placeholder={t('caSignature.placeholderHolderTitle')} onChange={e => setUploadForm(f => ({ ...f, holderTitle: e.target.value }))} />
             </div>
           </div>
           <div>
-            <div style={fieldLabelStyle}>证件号码</div>
-            <Input size="small" value={uploadForm.holderIdNumber} placeholder="身份证号" onChange={e => setUploadForm(f => ({ ...f, holderIdNumber: e.target.value }))} />
+            <div style={fieldLabelStyle}>{t('caSignature.idNumber')}</div>
+            <Input size="small" value={uploadForm.holderIdNumber} placeholder={t('caSignature.placeholderIdNumber')} onChange={e => setUploadForm(f => ({ ...f, holderIdNumber: e.target.value }))} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
-              <div style={fieldLabelStyle}>签名算法</div>
+              <div style={fieldLabelStyle}>{t('caSignature.signAlgorithmLabel')}</div>
               <Select
                 size="small"
                 style={{ width: '100%' }}
@@ -644,30 +645,30 @@ export default function CASignaturePage() {
                 onChange={v => setUploadForm(f => ({ ...f, algorithm: v as 'RSA-SHA256' | 'SM2-SM3' }))}
                 options={[
                   { value: 'RSA-SHA256', label: 'RSA-SHA256' },
-                  { value: 'SM2-SM3', label: '国密 SM2-SM3' },
+                  { value: 'SM2-SM3', label: t('caSignature.gmSmFull') },
                 ]}
               />
             </div>
             <div>
-              <div style={fieldLabelStyle}>有效期至</div>
+              <div style={fieldLabelStyle}>{t('caSignature.validToLabel')}</div>
               <Input size="small" type="date" value={uploadForm.validTo} onChange={e => setUploadForm(f => ({ ...f, validTo: e.target.value }))} />
             </div>
           </div>
           <div>
-            <div style={fieldLabelStyle}>颁发机构</div>
-            <Input size="small" value={uploadForm.issuer} placeholder="如：CFCA 中国金融认证中心" onChange={e => setUploadForm(f => ({ ...f, issuer: e.target.value }))} />
+            <div style={fieldLabelStyle}>{t('caSignature.issuerLabel')}</div>
+            <Input size="small" value={uploadForm.issuer} placeholder={t('caSignature.placeholderIssuer')} onChange={e => setUploadForm(f => ({ ...f, issuer: e.target.value }))} />
           </div>
         </div>
       </Modal>
 
       {/* ===== 吊销证书 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Ban size={14} color="#dc2626" /> 吊销证书</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Ban size={14} color="#dc2626" /> {t('caSignature.revokeCert')}</span>}
         open={showRevokeModal}
         onCancel={() => setShowRevokeModal(false)}
         onOk={() => void handleRevoke()}
-        okText="确认吊销"
-        cancelText="取消"
+        okText={t('caSignature.confirmRevoke')}
+        cancelText={t('caSignature.cancel')}
         okButtonProps={{ danger: true }}
         confirmLoading={revoking}
         width={440}
@@ -675,17 +676,17 @@ export default function CASignaturePage() {
         <div style={{ paddingTop: 8 }}>
           {selectedCert && (
             <div style={{ marginBottom: 10, padding: 10, background: '#8b5cf622', border: '1px solid var(--border-color)6fe', borderRadius: 6, fontSize: 12 }}>
-              <div><b>持有者：</b>{selectedCert.holderName}（{selectedCert.holderTitle}）</div>
-              <div><b>证书 ID：</b><span style={{ fontFamily: 'monospace' }}>{selectedCert.certId}</span></div>
-              <div><b>当前状态：</b>{STATUS_CONFIG[selectedCert.status].label}</div>
+              <div><b>{t('caSignature.holderLabel')}</b>{selectedCert.holderName}（{selectedCert.holderTitle}）</div>
+              <div><b>{t('caSignature.certIdLabel')}</b><span style={{ fontFamily: 'monospace' }}>{selectedCert.certId}</span></div>
+              <div><b>{t('caSignature.currentStatus')}</b>{STATUS_CONFIG[selectedCert.status].label}</div>
             </div>
           )}
-          <div style={fieldLabelStyle}>吊销原因 *</div>
+          <div style={fieldLabelStyle}>{t('caSignature.revokeReasonLabel')}</div>
           <Input.TextArea
             rows={3}
             value={revokeReason}
             onChange={e => setRevokeReason(e.target.value)}
-            placeholder="请输入吊销原因（如：人员离职 / 密钥泄露），该操作不可撤销"
+            placeholder={t('caSignature.revokeReasonPlaceholder')}
             maxLength={200}
             showCount
           />
@@ -694,23 +695,23 @@ export default function CASignaturePage() {
 
       {/* ===== 验签 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><ShieldX size={14} color="#7c3aed" /> 签名验证</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><ShieldX size={14} color="#7c3aed" /> {t('caSignature.verifyTitle')}</span>}
         open={showVerifyModal}
         onCancel={() => setShowVerifyModal(false)}
         onOk={() => void handleVerify()}
-        okText="开始验签"
-        cancelText="关闭"
+        okText={t('caSignature.startVerify')}
+        cancelText={t('caSignature.close')}
         confirmLoading={verifying}
         width={460}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 8 }}>
           <div>
-            <div style={fieldLabelStyle}>报告 ID *</div>
-            <Input size="small" value={verifyForm.reportId} placeholder="如：RPT-2026-0801-001" onChange={e => setVerifyForm(f => ({ ...f, reportId: e.target.value }))} />
+            <div style={fieldLabelStyle}>{t('caSignature.reportIdLabelStar')}</div>
+            <Input size="small" value={verifyForm.reportId} placeholder={t('caSignature.placeholderReportId')} onChange={e => setVerifyForm(f => ({ ...f, reportId: e.target.value }))} />
           </div>
           <div>
-            <div style={fieldLabelStyle}>签名验证码 *</div>
-            <Input size="small" value={verifyForm.verificationCode} placeholder="如：V8F3K2Q9W4M7X1" onChange={e => setVerifyForm(f => ({ ...f, verificationCode: e.target.value }))} />
+            <div style={fieldLabelStyle}>{t('caSignature.verifyCodeLabel')}</div>
+            <Input size="small" value={verifyForm.verificationCode} placeholder={t('caSignature.placeholderVerifyCode')} onChange={e => setVerifyForm(f => ({ ...f, verificationCode: e.target.value }))} />
           </div>
           {verifyResult && (
             <div style={{
@@ -720,14 +721,14 @@ export default function CASignaturePage() {
             }}>
               <div style={{ fontWeight: 700, color: verifyResult.valid ? '#047857' : '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
                 {verifyResult.valid ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                {verifyResult.valid ? '验签通过：签名真实有效' : '验签失败：未匹配到有效签名'}
+                {verifyResult.valid ? t('caSignature.verifyPassed') : t('caSignature.verifyFailedMsg')}
               </div>
               {verifyResult.valid && (
                 <div style={{ color: '#065f46', fontFamily: 'monospace' }}>
-                  签名人：{verifyResult.signerName}<br />
-                  签名算法：{ALGO_CONFIG[verifyResult.algorithm]?.label ?? verifyResult.algorithm}<br />
-                  签名时间：{verifyResult.signedAt}<br />
-                  证书状态：{STATUS_CONFIG[verifyResult.certStatus]?.label ?? verifyResult.certStatus}
+                  {t('caSignature.signerLabel')}{verifyResult.signerName}<br />
+                  {t('caSignature.signAlgorithm')}{ALGO_CONFIG[verifyResult.algorithm]?.label ?? verifyResult.algorithm}<br />
+                  {t('caSignature.signTime')}{verifyResult.signedAt}<br />
+                  {t('caSignature.certStatusLabel')}{STATUS_CONFIG[verifyResult.certStatus]?.label ?? verifyResult.certStatus}
                 </div>
               )}
             </div>
@@ -737,7 +738,7 @@ export default function CASignaturePage() {
 
       {/* ===== 签名历史 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileSearch size={14} color="#7c3aed" /> 签名历史</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileSearch size={14} color="#7c3aed" /> {t('caSignature.signatureHistory')}</span>}
         open={showSignaturesModal}
         onCancel={() => setShowSignaturesModal(false)}
         footer={null}
@@ -745,15 +746,15 @@ export default function CASignaturePage() {
       >
         <div style={{ maxHeight: 480, overflow: 'auto', paddingTop: 8 }}>
           {signaturesLoading ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>加载签名历史...</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.loadingSignatures')}</div>
           ) : signatures.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>暂无签名记录</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.noSignatures')}</div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr>
-                  {['签名人', '报告 ID', '算法', '验证码', '签名时间'].map(h => (
+                  {[t('caSignature.colSigner'), t('caSignature.colReportId'), t('caSignature.colAlgorithm'), t('caSignature.colVerifyCode'), t('caSignature.colSignTime')].map(h => (
                     <th key={h} style={{ padding: '8px 10px', textAlign: 'left', background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)', color: 'var(--text-secondary)' }}>{h}</th>
                   ))}
                 </tr>
@@ -773,9 +774,9 @@ export default function CASignaturePage() {
               </tbody>
             </table>
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 }}>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>共 {signatures.length} 条 · 第 {sigPage}/{sigTotalPages} 页</span>
-              <button style={selectStyle} disabled={sigPage <= 1} onClick={() => setSigPage(p => Math.max(1, p - 1))}>上一页</button>
-              <button style={selectStyle} disabled={sigPage >= sigTotalPages} onClick={() => setSigPage(p => Math.min(sigTotalPages, p + 1))}>下一页</button>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('caSignature.totalLabel')} {signatures.length} {t('caSignature.itemsUnit')} · {t('caSignature.pageLabel')} {sigPage}/{sigTotalPages} {t('caSignature.pageUnit')}</span>
+              <button style={selectStyle} disabled={sigPage <= 1} onClick={() => setSigPage(p => Math.max(1, p - 1))}>{t('caSignature.prevPage')}</button>
+              <button style={selectStyle} disabled={sigPage >= sigTotalPages} onClick={() => setSigPage(p => Math.min(sigTotalPages, p + 1))}>{t('caSignature.nextPage')}</button>
             </div>
             </div>
           )}
@@ -784,7 +785,7 @@ export default function CASignaturePage() {
 
       {/* ===== 操作历史 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><HistoryIcon size={14} color="#7c3aed" /> 证书操作历史</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><HistoryIcon size={14} color="#7c3aed" /> {t('caSignature.caHistoryTitle')}</span>}
         open={showHistoryModal}
         onCancel={() => setShowHistoryModal(false)}
         footer={null}
@@ -792,9 +793,9 @@ export default function CASignaturePage() {
       >
         <div style={{ maxHeight: 460, overflow: 'auto', paddingTop: 8 }}>
           {historyLoading ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>加载操作历史...</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.loadingHistory')}</div>
           ) : history.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>暂无操作记录</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.noHistory')}</div>
           ) : (
             <div>
               {history.map(h => {

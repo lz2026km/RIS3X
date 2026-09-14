@@ -4,15 +4,16 @@ import { treatmentPlanApi, type TreatmentPlan, type PlanStatus } from '../../ser
 import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Modal, Form, Badge, Steps, Popconfirm, Alert, Empty, Spin, Descriptions } from 'antd';
 import { Plus, ClipboardList, RefreshCw, PlayCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
-const PLAN_STATUS_LABEL: Record<string, string> = {
-  planned: '已计划',
-  in_progress: '进行中',
-  completed: '已完成',
-  pending: '待处理',
-};
+const planStatusLabel = (s: string): string =>
+  s === 'planned' ? t('treatmentPlan.status.planned')
+    : s === 'in_progress' ? t('treatmentPlan.status.inProgress')
+      : s === 'completed' ? t('treatmentPlan.status.completed')
+        : s === 'pending' ? t('treatmentPlan.status.pending')
+          : s;
 
 const PLAN_STATUS_COLOR: Record<string, string> = {
   planned: 'default',
@@ -21,8 +22,8 @@ const PLAN_STATUS_COLOR: Record<string, string> = {
   pending: 'orange',
 };
 
-const PLAN_TYPE_OPTIONS = ['种植', '根管治疗', '正畸-正颌', '颌面外科', '修复'].map(t => ({ value: t, label: t }));
-const DEPT_OPTIONS = ['口腔科', '放射科', '口腔外科', '正畸科', '眼科'].map(d => ({ value: d, label: d }));
+const PLAN_TYPE_OPTIONS = ['种植', '根管治疗', '正畸-正颌', '颌面外科', '修复'].map((x) => ({ value: x, label: x }));
+const DEPT_OPTIONS = ['口腔科', '放射科', '口腔外科', '正畸科', '眼科'].map((d) => ({ value: d, label: d }));
 const PATIENT_OPTIONS = [
   { value: 'P100001', label: '张伟' },
   { value: 'P100002', label: '李娜' },
@@ -30,10 +31,10 @@ const PATIENT_OPTIONS = [
   { value: 'P100004', label: '陈丽' },
 ];
 
-const TIMELINE_STATUS: Record<string, { color: string; label: string }> = {
-  completed: { color: 'green', label: '已完成' },
-  in_progress: { color: 'blue', label: '进行中' },
-  pending: { color: 'default', label: '待处理' },
+const TIMELINE_STATUS_COLOR: Record<string, string> = {
+  completed: 'green',
+  in_progress: 'blue',
+  pending: 'default',
 };
 
 export const TreatmentPlanCenterPage: React.FC = () => {
@@ -81,18 +82,18 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         outcome: values.outcome ?? '',
       });
       if (res.success) {
-        message.success('治疗计划已更新');
+        message.success(t('treatmentPlan.updated'));
         setEditModal(false);
         void load();
         const updated = res.data as TreatmentPlan;
         setDetail(updated);
         setDetailTimeline(updated.timeline ?? detailTimeline);
       } else {
-        message.error(res.error?.message ?? '更新失败');
+        message.error(res.error?.message ?? t('treatmentPlan.updateFailed'));
       }
     } catch (e) {
       if (e instanceof Error && e.message) message.error(e.message);
-      else message.error('更新失败');
+      else message.error(t('treatmentPlan.updateFailed'));
     } finally {
       setEditSaving(false);
     }
@@ -106,11 +107,11 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setPlans(res.data as TreatmentPlan[]);
       } else {
-        setError(res.error?.message ?? '治疗计划加载失败');
+        setError(res.error?.message ?? t('treatmentPlan.loadFailed'));
       }
     } catch (e) {
       console.error('[TreatmentPlan] load:', e);
-      setError('治疗计划加载失败, 请稍后重试');
+      setError(t('treatmentPlan.loadFailedRetry'));
     } finally {
       setLoading(false);
     }
@@ -135,16 +136,16 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         status: 'planned',
       });
       if (res.success) {
-        message.success('治疗计划已创建');
+        message.success(t('treatmentPlan.created'));
         setCreateModal(false);
         form.resetFields();
         void load();
       } else {
-        message.error(res.error?.message ?? '创建失败');
+        message.error(res.error?.message ?? t('treatmentPlan.createFailed'));
       }
     } catch (e) {
       if (e instanceof Error && e.message) message.error(e.message);
-      else message.error('创建失败');
+      else message.error(t('treatmentPlan.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -155,14 +156,14 @@ export const TreatmentPlanCenterPage: React.FC = () => {
     try {
       const res = await treatmentPlanApi.transition(plan.id, status);
       if (res.success) {
-        message.success(`已流转为「${PLAN_STATUS_LABEL[status]}」`);
+        message.success(`${planStatusLabel(status)}`);
         void load();
         if (detail?.id === plan.id) setDetail(res.data as TreatmentPlan);
       } else {
-        message.error(res.error?.message ?? '状态流转失败');
+        message.error(res.error?.message ?? t('treatmentPlan.transitionFailed'));
       }
     } catch {
-      message.error('状态流转失败');
+      message.error(t('treatmentPlan.transitionFailed'));
     } finally {
       setTransitioning('');
     }
@@ -172,13 +173,13 @@ export const TreatmentPlanCenterPage: React.FC = () => {
     try {
       const res = await treatmentPlanApi.remove(id);
       if (res.success) {
-        message.success('计划已删除');
+        message.success(t('treatmentPlan.deleted'));
         void load();
       } else {
-        message.error(res.error?.message ?? '删除失败');
+        message.error(res.error?.message ?? t('treatmentPlan.deleteFailed'));
       }
     } catch {
-      message.error('删除失败');
+      message.error(t('treatmentPlan.deleteFailed'));
     }
   };
 
@@ -190,23 +191,23 @@ export const TreatmentPlanCenterPage: React.FC = () => {
   };
 
   const columns = [
-    { title: '编号', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
-    { title: '患者', dataIndex: 'patient', key: 'patient', width: 80 },
-    { title: '类型', dataIndex: 'type', key: 'type', width: 100, render: (t: string) => <Tag color={t === '种植' ? 'blue' : t === '根管治疗' ? 'green' : 'purple'}>{t}</Tag> },
-    { title: '涉及科室', dataIndex: 'department', key: 'department', width: 180, render: (d: string) => <Tag color="orange">{d}</Tag> },
-    { title: '进展', dataIndex: 'progress', key: 'progress', width: 100, render: (p: number) => <><Badge status={p >= 1 ? 'success' : 'processing'} />{Math.round((p ?? 0) * 100)}%</> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={PLAN_STATUS_COLOR[s] ?? 'default'}>{PLAN_STATUS_LABEL[s] ?? s}</Tag> },
-    { title: '描述', dataIndex: 'desc', key: 'desc', ellipsis: true },
-    { title: '开始', dataIndex: 'startDate', key: 'startDate', width: 100 },
+    { title: t('treatmentPlan.colNo'), dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
+    { title: t('treatmentPlan.colPatient'), dataIndex: 'patient', key: 'patient', width: 80 },
+    { title: t('treatmentPlan.colType'), dataIndex: 'type', key: 'type', width: 100, render: (tv: string) => <Tag color={tv === '种植' ? 'blue' : tv === '根管治疗' ? 'green' : 'purple'}>{tv}</Tag> },
+    { title: t('treatmentPlan.colDept'), dataIndex: 'department', key: 'department', width: 180, render: (d: string) => <Tag color="orange">{d}</Tag> },
+    { title: t('treatmentPlan.colProgress'), dataIndex: 'progress', key: 'progress', width: 100, render: (p: number) => <><Badge status={p >= 1 ? 'success' : 'processing'} />{Math.round((p ?? 0) * 100)}%</> },
+    { title: t('treatmentPlan.colStatus'), dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={PLAN_STATUS_COLOR[s] ?? 'default'}>{planStatusLabel(s)}</Tag> },
+    { title: t('treatmentPlan.colDesc'), dataIndex: 'desc', key: 'desc', ellipsis: true },
+    { title: t('treatmentPlan.colStart'), dataIndex: 'startDate', key: 'startDate', width: 100 },
     {
-      title: '操作', key: 'actions', width: 220,
+      title: t('treatmentPlan.colActions'), key: 'actions', width: 220,
       render: (_: unknown, r: TreatmentPlan) => (
         <Space size={4}>
-          <Button size="small" onClick={() => { void openDetail(r); }}>详情</Button>
-          {r.status === 'planned' && <Button size="small" type="primary" icon={<PlayCircle size={11} />} loading={transitioning === r.id} onClick={() => void handleTransition(r, 'in_progress')}>开始</Button>}
-          {r.status === 'in_progress' && <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={transitioning === r.id} onClick={() => void handleTransition(r, 'completed')}>完成</Button>}
-          {r.status === 'completed' && <Button size="small" loading={transitioning === r.id} onClick={() => void handleTransition(r, 'in_progress')}>重启</Button>}
-          <Popconfirm title="删除该计划?" onConfirm={() => void handleDelete(r.id)}>
+          <Button size="small" onClick={() => { void openDetail(r); }}>{t('treatmentPlan.detailBtn')}</Button>
+          {r.status === 'planned' && <Button size="small" type="primary" icon={<PlayCircle size={11} />} loading={transitioning === r.id} onClick={() => void handleTransition(r, 'in_progress')}>{t('treatmentPlan.startBtn')}</Button>}
+          {r.status === 'in_progress' && <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={transitioning === r.id} onClick={() => void handleTransition(r, 'completed')}>{t('treatmentPlan.completeBtn')}</Button>}
+          {r.status === 'completed' && <Button size="small" loading={transitioning === r.id} onClick={() => void handleTransition(r, 'in_progress')}>{t('treatmentPlan.restartBtn')}</Button>}
+          <Popconfirm title={t('treatmentPlan.confirmDelete')} onConfirm={() => void handleDelete(r.id)}>
             <Button size="small" danger icon={<Trash2 size={11} />} />
           </Popconfirm>
         </Space>
@@ -220,41 +221,41 @@ export const TreatmentPlanCenterPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <ClipboardList size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>跨科室治疗计划中心</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('treatmentPlan.pageTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('treatmentPlan.retry')}</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title="总计划" value={stats.total} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已计划" value={stats.planned} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title="执行中" value={stats.active} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已完成" value={stats.completed} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('treatmentPlan.statTotal')} value={stats.total} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('treatmentPlan.statPlanned')} value={stats.planned} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('treatmentPlan.statActive')} value={stats.active} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('treatmentPlan.statCompleted')} value={stats.completed} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
-        { key: 'plans', label: '治疗计划', children:
-          <Card extra={<Space><Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>新建治疗计划</Button><Button icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button></Space>} size="small" title={`${plans.length} 项`}>
+        { key: 'plans', label: t('treatmentPlan.tabPlans'), children:
+          <Card extra={<Space><Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('treatmentPlan.newPlan')}</Button><Button icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button></Space>} size="small" title={`${plans.length} ${t('treatmentPlan.itemsUnit')}`}>
             <Spin spinning={loading}>
               <Table
                 dataSource={planPageData}
                 rowKey="id"
                 pagination={planPagination}
                 columns={columns}
-                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无治疗计划, 点击新建创建" /> }}
+                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('treatmentPlan.emptyPlans')} /> }}
               scroll={{ x: 'max-content' }}
               />
             </Spin>
           </Card>
         },
-        { key: 'timeline', label: '项目时间线', children:
-          <Card size="small" title="选择左侧列表中的计划查看时间线 (点击「详情」)" >
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请在「治疗计划」页签点击计划详情查看时间线" />
+        { key: 'timeline', label: t('treatmentPlan.tabTimeline'), children:
+          <Card size="small" title={t('treatmentPlan.timelineSelectHint')} >
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('treatmentPlan.timelineEmptyHint')} />
           </Card>
         },
       ]} />
 
       <Modal
-        title="新建跨科室治疗计划"
+        title={t('treatmentPlan.newPlanTitle')}
         open={createModal}
         onCancel={() => setCreateModal(false)}
         onOk={() => void handleCreate()}
@@ -262,28 +263,28 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         width={520}
       >
         <Form form={form} layout="vertical" size="small" initialValues={{ type: '种植', departments: ['口腔科', '放射科'] }}>
-          <Form.Item label="患者" name="patientId" rules={[{ required: true, message: '请选择患者' }]}>
-            <Select options={PATIENT_OPTIONS} placeholder="选择患者" />
+          <Form.Item label={t('treatmentPlan.patientLabel')} name="patientId" rules={[{ required: true, message: t('treatmentPlan.selectPatient') }]}>
+            <Select options={PATIENT_OPTIONS} placeholder={t('treatmentPlan.selectPatientPh')} />
           </Form.Item>
-          <Form.Item label="治疗类型" name="type" rules={[{ required: true, message: '请选择类型' }]}>
+          <Form.Item label={t('treatmentPlan.typeLabel')} name="type" rules={[{ required: true, message: t('treatmentPlan.selectType') }]}>
             <Select options={PLAN_TYPE_OPTIONS} />
           </Form.Item>
-          <Form.Item label="涉及科室" name="departments" rules={[{ required: true, message: '请选择科室' }]}>
+          <Form.Item label={t('treatmentPlan.deptLabel')} name="departments" rules={[{ required: true, message: t('treatmentPlan.selectDept') }]}>
             <Select mode="multiple" options={DEPT_OPTIONS} />
           </Form.Item>
-          <Form.Item label="开始日期" name="startDate">
+          <Form.Item label={t('treatmentPlan.startDateLabel')} name="startDate">
             <Input type="date" />
           </Form.Item>
-          <Form.Item label="描述" name="desc" rules={[{ required: true, message: '请输入计划概述' }]}>
-            <TextArea rows={3} placeholder="治疗计划概述" />
+          <Form.Item label={t('treatmentPlan.descLabel')} name="desc" rules={[{ required: true, message: t('treatmentPlan.descRequired') }]}>
+            <TextArea rows={3} placeholder={t('treatmentPlan.descPh')} />
           </Form.Item>
-          <Form.Item label="预期结果" name="outcome">
-            <TextArea rows={2} placeholder="预期治疗结果 (可选)" />
+          <Form.Item label={t('treatmentPlan.outcomeLabel')} name="outcome">
+            <TextArea rows={2} placeholder={t('treatmentPlan.outcomePh')} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title={`计划详情 - ${detail?.id ?? ''}`} open={detailModal} onCancel={() => setDetailModal(false)} footer={
+      <Modal title={`${t('treatmentPlan.detailTitle')} - ${detail?.id ?? ''}`} open={detailModal} onCancel={() => setDetailModal(false)} footer={
         detail ? (
           <>
             <Button onClick={() => { editForm.setFieldsValue({
@@ -292,10 +293,10 @@ export const TreatmentPlanCenterPage: React.FC = () => {
               startDate: detail.startDate,
               desc: detail.desc,
               outcome: detail.outcome ?? '',
-            }); setEditModal(true); }}>编辑</Button>
+            }); setEditModal(true); }}>{t('treatmentPlan.editBtn')}</Button>
             {nextStatus ? (
               <Button type="primary" loading={transitioning === detail.id} onClick={() => void handleTransition(detail, nextStatus)}>
-                {nextStatus === 'in_progress' ? '开始执行' : '标记完成'}
+                {nextStatus === 'in_progress' ? t('treatmentPlan.startExecute') : t('treatmentPlan.markComplete')}
               </Button>
             ) : null}
           </>
@@ -304,23 +305,23 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         {detail && (
           <>
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="患者">{detail.patient}</Descriptions.Item>
-              <Descriptions.Item label="类型"><Tag color="blue">{detail.type}</Tag></Descriptions.Item>
-              <Descriptions.Item label="涉及科室" span={2}><Tag color="orange">{detail.department}</Tag></Descriptions.Item>
-              <Descriptions.Item label="开始日期">{detail.startDate}</Descriptions.Item>
-              <Descriptions.Item label="状态"><Tag color={PLAN_STATUS_COLOR[detail.status] ?? 'default'}>{PLAN_STATUS_LABEL[detail.status] ?? detail.status}</Tag></Descriptions.Item>
-              <Descriptions.Item label="描述" span={2}>{detail.desc}</Descriptions.Item>
-              <Descriptions.Item label="结果" span={2}>{detail.outcome || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('treatmentPlan.patientLabel')}>{detail.patient}</Descriptions.Item>
+              <Descriptions.Item label={t('treatmentPlan.colType')}><Tag color="blue">{detail.type}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('treatmentPlan.colDept')} span={2}><Tag color="orange">{detail.department}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('treatmentPlan.startDateLabel')}>{detail.startDate}</Descriptions.Item>
+              <Descriptions.Item label={t('treatmentPlan.colStatus')}><Tag color={PLAN_STATUS_COLOR[detail.status] ?? 'default'}>{planStatusLabel(detail.status)}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('treatmentPlan.descLabel')} span={2}>{detail.desc}</Descriptions.Item>
+              <Descriptions.Item label={t('treatmentPlan.outcomeLabel')} span={2}>{detail.outcome || '-'}</Descriptions.Item>
             </Descriptions>
-            <Card size="small" title={<Space>治疗时间线 <Tag color="blue">GET /treatment-plans/:id/timeline</Tag></Space>} extra={timelineLoading ? <Spin size="small" /> : null}>
+            <Card size="small" title={<Space>{t('treatmentPlan.timelineTitle')} <Tag color="blue">GET /treatment-plans/:id/timeline</Tag></Space>} extra={timelineLoading ? <Spin size="small" /> : null}>
               {detailTimeline.length === 0 ? (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无时间线数据" />
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('treatmentPlan.timelineEmpty')} />
               ) : (
                 <Steps
                   current={detailTimeline.filter(s => s.status === 'completed').length}
                   orientation="vertical"
                   items={detailTimeline.map(s => ({
-                    title: <Space>{s.step}<Tag color={TIMELINE_STATUS[s.status]?.color ?? 'default'}>{TIMELINE_STATUS[s.status]?.label ?? s.status}</Tag></Space>,
+                    title: <Space>{s.step}<Tag color={TIMELINE_STATUS_COLOR[s.status] ?? 'default'}>{planStatusLabel(s.status)}</Tag></Space>,
                     description: s.date,
                   }))}
                 />
@@ -331,22 +332,22 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       </Modal>
 
       {/* [W1-B] 编辑计划: PATCH /treatment-plans/:id */}
-      <Modal title={`编辑治疗计划 - ${detail?.id ?? ''}`} open={editModal} onCancel={() => setEditModal(false)} onOk={() => void handleUpdate()} confirmLoading={editSaving} width={520}>
+      <Modal title={`${t('treatmentPlan.editTitle')} - ${detail?.id ?? ''}`} open={editModal} onCancel={() => setEditModal(false)} onOk={() => void handleUpdate()} confirmLoading={editSaving} width={520}>
         <Form form={editForm} layout="vertical" size="small">
-          <Form.Item label="治疗类型" name="type" rules={[{ required: true, message: '请选择类型' }]}>
+          <Form.Item label={t('treatmentPlan.typeLabel')} name="type" rules={[{ required: true, message: t('treatmentPlan.selectType') }]}>
             <Select options={PLAN_TYPE_OPTIONS} />
           </Form.Item>
-          <Form.Item label="涉及科室" name="departments" rules={[{ required: true, message: '请选择科室' }]}>
+          <Form.Item label={t('treatmentPlan.deptLabel')} name="departments" rules={[{ required: true, message: t('treatmentPlan.selectDept') }]}>
             <Select mode="multiple" options={DEPT_OPTIONS} />
           </Form.Item>
-          <Form.Item label="开始日期" name="startDate">
+          <Form.Item label={t('treatmentPlan.startDateLabel')} name="startDate">
             <Input type="date" />
           </Form.Item>
-          <Form.Item label="描述" name="desc" rules={[{ required: true, message: '请输入计划概述' }]}>
-            <TextArea rows={3} placeholder="治疗计划概述" />
+          <Form.Item label={t('treatmentPlan.descLabel')} name="desc" rules={[{ required: true, message: t('treatmentPlan.descRequired') }]}>
+            <TextArea rows={3} placeholder={t('treatmentPlan.descPh')} />
           </Form.Item>
-          <Form.Item label="预期结果" name="outcome">
-            <TextArea rows={2} placeholder="预期治疗结果 (可选)" />
+          <Form.Item label={t('treatmentPlan.outcomeLabel')} name="outcome">
+            <TextArea rows={2} placeholder={t('treatmentPlan.outcomePh')} />
           </Form.Item>
         </Form>
       </Modal>

@@ -41,12 +41,13 @@ import {
 } from "lucide-react";
 import React, { useState, useMemo, useEffect } from "react";
 import { Inbox } from 'lucide-react'
+import { t } from "../../../i18n/appI18n";
 
 
-const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
-const PRIORITY_LABELS_EYE_RIS: Record<string, string> = { routine: '常规', urgent: '加急', emergent: '紧急', stat: '立刻' };
-const REFERRAL_STATUS_LABELS_DICT: Record<string, string> = { pending: '待处理', accepted: '已接受', completed: '已完成', rejected: '已拒绝' };
-const SURGERY_STATUS_LABELS_DICT: Record<string, string> = { scheduled: '已预约', pre_checked: '已术前', completed: '已完成', cancelled: '已取消' };
+const MODALITY_LABELS: Record<string, string> = { fundus_photo: t('eyeRis.modalityFundusPhoto'), oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: t('eyeRis.modalityVisualField'), topography: t('eyeRis.modalityTopography'), pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: t('eyeRis.modalitySlitLamp'), oct_a: 'OCTA', corneal_endothelium: t('eyeRis.modalityCornealEndothelium'), tear_film: t('eyeRis.modalityTearFilm'), fundus_autofluorescence: t('eyeRis.modalityFundusAf') };
+const PRIORITY_LABELS_EYE_RIS: Record<string, string> = { routine: t('eyeRis.priorityRoutine'), urgent: t('eyeRis.priorityUrgent'), emergent: t('eyeRis.priorityEmergent'), stat: t('eyeRis.priorityStat') };
+const REFERRAL_STATUS_LABELS_DICT: Record<string, string> = { pending: t('eyeRis.referralPending'), accepted: t('eyeRis.referralAccepted'), completed: t('eyeRis.referralCompleted'), rejected: t('eyeRis.referralRejected') };
+const SURGERY_STATUS_LABELS_DICT: Record<string, string> = { scheduled: t('eyeRis.surgeryScheduled'), pre_checked: t('eyeRis.surgeryPreChecked'), completed: t('eyeRis.surgeryCompleted'), cancelled: t('eyeRis.surgeryCancelled') };
 
 const FLOW_STEP_KEYS = [
   "scheduled",
@@ -89,7 +90,7 @@ const EyeRisPage: React.FC = () => {
         updateAppointmentStatus(record.id, "arrived");
         message.success(`${record.patientName} 已到检`);
       } else {
-        message.warning(res.error?.message ?? "到检接口不可用，已本地更新状态");
+        message.warning(res.error?.message ?? t("eyeRis.checkinUnavailable"));
         updateAppointmentStatus(record.id, "arrived");
       }
     } catch {
@@ -108,7 +109,7 @@ const EyeRisPage: React.FC = () => {
         updateAppointmentStatus(record.id, "in_progress");
         message.success(`已叫号: ${record.patientName}（${MODALITY_LABELS[record.modality] || record.modality}）`);
       } else {
-        message.warning(res.error?.message ?? "叫号接口不可用，已本地更新状态");
+        message.warning(res.error?.message ?? t("eyeRis.callUnavailable"));
         updateAppointmentStatus(record.id, "in_progress");
       }
     } catch {
@@ -128,7 +129,7 @@ const EyeRisPage: React.FC = () => {
         setReferrals(prev => prev.map(x => x.id === r.id ? { ...x, status: "accepted" as const } : x));
         message.success(`已接受转诊: ${r.patientName}`);
       } else {
-        message.warning(res.error?.message ?? "接受转诊接口不可用");
+        message.warning(res.error?.message ?? t("eyeRis.acceptReferralUnavailable"));
       }
     } catch {
       setReferrals(prev => prev.map(x => x.id === r.id ? { ...x, status: "accepted" as const } : x));
@@ -163,11 +164,11 @@ const EyeRisPage: React.FC = () => {
         const surgRes = await eyeApi.getSurgeries();
         if (surgRes.success && Array.isArray(surgRes.data)) setSurgeryAppointments(surgRes.data as unknown as SurgeryAppointment[]);
       } else {
-        message.error(res.error?.message ?? "排程失败");
+        message.error(res.error?.message ?? t("eyeRis.scheduleFailed"));
         setSurgeryModal(prev => ({ ...prev, submitting: false }));
       }
     } catch (e: any) {
-      message.error(e?.message ?? "排程失败");
+      message.error(e?.message ?? t("eyeRis.scheduleFailed"));
       setSurgeryModal(prev => ({ ...prev, submitting: false }));
     }
   };
@@ -180,7 +181,7 @@ const EyeRisPage: React.FC = () => {
         setSurgeryAppointments(prev => prev.filter(x => x.id !== s.id));
         message.success(`已取消手术: ${s.patientName}`);
       } else {
-        message.warning(res.error?.message ?? "取消接口不可用");
+        message.warning(res.error?.message ?? t("eyeRis.cancelUnavailable"));
       }
     } catch {
       setSurgeryAppointments(prev => prev.map(x => x.id === s.id ? { ...x, status: "cancelled" as const } : x));
@@ -253,12 +254,12 @@ const EyeRisPage: React.FC = () => {
 
   
   const statusLabels: Record<string, string> = {
-    scheduled: "已预约",
-    arrived: "已到检",
-    in_progress: "检查中",
-    completed: "已完成",
-    cancelled: "已取消",
-    no_show: "未到检",
+    scheduled: t("eyeRis.statusScheduled"),
+    arrived: t("eyeRis.statusArrived"),
+    in_progress: t("eyeRis.statusInProgress"),
+    completed: t("eyeRis.statusCompleted"),
+    cancelled: t("eyeRis.statusCancelled"),
+    no_show: t("eyeRis.statusNoShow"),
   };
   const statusColors: Record<string, string> = {
     scheduled: "blue",
@@ -272,7 +273,7 @@ const EyeRisPage: React.FC = () => {
   if (loading) {
     return (
       <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-ris-page">
-        <div style={{ textAlign: "center", padding: 60 }}><Spin tip="加载 RIS 数据..." /></div>
+        <div style={{ textAlign: "center", padding: 60 }}><Spin tip={t("eyeRis.loadingRis")} /></div>
       </PageContainer>
     );
   }
@@ -285,18 +286,18 @@ const EyeRisPage: React.FC = () => {
       testId="eye-ris-page"
     >
       <PageHeader
-        title="RIS 工作流程"
+        title={t("eyeRis.title")}
         icon={<Activity size={24} color="#10b981" />}
         variant="inline"
         actions={
           <>
-            <Tag color="green">今日预约 {todayApts.length}</Tag>
+            <Tag color="green">{t("eyeRis.tagTodayAppointments")} {todayApts.length}</Tag>
             <Tag color="orange">
-              危急值{" "}
+              {t("eyeRis.tagCriticalValues")}{" "}
               {criticalValues.filter((c) => c.status === "open").length}
             </Tag>
             <Tag color="blue">
-              待处理转诊{" "}
+              {t("eyeRis.tagPendingReferrals")}{" "}
               {referrals.filter((r) => r.status === "pending").length}
             </Tag>
           </>
@@ -313,7 +314,7 @@ const EyeRisPage: React.FC = () => {
             size="small"
             title={
               <>
-                <Calendar size={14} /> 今日检查流程 ({today})
+                <Calendar size={14} /> {t("eyeRis.todayFlow")} ({today})
               </>
             }
           >
@@ -323,13 +324,13 @@ const EyeRisPage: React.FC = () => {
               direction={isNarrow ? "vertical" : "horizontal"}
               style={{ marginBottom: 12 }}
               items={[
-                { title: '登记', description: isNarrow ? '已预约/已到检' : undefined },
-                { title: '候诊', description: isNarrow ? '等候检查' : undefined },
-                { title: '检查', description: isNarrow ? '检查中' : undefined },
-                { title: '影像上传', description: isNarrow ? 'DICOM 上传' : undefined },
-                { title: 'AI 分析', description: isNarrow ? 'AI 辅助诊断' : undefined },
-                { title: '报告', description: isNarrow ? '医师书写' : undefined },
-                { title: '审核', description: isNarrow ? '终审发布' : undefined },
+                { title: t('eyeRis.stepRegister'), description: isNarrow ? t('eyeRis.stepRegisterDesc') : undefined },
+                { title: t('eyeRis.stepWaiting'), description: isNarrow ? t('eyeRis.stepWaitingDesc') : undefined },
+                { title: t('eyeRis.stepExam'), description: isNarrow ? t('eyeRis.stepExamDesc') : undefined },
+                { title: t('eyeRis.stepImageUpload'), description: isNarrow ? t('eyeRis.stepImageUploadDesc') : undefined },
+                { title: t('eyeRis.stepAiAnalysis'), description: isNarrow ? t('eyeRis.stepAiAnalysisDesc') : undefined },
+                { title: t('eyeRis.stepReport'), description: isNarrow ? t('eyeRis.stepReportDesc') : undefined },
+                { title: t('eyeRis.stepReview'), description: isNarrow ? t('eyeRis.stepReviewDesc') : undefined },
               ]}
             />
             <Table
@@ -339,25 +340,25 @@ const EyeRisPage: React.FC = () => {
               pagination={{
                 ...todayAptsPagination,
                 showSizeChanger: true,
-                showTotal: (t: number) => `共 ${t} 条`,
+                showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eyeRis.noData")} /> }}
               columns={[
                 {
-                  title: "时间",
+                  title: t("eyeRis.colTime"),
                   dataIndex: "scheduledTime",
                   key: "scheduledTime",
                   width: 60,
                 },
                 {
-                  title: "患者",
+                  title: t("eyeRis.colPatient"),
                   dataIndex: "patientName",
                   key: "patientName",
                   width: 70,
                 },
                 {
-                  title: "检查",
+                  title: t("eyeRis.colExam"),
                   dataIndex: "modality",
                   key: "modality",
                   width: 80,
@@ -366,20 +367,20 @@ const EyeRisPage: React.FC = () => {
                   ),
                 },
                 {
-                  title: "眼别",
+                  title: t("eyeRis.colEyeSide"),
                   dataIndex: "eyeSide",
                   key: "eyeSide",
                   width: 40,
                 },
-                { title: "房间", dataIndex: "room", key: "room", width: 70 },
+                { title: t("eyeRis.colRoom"), dataIndex: "room", key: "room", width: 70 },
                 {
-                  title: "医生",
+                  title: t("eyeRis.colDoctor"),
                   dataIndex: "doctorName",
                   key: "doctorName",
                   width: 60,
                 },
                 {
-                  title: "状态",
+                  title: t("eyeRis.colStatus"),
                   dataIndex: "status",
                   key: "status",
                   width: 70,
@@ -388,7 +389,7 @@ const EyeRisPage: React.FC = () => {
                   ),
                 },
                 {
-                  title: "操作",
+                  title: t("eyeRis.colActions"),
                   key: "action",
                   width: 120,
                   render: (_: unknown, record: EyeAppointment) => (
@@ -399,7 +400,7 @@ const EyeRisPage: React.FC = () => {
                         loading={checkinLoadingId === record.id}
                         onClick={() => void handleCheckin(record)}
                       >
-                        到检
+                        {t("eyeRis.checkin")}
                       </Button>
                       <Button
                         size="small"
@@ -407,7 +408,7 @@ const EyeRisPage: React.FC = () => {
                         loading={callLoadingId === record.id}
                         onClick={() => void handleCall(record)}
                       >
-                        叫号
+                        {t("eyeRis.callNumber")}
                       </Button>
                     </Space.Compact>
                   ),
@@ -424,7 +425,7 @@ const EyeRisPage: React.FC = () => {
             size="small"
             title={
               <>
-                <Clock size={14} /> 近期预约
+                <Clock size={14} /> {t("eyeRis.upcomingAppointments")}
               </>
             }
           >
@@ -435,33 +436,33 @@ const EyeRisPage: React.FC = () => {
               pagination={{
                 ...upcomingAptsPagination,
                 showSizeChanger: true,
-                showTotal: (t: number) => `共 ${t} 条`,
+                showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eyeRis.noData")} /> }}
               columns={[
                 {
-                  title: "日期",
+                  title: t("eyeRis.colDate"),
                   dataIndex: "scheduledDate",
                   key: "scheduledDate",
                   width: 80,
                   render: (v: string) => v.slice(5),
                 },
                 {
-                  title: "患者",
+                  title: t("eyeRis.colPatient"),
                   dataIndex: "patientName",
                   key: "patientName",
                   width: 60,
                 },
                 {
-                  title: "检查",
+                  title: t("eyeRis.colExam"),
                   dataIndex: "modality",
                   key: "modality",
                   width: 60,
                   render: (v: string) => <Tag>{MODALITY_LABELS[v] || v}</Tag>,
                 },
                 {
-                  title: "优先级",
+                  title: t("eyeRis.colPriority"),
                   dataIndex: "priority",
                   key: "priority",
                   width: 60,
@@ -488,7 +489,7 @@ const EyeRisPage: React.FC = () => {
             size="small"
             title={
               <>
-                <Bell size={14} /> 随访提醒
+                <Bell size={14} /> {t("eyeRis.followUpReminders")}
               </>
             }
           >
@@ -499,33 +500,33 @@ const EyeRisPage: React.FC = () => {
               pagination={{
                 ...followUpsPagination,
                 showSizeChanger: true,
-                showTotal: (t: number) => `共 ${t} 条`,
+                showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eyeRis.noData")} /> }}
               columns={[
                 {
-                  title: "患者",
+                  title: t("eyeRis.colPatient"),
                   dataIndex: "patientName",
                   key: "patientName",
                   width: 60,
                 },
                 {
-                  title: "病种",
+                  title: t("eyeRis.colCondition"),
                   dataIndex: "condition",
                   key: "condition",
                   width: 80,
                   ellipsis: true,
                 },
                 {
-                  title: "间隔",
+                  title: t("eyeRis.colInterval"),
                   dataIndex: "recommendedInterval",
                   key: "recommendedInterval",
                   width: 50,
                   render: (v: number) => `${v}d`,
                 },
                 {
-                  title: "超期",
+                  title: t("eyeRis.colOverdue"),
                   dataIndex: "overdue",
                   key: "overdue",
                   width: 40,
@@ -540,7 +541,7 @@ const EyeRisPage: React.FC = () => {
             size="small"
             title={
               <>
-                <ArrowRight size={14} /> 转诊管理
+                <ArrowRight size={14} /> {t("eyeRis.referralManagement")}
               </>
             }
           >
@@ -551,33 +552,33 @@ const EyeRisPage: React.FC = () => {
               pagination={{
                 ...referralsPagination,
                 showSizeChanger: true,
-                showTotal: (t: number) => `共 ${t} 条`,
+                showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eyeRis.noData")} /> }}
               columns={[
                 {
-                  title: "患者",
+                  title: t("eyeRis.colPatient"),
                   dataIndex: "patientName",
                   key: "patientName",
                   width: 60,
                 },
                 {
-                  title: "转诊到",
+                  title: t("eyeRis.colReferredTo"),
                   dataIndex: "referredTo",
                   key: "referredTo",
                   width: 60,
                   ellipsis: true,
                 },
                 {
-                  title: "状态",
+                  title: t("eyeRis.colStatus"),
                   dataIndex: "status",
                   key: "status",
                   width: 60,
                   render: (v: string) => <Tag>{REFERRAL_STATUS_LABELS_DICT[v] || v}</Tag>,
                 },
                 {
-                  title: "操作",
+                  title: t("eyeRis.colActions"),
                   key: "action",
                   width: 100,
                   render: (_: unknown, r: EyeReferral) => (
@@ -588,7 +589,7 @@ const EyeRisPage: React.FC = () => {
                       loading={acceptLoadingId === r.id}
                       onClick={() => void handleAcceptReferral(r)}
                     >
-                      接受转诊
+                      {t("eyeRis.acceptReferral")}
                     </Button>
                   ),
                 },
@@ -604,12 +605,12 @@ const EyeRisPage: React.FC = () => {
             size="small"
             title={
               <>
-                <UserCheck size={14} /> 今日手术
+                <UserCheck size={14} /> {t("eyeRis.todaySurgery")}
               </>
             }
             extra={
               <Button size="small" type="primary" icon={<Calendar size={12} />} onClick={() => { surgeryForm.resetFields(); setSurgeryModal({ open: true, submitting: false }); }}>
-                预约手术
+                {t("eyeRis.scheduleSurgery")}
               </Button>
             }
           >
@@ -620,38 +621,38 @@ const EyeRisPage: React.FC = () => {
               pagination={{
                 ...surgeryAptsPagination,
                 showSizeChanger: true,
-                showTotal: (t: number) => `共 ${t} 条`,
+                showTotal: (n: number) => `${t("eyeRis.totalCount")} ${n} ${t("eyeRis.items")}`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eyeRis.noData")} /> }}
               columns={[
                 {
-                  title: "时间",
+                  title: t("eyeRis.colTime"),
                   dataIndex: "scheduledDate",
                   key: "scheduledDate",
                   width: 80,
                 },
                 {
-                  title: "患者",
+                  title: t("eyeRis.colPatient"),
                   dataIndex: "patientName",
                   key: "patientName",
                   width: 60,
                 },
                 {
-                  title: "手术",
+                  title: t("eyeRis.colSurgery"),
                   dataIndex: "procedure",
                   key: "procedure",
                   width: 160,
                   ellipsis: true,
                 },
                 {
-                  title: "医生",
+                  title: t("eyeRis.colDoctor"),
                   dataIndex: "surgeonName",
                   key: "surgeonName",
                   width: 60,
                 },
                 {
-                  title: "状态",
+                  title: t("eyeRis.colStatus"),
                   dataIndex: "status",
                   key: "status",
                   width: 60,
@@ -660,12 +661,12 @@ const EyeRisPage: React.FC = () => {
                   ),
                 },
                 {
-                  title: "操作",
+                  title: t("eyeRis.colActions"),
                   key: "action",
                   width: 80,
                   render: (_: unknown, s: SurgeryAppointment) => (
-                    <Popconfirm title="取消该手术排期?" onConfirm={() => void handleCancelSurgery(s)}>
-                      <Button size="small" danger disabled={s.status === "cancelled" || s.status === "completed"}>取消</Button>
+                    <Popconfirm title={t("eyeRis.cancelSurgeryConfirm")} onConfirm={() => void handleCancelSurgery(s)}>
+                      <Button size="small" danger disabled={s.status === "cancelled" || s.status === "completed"}>{t("eyeRis.cancel")}</Button>
                     </Popconfirm>
                   ),
                 },
@@ -674,16 +675,16 @@ const EyeRisPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={12}>
-          <Card size="small" title={<Space>危急值闭环流程<Tag color="orange" style={{ fontSize: 11 }}>演示数据 (示例流程)</Tag></Space>}>
+          <Card size="small" title={<Space>{t("eyeRis.criticalValueLoop")}<Tag color="orange" style={{ fontSize: 11 }}>{t("eyeRis.demoProcessTag")}</Tag></Space>}>
             <Timeline
               items={[
                 {
                   color: "red",
-                  children: "AI 检测活动性 CNV(置信度95%) → 自动标记紧急",
+                  children: t("eyeRis.timeline1"),
                 },
-                { color: "orange", children: "通知王建国医生(已确认)" },
-                { color: "blue", children: "启动抗 VEGF 治疗流程" },
-                { color: "gray", children: "待填写处理记录" },
+                { color: "orange", children: t("eyeRis.timeline2") },
+                { color: "blue", children: t("eyeRis.timeline3") },
+                { color: "gray", children: t("eyeRis.timeline4") },
               ]}
             />
           </Card>
@@ -692,7 +693,7 @@ const EyeRisPage: React.FC = () => {
 
       {/* [G005 Wave1B] 预约手术 Modal (POST /eye/ris/surgeries) */}
       <Modal
-        title="预约眼科手术"
+        title={t("eyeRis.scheduleSurgeryTitle")}
         open={surgeryModal.open}
         onCancel={() => setSurgeryModal({ open: false, submitting: false })}
         onOk={() => void handleScheduleSurgery()}
@@ -700,38 +701,38 @@ const EyeRisPage: React.FC = () => {
         width={480}
       >
         <Form form={surgeryForm} layout="vertical" size="small" style={{ marginTop: 8 }} initialValues={{ eyeSide: 'OD', orRoom: '手术室 1' }}>
-          <Form.Item label="患者姓名" name="patientName" rules={[{ required: true, message: '请输入患者姓名' }]}>
-            <Input placeholder="如: 张伟" />
+          <Form.Item label={t("eyeRis.fPatientName")} name="patientName" rules={[{ required: true, message: t("eyeRis.fPatientNameRequired") }]}>
+            <Input placeholder={t("eyeRis.fPatientNamePlaceholder")} />
           </Form.Item>
-          <Form.Item label="手术名称" name="procedure" rules={[{ required: true, message: '请输入手术名称' }]}>
-            <Input placeholder="如: 白内障超声乳化+IOL植入" />
+          <Form.Item label={t("eyeRis.fProcedure")} name="procedure" rules={[{ required: true, message: t("eyeRis.fProcedureRequired") }]}>
+            <Input placeholder={t("eyeRis.fProcedurePlaceholder")} />
           </Form.Item>
           <Row gutter={8}>
             <Col span={12}>
-              <Form.Item label="手术日期" name="scheduledDate" rules={[{ required: true, message: '请选择日期' }]}>
+              <Form.Item label={t("eyeRis.fSurgeryDate")} name="scheduledDate" rules={[{ required: true, message: t("eyeRis.fDateRequired") }]}>
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="术眼" name="eyeSide">
-                <Select options={[{ value: 'OD', label: '右眼 OD' }, { value: 'OS', label: '左眼 OS' }, { value: 'OU', label: '双眼 OU' }]} />
+              <Form.Item label={t("eyeRis.fEyeSide")} name="eyeSide">
+                <Select options={[{ value: 'OD', label: t('eyeRis.eyeRight') }, { value: 'OS', label: t('eyeRis.eyeLeft') }, { value: 'OU', label: t('eyeRis.eyeBoth') }]} />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={8}>
             <Col span={12}>
-              <Form.Item label="术者" name="surgeonName" rules={[{ required: true, message: '请输入术者' }]}>
-                <Input placeholder="如: 张主任" />
+              <Form.Item label={t("eyeRis.fSurgeon")} name="surgeonName" rules={[{ required: true, message: t("eyeRis.fSurgeonRequired") }]}>
+                <Input placeholder={t("eyeRis.fSurgeonPlaceholder")} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="手术室" name="orRoom">
+              <Form.Item label={t("eyeRis.fOrRoom")} name="orRoom">
                 <Input />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item label="术前诊断" name="preOpDiagnosis">
-            <Input placeholder="如: 老年性白内障" />
+          <Form.Item label={t("eyeRis.fPreOpDiagnosis")} name="preOpDiagnosis">
+            <Input placeholder={t("eyeRis.fPreOpDiagnosisPlaceholder")} />
           </Form.Item>
         </Form>
       </Modal>

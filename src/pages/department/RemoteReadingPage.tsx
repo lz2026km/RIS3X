@@ -12,20 +12,21 @@ import {
 import { Globe, Send, CheckCircle, Clock, UserPlus, PlayCircle, Undo2 } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
-  pending: { color: 'default', label: '待分配' },
-  in_progress: { color: 'processing', label: '阅片中' },
-  completed: { color: 'success', label: '已完成' },
-  returned: { color: 'error', label: '已退回' },
+  pending: { color: 'default', label: 'remoteReading.statusPending' },
+  in_progress: { color: 'processing', label: 'remoteReading.statusInProgress' },
+  completed: { color: 'success', label: 'remoteReading.statusCompleted' },
+  returned: { color: 'error', label: 'remoteReading.statusReturned' },
 }
 
 const PRIORITY_META: Record<string, { color: string; label: string }> = {
-  routine: { color: 'blue', label: '常规' },
-  urgent: { color: 'orange', label: '紧急' },
-  stat: { color: 'red', label: '加急' },
+  routine: { color: 'blue', label: 'remoteReading.priorityRoutine' },
+  urgent: { color: 'orange', label: 'remoteReading.priorityUrgent' },
+  stat: { color: 'red', label: 'remoteReading.priorityStat' },
 }
 
 const RemoteReadingPage: React.FC = () => {
@@ -52,7 +53,7 @@ const RemoteReadingPage: React.FC = () => {
         remoteReadingApi.getStats(),
       ])
       if (!listRes.success) {
-        setError(listRes.error?.message ?? '会话列表加载失败')
+        setError(listRes.error?.message ?? t('remoteReading.listLoadFailed'))
         setSessions([])
       } else {
         setSessions(Array.isArray(listRes.data) ? listRes.data : [])
@@ -70,7 +71,7 @@ const RemoteReadingPage: React.FC = () => {
         })
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : '远程阅片数据加载失败')
+      setError(e instanceof Error ? e.message : t('remoteReading.dataLoadFailed'))
     } finally {
       setLoading(false)
     }
@@ -122,10 +123,10 @@ const RemoteReadingPage: React.FC = () => {
         setStatusFilter('all')
         await load()
       } else {
-        message.error(res.error?.message ?? '分配失败')
+        message.error(res.error?.message ?? t('remoteReading.assignFailed'))
       }
     } catch (e) {
-      message.error(e instanceof Error ? e.message : '分配失败')
+      message.error(e instanceof Error ? e.message : t('remoteReading.assignFailed'))
     } finally {
       setAssignLoading(false)
     }
@@ -137,7 +138,7 @@ const RemoteReadingPage: React.FC = () => {
       message.success(`已开始阅片: ${row.studyId}`)
       void load()
     } else {
-      message.error(res.error?.message ?? '操作失败')
+      message.error(res.error?.message ?? t('remoteReading.operationFailed'))
     }
   }
 
@@ -145,65 +146,65 @@ const RemoteReadingPage: React.FC = () => {
     if (!completeTarget) return
     const res = await remoteReadingApi.completeReading(completeTarget.id, reportText)
     if (res.success) {
-      message.success('阅片完成,报告已归档')
+      message.success(t('remoteReading.completedArchived'))
       setCompleteTarget(null)
       setReportText('')
       void load()
     } else {
-      message.error(res.error?.message ?? '提交失败')
+      message.error(res.error?.message ?? t('remoteReading.submitFailed'))
     }
   }
 
   const handleReturn = async (row: RemoteReadingSession) => {
     let reason = ''
     Modal.confirm({
-      title: '退回远程阅片任务',
+      title: t('remoteReading.returnTitle'),
       content: (
         <Input.TextArea
           rows={3}
-          placeholder="请输入退回原因(如图像不全、扫描序列缺失等)"
+          placeholder={t('remoteReading.returnPlaceholder')}
           onChange={(e) => { reason = e.target.value }}
         />
       ),
-      okText: '确认退回',
-      cancelText: '取消',
+      okText: t('remoteReading.confirmReturn'),
+      cancelText: t('remoteReading.cancel'),
       onOk: async () => {
         const res = await remoteReadingApi.returnReading(row.id, reason)
         if (res.success) {
-          message.success('任务已退回')
+          message.success(t('remoteReading.returned'))
           void load()
         } else {
-          message.error(res.error?.message ?? '退回失败')
+          message.error(res.error?.message ?? t('remoteReading.returnFailed'))
         }
       },
     })
   }
 
   const columns = [
-    { title: '检查号', dataIndex: 'studyId', key: 'studyId', width: 140, render: (v: string) => <Text code>{v}</Text> },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 100 },
-    { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag>{v}</Tag> },
-    { title: '申请医生', dataIndex: 'referringDoctor', key: 'referring', width: 100 },
-    { title: '阅片医生', dataIndex: 'readingDoctor', key: 'reading', width: 100, render: (v: string, r: RemoteReadingSession) => v ? <Space direction="vertical" size={0}><span>{v}</span><Text type="secondary" style={{ fontSize: 11 }}>{r.readingDoctorDept}</Text></Space> : '-' },
-    { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={PRIORITY_META[v]?.color}>{PRIORITY_META[v]?.label ?? v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={STATUS_META[v]?.color}>{STATUS_META[v]?.label ?? v}</Tag> },
-    { title: '申请时间', dataIndex: 'requestedAt', key: 'requestedAt', width: 160, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
-    { title: '完成时间', dataIndex: 'completedAt', key: 'completedAt', width: 160, render: (v?: string) => v ? new Date(v).toLocaleString('zh-CN') : '-' },
+    { title: t('remoteReading.colStudyId'), dataIndex: 'studyId', key: 'studyId', width: 140, render: (v: string) => <Text code>{v}</Text> },
+    { title: t('remoteReading.colPatient'), dataIndex: 'patientName', key: 'patientName', width: 100 },
+    { title: t('remoteReading.colModality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('remoteReading.colReferring'), dataIndex: 'referringDoctor', key: 'referring', width: 100 },
+    { title: t('remoteReading.colReading'), dataIndex: 'readingDoctor', key: 'reading', width: 100, render: (v: string, r: RemoteReadingSession) => v ? <Space direction="vertical" size={0}><span>{v}</span><Text type="secondary" style={{ fontSize: 11 }}>{r.readingDoctorDept}</Text></Space> : '-' },
+    { title: t('remoteReading.colPriority'), dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={PRIORITY_META[v]?.color}>{t(PRIORITY_META[v]?.label ?? v)}</Tag> },
+    { title: t('remoteReading.colStatus'), dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={STATUS_META[v]?.color}>{t(STATUS_META[v]?.label ?? v)}</Tag> },
+    { title: t('remoteReading.colRequestedAt'), dataIndex: 'requestedAt', key: 'requestedAt', width: 160, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
+    { title: t('remoteReading.colCompletedAt'), dataIndex: 'completedAt', key: 'completedAt', width: 160, render: (v?: string) => v ? new Date(v).toLocaleString('zh-CN') : '-' },
     {
-      title: '操作', key: 'actions', width: 190,
+      title: t('remoteReading.colActions'), key: 'actions', width: 190,
       render: (_: unknown, r: RemoteReadingSession) => (
         <Space size={4}>
           {r.status === 'pending' && (
-            <Button size="small" icon={<PlayCircle size={12} />} onClick={() => handleStart(r)}>开始</Button>
+            <Button size="small" icon={<PlayCircle size={12} />} onClick={() => handleStart(r)}>{t('remoteReading.start')}</Button>
           )}
           {r.status === 'in_progress' && (
-            <Button size="small" type="primary" icon={<CheckCircle size={12} />} onClick={() => setCompleteTarget(r)}>完成</Button>
+            <Button size="small" type="primary" icon={<CheckCircle size={12} />} onClick={() => setCompleteTarget(r)}>{t('remoteReading.complete')}</Button>
           )}
           {(r.status === 'pending' || r.status === 'in_progress') && (
-            <Button size="small" danger icon={<Undo2 size={12} />} onClick={() => handleReturn(r)}>退回</Button>
+            <Button size="small" danger icon={<Undo2 size={12} />} onClick={() => handleReturn(r)}>{t('remoteReading.returnBtn')}</Button>
           )}
           {r.status === 'returned' && r.comment && (
-            <Tooltip title={r.comment}><Tag color="orange">原因:{r.comment.slice(0, 10)}...</Tag></Tooltip>
+            <Tooltip title={r.comment}><Tag color="orange">{t('remoteReading.reason')}:{r.comment.slice(0, 10)}...</Tag></Tooltip>
           )}
         </Space>
       ),
@@ -214,22 +215,22 @@ const RemoteReadingPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Globe size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>远程阅片</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('remoteReading.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
-        <Tag color="geekblue">跨院区协作</Tag>
-        <Button type="primary" icon={<UserPlus size={14} />} onClick={openAssign} style={{ marginLeft: 'auto' }}>分配检查</Button>
+        <Tag color="geekblue">{t('remoteReading.crossCampus')}</Tag>
+        <Button type="primary" icon={<UserPlus size={14} />} onClick={openAssign} style={{ marginLeft: 'auto' }}>{t('remoteReading.assignExam')}</Button>
       </Space>
 
       {error && (
-        <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="error" showIcon message={t('remoteReading.loadFailed')} description={error} style={{ marginBottom: 16 }}
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('remoteReading.retry')}</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="总会诊" value={stats?.totalSessions ?? sessions.length} prefix={<Globe size={16} />} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="待分配" value={stats?.pendingCount ?? 0} prefix={<Clock size={16} />} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已完成" value={stats?.completedCount ?? 0} prefix={<CheckCircle size={16} />} loading={loading} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="平均完成时长" value={stats?.avgCompletionHours ?? 0} suffix="h" prefix={<Send size={16} />} loading={loading} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statTotal')} value={stats?.totalSessions ?? sessions.length} prefix={<Globe size={16} />} loading={loading} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statusPending')} value={stats?.pendingCount ?? 0} prefix={<Clock size={16} />} loading={loading} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statusCompleted')} value={stats?.completedCount ?? 0} prefix={<CheckCircle size={16} />} loading={loading} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statAvgDuration')} value={stats?.avgCompletionHours ?? 0} suffix="h" prefix={<Send size={16} />} loading={loading} /></Card></Col>
       </Row>
 
       <Card
@@ -239,60 +240,60 @@ const RemoteReadingPage: React.FC = () => {
             activeKey={statusFilter}
             onChange={(v) => { setStatusFilter(v); setSessionPage(1) }}
             items={[
-              { key: 'all', label: '全部' },
-              { key: 'pending', label: '待分配' },
-              { key: 'in_progress', label: '阅片中' },
-              { key: 'completed', label: '已完成' },
-              { key: 'returned', label: '已退回' },
+              { key: 'all', label: t('remoteReading.tabAll') },
+              { key: 'pending', label: t('remoteReading.statusPending') },
+              { key: 'in_progress', label: t('remoteReading.statusInProgress') },
+              { key: 'completed', label: t('remoteReading.statusCompleted') },
+              { key: 'returned', label: t('remoteReading.statusReturned') },
             ]}
           />
         }
-        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>}
+        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('remoteReading.refresh')}</Button>}
       >
         {loading ? (
           <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
         ) : sessions.length === 0 ? (
-          <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? '加载失败' : '暂无远程阅片任务'} />
+          <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? t('remoteReading.loadFailed') : t('remoteReading.empty')} />
         ) : (
-          <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 'max-content' }}/>
+          <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (total) => t('remoteReading.totalCount', { total }) }} size="small" scroll={{ x: 'max-content' }}/>
         )}
       </Card>
 
-      <Modal title="分配远程阅片任务" open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={handleAssign}
-        okText="分配" confirmLoading={assignLoading} width={480}>
+      <Modal title={t('remoteReading.assignTitle')} open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={handleAssign}
+        okText={t('remoteReading.assign')} confirmLoading={assignLoading} width={480}>
         <Form form={assignForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
-          <Form.Item name="studyId" label="检查(待分配)" rules={[{ required: true, message: '请选择检查' }]}>
+          <Form.Item name="studyId" label={t('remoteReading.examPending')} rules={[{ required: true, message: t('remoteReading.selectExam') }]}>
             <Select
               showSearch
               optionFilterProp="label"
-              placeholder="选择待阅片检查"
+              placeholder={t('remoteReading.selectExamPlaceholder')}
               options={examOptions}
               loading={assignLoading}
-              notFoundContent={assignLoading ? <Spin size="small" /> : '无可分配检查(需为待检状态)'}
+              notFoundContent={assignLoading ? <Spin size="small" /> : t('remoteReading.noAssignableExam')}
             />
           </Form.Item>
-          <Form.Item name="readingDoctorId" label="阅片医生" rules={[{ required: true, message: '请选择阅片医生' }]}>
+          <Form.Item name="readingDoctorId" label={t('remoteReading.colReading')} rules={[{ required: true, message: t('remoteReading.selectReadingDoctor') }]}>
             <Select
-              placeholder="选择阅片医生"
+              placeholder={t('remoteReading.selectReadingDoctor')}
               options={['王医生', '李医生', '张医生'].map((d) => ({ value: d, label: d }))}
             />
           </Form.Item>
-          <Form.Item name="priority" label="优先级" initialValue="routine" rules={[{ required: true }]}>
-            <Select options={[{ value: 'routine', label: '常规' }, { value: 'urgent', label: '紧急' }, { value: 'stat', label: '加急' }]} />
+          <Form.Item name="priority" label={t('remoteReading.colPriority')} initialValue="routine" rules={[{ required: true }]}>
+            <Select options={[{ value: 'routine', label: t('remoteReading.priorityRoutine') }, { value: 'urgent', label: t('remoteReading.priorityUrgent') }, { value: 'stat', label: t('remoteReading.priorityStat') }]} />
           </Form.Item>
-          <Form.Item name="comment" label="备注">
-            <Input.TextArea rows={2} placeholder="附加说明(选填)" />
+          <Form.Item name="comment" label={t('remoteReading.comment')}>
+            <Input.TextArea rows={2} placeholder={t('remoteReading.commentPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title={`完成阅片 - ${completeTarget?.studyId ?? ''}`} open={!!completeTarget}
+      <Modal title={`${t('remoteReading.completeTitle')} - ${completeTarget?.studyId ?? ''}`} open={!!completeTarget}
         onCancel={() => { setCompleteTarget(null); setReportText('') }}
-        onOk={handleComplete} okText="提交报告" width={560}>
+        onOk={handleComplete} okText={t('remoteReading.submitReport')} width={560}>
         <div style={{ marginBottom: 8 }}>
-          <Text type="secondary">患者: {completeTarget?.patientName} · 模态: {completeTarget?.modality}</Text>
+          <Text type="secondary">{t('remoteReading.colPatient')}: {completeTarget?.patientName} · {t('remoteReading.colModality')}: {completeTarget?.modality}</Text>
         </div>
-        <Input.TextArea rows={6} placeholder="输入阅片所见与诊断结论..." value={reportText} onChange={(e) => setReportText(e.target.value)} />
+        <Input.TextArea rows={6} placeholder={t('remoteReading.reportPlaceholder')} value={reportText} onChange={(e) => setReportText(e.target.value)} />
       </Modal>
     </div>
   )

@@ -4,6 +4,7 @@ import { Users, Plus, Edit, Trash, Search, RefreshCw, Eye } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
 import { usePagination } from '../../hooks/usePagination'
+import { t } from '../../i18n/appI18n'
 
 const {  } = DatePicker
 
@@ -39,7 +40,7 @@ export const FhirPatientPage: React.FC = () => {
         setTotal(res.data.total || entries.length)
       }
     } catch {
-      message.warning('患者列表加载失败，使用演示数据')
+      message.warning(t('fhirPatient.listLoadFallback'))
       setPatients([
         { id: 'p1', resourceType: 'Patient', name: [{ family: '张', given: ['三'] }], gender: 'male', birthDate: '1985-06-15' },
         { id: 'p2', resourceType: 'Patient', name: [{ family: '李', given: ['四'] }], gender: 'female', birthDate: '1990-03-22' },
@@ -90,16 +91,16 @@ export const FhirPatientPage: React.FC = () => {
       }
       if (editingPatient?.id) {
         await fhirApi.updatePatient(editingPatient.id, body)
-        message.success('患者已更新')
+        message.success(t('fhirPatient.updated'))
       } else {
         await fhirApi.createPatient(body)
-        message.success('患者已创建')
+        message.success(t('fhirPatient.created'))
       }
       setModalOpen(false)
       fetchPatients(page, search)
     } catch (err: any) {
       if (err?.errorFields) return
-      message.error('操作失败')
+      message.error(t('fhirPatient.operationFailed'))
     } finally {
       setSaving(false)
     }
@@ -108,10 +109,10 @@ export const FhirPatientPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     const res = await fhirApi.deletePatient(id)
     if (res.success) {
-      message.success('患者已删除')
+      message.success(t('fhirPatient.deleted'))
       fetchPatients(page, search)
     } else {
-      message.error('删除失败')
+      message.error(t('fhirPatient.deleteFailed'))
     }
   }
 
@@ -124,10 +125,10 @@ export const FhirPatientPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedPatient(res.data)
       } else {
-        message.warning(res.error?.message ?? '患者详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? t('fhirPatient.detailLoadFallback'))
       }
     } catch {
-      message.warning('患者详情加载失败，展示列表数据')
+      message.warning(t('fhirPatient.detailLoadFallback'))
     }
     setDetailLoading(false)
   }
@@ -150,53 +151,53 @@ export const FhirPatientPage: React.FC = () => {
           }
         }))
       } else {
-        message.warning(res.error?.message ?? '360 视图加载失败')
+        message.warning(res.error?.message ?? t('fhirPatient.everythingLoadFailed'))
       }
     } catch {
-      message.warning('360 视图加载失败')
+      message.warning(t('fhirPatient.everythingLoadFailed'))
     }
     setEverythingLoading(false)
   }
 
   const columns = [
     {
-      title: '编号',
+      title: t('fhirPatient.colId'),
       dataIndex: 'id',
       key: 'id',
       width: 120,
       render: (id: string) => <Tooltip title={id}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{id?.slice(0, 12)}...</span></Tooltip>,
     },
     {
-      title: '姓名',
+      title: t('fhirPatient.colName'),
       key: 'name',
       render: (_: any, r: FhirPatient) => r.name?.[0] ? `${r.name[0].family || ''} ${(r.name[0].given || []).join(' ')}`.trim() : '-',
     },
     {
-      title: '性别',
+      title: t('fhirPatient.colGender'),
       dataIndex: 'gender',
       key: 'gender',
       render: (g: string) => {
-        const map: Record<string, { label: string; color: string }> = { male: { label: '男', color: 'blue' }, female: { label: '女', color: 'pink' }, other: { label: '其他', color: 'purple' } }
+        const map: Record<string, { label: string; color: string }> = { male: { label: t('fhirPatient.genderMale'), color: 'blue' }, female: { label: t('fhirPatient.genderFemale'), color: 'pink' }, other: { label: t('fhirPatient.genderOther'), color: 'purple' } }
         const item = map[g] || { label: g || '-', color: 'default' }
         return <Tag color={item.color}>{item.label}</Tag>
       },
     },
-    { title: '出生日期', dataIndex: 'birthDate', key: 'birthDate' },
+    { title: t('fhirPatient.colBirthDate'), dataIndex: 'birthDate', key: 'birthDate' },
     {
-      title: '联系方式',
+      title: t('fhirPatient.colTelecom'),
       key: 'telecom',
       render: (_: any, r: FhirPatient) => r.telecom?.[0]?.value || '-',
     },
     {
-      title: '操作',
+      title: t('fhirPatient.colActions'),
       key: 'action',
       width: 180,
       render: (_: any, r: FhirPatient) => (
         <Space size="small">
-          <Button size="small" icon={<Eye size={12} />} onClick={() => handleDetail(r)}>详情</Button>
-          <Button size="small" icon={<Edit size={12} />} onClick={() => handleEdit(r)}>编辑</Button>
-          <Popconfirm title="确认删除此患者?" onConfirm={() => handleDelete(r.id!)}>
-            <Button size="small" danger icon={<Trash size={12} />}>删除</Button>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => handleDetail(r)}>{t('fhirPatient.detail')}</Button>
+          <Button size="small" icon={<Edit size={12} />} onClick={() => handleEdit(r)}>{t('fhirPatient.edit')}</Button>
+          <Popconfirm title={t('fhirPatient.confirmDelete')} onConfirm={() => handleDelete(r.id!)}>
+            <Button size="small" danger icon={<Trash size={12} />}>{t('fhirPatient.delete')}</Button>
           </Popconfirm>
         </Space>
       ),
@@ -207,23 +208,23 @@ export const FhirPatientPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Users size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 患者管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirPatient.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
         <Tag color="green">CRUD</Tag>
       </Space>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
-          <Form.Item name="name" label="姓名">
-            <Input placeholder="患者姓名" allowClear style={{ width: 160 }} />
+          <Form.Item name="name" label={t('fhirPatient.colName')}>
+            <Input placeholder={t('fhirPatient.namePlaceholder')} allowClear style={{ width: 160 }} />
           </Form.Item>
-          <Form.Item name="identifier" label="编号">
-            <Input placeholder="患者 ID" allowClear style={{ width: 160 }} />
+          <Form.Item name="identifier" label={t('fhirPatient.colId')}>
+            <Input placeholder={t('fhirPatient.idPlaceholder')} allowClear style={{ width: 160 }} />
           </Form.Item>
           <Form.Item>
             <Space>
-              <Button type="primary" icon={<Search size={14} />} htmlType="submit" loading={loading}>搜索</Button>
-              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); setSearch({}); setPage(1) }}>刷新</Button>
+              <Button type="primary" icon={<Search size={14} />} htmlType="submit" loading={loading}>{t('fhirPatient.search')}</Button>
+              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); setSearch({}); setPage(1) }}>{t('fhirPatient.refresh')}</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -231,8 +232,8 @@ export const FhirPatientPage: React.FC = () => {
 
       <Card
         size="small"
-        title={`患者列表 (${total})`}
-        extra={<Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>新建患者</Button>}
+        title={`${t('fhirPatient.patientList')} (${total})`}
+        extra={<Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>{t('fhirPatient.newPatient')}</Button>}
       >
         <Table
           dataSource={patients.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
@@ -247,7 +248,7 @@ export const FhirPatientPage: React.FC = () => {
       </Card>
 
       <Modal
-        title={editingPatient ? '编辑患者' : '新建患者'}
+        title={editingPatient ? t('fhirPatient.editPatient') : t('fhirPatient.newPatient')}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
@@ -256,34 +257,34 @@ export const FhirPatientPage: React.FC = () => {
       >
         <Form form={form} layout="vertical" size="small">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-            <Form.Item name="familyName" label="姓 (Family)" rules={[{ required: true }]}>
-              <Input placeholder="例: 张" />
+            <Form.Item name="familyName" label={t('fhirPatient.familyLabel')} rules={[{ required: true }]}>
+              <Input placeholder={t('fhirPatient.familyPlaceholder')} />
             </Form.Item>
-            <Form.Item name="givenName" label="名 (Given)">
-              <Input placeholder="例: 三" />
+            <Form.Item name="givenName" label={t('fhirPatient.givenLabel')}>
+              <Input placeholder={t('fhirPatient.givenPlaceholder')} />
             </Form.Item>
-            <Form.Item name="gender" label="性别">
-              <Select placeholder="选择性别" allowClear options={[
-                { value: 'male', label: '男' },
-                { value: 'female', label: '女' },
-                { value: 'other', label: '其他' },
+            <Form.Item name="gender" label={t('fhirPatient.colGender')}>
+              <Select placeholder={t('fhirPatient.selectGender')} allowClear options={[
+                { value: 'male', label: t('fhirPatient.genderMale') },
+                { value: 'female', label: t('fhirPatient.genderFemale') },
+                { value: 'other', label: t('fhirPatient.genderOther') },
               ]} />
             </Form.Item>
-            <Form.Item name="birthDate" label="出生日期">
+            <Form.Item name="birthDate" label={t('fhirPatient.colBirthDate')}>
               <Input placeholder="YYYY-MM-DD" />
             </Form.Item>
-            <Form.Item name="phone" label="电话">
-              <Input placeholder="联系电话" />
+            <Form.Item name="phone" label={t('fhirPatient.phone')}>
+              <Input placeholder={t('fhirPatient.phonePlaceholder')} />
             </Form.Item>
-            <Form.Item name="city" label="城市">
-              <Input placeholder="所在城市" />
+            <Form.Item name="city" label={t('fhirPatient.city')}>
+              <Input placeholder={t('fhirPatient.cityPlaceholder')} />
             </Form.Item>
           </div>
         </Form>
       </Modal>
 
       <Modal
-        title="患者详情"
+        title={t('fhirPatient.detailTitle')}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={
@@ -294,39 +295,39 @@ export const FhirPatientPage: React.FC = () => {
               loading={everythingLoading}
               onClick={() => selectedPatient && handleEverything(selectedPatient)}
             >
-               患者 360 视图 ($everything)
+               {t('fhirPatient.patient360View')}
             </Button>
-            <Button onClick={() => setDetailOpen(false)}>关闭</Button>
+            <Button onClick={() => setDetailOpen(false)}>{t('fhirPatient.close')}</Button>
           </Space>
         }
         width={600}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fhirPatient.loadingDetail')}</div>
         ) : selectedPatient ? (
           <Descriptions column={2} size="small" bordered>
             <Descriptions.Item label="ID">{selectedPatient.id}</Descriptions.Item>
-            <Descriptions.Item label="资源类型">{selectedPatient.resourceType}</Descriptions.Item>
-            <Descriptions.Item label="姓名">{selectedPatient.name?.[0]?.family} {(selectedPatient.name?.[0]?.given || []).join(' ')}</Descriptions.Item>
-            <Descriptions.Item label="性别">{selectedPatient.gender}</Descriptions.Item>
-            <Descriptions.Item label="出生日期">{selectedPatient.birthDate}</Descriptions.Item>
-            <Descriptions.Item label="电话">{selectedPatient.telecom?.[0]?.value || '-'}</Descriptions.Item>
-            <Descriptions.Item label="地址" span={2}>{selectedPatient.address?.[0]?.city || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirPatient.resourceType')}>{selectedPatient.resourceType}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirPatient.colName')}>{selectedPatient.name?.[0]?.family} {(selectedPatient.name?.[0]?.given || []).join(' ')}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirPatient.colGender')}>{selectedPatient.gender}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirPatient.colBirthDate')}>{selectedPatient.birthDate}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirPatient.phone')}>{selectedPatient.telecom?.[0]?.value || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('fhirPatient.address')} span={2}>{selectedPatient.address?.[0]?.city || '-'}</Descriptions.Item>
           </Descriptions>
-        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
+        ) : <Empty description={t('fhirPatient.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
 
       <Modal
-        title="患者 360 视图 ($everything)"
+        title={t('fhirPatient.patient360View')}
         open={everythingOpen}
         onCancel={() => setEverythingOpen(false)}
-        footer={<Button onClick={() => setEverythingOpen(false)}>关闭</Button>}
+        footer={<Button onClick={() => setEverythingOpen(false)}>{t('fhirPatient.close')}</Button>}
         width={720}
       >
         {everythingLoading ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载患者全部资源...</div>
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fhirPatient.loadingResources')}</div>
         ) : everythingEntries.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无关联资源" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('fhirPatient.noRelatedResources')} />
         ) : (
           <Table
             dataSource={pagedEverything}
@@ -335,10 +336,10 @@ export const FhirPatientPage: React.FC = () => {
             scroll={{ x: 'max-content' }}
             pagination={everythingPagination}
             columns={[
-              { title: '资源类型', dataIndex: 'resourceType', render: (v: string) => <Tag color="blue">{v}</Tag> },
+              { title: t('fhirPatient.colResourceType'), dataIndex: 'resourceType', render: (v: string) => <Tag color="blue">{v}</Tag> },
               { title: 'ID', dataIndex: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
-              { title: '概要', dataIndex: 'summary' },
-              { title: '时间', dataIndex: 'date' },
+              { title: t('fhirPatient.colSummary'), dataIndex: 'summary' },
+              { title: t('fhirPatient.colTime'), dataIndex: 'date' },
             ]}
           />
         )}

@@ -30,6 +30,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
+import { t } from '../../i18n/appI18n'
 
 const SAMPLE_INSTANCES = ['inst-2000', 'inst-2001', 'inst-2002', 'inst-2003']
 
@@ -48,18 +49,18 @@ interface AiDiagnosisAggregated {
 }
 
 const MODULE_META: { key: keyof AiDiagnosisAggregated; title: string; color: string }[] = [
-  { key: 'lungCad', title: '肺结节检测', color: '#2563eb' },
-  { key: 'breastCad', title: '乳腺 CAD', color: '#eb2f96' },
-  { key: 'fractureCad', title: '骨折检测', color: '#faad14' },
-  { key: 'cardiacAi', title: '心脏 AI', color: '#722ed1' },
+  { key: 'lungCad', title: 'aiCad.lungNoduleDetect', color: '#2563eb' },
+  { key: 'breastCad', title: 'aiCad.breastCad', color: '#eb2f96' },
+  { key: 'fractureCad', title: 'aiCad.fractureDetect', color: '#faad14' },
+  { key: 'cardiacAi', title: 'aiCad.cardiacAi', color: '#722ed1' },
 ]
 
 // [W2-A] 各模型准确率查询: 复用 POST /ai-diagnosis/accuracy, 按 modality 过滤
 const MODEL_ACCURACY_QUERY: { key: string; title: string; modality: string; color: string }[] = [
-  { key: 'lung', title: '肺结节', modality: 'CT', color: '#2563eb' },
-  { key: 'breast', title: '乳腺', modality: 'MG', color: '#eb2f96' },
-  { key: 'fracture', title: '骨折', modality: 'DR', color: '#faad14' },
-  { key: 'cardiac', title: '心脏', modality: 'MR', color: '#722ed1' },
+  { key: 'lung', title: 'aiCad.lungNodule', modality: 'CT', color: '#2563eb' },
+  { key: 'breast', title: 'aiCad.breast', modality: 'MG', color: '#eb2f96' },
+  { key: 'fracture', title: 'aiCad.fracture', modality: 'DR', color: '#faad14' },
+  { key: 'cardiac', title: 'aiCad.cardiac', modality: 'MR', color: '#722ed1' },
 ]
 
 // [W2-A] 准确率分析: getAccuracy (总/各模型) + getTrend (30 天趋势)
@@ -81,21 +82,21 @@ const AccuracyPanel: React.FC = () => {
       ])
       const failed: string[] = []
       if (overallRes.success && overallRes.data) setOverall(overallRes.data)
-      else failed.push(overallRes.error?.message ?? '总体准确率加载失败')
+      else failed.push(overallRes.error?.message ?? t('aiCad.overallLoadFailed'))
       if (trendRes.success && Array.isArray(trendRes.data)) setTrend(trendRes.data)
-      else failed.push(trendRes.error?.message ?? '趋势加载失败')
+      else failed.push(trendRes.error?.message ?? t('aiCad.trendLoadFailed'))
       const next: Record<string, AiDiagnosisAccuracyResult> = {}
       modelRes.forEach((res, i) => {
         const m = MODEL_ACCURACY_QUERY[i]
         if (!m) return
         if (res.success && res.data) next[m.key] = res.data
-        else failed.push(`${m.title}: ${res.error?.message ?? '加载失败'}`)
+        else failed.push(`${t(m.title)}: ${res.error?.message ?? t('aiCad.loadFailed')}`)
       })
       setByModel(next)
       const firstError = failed.find(Boolean)
       if (firstError) setError(firstError)
     } catch (e) {
-      setError((e as Error)?.message ?? '准确率加载失败')
+      setError((e as Error)?.message ?? t('aiCad.accuracyLoadFailed'))
     } finally {
       setLoading(false)
     }
@@ -112,15 +113,15 @@ const AccuracyPanel: React.FC = () => {
     <div style={{ padding: 16 }}>
       <Space style={{ marginBottom: 12 }}>
         <Gauge size={16} color="#2563eb" />
-        <span style={{ fontWeight: 600 }}>准确率分析</span>
+        <span style={{ fontWeight: 600 }}>{t('aiCad.accuracyTitle')}</span>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>
-          刷新
+          {t('aiCad.refresh')}
         </Button>
       </Space>
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('aiCad.retry')}</Button>} />
       )}
 
       <Spin spinning={loading && !overall && trend.length === 0}>
@@ -128,17 +129,17 @@ const AccuracyPanel: React.FC = () => {
           <Col span={6}>
             <Card size="small">
               <Statistic
-                title={<Space><Target size={12} color="#2563eb" />总体准确率</Space>}
+                title={<Space><Target size={12} color="#2563eb" />{t('aiCad.overallAccuracy')}</Space>}
                 value={overall?.accuracy ?? '-'} suffix="%" precision={overall ? 1 : 0}
                 styles={{ content: { color: '#2563eb' } }}
               />
               <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-                样本 {totalCases ? `${totalCases} 例` : '-'} · AI 阳性 {overall?.aiPositive ?? '-'}
+                {t('aiCad.sample')} {totalCases ? `${totalCases} ${t('aiCad.cases')}` : '-'} · {t('aiCad.aiPositive')} {overall?.aiPositive ?? '-'}
               </div>
             </Card>
           </Col>
           <Col span={6}>
-            <Card size="small" title="灵敏度 / 特异度">
+            <Card size="small" title={t('aiCad.sensitivitySpecificity')}>
               <Space size={16}>
                 <Statistic value={overall?.sensitivity ?? '-'} suffix="%" />
                 <Statistic value={overall?.specificity ?? '-'} suffix="%" />
@@ -146,12 +147,12 @@ const AccuracyPanel: React.FC = () => {
             </Card>
           </Col>
           <Col span={6}>
-            <Card size="small" title="阳性预测值 PPV">
+            <Card size="small" title={t('aiCad.ppv')}>
               <Statistic value={overall?.ppv ?? '-'} suffix="%" />
             </Card>
           </Col>
           <Col span={6}>
-            <Card size="small" title="阴性预测值 NPV">
+            <Card size="small" title={t('aiCad.npv')}>
               <Statistic value={overall?.npv ?? '-'} suffix="%" />
             </Card>
           </Col>
@@ -164,13 +165,13 @@ const AccuracyPanel: React.FC = () => {
               <Col span={6} key={m.key}>
                 <Card size="small" loading={loading && !acc}>
                   <Statistic
-                    title={<Space><Activity size={12} color={m.color} />{m.title} ({m.modality})</Space>}
+                    title={<Space><Activity size={12} color={m.color} />{t(m.title)} ({m.modality})</Space>}
                     value={acc ? acc.accuracy : '-'} suffix="%" precision={acc ? 1 : 0}
                     styles={{ content: { color: m.color } }}
                   />
                   <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-                    灵敏度 {acc ? fmt(acc.sensitivity) : '-'} · 特异度 {acc ? fmt(acc.specificity) : '-'}
-                    <div>样本 {acc?.totalCases ?? '-'} 例</div>
+                    {t('aiCad.sensitivity')} {acc ? fmt(acc.sensitivity) : '-'} · {t('aiCad.specificity')} {acc ? fmt(acc.specificity) : '-'}
+                    <div>{t('aiCad.sample')} {acc?.totalCases ?? '-'} {t('aiCad.cases')}</div>
                   </div>
                 </Card>
               </Col>
@@ -178,9 +179,9 @@ const AccuracyPanel: React.FC = () => {
           })}
         </Row>
 
-        <Card size="small" title="准确率 30 天趋势">
+        <Card size="small" title={t('aiCad.trendTitle')}>
           {trend.length === 0 && !loading ? (
-            <EmptyState description="暂无趋势数据" />
+            <EmptyState description={t('aiCad.noTrend')} />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={trend} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
@@ -189,9 +190,9 @@ const AccuracyPanel: React.FC = () => {
                 <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} domain={[50, 100]} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number | string) => [`${v}%`]} />
                 <Legend iconSize={10} />
-                <Line type="monotone" dataKey="accuracy" name="准确率" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="sensitivity" name="灵敏度" stroke="#52c41a" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="specificity" name="特异度" stroke="#faad14" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="accuracy" name={t('aiCad.accuracy')} stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="sensitivity" name={t('aiCad.sensitivity')} stroke="#52c41a" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="specificity" name={t('aiCad.specificity')} stroke="#faad14" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -213,9 +214,9 @@ const AiCadPage: React.FC = () => {
     try {
       const res = await aiDiagnosisApi.getStats()
       if (res.success) setStats(res.data as unknown as AiDiagnosisAggregated)
-      else setError(res.error?.message ?? '统计加载失败')
+      else setError(res.error?.message ?? t('aiCad.statsLoadFailed'))
     } catch (e) {
-      setError((e as Error)?.message ?? '统计加载失败')
+      setError((e as Error)?.message ?? t('aiCad.statsLoadFailed'))
     } finally {
       setLoading(false)
     }
@@ -229,15 +230,15 @@ const AiCadPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Cpu size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>AI 辅助诊断中心</span>
-        <Tag color="cyan">CAD 聚合</Tag>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiCad.title')}</span>
+        <Tag color="cyan">{t('aiCad.cadAggregation')}</Tag>
         <Button
           size="small"
           icon={<RefreshCw size={12} />}
           onClick={() => void loadStats()}
           loading={loading}
         >
-          刷新统计
+          {t('aiCad.refreshStats')}
         </Button>
       </Space>
 
@@ -247,7 +248,7 @@ const AiCadPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           message={error}
-          action={<Button size="small" onClick={() => void loadStats()}><RefreshCw size={14} /> 重试</Button>}
+          action={<Button size="small" onClick={() => void loadStats()}><RefreshCw size={14} /> {t('aiCad.retry')}</Button>}
         />
       )}
 
@@ -260,15 +261,15 @@ const AiCadPage: React.FC = () => {
               <Col span={6} key={m.key}>
                 <Card size="small">
                   <Statistic
-                    title={<Space><Activity size={12} color={m.color} />{m.title}</Space>}
+                    title={<Space><Activity size={12} color={m.color} />{t(m.title)}</Space>}
                     value={s?.total ?? '-'}
-                    suffix="例"
+                    suffix={t('aiCad.cases')}
                     styles={{ content: { color: m.color } }}
                   />
                   <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
                     <Space size={8}>
-                      <span><CheckCircle2 size={10} color="#52c41a" /> 已确认 {confirmed}</span>
-                      <span><Target size={10} color="#ff4d4f" /> 高风险 {s?.highRisk ?? 0}</span>
+                      <span><CheckCircle2 size={10} color="#52c41a" /> {t('aiCad.confirmed')} {confirmed}</span>
+                      <span><Target size={10} color="#ff4d4f" /> {t('aiCad.highRisk')} {s?.highRisk ?? 0}</span>
                     </Space>
                   </div>
                 </Card>
@@ -280,12 +281,12 @@ const AiCadPage: React.FC = () => {
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
-          <Card size="small" title="总体准确率">
+          <Card size="small" title={t('aiCad.overallAccuracy')}>
             <Progress percent={stats?.accuracy?.overall ?? 0} strokeColor="#2563eb" />
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="灵敏度 / 特异度">
+          <Card size="small" title={t('aiCad.sensitivitySpecificity')}>
             <Space size={16}>
               <Statistic value={stats?.accuracy?.sensitivity ?? 0} suffix="%" prefix={<TrendingUp size={12} color="#52c41a" />} />
               <Statistic value={stats?.accuracy?.specificity ?? 0} suffix="%" />
@@ -293,12 +294,12 @@ const AiCadPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="模型状态">
+          <Card size="small" title={t('aiCad.modelStatus')}>
             <Space wrap>
-              <Tag color="green">肺结节 v3.2.1 活跃</Tag>
-              <Tag color="green">乳腺 v2.8.0 活跃</Tag>
-              <Tag color="green">骨折 v1.9.4 活跃</Tag>
-              <Tag color="green">心脏 v2.4.1 活跃</Tag>
+              <Tag color="green">{t('aiCad.lungNodule')} v3.2.1 {t('aiCad.active')}</Tag>
+              <Tag color="green">{t('aiCad.breast')} v2.8.0 {t('aiCad.active')}</Tag>
+              <Tag color="green">{t('aiCad.fracture')} v1.9.4 {t('aiCad.active')}</Tag>
+              <Tag color="green">{t('aiCad.cardiac')} v2.4.1 {t('aiCad.active')}</Tag>
             </Space>
           </Card>
         </Col>
@@ -310,13 +311,13 @@ const AiCadPage: React.FC = () => {
           onChange={setActiveTab}
           type="card"
           items={[
-            { key: 'detect', label: '实时检测', children: <CadDetectPanel /> },
-            { key: 'lung', label: '肺结节检测', children: <LungCadPage /> },
-            { key: 'breast', label: '乳腺 CAD', children: <BreastCadPage /> },
-            { key: 'fracture', label: '骨折检测', children: <FractureCadPage /> },
-            { key: 'cardiac', label: '心脏 AI', children: <CardiacAiPage /> },
-            { key: 'accuracy', label: <Space><BarChart3 size={14} />准确率分析</Space>, children: <AccuracyPanel /> },
-            { key: 'cases', label: <Space><BookOpen size={14} />病例库</Space>, children: <AiCaseLibrarySection /> },
+            { key: 'detect', label: t('aiCad.tabDetect'), children: <CadDetectPanel /> },
+            { key: 'lung', label: t('aiCad.lungNoduleDetect'), children: <LungCadPage /> },
+            { key: 'breast', label: t('aiCad.breastCad'), children: <BreastCadPage /> },
+            { key: 'fracture', label: t('aiCad.fractureDetect'), children: <FractureCadPage /> },
+            { key: 'cardiac', label: t('aiCad.cardiacAi'), children: <CardiacAiPage /> },
+            { key: 'accuracy', label: <Space><BarChart3 size={14} />{t('aiCad.accuracyTitle')}</Space>, children: <AccuracyPanel /> },
+            { key: 'cases', label: <Space><BookOpen size={14} />{t('aiCad.caseLibrary')}</Space>, children: <AiCaseLibrarySection /> },
           ]}
         />
       </Card>
@@ -337,7 +338,7 @@ const CadDetectPanel: React.FC = () => {
   const runDetect = useCallback(async (id: string) => {
     const target = id.trim()
     if (!target) {
-      setError('请先选择或输入 DICOM 实例 ID')
+      setError(t('aiCad.selectInstance'))
       return
     }
     setDetecting(true)
@@ -345,7 +346,7 @@ const CadDetectPanel: React.FC = () => {
     try {
       const res = await cadApi.detect(target)
       if (!res.success) {
-        setError(res.error?.message ?? '检测失败')
+        setError(res.error?.message ?? t('aiCad.detectFailed'))
         return
       }
       setCurrent(res.data)
@@ -354,7 +355,7 @@ const CadDetectPanel: React.FC = () => {
         return next.slice(0, 10)
       })
     } catch (e) {
-      setError((e as Error)?.message ?? '检测失败')
+      setError((e as Error)?.message ?? t('aiCad.detectFailed'))
     } finally {
       setDetecting(false)
     }
@@ -366,31 +367,31 @@ const CadDetectPanel: React.FC = () => {
     try {
       const res = await cadApi.getResult(id)
       if (!res.success) {
-        setError(res.error?.message ?? '结果查询失败')
+        setError(res.error?.message ?? t('aiCad.resultQueryFailed'))
         return
       }
       setDetail(res.data)
     } catch (e) {
-      setError((e as Error)?.message ?? '结果查询失败')
+      setError((e as Error)?.message ?? t('aiCad.resultQueryFailed'))
     } finally {
       setLoadingDetail(false)
     }
   }, [])
 
   const findingColumns = [
-    { title: '类型', dataIndex: 'type', key: 'type', render: (v: string) => <Tag color={v === 'nodule' ? 'blue' : 'orange'}>{v === 'nodule' ? '结节' : '钙化'}</Tag> },
-    { title: '坐标 (x, y)', key: 'pos', render: (_: unknown, f: { x: number; y: number }) => `(${f.x}, ${f.y})` },
-    { title: '宽 x 高', key: 'wh', render: (_: unknown, f: { width: number; height: number }) => `${f.width} x ${f.height}` },
-    { title: '直径 (mm)', dataIndex: 'size', key: 'size' },
-    { title: '置信度', dataIndex: 'confidence', key: 'confidence', render: (v: number) => <span style={{ color: v >= 0.85 ? '#52c41a' : v >= 0.7 ? '#faad14' : '#ff4d4f', fontWeight: 600 }}>{(v * 100).toFixed(1)}%</span> },
+    { title: t('aiCad.colType'), dataIndex: 'type', key: 'type', render: (v: string) => <Tag color={v === 'nodule' ? 'blue' : 'orange'}>{v === 'nodule' ? t('aiCad.nodule') : t('aiCad.calcification')}</Tag> },
+    { title: t('aiCad.colCoordinates'), key: 'pos', render: (_: unknown, f: { x: number; y: number }) => `(${f.x}, ${f.y})` },
+    { title: t('aiCad.colWidthHeight'), key: 'wh', render: (_: unknown, f: { width: number; height: number }) => `${f.width} x ${f.height}` },
+    { title: t('aiCad.colDiameter'), dataIndex: 'size', key: 'size' },
+    { title: t('aiCad.colConfidence'), dataIndex: 'confidence', key: 'confidence', render: (v: number) => <span style={{ color: v >= 0.85 ? '#52c41a' : v >= 0.7 ? '#faad14' : '#ff4d4f', fontWeight: 600 }}>{(v * 100).toFixed(1)}%</span> },
   ]
 
   return (
     <div style={{ padding: 16 }}>
-      <Card size="small" title={<Space><ScanSearch size={16} color="#2563eb" />CAD 实时检测</Space>}>
+      <Card size="small" title={<Space><ScanSearch size={16} color="#2563eb" />{t('aiCad.detectTitle')}</Space>}>
         <Space wrap style={{ marginBottom: 12 }}>
           <Input
-            placeholder="输入 DICOM 实例 ID (SOP 实例 UID)"
+            placeholder={t('aiCad.instancePlaceholder')}
             value={instanceId}
             onChange={(e) => setInstanceId(e.target.value)}
             onPressEnter={() => void runDetect(instanceId)}
@@ -398,37 +399,37 @@ const CadDetectPanel: React.FC = () => {
             allowClear
           />
           <Button type="primary" icon={<Crosshair size={14} />} loading={detecting} onClick={() => void runDetect(instanceId)}>
-            开始检测
+            {t('aiCad.startDetect')}
           </Button>
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>示例:</span>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('aiCad.examples')}</span>
           {SAMPLE_INSTANCES.map((s) => (
             <Button key={s} size="small" onClick={() => { setInstanceId(s); void runDetect(s) }}>{s}</Button>
           ))}
         </Space>
         {error && (
-          <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error} action={<Button size="small" onClick={() => setError('')}>关闭</Button>} />
+          <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error} action={<Button size="small" onClick={() => setError('')}>{t('aiCad.close')}</Button>} />
         )}
 
         {current && (
-          <Card size="small" type="inner" title={`检测结果 - ${current.instanceId}`} style={{ marginBottom: 16 }}
-            extra={<Space>{current.simulated && <Tag color="gold">模拟回退</Tag>}<Tag color="green">{current.findings.length} 个病灶</Tag></Space>}>
+          <Card size="small" type="inner" title={`${t('aiCad.detectResult')} - ${current.instanceId}`} style={{ marginBottom: 16 }}
+            extra={<Space>{current.simulated && <Tag color="gold">{t('aiCad.simulatedFallback')}</Tag>}<Tag color="green">{current.findings.length} {t('aiCad.lesions')}</Tag></Space>}>
             <Row gutter={16} style={{ marginBottom: 12 }}>
-              <Col span={8}><Statistic title="检出病灶" value={current.findings.length} suffix="个" /></Col>
-              <Col span={8}><Statistic title="最高置信度" value={current.findings.length ? Math.max(...current.findings.map(f => f.confidence)) * 100 : 0} precision={1} suffix="%" /></Col>
-              <Col span={8}><Statistic title="检测时间" value={current.detectedAt.slice(0, 19).replace('T', ' ')} /></Col>
+              <Col span={8}><Statistic title={t('aiCad.detectedLesions')} value={current.findings.length} suffix={t('aiCad.unitLesion')} /></Col>
+              <Col span={8}><Statistic title={t('aiCad.maxConfidence')} value={current.findings.length ? Math.max(...current.findings.map(f => f.confidence)) * 100 : 0} precision={1} suffix="%" /></Col>
+              <Col span={8}><Statistic title={t('aiCad.detectTime')} value={current.detectedAt.slice(0, 19).replace('T', ' ')} /></Col>
             </Row>
             <Table scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={current.findings} columns={findingColumns} pagination={false}/>
             {current.heatmapUrl && (
               <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-                热力图: <code>{current.heatmapUrl}</code>
+                {t('aiCad.heatmap')}: <code>{current.heatmapUrl}</code>
               </div>
             )}
           </Card>
         )}
 
-        <h4 style={{ margin: '8px 0 12px', fontSize: 14, fontWeight: 600 }}>本会话检测记录</h4>
+        <h4 style={{ margin: '8px 0 12px', fontSize: 14, fontWeight: 600 }}>{t('aiCad.sessionHistory')}</h4>
         {history.length === 0 && !detecting ? (
-          <EmptyState description="尚未执行检测" />
+          <EmptyState description={t('aiCad.noDetect')} />
         ) : (
           <Table scroll={{ x: 'max-content' }}
             rowKey="instanceId"
@@ -437,14 +438,14 @@ const CadDetectPanel: React.FC = () => {
             dataSource={history}
             pagination={false}
             columns={[
-              { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId' },
-              { title: '病灶数', dataIndex: 'findings', key: 'findingsCount', render: (f: CadResult['findings']) => f.length },
-              { title: '检测时间', dataIndex: 'detectedAt', key: 'detectedAt', render: (v: string) => v.slice(0, 19).replace('T', ' ') },
+              { title: t('aiCad.colInstanceId'), dataIndex: 'instanceId', key: 'instanceId' },
+              { title: t('aiCad.colFindingCount'), dataIndex: 'findings', key: 'findingsCount', render: (f: CadResult['findings']) => f.length },
+              { title: t('aiCad.detectTime'), dataIndex: 'detectedAt', key: 'detectedAt', render: (v: string) => v.slice(0, 19).replace('T', ' ') },
               {
-                title: '操作',
+                title: t('aiCad.colActions'),
                 key: 'action',
                 render: (_: unknown, r: CadResult) => (
-                  <Button size="small" type="link" loading={loadingDetail} onClick={() => void viewDetail(r.instanceId)}>查看详情</Button>
+                  <Button size="small" type="link" loading={loadingDetail} onClick={() => void viewDetail(r.instanceId)}>{t('aiCad.viewDetail')}</Button>
                 ),
               },
             ]}
@@ -452,19 +453,19 @@ const CadDetectPanel: React.FC = () => {
         )}
       </Card>
 
-      <Card size="small" title="详情" style={{ marginTop: 16 }}>
+      <Card size="small" title={t('aiCad.detail')} style={{ marginTop: 16 }}>
         <Spin spinning={loadingDetail}>
           {detail ? (
             <>
               <Space style={{ marginBottom: 12 }}>
                 <Tag color="blue">{detail.instanceId}</Tag>
-                <span style={{ fontSize: 12, color: '#64748b' }}>检测于 {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
-                {detail.simulated && <Tag color="gold">模拟回退</Tag>}
+                <span style={{ fontSize: 12, color: '#64748b' }}>{t('aiCad.detectedAt')} {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
+                {detail.simulated && <Tag color="gold">{t('aiCad.simulatedFallback')}</Tag>}
               </Space>
               <Table scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false}/>
             </>
           ) : (
-            <EmptyState description="点击上方记录的“查看详情”加载真实结果" />
+            <EmptyState description={t('aiCad.detailHint')} />
           )}
         </Spin>
       </Card>

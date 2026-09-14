@@ -6,7 +6,7 @@ import { getEducationService, type EducationMaterial } from '../../services/educ
 import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Statistic, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
 import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { t } from '../../i18n/appI18n';
 
 // [W3-C] 假按钮修复: 查看→详情Modal; PDF→真实文件下载; 发送患者→本地发送状态
 
@@ -30,13 +30,12 @@ const CONSENT_TYPE_OPTIONS = [
 const STATUS_COLOR: Record<string, string> = { signed: 'success', pending: 'processing', refused: 'error', expired: 'default' };
 
 export const ConsentEducationPage: React.FC = () => {
-  const { t } = useTranslation('v3consentFeedback');
-  const consentTypeLabel = (type: string) => t(`consent.types.${type}`, type);
+  const consentTypeLabel = (type: string) => t(`consentEdu.type.${type}`);
   const consentStatusLabel = (status: string) =>
-    status === 'signed' ? t('consent.statusSigned', '已签署')
-      : status === 'pending' ? t('consent.statusPending', '待签署')
-        : status === 'refused' ? t('consent.statusRefused', '已拒绝')
-          : t('consent.statusExpired', '已过期');
+    status === 'signed' ? t('consentEdu.signed')
+      : status === 'pending' ? t('consentEdu.pending')
+        : status === 'refused' ? t('consentEdu.refused')
+          : t('consentEdu.expired');
   const [consents, setConsents] = useState<ConsentRecord[]>([]);
   const [materials, setMaterials] = useState<EducationMaterialDto[]>([]);
   const [categories, setCategories] = useState<string[]>(CATEGORIES);
@@ -101,7 +100,7 @@ export const ConsentEducationPage: React.FC = () => {
         consentEducationApi.listEducationMaterials(),
       ]);
       if (consentRes.success && Array.isArray(consentRes.data)) setConsents(consentRes.data);
-      else setError(consentRes.error?.message ?? '同意书加载失败');
+      else setError(consentRes.error?.message ?? t('consentEdu.loadConsentFailed'));
       if (materialRes.success && Array.isArray(materialRes.data)) setMaterials(materialRes.data);
       try {
         const edu = await getEducationService().getMaterials();
@@ -109,7 +108,7 @@ export const ConsentEducationPage: React.FC = () => {
         if (cats.length) setCategories(cats.map((c) => c.charAt(0).toUpperCase() + c.slice(1)));
       } catch { /* 分类回退到内置列表 */ }
     } catch {
-      setError('数据加载失败');
+      setError(t('consentEdu.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -137,11 +136,11 @@ export const ConsentEducationPage: React.FC = () => {
     });
     if (res.success) {
       setConsents((prev) => [...prev, res.data as ConsentRecord]);
-      message.success('知情同意已创建，等待签署');
+      message.success(t('consentEdu.created'));
       setConsentModal(false);
       consentForm.resetFields();
     } else {
-      message.error(res.error?.message ?? '创建失败');
+      message.error(res.error?.message ?? t('consentEdu.createFailed'));
     }
   };
 
@@ -150,9 +149,9 @@ export const ConsentEducationPage: React.FC = () => {
     const res = await consentEducationApi.signRecord(record.id, { signer: 'Dr. System' });
     if (res.success) {
       setConsents((prev) => prev.map((c) => c.id === record.id ? { ...c, status: 'signed' as const, signedAt: new Date().toLocaleString('zh-CN', { hour12: false }), witness: 'Dr. System', witnessName: c.witnessName ?? 'Dr. System' } : c));
-      message.success('签署完成');
+      message.success(t('consentEdu.signDone'));
     } else {
-      message.error(res.error?.message ?? '签署失败');
+      message.error(res.error?.message ?? t('consentEdu.signFailed'));
     }
   };
 
@@ -189,10 +188,10 @@ export const ConsentEducationPage: React.FC = () => {
     });
     if (res.success) {
       setConsents((prev) => prev.map((c) => c.id === editingConsent.id ? { ...c, status: values.status, witnessName: values.witnessName || null } : c));
-      message.success('同意记录已更新');
+      message.success(t('consentEdu.recordUpdated'));
       setEditingConsent(null);
     } else {
-      message.error(res.error?.message ?? '更新失败');
+      message.error(res.error?.message ?? t('consentEdu.updateFailed'));
     }
   };
 
@@ -211,12 +210,12 @@ export const ConsentEducationPage: React.FC = () => {
     });
     if (res.success) {
       setMaterials((prev) => [...prev, res.data as EducationMaterialDto]);
-      message.success(materialFile ? `宣教资料已上传 (附件 ${materialFile.name})` : '宣教资料已上传');
+      message.success(materialFile ? `宣教资料已上传 (附件 ${materialFile.name})` : t('consentEdu.materialUploaded'));
       setUploadModal(false);
       setMaterialFile(null);
       materialForm.resetFields();
     } else {
-      message.error(res.error?.message ?? '上传失败');
+      message.error(res.error?.message ?? t('consentEdu.uploadFailed'));
     }
   };
 
@@ -252,10 +251,10 @@ export const ConsentEducationPage: React.FC = () => {
     });
     if (res.success) {
       setMaterials((prev) => prev.map((x) => x.id === editingMaterial.id ? { ...x, ...res.data } : x));
-      message.success('宣教资料已更新');
+      message.success(t('consentEdu.materialUpdated'));
       setEditingMaterial(null);
     } else {
-      message.error(res.error?.message ?? '更新失败');
+      message.error(res.error?.message ?? t('consentEdu.updateFailed'));
     }
   };
 
@@ -263,26 +262,26 @@ export const ConsentEducationPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <FileSignature size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>知情同意与宣教中心</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('consentEdu.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
-        <Tag color="green">电子签名</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
+        <Tag color="green">{t('consentEdu.eSign')}</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('consentEdu.refresh')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('consentEdu.retry')}</Button>} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="待签署" value={stats.pending} styles={{ content: { color: '#faad14' } }} prefix={<Clock size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已签署" value={stats.signed} styles={{ content: { color: '#52c41a' } }} prefix={<CheckCircle2 size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已拒绝" value={stats.refused} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="宣教资料" value={materials.length} prefix={<BookOpen size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="总浏览" value={materials.reduce((s, m) => s + (m.views ?? 0), 0)} prefix={<Eye size={14} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.pending')} value={stats.pending} styles={{ content: { color: '#faad14' } }} prefix={<Clock size={14} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.signed')} value={stats.signed} styles={{ content: { color: '#52c41a' } }} prefix={<CheckCircle2 size={14} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.refused')} value={stats.refused} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.materials')} value={materials.length} prefix={<BookOpen size={14} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.totalViews')} value={materials.reduce((s, m) => s + (m.views ?? 0), 0)} prefix={<Eye size={14} />} /></Card></Col>
       </Row>
 
       <Card
         size="small"
-        title={<Space><FileSignature size={14} />患者知情同意</Space>}
-        extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setConsentModal(true)}>新建同意书</Button>}
+        title={<Space><FileSignature size={14} />{t('consentEdu.patientConsent')}</Space>}
+        extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setConsentModal(true)}>{t('consentEdu.newConsent')}</Button>}
       >
         <Spin spinning={loading}>
           <Table
@@ -290,24 +289,24 @@ export const ConsentEducationPage: React.FC = () => {
             rowKey="id"
             pagination={consentPagination}
             columns={[
-              { title: '患者', dataIndex: 'patient', render: (p: string, r: ConsentRecord) => <Space direction="vertical" size={0}><b>{p}</b><span style={{ fontSize: 11, color: '#999' }}>{r.patientId ?? '—'}</span></Space> },
-              { title: t('consent.examId', '检查号 (关联检查)'), dataIndex: 'examId', width: 150, render: (e: string | null) => e || <span style={{ color: '#999' }}>—</span> },
-              { title: t('consent.type', '同意书类型'), dataIndex: 'type', render: (type: string) => <Tag color="blue">{consentTypeLabel(type)}</Tag> },
-              { title: '操作', dataIndex: 'procedure', width: 200 },
-              { title: '签署时间', dataIndex: 'signedAt', render: (s: string | null) => s || <span style={{ color: '#999' }}>—</span> },
-              { title: t('consent.witness', '见证人'), dataIndex: 'witnessName', render: (w: string | null) => w || '—' },
+              { title: t('consentEdu.patient'), dataIndex: 'patient', render: (p: string, r: ConsentRecord) => <Space direction="vertical" size={0}><b>{p}</b><span style={{ fontSize: 11, color: '#999' }}>{r.patientId ?? '—'}</span></Space> },
+              { title: t('consentEdu.examId'), dataIndex: 'examId', width: 150, render: (e: string | null) => e || <span style={{ color: '#999' }}>—</span> },
+              { title: t('consentEdu.type'), dataIndex: 'type', render: (type: string) => <Tag color="blue">{consentTypeLabel(type)}</Tag> },
+              { title: t('consentEdu.procedure'), dataIndex: 'procedure', width: 200 },
+              { title: t('consentEdu.signedAt'), dataIndex: 'signedAt', render: (s: string | null) => s || <span style={{ color: '#999' }}>—</span> },
+              { title: t('consentEdu.witness'), dataIndex: 'witnessName', render: (w: string | null) => w || '—' },
               {
-                title: '状态', dataIndex: 'status',
+                title: t('consentEdu.status'), dataIndex: 'status',
                 render: (s: string) => <Badge status={(STATUS_COLOR[s] ?? 'default') as 'success' | 'processing' | 'error' | 'default'} text={consentStatusLabel(s)} />,
               },
               {
-                title: '操作',
+                title: t('consentEdu.actions'),
                 render: (_, r: ConsentRecord) => (
                   <Space>
-                    {r.status === 'pending' && <Button size="small" type="primary" onClick={() => void signConsent(r)}>立即签署</Button>}
-                    <Button size="small" icon={<Eye size={10} />} onClick={() => void viewConsentDetail(r)}>查看</Button>
+                    {r.status === 'pending' && <Button size="small" type="primary" onClick={() => void signConsent(r)}>{t('consentEdu.signNow')}</Button>}
+                    <Button size="small" icon={<Eye size={10} />} onClick={() => void viewConsentDetail(r)}>{t('consentEdu.view')}</Button>
                     {/* [Wave 4B] 记录编辑: PATCH /records/:id (拒绝/见证人) */}
-                    <Button size="small" onClick={() => openEditConsent(r)}>编辑</Button>
+                    <Button size="small" onClick={() => openEditConsent(r)}>{t('consentEdu.edit')}</Button>
                     <Button size="small" icon={<Download size={10} />} onClick={() => downloadPdf(r)}>PDF</Button>
                   </Space>
                 ),
@@ -320,36 +319,36 @@ export const ConsentEducationPage: React.FC = () => {
 
       <Card
         size="small"
-        title={<Space><BookOpen size={14} />宣教资料库</Space>}
-        extra={<Button size="small" icon={<UploadIcon size={12} />} onClick={() => setUploadModal(true)}>上传资料</Button>}
+        title={<Space><BookOpen size={14} />{t('consentEdu.eduLibrary')}</Space>}
+        extra={<Button size="small" icon={<UploadIcon size={12} />} onClick={() => setUploadModal(true)}>{t('consentEdu.uploadMaterial')}</Button>}
         style={{ marginTop: 16 }}
       >
         <Tabs
           size="small"
           activeKey={activeCategory}
           onChange={setActiveCategory}
-          items={[{ key: '全部', label: '全部' }, ...categories.map((c) => ({ key: c, label: c }))]}
+          items={[{ key: '全部', label: t('consentEdu.all') }, ...categories.map((c) => ({ key: c, label: c }))]}
         />
         <Table
           dataSource={materialPageData}
           rowKey="id"
           pagination={materialPagination}
           columns={[
-            { title: '标题', dataIndex: 'title', width: 200 },
-            { title: '语言', dataIndex: 'lang', render: (l: string) => <Tag>{l}</Tag> },
-            { title: '类别', dataIndex: 'category', render: (c: string) => <Tag color={CATEGORY_COLORS[c] ?? 'default'}>{c}</Tag> },
-            { title: '页数', dataIndex: 'pages' },
-            { title: '浏览', dataIndex: 'views' },
-            { title: '格式', dataIndex: 'format' },
+            { title: t('consentEdu.titleCol'), dataIndex: 'title', width: 200 },
+            { title: t('consentEdu.lang'), dataIndex: 'lang', render: (l: string) => <Tag>{l}</Tag> },
+            { title: t('consentEdu.category'), dataIndex: 'category', render: (c: string) => <Tag color={CATEGORY_COLORS[c] ?? 'default'}>{c}</Tag> },
+            { title: t('consentEdu.pages'), dataIndex: 'pages' },
+            { title: t('consentEdu.views'), dataIndex: 'views' },
+            { title: t('consentEdu.format'), dataIndex: 'format' },
               {
-                title: '操作',
+                title: t('consentEdu.actions'),
                 render: (_, r: EducationMaterialDto) => (
                   <Space>
-                    <Button size="small" icon={<Eye size={10} />} onClick={() => void viewMaterialDetail(r)}>查看</Button>
-                  <Button size="small" onClick={() => openEditMaterial(r)}>编辑</Button>
+                    <Button size="small" icon={<Eye size={10} />} onClick={() => void viewMaterialDetail(r)}>{t('consentEdu.view')}</Button>
+                  <Button size="small" onClick={() => openEditMaterial(r)}>{t('consentEdu.edit')}</Button>
                   {sentMaterials.has(r.id)
-                    ? <Tag color="green">已发送</Tag>
-                    : <Button size="small" icon={<Send size={10} />} onClick={() => sendToPatient(r)}>发送患者</Button>}
+                    ? <Tag color="green">{t('consentEdu.sent')}</Tag>
+                    : <Button size="small" icon={<Send size={10} />} onClick={() => sendToPatient(r)}>{t('consentEdu.sendPatient')}</Button>}
                 </Space>
               ),
             },
@@ -358,65 +357,65 @@ export const ConsentEducationPage: React.FC = () => {
         />
       </Card>
 
-      <Modal title={t('consent.newConsent', '新建同意书')} open={consentModal} onOk={() => void createConsent()} onCancel={() => setConsentModal(false)} okText="创建">
+      <Modal title={t('consentEdu.newConsent')} open={consentModal} onOk={() => void createConsent()} onCancel={() => setConsentModal(false)} okText={t('consentEdu.create')}>
         <Form form={consentForm} layout="vertical">
-          <Form.Item name="patient" label="患者姓名" rules={[{ required: true, message: '请输入患者姓名' }]}>
-            <Input placeholder="请输入患者姓名" />
+          <Form.Item name="patient" label={t('consentEdu.patientName')} rules={[{ required: true, message: t('consentEdu.patientNamePlaceholder') }]}>
+            <Input placeholder={t('consentEdu.patientNamePlaceholder')} />
           </Form.Item>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="patientId" label={t('consent.patientId', '患者ID')} rules={[{ required: true, message: t('consent.patientIdRequired', '请输入患者ID') }]}>
-                <Input placeholder="如：P-0001" />
+              <Form.Item name="patientId" label={t('consentEdu.patientId')} rules={[{ required: true, message: t('consentEdu.patientIdRequired') }]}>
+                <Input placeholder={t('consentEdu.patientIdPlaceholder')} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="examId" label={t('consent.examId', '检查号 (关联检查)')}>
-                <Input placeholder="如：EX-0001" />
+              <Form.Item name="examId" label={t('consentEdu.examId')}>
+                <Input placeholder={t('consentEdu.examIdPlaceholder')} />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="type" label={t('consent.type', '同意书类型')} rules={[{ required: true, message: '请选择类型' }]}>
-            <Select options={CONSENT_TYPE_OPTIONS.map((o) => ({ value: o.value, label: t(`consent.types.${o.labelKey}`, o.value) }))} />
+          <Form.Item name="type" label={t('consentEdu.type')} rules={[{ required: true, message: t('consentEdu.selectType') }]}>
+            <Select options={CONSENT_TYPE_OPTIONS.map((o) => ({ value: o.value, label: t(`consentEdu.type.${o.labelKey}`) }))} />
           </Form.Item>
-          <Form.Item name="procedure" label={t('consent.procedure', '诊疗操作')} rules={[{ required: true, message: '请输入操作内容' }]}>
-            <Input placeholder={t('consent.procedurePlaceholder', '如：胸部 CT 增强扫描')} />
+          <Form.Item name="procedure" label={t('consentEdu.procedure')} rules={[{ required: true, message: t('consentEdu.procedureRequired') }]}>
+            <Input placeholder={t('consentEdu.procedurePlaceholder')} />
           </Form.Item>
-          <Form.Item name="witnessName" label={t('consent.witness', '见证人')}>
-            <Input placeholder={t('consent.witnessPlaceholder', '如：王护士')} />
+          <Form.Item name="witnessName" label={t('consentEdu.witness')}>
+            <Input placeholder={t('consentEdu.witnessPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title={`${t('consent.type', '同意书类型')} - ${editingConsent?.patient ?? ''}`} open={!!editingConsent} onOk={() => void submitEditConsent()} onCancel={() => setEditingConsent(null)} okText="保存">
+      <Modal title={`${t('consentEdu.type')} - ${editingConsent?.patient ?? ''}`} open={!!editingConsent} onOk={() => void submitEditConsent()} onCancel={() => setEditingConsent(null)} okText={t('consentEdu.save')}>
         <Form form={consentEditForm} layout="vertical">
-          <Form.Item name="status" label={t('consent.status', '状态')} rules={[{ required: true, message: '请选择状态' }]}>
-            <Select options={[{ value: 'pending', label: t('consent.statusPending', '待签署') }, { value: 'signed', label: t('consent.statusSigned', '已签署') }, { value: 'refused', label: t('consent.statusRefused', '已拒绝') }, { value: 'expired', label: t('consent.statusExpired', '已过期') }]} />
+          <Form.Item name="status" label={t('consentEdu.status')} rules={[{ required: true, message: t('consentEdu.selectStatus') }]}>
+            <Select options={[{ value: 'pending', label: t('consentEdu.pending') }, { value: 'signed', label: t('consentEdu.signed') }, { value: 'refused', label: t('consentEdu.refused') }, { value: 'expired', label: t('consentEdu.expired') }]} />
           </Form.Item>
-          <Form.Item name="witnessName" label={t('consent.witness', '见证人')}>
-            <Input placeholder={t('consent.witnessPlaceholder', '如：王护士')} />
+          <Form.Item name="witnessName" label={t('consentEdu.witness')}>
+            <Input placeholder={t('consentEdu.witnessPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title="上传宣教资料" open={uploadModal} onOk={() => void createMaterial()} onCancel={() => { setUploadModal(false); setMaterialFile(null); }} okText="上传">
+      <Modal title={t('consentEdu.uploadMaterialTitle')} open={uploadModal} onOk={() => void createMaterial()} onCancel={() => { setUploadModal(false); setMaterialFile(null); }} okText={t('consentEdu.upload')}>
         <Form form={materialForm} layout="vertical">
-          <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
-            <Input placeholder="如：CT 检查须知" />
+          <Form.Item name="title" label={t('consentEdu.titleCol')} rules={[{ required: true, message: t('consentEdu.enterTitle') }]}>
+            <Input placeholder={t('consentEdu.titlePlaceholder')} />
           </Form.Item>
-          <Form.Item name="category" label="类别" rules={[{ required: true, message: '请选择类别' }]}>
+          <Form.Item name="category" label={t('consentEdu.category')} rules={[{ required: true, message: t('consentEdu.selectCategory') }]}>
             <Select options={CATEGORIES.map((c) => ({ value: c, label: c }))} />
           </Form.Item>
-          <Form.Item name="lang" label="语言" initialValue="zh-CN">
-            <Select options={[{ value: 'zh-CN', label: '中文' }, { value: 'en-US', label: 'English' }]} />
+          <Form.Item name="lang" label={t('consentEdu.lang')} initialValue="zh-CN">
+            <Select options={[{ value: 'zh-CN', label: t('consentEdu.langZh') }, { value: 'en-US', label: 'English' }]} />
           </Form.Item>
-          <Form.Item name="format" label="格式" initialValue="PDF">
+          <Form.Item name="format" label={t('consentEdu.format')} initialValue="PDF">
             <Select options={['PDF', 'PDF + Video', 'Video', 'Text'].map((f) => ({ value: f, label: f }))} />
           </Form.Item>
-          <Form.Item name="pages" label="页数">
+          <Form.Item name="pages" label={t('consentEdu.pages')}>
             <Input type="number" />
           </Form.Item>
-          <Form.Item name="summary" label="摘要">
-            <Input.TextArea rows={2} placeholder="资料内容摘要" />
+          <Form.Item name="summary" label={t('consentEdu.summaryLabel')}>
+            <Input.TextArea rows={2} placeholder={t('consentEdu.summaryPlaceholder')} />
           </Form.Item>
           <Upload
             showUploadList={false}
@@ -429,30 +428,30 @@ export const ConsentEducationPage: React.FC = () => {
               reader.readAsDataURL(f);
             }}
           >
-            <Button icon={<UploadIcon size={12} />} block>{materialFile ? `已选附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)` : '选择附件（可选）'}</Button>
+            <Button icon={<UploadIcon size={12} />} block>{materialFile ? `已选附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)` : t('consentEdu.selectOption')}</Button>
           </Upload>
         </Form>
       </Modal>
 
-      <Modal title={`编辑宣教资料 - ${editingMaterial?.title ?? ''}`} open={!!editingMaterial} onOk={() => void submitEditMaterial()} onCancel={() => setEditingMaterial(null)} okText="保存" width={520}>
+      <Modal title={`${t('consentEdu.editMaterial')} - ${editingMaterial?.title ?? ''}`} open={!!editingMaterial} onOk={() => void submitEditMaterial()} onCancel={() => setEditingMaterial(null)} okText={t('consentEdu.save')} width={520}>
         <Form form={materialEditForm} layout="vertical">
-          <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
-            <Input placeholder="如：CT 检查须知" />
+          <Form.Item name="title" label={t('consentEdu.titleCol')} rules={[{ required: true, message: t('consentEdu.enterTitle') }]}>
+            <Input placeholder={t('consentEdu.titlePlaceholder')} />
           </Form.Item>
-          <Form.Item name="category" label="类别" rules={[{ required: true, message: '请选择类别' }]}>
+          <Form.Item name="category" label={t('consentEdu.category')} rules={[{ required: true, message: t('consentEdu.selectCategory') }]}>
             <Select options={CATEGORIES.map((c) => ({ value: c, label: c }))} />
           </Form.Item>
-          <Form.Item name="lang" label="语言">
-            <Select options={[{ value: 'zh-CN', label: '中文' }, { value: 'en-US', label: 'English' }]} />
+          <Form.Item name="lang" label={t('consentEdu.lang')}>
+            <Select options={[{ value: 'zh-CN', label: t('consentEdu.langZh') }, { value: 'en-US', label: 'English' }]} />
           </Form.Item>
-          <Form.Item name="format" label="格式">
+          <Form.Item name="format" label={t('consentEdu.format')}>
             <Select options={['PDF', 'PDF + Video', 'Video', 'Text'].map((f) => ({ value: f, label: f }))} />
           </Form.Item>
-          <Form.Item name="pages" label="页数">
+          <Form.Item name="pages" label={t('consentEdu.pages')}>
             <Input type="number" />
           </Form.Item>
-          <Form.Item name="summary" label="摘要">
-            <Input.TextArea rows={2} placeholder="资料内容摘要" />
+          <Form.Item name="summary" label={t('consentEdu.summaryLabel')}>
+            <Input.TextArea rows={2} placeholder={t('consentEdu.summaryPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
@@ -463,52 +462,52 @@ export const ConsentEducationPage: React.FC = () => {
         onCancel={() => setViewMaterial(null)}
         footer={viewMaterial
           ? (sentMaterials.has(viewMaterial.id)
-              ? <Button type="primary" onClick={() => setViewMaterial(null)}>关闭</Button>
-              : <Button type="primary" onClick={() => { sendToPatient(viewMaterial); setViewMaterial(null); }}>发送给患者</Button>)
+              ? <Button type="primary" onClick={() => setViewMaterial(null)}>{t('consentEdu.close')}</Button>
+              : <Button type="primary" onClick={() => { sendToPatient(viewMaterial); setViewMaterial(null); }}>{t('consentEdu.sendToPatient')}</Button>)
           : null}
         width={560}
       >
         {viewMaterial && (
           <>
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 12 }}>
-              <Descriptions.Item label="类别"><Tag color={CATEGORY_COLORS[viewMaterial.category] ?? 'default'}>{viewMaterial.category}</Tag></Descriptions.Item>
-              <Descriptions.Item label="格式">{viewMaterial.format}</Descriptions.Item>
-              <Descriptions.Item label="页数">{viewMaterial.pages}</Descriptions.Item>
-              <Descriptions.Item label="浏览">{viewMaterial.views}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.category')}><Tag color={CATEGORY_COLORS[viewMaterial.category] ?? 'default'}>{viewMaterial.category}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.format')}>{viewMaterial.format}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.pages')}>{viewMaterial.pages}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.views')}>{viewMaterial.views}</Descriptions.Item>
             </Descriptions>
-            <Alert type="info" showIcon message={viewMaterial.summary ?? '暂无摘要'} />
+            <Alert type="info" showIcon message={viewMaterial.summary ?? t('consentEdu.noSummary')} />
           </>
         )}
       </Modal>
 
       {consents.length === 0 && !loading && (
         <div style={{ marginTop: 12 }}>
-          <Empty image={<Inbox size={48} color="#94a3b8" />} description="暂无知情同意记录" />
+          <Empty image={<Inbox size={48} color="#94a3b8" />} description={t('consentEdu.noConsent')} />
         </div>
       )}
 
       <Modal
-        title={`同意书详情 - ${viewConsent?.id ?? ''}`}
+        title={`${t('consentEdu.consentDetail')} - ${viewConsent?.id ?? ''}`}
         open={!!viewConsent}
         onCancel={() => setViewConsent(null)}
-        footer={<Button type="primary" onClick={() => setViewConsent(null)}>关闭</Button>}
+        footer={<Button type="primary" onClick={() => setViewConsent(null)}>{t('consentEdu.close')}</Button>}
         width={560}
       >
         {viewConsent && (
           <>
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 12 }}>
-              <Descriptions.Item label="患者" span={2}>{viewConsent.patient}</Descriptions.Item>
-              <Descriptions.Item label={t('consent.patientId', '患者ID')}>{viewConsent.patientId ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label={t('consent.examId', '检查号 (关联检查)')}>{viewConsent.examId ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label={t('consent.type', '同意书类型')}><Tag color="blue">{consentTypeLabel(viewConsent.type)}</Tag></Descriptions.Item>
-              <Descriptions.Item label={t('consent.status', '状态')}>
+              <Descriptions.Item label={t('consentEdu.patient')} span={2}>{viewConsent.patient}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.patientId')}>{viewConsent.patientId ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.examId')}>{viewConsent.examId ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.type')}><Tag color="blue">{consentTypeLabel(viewConsent.type)}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.status')}>
                 <Badge status={(STATUS_COLOR[viewConsent.status] ?? 'default') as 'success' | 'processing' | 'error' | 'default'} text={consentStatusLabel(viewConsent.status)} />
               </Descriptions.Item>
-              <Descriptions.Item label="诊疗操作" span={2}>{viewConsent.procedure}</Descriptions.Item>
-              <Descriptions.Item label="签署时间">{viewConsent.signedAt ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label={t('consent.witness', '见证人')}>{viewConsent.witnessName ?? viewConsent.witness ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.procedure')} span={2}>{viewConsent.procedure}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.signedAt')}>{viewConsent.signedAt ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('consentEdu.witness')}>{viewConsent.witnessName ?? viewConsent.witness ?? '—'}</Descriptions.Item>
             </Descriptions>
-            <Alert type="info" showIcon message="PDF 快照可通过列表中的「PDF」按钮生成并下载" />
+            <Alert type="info" showIcon message={t('consentEdu.pdfHint')} />
           </>
         )}
       </Modal>

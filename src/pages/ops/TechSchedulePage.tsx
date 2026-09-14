@@ -13,6 +13,7 @@ import type {
   TechCalendar, TechRoom, TechScheduleItem, TechShift, TechScheduleStatus, TechStats, TechTechnician,
 } from '../../services/api/techScheduleApi'
 import { invalidateApiCacheByPrefix } from '../../services/api/client'
+import { t } from '../../i18n/appI18n'
 
 // ============================================================
 // 样式常量 (ops 深色主题)
@@ -146,7 +147,7 @@ export default function TechSchedulePage() {
   // ================= 新建 =================
   const handleCreate = async () => {
     if (!createForm.date || !createForm.technicianId) {
-      message.warning('请填写日期并选择技师')
+      message.warning(t('techSchedule.requiredDateTech'))
       return
     }
     const res = await techScheduleApi.create({
@@ -162,14 +163,14 @@ export default function TechSchedulePage() {
       setCreateForm(EMPTY_FORM)
       afterMutate()
     } else {
-      message.error(res.error?.message ?? '创建失败')
+      message.error(res.error?.message ?? t('techSchedule.createFailed'))
     }
   }
 
   // ================= 批量生成 =================
   const handleBatch = async () => {
     if (!batchForm.startDate || !batchForm.endDate || batchForm.pattern.length === 0) {
-      message.warning('请填写起止日期并选择班次模式')
+      message.warning(t('techSchedule.requiredBatch'))
       return
     }
     const res = await techScheduleApi.batchCreate({
@@ -182,7 +183,7 @@ export default function TechSchedulePage() {
       setBatchOpen(false)
       afterMutate()
     } else {
-      message.error(res.error?.message ?? '批量生成失败')
+      message.error(res.error?.message ?? t('techSchedule.batchFailed'))
     }
   }
 
@@ -190,11 +191,11 @@ export default function TechSchedulePage() {
   const handleConfirm = async (id: string) => {
     const res = await techScheduleApi.confirm(id)
     if (res.success) {
-      message.success('排班已确认')
+      message.success(t('techSchedule.confirmed'))
       setDetail(null)
       afterMutate()
     } else {
-      message.error(res.error?.message ?? '确认失败')
+      message.error(res.error?.message ?? t('techSchedule.confirmFailed'))
     }
   }
 
@@ -202,7 +203,7 @@ export default function TechSchedulePage() {
   const handleSwap = async () => {
     if (!detail) return
     if (!swapForm.targetTechId) {
-      message.warning('请选择目标技师')
+      message.warning(t('techSchedule.requiredTargetTech'))
       return
     }
     const res = await techScheduleApi.swap(detail.id, { targetTechId: swapForm.targetTechId, reason: swapForm.reason })
@@ -213,7 +214,7 @@ export default function TechSchedulePage() {
       setSwapForm({ targetTechId: '', reason: '' })
       afterMutate()
     } else {
-      message.error(res.error?.message ?? '换班失败')
+      message.error(res.error?.message ?? t('techSchedule.swapFailed'))
     }
   }
 
@@ -221,7 +222,7 @@ export default function TechSchedulePage() {
   const handleLeave = async () => {
     if (!detail) return
     if (!leaveReason.trim()) {
-      message.warning('请填写请假原因（用于提示补位）')
+      message.warning(t('techSchedule.requiredLeaveReason'))
       return
     }
     const res = await techScheduleApi.leave(detail.id, { reason: leaveReason })
@@ -232,7 +233,7 @@ export default function TechSchedulePage() {
       setLeaveReason('')
       afterMutate()
     } else {
-      message.error(res.error?.message ?? '请假登记失败')
+      message.error(res.error?.message ?? t('techSchedule.leaveFailed'))
     }
   }
 
@@ -247,12 +248,12 @@ export default function TechSchedulePage() {
       notes: editForm.notes || null,
     })
     if (res.success) {
-      message.success('排班已更新')
+      message.success(t('techSchedule.scheduleUpdated'))
       setEditOpen(false)
       setDetail(null)
       afterMutate()
     } else {
-      message.error(res.error?.message ?? '更新失败')
+      message.error(res.error?.message ?? t('techSchedule.updateFailed'))
     }
   }
 
@@ -260,11 +261,11 @@ export default function TechSchedulePage() {
   const handleDelete = async (id: string) => {
     const res = await techScheduleApi.remove(id)
     if (res.success) {
-      message.success('排班已删除')
+      message.success(t('techSchedule.scheduleDeleted'))
       setDetail(null)
       afterMutate()
     } else {
-      message.error(res.error?.message ?? '删除失败')
+      message.error(res.error?.message ?? t('techSchedule.deleteFailed'))
     }
   }
 
@@ -296,19 +297,19 @@ export default function TechSchedulePage() {
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <CalendarDays size={24} />
-          <span style={{ fontSize: 20, fontWeight: 600 }}>技师排班管理</span>
+          <span style={{ fontSize: 20, fontWeight: 600 }}>{t('techSchedule.title')}</span>
           <span style={{
             fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
             background: dataSource === 'api' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.25)',
             color: dataSource === 'api' ? C.green : C.orange,
             border: `1px solid ${dataSource === 'api' ? '#22c55e' : '#f59e0b'}`,
           }}>
-            {dataSource === 'api' ? 'tech-schedules API 实时' : '演示数据'}
+            {dataSource === 'api' ? t('techSchedule.apiLive') : t('techSchedule.demoData')}
           </span>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>班次/换班/请假/统计 · 月历矩阵</span>
-          <span title="刷新数据" style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => void load()}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('techSchedule.headerHint')}</span>
+          <span title={t('techSchedule.refreshData')} style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => void load()}>
             <RefreshCw size={16} />
           </span>
         </div>
@@ -318,10 +319,10 @@ export default function TechSchedulePage() {
       <div style={{ padding: '20px 24px 0' }}>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           {[
-            { title: '本月班次', value: stats.totalShifts, icon: <ClipboardList size={20} />, color: C.blue },
-            { title: '排班技师', value: stats.technicianCount, icon: <Users size={20} />, color: C.teal },
-            { title: '请假', value: stats.leaveCount, icon: <UserPlus size={20} />, color: C.red },
-            { title: '夜班', value: stats.nightShiftCount, icon: <Moon size={20} />, color: C.purple },
+            { title: t('techSchedule.kpiMonthShifts'), value: stats.totalShifts, icon: <ClipboardList size={20} />, color: C.blue },
+            { title: t('techSchedule.kpiTechnicians'), value: stats.technicianCount, icon: <Users size={20} />, color: C.teal },
+            { title: t('techSchedule.kpiLeave'), value: stats.leaveCount, icon: <UserPlus size={20} />, color: C.red },
+            { title: t('techSchedule.kpiNight'), value: stats.nightShiftCount, icon: <Moon size={20} />, color: C.purple },
           ].map((kpi) => (
             <div key={kpi.title} style={{ flex: 1, minWidth: 180, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -340,7 +341,7 @@ export default function TechSchedulePage() {
           <Button size="small" icon={<ChevronLeft size={14} />} onClick={() => setMonth(shiftMonth(month, -1))} />
           <span style={{ fontSize: 15, fontWeight: 600, minWidth: 90, textAlign: 'center' }}>{monthLabel}</span>
           <Button size="small" icon={<ChevronRight size={14} />} onClick={() => setMonth(shiftMonth(month, 1))} />
-          <Button size="small" onClick={() => setMonth(monthStr())}>本月</Button>
+          <Button size="small" onClick={() => setMonth(monthStr())}>{t('techSchedule.thisMonth')}</Button>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <input
@@ -348,20 +349,20 @@ export default function TechSchedulePage() {
             style={inputStyle} data-testid="ts-filter-date"
           />
           <Select
-            size="small" placeholder="全部技师" value={filterTech || undefined}
+            size="small" placeholder={t('techSchedule.allTechnicians')} value={filterTech || undefined}
             onChange={(v) => setFilterTech(v ?? '')} allowClear style={{ width: 140 }}
             options={technicians.map((t) => ({ value: t.id, label: t.name }))}
           />
           <Select
-            size="small" placeholder="全部状态" value={filterStatus || undefined}
+            size="small" placeholder={t('techSchedule.allStatus')} value={filterStatus || undefined}
             onChange={(v) => setFilterStatus(v ?? '')} allowClear style={{ width: 130 }}
             options={STATUS_LIST.map((s) => ({ value: s, label: STATUS_CONFIG[s].label }))}
           />
           <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => { setCreateForm({ ...EMPTY_FORM }); setCreateOpen(true) }}>
-            新建排班
+            {t('techSchedule.createSchedule')}
           </Button>
           <Button size="small" icon={<CalendarPlus size={14} />} onClick={() => setBatchOpen(true)}>
-            批量生成
+            {t('techSchedule.batchGenerate')}
           </Button>
         </div>
       </div>
@@ -375,7 +376,7 @@ export default function TechSchedulePage() {
                 <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 1200, fontSize: 12 }}>
                   <thead>
                     <tr style={{ background: '#0f141b' }}>
-                      <th style={thStyle}>技师</th>
+                      <th style={thStyle}>{t('techSchedule.technician')}</th>
                       {calendar.days.map((d) => {
                         const weekend = d.weekday === '周日' || d.weekday === '周六'
                         const isFiltered = filterDate && d.date !== filterDate
@@ -427,19 +428,19 @@ export default function TechSchedulePage() {
                       </tr>
                     ))}
                     {visibleTechs.length === 0 && (
-                      <tr><td colSpan={calendar.days.length + 1} style={{ ...tdStyle, textAlign: 'center', color: C.textMid, padding: 24 }}>暂无技师数据</td></tr>
+                      <tr><td colSpan={calendar.days.length + 1} style={{ ...tdStyle, textAlign: 'center', color: C.textMid, padding: 24 }}>{t('techSchedule.noTechnicianData')}</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
             )}
-            {!calendar && !loading && <Empty description="暂无月历数据" style={{ padding: 40 }} />}
+            {!calendar && !loading && <Empty description={t('techSchedule.noCalendarData')} style={{ padding: 40 }} />}
           </Spin>
         </div>
 
         {/* 图例 */}
         <div style={{ marginTop: 12, padding: '10px 16px', background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>班次图例:</span>
+          <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{t('techSchedule.shiftLegend')}</span>
           {SHIFT_LIST.map((s) => (
             <span key={s} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: SHIFT_CONFIG[s].color }}>
               {SHIFT_CONFIG[s].icon}{SHIFT_CONFIG[s].label}
@@ -451,7 +452,7 @@ export default function TechSchedulePage() {
               {STATUS_CONFIG[s].label}
             </span>
           ))}
-          <span style={{ marginLeft: 'auto', fontSize: 11, color: C.textLight }}>点击单元格: 详情/操作; 空单元格: 快速新建</span>
+          <span style={{ marginLeft: 'auto', fontSize: 11, color: C.textLight }}>{t('techSchedule.cellHint')}</span>
         </div>
       </div>
 
@@ -459,19 +460,19 @@ export default function TechSchedulePage() {
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Users size={16} color={C.teal} /> 技师班次分布 ({monthLabel})
+            <Users size={16} color={C.teal} /> {t('techSchedule.techShiftDistribution')} ({monthLabel})
           </div>
           {stats.byTechnician.length === 0 ? (
-            <Empty description="本月暂无排班" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <Empty description={t('techSchedule.noMonthlySchedule')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
           ) : (
             <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 12 }}>
               <thead>
                 <tr>
-                  <th style={{ ...thStyle, textAlign: 'left' }}>技师</th>
-                  <th style={{ ...thStyle, textAlign: 'center' }}>班次数</th>
-                  <th style={{ ...thStyle, textAlign: 'center' }}>夜班</th>
-                  <th style={{ ...thStyle, textAlign: 'center' }}>请假</th>
-                  <th style={{ ...thStyle, textAlign: 'left' }}>占比</th>
+                  <th style={{ ...thStyle, textAlign: 'left' }}>{t('techSchedule.technician')}</th>
+                  <th style={{ ...thStyle, textAlign: 'center' }}>{t('techSchedule.shiftCount')}</th>
+                  <th style={{ ...thStyle, textAlign: 'center' }}>{t('techSchedule.kpiNight')}</th>
+                  <th style={{ ...thStyle, textAlign: 'center' }}>{t('techSchedule.kpiLeave')}</th>
+                  <th style={{ ...thStyle, textAlign: 'left' }}>{t('techSchedule.share')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -513,30 +514,30 @@ export default function TechSchedulePage() {
           <div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
               {[
-                { label: '技师', value: detail.technicianName },
-                { label: '检查室', value: detail.roomName ?? '未分配' },
-                { label: '状态', value: STATUS_CONFIG[detail.status]?.label ?? detail.status },
-                { label: '备注', value: detail.notes ?? '-' },
+                { label: t('techSchedule.technician'), value: detail.technicianName },
+                { label: t('techSchedule.examRoom'), value: detail.roomName ?? t('techSchedule.unassigned') },
+                { label: t('techSchedule.status'), value: STATUS_CONFIG[detail.status]?.label ?? detail.status },
+                { label: t('techSchedule.notes'), value: detail.notes ?? '-' },
               ].map((f) => (
                 <div key={f.label} style={{ minWidth: 140 }}>
                   <div style={{ fontSize: 11, color: C.textMid }}>{f.label}</div>
                   <div style={{ fontSize: 14, fontWeight: 500 }}>{f.value}</div>
                 </div>
               ))}
-              {detail.swapReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>换班原因</div><div style={{ fontSize: 13, color: C.orange }}>{detail.swapReason}</div></div>}
-              {detail.leaveReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>请假原因</div><div style={{ fontSize: 13, color: C.red }}>{detail.leaveReason}</div></div>}
+              {detail.swapReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.swapReason')}</div><div style={{ fontSize: 13, color: C.orange }}>{detail.swapReason}</div></div>}
+              {detail.leaveReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.leaveReason')}</div><div style={{ fontSize: 13, color: C.red }}>{detail.leaveReason}</div></div>}
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {detail.status !== 'CONFIRMED' && detail.status !== 'ON_LEAVE' && (
-                <Tooltip title="确认该排班">
-                  <Button size="small" type="primary" icon={<CheckCircle2 size={14} />} onClick={() => void handleConfirm(detail.id)}>确认</Button>
+                <Tooltip title={t('techSchedule.confirmThis')}>
+                  <Button size="small" type="primary" icon={<CheckCircle2 size={14} />} onClick={() => void handleConfirm(detail.id)}>{t('techSchedule.confirm')}</Button>
                 </Tooltip>
               )}
-              <Tooltip title="与目标技师交换班次">
-                <Button size="small" icon={<ArrowRightLeft size={14} />} onClick={() => { setSwapForm({ targetTechId: '', reason: '' }); setSwapOpen(true) }}>换班</Button>
+              <Tooltip title={t('techSchedule.swapWithTarget')}>
+                <Button size="small" icon={<ArrowRightLeft size={14} />} onClick={() => { setSwapForm({ targetTechId: '', reason: '' }); setSwapOpen(true) }}>{t('techSchedule.swap')}</Button>
               </Tooltip>
-              <Tooltip title="登记请假并提示补位">
-                <Button size="small" icon={<UserPlus size={14} />} onClick={() => { setLeaveReason(''); setLeaveOpen(true) }}>请假</Button>
+              <Tooltip title={t('techSchedule.registerLeave')}>
+                <Button size="small" icon={<UserPlus size={14} />} onClick={() => { setLeaveReason(''); setLeaveOpen(true) }}>{t('techSchedule.leave')}</Button>
               </Tooltip>
               <Button size="small" icon={<Pencil size={14} />} onClick={() => {
                 setEditForm({
@@ -544,43 +545,43 @@ export default function TechSchedulePage() {
                   roomId: detail.roomId, notes: detail.notes ?? '',
                 })
                 setEditOpen(true)
-              }}>编辑</Button>
-              <Button size="small" danger icon={<X size={14} />} onClick={() => void handleDelete(detail.id)}>删除</Button>
+              }}>{t('techSchedule.edit')}</Button>
+              <Button size="small" danger icon={<X size={14} />} onClick={() => void handleDelete(detail.id)}>{t('techSchedule.delete')}</Button>
             </div>
           </div>
         )}
       </Modal>
 
       {/* ================= 新建排班弹窗 ================= */}
-      <Modal title="新建排班" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreate()} width={440} destroyOnClose>
+      <Modal title={t('techSchedule.createScheduleTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreate()} width={440} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
-          <label style={labelStyle}>日期</label>
+          <label style={labelStyle}>{t('techSchedule.date')}</label>
           <input type="date" value={createForm.date} onChange={(e) => setCreateForm({ ...createForm, date: e.target.value })} style={inputStyle} data-testid="ts-create-date" />
-          <label style={labelStyle}>班次</label>
+          <label style={labelStyle}>{t('techSchedule.shift')}</label>
           <Select size="small" value={createForm.shift} onChange={(v) => setCreateForm({ ...createForm, shift: v })} style={{ width: '100%' }}
             options={SHIFT_LIST.map((s) => ({ value: s, label: `${SHIFT_CONFIG[s].label} (${s})` }))} />
-          <label style={labelStyle}>技师</label>
-          <Select size="small" placeholder="选择技师" value={createForm.technicianId || undefined} onChange={(v) => setCreateForm({ ...createForm, technicianId: v })}
+          <label style={labelStyle}>{t('techSchedule.technician')}</label>
+          <Select size="small" placeholder={t('techSchedule.selectTechnician')} value={createForm.technicianId || undefined} onChange={(v) => setCreateForm({ ...createForm, technicianId: v })}
             style={{ width: '100%' }}
             options={technicians.map((t) => ({ value: t.id, label: `${t.name}（${t.group}）` }))} />
-          <label style={labelStyle}>检查室</label>
-          <Select size="small" placeholder="可留空" value={createForm.roomId ?? undefined} onChange={(v) => setCreateForm({ ...createForm, roomId: v ?? null })} allowClear
+          <label style={labelStyle}>{t('techSchedule.examRoom')}</label>
+          <Select size="small" placeholder={t('techSchedule.optional')} value={createForm.roomId ?? undefined} onChange={(v) => setCreateForm({ ...createForm, roomId: v ?? null })} allowClear
             style={{ width: '100%' }}
             options={rooms.map((r) => ({ value: r.id, label: r.name }))} />
-          <label style={labelStyle}>备注</label>
-          <input type="text" value={createForm.notes} onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })} placeholder="可选备注"
+          <label style={labelStyle}>{t('techSchedule.notes')}</label>
+          <input type="text" value={createForm.notes} onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })} placeholder={t('techSchedule.optionalNote')}
             style={inputStyle} />
         </div>
       </Modal>
 
       {/* ================= 批量生成弹窗 ================= */}
-      <Modal title="批量生成排班" open={batchOpen} onCancel={() => setBatchOpen(false)} onOk={() => void handleBatch()} width={440} destroyOnClose>
+      <Modal title={t('techSchedule.batchGenerateTitle')} open={batchOpen} onCancel={() => setBatchOpen(false)} onOk={() => void handleBatch()} width={440} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
-          <label style={labelStyle}>起始日期</label>
+          <label style={labelStyle}>{t('techSchedule.startDate')}</label>
           <input type="date" value={batchForm.startDate} onChange={(e) => setBatchForm({ ...batchForm, startDate: e.target.value })} style={inputStyle} />
-          <label style={labelStyle}>结束日期</label>
+          <label style={labelStyle}>{t('techSchedule.endDate')}</label>
           <input type="date" value={batchForm.endDate} onChange={(e) => setBatchForm({ ...batchForm, endDate: e.target.value })} style={inputStyle} />
-          <label style={labelStyle}>班次模式 (按模式循环)</label>
+          <label style={labelStyle}>{t('techSchedule.shiftPattern')}</label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {SHIFT_LIST.map((s) => {
               const on = batchForm.pattern.includes(s)
@@ -597,48 +598,48 @@ export default function TechSchedulePage() {
               )
             })}
           </div>
-          <div style={{ fontSize: 11, color: C.textLight }}>示例: [白班, 夜班, 备班] 会在每个日期循环生成 3 条排班，自动轮换技师与检查室，冲突自动跳过。</div>
+          <div style={{ fontSize: 11, color: C.textLight }}>{t('techSchedule.batchHint')}</div>
         </div>
       </Modal>
 
       {/* ================= 换班弹窗 ================= */}
-      <Modal title={detail ? `换班 · ${detail.technicianName} (${SHIFT_CONFIG[detail.shift]?.label ?? detail.shift})` : '换班'} open={swapOpen} onCancel={() => setSwapOpen(false)} onOk={() => void handleSwap()} width={420} destroyOnClose>
+      <Modal title={detail ? `换班 · ${detail.technicianName} (${SHIFT_CONFIG[detail.shift]?.label ?? detail.shift})` : t('techSchedule.swap')} open={swapOpen} onCancel={() => setSwapOpen(false)} onOk={() => void handleSwap()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
-          <label style={labelStyle}>目标技师 (同日期同班次交换)</label>
-          <Select size="small" placeholder="选择目标技师" value={swapForm.targetTechId || undefined} onChange={(v) => setSwapForm({ ...swapForm, targetTechId: v })}
+          <label style={labelStyle}>{t('techSchedule.targetTechLabel')}</label>
+          <Select size="small" placeholder={t('techSchedule.selectTargetTech')} value={swapForm.targetTechId || undefined} onChange={(v) => setSwapForm({ ...swapForm, targetTechId: v })}
             style={{ width: '100%' }}
             options={swapCandidates.map((t) => ({ value: t.id, label: t.name }))} />
-          <label style={labelStyle}>换班原因</label>
-          <input type="text" value={swapForm.reason} onChange={(e) => setSwapForm({ ...swapForm, reason: e.target.value })} placeholder="如: 家中有事对调" style={inputStyle} />
+          <label style={labelStyle}>{t('techSchedule.swapReason')}</label>
+          <input type="text" value={swapForm.reason} onChange={(e) => setSwapForm({ ...swapForm, reason: e.target.value })} placeholder={t('techSchedule.placeholderSwapReason')} style={inputStyle} />
         </div>
       </Modal>
 
       {/* ================= 请假弹窗 ================= */}
-      <Modal title="请假登记" open={leaveOpen} onCancel={() => setLeaveOpen(false)} onOk={() => void handleLeave()} width={420} destroyOnClose>
+      <Modal title={t('techSchedule.leaveRegister')} open={leaveOpen} onCancel={() => setLeaveOpen(false)} onOk={() => void handleLeave()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
-          <label style={labelStyle}>请假原因 (将提示补位)</label>
-          <input type="text" value={leaveReason} onChange={(e) => setLeaveReason(e.target.value)} placeholder="如: 突发疾病，请安排补位" style={inputStyle} />
+          <label style={labelStyle}>{t('techSchedule.leaveReasonLabel')}</label>
+          <input type="text" value={leaveReason} onChange={(e) => setLeaveReason(e.target.value)} placeholder={t('techSchedule.placeholderLeaveReason')} style={inputStyle} />
         </div>
       </Modal>
 
       {/* ================= 编辑弹窗 ================= */}
-      <Modal title="编辑排班" open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => void handleEdit()} width={440} destroyOnClose>
+      <Modal title={t('techSchedule.editScheduleTitle')} open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => void handleEdit()} width={440} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
-          <label style={labelStyle}>日期</label>
+          <label style={labelStyle}>{t('techSchedule.date')}</label>
           <input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} style={inputStyle} />
-          <label style={labelStyle}>班次</label>
+          <label style={labelStyle}>{t('techSchedule.shift')}</label>
           <Select size="small" value={editForm.shift} onChange={(v) => setEditForm({ ...editForm, shift: v })} style={{ width: '100%' }}
             options={SHIFT_LIST.map((s) => ({ value: s, label: `${SHIFT_CONFIG[s].label} (${s})` }))} />
-          <label style={labelStyle}>技师</label>
-          <Select size="small" placeholder="选择技师" value={editForm.technicianId || undefined} onChange={(v) => setEditForm({ ...editForm, technicianId: v })}
+          <label style={labelStyle}>{t('techSchedule.technician')}</label>
+          <Select size="small" placeholder={t('techSchedule.selectTechnician')} value={editForm.technicianId || undefined} onChange={(v) => setEditForm({ ...editForm, technicianId: v })}
             style={{ width: '100%' }}
             options={technicians.map((t) => ({ value: t.id, label: `${t.name}（${t.group}）` }))} />
-          <label style={labelStyle}>检查室</label>
-          <Select size="small" placeholder="可留空" value={editForm.roomId ?? undefined} onChange={(v) => setEditForm({ ...editForm, roomId: v ?? null })} allowClear
+          <label style={labelStyle}>{t('techSchedule.examRoom')}</label>
+          <Select size="small" placeholder={t('techSchedule.optional')} value={editForm.roomId ?? undefined} onChange={(v) => setEditForm({ ...editForm, roomId: v ?? null })} allowClear
             style={{ width: '100%' }}
             options={rooms.map((r) => ({ value: r.id, label: r.name }))} />
-          <label style={labelStyle}>备注</label>
-          <input type="text" value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} placeholder="可选备注" style={inputStyle} />
+          <label style={labelStyle}>{t('techSchedule.notes')}</label>
+          <input type="text" value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} placeholder={t('techSchedule.optionalNote')} style={inputStyle} />
         </div>
       </Modal>
     </div>

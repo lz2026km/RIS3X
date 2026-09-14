@@ -100,7 +100,7 @@ const PacsAdminPage: React.FC = () => {
       }
       if (routeRes.success && Array.isArray(routeRes.data)) setRoutes(routeRes.data)
     } catch (e) {
-      setError((e as Error)?.message ?? 'PACS 数据加载失败')
+      setError((e as Error)?.message ?? t('pacsAdmin.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -115,9 +115,9 @@ const PacsAdminPage: React.FC = () => {
     try {
       const res = await pacsAdminApi.testConnection(id)
       if (res.success && res.data?.success) message.success(`连接正常，延迟 ${res.data.latencyMs}ms`)
-      else message.error('连接失败')
+      else message.error(t('pacsAdmin.connFailed'))
     } catch {
-      message.error('连接测试失败')
+      message.error(t('pacsAdmin.connTestFailed'))
     } finally {
       setTestingId(null)
     }
@@ -126,8 +126,8 @@ const PacsAdminPage: React.FC = () => {
   const handleAddServer = async () => {
     const values = await serverForm.validateFields()
     const res = await pacsAdminApi.addServer(values)
-    if (res.success) { message.success('AE 服务器已添加'); setServerModal(false); serverForm.resetFields(); void fetchData() }
-    else message.error(res.error?.message ?? '添加失败')
+    if (res.success) { message.success(t('pacsAdmin.serverAdded')); setServerModal(false); serverForm.resetFields(); void fetchData() }
+    else message.error(res.error?.message ?? t('pacsAdmin.addFailed'))
   }
 
   // [G005 v3.0.6.11-91 W1-B P1 第12轮] 编辑 AE 服务器 (updateServer, 复用添加 Modal)
@@ -141,8 +141,8 @@ const PacsAdminPage: React.FC = () => {
     if (!editingServer) return
     const values = await serverForm.validateFields()
     const res = await pacsAdminApi.updateServer(editingServer.id, values)
-    if (res.success) { message.success('AE 服务器已更新'); setServerModal(false); setEditingServer(null); serverForm.resetFields(); void fetchData() }
-    else message.error(res.error?.message ?? '更新失败')
+    if (res.success) { message.success(t('pacsAdmin.serverUpdated')); setServerModal(false); setEditingServer(null); serverForm.resetFields(); void fetchData() }
+    else message.error(res.error?.message ?? t('pacsAdmin.updateFailed'))
   }
 
   const handleServerModalOk = () => (editingServer ? handleUpdateServer() : handleAddServer())
@@ -155,9 +155,9 @@ const PacsAdminPage: React.FC = () => {
     try {
       const res = await pacsAdminApi.getServer(id)
       if (res.success && res.data) setDetailServer(res.data as PacsServer)
-      else message.error(res.error?.message ?? '服务器详情加载失败')
+      else message.error(res.error?.message ?? t('pacsAdmin.detailFailed'))
     } catch {
-      message.error('服务器详情加载失败')
+      message.error(t('pacsAdmin.detailFailed'))
     } finally {
       setDetailLoading(false)
     }
@@ -165,15 +165,15 @@ const PacsAdminPage: React.FC = () => {
 
   const handleDeleteServer = async (id: string) => {
     const res = await pacsAdminApi.deleteServer(id)
-    if (res.success) { message.success('已删除'); void fetchData() }
-    else message.error(res.error?.message ?? '删除失败')
+    if (res.success) { message.success(t('pacsAdmin.deleted')); void fetchData() }
+    else message.error(res.error?.message ?? t('pacsAdmin.deleteFailed'))
   }
 
   const handleAddStorage = async () => {
     const values = await storageForm.validateFields()
     const res = await pacsAdminApi.createStorageGroup(values)
-    if (res.success) { message.success('存储组已创建'); setStorageModal(false); storageForm.resetFields(); void fetchData() }
-    else message.error(res.error?.message ?? '创建失败')
+    if (res.success) { message.success(t('pacsAdmin.storageCreated')); setStorageModal(false); storageForm.resetFields(); void fetchData() }
+    else message.error(res.error?.message ?? t('pacsAdmin.createFailed'))
   }
 
   // [G005 v3.0.6.11-91 W1-B P1 第12轮] 删除存储组 (deleteStorageGroup)
@@ -181,10 +181,10 @@ const PacsAdminPage: React.FC = () => {
     setDeletingStorageId(id)
     try {
       const res = await pacsAdminApi.deleteStorageGroup(id)
-      if (res.success) { message.success('存储组已删除'); void fetchData() }
-      else message.error(res.error?.message ?? '删除失败')
+      if (res.success) { message.success(t('pacsAdmin.storageDeleted')); void fetchData() }
+      else message.error(res.error?.message ?? t('pacsAdmin.deleteFailed'))
     } catch {
-      message.error('删除失败')
+      message.error(t('pacsAdmin.deleteFailed'))
     } finally {
       setDeletingStorageId(null)
     }
@@ -196,9 +196,9 @@ const PacsAdminPage: React.FC = () => {
     try {
       const res = await pacsAdminApi.testNode(id)
       if (res.success && res.data?.success) message.success(`节点连接正常，延迟 ${res.data.latencyMs}ms`)
-      else message.error('节点连接失败')
+      else message.error(t('pacsAdmin.nodeConnFailed'))
     } catch {
-      message.error('连接测试失败')
+      message.error(t('pacsAdmin.connTestFailed'))
     } finally {
       setTestingId(null)
     }
@@ -209,9 +209,9 @@ const PacsAdminPage: React.FC = () => {
     try {
       const res = await pacsAdminApi.syncNode(id)
       if (res.success && res.data?.ok) message.success(`同步完成：${res.data.syncedStudies} 个检查，耗时 ${res.data.durationMs}ms`)
-      else message.error('节点同步失败')
+      else message.error(t('pacsAdmin.nodeSyncFailed'))
     } catch {
-      message.error('同步请求失败')
+      message.error(t('pacsAdmin.syncRequestFailed'))
     } finally {
       setSyncId(null)
     }
@@ -223,9 +223,9 @@ const PacsAdminPage: React.FC = () => {
     try {
       const res = await pacsAdminApi.cleanupStorage()
       if (res.success && res.data?.ok) message.success(`清理完成：释放 ${formatBytes(res.data.freedBytes)}，删除 ${res.data.deletedCount} 个过期对象`)
-      else message.error('清理失败')
+      else message.error(t('pacsAdmin.cleanupFailed'))
     } catch {
-      message.error('清理请求失败')
+      message.error(t('pacsAdmin.cleanupRequestFailed'))
     } finally {
       setCleaning(false)
     }
@@ -237,26 +237,26 @@ const PacsAdminPage: React.FC = () => {
     if (value === undefined) return
     const res = await pacsAdminApi.updateConfig(key, { value })
     if (res.success) { message.success(`配置已更新: ${key}`); void fetchData() }
-    else message.error(res.error?.message ?? '保存失败')
+    else message.error(res.error?.message ?? t('pacsAdmin.saveFailed'))
   }
 
   const serverColumns = [
-    { title: '名称', dataIndex: 'name', key: 'name', render: (v: string, r: PacsServer) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
-    { title: '主机', dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
-    { title: '端口', dataIndex: 'port', key: 'port', width: 80 },
-    { title: '应用实体名', dataIndex: 'aeTitle', key: 'ae', width: 130, render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'online' ? 'green' : v === 'error' ? 'red' : 'default'} icon={v === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>{v === 'online' ? '在线' : v === 'error' ? '故障' : '离线'}</Tag> },
-    { title: '心跳', dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
-    { title: '检查数', dataIndex: 'studyCount', key: 'studies', width: 100, render: (v: number) => v?.toLocaleString() },
-    { title: '存储', dataIndex: 'storageBytes', key: 'storage', width: 100, render: (v: number) => formatBytes(v ?? 0) },
+    { title: t('pacsAdmin.name'), dataIndex: 'name', key: 'name', render: (v: string, r: PacsServer) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
+    { title: t('pacsAdmin.host'), dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
+    { title: t('pacsAdmin.port'), dataIndex: 'port', key: 'port', width: 80 },
+    { title: t('pacsAdmin.aeTitle'), dataIndex: 'aeTitle', key: 'ae', width: 130, render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'online' ? 'green' : v === 'error' ? 'red' : 'default'} icon={v === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>{v === 'online' ? t('pacsAdmin.online') : v === 'error' ? t('pacsAdmin.fault') : t('pacsAdmin.offline')}</Tag> },
+    { title: t('pacsAdmin.heartbeat'), dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.studyCount'), dataIndex: 'studyCount', key: 'studies', width: 100, render: (v: number) => v?.toLocaleString() },
+    { title: t('pacsAdmin.storage'), dataIndex: 'storageBytes', key: 'storage', width: 100, render: (v: number) => formatBytes(v ?? 0) },
     {
-      title: '操作', key: 'ops', width: 250,
+      title: t('pacsAdmin.actions'), key: 'ops', width: 250,
       render: (_: unknown, r: PacsServer) => (
         <Space size={4}>
           <Button size="small" icon={<Eye size={12} />} onClick={() => void handleViewServer(r.id)}>{t('pacsAdmin.detail')}</Button>
-          <Button size="small" icon={<Zap size={12} />} loading={testingId === r.id} onClick={() => void handleTestConnection(r.id)}>测试</Button>
-          <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEditServer(r)}>编辑</Button>
-          <Popconfirm title="确认删除该服务器？" onConfirm={() => void handleDeleteServer(r.id)}>
+          <Button size="small" icon={<Zap size={12} />} loading={testingId === r.id} onClick={() => void handleTestConnection(r.id)}>{t('pacsAdmin.test')}</Button>
+          <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEditServer(r)}>{t('pacsAdmin.edit')}</Button>
+          <Popconfirm title={t('pacsAdmin.confirmDeleteServer')} onConfirm={() => void handleDeleteServer(r.id)}>
             <Button size="small" danger icon={<Trash2 size={12} />} />
           </Popconfirm>
         </Space>
@@ -265,83 +265,83 @@ const PacsAdminPage: React.FC = () => {
   ]
 
   const associationColumns = [
-    { title: '本地 AE', dataIndex: 'localAe', key: 'localAe', render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '远端 AE', dataIndex: 'remoteAe', key: 'remoteAe', render: (v: string) => <Tag>{v}</Tag> },
-    { title: '远端主机', dataIndex: 'remoteHost', key: 'remoteHost', render: (v: string, r: PacsAssociation) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}:{r.remotePort}</Typography.Text> },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'connected' ? 'green' : v === 'failed' ? 'red' : 'default'}>{v === 'connected' ? '已连接' : v === 'failed' ? '失败' : '断开'}</Tag> },
-    { title: '请求数', dataIndex: 'requestCount', key: 'req', render: (v: number) => v?.toLocaleString() },
-    { title: '错误数', dataIndex: 'errorCount', key: 'err', render: (v: number) => <span style={{ color: (v ?? 0) > 20 ? '#ff4d4f' : '#52c41a' }}>{v ?? 0}</span> },
-    { title: '最近活动', dataIndex: 'lastActivity', key: 'last', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.localAe'), dataIndex: 'localAe', key: 'localAe', render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: t('pacsAdmin.remoteAe'), dataIndex: 'remoteAe', key: 'remoteAe', render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('pacsAdmin.remoteHost'), dataIndex: 'remoteHost', key: 'remoteHost', render: (v: string, r: PacsAssociation) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}:{r.remotePort}</Typography.Text> },
+    { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'connected' ? 'green' : v === 'failed' ? 'red' : 'default'}>{v === 'connected' ? t('pacsAdmin.connected') : v === 'failed' ? t('pacsAdmin.failed') : t('pacsAdmin.disconnected')}</Tag> },
+    { title: t('pacsAdmin.requestCount'), dataIndex: 'requestCount', key: 'req', render: (v: number) => v?.toLocaleString() },
+    { title: t('pacsAdmin.errorCount'), dataIndex: 'errorCount', key: 'err', render: (v: number) => <span style={{ color: (v ?? 0) > 20 ? '#ff4d4f' : '#52c41a' }}>{v ?? 0}</span> },
+    { title: t('pacsAdmin.lastActivity'), dataIndex: 'lastActivity', key: 'last', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 
   // [G005 Wave1A P0-1] 节点 / 工作列表 / 归档 / 日志 / 配置 / 路由 列定义
   const nodeColumns = [
-    { title: '名称', dataIndex: 'name', key: 'name', render: (v: string, r: PacsNode) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
-    { title: '主机', dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
-    { title: '端口', dataIndex: 'port', key: 'port', width: 70 },
-    { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: '位置', dataIndex: 'location', key: 'location', render: (v: string) => <span style={{ fontSize: 12 }}>{v || '-'}</span> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'online' ? 'green' : v === 'error' ? 'red' : 'default'} icon={v === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>{v === 'online' ? '在线' : v === 'error' ? '故障' : '离线'}</Tag> },
-    { title: '检查数', dataIndex: 'studyCount', key: 'studies', width: 90, render: (v: number) => v?.toLocaleString() },
-    { title: '心跳', dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.name'), dataIndex: 'name', key: 'name', render: (v: string, r: PacsNode) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
+    { title: t('pacsAdmin.host'), dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
+    { title: t('pacsAdmin.port'), dataIndex: 'port', key: 'port', width: 70 },
+    { title: t('pacsAdmin.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: t('pacsAdmin.location'), dataIndex: 'location', key: 'location', render: (v: string) => <span style={{ fontSize: 12 }}>{v || '-'}</span> },
+    { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'online' ? 'green' : v === 'error' ? 'red' : 'default'} icon={v === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>{v === 'online' ? t('pacsAdmin.online') : v === 'error' ? t('pacsAdmin.fault') : t('pacsAdmin.offline')}</Tag> },
+    { title: t('pacsAdmin.studyCount'), dataIndex: 'studyCount', key: 'studies', width: 90, render: (v: number) => v?.toLocaleString() },
+    { title: t('pacsAdmin.heartbeat'), dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
     {
-      title: '操作', key: 'ops', width: 150,
+      title: t('pacsAdmin.actions'), key: 'ops', width: 150,
       render: (_: unknown, r: PacsNode) => (
         <Space size={4}>
-          <Button size="small" icon={<Zap size={12} />} loading={testingId === r.id} onClick={() => void handleTestNode(r.id)}>测试</Button>
-          <Button size="small" icon={<RefreshCw size={12} />} loading={syncId === r.id} onClick={() => void handleSyncNode(r.id)}>同步</Button>
+          <Button size="small" icon={<Zap size={12} />} loading={testingId === r.id} onClick={() => void handleTestNode(r.id)}>{t('pacsAdmin.test')}</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} loading={syncId === r.id} onClick={() => void handleSyncNode(r.id)}>{t('pacsAdmin.sync')}</Button>
         </Space>
       ),
     },
   ]
 
   const worklistColumns = [
-    { title: '申请号', dataIndex: 'accessionNumber', key: 'acc', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
-    { title: '患者', dataIndex: 'patientName', key: 'patient', render: (v: string) => <b>{v}</b> },
-    { title: '患者ID', dataIndex: 'patientId', key: 'pid', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span> },
-    { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v || '-' },
-    { title: '状态', dataIndex: 'state', key: 'state', width: 120, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'green' : v === 'IN_PROGRESS' ? 'blue' : 'orange'}>{displayExamStatus(v)}</Tag> },
-    { title: '预约时间', dataIndex: 'scheduledAt', key: 'scheduledAt', width: 170, render: (v?: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.accessionNumber'), dataIndex: 'accessionNumber', key: 'acc', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
+    { title: t('pacsAdmin.patient'), dataIndex: 'patientName', key: 'patient', render: (v: string) => <b>{v}</b> },
+    { title: t('pacsAdmin.patientId'), dataIndex: 'patientId', key: 'pid', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span> },
+    { title: t('pacsAdmin.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: t('pacsAdmin.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v || '-' },
+    { title: t('pacsAdmin.status'), dataIndex: 'state', key: 'state', width: 120, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'green' : v === 'IN_PROGRESS' ? 'blue' : 'orange'}>{displayExamStatus(v)}</Tag> },
+    { title: t('pacsAdmin.scheduledAt'), dataIndex: 'scheduledAt', key: 'scheduledAt', width: 170, render: (v?: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 
   const archiveColumns = [
-    { title: '归档ID', dataIndex: 'id', key: 'id', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
-    { title: '检查号', dataIndex: 'studyId', key: 'studyId', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
-    { title: '患者', dataIndex: 'patientName', key: 'patient', render: (v: string) => <b>{v}</b> },
-    { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: '大小', dataIndex: 'sizeBytes', key: 'size', render: (v: number) => formatBytes(v ?? 0) },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'archived' ? 'green' : v === 'restoring' ? 'orange' : 'blue'}>{v === 'archived' ? '已归档' : v === 'restoring' ? '恢复中' : '已恢复'}</Tag> },
-    { title: '归档时间', dataIndex: 'archivedAt', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.archiveId'), dataIndex: 'id', key: 'id', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
+    { title: t('pacsAdmin.studyId'), dataIndex: 'studyId', key: 'studyId', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+    { title: t('pacsAdmin.patient'), dataIndex: 'patientName', key: 'patient', render: (v: string) => <b>{v}</b> },
+    { title: t('pacsAdmin.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: t('pacsAdmin.size'), dataIndex: 'sizeBytes', key: 'size', render: (v: number) => formatBytes(v ?? 0) },
+    { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'archived' ? 'green' : v === 'restoring' ? 'orange' : 'blue'}>{v === 'archived' ? t('pacsAdmin.archived') : v === 'restoring' ? t('pacsAdmin.restoring') : t('pacsAdmin.restored')}</Tag> },
+    { title: t('pacsAdmin.archivedAt'), dataIndex: 'archivedAt', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 
   const logColumns = [
-    { title: '时间', dataIndex: 'time', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
-    { title: '级别', dataIndex: 'level', key: 'level', width: 80, render: (v: string) => <Tag color={v === 'ERROR' ? 'red' : v === 'WARN' ? 'orange' : 'green'}>{v}</Tag> },
-    { title: '来源', dataIndex: 'source', key: 'source', width: 110, render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '消息', dataIndex: 'message', key: 'message', render: (v: string) => <span style={{ fontSize: 12.5 }}>{v}</span> },
+    { title: t('pacsAdmin.time'), dataIndex: 'time', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.level'), dataIndex: 'level', key: 'level', width: 80, render: (v: string) => <Tag color={v === 'ERROR' ? 'red' : v === 'WARN' ? 'orange' : 'green'}>{v}</Tag> },
+    { title: t('pacsAdmin.source'), dataIndex: 'source', key: 'source', width: 110, render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: t('pacsAdmin.message'), dataIndex: 'message', key: 'message', render: (v: string) => <span style={{ fontSize: 12.5 }}>{v}</span> },
   ]
 
   const configColumns = [
-    { title: '配置项', dataIndex: 'key', key: 'key', width: 200, render: (v: string) => <Tag color="blue" style={{ fontFamily: 'monospace' }}>{v}</Tag> },
-    { title: '分类', dataIndex: 'category', key: 'category', width: 100, render: (v: string) => <Tag>{v}</Tag> },
-    { title: '说明', dataIndex: 'description', key: 'desc', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
-    { title: '当前值', key: 'value', render: (_: unknown, r: PacsConfig) => (
+    { title: t('pacsAdmin.configKey'), dataIndex: 'key', key: 'key', width: 200, render: (v: string) => <Tag color="blue" style={{ fontFamily: 'monospace' }}>{v}</Tag> },
+    { title: t('pacsAdmin.category'), dataIndex: 'category', key: 'category', width: 100, render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('pacsAdmin.description'), dataIndex: 'description', key: 'desc', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+    { title: t('pacsAdmin.currentValue'), key: 'value', render: (_: unknown, r: PacsConfig) => (
       <Space.Compact>
         <Input size="small" style={{ width: 160, fontFamily: 'monospace' }} value={configValues[r.key] ?? r.value}
           onChange={e => setConfigValues(prev => ({ ...prev, [r.key]: e.target.value }))} />
-        <Button size="small" type="primary" onClick={() => void handleSaveConfig(r.key)}>保存</Button>
+        <Button size="small" type="primary" onClick={() => void handleSaveConfig(r.key)}>{t('pacsAdmin.save')}</Button>
       </Space.Compact>
     ) },
   ]
 
   const routeColumns = [
-    { title: '名称', dataIndex: 'name', key: 'name', render: (v: string) => <Space><Route size={14} color="#7c3aed" /><b>{v}</b></Space> },
-    { title: '源 AE', dataIndex: 'sourceAe', key: 'src', render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '目标 AE', dataIndex: 'targetAe', key: 'dst', render: (v: string) => <Tag>{v}</Tag> },
-    { title: '目标主机', dataIndex: 'targetHost', key: 'host', render: (v: string, r: PacsRoute) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}:{r.targetPort}</Typography.Text> },
-    { title: '协议', dataIndex: 'protocol', key: 'protocol', width: 90, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: '启用', dataIndex: 'enabled', key: 'enabled', width: 90, render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? '启用' : '停用'}</Tag> },
+    { title: t('pacsAdmin.name'), dataIndex: 'name', key: 'name', render: (v: string) => <Space><Route size={14} color="#7c3aed" /><b>{v}</b></Space> },
+    { title: t('pacsAdmin.sourceAe'), dataIndex: 'sourceAe', key: 'src', render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: t('pacsAdmin.targetAe'), dataIndex: 'targetAe', key: 'dst', render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('pacsAdmin.targetHost'), dataIndex: 'targetHost', key: 'host', render: (v: string, r: PacsRoute) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}:{r.targetPort}</Typography.Text> },
+    { title: t('pacsAdmin.protocol'), dataIndex: 'protocol', key: 'protocol', width: 90, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: t('pacsAdmin.enabled'), dataIndex: 'enabled', key: 'enabled', width: 90, render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? t('pacsAdmin.enabledLabel') : t('pacsAdmin.disabled')}</Tag> },
   ]
 
   return (
@@ -351,28 +351,28 @@ const PacsAdminPage: React.FC = () => {
         type="info"
         showIcon
         banner
-        message="PACS 管理已接入真实后端"
-        description="本页数据由后端 /pacs-admin (Device/Exam/AuditLog 派生 + seed 回退) 提供，接口不可用时回退 MSW 演示数据。"
+        message={t('pacsAdmin.alertTitle')}
+        description={t('pacsAdmin.alertDesc')}
         style={{ marginBottom: 16 }}
       />
       <Space style={{ marginBottom: 16 }} wrap>
         <Server size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>PACS 管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('pacsAdmin.title')}</span>
         <Tag color="cyan">v3.0.6.11-86</Tag>
-        <Tag color="green">DICOM AE 管理</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchData()} loading={loading}>刷新</Button>
+        <Tag color="green">{t('pacsAdmin.tagDicom')}</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchData()} loading={loading}>{t('pacsAdmin.refresh')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> {t('pacsAdmin.retry')}</Button>} />}
 
       <Spin spinning={loading && servers.length === 0}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title="AE 服务器" value={stats?.totalServers ?? servers.length} prefix={<Server size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="在线" value={stats?.onlineServers ?? servers.filter((s) => s.status === 'online').length} prefix={<Wifi size={16} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="总检查数" value={(stats?.totalStudies ?? 0).toLocaleString()} prefix={<Activity size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="总存储" value={formatBytes(stats?.totalStorageBytes ?? 0)} prefix={<Database size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="DICOM 关联" value={stats?.totalAssociations ?? associations.length} prefix={<Link2 size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="日传输量" value={formatBytes(stats?.dailyTransferBytes ?? 0)} prefix={<Activity size={16} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.tabServers')} value={stats?.totalServers ?? servers.length} prefix={<Server size={16} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.online')} value={stats?.onlineServers ?? servers.filter((s) => s.status === 'online').length} prefix={<Wifi size={16} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statTotalStudies')} value={(stats?.totalStudies ?? 0).toLocaleString()} prefix={<Activity size={16} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statTotalStorage')} value={formatBytes(stats?.totalStorageBytes ?? 0)} prefix={<Database size={16} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statAssociations')} value={stats?.totalAssociations ?? associations.length} prefix={<Link2 size={16} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statDailyTransfer')} value={formatBytes(stats?.dailyTransferBytes ?? 0)} prefix={<Activity size={16} />} /></Card></Col>
         </Row>
 
         <Tabs
@@ -380,7 +380,7 @@ const PacsAdminPage: React.FC = () => {
           size="small"
           items={[
             {
-              key: 'nodes', label: <Space size={4}><Server size={13} />节点列表</Space>,
+              key: 'nodes', label: <Space size={4}><Server size={13} />{t('pacsAdmin.tabNodes')}</Space>,
               children: (
                 <Card title={`DICOM 节点 (${nodes.length})`} size="small" style={{ marginBottom: 16 }}>
                   <Table rowKey="id" dataSource={nodePage.pageData} columns={nodeColumns} pagination={nodePage.pagination} size="small" scroll={{ x: 'max-content' }} />
@@ -388,9 +388,9 @@ const PacsAdminPage: React.FC = () => {
               ),
             },
             {
-              key: 'storage', label: <Space size={4}><HardDrive size={13} />存储空间</Space>,
+              key: 'storage', label: <Space size={4}><HardDrive size={13} />{t('pacsAdmin.tabStorage')}</Space>,
               children: (
-                <Card title="存储组使用情况" size="small" extra={<Space><Button size="small" icon={<Plus size={12} />} onClick={() => { setEditingServer(null); setStorageModal(true) }}>添加存储组</Button><Button size="small" icon={<Eraser size={12} />} loading={cleaning} onClick={() => void handleCleanupStorage()}>清理过期对象</Button></Space>} style={{ marginBottom: 16 }}>
+                <Card title={t('pacsAdmin.cardStorageUsage')} size="small" extra={<Space><Button size="small" icon={<Plus size={12} />} onClick={() => { setEditingServer(null); setStorageModal(true) }}>{t('pacsAdmin.addStorageGroup')}</Button><Button size="small" icon={<Eraser size={12} />} loading={cleaning} onClick={() => void handleCleanupStorage()}>{t('pacsAdmin.cleanupExpired')}</Button></Space>} style={{ marginBottom: 16 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     {storage.map(g => {
                       const pct = g.totalBytes > 0 ? Math.round((g.usedBytes / g.totalBytes) * 1000) / 10 : 0
@@ -399,8 +399,8 @@ const PacsAdminPage: React.FC = () => {
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                             <Space><HardDrive size={14} color="#13c2c2" /><b>{g.name}</b><Typography.Text code style={{ fontSize: 12 }}>{g.path}</Typography.Text></Space>
                             <Space>
-                              <span style={{ fontSize: 12, color: '#64748b' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} 检查 · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? '启用' : g.status === 'readonly' ? '只读' : '离线'}</Tag></span>
-                              <Popconfirm title="确认删除该存储组？" onConfirm={() => void handleDeleteStorageGroup(g.id)}>
+                              <span style={{ fontSize: 12, color: '#64748b' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} {t('pacsAdmin.studiesUnit')} · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? t('pacsAdmin.active') : g.status === 'readonly' ? t('pacsAdmin.readonly') : t('pacsAdmin.offline')}</Tag></span>
+                              <Popconfirm title={t('pacsAdmin.confirmDeleteStorage')} onConfirm={() => void handleDeleteStorageGroup(g.id)}>
                                 <Button size="small" danger icon={<Trash2 size={12} />} loading={deletingStorageId === g.id} />
                               </Popconfirm>
                             </Space>
@@ -414,19 +414,19 @@ const PacsAdminPage: React.FC = () => {
               ),
             },
             {
-              key: 'servers', label: <Space size={4}><Server size={13} />AE 服务器</Space>,
+              key: 'servers', label: <Space size={4}><Server size={13} />{t('pacsAdmin.tabServers')}</Space>,
               children: (
                 <Card
-                  title={<Space><Server size={14} />AE 服务器</Space>}
+                  title={<Space><Server size={14} />{t('pacsAdmin.tabServers')}</Space>}
                   style={{ marginBottom: 16 }}
-                  extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setServerModal(true)}>添加服务器</Button>}
+                  extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setServerModal(true)}>{t('pacsAdmin.addServer')}</Button>}
                 >
                   <Table rowKey="id" dataSource={serverPage.pageData} columns={serverColumns} pagination={serverPage.pagination} size="small" scroll={{ x: 'max-content' }}/>
                 </Card>
               ),
             },
             {
-              key: 'worklist', label: <Space size={4}><ListChecks size={13} />工作列表</Space>,
+              key: 'worklist', label: <Space size={4}><ListChecks size={13} />{t('pacsAdmin.tabWorklist')}</Space>,
               children: (
                 <Card title={`工作列表条目 (${worklist.length})`} size="small" style={{ marginBottom: 16 }}>
                   <Table rowKey="id" dataSource={worklistPage.pageData} columns={worklistColumns} pagination={worklistPage.pagination} size="small" scroll={{ x: 'max-content' }} />
@@ -434,7 +434,7 @@ const PacsAdminPage: React.FC = () => {
               ),
             },
             {
-              key: 'archives', label: <Space size={4}><Archive size={13} />归档</Space>,
+              key: 'archives', label: <Space size={4}><Archive size={13} />{t('pacsAdmin.tabArchives')}</Space>,
               children: (
                 <Card title={`归档记录 (${archives.length})`} size="small" style={{ marginBottom: 16 }}>
                   <Table rowKey="id" dataSource={archivePage.pageData} columns={archiveColumns} pagination={archivePage.pagination} size="small" scroll={{ x: 'max-content' }} />
@@ -442,7 +442,7 @@ const PacsAdminPage: React.FC = () => {
               ),
             },
             {
-              key: 'logs', label: <Space size={4}><FileText size={13} />日志</Space>,
+              key: 'logs', label: <Space size={4}><FileText size={13} />{t('pacsAdmin.tabLogs')}</Space>,
               children: (
                 <Card title={`PACS 操作日志 (${logs.length})`} size="small" style={{ marginBottom: 16 }}>
                   <Table rowKey="id" dataSource={logPage.pageData} columns={logColumns} pagination={logPage.pagination} size="small" scroll={{ x: 'max-content' }} />
@@ -450,7 +450,7 @@ const PacsAdminPage: React.FC = () => {
               ),
             },
             {
-              key: 'configs', label: <Space size={4}><Settings2 size={13} />配置</Space>,
+              key: 'configs', label: <Space size={4}><Settings2 size={13} />{t('pacsAdmin.tabConfigs')}</Space>,
               children: (
                 <Card title={`PACS 配置项 (${configs.length})`} size="small" style={{ marginBottom: 16 }}>
                   <Table rowKey="key" dataSource={configPage.pageData} columns={configColumns} pagination={configPage.pagination} size="small" scroll={{ x: 'max-content' }} />
@@ -458,15 +458,15 @@ const PacsAdminPage: React.FC = () => {
               ),
             },
             {
-              key: 'associations', label: <Space size={4}><Link2 size={13} />DICOM 关联</Space>,
+              key: 'associations', label: <Space size={4}><Link2 size={13} />{t('pacsAdmin.tabAssociations')}</Space>,
               children: (
-                <Card title={<Space><Link2 size={14} />DICOM 关联状态</Space>}>
+                <Card title={<Space><Link2 size={14} />{t('pacsAdmin.cardAssociationStatus')}</Space>}>
                   <Table rowKey="id" dataSource={assocPage.pageData} columns={associationColumns} pagination={assocPage.pagination} size="small" scroll={{ x: 'max-content' }}/>
                 </Card>
               ),
             },
             {
-              key: 'routes', label: <Space size={4}><Route size={13} />转发路由</Space>,
+              key: 'routes', label: <Space size={4}><Route size={13} />{t('pacsAdmin.tabRoutes')}</Space>,
               children: (
                 <Card title={`转发路由 (${routes.length})`} size="small" style={{ marginBottom: 16 }}>
                   <Table rowKey="id" dataSource={routePage.pageData} columns={routeColumns} pagination={routePage.pagination} size="small" scroll={{ x: 'max-content' }} />
@@ -477,32 +477,32 @@ const PacsAdminPage: React.FC = () => {
         />
       </Spin>
 
-      <Modal title={editingServer ? '编辑 AE 服务器' : '添加 AE 服务器'} open={serverModal} onOk={() => void handleServerModalOk()} onCancel={() => { setServerModal(false); setEditingServer(null) }} okText={editingServer ? '保存' : '添加'}>
+      <Modal title={editingServer ? t('pacsAdmin.editServer') : t('pacsAdmin.addServerTitle')} open={serverModal} onOk={() => void handleServerModalOk()} onCancel={() => { setServerModal(false); setEditingServer(null) }} okText={editingServer ? t('pacsAdmin.save') : t('pacsAdmin.add')}>
         <Form form={serverForm} layout="vertical" initialValues={{ port: 11112 }}>
-          <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}>
-            <Input placeholder="如 Primary PACS" />
+          <Form.Item name="name" label={t('pacsAdmin.name')} rules={[{ required: true, message: t('pacsAdmin.requiredName') }]}>
+            <Input placeholder={t('pacsAdmin.placeholderPrimaryPacs')} />
           </Form.Item>
-          <Form.Item name="hostname" label="主机名 / IP" rules={[{ required: true, message: '请输入主机' }]}>
+          <Form.Item name="hostname" label={t('pacsAdmin.hostnameIp')} rules={[{ required: true, message: t('pacsAdmin.requiredHost') }]}>
             <Input placeholder="pacs01.hospital.local" />
           </Form.Item>
-          <Form.Item name="port" label="端口" rules={[{ required: true, message: '请输入端口' }]}>
+          <Form.Item name="port" label={t('pacsAdmin.port')} rules={[{ required: true, message: t('pacsAdmin.requiredPort') }]}>
             <Input type="number" />
           </Form.Item>
-          <Form.Item name="aeTitle" label="应用实体名" rules={[{ required: true, message: '请输入应用实体名' }]}>
+          <Form.Item name="aeTitle" label={t('pacsAdmin.aeTitle')} rules={[{ required: true, message: t('pacsAdmin.requiredAeTitle') }]}>
             <Input placeholder="RIS_PRIMARY" />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title="添加存储组" open={storageModal} onOk={() => void handleAddStorage()} onCancel={() => setStorageModal(false)} okText="创建">
+      <Modal title={t('pacsAdmin.addStorageGroup')} open={storageModal} onOk={() => void handleAddStorage()} onCancel={() => setStorageModal(false)} okText={t('pacsAdmin.create')}>
         <Form form={storageForm} layout="vertical">
-          <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}>
-            <Input placeholder="如 Hot Storage" />
+          <Form.Item name="name" label={t('pacsAdmin.name')} rules={[{ required: true, message: t('pacsAdmin.requiredName') }]}>
+            <Input placeholder={t('pacsAdmin.placeholderHotStorage')} />
           </Form.Item>
-          <Form.Item name="path" label="路径" rules={[{ required: true, message: '请输入路径' }]}>
+          <Form.Item name="path" label={t('pacsAdmin.path')} rules={[{ required: true, message: t('pacsAdmin.requiredPath') }]}>
             <Input placeholder="/data/hot" />
           </Form.Item>
-          <Form.Item name="totalBytes" label="总容量 (GB)" rules={[{ required: true, message: '请输入容量' }]}>
+          <Form.Item name="totalBytes" label={t('pacsAdmin.totalCapacityGb')} rules={[{ required: true, message: t('pacsAdmin.requiredCapacity') }]}>
             <Input type="number" />
           </Form.Item>
         </Form>
@@ -514,7 +514,7 @@ const PacsAdminPage: React.FC = () => {
         width={460}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
-        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => detailServer && void handleViewServer(detailServer.id)}>刷新</Button>}
+        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => detailServer && void handleViewServer(detailServer.id)}>{t('pacsAdmin.refresh')}</Button>}
       >
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
@@ -531,7 +531,7 @@ const PacsAdminPage: React.FC = () => {
             </Descriptions.Item>
             <Descriptions.Item label={t('pacsAdmin.status')}>
               <Tag color={detailServer.status === 'online' ? 'green' : detailServer.status === 'error' ? 'red' : 'default'} icon={detailServer.status === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>
-                {detailServer.status === 'online' ? '在线' : detailServer.status === 'error' ? '故障' : '离线'}
+                {detailServer.status === 'online' ? t('pacsAdmin.online') : detailServer.status === 'error' ? t('pacsAdmin.fault') : t('pacsAdmin.offline')}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label={t('pacsAdmin.lastHeartbeat')}>

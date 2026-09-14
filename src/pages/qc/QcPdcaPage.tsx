@@ -36,6 +36,7 @@ import {
   type PdcaCategory,
   type PdcaStats,
 } from '../../services/api/qcPdcaApi'
+import { t } from '../../i18n/appI18n'
 
 const PHASE_META: Record<string, { label: string; color: string; next: string }> = {
   plan: { label: '计划', color: 'blue', next: '执行' },
@@ -119,7 +120,7 @@ export default function QcPdcaPage() {
     } else {
       setCycles([])
       setSource('offline')
-      message.warning('周期列表加载失败, 已回退演示数据')
+      message.warning(t('qcPdca.cyclesLoadFailed'))
       const demo = demoFallbackCycles()
       setCycles(demo)
       setStats(demoStats(demo))
@@ -164,8 +165,8 @@ export default function QcPdcaPage() {
           ownerId: values.ownerId,
           dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : undefined,
         })
-        if (!res.success) throw new Error(res.error?.message ?? '编辑失败')
-        message.success('周期已更新')
+        if (!res.success) throw new Error(res.error?.message ?? t('qcPdca.editFailed'))
+        message.success(t('qcPdca.cycleUpdated'))
       } else {
         const res = await qcPdcaApi.createCycle({
           title: values.title,
@@ -174,8 +175,8 @@ export default function QcPdcaPage() {
           target: values.target ?? '',
           ownerId: values.ownerId,
         })
-        if (!res.success) throw new Error(res.error?.message ?? '创建失败')
-        message.success('周期已创建')
+        if (!res.success) throw new Error(res.error?.message ?? t('qcPdca.createFailed'))
+        message.success(t('qcPdca.cycleCreated'))
         if (pendingDefectId) {
           const linkRes = await qcPdcaApi.linkDefect(res.data.id, { defectId: pendingDefectId }).catch(() => ({ success: false as const }))
           if (linkRes.success) message.success(`已自动关联缺陷 ${pendingDefectId}`)
@@ -184,7 +185,7 @@ export default function QcPdcaPage() {
       setCreateOpen(false)
       void load()
     } catch (e) {
-      message.error(e instanceof Error ? e.message : '保存失败')
+      message.error(e instanceof Error ? e.message : t('qcPdca.saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -193,7 +194,7 @@ export default function QcPdcaPage() {
   const handleAdvance = async (c: PdcaCycle) => {
     const res = await qcPdcaApi.advanceCycle(c.id)
     if (!res.success) {
-      message.error(res.error?.message ?? '推进失败')
+      message.error(res.error?.message ?? t('qcPdca.advanceFailed'))
       return
     }
     message.success(`已推进至「${PHASE_META[res.data.phase]?.label ?? res.data.phase}」`)
@@ -203,10 +204,10 @@ export default function QcPdcaPage() {
   const handleDelete = async (id: string) => {
     const res = await qcPdcaApi.deleteCycle(id)
     if (!res.success) {
-      message.error(res.error?.message ?? '删除失败')
+      message.error(res.error?.message ?? t('qcPdca.deleteFailed'))
       return
     }
-    message.success('周期已删除')
+    message.success(t('qcPdca.cycleDeleted'))
     setDetailOpen(false)
     void load()
   }
@@ -232,10 +233,10 @@ export default function QcPdcaPage() {
     if (!detail) return
     const res = await qcPdcaApi.addPhase(detail.id, values)
     if (!res.success) {
-      message.error(res.error?.message ?? '添加失败')
+      message.error(res.error?.message ?? t('qcPdca.addFailed'))
       return
     }
-    message.success('阶段条目已添加')
+    message.success(t('qcPdca.phaseAdded'))
     setPhases((prev) => [...prev, res.data])
     setPhaseModalOpen(false)
   }
@@ -244,10 +245,10 @@ export default function QcPdcaPage() {
     if (!phaseEditing) return
     const res = await qcPdcaApi.updatePhase(phaseEditing.id, values)
     if (!res.success) {
-      message.error(res.error?.message ?? '更新失败')
+      message.error(res.error?.message ?? t('qcPdca.updateFailed'))
       return
     }
-    message.success('阶段条目已更新')
+    message.success(t('qcPdca.phaseUpdated'))
     setPhases((prev) => prev.map((p) => (p.id === phaseEditing.id ? res.data : p)))
     setPhaseEditing(null)
     setPhaseModalOpen(false)
@@ -257,10 +258,10 @@ export default function QcPdcaPage() {
     if (!detail || !linkedDefectId) return
     const res = await qcPdcaApi.linkDefect(detail.id, { defectId: linkedDefectId })
     if (!res.success) {
-      message.error(res.error?.message ?? '关联失败')
+      message.error(res.error?.message ?? t('qcPdca.linkFailed'))
       return
     }
-    message.success('缺陷已关联')
+    message.success(t('qcPdca.defectLinked'))
     const ref = allDefects.find((d) => d.id === linkedDefectId)
     if (ref && !defects.some((d) => d.id === ref.id)) setDefects((prev) => [...prev, ref])
     setLinkedDefectId(undefined)
@@ -277,17 +278,17 @@ export default function QcPdcaPage() {
     const values = await completeForm.validateFields()
     const res = await qcPdcaApi.completeCycle(completing.id, { summary: values.summary ?? '' })
     if (!res.success) {
-      message.error(res.error?.message ?? '完成失败')
+      message.error(res.error?.message ?? t('qcPdca.completeFailed'))
       return
     }
-    message.success('周期已闭环完成')
+    message.success(t('qcPdca.cycleCompleted'))
     setCompleteOpen(false)
     void load()
   }
 
   const columns: ColumnsType<PdcaCycle> = [
     {
-      title: '周期',
+      title: t('qcPdca.cycle'),
       dataIndex: 'title',
       key: 'title',
       render: (v: string, r) => (
@@ -298,7 +299,7 @@ export default function QcPdcaPage() {
       ),
     },
     {
-      title: '阶段',
+      title: t('qcPdca.phase'),
       dataIndex: 'phase',
       key: 'phase',
       width: 110,
@@ -308,21 +309,21 @@ export default function QcPdcaPage() {
       },
     },
     {
-      title: '类别',
+      title: t('qcPdca.category'),
       dataIndex: 'category',
       key: 'category',
       width: 110,
       render: (v: PdcaCategory) => <Tag color={CATEGORY_COLORS[v] ?? 'default'}>{v}</Tag>,
     },
     {
-      title: '目标',
+      title: t('qcPdca.target'),
       dataIndex: 'target',
       key: 'target',
       ellipsis: true,
       render: (v: string) => v || <span style={{ color: '#cbd5e1' }}>-</span>,
     },
     {
-      title: '负责人',
+      title: t('qcPdca.owner'),
       dataIndex: 'ownerName',
       key: 'ownerName',
       width: 100,
@@ -333,7 +334,7 @@ export default function QcPdcaPage() {
       ),
     },
     {
-      title: '截止日期',
+      title: t('qcPdca.dueDate'),
       dataIndex: 'dueDate',
       key: 'dueDate',
       width: 120,
@@ -342,42 +343,42 @@ export default function QcPdcaPage() {
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
             <CalendarClock size={12} color="#64748b" /> {fmtDate(v)}
           </span>
-          {r.completedAt && <span style={{ color: '#10b981', fontSize: 12 }}>闭环 {fmtDate(r.completedAt)}</span>}
+          {r.completedAt && <span style={{ color: '#10b981', fontSize: 12 }}>{t('qcPdca.closedAt')} {fmtDate(r.completedAt)}</span>}
         </Space>
       ),
     },
     {
-      title: '关联缺陷',
+      title: t('qcPdca.linkedDefects'),
       dataIndex: 'defectIds',
       key: 'defectIds',
       width: 100,
-      render: (v: string[]) => <Tag icon={<Bug size={11} />}>{v.length} 个</Tag>,
+      render: (v: string[]) => <Tag icon={<Bug size={11} />}>{v.length} {t('qcPdca.itemsUnit')}</Tag>,
     },
     {
-      title: '操作',
+      title: t('qcPdca.actions'),
       key: 'actions',
       width: 260,
       render: (_, r) => (
         <Space size={4} wrap>
-          <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(r)}>详情</Button>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(r)}>{t('qcPdca.detail')}</Button>
           {r.phase !== 'completed' ? (
             <Popconfirm
-              title="推进阶段"
+              title={t('qcPdca.advancePhase')}
               description={`确认推进至「${PHASE_META[r.phase]?.next ?? ''}」?`}
               onConfirm={() => void handleAdvance(r)}
-              okText="推进"
-              cancelText="取消"
+              okText={t('qcPdca.advance')}
+              cancelText={t('qcPdca.cancel')}
             >
-              <Button size="small" icon={<ArrowRight size={12} />}>推进</Button>
+              <Button size="small" icon={<ArrowRight size={12} />}>{t('qcPdca.advance')}</Button>
             </Popconfirm>
           ) : (
-            <Button size="small" icon={<CheckCircle2 size={12} />} disabled>已闭环</Button>
+            <Button size="small" icon={<CheckCircle2 size={12} />} disabled>{t('qcPdca.completed')}</Button>
           )}
-          <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(r)}>编辑</Button>
+          <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(r)}>{t('qcPdca.edit')}</Button>
           {r.phase !== 'completed' && (
-            <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />} onClick={() => openComplete(r)}>完成</Button>
+            <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />} onClick={() => openComplete(r)}>{t('qcPdca.complete')}</Button>
           )}
-          <Popconfirm title="删除周期" description="删除后不可恢复, 确认?" onConfirm={() => void handleDelete(r.id)} okText="删除" cancelText="取消" okButtonProps={{ danger: true }}>
+          <Popconfirm title={t('qcPdca.deleteCycle')} description={t('qcPdca.deleteConfirm')} onConfirm={() => void handleDelete(r.id)} okText={t('qcPdca.delete')} cancelText={t('qcPdca.cancel')} okButtonProps={{ danger: true }}>
             <Button size="small" danger icon={<Trash2 size={12} />} />
           </Popconfirm>
         </Space>
@@ -388,32 +389,32 @@ export default function QcPdcaPage() {
   const statCards = useMemo(() => {
     const byPhase = stats?.byPhase ?? {}
     return [
-      { label: '周期总数', value: stats?.total ?? cycles.length, icon: <GitBranch size={20} />, color: '#3b82f6', sub: `进行中 ${stats?.inProgress ?? 0} 个` },
-      { label: '计划 P', value: byPhase.plan ?? 0, icon: <Target size={20} />, color: '#8b5cf6', sub: 'Plan' },
-      { label: '执行 D', value: byPhase.do ?? 0, icon: <History size={20} />, color: '#f59e0b', sub: 'Do' },
-      { label: '检查 C', value: byPhase.check ?? 0, icon: <Eye size={20} />, color: '#06b6d4', sub: 'Check' },
-      { label: '处理 A', value: byPhase.act ?? 0, icon: <RefreshCw size={20} />, color: '#ec4899', sub: 'Act' },
-      { label: '已完成', value: byPhase.completed ?? 0, icon: <CheckCircle2 size={20} />, color: '#10b981', sub: `完成率 ${stats?.completionRate ?? 0}%` },
+      { label: t('qcPdca.statTotalCycles'), value: stats?.total ?? cycles.length, icon: <GitBranch size={20} />, color: '#3b82f6', sub: `进行中 ${stats?.inProgress ?? 0} 个` },
+      { label: t('qcPdca.statPlan'), value: byPhase.plan ?? 0, icon: <Target size={20} />, color: '#8b5cf6', sub: 'Plan' },
+      { label: t('qcPdca.statDo'), value: byPhase.do ?? 0, icon: <History size={20} />, color: '#f59e0b', sub: 'Do' },
+      { label: t('qcPdca.statCheck'), value: byPhase.check ?? 0, icon: <Eye size={20} />, color: '#06b6d4', sub: 'Check' },
+      { label: t('qcPdca.statAct'), value: byPhase.act ?? 0, icon: <RefreshCw size={20} />, color: '#ec4899', sub: 'Act' },
+      { label: t('qcPdca.statCompleted'), value: byPhase.completed ?? 0, icon: <CheckCircle2 size={20} />, color: '#10b981', sub: `完成率 ${stats?.completionRate ?? 0}%` },
     ]
   }, [stats, cycles.length])
 
   const sourceBadge = source === 'database'
-    ? <Tag icon={<Database size={12} />} color="green">真实数据</Tag>
+    ? <Tag icon={<Database size={12} />} color="green">{t('qcPdca.sourceDatabase')}</Tag>
     : source === 'demo'
-      ? <Tag icon={<HardDrive size={12} />} color="orange">演示回退</Tag>
-      : <Tag color="red">离线</Tag>
+      ? <Tag icon={<HardDrive size={12} />} color="orange">{t('qcPdca.sourceDemo')}</Tag>
+      : <Tag color="red">{t('qcPdca.sourceOffline')}</Tag>
 
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
         icon={<GitBranch size={20} color="#3b82f6" />}
-        title="PDCA 质控闭环"
-        subtitle="Plan / Do / Check / Act 阶段流转 · 报告 / 图像 / 流程 / 服务四类质控周期"
+        title={t('qcPdca.title')}
+        subtitle={t('qcPdca.subtitle')}
         actions={
           <Space>
             {sourceBadge}
-            <Button size="small" icon={<RefreshCw size={12} />} loading={loading} onClick={() => void load()}>刷新</Button>
-            <Button size="small" type="primary" icon={<Plus size={14} />} onClick={openCreate}>新建周期</Button>
+            <Button size="small" icon={<RefreshCw size={12} />} loading={loading} onClick={() => void load()}>{t('qcPdca.refresh')}</Button>
+            <Button size="small" type="primary" icon={<Plus size={14} />} onClick={openCreate}>{t('qcPdca.createCycle')}</Button>
           </Space>
         }
       />
@@ -428,7 +429,7 @@ export default function QcPdcaPage() {
         {pendingDefectId && (
           <div style={{ margin: '16px 0', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, padding: '10px 14px', color: '#1e40af', fontSize: 13 }}>
             <Bug size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
-            已从缺陷中心带入缺陷 {pendingDefectId} —— 新建周期后将自动关联该缺陷
+            {t('qcPdca.defectBannerPrefix')} {pendingDefectId} {t('qcPdca.defectBannerSuffix')}
           </div>
         )}
 
@@ -437,48 +438,48 @@ export default function QcPdcaPage() {
           loading={loading}
           columns={columns}
           dataSource={cycles}
-          pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 个周期` }}
+          pagination={{ pageSize: 8, showTotal: (total) => `共 ${total} 个周期` }}
           scroll={{ x: 1080 }}
-          locale={{ emptyText: <Empty description="暂无 PDCA 周期, 点击右上角新建" /> }}
+          locale={{ emptyText: <Empty description={t('qcPdca.emptyCycles')} /> }}
           size="middle"
         />
       </div>
 
       {/* 新建 / 编辑 Modal */}
       <Modal
-        title={editing ? '编辑周期' : '新建 PDCA 周期'}
+        title={editing ? t('qcPdca.editCycle') : t('qcPdca.newCycle')}
         open={createOpen}
         onOk={() => void handleSave()}
         onCancel={() => setCreateOpen(false)}
         confirmLoading={saving}
-        okText={editing ? '保存' : '创建'}
-        cancelText="取消"
+        okText={editing ? t('qcPdca.save') : t('qcPdca.create')}
+        cancelText={t('qcPdca.cancel')}
         destroyOnClose
       >
         <Form form={form} layout="vertical" preserve={false} initialValues={{ category: '报告质控', ownerId: 'u-001' }}>
-          <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
-            <Input placeholder="如: 报告术语规范专项" maxLength={60} />
+          <Form.Item name="title" label={t('qcPdca.formTitle')} rules={[{ required: true, message: t('qcPdca.requiredTitle') }]}>
+            <Input placeholder={t('qcPdca.placeholderTitle')} maxLength={60} />
           </Form.Item>
-          <Form.Item name="category" label="类别" rules={[{ required: true }]}>
+          <Form.Item name="category" label={t('qcPdca.formCategory')} rules={[{ required: true }]}>
             <Select options={CATEGORY_OPTIONS.map((c) => ({ value: c, label: c }))} />
           </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input.TextArea rows={2} placeholder="周期背景与问题描述" maxLength={200} />
+          <Form.Item name="description" label={t('qcPdca.formDescription')}>
+            <Input.TextArea rows={2} placeholder={t('qcPdca.placeholderDescription')} maxLength={200} />
           </Form.Item>
-          <Form.Item name="target" label="目标">
-            <Input placeholder="如: 模糊表述率 ≤ 5%" maxLength={80} />
+          <Form.Item name="target" label={t('qcPdca.formTarget')}>
+            <Input placeholder={t('qcPdca.placeholderTarget')} maxLength={80} />
           </Form.Item>
           <Space size={12} style={{ width: '100%' }} align="start">
-            <Form.Item name="ownerId" label="负责人" style={{ flex: 1 }}>
+            <Form.Item name="ownerId" label={t('qcPdca.formOwner')} style={{ flex: 1 }}>
               <Select options={OWNER_OPTIONS} />
             </Form.Item>
-            <Form.Item name="dueDate" label="截止日期" style={{ flex: 1 }}>
+            <Form.Item name="dueDate" label={t('qcPdca.formDueDate')} style={{ flex: 1 }}>
               <Input type="date" />
             </Form.Item>
           </Space>
           {pendingDefectId && (
             <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 6, padding: '8px 12px', fontSize: 12, color: '#1e40af' }}>
-              创建后将自动关联缺陷 {pendingDefectId}
+              {t('qcPdca.autoLinkPrefix')} {pendingDefectId}
             </div>
           )}
         </Form>
@@ -486,14 +487,14 @@ export default function QcPdcaPage() {
 
       {/* 详情 Drawer */}
       <Drawer
-        title={detail ? `${detail.title} — ${PHASE_META[detail.phase]?.label ?? detail.phase}` : '周期详情'}
+        title={detail ? `${detail.title} — ${PHASE_META[detail.phase]?.label ?? detail.phase}` : t('qcPdca.cycleDetail')}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
         width={640}
         extra={sourceBadge}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+          <div style={{ textAlign: 'center', padding: 40 }}>{t('qcPdca.loading')}</div>
         ) : detail ? (
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
@@ -503,17 +504,17 @@ export default function QcPdcaPage() {
                 <Tag color={detail.status === '已完成' ? 'green' : 'blue'}>{detail.status}</Tag>
               </Space>
               <div style={{ marginTop: 10, color: '#475569', fontSize: 13, lineHeight: 1.7 }}>
-                <div><b>描述:</b> {detail.description || '-'}</div>
-                <div><b>目标:</b> {detail.target || '-'}</div>
-                <div><b>负责人:</b> {detail.ownerName} · <b>起始:</b> {fmtDate(detail.startDate)} · <b>截止:</b> {fmtDate(detail.dueDate)}</div>
-                {detail.summary && <div style={{ color: '#10b981' }}><b>闭环总结:</b> {detail.summary}</div>}
+                <div><b>{t('qcPdca.detailDescription')}</b> {detail.description || '-'}</div>
+                <div><b>{t('qcPdca.detailTarget')}</b> {detail.target || '-'}</div>
+                <div><b>{t('qcPdca.detailOwner')}</b> {detail.ownerName} · <b>{t('qcPdca.detailStart')}</b> {fmtDate(detail.startDate)} · <b>{t('qcPdca.detailDue')}</b> {fmtDate(detail.dueDate)}</div>
+                {detail.summary && <div style={{ color: '#10b981' }}><b>{t('qcPdca.detailSummary')}</b> {detail.summary}</div>}
               </div>
             </div>
 
             {/* 阶段时间线 + 条目 CRUD */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <b>阶段计划与结果</b>
+                <b>{t('qcPdca.phasePlanResult')}</b>
                 <Button
                   size="small"
                   icon={<Plus size={12} />}
@@ -524,11 +525,11 @@ export default function QcPdcaPage() {
                     setPhaseModalOpen(true)
                   }}
                 >
-                  添加条目
+                  {t('qcPdca.addEntry')}
                 </Button>
               </div>
               {phases.length === 0 ? (
-                <Empty description="暂无阶段条目" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <Empty description={t('qcPdca.emptyPhases')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
                 <Timeline
                   items={phases.map((p) => ({
@@ -562,12 +563,12 @@ export default function QcPdcaPage() {
             {/* 缺陷关联 */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <b>关联缺陷 ({defects.length})</b>
+                <b>{t('qcPdca.linkedDefects')} ({defects.length})</b>
                 <Space size={6}>
                   <Select
                     size="small"
                     style={{ width: 220 }}
-                    placeholder="选择缺陷"
+                    placeholder={t('qcPdca.selectDefect')}
                     value={linkedDefectId}
                     onChange={setLinkedDefectId}
                     options={allDefects.filter((d) => !defects.some((x) => x.id === d.id)).map((d) => ({
@@ -577,11 +578,11 @@ export default function QcPdcaPage() {
                     showSearch
                     optionFilterProp="label"
                   />
-                  <Button size="small" type="primary" icon={<Plus size={12} />} disabled={!linkedDefectId} onClick={() => void handleLinkDefect()}>关联</Button>
+                  <Button size="small" type="primary" icon={<Plus size={12} />} disabled={!linkedDefectId} onClick={() => void handleLinkDefect()}>{t('qcPdca.link')}</Button>
                 </Space>
               </div>
               {defects.length === 0 ? (
-                <Empty description="暂未关联缺陷" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <Empty description={t('qcPdca.emptyLinkedDefects')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
                 <Space direction="vertical" size={6} style={{ width: '100%' }}>
                   {defects.map((d) => (
@@ -598,8 +599,8 @@ export default function QcPdcaPage() {
 
             {detail.phase !== 'completed' && (
               <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-                <Button icon={<ArrowRight size={14} />} onClick={() => void handleAdvance(detail)}>推进阶段</Button>
-                <Button type="primary" icon={<CheckCircle2 size={14} />} onClick={() => openComplete(detail)}>完成周期</Button>
+                <Button icon={<ArrowRight size={14} />} onClick={() => void handleAdvance(detail)}>{t('qcPdca.advancePhase')}</Button>
+                <Button type="primary" icon={<CheckCircle2 size={14} />} onClick={() => openComplete(detail)}>{t('qcPdca.completeCycle')}</Button>
               </Space>
             )}
           </Space>
@@ -608,41 +609,41 @@ export default function QcPdcaPage() {
 
       {/* 阶段条目编辑 Modal */}
       <Modal
-        title={phaseEditing ? '编辑阶段条目' : '添加阶段条目'}
+        title={phaseEditing ? t('qcPdca.editPhaseEntry') : t('qcPdca.addPhaseEntry')}
         open={phaseModalOpen}
         onOk={() => void (phaseEditing ? handleUpdatePhase(phaseForm.getFieldsValue()) : handleAddPhase(phaseForm.getFieldsValue()))}
         onCancel={() => { setPhaseModalOpen(false); setPhaseEditing(null) }}
-        okText={phaseEditing ? '保存' : '添加'}
-        cancelText="取消"
+        okText={phaseEditing ? t('qcPdca.save') : t('qcPdca.add')}
+        cancelText={t('qcPdca.cancel')}
         width={480}
         destroyOnClose
       >
         <Form form={phaseForm} layout="vertical" preserve={false} initialValues={{ phase: 'plan' }}>
-          <Form.Item name="phase" label="阶段" rules={[{ required: true }]}>
+          <Form.Item name="phase" label={t('qcPdca.formPhase')} rules={[{ required: true }]}>
             <Select options={['plan', 'do', 'check', 'act'].map((p) => ({ value: p, label: `${PHASE_META[p]?.label} (${p})` }))} />
           </Form.Item>
-          <Form.Item name="content" label="内容(措施/结果/指标/问题)" rules={[{ required: true, message: '请输入内容' }]}>
-            <Input.TextArea rows={3} placeholder="填写该阶段的措施、结果、指标或问题" maxLength={300} />
+          <Form.Item name="content" label={t('qcPdca.formContent')} rules={[{ required: true, message: t('qcPdca.requiredContent') }]}>
+            <Input.TextArea rows={3} placeholder={t('qcPdca.placeholderContent')} maxLength={300} />
           </Form.Item>
         </Form>
       </Modal>
 
       {/* 完成周期 Modal */}
       <Modal
-        title="完成周期"
+        title={t('qcPdca.completeCycle')}
         open={completeOpen}
         onOk={() => void handleComplete()}
         onCancel={() => setCompleteOpen(false)}
-        okText="确认完成"
-        cancelText="取消"
+        okText={t('qcPdca.confirmComplete')}
+        cancelText={t('qcPdca.cancel')}
         destroyOnClose
       >
         <Form form={completeForm} layout="vertical" preserve={false}>
-          <Form.Item name="summary" label="闭环总结" rules={[{ required: true, message: '请填写闭环总结' }]}>
-            <Input.TextArea rows={4} placeholder="记录周期闭环成果与固化措施..." maxLength={300} />
+          <Form.Item name="summary" label={t('qcPdca.formSummary')} rules={[{ required: true, message: t('qcPdca.requiredSummary') }]}>
+            <Input.TextArea rows={4} placeholder={t('qcPdca.placeholderSummary')} maxLength={300} />
           </Form.Item>
           <div style={{ color: '#94a3b8', fontSize: 12 }}>
-            完成后周期状态变为「已完成」, 并记录 completedAt 与总结, 不可再推进。
+            {t('qcPdca.completeHint')}
           </div>
         </Form>
       </Modal>

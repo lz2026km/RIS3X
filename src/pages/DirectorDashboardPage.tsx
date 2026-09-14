@@ -10,6 +10,7 @@ import {
 // [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
 import { KpiCard, KpiCardGrid, DashboardCard, TrendChart, ProgressRing, SkeletonKpi } from '../components/dashboard';
 import { Wrench, Trophy, Coins, Gauge, FileText, AlertOctagon, CheckCircle2, DollarSign, Scan, Activity, LineChart as LineChartIcon } from 'lucide-react';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // [v3.0.6.8-28] 医生数据 - 来源: DOCTOR_PERFORMANCE_PRE 当前月聚合 (top 10 by reportCount)
@@ -87,7 +88,7 @@ const staticExamRevenue = (() => {
   const counts: Record<string, number> = {};
   EXAM_REPORT_PRE.forEach((r) => { counts[r.modality] = (counts[r.modality] || 0) + 1; });
   const total = Object.values(counts).reduce((s, v) => s + v, 0) || 1;
-  const labelMap: Record<string, string> = { CT: 'CT检查', MR: 'MRI检查', DR: 'X线摄影', US: '超声检查', DSA: 'DSA造影', MG: '钼靶' };
+  const labelMap: Record<string, string> = { CT: t('directorDash.mod.CT'), MR: t('directorDash.mod.MR'), DR: t('directorDash.mod.DR'), US: t('directorDash.mod.US'), DSA: t('directorDash.mod.DSA'), MG: t('directorDash.mod.MG') };
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
@@ -116,15 +117,15 @@ const staticMaterialCost = {
 // ============================================================
 const staticQcIssues = (() => {
   const issueTypeMap: Record<string, string> = {
-    'DSC-001': '描述与结论不符',
-    'DSC-002': '描述不完整',
-    'FMT-001': '报告格式不规范',
-    'FMT-002': '模板使用错误',
-    'LOG-001': '逻辑错误',
-    'TIM-001': '超时完成报告',
-    'TER-001': '术语不规范',
-    'IMG-001': '图像质量不达标',
-    'MEAS-001': '测量错误',
+    'DSC-001': t('directorDash.qc.issue.DSC001'),
+    'DSC-002': t('directorDash.qc.issue.DSC002'),
+    'FMT-001': t('directorDash.qc.issue.FMT001'),
+    'FMT-002': t('directorDash.qc.issue.FMT002'),
+    'LOG-001': t('directorDash.qc.issue.LOG001'),
+    'TIM-001': t('directorDash.qc.issue.TIM001'),
+    'TER-001': t('directorDash.qc.issue.TER001'),
+    'IMG-001': t('directorDash.qc.issue.IMG001'),
+    'MEAS-001': t('directorDash.qc.issue.MEAS001'),
   };
   const counts: Record<string, number> = {};
   QUALITY_SCORE_PRE.forEach((q) => {
@@ -167,12 +168,12 @@ interface LiveDirectorData {
 
 // 静态演示统计卡 (API 不可用时回退)
 const staticTodayStats: StatCardData[] = [
-  { label: '今日检查总量', value: '856', subValue: 'CT: 285 | MR: 198 | DXR: 373' },
-  { label: '报告书写量', value: '782', subValue: '今日: 142 | 本周: 856 | 本月: 3248' },
-  { label: '阳性检出率', value: '58.6%', subValue: '较上月 +2.3%', color: '#22c55e' },
-  { label: '危急值处理率', value: '98.2%', subValue: '待处理: 2例', color: '#1e40af' },
-  { label: '设备使用率', value: '77.8%', subValue: '运行中: 6/8台', color: '#f59e0b' },
-  { label: '当日收入', value: '¥142,850', subValue: '较昨日 +5.2%', color: '#22c55e' },
+  { label: t('directorDash.statTodayExams'), value: '856', subValue: 'CT: 285 | MR: 198 | DXR: 373' },
+  { label: t('directorDash.statReports'), value: '782', subValue: `${t('directorDash.todayShort')}: 142 | ${t('directorDash.weekShort')}: 856 | ${t('directorDash.monthShort')}: 3248` },
+  { label: t('directorDash.statPositiveRate'), value: '58.6%', subValue: t('directorDash.vsLastMonth'), color: '#22c55e' },
+  { label: t('directorDash.statCriticalRate'), value: '98.2%', subValue: t('directorDash.pending2'), color: '#1e40af' },
+  { label: t('directorDash.statDeviceUsage'), value: '77.8%', subValue: t('directorDash.running68'), color: '#f59e0b' },
+  { label: t('directorDash.statRevenueToday'), value: '¥142,850', subValue: t('directorDash.vsYesterday'), color: '#22c55e' },
 ];
 
 // ============================================================
@@ -229,16 +230,16 @@ const DirectorDashboardPage: React.FC = () => {
       const hasAny = !!daily || trend.length > 0 || workload.length > 0 || oeeDevices.length > 0 || !!kpi || !!sla;
       if (!hasAny) {
         setLive(null);
-        setFallbackBlocks(['全部区块']);
+        setFallbackBlocks([t('directorDash.allBlocks')]);
         return;
       }
 
       const fb: string[] = [];
-      if (!daily) fb.push('今日统计卡');
-      if (trend.length === 0) fb.push('每日收入趋势');
-      if (workload.length === 0) fb.push('医生工作量排名');
-      if (byMod == null) fb.push('检查项目收入分布');
-      fb.push('技师工作量排名', '质控问题统计', '卫材成本');
+      if (!daily) fb.push(t('directorDash.todayStatsCard'));
+      if (trend.length === 0) fb.push(t('directorDash.dailyRevenueTrend'));
+      if (workload.length === 0) fb.push(t('directorDash.doctorRanking'));
+      if (byMod == null) fb.push(t('directorDash.examRevenueDist'));
+      fb.push(t('directorDash.techRanking'), t('directorDash.qcIssueStats'), t('directorDash.materialCost'));
 
       // 医生排名: stats.workload (score → 综合评分)
       const liveDoctors: LiveDirectorDoctor[] = workload.slice(0, 10).map((w: any) => {
@@ -247,8 +248,8 @@ const DirectorDashboardPage: React.FC = () => {
         const score = Math.min(100, Math.max(0, Number(w.score ?? w.avgQCScore ?? 0)));
         return {
           id: String(w.doctorId ?? ''),
-          name: String(w.doctorName ?? '未知'),
-          title: String(w.title ?? '医师'),
+          name: String(w.doctorName ?? t('directorDash.unknown')),
+          title: String(w.title ?? t('directorDash.doctor')),
           exams: examCount,
           reports: reportCount,
           positiveRate: 0,
@@ -270,14 +271,14 @@ const DirectorDashboardPage: React.FC = () => {
       }));
 
       // 每日收入: stats.trend × 400元/例 (估算)
-      const liveDailyRevenue: LiveDirectorRevenue[] = trend.map((t: any, i: number) => ({
+      const liveDailyRevenue: LiveDirectorRevenue[] = trend.map((tr: any, i: number) => ({
         day: i + 1,
-        revenue: Number(t.examCount ?? 0) * 400,
+        revenue: Number(tr.examCount ?? 0) * 400,
       }));
 
       // 检查项目收入分布: stats.by-modality
       const priceMap: Record<string, number> = { CT: 400, MR: 800, DR: 80, US: 120, MG: 200, DSA: 3500 };
-      const labelMap: Record<string, string> = { CT: 'CT检查', MR: 'MRI检查', DR: 'X线摄影', US: '超声检查', DSA: 'DSA造影', MG: '钼靶' };
+      const labelMap: Record<string, string> = { CT: t('directorDash.mod.CT'), MR: t('directorDash.mod.MR'), DR: t('directorDash.mod.DR'), US: t('directorDash.mod.US'), DSA: t('directorDash.mod.DSA'), MG: t('directorDash.mod.MG') };
       const counts: Record<string, number> = {};
       for (const [mod, v] of Object.entries(byMod ?? {})) {
         const rec = v as Record<string, unknown>;
@@ -301,20 +302,20 @@ const DirectorDashboardPage: React.FC = () => {
       const dailyExams = Number(daily?.examCount ?? 0);
       const dailyReports = Number(daily?.reportCount ?? 0);
       const liveTodayStats: StatCardData[] = [
-        { label: '今日检查总量', value: daily ? String(dailyExams) : '—', subValue: modSub || '—' },
-        { label: '报告书写量', value: daily ? String(dailyReports) : '—', subValue: daily ? `待写: ${Math.max(0, dailyExams - dailyReports)} 份` : '—' },
-        { label: '危急值处理率', value: sla ? `${sla.complianceRate}%` : '—', subValue: sla ? `待处理: ${(sla.overdue ?? []).length} 例` : '—', color: '#1e40af' },
-        { label: '报告完成率', value: kpi ? `${kpi.completionRate}%` : '—', subValue: kpi ? `平均 ${kpi.avgReportMinutes} min` : '—', color: '#22c55e' },
-        { label: '设备平均OEE', value: oeeAvg ? `${oeeAvg}%` : '—', subValue: oeeDevices.length ? `监控 ${oeeDevices.length} 台` : '—', color: '#f59e0b' },
-        { label: '当日收入(估算)', value: daily ? `¥${(dailyExams * 400).toLocaleString()}` : '—', subValue: '按 400元/例 估算', color: '#22c55e' },
+        { label: t('directorDash.statTodayExams'), value: daily ? String(dailyExams) : '—', subValue: modSub || '—' },
+        { label: t('directorDash.statReports'), value: daily ? String(dailyReports) : '—', subValue: daily ? `${t('directorDash.todoWrite')}: ${Math.max(0, dailyExams - dailyReports)} ${t('directorDash.copies')}` : '—' },
+        { label: t('directorDash.statCriticalRate'), value: sla ? `${sla.complianceRate}%` : '—', subValue: sla ? `${t('directorDash.todoHandle')}: ${(sla.overdue ?? []).length} ${t('directorDash.casesUnit')}` : '—', color: '#1e40af' },
+        { label: t('directorDash.statCompletionRate'), value: kpi ? `${kpi.completionRate}%` : '—', subValue: kpi ? `${t('directorDash.avgLabel')} ${kpi.avgReportMinutes} min` : '—', color: '#22c55e' },
+        { label: t('directorDash.statAvgOee'), value: oeeAvg ? `${oeeAvg}%` : '—', subValue: oeeDevices.length ? `${t('directorDash.monitorLabel')} ${oeeDevices.length} ${t('directorDash.unitsUnit')}` : '—', color: '#f59e0b' },
+        { label: t('directorDash.statRevenueEst'), value: daily ? `¥${(dailyExams * 400).toLocaleString()}` : '—', subValue: t('directorDash.estimateNote'), color: '#22c55e' },
       ];
 
       setLive({ doctors: liveDoctors, devices: liveDevices, dailyRevenue: liveDailyRevenue, examRevenue: liveExamRevenue, todayStats: liveTodayStats });
       setFallbackBlocks(fb);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '数据加载失败，已展示演示数据');
+      setError(e instanceof Error ? e.message : t('directorDash.dataLoadFailed'));
       setLive(null);
-      setFallbackBlocks(['全部区块']);
+      setFallbackBlocks([t('directorDash.allBlocks')]);
     } finally {
       setLoading(false);
     }
@@ -523,9 +524,9 @@ const DirectorDashboardPage: React.FC = () => {
 
   // 排名奖励
   const getRankBadge = (rank: number) => {
-    if (rank === 1) return { emoji: '🥇', text: '金牌', bg: '#f59e0b22', color: '#92400e' };
-    if (rank === 2) return { emoji: '🥈', text: '银牌', bg: 'var(--bg-deep)', color: 'var(--text-secondary)' };
-    if (rank === 3) return { emoji: '🥉', text: '铜牌', bg: '#f9731622', color: '#9a3412' };
+    if (rank === 1) return { emoji: '🥇', text: t('directorDash.gold'), bg: '#f59e0b22', color: '#92400e' };
+    if (rank === 2) return { emoji: '🥈', text: t('directorDash.silver'), bg: 'var(--bg-deep)', color: 'var(--text-secondary)' };
+    if (rank === 3) return { emoji: '🥉', text: t('directorDash.bronze'), bg: '#f9731622', color: '#9a3412' };
     return null;
   };
 
@@ -533,18 +534,18 @@ const DirectorDashboardPage: React.FC = () => {
   const renderWorkloadTab = () => (
     <div style={{ display: 'grid', gap: 16 }}>
       {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
-      <DashboardCard title="医生工作量排名" icon={<Trophy size={14} />} bodyPadding={0}>
+      <DashboardCard title={t('directorDash.doctorRanking')} icon={<Trophy size={14} />} bodyPadding={0}>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
-              <th style={{ ...styles.th, width: '50px' }}>排名</th>
-              <th style={styles.th}>姓名</th>
-              <th style={styles.th}>职称</th>
-              <th style={styles.th}>检查数</th>
-              <th style={styles.th}>报告数</th>
-              <th style={styles.th}>阳性率</th>
-              <th style={styles.th}>修改率</th>
-              <th style={styles.th}>综合评分</th>
+              <th style={{ ...styles.th, width: '50px' }}>{t('directorDash.colRank')}</th>
+              <th style={styles.th}>{t('directorDash.colName')}</th>
+              <th style={styles.th}>{t('directorDash.colTitle')}</th>
+              <th style={styles.th}>{t('directorDash.colExams')}</th>
+              <th style={styles.th}>{t('directorDash.colReports')}</th>
+              <th style={styles.th}>{t('directorDash.colPositiveRate')}</th>
+              <th style={styles.th}>{t('directorDash.colModifyRate')}</th>
+              <th style={styles.th}>{t('directorDash.colTotalScore')}</th>
             </tr>
           </thead>
           <tbody>
@@ -592,16 +593,16 @@ const DirectorDashboardPage: React.FC = () => {
         </table></div>
       </DashboardCard>
 
-      <DashboardCard title="技师工作量排名" icon={<Wrench size={14} />} bodyPadding={0}>
+      <DashboardCard title={t('directorDash.techRanking')} icon={<Wrench size={14} />} bodyPadding={0}>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
-              <th style={{ ...styles.th, width: '50px' }}>排名</th>
-              <th style={styles.th}>姓名</th>
-              <th style={styles.th}>职称</th>
-              <th style={styles.th}>检查数</th>
-              <th style={styles.th}>报告数</th>
-              <th style={styles.th}>设备使用率</th>
+              <th style={{ ...styles.th, width: '50px' }}>{t('directorDash.colRank')}</th>
+              <th style={styles.th}>{t('directorDash.colName')}</th>
+              <th style={styles.th}>{t('directorDash.colTitle')}</th>
+              <th style={styles.th}>{t('directorDash.colExams')}</th>
+              <th style={styles.th}>{t('directorDash.colReports')}</th>
+              <th style={styles.th}>{t('directorDash.colDeviceUsage')}</th>
             </tr>
           </thead>
           <tbody>
@@ -646,7 +647,7 @@ const DirectorDashboardPage: React.FC = () => {
     <div style={{ display: 'grid', gap: 16 }}>
       {/* [v3.0.6.11-103 Wave 6] 设备使用率 → TrendChart 柱状 + ProgressRing 平均 */}
       <DashboardCard
-        title="设备使用率柱状图"
+        title={t('directorDash.deviceUsageChart')}
         icon={<Gauge size={14} />}
         extra={
           devices.length > 0 ? (
@@ -654,7 +655,7 @@ const DirectorDashboardPage: React.FC = () => {
               percent={Math.round(devices.reduce((s: number, d: any) => s + Number(d.utilization ?? 0), 0) / devices.length)}
               size={56}
               strokeWidth={6}
-              subLabel="平均"
+              subLabel={t('directorDash.avgLabel')}
             />
           ) : undefined
         }
@@ -666,34 +667,34 @@ const DirectorDashboardPage: React.FC = () => {
             value: d.utilization,
           }))}
           xKey="name"
-          series={[{ key: 'value', name: '使用率', color: '#3b82f6' }]}
+          series={[{ key: 'value', name: t('directorDash.usageRate'), color: '#3b82f6' }]}
           height={220}
           percent
         />
         <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '12px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#22c55e', borderRadius: '2px' }}></span>
-            优良 (&gt;85%)
+            {t('directorDash.legendGood')}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#eab308', borderRadius: '2px' }}></span>
-            正常 (70-85%)
+            {t('directorDash.legendNormal')}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#ef4444', borderRadius: '2px' }}></span>
-            偏低 (&lt;70%)
+            {t('directorDash.legendLow')}
           </span>
         </div>
       </DashboardCard>
 
       <div style={styles.grid2Col}>
-        <DashboardCard title="设备预约满员率排名" icon={<CheckCircle2 size={14} />} bodyPadding={0}>
+        <DashboardCard title={t('directorDash.deviceFullRateRank')} icon={<CheckCircle2 size={14} />} bodyPadding={0}>
           <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>设备</th>
-                <th style={styles.th}>满员率</th>
-                <th style={styles.th}>状态</th>
+                <th style={styles.th}>{t('directorDash.colDevice')}</th>
+                <th style={styles.th}>{t('directorDash.colFullRate')}</th>
+                <th style={styles.th}>{t('directorDash.colStatus')}</th>
               </tr>
             </thead>
             <tbody>
@@ -716,7 +717,7 @@ const DirectorDashboardPage: React.FC = () => {
                       backgroundColor: device.fullRate > 85 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                       color: device.fullRate > 85 ? '#166534' : '#92400e',
                     }}>
-                      {device.fullRate > 85 ? '繁忙' : '可预约'}
+                      {device.fullRate > 85 ? t('directorDash.busy') : t('directorDash.available')}
                     </span>
                   </td>
                 </tr>
@@ -725,13 +726,13 @@ const DirectorDashboardPage: React.FC = () => {
           </table></div>
         </DashboardCard>
 
-        <DashboardCard title="设备故障率统计" icon={<AlertOctagon size={14} />} bodyPadding={0}>
+        <DashboardCard title={t('directorDash.deviceFaultStats')} icon={<AlertOctagon size={14} />} bodyPadding={0}>
           <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>设备</th>
-                <th style={styles.th}>故障率</th>
-                <th style={styles.th}>风险等级</th>
+                <th style={styles.th}>{t('directorDash.colDevice')}</th>
+                <th style={styles.th}>{t('directorDash.colFaultRate')}</th>
+                <th style={styles.th}>{t('directorDash.colRiskLevel')}</th>
               </tr>
             </thead>
             <tbody>
@@ -751,7 +752,7 @@ const DirectorDashboardPage: React.FC = () => {
                       backgroundColor: device.faultRate > 2 ? 'var(--color-error-bg)' : device.faultRate > 1 ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
                       color: device.faultRate > 2 ? '#991b1b' : device.faultRate > 1 ? '#92400e' : '#166534',
                     }}>
-                      {device.faultRate > 2 ? '高' : device.faultRate > 1 ? '中' : '低'}
+                      {device.faultRate > 2 ? t('directorDash.riskHigh') : device.faultRate > 1 ? t('directorDash.riskMid') : t('directorDash.riskLow')}
                     </span>
                   </td>
                 </tr>
@@ -767,17 +768,17 @@ const DirectorDashboardPage: React.FC = () => {
   const renderQualityTab = () => (
     <div style={{ display: 'grid', gap: 16 }}>
       {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
-      <DashboardCard title="医生报告质量评分排名" icon={<Trophy size={14} />} bodyPadding={0}>
+      <DashboardCard title={t('directorDash.reportQualityRank')} icon={<Trophy size={14} />} bodyPadding={0}>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
-              <th style={{ ...styles.th, width: '50px' }}>排名</th>
-              <th style={styles.th}>姓名</th>
-              <th style={styles.th}>综合评分</th>
-              <th style={styles.th}>格式规范</th>
-              <th style={styles.th}>诊断准确</th>
-              <th style={styles.th}>时效性</th>
-              <th style={styles.th}>三维评分</th>
+              <th style={{ ...styles.th, width: '50px' }}>{t('directorDash.colRank')}</th>
+              <th style={styles.th}>{t('directorDash.colName')}</th>
+              <th style={styles.th}>{t('directorDash.colTotalScore')}</th>
+              <th style={styles.th}>{t('directorDash.colFormat')}</th>
+              <th style={styles.th}>{t('directorDash.colDiagnosis')}</th>
+              <th style={styles.th}>{t('directorDash.colTimeliness')}</th>
+              <th style={styles.th}>{t('directorDash.colThreeDim')}</th>
             </tr>
           </thead>
           <tbody>
@@ -816,19 +817,19 @@ const DirectorDashboardPage: React.FC = () => {
                     <td style={styles.td}>
                       <div style={styles.scoreItem('#3b82f6')}>
                         <div style={{ fontSize: '16px', fontWeight: '700', color: '#1e40af' }}>{doc.formatScore}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>分</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
                       </div>
                     </td>
                     <td style={styles.td}>
                       <div style={styles.scoreItem('#10b981')}>
                         <div style={{ fontSize: '16px', fontWeight: '700', color: '#059669' }}>{doc.diagScore}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>分</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
                       </div>
                     </td>
                     <td style={styles.td}>
                       <div style={styles.scoreItem('#f59e0b')}>
                         <div style={{ fontSize: '16px', fontWeight: '700', color: '#d97706' }}>{doc.timeScore}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>分</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
                       </div>
                     </td>
                     <td style={styles.td}>
@@ -845,7 +846,7 @@ const DirectorDashboardPage: React.FC = () => {
         </table></div>
       </DashboardCard>
 
-      <DashboardCard title="质控问题统计（本月）" icon={<AlertOctagon size={14} />}>
+      <DashboardCard title={t('directorDash.qcIssueMonth')} icon={<AlertOctagon size={14} />}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
           {qcIssues.map((issue) => (
             <div key={issue.type} style={{
@@ -880,60 +881,60 @@ const DirectorDashboardPage: React.FC = () => {
     return (
       <div style={{ display: 'grid', gap: 16 }}>
         {/* [v3.0.6.11-103 Wave 6] 每日收入折线图 → TrendChart */}
-        <DashboardCard title="每日收入折线图（近30天 · 按 400元/例 估算）" icon={<LineChartIcon size={14} />}>
+        <DashboardCard title={t('directorDash.dailyRevenueChart')} icon={<LineChartIcon size={14} />}>
           <TrendChart
             type="line"
             data={dailyRevenue.map(d => ({ day: `D${d.day}`, revenue: d.revenue }))}
             xKey="day"
-            series={[{ key: 'revenue', name: '收入', color: '#1e40af' }]}
+            series={[{ key: 'revenue', name: t('directorDash.revenue'), color: '#1e40af' }]}
             height={200}
-            yTickFormatter={(v) => `¥${(v / 10000).toFixed(0)}万`}
+            yTickFormatter={(v) => `¥${(v / 10000).toFixed(0)}${t('directorDash.wan')}`}
           />
         </DashboardCard>
 
         <div style={styles.grid2Col}>
-          <DashboardCard title="检查项目收入分布" icon={<Coins size={14} />}>
+          <DashboardCard title={t('directorDash.examRevenueDist')} icon={<Coins size={14} />}>
             <div style={styles.pieChartContainer}>
               {examRevenue.map((item, idx) => (
                 <div key={item.name} style={styles.pieItem}>
                   <div style={styles.pieColor(colors[idx])} />
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.name}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>¥{(item.amount / 10000).toFixed(0)}万 ({item.percent}%)</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>¥{(item.amount / 10000).toFixed(0)}{t('directorDash.wan')} ({item.percent}%)</div>
                   </div>
                 </div>
               ))}
             </div>
             <div style={{ marginTop: '16px', textAlign: 'center' as const, fontSize: '14px', color: 'var(--text-secondary)' }}>
-              总收入: <span style={{ fontWeight: '700', color: '#1e40af' }}>¥{(examRevenue.reduce((a, b) => a + b.amount, 0) / 10000).toFixed(0)}万元</span>
+              {t('directorDash.totalRevenue')}: <span style={{ fontWeight: '700', color: '#1e40af' }}>¥{(examRevenue.reduce((a, b) => a + b.amount, 0) / 10000).toFixed(0)}{t('directorDash.tenThousandYuan')}</span>
             </div>
           </DashboardCard>
 
-          <DashboardCard title="卫材成本统计" icon={<DollarSign size={14} />}>
+          <DashboardCard title={t('directorDash.materialCostStats')} icon={<DollarSign size={14} />}>
             <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ display: 'grid', gap: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>造影剂</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('directorDash.contrastAgent')}</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.contrastAgent.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>胶片</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('directorDash.film')}</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.film.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>注射器</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('directorDash.syringe')}</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.syringe.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>针头</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('directorDash.needle')}</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.needle.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>其他耗材</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('directorDash.otherMaterials')}</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.other.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#1e40af', borderRadius: '6px', marginTop: '4px' }}>
-                  <span style={{ fontWeight: '600', color: '#ffffff' }}>总计成本</span>
+                  <span style={{ fontWeight: '600', color: '#ffffff' }}>{t('directorDash.totalCost')}</span>
                   <span style={{ fontWeight: '700', color: '#ffffff' }}>¥{materialCost.total.toLocaleString()}</span>
                 </div>
               </div>
@@ -961,8 +962,8 @@ const DirectorDashboardPage: React.FC = () => {
   if (!dataAvailable) {
     return (
       <div data-testid="director-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无主任驾驶舱数据</div>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请等待今日检查量与审核数据汇总后刷新</div>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('directorDash.noData')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('directorDash.noDataHint')}</div>
       </div>
     );
   }
@@ -973,27 +974,27 @@ const DirectorDashboardPage: React.FC = () => {
       <div style={styles.header}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <div style={styles.headerTitle}>主任综合管理驾驶舱</div>
+            <div style={styles.headerTitle}>{t('directorDash.pageTitle')}</div>
             <div style={styles.headerSubtitle}>
-              汉东省人民医院 · 放射科 | 数据更新时间: {new Date().toLocaleString('zh-CN')}
+              {t('directorDash.hospitalLine')} {new Date().toLocaleString('zh-CN')}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {live && (
               <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: 'var(--color-success-bg)', color: '#166534' }}>
-                statsApi / biApi 实时
+                {t('directorDash.liveData')}
               </span>
             )}
             {!live && (
               <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: 'var(--color-warning-bg)', color: '#92400e' }}>
-                演示数据
+                {t('directorDash.demoData')}
               </span>
             )}
             <button
               onClick={() => void load()}
               style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
-              🔄 刷新
+              🔄 {t('directorDash.refresh')}
             </button>
           </div>
         </div>
@@ -1002,12 +1003,12 @@ const DirectorDashboardPage: React.FC = () => {
       {error && (
         <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 13, marginBottom: 16 }}>
           {error}
-          <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>重试</button>
+          <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>{t('directorDash.retry')}</button>
         </div>
       )}
       {fallbackBlocks.length > 0 && (
         <div style={{ background: 'var(--color-warning-bg)', border: '1px solid #fde68a', color: '#92400e', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 16 }}>
-          以下区块为演示数据: {fallbackBlocks.join(' / ')}
+          {t('directorDash.demoBlocks')} {fallbackBlocks.join(' / ')}
         </div>
       )}
 
@@ -1037,25 +1038,25 @@ const DirectorDashboardPage: React.FC = () => {
             style={styles.tabButton(activeTab === 'workload')}
             onClick={() => setActiveTab('workload')}
           >
-            📊 工作量排名
+            📊 {t('directorDash.tabWorkload')}
           </button>
           <button
             style={styles.tabButton(activeTab === 'equipment')}
             onClick={() => setActiveTab('equipment')}
           >
-            🔧 设备效率看板
+            🔧 {t('directorDash.tabEquipment')}
           </button>
           <button
             style={styles.tabButton(activeTab === 'quality')}
             onClick={() => setActiveTab('quality')}
           >
-            🏆 质控评分榜
+            🏆 {t('directorDash.tabQuality')}
           </button>
           <button
             style={styles.tabButton(activeTab === 'revenue')}
             onClick={() => setActiveTab('revenue')}
           >
-            💰 收入与成本
+            💰 {t('directorDash.tabRevenue')}
           </button>
         </div>
         <div style={styles.tabContent}>

@@ -158,7 +158,7 @@ export const TeleConsultPage: React.FC = () => {
       const res = await eyeApi.getTeleSession(detailSessionId.trim());
       if (res.success) {
         setSessionDetail(res.data);
-        message.success("会话详情已加载");
+        message.success(t("eye.tele.sessionDetailLoaded"));
       }
     } catch (e: any) {
       setSessionDetail(null);
@@ -188,7 +188,7 @@ export const TeleConsultPage: React.FC = () => {
       if (res.success) {
         setConsultDetail(res.data);
         setAnswerText("");
-        message.success("会诊记录已加载");
+        message.success(t("eye.tele.consultLoaded"));
       }
     } catch (e: any) {
       setConsultDetail(null);
@@ -198,7 +198,7 @@ export const TeleConsultPage: React.FC = () => {
 
   const handleAnswerConsult = async () => {
     if (!answerText.trim()) {
-      message.warning("请输入答复内容");
+      message.warning(t("eye.tele.answerRequired"));
       return;
     }
     try {
@@ -209,7 +209,7 @@ export const TeleConsultPage: React.FC = () => {
       if (res.success) {
         setConsultDetail(res.data);
         setAnswerText("");
-        message.success("会诊意见已提交");
+        message.success(t("eye.tele.answerSubmitted"));
         const cRes = await eyeApi.listTeleConsults();
         if (cRes.success) setTeleConsults(cRes.data || []);
       }
@@ -224,7 +224,7 @@ export const TeleConsultPage: React.FC = () => {
       const res = await eyeApi.createTeleSession({ patientId, studyId, participants, mode });
       if (res.success && res.data) {
         setSession(res.data);
-        message.success("会诊会话已建立");
+        message.success(t("eye.tele.sessionCreated"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -257,7 +257,7 @@ export const TeleConsultPage: React.FC = () => {
       });
       if (res.success && res.data) {
         setConsult(res.data);
-        message.success("会诊意见已发出");
+        message.success(t("eye.tele.consultSent"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -279,7 +279,7 @@ export const TeleConsultPage: React.FC = () => {
       });
       if (res.success) {
         setRefraction(res.data);
-        message.success("验光处方已保存");
+        message.success(t("eye.tele.refractionSaved"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -298,7 +298,7 @@ export const TeleConsultPage: React.FC = () => {
       });
       if (res.success) {
         setOkLens(res.data);
-        message.success("OK 镜设计已生成");
+        message.success(t("eye.tele.okLensGenerated"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -308,7 +308,7 @@ export const TeleConsultPage: React.FC = () => {
   // 录像计时
   useEffect(() => {
     if (!recording) return undefined;
-    const interval = setInterval(() => setRecordingTime((t) => t + 1), 1000);
+    const interval = setInterval(() => setRecordingTime((n) => n + 1), 1000);
     return () => clearInterval(interval);
   }, [recording]);
 
@@ -317,17 +317,17 @@ export const TeleConsultPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Video size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
-          远程眼科 + 视光中心
+          {t("eye.tele.title")}
         </span>
         <Tag color="cyan">PR8</Tag>
         <Tag color="purple">v3.0.6.8-41</Tag>
-        <Tag color="blue">WebRTC + 5G 边缘</Tag>
-        <Tag color="green">OK镜 / 角膜塑形</Tag>
+        <Tag color="blue">{t("eye.tele.tagWebrtc")}</Tag>
+        <Tag color="green">{t("eye.tele.tagOkLens")}</Tag>
         {/* [v3.0.6.11-99 Wave1A 17] /eye/optometry/* 后端已实现 (验光/OK镜/视力档案); [G005 Wave10A] /eye/tele/* 后端真实 (桥接 tele 模块) */}
-        <Tag color="green">视光后端真实</Tag>
-        <Tag color="green">远程会诊后端真实 (Wave10A)</Tag>
+        <Tag color="green">{t("eye.tele.tagOptometryReal")}</Tag>
+        <Tag color="green">{t("eye.tele.tagTeleReal")}</Tag>
         {/* [G005 Wave10A] 失败时回退标注: 后端不可达时操作会以 message.error 提示并保留现场 */}
-        <Tag>失败回退: 本地标注</Tag>
+        <Tag>{t("eye.tele.tagFallback")}</Tag>
       </Space>
 
       <Tabs
@@ -339,43 +339,43 @@ export const TeleConsultPage: React.FC = () => {
             key: "tele",
             label: (
               <span>
-                <Video size={14} /> 远程会诊
+                <Video size={14} /> {t("eye.tele.tabTele")}
               </span>
             ),
             children: (
               <Row gutter={16}>
                 <Col span={10}>
-                  <Card title="会诊参数" size="small">
+                  <Card title={t("eye.tele.consultParams")} size="small">
                     <Form layout="vertical" size="small">
-                      <Form.Item label="患者ID">
+                      <Form.Item label={t("eye.tele.patientId")}>
                         <Input
                           value={patientId}
                           onChange={(e) => setPatientId(e.target.value)}
                         />
                       </Form.Item>
-                      <Form.Item label="检查号">
+                      <Form.Item label={t("eye.tele.studyId")}>
                         <Input
                           value={studyId}
                           onChange={(e) => setStudyId(e.target.value)}
                         />
                       </Form.Item>
-                      <Form.Item label="会诊模式">
+                      <Form.Item label={t("eye.tele.consultMode")}>
                         <Radio.Group
                           value={mode}
                           onChange={(e) => setMode(e.target.value)}
                         >
                           <Radio.Button value="video">
-                            <Video size={12} /> 视频
+                            <Video size={12} /> {t("eye.tele.modeVideo")}
                           </Radio.Button>
                           <Radio.Button value="screen">
-                            <MonitorSmartphone size={12} /> 屏幕共享
+                            <MonitorSmartphone size={12} /> {t("eye.tele.modeScreen")}
                           </Radio.Button>
                           <Radio.Button value="data">
-                            <Layers size={12} /> 数据
+                            <Layers size={12} /> {t("eye.tele.modeData")}
                           </Radio.Button>
                         </Radio.Group>
                       </Form.Item>
-                      <Form.Item label="参与专家 (ID 列表)">
+                      <Form.Item label={t("eye.tele.participants")}>
                         <Select
                           mode="tags"
                           value={participants}
@@ -394,21 +394,21 @@ export const TeleConsultPage: React.FC = () => {
                           icon={<Video size={14} />}
                           onClick={handleCreateSession}
                         >
-                          建立会诊
+                          {t("eye.tele.createSession")}
                         </Button>
                         <Button
                           icon={<Share2 size={14} />}
                           onClick={handleStream}
                           disabled={!session}
                         >
-                          远程流
+                          {t("eye.tele.remoteStream")}
                         </Button>
                         <Button
                           icon={<Send size={14} />}
                           onClick={handleConsult}
                           disabled={!session}
                         >
-                          会诊意见
+                          {t("eye.tele.consultOpinion")}
                         </Button>
                       </Space>
                     </Form>
@@ -416,14 +416,14 @@ export const TeleConsultPage: React.FC = () => {
 
                   {turnInfo && (
                     <Card
-                      title="5G + TURN 网络"
+                      title={t("eye.tele.networkTitle")}
                       size="small"
                       style={{ marginTop: 16 }}
                     >
                       <Row gutter={[8, 8]}>
                         <Col span={12}>
                           <Statistic
-                            title="延迟 P95"
+                            title={t("eye.tele.latencyP95")}
                             value={turnInfo.latency.p95}
                             suffix="ms"
                             styles={{ content: {  color: "#52c41a"  } }}
@@ -431,14 +431,14 @@ export const TeleConsultPage: React.FC = () => {
                         </Col>
                         <Col span={12}>
                           <Statistic
-                            title="上行带宽"
+                            title={t("eye.tele.uplinkBandwidth")}
                             value={turnInfo.bandwidth.up}
                             suffix="Mbps"
                           />
                         </Col>
                         <Col span={24}>
                           <Alert
-                            title="5G 边缘切片"
+                            title={t("eye.tele.edgeSliceTitle")}
                             description={`节点: ${turnInfo && turnInfo["5G"] ? turnInfo["5G"].edgeNodeId : "N/A"} | 切片: ${turnInfo && turnInfo["5G"] ? turnInfo["5G"].slice : "N/A"}`}
                             type="success"
                             showIcon
@@ -454,7 +454,7 @@ export const TeleConsultPage: React.FC = () => {
                     title={
                       <Space>
                         <MonitorSmartphone size={16} color="#2563eb" />
-                        实时会诊画面
+                        {t("eye.tele.liveView")}
                         {session && (
                           <Tag color="green">
                             {session.status === "active"
@@ -487,18 +487,18 @@ export const TeleConsultPage: React.FC = () => {
                             color={videoOn ? "#2563eb" : "#444"}
                           />
                           <div style={{ marginTop: 16, fontSize: 14 }}>
-                            会诊 {session.sessionId}
+                            {t("eye.tele.consultLabel")} {session.sessionId}
                           </div>
                           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                            患者{session.patientId} | {session.mode} |{" "}
-                            {session.participants.length} 参与方
+                            {t("eye.tele.patientLabel")}{session.patientId} | {session.mode} |{" "}
+                            {session.participants.length} {t("eye.tele.participantsUnit")}
                           </div>
                         </>
                       ) : (
                         <>
                           <MonitorSmartphone size={64} color="var(--text-secondary)" />
                           <div style={{ marginTop: 16, color: "var(--text-secondary)" }}>
-                            点击"建立会诊"启动 WebRTC 会诊
+                            {t("eye.tele.emptyLive")}
                           </div>
                         </>
                       )}
@@ -551,7 +551,7 @@ export const TeleConsultPage: React.FC = () => {
                         onClick={() => setRecording(!recording)}
                         danger={recording}
                       />
-                      <Button icon={<Settings size={14} />} onClick={() => setShowSettings(true)}>设置</Button>
+                      <Button icon={<Settings size={14} />} onClick={() => setShowSettings(true)}>{t("eye.tele.settings")}</Button>
                     </Space>
                   </Card>
 
@@ -560,7 +560,7 @@ export const TeleConsultPage: React.FC = () => {
                       title={
                         <Space>
                           <Send size={16} color="#52c41a" />
-                          会诊意见
+                          {t("eye.tele.consultOpinion")}
                         </Space>
                       }
                       size="small"
@@ -574,9 +574,9 @@ export const TeleConsultPage: React.FC = () => {
                       <div
                         style={{ marginTop: 8, fontSize: 13, color: "var(--text-secondary)" }}
                       >
-                        专家: {consult.specialistId}
+                        {t("eye.tele.expertLabel")} {consult.specialistId}
                         <br />
-                        申请时间:{" "}
+                        {t("eye.tele.requestTimeLabel")}{" "}
                         {new Date(consult.requestedAt).toLocaleString("zh-CN")}
                       </div>
                     </Card>
@@ -587,12 +587,12 @@ export const TeleConsultPage: React.FC = () => {
                     title={
                       <Space>
                         <Activity size={16} color="#2563eb" />
-                        会诊记录
+                        {t("eye.tele.consultRecords")}
                         {teleStats && (
                           <Tag color="blue">
-                            会诊 {teleStats.totalSessions} | 意见{" "}
-                            {teleStats.totalConsults} | 平均答复{" "}
-                            {teleStats.avgResponseMinutes} 分钟
+                            {t("eye.tele.statsSessions")} {teleStats.totalSessions} | {t("eye.tele.statsConsults")}{" "}
+                            {teleStats.totalConsults} | {t("eye.tele.statsAvgResponse")}{" "}
+                            {teleStats.avgResponseMinutes} {t("eye.tele.minutesUnit")}
                           </Tag>
                         )}
                       </Space>
@@ -603,12 +603,12 @@ export const TeleConsultPage: React.FC = () => {
                     {teleSessions.length === 0 && teleConsults.length === 0 ? (
                       <Empty
                         image={<Inbox size={48} style={{ opacity: 0.4 }} />}
-                        description="暂无历史会诊 (后端不可达时回退本地)"
+                        description={t("eye.tele.emptyHistory")}
                       />
                     ) : (
                       <>
                         <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
-                          历史会话
+                          {t("eye.tele.historySessions")}
                         </div>
                         {teleSessions.slice(0, 5).map((s: any) => (
                           <div
@@ -621,7 +621,7 @@ export const TeleConsultPage: React.FC = () => {
                             }}
                           >
                             <span>
-                              {s.sessionId} · 患者 {s.patientId}
+                              {s.sessionId} · {t("eye.tele.patientLabel")} {s.patientId}
                             </span>
                             <span>
                               {s.mode} · {s.status}
@@ -635,7 +635,7 @@ export const TeleConsultPage: React.FC = () => {
                             margin: "8px 0 4px",
                           }}
                         >
-                          待答复意见
+                          {t("eye.tele.pendingAnswers")}
                         </div>
                         {teleConsults
                           .filter((c: any) => c.status === "pending")
@@ -660,13 +660,13 @@ export const TeleConsultPage: React.FC = () => {
             key: "optometry",
             label: (
               <span>
-                <Globe size={14} /> 视光中心
+                <Globe size={14} /> {t("eye.tele.tabOptometry")}
               </span>
             ),
             children: (
               <Row gutter={16}>
                 <Col span={10}>
-                  <Card title="验光参数" size="small">
+                  <Card title={t("eye.tele.refractionParams")} size="small">
                     <Form layout="vertical" size="small">
                       <div
                         style={{
@@ -676,11 +676,11 @@ export const TeleConsultPage: React.FC = () => {
                           fontWeight: 600,
                         }}
                       >
-                        OD 右眼
+                        {t("eye.tele.odRightEye")}
                       </div>
                       <Row gutter={8}>
                         <Col span={8}>
-                          <Form.Item label="球镜 (DS)">
+                          <Form.Item label={t("eye.tele.sphereDs")}>
                             <InputNumber
                               value={reSphere}
                               onChange={(v) => setReSphere(v || 0)}
@@ -690,7 +690,7 @@ export const TeleConsultPage: React.FC = () => {
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="柱镜 (DC)">
+                          <Form.Item label={t("eye.tele.cylinderDc")}>
                             <InputNumber
                               value={reCylinder}
                               onChange={(v) => setReCylinder(v || 0)}
@@ -700,7 +700,7 @@ export const TeleConsultPage: React.FC = () => {
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="轴位 (°)">
+                          <Form.Item label={t("eye.tele.axisDeg")}>
                             <InputNumber
                               value={reAxis}
                               onChange={(v) => setReAxis(v || 0)}
@@ -720,11 +720,11 @@ export const TeleConsultPage: React.FC = () => {
                           fontWeight: 600,
                         }}
                       >
-                        OS 左眼
+                        {t("eye.tele.osLeftEye")}
                       </div>
                       <Row gutter={8}>
                         <Col span={8}>
-                          <Form.Item label="球镜 (DS)">
+                          <Form.Item label={t("eye.tele.sphereDs")}>
                             <InputNumber
                               value={leSphere}
                               onChange={(v) => setLeSphere(v || 0)}
@@ -734,7 +734,7 @@ export const TeleConsultPage: React.FC = () => {
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="柱镜 (DC)">
+                          <Form.Item label={t("eye.tele.cylinderDc")}>
                             <InputNumber
                               value={leCylinder}
                               onChange={(v) => setLeCylinder(v || 0)}
@@ -744,7 +744,7 @@ export const TeleConsultPage: React.FC = () => {
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="轴位 (°)">
+                          <Form.Item label={t("eye.tele.axisDeg")}>
                             <InputNumber
                               value={leAxis}
                               onChange={(v) => setLeAxis(v || 0)}
@@ -756,14 +756,14 @@ export const TeleConsultPage: React.FC = () => {
                           </Form.Item>
                         </Col>
                       </Row>
-                      <Form.Item label="处方类型">
+                      <Form.Item label={t("eye.tele.prescriptionTypeLabel")}>
                         <Radio.Group
                           value={prescriptionType}
                           onChange={(e) => setPrescriptionType(e.target.value)}
                         >
-                          <Radio.Button value="眼镜">眼镜</Radio.Button>
-                          <Radio.Button value="隐形">隐形眼镜</Radio.Button>
-                          <Radio.Button value="渐进">渐进多焦</Radio.Button>
+                          <Radio.Button value="眼镜">{t("eye.tele.typeGlasses")}</Radio.Button>
+                          <Radio.Button value="隐形">{t("eye.tele.typeContact")}</Radio.Button>
+                          <Radio.Button value="渐进">{t("eye.tele.typeProgressive")}</Radio.Button>
                         </Radio.Group>
                       </Form.Item>
                       <Button
@@ -772,18 +772,18 @@ export const TeleConsultPage: React.FC = () => {
                         icon={<Save size={14} />}
                         onClick={handleRefraction}
                       >
-                        保存验光处方
+                        {t("eye.tele.saveRefraction")}
                       </Button>
                     </Form>
                   </Card>
 
                   <Card
-                    title="OK 镜 (角膜塑形镜)"
+                    title={t("eye.tele.okLensCard")}
                     size="small"
                     style={{ marginTop: 16 }}
                   >
                     <Form layout="vertical" size="small">
-                      <Form.Item label="目标减少度数 (D)">
+                      <Form.Item label={t("eye.tele.targetReductionLabel")}>
                         <Slider
                           min={1}
                           max={6}
@@ -799,18 +799,18 @@ export const TeleConsultPage: React.FC = () => {
                         icon={<Sparkles size={14} />}
                         onClick={handleOkLens}
                       >
-                        生成 OK 镜设计
+                        {t("eye.tele.generateOkLens")}
                       </Button>
                     </Form>
                   </Card>
                 </Col>
 
                 <Col span={14}>
-                  <Card title="视光结果" size="small">
+                  <Card title={t("eye.tele.optometryResult")} size="small">
                     {refraction ? (
                       <Row gutter={[16, 16]}>
                         <Col span={12}>
-                          <Card size="small" title="OD 右眼">
+                          <Card size="small" title={t("eye.tele.odRightEye")}>
                             <div>S: {refraction.rightEye.sphere} DS</div>
                             <div>
                               C: {refraction.rightEye.cylinder} DC ×{" "}
@@ -819,7 +819,7 @@ export const TeleConsultPage: React.FC = () => {
                           </Card>
                         </Col>
                         <Col span={12}>
-                          <Card size="small" title="OS 左眼">
+                          <Card size="small" title={t("eye.tele.osLeftEye")}>
                             <div>S: {refraction.leftEye.sphere} DS</div>
                             <div>
                               C: {refraction.leftEye.cylinder} DC ×{" "}
@@ -836,7 +836,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Col>
                       </Row>
                     ) : (
-                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击保存验光处方" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eye.tele.emptyRefraction")} />
                     )}
                   </Card>
 
@@ -845,7 +845,7 @@ export const TeleConsultPage: React.FC = () => {
                       title={
                         <Space>
                           <Sparkles size={16} color="#722ed1" />
-                          OK 镜 (角膜塑形镜) 设计
+                          {t("eye.tele.okLensDesign")}
                         </Space>
                       }
                       size="small"
@@ -854,41 +854,41 @@ export const TeleConsultPage: React.FC = () => {
                       <Row gutter={[16, 16]}>
                         <Col span={8}>
                           <Statistic
-                            title="基弧 (BC)"
+                            title={t("eye.tele.baseCurve")}
                             value={okLens.design.baseCurve.toFixed(2)}
                             suffix="mm"
                           />
                         </Col>
                         <Col span={8}>
                           <Statistic
-                            title="反转弧深度"
+                            title={t("eye.tele.returnZoneDepth")}
                             value={okLens.design.returnZoneDepth}
                             suffix="mm"
                           />
                         </Col>
                         <Col span={8}>
                           <Statistic
-                            title="着陆角"
+                            title={t("eye.tele.landingZoneAngle")}
                             value={okLens.design.landingZoneAngle}
                             suffix="°"
                           />
                         </Col>
                         <Col span={8}>
                           <Statistic
-                            title="直径"
+                            title={t("eye.tele.diameter")}
                             value={okLens.design.diameter}
                             suffix="mm"
                           />
                         </Col>
                         <Col span={8}>
                           <Statistic
-                            title="目标减少"
+                            title={t("eye.tele.targetReductionShort")}
                             value={Math.abs(okLens.design.targetReduction)}
                             suffix="D"
                           />
                         </Col>
                         <Col span={8}>
-                          <Statistic title="品牌" value={okLens.design.brand} />
+                          <Statistic title={t("eye.tele.brand")} value={okLens.design.brand} />
                         </Col>
                         <Col span={24}>
                           <Alert
@@ -938,25 +938,25 @@ export const TeleConsultPage: React.FC = () => {
                         dataSource={teleStreams}
                         pagination={{ pageSize: 5, showSizeChanger: false }}
                         columns={[
-                          { title: "流 ID", dataIndex: "streamId" },
-                          { title: "检查号", dataIndex: "studyId" },
-                          { title: "目标医院", dataIndex: "targetHospital" },
+                          { title: t("eye.tele.colStreamId"), dataIndex: "streamId" },
+                          { title: t("eye.tele.studyId"), dataIndex: "studyId" },
+                          { title: t("eye.tele.colTargetHospital"), dataIndex: "targetHospital" },
                           {
-                            title: "协议",
+                            title: t("eye.tele.colProtocol"),
                             dataIndex: "protocol",
                             render: (v: string) => <Tag color="cyan">{v}</Tag>,
                           },
                           {
-                            title: "状态",
+                            title: t("eye.tele.colStatus"),
                             dataIndex: "status",
                             render: (v: string) => (
                               <Tag color={v === "streaming" ? "green" : v === "starting" ? "orange" : "default"}>
-                                {v === "streaming" ? "传输中" : v === "starting" ? "启动中" : "已结束"}
+                                {v === "streaming" ? t("eye.tele.statusStreaming") : v === "starting" ? t("eye.tele.statusStarting") : t("eye.tele.statusEnded")}
                               </Tag>
                             ),
                           },
                           {
-                            title: "进度",
+                            title: t("eye.tele.colProgress"),
                             render: (_, r: any) =>
                               r.bytesTransferred
                                 ? `${(Number(r.bytesTransferred) / 1024 / 1024).toFixed(1)} MB`
@@ -980,7 +980,7 @@ export const TeleConsultPage: React.FC = () => {
                   >
                     <Space.Compact style={{ width: "100%" }}>
                       <Input
-                        placeholder="会话 ID (如 SES-20260701-001)"
+                        placeholder={t("eye.tele.sessionIdPlaceholder")}
                         value={detailSessionId}
                         onChange={(e) => setDetailSessionId(e.target.value)}
                       />
@@ -991,13 +991,13 @@ export const TeleConsultPage: React.FC = () => {
                     {sessionDetail ? (
                       <div style={{ marginTop: 12, fontSize: 12 }}>
                         <div>
-                          会话: {sessionDetail.sessionId} · 患者 {sessionDetail.patientId}
+                          {t("eye.tele.sessionLabel")} {sessionDetail.sessionId} · {t("eye.tele.patientLabel")} {sessionDetail.patientId}
                         </div>
                         <div style={{ color: "var(--text-secondary)" }}>
-                          检查号: {sessionDetail.studyId} · 信令: {sessionDetail.signalingUrl}
+                          {t("eye.tele.studyIdLabel")} {sessionDetail.studyId} · {t("eye.tele.signalingLabel")} {sessionDetail.signalingUrl}
                         </div>
                         <div style={{ color: "var(--text-secondary)" }}>
-                          开始于 {String(sessionDetail.startedAt ?? "").slice(0, 19).replace("T", " ")}
+                          {t("eye.tele.startedAtLabel")} {String(sessionDetail.startedAt ?? "").slice(0, 19).replace("T", " ")}
                           {sessionDetail.endedAt
                             ? ` · 结束于 ${String(sessionDetail.endedAt).slice(0, 19).replace("T", " ")}`
                             : ""}
@@ -1005,10 +1005,10 @@ export const TeleConsultPage: React.FC = () => {
                         <Divider style={{ margin: "8px 0" }} />
                         <Space>
                           <Tag color={sessionDetail.status === "active" ? "green" : "default"}>
-                            {sessionDetail.status === "active" ? "进行中" : sessionDetail.status}
+                            {sessionDetail.status === "active" ? t("eye.tele.statusActive") : sessionDetail.status}
                           </Tag>
                           <Tag>{sessionDetail.mode}</Tag>
-                          <span>参与: {sessionDetail.participants?.join(" / ")}</span>
+                          <span>{t("eye.tele.participantsLabel")} {sessionDetail.participants?.join(" / ")}</span>
                           {sessionDetail.status === "active" && (
                             <Button
                               size="small"
@@ -1021,7 +1021,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Space>
                         {sessionDetail.network && (
                           <div style={{ marginTop: 8, color: "var(--text-secondary)" }}>
-                            5G 边缘: {sessionDetail.network.edgeNodeId} · 切片 {sessionDetail.network.slice} · P95 {sessionDetail.network.latencyP95}ms
+                            {t("eye.tele.edgeLabel")} {sessionDetail.network.edgeNodeId} · {t("eye.tele.sliceLabel")} {sessionDetail.network.slice} · P95 {sessionDetail.network.latencyP95}ms
                           </div>
                         )}
                       </div>
@@ -1045,7 +1045,7 @@ export const TeleConsultPage: React.FC = () => {
                   >
                     <Space.Compact style={{ width: "100%" }}>
                       <Input
-                        placeholder="会诊记录 ID (如 CON-20260708-001)"
+                        placeholder={t("eye.tele.consultIdPlaceholder")}
                         value={detailConsultId}
                         onChange={(e) => setDetailConsultId(e.target.value)}
                       />
@@ -1121,19 +1121,19 @@ export const TeleConsultPage: React.FC = () => {
                         dataSource={teleConsults}
                         pagination={{ pageSize: 5, showSizeChanger: false }}
                         columns={[
-                          { title: "记录 ID", dataIndex: "consultId" },
-                          { title: "专家", dataIndex: "specialistName" },
+                          { title: t("eye.tele.colConsultId"), dataIndex: "consultId" },
+                          { title: t("eye.tele.colSpecialist"), dataIndex: "specialistName" },
                           {
-                            title: "问题",
+                            title: t("eye.tele.colQuestion"),
                             dataIndex: "question",
                             ellipsis: true,
                           },
                           {
-                            title: "状态",
+                            title: t("eye.tele.colStatus"),
                             dataIndex: "status",
                             render: (v: string) => (
                               <Tag color={v === "pending" ? "orange" : "green"}>
-                                {v === "pending" ? "待答复" : "已答复"}
+                                {v === "pending" ? t("eye.tele.statusPending") : t("eye.tele.statusAnswered")}
                               </Tag>
                             ),
                           },
@@ -1154,7 +1154,7 @@ export const TeleConsultPage: React.FC = () => {
       />
 
       <Modal
-        title={<Space><Settings size={16} /> 会诊设置</Space>}
+        title={<Space><Settings size={16} /> {t("eye.tele.settingsTitle")}</Space>}
         open={showSettings}
         onCancel={() => setShowSettings(false)}
         onOk={() => {
@@ -1162,39 +1162,39 @@ export const TeleConsultPage: React.FC = () => {
           setTimeout(() => {
             setSavingSettings(false);
             setShowSettings(false);
-            message.success('会诊设置已保存');
+            message.success(t('eye.tele.settingsSaved'));
           }, 400);
         }}
-        okText="保存设置"
+        okText={t("eye.tele.saveSettings")}
         confirmLoading={savingSettings}
         width={460}
       >
         <Form layout="vertical" size="small">
-          <Form.Item label="视频设备">
+          <Form.Item label={t("eye.tele.videoDevice")}>
             <Select value={settings.device} onChange={(v) => setSettings({ ...settings, device: v })} options={[{ value: '内置摄像头 (HD)', label: '内置摄像头 (HD)' }, { value: '外接摄像头', label: '外接摄像头' }, { value: 'USB 高清摄像头', label: 'USB 高清摄像头' }]} />
           </Form.Item>
-          <Form.Item label="麦克风">
+          <Form.Item label={t("eye.tele.microphone")}>
             <Select value={settings.mic} onChange={(v) => setSettings({ ...settings, mic: v })} options={[{ value: '内置麦克风', label: '内置麦克风' }, { value: '耳机麦克风', label: '耳机麦克风' }, { value: '领夹麦克风', label: '领夹麦克风' }]} />
           </Form.Item>
-          <Form.Item label="扬声器">
+          <Form.Item label={t("eye.tele.speaker")}>
             <Select value={settings.speaker} onChange={(v) => setSettings({ ...settings, speaker: v })} options={[{ value: '默认扬声器', label: '默认扬声器' }, { value: '耳机', label: '耳机' }]} />
           </Form.Item>
-          <Form.Item label="分辨率">
+          <Form.Item label={t("eye.tele.resolution")}>
             <Radio.Group value={settings.resolution} onChange={(e) => setSettings({ ...settings, resolution: e.target.value })}>
               <Radio.Button value="720p">720p</Radio.Button>
               <Radio.Button value="1080p">1080p</Radio.Button>
               <Radio.Button value="4K">4K</Radio.Button>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label="其他选项">
+          <Form.Item label={t("eye.tele.otherOptions")}>
             <Space direction="vertical">
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                 <input type="checkbox" checked={settings.enableNoiseCancellation} onChange={(e) => setSettings({ ...settings, enableNoiseCancellation: e.target.checked })} />
-                开启降噪
+                {t("eye.tele.enableNoiseCancellation")}
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                 <input type="checkbox" checked={settings.autoRecord} onChange={(e) => setSettings({ ...settings, autoRecord: e.target.checked })} />
-                自动录制会诊
+                {t("eye.tele.autoRecord")}
               </label>
             </Space>
           </Form.Item>

@@ -7,6 +7,7 @@ import { DollarSign, FileText, XCircle, Printer, Calculator, Plus } from 'lucide
 import { wechatPay } from '../../services/wechatPay';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
+import { t } from '../../i18n/appI18n';
 
 const WECHAT_METHOD_ID = 'wechat';
 const DEFAULT_METHOD = WECHAT_METHOD_ID;
@@ -48,7 +49,7 @@ export const DentalBillingPage: React.FC = () => {
         setInvoices(list.map((inv: any) => ({
           id: inv.id ?? inv.invoiceNumber,
           date: String(inv.date ?? inv.createdAt ?? '').slice(0, 10),
-          items: inv.items ?? [{ code: inv.invoiceNumber ?? inv.id, name: '口腔诊疗' }],
+          items: inv.items ?? [{ code: inv.invoiceNumber ?? inv.id, name: t('dentalBilling.defaultItem') }],
           total: Number(inv.totalAmount ?? inv.total ?? 0),
           insuranceCover: Number(inv.insuranceCover ?? 0),
           selfPay: Number(inv.selfPay ?? inv.totalAmount ?? inv.total ?? 0),
@@ -123,11 +124,11 @@ export const DentalBillingPage: React.FC = () => {
             // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
             try {
               const pres = await dentalApi.payBillingInvoice(currentInvoice.id, { paymentMethod, transactionId: res.transactionId, outTradeNo: orderNo });
-              if (pres.success) { message.success(`收费成功 (${paymentMethod})`); }
-              else { setBackendDown(true); message.warning(`收费接口不可用: ${pres.error?.message ?? '未知错误'}`); }
+              if (pres.success) { message.success(`${t('dentalBilling.chargeSuccess')} (${paymentMethod})`); }
+              else { setBackendDown(true); message.warning(`${t('dentalBilling.chargeUnavailable')}: ${pres.error?.message ?? t('dentalBilling.unknownError')}`); }
             } catch {
               setBackendDown(true);
-              message.warning('收费接口不可用');
+              message.warning(t('dentalBilling.chargeUnavailable'));
             }
             setPayModal(false);
             await loadInvoices();
@@ -136,16 +137,16 @@ export const DentalBillingPage: React.FC = () => {
             message.error(`微信支付失败: ${err.message}`);
           },
         });
-        if (!r.success) message.error(r.error?.message || '微信下单失败');
+        if (!r.success) message.error(r.error?.message || t('dentalBilling.wechatOrderFailed'));
       } else {
         // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
         try {
           const pres = await dentalApi.payBillingInvoice(currentInvoice.id, { paymentMethod });
-          if (pres.success) { message.success(`收费成功 (${paymentMethod})`); }
-          else { setBackendDown(true); message.warning(`收费接口不可用: ${pres.error?.message ?? '未知错误'}`); }
+          if (pres.success) { message.success(`${t('dentalBilling.chargeSuccess')} (${paymentMethod})`); }
+          else { setBackendDown(true); message.warning(`${t('dentalBilling.chargeUnavailable')}: ${pres.error?.message ?? t('dentalBilling.unknownError')}`); }
         } catch {
           setBackendDown(true);
-          message.warning('收费接口不可用');
+          message.warning(t('dentalBilling.chargeUnavailable'));
         }
         setPayModal(false);
         await loadInvoices();
@@ -173,16 +174,16 @@ export const DentalBillingPage: React.FC = () => {
         insuranceClaim: false,
       });
       if (res.success) {
-        message.success(`发票已创建: ${res.data?.[0]?.invoiceNumber ?? ''}`);
+        message.success(`${t('dentalBilling.invoiceCreated')}: ${res.data?.[0]?.invoiceNumber ?? ''}`);
         setInvoiceModal({ open: false, saving: false });
         invoiceForm.resetFields();
         await loadInvoices();
       } else {
-        message.error(res.error?.message ?? '开票失败');
+        message.error(res.error?.message ?? t('dentalBilling.invoiceCreateFailed'));
         setInvoiceModal(prev => ({ ...prev, saving: false }));
       }
     } catch (e: any) {
-      message.error(e?.message ?? '开票失败');
+      message.error(e?.message ?? t('dentalBilling.invoiceCreateFailed'));
       setInvoiceModal(prev => ({ ...prev, saving: false }));
     }
   };
@@ -190,7 +191,7 @@ export const DentalBillingPage: React.FC = () => {
   const handlePrint = (invoice: any) => {
     const rows = (invoice.items || []).map((i: any) => `<tr><td>${i.name}</td><td style="text-align:right">${i.qty || 1}</td><td style="text-align:right">¥${i.unitPrice ?? 0}</td><td style="text-align:right">¥${((i.unitPrice ?? 0) * (i.qty || 1)).toFixed(2)}</td></tr>`).join('');
     const win = window.open('', '_blank', 'width=640,height=480');
-    if (!win) { message.warning('浏览器拦截了打印窗口，请允许弹出窗口'); return; }
+    if (!win) { message.warning(t('dentalBilling.popupBlocked')); return; }
     win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>发票打印 - ${invoice.id}</title>
       <style>body{font-family:SimSun,serif;color:#000;padding:24px}h2{margin:0 0 16px}.meta{font-size:13px;line-height:1.8}table{width:100%;border-collapse:collapse;margin-top:12px}td,th{border:1px solid #333;padding:6px 8px;font-size:13px}th{background:#eee}@media print{body{margin:0}}</style></head>
       <body><h2>口腔门诊收费单</h2>
@@ -208,40 +209,40 @@ export const DentalBillingPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <DollarSign size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>收费/划价/医保</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalBilling.title')}</span>
         <Tag color="cyan">v3.0.6.8-95</Tag>
-        <Tag color="blue">牙医管家 对标</Tag>
+        <Tag color="blue">{t('dentalBilling.benchmark')}</Tag>
         {/* [G005 Wave1A P0] /dental/billing/* 已接真实后端 (收费字典/支付方式/账单), 失败回退 dev 端点 */}
         {backendDown ? (
-          <Tag color="orange">离线回退 (后端不可用)</Tag>
+          <Tag color="orange">{t('dentalBilling.offlineFallback')}</Tag>
         ) : (
-          <Tag color="green">真实后端 /dental/billing/*</Tag>
+          <Tag color="green">{t('dentalBilling.realBackend')}</Tag>
         )}
-        <Button size="small" type="primary" icon={<DollarSign size={14} />} onClick={() => { invoiceForm.resetFields(); setInvoiceModal({ open: true, saving: false }); }}>开票</Button>
+        <Button size="small" type="primary" icon={<DollarSign size={14} />} onClick={() => { invoiceForm.resetFields(); setInvoiceModal({ open: true, saving: false }); }}>{t('dentalBilling.createInvoice')}</Button>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="今日收入" prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="待缴费" prefix="¥" value={totalPending} styles={{ content: { color:totalPending>0?'#faad14':'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="医保支出" prefix="¥" value={invoices.reduce((s,i)=>s+i.insuranceCover,0)} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="回款率" value={(totalPaid/(totalPaid+totalPending+1)*100).toFixed(0)} suffix="%" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.todayIncome')} prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.pendingPayment')} prefix="¥" value={totalPending} styles={{ content: { color:totalPending>0?'#faad14':'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.insuranceExpense')} prefix="¥" value={invoices.reduce((s,i)=>s+i.insuranceCover,0)} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.collectionRate')} value={(totalPaid/(totalPaid+totalPending+1)*100).toFixed(0)} suffix="%" /></Card></Col>
         <Col span={4}>
           <Select value={selectedPatient} onChange={v => setSelectedPatient(v)} style={{ width: '100%' }}
             options={[{value:'P100001',label:'张伟'},{value:'P100002',label:'李娜'},{value:'P100003',label:'王芳'}]} />
         </Col>
       </Row>
-      <Card size="small" title={<Space><FileText size={14}/>患者账单</Space>}>
+      <Card size="small" title={<Space><FileText size={14}/>{t('dentalBilling.patientBill')}</Space>}>
         <Tabs activeKey={tab} onChange={setTab} items={[
-          {key:'charge', label:'划价收费', children:<>
+          {key:'charge', label:t('dentalBilling.tabCharge'), children:<>
             <Row gutter={12}>
               <Col span={8}>
-                <Card size="small" title="费用项目选择">
-                  <Select showSearch placeholder="搜索项目..." style={{width:'100%',marginBottom:8}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
+                <Card size="small" title={t('dentalBilling.feeItemSelect')}>
+                  <Select showSearch placeholder={t('dentalBilling.searchItemPlaceholder')} style={{width:'100%',marginBottom:8}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
                   <Table dataSource={pagedCatalog} rowKey="code" size="small" pagination={catalogPagination} scroll={{ x: 'max-content' }}
-                    columns={[{title:'项目',dataIndex:'name',width:140},{title:'价格',dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insuranceType',render:(t:string)=><Tag color={t==='甲类'?'green':t==='乙类'?'blue':'red'}>{t}</Tag>},{title:'',render:(_,r:any)=><Button size="small" icon={<Plus size={14}/>} onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})} aria-label="添加项目" />}]} />
+                    columns={[{title:t('dentalBilling.colItem'),dataIndex:'name',width:140},{title:t('dentalBilling.colPrice'),dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:t('dentalBilling.colInsurance'),dataIndex:'insuranceType',render:(v:string)=><Tag color={v==='甲类'?'green':v==='乙类'?'blue':'red'}>{v}</Tag>},{title:'',render:(_,r:any)=><Button size="small" icon={<Plus size={14}/>} onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})} aria-label={t('dentalBilling.addItem')} />}]} />
                 </Card>
               </Col>
               <Col span={8}>
-                <Card size="small" title="已选项目">
+                <Card size="small" title={t('dentalBilling.selectedItems')}>
                   {newInvoice.items.map((item:any,i:number)=>(
                     <div key={i} style={{padding:'4px 0',borderBottom:'1px solid var(--border-color)',display:'flex',justifyContent:'space-between'}}>
                       <span><Tag>{item.code}</Tag>{item.name}</span>
@@ -251,85 +252,85 @@ export const DentalBillingPage: React.FC = () => {
                     </div>
                   ))}
                   <Divider style={{margin:'8px 0'}} />
-                  <div style={{display:'flex',justifyContent:'space-between',fontWeight:600}}><span>合计</span><span>¥{newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)}</span></div>
+                  <div style={{display:'flex',justifyContent:'space-between',fontWeight:600}}><span>{t('dentalBilling.total')}</span><span>¥{newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)}</span></div>
                   <Button type="primary" block style={{marginTop:8}} icon={<DollarSign size={14}/>} onClick={async()=>{
                     try {
                       // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
                       const pres = await dentalApi.createBillingInvoice({ patientId: selectedPatient, items: newInvoice.items, total: newInvoice.items.reduce((s: number, i: any) => s + i.unitPrice * (i.qty || 1), 0) });
-                      if (pres.success) { message.success('账单已创建'); setNewInvoice({ patientId: selectedPatient, items: [] }); return; }
+                      if (pres.success) { message.success(t('dentalBilling.billCreated')); setNewInvoice({ patientId: selectedPatient, items: [] }); return; }
                       setBackendDown(true);
-                      message.error(pres.error?.message ?? '创建失败');
-                    } catch { message.error('账单创建失败'); }
-                  }}>创建账单</Button>
+                      message.error(pres.error?.message ?? t('dentalBilling.createFailed'));
+                    } catch { message.error(t('dentalBilling.billCreateFailed')); }
+                  }}>{t('dentalBilling.createBill')}</Button>
                 </Card>
               </Col>
               <Col span={8}>
-                <Card size="small" title="实时医保验算">
-                  <InputNumber placeholder="输入总金额" style={{width:'100%',marginBottom:8}} />
+                <Card size="small" title={t('dentalBilling.realtimeInsurance')}>
+                  <InputNumber placeholder={t('dentalBilling.enterTotalAmount')} style={{width:'100%',marginBottom:8}} />
                   <Button block icon={<Calculator size={14}/>} onClick={async()=>{
                     try {
                       // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
                       const pres = await dentalApi.verifyInsurance({ patientId: selectedPatient, insuranceType: '城镇职工', feeTotal: newInvoice.items.reduce((s: number, i: any) => s + i.unitPrice * (i.qty || 1), 0) });
-                      if (pres.success) message.info(`医保报销: ¥${pres.data.insuranceCover}, 自付: ¥${pres.data.selfPay}`);
-                      else { setBackendDown(true); message.error(pres.error?.message ?? '验算失败'); }
-                    } catch { message.error('医保预核验失败'); }
-                  }}>医保预核验</Button>
+                      if (pres.success) message.info(`${t('dentalBilling.insuranceReimburse')}: ¥${pres.data.insuranceCover}, ${t('dentalBilling.selfPay')}: ¥${pres.data.selfPay}`);
+                      else { setBackendDown(true); message.error(pres.error?.message ?? t('dentalBilling.verifyFailed')); }
+                    } catch { message.error(t('dentalBilling.insuranceVerifyFailed')); }
+                  }}>{t('dentalBilling.insurancePreVerify')}</Button>
                   <Divider style={{margin:'8px 0'}} />
                   <div style={{fontSize:12,color:'var(--text-secondary)'}}>
-                    <div>年度医保余额: 查询中...</div>
+                    <div>{t('dentalBilling.annualInsuranceBalance')}: {t('dentalBilling.querying')}</div>
                     <Progress percent={0} size="small" />
-                    <div>补充医疗余额: 查询中...</div>
+                    <div>{t('dentalBilling.supplementaryBalance')}: {t('dentalBilling.querying')}</div>
                     <Progress percent={0} size="small" strokeColor="#52c41a" />
                   </div>
                 </Card>
               </Col>
             </Row>
           </>},
-          {key:'invoices', label:'账单管理', children:<Table dataSource={pagedInvoices} rowKey="id" size="small" pagination={invoicesPagination}
+          {key:'invoices', label:t('dentalBilling.tabInvoices'), children:<Table dataSource={pagedInvoices} rowKey="id" size="small" pagination={invoicesPagination}
             columns={[
-              {title:'单号',dataIndex:'id',width:180},{title:'日期',dataIndex:'date',width:100},
-              {title:'项目',dataIndex:'items',render:(items:any[])=><>{items.map((i:any)=><Tag key={i.code}>{i.name}</Tag>)}</>},
-              {title:'总金额',dataIndex:'total',render:(v:number)=>`¥${v}`,width:80},
-              {title:'医保报销',dataIndex:'insuranceCover',render:(v:number)=>`¥${v}`,width:80},
-              {title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},
-              {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='pending'?'warning':'default'} text={{ paid:'已支付', pending:'待支付' }[s] ?? s} />,width:80},
-              {title:'操作',render:(_,r:any)=><Space>{r.status==='pending'&&<Button size="small" type="primary" icon={<DollarSign size={10}/>} onClick={()=>{setCurrentInvoice(r);setPayModal(true);}}>收费</Button>}<Button size="small" icon={<Printer size={10}/>} onClick={() => handlePrint(r)}>打印</Button></Space>},
+              {title:t('dentalBilling.colInvoiceNo'),dataIndex:'id',width:180},{title:t('dentalBilling.colDate'),dataIndex:'date',width:100},
+              {title:t('dentalBilling.colItem'),dataIndex:'items',render:(items:any[])=><>{items.map((i:any)=><Tag key={i.code}>{i.name}</Tag>)}</>},
+              {title:t('dentalBilling.colTotal'),dataIndex:'total',render:(v:number)=>`¥${v}`,width:80},
+              {title:t('dentalBilling.colInsuranceCover'),dataIndex:'insuranceCover',render:(v:number)=>`¥${v}`,width:80},
+              {title:t('dentalBilling.colSelfPay'),dataIndex:'selfPay',render:(v:number)=>`¥${v}`},
+              {title:t('dentalBilling.colStatus'),dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='pending'?'warning':'default'} text={{ paid:t('dentalBilling.paid'), pending:t('dentalBilling.unpaid') }[s] ?? s} />,width:80},
+              {title:t('dentalBilling.colActions'),render:(_,r:any)=><Space>{r.status==='pending'&&<Button size="small" type="primary" icon={<DollarSign size={10}/>} onClick={()=>{setCurrentInvoice(r);setPayModal(true);}}>{t('dentalBilling.charge')}</Button>}<Button size="small" icon={<Printer size={10}/>} onClick={() => handlePrint(r)}>{t('dentalBilling.print')}</Button></Space>},
             ]} 
           scroll={{ x: 'max-content' }}/>},
-          {key:'reports', label:'经营报表', children:<Row gutter={12}>
-            <Col span={8}><Card size="small" title="财务概览"><Statistic title="月营收" prefix="¥" value={invoices.reduce((s,i)=>s+i.total,0)} /><Statistic title="待收" prefix="¥" value={totalPending} style={{marginTop:12}} /><Statistic title="已收" prefix="¥" value={totalPaid} style={{marginTop:12}} /><Progress percent={totalPaid/(totalPaid+totalPending+1)*100} size="small" strokeColor="#52c41a" /></Card></Col>
-            <Col span={8}><Card size="small" title="运营数据"><Statistic title="账单数" value={invoices.length} /><Statistic title="已付比例" value={invoices.length>0?((invoices.filter(i=>i.status==='paid').length/invoices.length)*100).toFixed(0):'0'} suffix="%" style={{marginTop:12}} /></Card></Col>
-            <Col span={8}><Card size="small" title="费用明细"><List size="small" dataSource={catalog.slice(0,3)} renderItem={(d:any)=><List.Item><span>{d.name}</span><Tag>¥{d.unitPrice}</Tag></List.Item>} /></Card></Col>
+          {key:'reports', label:t('dentalBilling.tabReports'), children:<Row gutter={12}>
+            <Col span={8}><Card size="small" title={t('dentalBilling.financeOverview')}><Statistic title={t('dentalBilling.monthlyRevenue')} prefix="¥" value={invoices.reduce((s,i)=>s+i.total,0)} /><Statistic title={t('dentalBilling.receivable')} prefix="¥" value={totalPending} style={{marginTop:12}} /><Statistic title={t('dentalBilling.received')} prefix="¥" value={totalPaid} style={{marginTop:12}} /><Progress percent={totalPaid/(totalPaid+totalPending+1)*100} size="small" strokeColor="#52c41a" /></Card></Col>
+            <Col span={8}><Card size="small" title={t('dentalBilling.operationData')}><Statistic title={t('dentalBilling.billCount')} value={invoices.length} /><Statistic title={t('dentalBilling.paidRatio')} value={invoices.length>0?((invoices.filter(i=>i.status==='paid').length/invoices.length)*100).toFixed(0):'0'} suffix="%" style={{marginTop:12}} /></Card></Col>
+            <Col span={8}><Card size="small" title={t('dentalBilling.feeDetail')}><List size="small" dataSource={catalog.slice(0,3)} renderItem={(d:any)=><List.Item><span>{d.name}</span><Tag>¥{d.unitPrice}</Tag></List.Item>} /></Card></Col>
           </Row>},
         ]} />
       </Card>
-      <Modal title={`收费 - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod(DEFAULT_METHOD);}} onOk={handlePay} width={400}
-        okText={`确认收费 ¥${currentInvoice?.selfPay || 0}`}>
+      <Modal title={`${t('dentalBilling.charge')} - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod(DEFAULT_METHOD);}} onOk={handlePay} width={400}
+        okText={`${t('dentalBilling.confirmCharge')} ¥${currentInvoice?.selfPay || 0}`}>
         <div style={{textAlign:'center',padding:16}}>
           <div style={{fontSize:28,fontWeight:700,color:'#2563eb'}}>¥{currentInvoice?.selfPay || 0}</div>
-          <div style={{color:'var(--text-secondary)',marginBottom:16}}>收现金额</div>
+          <div style={{color:'var(--text-secondary)',marginBottom:16}}>{t('dentalBilling.cashAmount')}</div>
           <Select value={paymentMethod} onChange={setPaymentMethod} style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
         </div>
       </Modal>
-      <Modal title="开票 (dentalApi.createInvoice)" open={invoiceModal.open} onCancel={() => setInvoiceModal({ open: false, saving: false })} onOk={() => void handleCreateInvoice()} confirmLoading={invoiceModal.saving} width={440}>
+      <Modal title={t('dentalBilling.createInvoiceTitle')} open={invoiceModal.open} onCancel={() => setInvoiceModal({ open: false, saving: false })} onOk={() => void handleCreateInvoice()} confirmLoading={invoiceModal.saving} width={440}>
         <Form form={invoiceForm} layout="vertical" size="small" style={{ marginTop: 8 }} initialValues={{ patientId: selectedPatient, itemCode: 'DENTAL-001', quantity: 1 }}>
-          <Form.Item label="患者" name="patientId" rules={[{ required: true, message: '请选择患者' }]}>
+          <Form.Item label={t('dentalBilling.patient')} name="patientId" rules={[{ required: true, message: t('dentalBilling.selectPatientRequired') }]}>
             <Select options={[{ value: 'P100001', label: '张伟' }, { value: 'P100002', label: '李娜' }, { value: 'P100003', label: '王芳' }]} />
           </Form.Item>
-          <Form.Item label="项目名称" name="itemName" rules={[{ required: true, message: '请输入项目名称' }]}>
-            <Input placeholder="如: 全瓷冠修复" />
+          <Form.Item label={t('dentalBilling.itemName')} name="itemName" rules={[{ required: true, message: t('dentalBilling.itemNameRequired') }]}>
+            <Input placeholder={t('dentalBilling.itemNamePlaceholder')} />
           </Form.Item>
-          <Form.Item label="项目编码" name="itemCode">
-            <Input placeholder="如: DENTAL-001" />
+          <Form.Item label={t('dentalBilling.itemCode')} name="itemCode">
+            <Input placeholder={t('dentalBilling.itemCodePlaceholder')} />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item label="金额 (¥)" name="amount" rules={[{ required: true, message: '请输入金额' }]}>
+              <Form.Item label={t('dentalBilling.amount')} name="amount" rules={[{ required: true, message: t('dentalBilling.amountRequired') }]}>
                 <InputNumber style={{ width: '100%' }} min={0.01} precision={2} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="数量" name="quantity">
+              <Form.Item label={t('dentalBilling.quantity')} name="quantity">
                 <InputNumber style={{ width: '100%' }} min={1} max={99} />
               </Form.Item>
             </Col>

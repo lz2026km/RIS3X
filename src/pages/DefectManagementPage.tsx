@@ -22,6 +22,7 @@ import {
 import { Tag, message, Spin, Modal, Form, Input, Select } from 'antd'
 import { qcextApi, type QcDefectDto } from '../services/api/qcextApi'
 import { DEFECT_LIBRARY } from '../data/qualityScoreMock'
+import { t } from '../i18n/appI18n'
 
 type StatusFilter = 'all' | 'open' | 'in_progress' | 'resolved'
 type SeverityFilter = 'all' | 'high' | 'medium' | 'low'
@@ -38,12 +39,12 @@ interface DefectRecord {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  description: '描述缺陷',
-  terminology: '术语缺陷',
-  format: '格式缺陷',
-  logic: '逻辑缺陷',
-  critical: '严重缺陷',
-  completeness: '完整性缺陷',
+  description: t('defectMgmt.catDescription'),
+  terminology: t('defectMgmt.catTerminology'),
+  format: t('defectMgmt.catFormat'),
+  logic: t('defectMgmt.catLogic'),
+  critical: t('defectMgmt.catCritical'),
+  completeness: t('defectMgmt.catCompleteness'),
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -59,9 +60,9 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  open: '待处理',
-  in_progress: '整改中',
-  resolved: '已闭环',
+  open: t('defectMgmt.statusOpen'),
+  in_progress: t('defectMgmt.statusInProgress'),
+  resolved: t('defectMgmt.statusResolved'),
 };
 
 const DefectManagementPage: React.FC = () => {
@@ -131,7 +132,7 @@ const DefectManagementPage: React.FC = () => {
           severity: values.severity,
           reportedBy: '当前用户',
         });
-        if (!res.success) throw new Error(res.error?.message ?? '上报失败');
+        if (!res.success) throw new Error(res.error?.message ?? t('defectMgmt.reportFailed'));
         const dto = res.data as QcDefectDto | null;
         setLocalRecords(prev => [{
           id: dto?.id ?? `DEF-${Date.now()}`,
@@ -144,9 +145,9 @@ const DefectManagementPage: React.FC = () => {
         }, ...prev]);
         setReportOpen(false);
         reportForm.resetFields();
-        message.success('缺陷已上报');
+        message.success(t('defectMgmt.reported'));
       } catch (e) {
-        message.error(e instanceof Error ? e.message : '上报失败');
+        message.error(e instanceof Error ? e.message : t('defectMgmt.reportFailed'));
       } finally {
         setReporting(false);
       }
@@ -205,34 +206,34 @@ const DefectManagementPage: React.FC = () => {
     <div className="p-6 space-y-4" data-testid="defect-management-page">
       <div className="flex items-center gap-2">
         <AlertOctagon className="text-red-600" size={28} />
-        <h1 className="text-2xl font-bold">缺陷管理中心 (R3)</h1>
-        <Tag color="orange">DEFECT_LIBRARY 主数据源</Tag>
-        <Tag color="green">qcextApi /qc-ext/defect 上报</Tag>
+        <h1 className="text-2xl font-bold">{t('defectMgmt.title')}</h1>
+        <Tag color="orange">{t('defectMgmt.primarySource')}</Tag>
+        <Tag color="green">{t('defectMgmt.reportSource')}</Tag>
         <button
           onClick={() => setReportOpen(true)}
           className="ml-auto flex items-center gap-1 rounded bg-green-600 px-3 py-1.5 text-xs text-white hover:bg-green-700"
           data-testid="defect-report-button"
         >
-          <Plus size={14} /> 上报缺陷
+          <Plus size={14} /> {t('defectMgmt.reportDefect')}
         </button>
       </div>
-      <p className="text-gray-600">报告质量缺陷分类 · 整改追踪 · 趋势分析 · 闭环管理</p>
+      <p className="text-gray-600">{t('defectMgmt.subtitle')}</p>
 
       <div className="grid grid-cols-4 gap-4">
         <div className="rounded-lg border bg-card p-4">
-          <div className="text-gray-500 text-sm">缺陷总数</div>
+          <div className="text-gray-500 text-sm">{t('defectMgmt.statsTotal')}</div>
           <div className="text-2xl font-bold mt-1">{stats.all}</div>
         </div>
         <div className="rounded-lg border bg-card p-4">
-          <div className="text-gray-500 text-sm flex items-center gap-1"><FileText size={14}/>分类数</div>
+          <div className="text-gray-500 text-sm flex items-center gap-1"><FileText size={14}/>{t('defectMgmt.statsCategories')}</div>
           <div className="text-2xl font-bold mt-1">{Object.keys(stats.byCategory).length}</div>
         </div>
         <div className="rounded-lg border bg-card p-4">
-          <div className="text-gray-500 text-sm flex items-center gap-1"><TrendingUp size={14}/>高危</div>
+          <div className="text-gray-500 text-sm flex items-center gap-1"><TrendingUp size={14}/>{t('defectMgmt.statsHigh')}</div>
           <div className="text-2xl font-bold mt-1 text-red-600">{stats.high}</div>
         </div>
         <div className="rounded-lg border bg-card p-4">
-          <div className="text-gray-500 text-sm flex items-center gap-1"><CheckCircle size={14}/>已闭环</div>
+          <div className="text-gray-500 text-sm flex items-center gap-1"><CheckCircle size={14}/>{t('defectMgmt.statsResolved')}</div>
           <div className="text-2xl font-bold mt-1 text-green-600">{stats.byStatus.resolved}</div>
         </div>
       </div>
@@ -243,7 +244,7 @@ const DefectManagementPage: React.FC = () => {
             <Search size={16} className="text-gray-400" />
             <input
               className="flex-1 outline-none text-sm"
-              placeholder="搜索缺陷名称..."
+              placeholder={t('defectMgmt.searchPlaceholder')}
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
@@ -255,20 +256,20 @@ const DefectManagementPage: React.FC = () => {
               value={status}
               onChange={(e) => setStatus(e.target.value as StatusFilter)}
             >
-              <option value="all">全部状态</option>
-              <option value="open">待处理</option>
-              <option value="in_progress">整改中</option>
-              <option value="resolved">已闭环</option>
+              <option value="all">{t('defectMgmt.allStatus')}</option>
+              <option value="open">{t('defectMgmt.statusOpen')}</option>
+              <option value="in_progress">{t('defectMgmt.statusInProgress')}</option>
+              <option value="resolved">{t('defectMgmt.statusResolved')}</option>
             </select>
             <select
               className="border rounded px-2 py-1"
               value={severity}
               onChange={(e) => setSeverity(e.target.value as SeverityFilter)}
             >
-              <option value="all">全部严重度</option>
-              <option value="high">高</option>
-              <option value="medium">中</option>
-              <option value="low">低</option>
+              <option value="all">{t('defectMgmt.allSeverity')}</option>
+              <option value="high">{t('defectMgmt.sevHigh')}</option>
+              <option value="medium">{t('defectMgmt.sevMedium')}</option>
+              <option value="low">{t('defectMgmt.sevLow')}</option>
             </select>
           </div>
         </div>
@@ -276,20 +277,20 @@ const DefectManagementPage: React.FC = () => {
         {filtered.length === 0 ? (
           <div className="text-center py-12 text-gray-500" data-testid="defect-empty">
             <CheckCircle size={40} className="mx-auto mb-2 text-green-500" />
-            <div className="text-base font-medium">未找到匹配的缺陷</div>
-            <div className="text-sm mt-1">尝试调整筛选条件</div>
+            <div className="text-base font-medium">{t('defectMgmt.emptyTitle')}</div>
+            <div className="text-sm mt-1">{t('defectMgmt.emptyHint')}</div>
           </div>
         ) : (
           <table className="w-full mt-4 text-sm">
             <thead>
               <tr className="text-left text-gray-500 border-b">
-                <th className="py-2">分类</th>
-                <th className="py-2">缺陷名称</th>
-                <th className="py-2">严重度</th>
-                <th className="py-2">状态</th>
-                <th className="py-2">责任人</th>
-                <th className="py-2">描述</th>
-                <th className="py-2">操作</th>
+                <th className="py-2">{t('defectMgmt.colCategory')}</th>
+                <th className="py-2">{t('defectMgmt.colName')}</th>
+                <th className="py-2">{t('defectMgmt.colSeverity')}</th>
+                <th className="py-2">{t('defectMgmt.colStatus')}</th>
+                <th className="py-2">{t('defectMgmt.colOwner')}</th>
+                <th className="py-2">{t('defectMgmt.colDescription')}</th>
+                <th className="py-2">{t('defectMgmt.colActions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -307,7 +308,7 @@ const DefectManagementPage: React.FC = () => {
                   </td>
                   <td className="py-2 font-medium">{d.name}</td>
                   <td className="py-2">
-                    {d.severity && <Tag color={SEVERITY_COLORS[d.severity]}>{d.severity === 'high' ? '高' : d.severity === 'medium' ? '中' : '低'}</Tag>}
+                    {d.severity && <Tag color={SEVERITY_COLORS[d.severity]}>{d.severity === 'high' ? t('defectMgmt.sevHigh') : d.severity === 'medium' ? t('defectMgmt.sevMedium') : t('defectMgmt.sevLow')}</Tag>}
                   </td>
                   <td className="py-2">
                     <Tag color={STATUS_COLORS[d.status]}>{STATUS_LABELS[d.status]}</Tag>
@@ -322,7 +323,7 @@ const DefectManagementPage: React.FC = () => {
                         goDetail(d)
                       }}
                     >
-                      查看 →
+                      {t('defectMgmt.viewArrow')}
                     </button>
                   </td>
                 </tr>
@@ -335,7 +336,7 @@ const DefectManagementPage: React.FC = () => {
       <div className="rounded-lg border bg-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <BarChart3 size={18} className="text-blue-600" />
-          <h2 className="font-semibold">分类分布</h2>
+          <h2 className="font-semibold">{t('defectMgmt.categoryDistribution')}</h2>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {Object.entries(stats.byCategory).map(([cat, count]) => (
@@ -354,11 +355,11 @@ const DefectManagementPage: React.FC = () => {
           <div className="w-[480px] max-w-full bg-card shadow-xl flex flex-col">
             <header className="px-5 py-4 border-b flex items-center justify-between">
               <div>
-                <div className="text-xs text-gray-500">缺陷 ID</div>
+                <div className="text-xs text-gray-500">{t('defectMgmt.defectId')}</div>
                 <div className="font-bold text-base font-mono">{selected.id}</div>
               </div>
               <button
-                aria-label="关闭"
+                aria-label={t('defectMgmt.close')}
                 onClick={() => setSelected(null)}
                 className="text-gray-500 hover:text-gray-800"
               >
@@ -368,41 +369,41 @@ const DefectManagementPage: React.FC = () => {
 
             <div className="flex-1 overflow-auto p-5 space-y-4 text-sm">
               <div>
-                <div className="text-xs text-gray-500 mb-1">名称</div>
+                <div className="text-xs text-gray-500 mb-1">{t('defectMgmt.name')}</div>
                 <div className="font-medium">{selected.name}</div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">分类</div>
+                  <div className="text-xs text-gray-500 mb-1">{t('defectMgmt.colCategory')}</div>
                   <span className="rounded bg-red-50 text-red-700 px-2 py-0.5 text-xs">
                     {CATEGORY_LABELS[selected.category] ?? selected.category}
                   </span>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">严重度</div>
+                  <div className="text-xs text-gray-500 mb-1">{t('defectMgmt.colSeverity')}</div>
                   {selected.severity && <Tag color={SEVERITY_COLORS[selected.severity]}>{selected.severity.toUpperCase()}</Tag>}
                 </div>
                 <div className="col-span-2">
-                  <div className="text-xs text-gray-500 mb-1">当前状态</div>
+                  <div className="text-xs text-gray-500 mb-1">{t('defectMgmt.currentStatus')}</div>
                   <Tag color={STATUS_COLORS[selected.status]}>{STATUS_LABELS[selected.status]}</Tag>
                 </div>
                 <div className="col-span-2">
-                  <div className="text-xs text-gray-500 mb-1">责任人</div>
+                  <div className="text-xs text-gray-500 mb-1">{t('defectMgmt.colOwner')}</div>
                   <div>{selected.owner}</div>
                 </div>
               </div>
 
               <section className="rounded border bg-gray-50 p-3">
-                <div className="text-xs text-gray-500 mb-1">描述</div>
+                <div className="text-xs text-gray-500 mb-1">{t('defectMgmt.colDescription')}</div>
                 <div className="text-sm text-gray-700">{selected.description ?? '—'}</div>
               </section>
               <section className="rounded border bg-gray-50 p-3">
-                <div className="text-xs text-gray-500 mb-1">建议</div>
+                <div className="text-xs text-gray-500 mb-1">{t('defectMgmt.suggestion')}</div>
                 <div className="text-sm text-gray-700">{selected.suggestion ?? '—'}</div>
               </section>
 
               <section>
-                <div className="text-xs text-gray-500 mb-2">变更状态</div>
+                <div className="text-xs text-gray-500 mb-2">{t('defectMgmt.changeStatus')}</div>
                 {editingStatus ? (
                   <div className="flex gap-2">
                     {(['open', 'in_progress', 'resolved'] as const).map((s) => (
@@ -419,7 +420,7 @@ const DefectManagementPage: React.FC = () => {
                       onClick={() => setEditingStatus(null)}
                       className="text-xs px-2 py-1 rounded border border-gray-300"
                     >
-                      取消
+                      {t('defectMgmt.cancel')}
                     </button>
                   </div>
                 ) : (
@@ -429,21 +430,21 @@ const DefectManagementPage: React.FC = () => {
                       className="text-xs px-3 py-1.5 rounded bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-1"
                       data-testid="defect-edit-status"
                     >
-                      <Save size={12} /> 变更状态
+                      <Save size={12} /> {t('defectMgmt.changeStatus')}
                     </button>
                     <button
                       onClick={() => goDetail(selected)}
                       className="text-xs px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50"
                       data-testid="defect-full-detail"
                     >
-                      完整详情 →
+                      {t('defectMgmt.fullDetail')}
                     </button>
                     <button
                       onClick={() => navigate(`/qc/pdca?defectId=${encodeURIComponent(selected.id)}`)}
                       className="text-xs px-3 py-1.5 rounded bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-1"
                       data-testid="defect-start-pdca"
                     >
-                      发起 PDCA →
+                      {t('defectMgmt.startPdca')}
                     </button>
                   </div>
                 )}
@@ -455,43 +456,43 @@ const DefectManagementPage: React.FC = () => {
       )}
       {/* [G005 Wave1B] 上报缺陷弹窗 (qcextApi.reportQcDefect) */}
       <Modal
-        title="上报缺陷"
+        title={t('defectMgmt.reportDefect')}
         open={reportOpen}
         onCancel={() => setReportOpen(false)}
         onOk={handleReportDefect}
         confirmLoading={reporting}
-        okText="提交上报"
-        cancelText="取消"
+        okText={t('defectMgmt.submitReport')}
+        cancelText={t('defectMgmt.cancel')}
       >
         <Form form={reportForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="reportId" label="报告 ID" rules={[{ required: true, message: '请输入报告 ID' }]}>
+          <Form.Item name="reportId" label={t('defectMgmt.reportId')} rules={[{ required: true, message: t('defectMgmt.reportIdRequired') }]}>
             <Input placeholder="rpt-013" />
           </Form.Item>
-          <Form.Item name="defectType" label="缺陷类型" rules={[{ required: true, message: '请选择缺陷类型' }]}>
+          <Form.Item name="defectType" label={t('defectMgmt.defectType')} rules={[{ required: true, message: t('defectMgmt.defectTypeRequired') }]}>
             <Select
-              placeholder="选择缺陷类型"
+              placeholder={t('defectMgmt.selectDefectType')}
               options={[
-                { value: '描述不完整/漏项', label: '描述不完整/漏项' },
-                { value: '诊断结论不明确', label: '诊断结论不明确' },
-                { value: '术语使用不规范', label: '术语使用不规范' },
-                { value: '检查所见与结论不符', label: '检查所见与结论不符' },
-                { value: '危急值漏报/迟报', label: '危急值漏报/迟报' },
-                { value: '报告超时', label: '报告超时' },
-                { value: '其他缺陷', label: '其他缺陷' },
+                { value: '描述不完整/漏项', label: t('defectMgmt.dtIncomplete') },
+                { value: '诊断结论不明确', label: t('defectMgmt.dtUnclear') },
+                { value: '术语使用不规范', label: t('defectMgmt.dtTerminology') },
+                { value: '检查所见与结论不符', label: t('defectMgmt.dtMismatch') },
+                { value: '危急值漏报/迟报', label: t('defectMgmt.dtCriticalMiss') },
+                { value: '报告超时', label: t('defectMgmt.dtTimeout') },
+                { value: '其他缺陷', label: t('defectMgmt.dtOther') },
               ]}
             />
           </Form.Item>
-          <Form.Item name="severity" label="严重度" initialValue="medium" rules={[{ required: true }]}>
+          <Form.Item name="severity" label={t('defectMgmt.colSeverity')} initialValue="medium" rules={[{ required: true }]}>
             <Select
               options={[
-                { value: 'high', label: '高' },
-                { value: 'medium', label: '中' },
-                { value: 'low', label: '低' },
+                { value: 'high', label: t('defectMgmt.sevHigh') },
+                { value: 'medium', label: t('defectMgmt.sevMedium') },
+                { value: 'low', label: t('defectMgmt.sevLow') },
               ]}
             />
           </Form.Item>
-          <Form.Item name="description" label="缺陷描述" rules={[{ required: true, message: '请输入缺陷描述' }]}>
-            <Input.TextArea rows={3} placeholder="描述缺陷内容..." />
+          <Form.Item name="description" label={t('defectMgmt.defectDescription')} rules={[{ required: true, message: t('defectMgmt.descriptionRequired') }]}>
+            <Input.TextArea rows={3} placeholder={t('defectMgmt.descriptionPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>

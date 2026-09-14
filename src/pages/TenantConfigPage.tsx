@@ -12,6 +12,7 @@ import {
 import { useState, useEffect, useCallback } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { usePagination } from '../hooks/usePagination'
+import { t } from '../i18n/appI18n'
 
 // [G005 v3.0.6.11-91 W1-B P1 第12轮] 合规报告: 后端 /compliance/report (overallScore/categories/items)
 // 与 MSW 兜底 (summary/details) 两种 shape 归一化
@@ -26,15 +27,15 @@ interface ComplianceReportData {
   details?: Array<{ id: string; module: string; checkItem: string; status: string; severity: string; description: string; checkedAt: string }>
 }
 
-const FEATURE_DEFS: Array<{ key: keyof TenantFeatures; label: string; desc: string }> = [
-  { key: 'aiOrchestration', label: 'AI 编排', desc: 'AI 工作流编排与自动化诊断调度' },
-  { key: 'biDashboard', label: 'BI 仪表板', desc: '业务智能看板（时效/RVU/OEE/危急值 SLA）' },
-  { key: 'doseManagement', label: '剂量管理', desc: '辐射剂量记录与 DRL 参考水平监控' },
-  { key: 'vna', label: 'VNA 归档', desc: '厂商中立归档（WORM 不可变存储）' },
-  { key: 'similarCases', label: '相似病例', desc: '基于临床发现词表的相似病例检索' },
-  { key: 'environmentReport', label: '环境式报告', desc: '沉浸式报告书写工作台' },
-  { key: 'mobileApp', label: '移动端', desc: '移动/小程序端访问' },
-  { key: 'teleRadiology', label: '远程会诊', desc: '跨院区远程阅片与会诊' },
+const FEATURE_DEFS: Array<{ key: keyof TenantFeatures }> = [
+  { key: 'aiOrchestration' },
+  { key: 'biDashboard' },
+  { key: 'doseManagement' },
+  { key: 'vna' },
+  { key: 'similarCases' },
+  { key: 'environmentReport' },
+  { key: 'mobileApp' },
+  { key: 'teleRadiology' },
 ]
 
 function formatBytes(bytes: number): string {
@@ -84,10 +85,10 @@ export default function TenantConfigPage() {
       if (res.success && res.data) {
         setComplianceReport(res.data as unknown as ComplianceReportData)
       } else {
-        setComplianceError(res.error?.message ?? '合规报告加载失败')
+        setComplianceError(res.error?.message ?? t('tenantConfig.complianceLoadFailed'))
       }
     } catch (e) {
-      setComplianceError((e as Error)?.message ?? '合规报告加载失败')
+      setComplianceError((e as Error)?.message ?? t('tenantConfig.complianceLoadFailed'))
     } finally {
       setComplianceLoading(false)
     }
@@ -97,21 +98,21 @@ export default function TenantConfigPage() {
     setLoading(true)
     setError(null)
     try {
-      const [t, u, f, l] = await Promise.all([
+      const [tRes, u, f, l] = await Promise.all([
         tenantApi.getCurrent(),
         tenantApi.getUsage(),
         tenantApi.getFeatures(),
         isAdmin ? tenantApi.listTenants() : Promise.resolve({ success: true, data: [] as TenantProfile[] }),
       ])
-      if (t.success) setTenant(t.data)
+      if (tRes.success) setTenant(tRes.data)
       if (u.success) setUsage(u.data)
       if (f.success) setFeatures(f.data)
       if (l.success) setTenants(l.data)
-      if (!t.success || !u.success || !f.success) {
-        setError((t.error ?? u.error ?? f.error)?.message ?? '租户数据加载失败')
+      if (!tRes.success || !u.success || !f.success) {
+        setError((tRes.error ?? u.error ?? f.error)?.message ?? t('tenantConfig.dataLoadFailed'))
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '租户数据加载失败')
+      setError((e as Error)?.message ?? t('tenantConfig.dataLoadFailed'))
     } finally {
       setLoading(false)
     }
@@ -136,11 +137,11 @@ export default function TenantConfigPage() {
     const res = await tenantApi.updateProfile(values)
     setSaving(false)
     if (res.success) {
-      message.success('租户信息已更新')
+      message.success(t('tenantConfig.profileUpdated'))
       setTenant(res.data)
       setEditing(false)
     } else {
-      message.error(res.error?.message ?? '保存失败')
+      message.error(res.error?.message ?? t('tenantConfig.saveFailed'))
     }
   }
 
@@ -150,9 +151,9 @@ export default function TenantConfigPage() {
     setFeatureBusy(null)
     if (res.success) {
       setFeatures(res.data)
-      message.success(`功能「${FEATURE_DEFS.find((f) => f.key === key)?.label}」已${checked ? '启用' : '停用'}`)
+      message.success(`${t(`tenantConfig.feat.${key}.label`)} ${checked ? t('tenantConfig.enabled') : t('tenantConfig.disabled')}`)
     } else {
-      message.error(res.error?.message ?? '更新失败')
+      message.error(res.error?.message ?? t('tenantConfig.updateFailed'))
     }
   }
 
@@ -162,13 +163,13 @@ export default function TenantConfigPage() {
     const res = await tenantApi.createTenant(values)
     setCreatingTenant(false)
     if (res.success) {
-      message.success('租户创建成功')
+      message.success(t('tenantConfig.tenantCreated'))
       setCreating(false)
       createForm.resetFields()
       const list = await tenantApi.listTenants()
       if (list.success) setTenants(list.data)
     } else {
-      message.error(res.error?.message ?? '创建失败')
+      message.error(res.error?.message ?? t('tenantConfig.createFailed'))
     }
   }
 
@@ -178,10 +179,10 @@ export default function TenantConfigPage() {
     const res = await tenantApi.updateTenantStatus(record.id, next)
     setStatusBusy(null)
     if (res.success) {
-      message.success(`租户「${record.name}」已${next === 'ACTIVE' ? '启用' : '停用'}`)
-      setTenants((prev) => prev.map((t) => (t.id === record.id ? res.data : t)))
+      message.success(`${record.name} ${next === 'ACTIVE' ? t('tenantConfig.enabled') : t('tenantConfig.disabled')}`)
+      setTenants((prev) => prev.map((tn) => (tn.id === record.id ? res.data : tn)))
     } else {
-      message.error(res.error?.message ?? '操作失败')
+      message.error(res.error?.message ?? t('tenantConfig.operationFailed'))
     }
   }
 
@@ -196,24 +197,24 @@ export default function TenantConfigPage() {
     : 0
 
   const columns = [
-    { title: '租户', dataIndex: 'name', key: 'name', render: (_: string, r: TenantProfile) => (
+    { title: t('tenantConfig.colTenant'), dataIndex: 'name', key: 'name', render: (_: string, r: TenantProfile) => (
       <Space direction="vertical" size={0}>
-        <span><strong>{r.name}</strong> <Tag color={r.status === 'ACTIVE' ? 'success' : 'default'}>{r.status === 'ACTIVE' ? '启用' : '停用'}</Tag></span>
+        <span><strong>{r.name}</strong> <Tag color={r.status === 'ACTIVE' ? 'success' : 'default'}>{r.status === 'ACTIVE' ? t('tenantConfig.enabled') : t('tenantConfig.disabled')}</Tag></span>
         <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.code} · {r.id}</span>
       </Space>
     ) },
-    { title: '许可证', dataIndex: 'license', key: 'license' },
-    { title: '用户配额', key: 'users', render: (_: string, r: TenantProfile) => `${r.maxUsers} 人` },
-    { title: '存储配额', key: 'storage', render: (_: string, r: TenantProfile) => `${r.maxStorageGb} GB` },
-    { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => v.slice(0, 10) },
+    { title: t('tenantConfig.colLicense'), dataIndex: 'license', key: 'license' },
+    { title: t('tenantConfig.colUserQuota'), key: 'users', render: (_: string, r: TenantProfile) => `${r.maxUsers} ${t('tenantConfig.peopleUnit')}` },
+    { title: t('tenantConfig.colStorageQuota'), key: 'storage', render: (_: string, r: TenantProfile) => `${r.maxStorageGb} GB` },
+    { title: t('tenantConfig.colCreatedAt'), dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => v.slice(0, 10) },
     {
-      title: '操作', key: 'action',
+      title: t('tenantConfig.colActions'), key: 'action',
       render: (_: string, r: TenantProfile) => r.status === 'ACTIVE' ? (
-        <Popconfirm title={`确认停用租户「${r.name}」？`} onConfirm={() => void toggleTenantStatus(r)}>
-          <Button size="small" danger icon={<PoweroffOutlined />} loading={statusBusy === r.id}>停用</Button>
+        <Popconfirm title={`${r.name} ?`} onConfirm={() => void toggleTenantStatus(r)}>
+          <Button size="small" danger icon={<PoweroffOutlined />} loading={statusBusy === r.id}>{t('tenantConfig.disabled')}</Button>
         </Popconfirm>
       ) : (
-        <Button size="small" type="primary" icon={<PlayCircleOutlined />} loading={statusBusy === r.id} onClick={() => void toggleTenantStatus(r)}>启用</Button>
+        <Button size="small" type="primary" icon={<PlayCircleOutlined />} loading={statusBusy === r.id} onClick={() => void toggleTenantStatus(r)}>{t('tenantConfig.enabled')}</Button>
       ),
     },
   ]
@@ -222,59 +223,59 @@ export default function TenantConfigPage() {
     <div style={{ padding: 24 }}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
-          <h2 style={{ margin: 0 }}><SafetyCertificateOutlined /> 租户配置管理</h2>
+          <h2 style={{ margin: 0 }}><SafetyCertificateOutlined /> {t('tenantConfig.pageTitle')}</h2>
           <Space>
-            <Button icon={<AuditOutlined />} loading={complianceLoading} onClick={() => void loadCompliance()}>合规报告</Button>
-            <Button icon={<ReloadOutlined />} onClick={() => void fetchAll()} loading={loading}>刷新</Button>
+            <Button icon={<AuditOutlined />} loading={complianceLoading} onClick={() => void loadCompliance()}>{t('tenantConfig.complianceReport')}</Button>
+            <Button icon={<ReloadOutlined />} onClick={() => void fetchAll()} loading={loading}>{t('tenantConfig.refresh')}</Button>
           </Space>
         </Row>
 
-        {error && <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> 重试</Button>} />}
+        {error && <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> {t('tenantConfig.retry')}</Button>} />}
 
-        {loading && !tenant ? <Spin tip="加载租户信息..." style={{ display: 'block', margin: '48px auto' }} /> : (
+        {loading && !tenant ? <Spin tip={t('tenantConfig.loadingTenant')} style={{ display: 'block', margin: '48px auto' }} /> : (
           <Tabs items={[
             {
               key: 'overview',
-              label: <span><SettingOutlined /> 概览</span>,
+              label: <span><SettingOutlined /> {t('tenantConfig.tabOverview')}</span>,
               children: (
                 <Row gutter={16}>
                   <Col span={14}>
                     <Card
-                      title="当前租户信息"
+                      title={t('tenantConfig.currentTenant')}
                       size="small"
-                      extra={<Button size="small" icon={<SettingOutlined />} onClick={openEdit}>编辑</Button>}
+                      extra={<Button size="small" icon={<SettingOutlined />} onClick={openEdit}>{t('tenantConfig.edit')}</Button>}
                     >
                       {tenant ? (
                         <Descriptions column={2} size="small" bordered>
-                          <Descriptions.Item label="租户ID">{tenant.id}</Descriptions.Item>
-                          <Descriptions.Item label="编码">{tenant.code}</Descriptions.Item>
-                          <Descriptions.Item label="名称">{tenant.name}</Descriptions.Item>
-                          <Descriptions.Item label="状态">
-                            <Badge status={tenant.status === 'ACTIVE' ? 'success' : 'error'} text={tenant.status === 'ACTIVE' ? '启用' : '停用'} />
+                          <Descriptions.Item label={t('tenantConfig.labelTenantId')}>{tenant.id}</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelCode')}>{tenant.code}</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelName')}>{tenant.name}</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelStatus')}>
+                            <Badge status={tenant.status === 'ACTIVE' ? 'success' : 'error'} text={tenant.status === 'ACTIVE' ? t('tenantConfig.enabled') : t('tenantConfig.disabled')} />
                           </Descriptions.Item>
-                          <Descriptions.Item label="许可证">{tenant.license}</Descriptions.Item>
-                          <Descriptions.Item label="创建时间">{tenant.createdAt.slice(0, 10)}</Descriptions.Item>
-                          <Descriptions.Item label="用户配额">{tenant.maxUsers} 人</Descriptions.Item>
-                          <Descriptions.Item label="存储配额">{tenant.maxStorageGb} GB</Descriptions.Item>
-                          <Descriptions.Item label="检查配额">{tenant.maxExams} 例</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelLicense')}>{tenant.license}</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelCreatedAt')}>{tenant.createdAt.slice(0, 10)}</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelUserQuota')}>{tenant.maxUsers} {t('tenantConfig.peopleUnit')}</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelStorageQuota')}>{tenant.maxStorageGb} GB</Descriptions.Item>
+                          <Descriptions.Item label={t('tenantConfig.labelExamQuota')}>{tenant.maxExams} {t('tenantConfig.casesUnit')}</Descriptions.Item>
                         </Descriptions>
                       ) : <Spin />}
                     </Card>
                   </Col>
                   <Col span={10}>
-                    <Card title="用量概览" size="small">
+                    <Card title={t('tenantConfig.usageOverview')} size="small">
                       {usage ? (
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>存储用量</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{formatBytes(usage.storageBytes)} / {formatBytes(usage.storageLimitBytes)}</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('tenantConfig.storageUsage')}</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{formatBytes(usage.storageBytes)} / {formatBytes(usage.storageLimitBytes)}</span></div>
                             <Progress percent={storagePct} size="small" status={storagePct > 90 ? 'exception' : 'normal'} />
                           </div>
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>用户</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{usage.users} / {usage.userLimit}</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('tenantConfig.userLabel')}</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{usage.users} / {usage.userLimit}</span></div>
                             <Progress percent={userPct} size="small" />
                           </div>
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>检查量</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{usage.exams.toLocaleString()} / {usage.examLimit.toLocaleString()}</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('tenantConfig.examVolume')}</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{usage.exams.toLocaleString()} / {usage.examLimit.toLocaleString()}</span></div>
                             <Progress percent={examPct} size="small" />
                           </div>
                         </Space>
@@ -286,28 +287,28 @@ export default function TenantConfigPage() {
             },
             {
               key: 'usage',
-              label: <span><DashboardOutlined /> 用量统计</span>,
+              label: <span><DashboardOutlined /> {t('tenantConfig.tabUsage')}</span>,
               children: usage ? (
                 <Row gutter={16}>
-                  <Col span={6}><Card size="small"><Statistic title="用户数" value={usage.users} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title="患者数" value={usage.patients} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title="检查数" value={usage.exams} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title="报告数" value={usage.reports} /></Card></Col>
+                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statUsers')} value={usage.users} /></Card></Col>
+                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statPatients')} value={usage.patients} /></Card></Col>
+                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statExams')} value={usage.exams} /></Card></Col>
+                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statReports')} value={usage.reports} /></Card></Col>
                   <Col span={8} style={{ marginTop: 16 }}>
-                    <Card size="small"><Statistic title="存储用量" value={formatBytes(usage.storageBytes)} /></Card>
+                    <Card size="small"><Statistic title={t('tenantConfig.statStorageUsage')} value={formatBytes(usage.storageBytes)} /></Card>
                   </Col>
                   <Col span={8} style={{ marginTop: 16 }}>
-                    <Card size="small"><Statistic title="存储配额" value={formatBytes(usage.storageLimitBytes)} /></Card>
+                    <Card size="small"><Statistic title={t('tenantConfig.statStorageQuota')} value={formatBytes(usage.storageLimitBytes)} /></Card>
                   </Col>
                   <Col span={8} style={{ marginTop: 16 }}>
-                    <Card size="small"><Statistic title="检查配额" value={usage.examLimit} suffix={`已用 ${Math.round((usage.exams / Math.max(1, usage.examLimit)) * 100)}%`} /></Card>
+                    <Card size="small"><Statistic title={t('tenantConfig.statExamQuota')} value={usage.examLimit} suffix={`${t('tenantConfig.usedSuffix')} ${Math.round((usage.exams / Math.max(1, usage.examLimit)) * 100)}%`} /></Card>
                   </Col>
                 </Row>
               ) : <Spin />,
             },
             {
               key: 'features',
-              label: <span><ThunderboltOutlined /> 功能开关 ({features ? Object.values(features).filter(Boolean).length : 0}/{FEATURE_DEFS.length})</span>,
+              label: <span><ThunderboltOutlined /> {t('tenantConfig.tabFeatures')} ({features ? Object.values(features).filter(Boolean).length : 0}/{FEATURE_DEFS.length})</span>,
               children: (
                 <Row gutter={[16, 16]}>
                   {FEATURE_DEFS.map((f) => (
@@ -315,8 +316,8 @@ export default function TenantConfigPage() {
                       <Card size="small">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
-                            <div><strong>{f.label}</strong></div>
-                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{f.desc}</div>
+                            <div><strong>{t(`tenantConfig.feat.${f.key}.label`)}</strong></div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t(`tenantConfig.feat.${f.key}.desc`)}</div>
                           </div>
                           <Switch
                             checked={features?.[f.key] ?? false}
@@ -333,10 +334,10 @@ export default function TenantConfigPage() {
             },
             ...(isAdmin ? [{
               key: 'tenants',
-              label: <span><TeamOutlined /> 平台租户管理</span>,
+              label: <span><TeamOutlined /> {t('tenantConfig.tabTenants')}</span>,
               children: (
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>新建租户</Button>
+                  <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>{t('tenantConfig.newTenant')}</Button>
                   <Table rowKey="id" columns={columns} dataSource={pagedTenants} pagination={tenantsPagination} size="small" scroll={{ x: 'max-content' }}/>
                 </Space>
               ),
@@ -346,7 +347,7 @@ export default function TenantConfigPage() {
       </Space>
 
       <Modal
-        title="编辑租户信息"
+        title={t('tenantConfig.editTenant')}
         open={editing}
         onOk={() => void saveProfile()}
         confirmLoading={saving}
@@ -354,23 +355,23 @@ export default function TenantConfigPage() {
         destroyOnClose
       >
         <Form form={form} layout="vertical" initialValues={tenant ?? {}}>
-          <Form.Item name="name" label="租户名称" rules={[{ required: true, message: '请输入租户名称' }]}>
+          <Form.Item name="name" label={t('tenantConfig.tenantName')} rules={[{ required: true, message: t('tenantConfig.tenantNameRequired') }]}>
             <Input maxLength={64} />
           </Form.Item>
-          <Form.Item name="license" label="许可证类型" rules={[{ required: true, message: '请输入许可证类型' }]}>
+          <Form.Item name="license" label={t('tenantConfig.licenseType')} rules={[{ required: true, message: t('tenantConfig.licenseRequired') }]}>
             <Input maxLength={32} />
           </Form.Item>
-          <Form.Item name="maxUsers" label="用户配额" rules={[{ required: true, message: '请输入用户配额' }]}>
+          <Form.Item name="maxUsers" label={t('tenantConfig.colUserQuota')} rules={[{ required: true, message: t('tenantConfig.userQuotaRequired') }]}>
             <InputNumber min={1} max={100000} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="maxStorageGb" label="存储配额 (GB)" rules={[{ required: true, message: '请输入存储配额' }]}>
+          <Form.Item name="maxStorageGb" label={t('tenantConfig.storageQuotaGb')} rules={[{ required: true, message: t('tenantConfig.storageRequired') }]}>
             <InputNumber min={1} max={1048576} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="新建租户"
+        title={t('tenantConfig.createTenant')}
         open={creating}
         onOk={() => void createTenant()}
         confirmLoading={creatingTenant}
@@ -378,29 +379,29 @@ export default function TenantConfigPage() {
         destroyOnClose
       >
         <Form form={createForm} layout="vertical">
-          <Form.Item name="code" label="租户编码" rules={[
-            { required: true, message: '请输入租户编码' },
-            { pattern: /^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/, message: '仅支持字母/数字/._:-，以字母或数字开头' },
+          <Form.Item name="code" label={t('tenantConfig.tenantCode')} rules={[
+            { required: true, message: t('tenantConfig.tenantCodeRequired') },
+            { pattern: /^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/, message: t('tenantConfig.tenantCodePattern') },
           ]}>
-            <Input maxLength={64} placeholder="如 zhongshan" />
+            <Input maxLength={64} placeholder={t('tenantConfig.tenantCodePlaceholder')} />
           </Form.Item>
-          <Form.Item name="name" label="租户名称" rules={[{ required: true, message: '请输入租户名称' }]}>
+          <Form.Item name="name" label={t('tenantConfig.tenantName')} rules={[{ required: true, message: t('tenantConfig.tenantNameRequired') }]}>
             <Input maxLength={64} />
           </Form.Item>
-          <Form.Item name="license" label="许可证类型">
-            <Input maxLength={32} placeholder="企业版" />
+          <Form.Item name="license" label={t('tenantConfig.licenseType')}>
+            <Input maxLength={32} placeholder={t('tenantConfig.enterprise')} />
           </Form.Item>
-          <Form.Item name="maxUsers" label="用户配额" initialValue={100}>
+          <Form.Item name="maxUsers" label={t('tenantConfig.colUserQuota')} initialValue={100}>
             <InputNumber min={1} max={100000} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="maxStorageGb" label="存储配额 (GB)" initialValue={256}>
+          <Form.Item name="maxStorageGb" label={t('tenantConfig.storageQuotaGb')} initialValue={256}>
             <InputNumber min={1} max={1048576} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="合规报告"
+        title={t('tenantConfig.complianceReportTitle')}
         open={complianceOpen}
         onCancel={() => setComplianceOpen(false)}
         footer={null}
@@ -408,31 +409,31 @@ export default function TenantConfigPage() {
       >
         <Spin spinning={complianceLoading}>
           {complianceError && (
-            <Alert type="error" showIcon style={{ marginBottom: 12 }} message="加载失败" description={complianceError} />
+            <Alert type="error" showIcon style={{ marginBottom: 12 }} message={t('tenantConfig.loadFailed')} description={complianceError} />
           )}
           {complianceReport && (() => {
             const score = complianceReport.summary?.complianceRate ?? complianceReport.overallCompliance ?? complianceReport.overallScore ?? 0
             const generatedAt = complianceReport.generatedAt ?? complianceReport.lastAssessedAt ?? '-'
             const checks = complianceReport.details
               ? complianceReport.details.map((d) => ({ name: d.checkItem, module: d.module, passed: d.status !== 'FAIL', note: d.description }))
-              : (complianceReport.items ?? []).map((i) => ({ name: i.name, module: i.category, passed: i.implemented, note: `得分 ${i.score}` }))
+              : (complianceReport.items ?? []).map((i) => ({ name: i.name, module: i.category, passed: i.implemented, note: `${t('tenantConfig.scoreLabel')} ${i.score}` }))
             const passedCount = checks.filter((c) => c.passed).length
             return (
               <Space direction="vertical" style={{ width: '100%' }} size="middle">
                 <Row gutter={16}>
                   <Col span={8}>
                     <Card size="small">
-                      <Statistic title="合规得分" value={score} suffix="%" valueStyle={{ color: score >= 80 ? '#16a34a' : score >= 60 ? '#d97706' : '#dc2626' }} />
+                      <Statistic title={t('tenantConfig.statComplianceScore')} value={score} suffix="%" valueStyle={{ color: score >= 80 ? '#16a34a' : score >= 60 ? '#d97706' : '#dc2626' }} />
                     </Card>
                   </Col>
                   <Col span={8}>
                     <Card size="small">
-                      <Statistic title="通过项" value={`${passedCount}/${checks.length}`} valueStyle={{ color: '#2563eb' }} />
+                      <Statistic title={t('tenantConfig.statPassed')} value={`${passedCount}/${checks.length}`} valueStyle={{ color: '#2563eb' }} />
                     </Card>
                   </Col>
                   <Col span={8}>
                     <Card size="small">
-                      <Statistic title="生成时间" value={generatedAt.slice(0, 10)} />
+                      <Statistic title={t('tenantConfig.statGeneratedAt')} value={generatedAt.slice(0, 10)} />
                     </Card>
                   </Col>
                 </Row>
@@ -440,8 +441,8 @@ export default function TenantConfigPage() {
                 <Alert
                   type={score >= 80 ? 'success' : 'warning'}
                   showIcon
-                  message={score >= 80 ? '整体合规' : '存在不合规项, 建议整改'}
-                  description={`评估项 ${checks.length} 项 · 通过 ${passedCount} 项 · 生成于 ${generatedAt}`}
+                  message={score >= 80 ? t('tenantConfig.overallCompliant') : t('tenantConfig.nonCompliant')}
+                  description={t('tenantConfig.assessmentSummary', { total: checks.length, passed: passedCount, generatedAt })}
                 />
                 <List
                   size="small"

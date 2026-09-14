@@ -6,6 +6,7 @@ import {
 import { Siren, UserCheck, Clock, AlertTriangle, RefreshCw, Filter } from 'lucide-react'
 import { triageApi, type TriagePendingItem, type TriageScoreResult, type TriageFactor } from '../../services/api/triageApi'
 import { usePagination } from '../../hooks/usePagination'
+import { t } from '../../i18n/appI18n'
 
 const { Text, Title } = Typography
 
@@ -17,10 +18,10 @@ const levelColor: Record<string, string> = {
 }
 
 const levelLabel: Record<string, string> = {
-  CRITICAL: '危急',
-  URGENT: '紧急',
-  SEMI_URGENT: '亚紧急',
-  ROUTINE: '常规',
+  CRITICAL: 'triage.levelCritical',
+  URGENT: 'triage.levelUrgent',
+  SEMI_URGENT: 'triage.levelSemiUrgent',
+  ROUTINE: 'triage.levelRoutine',
 }
 
 const TriageDashboardPage: React.FC = () => {
@@ -42,10 +43,10 @@ const TriageDashboardPage: React.FC = () => {
       if (res.success) {
         setItems(res.data ?? [])
       } else {
-        message.error(res.error?.message || '加载分检列表失败')
+        message.error(res.error?.message || t('triage.loadFailed'))
       }
     } catch {
-      message.error('加载分检列表失败')
+      message.error(t('triage.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -68,10 +69,10 @@ const TriageDashboardPage: React.FC = () => {
         message.success(`已分配给 ${res.data.assignedDoctor}`)
         fetchPending()
       } else {
-        message.error(res.error?.message || '分配失败')
+        message.error(res.error?.message || t('triage.assignFailed'))
       }
     } catch {
-      message.error('分配失败')
+      message.error(t('triage.assignFailed'))
     } finally {
       setScoring(false)
     }
@@ -88,12 +89,12 @@ const TriageDashboardPage: React.FC = () => {
       })
       if (res.success) {
         setScoreResult(res.data)
-        message.info(`评分: ${res.data.score} - ${levelLabel[res.data.level]}`)
+        message.info(`评分: ${res.data.score} - ${t(levelLabel[res.data.level] ?? res.data.level)}`)
       } else {
-        message.error(res.error?.message || '评分失败')
+        message.error(res.error?.message || t('triage.scoreFailed'))
       }
     } catch {
-      message.error('评分失败')
+      message.error(t('triage.scoreFailed'))
     } finally {
       setScoring(false)
     }
@@ -103,13 +104,13 @@ const TriageDashboardPage: React.FC = () => {
     try {
       const res = await triageApi.update(item.id, { status: 'COMPLETED' })
       if (res.success) {
-        message.success('已确认完成')
+        message.success(t('triage.confirmed'))
         fetchPending()
       } else {
-        message.error(res.error?.message || '确认失败')
+        message.error(res.error?.message || t('triage.confirmFailed'))
       }
     } catch {
-      message.error('确认失败')
+      message.error(t('triage.confirmFailed'))
     }
   }
 
@@ -121,14 +122,14 @@ const TriageDashboardPage: React.FC = () => {
         status: (newStatus || undefined) as 'ASSIGNED' | 'PENDING' | 'COMPLETED' | undefined,
       })
       if (res.success) {
-        message.success('更新成功')
+        message.success(t('triage.updateSuccess'))
         setDetailOpen(false)
         fetchPending()
       } else {
-        message.error(res.error?.message || '更新失败')
+        message.error(res.error?.message || t('triage.updateFailed'))
       }
     } catch {
-      message.error('更新失败')
+      message.error(t('triage.updateFailed'))
     }
   }
 
@@ -151,81 +152,81 @@ const TriageDashboardPage: React.FC = () => {
 
   const columns = [
     {
-      title: '患者姓名',
+      title: t('triage.colPatientName'),
       dataIndex: 'patientName',
       key: 'patientName',
       render: (name: string) => <Text strong>{name}</Text>,
     },
     {
-      title: '检查类型',
+      title: t('triage.colExamType'),
       dataIndex: 'examType',
       key: 'examType',
     },
     {
-      title: '评分',
+      title: t('triage.colScore'),
       dataIndex: 'score',
       key: 'score',
       sorter: (a: TriagePendingItem, b: TriagePendingItem) => b.score - a.score,
       render: (s: number) => <Tag color={scoreColor(s)}>{s}</Tag>,
     },
     {
-      title: '级别',
+      title: t('triage.colLevel'),
       dataIndex: 'level',
       key: 'level',
       render: (lvl: string) => (
-        <Tag color={levelColor[lvl] ?? 'default'}>{levelLabel[lvl] ?? lvl}</Tag>
+        <Tag color={levelColor[lvl] ?? 'default'}>{t(levelLabel[lvl] ?? lvl)}</Tag>
       ),
     },
     {
-      title: '状态',
+      title: t('triage.colStatus'),
       dataIndex: 'status',
       key: 'status',
       render: (s: string) => (
         <Badge
           status={s === 'COMPLETED' ? 'success' : s === 'ASSIGNED' ? 'processing' : 'default'}
-          text={s === 'ASSIGNED' ? '已分诊' : s === 'COMPLETED' ? '已完成' : s === 'PENDING' ? '待分诊' : s}
+          text={s === 'ASSIGNED' ? t('triage.statusAssigned') : s === 'COMPLETED' ? t('triage.statusCompleted') : s === 'PENDING' ? t('triage.statusPending') : s}
         />
       ),
     },
     {
-      title: '分配医生',
+      title: t('triage.colAssignedDoctor'),
       dataIndex: 'assignedDoctor',
       key: 'assignedDoctor',
       render: (d: string | undefined) => d ?? '-',
     },
     {
-      title: '操作',
+      title: t('triage.colActions'),
       key: 'actions',
       render: (_: unknown, record: TriagePendingItem) => (
         <Space size="small">
           {record.status === 'PENDING' && (
             <>
-              <Tooltip title="自动分配">
+              <Tooltip title={t('triage.autoAssign')}>
                 <Button size="small" type="primary" icon={<UserCheck size={12} />} onClick={() => handleAssign(record)} loading={scoring}>
-                  分配
+                  {t('triage.assign')}
                 </Button>
               </Tooltip>
-              <Tooltip title="AI评分">
+              <Tooltip title={t('triage.aiScore')}>
                 <Button size="small" icon={<AlertTriangle size={12} />} onClick={() => handleScore(record)} loading={scoring}>
-                  评分
+                  {t('triage.score')}
                 </Button>
               </Tooltip>
             </>
           )}
-          <Tooltip title="详情/调整">
+          <Tooltip title={t('triage.detailAdjust')}>
             <Button size="small" onClick={() => {
               setSelectedItem(record)
               setNewDoctor(record.assignedDoctor ?? '')
               setNewStatus(record.status)
               setDetailOpen(true)
             }}>
-              详情
+              {t('triage.detail')}
             </Button>
           </Tooltip>
           {record.status !== 'COMPLETED' && (
-            <Tooltip title="确认完成">
+            <Tooltip title={t('triage.confirmComplete')}>
               <Button size="small" type="default" onClick={() => handleConfirm(record)}>
-                完成
+                {t('triage.complete')}
               </Button>
             </Tooltip>
           )}
@@ -244,31 +245,31 @@ const TriageDashboardPage: React.FC = () => {
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Siren size={24} color="#ef4444" />
-          <Title level={4} style={{ margin: 0 }}>AI 智能分诊看板</Title>
+          <Title level={4} style={{ margin: 0 }}>{t('triage.title')}</Title>
           <Tag color="red">P0</Tag>
         </Space>
-        <Text type="secondary">基于多因子评分模型的急诊分诊工作台，支持自动评分、智能分配和手动调整</Text>
+        <Text type="secondary">{t('triage.subtitle')}</Text>
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="待分检" value={pendingCount} styles={{ content: {  color: '#2563eb'  } }} prefix={<Clock size={16} />} />
+            <Statistic title={t('triage.statPending')} value={pendingCount} styles={{ content: {  color: '#2563eb'  } }} prefix={<Clock size={16} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="危急" value={criticalCount} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={16} />} />
+            <Statistic title={t('triage.levelCritical')} value={criticalCount} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={16} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="紧急" value={urgentCount} styles={{ content: {  color: '#fa8c16'  } }} />
+            <Statistic title={t('triage.levelUrgent')} value={urgentCount} styles={{ content: {  color: '#fa8c16'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="已完成" value={completedCount} styles={{ content: {  color: '#52c41a'  } }} />
+            <Statistic title={t('triage.statusCompleted')} value={completedCount} styles={{ content: {  color: '#52c41a'  } }} />
           </Card>
         </Col>
       </Row>
@@ -277,14 +278,14 @@ const TriageDashboardPage: React.FC = () => {
         title={
           <Space>
             <Filter size={14} />
-            <span>分诊队列</span>
-            <Text type="secondary" style={{ fontSize: 12 }}>({filteredItems.length} 条)</Text>
+            <span>{t('triage.queue')}</span>
+            <Text type="secondary" style={{ fontSize: 12 }}>({filteredItems.length} {t('triage.itemsUnit')})</Text>
           </Space>
         }
         extra={
           <Space>
             <Input
-              placeholder="搜索患者/检查/医生"
+              placeholder={t('triage.searchPlaceholder')}
               prefix={<Filter size={12} />}
               value={searchText}
               onChange={e => setSearchText(e.target.value)}
@@ -292,19 +293,19 @@ const TriageDashboardPage: React.FC = () => {
               allowClear
             />
             <Select
-              placeholder="状态筛选"
+              placeholder={t('triage.statusFilter')}
               value={statusFilter}
               onChange={setStatusFilter}
               allowClear
               style={{ width: 120 }}
               options={[
-                { value: 'PENDING', label: '待分检' },
-                { value: 'ASSIGNED', label: '已分配' },
-                { value: 'COMPLETED', label: '已完成' },
+                { value: 'PENDING', label: t('triage.statusPending') },
+                { value: 'ASSIGNED', label: t('triage.statusAssigned') },
+                { value: 'COMPLETED', label: t('triage.statusCompleted') },
               ]}
             />
             <Button icon={<RefreshCw size={14} />} onClick={fetchPending} loading={loading}>
-              刷新
+              {t('triage.refresh')}
             </Button>
           </Space>
         }
@@ -320,16 +321,16 @@ const TriageDashboardPage: React.FC = () => {
       </Card>
 
       {scoreResult && (
-        <Card title="AI 评分结果" style={{ marginTop: 16 }}>
+        <Card title={t('triage.scoreResultTitle')} style={{ marginTop: 16 }}>
           <Row gutter={16}>
             <Col span={6}>
-              <Statistic title="总评分" value={scoreResult.score} styles={{ content: {  color: scoreColor(scoreResult.score)  } }} />
+              <Statistic title={t('triage.totalScore')} value={scoreResult.score} styles={{ content: {  color: scoreColor(scoreResult.score)  } }} />
             </Col>
             <Col span={6}>
-              <Statistic title="分级" value={levelLabel[scoreResult.level]} styles={{ content: {  color: levelColor[scoreResult.level]  } }} />
+              <Statistic title={t('triage.grade')} value={t(levelLabel[scoreResult.level] ?? scoreResult.level)} styles={{ content: {  color: levelColor[scoreResult.level]  } }} />
             </Col>
             <Col span={12}>
-              <Text strong>评分因子:</Text>
+              <Text strong>{t('triage.scoreFactors')}</Text>
               {scoreResult.factors.map((f: TriageFactor) => (
                 <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                   <Text style={{ width: 100, fontSize: 13 }}>{f.name}</Text>
@@ -343,7 +344,7 @@ const TriageDashboardPage: React.FC = () => {
       )}
 
       <Modal
-        title="分诊详情调整"
+        title={t('triage.detailTitle')}
         open={detailOpen}
         onOk={handleManualUpdate}
         onCancel={() => setDetailOpen(false)}
@@ -352,23 +353,23 @@ const TriageDashboardPage: React.FC = () => {
         {selectedItem && (
           <>
             <Descriptions column={2} size="small" style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="患者姓名">{selectedItem.patientName}</Descriptions.Item>
-              <Descriptions.Item label="检查类型">{selectedItem.examType}</Descriptions.Item>
-              <Descriptions.Item label="评分">
+              <Descriptions.Item label={t('triage.colPatientName')}>{selectedItem.patientName}</Descriptions.Item>
+              <Descriptions.Item label={t('triage.colExamType')}>{selectedItem.examType}</Descriptions.Item>
+              <Descriptions.Item label={t('triage.colScore')}>
                 <Tag color={scoreColor(selectedItem.score)}>{selectedItem.score}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="分级">
-                <Tag color={levelColor[selectedItem.level]}>{levelLabel[selectedItem.level]}</Tag>
+              <Descriptions.Item label={t('triage.grade')}>
+                <Tag color={levelColor[selectedItem.level]}>{t(levelLabel[selectedItem.level] ?? selectedItem.level)}</Tag>
               </Descriptions.Item>
             </Descriptions>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontWeight: 600 }}>分配医生</div>
+              <div style={{ marginBottom: 4, fontWeight: 600 }}>{t('triage.colAssignedDoctor')}</div>
               <Select
                 style={{ width: '100%' }}
                 value={newDoctor}
                 onChange={setNewDoctor}
                 allowClear
-                placeholder="选择医生"
+                placeholder={t('triage.selectDoctor')}
                 options={[
                   { value: '张主任', label: '张主任' },
                   { value: '李主任', label: '李主任' },
@@ -381,15 +382,15 @@ const TriageDashboardPage: React.FC = () => {
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontWeight: 600 }}>状态</div>
+              <div style={{ marginBottom: 4, fontWeight: 600 }}>{t('triage.colStatus')}</div>
               <Select
                 style={{ width: '100%' }}
                 value={newStatus}
                 onChange={setNewStatus}
                 options={[
-                  { value: 'PENDING', label: '待分检' },
-                  { value: 'ASSIGNED', label: '已分配' },
-                  { value: 'COMPLETED', label: '已完成' },
+                  { value: 'PENDING', label: t('triage.statusPending') },
+                  { value: 'ASSIGNED', label: t('triage.statusAssigned') },
+                  { value: 'COMPLETED', label: t('triage.statusCompleted') },
                 ]}
               />
             </div>

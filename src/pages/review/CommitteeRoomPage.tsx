@@ -19,6 +19,7 @@ import {
   type CommitteeDetailDto,
   type CommitteeMemberDto,
 } from "../../services/api/consultationApi";
+import { t } from "../../i18n/appI18n";
 
 const DOCTOR_POOL = [
   { value: "D001", label: "张明远 · 主任医师 · 放射科" },
@@ -28,11 +29,17 @@ const DOCTOR_POOL = [
   { value: "D005", label: "刘建国 · 主任医师 · 胸外科" },
 ];
 
-const STATUS_META: Record<string, { label: string; color: string }> = {
-  voting: { label: "投票中", color: "orange" },
-  resolved: { label: "已决议", color: "green" },
-  cancelled: { label: "已取消", color: "default" },
+const STATUS_META: Record<string, { color: string }> = {
+  voting: { color: "orange" },
+  resolved: { color: "green" },
+  cancelled: { color: "default" },
 };
+
+const statusLabel = (v: string): string =>
+  v === "voting" ? t("committeeRoom.statusVoting")
+    : v === "resolved" ? t("committeeRoom.statusResolved")
+      : v === "cancelled" ? t("committeeRoom.statusCancelled")
+        : v;
 
 const CommitteeRoomPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -128,7 +135,7 @@ const CommitteeRoomPage: React.FC = () => {
         reportId: String(values.reportId).trim(),
         title: String(values.title).trim(),
         members: values.members as string[],
-        createdBy: "当前用户",
+        createdBy: t("committeeRoom.currentUser"),
       });
       if (res.success && res.data) {
         message.success(`委员会会诊 ${res.data.id} 创建成功`);
@@ -140,7 +147,7 @@ const CommitteeRoomPage: React.FC = () => {
       }
     } catch (err) {
       if (err && typeof err === "object" && "errorFields" in err) return; // 表单校验错误
-      message.error("创建失败:网络错误");
+      message.error(t("committeeRoom.createFailedNet"));
     } finally {
       setCreateLoading(false);
     }
@@ -157,7 +164,7 @@ const CommitteeRoomPage: React.FC = () => {
   const submitVote = async () => {
     if (!detail || !voteTarget) return;
     if (!voteOpinion.trim()) {
-      message.warning("请填写会诊意见");
+      message.warning(t("committeeRoom.opinionRequired"));
       return;
     }
     setVoteLoading(true);
@@ -176,7 +183,7 @@ const CommitteeRoomPage: React.FC = () => {
         message.error(`投票失败:${res.error?.message ?? "未知错误"}`);
       }
     } catch {
-      message.error("投票失败:网络错误");
+      message.error(t("committeeRoom.voteFailedNet"));
     } finally {
       setVoteLoading(false);
     }
@@ -192,7 +199,7 @@ const CommitteeRoomPage: React.FC = () => {
   const submitResolution = async () => {
     if (!detail) return;
     if (!resolutionText.trim()) {
-      message.warning("请填写决议内容");
+      message.warning(t("committeeRoom.resolutionRequired"));
       return;
     }
     setResolutionLoading(true);
@@ -202,7 +209,7 @@ const CommitteeRoomPage: React.FC = () => {
         appendToReport,
       });
       if (res.success && res.data) {
-        message.success(appendToReport ? "决议已生成并追加到报告" : "决议已生成");
+        message.success(appendToReport ? t("committeeRoom.resolutionAppended") : t("committeeRoom.resolutionGenerated"));
         setResolutionOpen(false);
         if (selectedId) void loadDetail(selectedId);
         void loadList();
@@ -210,7 +217,7 @@ const CommitteeRoomPage: React.FC = () => {
         message.error(`生成失败:${res.error?.message ?? "未知错误"}`);
       }
     } catch {
-      message.error("生成失败:网络错误");
+      message.error(t("committeeRoom.resolutionFailedNet"));
     } finally {
       setResolutionLoading(false);
     }
@@ -220,7 +227,7 @@ const CommitteeRoomPage: React.FC = () => {
 
   const columns = [
     {
-      title: "会诊标题",
+      title: t("committeeRoom.colTitle"),
       dataIndex: "title",
       key: "title",
       ellipsis: true,
@@ -231,9 +238,9 @@ const CommitteeRoomPage: React.FC = () => {
         </Space>
       ),
     },
-    { title: "关联报告", dataIndex: "reportId", key: "reportId", render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: t("committeeRoom.colReport"), dataIndex: "reportId", key: "reportId", render: (v: string) => <Tag color="blue">{v}</Tag> },
     {
-      title: "成员",
+      title: t("committeeRoom.colMembers"),
       key: "members",
       render: (_: unknown, r: CommitteeDto) => (
         <Avatar.Group size="small" max={{ count: 4 }}>
@@ -246,13 +253,13 @@ const CommitteeRoomPage: React.FC = () => {
       ),
     },
     {
-      title: "状态",
+      title: t("committeeRoom.colStatus"),
       dataIndex: "status",
       key: "status",
-      render: (v: string) => <Tag color={STATUS_META[v]?.color ?? "default"}>{STATUS_META[v]?.label ?? v}</Tag>,
+      render: (v: string) => <Tag color={STATUS_META[v]?.color ?? "default"}>{statusLabel(v)}</Tag>,
     },
     {
-      title: "创建人/时间",
+      title: t("committeeRoom.colMeta"),
       key: "meta",
       render: (_: unknown, r: CommitteeDto) => (
         <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -267,7 +274,7 @@ const CommitteeRoomPage: React.FC = () => {
       width: 90,
       render: (_: unknown, r: CommitteeDto) => (
         <Button size="small" type={selectedId === r.id ? "primary" : "default"} onClick={() => selectCommittee(r.id)}>
-          {selectedId === r.id ? "查看中" : "查看"}
+          {selectedId === r.id ? t("committeeRoom.viewing") : t("committeeRoom.viewBtn")}
         </Button>
       ),
     },
@@ -276,25 +283,25 @@ const CommitteeRoomPage: React.FC = () => {
   const memberCards = useMemo(() => detail?.members ?? [], [detail]);
 
   return (
-    <div data-testid="committee-room-page" role="region" aria-label="委员会会诊室" style={{ padding: 16 }}>
+    <div data-testid="committee-room-page" role="region" aria-label={t("committeeRoom.pageTitle")} style={{ padding: 16 }}>
       <style>{`@keyframes cmtBreath { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
 
       {/* ============ 顶栏 ============ */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
         <Space size={10}>
           <Landmark size={20} color="#7c3aed" />
-          <strong style={{ fontSize: 16 }}>委员会会诊室</strong>
-          <Tag color="purple">多医生合议</Tag>
-          <Tag color={source === "api" ? "green" : "orange"} title="委员会数据源">
-            {source === "api" ? "实时数据" : "演示回退"}
+          <strong style={{ fontSize: 16 }}>{t("committeeRoom.pageTitle")}</strong>
+          <Tag color="purple">{t("committeeRoom.multiDoctor")}</Tag>
+          <Tag color={source === "api" ? "green" : "orange"} title={t("committeeRoom.dataSource")}>
+            {source === "api" ? t("committeeRoom.liveData") : t("committeeRoom.demoFallback")}
           </Tag>
         </Space>
         <Space>
           <Button size="small" icon={<RefreshCw size={12} />} onClick={() => { void loadList(); if (selectedId) void loadDetail(selectedId); }}>
-            刷新
+            {t("committeeRoom.refresh")}
           </Button>
           <Button size="small" type="primary" icon={<Plus size={12} />} onClick={openCreate} data-testid="committee-create">
-            发起委员会会诊
+            {t("committeeRoom.startCommittee")}
           </Button>
         </Space>
       </div>
@@ -303,7 +310,7 @@ const CommitteeRoomPage: React.FC = () => {
         type="info"
         showIcon
         icon={<Scale size={14} />}
-        message="委员会会诊: 由 ≥2 名高年资医师对疑难/危急报告独立投票合议, 全部投票后生成委员会决议, 可一键追加为报告「决议」段落。"
+        message={t("committeeRoom.infoMessage")}
         style={{ marginBottom: 12 }}
       />
 
@@ -312,7 +319,7 @@ const CommitteeRoomPage: React.FC = () => {
         <Col xs={24} lg={10} xl={9}>
           <Card
             size="small"
-            title={<Space><Users size={14} color="#7c3aed" />委员会会诊列表<Tag color="purple">{committees.length}</Tag></Space>}
+            title={<Space><Users size={14} color="#7c3aed" />{t("committeeRoom.listTitle")}<Tag color="purple">{committees.length}</Tag></Space>}
             extra={
               reportIdParam ? <Tag color="blue" icon={<Eye size={10} />}>reportId={reportIdParam}</Tag> : undefined
             }
@@ -325,7 +332,7 @@ const CommitteeRoomPage: React.FC = () => {
               columns={columns}
               pagination={false}
               scroll={{ y: 460 }}
-              locale={{ emptyText: <Empty image={<Users size={48} style={{ opacity: 0.35 }} />} description="暂无委员会会诊" /> }}
+              locale={{ emptyText: <Empty image={<Users size={48} style={{ opacity: 0.35 }} />} description={t("committeeRoom.noCommittees")} /> }}
               onRow={(r) => ({ onClick: () => selectCommittee(r.id), style: { cursor: "pointer" } })}
             />
           </Card>
@@ -339,11 +346,11 @@ const CommitteeRoomPage: React.FC = () => {
                 image={<Landmark size={64} style={{ opacity: 0.25 }} />}
                 description={
                   <div style={{ fontSize: 13, color: "#64748b" }}>
-                    从左侧选择委员会会诊查看详情
+                    {t("committeeRoom.selectHint")}
                     {reportIdParam && (
                       <div style={{ marginTop: 8, fontSize: 12 }}>
-                        当前携带报告 <Tag color="blue">{reportIdParam}</Tag>, 可直接
-                        <Button size="small" type="link" onClick={openCreate}>发起委员会会诊</Button>
+                        {t("committeeRoom.carryReport")} <Tag color="blue">{reportIdParam}</Tag>, {t("committeeRoom.canStart")}
+                        <Button size="small" type="link" onClick={openCreate}>{t("committeeRoom.startCommittee")}</Button>
                       </div>
                     )}
                   </div>
@@ -352,7 +359,7 @@ const CommitteeRoomPage: React.FC = () => {
             </Card>
           ) : detailLoading ? (
             <Card size="small" style={{ minHeight: 520, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Spin /> 加载会诊详情…
+              <Spin /> {t("committeeRoom.loadingDetail")}
             </Card>
           ) : detail ? (
             <Card
@@ -361,17 +368,17 @@ const CommitteeRoomPage: React.FC = () => {
                 <Space wrap>
                   <Landmark size={14} color="#7c3aed" />
                   <span>{detail.title}</span>
-                  <Tag color={STATUS_META[detail.status]?.color ?? "default"}>{STATUS_META[detail.status]?.label ?? detail.status}</Tag>
+                  <Tag color={STATUS_META[detail.status]?.color ?? "default"}>{statusLabel(detail.status)}</Tag>
                   <Tag color="blue">{detail.reportId}</Tag>
-                  {detail.resolution?.appendedToReport && <Tag color="green">已追加报告</Tag>}
+                  {detail.resolution?.appendedToReport && <Tag color="green">{t("committeeRoom.appendedReport")}</Tag>}
                 </Space>
               }
               extra={
                 <Space>
-                  <Button size="small" icon={<RefreshCw size={11} />} onClick={() => selectedId && void loadDetail(selectedId)}>刷新</Button>
+                  <Button size="small" icon={<RefreshCw size={11} />} onClick={() => selectedId && void loadDetail(selectedId)}>{t("committeeRoom.refresh")}</Button>
                   {detail.status === "voting" && (
                     <Button size="small" type="primary" icon={<BadgeCheck size={12} />} onClick={openResolution} data-testid="committee-resolve">
-                      生成决议
+                      {t("committeeRoom.generateResolution")}
                     </Button>
                   )}
                 </Space>
@@ -380,13 +387,13 @@ const CommitteeRoomPage: React.FC = () => {
               {/* 汇总 */}
               {summary && (
                 <Row gutter={12} style={{ marginBottom: 12 }}>
-                  <Col span={4}><Statistic title="成员数" value={summary.totalMembers} prefix={<Users size={13} />} /></Col>
-                  <Col span={5}><Statistic title="已投票" value={summary.votedCount} prefix={<Vote size={13} />} valueStyle={{ color: summary.votedCount === summary.totalMembers ? "#10b981" : "#f59e0b" }} /></Col>
-                  <Col span={5}><Statistic title="同意" value={summary.agreeCount} prefix={<CheckCircle2 size={13} />} valueStyle={{ color: "#10b981" }} /></Col>
-                  <Col span={5}><Statistic title="反对" value={summary.disagreeCount} prefix={<XCircle size={13} />} valueStyle={{ color: "#dc2626" }} /></Col>
+                  <Col span={4}><Statistic title={t("committeeRoom.statMembers")} value={summary.totalMembers} prefix={<Users size={13} />} /></Col>
+                  <Col span={5}><Statistic title={t("committeeRoom.statVoted")} value={summary.votedCount} prefix={<Vote size={13} />} valueStyle={{ color: summary.votedCount === summary.totalMembers ? "#10b981" : "#f59e0b" }} /></Col>
+                  <Col span={5}><Statistic title={t("committeeRoom.statAgree")} value={summary.agreeCount} prefix={<CheckCircle2 size={13} />} valueStyle={{ color: "#10b981" }} /></Col>
+                  <Col span={5}><Statistic title={t("committeeRoom.statDisagree")} value={summary.disagreeCount} prefix={<XCircle size={13} />} valueStyle={{ color: "#dc2626" }} /></Col>
                   <Col span={5}>
                     <Statistic
-                      title="同意率"
+                      title={t("committeeRoom.statAgreeRate")}
                       value={summary.agreeRate}
                       suffix="%"
                       prefix={<ShieldCheck size={13} />}
@@ -402,14 +409,14 @@ const CommitteeRoomPage: React.FC = () => {
                     />
                     {summary.pendingMembers.length > 0 && (
                       <div style={{ fontSize: 12, color: "#f59e0b", marginTop: 4 }}>
-                        待投票: {summary.pendingMembers.join("、")}
+                        {t("committeeRoom.pendingVotes")} {summary.pendingMembers.join("、")}
                       </div>
                     )}
                   </Col>
                 </Row>
               )}
 
-              <Divider style={{ margin: "8px 0" }}>成员意见</Divider>
+              <Divider style={{ margin: "8px 0" }}>{t("committeeRoom.memberOpinions")}</Divider>
 
               {/* 成员卡片 */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 10, marginBottom: 12 }}>
@@ -431,32 +438,32 @@ const CommitteeRoomPage: React.FC = () => {
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 13, fontWeight: 700 }}>{m.name}</div>
                           <div style={{ fontSize: 11, color: "#64748b" }}>
-                            {m.title ?? "医师"} · {m.department ?? "—"}
+                            {m.title ?? t("committeeRoom.doctor")} · {m.department ?? "—"}
                           </div>
                         </div>
                         {voted ? (
                           m.agree
-                            ? <Tag color="green" icon={<CheckCircle2 size={10} />}>同意</Tag>
-                            : <Tag color="red" icon={<XCircle size={10} />}>反对</Tag>
+                            ? <Tag color="green" icon={<CheckCircle2 size={10} />}>{t("committeeRoom.agree")}</Tag>
+                            : <Tag color="red" icon={<XCircle size={10} />}>{t("committeeRoom.disagree")}</Tag>
                         ) : (
-                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b", animation: "cmtBreath 1.2s infinite" }} title="待投票" />
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b", animation: "cmtBreath 1.2s infinite" }} title={t("committeeRoom.pendingVote")} />
                         )}
                       </div>
                       <div style={{ fontSize: 12, color: "#475569", marginTop: 8, lineHeight: 1.6, minHeight: 36 }}>
-                        {voted ? m.opinion : "尚未投票"}
+                        {voted ? m.opinion : t("committeeRoom.notVoted")}
                       </div>
                       {m.suggestion && (
                         <div style={{ fontSize: 11, color: "#7c3aed", marginTop: 4, background: "rgba(124,58,237,0.08)", borderRadius: 4, padding: "4px 6px" }}>
-                          建议: {m.suggestion}
+                          {t("committeeRoom.suggestion")} {m.suggestion}
                         </div>
                       )}
                       {m.votedAt && (
-                        <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>投票于 {new Date(m.votedAt).toLocaleString()}</div>
+                        <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>{t("committeeRoom.votedAt")} {new Date(m.votedAt).toLocaleString()}</div>
                       )}
                       <div style={{ marginTop: 8, textAlign: "right" }}>
                         {detail.status === "voting" && !voted && (
                           <Button size="small" type="primary" ghost icon={<Vote size={11} />} onClick={() => openVote(m)} data-testid={`committee-vote-${m.memberId}`}>
-                            以本人身份投票
+                            {t("committeeRoom.voteAsSelf")}
                           </Button>
                         )}
                       </div>
@@ -466,16 +473,16 @@ const CommitteeRoomPage: React.FC = () => {
               </div>
 
               {/* 决议 */}
-              <Divider style={{ margin: "8px 0" }}>委员会决议</Divider>
+              <Divider style={{ margin: "8px 0" }}>{t("committeeRoom.committeeResolution")}</Divider>
               {detail.resolution ? (
                 <div style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success-border)", borderRadius: 8, padding: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                     <BadgeCheck size={15} color="#10b981" />
-                    <strong style={{ color: "#047857", fontSize: 13 }}>决议已生成</strong>
+                    <strong style={{ color: "#047857", fontSize: 13 }}>{t("committeeRoom.resolutionGeneratedLabel")}</strong>
                     <span style={{ fontSize: 11, color: "#94a3b8" }}>
                       {new Date(detail.resolution.generatedAt).toLocaleString()}
                       {detail.resolution.appendedToReport && (
-                        <Tag color="green" style={{ marginLeft: 6 }}>已追加报告 {detail.resolution.appendedToReport}</Tag>
+                        <Tag color="green" style={{ marginLeft: 6 }}>{t("committeeRoom.appendedReportWith")} {detail.resolution.appendedToReport}</Tag>
                       )}
                     </span>
                   </div>
@@ -486,7 +493,7 @@ const CommitteeRoomPage: React.FC = () => {
                   image={<MessageSquareQuote size={40} style={{ opacity: 0.3 }} />}
                   description={
                     <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                      {detail.status === "voting" ? "委员全部投票后可生成委员会决议 (可追加为报告段落)" : "该会诊尚未生成决议"}
+                      {detail.status === "voting" ? t("committeeRoom.resolutionHintVoting") : t("committeeRoom.resolutionHintNone")}
                     </span>
                   }
                   style={{ margin: "8px 0" }}
@@ -494,17 +501,17 @@ const CommitteeRoomPage: React.FC = () => {
               )}
 
               <Descriptions size="small" column={2} style={{ marginTop: 12 }}>
-                <Descriptions.Item label="创建人">{detail.createdBy}</Descriptions.Item>
-                <Descriptions.Item label="创建时间">{new Date(detail.createdAt).toLocaleString()}</Descriptions.Item>
-                <Descriptions.Item label="会诊 ID">{detail.id}</Descriptions.Item>
-                <Descriptions.Item label="报告 ID">
+                <Descriptions.Item label={t("committeeRoom.createdBy")}>{detail.createdBy}</Descriptions.Item>
+                <Descriptions.Item label={t("committeeRoom.createdAt")}>{new Date(detail.createdAt).toLocaleString()}</Descriptions.Item>
+                <Descriptions.Item label={t("committeeRoom.consultationId")}>{detail.id}</Descriptions.Item>
+                <Descriptions.Item label={t("committeeRoom.reportId")}>
                   <Tag color="blue">{detail.reportId}</Tag>
                 </Descriptions.Item>
               </Descriptions>
             </Card>
           ) : (
             <Card size="small" style={{ minHeight: 520 }}>
-              <Alert type="warning" showIcon message="会诊详情加载失败" description="可能后端/MSW 未就绪, 请刷新重试" />
+              <Alert type="warning" showIcon message={t("committeeRoom.detailLoadFailed")} description={t("committeeRoom.detailLoadFailedDesc")} />
             </Card>
           )}
         </Col>
@@ -512,45 +519,45 @@ const CommitteeRoomPage: React.FC = () => {
 
       {/* ============ 新建弹窗 ============ */}
       <Modal
-        title={<Space><Plus size={14} color="#7c3aed" />发起委员会会诊</Space>}
+        title={<Space><Plus size={14} color="#7c3aed" />{t("committeeRoom.createTitle")}</Space>}
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
         onOk={submitCreate}
-        okText="创建并进入会诊室"
-        cancelText="取消"
+        okText={t("committeeRoom.createOk")}
+        cancelText={t("committeeRoom.cancel")}
         confirmLoading={createLoading}
         width={560}
         destroyOnHidden
       >
         <Form form={createForm} layout="vertical" style={{ marginTop: 8 }} initialValues={{ reportId: reportIdParam ?? "", title: "", members: [] }}>
-          <Form.Item name="reportId" label="关联报告 ID" rules={[{ required: true, message: "请填写报告 ID" }]}>
-            <Input placeholder="如: RPT-038 / rpt-038" data-testid="committee-create-reportid" />
+          <Form.Item name="reportId" label={t("committeeRoom.formReportId")} rules={[{ required: true, message: t("committeeRoom.formReportIdRequired") }]}>
+            <Input placeholder={t("committeeRoom.formReportIdPlaceholder")} data-testid="committee-create-reportid" />
           </Form.Item>
-          <Form.Item name="title" label="会诊标题" rules={[{ required: true, message: "请填写会诊标题" }]}>
-            <Input placeholder="如: 主动脉夹层影像学诊断委员会合议" data-testid="committee-create-title" />
+          <Form.Item name="title" label={t("committeeRoom.formTitle")} rules={[{ required: true, message: t("committeeRoom.formTitleRequired") }]}>
+            <Input placeholder={t("committeeRoom.formTitlePlaceholder")} data-testid="committee-create-title" />
           </Form.Item>
-          <Form.Item name="members" label="会诊委员 (≥1 人)" rules={[{ required: true, message: "请至少选择 1 名委员" }]}>
+          <Form.Item name="members" label={t("committeeRoom.formMembers")} rules={[{ required: true, message: t("committeeRoom.formMembersRequired") }]}>
             <Select
               mode="multiple"
-              placeholder="选择高年资医师"
+              placeholder={t("committeeRoom.formMembersPlaceholder")}
               options={DOCTOR_POOL}
               data-testid="committee-create-members"
             />
           </Form.Item>
           <div style={{ fontSize: 12, color: "#94a3b8" }}>
-            委员将独立投票 (同意/反对 + 书面意见), 全部投票后由发起人生成委员会决议。
+            {t("committeeRoom.noteText")}
           </div>
         </Form>
       </Modal>
 
       {/* ============ 投票弹窗 ============ */}
       <Modal
-        title={<Space><Vote size={14} color="#7c3aed" />委员投票 — {voteTarget?.name}</Space>}
+        title={<Space><Vote size={14} color="#7c3aed" />{t("committeeRoom.voteTitle")} — {voteTarget?.name}</Space>}
         open={!!voteTarget}
         onCancel={() => setVoteTarget(null)}
         onOk={submitVote}
-        okText="提交投票"
-        cancelText="取消"
+        okText={t("committeeRoom.voteOk")}
+        cancelText={t("committeeRoom.cancel")}
         confirmLoading={voteLoading}
         width={520}
         destroyOnHidden
@@ -558,32 +565,32 @@ const CommitteeRoomPage: React.FC = () => {
         {voteTarget && (
           <div style={{ marginTop: 8 }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>
-              会诊: {detail?.title} · 报告 {detail?.reportId}
+              {t("committeeRoom.consultationLabel")} {detail?.title} · {t("committeeRoom.reportLabel")} {detail?.reportId}
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>投票立场</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.voteStance")}</div>
               <Radio.Group value={voteAgree} onChange={(e) => setVoteAgree(e.target.value)} data-testid="committee-vote-agree">
-                <Radio.Button value={true} style={{ color: "#10b981" }}>同意</Radio.Button>
-                <Radio.Button value={false} style={{ color: "#dc2626" }}>反对</Radio.Button>
+                <Radio.Button value={true} style={{ color: "#10b981" }}>{t("committeeRoom.agreeOption")}</Radio.Button>
+                <Radio.Button value={false} style={{ color: "#dc2626" }}>{t("committeeRoom.disagreeOption")}</Radio.Button>
               </Radio.Group>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>会诊意见 (必填)</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.opinionRequiredLabel")}</div>
               <Input.TextArea
                 rows={3}
                 value={voteOpinion}
                 onChange={(e) => setVoteOpinion(e.target.value)}
-                placeholder="如: CTA 见内膜片及真假腔, 支持主动脉夹层诊断。"
+                placeholder={t("committeeRoom.opinionPlaceholder")}
                 data-testid="committee-vote-opinion"
               />
             </div>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>补充建议 (选填)</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.suggestionOptional")}</div>
               <Input.TextArea
                 rows={2}
                 value={voteSuggestion}
                 onChange={(e) => setVoteSuggestion(e.target.value)}
-                placeholder="如: 建议急诊超声进一步评估"
+                placeholder={t("committeeRoom.suggestionPlaceholder")}
                 data-testid="committee-vote-suggestion"
               />
             </div>
@@ -593,12 +600,12 @@ const CommitteeRoomPage: React.FC = () => {
 
       {/* ============ 决议弹窗 ============ */}
       <Modal
-        title={<Space><BadgeCheck size={14} color="#10b981" />生成委员会决议</Space>}
+        title={<Space><BadgeCheck size={14} color="#10b981" />{t("committeeRoom.resolutionTitle")}</Space>}
         open={resolutionOpen}
         onCancel={() => setResolutionOpen(false)}
         onOk={submitResolution}
-        okText="生成决议"
-        cancelText="取消"
+        okText={t("committeeRoom.resolutionOk")}
+        cancelText={t("committeeRoom.cancel")}
         confirmLoading={resolutionLoading}
         width={560}
         destroyOnHidden
@@ -611,12 +618,12 @@ const CommitteeRoomPage: React.FC = () => {
             style={{ marginBottom: 12 }}
           />
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>决议内容 (综合委员意见)</div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.resolutionContent")}</div>
             <Input.TextArea
               rows={4}
               value={resolutionText}
               onChange={(e) => setResolutionText(e.target.value)}
-              placeholder="如: 委员会一致同意主动脉夹层诊断成立, 建议立即启动急诊手术评估。"
+              placeholder={t("committeeRoom.resolutionPlaceholder")}
               data-testid="committee-resolution-text"
             />
           </div>
@@ -625,7 +632,7 @@ const CommitteeRoomPage: React.FC = () => {
             onChange={(e) => setAppendToReport(e.target.checked)}
             data-testid="committee-resolution-append"
           >
-            追加为报告「决议」段落 (reportId: {detail?.reportId})
+            {t("committeeRoom.appendParagraph")} (reportId: {detail?.reportId})
           </Checkbox>
         </div>
       </Modal>

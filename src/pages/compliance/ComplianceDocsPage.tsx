@@ -13,13 +13,14 @@ import {
 } from 'antd';
 import { Search, FilePlus2, RefreshCw, FileText, ScrollText, Send, Archive, Eye, Pencil, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
-  DRAFT: { color: 'orange', label: '草稿' },
-  CURRENT: { color: 'green', label: '现行' },
-  ARCHIVED: { color: 'default', label: '已归档' },
+  DRAFT: { color: 'orange', label: t('complianceDocs.statusDraft') },
+  CURRENT: { color: 'green', label: t('complianceDocs.statusCurrent') },
+  ARCHIVED: { color: 'default', label: t('complianceDocs.statusArchived') },
 };
 
 const TYPE_OPTIONS = ['SOP', 'POLICY', 'REPORT', 'GUIDELINE', 'OTHER'].map((v) => ({ value: v, label: v }));
@@ -55,10 +56,10 @@ export const ComplianceDocsPage: React.FC = () => {
         setDocs(res.data);
       } else {
         setDocs([]);
-        setError(res.error?.message ?? '加载失败');
+        setError(res.error?.message ?? t('complianceDocs.loadFailed'));
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败');
+      setError((e as Error)?.message ?? t('complianceDocs.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -127,14 +128,14 @@ export const ComplianceDocsPage: React.FC = () => {
         ? await complianceDocsApi.update(editing.id, payload)
         : await complianceDocsApi.create(payload);
       if (!res.success) {
-        message.error(res.error?.message ?? '保存失败');
+        message.error(res.error?.message ?? t('complianceDocs.saveFailed'));
         return;
       }
-      message.success(editing ? '文档已更新' : '文档已创建');
+      message.success(editing ? t('complianceDocs.updated') : t('complianceDocs.created'));
       setModalOpen(false);
       await reloadAfterMutation();
     } catch (e) {
-      message.error((e as Error)?.message ?? '保存失败');
+      message.error((e as Error)?.message ?? t('complianceDocs.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -142,22 +143,22 @@ export const ComplianceDocsPage: React.FC = () => {
 
   const handlePublish = async (doc: ComplianceDocDto) => {
     const res = await complianceDocsApi.publish(doc.id);
-    if (!res.success) { message.error(res.error?.message ?? '发布失败'); return; }
-    message.success(`《${doc.title}》已发布`);
+    if (!res.success) { message.error(res.error?.message ?? t('complianceDocs.publishFailed')); return; }
+    message.success(`《${doc.title}》${t('complianceDocs.publishedSuffix')}`);
     await reloadAfterMutation();
   };
 
   const handleArchive = async (doc: ComplianceDocDto) => {
     const res = await complianceDocsApi.archive(doc.id);
-    if (!res.success) { message.error(res.error?.message ?? '归档失败'); return; }
-    message.success(`《${doc.title}》已归档`);
+    if (!res.success) { message.error(res.error?.message ?? t('complianceDocs.archiveFailed')); return; }
+    message.success(`《${doc.title}》${t('complianceDocs.archivedSuffix')}`);
     await reloadAfterMutation();
   };
 
   const handleDelete = async (doc: ComplianceDocDto) => {
     const res = await complianceDocsApi.delete(doc.id);
-    if (!res.success) { message.error(res.error?.message ?? '删除失败'); return; }
-    message.success(`《${doc.title}》已删除`);
+    if (!res.success) { message.error(res.error?.message ?? t('complianceDocs.deleteFailed')); return; }
+    message.success(`《${doc.title}》${t('complianceDocs.deletedSuffix')}`);
     await reloadAfterMutation();
   };
 
@@ -168,7 +169,7 @@ export const ComplianceDocsPage: React.FC = () => {
 
   const columns = [
     {
-      title: '标题', dataIndex: 'title', key: 'title', ellipsis: true,
+      title: t('complianceDocs.colTitle'), dataIndex: 'title', key: 'title', ellipsis: true,
       render: (v: string, r: ComplianceDocDto) => (
         <Space size={6}>
           <FileText size={14} color="#2563eb" />
@@ -177,40 +178,40 @@ export const ComplianceDocsPage: React.FC = () => {
         </Space>
       ),
     },
-    { title: '分类', dataIndex: 'category', key: 'category', width: 130 },
-    { title: '版本', dataIndex: 'version', key: 'version', width: 80 },
+    { title: t('complianceDocs.colCategory'), dataIndex: 'category', key: 'category', width: 130 },
+    { title: t('complianceDocs.colVersion'), dataIndex: 'version', key: 'version', width: 80 },
     {
-      title: '状态', dataIndex: 'status', key: 'status', width: 100,
+      title: t('complianceDocs.colStatus'), dataIndex: 'status', key: 'status', width: 100,
       render: (s: string) => <Tag color={STATUS_META[s]?.color ?? 'default'}>{STATUS_META[s]?.label ?? s}</Tag>,
     },
     {
-      title: '生效日期', dataIndex: 'effectiveDate', key: 'effectiveDate', width: 130,
+      title: t('complianceDocs.colEffectiveDate'), dataIndex: 'effectiveDate', key: 'effectiveDate', width: 130,
       render: (v?: string | null) => (v ? dayjs(v).format('YYYY-MM-DD') : '-'),
     },
     {
-      title: '更新时间', dataIndex: 'updatedAt', key: 'updatedAt', width: 150,
+      title: t('complianceDocs.colUpdatedAt'), dataIndex: 'updatedAt', key: 'updatedAt', width: 150,
       render: (v: string) => fmt(v),
     },
     {
-      title: '操作', key: 'actions', width: 260,
+      title: t('complianceDocs.colActions'), key: 'actions', width: 260,
       render: (_: unknown, r: ComplianceDocDto) => (
         <Space size={4} wrap>
-          <Button size="small" icon={<Eye size={12} />} onClick={() => void handleView(r)}>查看</Button>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => void handleView(r)}>{t('complianceDocs.view')}</Button>
           {r.status !== 'ARCHIVED' && (
-            <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(r)}>编辑</Button>
+            <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(r)}>{t('complianceDocs.edit')}</Button>
           )}
           {r.status === 'DRAFT' && (
-            <Button size="small" type="primary" ghost icon={<Send size={12} />} onClick={() => void handlePublish(r)}>发布</Button>
+            <Button size="small" type="primary" ghost icon={<Send size={12} />} onClick={() => void handlePublish(r)}>{t('complianceDocs.publish')}</Button>
           )}
           {r.status === 'CURRENT' && (
-            <Button size="small" icon={<Archive size={12} />} onClick={() => void handleArchive(r)}>归档</Button>
+            <Button size="small" icon={<Archive size={12} />} onClick={() => void handleArchive(r)}>{t('complianceDocs.archive')}</Button>
           )}
           <Popconfirm
-            title={`确认删除《${r.title}》？`}
-            description="删除后不可恢复"
+            title={`${t('complianceDocs.confirmDeletePrefix')}《${r.title}》？`}
+            description={t('complianceDocs.deleteIrreversible')}
             onConfirm={() => void handleDelete(r)}
           >
-            <Button size="small" danger icon={<Trash2 size={12} />}>删除</Button>
+            <Button size="small" danger icon={<Trash2 size={12} />}>{t('complianceDocs.delete')}</Button>
           </Popconfirm>
         </Space>
       ),
@@ -221,46 +222,46 @@ export const ComplianceDocsPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} align="center">
         <ScrollText size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>合规文档库</span>
-        <Tag color="green">草稿 → 现行 → 已归档</Tag>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('complianceDocs.title')}</span>
+        <Tag color="green">{t('complianceDocs.statusFlow')}</Tag>
       </Space>
 
       {error && (
         <Alert
           type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>}
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('complianceDocs.retry')}</Button>}
         />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="文档总数" value={counts.total} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="现行" value={counts.current} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="草稿" value={counts.draft} styles={{ content: { color: '#fa8c16' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已归档" value={counts.archived} styles={{ content: { color: '#8c8c8c' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statTotal')} value={counts.total} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statusCurrent')} value={counts.current} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statusDraft')} value={counts.draft} styles={{ content: { color: '#fa8c16' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statusArchived')} value={counts.archived} styles={{ content: { color: '#8c8c8c' } }} /></Card></Col>
       </Row>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space wrap>
           <Select
-            allowClear placeholder="分类筛选" style={{ width: 150 }}
+            allowClear placeholder={t('complianceDocs.categoryFilter')} style={{ width: 150 }}
             value={category} onChange={setCategory}
             options={categories.map((c) => ({ value: c, label: c }))}
           />
           <Select
-            allowClear placeholder="状态筛选" style={{ width: 120 }}
+            allowClear placeholder={t('complianceDocs.statusFilter')} style={{ width: 120 }}
             value={status} onChange={setStatus}
             options={Object.entries(STATUS_META).map(([v, m]) => ({ value: v, label: m.label }))}
           />
           <Input
-            allowClear placeholder="搜索标题/分类/内容" style={{ width: 240 }}
+            allowClear placeholder={t('complianceDocs.searchPlaceholder')} style={{ width: 240 }}
             prefix={<Search size={14} color="#999" />}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onPressEnter={() => setSearch(searchInput.trim())}
           />
-          <Button icon={<Search size={14} />} onClick={() => setSearch(searchInput.trim())}>搜索</Button>
-          <Button icon={<RefreshCw size={14} />} onClick={() => { setSearchInput(''); setSearch(''); setCategory(undefined); setStatus(undefined); }}>重置</Button>
-          <Button type="primary" icon={<FilePlus2 size={14} />} onClick={openCreate}>新建文档</Button>
+          <Button icon={<Search size={14} />} onClick={() => setSearch(searchInput.trim())}>{t('complianceDocs.search')}</Button>
+          <Button icon={<RefreshCw size={14} />} onClick={() => { setSearchInput(''); setSearch(''); setCategory(undefined); setStatus(undefined); }}>{t('complianceDocs.reset')}</Button>
+          <Button type="primary" icon={<FilePlus2 size={14} />} onClick={openCreate}>{t('complianceDocs.newDoc')}</Button>
         </Space>
       </Card>
 
@@ -275,7 +276,7 @@ export const ComplianceDocsPage: React.FC = () => {
       </Card>
 
       <Modal
-        title={editing ? `编辑文档 - ${editing.title}` : '新建合规文档'}
+        title={editing ? `${t('complianceDocs.editDocTitle')} - ${editing.title}` : t('complianceDocs.newDocTitle')}
         open={modalOpen}
         onOk={() => void handleSave()}
         onCancel={() => setModalOpen(false)}
@@ -286,51 +287,51 @@ export const ComplianceDocsPage: React.FC = () => {
         <Form form={form} layout="vertical" style={{ marginTop: 8 }}>
           <Row gutter={12}>
             <Col span={16}>
-              <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
-                <Input placeholder="文档标题" maxLength={200} />
+              <Form.Item name="title" label={t('complianceDocs.colTitle')} rules={[{ required: true, message: t('complianceDocs.titleRequired') }]}>
+                <Input placeholder={t('complianceDocs.titlePlaceholder')} maxLength={200} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="category" label="分类" rules={[{ required: true, message: '请选择分类' }]}>
+              <Form.Item name="category" label={t('complianceDocs.colCategory')} rules={[{ required: true, message: t('complianceDocs.categoryRequired') }]}>
                 <Select
-                  showSearch placeholder="选择或输入分类"
+                  showSearch placeholder={t('complianceDocs.categoryPlaceholder')}
                   options={categories.map((c) => ({ value: c, label: c }))}
                 />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="type" label="类型">
+              <Form.Item name="type" label={t('complianceDocs.type')}>
                 <Select options={TYPE_OPTIONS} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="version" label="版本">
-                <Input placeholder="如 1.0" />
+              <Form.Item name="version" label={t('complianceDocs.colVersion')}>
+                <Input placeholder={t('complianceDocs.versionPlaceholder')} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="status" label="状态">
+              <Form.Item name="status" label={t('complianceDocs.colStatus')}>
                 <Select options={Object.entries(STATUS_META).map(([v, m]) => ({ value: v, label: m.label }))} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="author" label="编写人">
-                <Input placeholder="编写人" />
+              <Form.Item name="author" label={t('complianceDocs.author')}>
+                <Input placeholder={t('complianceDocs.author')} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="approvedBy" label="批准人">
-                <Input placeholder="批准人" />
+              <Form.Item name="approvedBy" label={t('complianceDocs.approvedBy')}>
+                <Input placeholder={t('complianceDocs.approvedBy')} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="effectiveDate" label="生效日期">
+              <Form.Item name="effectiveDate" label={t('complianceDocs.colEffectiveDate')}>
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item name="content" label="内容" rules={[{ required: true, message: '请输入文档内容' }]}>
-                <TextArea rows={8} placeholder="文档正文内容" />
+              <Form.Item name="content" label={t('complianceDocs.content')} rules={[{ required: true, message: t('complianceDocs.contentRequired') }]}>
+                <TextArea rows={8} placeholder={t('complianceDocs.contentPlaceholder')} />
               </Form.Item>
             </Col>
           </Row>
@@ -338,7 +339,7 @@ export const ComplianceDocsPage: React.FC = () => {
       </Modal>
 
       <Drawer
-        title={detail ? detail.title : '文档详情'}
+        title={detail ? detail.title : t('complianceDocs.docDetail')}
         open={!!detail}
         onClose={() => setDetail(null)}
         width={560}
@@ -346,22 +347,22 @@ export const ComplianceDocsPage: React.FC = () => {
         {detail && (
           <>
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="分类">{detail.category}</Descriptions.Item>
-              <Descriptions.Item label="类型">{detail.type}</Descriptions.Item>
-              <Descriptions.Item label="版本">{detail.version}</Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label={t('complianceDocs.colCategory')}>{detail.category}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.type')}>{detail.type}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.colVersion')}>{detail.version}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.colStatus')}>
                 <Tag color={STATUS_META[detail.status]?.color ?? 'default'}>{STATUS_META[detail.status]?.label ?? detail.status}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="编写人">{detail.author ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="批准人">{detail.approvedBy ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="生效日期">{detail.effectiveDate ? dayjs(detail.effectiveDate).format('YYYY-MM-DD') : '-'}</Descriptions.Item>
-              <Descriptions.Item label="更新时间">{fmt(detail.updatedAt)}</Descriptions.Item>
-              <Descriptions.Item label="发布时间">{fmt(detail.publishedAt)}</Descriptions.Item>
-              <Descriptions.Item label="归档时间">{fmt(detail.archivedAt)}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.author')}>{detail.author ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.approvedBy')}>{detail.approvedBy ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.colEffectiveDate')}>{detail.effectiveDate ? dayjs(detail.effectiveDate).format('YYYY-MM-DD') : '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.colUpdatedAt')}>{fmt(detail.updatedAt)}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.publishedAt')}>{fmt(detail.publishedAt)}</Descriptions.Item>
+              <Descriptions.Item label={t('complianceDocs.archivedAt')}>{fmt(detail.archivedAt)}</Descriptions.Item>
             </Descriptions>
-            <Typography.Title level={5} style={{ marginTop: 16 }}>文档内容</Typography.Title>
+            <Typography.Title level={5} style={{ marginTop: 16 }}>{t('complianceDocs.docContent')}</Typography.Title>
             <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 13, lineHeight: 1.7 }}>
-              {detail.content || '（无内容）'}
+              {detail.content || t('complianceDocs.noContent')}
             </pre>
           </>
         )}

@@ -42,6 +42,7 @@ import {
   type CoSignHistoryEntry,
 } from "../../services/api/cosignApi";
 import { useTranslation } from "react-i18next";
+import { t } from "../../i18n/appI18n";
 
 const statusColor: Record<string, string> = {
   pending: "orange",
@@ -49,18 +50,18 @@ const statusColor: Record<string, string> = {
   rejected: "red",
 };
 const statusLabel: Record<string, string> = {
-  pending: "待处理",
-  approved: "已通过",
-  rejected: "已拒绝",
+  pending: "coSign.statusPending",
+  approved: "coSign.statusApproved",
+  rejected: "coSign.statusRejected",
 };
 const thresholdLabel: Record<string, string> = {
-  CRITICAL: "危急值",
-  URGENT: "紧急",
-  ALL: "全部",
+  CRITICAL: "coSign.thresholdCritical",
+  URGENT: "coSign.thresholdUrgent",
+  ALL: "coSign.thresholdAll",
 };
 
 const CoSignPage: React.FC = () => {
-  const { t } = useTranslation("v3cosign");
+  const { t: v3t } = useTranslation("v3cosign");
   const [items, setItems] = useState<CoSignItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<CoSignStats | null>(null);
@@ -115,15 +116,15 @@ const CoSignPage: React.FC = () => {
         requireCoSign: values.requireCoSign !== false,
       });
       if (res.success) {
-        message.success("会签规则已创建");
+        message.success(t('coSign.ruleCreated'));
         setRuleCreateOpen(false);
         ruleForm.resetFields();
         await fetchRules();
       } else {
-        setRuleError(res.error?.message ?? "创建失败");
+        setRuleError(res.error?.message ?? t('coSign.createFailed'));
       }
     } catch {
-      setRuleError("创建失败");
+      setRuleError(t('coSign.createFailed'));
     } finally {
       setRuleSaving(false);
     }
@@ -134,13 +135,13 @@ const CoSignPage: React.FC = () => {
     try {
       const res = await coSignApi.deleteRule(key);
       if (res.success) {
-        message.success("会签规则已删除");
+        message.success(t('coSign.ruleDeleted'));
         setRules((prev) => prev.filter((r) => r.key !== key));
       } else {
-        message.error(res.error?.message ?? "删除失败");
+        message.error(res.error?.message ?? t('coSign.deleteFailed'));
       }
     } catch {
-      message.error("删除失败");
+      message.error(t('coSign.deleteFailed'));
     } finally {
       setRuleDeletingKey(null);
     }
@@ -152,7 +153,7 @@ const CoSignPage: React.FC = () => {
       const res = await coSignApi.getPending();
       if (res.success) setItems(res.data);
     } catch {
-      message.error("加载失败");
+      message.error(t('coSign.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -205,14 +206,14 @@ const CoSignPage: React.FC = () => {
     try {
       const res = await coSignApi.approve(item.id, { note: "" });
       if (res.success) {
-        message.success("双签通过");
+        message.success(t('coSign.approved'));
         setItems((prev) => prev.filter((i) => i.id !== item.id));
         setShowDetail(false);
         fetchPending();
         fetchStats();
       }
     } catch {
-      message.error("操作失败");
+      message.error(t('coSign.operationFailed'));
     } finally {
       setActionLoading(false);
     }
@@ -220,7 +221,7 @@ const CoSignPage: React.FC = () => {
 
   const handleReject = async () => {
     if (!selectedItem || !rejectReason.trim()) {
-      message.warning("请输入拒绝原因");
+      message.warning(t('coSign.rejectReasonRequired'));
       return;
     }
     setActionLoading(true);
@@ -229,7 +230,7 @@ const CoSignPage: React.FC = () => {
         reason: rejectReason,
       });
       if (res.success) {
-        message.success("已拒绝");
+        message.success(t('coSign.rejected'));
         setItems((prev) => prev.filter((i) => i.id !== selectedItem.id));
         setShowDetail(false);
         setShowRejectModal(false);
@@ -238,7 +239,7 @@ const CoSignPage: React.FC = () => {
         fetchStats();
       }
     } catch {
-      message.error("操作失败");
+      message.error(t('coSign.operationFailed'));
     } finally {
       setActionLoading(false);
     }
@@ -246,23 +247,23 @@ const CoSignPage: React.FC = () => {
 
   const columns = [
     {
-      title: "报告ID",
+      title: t('coSign.colReportId'),
       dataIndex: "reportId",
       key: "reportId",
       render: (id: string) => (
         <span style={{ fontFamily: "monospace" }}>{id}</span>
       ),
     },
-    { title: "患者", dataIndex: "patientName", key: "patientName" },
+    { title: t('coSign.colPatient'), dataIndex: "patientName", key: "patientName" },
     {
-      title: "检查",
+      title: t('coSign.colModality'),
       dataIndex: "modality",
       key: "modality",
       render: (m: string) => <Tag color="blue">{m}</Tag>,
     },
-    { title: "部位", dataIndex: "bodyPart", key: "bodyPart" },
+    { title: t('coSign.colBodyPart'), dataIndex: "bodyPart", key: "bodyPart" },
     {
-      title: "提交医生",
+      title: t('coSign.colAuthor'),
       dataIndex: "authorName",
       key: "authorName",
       render: (n: string) => (
@@ -273,31 +274,31 @@ const CoSignPage: React.FC = () => {
       ),
     },
     {
-      title: "等待(小时)",
+      title: t('coSign.colWaitingHours'),
       dataIndex: "waitingHours",
       key: "waitingHours",
       render: (h: number) => (
-        <span style={{ color: h > 24 ? "#ff4d4f" : "#666" }}>{h} 小时</span>
+        <span style={{ color: h > 24 ? "#ff4d4f" : "#666" }}>{h} {t('coSign.hours')}</span>
       ),
     },
     {
-      title: "优先级",
+      title: t('coSign.colPriority'),
       dataIndex: "priority",
       key: "priority",
       render: (p: string) => (
         <Tag color={p === "stat" ? "red" : p === "urgent" ? "orange" : "blue"}>
-          {p === "stat" ? "加急" : p === "urgent" ? "紧急" : "常规"}
+          {p === "stat" ? t('coSign.priorityStat') : p === "urgent" ? t('coSign.priorityUrgent') : t('coSign.priorityRoutine')}
         </Tag>
       ),
     },
     {
-      title: "状态",
+      title: t('coSign.colStatus'),
       dataIndex: "status",
       key: "status",
-      render: (s: string) => <Tag color={statusColor[s]}>{statusLabel[s]}</Tag>,
+      render: (s: string) => <Tag color={statusColor[s]}>{t(statusLabel[s] ?? s)}</Tag>,
     },
     {
-      title: "操作",
+      title: t('coSign.colActions'),
       key: "actions",
       render: (_: unknown, r: CoSignItem) => (
         <Button
@@ -305,7 +306,7 @@ const CoSignPage: React.FC = () => {
           icon={<Eye size={14} />}
           onClick={() => void openDetail(r)}
         >
-          详情
+          {t('coSign.detail')}
         </Button>
       ),
     },
@@ -322,14 +323,14 @@ const CoSignPage: React.FC = () => {
         }}
       >
         <Users size={20} color="#722ed1" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>双签审核</h1>
-        <Tag color="purple">报告双签流程</Tag>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('coSign.title')}</h1>
+        <Tag color="purple">{t('coSign.subtitle')}</Tag>
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="待双签"
+              title={t('coSign.statPending')}
               value={
                 stats?.pending ??
                 items.filter((i) => i.status === "pending").length
@@ -342,7 +343,7 @@ const CoSignPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="已通过"
+              title={t('coSign.statusApproved')}
               value={stats?.approved ?? 0}
               styles={{ content: {  color: "#52c41a"  } }}
               prefix={<CheckCircle2 size={16} />}
@@ -352,7 +353,7 @@ const CoSignPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="已拒绝"
+              title={t('coSign.statusRejected')}
               value={stats?.rejected ?? 0}
               styles={{ content: {  color: "#ff4d4f"  } }}
               prefix={<XCircle size={16} />}
@@ -362,7 +363,7 @@ const CoSignPage: React.FC = () => {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title="SLA达成率"
+              title={t('coSign.statSla')}
               value={stats?.onTimeRate ?? 0}
               suffix="%"
               prefix={<BarChart3 size={16} />}
@@ -381,7 +382,7 @@ const CoSignPage: React.FC = () => {
                 void fetchRules();
               }}
             >
-              会签规则
+              {t('coSign.rules')}
             </Button>
             <Button
               icon={<RefreshCw size={14} />}
@@ -391,7 +392,7 @@ const CoSignPage: React.FC = () => {
                 void fetchHistory();
               }}
             >
-              刷新
+              {t('coSign.refresh')}
             </Button>
           </Space>
         }
@@ -408,7 +409,7 @@ const CoSignPage: React.FC = () => {
               label: (
                 <Space size={4}>
                   <Clock size={14} />
-                  待双签
+                  {t('coSign.statPending')}
                 </Space>
               ),
               children: (
@@ -417,7 +418,7 @@ const CoSignPage: React.FC = () => {
                   columns={columns}
                   rowKey="id"
                   loading={loading}
-                  pagination={{ current: itemPage, pageSize: 10, total: items.length, onChange: setItemPage, showSizeChanger: false, showTotal: (tt) => `共 ${tt} 条` }}
+                  pagination={{ current: itemPage, pageSize: 10, total: items.length, onChange: setItemPage, showSizeChanger: false, showTotal: (total) => t('coSign.totalCount', { total }) }}
                   size="small"
                   scroll={{ x: "max-content" }}
                 />
@@ -428,7 +429,7 @@ const CoSignPage: React.FC = () => {
               label: (
                 <Space size={4}>
                   <History size={14} />
-                  {t("historyTitle")}
+                  {v3t("historyTitle")}
                 </Space>
               ),
               children: (
@@ -436,29 +437,29 @@ const CoSignPage: React.FC = () => {
                   dataSource={history}
                   rowKey="id"
                   loading={historyLoading}
-                  pagination={{ current: historyPage, pageSize: 10, total: history.length, onChange: setHistoryPage, showSizeChanger: false, showTotal: (tt) => `共 ${tt} 条` }}
+                  pagination={{ current: historyPage, pageSize: 10, total: history.length, onChange: setHistoryPage, showSizeChanger: false, showTotal: (total) => t('coSign.totalCount', { total }) }}
                   size="small"
                   scroll={{ x: "max-content" }}
-                  locale={{ emptyText: t("historyEmpty") }}
+                  locale={{ emptyText: v3t("historyEmpty") }}
                   columns={[
                     {
-                      title: t("historyReportId"),
+                      title: v3t("historyReportId"),
                       dataIndex: "reportId",
                       key: "reportId",
                       render: (id: string) => <span style={{ fontFamily: "monospace" }}>{id || "—"}</span>,
                     },
                     {
-                      title: t("historyAction"),
+                      title: v3t("historyAction"),
                       dataIndex: "action",
                       key: "action",
                       render: (a: string) => (
                         <Tag color={a === "APPROVE" ? "green" : a === "REJECT" ? "red" : "default"}>
-                          {a === "APPROVE" ? t("actionApprove") : a === "REJECT" ? t("actionReject") : a}
+                          {a === "APPROVE" ? v3t("actionApprove") : a === "REJECT" ? v3t("actionReject") : a}
                         </Tag>
                       ),
                     },
                     {
-                      title: t("historyActor"),
+                      title: v3t("historyActor"),
                       dataIndex: "actor",
                       key: "actor",
                       render: (a: string) => (
@@ -469,12 +470,12 @@ const CoSignPage: React.FC = () => {
                       ),
                     },
                     {
-                      title: t("historyTimestamp"),
+                      title: v3t("historyTimestamp"),
                       dataIndex: "timestamp",
                       key: "timestamp",
                       render: (ts: string) => (ts ? new Date(ts).toLocaleString() : "—"),
                     },
-                    { title: t("historyDetail"), dataIndex: "detail", key: "detail", ellipsis: true },
+                    { title: v3t("historyDetail"), dataIndex: "detail", key: "detail", ellipsis: true },
                   ]}
                 />
               ),
@@ -483,7 +484,7 @@ const CoSignPage: React.FC = () => {
         />
       </Card>
       <Modal
-        title="双签详情"
+        title={t('coSign.detailTitle')}
         open={showDetail}
         onCancel={() => {
           setShowDetail(false);
@@ -498,21 +499,21 @@ const CoSignPage: React.FC = () => {
                   setSelectedItem(null);
                 }}
               >
-                取消
+                {t('coSign.cancel')}
               </Button>
               <Button
                 danger
                 onClick={() => setShowRejectModal(true)}
                 loading={actionLoading}
               >
-                拒绝
+                {t('coSign.reject')}
               </Button>
               <Button
                 type="primary"
                 onClick={() => selectedItem && handleApprove(selectedItem)}
                 loading={actionLoading}
               >
-                通过
+                {t('coSign.approve')}
               </Button>
             </Space>
           )
@@ -525,39 +526,39 @@ const CoSignPage: React.FC = () => {
               icon={<RefreshCw size={12} />}
               onClick={() => void openDetail(selectedItem)}
             >
-              {t("detailRefresh")}
+              {v3t("detailRefresh")}
             </Button>
           )
         }
       >
         {selectedItem && (
           <Descriptions bordered column={2} size="small">
-            <Descriptions.Item label="报告ID">
+            <Descriptions.Item label={t('coSign.colReportId')}>
               {selectedItem.reportId}
             </Descriptions.Item>
-            <Descriptions.Item label="患者">
+            <Descriptions.Item label={t('coSign.colPatient')}>
               {selectedItem.patientName}
             </Descriptions.Item>
-            <Descriptions.Item label="检查">
+            <Descriptions.Item label={t('coSign.colModality')}>
               {selectedItem.modality}
             </Descriptions.Item>
-            <Descriptions.Item label="部位">
+            <Descriptions.Item label={t('coSign.colBodyPart')}>
               {selectedItem.bodyPart}
             </Descriptions.Item>
-            <Descriptions.Item label="提交医生">
+            <Descriptions.Item label={t('coSign.colAuthor')}>
               {selectedItem.authorName}
             </Descriptions.Item>
-            <Descriptions.Item label="等待时间">
+            <Descriptions.Item label={t('coSign.waitingTime')}>
               {selectedItem.waitingHours}h
             </Descriptions.Item>
-            <Descriptions.Item label={t("detailClinicalInfo")} span={2}>
+            <Descriptions.Item label={v3t("detailClinicalInfo")} span={2}>
               {selectedItem.clinicalInfo || "—"}
             </Descriptions.Item>
           </Descriptions>
         )}
       </Modal>
       <Modal
-        title="拒绝原因"
+        title={t('coSign.rejectReasonTitle')}
         open={showRejectModal}
         onOk={handleReject}
         onCancel={() => {
@@ -570,13 +571,13 @@ const CoSignPage: React.FC = () => {
           rows={4}
           value={rejectReason}
           onChange={(e) => setRejectReason(e.target.value)}
-          placeholder="请输入拒绝原因..."
+          placeholder={t('coSign.rejectReasonPlaceholder')}
         />
       </Modal>
 
       {/* [Wave1B P2] 会签规则管理: coSignApi.getRules / createRule / deleteRule */}
       <Modal
-        title={<Space><Settings2 size={16} color="#722ed1" />会签规则</Space>}
+        title={<Space><Settings2 size={16} color="#722ed1" />{t('coSign.rules')}</Space>}
         open={showRulesModal}
         onCancel={() => setShowRulesModal(false)}
         footer={
@@ -590,9 +591,9 @@ const CoSignPage: React.FC = () => {
                 setRuleCreateOpen(true);
               }}
             >
-              新建规则
+              {t('coSign.createRule')}
             </Button>
-            <Button onClick={() => setShowRulesModal(false)}>关闭</Button>
+            <Button onClick={() => setShowRulesModal(false)}>{t('coSign.close')}</Button>
           </Space>
         }
         width={720}
@@ -601,7 +602,7 @@ const CoSignPage: React.FC = () => {
           style={{ marginBottom: 12 }}
           type="info"
           showIcon
-          message="规则保存于系统配置"
+          message={t('coSign.rulesHint')}
         />
         <Table
           rowKey="key"
@@ -610,20 +611,20 @@ const CoSignPage: React.FC = () => {
           loading={rulesLoading}
           pagination={false}
           scroll={{ x: 'max-content' }}
-          locale={{ emptyText: "暂无会签规则" }}
+          locale={{ emptyText: t('coSign.noRules') }}
           columns={[
-            { title: "规则名", dataIndex: "name", key: "name" },
-            { title: "模态", dataIndex: "modality", key: "modality", render: (m: string) => <Tag color="blue">{m}</Tag> },
-            { title: "阈值", dataIndex: "threshold", key: "threshold", render: (t: string) => <Tag>{thresholdLabel[t] ?? t}</Tag> },
-            { title: "会签医师", dataIndex: "cosignerIds", key: "cosignerIds", render: (ids: string[]) => (ids ?? []).join(", ") || "-" },
-            { title: "最少复核", dataIndex: "minReviewers", key: "minReviewers", render: (v: number) => v ?? 1 },
-            { title: "强制会签", dataIndex: "requireCoSign", key: "requireCoSign", render: (v: boolean) => (v === false ? "否" : "是") },
+            { title: t('coSign.ruleName'), dataIndex: "name", key: "name" },
+            { title: t('coSign.colModality'), dataIndex: "modality", key: "modality", render: (m: string) => <Tag color="blue">{m}</Tag> },
+            { title: t('coSign.threshold'), dataIndex: "threshold", key: "threshold", render: (th: string) => <Tag>{t(thresholdLabel[th] ?? 'coSign.thresholdAll')}</Tag> },
+            { title: t('coSign.cosigners'), dataIndex: "cosignerIds", key: "cosignerIds", render: (ids: string[]) => (ids ?? []).join(", ") || "-" },
+            { title: t('coSign.minReviewers'), dataIndex: "minReviewers", key: "minReviewers", render: (v: number) => v ?? 1 },
+            { title: t('coSign.requireCoSign'), dataIndex: "requireCoSign", key: "requireCoSign", render: (v: boolean) => (v === false ? t('coSign.no') : t('coSign.yes')) },
             {
-              title: "操作",
+              title: t('coSign.colActions'),
               key: "actions",
               width: 90,
               render: (_: unknown, r: CoSignRule) => (
-                <Popconfirm title="删除该规则?" onConfirm={() => void handleDeleteRule(r.key)}>
+                <Popconfirm title={t('coSign.confirmDeleteRule')} onConfirm={() => void handleDeleteRule(r.key)}>
                   <Button size="small" danger icon={<Trash2 size={12} />} loading={ruleDeletingKey === r.key} />
                 </Popconfirm>
               ),
@@ -633,12 +634,12 @@ const CoSignPage: React.FC = () => {
       </Modal>
 
       <Modal
-        title="新建会签规则"
+        title={t('coSign.createRuleTitle')}
         open={ruleCreateOpen}
         onOk={() => void handleCreateRule()}
         onCancel={() => setRuleCreateOpen(false)}
         confirmLoading={ruleSaving}
-        okText="创建"
+        okText={t('coSign.create')}
         width={520}
       >
         <Form
@@ -648,34 +649,34 @@ const CoSignPage: React.FC = () => {
           style={{ marginTop: 12 }}
           initialValues={{ modality: "CT", threshold: "ALL", minReviewers: 1, requireCoSign: true }}
         >
-          <Form.Item name="name" label="规则名称" rules={[{ required: true, message: "请输入规则名称" }]}>
-            <Input placeholder="如：危急报告强制双签" />
+          <Form.Item name="name" label={t('coSign.ruleNameField')} rules={[{ required: true, message: t('coSign.ruleNameRequired') }]}>
+            <Input placeholder={t('coSign.ruleNamePlaceholder')} />
           </Form.Item>
-          <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+          <Form.Item name="modality" label={t('coSign.colModality')} rules={[{ required: true }]}>
             <Select
               options={["CT", "MR", "DR", "DSA", "MG", "GI", "US"].map((m) => ({ value: m, label: m }))}
             />
           </Form.Item>
-          <Form.Item name="threshold" label="触发阈值" rules={[{ required: true }]}>
+          <Form.Item name="threshold" label={t('coSign.thresholdField')} rules={[{ required: true }]}>
             <Select
               options={[
-                { value: "CRITICAL", label: "危急值" },
-                { value: "URGENT", label: "紧急" },
-                { value: "ALL", label: "全部" },
+                { value: "CRITICAL", label: t('coSign.thresholdCritical') },
+                { value: "URGENT", label: t('coSign.thresholdUrgent') },
+                { value: "ALL", label: t('coSign.thresholdAll') },
               ]}
             />
           </Form.Item>
-          <Form.Item name="cosignerIds" label="会签医师 ID (逗号分隔)" rules={[{ required: true, message: "至少 1 名会签医师" }]}>
+          <Form.Item name="cosignerIds" label={t('coSign.cosignerIdsLabel')} rules={[{ required: true, message: t('coSign.cosignerIdsRequired') }]}>
             <Input placeholder="如：dr-005, dr-009" />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="minReviewers" label="最少复核人数">
+              <Form.Item name="minReviewers" label={t('coSign.minReviewersField')}>
                 <InputNumber min={1} max={10} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="requireCoSign" label="强制会签" valuePropName="checked">
+              <Form.Item name="requireCoSign" label={t('coSign.requireCoSign')} valuePropName="checked">
                 <Switch />
               </Form.Item>
             </Col>

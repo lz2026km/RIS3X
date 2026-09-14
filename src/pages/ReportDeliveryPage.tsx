@@ -19,6 +19,7 @@ import {
 } from '../data/deliveryExportSignatureMock';
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
+import { t } from '../i18n/appI18n';
 
 // [G005 W2-B] reportApi 无 delivery 端点 → 由 reportApi.list 派生推送记录 + 页面标注
 const DELIVERY_CHANNELS: DeliveryChannel[] = ['wechat', 'sms', 'email', 'inApp', 'dicom', 'paper', 'cloud', 'film'];
@@ -53,7 +54,7 @@ function reportToDeliveryRecord(r: ReportDto): DeliveryRecord {
   return {
     id: `dl-${r.id}`,
     reportId: r.id,
-    patientName: r.patientName || '患者',
+    patientName: r.patientName || t('reportDelivery.patient'),
     channel: deriveChannel(r.id),
     deliveredAt: r.signedAt ?? r.updatedTime ?? '',
     status: DELIVERY_STATUS_BY_REPORT_STATE[r.status] ?? 'pending',
@@ -68,27 +69,27 @@ function reportToDeliveryRecord(r: ReportDto): DeliveryRecord {
 // 渠道配置
 // ============================================================
 const CHANNEL_CONFIG: Record<DeliveryChannel, { label: string; icon: any; color: string; bg: string; description: string }> = {
-  wechat: { label: '微信',     icon: MessageSquare, color: '#07c160', bg: '#22c55e22', description: '微信公众号/小程序推送' },
-  sms:    { label: '短信',     icon: Smartphone,    color: '#3b82f6', bg: '#3b82f622', description: '短信推送（含链接）' },
-  email:  { label: '邮件',     icon: Mail,          color: '#ea580c', bg: '#f9731622', description: '邮件含 PDF 附件' },
-  inApp:  { label: '站内',     icon: Bell,          color: '#7c3aed', bg: '#8b5cf622', description: '患者 App 消息' },
-  dicom:  { label: 'DICOM',    icon: Database,      color: '#0891b2', bg: '#06b6d422', description: 'DICOM SR 推送到 PACS' },
-  paper:  { label: '纸质打印', icon: Printer,        color: 'var(--text-secondary)', bg: 'var(--bg-deep)', description: '实体报告打印' },
-  cloud:  { label: '云盘',     icon: Cloud,         color: '#0ea5e9', bg: '#3b82f622', description: '云盘链接分享' },
-  film:   { label: '胶片',     icon: Film,          color: '#059669', bg: '#22c55e22', description: '胶片打印' },
+  wechat: { label: t('reportDelivery.channelWechat'),     icon: MessageSquare, color: '#07c160', bg: '#22c55e22', description: t('reportDelivery.channelWechatDesc') },
+  sms:    { label: t('reportDelivery.channelSms'),     icon: Smartphone,    color: '#3b82f6', bg: '#3b82f622', description: t('reportDelivery.channelSmsDesc') },
+  email:  { label: t('reportDelivery.channelEmail'),     icon: Mail,          color: '#ea580c', bg: '#f9731622', description: t('reportDelivery.channelEmailDesc') },
+  inApp:  { label: t('reportDelivery.channelInApp'),     icon: Bell,          color: '#7c3aed', bg: '#8b5cf622', description: t('reportDelivery.channelInAppDesc') },
+  dicom:  { label: 'DICOM',    icon: Database,      color: '#0891b2', bg: '#06b6d422', description: t('reportDelivery.channelDicomDesc') },
+  paper:  { label: t('reportDelivery.channelPaper'), icon: Printer,        color: 'var(--text-secondary)', bg: 'var(--bg-deep)', description: t('reportDelivery.channelPaperDesc') },
+  cloud:  { label: t('reportDelivery.channelCloud'),     icon: Cloud,         color: '#0ea5e9', bg: '#3b82f622', description: t('reportDelivery.channelCloudDesc') },
+  film:   { label: t('reportDelivery.channelFilm'),     icon: Film,          color: '#059669', bg: '#22c55e22', description: t('reportDelivery.channelFilmDesc') },
 };
 
 const STATUS_CONFIG = {
-  pending:   { label: '推送中', color: '#f59e0b', bg: '#f59e0b22' },
-  delivered: { label: '已送达', color: '#3b82f6', bg: '#3b82f622' },
-  read:      { label: '已阅读', color: '#10b981', bg: '#22c55e22' },
-  failed:    { label: '失败',   color: '#ef4444', bg: '#ef444422' },
+  pending:   { label: t('reportDelivery.statusPending'), color: '#f59e0b', bg: '#f59e0b22' },
+  delivered: { label: t('reportDelivery.statusDelivered'), color: '#3b82f6', bg: '#3b82f622' },
+  read:      { label: t('reportDelivery.statusRead'), color: '#10b981', bg: '#22c55e22' },
+  failed:    { label: t('reportDelivery.statusFailed'),   color: '#ef4444', bg: '#ef444422' },
   // [G005 Wave6A] 撤回态: 本地记录 (后端无 delivery 撤回端点)
-  recalled:  { label: '已撤回', color: '#7c3aed', bg: '#8b5cf622' },
+  recalled:  { label: t('reportDelivery.statusRecalled'), color: '#7c3aed', bg: '#8b5cf622' },
 };
 
 const TEMPLATE_LABEL: Record<string, string> = {
-  standard: '标准', simplified: '自定义', patient: '紧急',
+  standard: t('reportDelivery.templateStandard'), simplified: t('reportDelivery.templateSimplified'), patient: t('reportDelivery.templatePatient'),
 };
 
 // [G005 Wave6A] 撤回记录 (本地状态流转)
@@ -159,7 +160,7 @@ export default function ReportDeliveryPage() {
     if (!recallTarget) return;
     setRecalls(prev => ({
       ...prev,
-      [recallTarget.id]: { at: new Date().toLocaleString('zh-CN', { hour12: false }), reason: recallReason.trim() || '未填写原因' },
+      [recallTarget.id]: { at: new Date().toLocaleString('zh-CN', { hour12: false }), reason: recallReason.trim() || t('reportDelivery.noReason') },
     }));
     setRecallTarget(null);
     setRecallReason('');
@@ -197,7 +198,7 @@ export default function ReportDeliveryPage() {
   // 批量推送
   const handleBatchSend = async () => {
     if (selectedRecords.size === 0) {
-      message.warning('请先选择要推送的报告');
+      message.warning(t('reportDelivery.selectReportFirst'));
       return;
     }
     setSending(true);
@@ -222,12 +223,12 @@ export default function ReportDeliveryPage() {
         }}>
           <Send size={14} />
           <span>
-            来自报告列表: <strong>{fromReportId}</strong> — 可直接选择下方推送渠道对该报告进行分发 / 推送管理
+            {t('reportDelivery.fromReportList')} <strong>{fromReportId}</strong> — {t('reportDelivery.fromReportHint')}
             <button
               onClick={() => navigate('/reports')}
               style={{ marginLeft: 10, padding: '2px 8px', border: '1px solid #bbf7d0', borderRadius: 4, background: 'var(--bg-card)', color: '#047857', fontSize: 12, cursor: 'pointer' }}
             >
-              返回报告列表
+              {t('reportDelivery.backToReportList')}
             </button>
           </span>
         </div>
@@ -236,21 +237,21 @@ export default function ReportDeliveryPage() {
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Send size={20} color="#07c160" /> 报告推送中心
+            <Send size={20} color="#07c160" /> {t('reportDelivery.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.DIST v3.0.5.1</span>
             {recordsSource === 'api' ? (
               <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1d4ed8', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
-                {recordsLoading ? '加载中...' : `接口数据派生 · ${records.length} 条`}
+                {recordsLoading ? t('reportDelivery.loading') : `${t('reportDelivery.apiDerived')} · ${records.length} ${t('reportDelivery.items')}`}
               </span>
             ) : (
               <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 10, fontWeight: 700, border: '1px solid #fde68a' }}>
-                静态演示数据（接口无推送端点，派生失败回退）
+                {t('reportDelivery.staticData')}
               </span>
             )}
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            v3.0.5.1 增强:多通道送达 / 送达回执 / 患者端门户 · 50 升级点
+            {t('reportDelivery.subtitle')}
           </p>
         </div>
         <Tabs
@@ -259,12 +260,12 @@ export default function ReportDeliveryPage() {
           tabBarExtraContent={
             <Badge
               count={records.length}
-              title={`推送记录 ${records.length} 条`}
+              title={`${t('reportDelivery.recordsCount')} ${records.length}`}
               style={{ backgroundColor: '#10b981' }}
             />
           }          items={[
-            { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.DIST 增强</span> },
-            { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
+            { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />{t('reportDelivery.tabV3')}</span> },
+            { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />{t('reportDelivery.tabClassic')}</span> },
           ]}
         />
       </div>
@@ -276,14 +277,14 @@ export default function ReportDeliveryPage() {
             tabBarExtraContent={
               <Badge
                 count={3}
-                title="R3.DIST 子模块 3 项"
+                title={t('reportDelivery.submodules')}
                 style={{ backgroundColor: '#7c3aed' }}
               />
             }
             items={[
-              { key: 'multi', label: <span><Layers className="w-3 h-3 inline mr-1" />多通道送达</span>, children: <MultiChannelSender reportId="rpt-038" patientId="p-038" /> },
-              { key: 'receipt', label: <span><Receipt className="w-3 h-3 inline mr-1" />送达回执</span>, children: <DeliveryReceiptComponent reportId="rpt-038" /> },
-              { key: 'portal', label: <span><Smartphone className="w-3 h-3 inline mr-1" />患者端门户</span>, children: <PatientReportPortal reportId="rpt-038" patientId="p-038" /> },
+              { key: 'multi', label: <span><Layers className="w-3 h-3 inline mr-1" />{t('reportDelivery.multiChannel')}</span>, children: <MultiChannelSender reportId="rpt-038" patientId="p-038" /> },
+              { key: 'receipt', label: <span><Receipt className="w-3 h-3 inline mr-1" />{t('reportDelivery.receipt')}</span>, children: <DeliveryReceiptComponent reportId="rpt-038" /> },
+              { key: 'portal', label: <span><Smartphone className="w-3 h-3 inline mr-1" />{t('reportDelivery.portal')}</span>, children: <PatientReportPortal reportId="rpt-038" patientId="p-038" /> },
             ]}
           />
         </div>
@@ -292,11 +293,11 @@ export default function ReportDeliveryPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Send size={20} color="#07c160" /> 报告推送中心
+            <Send size={20} color="#07c160" /> {t('reportDelivery.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）· 批量推送 · 失败重试 · 撤回/重发（状态本地记录）
+            {t('reportDelivery.classicSubtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -304,17 +305,17 @@ export default function ReportDeliveryPage() {
             onClick={() => navigate('/report-export')}
             style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
           >
-            导出中心
+            {t('reportDelivery.exportCenter')}
           </button>
         </div>
       </div>
 
       {/* KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={Send} label="本月推送" value={DELIVERY_KPI.totalThisMonth} color="#07c160" />
-        <KpiCard icon={CheckCircle2} label="成功率" value={`${DELIVERY_KPI.successRate}%`} color="#10b981" />
-        <KpiCard icon={Eye} label="阅读率" value={`${DELIVERY_KPI.readRate}%`} color="#3b82f6" />
-        <KpiCard icon={Cloud} label="下载率" value={`${DELIVERY_KPI.downloadRate}%`} color="#7c3aed" />
+        <KpiCard icon={Send} label={t('reportDelivery.kpiMonth')} value={DELIVERY_KPI.totalThisMonth} color="#07c160" />
+        <KpiCard icon={CheckCircle2} label={t('reportDelivery.kpiSuccessRate')} value={`${DELIVERY_KPI.successRate}%`} color="#10b981" />
+        <KpiCard icon={Eye} label={t('reportDelivery.kpiReadRate')} value={`${DELIVERY_KPI.readRate}%`} color="#3b82f6" />
+        <KpiCard icon={Cloud} label={t('reportDelivery.kpiDownloadRate')} value={`${DELIVERY_KPI.downloadRate}%`} color="#7c3aed" />
       </div>
 
       {/* 渠道分布卡片 */}
@@ -345,17 +346,17 @@ export default function ReportDeliveryPage() {
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 10, marginBottom: 12, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8 }}>
         <Filter size={12} color="var(--text-secondary)" />
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
-          <option value="all">全部状态</option>
-          <option value="pending">推送中</option>
-          <option value="delivered">已送达</option>
-          <option value="read">已阅读</option>
-          <option value="failed">失败</option>
+          <option value="all">{t('reportDelivery.allStatus')}</option>
+          <option value="pending">{t('reportDelivery.statusPending')}</option>
+          <option value="delivered">{t('reportDelivery.statusDelivered')}</option>
+          <option value="read">{t('reportDelivery.statusRead')}</option>
+          <option value="failed">{t('reportDelivery.statusFailed')}</option>
         </select>
-        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已选 <strong style={{ color: '#dc2626' }}>{selectedRecords.size}</strong> / {filteredRecords.length} 条</span>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportDelivery.selected')} <strong style={{ color: '#dc2626' }}>{selectedRecords.size}</strong> / {filteredRecords.length} {t('reportDelivery.items')}</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           {sending && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#1e40af' }}>
-              <Loader2 size={12} className="spin" /> 推送中 {sendProgress}%
+              <Loader2 size={12} className="spin" /> {t('reportDelivery.pushing')} {sendProgress}%
               <div style={{ width: 100, height: 4, background: 'var(--color-info-bg)', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{ width: `${sendProgress}%`, height: '100%', background: '#3b82f6' }} />
               </div>
@@ -372,7 +373,7 @@ export default function ReportDeliveryPage() {
               display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            <Send size={12} /> 批量推送
+            <Send size={12} /> {t('reportDelivery.batchPush')}
           </button>
         </div>
       </div>
@@ -426,21 +427,21 @@ export default function ReportDeliveryPage() {
                   }}>{sConf.label}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  {r.patientPhone || r.patientEmail || r.patientWechat} · 模板：{TEMPLATE_LABEL[r.template] ?? r.template}
+                  {r.patientPhone || r.patientEmail || r.patientWechat} · {t('reportDelivery.templateLabel')}{TEMPLATE_LABEL[r.template] ?? r.template}
                 </div>
                 {r.failureReason && !recall && (
-                  <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · 重试 {r.retryCount} 次</div>
+                  <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · {t('reportDelivery.retry')} {r.retryCount} {t('reportDelivery.times')}</div>
                 )}
                 {recall && (
                   <div style={{ fontSize: 12, color: '#7c3aed', marginTop: 2 }}>
-                    ↩ 已撤回: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>状态本地记录</span>
+                    ↩ {t('reportDelivery.recalledLabel')}: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>{t('reportDelivery.localState')}</span>
                   </div>
                 )}
               </div>
               <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)' }}>
                 <div>{r.deliveredAt}</div>
-                {r.openedAt && <div style={{ color: '#10b981' }}>阅读：{r.openedAt.slice(11)}</div>}
-                <div>下载 {r.downloadCount} 次</div>
+                {r.openedAt && <div style={{ color: '#10b981' }}>{t('reportDelivery.readAt')}{r.openedAt.slice(11)}</div>}
+                <div>{t('reportDelivery.downloads')} {r.downloadCount} {t('reportDelivery.times')}</div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 {r.status === 'failed' && !recall && (
@@ -460,7 +461,7 @@ export default function ReportDeliveryPage() {
                     }}
                     style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: 'var(--bg-card)', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
-                    <RefreshCw size={10} /> 重试
+                    <RefreshCw size={10} /> {t('reportDelivery.retry')}
                   </button>
                 )}
                 {recall ? (
@@ -469,18 +470,18 @@ export default function ReportDeliveryPage() {
                     disabled={resendingId === r.id}
                     style={{ padding: '4px 8px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, cursor: resendingId === r.id ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
-                    <RotateCcw size={10} /> {resendingId === r.id ? '重发中...' : '重发'}
+                    <RotateCcw size={10} /> {resendingId === r.id ? t('reportDelivery.resending') : t('reportDelivery.resend')}
                   </button>
                 ) : (
                   <Popconfirm
-                    title="确认撤回该推送记录?"
-                    description="撤回后状态标记为『已撤回』（本地记录），可随时重发"
-                    okText="撤回"
-                    cancelText="取消"
+                    title={t('reportDelivery.confirmRecallTitle')}
+                    description={t('reportDelivery.confirmRecallDesc')}
+                    okText={t('reportDelivery.recall')}
+                    cancelText={t('reportDelivery.cancel')}
                     onConfirm={() => { setRecallTarget(r); setRecallReason(''); }}
                   >
                     <button style={{ padding: '4px 8px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                      <Undo2 size={10} /> 撤回
+                      <Undo2 size={10} /> {t('reportDelivery.recall')}
                     </button>
                   </Popconfirm>
                 )}
@@ -488,67 +489,67 @@ export default function ReportDeliveryPage() {
                   onClick={() => setDetailTarget(r)}
                   style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                 >
-                  <Eye size={10} /> 详情
+                  <Eye size={10} /> {t('reportDelivery.detail')}
                 </button>
               </div>
             </div>
           );
         })}
         {filteredRecords.length === 0 && (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>无匹配记录</div>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportDelivery.noMatch')}</div>
         )}
       </div>
 
       {/* [G005 Wave6A] 撤回原因 Modal + 本地状态说明 */}
       <Modal
-        title={recallTarget ? `撤回推送记录 · ${recallTarget.patientName}` : '撤回推送记录'}
+        title={recallTarget ? `${t('reportDelivery.recallTitle')} · ${recallTarget.patientName}` : t('reportDelivery.recallTitle')}
         open={recallTarget != null}
         onCancel={() => setRecallTarget(null)}
         onOk={confirmRecall}
-        okText="确认撤回"
-        cancelText="取消"
+        okText={t('reportDelivery.confirmRecall')}
+        cancelText={t('reportDelivery.cancel')}
         okButtonProps={{ danger: true }}
         destroyOnHidden
       >
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
-          状态将标记为 <strong>已撤回</strong>。后端暂无撤回端点，此状态为<strong>本地记录</strong>。
+          {t('reportDelivery.recallStatePrefix')} <strong>{t('reportDelivery.statusRecalled')}</strong>{t('reportDelivery.recallStateMid')}<strong>{t('reportDelivery.localRecord')}</strong>。
         </p>
         <textarea
           rows={3}
           value={recallReason}
           onChange={e => setRecallReason(e.target.value)}
-          placeholder="撤回原因 (如: 报告内容有误, 需重新出具)"
+          placeholder={t('reportDelivery.recallReasonPlaceholder')}
           style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical' }}
         />
       </Modal>
 
       {/* [G005 Wave2A P1] 推送记录详情 Modal (全字段) */}
       <Modal
-        title="推送记录详情"
+        title={t('reportDelivery.detailTitle')}
         open={detailTarget != null}
         onCancel={() => setDetailTarget(null)}
         onOk={() => setDetailTarget(null)}
-        okText="关闭"
+        okText={t('reportDelivery.close')}
         cancelButtonProps={{ style: { display: 'none' } }}
         destroyOnHidden
       >
         {detailTarget && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {[
-              { label: '患者姓名', value: detailTarget.patientName },
-              { label: '报告编号', value: detailTarget.reportId },
-              { label: '推送渠道', value: CHANNEL_CONFIG[detailTarget.channel]?.label ?? detailTarget.channel },
-              { label: '推送模板', value: TEMPLATE_LABEL[detailTarget.template] ?? detailTarget.template },
-              { label: '推送状态', value: recalls[detailTarget.id] ? STATUS_CONFIG.recalled.label : STATUS_CONFIG[detailTarget.status]?.label },
-              { label: '推送时间', value: detailTarget.deliveredAt || '-' },
-              { label: '阅读时间', value: detailTarget.openedAt ?? '-' },
-              { label: '下载次数', value: `${detailTarget.downloadCount} 次` },
-              { label: '通知医生', value: detailTarget.notifyDoctor },
-              { label: '患者手机', value: detailTarget.patientPhone ?? '-' },
-              { label: '患者邮箱', value: detailTarget.patientEmail ?? '-' },
-              { label: '患者微信', value: detailTarget.patientWechat ?? '-' },
-              { label: '失败原因', value: detailTarget.failureReason ?? '-' },
-              { label: '重试次数', value: `${detailTarget.retryCount} 次` },
+              { label: t('reportDelivery.fPatientName'), value: detailTarget.patientName },
+              { label: t('reportDelivery.fReportId'), value: detailTarget.reportId },
+              { label: t('reportDelivery.fChannel'), value: CHANNEL_CONFIG[detailTarget.channel]?.label ?? detailTarget.channel },
+              { label: t('reportDelivery.fTemplate'), value: TEMPLATE_LABEL[detailTarget.template] ?? detailTarget.template },
+              { label: t('reportDelivery.fStatus'), value: recalls[detailTarget.id] ? STATUS_CONFIG.recalled.label : STATUS_CONFIG[detailTarget.status]?.label },
+              { label: t('reportDelivery.fPushTime'), value: detailTarget.deliveredAt || '-' },
+              { label: t('reportDelivery.fReadTime'), value: detailTarget.openedAt ?? '-' },
+              { label: t('reportDelivery.fDownloadCount'), value: `${detailTarget.downloadCount} ${t('reportDelivery.times')}` },
+              { label: t('reportDelivery.fNotifyDoctor'), value: detailTarget.notifyDoctor },
+              { label: t('reportDelivery.fPatientPhone'), value: detailTarget.patientPhone ?? '-' },
+              { label: t('reportDelivery.fPatientEmail'), value: detailTarget.patientEmail ?? '-' },
+              { label: t('reportDelivery.fPatientWechat'), value: detailTarget.patientWechat ?? '-' },
+              { label: t('reportDelivery.fFailureReason'), value: detailTarget.failureReason ?? '-' },
+              { label: t('reportDelivery.fRetryCount'), value: `${detailTarget.retryCount} ${t('reportDelivery.times')}` },
             ].map(item => (
               <div key={item.label} style={{ padding: '8px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{item.label}</div>
@@ -559,7 +560,7 @@ export default function ReportDeliveryPage() {
               const recall = recalls[detailTarget.id]!;
               return (
                 <div style={{ gridColumn: 'span 2', padding: '8px 10px', background: '#ede9fe', border: '1px solid #ddd6fe', borderRadius: 6, fontSize: 12, color: '#7c3aed' }}>
-                  撤回记录: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>状态本地记录</span>
+                  {t('reportDelivery.recallRecord')}: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>{t('reportDelivery.localState')}</span>
                 </div>
               );
             })()}

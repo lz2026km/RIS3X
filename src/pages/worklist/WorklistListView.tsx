@@ -32,45 +32,46 @@ import {
 import { useMemo, useState } from "react";
 import { Inbox } from 'lucide-react'
 import { useNavigate } from "react-router-dom";
+import { t } from "../../i18n/appI18n";
 
 const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string; order: number }
 > = {
-  SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "已登记", order: 0 },
-  ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "已报到", order: 1 },
-  IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "检查中", order: 2 },
+  SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "wl.statusRegistered", order: 0 },
+  ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "wl.statusArrived", order: 1 },
+  IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "wl.statusInProgress", order: 2 },
   // [v3.0.6.11-95 Wave 1A P1] 暂停态 + 影像质控态映射
-  PAUSED: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停", order: 2.5 },
-  IMAGE_READY: { bg: "#10b98122", color: "#0f766e", label: "图像可用", order: 3.5 },
-  QC_REJECT: { bg: "#ef444422", color: "#dc2626", label: "质控退回", order: 3.6 },
-  QC_PASS: { bg: "#0ea5e922", color: "#0369a1", label: "质控通过", order: 3.7 },
-  PENDING_REPORT: { bg: "#f59e0b22", color: "#ca8a04", label: "待报告", order: 3.8 },
-  COMPLETED: { bg: "#22c55e22", color: "#059669", label: "已完成", order: 3 },
-  CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "已取消", order: 8 },
-  已登记: { bg: "#3b82f622", color: "#3b82f6", label: "已登记", order: 0 },
-  待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "待检查", order: 1 },
-  检查中: { bg: "#ec489922", color: "#db2777", label: "检查中", order: 2 },
-  待报告: { bg: "#f59e0b22", color: "#ca8a04", label: "待报告", order: 3 },
-  已报告: { bg: "#22c55e22", color: "#059669", label: "已报告", order: 4 },
-  已发布: { bg: "#22c55e22", color: "#047857", label: "已发布", order: 5 },
-  published: { bg: "#22c55e22", color: "#047857", label: "已发布", order: 5 },
-  submitted: { bg: "#22c55e22", color: "#059669", label: "已提交", order: 4.5 },
-  reviewed: { bg: "#22c55e22", color: "#047857", label: "已审核", order: 5.5 },
-  inProgress: { bg: "#ec489922", color: "#db2777", label: "检查中", order: 2 },
-  completed: { bg: "#22c55e22", color: "#059669", label: "已完成", order: 4.5 },
-  已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停", order: 7 },
-  质控退回: { bg: "#ef444422", color: "#ef4444", label: "质控退回", order: 8 },
+  PAUSED: { bg: "#f59e0b22", color: "#f59e0b", label: "wl.statusPaused", order: 2.5 },
+  IMAGE_READY: { bg: "#10b98122", color: "#0f766e", label: "wl.statusImageReady", order: 3.5 },
+  QC_REJECT: { bg: "#ef444422", color: "#dc2626", label: "wl.statusQcReject", order: 3.6 },
+  QC_PASS: { bg: "#0ea5e922", color: "#0369a1", label: "wl.statusQcPass", order: 3.7 },
+  PENDING_REPORT: { bg: "#f59e0b22", color: "#ca8a04", label: "wl.statusPendingReport", order: 3.8 },
+  COMPLETED: { bg: "#22c55e22", color: "#059669", label: "wl.statusCompleted", order: 3 },
+  CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "wl.statusCancelled", order: 8 },
+  已登记: { bg: "#3b82f622", color: "#3b82f6", label: "wl.statusRegistered", order: 0 },
+  待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "wl.statusWaitingExam", order: 1 },
+  检查中: { bg: "#ec489922", color: "#db2777", label: "wl.statusInProgress", order: 2 },
+  待报告: { bg: "#f59e0b22", color: "#ca8a04", label: "wl.statusPendingReport", order: 3 },
+  已报告: { bg: "#22c55e22", color: "#059669", label: "wl.statusReported", order: 4 },
+  已发布: { bg: "#22c55e22", color: "#047857", label: "wl.statusPublished", order: 5 },
+  published: { bg: "#22c55e22", color: "#047857", label: "wl.statusPublished", order: 5 },
+  submitted: { bg: "#22c55e22", color: "#059669", label: "wl.statusSubmitted", order: 4.5 },
+  reviewed: { bg: "#22c55e22", color: "#047857", label: "wl.statusReviewed", order: 5.5 },
+  inProgress: { bg: "#ec489922", color: "#db2777", label: "wl.statusInProgress", order: 2 },
+  completed: { bg: "#22c55e22", color: "#059669", label: "wl.statusCompleted", order: 4.5 },
+  已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "wl.statusPaused", order: 7 },
+  质控退回: { bg: "#ef444422", color: "#ef4444", label: "wl.statusQcReject", order: 8 },
 };
 
 const PRIORITY_CONFIG: Record<
   string,
   { bg: string; color: string; label: string; order: number }
 > = {
-  普通: { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: "普通", order: 0 },
-  紧急: { bg: "#f59e0b22", color: "#f59e0b", label: "紧急", order: 1 },
-  危重: { bg: "#ef444422", color: "#ef4444", label: "危重", order: 2 },
-  会诊: { bg: "#8b5cf622", color: "#7c3aed", label: "会诊", order: 3 },
+  普通: { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: "wl.priorityNormal", order: 0 },
+  紧急: { bg: "#f59e0b22", color: "#f59e0b", label: "wl.priorityUrgent", order: 1 },
+  危重: { bg: "#ef444422", color: "#ef4444", label: "wl.priorityCritical", order: 2 },
+  会诊: { bg: "#8b5cf622", color: "#7c3aed", label: "wl.priorityConsult", order: 3 },
 };
 
 const getDeviceById = (deviceId: string) =>
@@ -148,13 +149,13 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
         {exam.thumbnailUrl ? (
           <img
             src={exam.thumbnailUrl}
-            alt="缩略图"
+            alt={t('wl.thumbnail')}
             style={{ width: 34, height: 26, objectFit: "cover", borderRadius: 4, border: "1px solid var(--border-color)" }}
           />
         ) : (
           <ImageIcon size={12} color="var(--text-secondary)" />
         )}
-        {exam.imagesAcquired > 0 ? `${exam.imagesAcquired}幅` : "-"}
+        {exam.imagesAcquired > 0 ? `${exam.imagesAcquired}${t('wl.imagesUnit')}` : "-"}
       </span>
       {hover && (
         <div
@@ -174,7 +175,7 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
           {exam.thumbnailUrl ? (
             <img
               src={exam.thumbnailUrl}
-              alt={`${exam.patientName} 影像缩略图`}
+              alt={`${exam.patientName} ${t('wl.thumbnail')}`}
               style={{ width: "100%", height: 96, objectFit: "cover", borderRadius: 6 }}
             />
           ) : (
@@ -193,8 +194,8 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
               }}
             >
               <ImagePlus size={22} style={{ opacity: 0.8 }} />
-              <span style={{ fontSize: 11, opacity: 0.9 }}>{exam.modality} 影像</span>
-              <span style={{ fontSize: 10, opacity: 0.7 }}>{exam.imagesAcquired || 0} 帧</span>
+              <span style={{ fontSize: 11, opacity: 0.9 }}>{exam.modality} {t('wl.image')}</span>
+              <span style={{ fontSize: 10, opacity: 0.7 }}>{exam.imagesAcquired || 0} {t('wl.frames')}</span>
             </div>
           )}
           <div style={{ marginTop: 8, fontSize: 11, color: "var(--text-secondary)", textAlign: "center" }}>
@@ -226,26 +227,26 @@ export function ListView({
   const navigate = useNavigate();
   const baseColumns = useMemo<ProColumn<RadiologyExam>[]>(() => [
     {
-      title: "优先级",
+      title: t("wl.colPriority"),
       dataIndex: "priority",
       key: "priority",
       width: 90,
       sorter: (a, b) =>
         (PRIORITY_CONFIG[a.priority]?.order ?? 99) -
         (PRIORITY_CONFIG[b.priority]?.order ?? 99),
-      filters: Object.keys(PRIORITY_CONFIG).map((value) => ({ text: value, value })),
+      filters: Object.keys(PRIORITY_CONFIG).map((value) => ({ text: t(PRIORITY_CONFIG[value]?.label ?? value), value })),
       onFilter: (value, record) => record.priority === value,
       render: (value) => {
         const priority = PRIORITY_CONFIG[String(value)] ?? PRIORITY_CONFIG.普通!;
         return (
           <span style={{ background: priority.bg, color: priority.color, padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-            {priority.label}
+            {t(priority.label)}
           </span>
         );
       },
     },
     {
-      title: "患者姓名",
+      title: t("wl.colPatientName"),
       dataIndex: "patientName",
       key: "patientName",
       width: 130,
@@ -260,14 +261,14 @@ export function ListView({
       ),
     },
     {
-      title: "性别/年龄",
+      title: t("wl.colDemographics"),
       dataIndex: "gender",
       key: "demographics",
       width: 100,
-      render: (value, exam) => <span>{String(value)} / {exam.age}岁</span>,
+      render: (value, exam) => <span>{String(value)} / {exam.age}{t("wl.years")}</span>,
     },
     {
-      title: "检查项目+部位",
+      title: t("wl.colExamItem"),
       dataIndex: "examItemName",
       key: "examItemName",
       width: 190,
@@ -283,7 +284,7 @@ export function ListView({
       ),
     },
     {
-      title: "设备",
+      title: t("wl.colDevice"),
       dataIndex: "modality",
       key: "device",
       width: 150,
@@ -301,7 +302,7 @@ export function ListView({
       },
     },
     {
-      title: "检查室",
+      title: t("wl.colRoom"),
       dataIndex: "roomId",
       key: "roomId",
       width: 90,
@@ -313,7 +314,7 @@ export function ListView({
       ),
     },
     {
-      title: "影像",
+      title: t("wl.colImage"),
       dataIndex: "imagesAcquired",
       key: "images",
       width: 80,
@@ -321,7 +322,7 @@ export function ListView({
     },
     // [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取状态列 (按 prefetch/status 渲染)
     {
-      title: "预取",
+      title: t("wl.colPrefetch"),
       dataIndex: "id",
       key: "prefetch",
       width: 90,
@@ -332,17 +333,17 @@ export function ListView({
       render: (_value, exam) => {
         const state = prefetchStatus?.[exam.id] ?? "none";
         if (state === "cached") {
-          return <Tag color="success" style={{ marginInlineEnd: 0, fontWeight: 600 }} icon={<CheckCircle2 size={12} />}>已缓存</Tag>;
+          return <Tag color="success" style={{ marginInlineEnd: 0, fontWeight: 600 }} icon={<CheckCircle2 size={12} />}>{t("wl.prefetchCached")}</Tag>;
         }
         if (state === "queued") {
-          return <Tag color="processing" style={{ marginInlineEnd: 0, fontWeight: 600 }} icon={<CloudDownload size={12} />}>排队中</Tag>;
+          return <Tag color="processing" style={{ marginInlineEnd: 0, fontWeight: 600 }} icon={<CloudDownload size={12} />}>{t("wl.prefetchQueued")}</Tag>;
         }
-        return <span style={{ fontSize: 12, color: "#cbd5e1" }}>未预取</span>;
+        return <span style={{ fontSize: 12, color: "#cbd5e1" }}>{t("wl.prefetchNone")}</span>;
       },
     },
     // [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE 传输状态列 (按 examId/检查号匹配传输队列, 从 listTransfers 派生)
     {
-      title: "传输",
+      title: t("wl.colTransfer"),
       dataIndex: "id",
       key: "transfer",
       width: 96,
@@ -351,20 +352,20 @@ export function ListView({
         const key2 = String(exam.accessionNumber ?? "");
         const state = transferStatus?.[key1] ?? (key2 ? transferStatus?.[key2] : undefined) ?? "none";
         const meta: Record<string, { color: string; label: string }> = {
-          queued: { color: "default", label: "排队" },
-          sending: { color: "processing", label: "发送中" },
-          paused: { color: "warning", label: "已暂停" },
-          failed: { color: "error", label: "失败" },
-          completed: { color: "success", label: "已完成" },
-          canceled: { color: "default", label: "已取消" },
+          queued: { color: "default", label: "wl.transferQueued" },
+          sending: { color: "processing", label: "wl.transferSending" },
+          paused: { color: "warning", label: "wl.statusPaused" },
+          failed: { color: "error", label: "wl.transferFailed" },
+          completed: { color: "success", label: "wl.statusCompleted" },
+          canceled: { color: "default", label: "wl.statusCancelled" },
         };
         if (state === "none") return <span style={{ fontSize: 12, color: "#cbd5e1" }}>-</span>;
         const m = meta[state] ?? { color: "default", label: state };
-        return <Tag color={m.color} style={{ marginInlineEnd: 0, fontWeight: 600 }}>{m.label}</Tag>;
+        return <Tag color={m.color} style={{ marginInlineEnd: 0, fontWeight: 600 }}>{t(m.label)}</Tag>;
       },
     },
     {
-      title: "患者类型",
+      title: t("wl.colPatientType"),
       dataIndex: "patientType",
       key: "patientType",
       width: 100,
@@ -378,7 +379,7 @@ export function ListView({
       },
     },
     {
-      title: "状态",
+      title: t("wl.colStatus"),
       dataIndex: "status",
       key: "status",
       width: 100,
@@ -389,17 +390,17 @@ export function ListView({
       onFilter: (value, record) => record.status === value,
       render: (value) => {
         const status = STATUS_CONFIG[String(value)] ?? { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: displayExamStatus(String(value)) };
-        return <span style={{ background: status.bg, color: status.color, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{status.label}</span>;
+        return <span style={{ background: status.bg, color: status.color, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{t(status.label)}</span>;
       },
     },
     {
-      title: "危急值",
+      title: t("wl.colCritical"),
       dataIndex: "criticalFinding",
       key: "criticalFinding",
       width: 90,
       filters: [
-        { text: "有危急值", value: "true" },
-        { text: "无危急值", value: "false" },
+        { text: t("wl.criticalYes"), value: "true" },
+        { text: t("wl.criticalNo"), value: "false" },
       ],
       onFilter: (value, record) => record.criticalFinding === (value === "true"),
       render: (_value, exam) =>
@@ -413,14 +414,14 @@ export function ListView({
               onCriticalValueClick?.(exam);
             }}
           >
-            危急值
+            {t("wl.criticalValue")}
           </Tag>
         ) : (
           <span style={{ fontSize: 12, color: "#cbd5e1" }}>-</span>
         ),
     },
     {
-      title: "申请医生",
+      title: t("wl.colReferringDoctor"),
       dataIndex: "technologistName",
       key: "technologistName",
       width: 120,
@@ -433,7 +434,7 @@ export function ListView({
       ),
     },
     {
-      title: "报告医生",
+      title: t("wl.colRadiologist"),
       dataIndex: "radiologistId",
       key: "radiologistId",
       width: 110,
@@ -442,13 +443,13 @@ export function ListView({
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <UserCheck size={11} color="var(--text-secondary)" />
           <span style={{ color: exam.radiologistId ? "#1e40af" : "#94a3b8" }}>
-            {exam.radiologistName || getDoctorById(String(value ?? ""))?.name || "未分配"}
+            {exam.radiologistName || getDoctorById(String(value ?? ""))?.name || t("wl.unassigned")}
           </span>
         </span>
       ),
     },
     {
-      title: "登记时间",
+      title: t("wl.colRegisteredAt"),
       dataIndex: "createdTime",
       key: "createdTime",
       width: 155,
@@ -475,7 +476,7 @@ export function ListView({
       },
     },
     {
-      title: "操作",
+      title: t("wl.colActions"),
       dataIndex: "id",
       key: "actions",
       width: 340,
@@ -492,7 +493,7 @@ export function ListView({
               navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`);
             }}
           >
-            阅片
+            {t("wl.actionRead")}
           </Button>
           <Button
             type="link"
@@ -503,7 +504,7 @@ export function ListView({
               onRowClick(exam);
             }}
           >
-            查看
+            {t("wl.actionView")}
           </Button>
           {/* [v3.0.6.11-96 Wave 3A P1] 详情 → 独立路由 /exam/:id (新标签打开) */}
           <Button
@@ -515,7 +516,7 @@ export function ListView({
               window.open(`/exam/${encodeURIComponent(exam.id)}`, "_blank");
             }}
           >
-            详情
+            {t("wl.actionDetail")}
           </Button>
           <Button
             type="link"
@@ -526,7 +527,7 @@ export function ListView({
               onAssignDoctor?.(exam);
             }}
           >
-            分配医生
+            {t("wl.actionAssignDoctor")}
           </Button>
           <Button
             type="link"
@@ -537,7 +538,7 @@ export function ListView({
               onViewRequisition?.(exam);
             }}
           >
-            申请单
+            {t("wl.actionRequisition")}
           </Button>
           <Button
             type="link"
@@ -548,7 +549,7 @@ export function ListView({
               onViewHistory?.(exam);
             }}
           >
-            历史
+            {t("wl.actionHistory")}
           </Button>
         </div>
       ),
@@ -578,7 +579,7 @@ export function ListView({
         onChange: (keys) => onSelect(new Set(keys.map(String))),
       }}
       locale={{
-        emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无符合条件的检查记录" />,
+        emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("wl.empty")} />,
       }}
       onRow={(exam) => ({
         onClick: () => onRowClick(exam),

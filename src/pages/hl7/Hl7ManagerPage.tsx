@@ -3,6 +3,7 @@ import { Card, Tabs, Table, Button, Space, Tag, Form, Input, Select, message, Al
 import { Archive, Send, RefreshCw, Play, Download, Activity, AlertTriangle, PieChart as PieIcon, TrendingUp } from 'lucide-react'
 import { hl7Api, type Hl7Report, type Hl7OrmOrder, type Hl7DftTransaction, type Hl7ArchiveRecord } from '../../services/api/integrationApi'
 import Hl7AnalyticsSection from './Hl7AnalyticsSection'
+import { t } from '../../i18n/appI18n'
 import {
   PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -137,69 +138,69 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         color: (mllpReal || health24h.real) ? '#15803d' : '#92400e',
       }} data-testid="hl7-monitor-source">
         {(mllpReal || health24h.real)
-          ? '数据源: /hl7/archive + /hl7/mllp/status (真实接口)'
-          : '数据源: 演示回退 (archive/MLLP 接口不可用, 基于消息类型派生)'}
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setRefreshKey(k => k + 1)} style={{ marginLeft: 'auto' }}>刷新</Button>
+          ? t('hl7Page.dataSourceReal')
+          : t('hl7Page.dataSourceFallback')}
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setRefreshKey(k => k + 1)} style={{ marginLeft: 'auto' }}>{t('hl7Page.refresh')}</Button>
       </div>
 
       {/* M2. 通道健康卡 */}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}>
-          <Card size="small" title={<Space><Activity size={14} />MLLP 通道</Space>}>
+          <Card size="small" title={<Space><Activity size={14} />{t('hl7Page.mllpChannel')}</Space>}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: mllp?.running ? '#16a34a' : '#dc2626' }}>
-                {mllp?.running ? '运行中' : '已停止'}
+                {mllp?.running ? t('hl7Page.running') : t('hl7Page.stopped')}
               </div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-                {mllp ? `端口 ${mllp.port}${mllp.tlsEnabled ? ' (TLS)' : ''}` : '未知'} · 累计消息 {mllp?.totalMessages ?? '-'}
+                {mllp ? `端口 ${mllp.port}${mllp.tlsEnabled ? ' (TLS)' : ''}` : t('hl7Page.unknown')} · {t('hl7Page.totalMessages')} {mllp?.totalMessages ?? '-'}
               </div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
-                运行时长 {(mllp?.uptimeMs ?? 0) / 3600000 > 24 ? `${((mllp?.uptimeMs ?? 0) / 86400000).toFixed(1)} 天` : `${Math.round((mllp?.uptimeMs ?? 0) / 3600000)} 小时`}
+                {t('hl7Page.uptime')} {(mllp?.uptimeMs ?? 0) / 3600000 > 24 ? `${((mllp?.uptimeMs ?? 0) / 86400000).toFixed(1)} ${t('hl7Page.day')}` : `${Math.round((mllp?.uptimeMs ?? 0) / 3600000)} ${t('hl7Page.hour')}`}
               </div>
             </div>
           </Card>
         </Col>
         <Col span={5}>
-          <Card size="small" title={<Space><TrendingUp size={14} />24h 成功率</Space>}>
+          <Card size="small" title={<Space><TrendingUp size={14} />{t('hl7Page.successRate24h')}</Space>}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: successRate >= 95 ? '#16a34a' : '#d97706' }}>{successRate}%</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-                成功 <b style={{ color: '#16a34a' }}>{health24h.success}</b> · 失败 <b style={{ color: '#dc2626' }}>{health24h.failed}</b> · 积压 <b style={{ color: '#d97706' }}>{health24h.pending}</b>
+                {t('hl7Page.success')} <b style={{ color: '#16a34a' }}>{health24h.success}</b> · {t('hl7Page.failed')} <b style={{ color: '#dc2626' }}>{health24h.failed}</b> · {t('hl7Page.pending')} <b style={{ color: '#d97706' }}>{health24h.pending}</b>
               </div>
             </div>
           </Card>
         </Col>
         <Col span={5}>
-          <Card size="small" title={<Space><Send size={14} />24h 流向</Space>}>
+          <Card size="small" title={<Space><Send size={14} />{t('hl7Page.flow24h')}</Space>}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#2563eb' }}>{health24h.total}</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-                发出 <b style={{ color: '#2563eb' }}>{health24h.outbound}</b> · 接收 <b style={{ color: '#d97706' }}>{health24h.inbound}</b>
+                {t('hl7Page.outbound')} <b style={{ color: '#2563eb' }}>{health24h.outbound}</b> · {t('hl7Page.inbound')} <b style={{ color: '#d97706' }}>{health24h.inbound}</b>
               </div>
             </div>
           </Card>
         </Col>
         <Col span={5}>
-          <Card size="small" title={<Space><AlertTriangle size={14} />错误消息</Space>}>
+          <Card size="small" title={<Space><AlertTriangle size={14} />{t('hl7Page.errorMessages')}</Space>}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: errorTotal > 0 ? '#dc2626' : '#16a34a' }}>{errorTotal}</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-                重试累计 <b style={{ color: '#d97706' }}>{errorTop.reduce((s, e) => s + e.retrySum, 0)}</b> 次 · 类型 {errorTop.length} 类
+                {t('hl7Page.retryTotal')} <b style={{ color: '#d97706' }}>{errorTop.reduce((s, e) => s + e.retrySum, 0)}</b> {t('hl7Page.times')} · {t('hl7Page.typesUnit')} {errorTop.length} {t('hl7Page.classUnit')}
               </div>
             </div>
           </Card>
         </Col>
         <Col span={5}>
-          <Card size="small" title={<Space><Activity size={14} />健康状态</Space>}>
+          <Card size="small" title={<Space><Activity size={14} />{t('hl7Page.healthStatus')}</Space>}>
             <div style={{ textAlign: 'center', paddingTop: 8 }}>
               <div style={{
                 display: 'inline-block', padding: '10px 18px', borderRadius: 999, fontSize: 14, fontWeight: 800,
                 background: healthOk ? 'var(--color-success-bg)' : 'var(--color-error-bg)',
                 color: healthOk ? '#15803d' : '#b91c1c',
               }}>
-                {healthOk ? '健康' : '需关注'}
+                {healthOk ? t('hl7Page.healthy') : t('hl7Page.attention')}
               </div>
-              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 8 }}>阈值: 成功率≥95% 且失败≤3</div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 8 }}>{t('hl7Page.threshold')}</div>
             </div>
           </Card>
         </Col>
@@ -208,7 +209,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
       <Row gutter={16}>
         {/* M1. 消息类型分布 */}
         <Col span={10}>
-          <Card size="small" title={<Space><PieIcon size={14} />消息类型分布</Space>} extra={<Tag color="blue">{typeDist.length} 类</Tag>}>
+          <Card size="small" title={<Space><PieIcon size={14} />{t('hl7Page.typeDistribution')}</Space>} extra={<Tag color="blue">{typeDist.length} {t('hl7Page.classUnit')}</Tag>}>
             <div style={{ height: 240 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -225,7 +226,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
 
         {/* M3. 消息量趋势 */}
         <Col span={14}>
-          <Card size="small" title={<Space><TrendingUp size={14} />消息量趋势 (近 7 日)</Space>} extra={<Tag color="green">总量 {trend7d.reduce((s, d) => s + d.count, 0)}</Tag>}>
+          <Card size="small" title={<Space><TrendingUp size={14} />{t('hl7Page.volumeTrend')}</Space>} extra={<Tag color="green">{t('hl7Page.total')} {trend7d.reduce((s, d) => s + d.count, 0)}</Tag>}>
             <div style={{ height: 240 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={trend7d} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
@@ -234,8 +235,8 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="count" name="消息量" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="failed" name="失败" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" name={t('hl7Page.volume')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="failed" name={t('hl7Page.failShort')} fill="#dc2626" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -244,7 +245,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
       </Row>
 
       {/* M4. 错误 TOP 消息列表 */}
-      <Card size="small" title={<Space><AlertTriangle size={14} />错误 TOP 消息 (按类型聚合)</Space>} style={{ marginTop: 16 }}>
+      <Card size="small" title={<Space><AlertTriangle size={14} />{t('hl7Page.errorTop')}</Space>} style={{ marginTop: 16 }}>
         <Table
           dataSource={errorTop}
           rowKey="messageType"
@@ -253,16 +254,16 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
           pagination={false}
           columns={[
             {
-              title: '消息类型', dataIndex: 'messageType', key: 'messageType',
-              render: (t: string) => <Tag color="red">{t}</Tag>,
+              title: t('hl7Page.colMessageType'), dataIndex: 'messageType', key: 'messageType',
+              render: (mt: string) => <Tag color="red">{mt}</Tag>,
             },
             {
-              title: '失败次数', dataIndex: 'count', key: 'count', width: 90,
+              title: t('hl7Page.colFailCount'), dataIndex: 'count', key: 'count', width: 90,
               render: (v: number) => <b style={{ color: '#dc2626' }}>{v}</b>,
             },
-            { title: '累计重试', dataIndex: 'retrySum', key: 'retrySum', width: 90 },
+            { title: t('hl7Page.colRetryTotal'), dataIndex: 'retrySum', key: 'retrySum', width: 90 },
             {
-              title: '占比', key: 'pct', width: 200,
+              title: t('hl7Page.colRatio'), key: 'pct', width: 200,
               render: (_: unknown, r: any) => {
                 const pct = Math.round((r.count / Math.max(1, errorTotal)) * 100)
                 return (
@@ -275,9 +276,9 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
                 )
               },
             },
-            { title: '最近发生', dataIndex: 'latest', key: 'latest', width: 170, render: (t: string) => new Date(t).toLocaleString() },
+            { title: t('hl7Page.colLatest'), dataIndex: 'latest', key: 'latest', width: 170, render: (mt: string) => new Date(mt).toLocaleString() },
             {
-              title: '控制 ID 样例', key: 'samples', render: (_: unknown, r: any) => (
+              title: t('hl7Page.colSamples'), key: 'samples', render: (_: unknown, r: any) => (
                 <Space size={4} wrap>
                   {(r.samples || []).map((s: string, i: number) => <Tag key={i} style={{ fontSize: 11 }}>{s}</Tag>)}
                 </Space>
@@ -286,7 +287,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
           ]}
         />
         <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
-          {errorTop.length === 0 ? '当前无失败消息' : `共 ${errorTotal} 条失败消息, 建议检查目标系统 ACK 配置与消息格式 (MSH-11 加工位)`}
+          {errorTop.length === 0 ? t('hl7Page.noFailure') : `共 ${errorTotal} 条失败消息, 建议检查目标系统 ACK 配置与消息格式 (MSH-11 加工位)`}
         </div>
       </Card>
     </div>
@@ -349,11 +350,11 @@ export const Hl7ManagerPage: React.FC = () => {
         message.success(`ORU 报告发送成功: ${res.data?.controlId || ''}`)
         fetchArchive()
       } else {
-        message.error('ORU 发送失败')
+        message.error(t('hl7Page.sendOruFailed'))
       }
     } catch (err: any) {
       if (err?.errorFields) return
-      message.error('操作失败')
+      message.error(t('hl7Page.operationFailed'))
     } finally {
       setSending(false)
     }
@@ -378,11 +379,11 @@ export const Hl7ManagerPage: React.FC = () => {
         message.success(`ORM 医嘱发送成功: ${res.data?.controlId || ''}`)
         fetchArchive()
       } else {
-        message.error('ORM 发送失败')
+        message.error(t('hl7Page.sendOrmFailed'))
       }
     } catch (err: any) {
       if (err?.errorFields) return
-      message.error('操作失败')
+      message.error(t('hl7Page.operationFailed'))
     } finally {
       setSending(false)
     }
@@ -405,36 +406,36 @@ export const Hl7ManagerPage: React.FC = () => {
         message.success(`DFT 财务交易发送成功: ${res.data?.controlId || ''}`)
         fetchArchive()
       } else {
-        message.error('DFT 发送失败')
+        message.error(t('hl7Page.sendDftFailed'))
       }
     } catch (err: any) {
       if (err?.errorFields) return
-      message.error('操作失败')
+      message.error(t('hl7Page.operationFailed'))
     } finally {
       setSending(false)
     }
   }
 
   const archiveColumns = [
-    { title: '编号', dataIndex: 'id', key: 'id', width: 60 },
+    { title: t('hl7Page.colNo'), dataIndex: 'id', key: 'id', width: 60 },
     {
-      title: '消息类型',
+      title: t('hl7Page.colMessageType'),
       dataIndex: 'messageType',
       key: 'messageType',
-      render: (t: string) => <Tag color="blue">{t}</Tag>,
+      render: (mt: string) => <Tag color="blue">{mt}</Tag>,
     },
     {
-      title: '方向',
+      title: t('hl7Page.colDirection'),
       dataIndex: 'direction',
       key: 'direction',
       render: (d: string) => {
-        const map: Record<string, { color: string; label: string }> = { OUTBOUND: { color: 'green', label: '发送' }, INBOUND: { color: 'orange', label: '接收' }, ACK: { color: 'purple', label: '确认' } }
+        const map: Record<string, { color: string; label: string }> = { OUTBOUND: { color: 'green', label: t('hl7Page.dirOutbound') }, INBOUND: { color: 'orange', label: t('hl7Page.dirInbound') }, ACK: { color: 'purple', label: t('hl7Page.dirAck') } }
         const item = map[d] || { color: 'default', label: d }
         return <Tag color={item.color}>{item.label}</Tag>
       },
     },
     {
-      title: 'ACK 状态',
+      title: t('hl7Page.colAckStatus'),
       dataIndex: 'ackStatus',
       key: 'ackStatus',
       render: (s: string) => {
@@ -442,43 +443,43 @@ export const Hl7ManagerPage: React.FC = () => {
         return <Tag color={map[s] || 'default'}>{s}</Tag>
       },
     },
-    { title: '控制 ID', dataIndex: 'controlId', key: 'controlId', ellipsis: true },
-    { title: '重试', dataIndex: 'retryCount', key: 'retryCount', width: 60 },
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', render: (t: string) => new Date(t).toLocaleString() },
+    { title: t('hl7Page.colControlId'), dataIndex: 'controlId', key: 'controlId', ellipsis: true },
+    { title: t('hl7Page.colRetry'), dataIndex: 'retryCount', key: 'retryCount', width: 60 },
+    { title: t('hl7Page.colTime'), dataIndex: 'createdAt', key: 'createdAt', render: (mt: string) => new Date(mt).toLocaleString() },
   ]
 
   const tabItems = [
     {
       key: 'monitor',
-      label: <Space><Activity size={14} />监控面板</Space>,
+      label: <Space><Activity size={14} />{t('hl7Page.tabMonitor')}</Space>,
       children: <MonitorPanel archive={archive} loading={archiveLoading} />,
     },
     {
       key: 'analytics',
-      label: <Space><TrendingUp size={14} />接口分析</Space>,
+      label: <Space><TrendingUp size={14} />{t('hl7Page.tabAnalytics')}</Space>,
       children: <Hl7AnalyticsSection />,
     },
     {
       key: 'oru',
-      label: <Space><Send size={14} />ORU (报告)</Space>,
+      label: <Space><Send size={14} />{t('hl7Page.tabOru')}</Space>,
       children: (
-        <Card size="small" title="HL7 ORU^R01 - 结构化报告">
+        <Card size="small" title={t('hl7Page.oruTitle')}>
           <Form form={oruForm} layout="vertical" size="small">
             <Row gutter={16}>
-              <Col span={8}><Form.Item name="accessionNumber" label="检查号" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="modality" label="设备" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option><Select.Option value="XA">XA</Select.Option></Select></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientSex" label="性别"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option><Select.Option value="O">O</Select.Option></Select></Form.Item></Col>
-              <Col span={8}><Form.Item name="studyDate" label="检查日期"><Input placeholder="YYYY-MM-DD" /></Form.Item></Col>
-              <Col span={12}><Form.Item name="findings" label="所见" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="影像所见" /></Form.Item></Col>
-              <Col span={12}><Form.Item name="conclusion" label="结论" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="诊断结论" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="authorName" label="医生"><Input placeholder="报告医生" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="authorId" label="医生 ID"><Input placeholder="医生工号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="reportId" label="报告 ID"><Input placeholder="报告ID" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="accessionNumber" label={t('hl7Page.examId')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.examIdPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientId" label={t('hl7Page.patientId')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.patientIdPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientName" label={t('hl7Page.patientName')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.patientNamePlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="modality" label={t('hl7Page.modality')} rules={[{ required: true }]}><Select placeholder={t('hl7Page.select')}><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option><Select.Option value="XA">XA</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientSex" label={t('hl7Page.sex')}><Select placeholder={t('hl7Page.select')} allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option><Select.Option value="O">O</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="studyDate" label={t('hl7Page.examDate')}><Input placeholder="YYYY-MM-DD" /></Form.Item></Col>
+              <Col span={12}><Form.Item name="findings" label={t('hl7Page.findings')} rules={[{ required: true }]}><Input.TextArea rows={3} placeholder={t('hl7Page.findingsPlaceholder')} /></Form.Item></Col>
+              <Col span={12}><Form.Item name="conclusion" label={t('hl7Page.conclusion')} rules={[{ required: true }]}><Input.TextArea rows={3} placeholder={t('hl7Page.conclusionPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="authorName" label={t('hl7Page.doctor')}><Input placeholder={t('hl7Page.doctorPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="authorId" label={t('hl7Page.doctorId')}><Input placeholder={t('hl7Page.doctorIdPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="reportId" label={t('hl7Page.reportId')}><Input placeholder={t('hl7Page.reportIdPlaceholder')} /></Form.Item></Col>
             </Row>
             <Form.Item>
-              <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={handleSendOru}>发送 ORU</Button>
+              <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={handleSendOru}>{t('hl7Page.sendOru')}</Button>
             </Form.Item>
           </Form>
         </Card>
@@ -486,22 +487,22 @@ export const Hl7ManagerPage: React.FC = () => {
     },
     {
       key: 'orm',
-      label: <Space><Play size={14} />ORM (医嘱)</Space>,
+      label: <Space><Play size={14} />{t('hl7Page.tabOrm')}</Space>,
       children: (
-        <Card size="small" title="HL7 ORM^O01 - 医嘱消息">
+        <Card size="small" title={t('hl7Page.ormTitle')}>
           <Form form={ormForm} layout="vertical" size="small">
             <Row gutter={16}>
-              <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="accessionNumber" label="检查号" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="modality" label="设备" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option></Select></Form.Item></Col>
-              <Col span={8}><Form.Item name="bodyPart" label="检查部位" rules={[{ required: true }]}><Input placeholder="检查部位" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="orderNumber" label="申请单号" rules={[{ required: true }]}><Input placeholder="医嘱号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="orderingDoctor" label="开单医生" rules={[{ required: true }]}><Input placeholder="开单医生" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientSex" label="性别"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientId" label={t('hl7Page.patientId')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.patientIdPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientName" label={t('hl7Page.patientName')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.patientNamePlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="accessionNumber" label={t('hl7Page.examId')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.examIdPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="modality" label={t('hl7Page.modality')} rules={[{ required: true }]}><Select placeholder={t('hl7Page.select')}><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="bodyPart" label={t('hl7Page.bodyPart')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.bodyPartPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="orderNumber" label={t('hl7Page.orderNumber')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.orderNumberPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="orderingDoctor" label={t('hl7Page.orderingDoctor')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.orderingDoctorPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientSex" label={t('hl7Page.sex')}><Select placeholder={t('hl7Page.select')} allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option></Select></Form.Item></Col>
             </Row>
             <Form.Item>
-              <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={handleSendOrm}>发送 ORM</Button>
+              <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={handleSendOrm}>{t('hl7Page.sendOrm')}</Button>
             </Form.Item>
           </Form>
         </Card>
@@ -509,20 +510,20 @@ export const Hl7ManagerPage: React.FC = () => {
     },
     {
       key: 'dft',
-      label: <Space><Download size={14} />DFT (财务)</Space>,
+      label: <Space><Download size={14} />{t('hl7Page.tabDft')}</Space>,
       children: (
-        <Card size="small" title="HL7 DFT^P03 - 财务交易">
+        <Card size="small" title={t('hl7Page.dftTitle')}>
           <Form form={dftForm} layout="vertical" size="small">
             <Row gutter={16}>
-              <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="invoiceNumber" label="发票号" rules={[{ required: true }]}><Input placeholder="发票号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="totalAmount" label="总金额" rules={[{ required: true }]}><InputNumber placeholder="金额" style={{ width: '100%' }} /></Form.Item></Col>
-              <Col span={8}><Form.Item name="chargeCode" label="收费代码" rules={[{ required: true }]}><Input placeholder="收费编码" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="chargeName" label="收费名称" rules={[{ required: true }]}><Input placeholder="收费项目" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientId" label={t('hl7Page.patientId')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.patientIdPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientName" label={t('hl7Page.patientName')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.patientNamePlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="invoiceNumber" label={t('hl7Page.invoiceNumber')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.invoiceNumberPlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="totalAmount" label={t('hl7Page.totalAmount')} rules={[{ required: true }]}><InputNumber placeholder={t('hl7Page.amountPlaceholder')} style={{ width: '100%' }} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="chargeCode" label={t('hl7Page.chargeCode')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.chargeCodePlaceholder')} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="chargeName" label={t('hl7Page.chargeName')} rules={[{ required: true }]}><Input placeholder={t('hl7Page.chargeNamePlaceholder')} /></Form.Item></Col>
             </Row>
             <Form.Item>
-              <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={handleSendDft}>发送 DFT</Button>
+              <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={handleSendDft}>{t('hl7Page.sendDft')}</Button>
             </Form.Item>
           </Form>
         </Card>
@@ -530,9 +531,9 @@ export const Hl7ManagerPage: React.FC = () => {
     },
     {
       key: 'archive',
-      label: <Space><Archive size={14} />消息归档</Space>,
+      label: <Space><Archive size={14} />{t('hl7Page.tabArchive')}</Space>,
       children: (
-        <Card size="small" title={<Space><Archive size={14} />HL7 消息归档{archiveFallback && <Tag color="orange" style={{ fontSize: 10 }}>回退演示数据 (2 条硬编码)</Tag>}</Space>} extra={<Button icon={<RefreshCw size={14} />} onClick={fetchArchive}>刷新</Button>}>
+        <Card size="small" title={<Space><Archive size={14} />{t('hl7Page.archiveTitle')}{archiveFallback && <Tag color="orange" style={{ fontSize: 10 }}>{t('hl7Page.fallbackTag')}</Tag>}</Space>} extra={<Button icon={<RefreshCw size={14} />} onClick={fetchArchive}>{t('hl7Page.refresh')}</Button>}>
           <Table
             dataSource={archive}
             columns={archiveColumns}
@@ -551,11 +552,11 @@ export const Hl7ManagerPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Archive size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>HL7 消息管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('hl7Page.archiveHeader')}</span>
         <Tag color="blue">v2.x</Tag>
         <Tag color="green">ORU / ORM / DFT</Tag>
       </Space>
-      <Alert title="HL7 消息构建与发送管理，支持 ORU (报告)、ORM (医嘱)、DFT (财务) 三种消息类型" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title={t('hl7Page.archiveDesc')} type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={tab} onChange={setTab} items={tabItems} />
     </div>
   )

@@ -31,7 +31,6 @@ import {
   Heart,
   Database,
   Search,
-  FileText,
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
@@ -93,7 +92,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
       });
       if (res.success) {
         setScreening(res.data);
-        message.success("筛查完成");
+        message.success(t("eye.optometry.screeningDone"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -106,7 +105,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
       const res = await eyeApi.getRefractionCurve(patientId);
       if (res.success) {
         setRefractionCurve(res.data);
-        message.success("屈光发育数据加载");
+        message.success(t("eye.optometry.curveLoaded"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -119,7 +118,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
       const res = await eyeApi.okTrial({ patientId, trialLensId, fluoresceinPattern });
       if (res.success) {
         setOkTrial(res.data);
-        message.success("试戴评估完成");
+        message.success(t("eye.optometry.trialDone"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -142,7 +141,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
       });
       if (res.success) {
         setOrthoOrder(res.data);
-        message.success("OK 镜订单已生成");
+        message.success(t("eye.optometry.orthoOrderCreated"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -159,7 +158,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
       });
       if (res.success) {
         setDefocusOrder(res.data);
-        message.success("离焦镜订单已生成");
+        message.success(t("eye.optometry.defocusOrderCreated"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -227,7 +226,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
         prescriptionType: "眼镜",
       });
       if (res.success) {
-        message.success("验光处方已保存");
+        message.success(t("eye.optometry.refractionSaved"));
         void loadOptometryRecords();
       }
     } catch (e: any) {
@@ -241,11 +240,11 @@ export const OptometryClosedLoopPage: React.FC = () => {
       const res = await eyeApi.getOptometryOrder(orderId.trim());
       if (res.success) {
         setOrderDetail(res.data);
-        message.success("订单详情已加载");
+        message.success(t("eye.optometry.orderDetailLoaded"));
       }
     } catch (e: any) {
       setOrderDetail(null);
-      message.error((e as Error)?.message ?? "订单不存在");
+      message.error((e as Error)?.message ?? t("eye.optometry.orderNotFound"));
     }
   };
 
@@ -257,26 +256,26 @@ export const OptometryClosedLoopPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Heart size={20} color="#f5222d" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
-          视光中心闭环 (近视防控)
+          {t("eye.optometry.title")}
         </span>
         <Tag color="cyan">PR11</Tag>
         <Tag color="purple">v3.0.6.8-44</Tag>
-        <Tag color="blue">OK 镜 / 离焦镜 / 阿托品</Tag>
+        <Tag color="blue">{t("eye.optometry.tagProducts")}</Tag>
         {/* [G005 Wave1B] /eye/optometry/* 后端真实 (eye-optometry 模块), eyeApi 封装 */}
-        <Tag color="green">真实后端 /eye/optometry/*</Tag>
+        <Tag color="green">{t("eye.optometry.realBackend")}</Tag>
       </Space>
 
       {stats && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="总患者" value={stats.totalPatients} />
+              <Statistic title={t("eye.optometry.totalPatients")} value={stats.totalPatients} />
             </Card>
           </Col>
           <Col span={6}>
             <Card size="small">
               <Statistic
-                title="OK 镜患者"
+                title={t("eye.optometry.okLensPatients")}
                 value={stats.okLensPatients}
                 styles={{ content: {  color: "#2563eb"  } }}
               />
@@ -285,7 +284,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
           <Col span={6}>
             <Card size="small">
               <Statistic
-                title="离焦镜患者"
+                title={t("eye.optometry.defocusLensPatients")}
                 value={stats.defocusLensPatients}
                 styles={{ content: {  color: "#722ed1"  } }}
               />
@@ -294,9 +293,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
           <Col span={6}>
             <Card size="small">
               <Statistic
-                title="进展率"
+                title={t("eye.optometry.progressionRate")}
                 value={stats.progressionRate}
-                suffix="D/年"
+                suffix={t("eye.optometry.perYearD")}
                 styles={{ content: {  color: "#52c41a"  } }}
               />
             </Card>
@@ -313,21 +312,21 @@ export const OptometryClosedLoopPage: React.FC = () => {
             key: "screening",
             label: (
               <span>
-                <Activity size={14} /> 近视筛查
+                <Activity size={14} /> {t("eye.optometry.tabScreening")}
               </span>
             ),
             children: (
               <Row gutter={16}>
                 <Col span={10}>
-                  <Card title="筛查参数" size="small">
+                  <Card title={t("eye.optometry.screeningParams")} size="small">
                     <Form layout="vertical" size="small">
-                      <Form.Item label="患者ID">
+                      <Form.Item label={t("eye.optometry.patientId")}>
                         <Input
                           value={patientId}
                           onChange={(e) => setPatientId(e.target.value)}
                         />
                       </Form.Item>
-                      <Form.Item label="年龄 (岁)">
+                      <Form.Item label={t("eye.optometry.ageYears")}>
                         <InputNumber
                           value={age}
                           onChange={(v) => setAge(v || 10)}
@@ -344,11 +343,11 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           fontWeight: 600,
                         }}
                       >
-                        父母屈光档案
+                        {t("eye.optometry.parentRefraction")}
                       </div>
                       <Row gutter={8}>
                         <Col span={12}>
-                          <Form.Item label="父亲 RE (DS)">
+                          <Form.Item label={t("eye.optometry.fatherRe")}>
                             <InputNumber
                               value={parentReSphere}
                               onChange={(v) => setParentReSphere(v || 0)}
@@ -358,7 +357,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item label="父亲 LE (DS)">
+                          <Form.Item label={t("eye.optometry.fatherLe")}>
                             <InputNumber
                               value={parentLeSphere}
                               onChange={(v) => setParentLeSphere(v || 0)}
@@ -374,24 +373,24 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         icon={<Activity size={14} />}
                         onClick={handleScreening}
                       >
-                        开始筛查
+                        {t("eye.optometry.startScreening")}
                       </Button>
                     </Form>
                   </Card>
                 </Col>
                 <Col span={14}>
-                  <Card title="筛查结果" size="small">
+                  <Card title={t("eye.optometry.screeningResult")} size="small">
                     {screening ? (
                       <Row gutter={[16, 16]}>
                         <Col span={8}>
                           <Statistic
-                            title="近视风险"
+                            title={t("eye.optometry.myopiaRisk")}
                             value={
                               screening.myopiaRisk === "high"
-                                ? "高"
+                                ? t("eye.optometry.riskHigh")
                                 : screening.myopiaRisk === "medium"
-                                  ? "中"
-                                  : "低"
+                                  ? t("eye.optometry.riskMedium")
+                                  : t("eye.optometry.riskLow")
                             }
                             styles={{ content: { 
                               color:
@@ -405,21 +404,21 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         </Col>
                         <Col span={8}>
                           <Statistic
-                            title="年龄风险"
+                            title={t("eye.optometry.ageRisk")}
                             value={
                               screening.ageRisk === "high"
-                                ? "高"
+                                ? t("eye.optometry.riskHigh")
                                 : screening.ageRisk === "medium"
-                                  ? "中"
-                                  : "低"
+                                  ? t("eye.optometry.riskMedium")
+                                  : t("eye.optometry.riskLow")
                             }
                           />
                         </Col>
                         <Col span={8}>
                           <Statistic
-                            title="遗传风险"
+                            title={t("eye.optometry.hereditaryRisk")}
                             value={
-                              screening.parentRisk === "high" ? "高" : "低"
+                              screening.parentRisk === "high" ? t("eye.optometry.riskHigh") : t("eye.optometry.riskLow")
                             }
                           />
                         </Col>
@@ -432,7 +431,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                               marginBottom: 4,
                             }}
                           >
-                            建议:
+                            {t("eye.optometry.recommendation")}
                           </div>
                           {screening.recommendations.map(
                             (r: string, i: number) => (
@@ -452,7 +451,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         </Col>
                       </Row>
                     ) : (
-                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击开始筛查" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eye.optometry.clickToScreen")} />
                     )}
                   </Card>
                 </Col>
@@ -464,19 +463,19 @@ export const OptometryClosedLoopPage: React.FC = () => {
             key: "curve",
             label: (
               <span>
-                <TrendingUp size={14} /> 屈光发育
+                <TrendingUp size={14} /> {t("eye.optometry.tabCurve")}
               </span>
             ),
             children: (
               <Card
-                title="屈光发育追踪 (5 年)"
+                title={t("eye.optometry.curveTitle")}
                 size="small"
                 extra={
                   <Button
                     icon={<RefreshCw size={12} />}
                     onClick={handleRefractionCurve}
                   >
-                    刷新数据
+                    {t("eye.optometry.refreshData")}
                   </Button>
                 }
               >
@@ -485,21 +484,21 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     <Row gutter={[16, 16]}>
                       <Col span={8}>
                         <Statistic
-                          title="进展率"
+                          title={t("eye.optometry.progressionRate")}
                           value={refractionCurve.progression.rate}
-                          suffix="D/年"
+                          suffix={t("eye.optometry.perYearD")}
                         />
                       </Col>
                       <Col span={8}>
                         <Statistic
-                          title="眼轴增长"
+                          title={t("eye.optometry.axialGrowth")}
                           value={refractionCurve.axialGrowth.rate}
-                          suffix="mm/年"
+                          suffix={t("eye.optometry.perYearMm")}
                         />
                       </Col>
                       <Col span={8}>
                         <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                          干预效果
+                          {t("eye.optometry.interventionEffect")}
                         </div>
                         <div
                           style={{
@@ -519,8 +518,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           rowKey="date"
                           pagination={curveHistoryPagination}
                           columns={[
-                            { title: "日期", dataIndex: "date" },
-                            { title: "年龄", dataIndex: "age" },
+                            { title: t("eye.optometry.colDate"), dataIndex: "date" },
+                            { title: t("eye.optometry.colAge"), dataIndex: "age" },
                             {
                               title: "RE (DS)",
                               render: (_, r: any) =>
@@ -535,7 +534,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                               title: "AL (mm)",
                               render: (_, r: any) => r.axialLength.toFixed(2),
                             },
-                            { title: "干预", dataIndex: "intervention" },
+                            { title: t("eye.optometry.colIntervention"), dataIndex: "intervention" },
                           ]}
                         scroll={{ x: 'max-content' }}
                         />
@@ -543,7 +542,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     </Row>
                   </>
                 ) : (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击刷新数据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("eye.optometry.clickToRefresh")} />
                 )}
               </Card>
             ),
@@ -553,36 +552,36 @@ export const OptometryClosedLoopPage: React.FC = () => {
             key: "ok",
             label: (
               <span>
-                <GraduationCap size={14} /> OK 镜/离焦镜
+                <GraduationCap size={14} /> {t("eye.optometry.tabOkLens")}
               </span>
             ),
             children: (
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card title="OK 镜试戴评估" size="small">
+                  <Card title={t("eye.optometry.okTrialTitle")} size="small">
                     <Form layout="vertical" size="small">
-                      <Form.Item label="试戴片ID">
+                      <Form.Item label={t("eye.optometry.trialLensId")}>
                         <Input
                           value={trialLensId}
                           onChange={(e) => setTrialLensId(e.target.value)}
                         />
                       </Form.Item>
-                      <Form.Item label="荧光素染色模式">
+                      <Form.Item label={t("eye.optometry.fluoresceinPattern")}>
                         <Select
                           value={fluoresceinPattern}
                           onChange={setFluoresceinPattern as any}
                           options={[
                             {
                               value: "bulls-eye",
-                              label: "牛眼 (Bulls-eye) - 理想",
+                              label: t("eye.optometry.patternBullsEye"),
                             },
                             {
                               value: "central-pool",
-                              label: "中央池积液 (Central Pool) - 过紧",
+                              label: t("eye.optometry.patternCentralPool"),
                             },
                             {
                               value: "edge-lift",
-                              label: "边缘翘起 (Edge Lift) - 过松",
+                              label: t("eye.optometry.patternEdgeLift"),
                             },
                           ]}
                         />
@@ -592,20 +591,20 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           icon={<Save size={12} />}
                           onClick={handleOkTrial}
                         >
-                          评估试戴
+                          {t("eye.optometry.evaluateTrial")}
                         </Button>
                         <Button
                           type="primary"
                           icon={<Plus size={12} />}
                           onClick={handleOrthoOrder}
                         >
-                          生成 OK 镜订单
+                          {t("eye.optometry.generateOrthoOrder")}
                         </Button>
                       </Space>
                     </Form>
                     {okTrial && (
                       <Alert
-                        title={`配适: ${okTrial.fit === "optimal" ? "理想" : okTrial.fit === "too-tight" ? "过紧" : "过松"}`}
+                        title={`${t("eye.optometry.fit")}: ${okTrial.fit === "optimal" ? t("eye.optometry.fitOptimal") : okTrial.fit === "too-tight" ? t("eye.optometry.fitTooTight") : t("eye.optometry.fitTooLoose")}`}
                         description={okTrial.recommendation}
                         type={okTrial.fit === "optimal" ? "success" : "warning"}
                         showIcon
@@ -615,18 +614,18 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     {orthoOrder && (
                       <Card
                         size="small"
-                        title="OK 镜订单"
+                        title={t("eye.optometry.orthoOrder")}
                         style={{ marginTop: 8 }}
                       >
-                        <div>品牌: {orthoOrder.brand}</div>
+                        <div>{t("eye.optometry.brand")}: {orthoOrder.brand}</div>
                         <div>
-                          基弧 (BC): {orthoOrder.parameters.baseCurve} mm
+                          {t("eye.optometry.baseCurve")}: {orthoOrder.parameters.baseCurve} mm
                         </div>
-                        <div>成本: ¥{orthoOrder.cost.total}</div>
-                        <div>预计到货: {orthoOrder.estimatedDelivery}</div>
+                        <div>{t("eye.optometry.cost")}: ¥{orthoOrder.cost.total}</div>
+                        <div>{t("eye.optometry.estimatedDelivery")}: {orthoOrder.estimatedDelivery}</div>
                         <Divider style={{ margin: "4px 0" }} />
                         <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                          随访计划: {orthoOrder.followupSchedule.join(" / ")}
+                          {t("eye.optometry.followupSchedule")}: {orthoOrder.followupSchedule.join(" / ")}
                         </div>
                       </Card>
                     )}
@@ -634,9 +633,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Card title="离焦镜 (DIMS/MiSight)" size="small">
+                  <Card title={t("eye.optometry.defocusLensTitle")} size="small">
                     <Form layout="vertical" size="small">
-                      <Form.Item label="镜片类型">
+                      <Form.Item label={t("eye.optometry.lensType")}>
                         <Radio.Group
                           value={lensType}
                           onChange={(e) => setLensType(e.target.value)}
@@ -647,7 +646,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           <Radio.Button value="MiSight">MiSight</Radio.Button>
                         </Radio.Group>
                       </Form.Item>
-                      <Form.Item label="镜架选择">
+                      <Form.Item label={t("eye.optometry.frameSelection")}>
                         <Input defaultValue="Ray-Ban Junior" />
                       </Form.Item>
                       <Button
@@ -656,19 +655,19 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         icon={<Plus size={14} />}
                         onClick={handleDefocusOrder}
                       >
-                        生成离焦镜订单
+                        {t("eye.optometry.generateDefocusOrder")}
                       </Button>
                     </Form>
                     {defocusOrder && (
                       <Card
                         size="small"
-                        title="离焦镜订单"
+                        title={t("eye.optometry.defocusOrder")}
                         style={{ marginTop: 8 }}
                       >
-                        <div>镜片: {defocusOrder.brand}</div>
-                        <div>功效: {defocusOrder.efficacy}</div>
-                        <div>成本: ¥{defocusOrder.cost.total}</div>
-                        <div>预计到货: {defocusOrder.estimatedDelivery}</div>
+                        <div>{t("eye.optometry.lens")}: {defocusOrder.brand}</div>
+                        <div>{t("eye.optometry.efficacy")}: {defocusOrder.efficacy}</div>
+                        <div>{t("eye.optometry.cost")}: ¥{defocusOrder.cost.total}</div>
+                        <div>{t("eye.optometry.estimatedDelivery")}: {defocusOrder.estimatedDelivery}</div>
                       </Card>
                     )}
                   </Card>
@@ -709,21 +708,21 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           fontWeight: 600,
                         }}
                       >
-                        OD 右眼
+                        {t("eye.optometry.odRight")}
                       </div>
                       <Row gutter={8}>
                         <Col span={8}>
-                          <Form.Item label="球镜 (DS)">
+                          <Form.Item label={t("eye.optometry.sphereDs")}>
                             <InputNumber value={refReSphere} onChange={(v) => setRefReSphere(v || 0)} step={0.25} style={{ width: "100%" }} />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="柱镜 (DC)">
+                          <Form.Item label={t("eye.optometry.cylinderDc")}>
                             <InputNumber value={refReCylinder} onChange={(v) => setRefReCylinder(v || 0)} step={0.25} style={{ width: "100%" }} />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="轴位 (°)">
+                          <Form.Item label={t("eye.optometry.axisDeg")}>
                             <InputNumber value={refReAxis} onChange={(v) => setRefReAxis(v || 0)} min={0} max={180} style={{ width: "100%" }} />
                           </Form.Item>
                         </Col>
@@ -736,21 +735,21 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           fontWeight: 600,
                         }}
                       >
-                        OS 左眼
+                        {t("eye.optometry.osLeft")}
                       </div>
                       <Row gutter={8}>
                         <Col span={8}>
-                          <Form.Item label="球镜 (DS)">
+                          <Form.Item label={t("eye.optometry.sphereDs")}>
                             <InputNumber value={refLeSphere} onChange={(v) => setRefLeSphere(v || 0)} step={0.25} style={{ width: "100%" }} />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="柱镜 (DC)">
+                          <Form.Item label={t("eye.optometry.cylinderDc")}>
                             <InputNumber value={refLeCylinder} onChange={(v) => setRefLeCylinder(v || 0)} step={0.25} style={{ width: "100%" }} />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item label="轴位 (°)">
+                          <Form.Item label={t("eye.optometry.axisDeg")}>
                             <InputNumber value={refLeAxis} onChange={(v) => setRefLeAxis(v || 0)} min={0} max={180} style={{ width: "100%" }} />
                           </Form.Item>
                         </Col>
@@ -774,7 +773,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     <Space.Compact style={{ width: "100%" }}>
                       <Input
                         prefix={<Search size={12} />}
-                        placeholder="订单 ID"
+                        placeholder={t("eye.optometry.orderIdPlaceholder")}
                         value={orderId}
                         onChange={(e) => setOrderId(e.target.value)}
                       />
@@ -785,15 +784,15 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     {orderDetail && (
                       <div style={{ marginTop: 12, fontSize: 12 }}>
                         <Tag color={orderDetail.type === "ortho-k" ? "blue" : "purple"}>
-                          {orderDetail.type === "ortho-k" ? "OK 镜订单" : "离焦镜订单"}
+                          {orderDetail.type === "ortho-k" ? t("eye.optometry.orthoOrder") : t("eye.optometry.defocusOrder")}
                         </Tag>
-                        <div>品牌: {orderDetail.brand}</div>
-                        <div>患者: {orderDetail.patientName ?? orderDetail.patientId}</div>
-                        <div>预计到货: {orderDetail.estimatedDelivery}</div>
-                        <div>成本: ¥{orderDetail.cost?.total}</div>
-                        {orderDetail.lensType && <div>镜片: {orderDetail.lensType}</div>}
+                        <div>{t("eye.optometry.brand")}: {orderDetail.brand}</div>
+                        <div>{t("eye.optometry.patient")}: {orderDetail.patientName ?? orderDetail.patientId}</div>
+                        <div>{t("eye.optometry.estimatedDelivery")}: {orderDetail.estimatedDelivery}</div>
+                        <div>{t("eye.optometry.cost")}: ¥{orderDetail.cost?.total}</div>
+                        {orderDetail.lensType && <div>{t("eye.optometry.lens")}: {orderDetail.lensType}</div>}
                         {orderDetail.parameters?.baseCurve && (
-                          <div>基弧 (BC): {orderDetail.parameters.baseCurve} mm</div>
+                          <div>{t("eye.optometry.baseCurve")}: {orderDetail.parameters.baseCurve} mm</div>
                         )}
                         <Divider style={{ margin: "4px 0" }} />
                         <div style={{ color: "var(--text-secondary)" }}>
@@ -819,8 +818,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       dataSource={refPage}
                       pagination={refPagination}
                       columns={[
-                        { title: "日期", dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
-                        { title: "患者", dataIndex: "patientName" },
+                        { title: t("eye.optometry.colDate"), dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
+                        { title: t("eye.optometry.colPatient"), dataIndex: "patientName" },
                         {
                           title: "OD",
                           render: (_, r: any) =>
@@ -831,7 +830,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           render: (_, r: any) =>
                             `${r.leftEye?.sphere} S / ${r.leftEye?.cylinder} C ×${r.leftEye?.axis}`,
                         },
-                        { title: "类型", dataIndex: "prescriptionType", render: (v: string) => <Tag>{v}</Tag> },
+                        { title: t("eye.optometry.colType"), dataIndex: "prescriptionType", render: (v: string) => <Tag>{v}</Tag> },
                       ]}
                       scroll={{ x: "max-content" }}
                     />
@@ -849,11 +848,11 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       dataSource={okLensPage}
                       pagination={okLensPagination}
                       columns={[
-                        { title: "日期", dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
-                        { title: "患者", dataIndex: "patientName" },
-                        { title: "BC (mm)", render: (_, r: any) => r.design?.baseCurve },
-                        { title: "目标减少 (D)", render: (_, r: any) => r.design?.targetReduction },
-                        { title: "品牌", render: (_, r: any) => r.design?.brand },
+                        { title: t("eye.optometry.colDate"), dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
+                        { title: t("eye.optometry.colPatient"), dataIndex: "patientName" },
+                        { title: t("eye.optometry.colBc"), render: (_, r: any) => r.design?.baseCurve },
+                        { title: t("eye.optometry.colTargetReduction"), render: (_, r: any) => r.design?.targetReduction },
+                        { title: t("eye.optometry.colBrand"), render: (_, r: any) => r.design?.brand },
                       ]}
                       scroll={{ x: "max-content" }}
                     />
@@ -875,11 +874,11 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         dataSource={visionSeq.history}
                         pagination={false}
                         columns={[
-                          { title: "日期", dataIndex: "date" },
+                          { title: t("eye.optometry.colDate"), dataIndex: "date" },
                           { title: "OD (DS)", render: (_, r: any) => r.rightEye?.sphere },
-                          { title: "OD 散光", render: (_, r: any) => `${r.rightEye?.cylinder} C ×${r.rightEye?.axis}` },
+                          { title: t("eye.optometry.colOdAstigmatism"), render: (_, r: any) => `${r.rightEye?.cylinder} C ×${r.rightEye?.axis}` },
                           { title: "OS (DS)", render: (_, r: any) => r.leftEye?.sphere },
-                          { title: "OS 散光", render: (_, r: any) => `${r.leftEye?.cylinder} C ×${r.leftEye?.axis}` },
+                          { title: t("eye.optometry.colOsAstigmatism"), render: (_, r: any) => `${r.leftEye?.cylinder} C ×${r.leftEye?.axis}` },
                         ]}
                         scroll={{ x: "max-content" }}
                       />

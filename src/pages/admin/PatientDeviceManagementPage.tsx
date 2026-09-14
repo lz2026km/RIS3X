@@ -5,6 +5,7 @@ import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, messa
 import { User, Box, Plus, Edit3, Wrench, Stethoscope, FileText, History } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Inbox } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const { TextArea } = Input;
 
@@ -61,12 +62,12 @@ export const PatientDeviceManagementPage: React.FC = () => {
 
   // 患者 CRUD
   const handlePatientSave = async () => {
-    if (!patientModal.data.name) return message.warning('请填写姓名');
+    if (!patientModal.data.name) return message.warning(t('patientDevice.nameRequired'));
     try {
       let r;
       if (patientModal.type === 'create') r = await patientApi.create(patientModal.data);
       else r = await patientApi.update(selectedPatient.id, patientModal.data);
-      if (r.success) { message.success('保存成功'); setPatientModal({ type: null, data: {} }); loadPatients(); }
+      if (r.success) { message.success(t('patientDevice.saveSuccess')); setPatientModal({ type: null, data: {} }); loadPatients(); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -74,7 +75,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
   const handleDeviceMaintain = async (id: string, reason: string) => {
     try {
       const r = await deviceApi.triggerMaintenance(id, reason);
-      if (r.success) { message.success('维护指令已发出'); loadDevices(); }
+      if (r.success) { message.success(t('patientDevice.maintenanceSent')); loadDevices(); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -101,39 +102,39 @@ export const PatientDeviceManagementPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <User size={20} color="#2563eb" />
         <Box size={20} color="#52c41a" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>患者 + 设备管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('patientDevice.title')}</span>
         <Tag color="cyan">PR2 (v3.0.6.8-46)</Tag>
-        <Tag color="purple">Medisoft mediSIGHT 对标</Tag>
-        <Tag color="green">22 客户端 + 14 端点</Tag>
+        <Tag color="purple">{t('patientDevice.benchmark')}</Tag>
+        <Tag color="green">{t('patientDevice.endpointTag')}</Tag>
       </Space>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* 患者管理 */}
-        <Tabs.TabPane tab={<span><User size={14} /> 患者管理</span>} key="patients">
+        <Tabs.TabPane tab={<span><User size={14} /> {t('patientDevice.patientMgmt')}</span>} key="patients">
           <Row gutter={16}>
             <Col span={10}>
               <Card
-                title={`患者列表 (${filteredPatients.length})`}
+                title={`${t('patientDevice.patientList')} (${filteredPatients.length})`}
                 size="small"
                 extra={
                   <Space>
                     <Input.Search
                       size="small"
-                      placeholder="姓名/ID"
+                      placeholder={t('patientDevice.nameOrId')}
                       value={patientFilter.keyword}
                       onChange={e => setPatientFilter({ ...patientFilter, keyword: e.target.value })}
                       style={{ width: 120 }}
                     />
                     <Select
                       size="small"
-                      placeholder="性别"
+                      placeholder={t('patientDevice.gender')}
                       value={patientFilter.gender || undefined}
                       onChange={v => setPatientFilter({ ...patientFilter, gender: v })}
                       allowClear
                       style={{ width: 80 }}
-                      options={[{ value: 'M', label: '男' }, { value: 'F', label: '女' }]}
+                      options={[{ value: 'M', label: t('patientDevice.male') }, { value: 'F', label: t('patientDevice.female') }]}
                     />
-                    <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setPatientModal({ type: 'create', data: {} })}>新增</Button>
+                    <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setPatientModal({ type: 'create', data: {} })}>{t('patientDevice.add')}</Button>
                   </Space>
                 }
               >
@@ -149,10 +150,10 @@ export const PatientDeviceManagementPage: React.FC = () => {
                     >
                       <List.Item.Meta
                         avatar={<Avatar style={{ background: '#2563eb' }}>{p.name?.slice(0, 1)}</Avatar>}
-                        title={<span>{p.name} ({p.gender}, {p.age}岁)</span>}
+                        title={<span>{p.name} ({p.gender}, {p.age}{t('patientDevice.years')})</span>}
                         description={
                           <span style={{ fontSize: 11, color: '#999' }}>
-                            {p.diagnosis || p.medicalHistory?.slice(0, 30) || '无诊断'}
+                            {p.diagnosis || p.medicalHistory?.slice(0, 30) || t('patientDevice.noDiagnosis')}
                           </span>
                         }
                       />
@@ -174,19 +175,19 @@ export const PatientDeviceManagementPage: React.FC = () => {
                   }
                   size="small"
                   extra={
-                    <Button icon={<Edit3 size={12} />} onClick={() => setPatientModal({ type: 'update', data: { ...selectedPatient } })}>编辑</Button>
+                    <Button icon={<Edit3 size={12} />} onClick={() => setPatientModal({ type: 'update', data: { ...selectedPatient } })}>{t('patientDevice.edit')}</Button>
                   }
                 >
                   <Descriptions column={3} size="small" bordered>
-                    <Descriptions.Item label="性别">{selectedPatient.gender}</Descriptions.Item>
-                    <Descriptions.Item label="年龄">{selectedPatient.age} 岁</Descriptions.Item>
-                    <Descriptions.Item label="电话">{selectedPatient.phone || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="身份证">{selectedPatient.idCard || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="血型">{selectedPatient.bloodType || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="类型">{selectedPatient.patientType || '门诊'}</Descriptions.Item>
-                    <Descriptions.Item label="地址" span={3}>{selectedPatient.address || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="过敏史" span={3}>{selectedPatient.allergyHistory || '无'}</Descriptions.Item>
-                    <Descriptions.Item label="既往史" span={3}>{selectedPatient.medicalHistory || '无'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.gender')}>{selectedPatient.gender}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.age')}>{selectedPatient.age} {t('patientDevice.years')}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.phone')}>{selectedPatient.phone || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.idCard')}>{selectedPatient.idCard || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.bloodType')}>{selectedPatient.bloodType || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.type')}>{selectedPatient.patientType || t('patientDevice.outpatient')}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.address')} span={3}>{selectedPatient.address || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.allergyHistory')} span={3}>{selectedPatient.allergyHistory || t('patientDevice.none')}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.medicalHistory')} span={3}>{selectedPatient.medicalHistory || t('patientDevice.none')}</Descriptions.Item>
                   </Descriptions>
 
                   <Divider style={{ margin: '8px 0' }} />
@@ -194,23 +195,23 @@ export const PatientDeviceManagementPage: React.FC = () => {
                   <Tabs
                     size="small"
                     items={[
-                      { key: 'exams', label: <span><Stethoscope size={12} /> 检查 ({patientExams.length})</span>, children: (
+                      { key: 'exams', label: <span><Stethoscope size={12} /> {t('patientDevice.exams')} ({patientExams.length})</span>, children: (
                         <Table size="small" dataSource={patientExams} rowKey="id" pagination={false}
                           columns={[
-                            { title: '编号', dataIndex: 'id' },
-                            { title: '模态', dataIndex: 'modality' },
-                            { title: '部位', dataIndex: 'bodyPart' },
-                            { title: '状态', dataIndex: 'status' },
-                            { title: '日期', dataIndex: 'examAt' },
+                            { title: t('patientDevice.colId'), dataIndex: 'id' },
+                            { title: t('patientDevice.colModality'), dataIndex: 'modality' },
+                            { title: t('patientDevice.colBodyPart'), dataIndex: 'bodyPart' },
+                            { title: t('patientDevice.colStatus'), dataIndex: 'status' },
+                            { title: t('patientDevice.colDate'), dataIndex: 'examAt' },
                           ]} 
                         scroll={{ x: 'max-content' }}/>
                       )},
-                      { key: 'reports', label: <span><FileText size={12} /> 报告 ({patientReports.length})</span>, children: (
+                      { key: 'reports', label: <span><FileText size={12} /> {t('patientDevice.reports')} ({patientReports.length})</span>, children: (
                         <List size="small" dataSource={patientReports} renderItem={r => (
                           <List.Item>{r.id} - {r.modality} - {r.diagnosis}</List.Item>
                         )} />
                       )},
-                      { key: 'timeline', label: <span><History size={12} /> 时间线 ({patientTimeline.length})</span>, children: (
+                      { key: 'timeline', label: <span><History size={12} /> {t('patientDevice.timeline')} ({patientTimeline.length})</span>, children: (
                         <Timeline items={(patientTimeline || []).slice(0, 10).map((e: any) => ({
                           children: <div><b>{e.eventType || e.type}</b>: {e.description || e.content} <span style={{ color: '#999' }}>· {e.date || e.timestamp}</span></div>,
                         }))} />
@@ -218,30 +219,30 @@ export const PatientDeviceManagementPage: React.FC = () => {
                     ]}
                   />
                 </Card>
-              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择左侧患者查看详情" /></Card>}
+              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('patientDevice.selectPatient')} /></Card>}
             </Col>
           </Row>
         </Tabs.TabPane>
 
         {/* 设备管理 */}
-        <Tabs.TabPane tab={<span><Box size={14} /> 设备管理</span>} key="devices">
+        <Tabs.TabPane tab={<span><Box size={14} /> {t('patientDevice.deviceMgmt')}</span>} key="devices">
           <Row gutter={16}>
             <Col span={10}>
               <Card
-                title={`设备列表 (${filteredDevices.length})`}
+                title={`${t('patientDevice.deviceList')} (${filteredDevices.length})`}
                 size="small"
                 extra={
                   <Space>
                     <Select
                       size="small"
-                      placeholder="模态"
+                      placeholder={t('patientDevice.colModality')}
                       value={deviceFilter.modality || undefined}
                       onChange={v => setDeviceFilter({ ...deviceFilter, modality: v })}
                       allowClear
                       style={{ width: 100 }}
                       options={['CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map(m => ({ value: m, label: m }))}
                     />
-                    <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setDeviceModal({ type: 'create', data: {} })}>新增</Button>
+                    <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setDeviceModal({ type: 'create', data: {} })}>{t('patientDevice.add')}</Button>
                   </Space>
                 }
               >
@@ -306,31 +307,31 @@ export const PatientDeviceManagementPage: React.FC = () => {
                           { value: '故障', label: '故障' },
                         ]}
                       />
-                      <Button size="small" icon={<Wrench size={12} />} onClick={() => setDeviceModal({ type: 'maintain', data: selectedDevice })}>维护</Button>
-                      <Button size="small" icon={<Edit3 size={12} />} onClick={() => setDeviceModal({ type: 'update', data: { ...selectedDevice } })}>编辑</Button>
+                      <Button size="small" icon={<Wrench size={12} />} onClick={() => setDeviceModal({ type: 'maintain', data: selectedDevice })}>{t('patientDevice.maintain')}</Button>
+                      <Button size="small" icon={<Edit3 size={12} />} onClick={() => setDeviceModal({ type: 'update', data: { ...selectedDevice } })}>{t('patientDevice.edit')}</Button>
                     </Space>
                   }
                 >
                   <Row gutter={16}>
-                    <Col span={8}><Statistic title="本月扫描" value={selectedDevice.totalMonthlyScans || 0} /></Col>
-                    <Col span={8}><Statistic title="使用率" value={((selectedDevice.utilization || 0) * 100).toFixed(0)} suffix="%" /></Col>
-                    <Col span={8}><Statistic title="资产价值" value={((selectedDevice.totalValue || 0) / 10000).toFixed(1)} suffix="万" /></Col>
+                    <Col span={8}><Statistic title={t('patientDevice.monthlyScans')} value={selectedDevice.totalMonthlyScans || 0} /></Col>
+                    <Col span={8}><Statistic title={t('patientDevice.utilization')} value={((selectedDevice.utilization || 0) * 100).toFixed(0)} suffix="%" /></Col>
+                    <Col span={8}><Statistic title={t('patientDevice.assetValue')} value={((selectedDevice.totalValue || 0) / 10000).toFixed(1)} suffix={t('patientDevice.tenThousand')} /></Col>
                   </Row>
                   <Descriptions column={2} size="small" bordered style={{ marginTop: 12 }}>
-                    <Descriptions.Item label="厂家">{selectedDevice.manufacturer || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="型号">{selectedDevice.model || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="房间">{selectedDevice.room || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="建筑">{selectedDevice.building || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="下次维护">{selectedDevice.nextMaintenanceAt || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="负责人">{selectedDevice.responsibleEngineer || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.manufacturer')}>{selectedDevice.manufacturer || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.model')}>{selectedDevice.model || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.room')}>{selectedDevice.room || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.building')}>{selectedDevice.building || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.nextMaintenance')}>{selectedDevice.nextMaintenanceAt || '-'}</Descriptions.Item>
+                    <Descriptions.Item label={t('patientDevice.responsible')}>{selectedDevice.responsibleEngineer || '-'}</Descriptions.Item>
                   </Descriptions>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>维护历史 ({deviceHistory.length})</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('patientDevice.maintenanceHistory')} ({deviceHistory.length})</div>
                   <Timeline size="small" items={deviceHistory.slice(0, 5).map((h: any) => ({
                     children: <div>{h.date} - {h.type} - {h.notes}</div>,
                   }))} />
                 </Card>
-              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择左侧设备查看详情" /></Card>}
+              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('patientDevice.selectDevice')} /></Card>}
             </Col>
           </Row>
         </Tabs.TabPane>
@@ -338,7 +339,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
 
       {/* 患者 Modal */}
       <Modal
-        title={patientModal.type === 'create' ? '新增患者' : '编辑患者'}
+        title={patientModal.type === 'create' ? t('patientDevice.addPatient') : t('patientDevice.editPatient')}
         open={!!patientModal.type}
         onCancel={() => setPatientModal({ type: null, data: {} })}
         onOk={handlePatientSave}
@@ -346,27 +347,27 @@ export const PatientDeviceManagementPage: React.FC = () => {
       >
         <Form layout="vertical" size="small">
           <Row gutter={8}>
-            <Col span={12}><Form.Item label="姓名"><Input value={patientModal.data.name} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, name: e.target.value } })} /></Form.Item></Col>
-            <Col span={6}><Form.Item label="性别"><Select value={patientModal.data.gender} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, gender: v } })} options={[{value:'M',label:'男'},{value:'F',label:'女'}]} /></Form.Item></Col>
-            <Col span={6}><Form.Item label="年龄"><InputNumber value={patientModal.data.age} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, age: v } })} style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item label="电话"><Input value={patientModal.data.phone} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, phone: e.target.value } })} /></Form.Item></Col>
-            <Col span={12}><Form.Item label="血型"><Select value={patientModal.data.bloodType} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, bloodType: v } })} options={['A','B','AB','O'].map(b=>({value:b,label:b}))} /></Form.Item></Col>
-            <Col span={24}><Form.Item label="地址"><Input value={patientModal.data.address} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, address: e.target.value } })} /></Form.Item></Col>
-            <Col span={24}><Form.Item label="诊断"><TextArea rows={2} value={patientModal.data.diagnosis} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, diagnosis: e.target.value } })} /></Form.Item></Col>
+            <Col span={12}><Form.Item label={t('patientDevice.name')}><Input value={patientModal.data.name} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, name: e.target.value } })} /></Form.Item></Col>
+            <Col span={6}><Form.Item label={t('patientDevice.gender')}><Select value={patientModal.data.gender} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, gender: v } })} options={[{value:'M',label:t('patientDevice.male')},{value:'F',label:t('patientDevice.female')}]} /></Form.Item></Col>
+            <Col span={6}><Form.Item label={t('patientDevice.age')}><InputNumber value={patientModal.data.age} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, age: v } })} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item label={t('patientDevice.phone')}><Input value={patientModal.data.phone} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, phone: e.target.value } })} /></Form.Item></Col>
+            <Col span={12}><Form.Item label={t('patientDevice.bloodType')}><Select value={patientModal.data.bloodType} onChange={v => setPatientModal({ ...patientModal, data: { ...patientModal.data, bloodType: v } })} options={['A','B','AB','O'].map(b=>({value:b,label:b}))} /></Form.Item></Col>
+            <Col span={24}><Form.Item label={t('patientDevice.address')}><Input value={patientModal.data.address} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, address: e.target.value } })} /></Form.Item></Col>
+            <Col span={24}><Form.Item label={t('patientDevice.diagnosis')}><TextArea rows={2} value={patientModal.data.diagnosis} onChange={e => setPatientModal({ ...patientModal, data: { ...patientModal.data, diagnosis: e.target.value } })} /></Form.Item></Col>
           </Row>
         </Form>
       </Modal>
 
       {/* 设备维护 Modal */}
       <Modal
-        title="触发设备维护"
+        title={t('patientDevice.triggerMaintenance')}
         open={deviceModal.type === 'maintain'}
         onCancel={() => setDeviceModal({ type: null, data: {} })}
         onOk={() => handleDeviceMaintain(deviceModal.data.id, '定期维护')}
         width={400}
       >
-        <Alert title="将为该设备创建维护指令" type="info" showIcon style={{ marginBottom: 8 }} />
-        <p>设备: {deviceModal.data.name} ({deviceModal.data.id})</p>
+        <Alert title={t('patientDevice.maintenanceAlert')} type="info" showIcon style={{ marginBottom: 8 }} />
+        <p>{t('patientDevice.device')}: {deviceModal.data.name} ({deviceModal.data.id})</p>
       </Modal>
     </div>
   );

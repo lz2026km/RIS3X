@@ -3,6 +3,7 @@ import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col,
 import { Network, Activity, Users, Fingerprint, Globe, Edit3, RotateCcw, Save, RefreshCw, Send } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 export const IheManagerPage: React.FC = () => {
   const [tab, setTab] = useState('status')
@@ -30,9 +31,9 @@ export const IheManagerPage: React.FC = () => {
       ])
       if (statusRes.success && statusRes.data) setStatus(statusRes.data)
       if (domainRes.success && domainRes.data) setDomain(domainRes.data)
-      if (!statusRes.success) setLoadError(statusRes.error?.message ?? '状态加载失败')
+      if (!statusRes.success) setLoadError(statusRes.error?.message ?? t('iheManager.statusLoadFailed'))
     } catch {
-      setLoadError('IHE 服务状态加载失败，当前展示演示数据')
+      setLoadError(t('iheManager.serviceLoadFailed'))
       setStatus({
         profile: 'XDS.b / PIX / PDQ / PAM',
         affinityDomain: {
@@ -72,16 +73,16 @@ export const IheManagerPage: React.FC = () => {
       setDomainSaving(true)
       const res = await iheApi.setAffinityDomain(values)
       if (res.success) {
-        message.success('归属域配置已保存')
+        message.success(t('iheManager.domainSaved'))
         setDomain(res.data)
         setDomainDrawerOpen(false)
         fetchStatus()
       } else {
-        message.error(res.error?.message ?? '保存失败')
+        message.error(res.error?.message ?? t('iheManager.saveFailed'))
       }
     } catch (err: unknown) {
       if ((err as { errorFields?: unknown })?.errorFields) return
-      message.error('保存失败')
+      message.error(t('iheManager.saveFailed'))
     } finally {
       setDomainSaving(false)
     }
@@ -92,14 +93,14 @@ export const IheManagerPage: React.FC = () => {
     try {
       const res = await iheApi.resetAffinityDomain()
       if (res.success) {
-        message.success('归属域已重置为默认')
+        message.success(t('iheManager.domainReset'))
         setDomain(res.data)
         fetchStatus()
       } else {
-        message.error(res.error?.message ?? '重置失败')
+        message.error(res.error?.message ?? t('iheManager.resetFailed'))
       }
     } catch {
-      message.error('重置失败')
+      message.error(t('iheManager.resetFailed'))
     } finally {
       setDomainResetting(false)
     }
@@ -124,12 +125,12 @@ export const IheManagerPage: React.FC = () => {
         message.success(`PIX 更新通知已发送 (${res.data?.ack ?? '-'})`)
       } else {
         setPixResult(null)
-        message.error(res.error?.message ?? 'PIX 通知发送失败')
+        message.error(res.error?.message ?? t('iheManager.pixSendFailed'))
       }
     } catch (err: unknown) {
       if ((err as { errorFields?: unknown })?.errorFields) return
       setPixResult(null)
-      message.error('PIX 通知请求失败')
+      message.error(t('iheManager.pixRequestFailed'))
     } finally {
       setPixSending(false)
     }
@@ -138,106 +139,106 @@ export const IheManagerPage: React.FC = () => {
   const tabItems = [
     {
       key: 'status',
-      label: <Space><Activity size={14} />IHE 状态</Space>,
+      label: <Space><Activity size={14} />{t('iheManager.tabStatus')}</Space>,
       children: (
         <div>
           {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 12 }} />}
           <Card
             size="small"
-            title="集成状态"
-            extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={fetchStatus} loading={loading}>刷新</Button>}
+            title={t('iheManager.integrationStatus')}
+            extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={fetchStatus} loading={loading}>{t('iheManager.refresh')}</Button>}
           >
             {status ? (
               <Row gutter={16}>
-                <Col span={6}><Card><Statistic title="PIX 记录数" value={status.metrics.pixRecords} /></Card></Col>
-                <Col span={6}><Card><Statistic title="PDQ 缓存" value={status.metrics.pdqCache} /></Card></Col>
-                <Col span={6}><Card><Statistic title="PAM 日志" value={status.metrics.pamLogSize} /></Card></Col>
-                <Col span={6}><Card><Statistic title="交易" value={status.transactions.length} suffix="种" /></Card></Col>
+                <Col span={6}><Card><Statistic title={t('iheManager.pixRecords')} value={status.metrics.pixRecords} /></Card></Col>
+                <Col span={6}><Card><Statistic title={t('iheManager.pdqCache')} value={status.metrics.pdqCache} /></Card></Col>
+                <Col span={6}><Card><Statistic title={t('iheManager.pamLog')} value={status.metrics.pamLogSize} /></Card></Col>
+                <Col span={6}><Card><Statistic title={t('iheManager.transactions')} value={status.transactions.length} suffix={t('iheManager.unitTypes')} /></Card></Col>
                 <Col span={24} style={{ marginTop: 16 }}>
-                  <Card size="small" title="支持的 IHE 事务">
+                  <Card size="small" title={t('iheManager.supportedTransactions')}>
                     <Space wrap>
-                      {status.transactions.map(t => <Tag key={t} color="blue">{t}</Tag>)}
+                      {status.transactions.map(code => <Tag key={code} color="blue">{code}</Tag>)}
                     </Space>
                   </Card>
                 </Col>
                 <Col span={24} style={{ marginTop: 16 }}>
-                  <Card size="small" title="配置">
+                  <Card size="small" title={t('iheManager.config')}>
                     <Tag color="cyan" style={{ fontSize: 14 }}>{status.profile}</Tag>
                   </Card>
                 </Col>
               </Row>
-            ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={loading ? "加载中..." : "暂无数据"} />}
+            ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={loading ? t('iheManager.loading') : t('iheManager.noData')} />}
           </Card>
         </div>
       ),
     },
     {
       key: 'domain',
-      label: <Space><Globe size={14} />归属域</Space>,
+      label: <Space><Globe size={14} />{t('iheManager.tabDomain')}</Space>,
       children: (
         <Card
           size="small"
-          title="归属域配置"
+          title={t('iheManager.domainConfig')}
           extra={
             <Space>
-              <Button size="small" icon={<Edit3 size={12} />} onClick={openDomainDrawer} disabled={!domain}>编辑</Button>
-              <Popconfirm title="确认重置为默认配置？" onConfirm={handleResetDomain} okButtonProps={{ loading: domainResetting }}>
-                <Button size="small" danger icon={<RotateCcw size={12} />}>重置</Button>
+              <Button size="small" icon={<Edit3 size={12} />} onClick={openDomainDrawer} disabled={!domain}>{t('iheManager.edit')}</Button>
+              <Popconfirm title={t('iheManager.confirmReset')} onConfirm={handleResetDomain} okButtonProps={{ loading: domainResetting }}>
+                <Button size="small" danger icon={<RotateCcw size={12} />}>{t('iheManager.reset')}</Button>
               </Popconfirm>
             </Space>
           }
         >
           {domain ? (
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="归属社区 ID">{domain.homeCommunityId}</Descriptions.Item>
-              <Descriptions.Item label="名称">{domain.name}</Descriptions.Item>
-              <Descriptions.Item label="分配机构">{domain.assigningAuthorityId}</Descriptions.Item>
-              <Descriptions.Item label="仓库 ID 列表">{domain.repositoryUniqueIds?.join(', ')}</Descriptions.Item>
-              <Descriptions.Item label="注册端点">{domain.registryEndpoint || '-'}</Descriptions.Item>
-              <Descriptions.Item label="仓库端点">{domain.repositoryEndpoint || '-'}</Descriptions.Item>
-              <Descriptions.Item label="PIX 管理器">{domain.pixManagerEndpoint || '-'}</Descriptions.Item>
-              <Descriptions.Item label="PDQ 提供方">{domain.pdqSupplierEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.homeCommunityId')}>{domain.homeCommunityId}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.name')}>{domain.name}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.assigningAuthority')}>{domain.assigningAuthorityId}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.repositoryIds')}>{domain.repositoryUniqueIds?.join(', ')}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.registryEndpoint')}>{domain.registryEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.repositoryEndpoint')}>{domain.repositoryEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.pixManager')}>{domain.pixManagerEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('iheManager.pdqSupplier')}>{domain.pdqSupplierEndpoint || '-'}</Descriptions.Item>
             </Descriptions>
-          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="加载中..." />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('iheManager.loading')} />}
         </Card>
       ),
     },
     {
       key: 'pix',
-      label: <Space><Fingerprint size={14} />PIX 管理</Space>,
+      label: <Space><Fingerprint size={14} />{t('iheManager.tabPix')}</Space>,
       children: (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <Card size="small" title="PIX 患者身份交叉引用">
+          <Card size="small" title={t('iheManager.pixCrossReference')}>
             <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
-              跳转到 PIX 管理页面进行患者 ID 跨域映射管理。
+              {t('iheManager.pixCrossReferenceDesc')}
             </p>
-            <Button type="primary" onClick={() => window.location.hash = '#/ihe/pix'}>前往 PIX 管理</Button>
+            <Button type="primary" onClick={() => window.location.hash = '#/ihe/pix'}>{t('iheManager.goPix')}</Button>
           </Card>
-          <Card size="small" title={<Space><Send size={14} />PIX 更新通知 (ITI-10)</Space>}>
+          <Card size="small" title={<Space><Send size={14} />{t('iheManager.pixNotifyTitle')}</Space>}>
             <Form form={pixForm} layout="vertical" size="small">
-              <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}>
+              <Form.Item label={t('iheManager.patientId')} name="patientId" rules={[{ required: true }]}>
                 <Input placeholder="P000001" />
               </Form.Item>
-              <Form.Item label="分配机构" name="assigningAuthority">
+              <Form.Item label={t('iheManager.assigningAuthority')} name="assigningAuthority">
                 <Input placeholder="G005" />
               </Form.Item>
-              <Form.Item label="姓名 (姓氏)" name="family">
+              <Form.Item label={t('iheManager.familyName')} name="family">
                 <Input placeholder="张" />
               </Form.Item>
-              <Form.Item label="姓名 (名字)" name="given">
+              <Form.Item label={t('iheManager.givenName')} name="given">
                 <Input placeholder="三" />
               </Form.Item>
               <Button type="primary" icon={<Send size={12} />} loading={pixSending} onClick={handlePixNotify}>
-                发送更新通知
+                {t('iheManager.sendUpdate')}
               </Button>
             </Form>
             {pixResult && (
               <Descriptions column={1} size="small" bordered style={{ marginTop: 16 }}>
-                <Descriptions.Item label="事务">{pixResult.transaction || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('iheManager.transaction')}>{pixResult.transaction || '-'}</Descriptions.Item>
                 <Descriptions.Item label="ACK">
                   <Tag color={pixResult.ack === 'AA' ? 'green' : pixResult.ack === 'AE' ? 'red' : 'orange'}>{pixResult.ack || '-'}</Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="消息 ID">{pixResult.messageId || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('iheManager.messageId')}>{pixResult.messageId || '-'}</Descriptions.Item>
               </Descriptions>
             )}
           </Card>
@@ -246,13 +247,13 @@ export const IheManagerPage: React.FC = () => {
     },
     {
       key: 'pam',
-      label: <Space><Users size={14} />PAM 管理</Space>,
+      label: <Space><Users size={14} />{t('iheManager.tabPam')}</Space>,
       children: (
-        <Card size="small" title="患者管理 (PAM)">
+        <Card size="small" title={t('iheManager.pamTitle')}>
           <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
-            跳转到 PAM 管理页面进行患者就诊信息管理。
+            {t('iheManager.pamDesc')}
           </p>
-          <Button type="primary" onClick={() => window.location.hash = '#/ihe/pam'}>前往 PAM 管理</Button>
+          <Button type="primary" onClick={() => window.location.hash = '#/ihe/pam'}>{t('iheManager.goPam')}</Button>
         </Card>
       ),
     },
@@ -262,7 +263,7 @@ export const IheManagerPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Network size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 集成管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheManager.title')}</span>
         <Tag color="cyan">PIX / PDQ / PAM</Tag>
         <Tag color="green">XDS.b</Tag>
       </Space>
@@ -270,47 +271,47 @@ export const IheManagerPage: React.FC = () => {
       <Tabs activeKey={tab} onChange={setTab} items={tabItems} />
 
       <Drawer
-        title="编辑归属域配置"
+        title={t('iheManager.editDomainConfig')}
         open={domainDrawerOpen}
         onClose={() => setDomainDrawerOpen(false)}
         width={520}
         extra={
           <Space>
             <Button icon={<Save size={14} />} type="primary" loading={domainSaving} onClick={handleSaveDomain}>
-              保存
+              {t('iheManager.save')}
             </Button>
           </Space>
         }
       >
         <Form form={domainForm} layout="vertical" size="small">
-          <Form.Item label="归属社区 ID" name="homeCommunityId" rules={[{ required: true }]}>
+          <Form.Item label={t('iheManager.homeCommunityId')} name="homeCommunityId" rules={[{ required: true }]}>
             <Input placeholder="1.2.3.4.5.6.7.8.9" />
           </Form.Item>
-          <Form.Item label="名称" name="name" rules={[{ required: true }]}>
+          <Form.Item label={t('iheManager.name')} name="name" rules={[{ required: true }]}>
             <Input placeholder="G005 医疗联盟" />
           </Form.Item>
-          <Form.Item label="名称 (英文)" name="nameEn">
+          <Form.Item label={t('iheManager.nameEn')} name="nameEn">
             <Input placeholder="G005 医疗联盟" />
           </Form.Item>
-          <Form.Item label="分配机构 ID" name="assigningAuthorityId" rules={[{ required: true }]}>
+          <Form.Item label={t('iheManager.assigningAuthorityId')} name="assigningAuthorityId" rules={[{ required: true }]}>
             <Input placeholder="G005" />
           </Form.Item>
-          <Form.Item label="仓库 ID 列表（逗号分隔）" name="repositoryUniqueIds" getValueFromEvent={(e) => e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)}>
+          <Form.Item label={t('iheManager.repositoryIdsComma')} name="repositoryUniqueIds" getValueFromEvent={(e) => e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)}>
             <Input placeholder="1.2.3.4.5.6.7.8.9.1" />
           </Form.Item>
-          <Form.Item label="注册端点" name="registryEndpoint">
+          <Form.Item label={t('iheManager.registryEndpoint')} name="registryEndpoint">
             <Input placeholder="https://registry.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="仓库端点" name="repositoryEndpoint">
+          <Form.Item label={t('iheManager.repositoryEndpoint')} name="repositoryEndpoint">
             <Input placeholder="https://repository.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="PIX 管理器端点" name="pixManagerEndpoint">
+          <Form.Item label={t('iheManager.pixManagerEndpoint')} name="pixManagerEndpoint">
             <Input placeholder="https://pix.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="PDQ 提供方端点" name="pdqSupplierEndpoint">
+          <Form.Item label={t('iheManager.pdqSupplierEndpoint')} name="pdqSupplierEndpoint">
             <Input placeholder="https://pdq.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="ATNA 端点" name="atnaEndpoint">
+          <Form.Item label={t('iheManager.atnaEndpoint')} name="atnaEndpoint">
             <Input placeholder="https://atna.g005.local:8443" />
           </Form.Item>
         </Form>

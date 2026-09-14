@@ -28,6 +28,7 @@ import {
   CorrectionFeedback,
   WorkstationTranscribeResult,
 } from '../../services/api/voiceWorkstationApi'
+import { t } from '../../i18n/appI18n'
 
 const CATEGORY_COLORS: Record<string, string> = {
   解剖: '#6366f1', 影像: '#0ea5e9', 疾病: '#f43f5e', 药物: '#a855f7', 单位: '#14b8a6', 操作: '#f59e0b',
@@ -35,18 +36,18 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const CATEGORY_OPTIONS: Array<{ label: string; value: LexiconCategory }> = (['解剖', '影像', '疾病', '药物', '单位', '操作'] as LexiconCategory[]).map((c) => ({ label: c, value: c }))
 
-const ENGINE_BADGES: Record<string, { label: string; color: string; bg: string }> = {
-  aliyun: { label: '阿里云 ASR', color: '#3b82f6', bg: '#dbeafe' },
-  whisper: { label: 'Whisper', color: '#7c3aed', bg: '#ede9fe' },
-  mock: { label: '模拟转写', color: '#64748b', bg: '#e2e8f0' },
-  'mock-lexicon': { label: '模拟+词库', color: '#64748b', bg: '#e2e8f0' },
-  lexicon: { label: '词库直录', color: '#10b981', bg: '#d1fae5' },
+const ENGINE_BADGES: Record<string, { color: string; bg: string }> = {
+  aliyun: { color: '#3b82f6', bg: '#dbeafe' },
+  whisper: { color: '#7c3aed', bg: '#ede9fe' },
+  mock: { color: '#64748b', bg: '#e2e8f0' },
+  'mock-lexicon': { color: '#64748b', bg: '#e2e8f0' },
+  lexicon: { color: '#10b981', bg: '#d1fae5' },
 }
 
-const SESSION_STATUS: Record<string, { label: string; color: string; bg: string }> = {
-  completed: { label: '完成', color: '#10b981', bg: '#d1fae5' },
-  processing: { label: '处理中', color: '#f59e0b', bg: '#fef3c7' },
-  error: { label: '错误', color: '#ef4444', bg: '#ffe4e6' },
+const SESSION_STATUS: Record<string, { color: string; bg: string }> = {
+  completed: { color: '#10b981', bg: '#d1fae5' },
+  processing: { color: '#f59e0b', bg: '#fef3c7' },
+  error: { color: '#ef4444', bg: '#ffe4e6' },
 }
 
 // 演示转写 (与后端 DEMO_TRANSCRIPT 一致的含错文本, 用于无录音环境回退)
@@ -77,7 +78,7 @@ function blobToBase64(blob: Blob): Promise<string> {
       const idx = result.indexOf(',')
       resolve(idx >= 0 ? result.slice(idx + 1) : result)
     }
-    reader.onerror = () => reject(new Error('读取录音失败'))
+    reader.onerror = () => reject(new Error(t('voiceWs.recordReadFailed')))
     reader.readAsDataURL(blob)
   })
 }
@@ -211,7 +212,7 @@ export default function VoiceWorkstationPage() {
             message.success(`词库校正 ${result.corrections.length} 处 (原词→正词)`)
           }
         } catch (e) {
-          message.error((e as Error).message ?? '转写失败')
+          message.error((e as Error).message ?? t('voiceWs.transcribeFailed'))
         } finally {
           setTranscribing(false)
           stream.getTracks().forEach((t) => t.stop())
@@ -234,7 +235,7 @@ export default function VoiceWorkstationPage() {
         void loadSessions()
         void loadStats()
       } catch (e) {
-        message.error((e as Error).message ?? '转写失败')
+        message.error((e as Error).message ?? t('voiceWs.transcribeFailed'))
       } finally {
         setTranscribing(false)
       }
@@ -254,7 +255,7 @@ export default function VoiceWorkstationPage() {
   const handleLexiconSubmit = async () => {
     const term = lexForm.term.trim()
     if (!term) {
-      message.warning('术语不能为空')
+      message.warning(t('voiceWs.termRequired'))
       return
     }
     const aliases = lexForm.aliases.split(/[,，]/).map((a) => a.trim()).filter(Boolean)
@@ -272,7 +273,7 @@ export default function VoiceWorkstationPage() {
       await loadLexicon()
       await loadStats()
     } catch (e) {
-      message.error((e as Error).message ?? '保存失败')
+      message.error((e as Error).message ?? t('voiceWs.saveFailed'))
     } finally {
       setLexSaving(false)
     }
@@ -295,7 +296,7 @@ export default function VoiceWorkstationPage() {
       await loadLexicon()
       await loadStats()
     } catch (e) {
-      message.error((e as Error).message ?? '删除失败')
+      message.error((e as Error).message ?? t('voiceWs.deleteFailed'))
     }
   }
 
@@ -336,7 +337,7 @@ export default function VoiceWorkstationPage() {
     const original = feedbackForm.original.trim()
     const corrected = feedbackForm.corrected.trim()
     if (!original || !corrected) {
-      message.warning('请填写原词与正词')
+      message.warning(t('voiceWs.originalCorrectedRequired'))
       return
     }
     try {
@@ -347,7 +348,7 @@ export default function VoiceWorkstationPage() {
       await loadLexicon()
       await loadStats()
     } catch (e) {
-      message.error((e as Error).message ?? '提交失败')
+      message.error((e as Error).message ?? t('voiceWs.submitFailed'))
     }
   }
 
@@ -359,13 +360,13 @@ export default function VoiceWorkstationPage() {
       await loadLexicon()
       await loadStats()
     } catch (e) {
-      message.error((e as Error).message ?? '确认失败')
+      message.error((e as Error).message ?? t('voiceWs.confirmFailed'))
     }
   }
 
   const handleRemoveFeedback = (id: string) => {
     setRemovedFeedbacks((prev) => [...prev, id])
-    message.success('已从列表移除')
+    message.success(t('voiceWs.removedFromList'))
   }
 
   // ── 插入报告 ────────────────────────────────────────────────────────────
@@ -391,11 +392,11 @@ export default function VoiceWorkstationPage() {
   const statCards = useMemo(() => {
     if (!stats) return []
     return [
-      { label: '听写会话', value: stats.sessions.total, color: '#3b82f6', bg: '#dbeafe', icon: <Headphones size={18} /> },
-      { label: '今日会话', value: stats.sessions.today, color: '#0ea5e9', bg: '#e0f2fe', icon: <AudioWaveform size={18} /> },
-      { label: '平均时长 (s)', value: stats.sessions.avgDurationSec, color: '#f59e0b', bg: '#fef3c7', icon: <Timer size={18} /> },
-      { label: '医学词条', value: stats.lexiconSize, color: '#8b5cf6', bg: '#ede9fe', icon: <BookOpen size={18} /> },
-      { label: '纠正反馈', value: stats.corrections.total, color: '#f43f5e', bg: '#ffe4e6', icon: <MessageSquareWarning size={18} /> },
+      { label: t('voiceWs.statSessions'), value: stats.sessions.total, color: '#3b82f6', bg: '#dbeafe', icon: <Headphones size={18} /> },
+      { label: t('voiceWs.statTodaySessions'), value: stats.sessions.today, color: '#0ea5e9', bg: '#e0f2fe', icon: <AudioWaveform size={18} /> },
+      { label: t('voiceWs.statAvgDuration'), value: stats.sessions.avgDurationSec, color: '#f59e0b', bg: '#fef3c7', icon: <Timer size={18} /> },
+      { label: t('voiceWs.statLexicon'), value: stats.lexiconSize, color: '#8b5cf6', bg: '#ede9fe', icon: <BookOpen size={18} /> },
+      { label: t('voiceWs.statCorrections'), value: stats.corrections.total, color: '#f43f5e', bg: '#ffe4e6', icon: <MessageSquareWarning size={18} /> },
     ]
   }, [stats])
 
@@ -422,34 +423,34 @@ export default function VoiceWorkstationPage() {
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
             <div style={{ fontSize: 15, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>
-              {recording ? `正在录音... ${recordSec}s` : transcribing ? '转写中 (ASR + 词库校正)...' : '语音听写'}
+              {recording ? `${t('voiceWs.recording')} ${recordSec}s` : transcribing ? t('voiceWs.transcribing') : t('voiceWs.dictation')}
             </div>
             <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>
-              {recording ? '再次点击停止录音并自动转写' : '点击麦克风开始录音 (MediaRecorder), 停止后自动转写并执行医学词库同音词校正'}
+              {recording ? t('voiceWs.stopHint') : t('voiceWs.recordHint')}
               <br />
-              <span style={{ color: '#94a3b8' }}>无麦克风环境将自动使用演示音频回退</span>
+              <span style={{ color: '#94a3b8' }}>{t('voiceWs.noMicHint')}</span>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {!recording ? (
-              <Button type="primary" icon={<Mic size={14} />} onClick={() => void startRecording()} disabled={transcribing}>开始录音</Button>
+              <Button type="primary" icon={<Mic size={14} />} onClick={() => void startRecording()} disabled={transcribing}>{t('voiceWs.startRecording')}</Button>
             ) : (
-              <Button danger icon={<Square size={14} />} onClick={stopRecording}>停止录音</Button>
+              <Button danger icon={<Square size={14} />} onClick={stopRecording}>{t('voiceWs.stopRecording')}</Button>
             )}
-            <Button icon={<RefreshCw size={14} />} onClick={() => { setTranscript(null); setInserted(false); setEditingText('') }} disabled={recording || transcribing}>清空</Button>
+            <Button icon={<RefreshCw size={14} />} onClick={() => { setTranscript(null); setInserted(false); setEditingText('') }} disabled={recording || transcribing}>{t('voiceWs.clear')}</Button>
           </div>
         </div>
         {/* 报告联动 */}
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <Tag icon={<FileText size={11} />} color="blue" style={{ margin: 0 }}>插入报告</Tag>
+          <Tag icon={<FileText size={11} />} color="blue" style={{ margin: 0 }}>{t('voiceWs.insertReport')}</Tag>
           <Input
             value={reportId}
             onChange={(e) => setReportId(e.target.value)}
-            placeholder="报告ID (如 rpt-038, 留空则仅生成文本)"
+            placeholder={t('voiceWs.reportIdPlaceholder')}
             size="small"
             style={{ width: 240 }}
           />
-          {inserted && <Tag color="success" style={{ margin: 0 }}>已插入</Tag>}
+          {inserted && <Tag color="success" style={{ margin: 0 }}>{t('voiceWs.inserted')}</Tag>}
         </div>
       </div>
 
@@ -457,7 +458,7 @@ export default function VoiceWorkstationPage() {
       {transcribing && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', textAlign: 'center' }}>
           <RefreshCw size={24} color="#3b82f6" style={{ animation: 'spin 1s linear infinite' }} />
-          <div style={{ marginTop: 8, color: '#64748b', fontSize: 13 }}>正在转写并执行词库校正...</div>
+          <div style={{ marginTop: 8, color: '#64748b', fontSize: 13 }}>{t('voiceWs.transcribingLex')}</div>
         </div>
       )}
 
@@ -465,21 +466,21 @@ export default function VoiceWorkstationPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={16} color="#3b82f6" />转写结果
+              <FileText size={16} color="#3b82f6" />{t('voiceWs.transcriptResult')}
             </h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {engineLabel && (
                 <Tag style={{ margin: 0, fontSize: 11, fontWeight: 600, color: (ENGINE_BADGES[engineLabel] ?? ENGINE_BADGES.mock)?.color, background: (ENGINE_BADGES[engineLabel] ?? ENGINE_BADGES.mock)?.bg, borderColor: 'transparent' }}>
-                  {(ENGINE_BADGES[engineLabel] ?? ENGINE_BADGES.mock)?.label}
+                  {t(`voiceWs.engine.${engineLabel && ENGINE_BADGES[engineLabel] ? engineLabel : 'mock'}`)}
                 </Tag>
               )}
               {transcript.corrections.length > 0 && (
-                <Tag color="success" icon={<Wand2 size={11} />} style={{ margin: 0 }}>词库校正 {transcript.corrections.length} 处</Tag>
+                <Tag color="success" icon={<Wand2 size={11} />} style={{ margin: 0 }}>{t('voiceWs.lexCorrection')} {transcript.corrections.length} {t('voiceWs.timesUnit')}</Tag>
               )}
               <Tag color={transcript.confidence > 0.9 ? 'success' : 'warning'} style={{ margin: 0 }}>
-                置信度 {(transcript.confidence * 100).toFixed(0)}%
+                {t('voiceWs.confidence')} {(transcript.confidence * 100).toFixed(0)}%
               </Tag>
-              <Tag color="default" style={{ margin: 0 }}>时长 {transcript.duration}s</Tag>
+              <Tag color="default" style={{ margin: 0 }}>{t('voiceWs.duration')} {transcript.duration}s</Tag>
             </div>
           </div>
 
@@ -491,7 +492,7 @@ export default function VoiceWorkstationPage() {
               style={{ marginBottom: 12, padding: '8px 12px', fontSize: 12 }}
               message={
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <span>医学词库同音词校正提示:</span>
+                  <span>{t('voiceWs.lexCorrectionHint')}</span>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {transcript.corrections.map((c, i) => (
                       <Tag key={i} style={{ margin: 0, fontSize: 11 }}>
@@ -512,13 +513,13 @@ export default function VoiceWorkstationPage() {
             onChange={(e) => setEditingText(e.target.value)}
             rows={7}
             style={{ width: '100%', padding: 12, border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
-            placeholder="转写文本 (可编辑)"
+            placeholder={t('voiceWs.transcriptPlaceholder')}
           />
 
           {/* 分段置信度 */}
           {transcript.segments.length > 0 && (
             <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 2 }}>分段 (句) 置信度:</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 2 }}>{t('voiceWs.segmentConfidence')}</div>
               {transcript.segments.map((seg, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#475569' }}>
                   <span style={{ color: '#94a3b8', width: 60, flexShrink: 0 }}>{seg.start}s-{seg.end}s</span>
@@ -531,9 +532,9 @@ export default function VoiceWorkstationPage() {
 
           <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Button type="primary" icon={<Send size={14} />} onClick={handleInsertReport} disabled={inserted}>
-              {inserted ? '已插入报告' : '插入报告'}
+              {inserted ? t('voiceWs.insertedReport') : t('voiceWs.insertReport')}
             </Button>
-            <Button icon={<BadgeCheck size={14} />} onClick={() => setReportModalOpen(true)} disabled={inserted}>插入并完成</Button>
+            <Button icon={<BadgeCheck size={14} />} onClick={() => setReportModalOpen(true)} disabled={inserted}>{t('voiceWs.insertAndFinish')}</Button>
           </div>
         </div>
       )}
@@ -559,7 +560,7 @@ export default function VoiceWorkstationPage() {
       {stats && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1e293b', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Database size={15} color="#10b981" />词库分布
+            <Database size={15} color="#10b981" />{t('voiceWs.lexiconDistribution')}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {stats.categoryCounts.map((c) => {
@@ -568,7 +569,7 @@ export default function VoiceWorkstationPage() {
                 <div key={c.category}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                     <span style={{ fontWeight: 500 }}>{c.category}</span>
-                    <span style={{ color: '#94a3b8' }}>{c.count} 条 ({pct}%)</span>
+                    <span style={{ color: '#94a3b8' }}>{c.count} {t('voiceWs.itemsUnit')} ({pct}%)</span>
                   </div>
                   <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${pct}%`, background: CATEGORY_COLORS[c.category] ?? '#94a3b8', borderRadius: 3 }} />
@@ -587,7 +588,7 @@ export default function VoiceWorkstationPage() {
     <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <BookOpen size={16} color="#8b5cf6" />医学词库管理
+          <BookOpen size={16} color="#8b5cf6" />{t('voiceWs.lexiconManage')}
         </h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ position: 'relative' }}>
@@ -595,7 +596,7 @@ export default function VoiceWorkstationPage() {
             <Input
               value={lexQuery}
               onChange={(e) => setLexQuery(e.target.value)}
-              placeholder="检索术语/别名/分类"
+              placeholder={t('voiceWs.lexSearchPlaceholder')}
               size="small"
               style={{ paddingLeft: 30, width: 220 }}
             />
@@ -611,8 +612,8 @@ export default function VoiceWorkstationPage() {
               e.target.value = ''
             }}
           />
-          <Button size="small" icon={<FileUp size={12} />} loading={importing} onClick={() => fileInputRef.current?.click()}>导入 CSV</Button>
-          <span style={{ fontSize: 12, color: '#64748b' }}>共 {filteredLexicon.length} 条</span>
+          <Button size="small" icon={<FileUp size={12} />} loading={importing} onClick={() => fileInputRef.current?.click()}>{t('voiceWs.importCsv')}</Button>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('voiceWs.totalPrefix')} {filteredLexicon.length} {t('voiceWs.itemsUnit')}</span>
         </div>
       </div>
 
@@ -620,7 +621,7 @@ export default function VoiceWorkstationPage() {
         type="info"
         showIcon
         style={{ marginBottom: 12, padding: '6px 12px', fontSize: 12 }}
-        message="CSV 格式: term,category,priority,aliases(竖线|分隔) — 例如: 磨玻璃影,影像,3,毛玻璃影|磨玻璃密度影"
+        message={t('voiceWs.csvFormatHint')}
       />
 
       {/* 新增/编辑表单 */}
@@ -628,7 +629,7 @@ export default function VoiceWorkstationPage() {
         <Input
           value={lexForm.term}
           onChange={(e) => setLexForm((f) => ({ ...f, term: e.target.value }))}
-          placeholder="术语 (必填)"
+          placeholder={t('voiceWs.termPlaceholder')}
           size="small"
           style={{ width: 170 }}
         />
@@ -643,22 +644,22 @@ export default function VoiceWorkstationPage() {
           type="number" min={0} max={10}
           value={lexForm.priority}
           onChange={(e) => setLexForm((f) => ({ ...f, priority: Number(e.target.value) || 0 }))}
-          placeholder="优先级"
+          placeholder={t('voiceWs.priorityPlaceholder')}
           size="small"
           style={{ width: 80 }}
         />
         <Input
           value={lexForm.aliases}
           onChange={(e) => setLexForm((f) => ({ ...f, aliases: e.target.value }))}
-          placeholder="同音词/别名 (逗号分隔)"
+          placeholder={t('voiceWs.aliasesPlaceholder')}
           size="small"
           style={{ flex: 1, minWidth: 200 }}
         />
         <Button size="small" type="primary" icon={editingLexId ? <Save size={12} /> : <Plus size={12} />} loading={lexSaving} onClick={() => void handleLexiconSubmit()}>
-          {editingLexId ? '保存修改' : '新增词条'}
+          {editingLexId ? t('voiceWs.saveEdit') : t('voiceWs.addEntry')}
         </Button>
         {editingLexId && (
-          <Button size="small" icon={<X size={12} />} onClick={cancelEditLex}>取消</Button>
+          <Button size="small" icon={<X size={12} />} onClick={cancelEditLex}>{t('voiceWs.cancel')}</Button>
         )}
       </div>
 
@@ -667,7 +668,7 @@ export default function VoiceWorkstationPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead style={{ position: 'sticky', top: 0, background: '#f1f5f9', zIndex: 1 }}>
             <tr>
-              {['术语', '分类', '优先级', '同音词/别名', '操作'].map((h) => (
+              {[t('voiceWs.colTerm'), t('voiceWs.colCategory'), t('voiceWs.colPriority'), t('voiceWs.colAliases'), t('voiceWs.colActions')].map((h) => (
                 <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
               ))}
             </tr>
@@ -686,17 +687,17 @@ export default function VoiceWorkstationPage() {
                   {entry.aliases.length > 0 ? entry.aliases.join(' / ') : '-'}
                 </td>
                 <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
-                  <Tooltip title="编辑">
+                  <Tooltip title={t('voiceWs.editTooltip')}>
                     <Button size="small" type="text" icon={<Pencil size={14} />} onClick={() => startEditLex(entry)} style={{ color: '#3b82f6' }} />
                   </Tooltip>
-                  <Popconfirm title={`删除词条「${entry.term}」?`} okText="删除" cancelText="取消" okButtonProps={{ danger: true }} onConfirm={() => void handleLexiconDelete(entry.id, entry.term)}>
+                  <Popconfirm title={`${t('voiceWs.deleteEntryConfirm')} ${entry.term} ?`} okText={t('voiceWs.delete')} cancelText={t('voiceWs.cancel')} okButtonProps={{ danger: true }} onConfirm={() => void handleLexiconDelete(entry.id, entry.term)}>
                     <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
                   </Popconfirm>
                 </td>
               </tr>
             ))}
             {filteredLexicon.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>暂无词条, 请新增或清除检索</td></tr>
+              <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>{t('voiceWs.noEntries')}</td></tr>
             )}
           </tbody>
         </table>
@@ -709,12 +710,12 @@ export default function VoiceWorkstationPage() {
     <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <History size={16} color="#3b82f6" />听写历史 ({sessions.length})
+          <History size={16} color="#3b82f6" />{t('voiceWs.dictationHistory')} ({sessions.length})
         </h3>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadSessions()}>刷新</Button>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadSessions()}>{t('voiceWs.refresh')}</Button>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {sessions.length === 0 && <Empty description="暂无听写历史" style={{ padding: 32 }} />}
+        {sessions.length === 0 && <Empty description={t('voiceWs.noHistory')} style={{ padding: 32 }} />}
         {sessions.map((s) => {
           const st = SESSION_STATUS[s.status] ?? SESSION_STATUS.processing!
           return (
@@ -731,15 +732,15 @@ export default function VoiceWorkstationPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  报告 {s.reportId} <span style={{ color: '#94a3b8', fontWeight: 400 }}>· {s.doctorId}</span>
+                  {t('voiceWs.reportLabel')} {s.reportId} <span style={{ color: '#94a3b8', fontWeight: 400 }}>· {s.doctorId}</span>
                 </div>
                 <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
-                  {fmtTime(s.createdAt)} · {s.duration}s · 点击查看转写内容
+                  {fmtTime(s.createdAt)} · {s.duration}s · {t('voiceWs.clickToViewTranscript')}
                 </div>
               </div>
-              <span style={{ fontSize: 11, fontWeight: 600, color: st.color, background: st.bg, padding: '2px 8px', borderRadius: 4 }}>{st.label}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: st.color, background: st.bg, padding: '2px 8px', borderRadius: 4 }}>{t(`voiceWs.sessionStatus.${SESSION_STATUS[s.status] ? s.status : 'processing'}`)}</span>
               {s.correctionCount > 0 && (
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#8b5cf6', background: '#ede9fe', padding: '2px 8px', borderRadius: 4 }}>校正 {s.correctionCount}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#8b5cf6', background: '#ede9fe', padding: '2px 8px', borderRadius: 4 }}>{t('voiceWs.correctionCount')} {s.correctionCount}</span>
               )}
             </div>
           )
@@ -754,13 +755,13 @@ export default function VoiceWorkstationPage() {
       {/* 提交表单 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <MessageSquareWarning size={16} color="#f43f5e" />提交纠正反馈
+          <MessageSquareWarning size={16} color="#f43f5e" />{t('voiceWs.submitCorrection')}
         </h3>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <Input
             value={feedbackForm.original}
             onChange={(e) => setFeedbackForm((f) => ({ ...f, original: e.target.value }))}
-            placeholder="原词 (识别错误, 如: 结皆)"
+            placeholder={t('voiceWs.originalPlaceholder')}
             size="small"
             style={{ width: 200 }}
           />
@@ -768,31 +769,31 @@ export default function VoiceWorkstationPage() {
           <Input
             value={feedbackForm.corrected}
             onChange={(e) => setFeedbackForm((f) => ({ ...f, corrected: e.target.value }))}
-            placeholder="正词 (标准术语, 如: 结节)"
+            placeholder={t('voiceWs.correctedPlaceholder')}
             size="small"
             style={{ width: 200 }}
           />
-          <Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => void handleSubmitFeedback()}>提交</Button>
+          <Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => void handleSubmitFeedback()}>{t('voiceWs.submit')}</Button>
         </div>
-        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>提交后自动沉淀进医学词库 (同音词别名), 后续转写自动校正</div>
+        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>{t('voiceWs.correctionHint')}</div>
       </div>
 
       {/* 反馈列表 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <ListChecks size={16} color="#10b981" />纠正反馈记录 ({visibleFeedbacks.length})
+            <ListChecks size={16} color="#10b981" />{t('voiceWs.correctionRecords')} ({visibleFeedbacks.length})
           </h3>
-          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadFeedbacks()}>刷新</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadFeedbacks()}>{t('voiceWs.refresh')}</Button>
         </div>
-        {visibleFeedbacks.length === 0 && <Empty description="暂无纠正反馈" style={{ padding: 32 }} />}
+        {visibleFeedbacks.length === 0 && <Empty description={t('voiceWs.noCorrections')} style={{ padding: 32 }} />}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
           {visibleFeedbacks.map((fb) => {
             const auto = fb.source === 'auto'
             return (
               <div key={fb.id} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Tag color={auto ? 'geekblue' : 'gold'} style={{ margin: 0 }}>{auto ? '自动 (转写校正)' : '人工反馈'}</Tag>
+                  <Tag color={auto ? 'geekblue' : 'gold'} style={{ margin: 0 }}>{auto ? t('voiceWs.autoCorrection') : t('voiceWs.manualFeedback')}</Tag>
                   <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>{fmtTime(fb.createdAt)}</span>
                 </div>
                 <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -801,8 +802,8 @@ export default function VoiceWorkstationPage() {
                   <b style={{ color: '#059669' }}>{fb.corrected}</b>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <Button size="small" type="primary" ghost icon={<BadgeCheck size={12} />} onClick={() => void handleConfirmFeedback(fb)}>确认并沉淀词库</Button>
-                  <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => handleRemoveFeedback(fb.id)}>移除</Button>
+                  <Button size="small" type="primary" ghost icon={<BadgeCheck size={12} />} onClick={() => void handleConfirmFeedback(fb)}>{t('voiceWs.confirmAndSave')}</Button>
+                  <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => handleRemoveFeedback(fb.id)}>{t('voiceWs.remove')}</Button>
                 </div>
               </div>
             )
@@ -817,49 +818,49 @@ export default function VoiceWorkstationPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
         icon={<Volume2 size={20} color="#3b82f6" />}
-        title="语音工作站"
-        subtitle="语音听写 · 医学词库 · 听写历史 · 纠正反馈 — 转写自动执行同音词校正"
+        title={t('voiceWs.pageTitle')}
+        subtitle={t('voiceWs.pageSubtitle')}
       />
       <div style={{ padding: 24 }}>
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
           items={[
-            { key: 'dictation', label: <span><Mic size={13} style={{ verticalAlign: -2 }} /> 语音听写</span>, children: renderDictation() },
-            { key: 'lexicon', label: <span><BookOpen size={13} style={{ verticalAlign: -2 }} /> 医学词库 {stats ? `(${stats.lexiconSize})` : ''}</span>, children: renderLexicon() },
-            { key: 'sessions', label: <span><History size={13} style={{ verticalAlign: -2 }} /> 听写历史 {sessions.length > 0 ? `(${sessions.length})` : ''}</span>, children: renderSessions() },
-            { key: 'feedbacks', label: <span><MessageSquareWarning size={13} style={{ verticalAlign: -2 }} /> 纠正反馈 {visibleFeedbacks.length > 0 ? `(${visibleFeedbacks.length})` : ''}</span>, children: renderFeedbacks() },
+            { key: 'dictation', label: <span><Mic size={13} style={{ verticalAlign: -2 }} /> {t('voiceWs.tabDictation')}</span>, children: renderDictation() },
+            { key: 'lexicon', label: <span><BookOpen size={13} style={{ verticalAlign: -2 }} /> {t('voiceWs.tabLexicon')} {stats ? `(${stats.lexiconSize})` : ''}</span>, children: renderLexicon() },
+            { key: 'sessions', label: <span><History size={13} style={{ verticalAlign: -2 }} /> {t('voiceWs.tabSessions')} {sessions.length > 0 ? `(${sessions.length})` : ''}</span>, children: renderSessions() },
+            { key: 'feedbacks', label: <span><MessageSquareWarning size={13} style={{ verticalAlign: -2 }} /> {t('voiceWs.tabFeedbacks')} {visibleFeedbacks.length > 0 ? `(${visibleFeedbacks.length})` : ''}</span>, children: renderFeedbacks() },
           ]}
         />
 
         {/* 数据源徽标 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#64748b', padding: '12px 4px 0', flexWrap: 'wrap' }}>
-          <Tag color="blue" style={{ margin: 0 }}>数据源</Tag>
-          <span>voice-workstation (医学词库内存 seed · ASR 转写会话派生 · 纠正反馈自动积累同音词) + asr (aliyun/whisper/mock 引擎)</span>
+          <Tag color="blue" style={{ margin: 0 }}>{t('voiceWs.dataSource')}</Tag>
+          <span>{t('voiceWs.dataSourceDetail')}</span>
         </div>
       </div>
 
       {/* 会话详情 Modal */}
       <Modal
-        title={viewSession ? `听写详情 · 报告 ${viewSession.reportId}` : '听写详情'}
+        title={viewSession ? `${t('voiceWs.sessionDetail')} · ${t('voiceWs.reportLabel')} ${viewSession.reportId}` : t('voiceWs.sessionDetail')}
         open={!!viewSession}
         onCancel={() => setViewSession(null)}
-        footer={<Button onClick={() => setViewSession(null)}>关闭</Button>}
+        footer={<Button onClick={() => setViewSession(null)}>{t('voiceWs.close')}</Button>}
         width={640}
       >
         {viewSession && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <Tag color="blue" style={{ margin: 0 }}>{viewSession.doctorId}</Tag>
-              <Tag color="default" style={{ margin: 0 }}>时长 {viewSession.duration}s</Tag>
-              <Tag color={SESSION_STATUS[viewSession.status]?.color ?? 'default'} style={{ margin: 0 }}>{SESSION_STATUS[viewSession.status]?.label ?? viewSession.status}</Tag>
-              <Tag color="purple" style={{ margin: 0 }}>校正 {viewSession.correctionCount} 处</Tag>
+              <Tag color="default" style={{ margin: 0 }}>{t('voiceWs.duration')} {viewSession.duration}s</Tag>
+              <Tag color={SESSION_STATUS[viewSession.status]?.color ?? 'default'} style={{ margin: 0 }}>{t(`voiceWs.sessionStatus.${SESSION_STATUS[viewSession.status] ? viewSession.status : 'processing'}`)}</Tag>
+              <Tag color="purple" style={{ margin: 0 }}>{t('voiceWs.correctionCount')} {viewSession.correctionCount} {t('voiceWs.timesUnit')}</Tag>
               <Tag color="default" style={{ margin: 0 }}>{fmtTime(viewSession.createdAt)}</Tag>
             </div>
             <div style={{ background: '#f8fafc', borderRadius: 8, padding: 14, border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>转写内容:</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('voiceWs.transcriptContent')}</div>
               <div style={{ fontSize: 13, lineHeight: 1.8, color: '#334155', whiteSpace: 'pre-wrap' }}>
-                {sessionTranscripts[viewSession.id] ?? `报告 ${viewSession.reportId} 的听写会话, 转写正文已归档; 新建会话可在「语音听写」查看实时转写结果。`}
+                {sessionTranscripts[viewSession.id] ?? t('voiceWs.sessionArchived', { reportId: viewSession.reportId })}
               </div>
             </div>
           </div>
@@ -868,25 +869,25 @@ export default function VoiceWorkstationPage() {
 
       {/* 插入报告 Modal */}
       <Modal
-        title="插入转写结果到报告"
+        title={t('voiceWs.insertTranscriptTitle')}
         open={reportModalOpen}
         onOk={() => {
           if (!reportId.trim()) {
-            message.warning('请填写报告ID')
+            message.warning(t('voiceWs.reportIdRequired'))
             return
           }
           setInserted(true)
           setReportModalOpen(false)
-          message.success(`转写结果已插入报告 ${reportId.trim()}`)
+          message.success(`${t('voiceWs.transcriptInserted')} ${reportId.trim()}`)
         }}
         onCancel={() => setReportModalOpen(false)}
-        okText="确认插入"
-        cancelText="取消"
+        okText={t('voiceWs.confirmInsert')}
+        cancelText={t('voiceWs.cancel')}
         width={460}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 8 }}>
           <div style={{ fontSize: 13, color: '#475569' }}>
-            转写内容将作为报告草稿正文写入:
+            {t('voiceWs.insertTranscriptHint')}
           </div>
           <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 10, fontSize: 12, color: '#334155', maxHeight: 120, overflowY: 'auto', lineHeight: 1.7 }}>
             {transcript?.correctedText || '—'}
@@ -894,11 +895,11 @@ export default function VoiceWorkstationPage() {
           <Input
             value={reportId}
             onChange={(e) => setReportId(e.target.value)}
-            placeholder="报告ID (如 rpt-038)"
+            placeholder={t('voiceWs.reportIdPlaceholderShort')}
             size="small"
           />
           {reportId.trim() && (
-            <Alert type="info" showIcon style={{ padding: '4px 10px', fontSize: 11 }} message={`将插入到报告 ${reportId.trim()}`} />
+            <Alert type="info" showIcon style={{ padding: '4px 10px', fontSize: 11 }} message={`${t('voiceWs.willInsertTo')} ${reportId.trim()}`} />
           )}
         </div>
       </Modal>

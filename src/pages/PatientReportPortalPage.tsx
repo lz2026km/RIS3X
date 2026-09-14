@@ -17,6 +17,7 @@ import ShareDialog from '../components/portal/ShareDialog';
 import QrShareButton from '../components/portal/QrShareButton';
 import { patientPortalApi } from '../services/api/patientPortalApi';
 import { shareApi } from '../services/api/shareApi';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 主组件
@@ -66,9 +67,9 @@ export default function PatientReportPortalPage() {
     try {
       const res = await patientPortalApi.getReport(selectedAccess.reportId);
       if (res.success && res.data) setReportDetail(res.data);
-      else setReportDetail({ id: selectedAccess.reportId, patientName: selectedAccess.patientName, error: res.error?.message ?? '报告详情不可用' });
+      else setReportDetail({ id: selectedAccess.reportId, patientName: selectedAccess.patientName, error: res.error?.message ?? t('patientPortal.reportUnavailable') });
     } catch {
-      setReportDetail({ id: selectedAccess.reportId, patientName: selectedAccess.patientName, error: '报告详情接口不可用' });
+      setReportDetail({ id: selectedAccess.reportId, patientName: selectedAccess.patientName, error: t('patientPortal.reportApiUnavailable') });
     }
     setReportDetailLoading(false);
   };
@@ -98,7 +99,7 @@ export default function PatientReportPortalPage() {
         setAccess(reports.map(r => ({
           id: `pa-${r.id}`,
           reportId: r.examId ?? r.id,
-          patientName: nameById.get(r.patientId) ?? '患者',
+          patientName: nameById.get(r.patientId) ?? t('patientPortal.patient'),
           accessToken: `PT-${r.id}`,
           qrCodeUrl: `/qrcode/${r.id}.png`,
           expiresAt: r.signedAt ?? r.examDate ?? '',
@@ -161,14 +162,14 @@ export default function PatientReportPortalPage() {
         comment: feedbackComment || undefined,
       });
       if (res.success) {
-        message.success('反馈已提交，感谢您的评价');
+        message.success(t('patientPortal.feedbackSubmitted'));
         setFeedbackOpen(false);
         setFeedbackComment('');
       } else {
-        message.error(res.error?.message ?? '反馈提交失败');
+        message.error(res.error?.message ?? t('patientPortal.feedbackFailed'));
       }
     } catch {
-      message.error('反馈提交失败');
+      message.error(t('patientPortal.feedbackFailed'));
     } finally {
       setFeedbackSubmitting(false);
     }
@@ -182,35 +183,35 @@ export default function PatientReportPortalPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Smartphone size={20} color="#0ea5e9" /> 患者端报告门户 H5
+            <Smartphone size={20} color="#0ea5e9" /> {t('patientPortal.pageTitle')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             {accessSource === 'api' ? (
               <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1d4ed8', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
-                {accessLoading ? '加载中...' : `patient-portal API · ${access.length} 份可访问报告`}
+                {accessLoading ? t('patientPortal.loading') : `${t('patientPortal.apiPrefix')} · ${access.length} ${t('patientPortal.accessibleReports')}`}
               </span>
             ) : (
               <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 10, fontWeight: 700, border: '1px solid #fde68a' }}>
-                静态演示数据（接口不可用回退）
+                {t('patientPortal.staticData')}
               </span>
             )}
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            实名验证 + 二维码分享 + 报告查看 + 影像浏览 + 下载 + 分享 + 设备/IP 审计
+            {t('patientPortal.pageSubtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <QrShareButton shortUrl="https://r.hospital.cn/portal" label="患者入口" />
+          <QrShareButton shortUrl="https://r.hospital.cn/portal" label={t('patientPortal.patientEntry')} />
           <button
             onClick={() => setFeedbackOpen(true)}
             style={{ padding: '6px 12px', border: '1px solid #10b981', borderRadius: 6, background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            <MessageSquarePlus size={14} /> 服务反馈
+            <MessageSquarePlus size={14} /> {t('patientPortal.serviceFeedback')}
           </button>
           <button
             onClick={() => setShowShareDialog(true)}
             style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#8b5cf622', color: '#6d28d9', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            <Link2 size={14} /> 分享链接
+            <Link2 size={14} /> {t('patientPortal.shareLink')}
           </button>
           <button
             onClick={async () => {
@@ -219,15 +220,15 @@ export default function PatientReportPortalPage() {
                 if (res.success) {
                   message.success(`H5 患者端已就绪 · 后端共 ${res.data?.data?.length ?? 0} 位患者可服务`);
                 } else {
-                  message.warning('H5 患者端离线预览模式');
+                  message.warning(t('patientPortal.offlinePreview'));
                 }
               } catch (e: any) {
-                message.warning('H5 患者端离线预览模式: ' + (e?.message || String(e)));
+                message.warning(`${t('patientPortal.offlinePreview')}: ${e?.message || String(e)}`);
               }
             }}
             style={{ padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6, background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, cursor: 'pointer' }}
           >
-            预览 H5
+            {t('patientPortal.previewH5')}
           </button>
         </div>
       </div>
@@ -235,26 +236,26 @@ export default function PatientReportPortalPage() {
       {/* [G005 Wave1A P0] 患者端 mobile 摘要 (GET /patient-portal/mobile/{patients,doctors,nurses,techs}) */}
       {mobileSummary && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, padding: 10, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid #bae6fd' }}>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>👤 患者 <b style={{ marginLeft: 4 }}>{mobileSummary.patients}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>🩺 医生 <b style={{ marginLeft: 4 }}>{mobileSummary.doctors}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>💉 护士 <b style={{ marginLeft: 4 }}>{mobileSummary.nurses}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>⚙️ 技师 <b style={{ marginLeft: 4 }}>{mobileSummary.techs}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>👤 {t('patientPortal.patient')} <b style={{ marginLeft: 4 }}>{mobileSummary.patients}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>🩺 {t('patientPortal.doctor')} <b style={{ marginLeft: 4 }}>{mobileSummary.doctors}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>💉 {t('patientPortal.nurse')} <b style={{ marginLeft: 4 }}>{mobileSummary.nurses}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>⚙️ {t('patientPortal.technician')} <b style={{ marginLeft: 4 }}>{mobileSummary.techs}</b></div>
         </div>
       )}
 
       {/* KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={FileText} label="已发报告" value={access.length} color="#0ea5e9" />
-        <KpiCard icon={Eye} label="总查看" value={access.reduce((s, a) => s + a.viewCount, 0)} color="#10b981" />
-        <KpiCard icon={Download} label="总下载" value={access.reduce((s, a) => s + a.downloadCount, 0)} color="#7c3aed" />
-        <KpiCard icon={Share2} label="总分享" value={access.reduce((s, a) => s + a.shareCount, 0)} color="#f59e0b" />
+        <KpiCard icon={FileText} label={t('patientPortal.statReports')} value={access.length} color="#0ea5e9" />
+        <KpiCard icon={Eye} label={t('patientPortal.statViews')} value={access.reduce((s, a) => s + a.viewCount, 0)} color="#10b981" />
+        <KpiCard icon={Download} label={t('patientPortal.statDownloads')} value={access.reduce((s, a) => s + a.downloadCount, 0)} color="#7c3aed" />
+        <KpiCard icon={Share2} label={t('patientPortal.statShares')} value={access.reduce((s, a) => s + a.shareCount, 0)} color="#f59e0b" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
         {/* 左：访问列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
-            访问授权列表
+            {t('patientPortal.accessList')}
           </div>
           <div>
             {access.map(a => (
@@ -298,20 +299,20 @@ export default function PatientReportPortalPage() {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{selectedAccess.patientName}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                    令牌：<code style={{ background: 'var(--bg-card)', padding: '1px 6px', borderRadius: 3 }}>{selectedAccess.accessToken}</code>
+                    {t('patientPortal.token')}:<code style={{ background: 'var(--bg-card)', padding: '1px 6px', borderRadius: 3 }}>{selectedAccess.accessToken}</code>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>过期时间</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('patientPortal.expiresAt')}</div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{selectedAccess.expiresAt}</div>
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
-                <InfoCell icon={Eye} label="查看" value={selectedAccess.viewCount} color="#10b981" />
-                <InfoCell icon={Download} label="下载" value={selectedAccess.downloadCount} color="#3b82f6" />
-                <InfoCell icon={Share2} label="分享" value={selectedAccess.shareCount} color="#7c3aed" />
-                <InfoCell icon={Smartphone} label="设备" value={selectedAccess.deviceFingerprint.split('-')[0] ?? ''} color="#f59e0b" />
+                <InfoCell icon={Eye} label={t('patientPortal.view')} value={selectedAccess.viewCount} color="#10b981" />
+                <InfoCell icon={Download} label={t('patientPortal.download')} value={selectedAccess.downloadCount} color="#3b82f6" />
+                <InfoCell icon={Share2} label={t('patientPortal.share')} value={selectedAccess.shareCount} color="#7c3aed" />
+                <InfoCell icon={Smartphone} label={t('patientPortal.device')} value={selectedAccess.deviceFingerprint.split('-')[0] ?? ''} color="#f59e0b" />
               </div>
 
               {/* [G005 Wave1B] 报告详情: patientPortalApi.getReport */}
@@ -320,18 +321,18 @@ export default function PatientReportPortalPage() {
                 disabled={reportDetailLoading}
                 style={{ marginBottom: 12, padding: '6px 14px', border: '1px solid #0ea5e9', borderRadius: 6, background: 'var(--color-info-bg)', color: '#0369a1', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
               >
-                <Eye size={13} /> {reportDetailLoading ? '加载报告详情...' : '查看报告详情'}
+                <Eye size={13} /> {reportDetailLoading ? t('patientPortal.loadingReport') : t('patientPortal.viewReportDetail')}
               </button>
 
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>📱 设备指纹</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>📱 {t('patientPortal.deviceFingerprint')}</div>
                 <div style={{ padding: 6, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                   {selectedAccess.deviceFingerprint}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>🌐 IP 历史</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>🌐 {t('patientPortal.ipHistory')}</div>
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   {selectedAccess.ipHistory.map((ip, i) => (
                     <span key={i} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', fontSize: 12, borderRadius: 10, fontFamily: 'monospace' }}>
@@ -345,7 +346,7 @@ export default function PatientReportPortalPage() {
             {/* 模拟 H5 预览 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Smartphone size={13} /> H5 患者端预览
+                <Smartphone size={13} /> {t('patientPortal.h5Preview')}
               </div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <PhoneMockup access={selectedAccess} />
@@ -358,7 +359,7 @@ export default function PatientReportPortalPage() {
       {educationItems.length > 0 && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12, marginBottom: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <FileText size={13} /> 宣教材料 ({educationItems.length}) <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>patient-portal/education</span>
+            <FileText size={13} /> {t('patientPortal.educationMaterials')} ({educationItems.length}) <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>patient-portal/education</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 }}>
             {educationItems.slice(0, 8).map((item: any) => (
@@ -369,7 +370,7 @@ export default function PatientReportPortalPage() {
               >
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{item.title ?? item.key ?? item.id}</span>
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.summary ?? item.content?.slice(0, 60) ?? ''}</span>
-                <span style={{ fontSize: 11, color: '#0ea5e9' }}>查看全文 →</span>
+                <span style={{ fontSize: 11, color: '#0ea5e9' }}>{t('patientPortal.viewFullText')} →</span>
               </button>
             ))}
           </div>
@@ -380,7 +381,7 @@ export default function PatientReportPortalPage() {
         open={showShareDialog}
         onClose={() => setShowShareDialog(false)}
         patientId={selectedAccess?.reportId ?? 'p-000'}
-        patientName={selectedAccess?.patientName ?? '患者'}
+        patientName={selectedAccess?.patientName ?? t('patientPortal.patient')}
         doctorId="dr-001"
         doctorName="张医师"
         resourceIds={selectedAccess ? [selectedAccess.id] : []}
@@ -388,7 +389,7 @@ export default function PatientReportPortalPage() {
         onCreated={async (url) => {
           try {
             await navigator.clipboard.writeText(url);
-            message.success(`分享链接已生成并复制到剪贴板`);
+            message.success(t('patientPortal.shareCopied'));
           } catch {
             message.success(`分享链接已生成: ${url}`);
           }
@@ -397,33 +398,33 @@ export default function PatientReportPortalPage() {
 
       {/* [G005 Wave1B] 宣教材料详情 Modal (getEducation) */}
       <Modal
-        title={`宣教材料 - ${educationDetail?.title ?? educationDetail?.key ?? ''}`}
+        title={`${t('patientPortal.educationMaterialsTitle')} - ${educationDetail?.title ?? educationDetail?.key ?? ''}`}
         open={!!educationDetail}
         onCancel={() => setEducationDetail(null)}
-        footer={<button onClick={() => setEducationDetail(null)} style={{ padding: '6px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>关闭</button>}
+        footer={<button onClick={() => setEducationDetail(null)} style={{ padding: '6px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('patientPortal.close')}</button>}
         width={520}
       >
         {educationDetail && (
           <div style={{ marginTop: 8 }}>
             <div style={{ marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                {(educationDetail.category ? `分类: ${educationDetail.category} · ` : '') + (educationDetail.contentType ? `类型: ${educationDetail.contentType}` : '')}
+                {(educationDetail.category ? `${t('patientPortal.categoryLabel')}: ${educationDetail.category} · ` : '') + (educationDetail.contentType ? `${t('patientPortal.typeLabel')}: ${educationDetail.contentType}` : '')}
               </span>
             </div>
             <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: 360, overflowY: 'auto' }}>
-              {educationDetail.content ?? educationDetail.value ?? '（无内容）'}
+              {educationDetail.content ?? educationDetail.value ?? t('patientPortal.noContent')}
             </div>
-            {educationDetail.updatedAt && <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>更新: {String(educationDetail.updatedAt).slice(0, 10)}</div>}
+            {educationDetail.updatedAt && <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>{t('patientPortal.updated')}: {String(educationDetail.updatedAt).slice(0, 10)}</div>}
           </div>
         )}
       </Modal>
 
       {/* [G005 Wave1B] 报告详情 Modal (getReport) */}
       <Modal
-        title={`报告详情 - ${reportDetail?.patientName ?? reportDetail?.id ?? ''}`}
+        title={`${t('patientPortal.reportDetailTitle')} - ${reportDetail?.patientName ?? reportDetail?.id ?? ''}`}
         open={!!reportDetail}
         onCancel={() => setReportDetail(null)}
-        footer={<button onClick={() => setReportDetail(null)} style={{ padding: '6px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>关闭</button>}
+        footer={<button onClick={() => setReportDetail(null)} style={{ padding: '6px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('patientPortal.close')}</button>}
         width={560}
       >
         {reportDetail && (
@@ -436,17 +437,17 @@ export default function PatientReportPortalPage() {
                   {reportDetail.modality && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', borderRadius: 10 }}>{reportDetail.modality}</span>}
                   {reportDetail.bodyPart && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', borderRadius: 10 }}>{reportDetail.bodyPart}</span>}
                   {reportDetail.examDate && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--bg-card)', color: 'var(--text-secondary)', borderRadius: 10 }}>{String(reportDetail.examDate).slice(0, 10)}</span>}
-                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: reportDetail.isCritical ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: reportDetail.isCritical ? '#dc2626' : '#047857' }}>{reportDetail.isCritical ? '危急' : '状态: ' + (reportDetail.state ?? '-')}</span>
+                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: reportDetail.isCritical ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: reportDetail.isCritical ? '#dc2626' : '#047857' }}>{reportDetail.isCritical ? t('patientPortal.critical') : `${t('patientPortal.stateLabel')}: ${reportDetail.state ?? '-'}`}</span>
                 </div>
-                {reportDetail.findings && <DetailBlock label="检查所见" value={reportDetail.findings} />}
-                {reportDetail.impression && <DetailBlock label="影像意见" value={reportDetail.impression} />}
-                {reportDetail.diagnosis && <DetailBlock label="诊断" value={reportDetail.diagnosis} />}
-                {reportDetail.recommendations && <DetailBlock label="建议" value={reportDetail.recommendations} />}
-                {reportDetail.conclusion && <DetailBlock label="结论" value={reportDetail.conclusion} />}
+                {reportDetail.findings && <DetailBlock label={t('patientPortal.detailFindings')} value={reportDetail.findings} />}
+                {reportDetail.impression && <DetailBlock label={t('patientPortal.detailImpression')} value={reportDetail.impression} />}
+                {reportDetail.diagnosis && <DetailBlock label={t('patientPortal.detailDiagnosis')} value={reportDetail.diagnosis} />}
+                {reportDetail.recommendations && <DetailBlock label={t('patientPortal.detailRecommendation')} value={reportDetail.recommendations} />}
+                {reportDetail.conclusion && <DetailBlock label={t('patientPortal.detailConclusion')} value={reportDetail.conclusion} />}
                 {!(reportDetail.findings || reportDetail.impression || reportDetail.diagnosis || reportDetail.recommendations || reportDetail.conclusion) && (
-                  <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>该报告暂无文本内容</div>
+                  <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('patientPortal.noReportText')}</div>
                 )}
-                {reportDetail.signedAt && <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)' }}>签名时间: {String(reportDetail.signedAt).replace('T', ' ').slice(0, 16)}</div>}
+                {reportDetail.signedAt && <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)' }}>{t('patientPortal.signedAt')}: {String(reportDetail.signedAt).replace('T', ' ').slice(0, 16)}</div>}
               </>
             )}
           </div>
@@ -455,26 +456,26 @@ export default function PatientReportPortalPage() {
 
       {/* [G005 Wave1A P0] 服务反馈 (POST /patient-portal/feedback) */}
       <Modal
-        title={<span><MessageSquarePlus size={16} style={{ marginRight: 6 }} />服务反馈</span>}
+        title={<span><MessageSquarePlus size={16} style={{ marginRight: 6 }} />{t('patientPortal.serviceFeedback')}</span>}
         open={feedbackOpen}
         onOk={() => void handleSubmitFeedback()}
         onCancel={() => setFeedbackOpen(false)}
-        okText="提交反馈"
-        cancelText="取消"
+        okText={t('patientPortal.submitFeedback')}
+        cancelText={t('patientPortal.cancel')}
         confirmLoading={feedbackSubmitting}
         width={440}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>满意度评分</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('patientPortal.satisfaction')}</div>
             <Rate value={feedbackRating} onChange={setFeedbackRating} />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>意见建议</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('patientPortal.suggestions')}</div>
             <Input.TextArea
               rows={3}
               maxLength={500}
-              placeholder="请输入您的意见或建议（可选）"
+              placeholder={t('patientPortal.feedbackPlaceholder')}
               value={feedbackComment}
               onChange={e => setFeedbackComment(e.target.value)}
             />
@@ -500,7 +501,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
     a.download = `${access.patientName}-报告.pdf`;
     a.click();
     URL.revokeObjectURL(url);
-    message.success('报告 PDF 已开始下载');
+    message.success(t('patientPortal.pdfDownloadStarted'));
   };
 
   const handleShare = async () => {
@@ -515,15 +516,15 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
       });
       if (res.success && res.data?.url) {
         const url = res.data.url.startsWith('http') ? res.data.url : fallback;
-        try { await navigator.clipboard.writeText(url); message.success('分享链接已生成并复制到剪贴板'); }
-        catch { message.success(`分享链接已生成: ${url}`); }
+        try { await navigator.clipboard.writeText(url); message.success(t('patientPortal.shareCopied')); }
+        catch { message.success(`${t('patientPortal.shareGenerated')}: ${url}`); }
         return;
       }
     } catch (e) {
       console.warn('[Portal] shareApi.create failed, fallback:', e);
     }
-    try { await navigator.clipboard.writeText(fallback); message.success('分享链接已生成并复制到剪贴板'); }
-    catch { message.success(`分享链接已生成: ${fallback}`); }
+    try { await navigator.clipboard.writeText(fallback); message.success(t('patientPortal.shareCopied')); }
+    catch { message.success(`${t('patientPortal.shareGenerated')}: ${fallback}`); }
   };
 
   return (
@@ -548,26 +549,26 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
           {tab === 'home' && (
             <div>
               <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: 12, borderRadius: 8, marginBottom: 8 }}>
-                <div style={{ fontSize: 12, fontWeight: 700 }}>您好，{access.patientName}</div>
-                <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>您的影像报告已可查看</div>
+                <div style={{ fontSize: 12, fontWeight: 700 }}>{t('patientPortal.hello')}{access.patientName}</div>
+                <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>{t('patientPortal.reportReady')}</div>
                 <button onClick={() => setTab('report')} style={{ marginTop: 8, padding: '4px 12px', background: 'var(--bg-card)', color: '#0ea5e9', border: 'none', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
-                  查看报告 →
+                  {t('patientPortal.viewReport')} →
                 </button>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 8, borderRadius: 6, marginBottom: 6 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>📋 我的报告（1）</div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>📋 {t('patientPortal.myReports')}</div>
                 <div style={{ padding: 6, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12 }}>
                   <div>胸部 CT 平扫</div>
                   <div style={{ color: 'var(--text-secondary)', marginTop: 2 }}>2026-06-04 · 14:30</div>
                 </div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 8, borderRadius: 6 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>⚙️ 快速入口</div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>⚙️ {t('patientPortal.quickEntry')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, fontSize: 12 }}>
-                  <div style={{ textAlign: 'center' }}>📥<br/>下载</div>
-                  <div style={{ textAlign: 'center' }}>↗<br/>分享</div>
-                  <div style={{ textAlign: 'center' }}>🖼️<br/>影像</div>
-                  <div style={{ textAlign: 'center' }}>👤<br/>咨询</div>
+                  <div style={{ textAlign: 'center' }}>📥<br/>{t('patientPortal.download')}</div>
+                  <div style={{ textAlign: 'center' }}>↗<br/>{t('patientPortal.share')}</div>
+                  <div style={{ textAlign: 'center' }}>🖼️<br/>{t('patientPortal.image')}</div>
+                  <div style={{ textAlign: 'center' }}>👤<br/>{t('patientPortal.consult')}</div>
                 </div>
               </div>
             </div>
@@ -578,17 +579,17 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 6, marginBottom: 6 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>胸部 CT 平扫</div>
                 <div style={{ padding: 6, background: 'var(--color-success-bg)', borderRadius: 4, fontSize: 12, color: '#047857', marginBottom: 6 }}>
-                  ✓ 报告已通过审核 · 已医生签名
+                  ✓ {t('patientPortal.reportApproved')}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   <div style={{ marginBottom: 4 }}>
-                    <strong>检查所见：</strong>双肺纹理清晰...
+                    <strong>{t('patientPortal.detailFindings')}：</strong>双肺纹理清晰...
                   </div>
                   <div style={{ marginBottom: 4 }}>
-                    <strong>诊断意见：</strong>胸部 CT 平扫未见明显异常。
+                    <strong>{t('patientPortal.detailImpression')}：</strong>胸部 CT 平扫未见明显异常。
                   </div>
                   <div>
-                    <strong>建议：</strong>年度随访。
+                    <strong>{t('patientPortal.detailRecommendation')}：</strong>年度随访。
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
@@ -596,10 +597,10 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                     📥 PDF
                   </button>
                   <button onClick={() => setTab('image')} style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
-                    🖼️ 影像
+                    🖼️ {t('patientPortal.image')}
                   </button>
                   <button onClick={() => void handleShare()} style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
-                    ↗ 分享
+                    ↗ {t('patientPortal.share')}
                   </button>
                 </div>
               </div>
@@ -608,7 +609,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
 
           {tab === 'image' && (
             <div style={{ background: '#0f172a', padding: 6, borderRadius: 6, color: '#fff', textAlign: 'center' }}>
-              <div style={{ fontSize: 12, marginBottom: 6 }}>影像缩略图（模拟）</div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>{t('patientPortal.imageThumbnails')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
                 {[1,2,3,4,5,6].map(i => (
                   <div key={i} style={{ aspectRatio: 1, background: 'linear-gradient(135deg, #1e293b, #334155)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
@@ -627,15 +628,15 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                 </div>
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700 }}>{access.patientName}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已实名认证 ✓</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('patientPortal.realNameVerified')} ✓</div>
                 </div>
               </div>
               {[
-                { icon: '🔒', label: '账户安全' },
-                { icon: '📱', label: '设备管理' },
-                { icon: '🌐', label: '登录历史' },
-                { icon: '⚙️', label: '设置' },
-                { icon: 'ℹ️', label: '关于' },
+                { icon: '🔒', label: t('patientPortal.accountSecurity') },
+                { icon: '📱', label: t('patientPortal.deviceManagement') },
+                { icon: '🌐', label: t('patientPortal.loginHistory') },
+                { icon: '⚙️', label: t('patientPortal.settings') },
+                { icon: 'ℹ️', label: t('patientPortal.about') },
               ].map((m, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '8px 4px', borderBottom: '1px solid var(--border-light)', fontSize: 12 }}>
                   <span style={{ marginRight: 6 }}>{m.icon}</span>
@@ -650,10 +651,10 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
         {/* 底部 Tab */}
         <div style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', display: 'flex' }}>
           {([
-            { key: 'home',   icon: '🏠', label: '首页' },
-            { key: 'report', icon: '📋', label: '报告' },
-            { key: 'image',  icon: '🖼️', label: '影像' },
-            { key: 'me',     icon: '👤', label: '我的' },
+            { key: 'home',   icon: '🏠', label: t('patientPortal.tabHome') },
+            { key: 'report', icon: '📋', label: t('patientPortal.tabReport') },
+            { key: 'image',  icon: '🖼️', label: t('patientPortal.tabImage') },
+            { key: 'me',     icon: '👤', label: t('patientPortal.tabMe') },
           ] as const).map(t => (
             <button
               key={t.key}

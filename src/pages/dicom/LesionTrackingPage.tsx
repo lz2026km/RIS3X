@@ -26,15 +26,9 @@ import {
   type LesionStats,
 } from '../../services/api/lesionTrackingApi'
 import type { PatientDto } from '../../types/dto'
+import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
-
-// [v3.0.6.11-100 Wave 6A (D-4)] 病灶来源展示
-const SOURCE_LABEL: Record<LesionSource, string> = {
-  manual: '手动登记',
-  ai: 'AI 检出',
-  'from-report': '报告提取',
-}
 
 const SOURCE_COLOR: Record<LesionSource, string> = {
   manual: 'blue',
@@ -56,14 +50,6 @@ const RESPONSE_COLORS: Record<ResponseClass, string> = {
   SD: 'blue',
   PD: 'red',
   NE: 'default',
-}
-
-const RESPONSE_LABEL: Record<ResponseClass, string> = {
-  CR: '完全缓解',
-  PR: '部分缓解',
-  SD: '疾病稳定',
-  PD: '疾病进展',
-  NE: '不可评估',
 }
 
 const TYPE_OPTIONS: Array<{ value: LesionType; label: string }> = [
@@ -180,7 +166,7 @@ const LesionTrackingPage: React.FC = () => {
     try {
       const res = await lesionTrackingApi.get(id)
       if (res.success && res.data) setDetail(res.data)
-      else message.error(res.error?.message ?? '病灶详情加载失败')
+      else message.error(res.error?.message ?? t('lesionTrack.detailLoadFailed'))
     } finally {
       setDetailLoading(false)
     }
@@ -198,26 +184,26 @@ const LesionTrackingPage: React.FC = () => {
       notes: values.notes,
     })
     if (res.success && res.data) {
-      message.success('测量已记录')
+      message.success(t('lesionTrack.measurementSaved'))
       measureForm.resetFields()
       setDetail(res.data)
       refresh()
       void loadTrend(detail.id)
     } else {
-      message.error(res.error?.message ?? '新增测量失败')
+      message.error(res.error?.message ?? t('lesionTrack.addMeasurementFailed'))
     }
   }, [detail, measureForm, refresh])
 
   const handleCompare = useCallback(async () => {
     if (!detail || !compareA || !compareB) {
-      message.warning('请选择两次测量')
+      message.warning(t('lesionTrack.selectTwo'))
       return
     }
     setCompareLoading(true)
     try {
       const res = await lesionTrackingApi.compare(detail.id, { studyIdA: compareA, studyIdB: compareB })
       if (res.success && res.data) setCompareResult(res.data)
-      else message.error(res.error?.message ?? '对比失败')
+      else message.error(res.error?.message ?? t('lesionTrack.compareFailed'))
     } finally {
       setCompareLoading(false)
     }
@@ -226,18 +212,18 @@ const LesionTrackingPage: React.FC = () => {
   const handleLinkFollowup = useCallback(async () => {
     if (!detail) return
     if (!followupId.trim()) {
-      message.warning('请输入随访计划 ID')
+      message.warning(t('lesionTrack.followupIdRequired'))
       return
     }
     setFollowupLoading(true)
     try {
       const res = await lesionTrackingApi.linkFollowup(detail.id, followupId.trim())
       if (res.success && res.data) {
-        message.success('已关联随访计划')
+        message.success(t('lesionTrack.followupLinked'))
         setDetail(res.data)
         refresh()
       } else {
-        message.error(res.error?.message ?? '关联随访失败')
+        message.error(res.error?.message ?? t('lesionTrack.followupLinkFailed'))
       }
     } finally {
       setFollowupLoading(false)
@@ -255,19 +241,19 @@ const LesionTrackingPage: React.FC = () => {
       modality: values.modality,
     })
     if (res.success && res.data) {
-      message.success('病灶已登记')
+      message.success(t('lesionTrack.lesionRegistered'))
       setCreateOpen(false)
       createForm.resetFields()
       refresh()
     } else {
-      message.error(res.error?.message ?? '登记失败')
+      message.error(res.error?.message ?? t('lesionTrack.registerFailed'))
     }
   }, [patientId, createForm, refresh])
 
   const handleDelete = useCallback(async (id: string) => {
     const res = await lesionTrackingApi.remove(id)
     if (res.success) {
-      message.success('病灶已删除')
+      message.success(t('lesionTrack.lesionDeleted'))
       if (detail?.id === id) setDetail(null)
       if (trendLesionId === id) {
         setTrendLesionId(undefined)
@@ -275,7 +261,7 @@ const LesionTrackingPage: React.FC = () => {
       }
       refresh()
     } else {
-      message.error(res.error?.message ?? '删除失败')
+      message.error(res.error?.message ?? t('lesionTrack.deleteFailed'))
     }
   }, [detail, trendLesionId, refresh])
 
@@ -310,46 +296,46 @@ const LesionTrackingPage: React.FC = () => {
   )
 
   const columns: ColumnsType<TrackedLesion> = [
-    { title: '病灶', dataIndex: 'name', key: 'name', width: 140, render: (v: string) => (<b>{v}</b>) },
+    { title: t('lesionTrack.colLesion'), dataIndex: 'name', key: 'name', width: 140, render: (v: string) => (<b>{v}</b>) },
     {
-      title: '类型', dataIndex: 'type', key: 'type', width: 90,
+      title: t('lesionTrack.colType'), dataIndex: 'type', key: 'type', width: 90,
       render: (v: LesionType) => <Tag color={v === '肺结节' ? 'geekblue' : v === '肝占位' ? 'purple' : v === '淋巴结' ? 'cyan' : 'default'}>{v}</Tag>,
     },
-    { title: '部位', dataIndex: 'site', key: 'site', width: 150 },
-    { title: '模态', dataIndex: 'modality', key: 'modality', width: 70 },
+    { title: t('lesionTrack.colSite'), dataIndex: 'site', key: 'site', width: 150 },
+    { title: t('lesionTrack.colModality'), dataIndex: 'modality', key: 'modality', width: 70 },
     {
-      title: '当前状态', dataIndex: 'currentStatus', key: 'currentStatus', width: 100,
+      title: t('lesionTrack.colStatus'), dataIndex: 'currentStatus', key: 'currentStatus', width: 100,
       render: (v: string) => <Tag color={STATUS_COLORS[v]}>{v}</Tag>,
     },
     {
-      title: '最近尺寸', key: 'latest', width: 100,
+      title: t('lesionTrack.colLatestSize'), key: 'latest', width: 100,
       render: (_: unknown, r) => {
         const size = latestSize(r)
         return size === null ? <Text type="secondary">-</Text> : <span>{size.toFixed(1)} mm</span>
       },
     },
-    { title: '测量次数', key: 'count', width: 90, render: (_: unknown, r) => `${r.measurements?.length ?? 0} 次` },
+    { title: t('lesionTrack.colMeasureCount'), key: 'count', width: 90, render: (_: unknown, r) => `${r.measurements?.length ?? 0} ${t('lesionTrack.timesUnit')}` },
     {
       // [v3.0.6.11-100 Wave 6A (D-4)] 来源列: manual/ai/from-report (报告→病灶追踪自动建)
-      title: '来源', key: 'source', width: 100,
+      title: t('lesionTrack.colSource'), key: 'source', width: 100,
       render: (_: unknown, r) => {
         const s = r.source ?? 'manual'
         return (
           <Space size={4} wrap>
-            <Tag color={SOURCE_COLOR[s]} data-testid={`lt-source-${s}`}>{SOURCE_LABEL[s]}</Tag>
+            <Tag color={SOURCE_COLOR[s]} data-testid={`lt-source-${s}`}>{t(`lesionTrack.source.${s}`)}</Tag>
             {r.reportId && <span style={{ fontSize: 11, color: '#64748b' }}>{r.reportId}</span>}
           </Space>
         )
       },
     },
     {
-      title: '操作', key: 'actions', width: 210,
+      title: t('lesionTrack.colActions'), key: 'actions', width: 210,
       render: (_: unknown, r) => (
         <Space size={4} wrap>
-          <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(r.id)} data-testid="lt-detail">详情</Button>
-          <Button size="small" icon={<TrendingUp size={12} />} onClick={() => setTrendLesionId(r.id)} data-testid="lt-trend">趋势</Button>
-          <Popconfirm title="确认删除该病灶?" onConfirm={() => void handleDelete(r.id)}>
-            <Button size="small" danger icon={<Trash2 size={12} />}>删除</Button>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(r.id)} data-testid="lt-detail">{t('lesionTrack.detailBtn')}</Button>
+          <Button size="small" icon={<TrendingUp size={12} />} onClick={() => setTrendLesionId(r.id)} data-testid="lt-trend">{t('lesionTrack.trendBtn')}</Button>
+          <Popconfirm title={t('lesionTrack.confirmDelete')} onConfirm={() => void handleDelete(r.id)}>
+            <Button size="small" danger icon={<Trash2 size={12} />}>{t('lesionTrack.deleteBtn')}</Button>
           </Popconfirm>
         </Space>
       ),
@@ -360,7 +346,7 @@ const LesionTrackingPage: React.FC = () => {
     () =>
       (detail?.measurements ?? []).map((m) => ({
         value: m.studyId || m.id,
-        label: `${m.date} · ${m.sizeMm.toFixed(1)}mm${m.response ? ` · ${RESPONSE_LABEL[m.response]}` : ''}`,
+        label: `${m.date} · ${m.sizeMm.toFixed(1)}mm${m.response ? ` · ${t(`lesionTrack.response.${m.response}`)}` : ''}`,
       })),
     [detail],
   )
@@ -372,8 +358,8 @@ const LesionTrackingPage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Crosshair size={22} color="#60a5fa" />
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700 }}>病灶追踪工作台</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>Lesion Tracking · 跨期对比 RECIST-like · 趋势随访</div>
+              <div style={{ fontSize: 18, fontWeight: 700 }}>{t('lesionTrack.pageTitle')}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{t('lesionTrack.pageSubtitle')}</div>
             </div>
           </div>
         </Col>
@@ -383,7 +369,7 @@ const LesionTrackingPage: React.FC = () => {
             color={source === 'database' ? 'green' : 'orange'}
             data-testid="lt-source-badge"
           >
-            数据源: {source === 'database' ? '数据库派生 (Exam)' : '演示数据 (Demo Seed)'}
+            {t('lesionTrack.dataSource')} {source === 'database' ? t('lesionTrack.sourceDatabase') : t('lesionTrack.sourceDemo')}
           </Tag>
         </Col>
       </Row>
@@ -391,11 +377,11 @@ const LesionTrackingPage: React.FC = () => {
       {/* 统计卡 */}
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
         {[
-          { title: '病灶总数', value: stats?.total ?? 0, color: '#3b82f6' },
-          { title: '新发', value: stats?.new ?? 0, color: '#f97316' },
-          { title: '进展 (增大)', value: stats?.progressed ?? 0, color: '#ef4444' },
-          { title: '稳定', value: stats?.stable ?? 0, color: '#3b82f6' },
-          { title: '消失', value: stats?.disappeared ?? 0, color: '#64748b' },
+          { title: t('lesionTrack.statTotal'), value: stats?.total ?? 0, color: '#3b82f6' },
+          { title: t('lesionTrack.statNew'), value: stats?.new ?? 0, color: '#f97316' },
+          { title: t('lesionTrack.statProgressed'), value: stats?.progressed ?? 0, color: '#ef4444' },
+          { title: t('lesionTrack.statStable'), value: stats?.stable ?? 0, color: '#3b82f6' },
+          { title: t('lesionTrack.statDisappeared'), value: stats?.disappeared ?? 0, color: '#64748b' },
         ].map((s) => (
           <Col key={s.title} xs={12} sm={8} md={4} lg={4}>
             <Card size="small" style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10 }}>
@@ -406,7 +392,7 @@ const LesionTrackingPage: React.FC = () => {
         <Col xs={12} sm={8} md={4} lg={4}>
           <Card size="small" style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10 }}>
             <Statistic
-              title={<span style={{ fontSize: 12, color: '#94a3b8' }}>缩小 (PR)</span>}
+              title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{t('lesionTrack.statShrunk')}</span>}
               value={stats?.shrunk ?? 0}
               valueStyle={{ color: '#22c55e', fontSize: 26, fontWeight: 700 }}
             />
@@ -418,12 +404,12 @@ const LesionTrackingPage: React.FC = () => {
       <Card
         size="small"
         style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10, marginBottom: 16 }}
-        title={<span style={{ fontSize: 14, color: '#e2e8f0' }}>患者选择</span>}
+        title={<span style={{ fontSize: 14, color: '#e2e8f0' }}>{t('lesionTrack.patientSelect')}</span>}
         extra={
           <Space>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={refresh} data-testid="lt-refresh">刷新</Button>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={refresh} data-testid="lt-refresh">{t('lesionTrack.refresh')}</Button>
             <Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => setCreateOpen(true)} data-testid="lt-create">
-              新建病灶
+              {t('lesionTrack.newLesion')}
             </Button>
           </Space>
         }
@@ -431,7 +417,7 @@ const LesionTrackingPage: React.FC = () => {
         <Select
           showSearch
           allowClear
-          placeholder="选择患者"
+          placeholder={t('lesionTrack.selectPatient')}
           loading={patientLoading}
           value={patientId || undefined}
           onChange={(v) => setPatientId(v ?? '')}
@@ -449,7 +435,7 @@ const LesionTrackingPage: React.FC = () => {
       <Card
         size="small"
         style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10, marginBottom: 16 }}
-        title={<span style={{ fontSize: 14, color: '#e2e8f0' }}>病灶列表</span>}
+        title={<span style={{ fontSize: 14, color: '#e2e8f0' }}>{t('lesionTrack.lesionList')}</span>}
       >
         <Spin spinning={loading}>
           <Table<TrackedLesion>
@@ -457,7 +443,7 @@ const LesionTrackingPage: React.FC = () => {
             columns={columns}
             dataSource={lesions}
             pagination={false}
-            locale={{ emptyText: <Empty description="暂无病灶数据, 点击「新建病灶」登记" /> }}
+            locale={{ emptyText: <Empty description={t('lesionTrack.emptyLesions')} /> }}
             size="small"
             scroll={{ x: 900 }}
           />
@@ -471,13 +457,13 @@ const LesionTrackingPage: React.FC = () => {
         title={
           <Space>
             <TrendingUp size={14} color="#60a5fa" />
-            <span style={{ fontSize: 14, color: '#e2e8f0' }}>尺寸趋势</span>
+            <span style={{ fontSize: 14, color: '#e2e8f0' }}>{t('lesionTrack.sizeTrend')}</span>
           </Space>
         }
         extra={
           <Select
             size="small"
-            placeholder="选择病灶"
+            placeholder={t('lesionTrack.selectLesion')}
             value={trendLesionId}
             onChange={setTrendLesionId}
             style={{ width: 260 }}
@@ -490,12 +476,12 @@ const LesionTrackingPage: React.FC = () => {
           {trend && trend.timeline.length > 0 ? (
             <div>
               <Space size={12} wrap style={{ marginBottom: 8 }}>
-                <Tag color="blue">基线 {trend.baselineSize.toFixed(1)}mm ({trend.baselineDate})</Tag>
-                <Tag color="blue">末次 {trend.latestSize.toFixed(1)}mm ({trend.latestDate})</Tag>
+                <Tag color="blue">{t('lesionTrack.baseline')} {trend.baselineSize.toFixed(1)}mm ({trend.baselineDate})</Tag>
+                <Tag color="blue">{t('lesionTrack.latest')} {trend.latestSize.toFixed(1)}mm ({trend.latestDate})</Tag>
                 <Tag color={trend.changePercent >= 20 ? 'red' : trend.changePercent <= -30 ? 'green' : 'blue'}>
-                  变化 {trend.changePercent > 0 ? '+' : ''}{trend.changePercent}%
+                  {t('lesionTrack.change')} {trend.changePercent > 0 ? '+' : ''}{trend.changePercent}%
                 </Tag>
-                <Tag color={RESPONSE_COLORS[trend.overallResponse]}>整体响应 {RESPONSE_LABEL[trend.overallResponse]}</Tag>
+                <Tag color={RESPONSE_COLORS[trend.overallResponse]}>{t('lesionTrack.overallResponse')} {t(`lesionTrack.response.${trend.overallResponse}`)}</Tag>
               </Space>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={trendChartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
@@ -512,35 +498,35 @@ const LesionTrackingPage: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <Empty description="无测量数据可绘制趋势" style={{ padding: 40, color: '#64748b' }} />
+            <Empty description={t('lesionTrack.emptyTrend')} style={{ padding: 40, color: '#64748b' }} />
           )}
         </Spin>
       </Card>
 
       {/* 新建病灶 Modal */}
       <Modal
-        title="新建病灶"
+        title={t('lesionTrack.newLesionModal')}
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
         onOk={() => void handleCreate()}
-        okText="登记"
-        cancelText="取消"
+        okText={t('lesionTrack.register')}
+        cancelText={t('lesionTrack.cancel')}
         data-testid="lt-create-modal"
       >
         <Form form={createForm} layout="vertical">
-          <Form.Item name="name" label="病灶名称" rules={[{ required: true, message: '请输入病灶名称' }]}>
-            <Input placeholder="如: 肺结节 #1" />
+          <Form.Item name="name" label={t('lesionTrack.lesionName')} rules={[{ required: true, message: t('lesionTrack.lesionNameRequired') }]}>
+            <Input placeholder={t('lesionTrack.lesionNamePlaceholder')} />
           </Form.Item>
-          <Form.Item name="site" label="部位" rules={[{ required: true, message: '请输入部位' }]}>
-            <Input placeholder="如: 右肺上叶尖段" />
+          <Form.Item name="site" label={t('lesionTrack.colSite')} rules={[{ required: true, message: t('lesionTrack.siteRequired') }]}>
+            <Input placeholder={t('lesionTrack.sitePlaceholder')} />
           </Form.Item>
-          <Form.Item name="type" label="类型" initialValue="肺结节">
+          <Form.Item name="type" label={t('lesionTrack.colType')} initialValue="肺结节">
             <Select options={TYPE_OPTIONS} />
           </Form.Item>
-          <Form.Item name="initialSizeMm" label="初始尺寸 (mm)" rules={[{ required: true, message: '请输入初始尺寸' }]}>
-            <InputNumber min={0} step={0.1} style={{ width: '100%' }} placeholder="如: 6.5" />
+          <Form.Item name="initialSizeMm" label={t('lesionTrack.initialSize')} rules={[{ required: true, message: t('lesionTrack.initialSizeRequired') }]}>
+            <InputNumber min={0} step={0.1} style={{ width: '100%' }} placeholder={t('lesionTrack.initialSizePlaceholder')} />
           </Form.Item>
-          <Form.Item name="modality" label="模态" initialValue="CT">
+          <Form.Item name="modality" label={t('lesionTrack.colModality')} initialValue="CT">
             <Select options={[{ value: 'CT', label: 'CT' }, { value: 'MR', label: 'MR' }, { value: 'PET-CT', label: 'PET-CT' }, { value: 'US', label: 'US' }]} />
           </Form.Item>
         </Form>
@@ -548,7 +534,7 @@ const LesionTrackingPage: React.FC = () => {
 
       {/* 详情 Drawer */}
       <Drawer
-        title={detail ? <Space><Activity size={16} color="#60a5fa" />{detail.name}</Space> : '病灶详情'}
+        title={detail ? <Space><Activity size={16} color="#60a5fa" />{detail.name}</Space> : t('lesionTrack.lesionDetail')}
         open={!!detail}
         onClose={() => setDetail(null)}
         width={560}
@@ -561,18 +547,18 @@ const LesionTrackingPage: React.FC = () => {
                 column={2}
                 size="small"
                 items={[
-                  { key: 'site', label: '部位', children: detail.site },
-                  { key: 'type', label: '类型', children: <Tag color="purple">{detail.type}</Tag> },
-                  { key: 'modality', label: '模态', children: detail.modality },
-                  { key: 'status', label: '当前状态', children: <Tag color={STATUS_COLORS[detail.currentStatus]}>{detail.currentStatus}</Tag> },
-                  { key: 'createdAt', label: '登记日期', children: detail.createdAt },
-                  { key: 'followupId', label: '随访计划', children: detail.followupId ? <Tag color="cyan">{detail.followupId}</Tag> : <Text type="secondary">未关联</Text> },
+                  { key: 'site', label: t('lesionTrack.colSite'), children: detail.site },
+                  { key: 'type', label: t('lesionTrack.colType'), children: <Tag color="purple">{detail.type}</Tag> },
+                  { key: 'modality', label: t('lesionTrack.colModality'), children: detail.modality },
+                  { key: 'status', label: t('lesionTrack.colStatus'), children: <Tag color={STATUS_COLORS[detail.currentStatus]}>{detail.currentStatus}</Tag> },
+                  { key: 'createdAt', label: t('lesionTrack.registeredAt'), children: detail.createdAt },
+                  { key: 'followupId', label: t('lesionTrack.followupPlan'), children: detail.followupId ? <Tag color="cyan">{detail.followupId}</Tag> : <Text type="secondary">{t('lesionTrack.notLinked')}</Text> },
                 ]}
               />
 
               {/* 测量时间线 */}
               <div style={{ marginTop: 16, marginBottom: 8 }}>
-                <b style={{ color: '#e2e8f0' }}>测量序列</b>
+                <b style={{ color: '#e2e8f0' }}>{t('lesionTrack.measurementSeries')}</b>
               </div>
               <Timeline
                 items={(detail.measurements ?? []).map((m: LesionMeasurement) => ({
@@ -580,7 +566,7 @@ const LesionTrackingPage: React.FC = () => {
                   children: (
                     <div>
                       <div style={{ color: '#e2e8f0' }}>{m.date} · <b>{m.sizeMm.toFixed(1)}mm</b> <Text type="secondary">({m.studyId || '-'})</Text></div>
-                      {m.response && <Tag color={RESPONSE_COLORS[m.response]} style={{ marginTop: 4 }}>{RESPONSE_LABEL[m.response]}</Tag>}
+                      {m.response && <Tag color={RESPONSE_COLORS[m.response]} style={{ marginTop: 4 }}>{t(`lesionTrack.response.${m.response}`)}</Tag>}
                       {m.notes && <div style={{ fontSize: 12, color: '#94a3b8' }}>{m.notes}</div>}
                     </div>
                   ),
@@ -588,38 +574,38 @@ const LesionTrackingPage: React.FC = () => {
               />
 
               {/* 新增测量 */}
-              <Card size="small" title="新增测量" style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 12 }}>
+              <Card size="small" title={t('lesionTrack.addMeasurement')} style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 12 }}>
                 <Form form={measureForm} layout="vertical" size="small">
                   <Row gutter={8}>
                     <Col span={8}>
-                      <Form.Item name="date" label="日期" rules={[{ required: true, message: '日期' }]}>
+                      <Form.Item name="date" label={t('lesionTrack.dateLabel')} rules={[{ required: true, message: t('lesionTrack.dateRequired') }]}>
                         <DatePicker style={{ width: '100%' }} />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
-                      <Form.Item name="sizeMm" label="尺寸 (mm)" rules={[{ required: true, message: '尺寸' }]}>
+                      <Form.Item name="sizeMm" label={t('lesionTrack.sizeMm')} rules={[{ required: true, message: t('lesionTrack.sizeRequired') }]}>
                         <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
-                      <Form.Item name="response" label="响应分类">
+                      <Form.Item name="response" label={t('lesionTrack.responseClass')}>
                         <Select
                           allowClear
                           placeholder="CR/PR/SD/PD"
-                          options={(Object.keys(RESPONSE_LABEL) as ResponseClass[]).map((r) => ({ value: r, label: `${r} ${RESPONSE_LABEL[r]}` }))}
+                          options={(['CR', 'PR', 'SD', 'PD', 'NE'] as ResponseClass[]).map((r) => ({ value: r, label: `${r} ${t(`lesionTrack.response.${r}`)}` }))}
                         />
                       </Form.Item>
                     </Col>
                   </Row>
                   <Row gutter={8}>
                     <Col span={16}>
-                      <Form.Item name="studyId" label="检查 Study ID">
+                      <Form.Item name="studyId" label={t('lesionTrack.studyId')}>
                         <Input placeholder={`如: STU-${Date.now()}`} />
                       </Form.Item>
                     </Col>
                     <Col span={8} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 24 }}>
                       <Button type="primary" size="small" icon={<History size={12} />} onClick={() => void handleAddMeasurement()} data-testid="lt-add-measurement">
-                        记录测量
+                        {t('lesionTrack.recordMeasurement')}
                       </Button>
                     </Col>
                   </Row>
@@ -627,12 +613,12 @@ const LesionTrackingPage: React.FC = () => {
               </Card>
 
               {/* 跨期对比 */}
-              <Card size="small" title="跨期对比 (RECIST-like)" style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 12 }}>
+              <Card size="small" title={t('lesionTrack.compareCard')} style={{ background: '#0b1626', border: '1px solid #1e2b45', marginBottom: 12 }}>
                 <Row gutter={8} align="middle">
                   <Col span={9}>
                     <Select
                       size="small"
-                      placeholder="测量 A (基线)"
+                      placeholder={t('lesionTrack.measureA')}
                       value={compareA}
                       onChange={setCompareA}
                       style={{ width: '100%' }}
@@ -642,7 +628,7 @@ const LesionTrackingPage: React.FC = () => {
                   <Col span={9}>
                     <Select
                       size="small"
-                      placeholder="测量 B (随访)"
+                      placeholder={t('lesionTrack.measureB')}
                       value={compareB}
                       onChange={setCompareB}
                       style={{ width: '100%' }}
@@ -657,7 +643,7 @@ const LesionTrackingPage: React.FC = () => {
                       onClick={() => void handleCompare()}
                       data-testid="lt-compare"
                     >
-                      对比
+                      {t('lesionTrack.compareBtn')}
                     </Button>
                   </Col>
                 </Row>
@@ -671,22 +657,22 @@ const LesionTrackingPage: React.FC = () => {
                     </div>
                     <Space size={8} wrap>
                       <Tag color={compareResult.direction === '增大' ? 'red' : compareResult.direction === '缩小' ? 'green' : compareResult.direction === '消失' ? 'default' : 'blue'}>
-                        方向: {compareResult.direction}
+                        {t('lesionTrack.directionLabel')} {compareResult.direction}
                       </Tag>
                       <Tag color={RESPONSE_COLORS[compareResult.response]}>
-                        响应: {compareResult.response} {RESPONSE_LABEL[compareResult.response]}
+                        {t('lesionTrack.responseLabel')} {compareResult.response} {t(`lesionTrack.response.${compareResult.response}`)}
                       </Tag>
-                      {compareResult.deterministic && <Text type="secondary" style={{ fontSize: 11 }}>确定性判定</Text>}
+                      {compareResult.deterministic && <Text type="secondary" style={{ fontSize: 11 }}>{t('lesionTrack.deterministic')}</Text>}
                     </Space>
                   </div>
                 )}
               </Card>
 
               {/* 随访联动 */}
-              <Card size="small" title="随访联动 (Wave 3B)" style={{ background: '#0b1626', border: '1px solid #1e2b45' }}>
+              <Card size="small" title={t('lesionTrack.followupCard')} style={{ background: '#0b1626', border: '1px solid #1e2b45' }}>
                 <Space.Compact style={{ width: '100%' }}>
                   <Input
-                    placeholder="输入随访计划 ID (如 FU001)"
+                    placeholder={t('lesionTrack.followupInputPlaceholder')}
                     value={followupId}
                     onChange={(e) => setFollowupId(e.target.value)}
                     prefix={<Link2 size={12} />}
@@ -697,14 +683,14 @@ const LesionTrackingPage: React.FC = () => {
                     onClick={() => void handleLinkFollowup()}
                     data-testid="lt-link-followup"
                   >
-                    关联
+                    {t('lesionTrack.linkBtn')}
                   </Button>
                 </Space.Compact>
                 <Alert
                   style={{ marginTop: 8, background: '#0b1626', border: '1px solid #1e2b45' }}
                   type="info"
                   showIcon
-                  message="关联后在随访计划页可按病灶回溯; 患者与随访计划患者不一致时后端拒绝。"
+                  message={t('lesionTrack.followupAlert')}
                 />
               </Card>
             </div>

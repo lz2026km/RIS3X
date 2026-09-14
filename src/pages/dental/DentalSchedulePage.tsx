@@ -22,6 +22,14 @@ const APPT_TYPES = [
 
 export const DENTAL_APPT_STATUS_LABELS_DICT: Record<string, string> = { scheduled: '已预约', 'in-progress': '进行中', completed: '已完成', cancelled: '已取消', 'no-show': '未到诊' };
 
+const apptStatusLabel = (s: string): string =>
+  s === 'scheduled' ? t('dentalSchedule.statusScheduled')
+    : s === 'in-progress' ? t('dentalSchedule.statusInProgress')
+      : s === 'completed' ? t('dentalSchedule.statusCompleted')
+        : s === 'cancelled' ? t('dentalSchedule.statusCancelled')
+          : s === 'no-show' ? t('dentalSchedule.statusNoShow')
+            : s;
+
 export const DentalSchedulePage: React.FC = () => {
   const [tab, setTab] = useState('schedule');
   const [chairs, setChairs] = useState<any[]>([]);
@@ -51,7 +59,7 @@ export const DentalSchedulePage: React.FC = () => {
       if (res.success && res.data) {
         setApptDetail(res.data);
       } else {
-        message.warning(res.error?.message ?? '详情加载失败');
+        message.warning(res.error?.message ?? t('dentalSchedule.detailLoadFailed'));
         setApptDetail(appts.find((a) => a.id === id) ?? null);
       }
     } catch {
@@ -120,12 +128,12 @@ export const DentalSchedulePage: React.FC = () => {
         status: 'scheduled',
       });
       if (res.success) {
-        message.success('预约已创建');
+        message.success(t('dentalSchedule.apptCreated'));
         form.resetFields();
         setCreateModal(false);
         await fetchData();
       } else {
-        message.error('创建失败: ' + (res.error?.message || '未知错误'));
+        message.error(`${t('dentalSchedule.createFailed')}: ${res.error?.message || t('dentalSchedule.unknownError')}`);
       }
     } catch (e) { console.error('[F04]', e); }
     setSubmitting(false);
@@ -136,10 +144,10 @@ export const DentalSchedulePage: React.FC = () => {
       // [G005 Wave1B] 排班状态流转: dentalApi.updateScheduleAppointmentStatus (POST /dental/schedule/appointments/:id/status)
       const res = await dentalApi.updateScheduleAppointmentStatus(id, status);
       if (res.success) {
-        message.success(status === 'in-progress' ? '已开始' : '已取消');
+        message.success(status === 'in-progress' ? t('dentalSchedule.started') : t('dentalSchedule.cancelled'));
         await fetchData();
       } else {
-        message.warning(res.error?.message ?? '状态更新失败');
+        message.warning(res.error?.message ?? t('dentalSchedule.statusUpdateFailed'));
       }
     } catch { /* ignore */ }
   };
@@ -148,18 +156,18 @@ export const DentalSchedulePage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Calendar size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>牙椅排班 · 牙周 PSR 记录</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalSchedule.pageTitle')}</span>
         <Tag color="cyan">v3.0.6.8-103</Tag>
-        <Tag color="blue">牙医管家 对标</Tag>
+        <Tag color="blue">{t('dentalSchedule.benchmarkTag')}</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={3}><Card size="small"><Statistic title="今日预约" value={stats?.todayAppointments || 0} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="已完成" value={stats?.completed || 0} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="进行中" value={stats?.inProgress || 0} styles={{ content: { color:'#faad14' } }} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="爽约" value={stats?.noShow || 0} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="椅位利用率" value={Math.round((stats?.chairUtilization||0)*100)} suffix="%" /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="平均等待" value={stats?.avgWaitTime || 0} suffix="min" /></Card></Col>
-        <Col span={6}><DatePicker value={dayjs(selectedDate)} placeholder="选择日期" onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width:'100%'}} /></Col>
+        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statToday')} value={stats?.todayAppointments || 0} /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statCompleted')} value={stats?.completed || 0} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statInProgress')} value={stats?.inProgress || 0} styles={{ content: { color:'#faad14' } }} /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statNoShow')} value={stats?.noShow || 0} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statChairUsage')} value={Math.round((stats?.chairUtilization||0)*100)} suffix="%" /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statAvgWait')} value={stats?.avgWaitTime || 0} suffix="min" /></Card></Col>
+        <Col span={6}><DatePicker value={dayjs(selectedDate)} placeholder={t('dentalSchedule.selectDate')} onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width:'100%'}} /></Col>
       </Row>
       <Row gutter={12} style={{ marginBottom: 12 }}>
         {chairs.map((c: any) => (
@@ -167,43 +175,43 @@ export const DentalSchedulePage: React.FC = () => {
             <Card size="small" hoverable onClick={() => setSelectedChair(c.id)}
               style={{ cursor:'pointer', borderColor: selectedChair === c.id ? '#2563eb' : '#d9d9d9', borderLeft: `4px solid ${chairColors[c.status] || '#999'}` }}>
               <Space><Armchair size={14}/><span style={{fontSize:13}}>{c.name}</span></Space>
-              <Tag style={{fontSize:10,margin:0}} color={chairColors[c.status]}>{({online:'在线', offline:'离线', maintenance:'维护中'} as any)[c.status] || c.status}</Tag>
+              <Tag style={{fontSize:10,margin:0}} color={chairColors[c.status]}>{({online:t('dentalSchedule.chairOnline'), offline:t('dentalSchedule.chairOffline'), maintenance:t('dentalSchedule.chairMaintenance')} as any)[c.status] || c.status}</Tag>
             </Card>
           </Col>
         ))}
-        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'#2563eb':'#d9d9d9'}}><Space><User size={14}/><span>全部</span></Space><div style={{fontSize:11,color:'var(--text-secondary)',marginTop:4}}>共 {appts.length} 预约</div></Card></Col>
+        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'#2563eb':'#d9d9d9'}}><Space><User size={14}/><span>{t('dentalSchedule.all')}</span></Space><div style={{fontSize:11,color:'var(--text-secondary)',marginTop:4}}>{t('dentalSchedule.totalPrefix')} {appts.length} {t('dentalSchedule.apptUnit')}</div></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
-        {key:'schedule', label:'排班看板', children:<>
-          <Button type="primary" icon={<Plus size={14}/>} style={{marginBottom:8}} onClick={()=>setCreateModal(true)}>新建预约</Button>
-          {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="当日暂无预约" /> : (
+        {key:'schedule', label:t('dentalSchedule.tabSchedule'), children:<>
+          <Button type="primary" icon={<Plus size={14}/>} style={{marginBottom:8}} onClick={()=>setCreateModal(true)}>{t('dentalSchedule.newAppt')}</Button>
+          {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalSchedule.noApptToday')} /> : (
             <Table dataSource={pagedFiltered} rowKey="id" size="small" pagination={filteredPagination}
               columns={[
-                {title:'时间',dataIndex:'time',width:70,render:(t:string)=><Tag color="geekblue">{t}</Tag>,fixed:'left'},
-                {title:'患者',dataIndex:'patientName',width:100},
-                {title:'牙椅',dataIndex:'chairName',width:150,render:(n:string)=><Tag color="purple">{n}</Tag>},
-                {title:'医生',dataIndex:'dentist',width:80},
-                {title:'类型',dataIndex:'type',width:60,render:(t:string)=><Tag>{t}</Tag>},
-                {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='in-progress'?'processing':s==='scheduled'?'default':s==='no-show'?'error':'default'} text={DENTAL_APPT_STATUS_LABELS_DICT[s] || s} />,width:90},
-                {title:'操作',render:(_,r:any)=><Space>
-                  <Button size="small" icon={<CheckCircle2 size={10}/>} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'in-progress')}>到诊</Button>
-                  <Button size="small" icon={null} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'cancelled')}>取消</Button>
+                {title:t('dentalSchedule.colTime'),dataIndex:'time',width:70,render:(tv:string)=><Tag color="geekblue">{tv}</Tag>,fixed:'left'},
+                {title:t('dentalSchedule.colPatient'),dataIndex:'patientName',width:100},
+                {title:t('dentalSchedule.colChair'),dataIndex:'chairName',width:150,render:(n:string)=><Tag color="purple">{n}</Tag>},
+                {title:t('dentalSchedule.colDentist'),dataIndex:'dentist',width:80},
+                {title:t('dentalSchedule.colType'),dataIndex:'type',width:60,render:(tv:string)=><Tag>{tv}</Tag>},
+                {title:t('dentalSchedule.colStatus'),dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='in-progress'?'processing':s==='scheduled'?'default':s==='no-show'?'error':'default'} text={apptStatusLabel(s)} />,width:90},
+                {title:t('dentalSchedule.colActions'),render:(_,r:any)=><Space>
+                  <Button size="small" icon={<CheckCircle2 size={10}/>} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'in-progress')}>{t('dentalSchedule.arrived')}</Button>
+                  <Button size="small" icon={null} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'cancelled')}>{t('dentalSchedule.cancelBtn')}</Button>
                   <Button size="small" icon={<Eye size={10}/>} onClick={()=>void handleShowApptDetail(r.id)}>{t("w3b.detail")}</Button>
                 </Space>},
               ]} 
             scroll={{ x: 'max-content' }}/>
           )}
         </>},
-        {key:'psr', label:'PSR 牙周记录', children:<>
+        {key:'psr', label:t('dentalSchedule.tabPsr'), children:<>
           <Row gutter={12}>
             <Col span={10}>
-              <Card size="small" title="PSR 6分位探诊记录">
+              <Card size="small" title={t('dentalSchedule.psrCardTitle')}>
 
 
                 <Form layout="vertical" size="small">
-                  <Form.Item label="患者"><Select value={psrRec.patientId} onChange={v=>setPsrRec({...psrRec,patientId:v})} options={patients} placeholder="选择患者" /></Form.Item>
-                  <Form.Item label="象限"><Segmented value={psrRec.quadrant} onChange={v=>setPsrRec({...psrRec,quadrant:v as number})} options={[{value:1,label:'右上'},{value:2,label:'左上'},{value:3,label:'左下'},{value:4,label:'右下'}]} /></Form.Item>
-                  <div style={{fontSize:12,fontWeight:600,marginBottom:4}}>6点探诊深度 (mm)</div>
+                  <Form.Item label={t('dentalSchedule.colPatient')}><Select value={psrRec.patientId} onChange={v=>setPsrRec({...psrRec,patientId:v})} options={patients} placeholder={t('dentalSchedule.selectPatient')} /></Form.Item>
+                  <Form.Item label={t('dentalSchedule.quadrant')}><Segmented value={psrRec.quadrant} onChange={v=>setPsrRec({...psrRec,quadrant:v as number})} options={[{value:1,label:t('dentalSchedule.quadrantRU')},{value:2,label:t('dentalSchedule.quadrantLU')},{value:3,label:t('dentalSchedule.quadrantLL')},{value:4,label:t('dentalSchedule.quadrantRL')}]} /></Form.Item>
+                  <div style={{fontSize:12,fontWeight:600,marginBottom:4}}>{t('dentalSchedule.probingDepth')}</div>
                   <Row gutter={4}>
                     {[0,1,2,3,4,5].map(i => (
                       <Col span={4} key={i}>
@@ -218,49 +226,49 @@ export const DentalSchedulePage: React.FC = () => {
                       </Col>
                     ))}
                   </Row>
-                  <div style={{fontSize:11,color:"var(--text-secondary)",marginTop:4}}>六点探诊：DB（远中颊）、B（颊）、MB（近中颊）、ML（近中舌）、L（舌）、DL（远中舌）</div>
-                  <Form.Item label="松动度" style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:'0度正常'},{value:1,label:'I度小于1mm'},{value:2,label:'II度1-2mm'},{value:3,label:'III度大于2mm'}]} /></Form.Item>
-                  <Form.Item label="PSR 编码"><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:'0:健康'},{value:1,label:'1:出血'},{value:2,label:'2:牙结石'},{value:3,label:'3:4-5mm'},{value:4,label:'4:大于6mm'}]} /></Form.Item>
-                  <Form.Item label="备注"><Input.TextArea value={psrRec.note} onChange={e=>setPsrRec({...psrRec,note:e.target.value})} rows={2} /></Form.Item>
+                  <div style={{fontSize:11,color:"var(--text-secondary)",marginTop:4}}>{t('dentalSchedule.probingNote')}</div>
+                  <Form.Item label={t('dentalSchedule.mobility')} style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:t('dentalSchedule.mobility0')},{value:1,label:t('dentalSchedule.mobility1')},{value:2,label:t('dentalSchedule.mobility2')},{value:3,label:t('dentalSchedule.mobility3')}]} /></Form.Item>
+                  <Form.Item label={t('dentalSchedule.psrCode')}><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:t('dentalSchedule.psr0')},{value:1,label:t('dentalSchedule.psr1')},{value:2,label:t('dentalSchedule.psr2')},{value:3,label:t('dentalSchedule.psr3')},{value:4,label:t('dentalSchedule.psr4')}]} /></Form.Item>
+                  <Form.Item label={t('dentalSchedule.note')}><Input.TextArea value={psrRec.note} onChange={e=>setPsrRec({...psrRec,note:e.target.value})} rows={2} /></Form.Item>
                   <Button type="primary" block loading={psrSaving} onClick={async()=>{
                     setPsrSaving(true);
                     try {
                       // [G005 Wave1B] 保存 PSR: dentalApi.savePsrRecord (POST /dental/chart/:patientId/psr)
                       const res = await dentalApi.savePsrRecord(psrRec.patientId, psrRec);
                       if (res.success) {
-                        message.success('牙周记录已保存');
+                        message.success(t('dentalSchedule.psrSaved'));
                         const list = await dentalApi.listPsrRecords(psrRec.patientId);
                         if (list.success && Array.isArray(list.data)) setPsrHistory(list.data);
                       } else {
-                        message.error('保存失败: ' + (res.error?.message || '未知错误'));
+                        message.error(`${t('dentalSchedule.saveFailed')}: ${res.error?.message || t('dentalSchedule.unknownError')}`);
                       }
                     } catch (e) {
                       console.error('[F04]', e);
-                      message.error('保存失败，请重试');
+                      message.error(t('dentalSchedule.saveRetry'));
                     } finally {
                       setPsrSaving(false);
                     }
-                  }}>保存 PSR 记录</Button>
+                  }}>{t('dentalSchedule.savePsr')}</Button>
                 </Form>
               </Card>
             </Col>
             <Col span={14}>
-              <Card size="small" title={<Space>历史 PSR 记录</Space>}>
+              <Card size="small" title={<Space>{t('dentalSchedule.psrHistory')}</Space>}>
                 {psrLoading ? (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="加载中..." />
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalSchedule.loading')} />
                 ) : psrHistory.length === 0 ? (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无 PSR 记录" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalSchedule.noPsr')} />
                 ) : (
                   psrHistory.map((rec: any, i: number) => (
-                    <Card key={rec.id || i} size="small" style={{ marginBottom: 4 }} title={`象限 ${rec.quadrant ?? '-'} · ${rec.patientId ?? ''}`}>
+                    <Card key={rec.id || i} size="small" style={{ marginBottom: 4 }} title={`${t('dentalSchedule.quadrant')} ${rec.quadrant ?? '-'} · ${rec.patientId ?? ''}`}>
                       <Space wrap>
-                        <Tag color="blue">PSR 评分: {rec.psrCode ?? '-'}</Tag>
-                        <Tag color="orange">探诊: {Array.isArray(rec.probingDepths) ? `${Math.min(...rec.probingDepths)}-${Math.max(...rec.probingDepths)}mm` : '-'}</Tag>
-                        <Tag>松动 {(rec.mobility ?? 0) + '°'}</Tag>
+                        <Tag color="blue">{t('dentalSchedule.psrScore')}: {rec.psrCode ?? '-'}</Tag>
+                        <Tag color="orange">{t('dentalSchedule.probingLabel')}: {Array.isArray(rec.probingDepths) ? `${Math.min(...rec.probingDepths)}-${Math.max(...rec.probingDepths)}mm` : '-'}</Tag>
+                        <Tag>{t('dentalSchedule.mobilityLabel')} {(rec.mobility ?? 0) + '°'}</Tag>
                         <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{String(rec.createdAt ?? rec.recordedAt ?? '').replace('T', ' ').slice(0, 16) || '—'}</span>
                       </Space>
                       {Array.isArray(rec.probingDepths) && (
-                        <div style={{ marginTop: 4, fontSize: 11, color: 'var(--text-secondary)' }}>6点: {rec.probingDepths.join('-')}mm {rec.note ? `| ${rec.note}` : ''}</div>
+                        <div style={{ marginTop: 4, fontSize: 11, color: 'var(--text-secondary)' }}>{t('dentalSchedule.sixPoints')}: {rec.probingDepths.join('-')}mm {rec.note ? `| ${rec.note}` : ''}</div>
                       )}
                     </Card>
                   ))
@@ -270,24 +278,24 @@ export const DentalSchedulePage: React.FC = () => {
           </Row>
         </>},
       ]} />
-      <Modal title="新建预约" open={createModal} onCancel={()=>{setCreateModal(false);form.resetFields();}} onOk={handleCreateAppt} confirmLoading={submitting} width={520}>
+      <Modal title={t('dentalSchedule.newAppt')} open={createModal} onCancel={()=>{setCreateModal(false);form.resetFields();}} onOk={handleCreateAppt} confirmLoading={submitting} width={520}>
         <Form form={form} layout="vertical" size="small" initialValues={{ date: null, time: '09:00', type: '初诊', dentist: '王医生', chairId: undefined, patientId: undefined }}>
-          <Form.Item label="患者" name="patientId" rules={[{ required: true, message: '请选择患者' }]}>
-            <Select options={patients} placeholder="选择患者" />
+          <Form.Item label={t('dentalSchedule.colPatient')} name="patientId" rules={[{ required: true, message: t('dentalSchedule.selectPatientRequired') }]}>
+            <Select options={patients} placeholder={t('dentalSchedule.selectPatient')} />
           </Form.Item>
-          <Form.Item label="日期" name="date" rules={[{ required: true, message: '请选择日期' }]}>
-            <DatePicker style={{ width: '100%' }} placeholder="选择预约日期" />
+          <Form.Item label={t('dentalSchedule.date')} name="date" rules={[{ required: true, message: t('dentalSchedule.selectDateRequired') }]}>
+            <DatePicker style={{ width: '100%' }} placeholder={t('dentalSchedule.selectApptDate')} />
           </Form.Item>
-          <Form.Item label="时间" name="time" rules={[{ required: true }]}>
-            <Select options={TIME_SLOTS.map(t => ({ value: t, label: t }))} />
+          <Form.Item label={t('dentalSchedule.colTime')} name="time" rules={[{ required: true }]}>
+            <Select options={TIME_SLOTS.map(tv => ({ value: tv, label: tv }))} />
           </Form.Item>
-          <Form.Item label="牙椅" name="chairId" rules={[{ required: true, message: '请选择牙椅' }]}>
-            <Select options={chairs.map((c:any) => ({ value: c.id, label: c.name }))} placeholder="选择牙椅" />
+          <Form.Item label={t('dentalSchedule.colChair')} name="chairId" rules={[{ required: true, message: t('dentalSchedule.selectChairRequired') }]}>
+            <Select options={chairs.map((c:any) => ({ value: c.id, label: c.name }))} placeholder={t('dentalSchedule.selectChair')} />
           </Form.Item>
-          <Form.Item label="医生" name="dentist" rules={[{ required: true }]}>
+          <Form.Item label={t('dentalSchedule.colDentist')} name="dentist" rules={[{ required: true }]}>
             <Select options={dentists} />
           </Form.Item>
-          <Form.Item label="类型" name="type" rules={[{ required: true }]}>
+          <Form.Item label={t('dentalSchedule.colType')} name="type" rules={[{ required: true }]}>
             <Select options={APPT_TYPES} />
           </Form.Item>
         </Form>
@@ -303,14 +311,14 @@ export const DentalSchedulePage: React.FC = () => {
         <Spin spinning={apptDetailLoading}>
           {apptDetail && (
             <Descriptions bordered size="small" column={2}>
-              <Descriptions.Item label="患者" span={2}>{apptDetail.patientName} ({apptDetail.patientId || apptDetail.patient?.id || '-'})</Descriptions.Item>
-              <Descriptions.Item label="日期">{apptDetail.date || apptDetail.appointmentDate || '-'}</Descriptions.Item>
-              <Descriptions.Item label="时间">{apptDetail.time || '-'}</Descriptions.Item>
-              <Descriptions.Item label="牙椅">{apptDetail.chairName || apptDetail.chair?.name || '-'}</Descriptions.Item>
-              <Descriptions.Item label="医生">{apptDetail.dentist || '-'}</Descriptions.Item>
-              <Descriptions.Item label="类型">{apptDetail.type || '-'}</Descriptions.Item>
-              <Descriptions.Item label="状态"><Badge status={apptDetail.status === 'completed' ? 'success' : apptDetail.status === 'in-progress' ? 'processing' : apptDetail.status === 'no-show' ? 'error' : 'default'} text={DENTAL_APPT_STATUS_LABELS_DICT[apptDetail.status ?? ''] || apptDetail.status || '-'} /></Descriptions.Item>
-              <Descriptions.Item label="备注" span={2}>{apptDetail.note || apptDetail.notes || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.colPatient')} span={2}>{apptDetail.patientName} ({apptDetail.patientId || apptDetail.patient?.id || '-'})</Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.date')}>{apptDetail.date || apptDetail.appointmentDate || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.colTime')}>{apptDetail.time || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.colChair')}>{apptDetail.chairName || apptDetail.chair?.name || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.colDentist')}>{apptDetail.dentist || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.colType')}>{apptDetail.type || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.colStatus')}><Badge status={apptDetail.status === 'completed' ? 'success' : apptDetail.status === 'in-progress' ? 'processing' : apptDetail.status === 'no-show' ? 'error' : 'default'} text={apptStatusLabel(apptDetail.status ?? '') || '-'} /></Descriptions.Item>
+              <Descriptions.Item label={t('dentalSchedule.note')} span={2}>{apptDetail.note || apptDetail.notes || '-'}</Descriptions.Item>
             </Descriptions>
           )}
         </Spin>

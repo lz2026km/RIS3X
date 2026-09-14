@@ -4,6 +4,7 @@ import { dentalApi } from '@/services/api/dentalApi';
 import { Card, Space, Tag, Button, Table, Row, Col, Statistic, Tabs, Timeline, Modal, Form, Select, Input, message, Empty, Spin, Alert, Popconfirm, Descriptions } from 'antd';
 import { Plus, Send, FileText, Activity as ActivityIcon, RefreshCw, CheckCircle2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
@@ -55,11 +56,11 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setReferrals(res.data as Referral[]);
       } else {
-        setError(res.error?.message ?? '转诊记录加载失败');
+        setError(res.error?.message ?? t('dentalRadFusion.referralsLoadFailed'));
       }
     } catch (e) {
       console.error('[Referral] load:', e);
-      setError('转诊记录加载失败');
+      setError(t('dentalRadFusion.referralsLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -79,16 +80,16 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         reason: values.reason,
       });
       if (res.success) {
-        message.success('转诊已发起');
+        message.success(t('dentalRadFusion.referralCreated'));
         setCreateModal(false);
         form.resetFields();
         void load();
       } else {
-        message.error(res.error?.message ?? '发起失败');
+        message.error(res.error?.message ?? t('dentalRadFusion.createFailed'));
       }
     } catch (e) {
       if (e instanceof Error && e.message) message.error(e.message);
-      else message.error('发起失败');
+      else message.error(t('dentalRadFusion.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -102,10 +103,10 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         message.success(`已接诊 ${r.patient} 的转诊`);
         void load();
       } else {
-        message.error(res.error?.message ?? '接诊失败');
+        message.error(res.error?.message ?? t('dentalRadFusion.acceptFailed'));
       }
     } catch {
-      message.error('接诊失败');
+      message.error(t('dentalRadFusion.acceptFailed'));
     } finally {
       setAccepting('');
     }
@@ -130,21 +131,21 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
 
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
-    { title: '患者', dataIndex: 'patient', key: 'patient', width: 80 },
-    { title: '来源', dataIndex: 'source', key: 'source', width: 90, render: (s: string) => <Tag color="blue">{s}</Tag> },
-    { title: '目标', dataIndex: 'target', key: 'target', width: 90, render: (s: string) => <Tag color="purple">{s}</Tag> },
-    { title: '原因', dataIndex: 'reason', key: 'reason', ellipsis: true },
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 130, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={STATUS_META[s]?.color ?? 'default'}>{STATUS_META[s]?.label ?? s}</Tag> },
+    { title: t('dentalRadFusion.patient'), dataIndex: 'patient', key: 'patient', width: 80 },
+    { title: t('dentalRadFusion.source'), dataIndex: 'source', key: 'source', width: 90, render: (s: string) => <Tag color="blue">{s}</Tag> },
+    { title: t('dentalRadFusion.target'), dataIndex: 'target', key: 'target', width: 90, render: (s: string) => <Tag color="purple">{s}</Tag> },
+    { title: t('dentalRadFusion.reason'), dataIndex: 'reason', key: 'reason', ellipsis: true },
+    { title: t('dentalRadFusion.time'), dataIndex: 'createdAt', key: 'createdAt', width: 130, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
+    { title: t('dentalRadFusion.status'), dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={STATUS_META[s]?.color ?? 'default'}>{STATUS_META[s]?.label ?? s}</Tag> },
     {
-      title: '操作', key: 'actions', width: 140,
+      title: t('dentalRadFusion.actions'), key: 'actions', width: 140,
       render: (_: unknown, r: Referral) => (
         <Space>
           {r.status === 'pending' && (
-            <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={accepting === r.id} onClick={() => void handleAccept(r)}>接诊</Button>
+            <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={accepting === r.id} onClick={() => void handleAccept(r)}>{t('dentalRadFusion.accept')}</Button>
           )}
-          {r.status === 'pending' && <Popconfirm title="撤销转诊?" onConfirm={() => void handleRevoke(r)}><Button size="small" danger>撤销</Button></Popconfirm>}
-          {r.status !== 'pending' && <Button size="small" onClick={() => setDetailRow(r)}>详情</Button>}
+          {r.status === 'pending' && <Popconfirm title={t('dentalRadFusion.confirmRevokeReferral')} onConfirm={() => void handleRevoke(r)}><Button size="small" danger>{t('dentalRadFusion.revoke')}</Button></Popconfirm>}
+          {r.status !== 'pending' && <Button size="small" onClick={() => setDetailRow(r)}>{t('dentalRadFusion.detail')}</Button>}
         </Space>
       ),
     },
@@ -154,44 +155,44 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Send size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>跨科室转诊</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.referralTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
-        <Tag color="purple">口腔↔放射</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+        <Tag color="purple">{t('dentalRadFusion.dentalRad')}</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('dentalRadFusion.refresh')}</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalRadFusion.retry')}</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title="转诊总数" value={referrals.length} /></Card></Col>
-        <Col span={6}><Card><Statistic title="待转诊" value={referrals.filter(r => r.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已接诊" value={referrals.filter(r => r.status === 'accepted').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已完成" value={referrals.filter(r => r.status === 'completed').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statTotalReferrals')} value={referrals.length} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statPending')} value={referrals.filter(r => r.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statAccepted')} value={referrals.filter(r => r.status === 'accepted').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statCompleted')} value={referrals.filter(r => r.status === 'completed').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
       </Row>
-      <Card extra={<Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>发起转诊</Button>} size="small" title="转诊列表">
+      <Card extra={<Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('dentalRadFusion.createReferral')}</Button>} size="small" title={t('dentalRadFusion.referralList')}>
         <Spin spinning={loading}>
           <Table
             dataSource={referralPageData}
             rowKey="id"
             columns={columns}
             pagination={referralPagination}
-            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无转诊记录" /> }}
+            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalRadFusion.noReferrals')} /> }}
           scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>
 
-      <Modal title="发起跨科室转诊" open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={480}>
+      <Modal title={t('dentalRadFusion.createReferralTitle')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={480}>
         <Form form={form} layout="vertical" size="small" initialValues={{ source: '口腔科', target: '放射科' }}>
-          <Form.Item label="患者" name="patientId" rules={[{ required: true, message: '请选择患者' }]}>
-            <Select options={PATIENT_OPTIONS} placeholder="选择患者" />
+          <Form.Item label={t('dentalRadFusion.patient')} name="patientId" rules={[{ required: true, message: t('dentalRadFusion.requiredPatient') }]}>
+            <Select options={PATIENT_OPTIONS} placeholder={t('dentalRadFusion.selectPatient')} />
           </Form.Item>
-          <Form.Item label="来源科室" name="source">
+          <Form.Item label={t('dentalRadFusion.sourceDept')} name="source">
             <Select options={SOURCE_OPTIONS} />
           </Form.Item>
-          <Form.Item label="目标科室" name="target" rules={[{ required: true, message: '请选择目标科室' }]}>
+          <Form.Item label={t('dentalRadFusion.targetDept')} name="target" rules={[{ required: true, message: t('dentalRadFusion.requiredTargetDept') }]}>
             <Select options={TARGET_OPTIONS} />
           </Form.Item>
-          <Form.Item label="转诊原因" name="reason" rules={[{ required: true, message: '请输入转诊原因' }]}>
-            <TextArea rows={3} placeholder="如: 36 位种植术前 CBCT 三维评估" />
+          <Form.Item label={t('dentalRadFusion.referralReason')} name="reason" rules={[{ required: true, message: t('dentalRadFusion.requiredReason') }]}>
+            <TextArea rows={3} placeholder={t('dentalRadFusion.reasonPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
@@ -201,30 +202,30 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         title={`转诊详情 - ${detailRow?.id ?? ''}`}
         open={!!detailRow}
         onCancel={() => setDetailRow(null)}
-        footer={<Button onClick={() => setDetailRow(null)}>关闭</Button>}
+        footer={<Button onClick={() => setDetailRow(null)}>{t('dentalRadFusion.close')}</Button>}
         width={520}
       >
         {detailRow && (
           <div>
             <Descriptions bordered column={1} size="small">
-              <Descriptions.Item label="患者">{detailRow.patient} ({detailRow.patientId ?? '—'})</Descriptions.Item>
-              <Descriptions.Item label="来源科室">{detailRow.source ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label="目标科室">{detailRow.target ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label="转诊原因">{detailRow.reason || '—'}</Descriptions.Item>
-              <Descriptions.Item label="发起医生">{detailRow.doctor ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label={t('dentalRadFusion.patient')}>{detailRow.patient} ({detailRow.patientId ?? '—'})</Descriptions.Item>
+              <Descriptions.Item label={t('dentalRadFusion.sourceDept')}>{detailRow.source ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalRadFusion.targetDept')}>{detailRow.target ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalRadFusion.referralReason')}>{detailRow.reason || '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalRadFusion.referringDoctor')}>{detailRow.doctor ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalRadFusion.status')}>
                 <Tag color={STATUS_META[detailRow.status]?.color ?? 'default'}>{STATUS_META[detailRow.status]?.label ?? detailRow.status}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="发起时间">{detailRow.createdAt ? detailRow.createdAt.replace('T', ' ').slice(0, 16) : '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalRadFusion.createdAt')}>{detailRow.createdAt ? detailRow.createdAt.replace('T', ' ').slice(0, 16) : '—'}</Descriptions.Item>
             </Descriptions>
             <Alert
               style={{ marginTop: 12 }}
               type="info"
               showIcon
-              message="融合参数 / 叠加层信息"
+              message={t('dentalRadFusion.fusionParamsTitle')}
               description={detailRow.status === 'accepted'
-                ? '已接诊: 融合查看器可加载口扫 (Scan) 与 CBCT 检查叠加, 参数 (配准方式/透明度/裁剪) 随检查数据动态生成。'
-                : '已完成后叠加层信息随影像归档, 可在「口腔-放射融合查看器」中回看 CBCT + 口扫 3D 叠加。'}
+                ? t('dentalRadFusion.fusionAcceptedDesc')
+                : t('dentalRadFusion.fusionCompletedDesc')}
             />
           </div>
         )}
@@ -252,12 +253,12 @@ export const CBCTUnifiedReportPage: React.FC = () => {
             setReports(res.data as any[]);
             if (res.data.length > 0) setSelected(res.data[0]);
           } else {
-            setError(res.error?.message ?? '报告加载失败');
+            setError(res.error?.message ?? t('dentalRadFusion.reportLoadFailed'));
           }
         }
       } catch (e) {
         console.error('[CBCT-Report] load:', e);
-        if (!cancelled) setError('CBCT 报告加载失败');
+        if (!cancelled) setError(t('dentalRadFusion.cbctReportLoadFailed'));
       }
       if (!cancelled) setLoading(false);
     })();
@@ -268,15 +269,15 @@ export const CBCTUnifiedReportPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>统一 CBCT 报告</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.cbctReportTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
       </Space>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
       <Row gutter={16}>
         <Col span={6}>
-          <Card size="small" title="检查列表" bodyStyle={{ padding: 8 }}>
+          <Card size="small" title={t('dentalRadFusion.studyList')} bodyStyle={{ padding: 8 }}>
             <Spin spinning={loading}>
-              {reports.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无 CBCT 检查" />}
+              {reports.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalRadFusion.noCbctStudies')} />}
               {reports.map(r => (
                 <div
                   key={r.id}
@@ -298,38 +299,38 @@ export const CBCTUnifiedReportPage: React.FC = () => {
         <Col span={18}>
           {selected ? (
             <Spin spinning={loading}>
-              <Card size="small" title={<Space><FileText size={14} />统一报告 <Tag color="blue">{selected.patientName}</Tag></Space>} extra={<Tag>{selected.deviceModel ?? 'Sirona Orthophos SL 3D'}</Tag>}>
+              <Card size="small" title={<Space><FileText size={14} />{t('dentalRadFusion.unifiedReport')} <Tag color="blue">{selected.patientName}</Tag></Space>} extra={<Tag>{selected.deviceModel ?? 'Sirona Orthophos SL 3D'}</Tag>}>
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Card size="small" title="牙科描述">
+                    <Card size="small" title={t('dentalRadFusion.dentalDescription')}>
                       <Descriptions column={1} size="small" bordered>
-                        <Descriptions.Item label="患者">{selected.patientName}</Descriptions.Item>
-                        <Descriptions.Item label="设备">{selected.deviceModel ?? '-'}</Descriptions.Item>
-                        <Descriptions.Item label="区域">{selected.region ?? '-'}</Descriptions.Item>
-                        <Descriptions.Item label="扫描类型">{selected.scanType ?? '-'}</Descriptions.Item>
-                        <Descriptions.Item label="指征">{selected.indications ?? '-'}</Descriptions.Item>
+                        <Descriptions.Item label={t('dentalRadFusion.patient')}>{selected.patientName}</Descriptions.Item>
+                        <Descriptions.Item label={t('dentalRadFusion.device')}>{selected.deviceModel ?? '-'}</Descriptions.Item>
+                        <Descriptions.Item label={t('dentalRadFusion.region')}>{selected.region ?? '-'}</Descriptions.Item>
+                        <Descriptions.Item label={t('dentalRadFusion.scanType')}>{selected.scanType ?? '-'}</Descriptions.Item>
+                        <Descriptions.Item label={t('dentalRadFusion.indications')}>{selected.indications ?? '-'}</Descriptions.Item>
                       </Descriptions>
                       <div style={{ marginTop: 12, color: 'var(--text-secondary)', fontSize: 13 }}>
-                        36 位远中根根尖周低密度影; 16 位腭侧牙周膜间隙增宽
+                        {t('dentalRadFusion.dentalFinding')}
                       </div>
-                      <Tag color="blue" style={{ marginTop: 8 }}>慢性根尖周炎 (36)</Tag>
-                      {selected.quality && <Tag color="green" style={{ marginTop: 8 }}>质量: {selected.quality}</Tag>}
+                      <Tag color="blue" style={{ marginTop: 8 }}>{t('dentalRadFusion.chronicApicalTag')}</Tag>
+                      {selected.quality && <Tag color="green" style={{ marginTop: 8 }}>{t('dentalRadFusion.qualityLabel')} {selected.quality}</Tag>}
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card size="small" title="放射科报告">
-                      <div style={{ marginBottom: 8, color: 'var(--text-secondary)', fontSize: 13 }}>CBCT 示右侧上颌窦黏膜增厚; 36 根尖区骨密度降低</div>
+                    <Card size="small" title={t('dentalRadFusion.radiologyReport')}>
+                      <div style={{ marginBottom: 8, color: 'var(--text-secondary)', fontSize: 13 }}>{t('dentalRadFusion.radiologyFinding')}</div>
                       {selected.aiAnalysis && (
                         <div style={{ marginBottom: 8 }}>
-                          <Tag color="purple">龋齿检出: {selected.aiAnalysis.cariesDetected ?? 0}</Tag>
-                          <Tag color="orange">骨丧失: {selected.aiAnalysis.boneLossLevel ?? '-'}</Tag>
-                          <Tag color="gold">根尖周病变: {selected.aiAnalysis.periapicalLesions ?? 0}</Tag>
+                          <Tag color="purple">{t('dentalRadFusion.cariesDetected')} {selected.aiAnalysis.cariesDetected ?? 0}</Tag>
+                          <Tag color="orange">{t('dentalRadFusion.boneLoss')} {selected.aiAnalysis.boneLossLevel ?? '-'}</Tag>
+                          <Tag color="gold">{t('dentalRadFusion.periapicalLesions')} {selected.aiAnalysis.periapicalLesions ?? 0}</Tag>
                         </div>
                       )}
-                      <Tag color="purple">慢性根尖周炎伴骨吸收</Tag>
-                      <Tag color="orange" style={{ marginLeft: 4 }}>右侧上颌窦炎</Tag>
+                      <Tag color="purple">{t('dentalRadFusion.chronicApicalWithResorption')}</Tag>
+                      <Tag color="orange" style={{ marginLeft: 4 }}>{t('dentalRadFusion.rightMaxillarySinusitis')}</Tag>
                       <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
-                        AI 置信度: {selected.aiAnalysis?.confidence ? `${Math.round(selected.aiAnalysis.confidence * 100)}%` : '-'} · 模型: {selected.aiAnalysis?.modelVersion ?? '-'}
+                        {t('dentalRadFusion.aiConfidence')} {selected.aiAnalysis?.confidence ? `${Math.round(selected.aiAnalysis.confidence * 100)}%` : '-'} · {t('dentalRadFusion.modelLabel')} {selected.aiAnalysis?.modelVersion ?? '-'}
                       </div>
                     </Card>
                   </Col>
@@ -337,7 +338,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
               </Card>
             </Spin>
           ) : (
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请选择左侧检查" />
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalRadFusion.selectStudyLeft')} />
           )}
         </Col>
       </Row>
@@ -365,12 +366,12 @@ export const DentalRadFusionPage: React.FC = () => {
             setFusionStudies(res.data as any[]);
             if (res.data.length > 0) setSelected(res.data[0]);
           } else {
-            setError(res.error?.message ?? '融合检查加载失败');
+            setError(res.error?.message ?? t('dentalRadFusion.fusionStudiesLoadFailed'));
           }
         }
       } catch (e) {
         console.error('[Fusion] load:', e);
-        if (!cancelled) setError('融合检查加载失败');
+        if (!cancelled) setError(t('dentalRadFusion.fusionStudiesLoadFailed'));
       }
       if (!cancelled) setLoading(false);
     })();
@@ -381,18 +382,18 @@ export const DentalRadFusionPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <ActivityIcon size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>口腔-放射融合查看器</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.fusionViewerTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setTab('compare')}>刷新</Button>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setTab('compare')}>{t('dentalRadFusion.refresh')}</Button>
       </Space>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
       <Tabs activeKey={tab} onChange={setTab} items={[
-        { key: 'compare', label: '并排对比', children:
+        { key: 'compare', label: t('dentalRadFusion.tabCompare'), children:
           <Row gutter={16}>
             <Col span={6}>
-              <Card size="small" title="融合检查 (口扫)" bodyStyle={{ padding: 8 }}>
+              <Card size="small" title={t('dentalRadFusion.fusionStudiesScan')} bodyStyle={{ padding: 8 }}>
                 <Spin spinning={loading}>
-                  {fusionStudies.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无口扫检查" />}
+                  {fusionStudies.length === 0 && !loading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalRadFusion.noScanStudies')} />}
                   {fusionStudies.map(s => (
                     <div
                       key={s.id}
@@ -411,40 +412,40 @@ export const DentalRadFusionPage: React.FC = () => {
               </Card>
             </Col>
             <Col span={9}>
-              <Card size="small" title="口腔全景片 (Panoramic)">
+              <Card size="small" title={t('dentalRadFusion.panoramicTitle')}>
                 <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
                   <ActivityIcon size={24} />
-                  <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} 全景片` : '全景片模拟'}</div>
+                  <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} ${t('dentalRadFusion.panoramic')}` : t('dentalRadFusion.panoramicSim')}</div>
                 </div>
               </Card>
             </Col>
             <Col span={9}>
-              <Card size="small" title="放射头颅侧位 (Ceph)">
+              <Card size="small" title={t('dentalRadFusion.cephTitle')}>
                 <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
                   <FileText size={24} />
-                  <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} 侧位片` : '侧位片模拟'}</div>
+                  <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} ${t('dentalRadFusion.ceph')}` : t('dentalRadFusion.cephSim')}</div>
                 </div>
               </Card>
             </Col>
           </Row>
         },
-        { key: 'overlay', label: '叠加融合', children:
-          <Card size="small" title={selected ? `CBCT + 口扫 3D 叠加融合 (${selected.patientName})` : 'CBCT + 口扫 3D 叠加融合 (WebGL)'}>
+        { key: 'overlay', label: t('dentalRadFusion.tabOverlay'), children:
+          <Card size="small" title={selected ? `CBCT + 口扫 3D 叠加融合 (${selected.patientName})` : t('dentalRadFusion.overlayTitleWebgl')}>
             <div style={{ height: 300, background: '#0a0a1a', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
               <ActivityIcon size={28} />
-              <div style={{ marginTop: 8 }}>CBCT + 口扫 3D 叠加融合 (WebGL)</div>
+              <div style={{ marginTop: 8 }}>{t('dentalRadFusion.overlayTitleWebgl')}</div>
               {selected && <Tag color="cyan" style={{ marginTop: 8 }}>{selected.id}</Tag>}
             </div>
           </Card>
         },
-        { key: 'timeline', label: '统一时间线', children:
+        { key: 'timeline', label: t('dentalRadFusion.tabTimeline'), children:
           <Card size="small">
             <Timeline items={[
-              { color: 'green', children: <div>2026-06-20 口腔科初诊 (全景片 + 口腔检查)</div> },
-              { color: 'blue', children: <div>2026-06-21 转诊至放射科 (CBCT 下颌骨三维重建)</div> },
-              { color: 'gray', children: <div>2026-06-22 放射科报告完成</div> },
-              { color: 'orange', children: <div>2026-06-23 口腔科种植规划</div> },
-              { color: 'purple', children: <div>2026-06-25 口扫取模 + 3D 融合设计</div> },
+              { color: 'green', children: <div>{t('dentalRadFusion.timeline1')}</div> },
+              { color: 'blue', children: <div>{t('dentalRadFusion.timeline2')}</div> },
+              { color: 'gray', children: <div>{t('dentalRadFusion.timeline3')}</div> },
+              { color: 'orange', children: <div>{t('dentalRadFusion.timeline4')}</div> },
+              { color: 'purple', children: <div>{t('dentalRadFusion.timeline5')}</div> },
             ]} />
           </Card>
         },

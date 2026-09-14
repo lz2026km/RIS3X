@@ -9,6 +9,7 @@ import {
 import { DollarSign, TrendingUp, TrendingDown, PieChart as PieIcon, BarChart3, Download, FileText, Receipt, RefreshCw, Eye, CreditCard } from 'lucide-react'
 import { ChartContainer } from '../../components/charts'
 import FinanceAnalyticsSection from './FinanceAnalyticsSection'
+import { t } from '../../i18n/appI18n'
 
 type Period = 'monthly' | 'quarterly' | 'yearly'
 type PageTab = 'overview' | 'invoices' | 'reports'
@@ -47,10 +48,10 @@ const INSURANCE_MIX = [
 ]
 
 const STATUS_META: Record<string, { label: string; color: string }> = {
-  PAID: { label: '已支付', color: '#22c55e' },
-  UNPAID: { label: '未支付', color: '#f59e0b' },
-  PENDING: { label: '待支付', color: '#f59e0b' },
-  REFUNDED: { label: '已退款', color: '#ef4444' },
+  PAID: { label: t('deptFinance.statusPaid'), color: '#22c55e' },
+  UNPAID: { label: t('deptFinance.statusUnpaid'), color: '#f59e0b' },
+  PENDING: { label: t('deptFinance.statusPending'), color: '#f59e0b' },
+  REFUNDED: { label: t('deptFinance.statusRefunded'), color: '#ef4444' },
 }
 
 // ===== 发票/报告响应形状归一化 (MSW 裸数组 / Nest { items } / { data: [...] }) =====
@@ -106,9 +107,9 @@ export default function DepartmentFinancePage() {
     try {
       const res = await financeApi.listInvoices()
       if (res.success) setInvoices(normalizeList(res))
-      else setInvError(res.error?.message ?? '加载失败')
+      else setInvError(res.error?.message ?? t('deptFinance.loadFailed'))
     } catch (e) {
-      setInvError((e as Error)?.message ?? '加载失败')
+      setInvError((e as Error)?.message ?? t('deptFinance.loadFailed'))
     } finally {
       setInvLoading(false)
     }
@@ -122,9 +123,9 @@ export default function DepartmentFinancePage() {
     try {
       const res = await financeApi.getFinancialReports()
       if (res.success) setReports(normalizeList(res))
-      else setRepError(res.error?.message ?? '加载失败')
+      else setRepError(res.error?.message ?? t('deptFinance.loadFailed'))
     } catch (e) {
-      setRepError((e as Error)?.message ?? '加载失败')
+      setRepError((e as Error)?.message ?? t('deptFinance.loadFailed'))
     } finally {
       setRepLoading(false)
     }
@@ -134,8 +135,8 @@ export default function DepartmentFinancePage() {
 
   const invOf = (r: any) => ({
     id: r?.invoiceId ?? r?.id ?? '',
-    patientName: r?.patientName ?? r?.patientId ?? '未知患者',
-    examItem: r?.items?.[0]?.itemName ?? r?.examItem ?? r?.invoiceNumber ?? '检查费用',
+    patientName: r?.patientName ?? r?.patientId ?? t('deptFinance.unknownPatient'),
+    examItem: r?.items?.[0]?.itemName ?? r?.examItem ?? r?.invoiceNumber ?? t('deptFinance.examFee'),
     totalAmount: Number(r?.totalAmount ?? 0),
     paidAmount: Number(r?.paidAmount ?? (r?.status === 'PAID' ? r?.totalAmount : 0) ?? 0),
     insuranceCovered: Number(r?.insurancePaid ?? r?.insuranceCovered ?? 0),
@@ -157,11 +158,11 @@ export default function DepartmentFinancePage() {
         const raw = Array.isArray(d) ? d[0] : Array.isArray(d?.data) ? d.data[0] : Array.isArray(d?.items) ? d.items[0] : d
         setDetail(invOf(raw))
       } else {
-        message.error(res.error?.message ?? '加载发票详情失败')
+        message.error(res.error?.message ?? t('deptFinance.loadInvoiceDetailFailed'))
         setDetailOpen(false)
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '加载发票详情失败')
+      message.error((e as Error)?.message ?? t('deptFinance.loadInvoiceDetailFailed'))
       setDetailOpen(false)
     } finally {
       setDetailLoading(false)
@@ -179,23 +180,23 @@ export default function DepartmentFinancePage() {
   const confirmPay = async () => {
     const amount = Number(payAmount)
     if (!payInvoice || Number.isNaN(amount) || amount <= 0) {
-      message.warning('请填写有效支付金额')
+      message.warning(t('deptFinance.validAmountRequired'))
       return
     }
     setPaying(true)
     try {
       const res = await financeApi.payInvoice({ invoiceId: payInvoice.id, amount, method: payMethod })
       if (res.success) {
-        message.success(`发票 ${payInvoice.id} 支付成功 ${fmtMoney(amount)}`)
+        message.success(`${t('deptFinance.invoice')} ${payInvoice.id} ${t('deptFinance.paySuccess')} ${fmtMoney(amount)}`)
         setPayOpen(false)
         setPayInvoice(null)
         void loadInvoices()
         if (detail && detail.id === payInvoice.id) setDetail(null)
       } else {
-        message.error(res.error?.message ?? '支付失败')
+        message.error(res.error?.message ?? t('deptFinance.payFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '支付失败')
+      message.error((e as Error)?.message ?? t('deptFinance.payFailed'))
     } finally {
       setPaying(false)
     }
@@ -238,7 +239,7 @@ export default function DepartmentFinancePage() {
   const exportRows = reports.length > 0 ? reports : invoices
   const handleExport = () => {
     if (exportRows.length === 0) {
-      message.warning('暂无财务数据可导出，请先加载发票/财务流水')
+      message.warning(t('deptFinance.noDataToExport'))
       return
     }
     const header = '发票号,患者,项目,总额,已付,状态,开票日期'
@@ -254,22 +255,22 @@ export default function DepartmentFinancePage() {
     a.download = `科室财务_${period}.csv`
     a.click()
     URL.revokeObjectURL(url)
-    message.success(`已导出 ${exportRows.length} 条财务数据`)
+    message.success(`${t('deptFinance.exported')} ${exportRows.length} ${t('deptFinance.records')}`)
   }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><DollarSign size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>科室财务管理</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><DollarSign size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deptFinance.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
           {(['monthly', 'quarterly', 'yearly'] as const).map(p => (
             <button key={p} onClick={() => setPeriod(p)}
               style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: period === p ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: '#fff' }}>
-              {p === 'monthly' ? '月度' : p === 'quarterly' ? '季度' : '年度'}
+              {p === 'monthly' ? t('deptFinance.periodMonthly') : p === 'quarterly' ? t('deptFinance.periodQuarterly') : t('deptFinance.periodYearly')}
             </button>
           ))}
-          <button onClick={handleExport} disabled={exportRows.length === 0} title={exportRows.length === 0 ? '暂无财务数据，无法导出' : `导出 ${exportRows.length} 条财务数据`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer', fontSize: 13, background: exportRows.length === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)', color: exportRows.length === 0 ? 'rgba(255,255,255,0.45)' : '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Download size={14} />导出
+          <button onClick={handleExport} disabled={exportRows.length === 0} title={exportRows.length === 0 ? t('deptFinance.noDataCannotExport') : `${t('deptFinance.export')} ${exportRows.length} ${t('deptFinance.records')}`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer', fontSize: 13, background: exportRows.length === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)', color: exportRows.length === 0 ? 'rgba(255,255,255,0.45)' : '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Download size={14} />{t('deptFinance.export')}
           </button>
         </div>
       </div>
@@ -277,13 +278,13 @@ export default function DepartmentFinancePage() {
       {/* Tab 切换 */}
       <div style={{ display: 'flex', gap: 4, padding: '0 24px', marginTop: 12 }}>
         {([
-          { key: 'overview', label: '财务总览', icon: PieIcon },
-          { key: 'invoices', label: '发票管理', icon: Receipt },
-          { key: 'reports', label: '财务报告', icon: FileText },
-        ] as const).map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            style={{ padding: '9px 18px', borderRadius: '6px 6px 0 0', border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: tab === t.key ? '#161b22' : 'transparent', color: tab === t.key ? '#f0f6fc' : '#8b949e', borderTop: tab === t.key ? '2px solid #3b82f6' : '2px solid transparent', fontWeight: tab === t.key ? 600 : 400 }}>
-            <t.icon size={14} />{t.label}
+          { key: 'overview', label: t('deptFinance.tabOverview'), icon: PieIcon },
+          { key: 'invoices', label: t('deptFinance.tabInvoices'), icon: Receipt },
+          { key: 'reports', label: t('deptFinance.tabReports'), icon: FileText },
+        ] as const).map(tabItem => (
+          <button key={tabItem.key} onClick={() => setTab(tabItem.key)}
+            style={{ padding: '9px 18px', borderRadius: '6px 6px 0 0', border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: tab === tabItem.key ? '#161b22' : 'transparent', color: tab === tabItem.key ? '#f0f6fc' : '#8b949e', borderTop: tab === tabItem.key ? '2px solid #3b82f6' : '2px solid transparent', fontWeight: tab === tabItem.key ? 600 : 400 }}>
+            <tabItem.icon size={14} />{tabItem.label}
           </button>
         ))}
         <div style={{ flex: 1, borderBottom: '1px solid #21262d' }} />
@@ -294,10 +295,10 @@ export default function DepartmentFinancePage() {
           <FinanceAnalyticsSection />
           <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
             {[
-              { title: '总收入', value: totalRev.toLocaleString(), unit: '¥', icon: TrendingUp, trend: 'up', color: '#22c55e' },
-              { title: '总成本', value: totalCost.toLocaleString(), unit: '¥', icon: TrendingDown, trend: 'up', color: '#ef4444' },
-              { title: '净利润', value: totalProfit.toLocaleString(), unit: '¥', icon: DollarSign, trend: 'up', color: '#3b82f6' },
-              { title: '利润率', value: margin, unit: '%', icon: PieIcon, trend: 'up', color: '#8b5cf6' },
+              { title: t('deptFinance.totalRevenue'), value: totalRev.toLocaleString(), unit: '¥', icon: TrendingUp, trend: 'up', color: '#22c55e' },
+              { title: t('deptFinance.totalCost'), value: totalCost.toLocaleString(), unit: '¥', icon: TrendingDown, trend: 'up', color: '#ef4444' },
+              { title: t('deptFinance.netProfit'), value: totalProfit.toLocaleString(), unit: '¥', icon: DollarSign, trend: 'up', color: '#3b82f6' },
+              { title: t('deptFinance.profitMargin'), value: margin, unit: '%', icon: PieIcon, trend: 'up', color: '#8b5cf6' },
             ].map((k, i) => (
               <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -312,32 +313,32 @@ export default function DepartmentFinancePage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <TrendingUp size={16} color="#3b82f6" />月度收支趋势
+                <TrendingUp size={16} color="#3b82f6" />{t('deptFinance.monthlyTrend')}
               </div>
-              <ChartContainer height={260} state={MONTHLY_REVENUE.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无收支趋势数据">
+              <ChartContainer height={260} state={MONTHLY_REVENUE.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noTrendData')}>
                 <LineChart data={MONTHLY_REVENUE}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
                   <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} dot={false} name="收入" />
-                  <Line type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} dot={false} name="成本" />
-                  <Line type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} dot={false} name="利润" />
+                  <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} dot={false} name={t('deptFinance.revenue')} />
+                  <Line type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} dot={false} name={t('deptFinance.cost')} />
+                  <Line type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} dot={false} name={t('deptFinance.profit')} />
                 </LineChart>
               </ChartContainer>
             </div>
 
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={16} color="#f59e0b" />各检查类型收入分布
+                <BarChart3 size={16} color="#f59e0b" />{t('deptFinance.revenueByModality')}
               </div>
-              <ChartContainer height={260} state={REVENUE_BY_MODALITY.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无类型收入数据">
+              <ChartContainer height={260} state={REVENUE_BY_MODALITY.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noModalityData')}>
                 <BarChart data={REVENUE_BY_MODALITY}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
                   <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, '收入']} />
+                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.revenue')]} />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                     {REVENUE_BY_MODALITY.map((e, i) => (
                       <Cell key={i} fill={e.color} />
@@ -351,7 +352,7 @@ export default function DepartmentFinancePage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <PieIcon size={16} color="#8b5cf6" />成本构成
+                <PieIcon size={16} color="#8b5cf6" />{t('deptFinance.costStructure')}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                 <ChartContainer height={180} style={{ width: 180, flexShrink: 0 }}>
@@ -362,7 +363,7 @@ export default function DepartmentFinancePage() {
                         return <Cell key={i} fill={colors[i]} />
                       })}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, '金额']} />
+                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.amount')]} />
                   </PieChart>
                 </ChartContainer>
                 <div style={{ flex: 1 }}>
@@ -382,7 +383,7 @@ export default function DepartmentFinancePage() {
 
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={16} color="#22c55e" />支付类型构成
+                <BarChart3 size={16} color="#22c55e" />{t('deptFinance.paymentMix')}
               </div>
               {INSURANCE_MIX.map((im, i) => (
                 <div key={i} style={{ marginBottom: 16 }}>
@@ -405,36 +406,36 @@ export default function DepartmentFinancePage() {
         <div style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 }}>
-              <Receipt size={16} color="#3b82f6" />发票列表
-              <span style={{ fontSize: 12, color: '#6e7681', fontWeight: 400 }}>共 {invoices.length} 张</span>
+              <Receipt size={16} color="#3b82f6" />{t('deptFinance.invoiceList')}
+              <span style={{ fontSize: 12, color: '#6e7681', fontWeight: 400 }}>{t('deptFinance.totalCount')} {invoices.length} {t('deptFinance.units')}</span>
             </div>
-            <button onClick={() => void loadInvoices()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#21262d', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />刷新</button>
+            <button onClick={() => void loadInvoices()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#21262d', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />{t('deptFinance.refresh')}</button>
           </div>
 
           {invError && (
             <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
-              加载失败:{invError}
-              <button onClick={() => void loadInvoices()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>重试</button>
+              {t('deptFinance.loadFailed')}:{invError}
+              <button onClick={() => void loadInvoices()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
           )}
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '130px 120px 1fr 110px 110px 90px 150px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-              <span>发票号</span>
-              <span>患者</span>
-              <span>项目</span>
-              <span style={{ textAlign: 'right' }}>总额</span>
-              <span style={{ textAlign: 'right' }}>已付</span>
-              <span>状态</span>
-              <span style={{ textAlign: 'right' }}>操作</span>
+              <span>{t('deptFinance.colInvoiceNo')}</span>
+              <span>{t('deptFinance.colPatient')}</span>
+              <span>{t('deptFinance.colItem')}</span>
+              <span style={{ textAlign: 'right' }}>{t('deptFinance.colTotal')}</span>
+              <span style={{ textAlign: 'right' }}>{t('deptFinance.colPaid')}</span>
+              <span>{t('deptFinance.colStatus')}</span>
+              <span style={{ textAlign: 'right' }}>{t('deptFinance.colActions')}</span>
             </div>
             {invLoading ? (
               <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 12, fontSize: 13 }}>加载发票...</div>
+                <div style={{ marginTop: 12, fontSize: 13 }}>{t('deptFinance.loadingInvoices')}</div>
               </div>
             ) : invoices.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>暂无发票数据</div>
+              <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noInvoices')}</div>
             ) : (
               invoices.map((r, idx) => {
                 const inv = invOf(r)
@@ -451,9 +452,9 @@ export default function DepartmentFinancePage() {
                     <span style={{ fontSize: 12, color: '#22c55e', textAlign: 'right' }}>{fmtMoney(inv.paidAmount)}</span>
                     <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${st.color}20`, color: st.color, width: 'fit-content' }}>{st.label}</span>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Eye size={12} />详情</button>
+                      <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Eye size={12} />{t('deptFinance.detail')}</button>
                       {inv.status === 'UNPAID' || inv.status === 'PENDING' ? (
-                        <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />支付</button>
+                        <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />{t('deptFinance.pay')}</button>
                       ) : (
                         <span style={{ fontSize: 11, color: '#6e7681' }}>—</span>
                       )}
@@ -467,8 +468,8 @@ export default function DepartmentFinancePage() {
           {/* 发票详情 Modal */}
           <Modal
             open={detailOpen}
-            title="发票详情"
-            footer={<button onClick={() => setDetailOpen(false)} style={{ padding: '6px 18px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>关闭</button>}
+            title={t('deptFinance.invoiceDetail')}
+            footer={<button onClick={() => setDetailOpen(false)} style={{ padding: '6px 18px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>{t('deptFinance.close')}</button>}
             onCancel={() => setDetailOpen(false)}
             width={520}
             styles={modalStyle}
@@ -480,7 +481,7 @@ export default function DepartmentFinancePage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 700 }}>{detail.patientName}</div>
-                    <div style={{ fontSize: 12, color: '#8b949e', marginTop: 2 }}>发票号:{detail.id} · {fmtDate(detail.issuedAt)}</div>
+                    <div style={{ fontSize: 12, color: '#8b949e', marginTop: 2 }}>{t('deptFinance.invoiceNo')}:{detail.id} · {fmtDate(detail.issuedAt)}</div>
                   </div>
                   <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${(STATUS_META[detail.status]?.color ?? '#8b949e')}20`, color: STATUS_META[detail.status]?.color ?? '#8b949e', height: 'fit-content' }}>
                     {STATUS_META[detail.status]?.label ?? detail.status}
@@ -490,7 +491,7 @@ export default function DepartmentFinancePage() {
                 {Array.isArray(detail.items) && detail.items.length > 0 && (
                   <div style={{ marginBottom: 12, border: '1px solid #21262d', borderRadius: 6, overflow: 'hidden' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', background: '#0d1117', color: '#8b949e', fontSize: 11, fontWeight: 600 }}>
-                      <span>项目</span><span>数量</span><span style={{ textAlign: 'right' }}>单价</span><span style={{ textAlign: 'right' }}>小计</span>
+                      <span>{t('deptFinance.colItem')}</span><span>{t('deptFinance.quantity')}</span><span style={{ textAlign: 'right' }}>{t('deptFinance.unitPrice')}</span><span style={{ textAlign: 'right' }}>{t('deptFinance.subtotal')}</span>
                     </div>
                     {detail.items.map((it: any, i: number) => (
                       <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', borderTop: '1px solid #21262d', fontSize: 12 }}>
@@ -504,25 +505,25 @@ export default function DepartmentFinancePage() {
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>总额</span><span style={{ fontWeight: 700, fontSize: 15 }}>{fmtMoney(detail.totalAmount)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>已支付</span><span style={{ color: '#22c55e' }}>{fmtMoney(detail.paidAmount)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>医保报销</span><span style={{ color: '#3b82f6' }}>{fmtMoney(detail.insuranceCovered)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>自费金额</span><span style={{ color: '#f59e0b' }}>{fmtMoney(detail.selfPayAmount)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>开票时间</span><span>{fmtDate(detail.issuedAt)}</span></div>
-                  {detail.paidAt && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>支付时间</span><span>{fmtDate(detail.paidAt)}</span></div>}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.colTotal')}</span><span style={{ fontWeight: 700, fontSize: 15 }}>{fmtMoney(detail.totalAmount)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.paidAmount')}</span><span style={{ color: '#22c55e' }}>{fmtMoney(detail.paidAmount)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.insuranceCover')}</span><span style={{ color: '#3b82f6' }}>{fmtMoney(detail.insuranceCovered)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.selfPayAmount')}</span><span style={{ color: '#f59e0b' }}>{fmtMoney(detail.selfPayAmount)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.issueTime')}</span><span>{fmtDate(detail.issuedAt)}</span></div>
+                  {detail.paidAt && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.payTime')}</span><span>{fmtDate(detail.paidAt)}</span></div>}
                 </div>
               </div>
             ) : (
-              <div style={{ padding: 24, textAlign: 'center', color: '#6e7681' }}>未找到发票详情</div>
+              <div style={{ padding: 24, textAlign: 'center', color: '#6e7681' }}>{t('deptFinance.invoiceDetailNotFound')}</div>
             )}
           </Modal>
 
           {/* 支付 Modal */}
           <Modal
             open={payOpen}
-            title="发票支付"
-            okText="确认支付"
-            cancelText="取消"
+            title={t('deptFinance.invoicePay')}
+            okText={t('deptFinance.confirmPay')}
+            cancelText={t('deptFinance.cancel')}
             confirmLoading={paying}
             onOk={() => void confirmPay()}
             onCancel={() => { setPayOpen(false); setPayInvoice(null) }}
@@ -532,25 +533,25 @@ export default function DepartmentFinancePage() {
             {payInvoice && (
               <div style={{ marginTop: 8 }}>
                 <div style={{ fontSize: 13, marginBottom: 4 }}>
-                  发票 <span style={{ color: '#93c5fd', fontFamily: 'monospace' }}>{payInvoice.id}</span> · {payInvoice.patientName}
+                  {t('deptFinance.invoice')} <span style={{ color: '#93c5fd', fontFamily: 'monospace' }}>{payInvoice.id}</span> · {payInvoice.patientName}
                 </div>
                 <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 16 }}>
-                  {payInvoice.examItem} · 总额 {fmtMoney(payInvoice.totalAmount)} · 已付 {fmtMoney(payInvoice.paidAmount)}
+                  {payInvoice.examItem} · {t('deptFinance.colTotal')} {fmtMoney(payInvoice.totalAmount)} · {t('deptFinance.colPaid')} {fmtMoney(payInvoice.paidAmount)}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div>
-                    <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>支付金额(元)</div>
+                    <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('deptFinance.payAmount')}</div>
                     <Input type="number" min={0} value={payAmount} onChange={e => setPayAmount(e.target.value)} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>支付方式</div>
+                    <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('deptFinance.payMethod')}</div>
                     <Select value={payMethod} onChange={setPayMethod} style={{ width: '100%' }}
                       options={[
-                        { value: 'CASH', label: '现金' },
-                        { value: 'CARD', label: '银行卡' },
-                        { value: 'ALIPAY', label: '支付宝' },
-                        { value: 'WECHAT', label: '微信' },
-                        { value: 'INSURANCE', label: '医保结算' },
+                        { value: 'CASH', label: t('deptFinance.methodCash') },
+                        { value: 'CARD', label: t('deptFinance.methodCard') },
+                        { value: 'ALIPAY', label: t('deptFinance.methodAlipay') },
+                        { value: 'WECHAT', label: t('deptFinance.methodWechat') },
+                        { value: 'INSURANCE', label: t('deptFinance.methodInsurance') },
                       ]} />
                   </div>
                 </div>
@@ -564,35 +565,35 @@ export default function DepartmentFinancePage() {
         <div style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 }}>
-              <FileText size={16} color="#3b82f6" />财务报告
-              <span style={{ fontSize: 12, color: '#6e7681', fontWeight: 400 }}>getFinancialReports · 流水 {summary.total} 条</span>
+              <FileText size={16} color="#3b82f6" />{t('deptFinance.tabReports')}
+              <span style={{ fontSize: 12, color: '#6e7681', fontWeight: 400 }}>getFinancialReports · {t('deptFinance.flowRecords')} {summary.total} {t('deptFinance.records')}</span>
             </div>
-            <button onClick={() => void loadReports()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#21262d', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />刷新</button>
+            <button onClick={() => void loadReports()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#21262d', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />{t('deptFinance.refresh')}</button>
           </div>
 
           {repError && (
             <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
-              加载失败:{repError}
-              <button onClick={() => void loadReports()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>重试</button>
+              {t('deptFinance.loadFailed')}:{repError}
+              <button onClick={() => void loadReports()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
           )}
 
           {repLoading ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, fontSize: 13 }}>加载财务报告...</div>
+              <div style={{ marginTop: 12, fontSize: 13 }}>{t('deptFinance.loadingReports')}</div>
             </div>
           ) : summary.total === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>暂无财务流水数据</div>
+            <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noReportsData')}</div>
           ) : (
             <>
               {/* 汇总 KPI */}
               <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
                 {[
-                  { title: '流水总数', value: String(summary.total), color: '#3b82f6' },
-                  { title: '应收总额', value: fmtMoney(summary.totalAmount), color: '#f59e0b' },
-                  { title: '实收金额', value: fmtMoney(summary.paidAmount), color: '#22c55e' },
-                  { title: '待收余额', value: fmtMoney(summary.balance), color: '#ef4444' },
+                  { title: t('deptFinance.statTotalRecords'), value: String(summary.total), color: '#3b82f6' },
+                  { title: t('deptFinance.statTotalReceivable'), value: fmtMoney(summary.totalAmount), color: '#f59e0b' },
+                  { title: t('deptFinance.statPaid'), value: fmtMoney(summary.paidAmount), color: '#22c55e' },
+                  { title: t('deptFinance.statBalance'), value: fmtMoney(summary.balance), color: '#ef4444' },
                 ].map((k, i) => (
                   <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '14px 20px', flex: 1, minWidth: 160 }}>
                     <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{k.title}</div>
@@ -603,19 +604,19 @@ export default function DepartmentFinancePage() {
 
               {/* 汇总表 */}
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>状态汇总表</div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('deptFinance.statusSummary')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
                   {Object.entries(summary.byStatus).map(([st, count]) => {
                     const meta = STATUS_META[st] ?? { label: st, color: '#8b949e' }
                     return (
                       <div key={st} style={{ border: `1px solid ${meta.color}40`, borderRadius: 6, padding: '10px 14px', background: `${meta.color}10` }}>
                         <div style={{ fontSize: 12, color: meta.color }}>{meta.label} ({st})</div>
-                        <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4 }}>{count}<span style={{ fontSize: 12, color: '#8b949e', fontWeight: 400, marginLeft: 4 }}>张</span></div>
+                        <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4 }}>{count}<span style={{ fontSize: 12, color: '#8b949e', fontWeight: 400, marginLeft: 4 }}>{t('deptFinance.units')}</span></div>
                       </div>
                     )
                   })}
                   {Object.keys(summary.byStatus).length === 0 && (
-                    <div style={{ color: '#6e7681', fontSize: 13 }}>暂无状态统计</div>
+                    <div style={{ color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noStatusStats')}</div>
                   )}
                 </div>
               </div>
@@ -623,10 +624,10 @@ export default function DepartmentFinancePage() {
               {/* 趋势 */}
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#22c55e" />月度收入/实收趋势
+                  <TrendingUp size={16} color="#22c55e" />{t('deptFinance.monthlyRevenueTrend')}
                 </div>
                 {trendData.length === 0 ? (
-                  <div style={{ padding: 24, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>暂无趋势数据</div>
+                  <div style={{ padding: 24, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noTrendData')}</div>
                 ) : (
                   <ChartContainer height={260}>
                     <LineChart data={trendData}>
@@ -635,8 +636,8 @@ export default function DepartmentFinancePage() {
                       <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                       <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
                       <Legend wrapperStyle={{ fontSize: 12 }} />
-                      <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} dot={false} name="应收" />
-                      <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} dot={false} name="实收" />
+                      <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} dot={false} name={t('deptFinance.receivable')} />
+                      <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} dot={false} name={t('deptFinance.received')} />
                     </LineChart>
                   </ChartContainer>
                 )}

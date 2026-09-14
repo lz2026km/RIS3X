@@ -6,14 +6,15 @@ import { Card, Button, Row, Col, Select, List, Empty, message, Modal, Form, Inpu
 import { Plus, Upload, Globe, Video, RefreshCw, PhoneIncoming, AlertTriangle } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Inbox } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const { TextArea } = Input;
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
-  waiting: { color: 'orange', label: '等待加入' },
-  in_progress: { color: 'processing', label: '进行中' },
-  completed: { color: 'success', label: '已结束' },
-  cancelled: { color: 'default', label: '已取消' },
+  waiting: { color: 'orange', label: 'dentalTele.statusWaiting' },
+  in_progress: { color: 'processing', label: 'dentalTele.statusInProgress' },
+  completed: { color: 'success', label: 'dentalTele.statusCompleted' },
+  cancelled: { color: 'default', label: 'dentalTele.statusCancelled' },
 };
 
 interface LocalPhoto {
@@ -101,11 +102,11 @@ export const DentalTelePage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setSessions(res.data as TeleSession[]);
       } else {
-        setError(res.error?.message ?? '会诊记录加载失败');
+        setError(res.error?.message ?? t('dentalTele.loadFailed'));
       }
     } catch (e) {
       console.error('[DentalTele] load:', e);
-      setError('会诊记录加载失败');
+      setError(t('dentalTele.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -127,16 +128,16 @@ export const DentalTelePage: React.FC = () => {
         status: 'waiting',
       });
       if (res.success) {
-        message.success('会诊已创建, 等待专家加入');
+        message.success(t('dentalTele.created'));
         setCreateModal(false);
         form.resetFields();
         void load();
       } else {
-        message.error(res.error?.message ?? '创建失败');
+        message.error(res.error?.message ?? t('dentalTele.createFailed'));
       }
     } catch (e) {
       if (e instanceof Error && e.message) message.error(e.message);
-      else message.error('创建失败');
+      else message.error(t('dentalTele.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -156,14 +157,14 @@ export const DentalTelePage: React.FC = () => {
       const res = await dentalApi.endTeleSession(s.id);
       if (res.success) {
         setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'completed' } : x));
-        message.success('会诊已结束');
+        message.success(t('dentalTele.ended'));
       } else {
-        message.warning(res.error?.message ?? '结束接口不可用, 已本地更新');
+        message.warning(res.error?.message ?? t('dentalTele.endUnavailable'));
         setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'completed' } : x));
       }
     } catch {
       setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'completed' } : x));
-      message.success('会诊已结束 (本地)');
+      message.success(t('dentalTele.endedLocal'));
     }
   };
 
@@ -182,7 +183,7 @@ export const DentalTelePage: React.FC = () => {
         imageBase64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(new Error('照片读取失败'));
+          reader.onerror = () => reject(new Error(t('dentalTele.photoReadFailed')));
           reader.readAsDataURL(f);
         });
       }
@@ -194,12 +195,12 @@ export const DentalTelePage: React.FC = () => {
         setScreeningSource(imageBase64 ? `照片 ${photos[0]!.name}` : `会诊患者标识 (无照片, mock 预筛)`);
         setScreeningModal(true);
       } else {
-        throw new Error(res.error?.message ?? '接口返回空结果');
+        throw new Error(res.error?.message ?? t('dentalTele.emptyResult'));
       }
     } catch (e) {
       console.error('[DentalTele] AI 预筛失败:', e);
-      setScreeningError(e instanceof Error ? e.message : 'AI 服务不可用');
-      setScreeningSource('待接入: 口腔 AI 服务未返回结果');
+      setScreeningError(e instanceof Error ? e.message : t('dentalTele.aiUnavailable'));
+      setScreeningSource(t('dentalTele.pendingService'));
       setScreeningModal(true);
     } finally {
       setScreeningLoading(false);
@@ -210,40 +211,40 @@ export const DentalTelePage: React.FC = () => {
   const waitingCount = sessions.filter(s => s.status === 'waiting').length;
 
   return (
-    <DentalPageLayout header={{ title: '远程口腔会诊', icon: <Video size={20} color="#2563eb" /> }}>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+    <DentalPageLayout header={{ title: t('dentalTele.title'), icon: <Video size={20} color="#2563eb" /> }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalTele.retry')}</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="会诊总数" value={sessions.length} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="进行中" value={activeCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="等待加入" value={waitingCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已结束" value={sessions.filter(s => s.status === 'completed').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.total')} value={sessions.length} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.inProgress')} value={activeCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.waiting')} value={waitingCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.completed')} value={sessions.filter(s => s.status === 'completed').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
       <Row gutter={16}>
-        <Col span={6}><Card size="small"><Button type="primary" block onClick={() => setCreateModal(true)} icon={<Plus size={14} />}>新建会诊</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<Upload size={14} />} onClick={openPhotoModal}>上传口内照片</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} loading={screeningLoading} onClick={() => void runAiPrescreen()}>AI 预筛</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<RefreshCw size={14} />} onClick={() => void load()}>刷新列表</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button type="primary" block onClick={() => setCreateModal(true)} icon={<Plus size={14} />}>{t('dentalTele.create')}</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<Upload size={14} />} onClick={openPhotoModal}>{t('dentalTele.uploadPhotos')}</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} loading={screeningLoading} onClick={() => void runAiPrescreen()}>{t('dentalTele.aiPrescreen')}</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('dentalTele.refresh')}</Button></Card></Col>
       </Row>
       <Card title={`会诊记录 (${sessions.length})`} size="small" style={{ marginTop: 16 }}>
         <Spin spinning={loading}>
           {sessions.length === 0 && !loading ? (
-            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无会诊记录, 点击「新建会诊」发起" />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalTele.empty')} />
           ) : (
             <List
               dataSource={sessions}
               renderItem={(s: TeleSession) => {
-                const meta = STATUS_META[s.status] ?? { color: 'default', label: s.status ?? '未知' };
+                const meta = STATUS_META[s.status] ?? { color: 'default', label: s.status ?? 'dentalTele.unknown' };
                 return (
                   <List.Item
                     actions={[
                       <Space key="ops" wrap>
-                        {s.status === 'waiting' && <Button size="small" type="primary" icon={<PhoneIncoming size={12} />} onClick={() => void joinSession(s)}>加入</Button>}
+                        {s.status === 'waiting' && <Button size="small" type="primary" icon={<PhoneIncoming size={12} />} onClick={() => void joinSession(s)}>{t('dentalTele.join')}</Button>}
                         {(s.status === 'waiting' || s.status === 'in_progress') && (
-                          <Popconfirm title="结束该会诊?" onConfirm={() => void endSession(s)}>
-                            <Button size="small">结束</Button>
+                          <Popconfirm title={t('dentalTele.endConfirm')} onConfirm={() => void endSession(s)}>
+                            <Button size="small">{t('dentalTele.end')}</Button>
                           </Popconfirm>
                         )}
-                        <Button size="small" onClick={() => setDetailModal(s)}>详情</Button>
+                        <Button size="small" onClick={() => setDetailModal(s)}>{t('dentalTele.detail')}</Button>
                       </Space>,
                     ]}
                   >
@@ -251,11 +252,11 @@ export const DentalTelePage: React.FC = () => {
                       title={<Space wrap>
                         <b>{s.title}</b>
                         <Tag color="geekblue">{s.id}</Tag>
-                        <Tag color={meta.color === 'processing' ? 'blue' : meta.color}>{meta.label}</Tag>
+                        <Tag color={meta.color === 'processing' ? 'blue' : meta.color}>{t(meta.label)}</Tag>
                         <Badge status={s.status === 'in_progress' ? 'processing' : 'default'} />
                       </Space>}
                       description={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                        患者: {s.patientName} | 专家: {s.expert} | 发起: {s.hostDoctor} | 时间: {(s.createdAt ?? '').replace('T', ' ').slice(0, 16)}
+                        {t('dentalTele.patient')}: {s.patientName} | {t('dentalTele.expert')}: {s.expert} | {t('dentalTele.host')}: {s.hostDoctor} | {t('dentalTele.time')}: {(s.createdAt ?? '').replace('T', ' ').slice(0, 16)}
                         {s.reason ? ` | 议题: ${s.reason}` : ''}
                       </span>}
                     />
@@ -267,24 +268,24 @@ export const DentalTelePage: React.FC = () => {
         </Spin>
       </Card>
 
-      <Modal title="新建远程会诊" open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void createSession()} confirmLoading={saving} width={480}>
+      <Modal title={t('dentalTele.createModal')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void createSession()} confirmLoading={saving} width={480}>
         <Form form={form} layout="vertical" size="small" initialValues={{ expert: '王专?(种植)' }}>
-          <Form.Item label="会诊标题" name="title" rules={[{ required: true, message: '请输入会诊标题' }]}>
-            <Input placeholder="如: 种植复杂病例会诊" />
+          <Form.Item label={t('dentalTele.formTitle')} name="title" rules={[{ required: true, message: t('dentalTele.formTitleRequired') }]}>
+            <Input placeholder={t('dentalTele.formTitlePlaceholder')} />
           </Form.Item>
-          <Form.Item label="患者" name="patientId" rules={[{ required: true, message: '请选择患者' }]}>
-            <Select options={PATIENT_OPTIONS} placeholder="选择患者" />
+          <Form.Item label={t('dentalTele.patient')} name="patientId" rules={[{ required: true, message: t('dentalTele.patientRequired') }]}>
+            <Select options={PATIENT_OPTIONS} placeholder={t('dentalTele.selectPatient')} />
           </Form.Item>
-          <Form.Item label="邀请专家" name="expert" rules={[{ required: true, message: '请选择专家' }]}>
+          <Form.Item label={t('dentalTele.inviteExpert')} name="expert" rules={[{ required: true, message: t('dentalTele.expertRequired') }]}>
             <Select options={EXPERT_OPTIONS} />
           </Form.Item>
-          <Form.Item label="会诊议题" name="reason">
-            <TextArea rows={3} placeholder="如: 36 位骨量不足, 需评估骨增量方案" />
+          <Form.Item label={t('dentalTele.formReason')} name="reason">
+            <TextArea rows={3} placeholder={t('dentalTele.formReasonPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title="上传口内照片" open={photoModal} onCancel={() => setPhotoModal(false)} footer={<Button type="primary" onClick={() => setPhotoModal(false)}>完成</Button>} width={520}>
+      <Modal title={t('dentalTele.uploadPhotos')} open={photoModal} onCancel={() => setPhotoModal(false)} footer={<Button type="primary" onClick={() => setPhotoModal(false)}>{t('dentalTele.done')}</Button>} width={520}>
         <div style={{ marginBottom: 12 }}>
           <input
             ref={photoInputRef}
@@ -294,11 +295,11 @@ export const DentalTelePage: React.FC = () => {
             style={{ display: 'none' }}
             onChange={(e) => handleSelectPhotos(e.target.files)}
           />
-          <Button type="primary" icon={<Upload size={14} />} onClick={() => photoInputRef.current?.click()}>选择照片</Button>
-          <span style={{ marginLeft: 12, fontSize: 12, color: 'var(--text-secondary)' }}>已选 {photos.length} 张 · 本地预览, 不涉及网络传输</span>
+          <Button type="primary" icon={<Upload size={14} />} onClick={() => photoInputRef.current?.click()}>{t('dentalTele.selectPhotos')}</Button>
+          <span style={{ marginLeft: 12, fontSize: 12, color: 'var(--text-secondary)' }}>{t('dentalTele.selectedPhotos', { count: photos.length })}</span>
         </div>
         {photos.length === 0 ? (
-          <Empty description="尚未选择照片, 请选择口内照片后预览" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty description={t('dentalTele.noPhotos')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {photos.map((p) => (
@@ -312,16 +313,16 @@ export const DentalTelePage: React.FC = () => {
                   style={{ marginTop: 6 }}
                   onClick={() => setPhotos((prev) => prev.filter((x) => x.id !== p.id))}
                 >
-                  移除
+                  {t('dentalTele.remove')}
                 </Button>
               </div>
             ))}
           </div>
         )}
-        <Alert style={{ marginTop: 12 }} type="info" showIcon icon={<AlertTriangle size={14} />} message="照片仅保存在本地会话, 如需归档请使用影像上传通道" />
+        <Alert style={{ marginTop: 12 }} type="info" showIcon icon={<AlertTriangle size={14} />} message={t('dentalTele.photoLocalOnly')} />
       </Modal>
 
-      <Modal title={`会诊详情 - ${detailModal?.title ?? ''}`} open={!!detailModal} onCancel={() => setDetailModal(null)} footer={<Button onClick={() => setDetailModal(null)}>关闭</Button>} width={480}>
+      <Modal title={`${t('dentalTele.detailTitle')} - ${detailModal?.title ?? ''}`} open={!!detailModal} onCancel={() => setDetailModal(null)} footer={<Button onClick={() => setDetailModal(null)}>{t('dentalTele.close')}</Button>} width={480}>
         {detailModal && (
           <div>
             <div style={{ marginBottom: 12 }}>
@@ -331,40 +332,40 @@ export const DentalTelePage: React.FC = () => {
               </Space>
             </div>
             <Descriptions bordered column={1} size="small">
-              <Descriptions.Item label="患者">{detailModal.patientName} ({detailModal.patientId})</Descriptions.Item>
-              <Descriptions.Item label="专家">{detailModal.expert}</Descriptions.Item>
-              <Descriptions.Item label="发起人">{detailModal.hostDoctor}</Descriptions.Item>
-              <Descriptions.Item label="创建时间">{detailModal.createdAt?.replace('T', ' ').slice(0, 16)}</Descriptions.Item>
-              <Descriptions.Item label="议题">{detailModal.reason || '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalTele.patient')}>{detailModal.patientName} ({detailModal.patientId})</Descriptions.Item>
+              <Descriptions.Item label={t('dentalTele.expert')}>{detailModal.expert}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalTele.host')}>{detailModal.hostDoctor}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalTele.createdAt')}>{detailModal.createdAt?.replace('T', ' ').slice(0, 16)}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalTele.reason')}>{detailModal.reason || '—'}</Descriptions.Item>
             </Descriptions>
           </div>
         )}
       </Modal>
 
       <Modal
-        title={<Space><Globe size={15} /> AI 龋齿预筛结果</Space>}
+        title={<Space><Globe size={15} /> {t('dentalTele.screeningTitle')}</Space>}
         open={screeningModal}
         onCancel={() => setScreeningModal(false)}
-        footer={<Button type="primary" onClick={() => setScreeningModal(false)}>关闭</Button>}
+        footer={<Button type="primary" onClick={() => setScreeningModal(false)}>{t('dentalTele.close')}</Button>}
         width={560}
       >
         {screeningError ? (
           <Alert
             type="warning"
             showIcon
-            message="AI 预筛待接入"
-            description={`${screeningError} — 口腔 AI 服务暂未返回筛查结果, 可先上传口内照片后重试。`}
-            action={<Button size="small" loading={screeningLoading} onClick={() => void runAiPrescreen()}>重试</Button>}
+            message={t('dentalTele.screeningPending')}
+            description={`${screeningError} — ${t('dentalTele.screeningPendingDesc')}`}
+            action={<Button size="small" loading={screeningLoading} onClick={() => void runAiPrescreen()}>{t('dentalTele.retry')}</Button>}
           />
         ) : (
           <div>
             <div style={{ marginBottom: 12 }}>
-              <Tag color="purple">模型: {screeningMeta?.model || '-'}</Tag>
-              <Tag color="cyan">方法: {screeningMeta?.method || '-'}</Tag>
-              <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--text-secondary)' }}>数据来源: {screeningSource}</span>
+              <Tag color="purple">{t('dentalTele.model')}: {screeningMeta?.model || '-'}</Tag>
+              <Tag color="cyan">{t('dentalTele.method')}: {screeningMeta?.method || '-'}</Tag>
+              <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t('dentalTele.source')}: {screeningSource}</span>
             </div>
             {screeningDetections.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="未检出龋齿" />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalTele.noCaries')} />
             ) : (
               <List
                 size="small"
@@ -372,18 +373,18 @@ export const DentalTelePage: React.FC = () => {
                 renderItem={(d: CariesDetection) => (
                   <List.Item>
                     <Space wrap>
-                      <Tag color="geekblue">牙位 {d.toothNo}</Tag>
-                      <Tag color="gold">面 {d.surface}</Tag>
+                      <Tag color="geekblue">{t('dentalTele.toothNo')} {d.toothNo}</Tag>
+                      <Tag color="gold">{t('dentalTele.surface')} {d.surface}</Tag>
                       <Tag color={d.severity === 'high' ? 'red' : d.severity === 'medium' ? 'orange' : 'green'}>
-                        严重度: {d.severity === 'high' ? '高' : d.severity === 'medium' ? '中' : '低'}
+                        {t('dentalTele.severity')}: {d.severity === 'high' ? t('dentalTele.severityHigh') : d.severity === 'medium' ? t('dentalTele.severityMedium') : t('dentalTele.severityLow')}
                       </Tag>
-                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>置信度 {Math.round(d.confidence * 100)}%</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dentalTele.confidence')} {Math.round(d.confidence * 100)}%</span>
                     </Space>
                   </List.Item>
                 )}
               />
             )}
-            <Alert style={{ marginTop: 12 }} type="info" showIcon message="筛查结果仅供预筛参考, 需结合影像及专家复核后出具诊断" />
+            <Alert style={{ marginTop: 12 }} type="info" showIcon message={t('dentalTele.screeningDisclaimer')} />
           </div>
         )}
       </Modal>

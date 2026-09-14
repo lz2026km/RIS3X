@@ -38,13 +38,14 @@ import {
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Inbox } from 'lucide-react'
+import { t } from "../../i18n/appI18n";
 
 const { Text, Paragraph } = Typography;
 
 const statusMeta: Record<string, { label: string; color: string }> = {
-  draft: { label: "草稿", color: "orange" },
-  finalized: { label: "已定稿", color: "green" },
-  pushed: { label: "已回传", color: "purple" },
+  draft: { label: t("srReport.statusDraft"), color: "orange" },
+  finalized: { label: t("srReport.statusFinalized"), color: "green" },
+  pushed: { label: t("srReport.statusPushed"), color: "purple" },
 };
 
 const valueTypeTag: Record<string, string> = {
@@ -86,11 +87,11 @@ const SrReportPage: React.FC = () => {
       if (res.success) {
         setDocuments(res.data ?? []);
       } else {
-        setError(res.error?.message ?? "加载失败");
+        setError(res.error?.message ?? t("srReport.loadFailed"));
         setDocuments([]);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t("srReport.loadFailed"));
       setDocuments([]);
     } finally {
       setLoading(false);
@@ -127,14 +128,14 @@ const SrReportPage: React.FC = () => {
     try {
       const res = await srDocumentApi.finalizeDocument(r.id);
       if (res.success) {
-        message.success("SR 文档已定稿");
+        message.success(t("srReport.finalized"));
         void load();
         if (detail?.id === r.id) setDetail(res.data);
       } else {
-        message.error(res.error?.message ?? "定稿失败");
+        message.error(res.error?.message ?? t("srReport.finalizeFailed"));
       }
     } catch {
-      message.error("定稿失败");
+      message.error(t("srReport.finalizeFailed"));
     } finally {
       setFinalizingId("");
     }
@@ -153,10 +154,10 @@ const SrReportPage: React.FC = () => {
         void load();
         if (detail?.id === r.id) setDetail(res.data?.document ?? null);
       } else {
-        message.error(res.error?.message ?? "ORU 回传失败");
+        message.error(res.error?.message ?? t("srReport.oruFailed"));
       }
     } catch {
-      message.error("ORU 回传失败");
+      message.error(t("srReport.oruFailed"));
     } finally {
       setPushingId("");
     }
@@ -170,13 +171,13 @@ const SrReportPage: React.FC = () => {
     a.download = `${r.sopInstanceUid || r.id}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    message.success(`已导出 JSON ${r.id}`);
+    message.success(`${t("srReport.exportedJson")} ${r.id}`);
   };
 
   const downloadDicom = async (r: SrDocument) => {
     const result = await srDocumentApi.downloadDocument(r.id);
     if (!result) {
-      message.error("DICOM 下载失败");
+      message.error(t("srReport.dicomDownloadFailed"));
       return;
     }
     const url = URL.createObjectURL(result.blob);
@@ -185,7 +186,7 @@ const SrReportPage: React.FC = () => {
     a.download = result.filename;
     a.click();
     URL.revokeObjectURL(url);
-    message.success(`已下载 DICOM SR ${result.filename}`);
+    message.success(`${t("srReport.downloadedDicom")} ${result.filename}`);
   };
 
   // ───────────────────────── [G005 Wave 8] SR → 报告回填 ─────────────────────────
@@ -200,11 +201,11 @@ const SrReportPage: React.FC = () => {
       if (res.success) {
         setBackfillData(res.data);
       } else {
-        message.error(res.error?.message ?? "SR 测量解析失败");
+        message.error(res.error?.message ?? t("srReport.parseFailed"));
         setBackfillOpen(false);
       }
     } catch {
-      message.error("SR 测量解析失败: 网络错误");
+      message.error(t("srReport.parseNetworkFailed"));
       setBackfillOpen(false);
     } finally {
       setBackfillLoading(false);
@@ -223,7 +224,7 @@ const SrReportPage: React.FC = () => {
     ].join("\n");
     window.dispatchEvent(new CustomEvent("report-insert-html", { detail: { html } }));
     try { window.localStorage.setItem("ris_sr_backfill_pending", html) } catch { /* 忽略 */ }
-    message.success("SR 测量摘要已发送至报告编辑器");
+    message.success(t("srReport.sentToEditor"));
     setBackfillOpen(false);
     navigate(`/reports/v3-write?reportId=${encodeURIComponent(backfillData.reportId)}`);
   };
@@ -231,18 +232,18 @@ const SrReportPage: React.FC = () => {
   // ───────────────────────── 列表 ─────────────────────────
 
   const columns = [
-    { title: "编号", dataIndex: "id", key: "id", width: 90 },
-    { title: "患者", dataIndex: "patientName", key: "patientName", width: 100 },
-    { title: "报告 ID", dataIndex: "reportId", key: "reportId", width: 130 },
+    { title: t("srReport.colId"), dataIndex: "id", key: "id", width: 90 },
+    { title: t("srReport.colPatient"), dataIndex: "patientName", key: "patientName", width: 100 },
+    { title: t("srReport.colReportId"), dataIndex: "reportId", key: "reportId", width: 130 },
     {
-      title: "模板",
+      title: t("srReport.colTemplate"),
       dataIndex: "templateId",
       key: "templateId",
       width: 110,
       render: (v: string) => <Tag color={v === "tid1500" ? "cyan" : "blue"}>{v}</Tag>,
     },
     {
-      title: "状态",
+      title: t("srReport.colStatus"),
       dataIndex: "status",
       key: "status",
       width: 90,
@@ -251,7 +252,7 @@ const SrReportPage: React.FC = () => {
       ),
     },
     {
-      title: "SOP 实例 UID",
+      title: t("srReport.colSopUid"),
       dataIndex: "sopInstanceUid",
       key: "sop",
       ellipsis: true,
@@ -260,20 +261,20 @@ const SrReportPage: React.FC = () => {
       ),
     },
     {
-      title: "创建时间",
+      title: t("srReport.colCreatedAt"),
       dataIndex: "createdAt",
       key: "createdAt",
       width: 160,
       render: (v: string) => new Date(v).toLocaleString(),
     },
     {
-      title: "操作",
+      title: t("srReport.colActions"),
       key: "action",
       width: 320,
       render: (_: unknown, r: SrDocument) => (
         <Space size={4} wrap>
           <Button size="small" onClick={() => void openDetail(r)}>
-            查看
+            {t("srReport.view")}
           </Button>
           {r.status === "draft" && (
             <Button
@@ -282,7 +283,7 @@ const SrReportPage: React.FC = () => {
               loading={finalizingId === r.id}
               onClick={() => void finalize(r)}
             >
-              定稿
+              {t("srReport.finalize")}
             </Button>
           )}
           <Button
@@ -293,7 +294,7 @@ const SrReportPage: React.FC = () => {
             loading={pushingId === r.id}
             onClick={() => void pushOru(r)}
           >
-            ORU 回传
+            {t("srReport.oruPush")}
           </Button>
           <Button size="small" icon={<Download size={14} />} onClick={() => exportJson(r)}>
             JSON
@@ -354,7 +355,7 @@ const SrReportPage: React.FC = () => {
       {s.items.length > 0 ? (
         s.items.map((i) => renderItem(i, 0))
       ) : (
-        <EmptyState description="无内容" />
+        <EmptyState description={t("srReport.noContent")} />
       )}
     </Card>
   );
@@ -363,9 +364,9 @@ const SrReportPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <FileText size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 结构化报告</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("srReport.title")}</span>
         <span style={{ fontSize: 12, color: "#94a3b8" }}>
-          生成 → 存储 → 查看 → HL7 ORU^R01 回传
+          {t("srReport.subtitle")}
         </span>
         <Button
           size="small"
@@ -373,22 +374,22 @@ const SrReportPage: React.FC = () => {
           onClick={() => void load()}
           loading={loading}
         >
-          刷新
+          {t("srReport.refresh")}
         </Button>
         <Button size="small" type="primary" onClick={() => setGenerateOpen(true)}>
-          + 从报告生成 SR
+          {t("srReport.generateFromReport")}
         </Button>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="SR 文档" value={documents.length} />
+            <Statistic title={t("srReport.statDocs")} value={documents.length} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="已定稿"
+              title={t("srReport.statFinalized")}
               value={documents.filter((d) => d.status === "finalized").length}
             />
           </Card>
@@ -396,7 +397,7 @@ const SrReportPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="已回传 ORU"
+              title={t("srReport.statPushed")}
               value={documents.filter((d) => d.status === "pushed").length}
             />
           </Card>
@@ -409,7 +410,7 @@ const SrReportPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-              重试
+              {t("srReport.retry")}
             </Button>
           }
         />
@@ -436,7 +437,7 @@ const SrReportPage: React.FC = () => {
         presetReportId={searchParams.get("reportId") ?? undefined}
         onGenerated={(doc) => {
           setGenerateOpen(false);
-          message.success("SR 文档已生成");
+          message.success(t("srReport.generated"));
           void load();
           void openDetail(doc);
         }}
@@ -444,7 +445,7 @@ const SrReportPage: React.FC = () => {
 
       {/* ─────────── 详情弹窗 ─────────── */}
       <Modal
-        title={`SR 文档详情 - ${detail?.title ?? ""}`}
+        title={`${t("srReport.detailTitle")} - ${detail?.title ?? ""}`}
         open={detail != null}
         onCancel={() => setDetail(null)}
         footer={
@@ -456,7 +457,7 @@ const SrReportPage: React.FC = () => {
                   loading={finalizingId === detail.id}
                   onClick={() => void finalize(detail!)}
                 >
-                  定稿
+                  {t("srReport.finalize")}
                 </Button>
               )}
               {/* [G005 Wave 8] SR 测量值回填到报告 */}
@@ -464,7 +465,7 @@ const SrReportPage: React.FC = () => {
                 icon={<ClipboardPen size={14} />}
                 onClick={() => void openBackfillPreview(detail!)}
               >
-                回填到报告
+                {t("srReport.backfillToReport")}
               </Button>
               <Button
                 type="primary"
@@ -472,13 +473,13 @@ const SrReportPage: React.FC = () => {
                 loading={pushingId === detail.id}
                 onClick={() => void pushOru(detail!)}
               >
-                ORU 回传
+                {t("srReport.oruPush")}
               </Button>
               <Button icon={<Download size={14} />} onClick={() => exportJson(detail!)}>
-                导出 JSON
+                {t("srReport.exportJson")}
               </Button>
               <Button icon={<Database size={14} />} onClick={() => void downloadDicom(detail!)}>
-                下载 DICOM
+                {t("srReport.downloadDicom")}
               </Button>
             </Space>
           )
@@ -494,68 +495,68 @@ const SrReportPage: React.FC = () => {
                 size="small"
                 style={{ marginBottom: 16 }}
               >
-                <Descriptions.Item label="编号">{detail.id}</Descriptions.Item>
-                <Descriptions.Item label="状态">
+                <Descriptions.Item label={t("srReport.colId")}>{detail.id}</Descriptions.Item>
+                <Descriptions.Item label={t("srReport.colStatus")}>
                   <Tag color={statusMeta[detail.status]?.color ?? "default"}>
                     {statusMeta[detail.status]?.label ?? detail.status}
                   </Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="患者">
+                <Descriptions.Item label={t("srReport.colPatient")}>
                   {detail.patientName} ({detail.patientId})
                 </Descriptions.Item>
-                <Descriptions.Item label="报告 ID">
+                <Descriptions.Item label={t("srReport.colReportId")}>
                   {detail.reportId}
                 </Descriptions.Item>
-                <Descriptions.Item label="模板">
+                <Descriptions.Item label={t("srReport.colTemplate")}>
                   {detail.templateId} (TID {detail.tid})
                 </Descriptions.Item>
-                <Descriptions.Item label="模态">{detail.modality}</Descriptions.Item>
-                <Descriptions.Item label="SOP 类别 UID" span={2}>
+                <Descriptions.Item label={t("srReport.modality")}>{detail.modality}</Descriptions.Item>
+                <Descriptions.Item label={t("srReport.sopClassUid")} span={2}>
                   <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                     {detail.sopClassUid}
                   </Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="检查 UID" span={2}>
+                <Descriptions.Item label={t("srReport.studyUid")} span={2}>
                   <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                     {detail.studyInstanceUid}
                   </Text>
                 </Descriptions.Item>
                 {detail.hl7ControlId && (
-                  <Descriptions.Item label="HL7 控制 ID" span={2}>
+                  <Descriptions.Item label={t("srReport.hl7ControlId")} span={2}>
                     <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                       {detail.hl7ControlId}
                     </Text>
                   </Descriptions.Item>
                 )}
                 {detail.pushedAt && (
-                  <Descriptions.Item label="回传时间" span={2}>
+                  <Descriptions.Item label={t("srReport.pushedAt")} span={2}>
                     {new Date(detail.pushedAt).toLocaleString()}
                   </Descriptions.Item>
                 )}
               </Descriptions>
 
               <Divider titlePlacement="left" style={{ margin: "8px 0 16px" }}>
-                结构化内容树 (TID {detail.tid})
+                {t("srReport.contentTree")} (TID {detail.tid})
               </Divider>
-              <Card size="small" title="上下文" style={{ marginBottom: 12 }}>
+              <Card size="small" title={t("srReport.context")} style={{ marginBottom: 12 }}>
                 <Descriptions column={3} size="small">
-                  <Descriptions.Item label="患者">
+                  <Descriptions.Item label={t("srReport.colPatient")}>
                     {detail.content?.context?.patient?.name} (
                     {detail.content?.context?.patient?.id})
                   </Descriptions.Item>
-                  <Descriptions.Item label="性别">
+                  <Descriptions.Item label={t("srReport.gender")}>
                     {detail.content?.context?.patient?.sex}
                   </Descriptions.Item>
-                  <Descriptions.Item label="出生日期">
+                  <Descriptions.Item label={t("srReport.birthDate")}>
                     {detail.content?.context?.patient?.birthDate || "-"}
                   </Descriptions.Item>
-                  <Descriptions.Item label="检查号">
+                  <Descriptions.Item label={t("srReport.accessionNumber")}>
                     {detail.content?.context?.study?.accessionNumber || "-"}
                   </Descriptions.Item>
-                  <Descriptions.Item label="检查日期">
+                  <Descriptions.Item label={t("srReport.studyDate")}>
                     {detail.content?.context?.study?.date || "-"}
                   </Descriptions.Item>
-                  <Descriptions.Item label="报告作者">
+                  <Descriptions.Item label={t("srReport.reportAuthor")}>
                     {detail.content?.context?.report?.authorName || "-"}
                   </Descriptions.Item>
                 </Descriptions>
@@ -563,10 +564,10 @@ const SrReportPage: React.FC = () => {
               {detail.content?.sections?.length > 0 ? (
                 detail.content.sections.map(renderSection)
               ) : (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无章节内容" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("srReport.noSections")} />
               )}
               {detail.content?.codedEntries && detail.content.codedEntries.length > 0 && (
-                <Card size="small" title="编码条目 (SNOMED CT)">
+                <Card size="small" title={t("srReport.codedEntries")}>
                   <Space wrap>
                     {detail.content.codedEntries.map((c, i) => (
                       <Tag key={i} color="geekblue">
@@ -579,7 +580,7 @@ const SrReportPage: React.FC = () => {
               {detail.hl7Message && (
                 <>
                   <Divider titlePlacement="left" style={{ margin: "16px 0" }}>
-                    ORU^R01 消息
+                    {t("srReport.oruMessage")}
                   </Divider>
                   <pre
                     style={{
@@ -599,7 +600,7 @@ const SrReportPage: React.FC = () => {
                 </>
               )}
               <Divider titlePlacement="left" style={{ margin: "16px 0" }}>
-                DICOM SR 文本 (Part10 风格)
+                {t("srReport.dicomText")}
               </Divider>
               <Paragraph
                 style={{
@@ -621,19 +622,19 @@ const SrReportPage: React.FC = () => {
 
       {/* ─────────── [G005 Wave 8] SR 测量摘要回填预览 ─────────── */}
       <Modal
-        title="SR 测量摘要回填到报告"
+        title={t("srReport.backfillTitle")}
         open={backfillOpen}
         onCancel={() => setBackfillOpen(false)}
         footer={
           <Space>
-            <Button onClick={() => setBackfillOpen(false)}>取消</Button>
+            <Button onClick={() => setBackfillOpen(false)}>{t("srReport.cancel")}</Button>
             <Button
               type="primary"
               icon={<ClipboardPen size={14} />}
               disabled={!backfillData}
               onClick={confirmBackfill}
             >
-              插入并跳转书写页
+              {t("srReport.insertAndJump")}
             </Button>
           </Space>
         }
@@ -643,7 +644,7 @@ const SrReportPage: React.FC = () => {
           {backfillData && (
             <>
               <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 10 }}>
-                已解析 {backfillData.measurements.length} 个测量项 (SR {backfillData.srId} · {backfillData.templateId})，确认后经 insertHtml 通道插入报告编辑器并跳转书写页。
+                {t("srReport.backfillPrefix")} {backfillData.measurements.length} {t("srReport.backfillItems")} (SR {backfillData.srId} · {backfillData.templateId}){t("srReport.backfillSuffix")}
               </div>
               {backfillData.measurements.length > 0 && (
                 <Table
@@ -651,10 +652,10 @@ const SrReportPage: React.FC = () => {
                   rowKey={(m, i) => `${m.name}-${m.value}-${i}`}
                   dataSource={backfillData.measurements}
                   columns={[
-                    { title: "测量项", dataIndex: "name" },
-                    { title: "数值", dataIndex: "value", width: 90 },
-                    { title: "单位", dataIndex: "unit", width: 90 },
-                    { title: "来源", dataIndex: "source", width: 130, render: (v: string) => <Tag color={v === "measurement-group" ? "cyan" : v === "num-item" ? "blue" : "default"}>{v}</Tag> },
+                    { title: t("srReport.measureName"), dataIndex: "name" },
+                    { title: t("srReport.measureValue"), dataIndex: "value", width: 90 },
+                    { title: t("srReport.measureUnit"), dataIndex: "unit", width: 90 },
+                    { title: t("srReport.measureSource"), dataIndex: "source", width: 130, render: (v: string) => <Tag color={v === "measurement-group" ? "cyan" : v === "num-item" ? "blue" : "default"}>{v}</Tag> },
                   ]}
                   pagination={false}
                   style={{ marginBottom: 12 }}
@@ -706,9 +707,9 @@ const GenerateSrModal: React.FC<{
           ),
         }));
       setReports(items);
-      if (items.length === 0) setLoadError("没有可用的报告");
+      if (items.length === 0) setLoadError(t("srReport.noReports"));
     } catch {
-      setLoadError("报告加载失败");
+      setLoadError(t("srReport.reportsLoadFailed"));
     } finally {
       setReportsLoading(false);
     }
@@ -737,10 +738,10 @@ const GenerateSrModal: React.FC<{
       if (res.success) {
         onGenerated(res.data);
       } else {
-        message.error(res.error?.message ?? "生成失败");
+        message.error(res.error?.message ?? t("srReport.generateFailed"));
       }
     } catch {
-      message.error("生成失败");
+      message.error(t("srReport.generateFailed"));
     } finally {
       setGenerating(false);
     }
@@ -751,11 +752,11 @@ const GenerateSrModal: React.FC<{
 
   return (
     <Modal
-      title="从报告生成 DICOM SR"
+      title={t("srReport.generateTitle")}
       open={open}
       onCancel={onClose}
       onOk={() => void onSubmit()}
-      okText="生成 SR"
+      okText={t("srReport.generateOk")}
       confirmLoading={generating}
       width={640}
     >
@@ -764,13 +765,13 @@ const GenerateSrModal: React.FC<{
       )}
       <Form form={form} layout="vertical">
         <Form.Item
-          label="选择报告"
+          label={t("srReport.selectReport")}
           name="reportId"
-          rules={[{ required: true, message: "请选择报告" }]}
+          rules={[{ required: true, message: t("srReport.selectReportRequired") }]}
         >
           <Select
             loading={reportsLoading}
-            placeholder="选择要生成 SR 的报告"
+            placeholder={t("srReport.selectReportPlaceholder")}
             showSearch
             optionFilterProp="label"
             options={reports.map((r) => ({
@@ -782,28 +783,28 @@ const GenerateSrModal: React.FC<{
         {selectedReport && (
           <Card size="small" style={{ marginBottom: 12 }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
-              {selectedReport.patientName} - 所见: {selectedReport.findings || "(空)"}
+              {selectedReport.patientName} - {t("srReport.findingsLabel")} {selectedReport.findings || t("srReport.emptyPlaceholder")}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>
-              结论: {selectedReport.impression || "(空)"}
+              {t("srReport.impressionLabel")} {selectedReport.impression || t("srReport.emptyPlaceholder")}
             </div>
           </Card>
         )}
-        <Form.Item label="SR 模板" name="templateId" initialValue="tid1500">
+        <Form.Item label={t("srReport.srTemplate")} name="templateId" initialValue="tid1500">
           <Radio.Group>
-            <Radio value="tid1500">TID 1500 (测量报告)</Radio>
-            <Radio value="tid2000">TID 2000 (CAD SR)</Radio>
+            <Radio value="tid1500">{t("srReport.tid1500")}</Radio>
+            <Radio value="tid2000">{t("srReport.tid2000")}</Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item label="所见覆盖 (可选, 留空使用报告内容)" name="findings">
-          <Input.TextArea rows={2} placeholder="可覆盖所见内容" />
+        <Form.Item label={t("srReport.findingsOverride")} name="findings">
+          <Input.TextArea rows={2} placeholder={t("srReport.findingsOverridePlaceholder")} />
         </Form.Item>
-        <Form.Item label="结论覆盖 (可选, 留空使用报告内容)" name="impression">
-          <Input.TextArea rows={2} placeholder="可覆盖结论内容" />
+        <Form.Item label={t("srReport.impressionOverride")} name="impression">
+          <Input.TextArea rows={2} placeholder={t("srReport.impressionOverridePlaceholder")} />
         </Form.Item>
       </Form>
       <div style={{ fontSize: 12, color: "#94a3b8", display: "flex", alignItems: "center", gap: 4 }}>
-        <ChevronRight size={12} /> 生成后将自动写入 SR 文档库, 可定稿并回传 ORU^R01
+        <ChevronRight size={12} /> {t("srReport.generateHint")}
       </div>
     </Modal>
   );

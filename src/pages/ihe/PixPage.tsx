@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { iheApi } from "../../services/api/integrationApi";
 import { usePagination } from "../../hooks/usePagination";
+import { t } from "../../i18n/appI18n";
 
 const { TextArea } = Input;
 
@@ -149,14 +150,14 @@ export const PixPage: React.FC = () => {
           ack: res.data.ack,
           storedPid: res.data.storedPid || pid,
         });
-        message.success("PIX 馈送发送成功");
+        message.success(t("pixPage.feedSuccess"));
       } else {
         setFeedResult({ success: false, ack: "AE" });
-        message.error("PIX 馈送发送失败");
+        message.error(t("pixPage.feedFailed"));
       }
     } catch (err) {
       console.warn("[PixPage] PIX Feed 服务不可用，已使用演示响应", err);
-      message.warning("PIX Feed 服务不可用，已使用演示响应");
+      message.warning(t("pixPage.feedFallback"));
       setFeedResult({
         success: true,
         ack: "AA",
@@ -182,13 +183,13 @@ export const PixPage: React.FC = () => {
       const res = await iheApi.pixQuery(body);
       if (res.success) {
         setQueryResult(res.data);
-        message.success("PIX 查询完成");
+        message.success(t("pixPage.querySuccess"));
       } else {
-        message.error("PIX 查询失败");
+        message.error(t("pixPage.queryFailed"));
       }
     } catch (err) {
       console.warn("[PixPage] PIX 查询服务不可用，已使用演示数据", err);
-      message.warning("PIX 查询服务不可用，已使用演示数据");
+      message.warning(t("pixPage.queryFallback"));
       const mockPid = qv.patientId || "P001";
       const mockSrc = qv.sourceDomain || "HOSPITAL_A";
       const domains = (qv.targetDomains || "HOSPITAL_B")
@@ -229,13 +230,13 @@ export const PixPage: React.FC = () => {
         setPdqResults(
           res.data.results.sort((a, b) => b.confidence - a.confidence),
         );
-        message.success("PDQ 查询完成");
+        message.success(t("pixPage.pdqSuccess"));
       } else {
-        message.error("PDQ 查询失败");
+        message.error(t("pixPage.pdqFailed"));
       }
     } catch (err) {
       console.warn("[PixPage] PDQ 服务不可用，已使用演示数据", err);
-      message.warning("PDQ 服务不可用，已使用演示数据");
+      message.warning(t("pixPage.pdqFallback"));
       setPdqResults([
         {
           patientId: "P001",
@@ -271,7 +272,7 @@ export const PixPage: React.FC = () => {
       setMappings([...mappings, newMapping]);
       setMappingModal(false);
       mappingForm.resetFields();
-      message.success("映射已添加");
+      message.success(t("pixPage.mappingAdded"));
     } catch (err) {
       console.warn("[PixPage] handleAddMapping failed", err);
     }
@@ -279,18 +280,18 @@ export const PixPage: React.FC = () => {
 
   const handleDeleteMapping = (id: string) => {
     setMappings(mappings.filter((m) => m.id !== id));
-    message.success("映射已删除");
+    message.success(t("pixPage.mappingDeleted"));
   };
 
   const identitiesColumns = [
     {
-      title: "分配机构",
+      title: t("pixPage.assigningAuthority"),
       dataIndex: "assigningAuthority",
       key: "aa",
     },
-    { title: "患者 ID", dataIndex: "patientId", key: "pid" },
+    { title: t("pixPage.patientId"), dataIndex: "patientId", key: "pid" },
     {
-      title: "标识符",
+      title: t("pixPage.identifiers"),
       key: "ids",
       render: (_: any, r: any) =>
         r.identifiers?.map((i: any) => (
@@ -300,7 +301,7 @@ export const PixPage: React.FC = () => {
         )),
     },
     {
-      title: "姓名",
+      title: t("pixPage.name"),
       key: "name",
       render: (_: any, r: any) =>
         r.name ? `${r.name.family} ${r.name.given?.join(" ")}` : "-",
@@ -311,12 +312,12 @@ export const PixPage: React.FC = () => {
     <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <Fingerprint size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>PIX 主索引管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("pixPage.title")}</span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Tag color="green">ITI-8 Feed</Tag>
         <Tag color="blue">ITI-9 Query</Tag>
         <Tag color="orange">PDQ</Tag>
-        <Tag color="gold">演示数据</Tag>
+        <Tag color="gold">{t("pixPage.demoData")}</Tag>
       </Space>
 
       <Tabs
@@ -335,37 +336,37 @@ export const PixPage: React.FC = () => {
             children: (
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small" title="患者身份馈送 (ITI-8)">
+                  <Card size="small" title={t("pixPage.feedCardTitle")}>
                     <Form form={feedForm} layout="vertical" size="small">
                       <Form.Item
                         name="patientId"
-                        label="患者 ID"
+                        label={t("pixPage.patientId")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="例如: P001" />
+                        <Input placeholder={t("pixPage.patientIdPlaceholder")} />
                       </Form.Item>
                       <Form.Item
                         name="assigningAuthority"
-                        label="分配机构"
+                        label={t("pixPage.assigningAuthority")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="例如: HOSPITAL_A" />
+                        <Input placeholder={t("pixPage.assigningAuthorityPlaceholder")} />
                       </Form.Item>
                       <Form.Item
                         name="identifiers"
-                        label="标识符 (每行 domain|value)"
+                        label={t("pixPage.identifiersHint")}
                       >
                         <TextArea rows={3} placeholder="HOSPITAL_A|P001" />
                       </Form.Item>
                       <Row gutter={8}>
                         <Col span={12}>
-                          <Form.Item name="familyName" label="姓">
-                            <Input placeholder="姓" />
+                          <Form.Item name="familyName" label={t("pixPage.familyName")}>
+                            <Input placeholder={t("pixPage.familyName")} />
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item name="givenName" label="名">
-                            <Input placeholder="名" />
+                          <Form.Item name="givenName" label={t("pixPage.givenName")}>
+                            <Input placeholder={t("pixPage.givenName")} />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -376,7 +377,7 @@ export const PixPage: React.FC = () => {
                           loading={sending}
                           onClick={handleFeed}
                         >
-                          发送 PIX Feed
+                          {t("pixPage.sendFeed")}
                         </Button>
                       </Form.Item>
                     </Form>
@@ -398,31 +399,31 @@ export const PixPage: React.FC = () => {
             label: (
               <span>
                 <Search size={14} style={{ marginRight: 4 }} />
-                PIX 查询
+                {t("pixPage.tabQuery")}
               </span>
             ),
             children: (
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small" title="PIX 查询 (ITI-9)">
+                  <Card size="small" title={t("pixPage.queryCardTitle")}>
                     <Form form={queryForm} layout="vertical" size="small">
                       <Form.Item
                         name="patientId"
-                        label="患者 ID"
+                        label={t("pixPage.patientId")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="例如: P001" />
+                        <Input placeholder={t("pixPage.patientIdPlaceholder")} />
                       </Form.Item>
                       <Form.Item
                         name="sourceDomain"
-                        label="来源域"
+                        label={t("pixPage.sourceDomain")}
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="例如: HOSPITAL_A" />
+                        <Input placeholder={t("pixPage.assigningAuthorityPlaceholder")} />
                       </Form.Item>
                       <Form.Item
                         name="targetDomains"
-                        label="目标域 (每行一个)"
+                        label={t("pixPage.targetDomains")}
                         rules={[{ required: true }]}
                       >
                         <TextArea
@@ -437,7 +438,7 @@ export const PixPage: React.FC = () => {
                           loading={querying}
                           onClick={handleQuery}
                         >
-                          查询
+                          {t("pixPage.queryBtn")}
                         </Button>
                       </Form.Item>
                     </Form>
@@ -447,7 +448,7 @@ export const PixPage: React.FC = () => {
                   {queryResult && (
                     <Card
                       size="small"
-                      title={`查询结果 (${queryResult.count} 条)`}
+                      title={`${t("pixPage.queryResult")} (${queryResult.count} ${t("pixPage.items")})`}
                     >
                       <Table scroll={{ x: 'max-content' }}
                         dataSource={queryPagination.pageData}
@@ -460,7 +461,7 @@ export const PixPage: React.FC = () => {
                         <div
                           style={{ fontSize: 11, color: "#999", marginTop: 4 }}
                         >
-                          事务: {queryResult.transaction}
+                          {t("pixPage.transaction")}: {queryResult.transaction}
                         </div>
                       )}
                     </Card>
@@ -474,20 +475,20 @@ export const PixPage: React.FC = () => {
             label: (
               <span>
                 <Users size={14} style={{ marginRight: 4 }} />
-                PIX 映射
+                {t("pixPage.tabMapping")}
               </span>
             ),
             children: (
               <Card
                 size="small"
-                title="PIX 标识符映射"
+                title={t("pixPage.mappingCardTitle")}
                 extra={
                   <Button
                     type="primary"
                     icon={<Plus size={14} />}
                     onClick={() => setMappingModal(true)}
                   >
-                    新增映射
+                    {t("pixPage.addMapping")}
                   </Button>
                 }
               >
@@ -497,19 +498,19 @@ export const PixPage: React.FC = () => {
                   pagination={mappingsPagination.pagination}
                   columns={[
                     {
-                      title: "分配机构",
+                      title: t("pixPage.assigningAuthority"),
                       dataIndex: "assigningAuthority",
                     },
-                    { title: "外部 ID", dataIndex: "externalId" },
+                    { title: t("pixPage.externalId"), dataIndex: "externalId" },
                     {
-                      title: "内部患者 ID",
+                      title: t("pixPage.internalPatientId"),
                       dataIndex: "internalPatientId",
                     },
                     {
-                      title: "操作",
+                      title: t("pixPage.actions"),
                       render: (_: any, r: PixMapping) => (
                         <Popconfirm
-                          title="确认删除?"
+                          title={t("pixPage.confirmDelete")}
                           onConfirm={() => handleDeleteMapping(r.id)}
                         >
                           <Button
@@ -517,7 +518,7 @@ export const PixPage: React.FC = () => {
                             danger
                             icon={<Delete size={12} />}
                           >
-                            删除
+                            {t("pixPage.delete")}
                           </Button>
                         </Popconfirm>
                       ),
@@ -532,7 +533,7 @@ export const PixPage: React.FC = () => {
             label: (
               <span>
                 <Activity size={14} style={{ marginRight: 4 }} />
-                PDQ 查询
+                {t("pixPage.tabPdq")}
               </span>
             ),
             children: (
@@ -540,30 +541,30 @@ export const PixPage: React.FC = () => {
                 <Col span={10}>
                   <Card
                     size="small"
-                    title="患者人口学查询 (ITI-21)"
+                    title={t("pixPage.pdqCardTitle")}
                   >
                     <Form form={pdqForm} layout="vertical" size="small">
-                      <Form.Item name="patientId" label="患者 ID">
-                        <Input placeholder="例如: P001" />
+                      <Form.Item name="patientId" label={t("pixPage.patientId")}>
+                        <Input placeholder={t("pixPage.patientIdPlaceholder")} />
                       </Form.Item>
-                      <Form.Item name="name" label="姓名">
-                        <Input placeholder="患者姓名" />
+                      <Form.Item name="name" label={t("pixPage.name")}>
+                        <Input placeholder={t("pixPage.patientNamePlaceholder")} />
                       </Form.Item>
                       <Row gutter={8}>
                         <Col span={12}>
-                          <Form.Item name="birthDate" label="出生日期">
+                          <Form.Item name="birthDate" label={t("pixPage.birthDate")}>
                             <Input placeholder="YYYY-MM-DD" />
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item name="gender" label="性别">
+                          <Form.Item name="gender" label={t("pixPage.gender")}>
                             <Select
                               allowClear
-                              placeholder="选择性别"
+                              placeholder={t("pixPage.selectGender")}
                               options={[
-                                { value: "M", label: "男" },
-                                { value: "F", label: "女" },
-                                { value: "O", label: "其他" },
+                                { value: "M", label: t("pixPage.genderMale") },
+                                { value: "F", label: t("pixPage.genderFemale") },
+                                { value: "O", label: t("pixPage.genderOther") },
                               ]}
                             />
                           </Form.Item>
@@ -576,7 +577,7 @@ export const PixPage: React.FC = () => {
                           loading={pdqLoading}
                           onClick={handlePdqQuery}
                         >
-                          查询
+                          {t("pixPage.queryBtn")}
                         </Button>
                       </Form.Item>
                     </Form>
@@ -586,7 +587,7 @@ export const PixPage: React.FC = () => {
                   {pdqResults.length > 0 && (
                     <Card
                       size="small"
-                      title={`PDQ 结果 (${pdqResults.length})`}
+                      title={`${t("pixPage.pdqResult")} (${pdqResults.length})`}
                     >
                       <Table scroll={{ x: 'max-content' }}
                         dataSource={pdqPagination.pageData}
@@ -594,21 +595,21 @@ export const PixPage: React.FC = () => {
                         pagination={pdqPagination.pagination}
                         size="small"
                         columns={[
-                          { title: "患者 ID", dataIndex: "patientId" },
+                          { title: t("pixPage.patientId"), dataIndex: "patientId" },
                           {
-                            title: "分配机构",
+                            title: t("pixPage.assigningAuthority"),
                             dataIndex: "assigningAuthority",
                           },
                           {
-                            title: "姓名",
+                            title: t("pixPage.name"),
                             render: (_: any, r: PdqResult) =>
                               `${r.name.family} ${r.name.given?.join(" ")}`,
                           },
-                          { title: "出生日期", dataIndex: "birthDate" },
-                          { title: "性别", dataIndex: "gender" },
-                          { title: "电话", dataIndex: "phone" },
+                          { title: t("pixPage.birthDate"), dataIndex: "birthDate" },
+                          { title: t("pixPage.gender"), dataIndex: "gender" },
+                          { title: t("pixPage.phone"), dataIndex: "phone" },
                           {
-                            title: "置信度",
+                            title: t("pixPage.confidence"),
                             dataIndex: "confidence",
                             render: (v: number) => (
                               <Tag
@@ -637,7 +638,7 @@ export const PixPage: React.FC = () => {
       />
 
       <Modal
-        title="新增 PIX 映射"
+        title={t("pixPage.addMappingTitle")}
         open={mappingModal}
         onCancel={() => setMappingModal(false)}
         onOk={handleAddMapping}
@@ -645,24 +646,24 @@ export const PixPage: React.FC = () => {
         <Form form={mappingForm} layout="vertical" size="small">
           <Form.Item
             name="assigningAuthority"
-            label="分配机构"
+            label={t("pixPage.assigningAuthority")}
             rules={[{ required: true }]}
           >
-            <Input placeholder="例如: HOSPITAL_A" />
+            <Input placeholder={t("pixPage.assigningAuthorityPlaceholder")} />
           </Form.Item>
           <Form.Item
             name="externalId"
-            label="外部 ID"
+            label={t("pixPage.externalId")}
             rules={[{ required: true }]}
           >
-            <Input placeholder="例如: P001" />
+            <Input placeholder={t("pixPage.patientIdPlaceholder")} />
           </Form.Item>
           <Form.Item
             name="internalPatientId"
-            label="内部患者 ID"
+            label={t("pixPage.internalPatientId")}
             rules={[{ required: true }]}
           >
-            <Input placeholder="例如: G005-00001" />
+            <Input placeholder={t("pixPage.internalPatientIdPlaceholder")} />
           </Form.Item>
         </Form>
       </Modal>
