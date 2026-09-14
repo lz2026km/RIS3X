@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 TemplateManagementPage (/template-management 模板中心) 作为 Tab; 旧路由 /report-templates redirect 兼容。文件保留供回滚参考。
 // [W3-2] 报告模板管理: templatesApi 真实 CRUD (列表/新建/编辑/删除) + 分类筛选 + 使用统计 + 智能片段
 import { usePagination } from '@/hooks/usePagination';
 import { templatesApi } from '@/services/api/templatesApi';

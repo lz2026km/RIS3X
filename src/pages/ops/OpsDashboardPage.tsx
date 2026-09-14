@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已收敛至 OperationsCenterPage (/operations-center); 旧路由 /ops/dashboard redirect 兼容。文件保留供回滚参考。
 import { useState, useEffect } from 'react'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,

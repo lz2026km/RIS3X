@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 ReviewCenterPage (/review-center 综合审核枢纽) 作为 Tab; 旧路由 /review-check redirect 兼容。文件保留供回滚参考。
 // [v3.0.6.11-81] W1-B P0: 初核 + 终核 + 复审综合页面 (真实后端化)
 // 背景: 后端无 /review /reviews 端点 (初核/终核/复审 仅存在于 MSW mock)。
 // 处理: 改用真实报告状态机 (reports.controller):

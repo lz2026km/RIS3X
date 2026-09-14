@@ -5,6 +5,10 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { templatesApi, type TemplateApprovalStatus } from '../services/api/templatesApi'
 import TemplatePendingSection from './TemplatePendingSection'
+// [v3.0.6.11-104 Wave 5C] 模板中心: ReportTemplateManagerPage + EmrTemplatesPage 内嵌为 Tab (旧路由 /report-templates, /emr-templates redirect)
+import ReportTemplateManagerPage from './reports/ReportTemplateManagerPage'
+import EmrTemplatesPage from './emr/EmrTemplatesPage'
+import { t as t9 } from '../i18n/appI18n'
 import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Upload, Download, Send, ShieldCheck, XCircle, Clock3 } from 'lucide-react'
 
@@ -134,7 +138,7 @@ export default function TemplateManagementPage() {
   const [toast, setToast] = useState<string | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
   const pageSize = 10
-  const [activeTab, setActiveTab] = useState<'manage' | 'version' | 'analytics' | 'share' | 'pending'>('manage')
+  const [activeTab, setActiveTab] = useState<'manage' | 'version' | 'analytics' | 'share' | 'pending' | 'reportTemplates' | 'emrTemplates'>('manage')
 
   // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入文件输入
   const importFileRef = useRef<HTMLInputElement>(null)
@@ -850,12 +854,15 @@ export default function TemplateManagementPage() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         {renderTab('manage', '模板管理', <ClipboardList size={14} />)}
         {renderTab('version', '版本管理', <History size={14} />)}
         {renderTab('analytics', '使用分析', <TrendingUp size={14} />)}
         {renderTab('share', '分享协作', <Share2 size={14} />)}
         {renderTab('pending', '待审模板', <Clock3 size={14} />)}
+        {/* [v3.0.6.11-104 Wave 5C] 模板中心收敛: 标签走 t() */}
+        {renderTab('reportTemplates', t9('nav.reportTemplates'), <FileText size={14} />)}
+        {renderTab('emrTemplates', t9('nav.emrTemplates'), <FileEdit size={14} />)}
       </div>
 
       {activeTab === 'manage' && (
@@ -959,6 +966,20 @@ export default function TemplateManagementPage() {
       {activeTab === 'pending' && (
         <div style={{ display: 'block' }}>
           <TemplatePendingSection />
+        </div>
+      )}
+
+      {/* [v3.0.6.11-104 Wave 5C] 模板中心: 嵌入 ReportTemplateManagerPage (报告模板 CRUD + 智能片段) */}
+      {activeTab === 'reportTemplates' && (
+        <div data-testid="template-embedded-report-templates" style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 4, border: '1px solid var(--border-color)' }}>
+          <ReportTemplateManagerPage />
+        </div>
+      )}
+
+      {/* [v3.0.6.11-104 Wave 5C] 模板中心: 嵌入 EmrTemplatesPage (EMR 病历模板 + ICD-11) */}
+      {activeTab === 'emrTemplates' && (
+        <div data-testid="template-embedded-emr-templates" style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 4, border: '1px solid var(--border-color)' }}>
+          <EmrTemplatesPage />
         </div>
       )}
 

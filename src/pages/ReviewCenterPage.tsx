@@ -22,6 +22,10 @@ import { Tabs, Card, Space, Button, message, Drawer, Empty, Badge, Tag, Spin, Al
 import { ClipboardCheck, ShieldCheck, Award, BarChart3, FileText, Users, Clock, ListChecks } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
+// [v3.0.6.11-104 Wave 5C] 报告审核收敛: ReviewCheckPage + DualReadPage 内嵌为 Tab (旧路由 /review-check, /dual-read redirect)
+import ReviewCheckPage from './review/ReviewCheckPage';
+import DualReadPage from './review/DualReadPage';
+import { t } from '../i18n/appI18n';
 
 const ReviewCenterPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('initial');
@@ -149,8 +153,8 @@ const ReviewCenterPage: React.FC = () => {
         onChange={setActiveTab}
         tabBarExtraContent={
           <Badge
-            count={6}
-            title="审核中心模块 6 项"
+            count={8}
+            title="审核中心模块 8 项"
             style={{ backgroundColor: '#1e40af' }}
           />
         }
@@ -161,6 +165,9 @@ const ReviewCenterPage: React.FC = () => {
           { key: 'workload', label: <Space><BarChart3 size={14} />工作量统计</Space>, children: <ReviewWorkloadStats /> },
           { key: 'sla', label: <Space><Clock size={14} />SLA 监控</Space>, children: <ReviewSLA /> },
           { key: 'assign', label: <Space><Users size={14} />审核员指派</Space>, children: <ReviewerAssignment task={selectedTask} /> },
+          // [v3.0.6.11-104 Wave 5C] 报告审核收敛: 初核/终核/复审 + 双阅片工作流
+          { key: 'reviewCheck', label: <Space><ClipboardCheck size={14} />{t('nav.reviewCheck')}</Space>, children: <div data-testid="review-embedded-check"><ReviewCheckPage /></div> },
+          { key: 'dualRead', label: <Space><BarChart3 size={14} />{t('nav.dualRead')}</Space>, children: <div data-testid="review-embedded-dual-read"><DualReadPage /></div> },
         ]}
       />
 

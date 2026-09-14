@@ -11,6 +11,8 @@ const { Text } = Typography
 /**
  * [v3.0.6.11-101 Wave 7C] 报告 V2 — AI 二次检出 V2 (F14) + 委员会会诊 V2 (F6) + 报告互评 (F9)
  * 三面板合一页三 Tab: 定稿前 AI 复查 / 多人合议会诊 / 科室互评
+ * @deprecated [v3.0.6.11-104 Wave 5A] 报告书写入口已收敛至 ReportWritePage; 旧路由 /report-v2/workbench redirect → /write-report。
+ *   子面板(SecondReadPanel/ConsultationV2Panel/PeerReviewPanel)保留供 ReportWritePage 复用，本页保留仅作参考/回退。
  */
 const ReportV2Page: React.FC = () => {
   const [activeTab, setActiveTab] = useState('second-read')

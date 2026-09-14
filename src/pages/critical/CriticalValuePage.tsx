@@ -2,9 +2,10 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
-  ShieldAlert, CheckCircle, CheckSquare,
+  ShieldAlert, CheckCircle, CheckSquare, Activity, ListOrdered, AlarmClock, BarChart3,
 } from "lucide-react"
 import { message } from "antd"
+import { t } from "../../i18n/appI18n"
 import { useCriticalStore } from "../../store"
 import { realtime, type RealtimePayload } from "../../services/realtime"
 import { LoadingBanner, ErrorBanner } from "../../components/feedback"
@@ -22,11 +23,31 @@ import { canApprove } from "../../services/auth/rbacService"
 import { ClosedLoopTracker5Nodes } from "./CriticalValueTimeline"
 import { DetailPanel } from "./CriticalValueDetail"
 import { criticalExtApi } from "../../services/api"
+// [G005 v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 4 个旧页面内嵌为 Tab
+// 旧路由 /critical-value-center /critical-value-5step /critical-alert /critical-value-stats → /critical-value?tab=xxx
+import CriticalValueCenterPage from "../CriticalValueCenterPage"
+import CriticalValue5StepPage from "./CriticalValue5StepPage"
+import CriticalAlertPage from "./CriticalAlertPage"
+import CriticalValueStatsPage from "../CriticalValueStatsPage"
+
+const TABS = [
+  { key: "workbench", label: t("critical.tabWorkbench"), icon: <ShieldAlert size={15} /> },
+  // [v3.0.6.11-104 Wave 5B] 吸收 CriticalValueCenterPage (旧 /critical-value-center)
+  { key: "center", label: t("critical.tabCenter"), icon: <Activity size={15} /> },
+  // [v3.0.6.11-104 Wave 5B] 吸收 CriticalValue5StepPage (旧 /critical-value-5step)
+  { key: "5step", label: t("critical.tab5Step"), icon: <ListOrdered size={15} /> },
+  // [v3.0.6.11-104 Wave 5B] 吸收 CriticalAlertPage 聚合列表 (旧 /critical-alert, 含 W2C)
+  { key: "alert", label: t("critical.tabAlert"), icon: <AlarmClock size={15} /> },
+  // [v3.0.6.11-104 Wave 5B] 吸收 CriticalValueStatsPage 统计扩展 (旧 /critical-value-stats, 含 W2D)
+  { key: "stats", label: t("critical.tabStats"), icon: <BarChart3 size={15} /> },
+]
 
 export default function CriticalValuePage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { log } = useOperationLog("critical_value")
+  // [G005 v3.0.6.11-104 Wave 5B] Tab 枢纽: ?tab=workbench|center|5step|alert|stats
+  const [activeTab, setActiveTab] = useState<string>(() => searchParams.get("tab") ?? "workbench")
   const [statusFilter, setStatusFilter] = useState<string>("全部")
   const [modalityFilter, setModalityFilter] = useState<string>("全部")
   const [severityFilter, setSeverityFilter] = useState<string>("全部")
@@ -295,8 +316,10 @@ export default function CriticalValuePage() {
   }
 
   // [W2-A] 直达 5 步闭环工作流
+  // [G005 v3.0.6.11-104 Wave 5B] 收敛: 内嵌 Tab 直达 (旧 /critical-value-5step redirect → /critical-value?tab=5step)
   const handleGo5Step = (cv: CriticalValue) => {
-    navigate(`/critical-value-5step?cvId=${encodeURIComponent(cv.id)}`)
+    setActiveTab("5step")
+    navigate(`/critical-value?tab=5step&cvId=${encodeURIComponent(cv.id)}`)
   }
 
   const handleConfirmProcess = async () => {
@@ -375,7 +398,7 @@ export default function CriticalValuePage() {
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={() => navigate('/critical-value-rule')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>规则配置</button>
-          <button onClick={() => navigate('/critical-value-stats')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>统计大屏</button>
+          <button onClick={() => setActiveTab('stats')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>统计大屏</button>
           <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>8 大分类评估</button>
         </div>
       </div>
@@ -389,6 +412,32 @@ export default function CriticalValuePage() {
         <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>危急值发现 · 即时预警 · 双环闭环 · 转随访管理 · 5节点追踪 · 全生命周期管理</p>
       </div>
 
+      {/* [G005 v3.0.6.11-104 Wave 5B] 多入口收敛: Tab 枢纽导航 (照 QCPage 内嵌模式) */}
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 6, marginBottom: 16, display: 'flex', gap: 4, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.key
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                flex: 1, padding: '10px 16px', borderRadius: 8, border: 'none',
+                background: isActive ? '#dc2626' : 'transparent',
+                color: isActive ? '#fff' : '#64748b',
+                fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                transition: 'all 0.2s',
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {activeTab === 'workbench' && (
+        <>
       <CriticalValueStatsSection data={criticalValues} />
 
       <BatchActionBar
@@ -425,6 +474,28 @@ export default function CriticalValuePage() {
           </div>
         )}
       </div>
+        </>
+      )}
+
+      {/* [G005 v3.0.6.11-104 Wave 5B] 内嵌 Tab: 危急值中心 (旧 /critical-value-center) */}
+      {activeTab === 'center' && (
+        <div data-testid="critical-value-center-embedded"><CriticalValueCenterPage /></div>
+      )}
+
+      {/* [G005 v3.0.6.11-104 Wave 5B] 内嵌 Tab: 5 步闭环 (旧 /critical-value-5step) */}
+      {activeTab === '5step' && (
+        <div data-testid="critical-value-5step-embedded"><CriticalValue5StepPage /></div>
+      )}
+
+      {/* [G005 v3.0.6.11-104 Wave 5B] 内嵌 Tab: 告警列表 (旧 /critical-alert, 保留 W2C 聚合列表) */}
+      {activeTab === 'alert' && (
+        <div data-testid="critical-alert-embedded"><CriticalAlertPage /></div>
+      )}
+
+      {/* [G005 v3.0.6.11-104 Wave 5B] 内嵌 Tab: 统计大屏 (旧 /critical-value-stats, 保留 W2D 统计扩展) */}
+      {activeTab === 'stats' && (
+        <div data-testid="critical-value-stats-embedded"><CriticalValueStatsPage /></div>
+      )}
 
       <CriticalValueModals
         toast={toast}

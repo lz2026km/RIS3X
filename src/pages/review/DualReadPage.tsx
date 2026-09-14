@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 ReviewCenterPage (/review-center 综合审核枢纽) 作为 Tab; 旧路由 /dual-read redirect 兼容。文件保留供回滚参考。
 import React, { useState, useEffect, useCallback } from 'react'
 import { Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, Statistic, message, Select, Divider, Alert, Tooltip } from 'antd'
 import { GitBranch, CheckCircle, AlertTriangle, BarChart3, UserCheck, PenLine, RefreshCw, FileText, ExternalLink } from 'lucide-react'

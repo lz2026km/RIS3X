@@ -9,9 +9,20 @@ import { snomedApi, type SnomedCode } from "../../services/api/snomedApi"
 import { t as t9 } from "../../i18n/appI18n"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
 import { ActionButton } from "../../components/common/ActionButton"
+// [v3.0.6.11-104 Wave 5C] SNOMED 收敛: SnomedEncoderPage + AutoCodingPage 内嵌为 Tab (旧路由 /snomed/encoder, /snomed/auto-coding redirect)
+import SnomedEncoderPage from "../snomed/SnomedEncoderPage"
+import AutoCodingPage from "./AutoCodingPage"
+
+// [v3.0.6.11-104 Wave 5C] Tab 标签走 t()
+const SNOMED_TABS = [
+  { key: "encode" as const, label: t9("nav.snomedEncode"), icon: <Code size={15} /> },
+  { key: "encoder" as const, label: t9("nav.snomedEncoder"), icon: <FileText size={15} /> },
+  { key: "autoCoding" as const, label: t9("nav.autoCoding"), icon: <ThumbsUp size={15} /> },
+]
 
 export default function SnomedPage() {
   const { t } = useTranslation("snomed")
+  const [activeTab, setActiveTab] = useState<"encode" | "encoder" | "autoCoding">("encode")
   const [text, setText] = useState("")
   const [codes, setCodes] = useState<SnomedCode[]>([])
   const [loading, setLoading] = useState(false)
@@ -68,6 +79,26 @@ export default function SnomedPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Code size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
+      {/* [v3.0.6.11-104 Wave 5C] SNOMED 收敛: 编码 / 编码器 / 自动编码 三 Tab 同页 */}
+      <div style={{ display: "flex", gap: 8, padding: "12px 24px 0", flexWrap: "wrap" }}>
+        {SNOMED_TABS.map(tab => (
+          <button
+            key={tab.key}
+            data-testid={`snomed-tab-${tab.key}`}
+            onClick={() => setActiveTab(tab.key)}
+            style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8,
+              fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid var(--border-color)",
+              background: activeTab === tab.key ? "#1e40af" : "var(--bg-card)",
+              color: activeTab === tab.key ? "#fff" : "#64748b",
+            }}
+          >
+            {tab.icon}{tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "encode" && (
       <div style={{ padding: 24 }}>
         <StatCardGrid style={{ marginBottom: 16 }}>
           <StatCard title={t9("w9.snomed.statsTotal")} value={codes.length} icon={<FileText size={18} />} color="primary" />
@@ -209,6 +240,19 @@ export default function SnomedPage() {
           </div>
         </div>
       </div>
+      )}
+
+      {activeTab === "encoder" && (
+        <div data-testid="snomed-embedded-encoder" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 4, border: "1px solid var(--border-color)" }}>
+          <SnomedEncoderPage />
+        </div>
+      )}
+
+      {activeTab === "autoCoding" && (
+        <div data-testid="snomed-embedded-auto-coding" style={{ background: "var(--bg-card)", borderRadius: 12, padding: 4, border: "1px solid var(--border-color)" }}>
+          <AutoCodingPage />
+        </div>
+      )}
     </PageContainer>
   )
 }

@@ -1,3 +1,7 @@
+/**
+ * @deprecated [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 本页面已内嵌为 `/critical-value` 的 "危急值中心" Tab。
+ * 旧路由 `/critical-value-center` 保留 redirect → `/critical-value?tab=center`。请勿新增直接引用。
+ */
 // ============================================================
 // G005 放射科RIS系统 v3.0.5.0 - 危急值中心 R3
 // 路由 /critical-value-center - 危急值统一入口

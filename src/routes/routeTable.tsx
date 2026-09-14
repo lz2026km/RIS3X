@@ -62,9 +62,7 @@ const DictionaryPage = lazy(() => import("../pages/DictionaryPage"));
 const OperationsCenterPage = lazy(
   () => import("../pages/OperationsCenterPage"),
 );
-const DepartmentDashboardPage = lazy(
-  () => import("../pages/DepartmentDashboardPage"),
-);
+// [v3.0.6.11-104 Wave 5C] DepartmentDashboardPage 已收敛至 DeptDashboardPage, 旧路由 /department-dashboard redirect (见下方)
 const StatsReportPage = lazy(() => import("../pages/StatsReportPage"));
 const ClinicalDataPage = lazy(() => import("../pages/ClinicalDataPage"));
 const TemplateManagementPage = lazy(
@@ -93,9 +91,7 @@ const AIReportDraftPage = lazy(() => import("../pages/AIReportDraftPage"));
 const CriticalValueRulePage = lazy(
   () => import("../pages/CriticalValueRulePage"),
 );
-const CriticalValueStatsPage = lazy(
-  () => import("../pages/CriticalValueStatsPage"),
-);
+// [v3.0.6.11-104 Wave 5B] CriticalValueStatsPage 已内嵌为 CriticalValuePage Tab, 旧路由 redirect (不再单独 lazy)
 const SpecialAssessmentPages = lazy(
   () => import("../pages/SpecialAssessmentPages"),
 );
@@ -109,7 +105,7 @@ const PatientReportPortalPage = lazy(
 const CASignaturePage = lazy(() => import("../pages/CASignaturePage"));
 const BlockchainProofPage = lazy(() => import("../pages/BlockchainProofPage"));
 // [v3.0.6.11-103 Wave 10] 重复页合并: AppointmentManagementPage/DeviceFaultPage 已嵌入目标页, 旧路由 redirect (见 routes 下方)
-const AIQCPage = lazy(() => import("../pages/AIQCPage"));
+// [v3.0.6.11-104 Wave 5A] AIQCPage 已内嵌为 QCPage Tab, /ai-qc 旧路由 redirect → /qc (不再单独 lazy)
 const AIStructuredReportPage = lazy(
   () => import("../pages/AIStructuredReportPage"),
 );
@@ -234,7 +230,7 @@ const CvOperationsPage = lazy(
 const CvQcPage = lazy(() => import("../pages/cardiac/CvQcPage"));
 const DeviceOpsPage = lazy(() => import("../pages/ops/DeviceOpsPage"));
 const HrOperationsPage = lazy(() => import("../pages/ops/HrOperationsPage"));
-const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
+// [v3.0.6.11-104 Wave 5C] OpsDashboardPage 已收敛至 /operations-center, 旧路由 /ops/dashboard redirect (见下方)
 // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
 const KpiWallPage = lazy(() => import("../pages/ops/KpiWallPage"));
 // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理 -> [v3.0.6.11-103 Wave 10] 已合并入 /schedule (SchedulePage Tab), 旧路由 redirect
@@ -293,9 +289,7 @@ const TechMobileWorkstation = lazy(
   () => import("../pages/mobile/tech/TechMobileWorkstation"),
 );
 const MobilePushPage = lazy(() => import("../pages/mobile/MobilePushPage"));
-const DepartmentQualityPage = lazy(
-  () => import("../pages/quality/DepartmentQualityPage"),
-);
+// [v3.0.6.11-104 Wave 5A] DepartmentQualityPage 已内嵌为 QCPage Tab, /quality/department 旧路由 redirect → /qc (不再单独 lazy)
 const LoginPage = lazy(() => import("../pages/LoginPage"));
 const ForbiddenPage = lazy(() => import("../pages/ForbiddenPage"));
 const ReviewCenterPage = lazy(() => import("../pages/ReviewCenterPage"));
@@ -305,7 +299,7 @@ const AsrPage = lazy(() => import("../pages/report/AsrPage"));
 // [v3.0.6.11-103 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
 const StructuredReportV3Page = lazy(() => import("../pages/report/StructuredReportV3Page"));
 const AsrDictationPage = lazy(() => import("../pages/report/AsrDictationPage"));
-const AutoCodingPage = lazy(() => import("../pages/report/AutoCodingPage"));
+// [v3.0.6.11-104 Wave 5C] AutoCodingPage 已嵌入 SnomedPage (编码宿主) Tab, 旧路由 /snomed/auto-coding redirect (见下方)
 // [v3.0.6.11-100 Wave 4A] 自定义报表独立完整版 / 语音工作站 / 移动审批
 const CustomReportPage = lazy(() => import("../pages/report/CustomReportPage"));
 const VoiceWorkstationPage = lazy(() => import("../pages/voice/VoiceWorkstationPage"));
@@ -313,9 +307,7 @@ const MobileApprovalPage = lazy(() => import("../pages/mobile/MobileApprovalPage
 const SnomedPage = lazy(() => import("../pages/report/SnomedPage"));
 const RuleConfigPanel = lazy(() => import("../pages/cds/RuleConfigPanel"));
 const RdsrPage = lazy(() => import("../pages/dose/RdsrPage"));
-const CriticalValueCenterPage = lazy(
-  () => import("../pages/CriticalValueCenterPage"),
-);
+// [v3.0.6.11-104 Wave 5B] CriticalValueCenterPage 已内嵌为 CriticalValuePage Tab, 旧路由 redirect (不再单独 lazy)
 // [v3.0.6.11-79] W2-A 危急值接收端门户
 const ReceiverPortalPage = lazy(
   () => import("../pages/critical/ReceiverPortalPage"),
@@ -401,12 +393,11 @@ const PatientDeviceManagementPage = lazy(
 const NotificationTemplateDictPage = lazy(
   () => import("../pages/admin/NotificationTemplateDictPage"),
 );
-// [v3.0.6.8-48] PR 4: 初核 + 终核 + 复审
-const ReviewCheckPage = lazy(() => import("../pages/review/ReviewCheckPage"));
+// [v3.0.6.11-104 Wave 5C] ReviewCheckPage 已嵌入 ReviewCenterPage (综合审核枢纽) Tab, 旧路由 /review-check redirect (见下方)
 // [v3.0.6.8-49] PR 5: CA 签名 + 修订
 const SignAmendPage = lazy(() => import("../pages/security/SignAmendPage"));
 // [v3.0.6.8-50] PR 6: v3 报告全栈
-const V3ReportHubPage = lazy(() => import("../pages/v3/V3ReportHubPage"));
+// [v3.0.6.11-104 Wave 5A] V3ReportHubPage 功能已并入 ReportWritePage 侧栏, /v3-report-hub redirect → /write-report (不再单独 lazy)
 // [v3.0.6.8-51] PR 7: 眼料 (IOL + 接触镜)
 const MaterialsV2Page = lazy(() => import("../pages/materials/MaterialsPage"));
 const ToothChartPage = lazy(() => import("../pages/dental/ToothChartPage"));
@@ -439,15 +430,13 @@ const DentalInventoryPage = lazy(
 const DentalDashboardPage = lazy(
   () => import("../pages/dental/DentalDashboardPage"),
 );
-const EmrTemplatesPage = lazy(() => import("../pages/emr/EmrTemplatesPage"));
+// [v3.0.6.11-104 Wave 5C] EmrTemplatesPage 已嵌入 TemplateManagementPage (模板中心) Tab
 const SystemAdminPage = lazy(() => import("../pages/admin/SystemAdminPage"));
 const TreatmentPlanCenterPage = lazy(
   () => import("../pages/treatment/TreatmentPlanCenterPage"),
 );
 // [G005 v3.0.6.11-104 Wave 4A] PatientPortalPageV2 已随 /patient-unified 重定向移除 (与 PatientPortalPage 同模块)
-const CommandCenterPage = lazy(
-  () => import("../pages/operations/CommandCenterPage"),
-);
+// [v3.0.6.11-104 Wave 5C] CommandCenterPage 已收敛至 /operations-center, 旧路由 /command-center redirect (见下方)
 const BenchmarkPageV2 = lazy(
   () => import("../pages/analytics/BenchmarkPageV2"),
 );
@@ -491,9 +480,7 @@ const WsiViewerPage = lazy(() => import("../pages/imaging/WsiViewerPage"));
 const TerminologyServerPage = lazy(
   () => import("../pages/clinical/TerminologyServerPage"),
 );
-const ReportTemplateManagerPage = lazy(
-  () => import("../pages/reports/ReportTemplateManagerPage"),
-);
+// [v3.0.6.11-104 Wave 5C] ReportTemplateManagerPage 已嵌入 TemplateManagementPage (模板中心) Tab
 const IheIntegrationPage = lazy(
   () => import("../pages/integration/IheIntegrationPage"),
 );
@@ -625,9 +612,7 @@ const TriagePage = lazy(() => import("../pages/triage/TriagePage"));
 const TriageDashboardPage = lazy(
   () => import("../pages/triage/TriageDashboardPage"),
 );
-const SnomedEncoderPage = lazy(
-  () => import("../pages/snomed/SnomedEncoderPage"),
-);
+// [v3.0.6.11-104 Wave 5C] SnomedEncoderPage 已嵌入 SnomedPage (编码宿主) Tab, 旧路由 /snomed/encoder redirect (见下方)
 const OrchestratorPage = lazy(
   () => import("../pages/workflow/OrchestratorPage"),
 );
@@ -640,9 +625,7 @@ const CardiacAiPage = lazy(() => import("../pages/ai/CardiacAiPage"));
 const WadoRsPage = lazy(() => import("../pages/dicom/WadoRsPage"));
 const StowRsPage = lazy(() => import("../pages/dicom/StowRsPage"));
 const SrReportPage = lazy(() => import("../pages/dicom/SrReportPage"));
-const CriticalAlertPage = lazy(
-  () => import("../pages/critical/CriticalAlertPage"),
-);
+// [v3.0.6.11-104 Wave 5B] CriticalAlertPage 已内嵌为 CriticalValuePage Tab, 旧路由 redirect (不再单独 lazy)
 const AutoCollectionPage = lazy(
   () => import("../pages/operations/AutoCollectionPage"),
 );
@@ -671,12 +654,12 @@ const CrossModalSearchPage = lazy(
 // [v3.0.6.11-60] G005 相似病例检索 (对标 Siemens Similar Patient Search)
 const SimilarCasePage = lazy(() => import("../pages/case/SimilarCasePage"));
 // [Sprint 4] F15 Dual Read Workflow
-const DualReadPage = lazy(() => import("../pages/review/DualReadPage"));
+// [v3.0.6.11-104 Wave 5C] DualReadPage 已嵌入 ReviewCenterPage (综合审核枢纽) Tab, 旧路由 /dual-read redirect (见下方)
 // [Sprint 4] F16 Tele-Sign
 const TeleSignPage = lazy(() => import("../pages/tele/TeleSignPage"));
 
 // [v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 V2 + 委员会会诊 V2 + 报告互评 (三面板一页三 Tab)
-const ReportV2Page = lazy(() => import("../pages/report-v2/ReportV2Page"));
+// [v3.0.6.11-104 Wave 5A] ReportV2Page 功能已并入 ReportWritePage 侧栏, /report-v2/workbench redirect → /write-report (不再单独 lazy)
 
 // [v3.0.6.11-101 Wave 3A] 多平面重建 V2 工作室 (MPR 三平面联动 + VR + CPR + 切割)
 const VolumeStudioPage = lazy(
@@ -936,6 +919,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/mobile/approval": ["主任", "管理员"],
   "/snomed/encode": ["医生", "主任", "管理员"],
   "/snomed/encoder": ["医生", "主任", "管理员"],
+  // [v3.0.6.11-104 Wave 5C] SNOMED 收敛 redirect 路径 (原侧边栏菜单已移除), 保持同等角色
+  "/snomed/auto-coding": ["医生", "主任", "管理员"],
   "/cds/rule-config": ["主任", "管理员"],
   // [G005 W2-B] CDS 指南库 / 告警中心 / 剂量监测
   "/cds/guidelines": ["医生", "主任", "管理员"],
@@ -996,6 +981,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/cardiac/vessel-analysis": ["医生", "主任", "管理员"],
   // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
   "/ops/kpi-wall": ["主任", "管理员"],
+  // [v3.0.6.11-104 Wave 5C] 运营看板收敛 redirect 路径 (原侧边栏菜单已移除), 保持同等角色
+  "/ops/dashboard": ["主任", "管理员"],
   // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
   "/ops/tech-schedule": ["主任", "管理员", "技师"],
   // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2
@@ -1083,9 +1070,10 @@ export const routes: RouteObject[] = [
   wrapped("/data-report-center", React.createElement(DataReportCenterPage)),
   wrapped("/dictionary", React.createElement(DictionaryPage)),
   wrapped("/operations-center", React.createElement(OperationsCenterPage)),
+  // [v3.0.6.11-104 Wave 5C] 看板收敛: /department-dashboard 合并至 /dept-dashboard (DeptDashboardPage), 保留 redirect 兼容
   wrapped(
     "/department-dashboard",
-    React.createElement(DepartmentDashboardPage),
+    React.createElement(Navigate, { to: "/dept-dashboard", replace: true }),
   ),
   wrapped("/stats-report", React.createElement(StatsReportPage)),
   wrapped("/clinical-data", React.createElement(ClinicalDataPage)),
@@ -1110,7 +1098,8 @@ export const routes: RouteObject[] = [
   ),
   wrapped("/ai-report-draft", React.createElement(AIReportDraftPage)),
   wrapped("/critical-value-rule", React.createElement(CriticalValueRulePage)),
-  wrapped("/critical-value-stats", React.createElement(CriticalValueStatsPage)),
+  // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 旧 /critical-value-stats redirect → /critical-value?tab=stats
+  wrapped("/critical-value-stats", React.createElement(Navigate, { to: "/critical-value?tab=stats", replace: true })),
   wrapped("/special-assessment", React.createElement(SpecialAssessmentPages)),
   wrapped("/report-export", React.createElement(ReportExportPage)),
   wrapped("/export/approval", React.createElement(ExportApprovalPage)), // [W1-5] 导出审批中心
@@ -1129,7 +1118,8 @@ export const routes: RouteObject[] = [
   ),
   // [v3.0.6.11-103 Wave 10] 重复页合并: DeviceFaultPage 嵌入 DevicePage (设备故障 Tab)
   wrapped("/device-fault", React.createElement(Navigate, { to: "/devices", replace: true })),
-  wrapped("/ai-qc", React.createElement(AIQCPage)),
+  // [v3.0.6.11-104 Wave 5A] 质控收敛: AIQCPage 已内嵌为 QCPage Tab, 旧路由 redirect
+  wrapped("/ai-qc", React.createElement(Navigate, { to: "/qc?tab=ai", replace: true })),
   wrapped("/ai-structured-report", React.createElement(AIStructuredReportPage)),
   wrapped("/ai-medical-device", React.createElement(AIMedicalDevicePage)),
   wrapped("/regional-imaging", React.createElement(RegionalImagingPage)),
@@ -1205,7 +1195,8 @@ export const routes: RouteObject[] = [
   // [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 (周视图/拖拽调整/冲突检测)
   wrapped("/ops/device-gantt", React.createElement(DeviceScheduleGanttPage)),
   wrapped("/ops/hr", React.createElement(HrOperationsPage)),
-  wrapped("/ops/dashboard", React.createElement(OpsDashboardPage)),
+  // [v3.0.6.11-104 Wave 5C] 看板收敛: /ops/dashboard 合并至 /operations-center, 保留 redirect 兼容 (墙屏 /ops/kpi-wall 保留)
+  wrapped("/ops/dashboard", React.createElement(Navigate, { to: "/operations-center", replace: true })),
   // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏 (大屏看板)
   wrapped("/ops/kpi-wall", React.createElement(KpiWallPage)),
   // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理 -> [v3.0.6.11-103 Wave 10] 已合并入 /schedule (SchedulePage 技师排班 Tab)
@@ -1282,14 +1273,13 @@ export const routes: RouteObject[] = [
   wrapped("/mobile/nurse", React.createElement(NurseMobileWorkstation)),
   wrapped("/mobile/tech", React.createElement(TechMobileWorkstation)),
   wrapped("/mobile/push", React.createElement(MobilePushPage)),
-  wrapped("/quality/department", React.createElement(DepartmentQualityPage)),
+  // [v3.0.6.11-104 Wave 5A] 质控收敛: DepartmentQualityPage 已内嵌为 QCPage Tab, 旧路由 redirect
+  wrapped("/quality/department", React.createElement(Navigate, { to: "/qc?tab=deptQuality", replace: true })),
   wrapped("/review-center", React.createElement(ReviewCenterPage)),
   // [v3.0.6.11-103 Wave 10] 重复页合并: QualityControlPage 嵌入 QCPage (质控管理 Tab), 旧路由 redirect
   wrapped("/quality-control", React.createElement(Navigate, { to: "/qc", replace: true })),
-  wrapped(
-    "/critical-value-center",
-    React.createElement(CriticalValueCenterPage),
-  ),
+  // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 旧 /critical-value-center redirect → /critical-value?tab=center
+  wrapped("/critical-value-center", React.createElement(Navigate, { to: "/critical-value?tab=center", replace: true })),
   wrapped("/defect-management", React.createElement(DefectManagementPage)),
   wrapped("/cosign", React.createElement(CoSignPage)),
   wrapped("/workflow-designer", React.createElement(WorkflowDesignerPage)),
@@ -1332,12 +1322,14 @@ export const routes: RouteObject[] = [
   wrapped("/dental/billing", React.createElement(DentalBillingPage)), // [v3.0.6.8-95] Phase 4: 收费/划价/医保
   wrapped("/dental/schedule", React.createElement(DentalSchedulePage)), // [v3.0.6.8-96] Phase 4: 排班+PSR
   wrapped("/dental/photo", React.createElement(DentalPhotoPage)), // [v3.0.6.8-98] Phase 5: 口内照片
-  wrapped("/emr-templates", React.createElement(EmrTemplatesPage)), // [v3.0.6.8-63]
+  // [v3.0.6.11-104 Wave 5C] 模板收敛: /emr-templates 嵌入 /template-management (模板中心) Tab, 旧路由 redirect 兼容
+  wrapped("/emr-templates", React.createElement(Navigate, { to: "/template-management", replace: true })), // [v3.0.6.8-63]
   wrapped("/system-admin", React.createElement(SystemAdminPage)), // [v3.0.6.8-64]
   wrapped("/treatment-plans", React.createElement(TreatmentPlanCenterPage)), // [v3.0.6.8-65]
   // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /patient-portal
   wrapped("/patient-unified", React.createElement(Navigate, { to: "/patient-portal", replace: true })), // [v3.0.6.8-66]
-  wrapped("/command-center", React.createElement(CommandCenterPage)), // [v3.0.6.8-67]
+  // [v3.0.6.11-104 Wave 5C] 看板收敛: /command-center 合并至 /operations-center, 保留 redirect 兼容
+  wrapped("/command-center", React.createElement(Navigate, { to: "/operations-center", replace: true })), // [v3.0.6.8-67]
   wrapped("/dicom-share", React.createElement(DicomSharePage)), // [v3.0.6.8-68]
   wrapped("/operations/occupancy", React.createElement(RoomOccupancyPage)), // [v3.0.6.11-17]
   wrapped("/scheduling-center", React.createElement(SchedulingCenterPage)), // [v3.0.6.8-69]
@@ -1350,7 +1342,8 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/sr-manager", React.createElement(DicomSrPage)), // DICOM SR 结构化报告
   wrapped("/dicom/web", React.createElement(DicomWebPage)),
   wrapped("/terminology-server", React.createElement(TerminologyServerPage)), // [v3.0.6.8-73]
-  wrapped("/report-templates", React.createElement(ReportTemplateManagerPage)), // [v3.0.6.8-74]
+  // [v3.0.6.11-104 Wave 5C] 模板收敛: /report-templates 嵌入 /template-management (模板中心) Tab, 旧路由 redirect 兼容
+  wrapped("/report-templates", React.createElement(Navigate, { to: "/template-management", replace: true })), // [v3.0.6.8-74]
   wrapped("/ihe-integration", React.createElement(IheIntegrationPage)), // [v3.0.6.8-75]
   wrapped("/ihe/pix", React.createElement(PixPage)),
   wrapped(
@@ -1423,9 +1416,11 @@ export const routes: RouteObject[] = [
     React.createElement(PatientDeviceManagementPage),
   ), // [v3.0.6.8-46] PR 2
   wrapped("/notif-tpl-dict", React.createElement(NotificationTemplateDictPage)), // [v3.0.6.8-47] PR 3
-  wrapped("/review-check", React.createElement(ReviewCheckPage)), // [v3.0.6.8-48] PR 4
+  // [v3.0.6.11-104 Wave 5C] 报告审核收敛: /review-check 嵌入 /review-center (综合审核枢纽) Tab, 旧路由 redirect 兼容
+  wrapped("/review-check", React.createElement(Navigate, { to: "/review-center", replace: true })), // [v3.0.6.8-48] PR 4
   wrapped("/sign-amend", React.createElement(SignAmendPage)), // [v3.0.6.8-49] PR 5
-  wrapped("/v3-report-hub", React.createElement(V3ReportHubPage)), // [v3.0.6.8-50] PR 6
+  // [v3.0.6.11-104 Wave 5A] 报告书写收敛: V3ReportHub 功能并入 ReportWritePage, 旧路由 redirect
+  wrapped("/v3-report-hub", React.createElement(Navigate, { to: "/write-report", replace: true })),
   wrapped("/materials", React.createElement(MaterialsV2Page)), // [v3.0.6.8-51] PR 7
   // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /materials
   wrapped("/supplies", React.createElement(Navigate, { to: "/materials", replace: true })), // [F16] 耗材: 侧边栏 /supplies 对齐
@@ -1466,10 +1461,14 @@ export const routes: RouteObject[] = [
   // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
   wrapped("/qc/analytics", React.createElement(QcAnalyticsPage)),
   // [G005 v3.0.6.11-101 Wave 6A] 报告 V2: 质控规则引擎 + 水印签章 V2
-  wrapped("/report-v2/rules", React.createElement(ReportRulesPage)),
-  wrapped("/report-v2/watermark", React.createElement(ReportWatermarkPage)),
+  // [v3.0.6.11-104 Wave 5A] 质控收敛: canonical 路径迁至 /qc/rules, /qc/watermark; 旧路径 redirect 兼容
+  wrapped("/qc/rules", React.createElement(ReportRulesPage)),
+  wrapped("/qc/watermark", React.createElement(ReportWatermarkPage)),
+  wrapped("/report-v2/rules", React.createElement(Navigate, { to: "/qc/rules", replace: true })),
+  wrapped("/report-v2/watermark", React.createElement(Navigate, { to: "/qc/watermark", replace: true })),
   // [G005 v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 V2 + 委员会会诊 V2 + 报告互评
-  wrapped("/report-v2/workbench", React.createElement(ReportV2Page)),
+  // [v3.0.6.11-104 Wave 5A] 报告书写收敛: ReportV2 三面板并入 ReportWritePage 侧栏, 旧路由 redirect
+  wrapped("/report-v2/workbench", React.createElement(Navigate, { to: "/write-report", replace: true })),
   // [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
   wrapped("/tech/room-status", React.createElement(ExamRoomStatusBoard)),
   wrapped("/tech/retake-analytics", React.createElement(RetakeRateAnalyticsPage)),
@@ -1518,15 +1517,17 @@ export const routes: RouteObject[] = [
   // [v3.0.6.11-103 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
   wrapped("/report/v4/structured", React.createElement(StructuredReportV3Page)),
   wrapped("/asr/dictation", React.createElement(AsrDictationPage)),
-  wrapped("/snomed/auto-coding", React.createElement(AutoCodingPage)),
-  wrapped("/snomed/encoder", React.createElement(SnomedEncoderPage)),
+  // [v3.0.6.11-104 Wave 5C] SNOMED 三页收敛到 /snomed/encode (SnomedPage 宿主: 编码/编码器/自动编码 三 Tab), 旧路由 redirect 兼容
+  wrapped("/snomed/auto-coding", React.createElement(Navigate, { to: "/snomed/encode", replace: true })),
+  wrapped("/snomed/encoder", React.createElement(Navigate, { to: "/snomed/encode", replace: true })),
   wrapped("/cds/rule-config", React.createElement(RuleConfigPanel)),
   wrapped("/rdsr", React.createElement(RdsrPage)),
   // [Sprint 4] F13-F18 新页面路由
   wrapped("/ai-marketplace", React.createElement(AiMarketplacePage)),
   wrapped("/cross-modal-search", React.createElement(CrossModalSearchPage)),
   wrapped("/similar-case", React.createElement(SimilarCasePage)),
-  wrapped("/dual-read", React.createElement(DualReadPage)),
+  // [v3.0.6.11-104 Wave 5C] 报告审核收敛: /dual-read 嵌入 /review-center (综合审核枢纽) Tab, 旧路由 redirect 兼容
+  wrapped("/dual-read", React.createElement(Navigate, { to: "/review-center", replace: true })),
   wrapped("/tele-sign", React.createElement(TeleSignPage)),
   wrapped("/smart-route", React.createElement(SmartRoutePage)),
   wrapped("/hl7-siu", React.createElement(Hl7SiuPage)),
@@ -1554,12 +1555,8 @@ export const routes: RouteObject[] = [
     "/radpath",
     React.createElement(lazy(() => import("../pages/radpath/RadPathPage"))),
   ),
-  wrapped(
-    "/critical-value-5step",
-    React.createElement(
-      lazy(() => import("../pages/critical/CriticalValue5StepPage")),
-    ),
-  ),
+  // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 旧 /critical-value-5step redirect → /critical-value?tab=5step
+  wrapped("/critical-value-5step", React.createElement(Navigate, { to: "/critical-value?tab=5step", replace: true })),
   // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
   wrapped("/fhir/patient", React.createElement(FhirPatientPage)),
   wrapped("/fhir/observation", React.createElement(FhirObservationPage)),
@@ -1585,7 +1582,8 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/wado-rs", React.createElement(WadoRsPage)),
   wrapped("/dicom/stow-rs", React.createElement(StowRsPage)),
   wrapped("/dicom/sr-report", React.createElement(SrReportPage)),
-  wrapped("/critical-alert", React.createElement(CriticalAlertPage)),
+  // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 旧 /critical-alert redirect → /critical-value?tab=alert
+  wrapped("/critical-alert", React.createElement(Navigate, { to: "/critical-value?tab=alert", replace: true })),
   // [v3.0.6.11-100 Wave 4A] 自定义报表 / 语音工作站 / 移动审批
   wrapped("/report/custom", React.createElement(CustomReportPage)),
   wrapped("/voice/workstation", React.createElement(VoiceWorkstationPage)),

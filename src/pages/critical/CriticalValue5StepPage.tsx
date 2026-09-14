@@ -1,4 +1,8 @@
 /**
+ * @deprecated [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 本页面已内嵌为 `/critical-value` 的 "5步闭环" Tab。
+ * 旧路由 `/critical-value-5step` 保留 redirect → `/critical-value?tab=5step`。请勿新增直接引用。
+ */
+/**
  * G005 RIS v3.0.6 - 危急值5步工作流页面
  * 5节点闭环: 发现 → 电话通知 → 临床确认 → 临床回执 → 闭环完成
  * [G005-P0] 各步骤动作接真 API,闭环统一走 PATCH /criticals/:id state=CLOSED_LOOP

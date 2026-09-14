@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已收敛至 OperationsCenterPage (/operations-center); 旧路由 /command-center redirect 兼容。文件保留供回滚参考。
 // [v3.0.6.11-54] Phase 2: 全院运营指挥中心 (实时状态 + 事件流 + 趋势)
 import { deviceApi } from '../../services/api/deviceApi';
 import { notificationsApi, type NotificationDto } from '../../services/api/notificationsApi';

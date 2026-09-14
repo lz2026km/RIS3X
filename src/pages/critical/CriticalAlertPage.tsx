@@ -1,3 +1,7 @@
+/**
+ * @deprecated [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: 本页面已内嵌为 `/critical-value` 的 "告警列表" Tab (含 W2C 聚合列表)。
+ * 旧路由 `/critical-alert` 保留 redirect → `/critical-value?tab=alert`。请勿新增直接引用。
+ */
 // [v3.0.6.11-54] Phase 2: 危急值告警 (真实列表 + 级别筛选 + 处理闭环)
 import {
   criticalAlertApi, type CriticalAlert, type CriticalAlertStats, type CriticalFlowStep,

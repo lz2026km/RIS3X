@@ -1,3 +1,5 @@
+// @deprecated [v3.0.6.11-104 Wave 5A] 已内嵌为 QCPage 的「科室质量」Tab; 旧路由 /quality/department redirect → /qc?tab=deptQuality。
+//   文件保留仅作参考/回退，请勿在路由中直接挂载，新功能请改 QCPage。
 import { useState, useEffect } from 'react'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,

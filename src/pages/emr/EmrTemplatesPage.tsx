@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 TemplateManagementPage (/template-management 模板中心) 作为 Tab; 旧路由 /emr-templates redirect 兼容。文件保留供回滚参考。
 // [v3.0.6.8-63] EMR 病历模板管理 + ICD-11 编码
 // [W2-A] 模板接入 templatesApi 实时数据; ICD-11 无独立词典端点 → 标注演示数据
 // [v3.0.6.11-103 Wave 9] KPI 统计 + 刷新按钮 + i18n

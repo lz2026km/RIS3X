@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已收敛至 DeptDashboardPage (/dept-dashboard); 旧路由 /department-dashboard redirect 兼容。文件保留供回滚参考。
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 // [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件

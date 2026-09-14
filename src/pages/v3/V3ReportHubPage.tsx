@@ -1,4 +1,6 @@
 // [v3.0.6.8-50] PR6: v3 报告全栈综合页面
+// @deprecated [v3.0.6.11-104 Wave 5A] 报告书写入口已收敛至 ReportWritePage; 旧路由 /v3-report-hub redirect → /write-report。
+//   其可复用能力(模板/草稿/AI/质控)已由 ReportWritePage 侧栏 Tab 覆盖，本文件保留仅作参考/回退。
 import { reportApi } from '@/services/api/reportApi';
 import {
   v3WritingApi, v3DistApi, v3IntegrationApi, v3AiAssistApi,

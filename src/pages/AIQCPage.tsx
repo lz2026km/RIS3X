@@ -1,5 +1,7 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - AI智能质控 v1.0.0
+// @deprecated [v3.0.6.11-104 Wave 5A] 已内嵌为 QCPage 的「AI 智能质控」Tab; 旧路由 /ai-qc redirect → /qc?tab=ai。
+//   文件保留仅作参考/回退，请勿在路由中直接挂载，新功能请改 QCPage。
 // v1.0.4 (R4) 集成：跳转至 AIReportDraftPage 一键自动初稿
 // [v3.0.6.11-75] W1-2: 接入 aiPlatformApi.listQcResults (GET /ai-platform/qc, 后端 auditLog resource=ai-qc)
 import { useState, useEffect } from 'react'

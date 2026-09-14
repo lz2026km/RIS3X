@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 SnomedPage (/snomed/encode 宿主) 作为 Tab; 旧路由 /snomed/auto-coding redirect 兼容。文件保留供回滚参考。
 // [v3.0.6.11-103 Wave 17] SNOMED/ICD 自动编码 (PACS 对标): 报告文本 → 诊断词提取
 // → SNOMED CT + ICD-10 建议 → 置信度 + 人工确认 → 一键写入报告结构化字段
 import { useMemo, useState } from 'react'

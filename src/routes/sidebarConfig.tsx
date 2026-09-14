@@ -80,9 +80,9 @@ import { Headphones } from 'lucide-react';
 import { ScanEye, Microscope, RefreshCw, PlayCircle, MonitorPlay, TimerReset, FlaskConical, Braces, PackageOpen, HeartPulse, Radiation, Boxes, Syringe, Contact, UserRound, UserPlus } from 'lucide-react';
 import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, BadgeCheck, Flame, Building2, Share2, Library, HardDrive, QrCode, Ruler, CalendarCheck, AlertTriangle } from 'lucide-react';
 import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge, Images } from 'lucide-react';
-import { PenSquare, FolderTree, FileType2, FileUp, Blend, BellRing, NotebookText, ToggleRight, Settings2, ListFilter, Cog, Ribbon, Map, Files, SquareStack } from 'lucide-react';
-import { Cuboid, GalleryVerticalEnd, Layers3, ScanLine, ScanSearch, SearchCheck, FolderHeart, AlarmClock, Timer } from 'lucide-react';
-import { AlertOctagon, ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home, Mail, SlidersHorizontal, Repeat2, PieChart } from 'lucide-react';
+import { PenSquare, FolderTree, Blend, BellRing, NotebookText, ToggleRight, Settings2, ListFilter, Cog, Ribbon, Map, Files, SquareStack } from 'lucide-react';
+import { Cuboid, GalleryVerticalEnd, Layers3, ScanLine, ScanSearch, SearchCheck, FolderHeart, Timer } from 'lucide-react';
+import { ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home, Mail, SlidersHorizontal, Repeat2, PieChart } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -259,20 +259,8 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.collaboration",
         roles: ["医生", "主任", "管理员",],
       },
-      // [Sprint 4] F15 Dual Read
-      {
-        path: "/dual-read",
-        icon: <Users size={18} />,
-        labelKey: "nav.dualRead",
-        roles: ["医生", "主任", "管理员",],
-      },
-      // [G005 v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 + 委员会会诊 + 报告互评
-      {
-        path: "/report-v2/workbench",
-        icon: <ShieldAlert size={18} />,
-        labelKey: "nav.reportV2Workbench",
-        roles: ["医生", "主任", "管理员",],
-      },
+      // [v3.0.6.11-104 Wave 5C] 报告审核收敛: /dual-read 已并入 /review-center (综合审核枢纽) Tab, 重复菜单移除
+      // [v3.0.6.11-104 Wave 5A] 报告书写收敛: /report-v2/workbench 已并入 /write-report, 移除旧菜单 (旧路径 redirect)
       {
         path: "/keyword-check",
         icon: <FileSearch size={18} />,
@@ -303,12 +291,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.cvRule",
         roles: ["医生", "主任", "管理员",],
       },
-      {
-        path: "/critical-value-stats",
-        icon: <AlertOctagon size={18} />,
-        labelKey: "nav.cvStats",
-        roles: ["医生", "主任", "管理员",],
-      },
+      // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: /critical-value-stats 已内嵌为 /critical-value Tab, 移除旧菜单 (旧路由 redirect)
       {
         path: "/special-assessment",
         icon: <Award size={18} />,
@@ -382,18 +365,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.asrDictation",
         roles: ["医生", "主任", "管理员",],
       },
-      {
-        path: "/snomed/auto-coding",
-        icon: <Code size={18} />,
-        labelKey: "nav.autoCoding",
-        roles: ["医生", "主任", "管理员",],
-      },
-      {
-        path: "/snomed/encoder",
-        icon: <Code size={18} />,
-        labelKey: "nav.snomedEncoder",
-        roles: ["医生", "主任", "管理员",],
-      },
+      // [v3.0.6.11-104 Wave 5C] SNOMED 收敛: /snomed/auto-coding + /snomed/encoder 已并入 /snomed/encode 三 Tab, 重复菜单移除
       {
         path: "/blockchain-proof",
         icon: <Link2 size={18} />,
@@ -443,24 +415,14 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.reportWorkflow",
         roles: ["医生", "主任", "管理员"],
       },
-      {
-        path: "/review-check",
-        icon: <BadgeCheck size={18} />,
-        labelKey: "nav.reviewCheck",
-        roles: ["医生", "主任", "管理员"],
-      },
+      // [v3.0.6.11-104 Wave 5C] 报告审核收敛: /review-check 已并入 /review-center (综合审核枢纽) Tab, 重复菜单移除
       {
         path: "/sign-amend",
         icon: <FileSignature size={18} />,
         labelKey: "nav.signAmend",
         roles: ["医生", "主任", "管理员"],
       },
-      {
-        path: "/v3-report-hub",
-        icon: <LayoutGrid size={18} />,
-        labelKey: "nav.v3ReportHub",
-        roles: ["医生", "主任", "管理员"],
-      },
+      // [v3.0.6.11-104 Wave 5A] 报告书写收敛: /v3-report-hub 已并入 /write-report, 移除旧菜单 (旧路径 redirect)
     ],
   },
   {
@@ -479,12 +441,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.committeeRoom",
         roles: ["主任", "管理员", "医生"],
       },
-      {
-        path: "/critical-value-center",
-        icon: <ShieldAlert size={18} />,
-        labelKey: "nav.criticalValueCenter",
-        roles: ["主任", "管理员"],
-      },
+      // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: /critical-value-center 已内嵌为 /critical-value Tab, 移除旧菜单 (旧路由 redirect)
       {
         path: "/defect-management",
         icon: <ListChecks size={18} />,
@@ -536,13 +493,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.radpathTracker",
         roles: ["医生", "主任", "管理员",],
       },
-      // [v3.0.6.11-40] A14 Critical Alert
-      {
-        path: "/critical-alert",
-        icon: <AlarmClock size={18} />,
-        labelKey: "nav.criticalAlert",
-        roles: ["医生", "主任", "管理员", "护士"],
-      },
+      // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: /critical-alert 已内嵌为 /critical-value Tab, 移除旧菜单 (旧路由 redirect)
       // [v3.0.6.11-79] W2-A 危急值接收端门户
       {
         path: "/critical-value-receiver",
@@ -617,12 +568,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.radpathLinkage",
         roles: ["医生", "主任", "管理员"],
       },
-      {
-        path: "/critical-value-5step",
-        icon: <ListOrdered size={18} />,
-        labelKey: "nav.criticalValue5Step",
-        roles: ["医生", "主任", "管理员", "护士"],
-      },
+      // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛: /critical-value-5step 已内嵌为 /critical-value Tab, 移除旧菜单 (旧路由 redirect)
       {
         path: "/scheduling-center",
         icon: <CalendarClock size={18} />,
@@ -855,12 +801,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   {
     section: "nav.aiIntelligence",
     items: [
-      {
-        path: "/ai-qc",
-        icon: <Zap size={18} />,
-        labelKey: "nav.aiQc",
-        roles: ["医生", "主任", "管理员",],
-      },
+      // [v3.0.6.11-104 Wave 5A] 质控收敛: /ai-qc 已内嵌为 /qc Tab, 移除旧菜单 (旧路径 redirect)
       {
         path: "/ai-structured-report",
         icon: <FileCheck2 size={18} />,
@@ -970,6 +911,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/qc",
         icon: <ShieldCheck size={18} />,
         labelKey: "nav.imageQc",
+        roles: ["主任", "管理员"],
+      },
+      // [v3.0.6.11-104 Wave 5A] 质控收敛: 报告 V2 规则/水印迁入质控分组 (旧路径 /report-v2/* redirect)
+      {
+        path: "/qc/rules",
+        icon: <ClipboardCheck size={18} />,
+        labelKey: "nav.reportRules",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/qc/watermark",
+        icon: <Stamp size={18} />,
+        labelKey: "nav.reportWatermark",
         roles: ["主任", "管理员"],
       },
       {
@@ -1094,12 +1048,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.researchExportCenter",
         roles: ["医生", "主任", "管理员"],
       },
-      {
-        path: "/report-templates",
-        icon: <FileType2 size={18} />,
-        labelKey: "nav.reportTemplates",
-        roles: ["医生", "主任", "技师", "管理员", "护士"],
-      },
+      // [v3.0.6.11-104 Wave 5C] 模板收敛: /report-templates 已并入 /template-management (模板中心) Tab, 重复菜单移除
       {
         path: "/clinical-calculators",
         icon: <Calculator size={18} />,
@@ -1502,12 +1451,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.hrOperations",
         roles: ["主任", "管理员"],
       },
-  {
-    path: "/ops/dashboard",
-    icon: <TrendingUp size={18} />,
-    labelKey: "nav.opsDashboard",
-    roles: ["主任", "管理员"],
-  },
+  // [v3.0.6.11-104 Wave 5C] 看板收敛: /ops/dashboard 已合并至 /operations-center (旧路由 redirect 兼容), 菜单移除
   // [v3.0.6.11-88] Wave6A 科室 KPI 大屏 (墙屏模式)
   {
     path: "/ops/kpi-wall",
@@ -1577,12 +1521,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.autoCollection",
         roles: ["管理员"],
       },
-      {
-        path: "/quality/department",
-        icon: <Award size={18} />,
-        labelKey: "nav.departmentQuality",
-        roles: ["主任", "管理员"],
-      },
+      // [v3.0.6.11-104 Wave 5A] 质控收敛: /quality/department 已内嵌为 /qc Tab, 移除旧菜单 (旧路径 redirect)
       {
         path: "/analytics/benchmark-v2",
         icon: <ChartLine size={18} />,
@@ -1607,12 +1546,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.directorDashboard",
         roles: ["主任", "管理员"],
       },
-      {
-        path: "/command-center",
-        icon: <Monitor size={18} />,
-        labelKey: "nav.commandCenter",
-        roles: ["主任", "管理员"],
-      },
+      // [v3.0.6.11-104 Wave 5C] 看板收敛: /command-center 已合并至 /operations-center (旧路由 redirect 兼容), 菜单移除
     ],
   },
   {
@@ -2184,12 +2118,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   {
     section: "nav.systemManage",
     items: [
-      {
-        path: "/emr-templates",
-        icon: <FileUp size={18} />,
-        labelKey: "nav.emrTemplates",
-        roles: ["医生", "主任", "管理员"],
-      },
+      // [v3.0.6.11-104 Wave 5C] 模板收敛: /emr-templates 已并入 /template-management (模板中心) Tab, 重复菜单移除
       {
         path: "/system-admin",
         icon: <Settings size={18} />,

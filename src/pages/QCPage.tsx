@@ -8,7 +8,7 @@ import { t } from '../i18n/appI18n'
 // G005 放射科RIS系统 - 质量控制 v1.0.0
 // v1.0.4 (R4) 集成：跳转至 KeywordCheckPage / ReportScoreRulePage / ReportDefectLibraryPage
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Star,
   TrendingUp, TrendingDown, BarChart3, PieChart, Settings, Clock, Camera, Image, X, Eye, Edit3,
@@ -39,6 +39,9 @@ import { PageHeader } from '../components/common/PageHeader'
 // [v3.0.6.11-103 Wave 10] 重复页合并: QualityControlPage(评分/危急值/缺陷/月报) + RadiologyQCDashboardPage(放射质控总览) 嵌入为 QCPage 新 Tab
 import QualityControlPage from './QualityControlPage'
 import RadiologyQCDashboardPage from './qc/RadiologyQCDashboardPage'
+// [v3.0.6.11-104 Wave 5A] 质控收敛: AIQCPage(AI 智能质控) + DepartmentQualityPage(科室质量) 嵌入为 QCPage 新 Tab
+import AIQCPage from './AIQCPage'
+import DepartmentQualityPage from './quality/DepartmentQualityPage'
 
 const PRIMARY = '#1e40af'
 
@@ -75,6 +78,9 @@ const TABS = [
   // [v3.0.6.11-103 Wave 10] 重复页合并: 吸收 QualityControlPage / RadiologyQCDashboardPage 功能 (旧路由 /quality-control /qc-dashboard redirect → /qc)
   { key: 'v3', label: t("qcPage.qcManagement"), icon: <ClipboardList size={15} /> },
   { key: 'radDashboard', label: t("qcPage.radiologyQcOverview"), icon: <Activity size={15} /> },
+  // [v3.0.6.11-104 Wave 5A] 质控收敛: 吸收 AIQCPage / DepartmentQualityPage (旧路由 /ai-qc /quality/department redirect → /qc?tab=...)
+  { key: 'ai', label: t("qcPage.aiQc"), icon: <Zap size={15} /> },
+  { key: 'deptQuality', label: t("qcPage.deptQuality"), icon: <Building2 size={15} /> },
 ]
 
 // [v3.0.6.8-28] 报告质控数据 - 来源: EXAM_REPORT_PRE (600 报告) + DOCTOR_MASTER + QUALITY_SCORE_PRE
@@ -476,7 +482,19 @@ const PIE_COLORS = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#8b5cf6', '#647
 
 export default function QCPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('report')
+  const [searchParams, setSearchParams] = useSearchParams()
+  // [v3.0.6.11-104 Wave 5A] 支持 ?tab= 深链 (旧路由 /ai-qc → /qc?tab=ai, /quality/department → /qc?tab=deptQuality)
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'report')
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab) setActiveTab(tab)
+  }, [searchParams])
+  const selectTab = (key: string) => {
+    setActiveTab(key)
+    const next = new URLSearchParams(searchParams)
+    next.set('tab', key)
+    setSearchParams(next, { replace: true })
+  }
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
@@ -822,7 +840,7 @@ export default function QCPage() {
           return (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => selectTab(tab.key)}
               style={{
                 flex: 1,
                 padding: '10px 16px',
@@ -3047,6 +3065,20 @@ export default function QCPage() {
       {activeTab === 'radDashboard' && (
         <div data-testid="qc-embedded-rad-dashboard" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
           <RadiologyQCDashboardPage />
+        </div>
+      )}
+
+      {/* [v3.0.6.11-104 Wave 5A] 质控收敛: 嵌入 AIQCPage (AI 智能质控, 旧路由 /ai-qc redirect → /qc?tab=ai) */}
+      {activeTab === 'ai' && (
+        <div data-testid="qc-embedded-ai-qc" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+          <AIQCPage />
+        </div>
+      )}
+
+      {/* [v3.0.6.11-104 Wave 5A] 质控收敛: 嵌入 DepartmentQualityPage (科室质量, 旧路由 /quality/department redirect → /qc?tab=deptQuality) */}
+      {activeTab === 'deptQuality' && (
+        <div data-testid="qc-embedded-dept-quality" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+          <DepartmentQualityPage />
         </div>
       )}
 

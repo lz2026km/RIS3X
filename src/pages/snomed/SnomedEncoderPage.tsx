@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 SnomedPage (/snomed/encode 宿主) 作为 Tab; 旧路由 /snomed/encoder redirect 兼容。文件保留供回滚参考。
 import { snomedApi, type SnomedCode } from '../../services/api/snomedApi'
 import { Card, Input, Button, Table, Tag, Space, Typography, Tooltip, message, Row, Col, Statistic, Empty } from 'antd'
 import { Code, Search, CheckCircle, AlertTriangle, FileText, BookOpen, ThumbsUp, Clipboard } from 'lucide-react'
