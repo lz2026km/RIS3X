@@ -176,6 +176,8 @@ import { CriticalEscalationModule } from "./modules/critical-escalation/critical
 import { AiDraftV2Module } from "./modules/ai-draft-v2/ai-draft-v2.module";
 // [v3.0.6.11-101 Wave 6A F11] 报告质控规则引擎: 18+ 内置规则 + 自定义规则 CRUD + 规则集绑定 (孤儿模块, 无 DB 可启动)
 import { ReportRulesModule } from "./modules/report-rules/report-rules.module";
+// [v3.0.6.11-105 Wave 1C] 质量指标库镜像: 40 条国标质控指标 + 图像/报告/流程质控标准 (孤儿模块, 无 DB 可启动)
+import { QualityIndicatorsModule } from "./modules/quality-indicators/quality-indicators.module";
 // [v3.0.6.11-101 Wave 6A F8] 水印签章 V2: 报告水印 (文字/图像/防篡改校验码) + 电子签名申请/审批/记录 (孤儿模块, 无 DB 可启动)
 import { ReportSignV2Module } from "./modules/report-sign-v2/report-sign-v2.module";
 // [v3.0.6.11-101 Wave 7C F14] AI 二次检出 V2: 定稿前 AI 复查 (漏诊/缺项/不一致) + 忽略/采纳/加入报告 (孤儿模块)
@@ -194,6 +196,8 @@ import { QcAnalyticsModule } from "./modules/qc-analytics/qc-analytics.module";
 import { ClinicalFeedbackModule } from "./modules/clinical-feedback/clinical-feedback.module";
 // [v3.0.6.11-104 Wave 3B] 对比剂安全闭环 (contrast-safety): 过敏试验 + 注射前核查 + 注射后留观 (孤儿模块, 无 DB 可启动)
 import { ContrastSafetyModule } from "./modules/contrast-safety/contrast-safety.module";
+// [v3.0.6.11-105 Wave 1A] 放射影像专业质控指标 (2024 年版) (rqi-2024): 7 条国标指标采集与计算 (孤儿模块, 无 DB 可启动)
+import { Rqi2024Module } from "./modules/rqi-2024/rqi-2024.module";
 
 @Module({
   imports: [
@@ -378,6 +382,8 @@ import { ContrastSafetyModule } from "./modules/contrast-safety/contrast-safety.
     TechOverviewModule,
     // [v3.0.6.11-101 Wave 6A F11] 报告质控规则引擎 (孤儿模块, 无 DB 可启动)
     ReportRulesModule,
+    // [v3.0.6.11-105 Wave 1C] 质量指标库镜像 (孤儿模块, 无 DB 可启动)
+    QualityIndicatorsModule,
     // [v3.0.6.11-101 Wave 6A F8] 水印签章 V2 (孤儿模块, 无 DB 可启动)
     ReportSignV2Module,
     // [v3.0.6.11-101 Wave 6B] 报告质控 V2 (report-qc-v2): 多维智能评分 + 任务流 + 二次复核 + 统计
@@ -400,6 +406,8 @@ import { ContrastSafetyModule } from "./modules/contrast-safety/contrast-safety.
     ContrastSafetyModule,
     // [v3.0.6.11-104 Wave 3C] 临床反馈闭环 (clinical-feedback): 异议/补充/更正 + 回应 + 关闭
     ClinicalFeedbackModule,
+    // [v3.0.6.11-105 Wave 1A] 放射影像专业质控指标 (2024 年版) (rqi-2024): 7 条国标指标
+    Rqi2024Module,
   ],
   controllers: [HealthController],
   providers: [

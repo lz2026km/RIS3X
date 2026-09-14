@@ -16,10 +16,18 @@ import { PrismaService } from '../../prisma/prisma.service'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
 import {
   DEFAULT_EGFR_THRESHOLD,
+  DEFAULT_EXTRAVASATION_PAGE_SIZE,
   DEFAULT_OBSERVATION_MINUTES,
+  SEED_INJECTION_TOTAL,
   type AllergyResult,
   type AllergyTestListResult,
   type AllergyTestRecord,
+  type ExtravasationEvent,
+  type ExtravasationListFilter,
+  type ExtravasationListResult,
+  type ExtravasationSeverity,
+  type ExtravasationStats,
+  type HandleExtravasationInput,
   type ObservationDto,
   type ObservationRecord,
   type PreInjectionCheckInput,
@@ -51,9 +59,12 @@ export class ContrastSafetyService {
 
   private readonly allergyTests = new Map<string, AllergyTestRecord>()
   private readonly observations = new Map<string, ObservationRecord>()
+  // [v3.0.6.11-105 Wave 1B] 对比剂外渗事件 (内存 overlay)
+  private readonly extravasations = new Map<string, ExtravasationEvent>()
   private allergySeq = 0
   private observationSeq = 0
   private injectionSeq = 0
+  private extravasationSeq = 0
 
   constructor(@Optional() private readonly prisma?: PrismaService) {
     if (!prisma) this.logger.log('ContrastSafetyService: no Prisma injected (orphan mode, memory overlay + seed fallback)')
@@ -302,6 +313,176 @@ export class ContrastSafetyService {
     record.updatedAt = record.dischargedAt
     await this.recordAudit('contrast-observation', record.id, { action: 'discharge', ...record })
     return this.toObservationDto(record)
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // [v3.0.6.11-105 Wave 1B] 对比剂外渗事件 (extravasation)
+  // ────────────────────────────────────────────────────────────────────────────
+
+  /** POST /contrast/extravasation — 记录外渗事件, 落内存 + 审计旁路 */
+  async recordExtravasation(input: {
+    patientId: string
+    examId?: string
+    severity: ExtravasationSeverity
+    site: string
+    estimatedVolumeMl: number
+    management: string
+    recordedBy: string
+    occurredAt?: string
+  }): Promise<ExtravasationEvent> {
+    const now = new Date().toISOString()
+    this.extravasationSeq += 1
+    const record: ExtravasationEvent = {
+      id: `exv-${this.extravasationSeq}`,
+      patientId: input.patientId,
+      examId: input.examId,
+      severity: input.severity,
+      site: input.site,
+      estimatedVolumeMl: input.estimatedVolumeMl,
+      management: input.management,
+      recordedBy: input.recordedBy,
+      occurredAt: input.occurredAt ?? now,
+      status: 'open',
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.extravasations.set(record.id, record)
+    await this.recordAudit('contrast-extravasation', record.id, record)
+    return record
+  }
+
+  /** GET /contrast/extravasation — 外渗事件列表 (患者/日期/严重度筛选, 分页; 空库 seed 回退) */
+  listExtravasations(filter: ExtravasationListFilter = {}): ExtravasationListResult {
+    const stored = [...this.extravasations.values()]
+    const source: 'memory' | 'seed' = stored.length > 0 ? 'memory' : 'seed'
+    const base = stored.length > 0 ? stored : this.seedExtravasations()
+    const matched = base
+      .filter((e) => !filter.patientId || e.patientId === filter.patientId)
+      .filter((e) => !filter.severity || e.severity === filter.severity)
+      .filter((e) => !filter.dateFrom || e.occurredAt >= filter.dateFrom)
+      .filter((e) => !filter.dateTo || e.occurredAt <= filter.dateTo)
+      .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
+    const page = Math.max(1, filter.page ?? 1)
+    const pageSize = Math.min(200, Math.max(1, filter.pageSize ?? DEFAULT_EXTRAVASATION_PAGE_SIZE))
+    const start = (page - 1) * pageSize
+    return { items: matched.slice(start, start + pageSize), total: matched.length, page, pageSize, source }
+  }
+
+  /**
+   * GET /contrast/extravasation/stats — 外渗统计。
+   * 发生率 = 外渗例数 ÷ 同期增强 CT 总例数 ×1000‰ (分母: injection 累计 + 确定性 seed)。
+   */
+  extravasationStats(): ExtravasationStats {
+    const stored = [...this.extravasations.values()]
+    const source: 'memory' | 'seed' = stored.length > 0 ? 'memory' : 'seed'
+    const base = stored.length > 0 ? stored : this.seedExtravasations()
+    const severityOrder: ExtravasationSeverity[] = ['mild', 'moderate', 'severe']
+    const bySeverity = severityOrder.map((severity) => ({ severity, count: base.filter((e) => e.severity === severity).length }))
+    const siteMap = new Map<string, number>()
+    for (const e of base) siteMap.set(e.site, (siteMap.get(e.site) ?? 0) + 1)
+    const monthMap = new Map<string, number>()
+    for (const e of base) {
+      const month = e.occurredAt.slice(0, 7)
+      monthMap.set(month, (monthMap.get(month) ?? 0) + 1)
+    }
+    const totalInjections = this.injectionTotal()
+    return {
+      total: base.length,
+      totalInjections,
+      incidenceRatePerThousand: totalInjections > 0 ? round1((base.length / totalInjections) * 1000) : 0,
+      bySeverity,
+      bySite: [...siteMap.entries()].map(([site, count]) => ({ site, count })).sort((a, b) => b.count - a.count),
+      byMonth: [...monthMap.entries()].map(([month, count]) => ({ month, count })).sort((a, b) => a.month.localeCompare(b.month)),
+      openCount: base.filter((e) => e.status === 'open').length,
+      resolvedCount: base.filter((e) => e.status === 'resolved').length,
+      source,
+    }
+  }
+
+  /** POST /contrast/extravasation/:id/handle — 处置闭环 (处置措施/随访/状态 resolved) */
+  async handleExtravasation(id: string, input: HandleExtravasationInput = {}): Promise<ExtravasationEvent> {
+    const record = this.findExtravasation(id)
+    const now = new Date().toISOString()
+    if (input.management?.trim()) record.management = input.management.trim()
+    if (input.followUp !== undefined) record.followUp = input.followUp
+    if (input.note !== undefined) record.handleNote = input.note
+    record.handledBy = input.handledBy?.trim() || record.handledBy || 'system'
+    record.handledAt = now
+    record.status = 'resolved'
+    record.updatedAt = now
+    this.extravasations.set(record.id, record)
+    await this.recordAudit('contrast-extravasation', record.id, { action: 'handle', ...record })
+    return record
+  }
+
+  /** 同期增强 CT 总例数 (injection 累计 + 确定性 seed 基数) */
+  injectionTotal(): number {
+    return this.injectionSeq + SEED_INJECTION_TOTAL
+  }
+
+  private findExtravasation(id: string): ExtravasationEvent {
+    const found = this.extravasations.get(id)
+    if (found) return found
+    const seeded = this.seedExtravasations().find((e) => e.id === id)
+    if (seeded) {
+      this.extravasations.set(seeded.id, seeded)
+      return seeded
+    }
+    throw new NotFoundException({ ok: false, code: 'EXTRAVASATION_NOT_FOUND', message: `外渗事件 ${id} 不存在` })
+  }
+
+  /** 确定性 seed: 外渗示例 (无真实数据回退) */
+  private seedExtravasations(): ExtravasationEvent[] {
+    return [
+      {
+        id: 'exv-seed-1',
+        patientId: 'P-DEMO-001',
+        examId: 'E-DEMO-001',
+        severity: 'mild',
+        site: '左上肢前臂',
+        estimatedVolumeMl: 15,
+        management: '停止注射, 抬高患肢, 冷敷',
+        recordedBy: '张技师',
+        occurredAt: '2026-07-12T09:20:00.000Z',
+        status: 'resolved',
+        handledBy: '李医生',
+        handledAt: '2026-07-12T09:50:00.000Z',
+        followUp: '24h 随访肿胀消退, 无张力性水疱',
+        createdAt: '2026-07-12T09:20:00.000Z',
+        updatedAt: '2026-07-12T09:50:00.000Z',
+      },
+      {
+        id: 'exv-seed-2',
+        patientId: 'P-DEMO-002',
+        examId: 'E-DEMO-002',
+        severity: 'moderate',
+        site: '右前臂',
+        estimatedVolumeMl: 35,
+        management: '停止注射, 硫酸镁湿敷, 抬高患肢',
+        recordedBy: '李护士',
+        occurredAt: '2026-08-03T14:05:00.000Z',
+        status: 'resolved',
+        handledBy: '王医生',
+        handledAt: '2026-08-03T15:10:00.000Z',
+        followUp: '48h 随访局部肿胀减轻',
+        createdAt: '2026-08-03T14:05:00.000Z',
+        updatedAt: '2026-08-03T15:10:00.000Z',
+      },
+      {
+        id: 'exv-seed-3',
+        patientId: 'P-DEMO-003',
+        examId: 'E-DEMO-003',
+        severity: 'severe',
+        site: '右手背',
+        estimatedVolumeMl: 80,
+        management: '停止注射, 急诊外科会诊, 评估筋膜切开指征',
+        recordedBy: '张技师',
+        occurredAt: '2026-09-02T11:30:00.000Z',
+        status: 'open',
+        createdAt: '2026-09-02T11:30:00.000Z',
+        updatedAt: '2026-09-02T11:30:00.000Z',
+      },
+    ]
   }
 
   // ────────────────────────────────────────────────────────────────────────────

@@ -4,6 +4,18 @@ import { PrismaService } from '../prisma/prisma.service'
 import { createNoopGateway, NotificationsGateway } from '../notifications/notifications.gateway'
 import { currentTenantId } from '../common/tenant/tenant-utils'
 import { SystemConfigService } from '../system-storage/system-config.service'
+import {
+  NATIONAL_CRITICAL_COUNT,
+  NATIONAL_CRITICAL_DIAGNOSES,
+  NATIONAL_NOTIFY_DEADLINE_MIN,
+  criticalRqiOverlay,
+  isNationalDiagnosisCode,
+  matchNationalDiagnosis,
+  notifyMinutes,
+  recordCriticalNotification,
+  seedRqiRecords,
+  type CriticalRqiOverlayRecord,
+} from './national-critical'
 
 export interface NotifyDto {
   criticalId: string
@@ -50,6 +62,58 @@ export interface ReportCriticalLinkRecord {
 }
 
 export const criticalReportLinks = new Map<string, ReportCriticalLinkRecord[]>()
+
+// ============ [v3.0.6.11-105 Wave 1B] 国标 13 类危急值字典 / 10 分钟 RQI 统计 ============
+
+export interface NationalDiagnosisResponse {
+  items: { code: string; name: string; category: string; isNational: boolean }[]
+  total: number
+  nationalCount: number
+  standard: string
+  generatedAt: string
+}
+
+export interface CriticalRqiDetail {
+  criticalId: string
+  patientId?: string
+  patientName?: string
+  diagnosisCode: string
+  diagnosisName: string
+  foundAt: string
+  notifiedAt?: string
+  notifiedBy?: string
+  receivedBy?: string
+  receiveNote?: string
+  /** 发现→通报耗时 (分钟) */
+  notifyMinutes?: number
+  within10Min: boolean
+  signatureComplete: boolean
+}
+
+export interface CriticalRqiStats {
+  months: number
+  windowStart: string
+  standard: string
+  deadlineMin: number
+  source: 'db' | 'seed'
+  /** 分母: 国标 13 类危急值总例数 */
+  nationalTotal: number
+  /** 分子: 发现→通报 ≤10min 的例数 */
+  within10MinCount: number
+  overdueCount: number
+  /** 10 分钟内通报完成率 (%) */
+  completionRate: number
+  details: CriticalRqiDetail[]
+  signatureIntegrity: {
+    total: number
+    notifiedAtCount: number
+    notifiedByCount: number
+    receivedByCount: number
+    receiveNoteCount: number
+    completeCount: number
+    completenessRate: number
+  }
+}
 
 const SEVERITY_TO_CATEGORY: Record<string, 'LIFE_THREATENING' | 'URGENT' | 'IMPORTANT'> = {
   CRITICAL: 'LIFE_THREATENING',
@@ -754,5 +818,140 @@ export class CriticalsService {
       closed: ['RESOLVED', 'CLOSED_LOOP', 'CANCELLED'].includes(c.state),
     }
     return { criticalId: id, state: c.state, severity: c.severity, steps, totalEvents: events.length, events }
+  }
+
+  // ============ [v3.0.6.11-105 Wave 1B] 国标 13 类危急值字典 / 10 分钟 RQI 统计 ============
+
+  /** GET /criticals/national-diagnoses — 返回国标 13 类危急值诊断字典 (编码 + 名称 + 是否国标) */
+  getNationalDiagnoses(): NationalDiagnosisResponse {
+    return {
+      items: NATIONAL_CRITICAL_DIAGNOSES.map((d) => ({
+        code: d.code,
+        name: d.name,
+        category: d.category,
+        isNational: d.isNational,
+      })),
+      total: NATIONAL_CRITICAL_DIAGNOSES.length,
+      nationalCount: NATIONAL_CRITICAL_COUNT,
+      standard: '国标 13 类危急值诊断',
+      generatedAt: new Date().toISOString(),
+    }
+  }
+
+  /** 写入危急值记录补充字段 notifiedAt/notifiedBy/receivedBy/receiveNote (内存 overlay 回退) */
+  patchCriticalNotification(
+    id: string,
+    patch: Partial<Omit<CriticalRqiOverlayRecord, 'criticalId'>>,
+  ): CriticalRqiOverlayRecord {
+    return recordCriticalNotification(id, patch)
+  }
+
+  /**
+   * GET /criticals/rqi-stats?months= — 国标口径统计。
+   * 10 分钟内通报完成率 = 发现→通报 ≤10min 的例数 ÷ 国标 13 类危急值总例数 ×100%。
+   * 含分子/分母 + 明细清单可下钻 + 署名记录完整性统计; DB 不可用时 seed 回退。
+   */
+  async getRqiStats(months = 1): Promise<CriticalRqiStats> {
+    const m = Number.isFinite(months) && months > 0 && months <= 24 ? Math.floor(months) : 1
+    const windowStart = new Date()
+    windowStart.setMonth(windowStart.getMonth() - m)
+    const windowStartIso = windowStart.toISOString()
+
+    let dbRows: any[] = []
+    let usedDb = false
+    try {
+      dbRows = await this.prisma.criticalValue.findMany({
+        where: { tenantId: currentTenantId(), createdAt: { gte: windowStart } },
+        orderBy: { createdAt: 'desc' },
+        take: 2000,
+      })
+      usedDb = Array.isArray(dbRows) && dbRows.length > 0
+    } catch {
+      usedDb = false
+    }
+
+    const overlayRecords = [...criticalRqiOverlay.values()].filter((r) => !r.foundAt || r.foundAt >= windowStartIso)
+
+    let merged: CriticalRqiOverlayRecord[]
+    let source: 'db' | 'seed'
+    if (usedDb) {
+      source = 'db'
+      const overlayById = new Map(overlayRecords.map((r) => [r.criticalId, r]))
+      const fromDb = dbRows.map((v) => this.mergeRqiRow(v, overlayById.get(v.id)))
+      const dbIds = new Set(fromDb.map((r) => r.criticalId))
+      merged = [...fromDb, ...overlayRecords.filter((r) => !dbIds.has(r.criticalId))]
+    } else {
+      source = 'seed'
+      const map = new Map<string, CriticalRqiOverlayRecord>()
+      for (const r of seedRqiRecords()) map.set(r.criticalId, r)
+      for (const r of overlayRecords) map.set(r.criticalId, { ...(map.get(r.criticalId) ?? {}), ...r })
+      merged = [...map.values()]
+    }
+
+    const details: CriticalRqiDetail[] = merged
+      .filter((r) => isNationalDiagnosisCode(r.diagnosisCode))
+      .map((r) => {
+        const foundAt = r.foundAt ?? new Date().toISOString()
+        const mins = notifyMinutes(foundAt, r.notifiedAt)
+        return {
+          criticalId: r.criticalId,
+          patientId: r.patientId,
+          patientName: r.patientName,
+          diagnosisCode: r.diagnosisCode as string,
+          diagnosisName: r.diagnosisName ?? (r.diagnosisCode as string),
+          foundAt,
+          notifiedAt: r.notifiedAt,
+          notifiedBy: r.notifiedBy || undefined,
+          receivedBy: r.receivedBy || undefined,
+          receiveNote: r.receiveNote || undefined,
+          notifyMinutes: mins,
+          within10Min: mins !== undefined && mins <= NATIONAL_NOTIFY_DEADLINE_MIN,
+          signatureComplete: !!(r.notifiedAt && r.notifiedBy && r.receivedBy && r.receiveNote),
+        }
+      })
+      .sort((a, b) => b.foundAt.localeCompare(a.foundAt))
+
+    const total = details.length
+    const within = details.filter((d) => d.within10Min).length
+    const completeCount = details.filter((d) => d.signatureComplete).length
+    return {
+      months: m,
+      windowStart: windowStartIso,
+      standard: '国标 13 类危急值',
+      deadlineMin: NATIONAL_NOTIFY_DEADLINE_MIN,
+      source,
+      nationalTotal: total,
+      within10MinCount: within,
+      overdueCount: total - within,
+      completionRate: total ? Math.round((within / total) * 1000) / 10 : 0,
+      details,
+      signatureIntegrity: {
+        total,
+        notifiedAtCount: details.filter((d) => !!d.notifiedAt).length,
+        notifiedByCount: details.filter((d) => !!d.notifiedBy).length,
+        receivedByCount: details.filter((d) => !!d.receivedBy).length,
+        receiveNoteCount: details.filter((d) => !!d.receiveNote).length,
+        completeCount,
+        completenessRate: total ? Math.round((completeCount / total) * 1000) / 10 : 0,
+      },
+    }
+  }
+
+  /** DB 行 → RQI 记录 (描述匹配国标字典 + overlay 覆盖既有列) */
+  private mergeRqiRow(v: any, overlay?: CriticalRqiOverlayRecord): CriticalRqiOverlayRecord {
+    const description = String(v.description ?? '')
+    const matched = matchNationalDiagnosis(description)
+    return {
+      criticalId: v.id,
+      diagnosisCode: overlay?.diagnosisCode ?? matched?.code,
+      diagnosisName: overlay?.diagnosisName ?? matched?.name,
+      patientId: overlay?.patientId ?? v.patientId ?? undefined,
+      patientName: overlay?.patientName,
+      foundAt: overlay?.foundAt ?? (v.createdAt ? new Date(v.createdAt).toISOString() : undefined),
+      notifiedAt: overlay?.notifiedAt ?? (v.voiceCalledAt ? new Date(v.voiceCalledAt).toISOString() : undefined),
+      notifiedBy: overlay?.notifiedBy ?? v.voiceCalledBy ?? undefined,
+      receivedBy: overlay?.receivedBy ?? v.confirmedBy ?? undefined,
+      receiveNote: overlay?.receiveNote ?? v.confirmedComment ?? undefined,
+    }
   }
 }

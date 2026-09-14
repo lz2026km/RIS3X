@@ -122,6 +122,18 @@ export class CriticalsController {
     return this.service.getByDepartment()
   }
 
+  // [v3.0.6.11-105 Wave 1B] 国标 13 类危急值诊断字典 — 静态子路由先于 :id 注册
+  @Get('national-diagnoses')
+  getNationalDiagnoses() {
+    return this.service.getNationalDiagnoses()
+  }
+
+  // [v3.0.6.11-105 Wave 1B] 国标口径 RQI 统计 (10 分钟通报完成率 + 署名完整性)
+  @Get('rqi-stats')
+  getRqiStats(@Query('months') months?: string) {
+    return this.service.getRqiStats(months === undefined || months === '' ? 1 : Number(months))
+  }
+
   // [G005 Wave 8] 按报告查询关联危急值 (反向引用) — 静态子路由先于 :id 注册
   @Get('for-report/:reportId')
   forReport(@Param('reportId') reportId: string) {

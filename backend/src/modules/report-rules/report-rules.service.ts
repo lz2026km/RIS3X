@@ -5,6 +5,7 @@ import type { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
 import { executeRules } from './report-rules.engine'
 import { BUILTIN_RULES, BUILTIN_RULESET_SEEDS } from './report-rules.rules'
+import { detectRws, listRwsRuleMeta, RWS_RATE_FORMULA, RWS_STANDARD, RWS_TARGET } from './report-rules.rws'
 import type {
   EvaluateInput,
   EvaluateResult,
@@ -16,6 +17,10 @@ import type {
   RuleSeverity,
   RuleStats,
   RuleType,
+  RwsEvaluation,
+  RwsRateResult,
+  RwsReportInput,
+  RwsRuleList,
 } from './report-rules.types'
 import { RULE_FIELDS, RULE_OPERATORS, RULE_SEVERITIES, RULE_TYPES } from './report-rules.types'
 
@@ -292,6 +297,70 @@ export class ReportRulesService {
         violationRate: this.history.length > 0 ? Math.min(100, Math.round((this.history.length / Math.max(1, Math.round(this.history.length / 3))) * 10) / 10) : 0,
         topRules,
       },
+    }
+  }
+
+  // ==========================================================================
+  // [G005 v3.0.6.11-105 Wave 1C] 国标报告书写规范 (RQI-RWS-03)
+  // ==========================================================================
+
+  /** 国标书写规范规则集 (可序列化) */
+  getNationalRwsRules(): RwsRuleList {
+    const data = listRwsRuleMeta()
+    return {
+      source: 'national',
+      generatedAt: new Date().toISOString(),
+      standard: RWS_STANDARD,
+      target: RWS_TARGET,
+      rateFormula: RWS_RATE_FORMULA,
+      ruleCount: data.length,
+      data,
+    }
+  }
+
+  /** 按国标口径评估单份报告 */
+  evaluateRws(input: RwsReportInput): RwsEvaluation {
+    const failures = detectRws(input)
+    const compliant = failures.length === 0
+    return {
+      source: 'national',
+      generatedAt: new Date().toISOString(),
+      reportId: input.reportId,
+      compliant,
+      failures,
+      numerator: compliant ? 1 : 0,
+      denominator: 1,
+      rate: compliant ? 100 : 0,
+      standard: RWS_STANDARD,
+      target: RWS_TARGET,
+      rateExplanation: RWS_RATE_FORMULA,
+    }
+  }
+
+  /** 批量评估 → 书写规范率 */
+  computeRwsRate(reports: RwsReportInput[]): RwsRateResult {
+    const results = reports.map((report) => {
+      const evaluation = this.evaluateRws(report)
+      return {
+        reportId: report.reportId,
+        compliant: evaluation.compliant,
+        failureCodes: evaluation.failures.map((f) => f.code),
+      }
+    })
+    const denominator = results.length
+    const numerator = results.filter((r) => r.compliant).length
+    const rate = denominator === 0 ? 0 : Math.round((numerator / denominator) * 10000) / 100
+    return {
+      source: 'national',
+      generatedAt: new Date().toISOString(),
+      standard: RWS_STANDARD,
+      target: RWS_TARGET,
+      numerator,
+      denominator,
+      totalReports: denominator,
+      rate,
+      rateExplanation: RWS_RATE_FORMULA,
+      results,
     }
   }
 }

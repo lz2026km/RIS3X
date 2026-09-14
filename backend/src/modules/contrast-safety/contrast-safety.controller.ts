@@ -10,6 +10,12 @@
  *   - GET  /contrast/observation/:id                 留观状态 (剩余时间 + 观察记录)
  *   - POST /contrast/observation/:id/record          追加观察记录
  *   - POST /contrast/observation/:id/discharge       留观结束离院确认 (需满时长或医生放行)
+ *
+ * [v3.0.6.11-105 Wave 1B] 对比剂外渗事件 (extravasation):
+ *   - POST /contrast/extravasation                   记录外渗事件 (严重度/部位/外渗量/处置措施)
+ *   - GET  /contrast/extravasation                   外渗列表 (患者/日期/严重度筛选, 分页)
+ *   - GET  /contrast/extravasation/stats             外渗统计 (发生率‰ = 外渗例数/同期增强CT例数×1000)
+ *   - POST /contrast/extravasation/:id/handle        处置闭环 (处置措施/随访/状态 resolved)
  */
 import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
@@ -19,11 +25,14 @@ import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { ContrastSafetyService } from './contrast-safety.service'
 import {
   ContrastInjectionSchema,
+  HandleExtravasationSchema,
+  ListExtravasationSchema,
   ObservationDischargeSchema,
   ObservationRecordSchema,
   ObservationStartSchema,
   PreInjectionCheckSchema,
   RecordAllergyTestSchema,
+  RecordExtravasationSchema,
 } from './contrast-safety.schema'
 
 @ApiTags('contrast-safety')
@@ -82,5 +91,35 @@ export class ContrastSafetyController {
   @HttpCode(200)
   discharge(@Param('id') id: string, @Body(new ZodValidationPipe(ObservationDischargeSchema)) body?: z.infer<typeof ObservationDischargeSchema>) {
     return this.svc.dischargeObservation(id, body ?? {})
+  }
+
+  // ===== [v3.0.6.11-105 Wave 1B] 对比剂外渗事件 =====
+
+  @Post('extravasation')
+  @HttpCode(200)
+  recordExtravasation(
+    @Body(new ZodValidationPipe(RecordExtravasationSchema)) body: z.infer<typeof RecordExtravasationSchema>,
+  ) {
+    return this.svc.recordExtravasation(body)
+  }
+
+  @Get('extravasation/stats')
+  extravasationStats() {
+    return this.svc.extravasationStats()
+  }
+
+  @Get('extravasation')
+  listExtravasations(@Query() query: Record<string, unknown>) {
+    const parsed = ListExtravasationSchema.safeParse(query)
+    return this.svc.listExtravasations(parsed.success ? parsed.data : {})
+  }
+
+  @Post('extravasation/:id/handle')
+  @HttpCode(200)
+  handleExtravasation(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(HandleExtravasationSchema)) body?: z.infer<typeof HandleExtravasationSchema>,
+  ) {
+    return this.svc.handleExtravasation(id, body ?? {})
   }
 }

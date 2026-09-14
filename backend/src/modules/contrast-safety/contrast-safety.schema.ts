@@ -74,3 +74,38 @@ export const ObservationDischargeSchema = z
     notes: z.string().optional(),
   })
   .optional()
+
+// ────────────────────────────────────────────────────────────────────────────
+// [v3.0.6.11-105 Wave 1B] 对比剂外渗事件 zod 校验
+// ────────────────────────────────────────────────────────────────────────────
+
+export const ExtravasationSeveritySchema = z.enum(['mild', 'moderate', 'severe'])
+
+export const RecordExtravasationSchema = z.object({
+  patientId: z.string().min(1),
+  examId: z.string().min(1).optional(),
+  severity: ExtravasationSeveritySchema,
+  site: z.string().min(1),
+  estimatedVolumeMl: z.number().min(0),
+  management: z.string().min(1),
+  recordedBy: z.string().min(1),
+  occurredAt: z.string().datetime().optional(),
+})
+
+export const ListExtravasationSchema = z.object({
+  patientId: z.string().optional(),
+  severity: ExtravasationSeveritySchema.optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  pageSize: z.coerce.number().int().min(1).max(200).optional(),
+})
+
+export const HandleExtravasationSchema = z
+  .object({
+    management: z.string().min(1).optional(),
+    followUp: z.string().optional(),
+    handledBy: z.string().optional(),
+    note: z.string().optional(),
+  })
+  .optional()

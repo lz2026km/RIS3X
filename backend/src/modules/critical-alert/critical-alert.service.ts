@@ -6,6 +6,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
+import { recordCriticalNotification } from '../../criticals/national-critical'
 
 export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'escalated'
 export type AlertSeverity = 'info' | 'warning' | 'critical' | 'emergency'
@@ -477,12 +478,20 @@ export class CriticalAlertService {
     const isPhone = dto.method === 'phone'
     const toState = isPhone ? 'VOICE_CALLED' : 'NOTIFIED'
     const recipient = dto.recipient?.trim() || dto.phone?.trim() || undefined
+    const notifiedAt = new Date().toISOString()
     await this.persistFlowState(id, toState, {
       voiceCalledAt: new Date(),
       voiceCalledBy: recipient ?? '当前用户',
       ...(recipient ? { notifiedTo: recipient } : {}),
     })
     this.recordFlowStep(id, 'notified')
+    // [v3.0.6.11-105 Wave 1B] 补充 notifiedAt/notifiedBy 内存 overlay (RQI 10 分钟通报口径)
+    const alert = await this.getAlert(id)
+    recordCriticalNotification(id, {
+      notifiedAt,
+      notifiedBy: recipient ?? '当前用户',
+      foundAt: alert.createdAt,
+    })
     await this.recordAudit('FLOW_NOTIFY', id, { method: isPhone ? 'phone' : 'sms', phone: dto.phone, recipient, toState })
     return this.getAlert(id)
   }
@@ -499,6 +508,9 @@ export class CriticalAlertService {
       ...(dto.comment?.trim() ? { confirmedComment: dto.comment.trim() } : {}),
     })
     this.recordFlowStep(id, 'confirmed')
+    // [v3.0.6.11-105 Wave 1B] 补充 receivedBy/receiveNote 内存 overlay (署名记录完整性)
+    const receiveNote = dto.comment?.trim()
+    recordCriticalNotification(id, receiveNote ? { receivedBy: receiver, receiveNote } : { receivedBy: receiver })
     await this.recordAudit('FLOW_CONFIRM', id, { receiver, comment: dto.comment, toState: 'RECEIPTED' })
     return this.getAlert(id)
   }
