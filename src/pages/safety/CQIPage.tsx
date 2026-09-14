@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { TrendingUp, CheckCircle, Target, Plus, BarChart3, Activity } from 'lucide-react'
 import {
   getCqiDashboard, createCqiProject, closeCqiProject,
@@ -27,7 +28,23 @@ export default function CQIPage() {
   const [selectedProject, setSelectedProject] = useState<CqiProject | null>(null)
   const [filter, setFilter] = useState<CqiStatus | 'all'>('all')
 
-  useEffect(() => { getCqiDashboard().then(setProjects) }, [])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const data = await getCqiDashboard()
+      setProjects(data)
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('w2d.loadFailed'))
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void load() }, [load])
 
   const filtered = filter === 'all' ? projects : projects.filter(p => p.status === filter)
   const statusData = Object.entries(STATUS_LABELS).map(([k, v]) => ({
@@ -67,10 +84,10 @@ export default function CQIPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: t('cqi.statProjects'), value: projects.length, icon: Target, color: '#0891b2' },
-            { title: t('cqi.status.active'), value: projects.filter(p => p.status === 'active').length, icon: Activity, color: '#3b82f6' },
-            { title: t('cqi.status.sustaining'), value: projects.filter(p => p.status === 'sustaining').length, icon: CheckCircle, color: '#22c55e' },
-            { title: t('cqi.statPdsa'), value: projects.reduce((s, p) => s + p.pdsaCycles.length, 0), icon: BarChart3, color: '#8b5cf6' },
+            { title: t('cqi.statProjects'), value: projects.length, icon: Target, color: 'var(--color-info-600, #0891b2)' },
+            { title: t('cqi.status.active'), value: projects.filter(p => p.status === 'active').length, icon: Activity, color: 'var(--color-primary-500, #3b82f6)' },
+            { title: t('cqi.status.sustaining'), value: projects.filter(p => p.status === 'sustaining').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
+            { title: t('cqi.statPdsa'), value: projects.reduce((s, p) => s + p.pdsaCycles.length, 0), icon: BarChart3, color: 'var(--color-modality-mr, #8b5cf6)' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: '#8b949e' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
@@ -192,6 +209,14 @@ export default function CQIPage() {
               ))}
             </div>
 
+            <StateView
+              loading={loading}
+              error={loadError}
+              empty={!loading && !loadError && filtered.length === 0}
+              emptyDescription={t('w2d.empty')}
+              onRetry={() => void load()}
+              skeletonRows={5}
+            >
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
@@ -226,6 +251,7 @@ export default function CQIPage() {
                 </tbody>
               </table>
             </div>
+            </StateView>
           </>
         )}
       </div>

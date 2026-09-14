@@ -4,6 +4,8 @@
 // 功能：患者360视图 + 跨系统数据同步 + 数据质量监控
 // ============================================================
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { Select } from 'antd'
+import { DataTable } from '../components/common/DataTable'
 import {
   Search, User, Phone, AlertCircle, Calendar, Plus, X, ChevronLeft, ChevronRight,
   Eye, Edit2, FileText, BarChart2, Download, RefreshCw, Filter, ChevronDown, ChevronUp,
@@ -895,17 +897,18 @@ const Patient360View = () => {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
-            <select 
+            <Select
               style={styles.select}
               value={patientTypeFilter}
-              onChange={e => setPatientTypeFilter(e.target.value)}
-            >
-              <option value="全部">{t('clinicalData.allTypes')}</option>
-              <option value="门诊">{t('clinicalData.outpatient')}</option>
-              <option value="住院">{t('clinicalData.inpatient')}</option>
-              <option value="体检">{t('clinicalData.physicalExam')}</option>
-              <option value="急诊">{t('clinicalData.emergency')}</option>
-            </select>
+              onChange={(v) => setPatientTypeFilter(v)}
+              options={[
+                { value: '全部', label: t('clinicalData.allTypes') },
+                { value: '门诊', label: t('clinicalData.outpatient') },
+                { value: '住院', label: t('clinicalData.inpatient') },
+                { value: '体检', label: t('clinicalData.physicalExam') },
+                { value: '急诊', label: t('clinicalData.emergency') },
+              ]}
+            />
           </div>
           
           {/* 患者列表 */}
@@ -1233,26 +1236,18 @@ const Patient360View = () => {
             
             {activePatientTab === 'vitals' && (
               <div>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={styles.th}>{t('clinicalData.thDate')}</th>
-                      <th style={styles.th}>{t('clinicalData.thBp')}</th>
-                      <th style={styles.th}>{t('clinicalData.thHr')}</th>
-                      <th style={styles.th}>{t('clinicalData.thTemp')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {patientData.vitals.map((v, i) => (
-                      <tr key={i}>
-                        <td style={styles.td}>{v.date}</td>
-                        <td style={styles.td}>{v.bp}</td>
-                        <td style={styles.td}>{v.hr} bpm</td>
-                        <td style={styles.td}>{v.temp}°C</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataTable
+                  rowKey={(v, i) => `${v.date}-${i}`}
+                  dataSource={patientData.vitals}
+                  columns={[
+                    { title: t('clinicalData.thDate'), dataIndex: 'date', key: 'date' },
+                    { title: t('clinicalData.thBp'), dataIndex: 'bp', key: 'bp' },
+                    { title: t('clinicalData.thHr'), dataIndex: 'hr', key: 'hr', render: (v) => `${v} bpm` },
+                    { title: t('clinicalData.thTemp'), dataIndex: 'temp', key: 'temp', render: (v) => `${v}°C` },
+                  ]}
+                  showPagination={false}
+                  scroll={{ x: 'max-content' }}
+                />
               </div>
             )}
             
@@ -1540,62 +1535,76 @@ const CrossSystemSync = () => {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
-          <select style={styles.select} value={systemFilter} onChange={e => setSystemFilter(e.target.value)}>
-            <option value="全部">{t('clinicalData.allSystems')}</option>
-            <option value="HIS">HIS</option>
-            <option value="PACS">PACS</option>
-            <option value="EMR">EMR</option>
-            <option value="LIS">LIS</option>
-            <option value="RIS">RIS</option>
-          </select>
-          <select style={styles.select} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="全部">{t('clinicalData.allStatus')}</option>
-            <option value="已同步">{t('clinicalData.synced')}</option>
-            <option value="同步中">{t('clinicalData.syncing')}</option>
-            <option value="失败">{t('clinicalData.failed')}</option>
-            <option value="待同步">{t('clinicalData.pending')}</option>
-          </select>
+          <Select
+            style={styles.select}
+            value={systemFilter}
+            onChange={(v) => setSystemFilter(v)}
+            options={[
+              { value: '全部', label: t('clinicalData.allSystems') },
+              { value: 'HIS', label: 'HIS' },
+              { value: 'PACS', label: 'PACS' },
+              { value: 'EMR', label: 'EMR' },
+              { value: 'LIS', label: 'LIS' },
+              { value: 'RIS', label: 'RIS' },
+            ]}
+          />
+          <Select
+            style={styles.select}
+            value={statusFilter}
+            onChange={(v) => setStatusFilter(v)}
+            options={[
+              { value: '全部', label: t('clinicalData.allStatus') },
+              { value: '已同步', label: t('clinicalData.synced') },
+              { value: '同步中', label: t('clinicalData.syncing') },
+              { value: '失败', label: t('clinicalData.failed') },
+              { value: '待同步', label: t('clinicalData.pending') },
+            ]}
+          />
           <button style={styles.btnOutline(COLORS.primary)} onClick={() => loadSyncRecords()}>
             <RefreshCw size={14} />
             {t('clinicalData.refresh')}
           </button>
         </div>
         
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>{t('clinicalData.thSystem')}</th>
-              <th style={styles.th}>{t('clinicalData.thDataType')}</th>
-              <th style={styles.th}>{t('clinicalData.thPatient')}</th>
-              <th style={styles.th}>{t('clinicalData.thSyncTime')}</th>
-              <th style={styles.th}>{t('clinicalData.thStatus')}</th>
-              <th style={styles.th}>{t('clinicalData.thAction')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRecords.slice(0, 15).map(record => (
-              <tr key={record.id}>
-                <td style={styles.td}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <SyncStatusIcon status={record.status} />
-                    <SystemTypeBadge type={record.systemType} />
-                  </div>
-                </td>
-                <td style={styles.td}>{record.recordType}</td>
-                <td style={styles.td}>
+        <DataTable
+          rowKey="id"
+          dataSource={filteredRecords.slice(0, 15)}
+          columns={[
+            {
+              title: t('clinicalData.thSystem'), key: 'system',
+              render: (_, record) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <SyncStatusIcon status={record.status} />
+                  <SystemTypeBadge type={record.systemType} />
+                </div>
+              ),
+            },
+            { title: t('clinicalData.thDataType'), dataIndex: 'recordType', key: 'recordType' },
+            {
+              title: t('clinicalData.thPatient'), key: 'patient',
+              render: (_, record) => (
+                <div>
                   <div style={{ fontWeight: 500 }}>{record.patientName}</div>
                   <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{record.patientId}</div>
-                </td>
-                <td style={styles.td}>{record.syncTime}</td>
-                <td style={styles.td}>
+                </div>
+              ),
+            },
+            { title: t('clinicalData.thSyncTime'), dataIndex: 'syncTime', key: 'syncTime' },
+            {
+              title: t('clinicalData.thStatus'), key: 'status',
+              render: (_, record) => (
+                <>
                   <StatusBadge status={record.status} />
                   {record.errorMsg && (
-                    <div style={{ fontSize: '11px', color: COLORS.danger, marginTop: '4px' }}>
-                      {record.errorMsg}
-                    </div>
+                    <div style={{ fontSize: '11px', color: COLORS.danger, marginTop: '4px' }}>{record.errorMsg}</div>
                   )}
-                </td>
-                <td style={styles.td}>
+                </>
+              ),
+            },
+            {
+              title: t('clinicalData.thAction'), key: 'action',
+              render: (_, record) => (
+                <>
                   {record.status === '失败' && (
                     <button style={styles.btn(COLORS.primary)} onClick={async (evt) => {
                       const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
@@ -1634,11 +1643,12 @@ const CrossSystemSync = () => {
                       {t('clinicalData.pause')}
                     </button>
                   )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </>
+              ),
+            },
+          ]}
+          scroll={{ x: 'max-content' }}
+        />
       </div>
     </div>
   )
@@ -1945,73 +1955,79 @@ const DataQualityMonitor = () => {
         </div>
         
         <div style={styles.searchBar}>
-          <select style={styles.select} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
-            <option value="全部">{t('clinicalData.allCategories')}</option>
-            <option value="数据完整性">{t('clinicalData.catCompleteness')}</option>
-            <option value="数据准确性">{t('clinicalData.catAccuracy')}</option>
-            <option value="数据时效性">{t('clinicalData.catTimeliness')}</option>
-            <option value="数据一致性">{t('clinicalData.catConsistency')}</option>
-            <option value="数据标准化">{t('clinicalData.catStandardization')}</option>
-          </select>
-          <select style={styles.select} value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
-            <option value="全部">{t('clinicalData.allLevels')}</option>
-            <option value="优">{t('clinicalData.qualityExcellent')}</option>
-            <option value="良">{t('clinicalData.qualityGood')}</option>
-            <option value="中">{t('clinicalData.qualityMedium')}</option>
-            <option value="差">{t('clinicalData.qualityPoor')}</option>
-          </select>
+          <Select
+            style={styles.select}
+            value={categoryFilter}
+            onChange={(v) => setCategoryFilter(v)}
+            options={[
+              { value: '全部', label: t('clinicalData.allCategories') },
+              { value: '数据完整性', label: t('clinicalData.catCompleteness') },
+              { value: '数据准确性', label: t('clinicalData.catAccuracy') },
+              { value: '数据时效性', label: t('clinicalData.catTimeliness') },
+              { value: '数据一致性', label: t('clinicalData.catConsistency') },
+              { value: '数据标准化', label: t('clinicalData.catStandardization') },
+            ]}
+          />
+          <Select
+            style={styles.select}
+            value={levelFilter}
+            onChange={(v) => setLevelFilter(v)}
+            options={[
+              { value: '全部', label: t('clinicalData.allLevels') },
+              { value: '优', label: t('clinicalData.qualityExcellent') },
+              { value: '良', label: t('clinicalData.qualityGood') },
+              { value: '中', label: t('clinicalData.qualityMedium') },
+              { value: '差', label: t('clinicalData.qualityPoor') },
+            ]}
+          />
           <button style={styles.btnOutline(COLORS.primary)} onClick={() => loadQualityMetrics()}>
             <RefreshCw size={14} />
             {t('clinicalData.refresh')}
           </button>
         </div>
         
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>{t('clinicalData.thCategory')}</th>
-              <th style={styles.th}>{t('clinicalData.thMetric')}</th>
-              <th style={styles.th}>{t('clinicalData.thScore')}</th>
-              <th style={styles.th}>{t('clinicalData.thLevel')}</th>
-              <th style={styles.th}>{t('clinicalData.thTrend')}</th>
-              <th style={styles.th}>{t('clinicalData.thIssues')}</th>
-              <th style={styles.th}>{t('clinicalData.thQualityTrend')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredMetrics.map((metric, i) => (
-              <tr key={i}>
-                <td style={styles.td}>
-                  <span style={styles.badge(COLORS.primary, '#eff6ff')}>{metric.category}</span>
-                </td>
-                <td style={styles.td}>
+        <DataTable
+          rowKey={(metric, i) => `${metric.metric}-${i}`}
+          dataSource={filteredMetrics}
+          columns={[
+            { title: t('clinicalData.thCategory'), key: 'category', render: (_, metric) => <span style={styles.badge(COLORS.primary, '#eff6ff')}>{metric.category}</span> },
+            {
+              title: t('clinicalData.thMetric'), key: 'metric',
+              render: (_, metric) => (
+                <div>
                   <div style={{ fontWeight: 500 }}>{metric.metric}</div>
                   <div style={{ fontSize: '11px', color: COLORS.textMuted, marginTop: '2px' }}>{metric.description}</div>
-                </td>
-                <td style={styles.td}>
-                  <span style={{ fontWeight: 700, fontSize: '16px', color: metric.score >= 95 ? COLORS.success : metric.score >= 90 ? COLORS.primaryLight : metric.score >= 85 ? COLORS.warning : COLORS.danger }}>
-                    {metric.score}
-                  </span>
+                </div>
+              ),
+            },
+            {
+              title: t('clinicalData.thScore'), dataIndex: 'score', key: 'score',
+              render: (score) => (
+                <>
+                  <span style={{ fontWeight: 700, fontSize: '16px', color: score >= 95 ? COLORS.success : score >= 90 ? COLORS.primaryLight : score >= 85 ? COLORS.warning : COLORS.danger }}>{score}</span>
                   <span style={{ fontSize: '11px', color: COLORS.textMuted }}>%</span>
-                </td>
-                <td style={styles.td}><QualityBadge level={metric.level} /></td>
-                <td style={styles.td}><TrendIcon trend={metric.trend} /></td>
-                <td style={styles.td}>
-                  <span style={{ color: metric.issueCount > 20 ? COLORS.danger : metric.issueCount > 10 ? COLORS.warning : COLORS.success }}>
-                    {metric.issueCount}
-                  </span>
-                </td>
-                <td style={styles.td}>
-                  <div style={{ width: '100px', display: 'flex', alignItems: 'center' }}>
-                    <div style={{ ...styles.progress(100, ''), flex: 1 }}>
-                      <div style={{ ...styles.progressBar(metric.score, metric.score >= 95 ? COLORS.success : metric.score >= 90 ? COLORS.primaryLight : metric.score >= 85 ? COLORS.warning : COLORS.danger), width: `${metric.score}%` }} />
-                    </div>
+                </>
+              ),
+            },
+            { title: t('clinicalData.thLevel'), key: 'level', render: (_, metric) => <QualityBadge level={metric.level} /> },
+            { title: t('clinicalData.thTrend'), key: 'trend', render: (_, metric) => <TrendIcon trend={metric.trend} /> },
+            {
+              title: t('clinicalData.thIssues'), dataIndex: 'issueCount', key: 'issueCount',
+              render: (issueCount) => <span style={{ color: issueCount > 20 ? COLORS.danger : issueCount > 10 ? COLORS.warning : COLORS.success }}>{issueCount}</span>,
+            },
+            {
+              title: t('clinicalData.thQualityTrend'), key: 'qualityTrend',
+              render: (_, metric) => (
+                <div style={{ width: '100px', display: 'flex', alignItems: 'center' }}>
+                  <div style={{ ...styles.progress(100, ''), flex: 1 }}>
+                    <div style={{ ...styles.progressBar(metric.score, metric.score >= 95 ? COLORS.success : metric.score >= 90 ? COLORS.primaryLight : metric.score >= 85 ? COLORS.warning : COLORS.danger), width: `${metric.score}%` }} />
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              ),
+            },
+          ]}
+          scroll={{ x: 'max-content' }}
+        />
       </div>
     </div>
   )

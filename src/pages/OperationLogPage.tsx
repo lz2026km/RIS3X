@@ -1,7 +1,11 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { X, Clock, User, FileText, CheckCircle, Download, BarChart3, Activity, AlertCircle, History, List, Globe, Loader2, FileSpreadsheet, Users, Shield, AlertTriangle, Pause, Play, Radio, GitBranch, Fingerprint, FileJson, FileBarChart } from 'lucide-react'
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { Select } from 'antd'
+import type { TableColumnsType } from 'antd'
 import { userApi } from '../services/api'
+import { DataTable } from '../components/common/DataTable'
+import { ActionButton } from '../components/common/ActionButton'
 import { t } from '../i18n/appI18n'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import {
@@ -359,6 +363,17 @@ export default function OperationLogPage() {
     fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
   })
 
+  const anomalyColumns: TableColumnsType<(typeof anomalyScores)[number]> = [
+    { title: t('opLog.colUser'), dataIndex: 'userName', key: 'userName', align: 'center' as const, render: (v: string) => <span style={{ fontWeight: 600, color: PRIMARY }}>{v}</span> },
+    { title: t('opLog.colAction'), dataIndex: 'action', key: 'action', align: 'center' as const, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+    {
+      title: t('opLog.colAnomalyScore'), dataIndex: 'score', key: 'score', align: 'center' as const,
+      render: (v: number) => <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: v >= 70 ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: v >= 70 ? DANGER : WARNING }}>{v}</span>,
+    },
+    { title: t('opLog.colReason'), dataIndex: 'reason', key: 'reason', align: 'center' as const, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{v}</span> },
+    { title: t('opLog.colTime'), dataIndex: 'timestamp', key: 'timestamp', align: 'center' as const, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{new Date(v).toLocaleString()}</span> },
+  ]
+
   return (
     <div data-testid="operation-log-page" style={{ minHeight: '100vh', background: BG }}>
       {loading && <LoadingBanner message={t('opLog.loadingBanner')} />}
@@ -376,19 +391,15 @@ export default function OperationLogPage() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button
+          <ActionButton
+            action="export"
+            size="compact"
+            loading={isExporting}
+            icon={isExporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
             onClick={handleExportCSV}
-            disabled={isExporting}
-            style={{
-              padding: '6px 14px', borderRadius: 6, border: `1px solid ${isExporting ? 'var(--border-color)' : SUCCESS}`,
-              background: isExporting ? 'var(--bg-card)' : `${SUCCESS}10`, color: isExporting ? '#94a3b8' : SUCCESS,
-              fontSize: 12, fontWeight: 600, cursor: isExporting ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6,
-            }}
           >
-            {isExporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
             {isExporting ? t('opLog.exporting') : t('opLog.exportCsv')}
-          </button>
+          </ActionButton>
           <button
             onClick={() => setShowStats(!showStats)}
             style={{ ...filterBtnStyle(showStats), display: 'flex', alignItems: 'center', gap: 6 }}
@@ -534,13 +545,13 @@ export default function OperationLogPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.perPage')}</span>
-                      <select
+                      <Select
+                        size="small"
+                        style={{ width: 70 }}
                         value={hipaaPageSize}
-                        onChange={e => { setHipaaPageSize(Number(e.target.value)); setHipaaCurrentPage(1) }}
-                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12 }}
-                      >
-                        {PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
+                        onChange={(v) => { setHipaaPageSize(Number(v)); setHipaaCurrentPage(1) }}
+                        options={PAGE_SIZES.map(s => ({ value: s, label: String(s) }))}
+                      />
                       <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.itemsUnit')}</span>
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
@@ -622,9 +633,13 @@ export default function OperationLogPage() {
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opLog.poll5s')}</span>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#334155', color: WHITE, fontSize: 12, outline: 'none' }}>
-                {['全部', 'info', 'warn', 'error', 'critical'].map(s => (<option key={s} value={s}>{s}</option>))}
-              </select>
+              <Select
+                size="small"
+                style={{ width: 100 }}
+                value={severityFilter}
+                onChange={(v) => setSeverityFilter(v)}
+                options={['全部', 'info', 'warn', 'error', 'critical'].map(s => ({ value: s, label: s }))}
+              />
               <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? '#22c55e' : '#64748b', color: WHITE, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {autoScroll ? <Play size={12} /> : <Pause size={12} />}{autoScroll ? t('opLog.autoScroll') : t('opLog.pause')}
               </button>
@@ -665,24 +680,13 @@ export default function OperationLogPage() {
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('opLog.anomalyScoreDetail')}</h3>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-                {[t('opLog.colUser'), t('opLog.colAction'), t('opLog.colAnomalyScore'), t('opLog.colReason'), t('opLog.colTime')].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
-              </tr></thead>
-              <tbody>
-                {anomalyScores.filter(s => s.score >= 50).slice(0, 10).map((s, idx) => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? WHITE : 'var(--bg-primary)' }}>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY }}>{s.userName}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>{s.action}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: s.score >= 70 ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: s.score >= 70 ? DANGER : WARNING }}>{s.score}</span>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{s.reason}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{new Date(s.timestamp).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable<(typeof anomalyScores)[number]>
+              rowKey="id"
+              dataSource={anomalyScores.filter(s => s.score >= 50).slice(0, 10)}
+              columns={anomalyColumns}
+              showPagination={false}
+              scroll={{ x: 'max-content' }}
+            />
             {anomalyScores.filter(s => s.score >= 70).length > 0 && (
               <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--color-error-bg)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={16} color={DANGER} />
@@ -789,14 +793,12 @@ export default function OperationLogPage() {
               {generatingReport ? <Loader2 size={14} /> : <FileText size={14} />}
               {generatingReport ? t('opLog.generating') : t('opLog.generateReport')}
             </button>
-            <button onClick={exportLogsCsv} style={{
-              padding: '6px 14px', borderRadius: 6, border: `1px solid #059669`, background: `${SUCCESS}10`,
-              color: SUCCESS, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            }}><FileSpreadsheet size={14} />{t('opLog.exportCsv')}</button>
-            <button onClick={exportLogsPdf} style={{
-              padding: '6px 14px', borderRadius: 6, border: `1px solid #dc2626`, background: `${DANGER}10`,
-              color: DANGER, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            }}><FileJson size={14} />{t('opLog.exportPdf')}</button>
+            <ActionButton action="export" size="compact" icon={<FileSpreadsheet size={14} />} onClick={exportLogsCsv}>
+              {t('opLog.exportCsv')}
+            </ActionButton>
+            <ActionButton action="export" size="compact" icon={<FileJson size={14} />} onClick={exportLogsPdf}>
+              {t('opLog.exportPdf')}
+            </ActionButton>
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>

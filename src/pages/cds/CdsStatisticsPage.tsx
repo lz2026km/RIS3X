@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { BarChart3, TrendingUp, Download, AlertTriangle, CheckCircle, Activity, ArrowUp, ArrowDown } from 'lucide-react'
 import type { CdsStatsOverview } from '../../services/cds'
 import { cdsApi } from '../../services/api/cdsApi'
+import { StateView } from '../../components/common/StateView'
 import { t } from '../../i18n/appI18n'
 
 type Period = '7d' | '30d' | '90d'
@@ -25,7 +26,7 @@ function StatCard({ title, value, unit, icon: Icon, trend, trendValue, color }: 
         {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{unit}</span>}
       </div>
       {trend && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? '#22c55e' : '#ef4444' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>
           {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
           <span>{trendValue}</span>
         </div>
@@ -38,17 +39,25 @@ export default function CdsStatisticsPage() {
   const [period, setPeriod] = useState<Period>('30d')
   const [overview, setOverview] = useState<CdsStatsOverview | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
+    setLoadError(null)
     cdsApi.getCdsStatistics().then((res) => {
       if (cancelled) return
       if (res.success) setOverview(res.data)
+      else setLoadError(res.error?.message ?? t('cdsStats.loadFailed'))
+      setLoading(false)
+    }).catch((e) => {
+      if (cancelled) return
+      setLoadError(e instanceof Error ? e.message : t('cdsStats.loadFailed'))
       setLoading(false)
     })
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
 
   const chartData = useMemo(() => {
     if (!overview) return []
@@ -72,8 +81,8 @@ export default function CdsStatisticsPage() {
 
   if (!overview) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0d1117', color: '#8b949e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
-        {t('cdsStats.loadFailed')}
+      <div style={{ minHeight: '100vh', background: '#0d1117', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <StateView error={loadError ?? t('cdsStats.loadFailed')} onRetry={() => setReloadTick(n => n + 1)} />
       </div>
     )
   }
@@ -98,11 +107,11 @@ export default function CdsStatisticsPage() {
 
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <StatCard title={t('cdsStats.activeRules')} value={overview.activeRules} unit={`/ ${overview.totalRules}`} icon={CheckCircle} trend="up" trendValue={t('cdsStats.trendActive')} color="#22c55e" />
-          <StatCard title={t('cdsStats.ruleCoverage')} value={overrideRatePct} unit="%" icon={Activity} trend="down" trendValue={t('cdsStats.trendCoverage')} color="#3b82f6" />
-          <StatCard title={t('cdsStats.suggestionAcceptance')} value={acceptanceRate} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendAcceptance')} color="#22c55e" />
-          <StatCard title={t('cdsStats.pathwayCompletion')} value={(overview.pathwayCompletionRate * 100).toFixed(0)} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendPathway')} color="#f59e0b" />
-          <StatCard title={t('cdsStats.contrastAlerts')} value={overview.contrastAlertsThisMonth} unit={t('cdsStats.thisMonth')} icon={AlertTriangle} trend="down" trendValue={t('cdsStats.trendContrast')} color="#ef4444" />
+          <StatCard title={t('cdsStats.activeRules')} value={overview.activeRules} unit={`/ ${overview.totalRules}`} icon={CheckCircle} trend="up" trendValue={t('cdsStats.trendActive')} color="var(--color-success-500, #22c55e)" />
+          <StatCard title={t('cdsStats.ruleCoverage')} value={overrideRatePct} unit="%" icon={Activity} trend="down" trendValue={t('cdsStats.trendCoverage')} color="var(--color-primary-500, #3b82f6)" />
+          <StatCard title={t('cdsStats.suggestionAcceptance')} value={acceptanceRate} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendAcceptance')} color="var(--color-success-500, #22c55e)" />
+          <StatCard title={t('cdsStats.pathwayCompletion')} value={(overview.pathwayCompletionRate * 100).toFixed(0)} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendPathway')} color="var(--color-warning-500, #f59e0b)" />
+          <StatCard title={t('cdsStats.contrastAlerts')} value={overview.contrastAlertsThisMonth} unit={t('cdsStats.thisMonth')} icon={AlertTriangle} trend="down" trendValue={t('cdsStats.trendContrast')} color="var(--color-error-500, #ef4444)" />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
@@ -142,7 +151,7 @@ export default function CdsStatisticsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('cdsStats.topPathways')}</div>
             {overview.topPathways?.map((p, i) => (
               <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid #21262d' : 'none' }}>
-                <RouteIcon color="#22c55e" />
+                <RouteIcon color="var(--color-success-500, #22c55e)" />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, color: '#f0f6fc' }}>{p.pathwayName}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{p.pathwayId}</div>

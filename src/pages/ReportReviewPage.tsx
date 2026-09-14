@@ -6,7 +6,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message, Modal, Tag } from 'antd';
+import { message, Modal, Tag, Select } from 'antd';
 import {
   ClipboardCheck, Clock, XCircle,
   FileText, Search, BarChart3, TrendingUp,
@@ -27,6 +27,7 @@ import { computeDiff, type DiffChunk } from '../services/reportDiffEngine';
 import { criticalAlertApi } from '../services/api/criticalAlertApi';
 import FollowupAutoBookPanel from '../components/report/v3/R3.WRITING/FollowupAutoBookPanel';
 import { t } from '../i18n/appI18n';
+import { ActionButton } from '../components/common/ActionButton';
 import { CheckCircle2, Siren, CalendarClock } from 'lucide-react';
 import ReportFlowBar from '../components/report/ReportFlowBar';
 // [v3.0.6.11-70] P0 真实化: 后端 ReportDto → 审核任务 (状态过滤/阶段映射)
@@ -298,17 +299,18 @@ export default function ReportReviewPage() {
               }}
             />
           </div>
-          <select
+          <Select
             value={status}
-            onChange={e => setStatus(e.target.value as any)}
-            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
-          >
-            <option value="all">{t('reportReviewPage.allStatus')}</option>
-            <option value="pending">{t('reportReviewPage.statusPending')}</option>
-            <option value="in-progress">{t('reportReviewPage.statusInProgress')}</option>
-            <option value="rejected">{t('reportReviewPage.statusRejected')}</option>
-            <option value="overdue">{t('reportReviewPage.statusOverdue')}</option>
-          </select>
+            onChange={value => setStatus(value as any)}
+            style={{ width: 120 }}
+            options={[
+              { value: 'all', label: t('reportReviewPage.allStatus') },
+              { value: 'pending', label: t('reportReviewPage.statusPending') },
+              { value: 'in-progress', label: t('reportReviewPage.statusInProgress') },
+              { value: 'rejected', label: t('reportReviewPage.statusRejected') },
+              { value: 'overdue', label: t('reportReviewPage.statusOverdue') },
+            ]}
+          />
         </div>
       </div>
 
@@ -625,17 +627,15 @@ const ReviewTaskDetail: React.FC<{
                     <div style={{ fontSize: 12, color: '#7f1d1d' }}>{t('w12.review.criticalDetectedHint')}</div>
                   </div>
                 </div>
-                <button
+                <ActionButton
+                  action="submit"
+                  variant="danger"
+                  loading={cvBusy}
+                  icon={<AlertTriangle size={13} />}
                   onClick={() => void handleTransferCritical()}
-                  disabled={cvBusy}
-                  style={{
-                    padding: '8px 14px', border: 'none', borderRadius: 6,
-                    background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 6,
-                  }}
                 >
-                  <AlertTriangle size={13} /> {cvBusy ? '…' : t('w12.review.toCritical')}
-                </button>
+                  {t('w12.review.toCritical')}
+                </ActionButton>
               </div>
             ) : (
               <div style={{ padding: 10, borderRadius: 6, background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', fontSize: 12, color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -752,16 +752,14 @@ const ReviewTaskDetail: React.FC<{
               >
                 <History size={11} /> {diffOpen ? t('w12.review.originalView') : t('w12.review.modificationView')}
               </button>
-              <button
+              <ActionButton
+                action="refresh"
+                size="compact"
+                icon={<Eye size={11} />}
                 onClick={() => setPreviewFull(true)}
-                style={{
-                  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-                  background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 4,
-                }}
               >
-                <Eye size={11} /> {t('reportReviewPage.fullscreenPreview')}
-              </button>
+                {t('reportReviewPage.fullscreenPreview')}
+              </ActionButton>
             </div>
           </div>
         <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
@@ -982,19 +980,17 @@ const ReviewTaskDetail: React.FC<{
             </button>
           </div>
 
-          <button
+          <ActionButton
+            action="submit"
+            icon={<Send size={14} />}
+            loading={submitting}
+            disabled={!auditDecision || (auditDecision === 'reject' && !auditSuggestion)}
+            block
+            style={{ marginTop: 8 }}
             onClick={() => onAuditSubmit(auditDecision ?? 'approve')}
-            disabled={!auditDecision || (auditDecision === 'reject' && !auditSuggestion) || submitting}
-            style={{
-              width: '100%', marginTop: 8, padding: 12, border: 'none', borderRadius: 6,
-              background: (!auditDecision || (auditDecision === 'reject' && !auditSuggestion)) ? '#cbd5e1' : '#1e40af',
-              color: '#fff', fontSize: 13, fontWeight: 700,
-              cursor: (!auditDecision || (auditDecision === 'reject' && !auditSuggestion) || submitting) ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            }}
           >
-            <Send size={14} /> {submitting ? t('reportReviewPage.submitting') : `提交${stageConf.label}（${currentUser.name}）`}
-          </button>
+            {submitting ? t('reportReviewPage.submitting') : `提交${stageConf.label}（${currentUser.name}）`}
+          </ActionButton>
         </div>
       )}
     </div>

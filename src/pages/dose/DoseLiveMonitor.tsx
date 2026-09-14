@@ -5,8 +5,6 @@ import {
   BarChart3,
   Bell,
   CheckCircle2,
-  RefreshCw,
-  Save,
   Search,
   ShieldAlert,
   TrendingUp,
@@ -24,8 +22,12 @@ import {
   Line,
   ReferenceLine,
 } from "recharts";
+import { Select } from "antd";
+import type { TableColumnsType } from "antd";
 import { rdsrApi } from "../../services/api/rdsrApi";
 import { ChartContainer } from "../../components/charts";
+import { DataTable } from "../../components/common/DataTable";
+import { ActionButton } from "../../components/common/ActionButton";
 import { t } from "../../i18n/appI18n";
 import type {
   DrlEntry,
@@ -120,22 +122,6 @@ function StatCard({
         {icon}
       </div>
     </div>
-  );
-}
-
-function Th({ children, align }: { children: React.ReactNode; align?: "center" }) {
-  return (
-    <th style={{ padding: "8px 10px", fontSize: 12, fontWeight: 700, color: "#64748b", textAlign: align ?? "left", borderBottom: "1px solid #e2e8f0", whiteSpace: "nowrap" }}>
-      {children}
-    </th>
-  );
-}
-
-function Td({ children, align, style }: { children: React.ReactNode; align?: "center"; style?: React.CSSProperties }) {
-  return (
-    <td style={{ padding: "8px 10px", fontSize: 12, color: "#334155", borderBottom: "1px solid #f1f5f9", textAlign: align ?? "left", whiteSpace: "nowrap", ...style }}>
-      {children}
-    </td>
   );
 }
 
@@ -305,6 +291,108 @@ export default function DoseLiveMonitor() {
   // [W2-A] getStats.trend: { date, avgCtdivol, avgDlp }
   const statsTrendData = useMemo(() => stats?.trend ?? [], [stats]);
 
+  type DoseExamRow = CumulativeDose["exams"][number];
+
+  const badgeStyle = (bg: React.CSSProperties | undefined): React.CSSProperties => ({
+    ...bg,
+    padding: "2px 8px",
+    borderRadius: 999,
+    fontSize: 11,
+    fontWeight: 600,
+  });
+
+  const doseColumns: TableColumnsType<DoseExamRow> = [
+    { title: t('doseLive.colDate'), dataIndex: 'examDate', key: 'examDate', render: (v: string) => fmtDate(v) },
+    { title: t('doseLive.colBodyPart'), dataIndex: 'bodyPart', key: 'bodyPart' },
+    { title: 'CTDIvol', dataIndex: 'ctdivol', key: 'ctdivol', render: (v: number) => fmt(v) },
+    { title: 'DLP', dataIndex: 'dlp', key: 'dlp', render: (v: number) => fmt(v) },
+    { title: 'SSDE', dataIndex: 'ssde', key: 'ssde', render: (v: number) => fmt(v) },
+    {
+      title: t('doseLive.colLevel'), dataIndex: 'alertLevel', key: 'alertLevel',
+      render: (v: string) => <span style={badgeStyle(levelBadge[v])}>{levelText[v]}</span>,
+    },
+  ];
+
+  const alertColumns: TableColumnsType<DoseAlert> = [
+    { title: t('doseLive.colDate'), dataIndex: 'date', key: 'date', render: (v: string) => fmtDate(v) },
+    { title: t('doseLive.colPatient'), dataIndex: 'patientName', key: 'patientName' },
+    { title: t('doseLive.colBodyPart'), dataIndex: 'bodyPart', key: 'bodyPart' },
+    { title: 'CTDIvol', dataIndex: 'ctdivol', key: 'ctdivol', render: (v: number) => `${fmt(v)} mGy` },
+    { title: 'DLP', dataIndex: 'dlp', key: 'dlp', render: (v: number) => fmt(v) },
+    {
+      title: t('doseLive.colDrlThreshold'), key: 'drl',
+      render: (_: unknown, a: DoseAlert) => <span style={{ color: "#64748b" }}>{fmt(a.ctdivolDrl)} / {fmt(a.dlpDrl)}</span>,
+    },
+    {
+      title: t('doseLive.colLevel'), dataIndex: 'level', key: 'level',
+      render: (v: string) => <span style={badgeStyle(levelBadge[v])}>{v === "critical" ? t('doseLive.levelCritical') : t('doseLive.levelWarning')}</span>,
+    },
+    {
+      title: t('doseLive.colStatus'), dataIndex: 'acknowledged', key: 'status',
+      render: (v: boolean) => v ? (
+        <span style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <CheckCircle2 size={13} /> {t('doseLive.acknowledged')}
+        </span>
+      ) : (
+        <span style={{ color: "#b45309", display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <AlertTriangle size={13} /> {t('doseLive.pending')}
+        </span>
+      ),
+    },
+    {
+      title: t('doseLive.colActions'), key: 'actions', align: 'center' as const,
+      render: (_: unknown, a: DoseAlert) => !a.acknowledged ? (
+        <ActionButton action="submit" size="compact" icon={<CheckCircle2 size={12} />} onClick={() => void handleAck(a.id)}>
+          {t('doseLive.acknowledge')}
+        </ActionButton>
+      ) : null,
+    },
+  ];
+
+  const drlColumns: TableColumnsType<DrlEntry> = [
+    { title: t('doseLive.colModality'), dataIndex: 'modality', key: 'modality' },
+    { title: t('doseLive.colExamBodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    {
+      title: t('doseLive.colCtdiThreshold'), key: 'ctdivolDrl',
+      render: (_: unknown, d: DrlEntry) => {
+        const values = editing[d.bodyPart] ?? { ctdivolDrl: String(d.ctdivolDrl), dlpDrl: String(d.dlpDrl) };
+        return (
+          <input
+            style={{ ...input, width: 90 }}
+            type="number"
+            min={1}
+            value={values.ctdivolDrl}
+            onChange={(e) => setEditing((prev) => ({ ...prev, [d.bodyPart]: { ...values, ctdivolDrl: e.target.value } }))}
+          />
+        );
+      },
+    },
+    {
+      title: t('doseLive.colDlpThreshold'), key: 'dlpDrl',
+      render: (_: unknown, d: DrlEntry) => {
+        const values = editing[d.bodyPart] ?? { ctdivolDrl: String(d.ctdivolDrl), dlpDrl: String(d.dlpDrl) };
+        return (
+          <input
+            style={{ ...input, width: 100 }}
+            type="number"
+            min={1}
+            value={values.dlpDrl}
+            onChange={(e) => setEditing((prev) => ({ ...prev, [d.bodyPart]: { ...values, dlpDrl: e.target.value } }))}
+          />
+        );
+      },
+    },
+    { title: t('doseLive.colSource'), dataIndex: 'source', key: 'source', render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+    {
+      title: t('doseLive.colActions'), key: 'actions', align: 'center' as const,
+      render: (_: unknown, d: DrlEntry) => (
+        <ActionButton action="save" size="compact" loading={saving === d.bodyPart} onClick={() => void handleSaveDrl(d)}>
+          {saving === d.bodyPart ? t('doseLive.saving') : t('doseLive.save')}
+        </ActionButton>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
       <div style={{ ...card, textAlign: "center", padding: 40, color: "#94a3b8", fontSize: 13 }}>
@@ -319,9 +407,9 @@ export default function DoseLiveMonitor() {
         <Activity size={18} /> {t('doseLive.title')}
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button style={btn} onClick={handleRefresh}>
-          <RefreshCw size={13} /> {t('doseLive.refresh')}
-        </button>
+        <ActionButton action="refresh" size="compact" onClick={handleRefresh}>
+          {t('doseLive.refresh')}
+        </ActionButton>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
@@ -445,36 +533,13 @@ export default function DoseLiveMonitor() {
             {cumLoading ? (
               <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.loading')}</div>
             ) : cumulative && cumulative.exams.length > 0 ? (
-              <div style={{ maxHeight: 300, overflowY: "auto" }}>
-                <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr>
-                      <Th>{t('doseLive.colDate')}</Th>
-                      <Th>{t('doseLive.colBodyPart')}</Th>
-                      <Th>CTDIvol</Th>
-                      <Th>DLP</Th>
-                      <Th>SSDE</Th>
-                      <Th>{t('doseLive.colLevel')}</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cumulative.exams.map((e) => (
-                      <tr key={e.id}>
-                        <Td>{fmtDate(e.examDate)}</Td>
-                        <Td>{e.bodyPart}</Td>
-                        <Td>{fmt(e.ctdivol)}</Td>
-                        <Td>{fmt(e.dlp)}</Td>
-                        <Td>{fmt(e.ssde)}</Td>
-                        <Td>
-                          <span style={{ ...levelBadge[e.alertLevel], padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600 }}>
-                            {levelText[e.alertLevel]}
-                          </span>
-                        </Td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table></div>
-              </div>
+              <DataTable<DoseExamRow>
+                rowKey="id"
+                dataSource={cumulative.exams}
+                columns={doseColumns}
+                showPagination={false}
+                scroll={{ x: "max-content", y: 280 }}
+              />
             ) : (
               <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noRecords')}</div>
             )}
@@ -490,74 +555,25 @@ export default function DoseLiveMonitor() {
               {alerts.filter((a) => !a.acknowledged).length} {t('doseLive.pendingCount')}
             </span>
           </span>
-          <select
+          <Select
+            size="small"
+            style={{ width: 110 }}
             value={alertFilter}
-            onChange={(e) => setAlertFilter(e.target.value as "all" | "pending" | "acknowledged")}
-            style={{ ...input, width: 110 }}
-          >
-            <option value="all">{t('doseLive.filterAll')}</option>
-            <option value="pending">{t('doseLive.filterPending')}</option>
-            <option value="acknowledged">{t('doseLive.filterAcknowledged')}</option>
-          </select>
+            onChange={(v) => setAlertFilter(v as "all" | "pending" | "acknowledged")}
+            options={[
+              { value: "all", label: t('doseLive.filterAll') },
+              { value: "pending", label: t('doseLive.filterPending') },
+              { value: "acknowledged", label: t('doseLive.filterAcknowledged') },
+            ]}
+          />
         </div>
-        {visibleAlerts.length === 0 ? (
-          <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noAlerts')}</div>
-        ) : (
-          <div style={{ maxHeight: 320, overflowY: "auto" }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <Th>{t('doseLive.colDate')}</Th>
-                  <Th>{t('doseLive.colPatient')}</Th>
-                  <Th>{t('doseLive.colBodyPart')}</Th>
-                  <Th>CTDIvol</Th>
-                  <Th>DLP</Th>
-                  <Th>{t('doseLive.colDrlThreshold')}</Th>
-                  <Th>{t('doseLive.colLevel')}</Th>
-                  <Th>{t('doseLive.colStatus')}</Th>
-                  <Th align="center">{t('doseLive.colActions')}</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleAlerts.map((a) => (
-                  <tr key={a.id}>
-                    <Td>{fmtDate(a.date)}</Td>
-                    <Td>{a.patientName}</Td>
-                    <Td>{a.bodyPart}</Td>
-                    <Td>{fmt(a.ctdivol)} mGy</Td>
-                    <Td>{fmt(a.dlp)}</Td>
-                    <Td style={{ color: "#64748b" }}>
-                      {fmt(a.ctdivolDrl)} / {fmt(a.dlpDrl)}
-                    </Td>
-                    <Td>
-                      <span style={{ ...levelBadge[a.level], padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600 }}>
-                        {a.level === "critical" ? t('doseLive.levelCritical') : t('doseLive.levelWarning')}
-                      </span>
-                    </Td>
-                    <Td>
-                      {a.acknowledged ? (
-                        <span style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <CheckCircle2 size={13} /> {t('doseLive.acknowledged')}
-                        </span>
-                      ) : (
-                        <span style={{ color: "#b45309", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <AlertTriangle size={13} /> {t('doseLive.pending')}
-                        </span>
-                      )}
-                    </Td>
-                    <Td align="center">
-                      {!a.acknowledged && (
-                        <button style={btnPrimary} onClick={() => void handleAck(a.id)}>
-                          <CheckCircle2 size={12} /> {t('doseLive.acknowledge')}
-                        </button>
-                      )}
-                    </Td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
-          </div>
-        )}
+        <DataTable<DoseAlert>
+          rowKey="id"
+          dataSource={visibleAlerts}
+          columns={alertColumns}
+          emptyText={t('doseLive.noAlerts')}
+          scroll={{ x: "max-content" }}
+        />
       </div>
 
       <div style={card}>
@@ -627,63 +643,13 @@ export default function DoseLiveMonitor() {
           </span>
           <span style={{ fontSize: 11, color: "#94a3b8" }}>{t('doseLive.drlConfigHint')}</span>
         </div>
-        <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <Th>{t('doseLive.colModality')}</Th>
-              <Th>{t('doseLive.colExamBodyPart')}</Th>
-              <Th>{t('doseLive.colCtdiThreshold')}</Th>
-              <Th>{t('doseLive.colDlpThreshold')}</Th>
-              <Th>{t('doseLive.colSource')}</Th>
-              <Th align="center">{t('doseLive.colActions')}</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {drls.map((d) => {
-              const values = editing[d.bodyPart] ?? { ctdivolDrl: String(d.ctdivolDrl), dlpDrl: String(d.dlpDrl) };
-              return (
-                <tr key={`${d.modality}-${d.bodyPart}`}>
-                  <Td>{d.modality}</Td>
-                  <Td style={{ fontWeight: 600 }}>{d.bodyPart}</Td>
-                  <Td>
-                    <input
-                      style={{ ...input, width: 90 }}
-                      type="number"
-                      min={1}
-                      value={values.ctdivolDrl}
-                      onChange={(e) =>
-                        setEditing((prev) => ({
-                          ...prev,
-                          [d.bodyPart]: { ...values, ctdivolDrl: e.target.value },
-                        }))
-                      }
-                    />
-                  </Td>
-                  <Td>
-                    <input
-                      style={{ ...input, width: 100 }}
-                      type="number"
-                      min={1}
-                      value={values.dlpDrl}
-                      onChange={(e) =>
-                        setEditing((prev) => ({
-                          ...prev,
-                          [d.bodyPart]: { ...values, dlpDrl: e.target.value },
-                        }))
-                      }
-                    />
-                  </Td>
-                  <Td style={{ color: "#64748b" }}>{d.source}</Td>
-                  <Td align="center">
-                    <button style={btnPrimary} disabled={saving === d.bodyPart} onClick={() => void handleSaveDrl(d)}>
-                      <Save size={12} /> {saving === d.bodyPart ? t('doseLive.saving') : t('doseLive.save')}
-                    </button>
-                  </Td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table></div>
+        <DataTable<DrlEntry>
+          rowKey={(d) => `${d.modality}-${d.bodyPart}`}
+          dataSource={drls}
+          columns={drlColumns}
+          showPagination={false}
+          scroll={{ x: "max-content" }}
+        />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
@@ -6,6 +6,7 @@ import {
 import { Target, CheckCircle, TrendingUp, BarChart3, AlertTriangle, Plus } from 'lucide-react'
 import { getPatientSafetyGoals, createPatientSafetyGoal, type PatientSafetyGoal } from '../../services/api/safetyApi'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { t } from '../../i18n/appI18n'
 
 const CATEGORIES = ['身份识别', '手术安全', '用药安全', '危急值管理', '患者安全', '感染控制', '辐射安全', '服务品质']
@@ -22,7 +23,23 @@ export default function PatientSafetyGoalsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newGoal, setNewGoal] = useState<Partial<PatientSafetyGoal>>({ title: '', category: '身份识别', target: 100, current: 0, unit: '%', baseline: 0, deadline: '', owner: '', description: '' })
 
-  useEffect(() => { getPatientSafetyGoals().then(setGoals) }, [])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const data = await getPatientSafetyGoals()
+      setGoals(data)
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('w2d.loadFailed'))
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void load() }, [load])
 
   const handleCreateGoal = async () => {
     if (!newGoal.title?.trim() || !newGoal.deadline) return
@@ -82,10 +99,10 @@ export default function PatientSafetyGoalsPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: t('safetyGoals.totalGoals'), value: goals.length, icon: Target, color: '#3b82f6' },
-            { title: t('safetyGoals.onTrack'), value: goals.filter(g => g.status === 'on-track').length, icon: CheckCircle, color: '#22c55e' },
-            { title: t('safetyGoals.atRisk'), value: goals.filter(g => g.status === 'at-risk').length, icon: AlertTriangle, color: '#f59e0b' },
-            { title: t('safetyGoals.achieved'), value: goals.filter(g => g.status === 'achieved').length, icon: CheckCircle, color: '#3b82f6' },
+            { title: t('safetyGoals.totalGoals'), value: goals.length, icon: Target, color: 'var(--color-primary-500, #3b82f6)' },
+            { title: t('safetyGoals.onTrack'), value: goals.filter(g => g.status === 'on-track').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
+            { title: t('safetyGoals.atRisk'), value: goals.filter(g => g.status === 'at-risk').length, icon: AlertTriangle, color: 'var(--color-warning-500, #f59e0b)' },
+            { title: t('safetyGoals.achieved'), value: goals.filter(g => g.status === 'achieved').length, icon: CheckCircle, color: 'var(--color-primary-500, #3b82f6)' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -141,6 +158,14 @@ export default function PatientSafetyGoalsPage() {
           ))}
         </div>
 
+        <StateView
+          loading={loading}
+          error={loadError}
+          empty={!loading && !loadError && filtered.length === 0}
+          emptyDescription={t('w2d.empty')}
+          onRetry={() => void load()}
+          skeletonRows={5}
+        >
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
@@ -177,6 +202,7 @@ export default function PatientSafetyGoalsPage() {
             </tbody>
           </table>
         </div>
+        </StateView>
       </div>
 
       {showCreateModal && (

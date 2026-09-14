@@ -166,8 +166,8 @@ export default function CostAccountingPage() {
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 10,
             background: source === 'api' ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)',
-            color: source === 'api' ? '#4ade80' : '#fbbf24',
-            border: `1px solid ${source === 'api' ? '#22c55e' : '#f59e0b'}`,
+            color: source === 'api' ? 'var(--color-success-400, #4ade80)' : 'var(--color-warning-400, #fbbf24)',
+            border: `1px solid ${source === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)'}`,
             fontWeight: 500,
           }}>
             {source === 'api' ? '数据源: financeApi 实时' : '演示数据(接口不可用)'}
@@ -185,26 +185,26 @@ export default function CostAccountingPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e' }}>本月总成本</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#ef4444', marginTop: 4 }}>¥{(totalActual / 10000).toFixed(1)}万</div>
-          <div style={{ fontSize: 12, color: totalActual > totalBudget ? '#ef4444' : '#22c55e', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-error-500, #ef4444)', marginTop: 4 }}>¥{(totalActual / 10000).toFixed(1)}万</div>
+          <div style={{ fontSize: 12, color: totalActual > totalBudget ? 'var(--color-error-500, #ef4444)' : 'var(--color-success-500, #22c55e)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
             {totalActual > totalBudget ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}超支 ¥{((totalActual - totalBudget) / 10000).toFixed(1)}万
           </div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e' }}>人力成本占比</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#3b82f6', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>
             {((categoryData.find(c => c.name === '人力成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e' }}>耗材成本占比</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#22c55e', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>
             {((categoryData.find(c => c.name === '耗材成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e' }}>成本收入比</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#f59e0b', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>
             {costRevenueRatio != null ? (costRevenueRatio * 100).toFixed(1) : '55.2'}%
           </div>
           <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{costRevenueRatio != null ? 'financeApi 实时' : '较上月 +2.3%（演示）'}</div>

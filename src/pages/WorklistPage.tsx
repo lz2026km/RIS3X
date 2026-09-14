@@ -1963,9 +1963,14 @@ export default function WorklistPage() {
               <History size={13} /> {t('worklistPage.batchActivity.title')}
             </div>
             {batchActivity.length > 0 && (
-              <button onClick={clearBatchActivity} style={{
-                border: 'none', background: 'none', fontSize: 11, color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline',
-              }}>{t('worklistPage.batchActivity.clear')}</button>
+              <ActionButton
+                action="cancel"
+                variant="link"
+                size="compact"
+                onClick={clearBatchActivity}
+              >
+                {t('worklistPage.batchActivity.clear')}
+              </ActionButton>
             )}
           </div>
           {batchActivity.length === 0 ? (
@@ -2350,9 +2355,12 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.patientInfo.title')}</h3>
-              <button onClick={() => setPatientInfoModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                size="compact"
+                onClick={() => setPatientInfoModalExam(null)}
+              />
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.name')}</span><input value={patientForm?.name ?? ''} onChange={e => setPatientForm(f => f ? { ...f, name: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
@@ -2385,9 +2393,12 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.deviceSelect.title')}</h3>
-              <button onClick={() => setDeviceSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                size="compact"
+                onClick={() => setDeviceSelectModalExam(null)}
+              />
             </div>
             <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>{t('worklistPage.deviceSelect.currentExam')}{deviceSelectModalExam.examItemName}</div>
             <div style={{ display: 'grid', gap: 8 }}>
@@ -2428,9 +2439,12 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.doctorSelect.title')}</h3>
-              <button onClick={() => setDoctorSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                size="compact"
+                onClick={() => setDoctorSelectModalExam(null)}
+              />
             </div>
             <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>
               {t('worklistPage.doctorSelect.currentExam')}{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
@@ -2493,9 +2507,12 @@ export default function WorklistPage() {
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>
                 {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? t('worklistPage.report.writeReport') : t('worklistPage.report.viewReport')}
               </h3>
-              <button onClick={() => setReportModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                size="compact"
+                onClick={() => setReportModalExam(null)}
+              />
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.patient')}</span>{reportModalExam.patientName}{t('worklistPage.report.patientInfo', { gender: reportModalExam.gender, age: reportModalExam.age })}</div>
@@ -2556,9 +2573,12 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.batchResult.title')}</h3>
-              <button onClick={() => setBatchResultModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                size="compact"
+                onClick={() => setBatchResultModalData(null)}
+              />
             </div>
             <div style={{ marginBottom: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0' }}>
               <CheckCircle size={20} style={{ color: '#22c55e', marginBottom: 8 }} />
@@ -2594,9 +2614,12 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.printPreview.title')}</h3>
-              <button onClick={() => setPrintPreviewModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                size="compact"
+                onClick={() => setPrintPreviewModalData(null)}
+              />
             </div>
             <div style={{ marginBottom: 16, fontSize: 13, color: 'var(--text-secondary)' }}>
               {t('worklistPage.printPreview.count', { count: printPreviewModalData.examIds.length })}
@@ -2642,9 +2665,13 @@ export default function WorklistPage() {
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <SlidersHorizontal size={16} /> {t('worklistPage.columnConfig.panelTitle')}
               </h3>
-              <button onClick={() => setShowColumnConfig(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }} aria-label={t('worklistPage.close')}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                size="compact"
+                aria-label={t('worklistPage.close')}
+                onClick={() => setShowColumnConfig(false)}
+              />
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
                {t('worklistPage.columnConfigHint')}

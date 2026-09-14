@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Card } from 'antd'
+import { Card, Select } from 'antd'
 // G005 放射科RIS系统 - 统计分析页面 v2.0.0
 // 完整重写：6大标签页，800+行，inline样式，recharts图表
 import { useTranslation } from 'react-i18next'
@@ -574,12 +574,7 @@ function ExamVolumeTab() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Filter size={14} color={C.textMuted} aria-hidden="true" />
           <label htmlFor="modality-filter" style={{ position: 'absolute', left: -9999 }}>{t('statistics.examVolume.filterModality')}</label>
-          <select id="modality-filter" aria-label={t("statsPage.deviceFilter")} value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{
-            padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
-            color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
-          }}>
-            {modalities.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
+          <Select id="modality-filter" aria-label={t("statsPage.deviceFilter")} size="small" style={{ minWidth: 120 }} value={modalityFilter} onChange={(v) => setModalityFilter(v)} options={modalities.map(m => ({ value: m, label: m }))} />
         </div>
       </div>
 
@@ -730,12 +725,7 @@ function WorkloadTab() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <UserCheck size={14} color={C.textMuted} aria-hidden="true" />
           <label htmlFor="doctor-filter" style={{ position: 'absolute', left: -9999 }}>{t("statsPage.doctorFilter")}</label>
-          <select id="doctor-filter" aria-label={t("statsPage.doctorFilter")} value={doctorFilter} onChange={e => setDoctorFilter(e.target.value)} style={{
-            padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
-            color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
-          }}>
-            {doctors.map(d => <option key={d} value={d}>{d}</option>)}
-          </select>
+          <Select id="doctor-filter" aria-label={t("statsPage.doctorFilter")} size="small" style={{ minWidth: 140 }} value={doctorFilter} onChange={(v) => setDoctorFilter(v)} options={doctors.map(d => ({ value: d, label: d }))} />
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <BarChart3 size={14} color={C.textMuted} />
@@ -1237,12 +1227,7 @@ function DeviceEfficiencyTab() {
           ))}
         </div>
         <label htmlFor="device-filter" style={{ position: 'absolute', left: -9999 }}>{t("statsPage.deviceTypeFilter")}</label>
-        <select id="device-filter" aria-label={t("statsPage.deviceTypeFilter")} value={deviceFilter} onChange={e => setDeviceFilter(e.target.value)} style={{
-          padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
-          color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
-        }}>
-          {['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI'].map(m => <option key={m} value={m}>{m}</option>)}
-        </select>
+        <Select id="device-filter" aria-label={t("statsPage.deviceTypeFilter")} size="small" style={{ minWidth: 120 }} value={deviceFilter} onChange={(v) => setDeviceFilter(v)} options={['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI'].map(m => ({ value: m, label: m }))} />
       </div>
 
       {/* 设备利用率视图 */}
@@ -1784,16 +1769,13 @@ function PositiveRateTab() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Filter size={14} color={C.textMuted} aria-hidden="true" />
           <label htmlFor="positive-type-filter" style={{ position: 'absolute', left: -9999 }}>{t("statsPage.positiveTypeFilter")}</label>
-          <select id="positive-type-filter" aria-label={t("statsPage.positiveTypeFilter")} value={positiveType} onChange={e => setPositiveType(e.target.value)} style={{
-            padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
-            color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
-          }}>
-            <option value="all">{t("statsPage.allTypes")}</option>
-            <option value="CT">CT</option>
-            <option value="MR">MR</option>
-            <option value="DR">DR</option>
-            <option value="DSA">DSA</option>
-          </select>
+          <Select id="positive-type-filter" aria-label={t("statsPage.positiveTypeFilter")} size="small" style={{ minWidth: 120 }} value={positiveType} onChange={(v) => setPositiveType(v)} options={[
+            { value: 'all', label: t("statsPage.allTypes") },
+            { value: 'CT', label: 'CT' },
+            { value: 'MR', label: 'MR' },
+            { value: 'DR', label: 'DR' },
+            { value: 'DSA', label: 'DSA' },
+          ]} />
         </div>
       </div>
 

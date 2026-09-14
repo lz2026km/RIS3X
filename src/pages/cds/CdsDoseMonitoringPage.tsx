@@ -108,8 +108,8 @@ export default function CdsDoseMonitoringPage() {
             <div style={{ fontSize: 26, fontWeight: 700 }}>{avgDlp}</div>
           </div>
           <div style={{ background: '#161b22', border: '1px solid #ef444455', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
-            <div style={{ fontSize: 12, color: '#f87171', marginBottom: 8 }}>{t('cdsDose.stat.exceeded')}</div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: exceeded.length ? '#ef4444' : '#f0f6fc' }}>{exceeded.length}</div>
+            <div style={{ fontSize: 12, color: 'var(--color-error-400, #f87171)', marginBottom: 8 }}>{t('cdsDose.stat.exceeded')}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: exceeded.length ? 'var(--color-error-500, #ef4444)' : '#f0f6fc' }}>{exceeded.length}</div>
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default function CdsDoseMonitoringPage() {
         )}
 
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <AlertTriangle size={16} style={{ color: '#f59e0b' }} /> {t('cdsDose.recordsTitle')}
+          <AlertTriangle size={16} style={{ color: 'var(--color-warning-500, #f59e0b)' }} /> {t('cdsDose.recordsTitle')}
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 120px 110px 160px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
@@ -150,9 +150,9 @@ export default function CdsDoseMonitoringPage() {
                   <span style={{ fontSize: 12, color: '#8b949e' }}>{Number(r.threshold)?.toFixed(0) ?? '-'} mGy·cm</span>
                   <span>
                     {isExceeded ? (
-                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: '#ef444420', color: '#ef4444' }}>{t('cdsDose.exceeded')}</span>
+                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'rgba(239,68,68,0.13)', color: 'var(--color-error-500, #ef4444)' }}>{t('cdsDose.exceeded')}</span>
                     ) : (
-                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: '#22c55e20', color: '#22c55e' }}>{t('cdsDose.normal')}</span>
+                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: 'rgba(34,197,94,0.13)', color: 'var(--color-success-500, #22c55e)' }}>{t('cdsDose.normal')}</span>
                     )}
                   </span>
                 </div>
@@ -162,7 +162,7 @@ export default function CdsDoseMonitoringPage() {
         </div>
 
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ShieldCheck size={16} style={{ color: '#22c55e' }} /> {t('cdsDose.thresholdTitle')}
+          <ShieldCheck size={16} style={{ color: 'var(--color-success-500, #22c55e)' }} /> {t('cdsDose.thresholdTitle')}
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 140px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>

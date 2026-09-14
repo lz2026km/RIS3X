@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar, FileText } from 'lucide-react';
 import { followupApi, FOLLOWUP_RESULT_OPTIONS, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue, type FollowUpResult } from '../services/api/followupApi';
+import { DataTable } from '../components/common/DataTable';
+import { Select } from 'antd';
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
 import { worklistApi } from '../services/api/worklistApi';
@@ -971,6 +973,76 @@ export default function FollowUpPage() {
     fontSize: '14px'
   };
 
+  const followUpColumns = [
+    {
+      title: t('followUp.patientInfo'), key: 'patient',
+      render: (_: unknown, item: FollowUpPatient) => (
+        <>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)' }}>{item.patientName}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.patientId}</div>
+        </>
+      ),
+    },
+    { title: t('followUp.examType'), key: 'examType', render: (_: unknown, item: FollowUpPatient) => <span style={getExamTypeStyle(item.examType)}>{item.examType || '—'}</span> },
+    { title: t('followUp.followUpType'), dataIndex: 'followUpType', key: 'followUpType', render: (v: string) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{v || '—'}</span> },
+    { title: t('followUp.examDate'), dataIndex: 'examDate', key: 'examDate', render: (v: string) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{v}</span> },
+    { title: t('followUp.followUpDate'), dataIndex: 'nextFollowUpDate', key: 'nextFollowUpDate', render: (v: string) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{v}</span> },
+    {
+      title: t('followUp.status'), key: 'status',
+      render: (_: unknown, item: FollowUpPatient) => (
+        <>
+          <span style={getStatusTagStyle(item.status)}>{item.status}</span>
+          {item.reason && (
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.reason}</div>
+          )}
+        </>
+      ),
+    },
+    {
+      title: t('followUp.actions'), key: 'actions',
+      render: (_: unknown, item: FollowUpPatient) => (
+        <div style={{ whiteSpace: 'nowrap' }}>
+          <button style={{ ...actionButtonStyle, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => { setSelectedPatient(item); setShowModal(true); }}>
+            <Eye size={12} /> {t('followUp.detail')}
+          </button>
+          {(item.status === '待随访' || item.status === '逾期') && (
+            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleRemind(item)}>
+              <Bell size={12} /> {t('followUp.remind')}
+            </button>
+          )}
+          {!isTerminal(item.status) && item.status !== '进行中' && (
+            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#722ed1', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleStart(item)}>
+              <Play size={12} /> {t('followUp.start')}
+            </button>
+          )}
+          {!isTerminal(item.status) && (
+            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => openResultModal(item.id, item.patientName)}>
+              <CheckCircle size={12} /> {t('followUp.complete')}
+            </button>
+          )}
+          {!isTerminal(item.status) && (
+            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#fa8c16', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleMiss(item)}>
+              <UserX size={12} /> {t('followUp.miss')}
+            </button>
+          )}
+          {!isTerminal(item.status) && (
+            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => openEditPlan(item)}>
+              <Pencil size={12} /> {t('followUp.edit')}
+            </button>
+          )}
+          {!isTerminal(item.status) && (
+            <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleCancel(item)}>
+              <Ban size={12} /> {t('followUp.cancel')}
+            </button>
+          )}
+          <button style={{ ...actionButtonStyle, marginLeft: 8, backgroundColor: '#8c8c8c', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleDelete(item)}>
+            <Trash2 size={12} /> {t('followUp.delete')}
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div style={pageStyle}>
       <div style={headerStyle}>
@@ -1531,107 +1603,12 @@ export default function FollowUpPage() {
       {/* [v3.0.6.11-99 Wave10B] 列表视图保持原样 */}
       {viewMode === 'list' && (
       <div style={tableStyle}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.patientInfo')}</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.examType')}</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.followUpType')}</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.examDate')}</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.followUpDate')}</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.status')}</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredList.map(item => (
-              <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <td style={{ padding: '12px 16px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)' }}>{item.patientName}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.patientId}</div>
-                </td>
-                <td style={{ padding: '12px 16px' }}>
-                  <span style={getExamTypeStyle(item.examType)}>{item.examType || '—'}</span>
-                </td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>{item.followUpType || '—'}</td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>{item.examDate}</td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>{item.nextFollowUpDate}</td>
-                <td style={{ padding: '12px 16px' }}>
-                  <span style={getStatusTagStyle(item.status)}>{item.status}</span>
-                  {item.reason && (
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {item.reason}
-                    </div>
-                  )}
-                </td>
-                <td style={{ padding: '12px 16px' }}>
-                  <button
-                    style={{...actionButtonStyle, display: 'flex', alignItems: 'center', gap: 4}}
-                    onClick={() => { setSelectedPatient(item); setShowModal(true); }}
-                  >
-                    <Eye size={12} /> {t('followUp.detail')}
-                  </button>
-                  {/* [v3.0.6.11-99 Wave3B] 状态机行操作: 提醒/开始/完成/失访/取消/删除 */}
-                  {(item.status === '待随访' || item.status === '逾期') && (
-                    <button
-                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4}}
-                      onClick={() => handleRemind(item)}
-                    >
-                      <Bell size={12} /> {t('followUp.remind')}
-                    </button>
-                  )}
-                  {!isTerminal(item.status) && item.status !== '进行中' && (
-                    <button
-                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#722ed1', display: 'flex', alignItems: 'center', gap: 4}}
-                      onClick={() => handleStart(item)}
-                    >
-                      <Play size={12} /> {t('followUp.start')}
-                    </button>
-                  )}
-                  {!isTerminal(item.status) && (
-                    <button
-                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4}}
-                      onClick={() => openResultModal(item.id, item.patientName)}
-                    >
-                      <CheckCircle size={12} /> {t('followUp.complete')}
-                    </button>
-                  )}
-                  {!isTerminal(item.status) && (
-                    <button
-                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#fa8c16', display: 'flex', alignItems: 'center', gap: 4}}
-                      onClick={() => handleMiss(item)}
-                    >
-                      <UserX size={12} /> {t('followUp.miss')}
-                    </button>
-                  )}
-                  {!isTerminal(item.status) && (
-                    <button
-                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4}}
-                      onClick={() => openEditPlan(item)}
-                    >
-                      <Pencil size={12} /> {t('followUp.edit')}
-                    </button>
-                  )}
-                  {!isTerminal(item.status) && (
-                    <button
-                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4}}
-                      onClick={() => handleCancel(item)}
-                    >
-                      <Ban size={12} /> {t('followUp.cancel')}
-                    </button>
-                  )}
-                  <button
-                    style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#8c8c8c', display: 'flex', alignItems: 'center', gap: 4}}
-                    onClick={() => handleDelete(item)}
-                  >
-                    <Trash2 size={12} />
-                    {t('followUp.delete')}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          rowKey="id"
+          dataSource={filteredList}
+          columns={followUpColumns as never}
+          scroll={{ x: 'max-content' }}
+        />
       </div>
       )}
 
@@ -1709,23 +1686,23 @@ export default function FollowUpPage() {
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('followUp.updateStatus')}</label>
-              <select
+              <Select
                 style={selectStyle}
-                value={selectedPatient.status}
-                onChange={async e => {
-                  const v = e.target.value;
+                value={selectedPatient.status || undefined}
+                placeholder={t('followUp.selectStatus')}
+                onChange={async (v: string) => {
                   if (v === '已完成') { openResultModal(selectedPatient.id, selectedPatient.patientName); return; }
                   if (v === '进行中') { await handleStart(selectedPatient); return; }
                   if (v === '已失访') { await handleMiss(selectedPatient); return; }
                   if (v === '已取消') { await handleCancel(selectedPatient); return; }
                 }}
-              >
-                <option value="">{t('followUp.selectStatus')}</option>
-                <option value="已完成">{t('followUp.statusCompleted')}</option>
-                <option value="进行中">{t('followUp.statusInProgress')}</option>
-                <option value="已失访">{t('followUp.statusMissed')}</option>
-                <option value="已取消">{t('followUp.statusCancelled')}</option>
-              </select>
+                options={[
+                  { value: '已完成', label: t('followUp.statusCompleted') },
+                  { value: '进行中', label: t('followUp.statusInProgress') },
+                  { value: '已失访', label: t('followUp.statusMissed') },
+                  { value: '已取消', label: t('followUp.statusCancelled') },
+                ]}
+              />
             </div>
 
             <div style={modalButtonContainer}>
@@ -1889,11 +1866,16 @@ export default function FollowUpPage() {
                 </div>
                 <div style={formGroupStyle}>
                   <label style={labelStyle}>{t('followUp.category')}</label>
-                  <select style={selectStyle} value={tplForm.category} onChange={e => setTplForm(f => ({ ...f, category: e.target.value }))}>
-                    <option value="病种">{t('followUp.categoryDisease')}</option>
-                    <option value="术式">{t('followUp.categorySurgery')}</option>
-                    <option value="检查类型">{t('followUp.categoryExamType')}</option>
-                  </select>
+                  <Select
+                    style={selectStyle}
+                    value={tplForm.category}
+                    onChange={(v) => setTplForm(f => ({ ...f, category: v }))}
+                    options={[
+                      { value: '病种', label: t('followUp.categoryDisease') },
+                      { value: '术式', label: t('followUp.categorySurgery') },
+                      { value: '检查类型', label: t('followUp.categoryExamType') },
+                    ]}
+                  />
                 </div>
               </div>
               <div style={formGroupStyle}>
@@ -2067,16 +2049,16 @@ export default function FollowUpPage() {
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('followUp.templateOptional')}</label>
-              <select
+              <Select
                 style={selectStyle}
-                value={fromExamForm.templateId}
-                onChange={e => setFromExamForm(f => ({ ...f, templateId: e.target.value }))}
-              >
-                <option value="">{t('followUp.noTemplateSpecified')}</option>
-                {fromExamTemplates.map(tmpl => (
-                  <option key={tmpl.id} value={tmpl.id}>{tmpl.name}（{(tmpl.intervals ?? []).join('/')}{t('followUp.day')}）</option>
-                ))}
-              </select>
+                value={fromExamForm.templateId || undefined}
+                placeholder={t('followUp.noTemplateSpecified')}
+                onChange={(v) => setFromExamForm(f => ({ ...f, templateId: v }))}
+                options={fromExamTemplates.map(tmpl => ({
+                  value: tmpl.id,
+                  label: `${tmpl.name}（${(tmpl.intervals ?? []).join('/')}${t('followUp.day')}）`,
+                }))}
+              />
             </div>
 
             <div style={modalButtonContainer}>
@@ -2220,15 +2202,15 @@ export default function FollowUpPage() {
             </p>
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('w3d.followup.result')} *</label>
-              <select
+              <Select
                 value={resultForm.result}
-                onChange={e => setResultForm(f => ({ ...f, result: e.target.value as FollowUpResult }))}
-                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
-              >
-                {FOLLOWUP_RESULT_OPTIONS.map(o => (
-                  <option key={o.value} value={o.value}>{t(`w3d.followup.result.${o.value}`)}</option>
-                ))}
-              </select>
+                onChange={(v) => setResultForm(f => ({ ...f, result: v as FollowUpResult }))}
+                style={{ width: '100%' }}
+                options={FOLLOWUP_RESULT_OPTIONS.map(o => ({
+                  value: o.value,
+                  label: t(`w3d.followup.result.${o.value}`),
+                }))}
+              />
             </div>
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('w3d.followup.outcome')}</label>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip,
@@ -12,6 +12,7 @@ import {
   type AdverseEvent, type EventSeverity, type EventStatus, type EventCategory, type AdverseEventTrendItem,
 } from '../../services/api/safetyApi'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { t } from '../../i18n/appI18n'
 
 const SEVERITY_COLORS: Record<EventSeverity, string> = {
@@ -57,8 +58,24 @@ export default function AdverseEventPage() {
   const [filter, setFilter] = useState<EventStatus | 'all'>('all')
   const [formData, setFormData] = useState<Partial<AdverseEvent>>({})
 
-  useEffect(() => { getAdverseEvents().then(d => setEvents(d ?? [])) }, [])
-  useEffect(() => { getAdverseEventTrend().then(d => setTrend(d ?? [])) }, [])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const [evts, tr] = await Promise.all([getAdverseEvents(), getAdverseEventTrend()])
+      setEvents(evts ?? [])
+      setTrend(tr ?? [])
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('w2d.loadFailed'))
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void load() }, [load])
 
   const filtered = filter === 'all' ? events : events.filter(e => e.status === filter)
   const trendChartData = trend.map(tr => ({ period: tr.period, total: tr.total }))
@@ -132,9 +149,9 @@ export default function AdverseEventPage() {
 
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: t('ade.monthEvents'), value: events.length, icon: AlertTriangle, color: '#ef4444' },
-            { title: t('ade.investigating'), value: events.filter(e => e.status === 'investigating').length, icon: Search, color: '#f59e0b' },
-            { title: t('ade.resolved'), value: events.filter(e => e.status === 'resolved').length, icon: CheckCircle, color: '#22c55e' },
+            { title: t('ade.monthEvents'), value: events.length, icon: AlertTriangle, color: 'var(--color-error-500, #ef4444)' },
+            { title: t('ade.investigating'), value: events.filter(e => e.status === 'investigating').length, icon: Search, color: 'var(--color-warning-500, #f59e0b)' },
+            { title: t('ade.resolved'), value: events.filter(e => e.status === 'resolved').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
             { title: t('ade.closed'), value: events.filter(e => e.status === 'closed').length, icon: XCircle, color: '#8b949e' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
@@ -186,6 +203,14 @@ export default function AdverseEventPage() {
           ))}
         </div>
 
+        <StateView
+          loading={loading}
+          error={loadError}
+          empty={!loading && !loadError && filtered.length === 0}
+          emptyDescription={t('w2d.empty')}
+          onRetry={() => void load()}
+          skeletonRows={5}
+        >
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
@@ -220,6 +245,7 @@ export default function AdverseEventPage() {
             </tbody>
           </table>
         </div>
+        </StateView>
       </div>
     </div>
   )

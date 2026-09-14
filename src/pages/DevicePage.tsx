@@ -23,6 +23,8 @@ import { deviceApi, deviceMgmtApi } from '../services/api'
 import { t } from '../i18n/appI18n'
 import { ChartContainer } from '../components/charts'
 import { VirtualTable } from '../components/common/VirtualTable'
+import { DataTable } from '../components/common/DataTable'
+import { Select } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
 import { ActionButton } from '../components/common/ActionButton'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
@@ -118,6 +120,14 @@ const ROI_DEVICE_DATA = [
   { deviceName: 'DSA-1', purchaseCost: 15000000, annualRevenue: 42000000, annualMaintCost: 600000, annualOtherCost: 2500000, usefulLife: 8, depreciationMethod: 'straight', installDate: '2022-09-01' },
   { deviceName: 'CT-2', purchaseCost: 9000000, annualRevenue: 28000000, annualMaintCost: 960000, annualOtherCost: 1000000, usefulLife: 10, depreciationMethod: 'accelerated', installDate: '2023-01-15' },
 ]
+
+const computeRoi = (d: (typeof ROI_DEVICE_DATA)[number]) => {
+  const annualDepr = d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2
+  const annualProfit = d.annualRevenue - d.annualMaintCost - d.annualOtherCost - annualDepr
+  const roi = d.purchaseCost > 0 ? (annualProfit / d.purchaseCost) * 100 : 0
+  const payback = annualProfit > 0 ? d.purchaseCost / annualProfit : 99
+  return { annualDepr, annualProfit, roi, payback }
+}
 
 // ============================================================
 // 模拟扩展数据
@@ -380,10 +390,7 @@ function AETitleConfigPanel() {
                     <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} {t('devicePage.lastCecho', { time: ae.lastCecho })}</div>
                     <div style={{ marginTop: 6 }}>
                       {cechoResults[ae.id] === 'idle' || !cechoResults[ae.id] ? (
-                        <button onClick={() => handleCecho(ae)} style={{
-                          padding: '3px 10px', borderRadius: 6, border: `1px solid ${C.accent}40`,
-                          background: `${C.accent}10`, color: C.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer'
-                        }}>{t('devicePage.cechoTest')}</button>
+                        <ActionButton action="refresh" size="compact" onClick={() => handleCecho(ae)}>{t('devicePage.cechoTest')}</ActionButton>
                       ) : cechoResults[ae.id] === 'testing' ? (
                         <span style={{ fontSize: 12, color: C.warning }}>{t('devicePage.testing')}</span>
                       ) : (
@@ -480,46 +487,36 @@ function QATestPlannerPanel() {
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Activity size={14} style={{ color: C.accent }} /> {t('devicePage.qaPlansTitle')}
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
-              <thead>
-                <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                  {[t('devicePage.qaThDevice'), t('devicePage.qaThTest'), t('devicePage.qaThFreq'), t('devicePage.qaThLastResult'), t('devicePage.qaThLastDate'), t('devicePage.qaThNextDate'), t('devicePage.qaThTrend')].map(h => (
-                    <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
+          <DataTable<(typeof QA_TEST_PLANS)[number]>
+            rowKey="id"
+            showPagination={false}
+            columns={[
+              { title: t('devicePage.qaThDevice'), dataIndex: 'deviceName', key: 'deviceName', width: 110, sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v}</span> },
+              { title: t('devicePage.qaThTest'), dataIndex: 'testType', key: 'testType', width: 120, render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+              { title: t('devicePage.qaThFreq'), dataIndex: 'frequency', key: 'frequency', width: 90, align: 'center', render: (v: string) => <span style={{ color: C.textLight }}>{v}</span> },
+              { title: t('devicePage.qaThLastResult'), dataIndex: 'lastResult', key: 'lastResult', width: 100, align: 'center', render: (v: string) => (
+                <span style={{
+                  padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                  background: v === 'pass' ? `${C.success}15` : `${C.danger}15`,
+                  color: v === 'pass' ? C.success : C.danger,
+                }}>{v === 'pass' ? 'PASS' : 'FAIL'}</span>
+              ) },
+              { title: t('devicePage.qaThLastDate'), dataIndex: 'lastDate', key: 'lastDate', width: 110, align: 'center', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+              { title: t('devicePage.qaThNextDate'), dataIndex: 'nextDate', key: 'nextDate', width: 110, align: 'center', sorter: (a, b) => a.nextDate.localeCompare(b.nextDate), render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+              { title: t('devicePage.qaThTrend'), key: 'trend', width: 150, render: (_: unknown, p: (typeof QA_TEST_PLANS)[number]) => (
+                <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 24 }}>
+                  {p.trend.map((v, j) => (
+                    <div key={j} style={{
+                      flex: 1, height: `${v}%`, minHeight: 4,
+                      background: v >= 90 ? C.success : v >= 80 ? C.warning : C.danger,
+                      borderRadius: '2px 2px 0 0', opacity: 0.8,
+                    }} />
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {QA_TEST_PLANS.map((p, i) => (
-                  <tr key={p.id} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
-                    <td style={{ padding: '8px 10px', fontWeight: 600, color: C.textDark }}>{p.deviceName}</td>
-                    <td style={{ padding: '8px 10px', color: C.textMid }}>{p.testType}</td>
-                    <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textLight }}>{p.frequency}</td>
-                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                        background: p.lastResult === 'pass' ? `${C.success}15` : `${C.danger}15`,
-                        color: p.lastResult === 'pass' ? C.success : C.danger
-                      }}>{p.lastResult === 'pass' ? 'PASS' : 'FAIL'}</span>
-                    </td>
-                    <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{p.lastDate}</td>
-                    <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{p.nextDate}</td>
-                    <td style={{ padding: '8px 10px' }}>
-                      <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 24 }}>
-                        {p.trend.map((v, j) => (
-                          <div key={j} style={{
-                            flex: 1, height: `${v}%`, minHeight: 4,
-                            background: v >= 90 ? C.success : v >= 80 ? C.warning : C.danger,
-                            borderRadius: '2px 2px 0 0', opacity: 0.8
-                          }} />
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
-          </div>
+                </div>
+              ) },
+            ]}
+            dataSource={QA_TEST_PLANS}
+          />
         </div>
       )}
 
@@ -1122,36 +1119,26 @@ export default function DevicePage() {
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <TrendingUp size={14} style={{ color: C.accent }} /> {t('devicePage.todayRanking')}
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                {[t('devicePage.thRank'), t('devicePage.thDeviceName'), t('devicePage.thType'), t('devicePage.thTodayExams'), t('devicePage.thWaiting'), t('devicePage.thAvgWait')].map(h => (
-                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {TODAY_RANKING.map((item, i) => (
-                <tr key={item.rank} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
-                  <td style={{ padding: '9px 10px', textAlign: 'center' }}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 22, height: 22, borderRadius: '50%',
-                      background: i === 0 ? C.warning : i === 1 ? C.accent : i === 2 ? C.info : C.textLight,
-                      color: '#fff', fontWeight: 800, fontSize: 12
-                    }}>{item.rank}</span>
-                  </td>
-                  <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{item.deviceName.split('（')[0]}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center' }}><ModalityBadge modality={item.modality} /></td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.accent }}>{item.examCount}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: item.waitingCount > 8 ? C.warning : C.textMid }}>{item.waitingCount}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: item.avgWaitTime > 20 ? C.danger : item.avgWaitTime > 10 ? C.warning : C.success }}>{t('devicePage.minutesSuffix', { count: item.avgWaitTime })}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
-        </div>
+        <DataTable<(typeof TODAY_RANKING)[number]>
+          rowKey="rank"
+          showPagination={false}
+          columns={[
+            { title: t('devicePage.thRank'), dataIndex: 'rank', key: 'rank', width: 70, align: 'center', sorter: (a, b) => a.rank - b.rank, render: (_: unknown, item: (typeof TODAY_RANKING)[number]) => (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 22, height: 22, borderRadius: '50%',
+                background: item.rank === 1 ? C.warning : item.rank === 2 ? C.accent : item.rank === 3 ? C.info : C.textLight,
+                color: '#fff', fontWeight: 800, fontSize: 12,
+              }}>{item.rank}</span>
+            ) },
+            { title: t('devicePage.thDeviceName'), dataIndex: 'deviceName', key: 'deviceName', sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v.split('（')[0]}</span> },
+            { title: t('devicePage.thType'), dataIndex: 'modality', key: 'modality', width: 90, align: 'center', render: (v: string) => <ModalityBadge modality={v} /> },
+            { title: t('devicePage.thTodayExams'), dataIndex: 'examCount', key: 'examCount', width: 110, align: 'center', sorter: (a, b) => a.examCount - b.examCount, render: (v: number) => <span style={{ fontWeight: 700, color: C.accent }}>{v}</span> },
+            { title: t('devicePage.thWaiting'), dataIndex: 'waitingCount', key: 'waitingCount', width: 90, align: 'center', sorter: (a, b) => a.waitingCount - b.waitingCount, render: (v: number) => <span style={{ color: v > 8 ? C.warning : C.textMid }}>{v}</span> },
+            { title: t('devicePage.thAvgWait'), dataIndex: 'avgWaitTime', key: 'avgWaitTime', width: 110, align: 'center', sorter: (a, b) => a.avgWaitTime - b.avgWaitTime, render: (v: number) => <span style={{ color: v > 20 ? C.danger : v > 10 ? C.warning : C.success }}>{t('devicePage.minutesSuffix', { count: v })}</span> },
+          ]}
+          dataSource={TODAY_RANKING}
+        />
       </div>
       {/* [v3.0.6.11-104 Wave 2A] 设备管理看板: overview / usage-trend / by-room / maintenance-calendar / lifecycle */}
       <DeviceMgmtDashboard />
@@ -1449,41 +1436,20 @@ export default function DevicePage() {
           </div>
         </div>
         {/* 故障代码树表格 */}
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                {[t('devicePage.thFaultCode'), t('devicePage.thCategory'), t('devicePage.thDesc'), t('devicePage.thSeverity'), t('devicePage.thMtbf'), t('devicePage.thCount'), t('devicePage.thDevices')].map(h => (
-                  <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {FAULT_CODES.map((f, i) => (
-                <tr key={f.code} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
-                  <td style={{ padding: '8px 10px', fontFamily: 'monospace', fontSize: 12.5, color: C.textMid }}>{f.code}</td>
-                  <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600,
-                      background: `${C.primary}10`, color: C.primary
-                    }}>{f.category}</span>
-                  </td>
-                  <td style={{ padding: '8px 10px', color: C.textDark, fontWeight: 600, fontSize: 12 }}>{f.description}</td>
-                  <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 8px', borderRadius: 8, fontSize: 12.5, fontWeight: 700,
-                      background: f.severity === 'critical' ? `${C.danger}15` : f.severity === 'major' ? `${C.warning}15` : `${C.info}15`,
-                      color: f.severity === 'critical' ? C.danger : f.severity === 'major' ? C.warning : C.info
-                    }}>{f.severity === 'critical' ? t('devicePage.sevCritical') : f.severity === 'major' ? t('devicePage.sevMajor') : t('devicePage.sevMinor')}</span>
-                  </td>
-                  <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{f.mtbf}</td>
-                  <td style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: f.count >= 4 ? C.danger : f.count >= 2 ? C.warning : C.success }}>{f.count}</td>
-                  <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{f.devices.join(', ')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
-        </div>
+        <DataTable<(typeof FAULT_CODES)[number]>
+          rowKey="code"
+          showPagination={false}
+          columns={[
+            { title: t('devicePage.thFaultCode'), dataIndex: 'code', key: 'code', width: 90, sorter: (a, b) => a.code.localeCompare(b.code), render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12.5, color: C.textMid }}>{v}</span> },
+            { title: t('devicePage.thCategory'), dataIndex: 'category', key: 'category', width: 110, align: 'center', render: (v: string) => (<span style={{ padding: '2px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: `${C.primary}10`, color: C.primary }}>{v}</span>) },
+            { title: t('devicePage.thDesc'), dataIndex: 'description', key: 'description', render: (v: string) => <span style={{ color: C.textDark, fontWeight: 600, fontSize: 12 }}>{v}</span> },
+            { title: t('devicePage.thSeverity'), dataIndex: 'severity', key: 'severity', width: 100, align: 'center', sorter: (a, b) => a.severity.localeCompare(b.severity), render: (v: string) => (<span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, background: v === 'critical' ? `${C.danger}15` : v === 'major' ? `${C.warning}15` : `${C.info}15`, color: v === 'critical' ? C.danger : v === 'major' ? C.warning : C.info }}>{v === 'critical' ? t('devicePage.sevCritical') : v === 'major' ? t('devicePage.sevMajor') : t('devicePage.sevMinor')}</span>) },
+            { title: t('devicePage.thMtbf'), dataIndex: 'mtbf', key: 'mtbf', width: 90, align: 'center', sorter: (a, b) => a.mtbf - b.mtbf, render: (v: number) => <span style={{ color: C.textMid }}>{v}</span> },
+            { title: t('devicePage.thCount'), dataIndex: 'count', key: 'count', width: 90, align: 'center', sorter: (a, b) => a.count - b.count, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 4 ? C.danger : v >= 2 ? C.warning : C.success }}>{v}</span> },
+            { title: t('devicePage.thDevices'), dataIndex: 'devices', key: 'devices', width: 160, align: 'center', render: (v: string[]) => <span style={{ color: C.textMid }}>{v.join(', ')}</span> },
+          ]}
+          dataSource={FAULT_CODES}
+        />
         <div style={{ display: 'flex', gap: 16, marginTop: 10, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
           <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.avgMtbf')}<strong style={{ color: C.info }}>{t('devicePage.daysSuffix', { count: Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length) })}</strong></span>
           <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.totalFaults')}<strong style={{ color: C.danger }}>{t('devicePage.faultCountSuffix', { count: FAULT_CODES.reduce((s, f) => s + f.count, 0) })}</strong></span>
@@ -1636,45 +1602,23 @@ export default function DevicePage() {
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <DollarSign size={14} style={{ color: C.success }} /> {t('devicePage.roiTitle')}
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                {[t('devicePage.roiThDevice'), t('devicePage.roiThCost'), t('devicePage.roiThRevenue'), t('devicePage.roiThMaint'), t('devicePage.roiThOther'), t('devicePage.roiThProfit'), t('devicePage.roiThDeprMethod'), t('devicePage.roiThDepr'), t('devicePage.roiThRoi'), t('devicePage.roiThPayback')].map(h => (
-                  <th key={h} style={{ padding: '8px 8px', textAlign: 'center', fontWeight: 700, color: C.primary }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ROI_DEVICE_DATA.map((d, i) => {
-                const annualDepr = d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2
-                const annualProfit = d.annualRevenue - d.annualMaintCost - d.annualOtherCost - annualDepr
-                const roi = d.purchaseCost > 0 ? ((annualProfit / d.purchaseCost) * 100) : 0
-                const payback = annualProfit > 0 ? d.purchaseCost / annualProfit : 99
-                return (
-                  <tr key={i} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
-                    <td style={{ padding: '8px 8px', fontWeight: 600, color: C.textDark }}>{d.deviceName}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.purchaseCost / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.success }}>¥{(d.annualRevenue / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.warning }}>¥{(d.annualMaintCost / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.annualOtherCost / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', fontWeight: 700, color: annualProfit > 0 ? C.success : C.danger }}>¥{(annualProfit / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'center', color: C.textMid }}>{d.depreciationMethod === 'straight' ? t('devicePage.deprStraight') : t('devicePage.deprAccelerated')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(annualDepr / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'center' }}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                        background: roi > 50 ? `${C.success}15` : roi > 20 ? `${C.warning}15` : `${C.danger}15`,
-                        color: roi > 50 ? C.success : roi > 20 ? C.warning : C.danger
-                      }}>{roi.toFixed(1)}%</span>
-                    </td>
-                    <td style={{ padding: '8px 8px', textAlign: 'center', color: C.textMid }}>{payback < 1 ? t('devicePage.under1Year') : t('devicePage.yearsSuffix', { count: payback.toFixed(1) })}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table></div>
-        </div>
+        <DataTable<(typeof ROI_DEVICE_DATA)[number]>
+          rowKey="deviceName"
+          showPagination={false}
+          columns={[
+            { title: t('devicePage.roiThDevice'), dataIndex: 'deviceName', key: 'deviceName', width: 100, sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v}</span> },
+            { title: t('devicePage.roiThCost'), dataIndex: 'purchaseCost', key: 'purchaseCost', width: 110, align: 'right', sorter: (a, b) => a.purchaseCost - b.purchaseCost, render: (v: number) => <span style={{ color: C.textMid }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
+            { title: t('devicePage.roiThRevenue'), dataIndex: 'annualRevenue', key: 'annualRevenue', width: 110, align: 'right', sorter: (a, b) => a.annualRevenue - b.annualRevenue, render: (v: number) => <span style={{ color: C.success }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
+            { title: t('devicePage.roiThMaint'), dataIndex: 'annualMaintCost', key: 'annualMaintCost', width: 110, align: 'right', sorter: (a, b) => a.annualMaintCost - b.annualMaintCost, render: (v: number) => <span style={{ color: C.warning }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
+            { title: t('devicePage.roiThOther'), dataIndex: 'annualOtherCost', key: 'annualOtherCost', width: 110, align: 'right', render: (v: number) => <span style={{ color: C.textMid }}>¥{(v / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> },
+            { title: t('devicePage.roiThProfit'), key: 'profit', width: 120, align: 'right', sorter: (a, b) => computeRoi(a).annualProfit - computeRoi(b).annualProfit, render: (_: unknown, d: (typeof ROI_DEVICE_DATA)[number]) => { const { annualProfit } = computeRoi(d); return <span style={{ fontWeight: 700, color: annualProfit > 0 ? C.success : C.danger }}>¥{(annualProfit / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> } },
+            { title: t('devicePage.roiThDeprMethod'), dataIndex: 'depreciationMethod', key: 'depreciationMethod', width: 100, align: 'center', render: (v: string) => <span style={{ color: C.textMid }}>{v === 'straight' ? t('devicePage.deprStraight') : t('devicePage.deprAccelerated')}</span> },
+            { title: t('devicePage.roiThDepr'), key: 'depr', width: 110, align: 'right', render: (_: unknown, d: (typeof ROI_DEVICE_DATA)[number]) => { const { annualDepr } = computeRoi(d); return <span style={{ color: C.textMid }}>¥{(annualDepr / 10000).toFixed(0)}{t('devicePage.unitWan')}</span> } },
+            { title: t('devicePage.roiThRoi'), key: 'roi', width: 90, align: 'center', sorter: (a, b) => computeRoi(a).roi - computeRoi(b).roi, render: (_: unknown, d: (typeof ROI_DEVICE_DATA)[number]) => { const { roi } = computeRoi(d); return <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: roi > 50 ? `${C.success}15` : roi > 20 ? `${C.warning}15` : `${C.danger}15`, color: roi > 50 ? C.success : roi > 20 ? C.warning : C.danger }}>{roi.toFixed(1)}%</span> } },
+            { title: t('devicePage.roiThPayback'), key: 'payback', width: 100, align: 'center', sorter: (a, b) => computeRoi(a).payback - computeRoi(b).payback, render: (_: unknown, d: (typeof ROI_DEVICE_DATA)[number]) => { const { payback } = computeRoi(d); return <span style={{ color: C.textMid }}>{payback < 1 ? t('devicePage.under1Year') : t('devicePage.yearsSuffix', { count: payback.toFixed(1) })}</span> } },
+          ]}
+          dataSource={ROI_DEVICE_DATA}
+        />
         <div style={{ display: 'flex', gap: 16, marginTop: 12, padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
           <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.avgRoi')}<strong style={{ color: C.success }}>{ROI_DEVICE_DATA.reduce((s, d) => s + (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)) / d.purchaseCost * 100, 0) / ROI_DEVICE_DATA.length}%</strong></span>
           <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.shortestPayback')}<strong style={{ color: C.info }}>{t('devicePage.yearsSuffix', { count: Math.min(...ROI_DEVICE_DATA.filter(d => d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2) > 0).map(d => d.purchaseCost / (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)))).toFixed(1) })}</strong></span>
@@ -1738,13 +1682,13 @@ export default function DevicePage() {
             <div style={{ display: 'grid', gap: 12 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.deviceRequired')}</label>
-                <select value={maintForm.deviceId} onChange={e => setMaintForm(f => ({ ...f, deviceId: e.target.value }))} style={{
-                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none'
-                }}>
-                  <option value="">{t('devicePage.selectDevice')}</option>
-                  {DEVICE_EFFICIENCY.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                </select>
+                <Select
+                  value={maintForm.deviceId}
+                  onChange={(value) => setMaintForm(f => ({ ...f, deviceId: value }))}
+                  style={{ width: '100%' }}
+                  placeholder={t('devicePage.selectDevice')}
+                  options={DEVICE_EFFICIENCY.map(d => ({ value: d.id, label: d.name }))}
+                />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.planDateRequired')}</label>
@@ -1755,16 +1699,18 @@ export default function DevicePage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.maintType')}</label>
-                <select value={maintForm.type} onChange={e => setMaintForm(f => ({ ...f, type: e.target.value }))} style={{
-                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none'
-                }}>
-                  <option value="定期保养">{t('devicePage.maintPeriodic')}</option>
-                  <option value="季度保养">{t('devicePage.maintType.quarterly')}</option>
-                  <option value="半年保养">{t('devicePage.maintType.halfYear')}</option>
-                  <option value="年度保养">{t('devicePage.maintType.annual')}</option>
-                  <option value="故障维修">{t('devicePage.maintType.repair')}</option>
-                </select>
+                <Select
+                  value={maintForm.type}
+                  onChange={(value) => setMaintForm(f => ({ ...f, type: value }))}
+                  style={{ width: '100%' }}
+                  options={[
+                    { value: '定期保养', label: t('devicePage.maintPeriodic') },
+                    { value: '季度保养', label: t('devicePage.maintType.quarterly') },
+                    { value: '半年保养', label: t('devicePage.maintType.halfYear') },
+                    { value: '年度保养', label: t('devicePage.maintType.annual') },
+                    { value: '故障维修', label: t('devicePage.maintType.repair') },
+                  ]}
+                />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.maintContent')}</label>
@@ -1853,12 +1799,12 @@ export default function DevicePage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.modalityRequired')}</label>
-                <select value={deviceForm.modality} onChange={e => setDeviceForm(f => ({ ...f, modality: e.target.value }))} style={{
-                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none'
-                }}>
-                  {['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'RF'].map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
+                <Select
+                  value={deviceForm.modality}
+                  onChange={(value) => setDeviceForm(f => ({ ...f, modality: value }))}
+                  style={{ width: '100%' }}
+                  options={['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'RF'].map(m => ({ value: m, label: m }))}
+                />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.status')}</label>
@@ -1926,24 +1872,20 @@ export default function DevicePage() {
               }}>
                 <Download size={13} /> {t('devicePage.exportReport')}
               </button>
-              <button
+              <ActionButton
+                action="create"
+                size="compact"
                 onClick={() => setShowDeviceModal(true)}
-                style={{
-                  padding: '7px 14px', borderRadius: 8, border: 'none',
-                  background: C.accent, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-                }}
               >
-                <Plus size={13} /> {t('devicePage.addDevice')}
-              </button>
-              <button
+                {t('devicePage.addDevice')}
+              </ActionButton>
+              <ActionButton
+                action="create"
+                size="compact"
                 onClick={() => { setActiveTab(3); setShowMaintForm(true) }}
-                style={{
-                  padding: '7px 14px', borderRadius: 8, border: 'none',
-                  background: C.primary, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-                }}
               >
-                <Plus size={13} /> {t('devicePage.addMaint')}
-              </button>
+                {t('devicePage.addMaint')}
+              </ActionButton>
             </>
           }
           style={{ marginBottom: 0 }}

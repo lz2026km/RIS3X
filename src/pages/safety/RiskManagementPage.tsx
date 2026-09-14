@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { ShieldAlert, AlertTriangle, CheckCircle, Plus, BarChart3, Target, Send } from 'lucide-react'
 import {
   getRiskItems, createRiskItem, updateRiskItem,
@@ -50,7 +51,23 @@ export default function RiskManagementPage() {
   const [formData, setFormData] = useState<Partial<RiskItem>>({})
   const [mitigateData, setMitigateData] = useState({ plan: '', owner: '', deadline: '' })
 
-  useEffect(() => { getRiskItems().then(d => setRisks(d ?? [])) }, [])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const d = await getRiskItems()
+      setRisks(d ?? [])
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('w2d.loadFailed'))
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void load() }, [load])
 
   const filtered = filter === 'all' ? risks : risks.filter(r => r.riskLevel === filter)
   const byLevel = risks.reduce<Record<string, number>>((acc, r) => {
@@ -136,9 +153,9 @@ export default function RiskManagementPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
             { title: t('riskMgmt.statTotal'), value: risks.length, icon: ShieldAlert, color: '#e11d48' },
-            { title: t('riskMgmt.statHigh'), value: risks.filter(r => r.riskLevel === 'high' || r.riskLevel === 'very-high').length, icon: AlertTriangle, color: '#dc2626' },
-            { title: t('riskMgmt.statMitigated'), value: risks.filter(r => r.status === 'mitigating').length, icon: CheckCircle, color: '#22c55e' },
-            { title: t('riskMgmt.statMonitoring'), value: risks.filter(r => r.status === 'monitoring').length, icon: Target, color: '#3b82f6' },
+            { title: t('riskMgmt.statHigh'), value: risks.filter(r => r.riskLevel === 'high' || r.riskLevel === 'very-high').length, icon: AlertTriangle, color: 'var(--color-error-600, #dc2626)' },
+            { title: t('riskMgmt.statMitigated'), value: risks.filter(r => r.status === 'mitigating').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
+            { title: t('riskMgmt.statMonitoring'), value: risks.filter(r => r.status === 'monitoring').length, icon: Target, color: 'var(--color-primary-500, #3b82f6)' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: '#8b949e' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
@@ -186,6 +203,14 @@ export default function RiskManagementPage() {
           ))}
         </div>
 
+        <StateView
+          loading={loading}
+          error={loadError}
+          empty={!loading && !loadError && filtered.length === 0}
+          emptyDescription={t('w2d.empty')}
+          onRetry={() => void load()}
+          skeletonRows={5}
+        >
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
@@ -227,6 +252,7 @@ export default function RiskManagementPage() {
             </tbody>
           </table></div>
         </div>
+        </StateView>
 
         {showMitigate && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>

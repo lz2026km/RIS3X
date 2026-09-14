@@ -23,7 +23,6 @@ import {
   Download,
   Upload,
   UserCheck,
-  PlusCircle,
   Merge as MergeIcon,
   Split as SplitIcon,
   Eye,
@@ -64,6 +63,7 @@ import { DashboardCard } from "../components/dashboard/DashboardCard";
 import { TrendChart } from "../components/dashboard/TrendChart";
 import BatchActionBar from "../components/batch/BatchActionBar";
 import { AppButton } from "../components/common/AppButton";
+import { ActionButton } from "../components/common/ActionButton";
 import { useOperationLog } from "../hooks/useOperationLog";
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 import { useNavigate } from "react-router-dom";
@@ -1283,88 +1283,53 @@ export default function ExamPage() {
       </div>
 
       {/* 优先级筛选 */}
-      <select
+      <Select
         value={filters.priority}
-        onChange={(e) => handleFilterChange("priority", e.target.value)}
+        onChange={(value) => handleFilterChange("priority", value)}
         style={{
-          padding: "8px 12px",
-          border: "1px solid var(--border-color)",
-          borderRadius: 6,
-          fontSize: 12,
-          outline: "none",
-          cursor: "pointer",
-          backgroundColor:
-            filters.priority !== "全部"
-              ? PRIORITY_CONFIG[filters.priority]?.bg
-              : "var(--bg-card)",
+          width: 130,
+          ...(filters.priority !== "全部"
+            ? { background: PRIORITY_CONFIG[filters.priority]?.bg }
+            : {}),
         }}
-      >
-        {["全部", "普通", "紧急", "危重"].map((p) => (
-          <option key={p} value={p}>
-            {p === "全部" ? t("examPage.allPriorities") : `⚑ ${p}`}
-          </option>
-        ))}
-      </select>
+        options={["全部", "普通", "紧急", "危重"].map((p) => ({
+          value: p,
+          label: p === "全部" ? t("examPage.allPriorities") : `⚑ ${p}`,
+        }))}
+      />
 
       {/* 状态筛选 */}
-      <select
+      <Select
         value={filters.status}
-        onChange={(e) => handleFilterChange("status", e.target.value)}
-        style={{
-          padding: "8px 12px",
-          border: "1px solid var(--border-color)",
-          borderRadius: 6,
-          fontSize: 12,
-          outline: "none",
-          cursor: "pointer",
-        }}
-      >
-        {["全部", "待检查", "检查中", "已报告", "已发布", "待报告"].map((s) => (
-          <option key={s} value={s}>
-            {s === "全部" ? t("examPage.allStatuses") : s}
-          </option>
-        ))}
-      </select>
+        onChange={(value) => handleFilterChange("status", value)}
+        style={{ width: 120 }}
+        options={["全部", "待检查", "检查中", "已报告", "已发布", "待报告"].map((s) => ({
+          value: s,
+          label: s === "全部" ? t("examPage.allStatuses") : s,
+        }))}
+      />
 
       {/* 设备类型筛选 */}
-      <select
+      <Select
         value={filters.modality}
-        onChange={(e) => handleFilterChange("modality", e.target.value)}
-        style={{
-          padding: "8px 12px",
-          border: "1px solid var(--border-color)",
-          borderRadius: 6,
-          fontSize: 12,
-          outline: "none",
-          cursor: "pointer",
-        }}
-      >
-        {MODALITY_LIST.map((m) => (
-          <option key={m} value={m}>
-            {m === "全部" ? t("examPage.allDevices") : m}
-          </option>
-        ))}
-      </select>
+        onChange={(value) => handleFilterChange("modality", value)}
+        style={{ width: 130 }}
+        options={MODALITY_LIST.map((m) => ({
+          value: m,
+          label: m === "全部" ? t("examPage.allDevices") : m,
+        }))}
+      />
 
       {/* 患者类型筛选 */}
-      <select
+      <Select
         value={filters.patientType}
-        onChange={(e) => handleFilterChange("patientType", e.target.value)}
-        style={{
-          padding: "8px 12px",
-          border: "1px solid var(--border-color)",
-          borderRadius: 6,
-          fontSize: 12,
-          outline: "none",
-          cursor: "pointer",
-        }}
-      >
-        {PATIENT_TYPE_LIST.map((pt) => (
-          <option key={pt} value={pt}>
-            {pt === "全部" ? t("examPage.allPatients") : pt}
-          </option>
-        ))}
-      </select>
+        onChange={(value) => handleFilterChange("patientType", value)}
+        style={{ width: 130 }}
+        options={PATIENT_TYPE_LIST.map((pt) => ({
+          value: pt,
+          label: pt === "全部" ? t("examPage.allPatients") : pt,
+        }))}
+      />
 
       {/* 清空筛选 */}
       {(filters.search ||
@@ -1372,7 +1337,9 @@ export default function ExamPage() {
         filters.status !== "全部" ||
         filters.modality !== "全部" ||
         filters.patientType !== "全部") && (
-        <button
+        <ActionButton
+          action="cancel"
+          size="compact"
           onClick={() =>
             setFilters({
               search: "",
@@ -1382,104 +1349,48 @@ export default function ExamPage() {
               patientType: "全部",
             })
           }
-          style={{
-            padding: "8px 12px",
-            border: "1px solid var(--border-color)",
-            borderRadius: 6,
-            fontSize: 12,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            backgroundColor: "var(--bg-card)",
-            color: "var(--text-secondary)",
-          }}
         >
-          <X size={14} /> {t("examPage.clear")}
-        </button>
+          {t("examPage.clear")}
+        </ActionButton>
       )}
 
       {/* [W4-A] 批量导入导出 */}
       <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
         {/* [Wave1B P2] 新建检查: examApi.create */}
-        <button
+        <ActionButton
+          action="create"
+          size="compact"
           onClick={() => {
             createExamForm.resetFields();
             setShowCreateModal(true);
           }}
-          style={{
-            padding: "8px 14px",
-            border: "1px solid #2563eb",
-            borderRadius: 6,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            backgroundColor: "#2563eb18",
-            color: "#2563eb",
-          }}
         >
-          <PlusCircle size={13} /> {t("examPage.newExam2")}
-        </button>
-        <button
+          {t("examPage.newExam2")}
+        </ActionButton>
+        <ActionButton
+          action="import"
+          size="compact"
           onClick={() => setShowImportModal(true)}
-          style={{
-            padding: "8px 14px",
-            border: "1px solid #059669",
-            borderRadius: 6,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            backgroundColor: "var(--bg-card)",
-            color: "#059669",
-          }}
         >
-          <Upload size={13} /> {t("examPage.batchImport")}
-        </button>
-        <button
+          {t("examPage.batchImport")}
+        </ActionButton>
+        <ActionButton
+          action="export"
+          size="compact"
           onClick={() => void handleExamExport()}
-          style={{
-            padding: "8px 14px",
-            border: "1px solid var(--border-color)",
-            borderRadius: 6,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            backgroundColor: "var(--bg-card)",
-            color: PRIMARY,
-          }}
         >
-          <Download size={13} /> {t("examPage.batchExport2")}
-        </button>
+          {t("examPage.batchExport2")}
+        </ActionButton>
         {/* [G005 Wave4B] G-18 检查合并入口 (多选 2+ 行) */}
-        <button
-          onClick={handleOpenMergeModal}
+        <ActionButton
+          action="submit"
+          size="compact"
           disabled={selectedIds.size < 2}
-          style={{
-            padding: "8px 14px",
-            border: "1px solid #7c3aed",
-            borderRadius: 6,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: selectedIds.size < 2 ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            backgroundColor: selectedIds.size < 2 ? "var(--bg-card)" : "#7c3aed18",
-            color: "#7c3aed",
-            opacity: selectedIds.size < 2 ? 0.45 : 1,
-          }}
+          icon={<MergeIcon size={13} />}
+          onClick={handleOpenMergeModal}
         >
-          <MergeIcon size={13} /> {t("examPage.mergeExams")}
-        </button>
+          {t("examPage.mergeExams")}
+        </ActionButton>
       </div>
     </div>
   );
@@ -1675,116 +1586,63 @@ export default function ExamPage() {
             )}
             {exam.status === "检查中" && (
               <>
-                <button
+                <ActionButton
+                  action="submit"
+                  size="compact"
+                  icon={<CheckCircle2 size={10} />}
                   onClick={() => openModal(exam, "complete")}
-                  style={{
-                    padding: "4px 10px",
-                    borderRadius: 4,
-                    border: "none",
-                    backgroundColor: "#16a34a",
-                    color: "#fff",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
                 >
-                  <CheckCircle2 size={10} /> {t("examPage.complete")}
-                </button>
-                <button
+                  {t("examPage.complete")}
+                </ActionButton>
+                <ActionButton
+                  action="refresh"
+                  size="compact"
                   onClick={() => openModal(exam, "quality")}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: 4,
-                    border: "1px solid var(--border-color)",
-                    backgroundColor: "var(--bg-card)",
-                    color: "var(--text-secondary)",
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
                 >
                   {t("examPage.quality")}
-                </button>
+                </ActionButton>
               </>
             )}
             {/* [G005 放射流程P0] 检查→阅片: 行操作直达 DICOM 阅片 */}
-            <button
-              onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`)}
+            <ActionButton
+              action="refresh"
+              size="compact"
+              icon={<Eye size={10} />}
               title={t("examPage.readFilm")}
-              style={{
-                padding: "4px 8px",
-                borderRadius: 4,
-                border: "1px solid var(--border-color)",
-                backgroundColor: "var(--bg-card)",
-                color: "var(--text-secondary)",
-                fontSize: 12,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
+              onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`)}
             >
-              <Eye size={10} /> {t("examPage.readFilm")}
-            </button>
+              {t("examPage.readFilm")}
+            </ActionButton>
             {/* [v3.0.6.11-96 Wave 3A P1] 详情 → 独立路由 /exam/:id */}
-            <button
-              onClick={() => navigate(`/exam/${exam.id}`)}
+            <ActionButton
+              action="refresh"
+              size="compact"
+              icon={<ExternalLink size={10} />}
               title={t("examPage.examDetail")}
-              style={{
-                padding: "4px 8px",
-                borderRadius: 4,
-                border: "1px solid var(--border-color)",
-                backgroundColor: "var(--bg-card)",
-                color: "var(--text-secondary)",
-                fontSize: 12,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
+              onClick={() => navigate(`/exam/${exam.id}`)}
             >
-              <ExternalLink size={10} /> {t("examPage.detail")}
-            </button>
+              {t("examPage.detail")}
+            </ActionButton>
             {(exam.status === "已报告" || exam.status === "待报告") && (
-              <button
+              <ActionButton
+                action="refresh"
+                size="compact"
+                icon={<FileText size={10} />}
                 onClick={() => openModal(exam, "quality")}
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: 4,
-                  border: "1px solid var(--border-color)",
-                  backgroundColor: "var(--bg-card)",
-                  color: "var(--text-secondary)",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
               >
-                <FileText size={10} /> {t("examPage.view")}
-              </button>
+                {t("examPage.view")}
+              </ActionButton>
             )}
             {/* [G005 Wave4B] G-18 检查拆分入口 */}
-            <button
-              onClick={() => handleOpenSplitModal(exam)}
+            <ActionButton
+              action="refresh"
+              size="compact"
+              icon={<SplitIcon size={10} />}
               title={t("examPage.splitByReport")}
-              style={{
-                padding: "4px 8px",
-                borderRadius: 4,
-                border: "1px solid #d97706",
-                backgroundColor: "var(--bg-card)",
-                color: "#d97706",
-                fontSize: 12,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
+              onClick={() => handleOpenSplitModal(exam)}
             >
-              <SplitIcon size={10} /> {t("examPage.split")}
-            </button>
+              {t("examPage.split")}
+            </ActionButton>
             {/* [Wave1B P2] 删除检查: examApi.delete (Popconfirm danger) */}
             <Popconfirm
               title={t("examPage.deleteConfirm")}
@@ -1794,25 +1652,14 @@ export default function ExamPage() {
               okButtonProps={{ danger: true }}
               onConfirm={() => void handleDeleteExam(exam)}
             >
-              <button
+              <ActionButton
+                action="delete"
+                size="compact"
                 title={t("examPage.deleteExam")}
                 disabled={deletingExamId === exam.id}
-                style={{
-                  padding: "4px 8px",
-                  borderRadius: 4,
-                  border: "1px solid #dc2626",
-                  backgroundColor: "var(--bg-card)",
-                  color: "#dc2626",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  opacity: deletingExamId === exam.id ? 0.5 : 1,
-                }}
               >
-                <X size={10} /> {t("examPage.delete")}
-              </button>
+                {t("examPage.delete")}
+              </ActionButton>
             </Popconfirm>
           </div>
         ),
@@ -2079,27 +1926,14 @@ export default function ExamPage() {
 
             {/* 采集完成按钮 */}
             {!execution.completed && (
-              <button
+              <ActionButton
+                action="submit"
+                block
+                icon={<CheckCircle2 size={16} />}
                 onClick={() => handleConfirmComplete(execution.id)}
-                style={{
-                  width: "100%",
-                  padding: "10px 16px",
-                  borderRadius: 8,
-                  border: "none",
-                  backgroundColor: PRIMARY,
-                  color: "#fff",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                }}
               >
-                <CheckCircle2 size={16} />
                 {t("examPage.confirmCaptureDone")}
-              </button>
+              </ActionButton>
             )}
 
             {/* 技师电子签名 */}
@@ -2489,16 +2323,14 @@ export default function ExamPage() {
             {t("examPage.dataSource")} {analyticsSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
           </span>
           {analyticsLoading && <span style={{ color: '#d97706' }}>{t("examPage.syncing")}</span>}
-          <button
+          <ActionButton
+            action="refresh"
+            size="compact"
+            style={{ marginLeft: 'auto' }}
             onClick={() => void loadAnalytics()}
-            style={{
-              marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
-              padding: '4px 12px', borderRadius: 6, fontSize: 12,
-              border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY,
-            }}
           >
-            <RefreshCcw size={12} /> {t("examPage.refresh")}
-          </button>
+            {t("examPage.refresh")}
+          </ActionButton>
         </div>
         {analyticsError && (
           <div style={{
@@ -2733,16 +2565,14 @@ export default function ExamPage() {
                           {ex.imageCount ? ` · ${ex.imageCount} 幅` : ''}
                         </div>
                       </div>
-                      <button
+                      <ActionButton
+                        action="refresh"
+                        size="compact"
+                        icon={<Eye size={11} />}
                         onClick={() => navigate(`/dicom-viewer?examId=${ex.id}`)}
-                        style={{
-                          flexShrink: 0, fontSize: 11, padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
-                          border: `1px solid ${PRIMARY}`, background: 'transparent', color: PRIMARY,
-                          display: 'flex', alignItems: 'center', gap: 4,
-                        }}
                       >
-                        <Eye size={11} /> {t("examPage.viewImages")}
-                      </button>
+                        {t("examPage.viewImages")}
+                      </ActionButton>
                     </div>
                   ))}
                   {g.items.length > 6 && (
@@ -3193,35 +3023,16 @@ export default function ExamPage() {
               gap: 8,
             }}
           >
-            <button
-              onClick={closeModal}
-              style={{
-                padding: "8px 16px",
-                borderRadius: 6,
-                border: "1px solid var(--border-color)",
-                backgroundColor: "var(--bg-card)",
-                color: "var(--text-secondary)",
-                fontSize: 13,
-                cursor: "pointer",
-              }}
-            >
+            <ActionButton action="cancel" onClick={closeModal}>
               {t("examPage.cancel")}
-            </button>
-            <button
+            </ActionButton>
+            <ActionButton
+              action="submit"
+              style={{ backgroundColor: actionConfig.color, borderColor: actionConfig.color }}
               onClick={handleExecute}
-              style={{
-                padding: "8px 20px",
-                borderRadius: 6,
-                border: "none",
-                backgroundColor: actionConfig.color,
-                color: "#fff",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
             >
               {actionConfig.confirmText}
-            </button>
+            </ActionButton>
           </div>
         </div>
       </div>
@@ -3260,16 +3071,14 @@ export default function ExamPage() {
             {t("examPage.dataSource")} {statSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
           </span>
           {statLoading && <span style={{ color: '#d97706' }}>{t("examPage.syncing")}</span>}
-          <button
+          <ActionButton
+            action="refresh"
+            size="compact"
+            style={{ marginLeft: 'auto' }}
             onClick={() => void loadStatistics()}
-            style={{
-              marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
-              padding: '4px 12px', borderRadius: 6, fontSize: 12,
-              border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY,
-            }}
           >
-            <RefreshCcw size={12} /> {t("examPage.refresh")}
-          </button>
+            {t("examPage.refresh")}
+          </ActionButton>
         </div>
         {statError && (
           <div style={{
@@ -3534,37 +3343,18 @@ export default function ExamPage() {
                 gap: 8,
               }}
             >
-              <button
-                onClick={() => setShowMergeModal(false)}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: 6,
-                  border: "1px solid var(--border-color)",
-                  backgroundColor: "var(--bg-card)",
-                  color: "var(--text-secondary)",
-                  fontSize: 13,
-                  cursor: "pointer",
-                }}
-              >
+              <ActionButton action="cancel" onClick={() => setShowMergeModal(false)}>
                 {t("examPage.cancel")}
-              </button>
-              <button
-                onClick={() => void handleMergeSubmit()}
+              </ActionButton>
+              <ActionButton
+                action="submit"
+                loading={merging}
                 disabled={merging}
-                style={{
-                  padding: "8px 20px",
-                  borderRadius: 6,
-                  border: "none",
-                  backgroundColor: "#7c3aed",
-                  color: "#fff",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: merging ? "not-allowed" : "pointer",
-                  opacity: merging ? 0.6 : 1,
-                }}
+                style={{ backgroundColor: "#7c3aed", borderColor: "#7c3aed" }}
+                onClick={() => void handleMergeSubmit()}
               >
                 {merging ? t("examPage.merging") : t("examPage.confirmMerge")}
-              </button>
+              </ActionButton>
             </div>
           </div>
         </div>
@@ -3686,37 +3476,18 @@ export default function ExamPage() {
                 gap: 8,
               }}
             >
-              <button
-                onClick={() => setSplitExam(null)}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: 6,
-                  border: "1px solid var(--border-color)",
-                  backgroundColor: "var(--bg-card)",
-                  color: "var(--text-secondary)",
-                  fontSize: 13,
-                  cursor: "pointer",
-                }}
-              >
+              <ActionButton action="cancel" onClick={() => setSplitExam(null)}>
                 {t("examPage.close")}
-              </button>
-              <button
-                onClick={() => void handleSplitSubmit()}
+              </ActionButton>
+              <ActionButton
+                action="submit"
+                loading={splitting}
                 disabled={splitting}
-                style={{
-                  padding: "8px 20px",
-                  borderRadius: 6,
-                  border: "none",
-                  backgroundColor: "#d97706",
-                  color: "#fff",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: splitting ? "not-allowed" : "pointer",
-                  opacity: splitting ? 0.6 : 1,
-                }}
+                style={{ backgroundColor: "#d97706", borderColor: "#d97706" }}
+                onClick={() => void handleSplitSubmit()}
               >
                 {splitting ? t("examPage.splitting") : t("examPage.confirmSplit")}
-              </button>
+              </ActionButton>
             </div>
           </div>
         </div>
@@ -3881,40 +3652,17 @@ export default function ExamPage() {
                 gap: 10,
               }}
             >
-              <button
-                onClick={() => setShowImportModal(false)}
-                style={{
-                  padding: "8px 18px",
-                  borderRadius: 8,
-                  border: "1px solid var(--border-color)",
-                  background: "var(--bg-card)",
-                  fontSize: 13,
-                  color: "var(--text-secondary)",
-                  cursor: "pointer",
-                }}
-              >
+              <ActionButton action="cancel" onClick={() => setShowImportModal(false)}>
                 {t("examPage.close")}
-              </button>
-              <button
-                onClick={() => void handleExamImportSubmit()}
+              </ActionButton>
+              <ActionButton
+                action="import"
+                loading={importing}
                 disabled={importing || !importText.trim()}
-                style={{
-                  padding: "8px 20px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: importing || !importText.trim() ? "#94a3b8" : PRIMARY,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "#fff",
-                  cursor: importing || !importText.trim() ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
+                onClick={() => void handleExamImportSubmit()}
               >
-                <Upload size={13} />
                 {importing ? t("examPage.importing") : t("examPage.startImport")}
-              </button>
+              </ActionButton>
             </div>
           </div>
         </div>

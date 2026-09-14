@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import { Monitor, AlertTriangle, CheckCircle, XCircle, Search, Clock, Settings, ChevronDown, ChevronRight, Gauge } from 'lucide-react'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { replayDeviceEvent } from '../../utils/deviceStateAdapter'
 // [W2-A] 设备运营接 deviceMgmtApi (equipment-lifecycle/faults/maintenance-plans) + oeeApi (利用率)
 // [W1-B] 剂量追踪接 deviceMgmtApi.getDoseTracking/recordDose (POST /device-mgmt/dose-tracking)
@@ -283,15 +284,15 @@ export default function DeviceOpsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
-            background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600,
+            background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)', fontWeight: 600,
           }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }} />
             {loading ? t('deviceOps.syncing') : dataSource === 'api' ? t('deviceOps.sourceApi') : t('deviceOps.sourceDemo')}
           </span>
           {apiError && (
-            <span style={{ color: '#ef4444' }}>
+            <span style={{ color: 'var(--color-error-500, #ef4444)' }}>
               {apiError}
-              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.retry')}</button>
+              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-500, #ef4444)', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.retry')}</button>
             </span>
           )}
         </div>
@@ -345,6 +346,7 @@ export default function DeviceOpsPage() {
           </div>
         </div>
 
+        <StateView empty={filtered.length === 0} emptyDescription={t('w2d.empty')}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr 80px 90px 100px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
             <span /><span>{t('deviceOps.colDeviceName')}</span><span>{t('deviceOps.colStatus')}</span><span>{t('deviceOps.colType')}</span><span>{t('deviceOps.colLocation')}</span><span>{t('deviceOps.colNextMaintenance')}</span>
@@ -394,6 +396,7 @@ export default function DeviceOpsPage() {
             )
           })}
         </div>
+        </StateView>
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>

@@ -6,13 +6,15 @@ import { Card } from 'antd'
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { PageContainer } from "../components/common/PageContainer";
+import { DataTable } from "../components/common/DataTable";
+import { ActionButton } from "../components/common/ActionButton";
 import { StatCard as CommonStatCard } from "../components/common/StatCard";
 import { DashboardCard } from "../components/dashboard/DashboardCard";
 import { TrendChart } from "../components/dashboard/TrendChart";
 import { AppText } from "../components/common/AppText";
 import { ErrorBanner } from "../components/feedback";
 import { t } from '../i18n/appI18n';
-import { Search, User, Phone, AlertCircle, X, Eye, Download, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3, RefreshCw } from 'lucide-react';
+import { Search, User, Phone, AlertCircle, X, Eye, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
 import { patientApi } from "../services/api";
 import type { PatientImportRow, PatientOverviewDto, PatientAgeBucket } from "../services/api";
@@ -1784,12 +1786,13 @@ export default function PatientPage() {
           extra={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {statsLoading && <span style={{ fontSize: 12, color: '#d97706' }}>{t("examPage.syncing")}</span>}
-              <button
+              <ActionButton
+                action="refresh"
+                size="compact"
                 onClick={() => void loadPatientStats()}
-                style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', padding: '3px 10px', borderRadius: 6, fontSize: 12, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af' }}
               >
-                <RefreshCw size={12} /> {t("examPage.refresh")}
-              </button>
+                {t("examPage.refresh")}
+              </ActionButton>
             </div>
           }
           loading={statsLoading}
@@ -1955,232 +1958,59 @@ export default function PatientPage() {
           </span>
           )
         </div>
-        <div style={{ overflowX: "auto" }}>
-          <div style={{ overflowX: "auto" }}><table
-            style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}
-          >
-            <thead>
-              <tr
-                style={{
-                  background: "var(--content-bg)",
-                  borderBottom: "1px solid var(--border-color)",
-                }}
-              >
-                {[
-                  t('patientPage.patientId'),
-                  t('patientPage.name'),
-                  t('patientPage.gender'),
-                  t('patientPage.age'),
-                  t('patientPage.type'),
-                  t('patientPage.allergyHistory'),
-                  t('patientPage.cumulativeExam'),
-                  t('patientPage.lastExam'),
-                  t('patientPage.actions'),
-                ].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      padding: "10px 12px",
-                      textAlign: "left",
-                      fontWeight: 600,
-                      color: "var(--text-secondary)",
-                      fontSize: 12,
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={`patient-skeleton-${i}`} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                    {Array.from({ length: 9 }).map((_, j) => (
-                      <td key={j} style={{ padding: "13px 12px" }}>
-                        <div
-                          className="anim-shimmer"
-                          style={{
-                            height: 12,
-                            borderRadius: 4,
-                            background: "linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%)",
-                            backgroundSize: "200% 100%",
-                          }}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : (
-                patients.map((p, idx) => (
-                <tr
-                  key={p.id}
-                  style={{
-                    borderBottom: "1px solid var(--border-light)",
-                    cursor: "pointer",
-                    background: idx % 2 === 0 ? "#fff" : "#fafbfc",
-                  }}
-                  onClick={() => {
-                    setSelectedPatient(p);
-                    setActiveTab("detail");
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLTableRowElement).style.background =
-                      "var(--color-info-bg)")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLTableRowElement).style.background =
-                      idx % 2 === 0 ? "#fff" : "#fafbfc")
-                  }
+        <DataTable<Patient>
+          rowKey="id"
+          loading={loading}
+          onRow={(p: Patient) => ({
+            style: { cursor: "pointer" },
+            onClick: () => {
+              setSelectedPatient(p);
+              setActiveTab("detail");
+            },
+          })}
+          columns={[
+            { title: t('patientPage.patientId'), dataIndex: 'id', key: 'id', width: 130, sorter: (a: Patient, b: Patient) => a.id.localeCompare(b.id), render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+            { title: t('patientPage.name'), dataIndex: 'name', key: 'name', sorter: (a: Patient, b: Patient) => a.name.localeCompare(b.name), render: (v: string, p: Patient) => (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: '50%',
+                  background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 700,
+                  color: p.gender === "男" ? "#1e40af" : "#be185d",
+                }}>{v.slice(0, 1)}</div>
+                <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span>
+              </div>
+            ) },
+            { title: t('patientPage.gender'), dataIndex: 'gender', key: 'gender', width: 80, align: 'center', render: (v: string) => (<span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: v === "男" ? "#dbeafe" : "#fce7f3", color: v === "男" ? "#1e40af" : "#be185d" }}>{v}</span>) },
+            { title: t('patientPage.age'), dataIndex: 'age', key: 'age', width: 80, align: 'center', sorter: (a: Patient, b: Patient) => (a.age || 0) - (b.age || 0), render: (v: number) => <span style={{ color: "var(--text-secondary)" }}>{v}{t('patientPage.ageUnit')}</span> },
+            { title: t('patientPage.type'), dataIndex: 'patientType', key: 'patientType', width: 90, align: 'center', render: (v: string) => (<span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: "var(--content-bg)", color: "var(--text-secondary)" }}>{v}</span>) },
+            { title: t('patientPage.allergyHistory'), dataIndex: 'allergyHistory', key: 'allergyHistory', render: (v: string) => (v && v !== "无" ? (<span style={{ color: "#dc2626", fontWeight: 600, fontSize: 12 }}>{v}</span>) : (<span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{t('patientPage.noAllergy')}</span>)) },
+            { title: t('patientPage.cumulativeExam'), dataIndex: 'totalExamCount', key: 'totalExamCount', width: 100, align: 'center', sorter: (a: Patient, b: Patient) => (a.totalExamCount || 0) - (b.totalExamCount || 0), render: (v: number) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v || 0}</span> },
+            { title: t('patientPage.lastExam'), dataIndex: 'lastExamDate', key: 'lastExamDate', width: 110, align: 'center', render: (v: string) => <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{v || "-"}</span> },
+            { title: t('patientPage.actions'), key: 'actions', width: 150, render: (_: unknown, p: Patient) => (
+              <div style={{ display: 'flex', gap: 4 }}>
+                <ActionButton
+                  action="refresh"
+                  size="compact"
+                  aria-label={t('patientPage.viewPatientAria', { name: p.name })}
+                  onClick={(e) => { e.stopPropagation(); handleViewPatient(p); }}
                 >
-                  <td
-                    style={{
-                      padding: "8px 12px",
-                      fontFamily: "monospace",
-                      fontSize: 12,
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    {p.id}
-                  </td>
-                  <td style={{ padding: "8px 12px" }}>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: "50%",
-                          background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: p.gender === "男" ? "#1e40af" : "#be185d",
-                        }}
-                      >
-                        {p.name.slice(0, 1)}
-                      </div>
-                      <span style={{ fontWeight: 600, color: "#1e40af" }}>
-                        {p.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td style={{ padding: "8px 12px" }}>
-                    <span
-                      style={{
-                        padding: "2px 6px",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
-                        color: p.gender === "男" ? "#1e40af" : "#be185d",
-                      }}
-                    >
-                      {p.gender}
-                    </span>
-                  </td>
-                  <td style={{ padding: "8px 12px", color: "var(--text-secondary)" }}>
-                    {p.age}{t('patientPage.ageUnit')}
-                  </td>
-                  <td style={{ padding: "8px 12px" }}>
-                    <span
-                      style={{
-                        padding: "2px 6px",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        background: "var(--content-bg)",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      {p.patientType}
-                    </span>
-                  </td>
-                  <td style={{ padding: "8px 12px" }}>
-                    {p.allergyHistory && p.allergyHistory !== "无" ? (
-                      <span
-                        style={{
-                          color: "#dc2626",
-                          fontWeight: 600,
-                          fontSize: 12,
-                        }}
-                      >
-                        {p.allergyHistory}
-                      </span>
-                    ) : (
-                      <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{t('patientPage.noAllergy')}</span>
-                    )}
-                  </td>
-                  <td
-                    style={{
-                      padding: "8px 12px",
-                      textAlign: "center",
-                      fontWeight: 600,
-                      color: "#1e40af",
-                    }}
-                  >
-                    {p.totalExamCount || 0}
-                  </td>
-                  <td
-                    style={{
-                      padding: "8px 12px",
-                      color: "var(--text-secondary)",
-                      fontSize: 12,
-                    }}
-                  >
-                    {p.lastExamDate || "-"}
-                  </td>
-                  <td style={{ padding: "8px 12px" }}>
-                    <div style={{ display: "flex", gap: 4 }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewPatient(p);
-                        }}
-                        aria-label={t('patientPage.viewPatientAria', { name: p.name })}
-                        style={{
-                          padding: "3px 8px",
-                          background: "var(--color-info-bg)",
-                          color: "#2563eb",
-                          border: "none",
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {t('patientPage.detail')}
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditPatient(p);
-                        }}
-                        aria-label={t('patientPage.editPatientAria', { name: p.name })}
-                        style={{
-                          padding: "3px 8px",
-                          background: "var(--color-success-bg)",
-                          color: "#16a34a",
-                          border: "none",
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {t('patientPage.edit')}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                ))
-              )}
-            </tbody>
-          </table></div>
-        </div>
+                  {t('patientPage.detail')}
+                </ActionButton>
+                <ActionButton
+                  action="edit"
+                  size="compact"
+                  aria-label={t('patientPage.editPatientAria', { name: p.name })}
+                  onClick={(e) => { e.stopPropagation(); handleEditPatient(p); }}
+                >
+                  {t('patientPage.edit')}
+                </ActionButton>
+              </div>
+            ) },
+          ]}
+          dataSource={patients}
+        />
       </Card>
     </>
   );
@@ -2232,104 +2062,46 @@ export default function PatientPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button
+          <ActionButton
+            action="refresh"
+            size="compact"
+            icon={<Target size={14} />}
             onClick={() => setShowPMIPanel(true)}
-            style={{
-              padding: "8px 16px",
-              background: "var(--bg-card)",
-              color: "#1e40af",
-              border: "1px solid #1e40af",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
           >
-            <Target size={14} />
             {t('patientPage.pmiSearch')}
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
+            action="import"
+            size="compact"
             onClick={() => setShowImportModal(true)}
-            style={{
-              padding: "8px 16px",
-              background: "var(--bg-card)",
-              color: "#059669",
-              border: "1px solid #059669",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
           >
-            <Upload size={14} />
             {t('patientPage.batchImport')}
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
+            action="export"
+            size="compact"
             onClick={() => void handleExport()}
-            style={{
-              padding: "8px 16px",
-              background: "var(--bg-card)",
-              color: "var(--text-secondary)",
-              border: "1px solid var(--border-color)",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
           >
-            <Download size={14} />
             {t('patientPage.export')}
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
+            action="create"
+            size="compact"
+            icon={<Layers3 size={14} />}
+            style={{ background: "#059669", borderColor: "#059669" }}
             onClick={() => setShowRegistrationWizard(true)}
-            style={{
-              padding: "8px 16px",
-              background: "#059669",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              boxShadow: "0 2px 4px rgba(5,150,105,0.3)",
-            }}
           >
-            <Layers3 size={14} />
             {t('patientPage.registrationWizard')}
-          </button>
+          </ActionButton>
           <PermissionGate permission="patient.create">
-            <button
+            <ActionButton
+              action="create"
+              size="compact"
+              icon={<UserPlus size={14} />}
               onClick={handleNewPatient}
-              style={{
-                padding: "8px 16px",
-                background: "#1e40af",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                boxShadow: "0 2px 4px rgba(30,58,95,0.3)",
-              }}
             >
-              <UserPlus size={14} />
               {t('patientPage.newPatient')}
-            </button>
+            </ActionButton>
           </PermissionGate>
         </div>
       </div>
@@ -2722,40 +2494,17 @@ export default function PatientPage() {
                 gap: 10,
               }}
             >
-              <button
-                onClick={() => setShowImportModal(false)}
-                style={{
-                  padding: "8px 18px",
-                  borderRadius: 8,
-                  border: "1px solid var(--border-color)",
-                  background: "var(--bg-card)",
-                  fontSize: 13,
-                  color: "var(--text-secondary)",
-                  cursor: "pointer",
-                }}
-              >
+              <ActionButton action="cancel" onClick={() => setShowImportModal(false)}>
                 {t('patientPage.close')}
-              </button>
-              <button
-                onClick={() => void handleImportSubmit()}
+              </ActionButton>
+              <ActionButton
+                action="import"
+                loading={importing}
                 disabled={importing || !importText.trim()}
-                style={{
-                  padding: "8px 20px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: importing || !importText.trim() ? "#94a3b8" : "#1e40af",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "#fff",
-                  cursor: importing || !importText.trim() ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
+                onClick={() => void handleImportSubmit()}
               >
-                <Upload size={13} />
                 {importing ? t('patientPage.importing') : t('patientPage.startImport')}
-              </button>
+              </ActionButton>
             </div>
           </div>
         </div>

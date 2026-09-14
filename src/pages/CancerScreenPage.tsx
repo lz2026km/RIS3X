@@ -4,7 +4,7 @@
 // 放射科早癌筛查 - 肺癌LDCT/乳腺癌/消化道癌筛查管理
 // ============================================================
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Spin, message as antdMessage } from 'antd'
+import { Spin, message as antdMessage, Select } from 'antd'
 import {
   Users, AlertTriangle, Target, Heart, MapPin, TrendingUp,
   Plus, Search, Filter, Download, RefreshCw,
@@ -852,15 +852,12 @@ const CancerScreenPage = () => {
                 {assessmentDimensions.map(dim => (
                   <div key={dim.key} style={s.formItem}>
                     <div style={s.formLabel}>{dim.label}</div>
-                    <select
-                      style={s.formSelect}
+                    <Select
+                      style={{ width: '100%' }}
                       value={assessmentForm[dim.key as keyof typeof assessmentForm]}
-                      onChange={e => handleDimChange(dim.key, dim.options.findIndex(o => o.l === e.target.value))}
-                    >
-                      {dim.options.map(opt => (
-                        <option key={opt.l} value={opt.l}>{opt.l}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => handleDimChange(dim.key, dim.options.findIndex(o => o.l === v))}
+                      options={dim.options.map(opt => ({ value: opt.l, label: opt.l }))}
+                    />
                   </div>
                 ))}
               </div>
@@ -1074,19 +1071,13 @@ const biRadsStats = [
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.filterTitle')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.screenType')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={filterForm.type} onChange={e => setFilterForm({ ...filterForm, type: e.target.value })}>
-                  <option>全部</option><option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
-                </select>
+                <Select style={{ width: '100%' }} value={filterForm.type} onChange={(v) => setFilterForm({ ...filterForm, type: v })} options={['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.region')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={filterForm.region} onChange={e => setFilterForm({ ...filterForm, region: e.target.value })}>
-                  <option>全部地区</option>{regions.map(r => <option key={r}>{r}</option>)}
-                </select>
+                <Select style={{ width: '100%' }} value={filterForm.region} onChange={(v) => setFilterForm({ ...filterForm, region: v })} options={['全部地区', ...regions].map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.status')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={filterForm.status} onChange={e => setFilterForm({ ...filterForm, status: e.target.value })}>
-                  <option>全部</option>{taskStatuses.map(s => <option key={s}>{s}</option>)}
-                </select>
+                <Select style={{ width: '100%' }} value={filterForm.status} onChange={(v) => setFilterForm({ ...filterForm, status: v })} options={['全部', ...taskStatuses].map(v => ({ value: v, label: v }))} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
@@ -1105,14 +1096,10 @@ const biRadsStats = [
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.taskName')}</div><input style={{ ...s.formSelect, width: '100%' }} placeholder={t('cancerScreen.placeholderTaskName')} value={newTaskForm.name} onChange={e => setNewTaskForm({ ...newTaskForm, name: e.target.value })} /></div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.screenType')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={newTaskForm.type} onChange={e => setNewTaskForm({ ...newTaskForm, type: e.target.value })}>
-                  <option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
-                </select>
+                <Select style={{ width: '100%' }} value={newTaskForm.type} onChange={(v) => setNewTaskForm({ ...newTaskForm, type: v })} options={['LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.region')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={newTaskForm.region} onChange={e => setNewTaskForm({ ...newTaskForm, region: e.target.value })}>
-                  {regions.map(r => <option key={r}>{r}</option>)}
-                </select>
+                <Select style={{ width: '100%' }} value={newTaskForm.region} onChange={(v) => setNewTaskForm({ ...newTaskForm, region: v })} options={regions.map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.target')}</div><input style={{ ...s.formSelect, width: '100%' }} type="number" placeholder={t('cancerScreen.placeholderTarget')} value={newTaskForm.target} onChange={e => setNewTaskForm({ ...newTaskForm, target: Number(e.target.value) })} /></div>
             </div>
@@ -1134,14 +1121,10 @@ const biRadsStats = [
               <div><div style={s.formLabel}>{t('cancerScreen.patientNameRequired')}</div><input style={{ ...s.formSelect, width: '100%' }} value={regForm.patientName} onChange={e => setRegForm({ ...regForm, patientName: e.target.value })} placeholder={t('cancerScreen.placeholderPatientName')} /></div>
               <div><div style={s.formLabel}>{t('cancerScreen.age')}</div><input type="number" style={{ ...s.formSelect, width: '100%' }} value={regForm.age} onChange={e => setRegForm({ ...regForm, age: Number(e.target.value) })} /></div>
               <div><div style={s.formLabel}>{t('cancerScreen.gender')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={regForm.gender} onChange={e => setRegForm({ ...regForm, gender: e.target.value })}>
-                  <option>女</option><option>男</option>
-                </select>
+                <Select style={{ width: '100%' }} value={regForm.gender} onChange={(v) => setRegForm({ ...regForm, gender: v })} options={['女', '男'].map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={s.formLabel}>{t('cancerScreen.screenType')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={regForm.screenType} onChange={e => setRegForm({ ...regForm, screenType: e.target.value })}>
-                  <option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
-                </select>
+                <Select style={{ width: '100%' }} value={regForm.screenType} onChange={(v) => setRegForm({ ...regForm, screenType: v })} options={['LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={s.formLabel}>{t('cancerScreen.screenDate')}</div><input type="date" style={{ ...s.formSelect, width: '100%' }} value={regForm.screenDate} onChange={e => setRegForm({ ...regForm, screenDate: e.target.value })} /></div>
             </div>
@@ -1188,12 +1171,8 @@ const biRadsStats = [
               onChange={e => setQueueKeyword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && void loadQueue()}
             />
-            <select style={{ ...s.formSelect, width: 140 }} value={queueStatusFilter} onChange={e => { setQueueStatusFilter(e.target.value); }}>
-              {['全部', '已登记', '筛查中', '已完成', '异常', '待审核'].map(st => <option key={st} value={st}>{st}</option>)}
-            </select>
-            <select style={{ ...s.formSelect, width: 140 }} value={queueTypeFilter} onChange={e => { setQueueTypeFilter(e.target.value); }}>
-              {['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(ty => <option key={ty} value={ty}>{ty}</option>)}
-            </select>
+            <Select style={{ width: 140 }} value={queueStatusFilter} onChange={(v) => setQueueStatusFilter(v)} options={['全部', '已登记', '筛查中', '已完成', '异常', '待审核'].map(st => ({ value: st, label: st }))} />
+            <Select style={{ width: 140 }} value={queueTypeFilter} onChange={(v) => setQueueTypeFilter(v)} options={['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(ty => ({ value: ty, label: ty }))} />
             <button style={{ ...s.btnPrimary, padding: '6px 14px' }} onClick={() => void loadQueue()}><Search size={13} /> {t('cancerScreen.query')}</button>
             <button style={{ ...s.btnPrimary, padding: '6px 14px', background: '#059669' }} onClick={() => setShowRegisterModal(true)}><Plus size={13} /> {t('cancerScreen.registerScreenBtn')}</button>
           </div>
@@ -1366,19 +1345,13 @@ const biRadsStats = [
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.taskName')}</div><input style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.name} onChange={e => setEditTaskForm({ ...editTaskForm, name: e.target.value })} /></div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.target')}</div><input style={{ ...s.formSelect, width: '100%' }} type="number" value={editTaskForm.target} onChange={e => setEditTaskForm({ ...editTaskForm, target: Number(e.target.value) })} /></div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.screenType')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.type} onChange={e => setEditTaskForm({ ...editTaskForm, type: e.target.value })}>
-                  <option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
-                </select>
+                <Select style={{ width: '100%' }} value={editTaskForm.type} onChange={(v) => setEditTaskForm({ ...editTaskForm, type: v })} options={['LDCT', 'MG', '乳腺超声', '消化道'].map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.region')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.region} onChange={e => setEditTaskForm({ ...editTaskForm, region: e.target.value })}>
-                  {regions.map(r => <option key={r}>{r}</option>)}
-                </select>
+                <Select style={{ width: '100%' }} value={editTaskForm.region} onChange={(v) => setEditTaskForm({ ...editTaskForm, region: v })} options={regions.map(v => ({ value: v, label: v }))} />
               </div>
               <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('cancerScreen.status')}</div>
-                <select style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.status} onChange={e => setEditTaskForm({ ...editTaskForm, status: e.target.value })}>
-                  {taskStatuses.map(st => <option key={st}>{st}</option>)}
-                </select>
+                <Select style={{ width: '100%' }} value={editTaskForm.status} onChange={(v) => setEditTaskForm({ ...editTaskForm, status: v })} options={taskStatuses.map(v => ({ value: v, label: v }))} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>

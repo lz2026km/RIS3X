@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
 import { Search, CheckCircle, AlertTriangle, FileText, Plus, BarChart3 } from 'lucide-react'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import {
   getRcaInvestigations, createRcaInvestigation, updateRcaInvestigation,
   type RcaInvestigation, type RcaStatus,
@@ -33,7 +34,23 @@ export default function RCAAnalysisPage() {
   const [selectedRca, setSelectedRca] = useState<RcaInvestigation | null>(null)
   const [filter, setFilter] = useState<RcaStatus | 'all'>('all')
 
-  useEffect(() => { getRcaInvestigations().then(setRcas) }, [])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const data = await getRcaInvestigations()
+      setRcas(data)
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('w2d.loadFailed'))
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void load() }, [load])
 
   const filtered = filter === 'all' ? rcas : rcas.filter(r => r.capaStatus === filter)
   const statusData = Object.entries(STATUS_LABELS).map(([k, v]) => ({
@@ -93,10 +110,10 @@ export default function RCAAnalysisPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: t('rca.statTotal'), value: rcas.length, icon: FileText, color: '#dc2626' },
-            { title: t('rca.status.analyzing'), value: rcas.filter(r => r.capaStatus === 'analyzing').length, icon: Search, color: '#3b82f6' },
-            { title: t('rca.statImplementing'), value: rcas.filter(r => r.capaStatus === 'implementing').length, icon: AlertTriangle, color: '#8b5cf6' },
-            { title: t('rca.status.closed'), value: rcas.filter(r => r.capaStatus === 'closed').length, icon: CheckCircle, color: '#22c55e' },
+            { title: t('rca.statTotal'), value: rcas.length, icon: FileText, color: 'var(--color-error-600, #dc2626)' },
+            { title: t('rca.status.analyzing'), value: rcas.filter(r => r.capaStatus === 'analyzing').length, icon: Search, color: 'var(--color-primary-500, #3b82f6)' },
+            { title: t('rca.statImplementing'), value: rcas.filter(r => r.capaStatus === 'implementing').length, icon: AlertTriangle, color: 'var(--color-modality-mr, #8b5cf6)' },
+            { title: t('rca.status.closed'), value: rcas.filter(r => r.capaStatus === 'closed').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: '#8b949e' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
@@ -231,6 +248,14 @@ export default function RCAAnalysisPage() {
               ))}
             </div>
 
+            <StateView
+              loading={loading}
+              error={loadError}
+              empty={!loading && !loadError && filtered.length === 0}
+              emptyDescription={t('w2d.empty')}
+              onRetry={() => void load()}
+              skeletonRows={5}
+            >
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
               <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
@@ -265,6 +290,7 @@ export default function RCAAnalysisPage() {
                 </tbody>
               </table></div>
             </div>
+            </StateView>
           </>
         )}
       </div>

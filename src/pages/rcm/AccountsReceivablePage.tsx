@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Clock, AlertTriangle, CheckCircle, Search, Download, Wallet } from 'lucide-react'
 import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
+import { StateView } from '../../components/common/StateView'
 import { t } from '../../i18n/appI18n'
 
 type AgingBucket = '0-30' | '31-60' | '61-90' | '90+'
@@ -177,11 +178,11 @@ export default function AccountsReceivablePage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('ar.totalReceivable')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>¥{summary.total.toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)' }}>¥{summary.total.toLocaleString()}</div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('ar.overdueAmount')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>¥{summary.overdue.toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-error-500, #ef4444)' }}>¥{summary.overdue.toLocaleString()}</div>
         </div>
         {summary.byAging.map(b => (
           <div key={b.key} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
@@ -210,6 +211,7 @@ export default function AccountsReceivablePage() {
           <span style={{ fontSize: 13, color: '#6e7681' }}>{t('ar.totalCount', { count: filteredItems.length })}</span>
         </div>
 
+        <StateView empty={!loading && !error && filteredItems.length === 0} emptyDescription={t('w2d.empty')}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 120px 120px 120px 100px 100px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
             <span>{t('ar.colPatient')}</span><span>{t('ar.colExamItem')}</span><span>{t('ar.colPayer')}</span><span>{t('ar.colTotal')}</span><span>{t('ar.colPaid')}</span><span>{t('ar.colBalance')}</span><span>{t('ar.colAging')}</span><span>{t('ar.colStatus')}</span>
@@ -232,6 +234,7 @@ export default function AccountsReceivablePage() {
             </div>
           ))}
         </div>
+        </StateView>
       </div>
     </div>
   )

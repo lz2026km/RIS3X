@@ -64,10 +64,10 @@ const EMPTY: KpiWallData = {
 }
 
 const statusLabel: Record<string, { text: string; color: string }> = {
-  idle: { text: t('kpiWall.roomIdle'), color: '#4ade80' },
-  occupied: { text: t('kpiWall.roomOccupied'), color: '#f87171' },
-  disinfecting: { text: t('kpiWall.roomDisinfecting'), color: '#fbbf24' },
-  fault: { text: t('kpiWall.roomFault'), color: '#94a3b8' },
+  idle: { text: t('kpiWall.roomIdle'), color: 'var(--color-success-400, #4ade80)' },
+  occupied: { text: t('kpiWall.roomOccupied'), color: 'var(--color-error-400, #f87171)' },
+  disinfecting: { text: t('kpiWall.roomDisinfecting'), color: 'var(--color-warning-400, #fbbf24)' },
+  fault: { text: t('kpiWall.roomFault'), color: 'var(--text-muted, #94a3b8)' },
 }
 
 const KpiWallPage: React.FC = () => {

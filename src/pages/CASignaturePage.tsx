@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message, Modal, Input, Select } from 'antd';
+import type { TableColumnsType } from 'antd';
 import {
   ShieldCheck, Stamp, CheckCircle2, AlertTriangle, XCircle,
   RefreshCw, Search, ChevronRight, Key, Activity, Ban,
@@ -14,6 +15,8 @@ import {
   type CaHistoryEntry,
 } from '../services/api/caApi';
 import { PermissionGate } from '../components/common/PermissionGate';
+import { DataTable } from '../components/common/DataTable';
+import { ActionButton } from '../components/common/ActionButton';
 import { t } from '../i18n/appI18n';
 
 type CertificateStatus = 'valid' | 'expiring' | 'expired' | 'revoked';
@@ -71,10 +74,6 @@ export default function CASignaturePage() {
   const [showSignaturesModal, setShowSignaturesModal] = useState(false);
   const [signatures, setSignatures] = useState<SignatureRecord[]>([]);
   const [signaturesLoading, setSignaturesLoading] = useState(false);
-  const [sigPage, setSigPage] = useState(1);
-  const SIG_PAGE_SIZE = 10;
-  const sigPageData = signatures.slice((sigPage - 1) * SIG_PAGE_SIZE, sigPage * SIG_PAGE_SIZE);
-  const sigTotalPages = Math.max(1, Math.ceil(signatures.length / SIG_PAGE_SIZE));
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [history, setHistory] = useState<CaHistoryEntry[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -265,7 +264,6 @@ export default function CASignaturePage() {
   const openSignatures = useCallback(async () => {
     setShowSignaturesModal(true);
     setSignaturesLoading(true);
-    setSigPage(1);
     try {
       const res = await caApi.listSignatures();
       if (res.success) setSignatures(res.data);
@@ -293,6 +291,19 @@ export default function CASignaturePage() {
 
   const totalUsage = certs.reduce((s, c) => s + c.usageCount, 0);
 
+  const signatureColumns: TableColumnsType<SignatureRecord> = [
+    { title: t('caSignature.colSigner'), dataIndex: 'holderName', key: 'holderName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('caSignature.colReportId'), dataIndex: 'reportId', key: 'reportId', render: (v: string) => <span style={{ fontFamily: 'monospace' }}>{v}</span> },
+    {
+      title: t('caSignature.colAlgorithm'), dataIndex: 'algorithm', key: 'algorithm',
+      render: (v: string) => (
+        <span style={{ padding: '1px 6px', borderRadius: 2, background: v === 'SM2-SM3' ? 'var(--color-error-bg)' : 'var(--color-info-bg)', color: v === 'SM2-SM3' ? '#b91c1c' : '#1d4ed8', fontWeight: 600 }}>{v}</span>
+      ),
+    },
+    { title: t('caSignature.colVerifyCode'), dataIndex: 'verificationCode', key: 'verificationCode', render: (v: string) => <span style={{ fontFamily: 'monospace' }}>{v}</span> },
+    { title: t('caSignature.colSignTime'), dataIndex: 'signedAt', key: 'signedAt', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{new Date(v).toLocaleString()}</span> },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -307,12 +318,9 @@ export default function CASignaturePage() {
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <PermissionGate permission="report.sign">
-            <button
-              onClick={() => setShowUploadModal(true)}
-              style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-            >
-              <FileUp size={12} /> {t('caSignature.uploadCert')}
-            </button>
+            <ActionButton action="import" size="compact" icon={<FileUp size={12} />} onClick={() => setShowUploadModal(true)}>
+              {t('caSignature.uploadCert')}
+            </ActionButton>
           </PermissionGate>
           <button
             onClick={() => void openSignatures()}
@@ -374,17 +382,29 @@ export default function CASignaturePage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <select value={filterAlgo} onChange={e => setFilterAlgo(e.target.value)} style={selectStyle}>
-                    <option value="all">{t('caSignature.allAlgorithms')}</option>
-                    <option value="RSA-SHA256">RSA</option>
-                    <option value="SM2-SM3">{t('caSignature.gmSm')}</option>
-                  </select>
-                  <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
-                    <option value="all">{t('caSignature.allStatus')}</option>
-                    <option value="valid">{t('caSignature.statusValid')}</option>
-                    <option value="expiring">{t('caSignature.kpiExpiring')}</option>
-                    <option value="expired">{t('caSignature.statusExpired')}</option>
-                  </select>
+                  <Select
+                    size="small"
+                    style={{ flex: 1 }}
+                    value={filterAlgo}
+                    onChange={(v) => setFilterAlgo(v)}
+                    options={[
+                      { value: 'all', label: t('caSignature.allAlgorithms') },
+                      { value: 'RSA-SHA256', label: 'RSA' },
+                      { value: 'SM2-SM3', label: t('caSignature.gmSm') },
+                    ]}
+                  />
+                  <Select
+                    size="small"
+                    style={{ flex: 1 }}
+                    value={filterStatus}
+                    onChange={(v) => setFilterStatus(v)}
+                    options={[
+                      { value: 'all', label: t('caSignature.allStatus') },
+                      { value: 'valid', label: t('caSignature.statusValid') },
+                      { value: 'expiring', label: t('caSignature.kpiExpiring') },
+                      { value: 'expired', label: t('caSignature.statusExpired') },
+                    ]}
+                  />
                 </div>
               </div>
               <div style={{ maxHeight: 540, overflowY: 'auto' }}>
@@ -490,23 +510,30 @@ export default function CASignaturePage() {
                       </button>
                     </PermissionGate>
                     <PermissionGate permission="report.sign">
-                      <button
-                        onClick={() => { setRevokeReason(''); setShowRevokeModal(true); }}
+                      <ActionButton
+                        action="delete"
+                        size="compact"
+                        icon={<Ban size={12} />}
+                        variant="default"
                         disabled={selectedCert.status === 'revoked'}
                         title={selectedCert.status === 'revoked' ? t('caSignature.certRevoked') : t('caSignature.revokeCert')}
                         style={{
-                          padding: '10px 16px', border: '1px solid #fca5a5', borderRadius: 6,
-                          background: selectedCert.status === 'revoked' ? 'var(--bg-card)' : 'var(--bg-card)',
+                          padding: '10px 16px',
+                          borderColor: '#fca5a5',
                           color: selectedCert.status === 'revoked' ? '#94a3b8' : '#b91c1c',
-                          fontSize: 12, cursor: selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer',
-                          display: 'flex', alignItems: 'center', gap: 4,
                           opacity: selectedCert.status === 'revoked' ? 0.5 : 1,
                         }}
+                        onClick={() => { setRevokeReason(''); setShowRevokeModal(true); }}
                       >
-                        <Ban size={12} /> {t('caSignature.revoke')}
-                      </button>
+                        {t('caSignature.revoke')}
+                      </ActionButton>
                     </PermissionGate>
-                    <button
+                    <ActionButton
+                      action="refresh"
+                      size="compact"
+                      icon={<RefreshCw size={12} />}
+                      disabled={!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked'}
+                      style={{ padding: '10px 16px', opacity: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 0.5 : 1 }}
                       onClick={async () => {
                         if (selectedCert.status === 'expired' || selectedCert.status === 'revoked') {
                           message.warning(t('caSignature.expiredCannotRenew'));
@@ -525,11 +552,9 @@ export default function CASignaturePage() {
                           message.error('续期失败: ' + (e?.message || String(e)));
                         }
                       }}
-                      disabled={!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked'}
-                      style={{ padding: '10px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? '#94a3b8' : '#475569', fontSize: 12, cursor: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 0.5 : 1 }}
                     >
-                      <RefreshCw size={12} /> {t('caSignature.renew')}
-                    </button>
+                      {t('caSignature.renew')}
+                    </ActionButton>
                   </div>
 
                   {isSigning && (
@@ -750,35 +775,13 @@ export default function CASignaturePage() {
           ) : signatures.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.noSignatures')}</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr>
-                  {[t('caSignature.colSigner'), t('caSignature.colReportId'), t('caSignature.colAlgorithm'), t('caSignature.colVerifyCode'), t('caSignature.colSignTime')].map(h => (
-                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)', color: 'var(--text-secondary)' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sigPageData.map(s => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                    <td style={{ padding: '8px 10px', fontWeight: 600 }}>{s.holderName}</td>
-                    <td style={{ padding: '8px 10px', fontFamily: 'monospace' }}>{s.reportId}</td>
-                    <td style={{ padding: '8px 10px' }}>
-                      <span style={{ padding: '1px 6px', borderRadius: 2, background: s.algorithm === 'SM2-SM3' ? 'var(--color-error-bg)' : 'var(--color-info-bg)', color: s.algorithm === 'SM2-SM3' ? '#b91c1c' : '#1d4ed8', fontWeight: 600 }}>{s.algorithm}</span>
-                    </td>
-                    <td style={{ padding: '8px 10px', fontFamily: 'monospace' }}>{s.verificationCode}</td>
-                    <td style={{ padding: '8px 10px', color: 'var(--text-secondary)' }}>{new Date(s.signedAt).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 }}>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('caSignature.totalLabel')} {signatures.length} {t('caSignature.itemsUnit')} · {t('caSignature.pageLabel')} {sigPage}/{sigTotalPages} {t('caSignature.pageUnit')}</span>
-              <button style={selectStyle} disabled={sigPage <= 1} onClick={() => setSigPage(p => Math.max(1, p - 1))}>{t('caSignature.prevPage')}</button>
-              <button style={selectStyle} disabled={sigPage >= sigTotalPages} onClick={() => setSigPage(p => Math.min(sigTotalPages, p + 1))}>{t('caSignature.nextPage')}</button>
-            </div>
-            </div>
+            <DataTable<SignatureRecord>
+              rowKey="id"
+              dataSource={signatures}
+              columns={signatureColumns}
+              pageSize={10}
+              scroll={{ x: 'max-content' }}
+            />
           )}
         </div>
       </Modal>
@@ -820,11 +823,6 @@ export default function CASignaturePage() {
 
 const fieldLabelStyle: React.CSSProperties = {
   fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4,
-};
-
-const selectStyle: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-  fontSize: 12, outline: 'none', flex: 1,
 };
 
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string; alert?: boolean }> = ({ icon: Icon, label, value, color, alert }) => (

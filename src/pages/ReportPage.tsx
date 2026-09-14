@@ -12,6 +12,7 @@ import {
 import { message, Modal, Input, Tag } from "antd";
 import type { RadiologyReport } from "../types";
 import { PageContainer } from "../components/common/PageContainer";
+import { ActionButton } from "../components/common/ActionButton";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useNavigate } from "react-router-dom";
 import { StatusBadge, REPORT_STATUS_META, REPORT_STATUS_ORDER } from "../components/report";
@@ -576,9 +577,15 @@ export default function ReportPage() {
         </div>
         {/* [v3.0.6.11-103 Wave 2A] 报告统计报表入口: overview / by-doctor / daily-trend */}
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-          <button onClick={() => setStatsModalOpen(true)} style={{ padding: "5px 14px", borderRadius: 8, border: "1px solid #1e40af", background: "var(--bg-card)", color: "#1e40af", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.15s" }} data-testid="report-stats-open">
-            <BarChart3 size={13} /> {t("reportPage.statsReport")}
-          </button>
+          <ActionButton
+            action="refresh"
+            size="compact"
+            icon={<BarChart3 size={13} />}
+            testId="report-stats-open"
+            onClick={() => setStatsModalOpen(true)}
+          >
+            {t("reportPage.statsReport")}
+          </ActionButton>
         </div>
 
         <ReportBanners />
@@ -594,10 +601,13 @@ export default function ReportPage() {
             }}>{quickQueue === q.key ? "✓ " : ""}{t(q.labelKey)}</button>
           ))}
           <span style={{ width: 1, height: 18, background: "var(--border-color)", margin: "0 6px" }} />
-          <button onClick={() => setShowSavePreset(true)} style={{
-            padding: "4px 10px", borderRadius: 6, border: "1px solid var(--border-color)", background: WHITE,
-            color: ACCENT, fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
-          }}><Save size={12} /> {t("reportPage.saveFilter")}</button>
+          <ActionButton
+            action="save"
+            size="compact"
+            onClick={() => setShowSavePreset(true)}
+          >
+            {t("reportPage.saveFilter")}
+          </ActionButton>
           {filterPresets.map(p => (
             <Tag key={p.name} color="geekblue" closable style={{ cursor: "pointer", margin: 0 }}
               onClick={(e) => { e.stopPropagation(); applyPreset(p); }}

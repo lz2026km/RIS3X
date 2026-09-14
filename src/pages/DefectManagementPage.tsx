@@ -15,11 +15,11 @@ import {
   FileText,
   CheckCircle,
   BarChart3,
-  X,
-  Save,
-  Plus,
 } from 'lucide-react'
 import { Tag, message, Spin, Modal, Form, Input, Select } from 'antd'
+import type { TableColumnsType } from 'antd'
+import { DataTable } from '../components/common/DataTable'
+import { ActionButton } from '../components/common/ActionButton'
 import { qcextApi, type QcDefectDto } from '../services/api/qcextApi'
 import { DEFECT_LIBRARY } from '../data/qualityScoreMock'
 import { t } from '../i18n/appI18n'
@@ -202,6 +202,54 @@ const DefectManagementPage: React.FC = () => {
     setSelected(record);
   };
 
+  const rowProps = (record: DefectRecord) => ({
+    onClick: () => handleSelect(record),
+    'data-testid': `defect-row-${record.id}`,
+  });
+
+  const columns: TableColumnsType<DefectRecord> = [
+    {
+      title: t('defectMgmt.colCategory'),
+      dataIndex: 'category',
+      key: 'category',
+      render: (v: string) => (
+        <span className="rounded bg-red-50 text-red-700 px-2 py-0.5">
+          {CATEGORY_LABELS[v] ?? v}
+        </span>
+      ),
+    },
+    { title: t('defectMgmt.colName'), dataIndex: 'name', key: 'name', render: (v: string) => <span className="font-medium">{v}</span> },
+    {
+      title: t('defectMgmt.colSeverity'),
+      dataIndex: 'severity',
+      key: 'severity',
+      render: (v?: SeverityFilter) => v && <Tag color={SEVERITY_COLORS[v]}>{v === 'high' ? t('defectMgmt.sevHigh') : v === 'medium' ? t('defectMgmt.sevMedium') : t('defectMgmt.sevLow')}</Tag>,
+    },
+    {
+      title: t('defectMgmt.colStatus'),
+      dataIndex: 'status',
+      key: 'status',
+      render: (v: DefectRecord['status']) => <Tag color={STATUS_COLORS[v]}>{STATUS_LABELS[v]}</Tag>,
+    },
+    { title: t('defectMgmt.colOwner'), dataIndex: 'owner', key: 'owner', render: (v?: string) => <span className="text-xs">{v ?? '—'}</span> },
+    { title: t('defectMgmt.colDescription'), dataIndex: 'description', key: 'description', render: (v?: string) => <span className="text-gray-600">{v ?? '—'}</span> },
+    {
+      title: t('defectMgmt.colActions'),
+      key: 'actions',
+      render: (_: unknown, d: DefectRecord) => (
+        <button
+          className="text-xs text-blue-600 hover:underline"
+          onClick={(e) => {
+            e.stopPropagation()
+            goDetail(d)
+          }}
+        >
+          {t('defectMgmt.viewArrow')}
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="p-6 space-y-4" data-testid="defect-management-page">
       <div className="flex items-center gap-2">
@@ -209,13 +257,14 @@ const DefectManagementPage: React.FC = () => {
         <h1 className="text-2xl font-bold">{t('defectMgmt.title')}</h1>
         <Tag color="orange">{t('defectMgmt.primarySource')}</Tag>
         <Tag color="green">{t('defectMgmt.reportSource')}</Tag>
-        <button
+        <ActionButton
+          action="create"
+          className="ml-auto"
           onClick={() => setReportOpen(true)}
-          className="ml-auto flex items-center gap-1 rounded bg-green-600 px-3 py-1.5 text-xs text-white hover:bg-green-700"
-          data-testid="defect-report-button"
+          testId="defect-report-button"
         >
-          <Plus size={14} /> {t('defectMgmt.reportDefect')}
-        </button>
+          {t('defectMgmt.reportDefect')}
+        </ActionButton>
       </div>
       <p className="text-gray-600">{t('defectMgmt.subtitle')}</p>
 
@@ -251,26 +300,30 @@ const DefectManagementPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Filter size={14} className="text-gray-400" />
-            <select
-              className="border rounded px-2 py-1"
+            <Select
+              size="small"
+              style={{ width: 130 }}
               value={status}
-              onChange={(e) => setStatus(e.target.value as StatusFilter)}
-            >
-              <option value="all">{t('defectMgmt.allStatus')}</option>
-              <option value="open">{t('defectMgmt.statusOpen')}</option>
-              <option value="in_progress">{t('defectMgmt.statusInProgress')}</option>
-              <option value="resolved">{t('defectMgmt.statusResolved')}</option>
-            </select>
-            <select
-              className="border rounded px-2 py-1"
+              onChange={(v) => setStatus(v as StatusFilter)}
+              options={[
+                { value: 'all', label: t('defectMgmt.allStatus') },
+                { value: 'open', label: t('defectMgmt.statusOpen') },
+                { value: 'in_progress', label: t('defectMgmt.statusInProgress') },
+                { value: 'resolved', label: t('defectMgmt.statusResolved') },
+              ]}
+            />
+            <Select
+              size="small"
+              style={{ width: 130 }}
               value={severity}
-              onChange={(e) => setSeverity(e.target.value as SeverityFilter)}
-            >
-              <option value="all">{t('defectMgmt.allSeverity')}</option>
-              <option value="high">{t('defectMgmt.sevHigh')}</option>
-              <option value="medium">{t('defectMgmt.sevMedium')}</option>
-              <option value="low">{t('defectMgmt.sevLow')}</option>
-            </select>
+              onChange={(v) => setSeverity(v as SeverityFilter)}
+              options={[
+                { value: 'all', label: t('defectMgmt.allSeverity') },
+                { value: 'high', label: t('defectMgmt.sevHigh') },
+                { value: 'medium', label: t('defectMgmt.sevMedium') },
+                { value: 'low', label: t('defectMgmt.sevLow') },
+              ]}
+            />
           </div>
         </div>
 
@@ -281,55 +334,14 @@ const DefectManagementPage: React.FC = () => {
             <div className="text-sm mt-1">{t('defectMgmt.emptyHint')}</div>
           </div>
         ) : (
-          <table className="w-full mt-4 text-sm">
-            <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="py-2">{t('defectMgmt.colCategory')}</th>
-                <th className="py-2">{t('defectMgmt.colName')}</th>
-                <th className="py-2">{t('defectMgmt.colSeverity')}</th>
-                <th className="py-2">{t('defectMgmt.colStatus')}</th>
-                <th className="py-2">{t('defectMgmt.colOwner')}</th>
-                <th className="py-2">{t('defectMgmt.colDescription')}</th>
-                <th className="py-2">{t('defectMgmt.colActions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.slice(0, 20).map((d) => (
-                <tr
-                  key={d.id}
-                  className="border-b hover:bg-gray-50 cursor-pointer"
-                  onClick={() => handleSelect(d)}
-                  data-testid={`defect-row-${d.id}`}
-                >
-                  <td className="py-2 text-xs">
-                    <span className="rounded bg-red-50 text-red-700 px-2 py-0.5">
-                      {CATEGORY_LABELS[d.category] ?? d.category}
-                    </span>
-                  </td>
-                  <td className="py-2 font-medium">{d.name}</td>
-                  <td className="py-2">
-                    {d.severity && <Tag color={SEVERITY_COLORS[d.severity]}>{d.severity === 'high' ? t('defectMgmt.sevHigh') : d.severity === 'medium' ? t('defectMgmt.sevMedium') : t('defectMgmt.sevLow')}</Tag>}
-                  </td>
-                  <td className="py-2">
-                    <Tag color={STATUS_COLORS[d.status]}>{STATUS_LABELS[d.status]}</Tag>
-                  </td>
-                  <td className="py-2 text-xs">{d.owner}</td>
-                  <td className="py-2 text-gray-600 max-w-md truncate">{d.description ?? '—'}</td>
-                  <td className="py-2">
-                    <button
-                      className="text-xs text-blue-600 hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        goDetail(d)
-                      }}
-                    >
-                      {t('defectMgmt.viewArrow')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable<DefectRecord>
+            rowKey="id"
+            className="mt-4"
+            columns={columns}
+            dataSource={filtered}
+            pageSize={20}
+            onRow={rowProps}
+          />
         )}
       </div>
 
@@ -358,13 +370,12 @@ const DefectManagementPage: React.FC = () => {
                 <div className="text-xs text-gray-500">{t('defectMgmt.defectId')}</div>
                 <div className="font-bold text-base font-mono">{selected.id}</div>
               </div>
-              <button
+              <ActionButton
+                action="cancel"
+                variant="text"
                 aria-label={t('defectMgmt.close')}
                 onClick={() => setSelected(null)}
-                className="text-gray-500 hover:text-gray-800"
-              >
-                <X size={20} />
-              </button>
+              />
             </header>
 
             <div className="flex-1 overflow-auto p-5 space-y-4 text-sm">
@@ -416,22 +427,24 @@ const DefectManagementPage: React.FC = () => {
                         {STATUS_LABELS[s]}
                       </button>
                     ))}
-                    <button
+                    <ActionButton
+                      action="cancel"
+                      size="compact"
                       onClick={() => setEditingStatus(null)}
-                      className="text-xs px-2 py-1 rounded border border-gray-300"
                     >
                       {t('defectMgmt.cancel')}
-                    </button>
+                    </ActionButton>
                   </div>
                 ) : (
                   <div className="flex gap-2">
-                    <button
+                    <ActionButton
+                      action="save"
+                      size="compact"
                       onClick={() => setEditingStatus({ id: selected.id, status: selected.status })}
-                      className="text-xs px-3 py-1.5 rounded bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-1"
-                      data-testid="defect-edit-status"
+                      testId="defect-edit-status"
                     >
-                      <Save size={12} /> {t('defectMgmt.changeStatus')}
-                    </button>
+                      {t('defectMgmt.changeStatus')}
+                    </ActionButton>
                     <button
                       onClick={() => goDetail(selected)}
                       className="text-xs px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50"

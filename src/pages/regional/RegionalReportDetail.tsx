@@ -1,7 +1,12 @@
 
 import { useState } from 'react'
-import { Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle, Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, RefreshCw, ShieldAlert, ArrowUp, ArrowDown, ZoomIn, Ruler, SlidersHorizontal, Send } from 'lucide-react'
+import { Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle, Monitor, Lock, FileSignature, ArrowRight, X, RefreshCw, ShieldAlert, ArrowUp, ArrowDown, ZoomIn, Ruler, SlidersHorizontal, Send } from 'lucide-react'
+import { Select } from 'antd'
+import type { TableColumnsType } from 'antd'
 import { styles, COLORS, Consultation, Report, RemoteDiagnosis, CoSignRecord, Institution, getStatusColor } from './RegionalReportServiceWire'
+import type { ReportVersion } from './RegionalReportServiceWire'
+import { DataTable } from '../../components/common/DataTable'
+import { ActionButton } from '../../components/common/ActionButton'
 import { t } from '../../i18n/appI18n'
 
 interface DetailProps {
@@ -71,7 +76,7 @@ export const ConsultationDetail: React.FC<DetailProps> = ({
             <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>{t('regionalReport.fillConsultationOpinion')}</h4>
             <textarea style={{ ...styles.textarea, width: '100%', minHeight: '150px' }} placeholder={t('regionalReport.consultationOpinionPlaceholder')} value={opinionText} onChange={e => onOpinionTextChange(e.target.value)} />
             <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
-              <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => onOpenModal('opinion')}><Check size={14} /> {t('regionalReport.submitOpinion')}</button>
+              <ActionButton action="submit" onClick={() => onOpenModal('opinion')}>{t('regionalReport.submitOpinion')}</ActionButton>
             </div>
           </div>
         )}
@@ -232,7 +237,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
               <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.applyDoctorSignature')}</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '11px' }}>{t('regionalReport.pendingSignature')}</span></div></div>
               <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.reviewExpertSignature')}</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.pending }} /><span style={{ fontSize: '11px' }}>{t('regionalReport.pendingSignature')}</span></div></div>
             </div>
-            <button style={{ ...styles.button, width: '100%', justifyContent: 'center', ...styles.buttonPrimary }} onClick={onSubmitRemoteReport}><PenTool size={14} /> {t('regionalReport.submitReport')}</button>
+            <ActionButton action="submit" block onClick={onSubmitRemoteReport}>{t('regionalReport.submitReport')}</ActionButton>
           </div>
         </div>
       </div>
@@ -249,6 +254,18 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
     )
   }
   const cs = selectedCoSign
+  const versionColumns: TableColumnsType<ReportVersion> = [
+    {
+      title: t('regionalReport.versionNo'), dataIndex: 'version', key: 'version', width: 120,
+      render: (v: string, _row, idx) => (
+        <span style={{ ...styles.badge, backgroundColor: idx === cs.versions.length - 1 ? COLORS.primary : '#e5e7eb', color: idx === cs.versions.length - 1 ? 'white' : COLORS.textMuted }}>{v}</span>
+      ),
+    },
+    { title: t('regionalReport.modifyTime'), dataIndex: 'modifyTime', key: 'modifyTime' },
+    { title: t('regionalReport.modifyInstitution'), dataIndex: 'modifyInstitution', key: 'modifyInstitution' },
+    { title: t('regionalReport.modifyReason'), dataIndex: 'modifyReason', key: 'modifyReason' },
+    { title: t('regionalReport.modifier'), dataIndex: 'modifier', key: 'modifier' },
+  ]
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}>
@@ -291,10 +308,13 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>{t('regionalReport.versionManagement')}</h4>
           <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
-            <table style={styles.table}>
-              <thead><tr><th style={{ ...styles.th, fontSize: '12px' }}>{t('regionalReport.versionNo')}</th><th style={{ ...styles.th, fontSize: '12px' }}>{t('regionalReport.modifyTime')}</th><th style={{ ...styles.th, fontSize: '12px' }}>{t('regionalReport.modifyInstitution')}</th><th style={{ ...styles.th, fontSize: '12px' }}>{t('regionalReport.modifyReason')}</th><th style={{ ...styles.th, fontSize: '12px' }}>{t('regionalReport.modifier')}</th></tr></thead>
-              <tbody>{cs.versions.map((ver, idx) => (<tr key={idx}><td style={{ ...styles.td, fontSize: '12px' }}><span style={{ ...styles.badge, backgroundColor: idx === cs.versions.length - 1 ? COLORS.primary : '#e5e7eb', color: idx === cs.versions.length - 1 ? 'white' : COLORS.textMuted }}>{ver.version}</span></td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyTime}</td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyInstitution}</td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyReason}</td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifier}</td></tr>))}</tbody>
-            </table>
+            <DataTable<ReportVersion>
+              rowKey={(row) => row.version}
+              dataSource={cs.versions}
+              columns={versionColumns}
+              showPagination={false}
+              scroll={{ x: 'max-content' }}
+            />
           </div>
         </div>
       </div>
@@ -339,7 +359,7 @@ interface RightPanelProps {
 export const RightPanel: React.FC<RightPanelProps> = ({ institutions, onRefreshStats }) => {
   return (
     <div style={styles.rightPanel}>
-      <div style={styles.panelHeader}><span>{t('regionalReport.regionalStats')}</span><button style={{ ...styles.button, ...styles.buttonGhost, padding: '4px' }} onClick={onRefreshStats}><RefreshCw size={14} /></button></div>
+      <div style={styles.panelHeader}><span>{t('regionalReport.regionalStats')}</span><ActionButton action="refresh" size="compact" icon={<RefreshCw size={14} />} onClick={onRefreshStats} /></div>
       <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '10px', color: COLORS.textMuted }}>{t('regionalReport.institutionReports')}</div>
         {institutions.map((inst) => {
@@ -425,10 +445,10 @@ export const ModalContent: React.FC<ModalContentProps> = ({
             <div style={styles.modalBody}>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.patientName')} *</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReport.patientNamePlaceholder')} value={consultationForm.patientName} onChange={e => setForm({ patientName: e.target.value })} /></div>
               <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.gender')}</label><select style={{ ...styles.input, width: '100%' }} value={consultationForm.gender} onChange={e => setForm({ gender: e.target.value })}><option value="男">{t('regionalReport.male')}</option><option value="女">{t('regionalReport.female')}</option></select></div>
+                <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.gender')}</label><Select style={{ width: '100%' }} value={consultationForm.gender} onChange={v => setForm({ gender: v })} options={[{ value: '男', label: t('regionalReport.male') }, { value: '女', label: t('regionalReport.female') }]} /></div>
                 <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.age')}</label><input type="number" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReport.age')} value={consultationForm.age} onChange={e => setForm({ age: e.target.value })} /></div>
               </div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.applyInstitution')} *</label><select style={{ ...styles.input, width: '100%' }} value={consultationForm.institution} onChange={e => setForm({ institution: e.target.value })}><option value="">{t('regionalReport.selectInstitution')}</option>{institutions.map(inst => <option key={inst.id} value={inst.name}>{inst.name}</option>)}</select></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.applyInstitution')} *</label><Select style={{ width: '100%' }} value={consultationForm.institution || undefined} placeholder={t('regionalReport.selectInstitution')} onChange={v => setForm({ institution: v })} options={institutions.map(inst => ({ value: inst.name, label: inst.name }))} /></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }} onClick={onSubmitConsultation}><Send size={13} />{t('regionalReport.submit')}</button></div>
           </>
@@ -481,7 +501,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({
             <div style={styles.modalHeader}><span>{t('regionalReport.addCoSign')}</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
             <div style={styles.modalBody}>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.reportNumber')} *</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReport.reportNumberPlaceholder')} /></div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.examType')}</label><select style={{ ...styles.input, width: '100%' }}><option value="">{t('regionalReport.pleaseSelect')}</option><option value="CT">CT</option><option value="MRI">MRI</option><option value="DR">DR</option><option value="超声">{t('regionalReport.ultrasound')}</option></select></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.examType')}</label><Select style={{ width: '100%' }} placeholder={t('regionalReport.pleaseSelect')} options={[{ value: 'CT', label: 'CT' }, { value: 'MRI', label: 'MRI' }, { value: 'DR', label: 'DR' }, { value: '超声', label: t('regionalReport.ultrasound') }]} /></div>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.participatingInstitutions')}</label><div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>{institutions.map(inst => <label key={inst.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" /> {inst.name}</label>)}</div></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => { onClose(); onToast(t('regionalReport.coSignCreated'), true) }}>{t('regionalReport.create')}</button></div>
@@ -495,7 +515,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({
                 <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', textAlign: 'center' }}><div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.danger }}>5</div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>{t('regionalReport.pending')}</div></div>
                 <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', textAlign: 'center' }}><div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.success }}>3</div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>{t('regionalReport.closed')}</div></div>
               </div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.filterByTimeRange')}</label><select style={{ ...styles.input, width: '100%' }}><option value="today">{t('regionalReport.today')}</option><option value="week">{t('regionalReport.week')}</option><option value="month">{t('regionalReport.month')}</option><option value="year">{t('regionalReport.thisYear')}</option></select></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.filterByTimeRange')}</label><Select style={{ width: '100%' }} defaultValue="today" options={[{ value: 'today', label: t('regionalReport.today') }, { value: 'week', label: t('regionalReport.week') }, { value: 'month', label: t('regionalReport.month') }, { value: 'year', label: t('regionalReport.thisYear') }]} /></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.close')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => { onClose(); onToast(t('regionalReport.reportExported'), true) }}>{t('regionalReport.exportReport')}</button></div>
           </>

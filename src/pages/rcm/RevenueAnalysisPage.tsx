@@ -203,8 +203,8 @@ export default function RevenueAnalysisPage() {
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 10,
             background: source === 'api' ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)',
-            color: source === 'api' ? '#4ade80' : '#fbbf24',
-            border: `1px solid ${source === 'api' ? '#22c55e' : '#f59e0b'}`,
+            color: source === 'api' ? 'var(--color-success-400, #4ade80)' : 'var(--color-warning-400, #fbbf24)',
+            border: `1px solid ${source === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)'}`,
             fontWeight: 500,
           }}>
             {source === 'api' ? '数据源: financeApi 实时' : '演示数据(接口不可用)'}
@@ -225,8 +225,8 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: '#8b949e' }}>月收入(万元)</span>
             <DollarSign size={16} color="#22c55e" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#22c55e', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momRevenue >= 0 ? '#22c55e' : '#ef4444', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momRevenue >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
             {momRevenue >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momRevenue >= 0 ? '+' : ''}{momRevenue.toFixed(1)}% 环比
           </div>
         </div>
@@ -235,8 +235,8 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: '#8b949e' }}>月利润(万元)</span>
             <Activity size={16} color="#f59e0b" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#f59e0b', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momProfit >= 0 ? '#22c55e' : '#ef4444', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momProfit >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
             {momProfit >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momProfit >= 0 ? '+' : ''}{momProfit.toFixed(1)}% 环比
           </div>
         </div>
@@ -245,8 +245,8 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: '#8b949e' }}>月检查量</span>
             <Users size={16} color="#3b82f6" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#3b82f6', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momExams >= 0 ? '#22c55e' : '#ef4444', marginTop: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momExams >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
             {momExams >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momExams >= 0 ? '+' : ''}{momExams.toFixed(1)}% 环比
           </div>
         </div>
@@ -255,7 +255,7 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: '#8b949e' }}>次均收入(元)</span>
             <TrendingUp size={16} color="#8b5cf6" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#8b5cf6', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
+          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-modality-mr, #8b5cf6)', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
           <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>人均创收能力</div>
         </div>
       </div>

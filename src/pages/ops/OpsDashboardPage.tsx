@@ -11,6 +11,7 @@ import {
 import { getOpsAnalyticsService } from '../../services/ops'
 import { Card } from 'antd'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { t } from '../../i18n/appI18n'
 
 const svc = getOpsAnalyticsService()
@@ -58,6 +59,8 @@ export default function OpsDashboardPage() {
   // [G005 Wave4A P1] 数据源: statsApi 真实优先, 失败回退 mock 服务 (演示徽标); P50 从真实 workload avgTime 派生
   const [dataMode, setDataMode] = useState<'real' | 'demo'>('demo')
   const [p50, setP50] = useState(32)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const median = (nums: number[]) => {
     if (!nums.length) return undefined
@@ -67,6 +70,8 @@ export default function OpsDashboardPage() {
   }
 
   const load = async () => {
+    setLoading(true)
+    setLoadError(null)
     try {
       const { statsApi } = await import('../../services/api/statsApi')
       const [trendRes, modRes, workloadRes] = await Promise.all([
@@ -106,7 +111,8 @@ export default function OpsDashboardPage() {
       setDataMode('real')
       // 高峰时段无真实端点, 保留服务端模拟数据 (面板标题已标注)
       svc.getPeakHourAnalysis().then(d => setPeakData(d.hourlyData))
-    } catch {
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('w2d.loadFailed'))
       // 回退 mock 服务
       svc.getWorkloadTrend(days).then(setWorkload)
       svc.getModalityUtilization().then(d => setModUtil(d))
@@ -114,6 +120,8 @@ export default function OpsDashboardPage() {
       svc.getPeakHourAnalysis().then(d => setPeakData(d.hourlyData))
       setDataMode('demo')
       setP50(32)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -143,11 +151,17 @@ export default function OpsDashboardPage() {
       </div>
 
       <div style={s.content}>
+        {loadError && (
+          <div style={{ padding: '8px 12px', marginBottom: 12, borderRadius: 6, background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning-500, #f59e0b)', fontSize: 12 }}>
+            {t('w2d.loadFailed')}: {loadError}
+          </div>
+        )}
+        <StateView loading={loading} skeletonRows={6}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <KpiCard title={t('opsDashboard.kpiTotalExams')} value={totalExams} icon={TrendingUp} trend="up" color="#3b82f6" />
-          <KpiCard title={t('opsDashboard.kpiAvgUtil')} value={avgUtil} unit="%" icon={Monitor} trend="up" color="#22c55e" />
-          <KpiCard title={t('opsDashboard.kpiTurnaround')} value={p50} unit="min" icon={Clock} color="#f59e0b" />
-          <KpiCard title={t('opsDashboard.kpiActiveTechs')} value={operators.length} icon={Users} color="#8b5cf6" />
+          <KpiCard title={t('opsDashboard.kpiTotalExams')} value={totalExams} icon={TrendingUp} trend="up" color="var(--color-primary-500, #3b82f6)" />
+          <KpiCard title={t('opsDashboard.kpiAvgUtil')} value={avgUtil} unit="%" icon={Monitor} trend="up" color="var(--color-success-500, #22c55e)" />
+          <KpiCard title={t('opsDashboard.kpiTurnaround')} value={p50} unit="min" icon={Clock} color="var(--color-warning-500, #f59e0b)" />
+          <KpiCard title={t('opsDashboard.kpiActiveTechs')} value={operators.length} icon={Users} color="var(--color-modality-mr, #8b5cf6)" />
         </div>
 
         <div style={s.grid2}>
@@ -228,6 +242,7 @@ export default function OpsDashboardPage() {
             </div>
           </Card>
         </div>
+        </StateView>
       </div>
     </div>
   )

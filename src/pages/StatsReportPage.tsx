@@ -3,6 +3,8 @@
 // 功能：多维度统计表格（按设备/按医生/按日期），报表导出功能
 // [W3-B] 已接入 statsApi / biApi 真实统计 (loading/error + 演示数据回退)
 import { useState, useEffect, useCallback } from 'react'
+import { Select } from 'antd'
+import { ActionButton } from '../components/common/ActionButton'
 import { statsApi } from '../services/api/statsApi'
 import { analyticsStatsApi, type ForecastPointDto, type UtilizationDto, type AccuracyDto } from '../services/api/analyticsApi'
 import { biApi } from '../services/api/biApi'
@@ -1095,15 +1097,12 @@ export default function StatsReportPage() {
           <div style={styles.headerSubtitle}>{t('statsReport.pageSubtitle')}</div>
         </div>
         <div style={styles.headerActions}>
-          <button 
-            style={styles.headerBtn}
+          <ActionButton
+            action="export"
             onClick={() => setShowExportModal(true)}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.25)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'}
           >
-            <Download size={16} />
             {t('statsReport.exportReport')}
-          </button>
+          </ActionButton>
         </div>
       </div>
 
@@ -1123,16 +1122,16 @@ export default function StatsReportPage() {
             {apiError}
           </span>
         )}
-        <button
-          style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 12px', fontSize: 12 }}
+        <ActionButton
+          action="refresh"
+          size="compact"
           onClick={() => {
             const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90
             void loadStats(days)
           }}
         >
-          <RefreshCw size={13} />
           {t('statsReport.refresh')}
-        </button>
+        </ActionButton>
       </div>
 
       {/* 统计卡片 */}
@@ -1363,40 +1362,44 @@ export default function StatsReportPage() {
             </div>
             
             {activeTab === 'device' && (
-              <select 
-                style={styles.selectInput}
+              <Select
+                size="small"
+                style={{ minWidth: 140 }}
                 value={modalityFilter}
-                onChange={(e) => setModalityFilter(e.target.value)}
-              >
-                <option value="all">{t('statsReport.allModalities')}</option>
-                <option value="CT">CT</option>
-                <option value="MR">MR</option>
-                <option value="DR">DR</option>
-                <option value="乳腺钼靶">乳腺钼靶</option>
-                <option value="DSA">DSA</option>
-                <option value="CR">CR</option>
-              </select>
+                onChange={(v) => setModalityFilter(v)}
+                options={[
+                  { value: 'all', label: t('statsReport.allModalities') },
+                  { value: 'CT', label: 'CT' },
+                  { value: 'MR', label: 'MR' },
+                  { value: 'DR', label: 'DR' },
+                  { value: '乳腺钼靶', label: '乳腺钼靶' },
+                  { value: 'DSA', label: 'DSA' },
+                  { value: 'CR', label: 'CR' },
+                ]}
+              />
             )}
             
             {activeTab === 'date' && (
-              <select 
-                style={styles.selectInput}
+              <Select
+                size="small"
+                style={{ minWidth: 140 }}
                 value={dateRange}
-                onChange={(e) => setDateRange(e.target.value)}
-              >
-                <option value="7d">{t('statsReport.last7d')}</option>
-                <option value="30d">{t('statsReport.last30d')}</option>
-                <option value="90d">{t('statsReport.last90d')}</option>
-              </select>
+                onChange={(v) => setDateRange(v)}
+                options={[
+                  { value: '7d', label: t('statsReport.last7d') },
+                  { value: '30d', label: t('statsReport.last30d') },
+                  { value: '90d', label: t('statsReport.last90d') },
+                ]}
+              />
             )}
             
-            <button 
-              style={{ ...styles.button, ...styles.buttonOutline }}
+            <ActionButton
+              action="refresh"
+              size="compact"
               onClick={() => { setSearchText(''); setModalityFilter('all'); setDateRange('7d'); }}
             >
-              <RefreshCw size={14} />
               {t('statsReport.reset')}
-            </button>
+            </ActionButton>
           </div>
           
           <div style={styles.toolbarRight}>
@@ -1406,22 +1409,22 @@ export default function StatsReportPage() {
             </span>
 
             {/* [G005 Wave1B] 真实导出: GET /stats/export.csv (后端生成, 含 BOM 表头) */}
-            <button
-              style={{ ...styles.button, ...styles.buttonOutline }}
+            <ActionButton
+              action="export"
+              size="compact"
+              loading={exportingCsv}
               onClick={() => void handleRealExportCsv()}
-              disabled={exportingCsv}
             >
-              <Download size={14} />
               {exportingCsv ? t('statsReport.exportingCsv') : t('statsReport.exportCsv')}
-            </button>
+            </ActionButton>
 
-            <button 
-              style={{ ...styles.button, ...styles.buttonSuccess }}
+            <ActionButton
+              action="export"
+              size="compact"
               onClick={() => setShowExportModal(true)}
             >
-              <Download size={14} />
               {t('statsReport.export')}
-            </button>
+            </ActionButton>
           </div>
           {csvNote && (
             <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1445,8 +1448,8 @@ export default function StatsReportPage() {
               )}
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button 
-                style={{ ...styles.button, ...styles.buttonOutline }}
+              <ActionButton
+                action="print"
                 onClick={() => {
                   const printWindow = window.open('', '_blank')
                   if (printWindow) {
@@ -1485,9 +1488,8 @@ export default function StatsReportPage() {
                   }
                 }}
               >
-                <Printer size={14} />
                 {t('statsReport.print')}
-              </button>
+              </ActionButton>
             </div>
           </div>
           
@@ -1621,9 +1623,11 @@ export default function StatsReportPage() {
                 <Download size={18} />
                 {t('statsReport.exportReport')}
               </div>
-              <button style={styles.modalClose} onClick={() => setShowExportModal(false)}>
-                <X size={18} />
-              </button>
+              <ActionButton
+                action="cancel"
+                variant="text"
+                onClick={() => setShowExportModal(false)}
+              />
             </div>
             <div style={styles.modalBody}>
               <div style={{ marginBottom: '20px' }}>
@@ -1706,19 +1710,18 @@ export default function StatsReportPage() {
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
-                <button 
-                  style={{ ...styles.button, ...styles.buttonOutline }}
+                <ActionButton
+                  action="cancel"
                   onClick={() => setShowExportModal(false)}
                 >
                   {t('statsReport.cancel')}
-                </button>
-                <button 
-                  style={{ ...styles.button, ...styles.buttonPrimary }}
+                </ActionButton>
+                <ActionButton
+                  action="export"
                   onClick={handleExport}
                 >
-                  <Download size={14} />
                   {t('statsReport.confirmExport')}
-                </button>
+                </ActionButton>
               </div>
             </div>
           </div>

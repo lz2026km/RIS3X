@@ -1,7 +1,9 @@
 // @ts-nocheck
-import { Card } from 'antd'
+import { Card, Select } from 'antd'
 import React, { useState, useMemo, useEffect } from 'react'
-import { Search, X, Eye, ChevronLeft, ChevronRight, Cpu, AlertCircle, CheckCircle, Clock, RefreshCw, Activity } from 'lucide-react'
+import { Search, X, Eye, Cpu, AlertCircle, CheckCircle, Clock, Activity } from 'lucide-react'
+import { DataTable } from '../components/common/DataTable'
+import { ActionButton } from '../components/common/ActionButton'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import { t } from '../i18n/appI18n'
 
@@ -213,6 +215,43 @@ export default function AIMedicalDevicePage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   }
 
+  const deviceColumns = [
+    { title: t('aiMedicalDevice.colDeviceCode'), dataIndex: 'code', key: 'code', render: (v) => <span style={{ fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{v}</span> },
+    { title: t('aiMedicalDevice.colDeviceName'), dataIndex: 'name', key: 'name', render: (v) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('aiMedicalDevice.colModality'), dataIndex: 'modality', key: 'modality', render: (v) => <span style={{ background: modalityColor(v), color: '#fff', padding: '2px 8px', borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{v}</span> },
+    { title: t('aiMedicalDevice.colManufacturer'), dataIndex: 'manufacturer', key: 'manufacturer', render: (v) => v || '—' },
+    { title: t('aiMedicalDevice.colLocation'), dataIndex: 'location', key: 'location', render: (v) => v || '—' },
+    { title: t('aiMedicalDevice.colStatus'), dataIndex: 'state', key: 'state', render: (v) => <DeviceStateBadge state={v} /> },
+    { title: t('aiMedicalDevice.colTodayExams'), dataIndex: 'todayExams', key: 'todayExams', align: 'right', render: (v) => v ?? 0 },
+    { title: t('aiMedicalDevice.colTodayUsage'), dataIndex: 'todayUsageMin', key: 'todayUsageMin', align: 'right', render: (v) => v ?? 0 },
+    { title: t('aiMedicalDevice.colRegisteredAt'), dataIndex: 'createdAt', key: 'createdAt', render: (v) => formatIsoDate(v) },
+    {
+      title: t('aiMedicalDevice.colAction'), key: 'action', align: 'center',
+      render: (_, device) => (
+        <button onClick={() => setSelectedRealDevice(device)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', padding: '4px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}>
+          <Eye size={14} /> {t('aiMedicalDevice.detail')}
+        </button>
+      ),
+    },
+  ]
+
+  const certColumns = [
+    { title: t('aiMedicalDevice.colCertNo'), dataIndex: 'regNumber', key: 'regNumber', render: (v) => <span style={{ fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{v}</span> },
+    { title: t('aiMedicalDevice.colDeviceName'), dataIndex: 'deviceName', key: 'deviceName' },
+    { title: t('aiMedicalDevice.colModel'), dataIndex: 'model', key: 'model' },
+    { title: t('aiMedicalDevice.colManufacturer'), dataIndex: 'manufacturer', key: 'manufacturer', ellipsis: true },
+    { title: t('aiMedicalDevice.colExpiry'), dataIndex: 'expiryDate', key: 'expiryDate', render: (v) => <span style={{ color: isExpiringSoon(v) ? '#d97706' : undefined, fontWeight: isExpiringSoon(v) ? 600 : 400 }}>{formatDate(v)}</span> },
+    { title: t('aiMedicalDevice.colStatus'), dataIndex: 'status', key: 'status', render: (v) => <StatusBadge status={v} /> },
+    {
+      title: t('aiMedicalDevice.colAction'), key: 'action', align: 'center',
+      render: (_, device) => (
+        <button onClick={() => setSelectedDevice(device)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', padding: '4px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}>
+          <Eye size={14} /> {t('aiMedicalDevice.detail')}
+        </button>
+      ),
+    },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-info-bg)' }}>
       {/* 蓝色渐变卡片头部 */}
@@ -237,15 +276,9 @@ export default function AIMedicalDevicePage() {
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             {activeTab === 'devices' && (
-              <button onClick={() => void loadDevices()} disabled={loading}
-                style={{
-                  padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.4)',
-                  background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 13, fontWeight: 600,
-                  cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                }}>
-                <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+              <ActionButton action="refresh" loading={loading} onClick={() => void loadDevices()}>
                 {t('aiMedicalDevice.syncDevices')}
-              </button>
+              </ActionButton>
             )}
           </div>
         </div>
@@ -298,79 +331,31 @@ export default function AIMedicalDevicePage() {
                   onClick={() => { setDeviceSearch(''); setDevicePage(1) }} />
               )}
             </div>
-            <select
+            <Select
               value={deviceStateFilter}
-              onChange={e => { setDeviceStateFilter(e.target.value); setDevicePage(1) }}
-              style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid #dbeafe', fontSize: 13, outline: 'none', cursor: 'pointer' }}
-            >
-              <option value="all">{t('aiMedicalDevice.allStatus')}</option>
-              {Object.entries(DEVICE_STATE_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v} ({devices.filter(d => d.state === k).length})</option>
-              ))}
-            </select>
+              onChange={v => { setDeviceStateFilter(v); setDevicePage(1) }}
+              style={{ minWidth: 160 }}
+              options={[
+                { value: 'all', label: t('aiMedicalDevice.allStatus') },
+                ...Object.entries(DEVICE_STATE_LABELS).map(([k, v]) => ({
+                  value: k,
+                  label: `${v} (${devices.filter(d => d.state === k).length})`,
+                })),
+              ]}
+            />
           </div>
 
           {/* 设备表格 */}
           <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: 'var(--color-info-bg)', borderBottom: '2px solid #dbeafe' }}>
-                    {[t('aiMedicalDevice.colDeviceCode'), t('aiMedicalDevice.colDeviceName'), t('aiMedicalDevice.colModality'), t('aiMedicalDevice.colManufacturer'), t('aiMedicalDevice.colLocation'), t('aiMedicalDevice.colStatus'), t('aiMedicalDevice.colTodayExams'), t('aiMedicalDevice.colTodayUsage'), t('aiMedicalDevice.colRegisteredAt'), t('aiMedicalDevice.colAction')].map(h => (
-                      <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredRealDevices.slice((devicePage - 1) * pageSize, devicePage * pageSize).map((device, idx) => (
-                    <tr key={device.id || device.code} style={{ borderBottom: idx < filteredRealDevices.length - 1 ? '1px solid #f0f9ff' : 'none', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-info-bg)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      <td style={{ padding: '12px 16px', fontSize: 13, fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{device.code}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>{device.name}</td>
-                      <td style={{ padding: '12px 16px' }}><span style={{ background: modalityColor(device.modality), color: '#fff', padding: '2px 8px', borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{device.modality}</span></td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{device.manufacturer || '—'}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{device.location || '—'}</td>
-                      <td style={{ padding: '12px 16px' }}><DeviceStateBadge state={device.state} /></td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)', textAlign: 'right' }}>{device.todayExams ?? 0}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)', textAlign: 'right' }}>{device.todayUsageMin ?? 0}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--text-secondary)' }}>{formatIsoDate(device.createdAt)}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                        <button onClick={() => setSelectedRealDevice(device)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', padding: '4px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}>
-                          <Eye size={14} /> {t('aiMedicalDevice.detail')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {loading && <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('aiMedicalDevice.syncing')}</div>}
-            {!loading && filteredRealDevices.length === 0 && (
-              <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>
-                {t('aiMedicalDevice.noDeviceData')}{error ? t('aiMedicalDevice.apiErrorSuffix') : ''}
-              </div>
-            )}
-
-            {/* 分页 */}
-            {filteredRealDevices.length > 0 && (
-              <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #dbeafe', background: 'var(--color-info-bg)' }}>
-                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  {t('aiMedicalDevice.showPrefix')} {(devicePage - 1) * pageSize + 1} - {Math.min(devicePage * pageSize, filteredRealDevices.length)} {t('aiMedicalDevice.recordsConnector')} {filteredRealDevices.length} {t('aiMedicalDevice.devicesUnit')}
-                </span>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <button onClick={() => setDevicePage(p => Math.max(1, p - 1))} disabled={devicePage === 1}
-                    style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: devicePage === 1 ? 'not-allowed' : 'pointer', opacity: devicePage === 1 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
-                    <ChevronLeft size={14} /> {t('aiMedicalDevice.prevPage')}
-                  </button>
-                  <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{devicePage} / {Math.max(1, Math.ceil(filteredRealDevices.length / pageSize))}</span>
-                  <button onClick={() => setDevicePage(p => Math.min(Math.ceil(filteredRealDevices.length / pageSize), p + 1))} disabled={devicePage >= Math.ceil(filteredRealDevices.length / pageSize)}
-                    style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: devicePage >= Math.ceil(filteredRealDevices.length / pageSize) ? 'not-allowed' : 'pointer', opacity: devicePage >= Math.ceil(filteredRealDevices.length / pageSize) ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
-                    {t('aiMedicalDevice.nextPage')} <ChevronRight size={14} />
-                  </button>
-                </div>
-              </div>
-            )}
+            <DataTable
+              rowKey={(r) => r.id || r.code}
+              columns={deviceColumns}
+              dataSource={filteredRealDevices}
+              loading={loading}
+              pageSize={pageSize}
+              emptyText={`${t('aiMedicalDevice.noDeviceData')}${error ? t('aiMedicalDevice.apiErrorSuffix') : ''}`}
+              pagination={{ current: devicePage, pageSize, onChange: (p) => setDevicePage(p) }}
+            />
           </Card>
         </div>
       )}
@@ -432,60 +417,13 @@ export default function AIMedicalDevicePage() {
       {/* 表格区域 */}
       <div style={{ padding: '20px 32px' }}>
         <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: 'var(--color-info-bg)', borderBottom: '2px solid #dbeafe' }}>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('aiMedicalDevice.colCertNo')}</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('aiMedicalDevice.colDeviceName')}</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('aiMedicalDevice.colModel')}</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('aiMedicalDevice.colManufacturer')}</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('aiMedicalDevice.colExpiry')}</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('aiMedicalDevice.colStatus')}</th>
-                <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('aiMedicalDevice.colAction')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedDevices.map((device, idx) => (
-                <tr key={device.id} style={{ borderBottom: idx < paginatedDevices.length - 1 ? '1px solid #f0f9ff' : 'none', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--color-info-bg)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '12px 16px', fontSize: 13, fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{device.regNumber}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)' }}>{device.deviceName}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{device.model}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{device.manufacturer}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: isExpiringSoon(device.expiryDate) ? '#d97706' : 'var(--text-primary)', fontWeight: isExpiringSoon(device.expiryDate) ? 600 : 400 }}>
-                    {formatDate(device.expiryDate)}
-                  </td>
-                  <td style={{ padding: '12px 16px' }}><StatusBadge status={device.status} /></td>
-                  <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                    <button onClick={() => setSelectedDevice(device)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', padding: '4px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-info-bg)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      <Eye size={14} /> {t('aiMedicalDevice.detail')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* 分页 */}
-          <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #dbeafe', background: 'var(--color-info-bg)' }}>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              {t('aiMedicalDevice.showPrefix')} {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredDevices.length)} {t('aiMedicalDevice.recordsConnector')} {filteredDevices.length} {t('aiMedicalDevice.entriesUnit')}
-            </span>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
-                <ChevronLeft size={14} /> {t('aiMedicalDevice.prevPage')}
-              </button>
-              <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{currentPage} / {totalPages}</span>
-              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
-                {t('aiMedicalDevice.nextPage')} <ChevronRight size={14} />
-              </button>
-            </div>
-          </div>
+          <DataTable
+            rowKey="id"
+            columns={certColumns}
+            dataSource={filteredDevices}
+            pageSize={pageSize}
+            pagination={{ current: currentPage, pageSize, onChange: (p) => setCurrentPage(p) }}
+          />
         </Card>
       </div>
 
@@ -501,9 +439,7 @@ export default function AIMedicalDevicePage() {
                 <Cpu size={20} color="#fff" />
                 <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('aiMedicalDevice.certDetail')}</span>
               </div>
-              <button onClick={() => setSelectedDevice(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <X size={16} color="#fff" />
-              </button>
+              <ActionButton action="cancel" variant="text" style={{ color: '#fff' }} onClick={() => setSelectedDevice(null)} />
             </div>
             {/* 弹窗内容 */}
             <div style={{ padding: 24 }}>
@@ -589,9 +525,7 @@ export default function AIMedicalDevicePage() {
                 <Cpu size={20} color="#fff" />
                 <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('aiMedicalDevice.deviceDetail')}</span>
               </div>
-              <button onClick={() => setSelectedRealDevice(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <X size={16} color="#fff" />
-              </button>
+              <ActionButton action="cancel" variant="text" style={{ color: '#fff' }} onClick={() => setSelectedRealDevice(null)} />
             </div>
             <div style={{ padding: 24 }}>
               <div style={{ marginBottom: 16 }}>

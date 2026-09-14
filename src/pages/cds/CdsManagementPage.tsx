@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { Sliders, ToggleLeft, ToggleRight, Plus, Edit3, Search, Eye, ChevronDown, ChevronRight, Shield, Pill, FlaskConical, Route, BrainCircuit, X, Save } from 'lucide-react';
 import type { CdsRuleSummary, CdsAuditEntry } from "../../services/cds";
 import { cdsApi } from "../../services/api/cdsApi";
+import { StateView } from "../../components/common/StateView";
 import { t } from "../../i18n/appI18n";
 
 type RuleTab = "appropriateness" | "pathway" | "contrast" | "drug";
@@ -32,7 +33,8 @@ const TYPE_LABELS: Record<CdsRuleSummary["type"], string> = {
 export default function CdsManagementPage() {
   const [rules, setRules] = useState<CdsRuleSummary[]>([]);
   const [audit, setAudit] = useState<CdsAuditEntry[]>([]);
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<RuleTab>("appropriateness");
   const [searchText, setSearchText] = useState("");
   const [showInactive, setShowInactive] = useState(false);
@@ -62,13 +64,19 @@ export default function CdsManagementPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const [rulesRes, mgmtRes] = await Promise.all([
-      cdsApi.listCdsRules(),
-      cdsApi.getCdsManagement(),
-    ]);
-    if (rulesRes.success) setRules(rulesRes.data);
-    if (mgmtRes.success) setAudit(mgmtRes.data.audit);
-    setLoading(false);
+    setError(null);
+    try {
+      const [rulesRes, mgmtRes] = await Promise.all([
+        cdsApi.listCdsRules(),
+        cdsApi.getCdsManagement(),
+      ]);
+      if (rulesRes.success) setRules(rulesRes.data);
+      if (mgmtRes.success) setAudit(mgmtRes.data.audit);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("w2d.loadFailed"));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchData() }, [fetchData]);
@@ -367,6 +375,14 @@ export default function CdsManagementPage() {
           </span>
         </div>
 
+        <StateView
+          loading={loading}
+          error={error}
+          empty={!loading && !error && filteredRules.length === 0}
+          emptyDescription={t("w2d.empty")}
+          onRetry={() => void fetchData()}
+          skeletonRows={6}
+        >
         <div
           style={{
             background: "#161b22",
@@ -445,13 +461,13 @@ export default function CdsManagementPage() {
                 >
                   {rule.isActive ? (
                     <>
-                      <ToggleRight size={12} style={{ color: "#22c55e" }} />
-                      <span style={{ color: "#22c55e" }}>{t("cdsMgmt.enabled")}</span>
+                      <ToggleRight size={12} style={{ color: "var(--color-success-500, #22c55e)" }} />
+                      <span style={{ color: "var(--color-success-500, #22c55e)" }}>{t("cdsMgmt.enabled")}</span>
                     </>
                   ) : (
                     <>
-                      <ToggleLeft size={12} style={{ color: "#ef4444" }} />
-                      <span style={{ color: "#ef4444" }}>{t("cdsMgmt.disabled")}</span>
+                      <ToggleLeft size={12} style={{ color: "var(--color-error-500, #ef4444)" }} />
+                      <span style={{ color: "var(--color-error-500, #ef4444)" }}>{t("cdsMgmt.disabled")}</span>
                     </>
                   )}
                 </span>
@@ -497,7 +513,7 @@ export default function CdsManagementPage() {
                       borderRadius: 4,
                       border: "1px solid #30363d",
                       background: "transparent",
-                      color: rule.isActive ? "#ef4444" : "#22c55e",
+                      color: rule.isActive ? "var(--color-error-500, #ef4444)" : "var(--color-success-500, #22c55e)",
                       cursor: "pointer",
                       fontSize: 12,
                       display: "flex",
@@ -517,6 +533,7 @@ export default function CdsManagementPage() {
             </div>
           ))}
         </div>
+        </StateView>
       </div>
 
       {showNewRuleModal && (
@@ -839,7 +856,7 @@ export default function CdsManagementPage() {
             top: 24,
             left: "50%",
             transform: "translateX(-50%)",
-            background: toast.type === "success" ? "#059669" : "#dc2626",
+            background: toast.type === "success" ? "var(--color-success-600, #16a34a)" : "var(--color-error-600, #dc2626)",
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,

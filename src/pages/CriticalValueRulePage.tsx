@@ -6,14 +6,16 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertOctagon, Settings, Edit2, Trash2, Save, Search, Phone, MessageSquare, Bell, Smartphone, Clock, Activity, BarChart3, Zap, CheckCircle2, CheckCircle } from 'lucide-react';
+import { AlertOctagon, Settings, Edit2, Search, Phone, MessageSquare, Bell, Smartphone, Clock, Activity, BarChart3, Zap, CheckCircle2, CheckCircle } from 'lucide-react';
 import {
   CRITICAL_VALUE_RULES,
   CRITICAL_VALUE_KPI,
   type CriticalValueRule,
 } from "../data/criticalValueAssessmentMock";
 import { criticalExtApi } from "../services/api/criticalExtApi";
+import { Select } from "antd";
 import { AppModal } from "../components/common/AppModal";
+import { ActionButton } from "../components/common/ActionButton";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { t } from "../i18n/appI18n";
 
@@ -262,37 +264,21 @@ export default function CriticalValueRulePage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button
+          <ActionButton
+            action="refresh"
+            size="compact"
+            icon={<BarChart3 size={12} />}
             onClick={() => navigate("/critical-value-stats")}
-            style={{
-              padding: "6px 12px",
-              border: "1px solid var(--border-color)",
-              borderRadius: 6,
-              background: "var(--bg-card)",
-              color: "var(--text-secondary)",
-              fontSize: 12,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-            }}
           >
-            <BarChart3 size={12} /> {t("cvRule.statsScreen")}
-          </button>
-          <button
+            {t("cvRule.statsScreen")}
+          </ActionButton>
+          <ActionButton
+            action="cancel"
+            size="compact"
             onClick={() => navigate("/critical-value")}
-            style={{
-              padding: "6px 12px",
-              border: "1px solid var(--border-color)",
-              borderRadius: 6,
-              background: "var(--bg-card)",
-              color: "var(--text-secondary)",
-              fontSize: 12,
-              cursor: "pointer",
-            }}
           >
             {t("cvRule.backToCritical")}
-          </button>
+          </ActionButton>
         </div>
       </div>
 
@@ -380,15 +366,16 @@ export default function CriticalValueRulePage() {
                   }}
                 />
               </div>
-              <select
+              <Select
                 value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value)}
-                style={selectStyle}
-              >
-                <option value="all">{t("cvRule.filterAll")}</option>
-                <option value="critical">{t("cvRule.sev.critical")}</option>
-                <option value="high">{t("cvRule.sev.high")}</option>
-              </select>
+                onChange={(value) => setFilterSeverity(value)}
+                style={{ width: 120 }}
+                options={[
+                  { value: "all", label: t("cvRule.filterAll") },
+                  { value: "critical", label: t("cvRule.sev.critical") },
+                  { value: "high", label: t("cvRule.sev.high") },
+                ]}
+              />
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               <strong style={{ color: "#7c2d12" }}>
@@ -749,80 +736,41 @@ export default function CriticalValueRulePage() {
                 borderTop: "1px solid var(--border-color)",
               }}
             >
-              <button
+              <ActionButton
+                action="edit"
+                size="compact"
                 onClick={() => openEditRule(selectedRule)}
-                style={{
-                  padding: "5px 10px",
-                  border: "1px solid var(--border-color)",
-                  borderRadius: 4,
-                  background: "var(--bg-card)",
-                  color: "var(--text-secondary)",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
               >
-                <Edit2 size={11} /> {t("cvRule.edit")}
-              </button>
-              <button
+                {t("cvRule.edit")}
+              </ActionButton>
+              <ActionButton
+                action="refresh"
+                size="compact"
+                icon={<Activity size={12} />}
                 onClick={() => setRuleTriggers(selectedRule)}
-                style={{
-                  padding: "5px 10px",
-                  border: "1px solid var(--border-color)",
-                  borderRadius: 4,
-                  background: "var(--bg-card)",
-                  color: "var(--text-secondary)",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
               >
-                <Activity size={11} /> {t("cvRule.triggerRecords")}
-              </button>
-              <button
+                {t("cvRule.triggerRecords")}
+              </ActionButton>
+              <ActionButton
+                action="save"
+                size="compact"
+                style={{ marginLeft: "auto" }}
                 onClick={() =>
                   setSaveDialog({
                     open: true,
                     message: `规则已保存: ${selectedRule.name}`,
                   })
                 }
-                style={{
-                  padding: "5px 10px",
-                  border: "none",
-                  borderRadius: 4,
-                  background: "#3b82f6",
-                  color: "#fff",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  marginLeft: "auto",
-                }}
               >
-                <Save size={11} /> {t("cvRule.save")}
-              </button>
-              <button
+                {t("cvRule.save")}
+              </ActionButton>
+              <ActionButton
+                action="delete"
+                size="compact"
                 onClick={() => setConfirmDisable(selectedRule)}
-                style={{
-                  padding: "5px 10px",
-                  border: "1px solid #dc2626",
-                  borderRadius: 4,
-                  background: "var(--bg-card)",
-                  color: "#dc2626",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
               >
-                <Trash2 size={11} /> {t("cvRule.disable")}
-              </button>
+                {t("cvRule.disable")}
+              </ActionButton>
             </div>
           </div>
         )}
@@ -844,39 +792,18 @@ export default function CriticalValueRulePage() {
         size="md"
         footer={
           <>
-            <button
+            <ActionButton
+              action="cancel"
               onClick={() => setRuleEdit(null)}
-              style={{
-                padding: "8px 18px",
-                border: "1px solid var(--border-color)",
-                background: "var(--bg-card)",
-                color: "var(--text-secondary)",
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
             >
               {t("cvRule.cancel")}
-            </button>
-            <button
+            </ActionButton>
+            <ActionButton
+              action="save"
               onClick={saveEditRule}
-              style={{
-                padding: "8px 18px",
-                border: "none",
-                background: "#3b82f6",
-                color: "#fff",
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
             >
-              <Save size={12} /> {t("cvRule.saveChanges")}
-            </button>
+              {t("cvRule.saveChanges")}
+            </ActionButton>
           </>
         }
       >
@@ -970,28 +897,21 @@ export default function CriticalValueRulePage() {
                 >
                   {t("cvRule.status")}
                 </label>
-                <select
+                <Select
                   id="rule-status"
                   value={editForm.isActive ? "active" : "inactive"}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setEditForm((f) => ({
                       ...f,
-                      isActive: e.target.value === "active",
+                      isActive: value === "active",
                     }))
                   }
-                  style={{
-                    width: "100%",
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    border: "1px solid var(--border-color)",
-                    fontSize: 13,
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <option value="active">{t("cvRule.enabled")}</option>
-                  <option value="inactive">{t("cvRule.disabled")}</option>
-                </select>
+                  style={{ width: "100%" }}
+                  options={[
+                    { value: "active", label: t("cvRule.enabled") },
+                    { value: "inactive", label: t("cvRule.disabled") },
+                  ]}
+                />
               </div>
             </div>
             <div>
@@ -1136,21 +1056,13 @@ export default function CriticalValueRulePage() {
         iconColor="#15803d"
         width={420}
         footer={
-          <button
+          <ActionButton
+            action="submit"
+            icon={<CheckCircle size={14} />}
             onClick={() => setSaveDialog((s) => ({ ...s, open: false }))}
-            style={{
-              padding: "8px 18px",
-              border: "none",
-              background: "#3b82f6",
-              color: "#fff",
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
           >
             {t("cvRule.gotIt")}
-          </button>
+          </ActionButton>
         }
       >
         <div style={{ fontSize: 13, color: "var(--text-primary)", padding: "4px 0" }}>
@@ -1201,13 +1113,6 @@ export default function CriticalValueRulePage() {
 // ============================================================
 // 样式
 // ============================================================
-const selectStyle: React.CSSProperties = {
-  padding: "4px 8px",
-  border: "1px solid var(--border-color)",
-  borderRadius: 4,
-  fontSize: 12,
-  outline: "none",
-};
 
 // ============================================================
 // KPI 卡片

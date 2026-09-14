@@ -4,6 +4,7 @@
 // ============================================================
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
+import { Select } from "antd";
 import { datareportApi, type InsuranceAuditDto as DataReportAuditDto } from "../services/api/datareportApi";
 import { insuranceApi } from "../services/api/insuranceApi";
 import { PageHeader } from "../components/common/PageHeader";
@@ -4381,16 +4382,17 @@ export default function InsuranceAuditPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select
+            <Select
               style={styles.select}
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-            >
-              <option value="全部">{t("allTypes")}</option>
-              <option value="CT增强">{t("insuranceAudit.typeCtEnhance")}</option>
-              <option value="MRI增强">{t("insuranceAudit.typeMriEnhance")}</option>
-              <option value="DSA手术">{t("insuranceAudit.typeDsaSurgery")}</option>
-            </select>
+              onChange={(v) => setFilterType(v)}
+              options={[
+                { value: "全部", label: t("allTypes") },
+                { value: "CT增强", label: t("insuranceAudit.typeCtEnhance") },
+                { value: "MRI增强", label: t("insuranceAudit.typeMriEnhance") },
+                { value: "DSA手术", label: t("insuranceAudit.typeDsaSurgery") },
+              ]}
+            />
             <button
               onClick={() => {
                 setToastType("success");
@@ -4555,16 +4557,17 @@ export default function InsuranceAuditPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select
+            <Select
               style={styles.select}
               value={filterResult}
-              onChange={(e) => setFilterResult(e.target.value)}
-            >
-              <option value="全部">{t("allResults")}</option>
-              <option value="通过">{t("passed")}</option>
-              <option value="拒绝">{t("rejected")}</option>
-              <option value="补充资料">{t("supplement")}</option>
-            </select>
+              onChange={(v) => setFilterResult(v)}
+              options={[
+                { value: "全部", label: t("allResults") },
+                { value: "通过", label: t("passed") },
+                { value: "拒绝", label: t("rejected") },
+                { value: "补充资料", label: t("supplement") },
+              ]}
+            />
             <button onClick={handleExportHistory} style={{ ...styles.btn, ...styles.btnOutline }}>
               <Filter size={16} />
               {t("export")}

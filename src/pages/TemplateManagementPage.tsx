@@ -3,6 +3,8 @@
 // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 (JSON/文本, templatesApi 真实数据)
 // [v3.0.6.11-98 Wave2A P1] 模板审批流 (草稿/待审批/已批准/已驳回) + 我的模板筛选 (个人模板库)
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
+import { Select } from 'antd'
+import { ActionButton } from '../components/common/ActionButton'
 import { templatesApi, type TemplateApprovalStatus } from '../services/api/templatesApi'
 import TemplatePendingSection from './TemplatePendingSection'
 // [v3.0.6.11-104 Wave 5C] 模板中心: ReportTemplateManagerPage + EmrTemplatesPage 内嵌为 Tab (旧路由 /report-templates, /emr-templates redirect)
@@ -10,7 +12,7 @@ import ReportTemplateManagerPage from './reports/ReportTemplateManagerPage'
 import EmrTemplatesPage from './emr/EmrTemplatesPage'
 import { t as t9 } from '../i18n/appI18n'
 import { useNavigate } from 'react-router-dom'
-import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Upload, Download, Send, ShieldCheck, XCircle, Clock3 } from 'lucide-react'
+import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Send, ShieldCheck, XCircle, Clock3 } from 'lucide-react'
 
 const C = {
   primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: 'var(--color-info-bg)',
@@ -787,15 +789,15 @@ export default function TemplateManagementPage() {
           <ClipboardList size={28} style={{ color: C.primary }} />
           <h1 style={styles.title}>{t9('templateMgmt.title')}</h1>
         </div>
-        <button style={styles.addBtn} onClick={handleAdd}><Plus size={18} /><span>{t9('templateMgmt.addTemplate')}</span></button>
+        <ActionButton action="create" onClick={handleAdd}>{t9('templateMgmt.addTemplate')}</ActionButton>
         {/* [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 */}
         <input ref={importFileRef} type="file" accept=".json,.txt,application/json,text/plain" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleImportTemplates(f) }} />
-        <button onClick={() => importFileRef.current?.click()} disabled={importing} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: importing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: importing ? 0.6 : 1 }}>
-          <Upload size={16} /><span>{importing ? t9('templateMgmt.importing') : t9('templateMgmt.batchImport')}</span>
-        </button>
-        <button onClick={() => void handleExportTemplates()} disabled={exporting} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#7c3aed', border: '1px solid #7c3aed', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: exporting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: exporting ? 0.6 : 1 }}>
-          <Download size={16} /><span>{exporting ? t9('templateMgmt.exporting') : t9('templateMgmt.batchExport')}</span>
-        </button>
+        <ActionButton action="import" style={{ marginLeft: 8 }} loading={importing} onClick={() => importFileRef.current?.click()}>
+          {importing ? t9('templateMgmt.importing') : t9('templateMgmt.batchImport')}
+        </ActionButton>
+        <ActionButton action="export" style={{ marginLeft: 8 }} loading={exporting} onClick={() => void handleExportTemplates()}>
+          {exporting ? t9('templateMgmt.exporting') : t9('templateMgmt.batchExport')}
+        </ActionButton>
         <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
           <Wand2 size={16} /><span>{t9('templateMgmt.visualDesigner')}</span>
         </button>
@@ -815,23 +817,33 @@ export default function TemplateManagementPage() {
         <div style={styles.filters}>
           <div style={styles.filterGroup}>
             <Filter size={16} style={{ color: C.textMid }} />
-            <select value={filterModality} onChange={(e) => { setFilterModality(e.target.value); setCurrentPage(1); }} style={styles.select}>
-              <option value="all">{t9('templateMgmt.allModalities')}</option>
-              <option value="CT">CT</option>
-              <option value="MRI">MRI</option>
-              <option value="X线">X线</option>
-            </select>
+            <Select
+              value={filterModality}
+              onChange={(v) => { setFilterModality(v); setCurrentPage(1); }}
+              style={{ minWidth: 140 }}
+              options={[
+                { value: 'all', label: t9('templateMgmt.allModalities') },
+                { value: 'CT', label: 'CT' },
+                { value: 'MRI', label: 'MRI' },
+                { value: 'X线', label: 'X线' },
+              ]}
+            />
           </div>
           <div style={styles.filterGroup}>
-            <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }} style={styles.select}>
-              <option value="all">{t9('templateMgmt.allStatus')}</option>
-              <option value="draft">{t9('templateMgmt.statusDraft')}</option>
-              <option value="pending">{t9('templateMgmt.statusPending')}</option>
-              <option value="approved">{t9('templateMgmt.statusApproved')}</option>
-              <option value="rejected">{t9('templateMgmt.statusRejected')}</option>
-              <option value="active">{t9('templateMgmt.statusActiveOld')}</option>
-              <option value="inactive">{t9('templateMgmt.statusInactiveOld')}</option>
-            </select>
+            <Select
+              value={filterStatus}
+              onChange={(v) => { setFilterStatus(v); setCurrentPage(1); }}
+              style={{ minWidth: 140 }}
+              options={[
+                { value: 'all', label: t9('templateMgmt.allStatus') },
+                { value: 'draft', label: t9('templateMgmt.statusDraft') },
+                { value: 'pending', label: t9('templateMgmt.statusPending') },
+                { value: 'approved', label: t9('templateMgmt.statusApproved') },
+                { value: 'rejected', label: t9('templateMgmt.statusRejected') },
+                { value: 'active', label: t9('templateMgmt.statusActiveOld') },
+                { value: 'inactive', label: t9('templateMgmt.statusInactiveOld') },
+              ]}
+            />
           </div>
           {/* [v3.0.6.11-98 Wave2A P1] 待审批筛选 Tab */}
           <button
@@ -906,8 +918,8 @@ export default function TemplateManagementPage() {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         <div style={styles.actionsCell}>
                           <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title={t9('templateMgmt.actionPreview')}><Eye size={16} /></button>
-                          <button style={styles.actionBtn} onClick={() => handleEdit(tpl)} title={t9('templateMgmt.actionEdit')}><Edit2 size={16} /></button>
-                          <button style={{ ...styles.actionBtn, ...styles.actionBtnDanger }} onClick={() => handleDelete(tpl.id)} title={t9('templateMgmt.actionDelete')}><Trash2 size={16} /></button>
+                          <ActionButton action="edit" onClick={() => handleEdit(tpl)} />
+                          <ActionButton action="delete" onClick={() => void handleDelete(tpl.id)} />
                         </div>
                         {/* [v3.0.6.11-98 Wave2A P1] 模板审批流操作 */}
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>

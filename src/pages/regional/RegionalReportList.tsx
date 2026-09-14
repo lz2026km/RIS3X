@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import {
-  FileText, Send, Search, Filter, RefreshCw, Plus, Eye,
+  FileText, Send, Search, Filter, RefreshCw, Plus,
   ClipboardList, ShieldAlert, BarChart3,
-  Building2, Building, Download, X, Circle, Monitor, PenTool,
-  FileSignature, Share2, UserX, TrendingUp, TrendingDown
+  Building2, Building, Download, X, Circle, Monitor,
+  FileSignature, Share2, TrendingUp, TrendingDown
 } from 'lucide-react'
 import {
   styles, COLORS,
   getStatusColor, getSeverityColor,
 } from './RegionalReportServiceWire'
+import { Select } from 'antd'
+import type { TableColumnsType } from 'antd'
 import { regionalApi } from '../../services/api'
+import { DataTable } from '../../components/common/DataTable'
+import { ActionButton } from '../../components/common/ActionButton'
 import { t } from '../../i18n/appI18n'
 import type { Institution, Consultation, Report, CriticalValueReport, RemoteDiagnosis, CoSignRecord, ShareRecord, SLARecord } from './RegionalReportServiceWire'
 
@@ -143,6 +147,40 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
     }
   }
 
+  const consultationColumns: TableColumnsType<Consultation> = [
+    {
+      title: t('regionalReport.colCaseId'), dataIndex: 'caseId', key: 'caseId',
+      render: (v: string, c: Consultation) => (
+        <div><div style={{ fontWeight: 500 }}>{v}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('regionalReport.priorityLabel')} {c.priority === '立即' ? '🔥' : c.priority === '紧急' ? '⚠️' : ''}{c.priority}</div></div>
+      ),
+    },
+    {
+      title: t('regionalReport.colPatientInfo'), key: 'patient',
+      render: (_: unknown, c: Consultation) => (<div><div>{c.patientName}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{c.gender} {c.age}{t('regionalReport.yearsUnit')}</div></div>),
+    },
+    { title: t('regionalReport.colExamInfo'), key: 'exam', render: (_: unknown, c: Consultation) => <div>{c.modality} - {c.examItem}</div> },
+    { title: t('regionalReport.colApplyInstitution'), dataIndex: 'institution', key: 'institution' },
+    {
+      title: t('regionalReport.colStatus'), dataIndex: 'status', key: 'status',
+      render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}><Circle size={6} fill={getStatusColor(v)} /> {v}</span>,
+    },
+    { title: t('regionalReport.colApplyTime'), dataIndex: 'applyTime', key: 'applyTime', render: (v: string) => <div style={{ fontSize: 12 }}>{v}</div> },
+    {
+      title: t('regionalReport.colActions'), key: 'actions',
+      render: (_: unknown, c: Consultation) => (
+        c.status === '待接诊' || c.status === '会诊中' ? (
+          <ActionButton
+            action={c.status === '待接诊' ? 'submit' : 'edit'}
+            size="compact"
+            onClick={(e) => { e.stopPropagation(); if (c.status === '待接诊') onAccept(c); else onSelect(c) }}
+          >
+            {c.status === '待接诊' ? t('regionalReport.accept') : t('regionalReport.writeOpinion')}
+          </ActionButton>
+        ) : null
+      ),
+    },
+  ]
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}>
@@ -163,27 +201,14 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
       </div>
       {consultationTab === 'list' && (
         <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-          {consultations.length === 0 ? (
-            <div style={styles.emptyState}><FileText size={48} style={{ marginBottom: '12px', opacity: 0.3 }} /><div>{t('regionalReport.noConsultRecords')}</div></div>
-          ) : (
-            <div style={{ overflowX: "auto" }}><table style={styles.table}>
-              <thead><tr><th style={styles.th}>{t('regionalReport.colCaseId')}</th><th style={styles.th}>{t('regionalReport.colPatientInfo')}</th><th style={styles.th}>{t('regionalReport.colExamInfo')}</th><th style={styles.th}>{t('regionalReport.colApplyInstitution')}</th><th style={styles.th}>{t('regionalReport.colStatus')}</th><th style={styles.th}>{t('regionalReport.colApplyTime')}</th><th style={styles.th}>{t('regionalReport.colActions')}</th></tr></thead>
-              <tbody>{consultations.map(c => (
-                <tr key={c.id} style={{ cursor: 'pointer', backgroundColor: selectedConsultation?.id === c.id ? 'var(--color-info-bg)' : 'transparent' }} onClick={() => onSelect(c)}>
-                  <td style={styles.td}><div style={{ fontWeight: 500 }}>{c.caseId}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('regionalReport.priorityLabel')} {c.priority === '立即' ? '🔥' : c.priority === '紧急' ? '⚠️' : ''}{c.priority}</div></td>
-                  <td style={styles.td}><div>{c.patientName}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{c.gender} {c.age}{t('regionalReport.yearsUnit')}</div></td>
-                  <td style={styles.td}><div>{c.modality} - {c.examItem}</div></td>
-                  <td style={styles.td}>{c.institution}</td>
-                  <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(c.status)}20`, color: getStatusColor(c.status) }}><Circle size={6} fill={getStatusColor(c.status)} /> {c.status}</span></td>
-                  <td style={styles.td}><div style={{ fontSize: '12px' }}>{c.applyTime}</div></td>
-                  <td style={styles.td} onClick={e => e.stopPropagation()}>
-                    {c.status === '待接诊' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onAccept(c)}>{t('regionalReport.accept')}</button>}
-                    {c.status === '会诊中' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.success, color: 'white' }} onClick={() => onSelect(c)}>{t('regionalReport.writeOpinion')}</button>}
-                  </td>
-                </tr>
-              ))}</tbody>
-            </table></div>
-          )}
+          <DataTable<Consultation>
+            rowKey="id"
+            dataSource={consultations}
+            columns={consultationColumns}
+            scroll={{ x: 'max-content' }}
+            emptyText={t('regionalReport.noConsultRecords')}
+            onRow={(c) => ({ onClick: () => onSelect(c), style: { cursor: 'pointer', background: selectedConsultation?.id === c.id ? 'var(--color-info-bg)' : undefined } })}
+          />
         </div>
       )}
       {consultationTab === 'apply' && (
@@ -191,14 +216,14 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
           <div style={{ maxWidth: '600px' }}>
             <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.patientNameStar')}</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReport.placeholderPatientName')} value={applyForm.patientName} onChange={e => setApplyForm({ ...applyForm, patientName: e.target.value })} /></div>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.gender')}</label><select style={{ ...styles.input, width: '100%' }} value={applyForm.gender} onChange={e => setApplyForm({ ...applyForm, gender: e.target.value })}><option value="男">男</option><option value="女">女</option></select></div>
+              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.gender')}</label><Select style={{ width: '100%' }} value={applyForm.gender} onChange={v => setApplyForm({ ...applyForm, gender: v })} options={[{ value: '男', label: '男' }, { value: '女', label: '女' }]} /></div>
               <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.age')}</label><input type="number" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReportList.age')} value={applyForm.age} onChange={e => setApplyForm({ ...applyForm, age: e.target.value })} /></div>
             </div>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.modalityType')}</label><select style={{ ...styles.input, width: '100%' }} value={applyForm.modality} onChange={e => setApplyForm({ ...applyForm, modality: e.target.value })}><option value="CT">CT</option><option value="MRI">MRI</option><option value="DR">DR</option><option value="超声">超声</option><option value="胃肠">胃肠</option></select></div>
+              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.modalityType')}</label><Select style={{ width: '100%' }} value={applyForm.modality} onChange={v => setApplyForm({ ...applyForm, modality: v })} options={[{ value: 'CT', label: 'CT' }, { value: 'MRI', label: 'MRI' }, { value: 'DR', label: 'DR' }, { value: '超声', label: '超声' }, { value: '胃肠', label: '胃肠' }]} /></div>
               <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.examItem')}</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReportList.examItem')} value={applyForm.examItem} onChange={e => setApplyForm({ ...applyForm, examItem: e.target.value })} /></div>
             </div>
-            <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.applyInstitution')}</label><select style={{ ...styles.input, width: '100%' }} value={applyForm.institution} onChange={e => setApplyForm({ ...applyForm, institution: e.target.value })}><option value="">{t('regionalReport.selectApplyInstitution')}</option>{institutions.map(inst => <option key={inst.id} value={inst.name}>{inst.name}</option>)}</select></div>
+            <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.applyInstitution')}</label><Select style={{ width: '100%' }} value={applyForm.institution || undefined} placeholder={t('regionalReport.selectApplyInstitution')} onChange={v => setApplyForm({ ...applyForm, institution: v })} options={institutions.map(inst => ({ value: inst.name, label: inst.name }))} /></div>
             <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.priority')}</label><div style={{ display: 'flex', gap: '10px' }}>{['普通', '紧急', '立即'].map(p => <label key={p} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}><input type="radio" name="priority" value={p} checked={applyForm.priority === p} onChange={() => setApplyForm({ ...applyForm, priority: p })} />{p}</label>)}</div></div>
             <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.applyReasonStar')}</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '120px' }} placeholder={t('regionalReport.applyReasonPlaceholder')} value={applyForm.applyReason} onChange={e => setApplyForm({ ...applyForm, applyReason: e.target.value })} /></div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}><button onClick={handleCancelApply} style={{ ...styles.button, ...styles.buttonOutline }}>{t('regionalReportList.cancel')}</button><button onClick={() => void handleSubmitApply()} disabled={submitting} style={{ ...styles.button, ...styles.buttonPrimary }}><Send size={14} /> {submitting ? t('regionalReport.submitting') : t('regionalReport.submitApply')}</button></div>
@@ -221,6 +246,32 @@ interface ReportListProps {
 }
 
 export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport, onSelect, onReview, onOpenDetail, searchKeyword, onSearchChange, onOpenQualityFilter }) => {
+  const reportColumns: TableColumnsType<Report> = [
+    { title: t('regionalReport.colReportId'), dataIndex: 'reportId', key: 'reportId', render: (v: string, r: Report) => (<div><div style={{ fontWeight: 500 }}>{v}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{r.reportTime}</div></div>) },
+    { title: t('regionalReport.colPatientInfo'), key: 'patient', render: (_: unknown, r: Report) => (<div><div>{r.patientName}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{r.gender} {r.age}{t('regionalReport.yearsUnit')}</div></div>) },
+    { title: t('regionalReport.colExamInfo'), key: 'exam', render: (_: unknown, r: Report) => <div>{r.modality} - {r.examItem}</div> },
+    { title: t('regionalReport.colReportInstitution'), dataIndex: 'institution', key: 'institution' },
+    {
+      title: t('regionalReport.colQualityScore'), dataIndex: 'qualityScore', key: 'qualityScore',
+      render: (v: number) => v > 0 ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ ...styles.progressBar, width: 60 }}><div style={{ ...styles.progressFill, width: `${v}%`, backgroundColor: v >= 90 ? COLORS.success : v >= 70 ? COLORS.warning : COLORS.danger }} /></div>
+          <span style={{ fontSize: 12, fontWeight: 600 }}>{v}</span>
+        </div>
+      ) : <span style={{ color: COLORS.textMuted }}>-</span>,
+    },
+    { title: t('regionalReport.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}>{v}</span> },
+    {
+      title: t('regionalReport.colActions'), key: 'actions',
+      render: (_: unknown, r: Report) => (
+        <>
+          {r.status === '待审核' && <ActionButton action="submit" size="compact" style={{ marginRight: 6 }} onClick={(e) => { e.stopPropagation(); onReview(r) }}>{t('regionalReport.review')}</ActionButton>}
+          <ActionButton action="edit" size="compact" onClick={(e) => { e.stopPropagation(); onOpenDetail(r) }}>{t('regionalReport.view')}</ActionButton>
+        </>
+      ),
+    },
+  ]
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.reportReview')}</span><div style={{ display: 'flex', gap: '8px' }}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onOpenQualityFilter}><Filter size={14} /> {t('regionalReportList.qualityFilter')}</button></div></div>
@@ -230,23 +281,13 @@ export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport,
         <input type="text" placeholder={t('regionalReport.searchReportPlaceholder')} style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }} value={searchKeyword} onChange={e => onSearchChange(e.target.value)} />
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead><tr><th style={styles.th}>{t('regionalReport.colReportId')}</th><th style={styles.th}>{t('regionalReport.colPatientInfo')}</th><th style={styles.th}>{t('regionalReport.colExamInfo')}</th><th style={styles.th}>{t('regionalReport.colReportInstitution')}</th><th style={styles.th}>{t('regionalReport.colQualityScore')}</th><th style={styles.th}>{t('regionalReport.colStatus')}</th><th style={styles.th}>{t('regionalReport.colActions')}</th></tr></thead>
-          <tbody>{reports.map(r => (
-                <tr key={r.id} style={{ cursor: 'pointer', backgroundColor: selectedReport?.id === r.id ? 'var(--color-info-bg)' : 'transparent' }} onClick={() => onSelect(r)}>
-              <td style={styles.td}><div style={{ fontWeight: 500 }}>{r.reportId}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{r.reportTime}</div></td>
-              <td style={styles.td}><div>{r.patientName}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{r.gender} {r.age}{t('regionalReport.yearsUnit')}</div></td>
-              <td style={styles.td}><div>{r.modality} - {r.examItem}</div></td>
-              <td style={styles.td}>{r.institution}</td>
-              <td style={styles.td}>{r.qualityScore > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ ...styles.progressBar, width: '60px' }}><div style={{ ...styles.progressFill, width: `${r.qualityScore}%`, backgroundColor: r.qualityScore >= 90 ? COLORS.success : r.qualityScore >= 70 ? COLORS.warning : COLORS.danger }} /></div><span style={{ fontSize: '12px', fontWeight: 600 }}>{r.qualityScore}</span></div> : <span style={{ color: COLORS.textMuted }}>-</span>}</td>
-              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(r.status)}20`, color: getStatusColor(r.status) }}>{r.status}</span></td>
-              <td style={styles.td} onClick={e => e.stopPropagation()}>
-                {r.status === '待审核' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.success, color: 'white', marginRight: '6px' }} onClick={() => onReview(r)}>{t('regionalReport.review')}</button>}
-                <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onOpenDetail(r)}><Eye size={14} /> {t('regionalReport.view')}</button>
-              </td>
-            </tr>
-          ))}</tbody>
-        </table></div>
+        <DataTable<Report>
+          rowKey="id"
+          dataSource={reports}
+          columns={reportColumns}
+          scroll={{ x: 'max-content' }}
+          onRow={(r) => ({ onClick: () => onSelect(r), style: { cursor: 'pointer', background: selectedReport?.id === r.id ? 'var(--color-info-bg)' : undefined } })}
+        />
       </div>
     </div>
   )
@@ -262,6 +303,30 @@ interface RemoteDiagnosisListProps {
 }
 
 export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagnoses, selectedRemoteDiagnosis, onSelect, searchKeyword, onSearchChange, onSync }) => {
+  const remoteColumns: TableColumnsType<RemoteDiagnosis> = [
+    { title: t('regionalReport.colCaseId'), dataIndex: 'caseId', key: 'caseId', render: (v: string) => <div style={{ fontWeight: 500 }}>{v}</div> },
+    { title: t('regionalReport.colPatientInfo'), key: 'patient', render: (_: unknown, rd: RemoteDiagnosis) => (<div><div>{rd.patientName}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{rd.gender} {rd.age}{t('regionalReport.yearsUnit')}</div></div>) },
+    { title: t('regionalReport.colExamType'), dataIndex: 'examType', key: 'examType' },
+    { title: t('regionalReport.colApplyInstitution'), dataIndex: 'applyInstitution', key: 'applyInstitution' },
+    { title: t('regionalReport.colRemoteExpert'), key: 'expert', render: (_: unknown, rd: RemoteDiagnosis) => (<div><div style={{ fontWeight: 500 }}>{rd.remoteExpert}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{rd.expertInstitution}</div></div>) },
+    {
+      title: t('regionalReport.colStatus'), dataIndex: 'status', key: 'status',
+      render: (v: string, rd: RemoteDiagnosis) => (
+        <>
+          <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}><Circle size={6} fill={getStatusColor(v)} /> {v}</span>
+          {rd.isOtherTyping && <div style={{ fontSize: 10, color: COLORS.inProgress, marginTop: 2 }}>📝 {rd.otherTypingName}{t('regionalReport.typing')}</div>}
+        </>
+      ),
+    },
+    { title: t('regionalReport.colApplyTime'), dataIndex: 'applyTime', key: 'applyTime', render: (v: string) => <div style={{ fontSize: 12 }}>{v}</div> },
+    {
+      title: t('regionalReport.colActions'), key: 'actions',
+      render: (_: unknown, rd: RemoteDiagnosis) => (
+        <ActionButton action="edit" size="compact" onClick={(e) => { e.stopPropagation(); onSelect(rd) }}>{t('regionalReport.write')}</ActionButton>
+      ),
+    },
+  ]
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.remoteDiagnosis')}</span><div style={{ display: 'flex', gap: '8px' }}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onSync}><RefreshCw size={14} /></button></div></div>
@@ -272,21 +337,13 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
         {searchKeyword && <X size={14} style={{ cursor: 'pointer', color: COLORS.textMuted }} onClick={() => onSearchChange('')} />}
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead><tr><th style={styles.th}>{t('regionalReport.colCaseId')}</th><th style={styles.th}>{t('regionalReport.colPatientInfo')}</th><th style={styles.th}>{t('regionalReport.colExamType')}</th><th style={styles.th}>{t('regionalReport.colApplyInstitution')}</th><th style={styles.th}>{t('regionalReport.colRemoteExpert')}</th><th style={styles.th}>{t('regionalReport.colStatus')}</th><th style={styles.th}>{t('regionalReport.colApplyTime')}</th><th style={styles.th}>{t('regionalReport.colActions')}</th></tr></thead>
-          <tbody>{diagnoses.map(rd => (
-                            <tr key={rd.id} style={{ cursor: 'pointer', backgroundColor: selectedRemoteDiagnosis?.id === rd.id ? 'var(--color-info-bg)' : 'transparent' }} onClick={() => onSelect(rd)}>
-              <td style={styles.td}><div style={{ fontWeight: 500 }}>{rd.caseId}</div></td>
-              <td style={styles.td}><div>{rd.patientName}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{rd.gender} {rd.age}{t('regionalReport.yearsUnit')}</div></td>
-              <td style={styles.td}>{rd.examType}</td>
-              <td style={styles.td}>{rd.applyInstitution}</td>
-              <td style={styles.td}><div style={{ fontWeight: 500 }}>{rd.remoteExpert}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{rd.expertInstitution}</div></td>
-              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(rd.status)}20`, color: getStatusColor(rd.status) }}><Circle size={6} fill={getStatusColor(rd.status)} /> {rd.status}</span>{rd.isOtherTyping && <div style={{ fontSize: '10px', color: COLORS.inProgress, marginTop: '2px' }}>📝 {rd.otherTypingName}{t('regionalReport.typing')}</div>}</td>
-              <td style={styles.td}><div style={{ fontSize: '12px' }}>{rd.applyTime}</div></td>
-              <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(rd)}><PenTool size={14} /> {t('regionalReport.write')}</button></td>
-            </tr>
-          ))}</tbody>
-        </table></div>
+        <DataTable<RemoteDiagnosis>
+          rowKey="id"
+          dataSource={diagnoses}
+          columns={remoteColumns}
+          scroll={{ x: 'max-content' }}
+          onRow={(rd) => ({ onClick: () => onSelect(rd), style: { cursor: 'pointer', background: selectedRemoteDiagnosis?.id === rd.id ? 'var(--color-info-bg)' : undefined } })}
+        />
       </div>
     </div>
   )
@@ -302,6 +359,25 @@ interface CoSignListProps {
 }
 
 export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign, onSelect, searchKeyword, onSearchChange, onAdd }) => {
+  const coSignColumns: TableColumnsType<CoSignRecord> = [
+    { title: t('regionalReport.colReportId'), dataIndex: 'reportId', key: 'reportId', render: (v: string) => <div style={{ fontWeight: 500 }}>{v}</div> },
+    { title: t('regionalReport.colPatientInfo'), key: 'patient', render: (_: unknown, cs: CoSignRecord) => (<div><div>{cs.patientName}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{cs.gender} {cs.age}{t('regionalReport.yearsUnit')}</div></div>) },
+    { title: t('regionalReport.colExamType'), dataIndex: 'examType', key: 'examType' },
+    {
+      title: t('regionalReport.colParticipatingInstitutions'), dataIndex: 'participatingInstitutions', key: 'participatingInstitutions',
+      render: (v: string[]) => <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>{v.map((inst, idx) => <span key={idx} style={{ ...styles.badge, backgroundColor: '#e0e7ff', color: COLORS.primary, fontSize: 10 }}>{inst}</span>)}</div>,
+    },
+    { title: t('regionalReport.colSignStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}><Circle size={6} fill={getStatusColor(v)} /> {v}</span> },
+    {
+      title: t('regionalReport.colSignTime'), key: 'signTime',
+      render: (_: unknown, cs: CoSignRecord) => (<div><div style={{ fontSize: 12 }}>{cs.createTime}</div>{cs.completeTime && <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('regionalReport.completedLabel')} {cs.completeTime}</div>}</div>),
+    },
+    {
+      title: t('regionalReport.colActions'), key: 'actions',
+      render: (_: unknown, cs: CoSignRecord) => <ActionButton action="edit" size="compact" onClick={(e) => { e.stopPropagation(); onSelect(cs) }}>{t('regionalReport.view')}</ActionButton>,
+    },
+  ]
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.coSign')}</span><div style={{ display: 'flex', gap: '8px' }}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onAdd}><Plus size={14} /> {t('regionalReport.addNew')}</button></div></div>
@@ -311,20 +387,13 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
         <input type="text" placeholder={t('regionalReport.searchCoSignPlaceholder')} style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }} value={searchKeyword} onChange={e => onSearchChange(e.target.value)} />
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead><tr><th style={styles.th}>{t('regionalReport.colReportId')}</th><th style={styles.th}>{t('regionalReport.colPatientInfo')}</th><th style={styles.th}>{t('regionalReport.colExamType')}</th><th style={styles.th}>{t('regionalReport.colParticipatingInstitutions')}</th><th style={styles.th}>{t('regionalReport.colSignStatus')}</th><th style={styles.th}>{t('regionalReport.colSignTime')}</th><th style={styles.th}>{t('regionalReport.colActions')}</th></tr></thead>
-          <tbody>{records.map(cs => (
-                <tr key={cs.id} style={{ cursor: 'pointer', backgroundColor: selectedCoSign?.id === cs.id ? 'var(--color-info-bg)' : 'transparent' }} onClick={() => onSelect(cs)}>
-              <td style={styles.td}><div style={{ fontWeight: 500 }}>{cs.reportId}</div></td>
-              <td style={styles.td}><div>{cs.patientName}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{cs.gender} {cs.age}{t('regionalReport.yearsUnit')}</div></td>
-              <td style={styles.td}>{cs.examType}</td>
-              <td style={styles.td}><div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>{cs.participatingInstitutions.map((inst, idx) => <span key={idx} style={{ ...styles.badge, backgroundColor: '#e0e7ff', color: COLORS.primary, fontSize: '10px' }}>{inst}</span>)}</div></td>
-              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(cs.status)}20`, color: getStatusColor(cs.status) }}><Circle size={6} fill={getStatusColor(cs.status)} /> {cs.status}</span></td>
-              <td style={styles.td}><div style={{ fontSize: '12px' }}>{cs.createTime}</div>{cs.completeTime && <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('regionalReport.completedLabel')} {cs.completeTime}</div>}</td>
-              <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(cs)}><Eye size={14} /> {t('regionalReport.view')}</button></td>
-            </tr>
-          ))}</tbody>
-        </table></div>
+        <DataTable<CoSignRecord>
+          rowKey="id"
+          dataSource={records}
+          columns={coSignColumns}
+          scroll={{ x: 'max-content' }}
+          onRow={(cs) => ({ onClick: () => onSelect(cs), style: { cursor: 'pointer', background: selectedCoSign?.id === cs.id ? 'var(--color-info-bg)' : undefined } })}
+        />
       </div>
     </div>
   )
@@ -341,6 +410,28 @@ interface CriticalValuePanelProps {
 }
 
 export const CriticalValuePanel: React.FC<CriticalValuePanelProps> = ({ criticalValues, onConfirm, onClose, onExport, onPrevPage, onNextPage, onStats }) => {
+  const criticalColumns: TableColumnsType<CriticalValueReport> = [
+    { title: t('regionalReport.colPatientInfo'), key: 'patient', render: (_: unknown, cv: CriticalValueReport) => (<div><div style={{ fontWeight: 500 }}>{cv.patientName}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{cv.gender} {cv.age}{t('regionalReport.yearsUnit')}</div></div>) },
+    { title: t('regionalReport.colExamInfo'), key: 'exam', render: (_: unknown, cv: CriticalValueReport) => (<div><div>{cv.modality}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{cv.examItem}</div></div>) },
+    { title: t('regionalReport.colInstitution'), dataIndex: 'institution', key: 'institution' },
+    { title: t('regionalReport.colCriticalFinding'), dataIndex: 'criticalFinding', key: 'criticalFinding', render: (v: string) => <div style={{ color: COLORS.danger, fontWeight: 500 }}>{v}</div> },
+    { title: t('regionalReport.colSeverity'), dataIndex: 'severity', key: 'severity', render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: `${getSeverityColor(v)}20`, color: getSeverityColor(v) }}>{v}</span> },
+    { title: t('regionalReport.colReportedTime'), dataIndex: 'reportedTime', key: 'reportedTime', render: (v: string) => <div style={{ fontSize: 12 }}>{v}</div> },
+    { title: t('regionalReport.colReportedDoctor'), dataIndex: 'reportedDoctor', key: 'reportedDoctor' },
+    { title: t('regionalReport.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}><Circle size={6} fill={getStatusColor(v)} /> {v}</span> },
+    { title: t('regionalReport.colReceiveTime'), dataIndex: 'receiveTime', key: 'receiveTime', render: (v?: string) => v ? <div style={{ fontSize: 12 }}>{v}</div> : <span style={{ color: COLORS.textMuted }}>-</span> },
+    { title: t('regionalReport.colHandleTime'), dataIndex: 'handleTime', key: 'handleTime', render: (v?: string) => v ? <div style={{ fontSize: 12 }}>{v}</div> : <span style={{ color: COLORS.textMuted }}>-</span> },
+    {
+      title: t('regionalReport.colActions'), key: 'actions',
+      render: (_: unknown, cv: CriticalValueReport) => (
+        <>
+          {cv.status === '待确认' && <ActionButton action="submit" size="compact" onClick={() => onConfirm(cv)}>{t('regionalReport.confirm')}</ActionButton>}
+          {cv.status === '处理中' && <ActionButton action="save" size="compact" onClick={() => onClose(cv)}>{t('regionalReport.closeLoop')}</ActionButton>}
+        </>
+      ),
+    },
+  ]
+
   return (
     <div style={styles.bottomPanel}>
       <div style={styles.panelHeader}>
@@ -350,29 +441,12 @@ export const CriticalValuePanel: React.FC<CriticalValuePanelProps> = ({ critical
           <button style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }} onClick={onExport}><Download size={14} /> {t('regionalReport.export')}</button>
         </div>
       </div>
-      <div style={{ overflowX: 'auto' }}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead><tr><th style={styles.th}>{t('regionalReport.colPatientInfo')}</th><th style={styles.th}>{t('regionalReport.colExamInfo')}</th><th style={styles.th}>{t('regionalReport.colInstitution')}</th><th style={styles.th}>{t('regionalReport.colCriticalFinding')}</th><th style={styles.th}>{t('regionalReport.colSeverity')}</th><th style={styles.th}>{t('regionalReport.colReportedTime')}</th><th style={styles.th}>{t('regionalReport.colReportedDoctor')}</th><th style={styles.th}>{t('regionalReport.colStatus')}</th><th style={styles.th}>{t('regionalReport.colReceiveTime')}</th><th style={styles.th}>{t('regionalReport.colHandleTime')}</th><th style={styles.th}>{t('regionalReport.colActions')}</th></tr></thead>
-          <tbody>{criticalValues.map(cv => (
-            <tr key={cv.id}>
-              <td style={styles.td}><div style={{ fontWeight: 500 }}>{cv.patientName}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{cv.gender} {cv.age}{t('regionalReport.yearsUnit')}</div></td>
-              <td style={styles.td}><div>{cv.modality}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{cv.examItem}</div></td>
-              <td style={styles.td}>{cv.institution}</td>
-              <td style={styles.td}><div style={{ color: COLORS.danger, fontWeight: 500 }}>{cv.criticalFinding}</div></td>
-              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getSeverityColor(cv.severity)}20`, color: getSeverityColor(cv.severity) }}>{cv.severity}</span></td>
-              <td style={styles.td}><div style={{ fontSize: '12px' }}>{cv.reportedTime}</div></td>
-              <td style={styles.td}>{cv.reportedDoctor}</td>
-              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(cv.status)}20`, color: getStatusColor(cv.status) }}><Circle size={6} fill={getStatusColor(cv.status)} /> {cv.status}</span></td>
-              <td style={styles.td}>{cv.receiveTime ? <div style={{ fontSize: '12px' }}>{cv.receiveTime}</div> : <span style={{ color: COLORS.textMuted }}>-</span>}</td>
-              <td style={styles.td}>{cv.handleTime ? <div style={{ fontSize: '12px' }}>{cv.handleTime}</div> : <span style={{ color: COLORS.textMuted }}>-</span>}</td>
-              <td style={styles.td}>
-                {cv.status === '待确认' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.warning, color: 'white' }} onClick={() => onConfirm(cv)}>{t('regionalReport.confirm')}</button>}
-                {cv.status === '处理中' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.success, color: 'white' }} onClick={() => onClose(cv)}>{t('regionalReport.closeLoop')}</button>}
-              </td>
-            </tr>
-          ))}</tbody>
-        </table></div>
-      </div>
+      <DataTable<CriticalValueReport>
+        rowKey="id"
+        dataSource={criticalValues}
+        columns={criticalColumns}
+        scroll={{ x: 'max-content' }}
+      />
       <div style={styles.pagination}>
         <div style={{ fontSize: '12px', color: COLORS.textMuted }}>{t('regionalReport.totalLabel')} {criticalValues.length} {t('regionalReport.recordsUnit')}</div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -424,22 +498,40 @@ export const ReportSharingSection: React.FC = () => {
     setShowShareModal(false); setShareForm({ reportId: '', targetInstitution: '', consent: true })
   }
 
+  const shareColumns: TableColumnsType<ShareRecord> = [
+    { title: t('regionalReport.colReportId'), dataIndex: 'reportId', key: 'reportId' },
+    { title: t('regionalReport.colPatient'), dataIndex: 'patientName', key: 'patientName' },
+    { title: t('regionalReport.colSourceInstitution'), dataIndex: 'institution', key: 'institution' },
+    { title: t('regionalReport.colTargetInstitution'), dataIndex: 'targetInstitution', key: 'targetInstitution' },
+    { title: t('regionalReport.colSharedTime'), dataIndex: 'sharedDate', key: 'sharedDate' },
+    { title: t('regionalReport.colSharedBy'), dataIndex: 'sharedBy', key: 'sharedBy' },
+    {
+      title: t('regionalReport.colConsent'), dataIndex: 'consent', key: 'consent',
+      render: (v: boolean) => v ? <span style={{ color: COLORS.success }}>✓ {t('regionalReport.consentObtained')}</span> : <span style={{ color: COLORS.warning }}>⏳ {t('regionalReport.consentPending')}</span>,
+    },
+    { title: t('regionalReport.colAccessCount'), dataIndex: 'accessCount', key: 'accessCount' },
+    {
+      title: t('regionalReport.colStatus'), dataIndex: 'status', key: 'status',
+      render: (v: string) => <span style={{ ...styles.statusTag, backgroundColor: v === 'active' ? 'var(--color-success-bg)' : 'var(--bg-card)', color: v === 'active' ? COLORS.success : COLORS.textMuted }}>{v === 'active' ? t('regionalReport.statusActive') : t('regionalReport.statusRevoked')}</span>,
+    },
+    {
+      title: t('regionalReport.colActions'), key: 'actions',
+      render: (_: unknown, s: ShareRecord) => s.status === 'active' ? (
+        <ActionButton action="delete" size="compact" variant="default" style={{ color: COLORS.danger }} onClick={() => handleRevoke(s.id)}>{t('regionalReport.revoke')}</ActionButton>
+      ) : null,
+    },
+  ]
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.crossInstitutionSharing')}</span><span style={{ fontSize: '11px', color: COLORS.warning }}>{t('regionalReport.mswDemoData')}</span><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => setShowShareModal(true)}><Share2 size={14} /> {t('regionalReport.shareReport')}</button></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead><tr><th style={styles.th}>{t('regionalReport.colReportId')}</th><th style={styles.th}>{t('regionalReport.colPatient')}</th><th style={styles.th}>{t('regionalReport.colSourceInstitution')}</th><th style={styles.th}>{t('regionalReport.colTargetInstitution')}</th><th style={styles.th}>{t('regionalReport.colSharedTime')}</th><th style={styles.th}>{t('regionalReport.colSharedBy')}</th><th style={styles.th}>{t('regionalReport.colConsent')}</th><th style={styles.th}>{t('regionalReport.colAccessCount')}</th><th style={styles.th}>{t('regionalReport.colStatus')}</th><th style={styles.th}>{t('regionalReport.colActions')}</th></tr></thead>
-          <tbody>{shares.map(s => (
-            <tr key={s.id}>
-              <td style={styles.td}>{s.reportId}</td><td style={styles.td}>{s.patientName}</td><td style={styles.td}>{s.institution}</td><td style={styles.td}>{s.targetInstitution}</td><td style={styles.td}>{s.sharedDate}</td><td style={styles.td}>{s.sharedBy}</td>
-              <td style={styles.td}>{s.consent ? <span style={{ color: COLORS.success }}>✓ {t('regionalReport.consentObtained')}</span> : <span style={{ color: COLORS.warning }}>⏳ {t('regionalReport.consentPending')}</span>}</td>
-              <td style={styles.td}>{s.accessCount}</td>
-              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: s.status === 'active' ? 'var(--color-success-bg)' : 'var(--bg-card)', color: s.status === 'active' ? COLORS.success : COLORS.textMuted }}>{s.status === 'active' ? t('regionalReport.statusActive') : t('regionalReport.statusRevoked')}</span></td>
-              <td style={styles.td}>{s.status === 'active' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.danger, color: 'white' }} onClick={() => handleRevoke(s.id)}><UserX size={14} /> {t('regionalReport.revoke')}</button>}</td>
-            </tr>
-          ))}</tbody>
-        </table></div>
+        <DataTable<ShareRecord>
+          rowKey="id"
+          dataSource={shares}
+          columns={shareColumns}
+          scroll={{ x: 'max-content' }}
+        />
       </div>
       <div style={{ borderTop: '1px solid var(--border-color)', padding: '12px', background: 'var(--bg-primary)' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, color: COLORS.textMuted, marginBottom: '8px' }}>{t('regionalReport.shareAuditLog')}</div>
@@ -451,7 +543,7 @@ export const ReportSharingSection: React.FC = () => {
             <div style={styles.modalHeader}><span>{t('regionalReport.shareReport')}</span><X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowShareModal(false)} /></div>
             <div style={styles.modalBody}>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.reportIdLabel')}</label><input style={{ ...styles.input, width: '100%' }} value={shareForm.reportId} onChange={e => setShareForm({ ...shareForm, reportId: e.target.value })} placeholder={t('regionalReport.inputReportId')} /></div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.targetInstitution')}</label><select style={{ ...styles.input, width: '100%' }} value={shareForm.targetInstitution} onChange={e => setShareForm({ ...shareForm, targetInstitution: e.target.value })}><option value="">{t('regionalReportList.pleaseSelect')}</option>{institutions.map(i => <option key={i.id} value={i.name}>{i.name}</option>)}</select></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.targetInstitution')}</label><Select style={{ width: '100%' }} value={shareForm.targetInstitution || undefined} placeholder={t('regionalReportList.pleaseSelect')} onChange={v => setShareForm({ ...shareForm, targetInstitution: v })} options={institutions.map(i => ({ value: i.name, label: i.name }))} /></div>
               <div style={styles.formGroup}><label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={shareForm.consent} onChange={e => setShareForm({ ...shareForm, consent: e.target.checked })} /> <span style={{ fontSize: 13 }}>{t('regionalReport.consentObtainedLabel')}</span></label></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowShareModal(false)}>{t('regionalReportList.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleShare}><Share2 size={14} /> {t('regionalReport.share')}</button></div>
@@ -477,6 +569,28 @@ export const SLAAndTATSection: React.FC = () => {
   }
 
   useEffect(() => { void loadSla() }, [])
+
+  const slaColumns: TableColumnsType<SLARecord> = [
+    { title: t('regionalReport.colRemoteSite'), dataIndex: 'siteName', key: 'siteName', render: (v: string) => <div style={{ fontWeight: 500 }}>{v}</div> },
+    { title: t('regionalReport.colAssignedExams'), dataIndex: 'assignedExams', key: 'assignedExams' },
+    { title: t('regionalReport.colCompleted'), dataIndex: 'completedExams', key: 'completedExams' },
+    { title: t('regionalReport.colAvgTat'), dataIndex: 'avgTAT', key: 'avgTAT' },
+    { title: t('regionalReport.colSlaTarget'), dataIndex: 'slaTarget', key: 'slaTarget' },
+    {
+      title: t('regionalReport.colSlaCompliance'), dataIndex: 'slaCompliance', key: 'slaCompliance',
+      render: (v: number) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ ...styles.progressBar, width: 60 }}><div style={{ ...styles.progressFill, width: `${v}%`, backgroundColor: v >= 90 ? COLORS.success : v >= 80 ? COLORS.warning : COLORS.danger }} /></div>
+          <span style={{ fontSize: 12, fontWeight: 600 }}>{v}%</span>
+        </div>
+      ),
+    },
+    {
+      title: t('regionalReport.colStatus'), dataIndex: 'slaCompliance', key: 'status',
+      render: (v: number) => <span style={{ ...styles.statusTag, backgroundColor: v >= 90 ? 'var(--color-success-bg)' : v >= 80 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: v >= 90 ? COLORS.success : v >= 80 ? COLORS.warning : COLORS.danger }}>{v >= 90 ? t('regionalReport.slaMet') : v >= 80 ? t('regionalReport.slaBorderline') : t('regionalReport.slaMissed')}</span>,
+    },
+  ]
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.slaMonitor')}</span><span style={{ fontSize: '11px', color: COLORS.warning }}>{t('regionalReport.mswDemoData')}</span><button onClick={() => void loadSla()} disabled={refreshing} style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={14} /> {refreshing ? t('regionalReport.refreshing') : t('regionalReport.refresh')}</button></div>
@@ -487,20 +601,12 @@ export const SLAAndTATSection: React.FC = () => {
           <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.warning }}>3.0h</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('regionalReport.avgTat')}</div></div>
           <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.success }}>92%</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('regionalReport.slaComplianceRate')}</div></div>
         </div>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead><tr><th style={styles.th}>{t('regionalReport.colRemoteSite')}</th><th style={styles.th}>{t('regionalReport.colAssignedExams')}</th><th style={styles.th}>{t('regionalReport.colCompleted')}</th><th style={styles.th}>{t('regionalReport.colAvgTat')}</th><th style={styles.th}>{t('regionalReport.colSlaTarget')}</th><th style={styles.th}>{t('regionalReport.colSlaCompliance')}</th><th style={styles.th}>{t('regionalReport.colStatus')}</th></tr></thead>
-          <tbody>{slaData.map((s, idx) => (
-            <tr key={idx}>
-              <td style={styles.td}><div style={{ fontWeight: 500 }}>{s.siteName}</div></td>
-              <td style={styles.td}>{s.assignedExams}</td>
-              <td style={styles.td}>{s.completedExams}</td>
-              <td style={styles.td}>{s.avgTAT}</td>
-              <td style={styles.td}>{s.slaTarget}</td>
-              <td style={styles.td}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ ...styles.progressBar, width: '60px' }}><div style={{ ...styles.progressFill, width: `${s.slaCompliance}%`, backgroundColor: s.slaCompliance >= 90 ? COLORS.success : s.slaCompliance >= 80 ? COLORS.warning : COLORS.danger }} /></div><span style={{ fontSize: '12px', fontWeight: 600 }}>{s.slaCompliance}%</span></div></td>
-              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: s.slaCompliance >= 90 ? 'var(--color-success-bg)' : s.slaCompliance >= 80 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: s.slaCompliance >= 90 ? COLORS.success : s.slaCompliance >= 80 ? COLORS.warning : COLORS.danger }}>{s.slaCompliance >= 90 ? t('regionalReport.slaMet') : s.slaCompliance >= 80 ? t('regionalReport.slaBorderline') : t('regionalReport.slaMissed')}</span></td>
-            </tr>
-          ))}</tbody>
-        </table></div>
+        <DataTable<SLARecord>
+          rowKey={(s) => s.siteName}
+          dataSource={slaData}
+          columns={slaColumns}
+          scroll={{ x: 'max-content' }}
+        />
       </div>
     </div>
   )

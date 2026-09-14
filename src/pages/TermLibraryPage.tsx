@@ -2,12 +2,15 @@
 // 放射科专用术语词库，支持快速录入、分类管理、快捷复制、批量导入
 // 支持 WS/T 500-2016 国家标准对照
 import { useState, useEffect, useRef } from 'react'
-import { BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload, Download, BarChart2, Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check, LayoutGrid, Zap, FileCheck, DownloadCloud, Network, Lightbulb, Languages, FileSearch, Move, Save } from 'lucide-react'
+import { BookOpen, Search, Plus, X, Copy, Upload, Download, BarChart2, Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check, LayoutGrid, Zap, FileCheck, DownloadCloud, Network, Lightbulb, Languages, FileSearch, Move } from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
 import { termApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
-import { message } from 'antd'
+import { message, Select } from 'antd'
+import type { TableColumnsType } from 'antd'
 import { VirtualTable } from '../components/common/VirtualTable'
+import { DataTable } from '../components/common/DataTable'
+import { ActionButton } from '../components/common/ActionButton'
 import { t as t9 } from '../i18n/appI18n'
 
 // ============ 类型定义 ============
@@ -461,7 +464,7 @@ export default function TermLibraryPage() {
     setImportAllLoading(true)
     await new Promise(r => setTimeout(r, 2000))
     const updated = terms.map((t, i) => {
-      if (i < WS_STANDARDS.length) return { ...t, wsStandardCode: WS_STANDARDS[i % WS_STANDARDS.length].code }
+      if (i < WS_STANDARDS.length) return { ...t, wsStandardCode: WS_STANDARDS[i % WS_STANDARDS.length]?.code }
       return t
     })
     setTerms(updated)
@@ -473,6 +476,54 @@ export default function TermLibraryPage() {
   const useCount = (id: string) => {
     setTerms(terms.map(t => t.id === id ? { ...t, count: t.count + 1, lastUsed: new Date().toISOString().slice(0, 10) } : t))
   }
+
+  const termColumns: TableColumnsType<TermEntry> = [
+    {
+      title: t9('termLibrary.thTermId'), dataIndex: 'id', key: 'id', width: 100,
+      render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{v}</span>,
+    },
+    {
+      title: t9('termLibrary.thTermContent'), dataIndex: 'term', key: 'term',
+      render: (_v: string, term: TermEntry) => (
+        <div>
+          <div style={{ fontWeight: 600, color: '#1e40af', marginBottom: 2 }}>{term.term}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 210 }}>{term.standardReport}</div>
+        </div>
+      ),
+    },
+    {
+      title: t9('termLibrary.thCategory'), dataIndex: 'category', key: 'category',
+      render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{v}</span>,
+    },
+    {
+      title: t9('termLibrary.thModality'), dataIndex: 'modality', key: 'modality',
+      render: (mods?: string[]) => (
+        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+          {mods?.map(m => <span key={m} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: MODALITY_BG[m] || 'var(--bg-card)', color: MODALITY_COLORS[m] || 'var(--text-muted)' }}>{m}</span>)}
+        </div>
+      ),
+    },
+    {
+      title: t9('termLibrary.thUsageCount'), dataIndex: 'count', key: 'count', width: 100,
+      render: (v: number) => <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><TrendingUp size={11} style={{ color: '#10b981' }} /><span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{v}</span></div>,
+    },
+    { title: t9('termLibrary.thLastUsed'), dataIndex: 'lastUsed', key: 'lastUsed', render: (v?: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v || '-'}</span> },
+    {
+      title: t9('termLibrary.thStandardMapping'), dataIndex: 'wsStandardCode', key: 'wsStandardCode',
+      render: (v?: string) => v ? <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'var(--color-success-bg)', color: '#16a34a' }}>{v}</span> : <span style={{ fontSize: 12, color: '#d97706', fontWeight: 600 }}>—</span>,
+    },
+    {
+      title: t9('termLibrary.thActions'), key: 'actions', width: 160,
+      render: (_v: unknown, term: TermEntry) => (
+        <div style={{ display: 'flex', gap: 4 }}>
+          <ActionButton action="edit" size="compact" onClick={() => openEditModal(term)} />
+          <button onClick={() => handleToggleActive(term.id)} title={term.isActive === false ? t9('termLibrary.enable') : t9('termLibrary.disable')} style={{ padding: '4px 8px', background: term.isActive === false ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: term.isActive === false ? '#16a34a' : '#d97706', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}</button>
+          <ActionButton action="delete" size="compact" onClick={() => handleDeleteTerm(term.id)} />
+          <button onClick={() => { handleCopyTerm(term.term); useCount(term.id) }} title={t9('termLibrary.copyAndUse')} style={{ padding: '4px 8px', background: 'var(--color-success-bg)', color: copySuccess === term.term ? '#16a34a' : '#059669', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{copySuccess === term.term ? <Check size={11} /> : <Copy size={11} />}</button>
+        </div>
+      ),
+    },
+  ]
 
   const handleRunExtraction = () => {
     setExtractionRunning(true)
@@ -578,7 +629,7 @@ export default function TermLibraryPage() {
     const nodeDegrees: Record<string, number> = {}
     allNodes.forEach(n => {
       nodeDegrees[n] = synonymRelations.filter(r => r.from === n || r.to === n).length
-      nodeColors[n] = relationshipColors[synonymRelations.find(r => r.from === n || r.to === n)?.type || 'related']
+      nodeColors[n] = relationshipColors[synonymRelations.find(r => r.from === n || r.to === n)?.type || 'related'] ?? 'var(--text-muted)'
     })
     const maxDegree = Math.max(...Object.values(nodeDegrees), 1)
     const selectedRelations = selectedNode
@@ -618,7 +669,7 @@ export default function TermLibraryPage() {
                   const angle = (i / allNodes.length) * Math.PI * 2
                   const x = 300 + 120 * Math.cos(angle)
                   const y = 175 + 120 * Math.sin(angle)
-                  const radius = 8 + (nodeDegrees[node] / maxDegree) * 12
+                  const radius = 8 + ((nodeDegrees[node] ?? 0) / maxDegree) * 12
                   const isSelected = selectedNode === node
                   return (
                     <g key={node} onClick={() => setSelectedNode(selectedNode === node ? null : node)} style={{ cursor: 'pointer' }}>
@@ -857,8 +908,9 @@ export default function TermLibraryPage() {
 
     const handleSaveCategory = () => {
       if (!categoryForm.name.trim()) return
-      if (categoryForm.id) {
-        setCategoryTree(prev => updateCategoryNode(prev, categoryForm.id, categoryForm.name.trim()))
+      const editingId = categoryForm.id
+      if (editingId) {
+        setCategoryTree(prev => updateCategoryNode(prev, editingId, categoryForm.name.trim()))
       } else {
         const node: CategoryTreeNode = { id: `cat-${Date.now()}`, name: categoryForm.name.trim(), children: [], count: 0, color: categoryForm.color }
         setCategoryTree(prev => addCategoryNode(prev, categoryForm.parentId, node))
@@ -963,8 +1015,8 @@ export default function TermLibraryPage() {
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                <button onClick={() => setShowCategoryModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>{t9('termLibrary.cancel')}</button>
-                <button onClick={handleSaveCategory} disabled={!categoryForm.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: categoryForm.name.trim() ? '#1e40af' : 'var(--text-muted)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: categoryForm.name.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />{t9('termLibrary.save')}</button>
+                <ActionButton action="cancel" onClick={() => setShowCategoryModal(false)}>{t9('termLibrary.cancel')}</ActionButton>
+                <ActionButton action="save" disabled={!categoryForm.name.trim()} onClick={handleSaveCategory}>{t9('termLibrary.save')}</ActionButton>
               </div>
             </div>
           </div>
@@ -1256,14 +1308,26 @@ export default function TermLibraryPage() {
                       <Search size={12} style={{ color: 'var(--text-secondary)' }} />
                       <input value={rightSearch} onChange={e => setRightSearch(e.target.value)} placeholder={t9('termLibrary.searchTermContent')} style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: 150, color: '#1e40af' }} />
                     </div>
-                    <select value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
-                      <option value="全部">{t9('termLibrary.allModalities')}</option>
-                      {MODALITY_LIST.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                    <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
-                      <option value="全部">{t9('termLibrary.allCategories')}</option>
-                      {allCategoryNames.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <Select
+                      size="small"
+                      style={{ minWidth: 120 }}
+                      value={modalityFilter}
+                      onChange={(v) => setModalityFilter(v)}
+                      options={[
+                        { value: '全部', label: t9('termLibrary.allModalities') },
+                        ...MODALITY_LIST.map(m => ({ value: m, label: m })),
+                      ]}
+                    />
+                    <Select
+                      size="small"
+                      style={{ minWidth: 140 }}
+                      value={categoryFilter}
+                      onChange={(v) => setCategoryFilter(v)}
+                      options={[
+                        { value: '全部', label: t9('termLibrary.allCategories') },
+                        ...allCategoryNames.map(c => ({ value: c, label: c })),
+                      ]}
+                    />
                     <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> {t9('termLibrary.importTemplate')}</button>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? 'var(--content-bg)' : 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
                       <Upload size={11} />{importLoading ? t9('termLibrary.importing') : t9('termLibrary.batchImport')}
@@ -1272,49 +1336,17 @@ export default function TermLibraryPage() {
                     {importFile && <button onClick={handleImportFile} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#7c3aed', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer' }}><FileSpreadsheet size={11} /> {t9('termLibrary.confirmImport')}</button>}
                   </div>
                 </div>
-                <div style={{ overflowX: 'auto' }}>
-                  <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
-                    <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                      {[t9('termLibrary.thTermId'), t9('termLibrary.thTermContent'), t9('termLibrary.thCategory'), t9('termLibrary.thModality'), t9('termLibrary.thUsageCount'), t9('termLibrary.thLastUsed'), t9('termLibrary.thStandardMapping'), t9('termLibrary.thActions')].map((h, i) => (
-                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 7 ? '1px solid var(--border-light)' : 'none' }}>{h}</th>
-                      ))}
-                    </tr></thead>
-                    <tbody>
-                      {filteredTerms.length === 0 ? (
-                        <tr><td colSpan={8} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: 'var(--text-secondary)', fontSize: 13 }}><Search size={28} style={{ marginBottom: 8, color: 'var(--text-secondary)' }} /><div>{t9('termLibrary.noMatchingTerms')}</div></div></td></tr>
-                      ) : filteredTerms.map((term, _idx) => (
-                        <tr key={term.id} style={{ borderBottom: '1px solid var(--border-light)', background: term.isActive === false ? 'var(--color-error-bg)' : 'var(--bg-card)', transition: 'background 0.1s' }}
-                          onMouseEnter={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-hover)' }}
-                          onMouseLeave={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'; else (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-error-bg)' }}
-                        >
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{term.id}</span></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 220 }}>
-                            <div style={{ fontWeight: 600, color: '#1e40af', marginBottom: 2 }}>{term.term}</div>
-                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 210 }}>{term.standardReport}</div>
-                          </td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{term.category}</span></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>{term.modality?.map(m => <span key={m} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: MODALITY_BG[m] || 'var(--bg-card)', color: MODALITY_COLORS[m] || 'var(--text-muted)' }}>{m}</span>)}</div></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><TrendingUp size={11} style={{ color: '#10b981' }} /><span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{term.count}</span></div></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{term.lastUsed || '-'}</span></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}>
-                            {term.wsStandardCode ? <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'var(--color-success-bg)', color: '#16a34a' }}>{term.wsStandardCode}</span> : <span style={{ fontSize: 12, color: '#d97706', fontWeight: 600 }}>—</span>}
-                          </td>
-                          <td style={{ padding: '9px 12px' }}>
-                            <div style={{ display: 'flex', gap: 4 }}>
-                              <button onClick={() => openEditModal(term)} title={t9('termLibrary.edit')} style={{ padding: '4px 8px', background: 'var(--color-info-bg)', color: '#2563eb', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Edit2 size={11} /></button>
-                              <button onClick={() => handleToggleActive(term.id)} title={term.isActive === false ? t9('termLibrary.enable') : t9('termLibrary.disable')} style={{ padding: '4px 8px', background: term.isActive === false ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: term.isActive === false ? '#16a34a' : '#d97706', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}</button>
-                              <button onClick={() => handleDeleteTerm(term.id)} title={t9('termLibrary.delete')} style={{ padding: '4px 8px', background: 'var(--color-error-bg)', color: '#dc2626', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Trash2 size={11} /></button>
-                              <button onClick={() => { handleCopyTerm(term.term); useCount(term.id) }} title={t9('termLibrary.copyAndUse')} style={{ padding: '4px 8px', background: 'var(--color-success-bg)', color: copySuccess === term.term ? '#16a34a' : '#059669', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{copySuccess === term.term ? <Check size={11} /> : <Copy size={11} />}</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table></div>
-                </div>
+                <DataTable<TermEntry>
+                  rowKey="id"
+                  columns={termColumns}
+                  dataSource={filteredTerms}
+                  showPagination={false}
+                  emptyText={t9('termLibrary.noMatchingTerms')}
+                  onRow={(term) => ({ style: term.isActive === false ? { background: 'var(--color-error-bg)' } : undefined })}
+                />
                 <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-card)' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t9('termLibrary.totalTermsPrefix')}<strong style={{ color: '#1e40af' }}>{filteredTerms.length}</strong>{t9('termLibrary.totalTermsMid')}<strong style={{ color: '#16a34a' }}>{stats.mappedCount}</strong>{t9('termLibrary.totalTermsSuffix')}</span>
-                  <button onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={12} /> {t9('termLibrary.newTerm')}</button>
+                  <ActionButton action="create" size="compact" onClick={openAddModal}>{t9('termLibrary.newTerm')}</ActionButton>
                 </div>
               </div>
             </>
@@ -1336,7 +1368,7 @@ export default function TermLibraryPage() {
                 <Tag size={15} style={{ color: '#93c5fd' }} />
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{modalMode === 'add' ? t9('termLibrary.modalAdd') : t9('termLibrary.modalEdit')}</span>
               </div>
-              <button onClick={() => setShowModal(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 6, padding: 5, cursor: 'pointer', display: 'flex' }}><X size={16} style={{ color: '#fff' }} /></button>
+              <ActionButton action="cancel" variant="text" style={{ color: '#fff' }} onClick={() => setShowModal(false)} />
             </div>
             <div style={{ padding: 20 }}>
               <div style={{ marginBottom: 16 }}>
@@ -1386,10 +1418,10 @@ export default function TermLibraryPage() {
               </div>
             </div>
             <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 10, background: 'var(--bg-card)', borderRadius: '0 0 16px 16px' }}>
-              <button onClick={() => setShowModal(false)} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t9('termLibrary.cancel')}</button>
-              <button onClick={handleSaveTerm} disabled={!formData.term.trim()} style={{ padding: '8px 20px', background: formData.term.trim() ? '#1e40af' : 'var(--text-muted)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: formData.term.trim() ? 'pointer' : 'not-allowed', boxShadow: formData.term.trim() ? '0 2px 8px rgba(30,64,175,0.3)' : 'none' }}>
+              <ActionButton action="cancel" onClick={() => setShowModal(false)}>{t9('termLibrary.cancel')}</ActionButton>
+              <ActionButton action="save" disabled={!formData.term.trim()} onClick={handleSaveTerm}>
                 {modalMode === 'add' ? t9('termLibrary.saveTerm') : t9('termLibrary.saveChanges')}
-              </button>
+              </ActionButton>
             </div>
           </div>
         </div>

@@ -205,14 +205,14 @@ export default function FinancialReportsPage() {
             {tabKey === 'pl' ? t('financeReport.pl') : t('financeReport.kpi')}
           </button>
         ))}
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 6, fontSize: 12, background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600 }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 6, fontSize: 12, background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)', fontWeight: 600 }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }} />
           {loading ? t('financeReport.syncing') : dataSource === 'api' ? t('financeReport.sourceApi') : t('financeReport.sourceDemo')}
         </span>
         {apiError && (
-          <span style={{ fontSize: 12, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12, color: 'var(--color-error-500, #ef4444)', display: 'flex', alignItems: 'center', gap: 8 }}>
             {apiError}
-            <button onClick={() => void loadFinance()} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('financeReport.retry')}</button>
+            <button onClick={() => void loadFinance()} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-500, #ef4444)', cursor: 'pointer', fontSize: 12 }}>{t('financeReport.retry')}</button>
           </span>
         )}
       </div>
@@ -225,17 +225,17 @@ export default function FinancialReportsPage() {
               <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 16 }}>{t('financeReport.unitYuan')}</div>
               {plData.map((r, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #21262d', fontSize: 13 }}>
-                  <span style={{ color: r.type === 'revenue' ? '#22c55e' : r.type === 'cost' ? '#ef4444' : '#f59e0b' }}>
+                  <span style={{ color: r.type === 'revenue' ? 'var(--color-success-500, #22c55e)' : r.type === 'cost' ? 'var(--color-error-500, #ef4444)' : 'var(--color-warning-500, #f59e0b)' }}>
                     {r.type === 'revenue' ? '📈' : r.type === 'cost' ? '📉' : '📊'} {t(r.itemKey)}
                   </span>
-                  <span style={{ fontWeight: 600, color: r.amount >= 0 ? '#f0f6fc' : '#ef4444' }}>
+                  <span style={{ fontWeight: 600, color: r.amount >= 0 ? '#f0f6fc' : 'var(--color-error-500, #ef4444)' }}>
                     {r.amount >= 0 ? '+' : ''}¥{r.amount.toLocaleString()}
                   </span>
                 </div>
               ))}
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 15, fontWeight: 700, borderTop: '2px solid #30363d', marginTop: 8 }}>
                 <span>{t('financeReport.netIncome')}</span>
-                <span style={{ color: netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{netIncome.toLocaleString()}</span>
+                <span style={{ color: netIncome >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>¥{netIncome.toLocaleString()}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#8b949e', marginTop: 4 }}>
                 <span>{t('financeReport.grossMargin')}: {((totalRevenue + totalCost) / totalRevenue * 100).toFixed(1)}%</span>
@@ -251,7 +251,7 @@ export default function FinancialReportsPage() {
                   <div key={m.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                     <span style={{ width: 60, fontSize: 12, color: '#8b949e' }}>{m.month.slice(5)}</span>
                     <div style={{ flex: 1, height: 20, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${barPct}%`, height: '100%', background: m.netIncome >= 0 ? '#22c55e' : '#ef4444', borderRadius: 4, transition: 'width 0.3s' }} />
+                      <div style={{ width: `${barPct}%`, height: '100%', background: m.netIncome >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
                     <span style={{ width: 80, textAlign: 'right', fontSize: 12, fontWeight: 600 }}>¥{(m.netIncome / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
                   </div>
@@ -265,10 +265,10 @@ export default function FinancialReportsPage() {
                   {monthlyPl.map(m => (
                     <div key={m.month} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12 }}>
                       <span>{m.month}</span>
-                      <span style={{ textAlign: 'right', color: '#22c55e' }}>¥{(m.revenue / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
-                      <span style={{ textAlign: 'right', color: '#ef4444' }}>¥{(m.cost / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
+                      <span style={{ textAlign: 'right', color: 'var(--color-success-500, #22c55e)' }}>¥{(m.revenue / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
+                      <span style={{ textAlign: 'right', color: 'var(--color-error-500, #ef4444)' }}>¥{(m.cost / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
                       <span style={{ textAlign: 'right' }}>¥{(m.grossProfit / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
-                      <span style={{ textAlign: 'right', fontWeight: 600, color: m.netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{(m.netIncome / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
+                      <span style={{ textAlign: 'right', fontWeight: 600, color: m.netIncome >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>¥{(m.netIncome / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
                     </div>
                   ))}
                 </div>
@@ -284,7 +284,7 @@ export default function FinancialReportsPage() {
                 <div key={kpi.labelKey} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <span style={{ fontSize: 13, color: '#8b949e' }}>{t(kpi.labelKey)}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: kpi.trend === 'up' ? '#22c55e' : '#ef4444' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: kpi.trend === 'up' ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>
                       {kpi.trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                       {kpi.change >= 0 ? '+' : ''}{kpi.change.toFixed(1)}%
                     </span>

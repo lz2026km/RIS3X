@@ -125,7 +125,7 @@ export default function ChargeItemPage() {
       title: t('chargeItem.deleteTitle'),
       content: `确认删除「${item.name}」?该操作不可恢复。`,
       okText: t('chargeItem.delete'),
-      okButtonProps: { style: { background: '#ef4444', borderColor: '#ef4444' } },
+      okButtonProps: { style: { background: 'var(--color-error-500, #ef4444)', borderColor: 'var(--color-error-500, #ef4444)' } },
       cancelText: t('chargeItem.cancel'),
       onOk: async () => {
         try {
@@ -169,7 +169,7 @@ export default function ChargeItemPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" onClick={() => void load()} style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><RefreshCw size={14} />{t('chargeItem.refresh')}</button>
-          <button type="button" onClick={openCreate} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}><Plus size={14} />{t('chargeItem.newItem')}</button>
+          <button type="button" onClick={openCreate} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', background: 'var(--color-success-500, #22c55e)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}><Plus size={14} />{t('chargeItem.newItem')}</button>
         </div>
       </div>
 
@@ -225,15 +225,15 @@ export default function ChargeItemPage() {
                   {item.description && <div style={{ fontSize: 12, color: '#6e7681' }}>{item.description}</div>}
                 </div>
                 <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: `${CATEGORY_COLORS[item.category] ?? '#6b7280'}20`, color: CATEGORY_COLORS[item.category] ?? '#6b7280', textAlign: 'center', width: 'fit-content' }}>{item.category ?? '检查'}</span>
-                <span style={{ fontSize: 12, color: item.insuranceEligible ? '#22c55e' : '#f59e0b' }}>{item.insuranceEligible ? t('chargeItem.reimbursable') : t('chargeItem.selfPay')}</span>
-                <span style={{ fontSize: 12, color: item.active ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 12, color: item.insuranceEligible ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }}>{item.insuranceEligible ? t('chargeItem.reimbursable') : t('chargeItem.selfPay')}</span>
+                <span style={{ fontSize: 12, color: item.active ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', display: 'flex', alignItems: 'center', gap: 4 }}>
                   {item.active ? <Check size={12} /> : <X size={12} />}{item.active ? t('chargeItem.enabled') : t('chargeItem.disabled')}
                 </span>
-                <span style={{ fontSize: 14, fontWeight: 600, textAlign: 'right', color: '#22c55e' }}>¥{(item.unitPrice ?? 0).toLocaleString()}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, textAlign: 'right', color: 'var(--color-success-500, #22c55e)' }}>¥{(item.unitPrice ?? 0).toLocaleString()}</span>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button type="button" onClick={() => openEdit(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />{t('chargeItem.edit')}</button>
-                  <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: item.active ? '#f59e0b' : '#22c55e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? t('chargeItem.disabled') : t('chargeItem.enabled')}</button>
-                  <button type="button" onClick={() => handleDelete(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#fca5a5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Trash2 size={12} />{t('chargeItem.delete')}</button>
+                  <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: item.active ? 'var(--color-warning-500, #f59e0b)' : 'var(--color-success-500, #22c55e)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? t('chargeItem.disabled') : t('chargeItem.enabled')}</button>
+                  <button type="button" onClick={() => handleDelete(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-400, #f87171)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Trash2 size={12} />{t('chargeItem.delete')}</button>
                 </div>
               </div>
             ))

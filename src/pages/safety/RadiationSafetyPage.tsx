@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { Activity, CheckCircle, AlertTriangle, Shield, BarChart3, Download, Zap } from 'lucide-react'
 import {
   getDoseRecords, checkAlaraCompliance, getProtocolOptimizationSuggestions,
   type DoseRecord, type AlaraComplianceStatus, type ProtocolOptimizationSuggestion,
 } from '../../services/api/safetyApi'
+import { t } from '../../i18n/appI18n'
 
 const MODALITY_COLORS: Record<string, string> = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#22c55e', DSA: '#f59e0b', MG: '#ef4444' }
 
@@ -14,12 +16,29 @@ export default function RadiationSafetyPage() {
   const [compliance, setCompliance] = useState<AlaraComplianceStatus[]>([])
   const [optimizations, setOptimizations] = useState<ProtocolOptimizationSuggestion[]>([])
   const [activeTab, setActiveTab] = useState<'overview' | 'records' | 'alerts' | 'optimize'>('overview')
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getDoseRecords().then(setDoseRecords)
-    checkAlaraCompliance().then(setCompliance)
-    getProtocolOptimizationSuggestions().then(setOptimizations)
+  const load = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const [dose, alara, opts] = await Promise.all([
+        getDoseRecords(),
+        checkAlaraCompliance(),
+        getProtocolOptimizationSuggestions(),
+      ])
+      setDoseRecords(dose)
+      setCompliance(alara)
+      setOptimizations(opts)
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('w2d.loadFailed'))
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => { void load() }, [load])
 
   const dlpData = doseRecords.filter(r => r.dlp).map(r => ({ name: r.patientName, dlp: r.dlp, ctDoseIndex: r.ctDoseIndex }))
   const complianceData = compliance.map(c => ({ name: c.modality, rate: c.complianceRate, avgDose: c.avgDose }))
@@ -57,10 +76,10 @@ export default function RadiationSafetyPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: 'ALARA合规率', value: `${complianceRate}%`, icon: CheckCircle, color: complianceRate >= 90 ? '#22c55e' : '#f59e0b' },
-            { title: '本月检查量', value: doseRecords.length, icon: Activity, color: '#3b82f6' },
-            { title: '设备数量', value: new Set(doseRecords.map(r => r.deviceId)).size, icon: BarChart3, color: '#8b5cf6' },
-            { title: '优化建议', value: optimizations.length, icon: Zap, color: '#f59e0b' },
+            { title: 'ALARA合规率', value: `${complianceRate}%`, icon: CheckCircle, color: complianceRate >= 90 ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' },
+            { title: '本月检查量', value: doseRecords.length, icon: Activity, color: 'var(--color-primary-500, #3b82f6)' },
+            { title: '设备数量', value: new Set(doseRecords.map(r => r.deviceId)).size, icon: BarChart3, color: 'var(--color-modality-mr, #8b5cf6)' },
+            { title: '优化建议', value: optimizations.length, icon: Zap, color: 'var(--color-warning-500, #f59e0b)' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -80,6 +99,14 @@ export default function RadiationSafetyPage() {
           ))}
         </div>
 
+        <StateView
+          loading={loading}
+          error={loadError}
+          empty={!loading && !loadError && doseRecords.length === 0 && optimizations.length === 0 && compliance.length === 0}
+          emptyDescription={t('w2d.empty')}
+          onRetry={() => void load()}
+          skeletonRows={6}
+        >
         {activeTab === 'overview' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
@@ -205,6 +232,7 @@ export default function RadiationSafetyPage() {
             <div>阈值告警配置功能 - 可配置各设备类型的剂量阈值和通知规则</div>
           </div>
         )}
+        </StateView>
       </div>
     </div>
   )

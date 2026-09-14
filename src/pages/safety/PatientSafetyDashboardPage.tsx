@@ -82,7 +82,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
   const trendWindow = range === 'today' ? trend.slice(-1) : range === 'week' ? trend.slice(-2) : trend
 
   return (
-    <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary, #f5f7fa)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Shield size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('psd.title')}</span>
@@ -99,10 +99,10 @@ const PatientSafetyDashboardPage: React.FC = () => {
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" prefix={<Shield size={14} />} loading={loading} styles={{ content: { color: safetyScore >= 90 ? '#52c41a' : '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiOpen')} value={openCount} loading={loading} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiClosed')} value={closedCount} loading={loading} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" prefix={<Shield size={14} />} loading={loading} styles={{ content: { color: safetyScore >= 90 ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiOpen')} value={openCount} loading={loading} styles={{ content: { color: 'var(--color-warning-500, #f59e0b)' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiClosed')} value={closedCount} loading={loading} styles={{ content: { color: 'var(--color-success-500, #22c55e)' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} styles={{ content: { color: 'var(--color-error-500, #ef4444)' } }} /></Card></Col>
       </Row>
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
@@ -119,7 +119,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                         <Col span={12} key={s.key}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ fontSize: 12, width: 70 }}>{s.label}</span>
-                            <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? '#ff4d4f' : '#2563eb'} />
+                            <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? 'var(--color-error-500, #ef4444)' : 'var(--color-primary-600, #2563eb)'} />
                             <span style={{ fontSize: 12, color: '#64748b', width: 30 }}>{s.count}</span>
                           </div>
                         </Col>
@@ -152,7 +152,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                       {trendWindow.map((t) => (
                         <div key={t.period} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                           <span style={{ fontSize: 12, fontWeight: 600 }}>{t.total}</span>
-                          <div style={{ width: 32, height: Math.max(4, t.total * 14), background: t.total > 5 ? '#ef4444' : '#3b82f6', borderRadius: '4px 4px 0 0' }} />
+                          <div style={{ width: 32, height: Math.max(4, t.total * 14), background: t.total > 5 ? 'var(--color-error-500, #ef4444)' : 'var(--color-primary-500, #3b82f6)', borderRadius: '4px 4px 0 0' }} />
                           <span style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>{t.period}</span>
                         </div>
                       ))}

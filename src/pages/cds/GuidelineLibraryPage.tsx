@@ -7,9 +7,9 @@ import { t } from '../../i18n/appI18n'
 const INITIAL_FORM = { name: '', category: '通用', version: '1.0', status: 'draft', description: '', source: '' }
 
 const STATUS_COLORS: Record<string, string> = {
-  active: '#22c55e',
-  draft: '#f59e0b',
-  archived: '#6e7681',
+  active: 'var(--color-success-500, #22c55e)',
+  draft: 'var(--color-warning-500, #f59e0b)',
+  archived: 'var(--text-muted, #6e7681)',
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -294,7 +294,7 @@ export default function GuidelineLibraryPage() {
       )}
 
       {toast.show && (
-        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? '#059669' : '#dc2626', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
+        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? 'var(--color-success-600, #16a34a)' : 'var(--color-error-600, #dc2626)', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
           {toast.message}
         </div>
       )}

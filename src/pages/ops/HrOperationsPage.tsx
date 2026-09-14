@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts'
 import { ChartContainer } from '../../components/charts'
+import { StateView } from '../../components/common/StateView'
 import { Users, Search, TrendingUp, Award, Clock, CheckCircle, XCircle, ChevronDown, ChevronRight } from 'lucide-react'
 // [W2-A] 人员名册/工作量接 userApi 实时; 排班/满意度趋势无数据源 → 标注演示数据
 import { userApi } from '../../services/api/userApi'
@@ -130,15 +131,15 @@ export default function HrOperationsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
-            background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600,
+            background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)', fontWeight: 600,
           }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }} />
             {loading ? t('hrOps.syncing') : dataSource === 'api' ? t('hrOps.dataSourceApi') : t('hrOps.dataSourceDemo')}
           </span>
           {apiError && (
-            <span style={{ color: '#ef4444' }}>
+            <span style={{ color: 'var(--color-error-500, #ef4444)' }}>
               {apiError}
-              <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('hrOps.retry')}</button>
+              <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-500, #ef4444)', cursor: 'pointer', fontSize: 12 }}>{t('hrOps.retry')}</button>
             </span>
           )}
           <span style={{ color: '#8b949e' }}>{t('hrOps.builtinDemoNote')}</span>
@@ -200,6 +201,7 @@ export default function HrOperationsPage() {
               </div>
             </div>
 
+            <StateView empty={filtered.length === 0} emptyDescription={t('w2d.empty')}>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr 90px 80px 90px 80px 60px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
                 <span /><span>{t('hrOps.colName')}</span><span>{t('hrOps.colRole')}</span><span>{t('hrOps.colTeam')}</span><span>{t('hrOps.colShift')}</span><span>{t('hrOps.colWeeklyExams')}</span><span>{t('hrOps.colOvertime')}</span>
@@ -234,6 +236,7 @@ export default function HrOperationsPage() {
                 )
               })}
             </div>
+            </StateView>
           </>
         )}
 

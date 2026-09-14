@@ -4,6 +4,7 @@
 // 新增：DICOM脱敏引擎 / 队列构建器 / IRB工作流 / 数据导出管线 / 数据质量看板
 // ============================================================
 import React, { useState, useRef, useEffect } from 'react'
+import { Select } from 'antd'
 import {
   FlaskConical, Plus, X, Search, Edit2, Trash2, Download, Tag, Folder, FileText, Calendar, User, Clock,
   Eye, EyeOff, AlertCircle,
@@ -504,7 +505,7 @@ function LabelsTab() {
       <Modal open={showBatchModal} onClose={() => setShowBatchModal(false)} title={t('researchPage.batchAnnotateTitle')} width={440}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ padding: 12, background: COLORS.primaryLighter, borderRadius: 8, fontSize: 13, color: COLORS.primary }}>{t('researchPage.batchAnnotateHint')}</div>
-          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.selectLabel')}</label><select value={batchLabelId} onChange={e => setBatchLabelId(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box', background: COLORS.bgWhite }}><option value="">{t('researchPage.selectLabelPlaceholder')}</option>{labels.map(l => <option key={l.id} value={l.id}>{l.name}（{l.type}）</option>)}</select></div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.selectLabel')}</label><Select style={{ width: '100%' }} value={batchLabelId} onChange={(v) => setBatchLabelId(v)} options={[{ value: '', label: t('researchPage.selectLabelPlaceholder') }, ...labels.map(l => ({ value: l.id, label: `${l.name}（${l.type}）` }))]} /></div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowBatchModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={() => void handleBatchAnnotate()} disabled={!batchLabelId} style={{ padding: '10px 20px', background: batchLabelId ? COLORS.primary : COLORS.bgGray, color: batchLabelId ? '#ffffff' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: batchLabelId ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>{t('researchPage.confirmAnnotate')}</button></div>
         </div>
       </Modal>
@@ -737,13 +738,23 @@ function CohortBuilderTab() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {criteria.map((c, idx) => (
             <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 12px', background: COLORS.bgGray, borderRadius: 6 }}>
-              {idx > 0 && <select value={c.logic} onChange={e => updateCriterion(idx, 'logic', e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12 }}><option value="AND">{t('researchPage.and')}</option><option value="OR">{t('researchPage.or')}</option></select>}
-              <select value={c.field} onChange={e => updateCriterion(idx, 'field', e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12 }}>
-                <option value="age">{t('researchPage.fieldAge')}</option><option value="gender">{t('researchPage.fieldGender')}</option><option value="diagnosis">{t('researchPage.fieldDiagnosis')}</option><option value="modality">{t('researchPage.fieldModality')}</option><option value="dateRange">{t('researchPage.fieldDateRange')}</option>
-              </select>
-              <select value={c.operator} onChange={e => updateCriterion(idx, 'operator', e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12 }}>
-                <option value="=">=</option><option value=">">&gt;</option><option value="<">&lt;</option><option value=">=">&gt;=</option><option value="<=">&lt;=</option><option value="!=">!=</option><option value="contains">{t('researchPage.opContains')}</option>
-              </select>
+              {idx > 0 && <Select size="small" style={{ minWidth: 80 }} value={c.logic} onChange={(v) => updateCriterion(idx, 'logic', v)} options={[{ value: 'AND', label: t('researchPage.and') }, { value: 'OR', label: t('researchPage.or') }]} />}
+              <Select size="small" style={{ minWidth: 120 }} value={c.field} onChange={(v) => updateCriterion(idx, 'field', v)} options={[
+                { value: 'age', label: t('researchPage.fieldAge') },
+                { value: 'gender', label: t('researchPage.fieldGender') },
+                { value: 'diagnosis', label: t('researchPage.fieldDiagnosis') },
+                { value: 'modality', label: t('researchPage.fieldModality') },
+                { value: 'dateRange', label: t('researchPage.fieldDateRange') },
+              ]} />
+              <Select size="small" style={{ minWidth: 100 }} value={c.operator} onChange={(v) => updateCriterion(idx, 'operator', v)} options={[
+                { value: '=', label: '=' },
+                { value: '>', label: '>' },
+                { value: '<', label: '<' },
+                { value: '>=', label: '>=' },
+                { value: '<=', label: '<=' },
+                { value: '!=', label: '!=' },
+                { value: 'contains', label: t('researchPage.opContains') },
+              ]} />
               <input value={c.value} onChange={e => updateCriterion(idx, 'value', e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12, flex: 1 }} placeholder={t('researchPage.valuePlaceholder')} />
               <button onClick={() => removeCriterion(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.danger, padding: 4 }}><X size={14} /></button>
             </div>
@@ -928,8 +939,8 @@ function ExportPipelineTab() {
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} /> {t('researchPage.exportConfig')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.exportFormat')}</label><select style={{ width: '100%', padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 13 }} value={exportFormat} onChange={e => setExportFormat(e.target.value)}><option>CSV</option><option>JSON</option><option>FHIR</option><option>Parquet</option></select></div>
-          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.dataScope')}</label><select style={{ width: '100%', padding: '8px 12px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 13 }}><option>{t('researchPage.scopeAll')}</option><option>{t('researchPage.scopeSelected')}</option><option>{t('researchPage.scopeByDate')}</option></select></div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.exportFormat')}</label><Select style={{ width: '100%' }} value={exportFormat} onChange={(v) => setExportFormat(v)} options={[{ value: 'CSV', label: 'CSV' }, { value: 'JSON', label: 'JSON' }, { value: 'FHIR', label: 'FHIR' }, { value: 'Parquet', label: 'Parquet' }]} /></div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.dataScope')}</label><Select style={{ width: '100%' }} defaultValue={t('researchPage.scopeAll')} options={[{ value: t('researchPage.scopeAll'), label: t('researchPage.scopeAll') }, { value: t('researchPage.scopeSelected'), label: t('researchPage.scopeSelected') }, { value: t('researchPage.scopeByDate'), label: t('researchPage.scopeByDate') }]} /></div>
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}><input type="checkbox" checked={deidentify} onChange={e => setDeidentify(e.target.checked)} /> {t('researchPage.deidOnExport')}</label>
