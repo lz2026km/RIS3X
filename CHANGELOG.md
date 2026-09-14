@@ -1,3 +1,48 @@
+## v3.0.6.11-105 (2026-09-15) — 放射影像专业医疗质量控制指标（2024 年版）专项落地 —— 7 条国标指标引擎 + 国家上报中心 + 子功能联动
+
+> **目标**: 对标《放射影像专业医疗质量控制指标（2024 年版）》（国卫办医政函〔2024〕150 号 附件 4）7 条国标指标，落地计算引擎、上报闭环与子功能联动
+> **范围**: 3 波 7 agents（后端 306 suites/3366 tests 全过，前端 tsc 817、vite build 成功）
+
+### Wave 1: rqi-2024 国标指标引擎 + 子功能增强
+- **新增模块 `rqi-2024`**（孤儿模块 + 确定性 seed 回退）：
+  - **7 条国标指标纯函数引擎**（`rqi-2024.indicator-engine.ts`）：
+    - `RQI-IIA-01` 放射影像检查图像伪影率（**CT/MRI 分列**，源自 AI 影像三维度伪影评分）
+    - `RQI-RRC-02` 急诊放射影像检查报告 2 小时完成率（急诊 X线/CT，检查开始→报告出具 ≤120min）
+    - `RQI-RWS-03` 放射影像报告书写规范率（国标 3 条件：签名/结论与描述相符/5 类无明显错误）
+    - `RQI-RCV-04` 放射影像危急值 10 分钟内通报完成率（国标 13 类诊断 + 双方署名校验）
+    - `RQI-ICME-05` 增强 CT 静脉对比剂外渗发生率（×**1000‰**）
+    - `RQI-RCR-06` PI-RADS 分类率（前列腺 MR）/ `RQI-RCR-07` BI-RADS 分类率（乳腺钼靶）
+  - 端点：`GET /rqi-2024/indicators|detail/:code|trend|dashboard|config` + `PUT /config`（目标值可配置）+ `POST /export`（CSV/JSON）
+  - 目标值行业默认：伪影率<2% / 急诊2h≥95% / 书写规范≥98% / 危急值10min≥100% / 外渗率<0.1‰ / PI-RADS≥95% / BI-RADS≥95%
+  - spec 30 用例（7 指标正确性/CT·MRI 分列/13 类过滤/10min 边界/×1000‰/config 变更/确定性/端点 200/400）
+- **对比剂外渗事件**（扩展 contrast-safety）：`POST/GET /contrast/extravasation` + `stats`（外渗率‰）+ `:id/handle` 处置闭环
+- **国标 13 类危急值**（扩展 criticals/critical-alert）：`NATIONAL_CRITICAL_DIAGNOSES` 字典（GW-01~13）+ `GET /criticals/national-diagnoses` + `GET /criticals/rqi-stats`（10 分钟通报完成率 + 署名完整性 + 明细下钻）+ 通报/确认补写 notifiedAt/By/receivedBy
+- **报告书写规范规则 RWS-03**（扩展 report-rules）：7 条规则（签名缺失/结论与描述不符/脏器缺如报正常/部位方位错误/单位数据错误/模板残留/患者信息不符）+ `GET /report-rules/national-rws` + `POST /evaluate-rws` + `POST /rws-rate`
+- **40 条指标库接线**：`src/data/qualityIndicators.ts`（结构10/过程18/结果12）与 `qualityStandards.ts` 零引用 → 前端 `qualityIndicatorsService.ts` + 后端 `quality-indicators` 镜像模块（`/extended`、`/extended/:code`、`/evaluate`、`/standards`）
+- 新增 spec：rqi-2024 30 + 外渗/危急值 25 + RWS/指标库 48
+
+### Wave 2: 国家上报中心（后端）+ 指标页（前端）+ 联动
+- **新增模块 `rqi-report-center`**：批次生成（复用 rqi-2024 计算 7 指标）→ DRAFT；状态机 `DRAFT→SUBMITTED→ACCEPTED|REJECTED`（REJECTED→DRAFT 重报，非法流转 400）；导出（CSV 带 BOM / JSON，sha256 contentHash 确定性）；回执（接受-回执号 / 驳回-原因）；历史 + 统计（按时上报率）；端点 10 个 + spec 36 用例
+- **新增页 `RqiIndicatorPage`**（`/qc/rqi-2024`，640 行）：7 指标卡片（当期值/分子分母/目标/达标色/环比）+ 达标总览（ProgressRing）+ 明细下钻（DataTable）+ 月度趋势（目标参考线）+ 目标值配置抽屉 + 40 条扩展指标 Tab + 三态；95 i18n 键
+- **QCPage 新增 Tab「国标指标(2024)」**（`?tab=rqi2024` 深链）+ 新增组件 `RqiIndicatorLink` 
+- **5 个子功能联动**：QcImageAiPage→IIA-01、ReportTimelinessPage→RRC-02、CriticalValuePage→RCV-04、ContrastInjectionWorkstationPage→ICME-05、QualityManagementPage(mammo)→RCR-07（展示当期值/目标/达标徽标 + 查看国标指标链接）
+
+### Wave 3: 国家上报中心页
+- **新增页 `RqiReportCenterPage`**（`/qc/rqi-report-center`，1055 行）：批次列表（DataTable + 状态标签）+ 新建批次 Modal（月/季/年）+ 操作（详情 Drawer/提交/接受/驳回/重报/导出 CSV·JSON）+ 上报历史 Tab + 统计卡 6 张（批次/各状态/按时上报率）+ 三态；104 i18n 键
+
+### 验证结果
+- 后端：tsc 0 错误、jest **306 suites / 3366 tests 全部通过**（+7 suites +84 tests）
+- 前端：tsc **817**（持平）、vite build 成功
+- 全量交互回归：click-all + 基线全过（0 失败）
+
+### 代码量指标
+- ① 增加行数：**+9,8xx 行**
+- ② 增加功能：**~18 项**（7 指标引擎 + 上报中心 + 外渗 + 13 类危急值 + 书写规范 7 规则 + 40 条指标库 + 2 新页 + QCPage Tab + 5 联动）
+- ③ 新增文件数：**2x 个**
+- ④ 总代码行数：**~1,592,xxx 行**
+
+---
+
 ## v3.0.6.11-104 (2026-09-14) — 全项目审查整改：7 维度 15 波（后端契约对齐 + 961 端点全量前端 UI 补齐 + 放射临床流程闭环 + 冗余页面合并 + 全站翻译 + UI 统一）
 
 > **目标**: 全项目审查（后端模块/功能/参数、后端有前端无、放射业务流程、冗余页面、翻译遗漏、页面优化、UI 高质量优化）

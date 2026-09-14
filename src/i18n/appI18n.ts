@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-104 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-105 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -16,7 +16,7 @@ export const DEFAULT_LOCALE: Locale = "zh-CN";
 
 export const translations: Translations = {
 "zh-CN": {
-    // [v3.0.6.11-104 Wave 10D] Page i18n batch (20 pages)
+    // [v3.0.6.11-105 Wave 10D] Page i18n batch (20 pages)
     "deptStaff.role.director": "主任",
     "worklistPage.unknownPatient": "未知患者",
     "worklistPage.other": "其他",
@@ -2283,7 +2283,7 @@ export const translations: Translations = {
     "docMobile.submitting": "提交中...",
     "docMobile.reject": "驳回",
     "docMobile.approve": "通过",
-    // [v3.0.6.11-104 Wave 3B] 对比剂安全闭环 (过敏试验 + 注射前核查 + 留观)
+    // [v3.0.6.11-105 Wave 3B] 对比剂安全闭环 (过敏试验 + 注射前核查 + 留观)
     "contrastSafety.preCheck": "注射前核查",
     "contrastSafety.consent": "知情同意书",
     "contrastSafety.allergy": "过敏试验",
@@ -2330,7 +2330,7 @@ export const translations: Translations = {
     "contrastSafety.observationDischarged": "留观结束, 已确认离院",
     "contrastSafety.observationIdOptional": "留观ID (可选)",
     "contrastSafety.observationLinked": "已关联留观记录",
-    // [v3.0.6.11-104 Wave 2D] 运维看板/AI 病例库/零散 P1 端点 UI
+    // [v3.0.6.11-105 Wave 2D] 运维看板/AI 病例库/零散 P1 端点 UI
     "w2d.loading": "加载中...",
     "w2d.retry": "重试",
     "w2d.refresh": "刷新",
@@ -2499,7 +2499,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-104 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-105 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -2563,7 +2563,7 @@ export const translations: Translations = {
     "nav.dicomBrowserPro": "DICOM 专业版",
     "nav.dicomFusion": "PET-CT/MR 融合",
     "nav.fusionV2": "多模态融合 V2",
-    // [G005 v3.0.6.11-104 Wave 2A] 影像对比
+    // [G005 v3.0.6.11-105 Wave 2A] 影像对比
     "nav.imagingCompare": "影像对比",
     "imagingCompare.title": "影像对比",
     "imagingCompare.subtitle": "多时点 / 同患者多序列 / 多模态并排对比",
@@ -2620,7 +2620,7 @@ export const translations: Translations = {
     "imagingCompare.diffHint": "差异指标由确定性像素派生, 与视口渲染一致",
     "imagingCompare.hint": "左键拖拽调节窗宽窗位 · Shift 拖拽平移 · 滚轮翻页 · Ctrl+滚轮缩放 · 点击视口激活",
     "nav.dicomVolume": "3D 体绘制",
-    "nav.wsiViewer": "病理切片 WSI", // [v3.0.6.11-104 Wave 2B] 全切片图像浏览与标注
+    "nav.wsiViewer": "病理切片 WSI", // [v3.0.6.11-105 Wave 2B] 全切片图像浏览与标注
     "nav.filmPrint": "胶片打印",
     "nav.aiAssist": "AI辅助诊断",
     "nav.v3AIAssist": "V3 AI辅助诊断",
@@ -2732,7 +2732,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-104]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-105]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -2861,18 +2861,18 @@ export const translations: Translations = {
     "nav.deviceOps": "设备运维",
     "nav.hrOperations": "人事运营",
     "nav.opsDashboard": "运营看板",
-    // [v3.0.6.11-104] Wave6A 科室 KPI 墙屏
+    // [v3.0.6.11-105] Wave6A 科室 KPI 墙屏
     "nav.kpiWall": "科室 KPI 大屏",
-    // [v3.0.6.11-104 Wave 6B (tech-schedule)] 技师排班
+    // [v3.0.6.11-105 Wave 6B (tech-schedule)] 技师排班
     "nav.techSchedule": "技师排班",
-    // [v3.0.6.11-104 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
+    // [v3.0.6.11-105 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
     "nav.techOps": "技师调度优化 V2",
-    // [v3.0.6.11-104 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
+    // [v3.0.6.11-105 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
     "nav.techOverview": "预约分布与值班大屏",
-    // [v3.0.6.11-104 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
+    // [v3.0.6.11-105 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
     "nav.roomStatusBoard": "检查间看板",
     "nav.retakeAnalytics": "重拍分析",
-    // [v3.0.6.11-104 Wave 1A] 技师 KPI 看板
+    // [v3.0.6.11-105 Wave 1A] 技师 KPI 看板
     "nav.techKpi": "技师 KPI 看板",
     "nav.vesselAnalysis": "血管分析工作台",
     "nav.cdsManagement": "CDS管理",
@@ -2920,7 +2920,7 @@ export const translations: Translations = {
     "nav.multiSiteDashboard": "多站点看板",
     "nav.vnaDashboard": "VNA看板",
     "nav.reviewCenter": "综合审核中心",
-    // [v3.0.6.11-104 Wave 2A] 审核组: 委员会会诊
+    // [v3.0.6.11-105 Wave 2A] 审核组: 委员会会诊
     "nav.committeeRoom": "委员会会诊室",
     "nav.qualityControlV3": "质控管理",
     "nav.workflowV3": "工作流 V3",
@@ -2934,7 +2934,7 @@ export const translations: Translations = {
     "nav.aiRadsScoring": "AI 阅片助手 V3",
     "nav.aiDraft": "AI 报告草稿",
     "nav.teachLecture": "教学讲座",
-    // [G005 v3.0.6.11-104 Wave 18] PACS 对标新增 (第二批)
+    // [G005 v3.0.6.11-105 Wave 18] PACS 对标新增 (第二批)
     "nav.teachingCaseLibrary": "教学病例库",
     "nav.researchExportCenter": "科研数据导出中心",
     "nav.deviceGantt": "设备调度甘特图",
@@ -2948,9 +2948,9 @@ export const translations: Translations = {
     "nav.qcDashboard": "质控总看板",
     "nav.qcImage": "影像质控",
     "nav.qcImageAi": "影像 AI 自动质控",
-    // [G005 Wave 3A v3.0.6.11-104] PDCA 质控闭环
+    // [G005 Wave 3A v3.0.6.11-105] PDCA 质控闭环
     "nav.qcPdca": "PDCA 质控闭环",
-    // [G005 Wave 8B v3.0.6.11-104] 报告质控闭环与趋势分析
+    // [G005 Wave 8B v3.0.6.11-105] 报告质控闭环与趋势分析
     "nav.qcAnalytics": "质控闭环与趋势分析",
     "nav.qcRadiologistAnnual": "医生年度档案",
     "nav.cosign": "双签工作流",
@@ -2959,7 +2959,7 @@ export const translations: Translations = {
     "nav.dicomSr": "DICOM 结构化报告",
     "nav.radiomics": "影像组学分析",
     "nav.dicom4d": "4D 动态影像",
-    // [G005 v3.0.6.11-104 Wave 1B (G-07/G-10)] 4D 真实帧源 + DL 降噪升级文案
+    // [G005 v3.0.6.11-105 Wave 1B (G-07/G-10)] 4D 真实帧源 + DL 降噪升级文案
     "dicom4d.synthetic": "合成帧 (数据缺失回退)",
     "dicom4d.realSource": "真实帧源 · phase 派生",
     "dicom4d.phaseCurve": "相位曲线 (帧序 → 时相)",
@@ -4455,7 +4455,7 @@ export const translations: Translations = {
     "asr.submitToReport": "提交到报告",
     "asr.submitted": "已提交到报告",
     "asr.reset": "重置",
-    // [v3.0.6.11-104 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
+    // [v3.0.6.11-105 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
     "nav.structuredReportV3": "结构化报告 V3",
     "nav.asrDictation": "语音听写工作台 V2",
     "nav.autoCoding": "SNOMED/ICD 自动编码",
@@ -4767,7 +4767,7 @@ export const translations: Translations = {
     "nav.vr": "VR 体绘制",
     "nav.workflow": "工作流",
     "nav.wadoRs": "WADO-RS 检索",
-    // [v3.0.6.11-104 Wave 9] 聚合 i18n 键 (通用状态/操作/表头/提示)
+    // [v3.0.6.11-105 Wave 9] 聚合 i18n 键 (通用状态/操作/表头/提示)
     "common.status.pending": "待处理",
     "common.status.processing": "处理中",
     "common.status.inProgress": "进行中",
@@ -4820,7 +4820,7 @@ export const translations: Translations = {
     "common.api.seed": "种子派生",
     "common.api.database": "database",
     "common.api.demoSeed": "demo (seed)",
-    // [v3.0.6.11-104 Wave 4A] 技师工作站 V2: 双检间轮转 (TechRotationPage)
+    // [v3.0.6.11-105 Wave 4A] 技师工作站 V2: 双检间轮转 (TechRotationPage)
     "techRotation.title": "技师工作站 V2 · 双检间轮转",
     "techRotation.wave": "Wave 4A",
     "techRotation.apiLive": "tech-v2 API 实时",
@@ -4893,7 +4893,7 @@ export const translations: Translations = {
     "techRotation.shift.NIGHT": "夜班",
     "techRotation.shift.WEEKEND": "周末班",
     "techRotation.shift.BACKUP": "备班",
-    // [v3.0.6.11-104 Wave 4B] 技师工作站 V2: 设备利用率 + 紧急插入 + 跨机房优化 (TechOpsPage)
+    // [v3.0.6.11-105 Wave 4B] 技师工作站 V2: 设备利用率 + 紧急插入 + 跨机房优化 (TechOpsPage)
     "techOps.title": "技师工作站 V2 · 调度优化",
     "techOps.subtitle": "利用率历史 · 紧急插入 · 跨机房排程优化",
     "techOps.refreshData": "刷新数据",
@@ -5012,7 +5012,7 @@ export const translations: Translations = {
     "techOps.thPlan": "方案",
     "techOps.useSpare": "启用备用设备",
     "techOps.keepUnchanged": "保持不变",
-    "techOps.footnote": "G005 v3.0.6.11-104 Wave 4B · tech-ops 孤儿模块 (DB 不可用自动回退确定性种子) · 后端: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
+    "techOps.footnote": "G005 v3.0.6.11-105 Wave 4B · tech-ops 孤儿模块 (DB 不可用自动回退确定性种子) · 后端: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
     "techOps.selectModality": "请选择模态",
     "techOps.insertFailed": "插入失败: {{msg}}",
     "techOps.unknownError": "未知错误",
@@ -5021,7 +5021,7 @@ export const translations: Translations = {
     "techOps.priority.STAT": "危重",
     "techOps.priority.URGENT": "紧急",
     "techOps.priority.ROUTINE": "普通",
-    // [v3.0.6.11-104 Wave 5] 技师工作站 V2 收尾: 预约分布 + 值班大屏 (TechOverviewPage)
+    // [v3.0.6.11-105 Wave 5] 技师工作站 V2 收尾: 预约分布 + 值班大屏 (TechOverviewPage)
     "techOverview.title": "技师工作站 V2 · 预约分布与值班大屏",
     "techOverview.apiLive": "tech-overview API 实时",
     "techOverview.demoData": "演示数据",
@@ -5098,7 +5098,7 @@ export const translations: Translations = {
     "techOverview.event.EMERGENCY": "急诊插入",
     "techOverview.event.STATE_CHANGE": "状态变更",
     "techOverview.event.MAINTENANCE": "维护",
-    // [v3.0.6.11-104 Wave 6A] 报告质控规则引擎 (ReportRulesPage)
+    // [v3.0.6.11-105 Wave 6A] 报告质控规则引擎 (ReportRulesPage)
     "reportRules.title": "报告质控规则引擎",
     "reportRules.subtitle": "F11 · 18+ 内置放射专业规则 · 自定义规则 · 规则集按检查类型绑定",
     "reportRules.newRule": "新建自定义规则",
@@ -5203,7 +5203,7 @@ export const translations: Translations = {
     "reportRules.field.impression": "影像印象",
     "reportRules.field.conclusion": "报告结论",
     "reportRules.field.recommendations": "随访建议",
-    // [v3.0.6.11-104 Wave 6A] 报告水印签章 V2 (ReportWatermarkPage)
+    // [v3.0.6.11-105 Wave 6A] 报告水印签章 V2 (ReportWatermarkPage)
     "reportWatermark.title": "报告水印签章 V2",
     "reportWatermark.subtitle": "F8 · 文字水印参数化 · 医院 LOGO 图像水印 · 防篡改校验码 · 电子签名审批流",
     "reportWatermark.applySign": "发起签名申请",
@@ -5285,14 +5285,14 @@ export const translations: Translations = {
     "reportWatermark.cancelled": "已撤销",
     "reportWatermark.cancelFailed": "撤销失败",
     "reportWatermark.detailLoadFailed": "记录加载失败",
-    // [v3.0.6.11-104 Wave 7C] 报告 V2 三面板 (ReportV2Page)
+    // [v3.0.6.11-105 Wave 7C] 报告 V2 三面板 (ReportV2Page)
     "reportV2.title": "报告 V2",
     "reportV2.wave": "Wave 7C",
     "reportV2.subtitle": "定稿前 AI 复查 · 委员会会诊 · 科室互评",
     "reportV2.tabSecondRead": "AI 二次检出 V2 (F14)",
     "reportV2.tabConsultation": "委员会会诊 V2 (F6)",
     "reportV2.tabPeerReview": "报告互评 (F9)",
-    // [v3.0.6.11-104 Wave 8B] 质控闭环与趋势分析 (QcAnalyticsPage)
+    // [v3.0.6.11-105 Wave 8B] 质控闭环与趋势分析 (QcAnalyticsPage)
     "qcAnalytics.title": "质控闭环与趋势分析",
     "qcAnalytics.subtitle": "缺陷 → 整改 → 复查 → 关闭 PDCA 闭环 · 缺陷率周/月趋势 · 帕累托分析 · 科室排名",
     "qcAnalytics.refresh": "刷新",
@@ -5426,7 +5426,7 @@ export const translations: Translations = {
     "qcAnalytics.source.manual": "人工",
     "qcAnalytics.periodMonth": "月度",
     "qcAnalytics.periodWeek": "周度",
-    // [v3.0.6.11-104 Wave 2C] 影像分割深化 (SegmentationPage)
+    // [v3.0.6.11-105 Wave 2C] 影像分割深化 (SegmentationPage)
     "segmentationV2.title": "影像分割深化",
     "segmentationV2.tagAlgos": "5 算法 · 多器官/病灶",
     "segmentationV2.tagOtsu": "Otsu 自动阈值",
@@ -5553,7 +5553,7 @@ export const translations: Translations = {
     "segmentationV2.plane.axial": "轴位",
     "segmentationV2.plane.sagittal": "矢状位",
     "segmentationV2.plane.coronal": "冠状位",
-    // [v3.0.6.11-104 Wave 1A-3A] DICOM 压缩工作台 (DicomCompressPage)
+    // [v3.0.6.11-105 Wave 1A-3A] DICOM 压缩工作台 (DicomCompressPage)
     "compressV2.title": "DICOM 压缩工作台",
     "compressV2.subtitle": "JPEG2000 真编解码 (OpenJPEG WASM) + RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码",
     "compressV2.sourceFile": "源文件",
@@ -5693,7 +5693,7 @@ export const translations: Translations = {
     "eye.tele.existingAnswer": "已有答复",
     "eye.tele.answerPlaceholder": "请输入会诊意见答复…",
     "eye.tele.submitAnswer": "提交答复",
-    // [v3.0.6.11-104 Wave 9A] 远程眼科+视光中心页 i18n
+    // [v3.0.6.11-105 Wave 9A] 远程眼科+视光中心页 i18n
     "eye.tele.sessionDetailLoaded": "会话详情已加载",
     "eye.tele.consultLoaded": "会诊记录已加载",
     "eye.tele.answerRequired": "请输入答复内容",
@@ -6773,7 +6773,7 @@ export const translations: Translations = {
     "vnaOps.actualSize": "实际大小",
     "vnaOps.expectedSize": "期望大小",
     "vnaOps.verifiedAt": "校验时间",
-    // [v3.0.6.11-104 Wave 8A] VNADashboardPage i18n
+    // [v3.0.6.11-105 Wave 8A] VNADashboardPage i18n
     "vnaPage.document": "文档",
     "vnaPage.image": "图像",
     "vnaPage.tierHot": "热层",
@@ -6901,7 +6901,7 @@ export const translations: Translations = {
     "vnaPage.currentTier": "当前层",
     "vnaPage.targetTier": "目标存储层:",
     "vnaPage.wormLockedSuffix": " (WORM 锁定)",
-    // [v3.0.6.11-104 Wave 8A] AIQCPage i18n
+    // [v3.0.6.11-105 Wave 8A] AIQCPage i18n
     "aiQcPage.scoreExcellent": "优秀",
     "aiQcPage.scoreGood": "良好",
     "aiQcPage.scoreFair": "一般",
@@ -6998,7 +6998,7 @@ export const translations: Translations = {
     "aiQcPage.close": "关闭",
     "aiQcPage.updateConfirm": "更新确认",
     "aiQcPage.confirmQc": "确认质控",
-    // [v3.0.6.11-104 Wave 8A] BreastSpecialtyPage i18n
+    // [v3.0.6.11-105 Wave 8A] BreastSpecialtyPage i18n
     "breastSpecialty.densityFatty": "脂肪型",
     "breastSpecialty.densityScattered": "散在纤维腺体",
     "breastSpecialty.densityHeterogeneous": "不均匀致密",
@@ -7132,7 +7132,7 @@ export const translations: Translations = {
     "breastSpecialty.colShape": "形态",
     "breastSpecialty.colMargin": "边缘",
     "breastSpecialty.colMalignancyRisk": "恶性风险",
-    // [v3.0.6.11-104 Wave 8A] EquipmentEfficiencyPage i18n
+    // [v3.0.6.11-105 Wave 8A] EquipmentEfficiencyPage i18n
     "equipEfficiency.usage": "使用率",
     "equipEfficiency.examCount": "检查数量",
     "equipEfficiency.cases": "例",
@@ -7192,7 +7192,7 @@ export const translations: Translations = {
     "equipEfficiency.bookingDesc": "满员定义：当天预约机时 ≥95% | 标红低于70%的设备 (演示数据)",
     "equipEfficiency.failureTitle": "设备故障率统计",
     "equipEfficiency.failureDesc": "故障类型：硬件故障/软件故障/定期保养/紧急维修 · 故障记录来自 deviceMgmtApi.faults",
-    // [v3.0.6.11-104 Wave 8A] ExamDetailView i18n
+    // [v3.0.6.11-105 Wave 8A] ExamDetailView i18n
     "examDetail.statusScheduled": "已登记",
     "examDetail.statusArrived": "已报到",
     "examDetail.statusInProgress": "检查中",
@@ -7333,7 +7333,7 @@ export const translations: Translations = {
     "pacsAdmin.studies": "检查数",
     "pacsAdmin.series": "序列数",
     "pacsAdmin.detailFailed": "服务器详情加载失败",
-    // [v3.0.6.11-104 Wave 9A] PACS 管理页 i18n
+    // [v3.0.6.11-105 Wave 9A] PACS 管理页 i18n
     "pacsAdmin.loadFailed": "PACS 数据加载失败",
     "pacsAdmin.connFailed": "连接失败",
     "pacsAdmin.connTestFailed": "连接测试失败",
@@ -7445,7 +7445,7 @@ export const translations: Translations = {
     "pacsAdmin.readonly": "只读",
     "pacsAdmin.placeholderPrimaryPacs": "如 Primary PACS",
     "pacsAdmin.placeholderHotStorage": "如 Hot Storage",
-    // [v3.0.6.11-104 Wave 9A] 区域协同中心页 i18n
+    // [v3.0.6.11-105 Wave 9A] 区域协同中心页 i18n
     "regionalCollab.crossQueryFailed": "跨院检索失败",
     "regionalCollab.accessRecordOffline": "调阅记录接口不可达, 已在本会话记录",
     "regionalCollab.consultSubmitted": "会诊请求已提交, 等待专家接诊",
@@ -7542,7 +7542,7 @@ export const translations: Translations = {
     "regionalCollab.priorityNormal": "普通",
     "regionalCollab.priorityUrgent": "紧急",
     "regionalCollab.priorityCritical": "危急",
-    // [v3.0.6.11-104 Wave 9A] 自动采集管理页 i18n
+    // [v3.0.6.11-105 Wave 9A] 自动采集管理页 i18n
     "autoCollection.rulesLoadFailed": "规则加载失败",
     "autoCollection.loadFailed": "加载失败",
     "autoCollection.ruleDeleted": "规则已删除",
@@ -7624,7 +7624,7 @@ export const translations: Translations = {
     "autoCollection.close": "关闭",
     "autoCollection.errorInfo": "错误信息",
     "autoCollection.result": "结果",
-    // [v3.0.6.11-104 Wave 9A] PDCA 质控闭环页 i18n
+    // [v3.0.6.11-105 Wave 9A] PDCA 质控闭环页 i18n
     "qcPdca.cyclesLoadFailed": "周期列表加载失败, 已回退演示数据",
     "qcPdca.editFailed": "编辑失败",
     "qcPdca.cycleUpdated": "周期已更新",
@@ -7720,7 +7720,7 @@ export const translations: Translations = {
     "qcPdca.requiredSummary": "请填写闭环总结",
     "qcPdca.placeholderSummary": "记录周期闭环成果与固化措施...",
     "qcPdca.completeHint": "完成后周期状态变为「已完成」, 并记录 completedAt 与总结, 不可再推进。",
-    // [v3.0.6.11-104 Wave 9A] 技师排班管理页 i18n
+    // [v3.0.6.11-105 Wave 9A] 技师排班管理页 i18n
     "techSchedule.requiredDateTech": "请填写日期并选择技师",
     "techSchedule.createFailed": "创建失败",
     "techSchedule.requiredBatch": "请填写起止日期并选择班次模式",
@@ -7790,7 +7790,7 @@ export const translations: Translations = {
     "techSchedule.leaveReasonLabel": "请假原因 (将提示补位)",
     "techSchedule.placeholderLeaveReason": "如: 突发疾病，请安排补位",
     "techSchedule.editScheduleTitle": "编辑排班",
-    // [v3.0.6.11-104 Wave 9A] CA 数字签名页 i18n
+    // [v3.0.6.11-105 Wave 9A] CA 数字签名页 i18n
     "caSignature.certsLoadFailed": "证书列表加载失败",
     "caSignature.certInvalid": "证书无效，无法签名",
     "caSignature.enterReportId": "请输入要签名的报告 ID",
@@ -7896,7 +7896,7 @@ export const translations: Translations = {
     "caSignature.caHistoryTitle": "证书操作历史",
     "caSignature.loadingHistory": "加载操作历史...",
     "caSignature.noHistory": "暂无操作记录",
-    // [v3.0.6.11-104 Wave 9A] 口腔-放射融合页 i18n
+    // [v3.0.6.11-105 Wave 9A] 口腔-放射融合页 i18n
     "dentalRadFusion.referralsLoadFailed": "转诊记录加载失败",
     "dentalRadFusion.referralCreated": "转诊已发起",
     "dentalRadFusion.createFailed": "发起失败",
@@ -7981,7 +7981,7 @@ export const translations: Translations = {
     "dentalRadFusion.timeline3": "2026-06-22 放射科报告完成",
     "dentalRadFusion.timeline4": "2026-06-23 口腔科种植规划",
     "dentalRadFusion.timeline5": "2026-06-25 口扫取模 + 3D 融合设计",
-    // [v3.0.6.11-104 Wave 9A] CA 签名 + 修订综合页 i18n
+    // [v3.0.6.11-105 Wave 9A] CA 签名 + 修订综合页 i18n
     "signAmend.applySuccess": "申请成功",
     "signAmend.revokeSuccess": "吊销成功",
     "signAmend.enterSignatureHash": "请输入签名 hash",
@@ -8072,7 +8072,7 @@ export const translations: Translations = {
     "signAmend.rejectReason": "驳回原因",
     "signAmend.confirmReject": "确认驳回",
     "signAmend.query": "查询",
-    // [v3.0.6.11-104 Wave 9A] 智能路由页 i18n
+    // [v3.0.6.11-105 Wave 9A] 智能路由页 i18n
     "smartRouting.rulesLoadFailed": "规则加载失败",
     "smartRouting.dataLoadFailed": "数据加载失败,请检查网络后重试",
     "smartRouting.saveFailed": "保存失败",
@@ -8142,7 +8142,7 @@ export const translations: Translations = {
     "smartRouting.editRuleTitle": "编辑路由规则",
     "smartRouting.newRuleTitle": "新建路由规则",
     "smartRouting.priorityHint": "优先级(越小越优先)",
-    // [v3.0.6.11-104 Wave 9A] 危急值中心页 i18n
+    // [v3.0.6.11-105 Wave 9A] 危急值中心页 i18n
     "criticalCenter.centerLoadFailed": "中心列表加载失败",
     "criticalCenter.examIdAndContentRequired": "检查 ID 与报告内容不能为空",
     "criticalCenter.autoDetectFailed": "自动检测失败",
@@ -8243,7 +8243,7 @@ export const translations: Translations = {
     "criticalCenter.saving": "保存中...",
     "criticalCenter.channelsUnavailable": "通道配置加载中或不可用...",
     "criticalCenter.channelHint": "关闭的通道将不再投递危急值通知（投递状态判定为 FAILED），配置保存至系统配置表 critical_channel_* 键。",
-    // [v3.0.6.11-104 Wave 9A] 区域报告列表页 i18n
+    // [v3.0.6.11-105 Wave 9A] 区域报告列表页 i18n
     "regionalReport.institutions": "医疗机构",
     "regionalReport.institutionsUnit": "家",
     "regionalReport.allInstitutions": "全部机构",
@@ -8880,7 +8880,7 @@ export const translations: Translations = {
     "critical.flowTreatPlaceholder": "处置内容, 如医嘱/处理措施 (可空)",
     "critical.flowClosePlaceholder": "闭环记录, 如患者处置结果 (可空)",
     "critical.flowClosed": "该危急值已完成 5 步闭环 (触发→通知→确认→处置→记录)",
-    // [v3.0.6.11-104 Wave 5B] 危急值多入口收敛 Tab 标签
+    // [v3.0.6.11-105 Wave 5B] 危急值多入口收敛 Tab 标签
     "critical.tabWorkbench": "工作台",
     "critical.tabCenter": "危急值中心",
     "critical.tab5Step": "5步闭环",
@@ -9542,7 +9542,7 @@ export const translations: Translations = {
     "statsPage.revenueYuan": "收入(元)",
     "statsPage.costYuan": "成本(元)",
     "statsPage.profitYuan": "利润(元)",
-    // [v3.0.6.11-104 Wave 7C] 统计页图表名称 i18n
+    // [v3.0.6.11-105 Wave 7C] 统计页图表名称 i18n
     "statsPage.chart.examCount": "检查量",
     "statsPage.chart.criticalCount": "危急值数",
     "statsPage.chart.reportCount": "报告数",
@@ -10208,7 +10208,7 @@ export const translations: Translations = {
     "qcPage.trendAnalysis": "趋势分析",
     "qcPage.qcManagement": "质控管理(评分/危急值/缺陷)",
     "qcPage.radiologyQcOverview": "放射质控总览",
-    // [v3.0.6.11-104 Wave 5A] 质控收敛: AI 智能质控 / 科室质量 Tab + 报告规则/水印迁入质控分组
+    // [v3.0.6.11-105 Wave 5A] 质控收敛: AI 智能质控 / 科室质量 Tab + 报告规则/水印迁入质控分组
     "qcPage.aiQc": "AI 智能质控",
     "qcPage.deptQuality": "科室质量",
     "nav.reportRules": "报告质控规则",
@@ -11647,7 +11647,7 @@ export const translations: Translations = {
     "selfService.status.pending": "待随访",
     "selfService.status.followingUp": "随访中",
     "selfService.status.overdue": "已逾期",
-    // [v3.0.6.11-104 Wave 3D] 对比剂临床资料接入 + 重拍审批 + 随访结构化结果 + eGFR 校验
+    // [v3.0.6.11-105 Wave 3D] 对比剂临床资料接入 + 重拍审批 + 随访结构化结果 + eGFR 校验
     "w3d.egfr.title": "eGFR 肾功能评估",
     "w3d.egfr.blocked": "eGFR {{value}} mL/min < 30，对比剂肾病高风险，禁止注射碘对比剂",
     "w3d.egfr.warning": "eGFR {{value}} mL/min (30-59)，中度肾功能不全，慎用并加强水化",
@@ -12071,7 +12071,7 @@ export const translations: Translations = {
     "costAnalysis.step1": "1. 补充材料",
     "costAnalysis.step2": "2. 提交申诉",
     "costAnalysis.step3": "3. 重新核定",
-    // [v3.0.6.11-104 Wave 2B] 检查统计 / 患者档案
+    // [v3.0.6.11-105 Wave 2B] 检查统计 / 患者档案
     "examPage.statisticsOverview": "统计总览",
     "examPage.examOverview": "检查概览",
     "examPage.overviewTotal": "检查总数",
@@ -12102,7 +12102,7 @@ export const translations: Translations = {
     "examPage.notesSaveFailed": "备注保存失败",
     "examPage.notesRequired": "备注内容不能为空",
     "examPage.minuteShort": "分钟",
-    // [v3.0.6.11-104 Wave 7C] Exam page extra i18n
+    // [v3.0.6.11-105 Wave 7C] Exam page extra i18n
     "examPage.allPatients": "全部患者",
     "examPage.priorityCritical": "危重",
     "examPage.transferEmergencyToInpatient": "急诊→住院",
@@ -12192,7 +12192,7 @@ export const translations: Translations = {
     "deviceMgmtBoard.stateMaintenance": "维护中",
     "deviceMgmtBoard.stateBroken": "故障",
     "deviceMgmtBoard.stateOffline": "离线",
-    // [v3.0.6.11-104 Wave 6C] AI 报告助理 / 结构化字段 / 语音录入
+    // [v3.0.6.11-105 Wave 6C] AI 报告助理 / 结构化字段 / 语音录入
     "aiDraft.source.template": "模板",
     "aiDraft.source.rule": "规则",
     "aiDraft.source.field": "字段",
@@ -12363,7 +12363,7 @@ export const translations: Translations = {
     "aiDraft.compareModal.impression": "诊断意见：",
     "aiDraft.close": "关闭",
     "aiDraft.none": "（无）",
-    // [v3.0.6.11-104 Wave 6B] 报告质控组件群 (R3.QUALITY) - QualityDimensionCard
+    // [v3.0.6.11-105 Wave 6B] 报告质控组件群 (R3.QUALITY) - QualityDimensionCard
     "reportQuality.dimensionConfig": "评分维度配置",
     "reportQuality.pointsDomains": "20 点 · 5 个能力域",
     "reportQuality.tab.weights": "维度权重",
@@ -12630,7 +12630,7 @@ export const translations: Translations = {
     "aiDraft.voice.historyTitle": "语音听写历史",
     "aiDraft.voice.insert": "插入",
     "aiDraft.voice.noHistory": "暂无历史",
-    // [v3.0.6.11-104 Wave 6C] 报告分发 (R3.DIST)
+    // [v3.0.6.11-105 Wave 6C] 报告分发 (R3.DIST)
     "reportDist.status.pending": "待发送",
     "reportDist.status.queued": "队列中",
     "reportDist.status.sending": "发送中",
@@ -12791,7 +12791,7 @@ export const translations: Translations = {
     "reportDist.receipt.certChain": "证书链: 3 级",
     "reportDist.receipt.timestamp": "时间戳: RFC 3161",
     "reportDist.receipt.ca": "CA: 卫健委国家信任 CA",
-    // [v3.0.6.11-104 Wave 6B] 危急值告警中心 - CriticalValueAlerter
+    // [v3.0.6.11-105 Wave 6B] 危急值告警中心 - CriticalValueAlerter
     "criticalValue.status.pending": "待通报",
     "criticalValue.status.notified": "已通报",
     "criticalValue.status.acknowledged": "已确认",
@@ -12890,7 +12890,7 @@ export const translations: Translations = {
     "criticalValue.channelOption.inApp": "🔔 应用内",
     "criticalValue.channelOption.email": "📧 邮件",
     "criticalValue.channelOption.pager": "📟 传呼",
-    // [v3.0.6.11-104 Wave 6C] 报告集成 (R3.INTEGRATION)
+    // [v3.0.6.11-105 Wave 6C] 报告集成 (R3.INTEGRATION)
     "reportIntegration.downloadFailed": "下载失败",
     "reportIntegration.selectReport": "请先选择报告",
     "reportIntegration.signatureAlgorithm": "签名算法",
@@ -13037,7 +13037,7 @@ export const translations: Translations = {
     "reportIntegration.fhir.tokenEndpoint": "Token 端点:",
     "reportIntegration.fhir.clientId": "客户端 ID:",
     "reportIntegration.fhir.authorize": "发起授权",
-    // [v3.0.6.11-104 Wave 6B] 报告质控 V2 - ReportQcV2Panel
+    // [v3.0.6.11-105 Wave 6B] 报告质控 V2 - ReportQcV2Panel
     "reportQcV2.taskStatus.pending": "待分配",
     "reportQcV2.taskStatus.inProgress": "质控中",
     "reportQcV2.taskStatus.reviewing": "待二次复核",
@@ -13121,7 +13121,7 @@ export const translations: Translations = {
     "reportQcV2.defectDistribution": "缺陷分布 (按维度 × 严重度)",
     "reportQcV2.monthlyTrend": "月度趋势",
     "reportQcV2.recentRecords": "最近记录:",
-    // [v3.0.6.11-104 Wave 6C] 模板库 V2
+    // [v3.0.6.11-105 Wave 6C] 模板库 V2
     "templateLibrary.loadFailed": "加载模板库数据失败",
     "templateLibrary.usedTemplate": "已使用模板: {{name}}",
     "templateLibrary.recordUsageFailed": "记录使用失败",
@@ -13192,7 +13192,7 @@ export const translations: Translations = {
     "templateLibrary.usageOverview": "使用统计速览",
     "templateLibrary.noData": "暂无数据",
     "templateLibrary.footer": "推荐评分 = 使用频率 ×40 + 时效衰减 ×30 + 分类匹配 (模态50/科室25/用途15/标签5/部位10) · 分类树按 检查类型/科室/用途 组织 · 内置 {{count}} 个放射模板 (seed 回退)",
-    // [v3.0.6.11-104 Wave 6A] R3.REVIEW review components
+    // [v3.0.6.11-105 Wave 6A] R3.REVIEW review components
     "reportReview.common.all": "全部",
     "reportReview.common.apply": "应用",
     "reportReview.common.cancel": "取消",
@@ -13833,7 +13833,7 @@ export const translations: Translations = {
     "reportReview.final.channel.wechat": "微信",
     "reportReview.final.channel.email": "邮件",
     "reportReview.final.channel.pager": "呼叫器",
-    // [v3.0.6.11-104 Wave 6C] 报告导出中心 V2
+    // [v3.0.6.11-105 Wave 6C] 报告导出中心 V2
     "reportExport.state.pending": "待处理",
     "reportExport.state.processing": "处理中",
     "reportExport.state.completed": "已完成",
@@ -13909,7 +13909,7 @@ export const translations: Translations = {
     "reportExport.noContent": "任务尚未处理, 无导出内容",
     "reportExport.downloadFile": "下载 {{name}}",
     "reportExport.footer": "导出格式: PDF/DOCX 为概念导出 (确定性占位内容) · HTML/CSV/DICOM SR 生成完整内容 · 所有格式均包含报告全文 · 任务流转 PENDING → PROCESSING → COMPLETED",
-    // [v3.0.6.11-104 Wave 6C] 模板审批流 V2
+    // [v3.0.6.11-105 Wave 6C] 模板审批流 V2
     "templateApproval.state.draft": "草稿",
     "templateApproval.state.pending": "审批中",
     "templateApproval.state.approved": "已通过",
@@ -13994,7 +13994,7 @@ export const translations: Translations = {
     "templateApproval.commentLabel": "{{action}} (可选)",
     "templateApproval.comment": "意见",
     "templateApproval.commentPlaceholder": "填写审批意见",
-    // [v3.0.6.11-104 Wave 6B] 缺陷库 - DefectLibrary
+    // [v3.0.6.11-105 Wave 6B] 缺陷库 - DefectLibrary
     "defectLibrary.severity.minor": "轻微",
     "defectLibrary.severity.major": "重要",
     "defectLibrary.severity.critical": "严重",
@@ -14072,7 +14072,7 @@ export const translations: Translations = {
     "defectLibrary.triggerCount": "触发次数",
     "defectLibrary.tags": "标签",
     "defectLibrary.references": "参考文献",
-    // [v3.0.6.11-104 Wave 6C] 用户管理 / 设置 / MLLP / 预约日历
+    // [v3.0.6.11-105 Wave 6C] 用户管理 / 设置 / MLLP / 预约日历
     "userMgmt.role.admin": "系统管理员",
     "userMgmt.role.adminDesc": "全部权限",
     "userMgmt.role.director": "科主任",
@@ -14259,7 +14259,7 @@ export const translations: Translations = {
     "appointmentCalendar.form.priority": "优先级",
     "appointmentCalendar.form.device": "设备",
     "appointmentCalendar.form.note": "备注",
-    // [v3.0.6.11-104 Wave 6B] 危急值升级链 V2 - CriticalEscalationV2
+    // [v3.0.6.11-105 Wave 6B] 危急值升级链 V2 - CriticalEscalationV2
     "criticalEscalation.status.notifying": "通知中",
     "criticalEscalation.status.pendingConfirm": "待确认",
     "criticalEscalation.status.confirmed": "已确认",
@@ -14319,7 +14319,7 @@ export const translations: Translations = {
     "criticalEscalation.confirmedVerb": "确认",
     "criticalEscalation.autoEscalated": "超时未确认, 自动升级",
     "criticalEscalation.escalationRecords": "升级记录",
-    // [v3.0.6.11-104 Wave 6B] 缺陷整改追踪 - DefectRemediationTracker
+    // [v3.0.6.11-105 Wave 6B] 缺陷整改追踪 - DefectRemediationTracker
     "defectRemediation.status.pending": "待整改",
     "defectRemediation.status.inProgress": "整改中",
     "defectRemediation.status.rectified": "已整改",
@@ -14373,7 +14373,7 @@ export const translations: Translations = {
     "defectRemediation.reportingDoctorTag": "报告医生",
     "defectRemediation.verifiedBy": "验证人",
     "defectRemediation.reminderCount": "提醒次数",
-    // [v3.0.6.11-104 Wave 6B] 危急值升级规则编辑器 - CriticalValueEscalation
+    // [v3.0.6.11-105 Wave 6B] 危急值升级规则编辑器 - CriticalValueEscalation
     "criticalValueEscalation.role.attending": "主治医师",
     "criticalValueEscalation.role.associateChief": "副主任",
     "criticalValueEscalation.role.chief": "科主任",
@@ -14416,7 +14416,7 @@ export const translations: Translations = {
     "criticalValueEscalation.priority": "优先级",
     "criticalValueEscalation.messageTemplate": "消息模板",
     "criticalValueEscalation.enableRule": "启用此规则",
-    // [v3.0.6.11-104 Wave 6B] 15 维评分 - QualityScorePanel
+    // [v3.0.6.11-105 Wave 6B] 15 维评分 - QualityScorePanel
     "qualityScore.category.completeness": "完整性",
     "qualityScore.category.accuracy": "准确性",
     "qualityScore.category.timeliness": "时效性",
@@ -14467,7 +14467,7 @@ export const translations: Translations = {
     "qualityScore.weight": "权重",
     "qualityScore.score": "得分",
     "qualityScore.rule": "规则:",
-    // [v3.0.6.11-104 Wave 6B] 质控月报 - QualityMonthlyReport
+    // [v3.0.6.11-105 Wave 6B] 质控月报 - QualityMonthlyReport
     "qualityMonthly.loadFailed": "加载月报失败",
     "qualityMonthly.exportFailed": "导出失败",
     "qualityMonthly.loadingLabel": "加载质量月报",
@@ -14511,7 +14511,7 @@ export const translations: Translations = {
     "qualityMonthly.departmentRanking": "科室排名",
     "qualityMonthly.tab.sections": "报告章节",
     "qualityMonthly.generatedAt": "生成于",
-    // [v3.0.6.11-104 Wave 6B] 危急值通知卡片 - CriticalValueCard
+    // [v3.0.6.11-105 Wave 6B] 危急值通知卡片 - CriticalValueCard
     "criticalValueCard.callNetworkError": "呼叫失败:网络错误",
     "criticalValueCard.enterPhone": "请填写接收手机号",
     "criticalValueCard.smsNetworkError": "短信发送失败:网络错误",
@@ -14531,7 +14531,7 @@ export const translations: Translations = {
     "criticalValueCard.receivingPhone": "接收手机号",
     "criticalValueCard.phonePlaceholder": "如: 13800000001",
     "criticalValueCard.smsContentLabel": "短信内容(留空使用默认模板)",
-    // [v3.0.6.11-104 Wave 6B] 质控实时仪表盘 - QualityDashboard
+    // [v3.0.6.11-105 Wave 6B] 质控实时仪表盘 - QualityDashboard
     "qualityDashboard.loadFailed": "加载仪表盘失败",
     "qualityDashboard.loadingLabel": "加载质控仪表盘",
     "qualityDashboard.loading": "加载中...",
@@ -14562,7 +14562,7 @@ export const translations: Translations = {
     "qualityDashboard.avgScoreLabel": "均分",
     "qualityDashboard.copiesUnit": "份",
     "qualityDashboard.noData": "暂无数据",
-    // [v3.0.6.11-104 Wave 6B] 危急值管理 V2 面板 - CriticalValuePanelV2
+    // [v3.0.6.11-105 Wave 6B] 危急值管理 V2 面板 - CriticalValuePanelV2
     "criticalValueV2.channel.message": "站内消息",
     "criticalValueV2.notifStatus.sent": "已发送",
     "criticalValueV2.notifStatus.failed": "发送失败",
@@ -14666,7 +14666,7 @@ export const translations: Translations = {
     "criticalValueV2.modal.recipient": "对象:",
     "criticalValueV2.modal.commentOptional": "备注 (可选)",
     "criticalValueV2.modal.commentPlaceholder": "填写处理备注",
-    // [v3.0.6.11-104 Wave 7C] 预约管理页 i18n
+    // [v3.0.6.11-105 Wave 7C] 预约管理页 i18n
     "apptMgmt.title": "影像预约管理",
     "apptMgmt.realData": "真实数据",
     "apptMgmt.demoData": "演示数据",
@@ -14768,7 +14768,7 @@ export const translations: Translations = {
     "apptMgmt.creating": "创建中...",
     "apptMgmt.confirmCreate": "确认创建",
     "apptMgmt.serviceUnavailable": "预约服务暂不可用，当前展示演示数据",
-    // [v3.0.6.11-104 Wave 7C] 检查预约页 i18n
+    // [v3.0.6.11-105 Wave 7C] 检查预约页 i18n
     "apptPage.title": "检查预约管理",
     "apptPage.subtitle": "预约排程 · 设备分配 · 时间段管理 · 冲突检测 · 预约提醒",
     "apptPage.batchImport": "批量导入",
@@ -14927,7 +14927,7 @@ export const translations: Translations = {
     "apptPage.createFailed": "创建预约失败，请重试",
     "apptPage.errCancelReason": "请选择取消原因",
     "apptPage.errCancelNotAllowed": "当前状态不允许取消",
-    // [v3.0.6.11-104 Wave 7C] 模板设计器 i18n
+    // [v3.0.6.11-105 Wave 7C] 模板设计器 i18n
     "templateDesigner.headerTitle": "模板设计器 v1.0.2 (R2)",
     "templateDesigner.fieldsUnit": "字段",
     "templateDesigner.requiredUnit": "必填",
@@ -15119,7 +15119,7 @@ export const translations: Translations = {
     "templateDesigner.sr.rr002": "IHE RR - CT 检查报告",
     "templateDesigner.sr.rr003": "IHE RR - MR 检查报告",
     "templateDesigner.sr.rr004": "IHE RR - X线检查报告",
-    // [v3.0.6.11-104 Wave 7A] 征象库筛选 / 医保审核图表与流程 / 历史表头
+    // [v3.0.6.11-105 Wave 7A] 征象库筛选 / 医保审核图表与流程 / 历史表头
     "findingLib.filterAll": "全部",
     "findingLib.filterHead": "头部",
     "findingLib.filterNeck": "颈部",
@@ -15186,7 +15186,7 @@ export const translations: Translations = {
     "history.auditor": "审核人",
     "history.notes": "备注",
     "history.totalRecords": "共 {{count}} 条记录",
-    // [v3.0.6.11-104 Wave 7A] AI 结构化报告
+    // [v3.0.6.11-105 Wave 7A] AI 结构化报告
     "aiStructured.title": "AI结构化报告系统 — WS/T 500-2016",
     "aiStructured.demoBadge": "演示数据 · 模板演示",
     "aiStructured.currentUser": "当前用户: 医生001",
@@ -15296,7 +15296,7 @@ export const translations: Translations = {
     "aiStructured.reportSaved": "报告已保存 · {{id}}",
     "aiStructured.apiError": "接口返回失败",
     "aiStructured.saveFallback": "保存接口暂不可用, 已本地生成演示报告 (待接入)",
-    // [v3.0.6.11-104 Wave 7A] AI 编排平台
+    // [v3.0.6.11-105 Wave 7A] AI 编排平台
     "aiOrch.statusRegistered": "已注册",
     "aiOrch.statusDeployed": "已部署",
     "aiOrch.statusUndeployed": "已下线",
@@ -15528,7 +15528,7 @@ export const translations: Translations = {
     "aiOrch.loadOrchFailed": "AI 编排列表加载失败",
     "aiOrch.loadFusionFailed": "融合工作区加载失败",
     "aiOrch.loadAssistFailed": "AI 辅助加载失败",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded zh i18n - TemplateManagementPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded zh i18n - TemplateManagementPage
     "templateMgmt.title": "检查模板管理",
     "templateMgmt.addTemplate": "新增模板",
     "templateMgmt.importing": "导入中...",
@@ -15684,7 +15684,7 @@ export const translations: Translations = {
     "templateMgmt.requiredFields": "请填写必填项（模板代码、名称、内容）",
     "templateMgmt.confirmDelete": "确定要删除该模板吗？",
     "templateMgmt.copied": "已复制到剪贴板",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded zh i18n - DeviceFaultPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded zh i18n - DeviceFaultPage
     "deviceFault.title": "设备故障管理",
     "deviceFault.fallbackBadge": "演示数据（接口回退）",
     "deviceFault.liveBadge": "接口实时数据",
@@ -15779,7 +15779,7 @@ export const translations: Translations = {
     "deviceFault.estimatedCost": "预估费用",
     "deviceFault.actualCost": "实际费用",
     "deviceFault.confirmAccept": "确认验收",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded zh i18n - TermLibraryPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded zh i18n - TermLibraryPage
     "termLibrary.apiBanner": "已接入真实 API：本页词库数据来自后端 /terms 接口（MSW 仅 dev 模式兜底）",
     "termLibrary.loading": "正在从 API 加载术语库...",
     "termLibrary.apiUnavailable": "API 不可用,使用本地术语库",
@@ -15934,7 +15934,7 @@ export const translations: Translations = {
     "termLibrary.confirmDelete": "确认删除该词条？",
     "termLibrary.importFileFormatError": "文件格式错误: 未解析到有效词条行，请使用「导入模板」CSV 格式 (词条内容,所属分类,…)",
     "termLibrary.templateFileName": "词库导入模板.csv",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded zh i18n - ResearchPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded zh i18n - ResearchPage
     "researchPage.pleaseWait": "请稍候...",
     "researchPage.searchProjects": "搜索课题名称或编号...",
     "researchPage.newProject": "新建课题",
@@ -16153,7 +16153,7 @@ export const translations: Translations = {
     "researchPage.demoBanner": "演示数据（后端待实现）：本页为科研数据抽取演示页面，后端暂无 /research 接口",
     "researchPage.pageTitle": "科研数据抽取",
     "researchPage.pageSubtitle": "课题数据脱敏管理 · 5个课题 · 50条已抽取记录 · DICOM脱敏 · 队列构建 · IRB · 导出管线 · 数据质量",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded zh i18n - StatsReportPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded zh i18n - StatsReportPage
     "statsReport.apiUnavailable": "statsApi 实时数据不可用, 已回退演示数据",
     "statsReport.exportUnavailable": "导出接口不可用, 已回退当前筛选数据本地 CSV",
     "statsReport.exportRequestFailed": "导出接口请求失败, 已回退当前筛选数据本地 CSV",
@@ -17202,7 +17202,7 @@ export const translations: Translations = {
     "cvModals.triggerConditionLabel": "触发条件",
     "cvModals.triggerPlaceholder": "如 电话通知后超时未确认",
     "cvModals.urgentReminder": "紧急提醒",
-    // [v3.0.6.11-104 Wave 8B] 患者360 (Patient360Page)
+    // [v3.0.6.11-105 Wave 8B] 患者360 (Patient360Page)
     "patient360.action": "操作",
     "patient360.apiRealtime": "API 实时",
     "patient360.backToList": "返回患者列表",
@@ -17305,7 +17305,7 @@ export const translations: Translations = {
     "patient360.visitProfile": "就诊画像",
     "patient360.ageUnit": "岁",
     "patient360.monthUnit": "月",
-    // [v3.0.6.11-104 Wave 8B] 首页 (HomePage)
+    // [v3.0.6.11-105 Wave 8B] 首页 (HomePage)
     "homePage.actAppointment": "预约管理",
     "homePage.actCases": "病例库",
     "homePage.actFollowUp": "随访管理",
@@ -17462,7 +17462,7 @@ export const translations: Translations = {
     "homePage.ariaCriticalList": "危急值列表",
     "homePage.ariaAnnouncementList": "科室公告列表",
     "homePage.ariaOnCallList": "今日值班列表",
-    // [v3.0.6.11-104 Wave 8B] 临床数据中心 (ClinicalDataPage)
+    // [v3.0.6.11-105 Wave 8B] 临床数据中心 (ClinicalDataPage)
     "clinicalData.abnormalCount": "{{count}} 项异常",
     "clinicalData.activePatients": "活跃患者",
     "clinicalData.allCategories": "全部分类",
@@ -17616,7 +17616,7 @@ export const translations: Translations = {
     "clinicalData.vitals": "生命体征",
     "clinicalData.weight": "体重",
     "clinicalData.yearsOld": "{{age}} 岁",
-    // [v3.0.6.11-104 Wave 8B] 远程会诊 (ConsultationPage)
+    // [v3.0.6.11-105 Wave 8B] 远程会诊 (ConsultationPage)
     "consultation.accept": "接受会诊",
     "consultation.acceptLocal": "已接受（本地）",
     "consultation.acceptLocalFallback": "已接受（本地回退）",
@@ -17779,7 +17779,7 @@ export const translations: Translations = {
     "consultation.video": "视频",
     "consultation.videoPlayback": "录像回放",
     "consultation.videoPreview": "录像预览",
-    // [v3.0.6.11-104 Wave 8C] MaterialsPage
+    // [v3.0.6.11-105 Wave 8C] MaterialsPage
     "materialsPage.title": "眼料管理 (IOL 库存 + 接触镜库)",
     "materialsPage.directionB": "B 方向",
     "materialsPage.clientsEndpoints": "15 客户端 + 15 端点",
@@ -17882,7 +17882,7 @@ export const translations: Translations = {
     "materialsPage.msgBrandBcRequired": "请填写品牌和基弧",
     "materialsPage.msgSaveSuccess": "保存成功",
     "materialsPage.msgDeleteSuccess": "删除成功",
-    // [v3.0.6.11-104 Wave 8C] RegionalReportDetail
+    // [v3.0.6.11-105 Wave 8C] RegionalReportDetail
     "regionalReport.selectConsultation": "请选择一个会诊记录查看详情",
     "regionalReport.consultationDetail": "会诊详情",
     "regionalReport.back": "返回",
@@ -18030,7 +18030,7 @@ export const translations: Translations = {
     "regionalReport.reportExported": "报表已导出",
     "dicomSr.download": "下载 SR",
     "dicomSr.downloaded": "SR 文件已下载",
-    // [v3.0.6.11-104 Wave 8C] DicomSrPage
+    // [v3.0.6.11-105 Wave 8C] DicomSrPage
     "dicomSrPage.bodyPart": "部位",
     "dicomSrPage.byModality": "按模态分布",
     "dicomSrPage.byStatus": "按状态",
@@ -18128,11 +18128,11 @@ export const translations: Translations = {
     "dicomSrPage.title": "DICOM SR 管理平台",
     "dicomSrPage.totalPrefix": "共",
     "dicomSrPage.unit": "单位",
-    // [v3.0.6.11-104 Wave 8C] QCPage residual
+    // [v3.0.6.11-105 Wave 8C] QCPage residual
     "qcPage.all": "全部",
     "qcPage.hospitalAvgScore": "全院评分",
     "qcPage.individualAvgScore": "个人评分",
-    // [v3.0.6.11-104 Wave 8C] ReportReviewPage
+    // [v3.0.6.11-105 Wave 8C] ReportReviewPage
     "reportReviewPage.stageInitial": "初审",
     "reportReviewPage.stageInitialDesc": "高年资主治/副主任审核",
     "reportReviewPage.stageFinal": "终审",
@@ -18214,7 +18214,7 @@ export const translations: Translations = {
     "reportReviewPage.quickReason3": "检查部位与申请单不符, 请核对后重新书写",
     "reportReviewPage.quickReason4": "术语使用不规范, 建议按 ICD 标准术语修改",
     "reportReviewPage.quickReason5": "建议漏写, 请补充随访/复查建议",
-    // [v3.0.6.11-104 Wave 9C] BusinessContinuityPage i18n
+    // [v3.0.6.11-105 Wave 9C] BusinessContinuityPage i18n
     "businessContinuity.typeStudy": "检查",
     "businessContinuity.typeReport": "报告",
     "businessContinuity.typeUserAction": "用户操作",
@@ -18283,7 +18283,7 @@ export const translations: Translations = {
     "businessContinuity.retry": "重试",
     "businessContinuity.created": "创建",
     "businessContinuity.size": "大小",
-    // [v3.0.6.11-104 Wave 9C] DefectManagementPage i18n
+    // [v3.0.6.11-105 Wave 9C] DefectManagementPage i18n
     "defectMgmt.catDescription": "描述缺陷",
     "defectMgmt.catTerminology": "术语缺陷",
     "defectMgmt.catFormat": "格式缺陷",
@@ -18346,7 +18346,7 @@ export const translations: Translations = {
     "defectMgmt.defectDescription": "缺陷描述",
     "defectMgmt.descriptionRequired": "请输入缺陷描述",
     "defectMgmt.descriptionPlaceholder": "描述缺陷内容...",
-    // [v3.0.6.11-104 Wave 9C] ReportDeliveryPage i18n
+    // [v3.0.6.11-105 Wave 9C] ReportDeliveryPage i18n
     "reportDelivery.patient": "患者",
     "reportDelivery.channelWechat": "微信",
     "reportDelivery.channelWechatDesc": "微信公众号/小程序推送",
@@ -18437,7 +18437,7 @@ export const translations: Translations = {
     "reportDelivery.fPatientWechat": "患者微信",
     "reportDelivery.fFailureReason": "失败原因",
     "reportDelivery.fRetryCount": "重试次数",
-    // [v3.0.6.11-104 Wave 9C] PixPage i18n
+    // [v3.0.6.11-105 Wave 9C] PixPage i18n
     "pixPage.feedSuccess": "PIX 馈送发送成功",
     "pixPage.feedFailed": "PIX 馈送发送失败",
     "pixPage.feedFallback": "PIX Feed 服务不可用，已使用演示响应",
@@ -18492,7 +18492,7 @@ export const translations: Translations = {
     "pixPage.confidence": "置信度",
     "pixPage.addMappingTitle": "新增 PIX 映射",
     "pixPage.internalPatientIdPlaceholder": "例如: G005-00001",
-    // [v3.0.6.11-104 Wave 9C] SrReportPage i18n
+    // [v3.0.6.11-105 Wave 9C] SrReportPage i18n
     "srReport.statusDraft": "草稿",
     "srReport.statusFinalized": "已定稿",
     "srReport.statusPushed": "已回传",
@@ -18576,7 +18576,7 @@ export const translations: Translations = {
     "srReport.impressionOverride": "结论覆盖 (可选, 留空使用报告内容)",
     "srReport.impressionOverridePlaceholder": "可覆盖结论内容",
     "srReport.generateHint": "生成后将自动写入 SR 文档库, 可定稿并回传 ORU^R01",
-    // [v3.0.6.11-104 Wave 9C] DentalBillingPage i18n
+    // [v3.0.6.11-105 Wave 9C] DentalBillingPage i18n
     "dentalBilling.defaultItem": "口腔诊疗",
     "dentalBilling.chargeSuccess": "收费成功",
     "dentalBilling.chargeUnavailable": "收费接口不可用",
@@ -18652,7 +18652,7 @@ export const translations: Translations = {
     "dentalBilling.amount": "金额 (¥)",
     "dentalBilling.amountRequired": "请输入金额",
     "dentalBilling.quantity": "数量",
-    // [v3.0.6.11-104 Wave 9C] DepartmentFinancePage i18n
+    // [v3.0.6.11-105 Wave 9C] DepartmentFinancePage i18n
     "deptFinance.statusPaid": "已支付",
     "deptFinance.statusUnpaid": "未支付",
     "deptFinance.statusPending": "待支付",
@@ -18741,7 +18741,7 @@ export const translations: Translations = {
     "deptFinance.monthlyRevenueTrend": "月度收入/实收趋势",
     "deptFinance.receivable": "应收",
     "deptFinance.received": "实收",
-    // [v3.0.6.11-104 Wave 9C] KpiWallPage i18n
+    // [v3.0.6.11-105 Wave 9C] KpiWallPage i18n
     "kpiWall.blockKpi": "核心KPI",
     "kpiWall.blockTop10": "工作量Top10",
     "kpiWall.blockCritical": "危急值速览",
@@ -18832,7 +18832,7 @@ export const translations: Translations = {
     "kpiWall.loadingTip": "KPI 数据加载中...",
     "kpiWall.loadFailedEmpty": "数据加载失败或为空 (已回退空态)",
     "kpiWall.retry": "重试",
-    // [v3.0.6.11-104 Wave 9C] EyeRisPage i18n
+    // [v3.0.6.11-105 Wave 9C] EyeRisPage i18n
     "eyeRis.modalityFundusPhoto": "眼底彩照",
     "eyeRis.modalityVisualField": "视野",
     "eyeRis.modalityTopography": "角膜地形图",
@@ -18936,7 +18936,7 @@ export const translations: Translations = {
     "eyeRis.fOrRoom": "手术室",
     "eyeRis.fPreOpDiagnosis": "术前诊断",
     "eyeRis.fPreOpDiagnosisPlaceholder": "如: 老年性白内障",
-    // [v3.0.6.11-104 Wave 9C] OptometryClosedLoopPage i18n
+    // [v3.0.6.11-105 Wave 9C] OptometryClosedLoopPage i18n
     "eye.optometry.screeningDone": "筛查完成",
     "eye.optometry.curveLoaded": "屈光发育数据加载",
     "eye.optometry.trialDone": "试戴评估完成",
@@ -19020,7 +19020,7 @@ export const translations: Translations = {
     "eye.optometry.colBrand": "品牌",
     "eye.optometry.colOdAstigmatism": "OD 散光",
     "eye.optometry.colOsAstigmatism": "OS 散光",
-    // [v3.0.6.11-104 Wave 9C] FhirPatientPage i18n
+    // [v3.0.6.11-105 Wave 9C] FhirPatientPage i18n
     "fhirPatient.listLoadFallback": "患者列表加载失败，使用演示数据",
     "fhirPatient.updated": "患者已更新",
     "fhirPatient.created": "患者已创建",
@@ -19071,7 +19071,7 @@ export const translations: Translations = {
     "fhirPatient.colResourceType": "资源类型",
     "fhirPatient.colSummary": "概要",
     "fhirPatient.colTime": "时间",
-    // [v3.0.6.11-104 Wave 9C] ComplianceDocsPage i18n
+    // [v3.0.6.11-105 Wave 9C] ComplianceDocsPage i18n
     "complianceDocs.statusDraft": "草稿",
     "complianceDocs.statusCurrent": "现行",
     "complianceDocs.statusArchived": "已归档",
@@ -19127,7 +19127,7 @@ export const translations: Translations = {
     "complianceDocs.archivedAt": "归档时间",
     "complianceDocs.docContent": "文档内容",
     "complianceDocs.noContent": "（无内容）",
-    // [v3.0.6.11-104 Wave 9D] dentalTele.*
+    // [v3.0.6.11-105 Wave 9D] dentalTele.*
     "dentalTele.title": "远程口腔会诊",
     "dentalTele.statusWaiting": "等待加入",
     "dentalTele.statusInProgress": "进行中",
@@ -19197,7 +19197,7 @@ export const translations: Translations = {
     "dentalTele.severityLow": "低",
     "dentalTele.confidence": "置信度",
     "dentalTele.screeningDisclaimer": "筛查结果仅供预筛参考, 需结合影像及专家复核后出具诊断",
-    // [v3.0.6.11-104 Wave 9D] remoteReading.*
+    // [v3.0.6.11-105 Wave 9D] remoteReading.*
     "remoteReading.statusPending": "待分配",
     "remoteReading.statusInProgress": "阅片中",
     "remoteReading.statusCompleted": "已完成",
@@ -19254,7 +19254,7 @@ export const translations: Translations = {
     "remoteReading.completeTitle": "完成阅片",
     "remoteReading.submitReport": "提交报告",
     "remoteReading.reportPlaceholder": "输入阅片所见与诊断结论...",
-    // [v3.0.6.11-104 Wave 9D] iheManager.*
+    // [v3.0.6.11-105 Wave 9D] iheManager.*
     "iheManager.statusLoadFailed": "状态加载失败",
     "iheManager.serviceLoadFailed": "IHE 服务状态加载失败，当前展示演示数据",
     "iheManager.domainSaved": "归属域配置已保存",
@@ -19312,7 +19312,7 @@ export const translations: Translations = {
     "iheManager.pixManagerEndpoint": "PIX 管理器端点",
     "iheManager.pdqSupplierEndpoint": "PDQ 提供方端点",
     "iheManager.atnaEndpoint": "ATNA 端点",
-    // [v3.0.6.11-104 Wave 9D] reportTpl.*
+    // [v3.0.6.11-105 Wave 9D] reportTpl.*
     "reportTpl.loadFailed": "模板加载失败",
     "reportTpl.updated": "模板已更新",
     "reportTpl.updateFailed": "更新失败",
@@ -19368,7 +19368,7 @@ export const translations: Translations = {
     "reportTpl.snippetNameRequired": "请输入名称",
     "reportTpl.snippetContentRequired": "请输入内容",
     "reportTpl.snippetContentPlaceholder": "片段文本内容",
-    // [v3.0.6.11-104 Wave 9D] coSign.*
+    // [v3.0.6.11-105 Wave 9D] coSign.*
     "coSign.statusPending": "待处理",
     "coSign.statusApproved": "已通过",
     "coSign.statusRejected": "已拒绝",
@@ -19433,7 +19433,7 @@ export const translations: Translations = {
     "coSign.cosignerIdsLabel": "会签医师 ID (逗号分隔)",
     "coSign.cosignerIdsRequired": "至少 1 名会签医师",
     "coSign.minReviewersField": "最少复核人数",
-    // [v3.0.6.11-104 Wave 9D] patientDevice.*
+    // [v3.0.6.11-105 Wave 9D] patientDevice.*
     "patientDevice.nameRequired": "请填写姓名",
     "patientDevice.saveSuccess": "保存成功",
     "patientDevice.maintenanceSent": "维护指令已发出",
@@ -19491,7 +19491,7 @@ export const translations: Translations = {
     "patientDevice.triggerMaintenance": "触发设备维护",
     "patientDevice.maintenanceAlert": "将为该设备创建维护指令",
     "patientDevice.device": "设备",
-    // [v3.0.6.11-104 Wave 9D] aiCad.*
+    // [v3.0.6.11-105 Wave 9D] aiCad.*
     "aiCad.lungNoduleDetect": "肺结节检测",
     "aiCad.breastCad": "乳腺 CAD",
     "aiCad.fractureDetect": "骨折检测",
@@ -19561,7 +19561,7 @@ export const translations: Translations = {
     "aiCad.detectedAt": "检测于",
     "aiCad.detailHint": "点击上方记录的“查看详情”加载真实结果",
     "aiCad.heatmap": "热力图",
-    // [v3.0.6.11-104 Wave 9D] aiEnhanced.*
+    // [v3.0.6.11-105 Wave 9D] aiEnhanced.*
     "aiEnhanced.bodyChest": "胸部",
     "aiEnhanced.bodyAbdomen": "腹部",
     "aiEnhanced.bodyHead": "头颅",
@@ -19651,7 +19651,7 @@ export const translations: Translations = {
     "aiEnhanced.note4": "医生对同部位应用过的布局将在下次推荐时优先 (历史偏好)",
     "aiEnhanced.note5": "孤儿模块: 无数据库依赖, 应用记录内存存储 + seed 回退",
     "aiEnhanced.endpoint": "端点",
-    // [v3.0.6.11-104 Wave 9D] terminology.*
+    // [v3.0.6.11-105 Wave 9D] terminology.*
     "terminology.mappingLoadFailed": "映射加载失败",
     "terminology.serverLoadFailed": "术语服务器数据加载失败",
     "terminology.searchFailed": "检索失败",
@@ -19723,7 +19723,7 @@ export const translations: Translations = {
     "terminology.targetSystem": "目标系统",
     "terminology.targetCode": "目标代码",
     "terminology.mapTypePlaceholder": "等价 / 更宽 / 更窄 / 相关",
-    // [v3.0.6.11-104 Wave 9D] wl.*
+    // [v3.0.6.11-105 Wave 9D] wl.*
     "wl.statusRegistered": "已登记",
     "wl.statusArrived": "已报到",
     "wl.statusInProgress": "检查中",
@@ -19781,7 +19781,7 @@ export const translations: Translations = {
     "wl.actionRequisition": "申请单",
     "wl.actionHistory": "历史",
     "wl.empty": "暂无符合条件的检查记录",
-    // [v3.0.6.11-104 Wave 9D] dentalStudies.*
+    // [v3.0.6.11-105 Wave 9D] dentalStudies.*
     "dentalStudies.qualityDiagnostic": "可诊断",
     "dentalStudies.qualityAcceptable": "可用",
     "dentalStudies.qualitySuboptimal": "勉强可用",
@@ -19842,7 +19842,7 @@ export const translations: Translations = {
     "dentalStudies.samePatient": "同患者",
     "dentalStudies.acquiredAt": "拍摄时间",
     "dentalStudies.colItem": "项目",
-    // [v3.0.6.11-104 Wave 9D] triage.*
+    // [v3.0.6.11-105 Wave 9D] triage.*
     "triage.levelCritical": "危急",
     "triage.levelUrgent": "紧急",
     "triage.levelSemiUrgent": "亚紧急",
@@ -19886,7 +19886,7 @@ export const translations: Translations = {
     "triage.scoreFactors": "评分因子:",
     "triage.detailTitle": "分诊详情调整",
     "triage.selectDoctor": "选择医生",
-    // [v3.0.6.11-104 Wave 9B] DentalSchedulePage i18n
+    // [v3.0.6.11-105 Wave 9B] DentalSchedulePage i18n
     "dentalSchedule.pageTitle": "牙椅排班 · 牙周 PSR 记录",
     "dentalSchedule.benchmarkTag": "牙医管家 对标",
     "dentalSchedule.statToday": "今日预约",
@@ -19965,7 +19965,7 @@ export const translations: Translations = {
     "dentalSchedule.statusCompleted": "已完成",
     "dentalSchedule.statusCancelled": "已取消",
     "dentalSchedule.statusNoShow": "未到诊",
-    // [v3.0.6.11-104 Wave 9B] DicomSharePage i18n
+    // [v3.0.6.11-105 Wave 9B] DicomSharePage i18n
     "dicomShare.pageTitle": "DICOM 跨科室共享",
     "dicomShare.pageSubtitle": "DICOM TLS / WADO 安全传输",
     "dicomShare.createShare": "创建共享",
@@ -20022,7 +20022,7 @@ export const translations: Translations = {
     "dicomShare.accessPassword": "访问密码",
     "dicomShare.link": "链接",
     "dicomShare.noDetail": "未加载到详情",
-    // [v3.0.6.11-104 Wave 9B] TreatmentPlanCenterPage i18n
+    // [v3.0.6.11-105 Wave 9B] TreatmentPlanCenterPage i18n
     "treatmentPlan.pageTitle": "跨科室治疗计划中心",
     "treatmentPlan.refresh": "刷新",
     "treatmentPlan.retry": "重试",
@@ -20085,7 +20085,7 @@ export const translations: Translations = {
     "treatmentPlan.status.inProgress": "进行中",
     "treatmentPlan.status.completed": "已完成",
     "treatmentPlan.status.pending": "待处理",
-    // [v3.0.6.11-104 Wave 9B] LesionTrackingPage i18n
+    // [v3.0.6.11-105 Wave 9B] LesionTrackingPage i18n
     "lesionTrack.pageTitle": "病灶追踪工作台",
     "lesionTrack.pageSubtitle": "Lesion Tracking · 跨期对比 RECIST-like · 趋势随访",
     "lesionTrack.dataSource": "数据源:",
@@ -20179,7 +20179,7 @@ export const translations: Translations = {
     "lesionTrack.response.SD": "疾病稳定",
     "lesionTrack.response.PD": "疾病进展",
     "lesionTrack.response.NE": "不可评估",
-    // [v3.0.6.11-104 Wave 9B] TenantConfigPage i18n
+    // [v3.0.6.11-105 Wave 9B] TenantConfigPage i18n
     "tenantConfig.pageTitle": "租户配置管理",
     "tenantConfig.complianceReport": "合规报告",
     "tenantConfig.refresh": "刷新",
@@ -20270,7 +20270,7 @@ export const translations: Translations = {
     "tenantConfig.feat.mobileApp.desc": "移动/小程序端访问",
     "tenantConfig.feat.teleRadiology.label": "远程会诊",
     "tenantConfig.feat.teleRadiology.desc": "跨院区远程阅片与会诊",
-    // [v3.0.6.11-104 Wave 9B] CommitteeRoomPage i18n
+    // [v3.0.6.11-105 Wave 9B] CommitteeRoomPage i18n
     "committeeRoom.pageTitle": "委员会会诊室",
     "committeeRoom.multiDoctor": "多医生合议",
     "committeeRoom.dataSource": "委员会数据源",
@@ -20360,7 +20360,7 @@ export const translations: Translations = {
     "committeeRoom.resolutionRequired": "请填写决议内容",
     "committeeRoom.resolutionAppended": "决议已生成并追加到报告",
     "committeeRoom.resolutionGenerated": "决议已生成",
-    // [v3.0.6.11-104 Wave 9B] ConsentEducationPage i18n
+    // [v3.0.6.11-105 Wave 9B] ConsentEducationPage i18n
     "consentEdu.title": "知情同意与宣教中心",
     "consentEdu.eSign": "电子签名",
     "consentEdu.refresh": "刷新",
@@ -20443,7 +20443,7 @@ export const translations: Translations = {
     "consentEdu.type.anesthesia": "麻醉同意书",
     "consentEdu.type.transfusion": "输血同意书",
     "consentEdu.type.radiotherapy": "放疗同意书",
-    // [v3.0.6.11-104 Wave 9B] Hl7ManagerPage i18n
+    // [v3.0.6.11-105 Wave 9B] Hl7ManagerPage i18n
     "hl7Page.dataSourceReal": "数据源: /hl7/archive + /hl7/mllp/status (真实接口)",
     "hl7Page.dataSourceFallback": "数据源: 演示回退 (archive/MLLP 接口不可用, 基于消息类型派生)",
     "hl7Page.refresh": "刷新",
@@ -20547,7 +20547,7 @@ export const translations: Translations = {
     "hl7Page.fallbackTag": "回退演示数据 (2 条硬编码)",
     "hl7Page.archiveHeader": "HL7 消息管理",
     "hl7Page.archiveDesc": "HL7 消息构建与发送管理，支持 ORU (报告)、ORM (医嘱)、DFT (财务) 三种消息类型",
-    // [v3.0.6.11-104 Wave 9B] SimilarCasePage i18n
+    // [v3.0.6.11-105 Wave 9B] SimilarCasePage i18n
     "similarCase.pageTitle": "相似病例检索",
     "similarCase.pageSubtitle": "文本检索 (Jaccard/SNOMED) + 影像级检索 (强度直方图/统计/纹理/形态) — 对标 Siemens 影像检索 / Infinitt Enterprise Search",
     "similarCase.tabText": "文本检索",
@@ -20632,7 +20632,7 @@ export const translations: Translations = {
     "similarCase.descrMatchKeywords": "匹配关键词",
     "similarCase.conclusionDivider": "结论",
     "similarCase.reportAnonymized": "报告已匿名化处理,不包含患者姓名及身份信息",
-    // [v3.0.6.11-104 Wave 9B] VoiceWorkstationPage i18n
+    // [v3.0.6.11-105 Wave 9B] VoiceWorkstationPage i18n
     "voiceWs.pageTitle": "语音工作站",
     "voiceWs.pageSubtitle": "语音听写 · 医学词库 · 听写历史 · 纠正反馈 — 转写自动执行同音词校正",
     "voiceWs.tabDictation": "语音听写",
@@ -20735,7 +20735,7 @@ export const translations: Translations = {
     "voiceWs.sessionStatus.completed": "完成",
     "voiceWs.sessionStatus.processing": "处理中",
     "voiceWs.sessionStatus.error": "错误",
-    // [v3.0.6.11-104 Wave 9B] DirectorDashboardPage i18n
+    // [v3.0.6.11-105 Wave 9B] DirectorDashboardPage i18n
     "directorDash.pageTitle": "主任综合管理驾驶舱",
     "directorDash.hospitalLine": "汉东省人民医院 · 放射科 | 数据更新时间:",
     "directorDash.liveData": "statsApi / biApi 实时",
@@ -20847,7 +20847,7 @@ export const translations: Translations = {
     "directorDash.qc.issue.TER001": "术语不规范",
     "directorDash.qc.issue.IMG001": "图像质量不达标",
     "directorDash.qc.issue.MEAS001": "测量错误",
-    // [v3.0.6.11-104 Wave 9B] PatientReportPortalPage i18n
+    // [v3.0.6.11-105 Wave 9B] PatientReportPortalPage i18n
     "patientPortal.pageTitle": "患者端报告门户 H5",
     "patientPortal.pageSubtitle": "实名验证 + 二维码分享 + 报告查看 + 影像浏览 + 下载 + 分享 + 设备/IP 审计",
     "patientPortal.loading": "加载中...",
@@ -20929,7 +20929,7 @@ export const translations: Translations = {
     "patientPortal.feedbackFailed": "反馈提交失败",
     "patientPortal.shareGenerated": "分享链接已生成",
     "voiceWs.transcriptInserted": "转写结果已插入报告",
-    // [v3.0.6.11-104 Wave 10A] 审计日志页
+    // [v3.0.6.11-105 Wave 10A] 审计日志页
     "auditPage.title": "审计日志",
     "auditPage.export": "导出",
     "auditPage.refresh": "刷新",
@@ -20991,7 +20991,7 @@ export const translations: Translations = {
     "auditPage.detailResponseStatus": "响应状态",
     "auditPage.detailIp": "IP 地址",
     "auditPage.detailTime": "时间",
-    // [v3.0.6.11-104 Wave 10A] 危急值统计区块
+    // [v3.0.6.11-105 Wave 10A] 危急值统计区块
     "criticalValueStats.tabTrend": "趋势",
     "criticalValueStats.tabModality": "设备分布",
     "criticalValueStats.tabTime": "处理时效",
@@ -21045,7 +21045,7 @@ export const translations: Translations = {
     "criticalValueStats.guidelineStandardDesc": "：三级医院≥90%，二级医院≥85%",
     "criticalValueStats.guidelineOverdueLabel": "超时处理",
     "criticalValueStats.guidelineOverdueDesc": "：>30分钟未通报需启动升级机制",
-    // [v3.0.6.11-104 Wave 10A] 智能路由页
+    // [v3.0.6.11-105 Wave 10A] 智能路由页
     "smartRoute.title": "智能路由",
     "smartRoute.ruleLoadFailed": "路由规则加载失败",
     "smartRoute.historyLoadFailed": "分配历史加载失败",
@@ -21111,7 +21111,7 @@ export const translations: Translations = {
     "smartRoute.oneClickAssign": "一键分配",
     "smartRoute.emptyRecommend": "填写检查信息后获取资质感知推荐医生列表",
     "smartRoute.editRuleTitle": "编辑路由规则",
-    // [v3.0.6.11-104 Wave 10A] 影像质控专项页
+    // [v3.0.6.11-105 Wave 10A] 影像质控专项页
     "imageQualityControl.title": "影像质控专项",
     "imageQualityControl.subtitle": "ACR 模体 / AI 评分 / 剂量合规",
     "imageQualityControl.refresh": "刷新",
@@ -21182,7 +21182,7 @@ export const translations: Translations = {
     "imageQualityControl.retakeHint": "检查将退回「检查中」状态并累计重拍次数 (QC_REJECT → IN_PROGRESS)",
     "imageQualityControl.retakeReasonLabel": "重拍原因 (用于重拍率统计分析)",
     "imageQualityControl.retakeReasonPlaceholder": "请选择重拍原因",
-    // [v3.0.6.11-104 Wave 10A] 口内照片管理页
+    // [v3.0.6.11-105 Wave 10A] 口内照片管理页
     "dentalPhoto.title": "患者照片与沟通",
     "dentalPhoto.catIntraoral": "口内",
     "dentalPhoto.catExtraoral": "口外",
@@ -21222,7 +21222,7 @@ export const translations: Translations = {
     "dentalPhoto.labelPlaceholder": "例如: 正面微笑像",
     "dentalPhoto.imageFileLabel": "图片文件",
     "dentalPhoto.chooseImage": "选择图片",
-    // [v3.0.6.11-104 Wave 10A] 通知/模板/词典管理页
+    // [v3.0.6.11-105 Wave 10A] 通知/模板/词典管理页
     "notificationTemplateDict.title": "通知 · 模板 · 词典",
     "notificationTemplateDict.systemBasic": "系统级基础组件",
     "notificationTemplateDict.clientsEndpoints": "12 客户端 + 20 端点",
@@ -21281,7 +21281,7 @@ export const translations: Translations = {
     "notificationTemplateDict.dictCatBodyPart": "检查部位",
     "notificationTemplateDict.dictCatReportTpl": "报告模板",
     "notificationTemplateDict.dictCatOther": "其他",
-    // [v3.0.6.11-104 Wave 10A] 委员会会诊 V2 面板
+    // [v3.0.6.11-105 Wave 10A] 委员会会诊 V2 面板
     "consultationV2.statusOpen": "待开始",
     "consultationV2.statusInProgress": "讨论中",
     "consultationV2.statusVoting": "投票中",
@@ -21352,7 +21352,7 @@ export const translations: Translations = {
     "consultationV2.opinionApprove": "通过",
     "consultationV2.opinionReject": "驳回",
     "consultationV2.opinionModify": "修改",
-    // [v3.0.6.11-104 Wave 10C] 15 页面 i18n 化
+    // [v3.0.6.11-105 Wave 10C] 15 页面 i18n 化
     "cvQc.recent": "近期",
     "cvQc.apiUnavailable": "质控接口不可用",
     "cvQc.title": "CV 质量控制仪表盘",
@@ -22229,7 +22229,7 @@ export const translations: Translations = {
     "smartMwl.examTypeWeight": "检查类型权重",
     "smartMwl.weightTotal": "权重合计",
     "smartMwl.weightTotalHint": "(建议合计 100%)",
-    // [v3.0.6.11-104 Wave 10A] 眼科 Toric 规划页
+    // [v3.0.6.11-105 Wave 10A] 眼科 Toric 规划页
     "eyeToric.title": "眼科 IOL 规划",
     "eyeToric.formulaTag": "Barrett II / Kane / Hill-RBF 真实",
     "eyeToric.backendTag": "真实后端 /eye/iol/*",
@@ -22275,7 +22275,7 @@ export const translations: Translations = {
     "eyeToric.predictedUCVA": "预测 UCVA",
     "eyeToric.postopAlert": "目标度数: {{power}} D · 置信度: {{confidence}}%",
     "eyeToric.clickPostopPredict": "点击术后预测",
-    // [v3.0.6.11-104 Wave 10A] 眼科教学病例库页
+    // [v3.0.6.11-105 Wave 10A] 眼科教学病例库页
     "eyeCaseLibrary.title": "眼科教学病例库",
     "eyeCaseLibrary.tagAnnotation": "DICOM 标注 + SR 导出",
     "eyeCaseLibrary.tagDeid": "DICOM PS 3.15 脱敏",
@@ -22362,7 +22362,7 @@ export const translations: Translations = {
     "eyeCaseLibrary.statusPendingReview": "待审核",
     "eyeCaseLibrary.statusCriticalValue": "危急值",
     "eyeCaseLibrary.statusDraft": "草稿",
-    // [v3.0.6.11-104 Wave 10A] 种植 3D 规划页
+    // [v3.0.6.11-105 Wave 10A] 种植 3D 规划页
     "dentalImplant3d.statusPlanning": "规划中",
     "dentalImplant3d.statusApproved": "已批准",
     "dentalImplant3d.statusGuidedSurgery": "导板设计",
@@ -22444,7 +22444,7 @@ export const translations: Translations = {
     "dentalImplant3d.guideDesigned": "手术导板已设计",
     "dentalImplant3d.guideFileExported": "导板文件: {{file}} · 已导出，可提交 3D 打印",
     "dentalImplant3d.guideFile": "导板文件: {{file}}",
-    // [v3.0.6.11-104 Wave 10A] DBT 乳腺断层阅片页
+    // [v3.0.6.11-105 Wave 10A] DBT 乳腺断层阅片页
     "dbtPage.title": "DBT 乳腺断层阅片",
     "dbtPage.subtitle": "数字乳腺断层合成",
     "dbtPage.current": "当前",
@@ -22537,7 +22537,7 @@ export const translations: Translations = {
     "dbtPage.malignancyRisk": "恶性可能",
     "dbtPage.recommendation": "建议",
     "dbtPage.basis": "评分依据 ({{count}})",
-    // [v3.0.6.11-104 Wave 10A] 医联体管理页
+    // [v3.0.6.11-105 Wave 10A] 医联体管理页
     "medicalAlliance.title": "医疗联合体管理",
     "medicalAlliance.subtitle": "医联体成员管理、资源共享与转诊协作",
     "medicalAlliance.mswDemoTag": "转诊数据: MSW 演示",
@@ -22647,7 +22647,7 @@ export const translations: Translations = {
     "medicalAlliance.syncInline": "同步 {{value}}",
     "medicalAlliance.daysAgo": "{{days}}天前",
     "medicalAlliance.healthNote": "健康度 < 75 的机构建议检查网络链路与同步任务配置；离线机构自动进入降级模式（本地缓存优先）。",
-    // [v3.0.6.11-104 Wave 10A] 核医学科专项统计页
+    // [v3.0.6.11-105 Wave 10A] 核医学科专项统计页
     "nuclearStats.unitCases": "例",
     "nuclearStats.loadFailed": "加载失败",
     "nuclearStats.loading": "加载中...",
@@ -22722,7 +22722,7 @@ export const translations: Translations = {
     "nuclearStats.thresholdLabel": "鉴别阈值",
     "nuclearStats.thresholdDesc": "SUVmax 区分良恶性",
     "nuclearStats.dailySuvTrendTitle": "12月每日平均SUVmax趋势",
-    // [v3.0.6.11-104 Wave 10B] 15 页面 i18n 化 (A)
+    // [v3.0.6.11-105 Wave 10B] 15 页面 i18n 化 (A)
     "neuro.title": "神经专科",
     "neuro.subtitle": "神经影像专科 · 脑卒中 · 脑肿瘤 · 癫痫 · 动脉瘤",
     "neuro.dataSource": "数据来源: /neuro/* API（后端真实 · Exam 派生 + seed 回退）",
@@ -23026,7 +23026,7 @@ export const translations: Translations = {
     "aiReportWriter.eyePrefix": "眼科",
     "aiReportWriter.items": "个",
     "aiReportWriter.noVocab": "暂无术语库",
-    // [v3.0.6.11-104 Wave 10A] 患者详情面板
+    // [v3.0.6.11-105 Wave 10A] 患者详情面板
     "patientDetailPanel.statusDraft": "草稿",
     "patientDetailPanel.statusPendingReport": "待出报告",
     "patientDetailPanel.statusReviewing": "审核中",
@@ -23158,7 +23158,7 @@ export const translations: Translations = {
     "patientDetailPanel.cancel": "取消",
     "patientDetailPanel.merging": "合并中...",
     "patientDetailPanel.confirmMerge": "确认合并",
-    // [v3.0.6.11-104 Wave 10B] 15 页面 i18n 化 (B)
+    // [v3.0.6.11-105 Wave 10B] 15 页面 i18n 化 (B)
     "mammoQc.errOverview": "质量概览加载失败",
     "mammoQc.errRecords": "审核记录加载失败",
     "mammoQc.errLoad": "加载失败",
@@ -23474,7 +23474,7 @@ export const translations: Translations = {
     "reportSearch.reportsUnit": "报告",
     "reportSearch.footerText": "G005 报告高级检索 · 全文 + 结构化 + 同义词 ·",
     "reportSearch.doctorIdPlaceholder": "如 D001",
-    // [v3.0.6.11-104 Wave 10B] 15 页面 i18n 化 (C)
+    // [v3.0.6.11-105 Wave 10B] 15 页面 i18n 化 (C)
     "clinicalPathway.errLoadPathways": "路径加载失败",
     "clinicalPathway.errLoadData": "临床路径数据加载失败",
     "clinicalPathway.pathwayEnabled": "路径已启用",
@@ -23746,7 +23746,7 @@ export const translations: Translations = {
     "aiMedicalDevice.todayUsage": "今日用时",
     "aiMedicalDevice.lastUpdated": "最近更新",
     "aiMedicalDevice.casesUnit": "例",
-    // [v3.0.6.11-104 Wave 10A] 多站点看板页
+    // [v3.0.6.11-105 Wave 10A] 多站点看板页
     "multiSiteDashboard.title": "多站点 / 多院区管理平台",
     "multiSiteDashboard.subtitle": "{{count}} 个院区 | 实时同步 | 跨院区路由 | DICOM 互联互通",
     "multiSiteDashboard.statusActive": "在线",
@@ -23816,7 +23816,7 @@ export const translations: Translations = {
     "multiSiteDashboard.eventSuccess": "成功",
     "multiSiteDashboard.eventFailed": "失败",
     "multiSiteDashboard.eventWaiting": "等待",
-    // [v3.0.6.11-104 Wave 11D] integration/FhirBulkExportDetailPage
+    // [v3.0.6.11-105 Wave 11D] integration/FhirBulkExportDetailPage
     "fhirExport.loadRemoteFailed": "无法加载远程数据，已使用本地演示数据",
     "fhirExport.colResourceType": "资源类型",
     "fhirExport.colFile": "文件",
@@ -23837,7 +23837,7 @@ export const translations: Translations = {
     "fhirExport.outputFiles": "输出文件 ({{count}})",
     "fhirExport.ndjsonPreview": "NDJSON 内容预览",
     "fhirExport.loadPreview": "加载预览",
-    // [v3.0.6.11-104 Wave 11D] eye/EyeKpiDashboardPage
+    // [v3.0.6.11-105 Wave 11D] eye/EyeKpiDashboardPage
     "eyeKpi.loadFailed": "眼科 KPI 数据加载失败",
     "eyeKpi.title": "眼科质控看板",
     "eyeKpi.metricCount": "{{count}} 指标",
@@ -23875,7 +23875,7 @@ export const translations: Translations = {
     "eyeKpi.sat.wait": "候诊",
     "eyeKpi.sat.environment": "环境",
     "eyeKpi.sat.recommend": "推荐",
-    // [v3.0.6.11-104 Wave 11D] cds/CdsStatisticsPage
+    // [v3.0.6.11-105 Wave 11D] cds/CdsStatisticsPage
     "cdsStats.period.7d": "近7天",
     "cdsStats.period.30d": "近30天",
     "cdsStats.period.90d": "近90天",
@@ -23905,7 +23905,7 @@ export const translations: Translations = {
     "cdsStats.totalOverrides": "总覆盖次数",
     "cdsStats.coverageRate": "覆盖率",
     "cdsStats.pathwayCompletionRate": "路径完成率",
-    // [v3.0.6.11-104 Wave 11D] radpath/RadPathTrackerPage
+    // [v3.0.6.11-105 Wave 11D] radpath/RadPathTrackerPage
     "radpath.consistency.concordant": "一致",
     "radpath.consistency.discordant": "不一致",
     "radpath.consistency.pending": "待审",
@@ -23929,7 +23929,7 @@ export const translations: Translations = {
     "radpath.emptyHint": "输入影像报告ID查询关联的病理对照记录",
     "radpath.trendTitle": "一致性趋势",
     "radpath.distributionTitle": "一致性分布",
-    // [v3.0.6.11-104 Wave 11D] tech/ExamRoomStatusBoard
+    // [v3.0.6.11-105 Wave 11D] tech/ExamRoomStatusBoard
     "examRoom.status.in_use": "检查中",
     "examRoom.status.paused": "已暂停",
     "examRoom.status.overdue": "超时待检",
@@ -23956,7 +23956,7 @@ export const translations: Translations = {
     "examRoom.overdueTip": "最早到达患者已等待超过 30 分钟",
     "examRoom.dataSourceApi": "数据源: GET /worklist/room-status (后端房间聚合实时) · WS room-status-refresh 推送",
     "examRoom.dataSourceDemo": "数据源: 演示回退 (接口不可用, 基于本地派生)",
-    // [v3.0.6.11-104 Wave 11D] critical/CriticalValueListSection
+    // [v3.0.6.11-105 Wave 11D] critical/CriticalValueListSection
     "cvSection.catalogTitle": "国家卫健委2024年版危急值目录",
     "cvSection.fullCatalog": "完整目录",
     "cvSection.itemCount": "{{count}}项",
@@ -23965,7 +23965,7 @@ export const translations: Translations = {
     "cvSection.modalSubtitle": "共{{count}}项危急值条目",
     "cvSection.close": "关闭",
     "cvSection.exportCatalog": "导出目录",
-    // [v3.0.6.11-104 Wave 11D] rcm/AccountsReceivablePage
+    // [v3.0.6.11-105 Wave 11D] rcm/AccountsReceivablePage
     "ar.invoiceLoadFailed": "发票加载失败",
     "ar.loadFailed": "加载失败",
     "ar.title": "应收账款管理",
@@ -23998,7 +23998,7 @@ export const translations: Translations = {
     "ar.status.current": "当期",
     "ar.status.overdue": "逾期",
     "ar.status.writeoff": "已销",
-    // [v3.0.6.11-104 Wave 11D] safety/AdverseEventPage
+    // [v3.0.6.11-105 Wave 11D] safety/AdverseEventPage
     "ade.severity.near_miss": "险情",
     "ade.severity.minor": "轻微",
     "ade.severity.moderate": "中度",
@@ -24051,7 +24051,7 @@ export const translations: Translations = {
     "ade.colStatus": "状态",
     "ade.colReporter": "报告人",
     "ade.colDate": "日期",
-    // [v3.0.6.11-104 Wave 11D] safety/CQIPage
+    // [v3.0.6.11-105 Wave 11D] safety/CQIPage
     "cqi.status.planning": "规划中",
     "cqi.status.active": "进行中",
     "cqi.status.sustaining": "维持中",
@@ -24093,7 +24093,7 @@ export const translations: Translations = {
     "cqi.colOwner": "负责人",
     "cqi.colActions": "操作",
     "cqi.view": "查看",
-    // [v3.0.6.11-104 Wave 11D] safety/RCAAnalysisPage
+    // [v3.0.6.11-105 Wave 11D] safety/RCAAnalysisPage
     "rca.status.open": "待分析",
     "rca.status.analyzing": "分析中",
     "rca.status.capa_planned": "已制定CAPA",
@@ -24143,7 +24143,7 @@ export const translations: Translations = {
     "rca.colCapa": "CAPA数",
     "rca.colActions": "操作",
     "rca.view": "查看",
-    // [v3.0.6.11-104 Wave 11D] department/DepartmentSchedule
+    // [v3.0.6.11-105 Wave 11D] department/DepartmentSchedule
     "deptSched.days": "天",
     "deptSched.leavePending": "待审批",
     "deptSched.leaveApproved": "已批准",
@@ -24186,7 +24186,7 @@ export const translations: Translations = {
     "deptSched.thisMonth": "本月",
     "deptSched.lateCount": "迟到次数",
     "deptSched.earlyCount": "早退次数",
-    // [v3.0.6.11-104 Wave 11D] QualityControlPage
+    // [v3.0.6.11-105 Wave 11D] QualityControlPage
     "qcPage.scoresLoadFailed": "评分列表加载失败，当前展示演示数据",
     "qcPage.rescoreSuccess": "重评完成（reportQualityApi 评分引擎）",
     "qcPage.rescoreFailed": "重评失败",
@@ -24212,7 +24212,7 @@ export const translations: Translations = {
     "qcPage.categoryTree": "分类树",
     "qcPage.remediation": "整改追踪",
     "qcPage.tabMonthly": "月报",
-    // [v3.0.6.11-104 Wave 11D] qc/RadiologistAnnualQCPage
+    // [v3.0.6.11-105 Wave 11D] qc/RadiologistAnnualQCPage
     "annualQc.metric.monthlyReports": "月均报告量",
     "annualQc.metric.avgQcScore": "平均质控分",
     "annualQc.metric.defectRate": "缺陷率",
@@ -24251,7 +24251,7 @@ export const translations: Translations = {
     "annualQc.trendUp": "↑ 上升",
     "annualQc.trendDown": "↓ 下降",
     "annualQc.noHistory": "暂无历史评分数据",
-    // [v3.0.6.11-104 Wave 11D] ops/HrOperationsPage
+    // [v3.0.6.11-105 Wave 11D] ops/HrOperationsPage
     "hrOps.apiUnavailable": "userApi 暂不可用，当前展示内置演示数据",
     "hrOps.physicianFallback": "医师",
     "hrOps.longTermDemo": "长期有效(演示)",
@@ -24301,7 +24301,7 @@ export const translations: Translations = {
     "hrOps.colStatus": "状态",
     "hrOps.certValid": "有效",
     "hrOps.certExpiring": "即将过期",
-    // [v3.0.6.11-104 Wave 11D] ai/LungCadPage
+    // [v3.0.6.11-105 Wave 11D] ai/LungCadPage
     "lungCad.risk.low": "低",
     "lungCad.risk.moderate": "中",
     "lungCad.risk.high": "高",
@@ -24332,7 +24332,7 @@ export const translations: Translations = {
     "lungCad.colDensity": "密度",
     "lungCad.colMalignancyRisk": "恶性风险",
     "lungCad.recommendationLabel": "建议:",
-    // [v3.0.6.11-104 Wave 11D] ReportTimelinessPage
+    // [v3.0.6.11-105 Wave 11D] ReportTimelinessPage
     "timeliness.apiUnavailable": "biApi 暂不可用，当前展示内置演示数据",
     "timeliness.loadFailed": "数据加载失败，已回退演示数据",
     "timeliness.urgeUnavailable": "催办接口不可用，已记录本地催办日志",
@@ -24376,7 +24376,7 @@ export const translations: Translations = {
     "timeliness.urge": "催办",
     "timeliness.escalated": "已升级",
     "timeliness.escalate": "升级",
-    // [v3.0.6.11-104 Wave 11D] eye/pacs/VisualFieldPage
+    // [v3.0.6.11-105 Wave 11D] eye/pacs/VisualFieldPage
     "visualField.loading": "加载中...",
     "visualField.noData": "无视野检查数据",
     "visualField.analysis": "视野分析",
@@ -24406,7 +24406,7 @@ export const translations: Translations = {
     "visualField.note1": "颞上扇形敏感度显著下降(-12.5dB)",
     "visualField.note2": "与 RNFL 颞上变薄一致",
     "visualField.note3": "功能损伤已达重度",
-    // [v3.0.6.11-104 Wave 11D] critical/CriticalValueList
+    // [v3.0.6.11-105 Wave 11D] critical/CriticalValueList
     "cvList.all": "全部",
     "cvList.status.pending": "待处理",
     "cvList.status.notified": "已通知",
@@ -24472,7 +24472,7 @@ export const translations: Translations = {
     "cvList.selectedPrefix": "已选中",
     "cvList.selectedSuffix": "项",
     "cvList.transferredLabel": "已转随访:",
-    // [v3.0.6.11-104 Wave 11D] eye/EyeWorkspacePage
+    // [v3.0.6.11-105 Wave 11D] eye/EyeWorkspacePage
     "eyeWs.kpi.appt": "今日预约",
     "eyeWs.kpi.exam": "今日检查",
     "eyeWs.kpi.rpt": "待写报告",
@@ -24511,7 +24511,7 @@ export const translations: Translations = {
     "eyeWs.worklist": "工作清单",
     "eyeWs.noTodos": "暂无待办",
     "eyeWs.appointmentsEndpoint": "对接 /api/v1/eye/ris/appointments",
-    // [v3.0.6.11-104 Wave 11D] device/DeviceDetail
+    // [v3.0.6.11-105 Wave 11D] device/DeviceDetail
     "deviceDetail.basicInfo": "设备基本信息",
     "deviceDetail.deviceId": "设备编号",
     "deviceDetail.deviceModel": "设备型号",
@@ -24572,7 +24572,7 @@ export const translations: Translations = {
     "deviceDetail.mtbf": "MTBF（故障间隔）",
     "deviceDetail.maintHistory": "维保历史",
     "deviceDetail.noMaintRecords": "暂无维保记录",
-    // [v3.0.6.11-104 Wave 11D] DepartmentDashboardPage
+    // [v3.0.6.11-105 Wave 11D] DepartmentDashboardPage
     "deptDash.status.running": "运行中",
     "deptDash.status.idle": "空闲",
     "deptDash.status.maintenance": "维护中",
@@ -24602,7 +24602,7 @@ export const translations: Translations = {
     "deptDash.examStats": "各类型检查统计",
     "deptDash.examProgress": "待检 {{pending}} | 已完成 {{completed}}",
     "deptDash.footer": "放射科信息系统 (RIS) v0.7.0 | 示例数据 (设备/统计为演示数据, 未接实时接口) | 如有异常请联系: 放射科信息中心 ☎ 8001",
-    // [v3.0.6.11-104 Wave 11D] regional/RegionalCollaborationPage (labels) + CollaborationPage
+    // [v3.0.6.11-105 Wave 11D] regional/RegionalCollaborationPage (labels) + CollaborationPage
     "regionalCollab.instStatus.online": "在线",
     "regionalCollab.instStatus.offline": "离线",
     "regionalCollab.instStatus.busy": "繁忙",
@@ -24624,7 +24624,7 @@ export const translations: Translations = {
     "regionalCollab.currentUser": "当前用户",
     "regionalCollab.recordFailed": "记录失败",
     "regionalCollab.submitFailed": "提交失败",
-    // [v3.0.6.11-104 Wave 11D] CollaborationPage
+    // [v3.0.6.11-105 Wave 11D] CollaborationPage
     "collab.status.online": "在线",
     "collab.status.away": "离开",
     "collab.status.offline": "离线",
@@ -24671,7 +24671,7 @@ export const translations: Translations = {
     "collab.realtimeActivity": "实时活动",
     "collab.noActivity": "暂无活动",
     "collab.autoScroll": "自动滚动",
-    // [v3.0.6.11-104 Wave 11D] contrast/ContrastInjectionWorkstationPage
+    // [v3.0.6.11-105 Wave 11D] contrast/ContrastInjectionWorkstationPage
     "contrastWs.defaultContrast": "碘海醇",
     "contrastWs.demoPatient": "演示患者",
     "contrastWs.injectionFailed": "注射指令发送失败",
@@ -24707,7 +24707,7 @@ export const translations: Translations = {
     "contrastWs.recStatus.cancelled": "取消",
     "contrastWs.recStatus.aborted": "中断",
     "contrastWs.noRecords": "暂无记录",
-    // [v3.0.6.11-104 Wave 11D] dicom/ViewportArea
+    // [v3.0.6.11-105 Wave 11D] dicom/ViewportArea
     "dcmView.roiTools": "ROI工具:",
     "dcmView.roi.length": "长度",
     "dcmView.roi.angle": "角度",
@@ -24760,7 +24760,7 @@ export const translations: Translations = {
     "dcmView.contrastLevel": "对比度档位",
     "dcmView.contrastLevelAria": "GSOF 对比度档位",
     "dcmView.framesUnit": "{{count}}幅",
-    // [v3.0.6.11-104 Wave 11D] reports/ReportWorkflowPage
+    // [v3.0.6.11-105 Wave 11D] reports/ReportWorkflowPage
     "reportWf.title": "报告流程核心",
     "reportWf.benchmark": "Nuance PowerScribe 对标",
     "reportWf.endpointsTag": "8 端点 + 9 客户端",
@@ -24815,7 +24815,7 @@ export const translations: Translations = {
     "reportWf.rejectReasonPlaceholder": "例如: 影像征象描述不完整",
     "reportWf.qualityScoreTitle": "请确认质量评分 (0-100)",
     "reportWf.selectCosignerTitle": "选择双签专家",
-    // [v3.0.6.11-104 Wave 11D] cardiac/CardiacSpecialtyPage
+    // [v3.0.6.11-105 Wave 11D] cardiac/CardiacSpecialtyPage
     "cardiacSpec.seg.lm": "左主干 (LM)",
     "cardiacSpec.seg.ladP": "LAD 近段",
     "cardiacSpec.seg.ladM": "LAD 中段",
@@ -24867,7 +24867,7 @@ export const translations: Translations = {
     "cardiacSpec.noCalciumData": "该分析暂无钙化积分数据",
     "cardiacSpec.cadRadsDistribution": "CAD-RADS 分布",
     "cardiacSpec.efTrend": "EF 趋势",
-    // [v3.0.6.11-104 Wave 11A] radiomics/RadiomicsFeaturePage
+    // [v3.0.6.11-105 Wave 11A] radiomics/RadiomicsFeaturePage
     "radiomics.enterInstanceId": "请输入实例 ID",
     "radiomics.loadFailedDemo": "特征加载失败，使用演示数据",
     "radiomics.roiCoordInvalid": "ROI 坐标格式错误，应为: x,y,width,height",
@@ -24901,7 +24901,7 @@ export const translations: Translations = {
     "radiomics.colFeatureCount": "特征数",
     "radiomics.colVolume": "体积",
     "radiomics.emptyHint": "请输入实例 ID 并加载特征",
-    // [v3.0.6.11-104 Wave 11A] operations/RoomOccupancyPage
+    // [v3.0.6.11-105 Wave 11A] operations/RoomOccupancyPage
     "roomOccupancy.loadFailed": "检查室数据加载失败",
     "roomOccupancy.statusUpdated": "状态已更新",
     "roomOccupancy.updateFailed": "更新失败",
@@ -24937,7 +24937,7 @@ export const translations: Translations = {
     "roomOccupancy.selectRoom": "选择房间",
     "roomOccupancy.targetStatus": "目标状态",
     "roomOccupancy.selectRoomFirst": "请先选择房间",
-    // [v3.0.6.11-104 Wave 11A] dental/DentalOrthoPage
+    // [v3.0.6.11-105 Wave 11A] dental/DentalOrthoPage
     "dentalOrtho.noCasesHint": "暂无正畸病例，可点击\"新建病例\"创建",
     "dentalOrtho.loadFailed": "正畸病例加载失败",
     "dentalOrtho.networkError": "网络错误，正畸病例加载失败",
@@ -24978,7 +24978,7 @@ export const translations: Translations = {
     "dentalOrtho.currentStage": "当前阶段",
     "dentalOrtho.nextStage": "进入下一阶段",
     "dentalOrtho.enterRetention": "进入保持期",
-    // [v3.0.6.11-104 Wave 11A] dental/DentalAIPage
+    // [v3.0.6.11-105 Wave 11A] dental/DentalAIPage
     "dentalAi.loadFindingsFailed": "检测记录加载失败",
     "dentalAi.detectFailed": "AI 检测失败",
     "dentalAi.serviceUnavailable": "AI 服务不可用",
@@ -25012,7 +25012,7 @@ export const translations: Translations = {
     "dentalAi.confirm": "确认",
     "dentalAi.review": "复核",
     "dentalAi.reject": "驳回",
-    // [v3.0.6.11-104 Wave 11A] cardiac/CvOperationsPage
+    // [v3.0.6.11-105 Wave 11A] cardiac/CvOperationsPage
     "cvOps.statsUnavailable": "统计接口不可用",
     "cvOps.title": "心血管运营中心",
     "cvOps.dataSourceApi": "数据源: /stats/daily",
@@ -25047,7 +25047,7 @@ export const translations: Translations = {
     "cvOps.colReorder": "补货点",
     "cvOps.colDose": "剂量",
     "cvOps.colExpiry": "有效期",
-    // [v3.0.6.11-104 Wave 11A] safety/PatientSafetyGoalsPage
+    // [v3.0.6.11-105 Wave 11A] safety/PatientSafetyGoalsPage
     "safetyGoals.title": "患者安全目标",
     "safetyGoals.newGoal": "新建目标",
     "safetyGoals.totalGoals": "总目标数",
@@ -25085,7 +25085,7 @@ export const translations: Translations = {
     "safetyGoals.descriptionPlaceholder": "目标说明",
     "safetyGoals.cancel": "取消",
     "safetyGoals.createGoal": "创建目标",
-    // [v3.0.6.11-104 Wave 11A] cds/GuidelineLibraryPage
+    // [v3.0.6.11-105 Wave 11A] cds/GuidelineLibraryPage
     "guideline.listLoadFailed": "指南列表加载失败",
     "guideline.notFound": "未找到该指南",
     "guideline.detailLoadFailed": "指南详情加载失败",
@@ -25123,7 +25123,7 @@ export const translations: Translations = {
     "guideline.loadingDetail": "加载详情...",
     "guideline.detailName": "名称",
     "guideline.detailVersion": "版本",
-    // [v3.0.6.11-104 Wave 11A] eye/ris/IntraocularPressurePage
+    // [v3.0.6.11-105 Wave 11A] eye/ris/IntraocularPressurePage
     "iop.loadFailed": "眼压记录加载失败",
     "iop.loadFailedRetry": "眼压记录加载失败, 请稍后重试",
     "iop.saved": "眼压记录已保存",
@@ -25155,7 +25155,7 @@ export const translations: Translations = {
     "iop.colDevice": "测量方式",
     "iop.colActions": "操作",
     "iop.deleteConfirm": "删除该记录?",
-    // [v3.0.6.11-104 Wave 11A] analytics/TatDashboardPage
+    // [v3.0.6.11-105 Wave 11A] analytics/TatDashboardPage
     "tatDashboard.selectCube": "请选择数据立方体",
     "tatDashboard.enterDrillValue": "请输入钻取维度值 (如: CT)",
     "tatDashboard.drillFailed": "钻取失败",
@@ -25198,7 +25198,7 @@ export const translations: Translations = {
     "tatDashboard.drillHint": "选择立方体与维度值后点击「钻取」查看下钻结果",
     "tatDashboard.barChart": "柱状图",
     "tatDashboard.dimension": "维度",
-    // [v3.0.6.11-104 Wave 11A] ihe/VisitPage
+    // [v3.0.6.11-105 Wave 11A] ihe/VisitPage
     "iheVisit.enterPatientId": "请输入患者 ID",
     "iheVisit.title": "IHE 就诊管理",
     "iheVisit.searchPlaceholder": "输入患者 ID 搜索",
@@ -25219,7 +25219,7 @@ export const translations: Translations = {
     "iheVisit.sending": "发送中...",
     "iheVisit.hint": "按钮当前状态为 {{status}}，仅活跃状态转移按钮可用",
     "iheVisit.timeline": "时间线",
-    // [v3.0.6.11-104 Wave 11A] integration/FhirServerPage
+    // [v3.0.6.11-105 Wave 11A] integration/FhirServerPage
     "fhirServer.queryDone": "FHIR 查询完成",
     "fhirServer.queryNotConfigured": "FHIR 查询 endpoint 未配置 (使用演示数据)",
     "fhirServer.title": "FHIR Server 集成",
@@ -25256,7 +25256,7 @@ export const translations: Translations = {
     "fhirServer.createResource": "创建 FHIR 资源",
     "fhirServer.resourceCreated": "FHIR 资源已创建",
     "fhirServer.jsonBody": "JSON 请求体",
-    // [v3.0.6.11-104 Wave 11A] rcm/ChargeItemPage
+    // [v3.0.6.11-105 Wave 11A] rcm/ChargeItemPage
     "chargeItem.loadFailed": "加载失败",
     "chargeItem.nameRequired": "请填写项目名称",
     "chargeItem.priceInvalid": "请填写有效单价",
@@ -25301,7 +25301,7 @@ export const translations: Translations = {
     "chargeItem.fieldDescription": "描述",
     "chargeItem.descriptionPlaceholder": "项目说明(可选)",
     "chargeItem.insuranceEligible": "医保可报销",
-    // [v3.0.6.11-104 Wave 11A] ai/AiDraftPage
+    // [v3.0.6.11-105 Wave 11A] ai/AiDraftPage
     "aiDraft.selectExam": "请选择检查",
     "aiDraft.generateFailed": "生成失败",
     "aiDraft.generateRequestFailed": "生成请求失败",
@@ -25333,7 +25333,7 @@ export const translations: Translations = {
     "aiDraft.acceptAll": "全部接受并提交",
     "aiDraft.rejectAll": "全部拒绝",
     "aiDraft.cleared": "已清空",
-    // [v3.0.6.11-104 Wave 11A] review/DualReadPage
+    // [v3.0.6.11-105 Wave 11A] review/DualReadPage
     "dualRead.listLoadFailed": "双阅列表加载失败",
     "dualRead.networkError": "网络错误",
     "dualRead.linkedExistingReport": "已关联已有报告并写入双阅结论",
@@ -25379,7 +25379,7 @@ export const translations: Translations = {
     "dualRead.patientNamePlaceholder": "患者姓名",
     "dualRead.patientIdPlaceholder": "患者ID",
     "dualRead.conclusionAlert": "双阅结论 (写入报告 impression)",
-    // [v3.0.6.11-104 Wave 11A] eye/pacs/PacsStudyListPage
+    // [v3.0.6.11-105 Wave 11A] eye/pacs/PacsStudyListPage
     "eyePacs.studyCreated": "检查已创建",
     "eyePacs.createFailed": "创建失败",
     "eyePacs.studyDeleted": "检查已删除",
@@ -25415,7 +25415,7 @@ export const translations: Translations = {
     "eyePacs.findings": "检查所见",
     "eyePacs.optional": "(可选)",
     "eyePacs.impressions": "印象",
-    // [v3.0.6.11-104 Wave 11A] rcm/FinancialReportsPage
+    // [v3.0.6.11-105 Wave 11A] rcm/FinancialReportsPage
     "financeReport.apiUnavailable": "financeApi 暂不可用，当前展示内置演示数据",
     "financeReport.loadFailedFallback": "数据加载失败，已回退演示数据",
     "financeReport.title": "财务报表",
@@ -25448,7 +25448,7 @@ export const translations: Translations = {
     "financeReport.trendUp": "较上月提升",
     "financeReport.trendDown": "较上月下降",
     "financeReport.kpiExplain": "财务指标说明",
-    // [v3.0.6.11-104 Wave 11A] patient/ServiceManagement
+    // [v3.0.6.11-105 Wave 11A] patient/ServiceManagement
     "serviceMgmt.apiUnavailable": "appointmentApi/templatesApi 暂不可用，当前展示内置演示数据",
     "serviceMgmt.loadFailedFallback": "数据加载失败，已回退演示数据",
     "serviceMgmt.syncing": "数据同步中...",
@@ -25492,7 +25492,7 @@ export const translations: Translations = {
     "serviceMgmt.langEn": "英文",
     "serviceMgmt.saveSettings": "保存设置",
     "serviceMgmt.prefsSaved": "已保存偏好设置",
-    // [v3.0.6.11-104 Wave 11A] dicom/CrossModalSearchPage
+    // [v3.0.6.11-105 Wave 11A] dicom/CrossModalSearchPage
     "crossModal.reindexTriggered": "索引重建已触发",
     "crossModal.reindexFailed": "重建索引失败",
     "crossModal.enterQuery": "请输入搜索关键词或患者信息",
@@ -25526,7 +25526,7 @@ export const translations: Translations = {
     "crossModal.hitResults": "命中结果",
     "crossModal.modalitiesInvolved": "涉及模态",
     "crossModal.patientsInvolved": "涉及患者",
-    // [v3.0.6.11-104 Wave 11A] tech/RetakeRateAnalyticsPage
+    // [v3.0.6.11-105 Wave 11A] tech/RetakeRateAnalyticsPage
     "retakeAnalytics.reviewFailed": "审批失败",
     "retakeAnalytics.loadFailed": "重拍统计加载失败",
     "retakeAnalytics.title": "重拍率统计与分析",
@@ -25572,7 +25572,7 @@ export const translations: Translations = {
     "retakeAnalytics.colActions": "操作",
     "retakeAnalytics.sourceApi": "数据源: GET /worklist/retake-stats (后端聚合) · 维度 {{dim}}",
     "retakeAnalytics.sourceDemo": "数据源: 演示回退 (接口不可用, 基于 seed 派生)",
-    // [v3.0.6.11-104 Wave 11A] integration/Hl7BuilderPage
+    // [v3.0.6.11-105 Wave 11A] integration/Hl7BuilderPage
     "hl7Builder.loadHistoryFailed": "发送历史加载失败",
     "hl7Builder.missingMessage": "响应中缺少 message 字段",
     "hl7Builder.previewFailed": "生成预览失败",
@@ -25619,7 +25619,7 @@ export const translations: Translations = {
     "hl7Builder.rawMessage": "HL7 原始消息",
     "hl7Builder.sendHistory": "发送历史",
     "hl7Builder.refresh": "刷新",
-    // [v3.0.6.11-104 Wave 11A] ops/DeviceOpsPage
+    // [v3.0.6.11-105 Wave 11A] ops/DeviceOpsPage
     "deviceOps.doseLoadFailed": "剂量记录加载失败, 展示空列表",
     "deviceOps.fillPatientDevice": "请填写患者ID和设备ID",
     "deviceOps.dosePositive": "剂量值必须为正数",
@@ -25675,7 +25675,7 @@ export const translations: Translations = {
     "deviceOps.doseValuePlaceholder": "剂量值 *",
     "deviceOps.submitting": "提交中...",
     "deviceOps.registerDoseBtn": "登记剂量",
-    // [v3.0.6.11-104 Wave 11A] education/PatientEducationPage
+    // [v3.0.6.11-105 Wave 11A] education/PatientEducationPage
     "patientEdu.loadFailedRetry": "宣教资料加载失败，请稍后重试",
     "patientEdu.titleContentRequired": "标题与内容为必填项",
     "patientEdu.createFailed": "新建宣教资料失败",
@@ -25720,7 +25720,7 @@ export const translations: Translations = {
     "patientEdu.durationPlaceholder": "视频/音频时长（选填）",
     "patientEdu.tags": "标签（逗号分隔）",
     "patientEdu.tagsPlaceholder": "如: CT,检查准备",
-    // [v3.0.6.11-104 Wave 11A] mobile/tech/TechMobileWorkstation
+    // [v3.0.6.11-105 Wave 11A] mobile/tech/TechMobileWorkstation
     "techMobile.startFailed": "开始检查失败",
     "techMobile.startFailedNetwork": "开始检查失败: 网络错误",
     "techMobile.completeFailed": "完成检查失败",
@@ -25782,7 +25782,7 @@ export const translations: Translations = {
     "techMobile.navDevices": "设备",
     "techMobile.navScan": "扫码",
     "techMobile.navNotice": "通知",
-    // [v3.0.6.11-104 Wave 11A] dose/DoseLiveMonitor
+    // [v3.0.6.11-105 Wave 11A] dose/DoseLiveMonitor
     "doseLive.statsLoadFailed": "剂量统计加载失败",
     "doseLive.loadingRealtime": "实时剂量数据加载中...",
     "doseLive.title": "剂量实时监测",
@@ -25853,7 +25853,7 @@ export const translations: Translations = {
     "doseLive.colSource": "来源",
     "doseLive.saving": "保存中...",
     "doseLive.save": "保存",
-    // [v3.0.6.11-104 Wave 11A] System/DicomPrintPage
+    // [v3.0.6.11-105 Wave 11A] System/DicomPrintPage
     "dicomPrint.noData": "暂无数据",
     "dicomPrint.apiUnavailable": "打印 API 不可用，已回退本地模拟队列（演示数据）",
     "dicomPrint.patientNameRequired": "请输入患者姓名",
@@ -25908,7 +25908,7 @@ export const translations: Translations = {
     "dicomPrint.pagination": "共 {{total}} 条 · 第 {{page}}/{{pages}} 页",
     "dicomPrint.prevPage": "上一页",
     "dicomPrint.nextPage": "下一页",
-    // [v3.0.6.11-104 Wave 11A] operation-log/LogStats
+    // [v3.0.6.11-105 Wave 11A] operation-log/LogStats
     "logStats.noData": "暂无数据",
     "logStats.todayOps": "今日操作",
     "logStats.yesterday": "昨日",
@@ -25958,7 +25958,7 @@ export const translations: Translations = {
     "logStats.opTrend24h": "24小时操作趋势",
     "logStats.peakHeatmap": "操作高峰时段热力图",
     "logStats.opCount": "操作次数",
-    // [v3.0.6.11-104 Wave 11A] eye/report/EyeReportWritePage
+    // [v3.0.6.11-105 Wave 11A] eye/report/EyeReportWritePage
     "eyeReport.draftSaved": "草稿已保存",
     "eyeReport.draftApiUnavailable": "草稿接口不可用，已本地暂存",
     "eyeReport.submittedReview": "报告已提交审核",
@@ -26025,7 +26025,7 @@ export const translations: Translations = {
     "eyeReport.noReports": "暂无报告数据",
     "eyeReport.reportNotFound": "未找到报告",
     "eyeReport.title": "眼科报告书写",
-    // [v3.0.6.11-104 Wave 11A] patient/PatientCreateForm
+    // [v3.0.6.11-105 Wave 11A] patient/PatientCreateForm
     "patientForm.enterName": "请输入姓名",
     "patientForm.enterIdCard": "请输入身份证号",
     "patientForm.idCard18": "身份证号需18位",
@@ -26083,7 +26083,7 @@ export const translations: Translations = {
     "patientForm.enterDoctor": "请输入主治医师姓名",
     "patientForm.saveInfo": "保存患者信息",
     // [W11A-ANCHOR-ZH]
-    // [v3.0.6.11-104 Wave 11B] CriticalValueRulePage
+    // [v3.0.6.11-105 Wave 11B] CriticalValueRulePage
     "cvRule.cat.neuro": "神经",
     "cvRule.cat.cardio": "心血管",
     "cvRule.cat.pulmo": "胸部",
@@ -26146,7 +26146,7 @@ export const translations: Translations = {
     "cvRule.gotIt": "知道了",
     "cvRule.savedNote": "规则配置已保存至系统,变更将立即生效。",
     "cvRule.disableRule": "停用规则",
-    // [v3.0.6.11-104 Wave 11B] DentalCephPage
+    // [v3.0.6.11-105 Wave 11B] DentalCephPage
     "ceph.analysis.steiner": "Steiner 分析法 (SNA/SNB/ANB)",
     "ceph.analysis.downs": "Downs 分析法",
     "ceph.analysis.mcnamara": "McNamara 分析法 (线距)",
@@ -26197,7 +26197,7 @@ export const translations: Translations = {
     "ceph.mandibleCrowding": "下颌拥挤 ",
     "ceph.needExtraction": "需拔牙",
     "ceph.noExtraction": "非拔牙",
-    // [v3.0.6.11-104 Wave 11B] DentalViewerPage
+    // [v3.0.6.11-105 Wave 11B] DentalViewerPage
     "dViewer.loadFailed": "加载失败",
     "dViewer.aiDone": "AI 分析完成",
     "dViewer.aiUnavailable": "AI 接口暂不可用，已返回本地模拟结果",
@@ -26235,7 +26235,7 @@ export const translations: Translations = {
     "dViewer.model": "模型: ",
     "dViewer.runAi": "运行 AI 分析",
     "dViewer.noAi": "无 AI 分析",
-    // [v3.0.6.11-104 Wave 11B] SelfServicePortal
+    // [v3.0.6.11-105 Wave 11B] SelfServicePortal
     "ssp.state.pending": "待随访",
     "ssp.state.inProgress": "随访中",
     "ssp.state.completed": "已完成",
@@ -26319,7 +26319,7 @@ export const translations: Translations = {
     "ssp.clinicalDrawer.reportStatus": "报告状态",
     "ssp.clinicalDrawer.findings": "检查所见",
     "ssp.clinicalDrawer.diagnosis": "诊断意见",
-    // [v3.0.6.11-104 Wave 11B] SlaPolicyPage
+    // [v3.0.6.11-105 Wave 11B] SlaPolicyPage
     "sla.priority.critical": "危急",
     "sla.priority.urgent": "紧急",
     "sla.priority.normal": "常规",
@@ -26364,7 +26364,7 @@ export const translations: Translations = {
     "sla.warningLabel": "预警时间(分钟)",
     "sla.warningRequired": "请输入预警分钟数",
     "sla.escalationLabel": "升级时间(分钟)",
-    // [v3.0.6.11-104 Wave 11B] AdverseReactionPage
+    // [v3.0.6.11-105 Wave 11B] AdverseReactionPage
     "advR.type.allergic": "过敏",
     "advR.type.nephrotoxic": "肾毒性",
     "advR.type.extravasation": "外渗",
@@ -26432,7 +26432,7 @@ export const translations: Translations = {
     "advR.byType": "按类型",
     "advR.byOutcome": "按转归",
     "advR.caseUnit": "例",
-    // [v3.0.6.11-104 Wave 11B] DicomSrTemplatePage
+    // [v3.0.6.11-105 Wave 11B] DicomSrTemplatePage
     "srTpl.loadFailed": "模板列表加载失败",
     "srTpl.updated": "模板已更新",
     "srTpl.created": "模板已创建",
@@ -26459,7 +26459,7 @@ export const translations: Translations = {
     "srTpl.close": "关闭",
     "srTpl.cnName": "中文名称",
     "srTpl.noData": "暂无数据",
-    // [v3.0.6.11-104 Wave 11B] DicomWebPage
+    // [v3.0.6.11-105 Wave 11B] DicomWebPage
     "dw.server.default": "DICOMweb (默认)",
     "dw.enterStudyUid": "请输入 StudyUID",
     "dw.qidoFailed": "QIDO-RS 检索失败",
@@ -26487,7 +26487,7 @@ export const translations: Translations = {
     "dw.stowTitle": "STOW-RS 上传",
     "dw.dragHint": "拖拽 DICOM 文件到这里",
     "dw.wadoPreviewTitle": "WADO-RS 影像预览",
-    // [v3.0.6.11-104 Wave 11B] DoctorWorkloadPage
+    // [v3.0.6.11-105 Wave 11B] DoctorWorkloadPage
     "dw2.unknownDoctor": "未知医生",
     "dw2.attending": "主治医师",
     "dw2.apiUnavailable": "工作量接口不可用",
@@ -26534,7 +26534,7 @@ export const translations: Translations = {
     "dw2.consulting": "会诊",
     "dw2.subConsultingDuration": "会诊时长",
     "dw2.modalityDist": "检查设备分布",
-    // [v3.0.6.11-104 Wave 11B] FhirImagingStudyPage
+    // [v3.0.6.11-105 Wave 11B] FhirImagingStudyPage
     "fis.detailLoadFailed": "影像检查详情加载失败，展示列表数据",
     "fis.listLoadFailed": "影像检查列表加载失败，使用演示数据",
     "fis.colId": "编号",
@@ -26566,7 +26566,7 @@ export const translations: Translations = {
     "fis.noDescription": "无描述",
     "fis.instanceSuffix": " 个实例",
     "fis.noData": "暂无数据",
-    // [v3.0.6.11-104 Wave 11B] BackupPage
+    // [v3.0.6.11-105 Wave 11B] BackupPage
     "bk.type.full": "全量",
     "bk.type.incremental": "增量",
     "bk.status.completed": "已完成",
@@ -26607,7 +26607,7 @@ export const translations: Translations = {
     "bk.nextRunValue": "每天凌晨 2:00",
     "bk.locationLabel": "备份位置",
     "bk.encryptionLabel": "加密状态",
-    // [v3.0.6.11-104 Wave 11B] PatientSafetyDashboardPage
+    // [v3.0.6.11-105 Wave 11B] PatientSafetyDashboardPage
     "psd.sev.nearMiss": "未遂事件",
     "psd.sev.minor": "轻微",
     "psd.sev.moderate": "中度",
@@ -26659,7 +26659,7 @@ export const translations: Translations = {
     "psd.cat.equipmentMalfunction": "设备故障",
     "psd.cat.informationLoss": "信息丢失",
     "psd.cat.other": "其他",
-    // [v3.0.6.11-104 Wave 11B] OEEDashboardPage
+    // [v3.0.6.11-105 Wave 11B] OEEDashboardPage
     "oeePage.loadFailed": "设备 OEE 数据加载失败",
     "oeePage.cause.breakdown": "停机故障",
     "oeePage.cause.setup": "换型调整",
@@ -26691,7 +26691,7 @@ export const translations: Translations = {
     "oeePage.causeTitle": "低 OEE 原因分析",
     "oeePage.noCause": "暂无原因数据",
     "oeePage.listTitle": "设备 OEE 列表（按 OEE 降序）",
-    // [v3.0.6.11-104 Wave 11B] SchedulingCenterPage
+    // [v3.0.6.11-105 Wave 11B] SchedulingCenterPage
     "sch.state.scheduled": "已预约",
     "sch.state.confirmed": "已确认",
     "sch.state.checkedIn": "已签到",
@@ -26732,7 +26732,7 @@ export const translations: Translations = {
     "sch.timeRequired": "请选择时间",
     "sch.roomNote": "诊室/备注",
     "sch.selectRoom": "选择诊室",
-    // [v3.0.6.11-104 Wave 11B] MllpConfigPage
+    // [v3.0.6.11-105 Wave 11B] MllpConfigPage
     "mllp.listenerStarted": "MLLP 监听器已启动",
     "mllp.listenerStopped": "MLLP 监听器已停止",
     "mllp.opFailed": "操作失败",
@@ -26771,7 +26771,7 @@ export const translations: Translations = {
     "mllp.cancel": "取消",
     "mllp.cidrLabel": "CIDR (如 10.0.0.0/8)",
     "mllp.cidrPlaceholder": "如 10.0.0.0/8",
-    // [v3.0.6.11-104 Wave 11B] DentalVolumeViewerPage
+    // [v3.0.6.11-105 Wave 11B] DentalVolumeViewerPage
     "dvv.title": "CBCT 体绘制 · 曲线 MPR",
     "dvv.benchRomexis": "Romexis 对标",
     "dvv.realBackend": "真实后端 /dental/volume/*",
@@ -26809,7 +26809,7 @@ export const translations: Translations = {
     "dvv.sliceThickness": "层厚",
     "dvv.exportCurved": "导出曲断图像",
     "dvv.backendPrefix": "后端 ",
-    // [v3.0.6.11-104 Wave 11B] SmartAuthPage
+    // [v3.0.6.11-105 Wave 11B] SmartAuthPage
     "smartAuth.configLoadFailed": "SMART 配置加载失败",
     "smartAuth.authSuccess": "授权成功，已获取授权码",
     "smartAuth.noCode": "授权响应中未找到 code",
@@ -26851,7 +26851,7 @@ export const translations: Translations = {
     "smartAuth.status": "状态",
     "smartAuth.subject": "主体",
     "smartAuth.expiresAt": "过期时间",
-    // [v3.0.6.11-104 Wave 11B] DepartmentOperationsPage
+    // [v3.0.6.11-105 Wave 11B] DepartmentOperationsPage
     "deptOps.unit.case": "例",
     "deptOps.unit.person": "人",
     "deptOps.unit.report": "份",
@@ -26889,7 +26889,7 @@ export const translations: Translations = {
     "deptOps.autoAssign": "自动分配",
     "deptOps.cancel": "取消",
     "deptOps.addToQueue": "加入队列",
-    // [v3.0.6.11-104 Wave 11B] NurseMobileWorkstation
+    // [v3.0.6.11-105 Wave 11B] NurseMobileWorkstation
     "nurse.status.waiting": "等候中",
     "nurse.status.inProgress": "检查中",
     "nurse.status.completed": "已完成",
@@ -26941,7 +26941,7 @@ export const translations: Translations = {
     "nurse.nav.meds": "用药",
     "nurse.nav.notify": "通知",
     "nurse.nav.checkIn": "签到",
-    // [v3.0.6.11-104 Wave 11B] ReportPhraseBankPage
+    // [v3.0.6.11-105 Wave 11B] ReportPhraseBankPage
     "rpb.unnamedPhrase": "未命名短语",
     "rpb.sceneApi": "智能片段（templatesApi）",
     "rpb.system": "系统",
@@ -26990,7 +26990,7 @@ export const translations: Translations = {
     "rpb.category": "分类",
     "rpb.contentLabel": "短语内容（支持 {{占位符}}）",
     "rpb.contentPlaceholder": "如：建议 {{timeframe}} 后复查，必要时穿刺活检明确病理。",
-    // [v3.0.6.11-104 Wave 11B] KeywordCheckPage
+    // [v3.0.6.11-105 Wave 11B] KeywordCheckPage
     "kwc.sev.error": "错误",
     "kwc.sev.warning": "警告",
     "kwc.sev.info": "提示",
@@ -27037,7 +27037,7 @@ export const translations: Translations = {
     "kwc.scanPrompt": "点击\"开始扫描\"对当前报告执行关键字检查",
     "kwc.scanPromptHint": "系统将按 6 大类规则进行全量扫描",
     "kwc.unitCount": "条",
-    // [v3.0.6.11-104 Wave 11B] TemplateInheritancePage
+    // [v3.0.6.11-105 Wave 11B] TemplateInheritancePage
     "tinh.unnamedTemplate": "未命名模板",
     "tinh.system": "系统",
     "tinh.apiUnavailable": "templatesApi 暂不可用，当前展示内置演示继承树",
@@ -27097,7 +27097,7 @@ export const translations: Translations = {
     "tinh.directChildren": "直接继承模板",
     "tinh.familyUsageSummary": "家族使用汇总（本地派生）",
     "tinh.usageNote": "使用次数为本地派生数据（标注: 待模板用量上报接口 templatesApi.usage）。",
-    // [v3.0.6.11-104 Wave 11B] ReportExportPage
+    // [v3.0.6.11-105 Wave 11B] ReportExportPage
     "rex.downloadFailed": "下载失败",
     "rex.exportFailed": "导出失败",
     "rex.fileGenFailed": "报告文件生成失败",
@@ -27143,7 +27143,7 @@ export const translations: Translations = {
     "rex.previewSample": "预览样例",
     "rex.exportReports": "导出 {{count}} 份报告",
     "rex.templateQuickRef": "模板用途速查",
-    // [v3.0.6.11-104 Wave 12B] Page residual i18n cleanup
+    // [v3.0.6.11-105 Wave 12B] Page residual i18n cleanup
     "iheConn.title": "IHE Connectathon 测试",
     "iheConn.subtitle": "XDS.b / PIX / PDQ / ATNA / PAM 测试执行框架",
     "iheConn.mockBadge": "模拟工具 · 测试结果本地生成",
@@ -27455,7 +27455,7 @@ export const translations: Translations = {
     "vesselAnalysis.recommendation": "建议:",
     "vesselAnalysis.model": "模型",
     "vesselAnalysis.status": "状态",
-    // [v3.0.6.11-104 Wave 12C] residual page UI cleanup
+    // [v3.0.6.11-105 Wave 12C] residual page UI cleanup
     "aiProviders.fetchFailed": "获取提供商失败",
     "aiProviders.fetchRequestFailed": "获取提供商请求失败",
     "aiProviders.active": "活跃",
@@ -28031,7 +28031,7 @@ export const translations: Translations = {
     "nationalReportPage.statusRejected": "已驳回",
     "nationalReportPage.statusPendingReview": "待审核",
     "nationalReportPage.statusPassed": "已通过",
-    // [v3.0.6.11-104 Wave 12A] Page residual i18n cleanup (20 pages)
+    // [v3.0.6.11-105 Wave 12A] Page residual i18n cleanup (20 pages)
     "cvQc.metric.imageQuality": "图像质量评分",
     "cvQc.metric.motion": "运动评分",
     "cvQc.metric.cnr": "对比噪声比",
@@ -28764,7 +28764,7 @@ export const translations: Translations = {
     "rqiReport.dash": "-",
 },
 "en-US": {
-    // [v3.0.6.11-104 Wave 10D] Page i18n batch (20 pages)
+    // [v3.0.6.11-105 Wave 10D] Page i18n batch (20 pages)
     "deptStaff.role.director": "Director",
     "worklistPage.unknownPatient": "Unknown Patient",
     "worklistPage.other": "Other",
@@ -31031,7 +31031,7 @@ export const translations: Translations = {
     "docMobile.submitting": "Submitting...",
     "docMobile.reject": "Reject",
     "docMobile.approve": "Approve",
-    // [v3.0.6.11-104 Wave 3B] Contrast safety loop (allergy test + pre-injection check + observation)
+    // [v3.0.6.11-105 Wave 3B] Contrast safety loop (allergy test + pre-injection check + observation)
     "contrastSafety.preCheck": "Pre-injection Check",
     "contrastSafety.consent": "Informed Consent",
     "contrastSafety.allergy": "Allergy Test",
@@ -31078,7 +31078,7 @@ export const translations: Translations = {
     "contrastSafety.observationDischarged": "Observation ended, discharge confirmed",
     "contrastSafety.observationIdOptional": "Observation ID (optional)",
     "contrastSafety.observationLinked": "Linked to observation record",
-    // [v3.0.6.11-104 Wave 2D] Operations dashboards / AI case library / P1 endpoint UI
+    // [v3.0.6.11-105 Wave 2D] Operations dashboards / AI case library / P1 endpoint UI
     "w2d.loading": "Loading...",
     "w2d.retry": "Retry",
     "w2d.refresh": "Refresh",
@@ -31247,7 +31247,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-104 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-105 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -31311,7 +31311,7 @@ export const translations: Translations = {
     "nav.dicomBrowserPro": "DICOM Professional",
     "nav.dicomFusion": "PET-CT/MR Fusion",
     "nav.fusionV2": "Multi-Modal Fusion V2",
-    // [G005 v3.0.6.11-104 Wave 2A] Imaging Compare
+    // [G005 v3.0.6.11-105 Wave 2A] Imaging Compare
     "nav.imagingCompare": "Imaging Compare",
     "imagingCompare.title": "Imaging Compare",
     "imagingCompare.subtitle": "Multi-timepoint / multi-series / multi-modality side-by-side",
@@ -31368,7 +31368,7 @@ export const translations: Translations = {
     "imagingCompare.diffHint": "Metrics derived from deterministic pixels, consistent with viewport",
     "imagingCompare.hint": "Drag to adjust WW/WL · Shift+drag to pan · Wheel to flip frame · Ctrl+wheel to zoom · Click viewport to activate",
     "nav.dicomVolume": "3D Volume Rendering",
-    "nav.wsiViewer": "Pathology WSI Viewer", // [v3.0.6.11-104 Wave 2B] whole-slide image browsing & annotation
+    "nav.wsiViewer": "Pathology WSI Viewer", // [v3.0.6.11-105 Wave 2B] whole-slide image browsing & annotation
     "nav.filmPrint": "Film Print",
     "nav.aiAssist": "AI Assisted Diagnosis",
     "nav.v3AIAssist": "V3 AI Assisted Diagnosis",
@@ -31480,7 +31480,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-104]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-105]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",
@@ -31609,18 +31609,18 @@ export const translations: Translations = {
     "nav.deviceOps": "Device Operations",
     "nav.hrOperations": "HR Operations",
     "nav.opsDashboard": "Operations Dashboard",
-    // [v3.0.6.11-104] Wave6A Department KPI wall + Vessel analysis
+    // [v3.0.6.11-105] Wave6A Department KPI wall + Vessel analysis
     "nav.kpiWall": "Department KPI Wall",
-    // [v3.0.6.11-104 Wave 6B (tech-schedule)] Tech scheduling
+    // [v3.0.6.11-105 Wave 6B (tech-schedule)] Tech scheduling
     "nav.techSchedule": "Tech Scheduling",
-    // [v3.0.6.11-104 Wave 4B (tech-ops)] Tech Ops V2
+    // [v3.0.6.11-105 Wave 4B (tech-ops)] Tech Ops V2
     "nav.techOps": "Tech Ops V2",
-    // [v3.0.6.11-104 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard
+    // [v3.0.6.11-105 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard
     "nav.techOverview": "Appointment & Duty Overview",
-    // [v3.0.6.11-104 Wave 1B] Tech workstation: room status board + retake analytics
+    // [v3.0.6.11-105 Wave 1B] Tech workstation: room status board + retake analytics
     "nav.roomStatusBoard": "Exam Room Status Board",
     "nav.retakeAnalytics": "Retake Analytics",
-    // [v3.0.6.11-104 Wave 1A] Technician KPI dashboard
+    // [v3.0.6.11-105 Wave 1A] Technician KPI dashboard
     "nav.techKpi": "Technician KPI Dashboard",
     "nav.vesselAnalysis": "Vessel Analysis Workbench",
     "nav.cdsManagement": "CDS Management",
@@ -31668,7 +31668,7 @@ export const translations: Translations = {
     "nav.financialReports": "Financial Reports",
     "nav.vnaDashboard": "VNA Dashboard",
     "nav.reviewCenter": "Review Center",
-    // [v3.0.6.11-104 Wave 2A] 审核组: 委员会会诊
+    // [v3.0.6.11-105 Wave 2A] 审核组: 委员会会诊
     "nav.committeeRoom": "Committee Room",
     "nav.qualityControlV3": "Quality Control",
     "nav.workflowV3": "Workflow V3",
@@ -31682,7 +31682,7 @@ export const translations: Translations = {
     "nav.aiRadsScoring": "AI RADS Scoring V3",
     "nav.aiDraft": "AI Report Draft",
     "nav.teachLecture": "Teaching Lecture",
-    // [G005 v3.0.6.11-104 Wave 18] PACS benchmark additions (batch 2)
+    // [G005 v3.0.6.11-105 Wave 18] PACS benchmark additions (batch 2)
     "nav.teachingCaseLibrary": "Teaching Case Library",
     "nav.researchExportCenter": "Research Export Center",
     "nav.deviceGantt": "Device Schedule Gantt",
@@ -31697,9 +31697,9 @@ export const translations: Translations = {
     "nav.qcDashboard": "QC Dashboard",
     "nav.qcImage": "Image QC",
     "nav.qcImageAi": "AI Image QC",
-    // [G005 Wave 3A v3.0.6.11-104] PDCA 质控闭环
+    // [G005 Wave 3A v3.0.6.11-105] PDCA 质控闭环
     "nav.qcPdca": "PDCA QC Loop",
-    // [G005 Wave 8B v3.0.6.11-104] 报告质控闭环与趋势分析
+    // [G005 Wave 8B v3.0.6.11-105] 报告质控闭环与趋势分析
     "nav.qcAnalytics": "QC Loop & Trend Analytics",
     "nav.qcRadiologistAnnual": "Radiologist Annual QC",
     "nav.cosign": "CoSign Workflow",
@@ -31723,7 +31723,7 @@ export const translations: Translations = {
     "nav.dicomSr": "DICOM Structured Report",
     "nav.radiomics": "Radiomics",
     "nav.dicom4d": "4D Dynamic",
-    // [G005 v3.0.6.11-104 Wave 1B (G-07/G-10)] 4D real frame source + DL denoise upgrade copy
+    // [G005 v3.0.6.11-105 Wave 1B (G-07/G-10)] 4D real frame source + DL denoise upgrade copy
     "dicom4d.synthetic": "Synthetic frames (data missing fallback)",
     "dicom4d.realSource": "Real frame source · phase-derived",
     "dicom4d.phaseCurve": "Phase curve (frame → phase)",
@@ -33221,7 +33221,7 @@ export const translations: Translations = {
     "asr.submitToReport": "Submit to Report",
     "asr.submitted": "Submitted to Report",
     "asr.reset": "Reset",
-    // [v3.0.6.11-104 Wave 17] PACS Benchmark Batch 1: Structured Report V3 / Dictation V2 / Auto Coding
+    // [v3.0.6.11-105 Wave 17] PACS Benchmark Batch 1: Structured Report V3 / Dictation V2 / Auto Coding
     "nav.structuredReportV3": "Structured Report V3",
     "nav.asrDictation": "Dictation Workbench V2",
     "nav.autoCoding": "SNOMED/ICD Auto Coding",
@@ -33535,7 +33535,7 @@ export const translations: Translations = {
     "nav.vr": "VR Volume Rendering",
     "nav.workflow": "Workflow",
     "nav.wadoRs": "WADO-RS Retrieval",
-    // [v3.0.6.11-104 Wave 9] Aggregate i18n keys (common status/actions/table headers)
+    // [v3.0.6.11-105 Wave 9] Aggregate i18n keys (common status/actions/table headers)
     "common.status.pending": "Pending",
     "common.status.processing": "Processing",
     "common.status.inProgress": "In Progress",
@@ -33588,7 +33588,7 @@ export const translations: Translations = {
     "common.api.seed": "Seed derived",
     "common.api.database": "database",
     "common.api.demoSeed": "demo (seed)",
-    // [v3.0.6.11-104 Wave 4A] Tech workstation V2: dual-room rotation (TechRotationPage)
+    // [v3.0.6.11-105 Wave 4A] Tech workstation V2: dual-room rotation (TechRotationPage)
     "techRotation.title": "Tech Workstation V2 · Dual-Room Rotation",
     "techRotation.wave": "Wave 4A",
     "techRotation.apiLive": "tech-v2 API live",
@@ -33661,7 +33661,7 @@ export const translations: Translations = {
     "techRotation.shift.NIGHT": "Night",
     "techRotation.shift.WEEKEND": "Weekend",
     "techRotation.shift.BACKUP": "Backup",
-    // [v3.0.6.11-104 Wave 4B] Tech workstation V2: utilization + emergency insert + cross-room optimization (TechOpsPage)
+    // [v3.0.6.11-105 Wave 4B] Tech workstation V2: utilization + emergency insert + cross-room optimization (TechOpsPage)
     "techOps.title": "Tech Workstation V2 · Scheduling Optimization",
     "techOps.subtitle": "Utilization history · Emergency insert · Cross-room scheduling",
     "techOps.refreshData": "Refresh data",
@@ -33780,7 +33780,7 @@ export const translations: Translations = {
     "techOps.thPlan": "Plan",
     "techOps.useSpare": "Use spare device",
     "techOps.keepUnchanged": "Unchanged",
-    "techOps.footnote": "G005 v3.0.6.11-104 Wave 4B · tech-ops module (falls back to deterministic seed when DB is unavailable) · API: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
+    "techOps.footnote": "G005 v3.0.6.11-105 Wave 4B · tech-ops module (falls back to deterministic seed when DB is unavailable) · API: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
     "techOps.selectModality": "Please select a modality",
     "techOps.insertFailed": "Insert failed: {{msg}}",
     "techOps.unknownError": "Unknown error",
@@ -33789,7 +33789,7 @@ export const translations: Translations = {
     "techOps.priority.STAT": "Critical",
     "techOps.priority.URGENT": "Urgent",
     "techOps.priority.ROUTINE": "Routine",
-    // [v3.0.6.11-104 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard (TechOverviewPage)
+    // [v3.0.6.11-105 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard (TechOverviewPage)
     "techOverview.title": "Tech Workstation V2 · Appointment Distribution & Duty Dashboard",
     "techOverview.apiLive": "tech-overview API live",
     "techOverview.demoData": "Demo data",
@@ -33866,7 +33866,7 @@ export const translations: Translations = {
     "techOverview.event.EMERGENCY": "Emergency Insert",
     "techOverview.event.STATE_CHANGE": "State Change",
     "techOverview.event.MAINTENANCE": "Maintenance",
-    // [v3.0.6.11-104 Wave 6A] Report QC rules engine (ReportRulesPage)
+    // [v3.0.6.11-105 Wave 6A] Report QC rules engine (ReportRulesPage)
     "reportRules.title": "Report QC Rules Engine",
     "reportRules.subtitle": "F11 · 18+ built-in radiology rules · custom rules · rulesets bound by exam type",
     "reportRules.newRule": "New Custom Rule",
@@ -33971,7 +33971,7 @@ export const translations: Translations = {
     "reportRules.field.impression": "Impression",
     "reportRules.field.conclusion": "Conclusion",
     "reportRules.field.recommendations": "Recommendations",
-    // [v3.0.6.11-104 Wave 6A] Report watermark & e-signature V2 (ReportWatermarkPage)
+    // [v3.0.6.11-105 Wave 6A] Report watermark & e-signature V2 (ReportWatermarkPage)
     "reportWatermark.title": "Report Watermark & Signature V2",
     "reportWatermark.subtitle": "F8 · Parametric text watermark · hospital LOGO image watermark · tamper-proof code · e-signature approval flow",
     "reportWatermark.applySign": "Request Signature",
@@ -34053,14 +34053,14 @@ export const translations: Translations = {
     "reportWatermark.cancelled": "Cancelled",
     "reportWatermark.cancelFailed": "Cancel failed",
     "reportWatermark.detailLoadFailed": "Failed to load record",
-    // [v3.0.6.11-104 Wave 7C] Report V2 three-panel page (ReportV2Page)
+    // [v3.0.6.11-105 Wave 7C] Report V2 three-panel page (ReportV2Page)
     "reportV2.title": "Report V2",
     "reportV2.wave": "Wave 7C",
     "reportV2.subtitle": "Pre-final AI review · Committee consultation · Peer review",
     "reportV2.tabSecondRead": "AI Second Read V2 (F14)",
     "reportV2.tabConsultation": "Committee Consultation V2 (F6)",
     "reportV2.tabPeerReview": "Peer Review (F9)",
-    // [v3.0.6.11-104 Wave 8B] QC loop & trend analytics (QcAnalyticsPage)
+    // [v3.0.6.11-105 Wave 8B] QC loop & trend analytics (QcAnalyticsPage)
     "qcAnalytics.title": "QC Loop & Trend Analytics",
     "qcAnalytics.subtitle": "Defect → fix → recheck → close PDCA loop · weekly/monthly defect-rate trend · Pareto analysis · department ranking",
     "qcAnalytics.refresh": "Refresh",
@@ -34194,7 +34194,7 @@ export const translations: Translations = {
     "qcAnalytics.source.manual": "Manual",
     "qcAnalytics.periodMonth": "Monthly",
     "qcAnalytics.periodWeek": "Weekly",
-    // [v3.0.6.11-104 Wave 2C] Segmentation deep-dive (SegmentationPage)
+    // [v3.0.6.11-105 Wave 2C] Segmentation deep-dive (SegmentationPage)
     "segmentationV2.title": "Segmentation Workbench",
     "segmentationV2.tagAlgos": "5 algorithms · multi-organ/lesion",
     "segmentationV2.tagOtsu": "Otsu auto threshold",
@@ -34321,7 +34321,7 @@ export const translations: Translations = {
     "segmentationV2.plane.axial": "Axial",
     "segmentationV2.plane.sagittal": "Sagittal",
     "segmentationV2.plane.coronal": "Coronal",
-    // [v3.0.6.11-104 Wave 1A-3A] DICOM compression workbench (DicomCompressPage)
+    // [v3.0.6.11-105 Wave 1A-3A] DICOM compression workbench (DicomCompressPage)
     "compressV2.title": "DICOM Compression Workbench",
     "compressV2.subtitle": "JPEG2000 real codec (OpenJPEG WASM) + RLE + LOCO-I prediction + Golomb-Rice entropy coding",
     "compressV2.sourceFile": "Source File",
@@ -34461,7 +34461,7 @@ export const translations: Translations = {
     "eye.tele.existingAnswer": "Existing Answer",
     "eye.tele.answerPlaceholder": "Type your consult answer…",
     "eye.tele.submitAnswer": "Submit Answer",
-    // [v3.0.6.11-104 Wave 9A] Tele-ophthalmology + optometry page i18n
+    // [v3.0.6.11-105 Wave 9A] Tele-ophthalmology + optometry page i18n
     "eye.tele.sessionDetailLoaded": "Session detail loaded",
     "eye.tele.consultLoaded": "Consult record loaded",
     "eye.tele.answerRequired": "Please enter the answer",
@@ -35541,7 +35541,7 @@ export const translations: Translations = {
     "vnaOps.actualSize": "Actual Size",
     "vnaOps.expectedSize": "Expected Size",
     "vnaOps.verifiedAt": "Verified At",
-    // [v3.0.6.11-104 Wave 8A] VNADashboardPage i18n
+    // [v3.0.6.11-105 Wave 8A] VNADashboardPage i18n
     "vnaPage.document": "Document",
     "vnaPage.image": "Image",
     "vnaPage.tierHot": "Hot Tier",
@@ -35669,7 +35669,7 @@ export const translations: Translations = {
     "vnaPage.currentTier": "Current Tier",
     "vnaPage.targetTier": "Target Tier:",
     "vnaPage.wormLockedSuffix": " (WORM locked)",
-    // [v3.0.6.11-104 Wave 8A] AIQCPage i18n
+    // [v3.0.6.11-105 Wave 8A] AIQCPage i18n
     "aiQcPage.scoreExcellent": "Excellent",
     "aiQcPage.scoreGood": "Good",
     "aiQcPage.scoreFair": "Fair",
@@ -35766,7 +35766,7 @@ export const translations: Translations = {
     "aiQcPage.close": "Close",
     "aiQcPage.updateConfirm": "Update Confirmation",
     "aiQcPage.confirmQc": "Confirm QC",
-    // [v3.0.6.11-104 Wave 8A] BreastSpecialtyPage i18n
+    // [v3.0.6.11-105 Wave 8A] BreastSpecialtyPage i18n
     "breastSpecialty.densityFatty": "Fatty",
     "breastSpecialty.densityScattered": "Scattered fibroglandular",
     "breastSpecialty.densityHeterogeneous": "Heterogeneously dense",
@@ -35900,7 +35900,7 @@ export const translations: Translations = {
     "breastSpecialty.colShape": "Shape",
     "breastSpecialty.colMargin": "Margin",
     "breastSpecialty.colMalignancyRisk": "Malignancy Risk",
-    // [v3.0.6.11-104 Wave 8A] EquipmentEfficiencyPage i18n
+    // [v3.0.6.11-105 Wave 8A] EquipmentEfficiencyPage i18n
     "equipEfficiency.usage": "Usage",
     "equipEfficiency.examCount": "Exam Count",
     "equipEfficiency.cases": "cases",
@@ -35960,7 +35960,7 @@ export const translations: Translations = {
     "equipEfficiency.bookingDesc": "Full = daily booked slots ≥95% | devices below 70% highlighted in red (demo data)",
     "equipEfficiency.failureTitle": "Device Failure Statistics",
     "equipEfficiency.failureDesc": "Fault types: hardware/software/scheduled maintenance/emergency repair · records from deviceMgmtApi.faults",
-    // [v3.0.6.11-104 Wave 8A] ExamDetailView i18n
+    // [v3.0.6.11-105 Wave 8A] ExamDetailView i18n
     "examDetail.statusScheduled": "Scheduled",
     "examDetail.statusArrived": "Arrived",
     "examDetail.statusInProgress": "In Progress",
@@ -36101,7 +36101,7 @@ export const translations: Translations = {
     "pacsAdmin.studies": "Studies",
     "pacsAdmin.series": "Series",
     "pacsAdmin.detailFailed": "Failed to load server detail",
-    // [v3.0.6.11-104 Wave 9A] PACS admin page i18n
+    // [v3.0.6.11-105 Wave 9A] PACS admin page i18n
     "pacsAdmin.loadFailed": "Failed to load PACS data",
     "pacsAdmin.connFailed": "Connection failed",
     "pacsAdmin.connTestFailed": "Connection test failed",
@@ -36213,7 +36213,7 @@ export const translations: Translations = {
     "pacsAdmin.readonly": "Read-only",
     "pacsAdmin.placeholderPrimaryPacs": "e.g. Primary PACS",
     "pacsAdmin.placeholderHotStorage": "e.g. Hot Storage",
-    // [v3.0.6.11-104 Wave 9A] Regional collaboration page i18n
+    // [v3.0.6.11-105 Wave 9A] Regional collaboration page i18n
     "regionalCollab.crossQueryFailed": "Cross-institution search failed",
     "regionalCollab.accessRecordOffline": "Access-record API unreachable; logged in this session",
     "regionalCollab.consultSubmitted": "Consultation request submitted, waiting for an expert",
@@ -36310,7 +36310,7 @@ export const translations: Translations = {
     "regionalCollab.priorityNormal": "Normal",
     "regionalCollab.priorityUrgent": "Urgent",
     "regionalCollab.priorityCritical": "Critical",
-    // [v3.0.6.11-104 Wave 9A] Auto-collection page i18n
+    // [v3.0.6.11-105 Wave 9A] Auto-collection page i18n
     "autoCollection.rulesLoadFailed": "Failed to load rules",
     "autoCollection.loadFailed": "Failed to load",
     "autoCollection.ruleDeleted": "Rule deleted",
@@ -36392,7 +36392,7 @@ export const translations: Translations = {
     "autoCollection.close": "Close",
     "autoCollection.errorInfo": "Error Info",
     "autoCollection.result": "Result",
-    // [v3.0.6.11-104 Wave 9A] QC PDCA page i18n
+    // [v3.0.6.11-105 Wave 9A] QC PDCA page i18n
     "qcPdca.cyclesLoadFailed": "Failed to load cycles, fell back to demo data",
     "qcPdca.editFailed": "Edit failed",
     "qcPdca.cycleUpdated": "Cycle updated",
@@ -36488,7 +36488,7 @@ export const translations: Translations = {
     "qcPdca.requiredSummary": "Please enter a closure summary",
     "qcPdca.placeholderSummary": "Record closure outcome and standardized measures...",
     "qcPdca.completeHint": "After completion the cycle becomes \"Completed\", records completedAt and summary, and can no longer be advanced.",
-    // [v3.0.6.11-104 Wave 9A] Technician schedule page i18n
+    // [v3.0.6.11-105 Wave 9A] Technician schedule page i18n
     "techSchedule.requiredDateTech": "Please select a date and a technician",
     "techSchedule.createFailed": "Create failed",
     "techSchedule.requiredBatch": "Please enter start/end dates and select a shift pattern",
@@ -36558,7 +36558,7 @@ export const translations: Translations = {
     "techSchedule.leaveReasonLabel": "Leave Reason (will prompt backfill)",
     "techSchedule.placeholderLeaveReason": "e.g. Sudden illness, please arrange backfill",
     "techSchedule.editScheduleTitle": "Edit Schedule",
-    // [v3.0.6.11-104 Wave 9A] CA digital signature page i18n
+    // [v3.0.6.11-105 Wave 9A] CA digital signature page i18n
     "caSignature.certsLoadFailed": "Failed to load certificate list",
     "caSignature.certInvalid": "Certificate invalid, cannot sign",
     "caSignature.enterReportId": "Please enter the report ID to sign",
@@ -36664,7 +36664,7 @@ export const translations: Translations = {
     "caSignature.caHistoryTitle": "Certificate Operation History",
     "caSignature.loadingHistory": "Loading operation history...",
     "caSignature.noHistory": "No operation records",
-    // [v3.0.6.11-104 Wave 9A] Dental-radiology fusion page i18n
+    // [v3.0.6.11-105 Wave 9A] Dental-radiology fusion page i18n
     "dentalRadFusion.referralsLoadFailed": "Failed to load referrals",
     "dentalRadFusion.referralCreated": "Referral created",
     "dentalRadFusion.createFailed": "Failed to create",
@@ -36749,7 +36749,7 @@ export const translations: Translations = {
     "dentalRadFusion.timeline3": "2026-06-22 Radiology report completed",
     "dentalRadFusion.timeline4": "2026-06-23 Dental implant planning",
     "dentalRadFusion.timeline5": "2026-06-25 Intraoral scan impression + 3D fusion design",
-    // [v3.0.6.11-104 Wave 9A] CA signature + amendment page i18n
+    // [v3.0.6.11-105 Wave 9A] CA signature + amendment page i18n
     "signAmend.applySuccess": "Application submitted",
     "signAmend.revokeSuccess": "Revoked successfully",
     "signAmend.enterSignatureHash": "Please enter the signature hash",
@@ -36840,7 +36840,7 @@ export const translations: Translations = {
     "signAmend.rejectReason": "Rejection Reason",
     "signAmend.confirmReject": "Confirm Rejection",
     "signAmend.query": "Query",
-    // [v3.0.6.11-104 Wave 9A] Smart routing page i18n
+    // [v3.0.6.11-105 Wave 9A] Smart routing page i18n
     "smartRouting.rulesLoadFailed": "Failed to load rules",
     "smartRouting.dataLoadFailed": "Failed to load data, please check the network and retry",
     "smartRouting.saveFailed": "Save failed",
@@ -36910,7 +36910,7 @@ export const translations: Translations = {
     "smartRouting.editRuleTitle": "Edit Routing Rule",
     "smartRouting.newRuleTitle": "New Routing Rule",
     "smartRouting.priorityHint": "Priority (lower is higher priority)",
-    // [v3.0.6.11-104 Wave 9A] Critical value center page i18n
+    // [v3.0.6.11-105 Wave 9A] Critical value center page i18n
     "criticalCenter.centerLoadFailed": "Failed to load center list",
     "criticalCenter.examIdAndContentRequired": "Exam ID and report content cannot be empty",
     "criticalCenter.autoDetectFailed": "Auto-detection failed",
@@ -37011,7 +37011,7 @@ export const translations: Translations = {
     "criticalCenter.saving": "Saving...",
     "criticalCenter.channelsUnavailable": "Channel config loading or unavailable...",
     "criticalCenter.channelHint": "Disabled channels will no longer deliver critical value notifications (delivery status marked FAILED); config is saved to the system config table under critical_channel_* keys.",
-    // [v3.0.6.11-104 Wave 9A] Regional report list page i18n
+    // [v3.0.6.11-105 Wave 9A] Regional report list page i18n
     "regionalReport.institutions": "Medical Institutions",
     "regionalReport.institutionsUnit": "",
     "regionalReport.allInstitutions": "All Institutions",
@@ -37648,7 +37648,7 @@ export const translations: Translations = {
     "critical.flowTreatPlaceholder": "Treatment, e.g. orders/measures (optional)",
     "critical.flowClosePlaceholder": "Closing record, e.g. patient outcome (optional)",
     "critical.flowClosed": "This critical value has completed the 5-step closed loop (triggered→notified→confirmed→treating→recorded)",
-    // [v3.0.6.11-104 Wave 5B] critical value multi-entry convergence tab labels
+    // [v3.0.6.11-105 Wave 5B] critical value multi-entry convergence tab labels
     "critical.tabWorkbench": "Workbench",
     "critical.tabCenter": "Critical Value Center",
     "critical.tab5Step": "5-Step Closed Loop",
@@ -38310,7 +38310,7 @@ export const translations: Translations = {
     "statsPage.revenueYuan": "Revenue (CNY)",
     "statsPage.costYuan": "Cost (CNY)",
     "statsPage.profitYuan": "Profit (CNY)",
-    // [v3.0.6.11-104 Wave 7C] Statistics page chart names i18n
+    // [v3.0.6.11-105 Wave 7C] Statistics page chart names i18n
     "statsPage.chart.examCount": "Exam volume",
     "statsPage.chart.criticalCount": "Critical values",
     "statsPage.chart.reportCount": "Reports",
@@ -38976,7 +38976,7 @@ export const translations: Translations = {
     "qcPage.trendAnalysis": "Trend Analysis",
     "qcPage.qcManagement": "QC Management (score/critical/defect)",
     "qcPage.radiologyQcOverview": "Radiology QC Overview",
-    // [v3.0.6.11-104 Wave 5A] QC convergence: AI QC / Department Quality tabs + report rules/watermark under QC group
+    // [v3.0.6.11-105 Wave 5A] QC convergence: AI QC / Department Quality tabs + report rules/watermark under QC group
     "qcPage.aiQc": "AI QC",
     "qcPage.deptQuality": "Department Quality",
     "nav.reportRules": "Report QC Rules",
@@ -40759,7 +40759,7 @@ export const translations: Translations = {
     "costAnalysis.step1": "1. Materials",
     "costAnalysis.step2": "2. Appeal",
     "costAnalysis.step3": "3. Re-evaluate",
-    // [v3.0.6.11-104 Wave 2B] Exam statistics / patient archive
+    // [v3.0.6.11-105 Wave 2B] Exam statistics / patient archive
     "examPage.statisticsOverview": "Statistics Overview",
     "examPage.examOverview": "Exam Overview",
     "examPage.overviewTotal": "Total Exams",
@@ -40790,7 +40790,7 @@ export const translations: Translations = {
     "examPage.notesSaveFailed": "Failed to save notes",
     "examPage.notesRequired": "Notes cannot be empty",
     "examPage.minuteShort": "min",
-    // [v3.0.6.11-104 Wave 7C] Exam page extra i18n
+    // [v3.0.6.11-105 Wave 7C] Exam page extra i18n
     "examPage.allPatients": "All Patients",
     "examPage.priorityCritical": "Critical",
     "examPage.transferEmergencyToInpatient": "Emergency → Inpatient",
@@ -40880,7 +40880,7 @@ export const translations: Translations = {
     "deviceMgmtBoard.stateMaintenance": "Maintenance",
     "deviceMgmtBoard.stateBroken": "Broken",
     "deviceMgmtBoard.stateOffline": "Offline",
-    // [v3.0.6.11-104 Wave 3D] Contrast clinical data + retake approval + follow-up result + eGFR gate
+    // [v3.0.6.11-105 Wave 3D] Contrast clinical data + retake approval + follow-up result + eGFR gate
     "w3d.egfr.title": "eGFR Renal Assessment",
     "w3d.egfr.blocked": "eGFR {{value}} mL/min < 30, high risk of contrast-induced nephropathy. Injection blocked.",
     "w3d.egfr.warning": "eGFR {{value}} mL/min (30-59), moderate renal impairment. Use with caution and hydrate.",
@@ -40960,7 +40960,7 @@ export const translations: Translations = {
     "w3d.followup.resultRequired": "Please select a follow-up result",
     "w3d.followup.outcomePlaceholder": "Additional outcome notes (optional)",
     "w3d.followup.completeWithResult": "Complete & record result",
-    // [v3.0.6.11-104 Wave 6B] Report QC component group (R3.QUALITY) - QualityDimensionCard
+    // [v3.0.6.11-105 Wave 6B] Report QC component group (R3.QUALITY) - QualityDimensionCard
     "reportQuality.dimensionConfig": "Scoring Dimensions",
     "reportQuality.pointsDomains": "20 pts · 5 capability domains",
     "reportQuality.tab.weights": "Dimensions & Weights",
@@ -41090,7 +41090,7 @@ export const translations: Translations = {
     "reportQuality.basePrefix": "Base",
     "reportQuality.passPrefix": "Pass",
     "reportQuality.scoreUnit": "pts",
-    // [v3.0.6.11-104 Wave 6B] Critical value alert center - CriticalValueAlerter
+    // [v3.0.6.11-105 Wave 6B] Critical value alert center - CriticalValueAlerter
     "criticalValue.status.pending": "Pending",
     "criticalValue.status.notified": "Notified",
     "criticalValue.status.acknowledged": "Acknowledged",
@@ -41189,7 +41189,7 @@ export const translations: Translations = {
     "criticalValue.channelOption.inApp": "🔔 In-App",
     "criticalValue.channelOption.email": "📧 Email",
     "criticalValue.channelOption.pager": "📟 Pager",
-    // [v3.0.6.11-104 Wave 6B] Report QC V2 - ReportQcV2Panel
+    // [v3.0.6.11-105 Wave 6B] Report QC V2 - ReportQcV2Panel
     "reportQcV2.taskStatus.pending": "Pending Assignment",
     "reportQcV2.taskStatus.inProgress": "In QC",
     "reportQcV2.taskStatus.reviewing": "Pending 2nd Review",
@@ -41273,7 +41273,7 @@ export const translations: Translations = {
     "reportQcV2.defectDistribution": "Defect Distribution (by dimension × severity)",
     "reportQcV2.monthlyTrend": "Monthly Trend",
     "reportQcV2.recentRecords": "Recent records:",
-    // [v3.0.6.11-104 Wave 6B] Defect library - DefectLibrary
+    // [v3.0.6.11-105 Wave 6B] Defect library - DefectLibrary
     "defectLibrary.severity.minor": "Minor",
     "defectLibrary.severity.major": "Major",
     "defectLibrary.severity.critical": "Critical",
@@ -41351,7 +41351,7 @@ export const translations: Translations = {
     "defectLibrary.triggerCount": "Trigger Count",
     "defectLibrary.tags": "Tags",
     "defectLibrary.references": "References",
-    // [v3.0.6.11-104 Wave 6B] Critical value escalation chain V2 - CriticalEscalationV2
+    // [v3.0.6.11-105 Wave 6B] Critical value escalation chain V2 - CriticalEscalationV2
     "criticalEscalation.status.notifying": "Notifying",
     "criticalEscalation.status.pendingConfirm": "Pending Confirmation",
     "criticalEscalation.status.confirmed": "Confirmed",
@@ -41411,7 +41411,7 @@ export const translations: Translations = {
     "criticalEscalation.confirmedVerb": "",
     "criticalEscalation.autoEscalated": "Not confirmed before timeout; auto-escalated",
     "criticalEscalation.escalationRecords": "Escalation Records",
-    // [v3.0.6.11-104 Wave 6B] Defect remediation tracker - DefectRemediationTracker
+    // [v3.0.6.11-105 Wave 6B] Defect remediation tracker - DefectRemediationTracker
     "defectRemediation.status.pending": "Pending",
     "defectRemediation.status.inProgress": "In Progress",
     "defectRemediation.status.rectified": "Rectified",
@@ -41465,7 +41465,7 @@ export const translations: Translations = {
     "defectRemediation.reportingDoctorTag": "Reporting Doctor",
     "defectRemediation.verifiedBy": "Verified By",
     "defectRemediation.reminderCount": "Reminder Count",
-    // [v3.0.6.11-104 Wave 6B] Critical value escalation rule editor - CriticalValueEscalation
+    // [v3.0.6.11-105 Wave 6B] Critical value escalation rule editor - CriticalValueEscalation
     "criticalValueEscalation.role.attending": "Attending Physician",
     "criticalValueEscalation.role.associateChief": "Associate Chief",
     "criticalValueEscalation.role.chief": "Department Director",
@@ -41508,7 +41508,7 @@ export const translations: Translations = {
     "criticalValueEscalation.priority": "Priority",
     "criticalValueEscalation.messageTemplate": "Message Template",
     "criticalValueEscalation.enableRule": "Enable this rule",
-    // [v3.0.6.11-104 Wave 6B] 15-dimension scoring - QualityScorePanel
+    // [v3.0.6.11-105 Wave 6B] 15-dimension scoring - QualityScorePanel
     "qualityScore.category.completeness": "Completeness",
     "qualityScore.category.accuracy": "Accuracy",
     "qualityScore.category.timeliness": "Timeliness",
@@ -41559,7 +41559,7 @@ export const translations: Translations = {
     "qualityScore.weight": "Weight",
     "qualityScore.score": "Score",
     "qualityScore.rule": "Rule:",
-    // [v3.0.6.11-104 Wave 6B] Monthly quality report - QualityMonthlyReport
+    // [v3.0.6.11-105 Wave 6B] Monthly quality report - QualityMonthlyReport
     "qualityMonthly.loadFailed": "Failed to load monthly report",
     "qualityMonthly.exportFailed": "Export failed",
     "qualityMonthly.loadingLabel": "Loading quality monthly report",
@@ -41603,7 +41603,7 @@ export const translations: Translations = {
     "qualityMonthly.departmentRanking": "Department Ranking",
     "qualityMonthly.tab.sections": "Report Sections",
     "qualityMonthly.generatedAt": "Generated on",
-    // [v3.0.6.11-104 Wave 6B] Critical value notification card - CriticalValueCard
+    // [v3.0.6.11-105 Wave 6B] Critical value notification card - CriticalValueCard
     "criticalValueCard.callNetworkError": "Call failed: network error",
     "criticalValueCard.enterPhone": "Please enter the receiving phone number",
     "criticalValueCard.smsNetworkError": "SMS sending failed: network error",
@@ -41623,7 +41623,7 @@ export const translations: Translations = {
     "criticalValueCard.receivingPhone": "Receiving Phone",
     "criticalValueCard.phonePlaceholder": "e.g. 13800000001",
     "criticalValueCard.smsContentLabel": "SMS content (leave blank for the default template)",
-    // [v3.0.6.11-104 Wave 6B] Quality realtime dashboard - QualityDashboard
+    // [v3.0.6.11-105 Wave 6B] Quality realtime dashboard - QualityDashboard
     "qualityDashboard.loadFailed": "Failed to load dashboard",
     "qualityDashboard.loadingLabel": "Loading quality dashboard",
     "qualityDashboard.loading": "Loading...",
@@ -41654,7 +41654,7 @@ export const translations: Translations = {
     "qualityDashboard.avgScoreLabel": "Avg",
     "qualityDashboard.copiesUnit": "copies",
     "qualityDashboard.noData": "No data",
-    // [v3.0.6.11-104 Wave 6B] Critical value management V2 panel - CriticalValuePanelV2
+    // [v3.0.6.11-105 Wave 6B] Critical value management V2 panel - CriticalValuePanelV2
     "criticalValueV2.channel.message": "In-app Message",
     "criticalValueV2.notifStatus.sent": "Sent",
     "criticalValueV2.notifStatus.failed": "Send Failed",
@@ -41758,7 +41758,7 @@ export const translations: Translations = {
     "criticalValueV2.modal.recipient": "Recipient:",
     "criticalValueV2.modal.commentOptional": "Remark (optional)",
     "criticalValueV2.modal.commentPlaceholder": "Enter handling remark",
-    // [v3.0.6.11-104 Wave 6C] AI report assistant / structured fields / voice dictation
+    // [v3.0.6.11-105 Wave 6C] AI report assistant / structured fields / voice dictation
     "aiDraft.source.template": "Template",
     "aiDraft.source.rule": "Rule",
     "aiDraft.source.field": "Field",
@@ -42442,7 +42442,7 @@ export const translations: Translations = {
     "templateLibrary.usageOverview": "Usage stats overview",
     "templateLibrary.noData": "No data",
     "templateLibrary.footer": "Recommendation score = usage frequency ×40 + recency decay ×30 + category match (modality 50/dept 25/purpose 15/tag 5/body part 10) · category tree organized by exam type/department/purpose · {{count}} built-in radiology templates (seed fallback)",
-    // [v3.0.6.11-104 Wave 6A] R3.REVIEW review components
+    // [v3.0.6.11-105 Wave 6A] R3.REVIEW review components
     "reportReview.common.all": "All",
     "reportReview.common.apply": "Apply",
     "reportReview.common.cancel": "Cancel",
@@ -43428,7 +43428,7 @@ export const translations: Translations = {
     "appointmentCalendar.form.priority": "Priority",
     "appointmentCalendar.form.device": "Device",
     "appointmentCalendar.form.note": "Note",
-    // [v3.0.6.11-104 Wave 7C] Appointment management page i18n
+    // [v3.0.6.11-105 Wave 7C] Appointment management page i18n
     "apptMgmt.title": "Imaging Appointment Management",
     "apptMgmt.realData": "Live data",
     "apptMgmt.demoData": "Demo data",
@@ -43530,7 +43530,7 @@ export const translations: Translations = {
     "apptMgmt.creating": "Creating...",
     "apptMgmt.confirmCreate": "Confirm create",
     "apptMgmt.serviceUnavailable": "Appointment service unavailable; showing demo data",
-    // [v3.0.6.11-104 Wave 7C] Appointment page i18n
+    // [v3.0.6.11-105 Wave 7C] Appointment page i18n
     "apptPage.title": "Appointment Management",
     "apptPage.subtitle": "Scheduling · Device assignment · Time slots · Conflict detection · Reminders",
     "apptPage.batchImport": "Batch Import",
@@ -43689,7 +43689,7 @@ export const translations: Translations = {
     "apptPage.createFailed": "Failed to create appointment, please retry",
     "apptPage.errCancelReason": "Please select a cancellation reason",
     "apptPage.errCancelNotAllowed": "Current status does not allow cancellation",
-    // [v3.0.6.11-104 Wave 7C] Template designer i18n
+    // [v3.0.6.11-105 Wave 7C] Template designer i18n
     "templateDesigner.headerTitle": "Template Designer v1.0.2 (R2)",
     "templateDesigner.fieldsUnit": "fields",
     "templateDesigner.requiredUnit": "required",
@@ -43881,7 +43881,7 @@ export const translations: Translations = {
     "templateDesigner.sr.rr002": "IHE RR - CT Exam Report",
     "templateDesigner.sr.rr003": "IHE RR - MR Exam Report",
     "templateDesigner.sr.rr004": "IHE RR - X-ray Exam Report",
-    // [v3.0.6.11-104 Wave 7A] Finding library filters / Insurance audit charts and flow / history headers
+    // [v3.0.6.11-105 Wave 7A] Finding library filters / Insurance audit charts and flow / history headers
     "findingLib.filterAll": "All",
     "findingLib.filterHead": "Head",
     "findingLib.filterNeck": "Neck",
@@ -43948,7 +43948,7 @@ export const translations: Translations = {
     "history.auditor": "Auditor",
     "history.notes": "Notes",
     "history.totalRecords": "{{count}} records",
-    // [v3.0.6.11-104 Wave 7A] AI Structured Report
+    // [v3.0.6.11-105 Wave 7A] AI Structured Report
     "aiStructured.title": "AI Structured Report System — WS/T 500-2016",
     "aiStructured.demoBadge": "Demo data · Template demo",
     "aiStructured.currentUser": "Current user: Doctor001",
@@ -44058,7 +44058,7 @@ export const translations: Translations = {
     "aiStructured.reportSaved": "Report saved · {{id}}",
     "aiStructured.apiError": "API returned an error",
     "aiStructured.saveFallback": "Save API unavailable, generated local demo report (pending integration)",
-    // [v3.0.6.11-104 Wave 7A] AI Orchestration Platform
+    // [v3.0.6.11-105 Wave 7A] AI Orchestration Platform
     "aiOrch.statusRegistered": "Registered",
     "aiOrch.statusDeployed": "Deployed",
     "aiOrch.statusUndeployed": "Undeployed",
@@ -44290,7 +44290,7 @@ export const translations: Translations = {
     "aiOrch.loadOrchFailed": "Failed to load AI orchestration list",
     "aiOrch.loadFusionFailed": "Failed to load fusion workspace",
     "aiOrch.loadAssistFailed": "Failed to load AI assistance",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded en i18n - TemplateManagementPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded en i18n - TemplateManagementPage
     "templateMgmt.title": "Exam Template Management",
     "templateMgmt.addTemplate": "Add Template",
     "templateMgmt.importing": "Importing...",
@@ -44446,7 +44446,7 @@ export const translations: Translations = {
     "templateMgmt.requiredFields": "Please fill required fields (template code, name, content)",
     "templateMgmt.confirmDelete": "Are you sure you want to delete this template?",
     "templateMgmt.copied": "Copied to clipboard",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded en i18n - DeviceFaultPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded en i18n - DeviceFaultPage
     "deviceFault.title": "Device Fault Management",
     "deviceFault.fallbackBadge": "Demo Data (API Fallback)",
     "deviceFault.liveBadge": "Live API Data",
@@ -44541,7 +44541,7 @@ export const translations: Translations = {
     "deviceFault.estimatedCost": "Estimated Cost",
     "deviceFault.actualCost": "Actual Cost",
     "deviceFault.confirmAccept": "Confirm Acceptance",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded en i18n - TermLibraryPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded en i18n - TermLibraryPage
     "termLibrary.apiBanner": "Real API connected: term library data comes from the backend /terms endpoint (MSW fallback only in dev mode)",
     "termLibrary.loading": "Loading term library from API...",
     "termLibrary.apiUnavailable": "API unavailable, using local term library",
@@ -44696,7 +44696,7 @@ export const translations: Translations = {
     "termLibrary.confirmDelete": "Delete this term?",
     "termLibrary.importFileFormatError": "Invalid file format: no valid term rows parsed, please use the CSV format from \"Import Template\" (term content, category, ...)",
     "termLibrary.templateFileName": "term_library_template.csv",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded en i18n - ResearchPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded en i18n - ResearchPage
     "researchPage.pleaseWait": "Please wait...",
     "researchPage.searchProjects": "Search project name or code...",
     "researchPage.newProject": "New Project",
@@ -44915,7 +44915,7 @@ export const translations: Translations = {
     "researchPage.demoBanner": "Demo data (backend pending): this page is a research data extraction demo; the backend has no /research endpoint yet",
     "researchPage.pageTitle": "Research Data Extraction",
     "researchPage.pageSubtitle": "Subject data de-identification management · 5 projects · 50 extracted records · DICOM de-identification · cohort builder · IRB · export pipeline · data quality",
-    // [v3.0.6.11-104 Wave 7B] Page hardcoded en i18n - StatsReportPage
+    // [v3.0.6.11-105 Wave 7B] Page hardcoded en i18n - StatsReportPage
     "statsReport.apiUnavailable": "statsApi live data unavailable, fell back to demo data",
     "statsReport.exportUnavailable": "Export endpoint unavailable, fell back to local CSV of current filtered data",
     "statsReport.exportRequestFailed": "Export endpoint request failed, fell back to local CSV of current filtered data",
@@ -45964,7 +45964,7 @@ export const translations: Translations = {
     "cvModals.triggerConditionLabel": "Trigger Condition",
     "cvModals.triggerPlaceholder": "e.g. Not confirmed after phone notification timeout",
     "cvModals.urgentReminder": "Urgent Reminder",
-    // [v3.0.6.11-104 Wave 8B] Patient 360 (Patient360Page)
+    // [v3.0.6.11-105 Wave 8B] Patient 360 (Patient360Page)
     "patient360.action": "Action",
     "patient360.apiRealtime": "API Realtime",
     "patient360.backToList": "Back to Patient List",
@@ -46067,7 +46067,7 @@ export const translations: Translations = {
     "patient360.visitProfile": "Visit Profile",
     "patient360.ageUnit": " yrs",
     "patient360.monthUnit": "mo",
-    // [v3.0.6.11-104 Wave 8B] Home page (HomePage)
+    // [v3.0.6.11-105 Wave 8B] Home page (HomePage)
     "homePage.actAppointment": "Appointments",
     "homePage.actCases": "Case Library",
     "homePage.actFollowUp": "Follow-up",
@@ -46224,7 +46224,7 @@ export const translations: Translations = {
     "homePage.ariaCriticalList": "Critical Value List",
     "homePage.ariaAnnouncementList": "Department Announcement List",
     "homePage.ariaOnCallList": "Today's On-call List",
-    // [v3.0.6.11-104 Wave 8B] Clinical Data Hub (ClinicalDataPage)
+    // [v3.0.6.11-105 Wave 8B] Clinical Data Hub (ClinicalDataPage)
     "clinicalData.abnormalCount": "{{count}} abnormal",
     "clinicalData.activePatients": "Active Patients",
     "clinicalData.allCategories": "All Categories",
@@ -46378,7 +46378,7 @@ export const translations: Translations = {
     "clinicalData.vitals": "Vitals",
     "clinicalData.weight": "Weight",
     "clinicalData.yearsOld": "{{age}} yrs",
-    // [v3.0.6.11-104 Wave 8B] Remote consultation (ConsultationPage)
+    // [v3.0.6.11-105 Wave 8B] Remote consultation (ConsultationPage)
     "consultation.accept": "Accept",
     "consultation.acceptLocal": "Accepted (local)",
     "consultation.acceptLocalFallback": "Accepted (local fallback)",
@@ -46541,7 +46541,7 @@ export const translations: Translations = {
     "consultation.video": "Video",
     "consultation.videoPlayback": "Video Playback",
     "consultation.videoPreview": "Video Preview",
-    // [v3.0.6.11-104 Wave 8C] MaterialsPage
+    // [v3.0.6.11-105 Wave 8C] MaterialsPage
     "materialsPage.title": "Eye Materials (IOL Inventory + Contact Lens)",
     "materialsPage.directionB": "Direction B",
     "materialsPage.clientsEndpoints": "15 clients + 15 endpoints",
@@ -46644,7 +46644,7 @@ export const translations: Translations = {
     "materialsPage.msgBrandBcRequired": "Please enter brand and base curve",
     "materialsPage.msgSaveSuccess": "Saved successfully",
     "materialsPage.msgDeleteSuccess": "Deleted successfully",
-    // [v3.0.6.11-104 Wave 8C] RegionalReportDetail
+    // [v3.0.6.11-105 Wave 8C] RegionalReportDetail
     "regionalReport.selectConsultation": "Please select a consultation record",
     "regionalReport.consultationDetail": "Consultation Detail",
     "regionalReport.back": "Back",
@@ -46792,7 +46792,7 @@ export const translations: Translations = {
     "regionalReport.reportExported": "Report exported",
     "dicomSr.download": "Download SR",
     "dicomSr.downloaded": "SR file downloaded",
-    // [v3.0.6.11-104 Wave 8C] DicomSrPage
+    // [v3.0.6.11-105 Wave 8C] DicomSrPage
     "dicomSrPage.bodyPart": "Body Part",
     "dicomSrPage.byModality": "By Modality",
     "dicomSrPage.byStatus": "By Status",
@@ -46890,11 +46890,11 @@ export const translations: Translations = {
     "dicomSrPage.title": "DICOM SR Management Platform",
     "dicomSrPage.totalPrefix": "Total",
     "dicomSrPage.unit": "Unit",
-    // [v3.0.6.11-104 Wave 8C] QCPage residual
+    // [v3.0.6.11-105 Wave 8C] QCPage residual
     "qcPage.all": "All",
     "qcPage.hospitalAvgScore": "Hospital Average Score",
     "qcPage.individualAvgScore": "Individual Average Score",
-    // [v3.0.6.11-104 Wave 8C] ReportReviewPage
+    // [v3.0.6.11-105 Wave 8C] ReportReviewPage
     "reportReviewPage.stageInitial": "Initial Review",
     "reportReviewPage.stageInitialDesc": "Senior attending / deputy chief review",
     "reportReviewPage.stageFinal": "Final Review",
@@ -46976,7 +46976,7 @@ export const translations: Translations = {
     "reportReviewPage.quickReason3": "Exam site does not match the requisition; verify and rewrite",
     "reportReviewPage.quickReason4": "Non-standard terminology; revise per ICD standard terms",
     "reportReviewPage.quickReason5": "Missing recommendations; add follow-up/re-examination advice",
-    // [v3.0.6.11-104 Wave 9C] BusinessContinuityPage i18n
+    // [v3.0.6.11-105 Wave 9C] BusinessContinuityPage i18n
     "businessContinuity.typeStudy": "Exam",
     "businessContinuity.typeReport": "Report",
     "businessContinuity.typeUserAction": "User Action",
@@ -47045,7 +47045,7 @@ export const translations: Translations = {
     "businessContinuity.retry": "Retry",
     "businessContinuity.created": "Created",
     "businessContinuity.size": "Size",
-    // [v3.0.6.11-104 Wave 9C] DefectManagementPage i18n
+    // [v3.0.6.11-105 Wave 9C] DefectManagementPage i18n
     "defectMgmt.catDescription": "Description Defect",
     "defectMgmt.catTerminology": "Terminology Defect",
     "defectMgmt.catFormat": "Format Defect",
@@ -47108,7 +47108,7 @@ export const translations: Translations = {
     "defectMgmt.defectDescription": "Defect Description",
     "defectMgmt.descriptionRequired": "Please enter defect description",
     "defectMgmt.descriptionPlaceholder": "Describe the defect...",
-    // [v3.0.6.11-104 Wave 9C] ReportDeliveryPage i18n
+    // [v3.0.6.11-105 Wave 9C] ReportDeliveryPage i18n
     "reportDelivery.patient": "Patient",
     "reportDelivery.channelWechat": "WeChat",
     "reportDelivery.channelWechatDesc": "WeChat official account / mini program push",
@@ -47199,7 +47199,7 @@ export const translations: Translations = {
     "reportDelivery.fPatientWechat": "Patient WeChat",
     "reportDelivery.fFailureReason": "Failure Reason",
     "reportDelivery.fRetryCount": "Retry Count",
-    // [v3.0.6.11-104 Wave 9C] PixPage i18n
+    // [v3.0.6.11-105 Wave 9C] PixPage i18n
     "pixPage.feedSuccess": "PIX feed sent successfully",
     "pixPage.feedFailed": "PIX feed send failed",
     "pixPage.feedFallback": "PIX Feed service unavailable; using demo response",
@@ -47254,7 +47254,7 @@ export const translations: Translations = {
     "pixPage.confidence": "Confidence",
     "pixPage.addMappingTitle": "New PIX Mapping",
     "pixPage.internalPatientIdPlaceholder": "e.g. G005-00001",
-    // [v3.0.6.11-104 Wave 9C] SrReportPage i18n
+    // [v3.0.6.11-105 Wave 9C] SrReportPage i18n
     "srReport.statusDraft": "Draft",
     "srReport.statusFinalized": "Finalized",
     "srReport.statusPushed": "Pushed",
@@ -47338,7 +47338,7 @@ export const translations: Translations = {
     "srReport.impressionOverride": "Impression Override (optional; leave blank to use report content)",
     "srReport.impressionOverridePlaceholder": "Override impression content",
     "srReport.generateHint": "After generation the SR is written to the library; you can finalize and push ORU^R01",
-    // [v3.0.6.11-104 Wave 9C] DentalBillingPage i18n
+    // [v3.0.6.11-105 Wave 9C] DentalBillingPage i18n
     "dentalBilling.defaultItem": "Dental Service",
     "dentalBilling.chargeSuccess": "Charge successful",
     "dentalBilling.chargeUnavailable": "Charge API unavailable",
@@ -47414,7 +47414,7 @@ export const translations: Translations = {
     "dentalBilling.amount": "Amount (¥)",
     "dentalBilling.amountRequired": "Please enter amount",
     "dentalBilling.quantity": "Quantity",
-    // [v3.0.6.11-104 Wave 9C] DepartmentFinancePage i18n
+    // [v3.0.6.11-105 Wave 9C] DepartmentFinancePage i18n
     "deptFinance.statusPaid": "Paid",
     "deptFinance.statusUnpaid": "Unpaid",
     "deptFinance.statusPending": "Pending",
@@ -47503,7 +47503,7 @@ export const translations: Translations = {
     "deptFinance.monthlyRevenueTrend": "Monthly Revenue/Paid Trend",
     "deptFinance.receivable": "Receivable",
     "deptFinance.received": "Received",
-    // [v3.0.6.11-104 Wave 9C] KpiWallPage i18n
+    // [v3.0.6.11-105 Wave 9C] KpiWallPage i18n
     "kpiWall.blockKpi": "Core KPI",
     "kpiWall.blockTop10": "Workload Top 10",
     "kpiWall.blockCritical": "Critical Value Overview",
@@ -47594,7 +47594,7 @@ export const translations: Translations = {
     "kpiWall.loadingTip": "Loading KPI data...",
     "kpiWall.loadFailedEmpty": "Data failed to load or is empty (fallback empty state)",
     "kpiWall.retry": "Retry",
-    // [v3.0.6.11-104 Wave 9C] EyeRisPage i18n
+    // [v3.0.6.11-105 Wave 9C] EyeRisPage i18n
     "eyeRis.modalityFundusPhoto": "Fundus Photo",
     "eyeRis.modalityVisualField": "Visual Field",
     "eyeRis.modalityTopography": "Corneal Topography",
@@ -47698,7 +47698,7 @@ export const translations: Translations = {
     "eyeRis.fOrRoom": "OR Room",
     "eyeRis.fPreOpDiagnosis": "Pre-op Diagnosis",
     "eyeRis.fPreOpDiagnosisPlaceholder": "e.g. Senile cataract",
-    // [v3.0.6.11-104 Wave 9C] OptometryClosedLoopPage i18n
+    // [v3.0.6.11-105 Wave 9C] OptometryClosedLoopPage i18n
     "eye.optometry.screeningDone": "Screening completed",
     "eye.optometry.curveLoaded": "Refraction development data loaded",
     "eye.optometry.trialDone": "Trial evaluation completed",
@@ -47782,7 +47782,7 @@ export const translations: Translations = {
     "eye.optometry.colBrand": "Brand",
     "eye.optometry.colOdAstigmatism": "OD Astigmatism",
     "eye.optometry.colOsAstigmatism": "OS Astigmatism",
-    // [v3.0.6.11-104 Wave 9C] FhirPatientPage i18n
+    // [v3.0.6.11-105 Wave 9C] FhirPatientPage i18n
     "fhirPatient.listLoadFallback": "Failed to load patient list; using demo data",
     "fhirPatient.updated": "Patient updated",
     "fhirPatient.created": "Patient created",
@@ -47833,7 +47833,7 @@ export const translations: Translations = {
     "fhirPatient.colResourceType": "Resource Type",
     "fhirPatient.colSummary": "Summary",
     "fhirPatient.colTime": "Time",
-    // [v3.0.6.11-104 Wave 9C] ComplianceDocsPage i18n
+    // [v3.0.6.11-105 Wave 9C] ComplianceDocsPage i18n
     "complianceDocs.statusDraft": "Draft",
     "complianceDocs.statusCurrent": "Current",
     "complianceDocs.statusArchived": "Archived",
@@ -47889,7 +47889,7 @@ export const translations: Translations = {
     "complianceDocs.archivedAt": "Archived At",
     "complianceDocs.docContent": "Document Content",
     "complianceDocs.noContent": "(No content)",
-    // [v3.0.6.11-104 Wave 9D] dentalTele.*
+    // [v3.0.6.11-105 Wave 9D] dentalTele.*
     "dentalTele.title": "Remote Dental Consultation",
     "dentalTele.statusWaiting": "Waiting to Join",
     "dentalTele.statusInProgress": "In Progress",
@@ -47959,7 +47959,7 @@ export const translations: Translations = {
     "dentalTele.severityLow": "Low",
     "dentalTele.confidence": "Confidence",
     "dentalTele.screeningDisclaimer": "Screening results are for pre-screening reference only; diagnosis requires imaging and expert review",
-    // [v3.0.6.11-104 Wave 9D] remoteReading.*
+    // [v3.0.6.11-105 Wave 9D] remoteReading.*
     "remoteReading.statusPending": "Pending",
     "remoteReading.statusInProgress": "Reading",
     "remoteReading.statusCompleted": "Completed",
@@ -48016,7 +48016,7 @@ export const translations: Translations = {
     "remoteReading.completeTitle": "Complete Reading",
     "remoteReading.submitReport": "Submit Report",
     "remoteReading.reportPlaceholder": "Enter reading findings and impression...",
-    // [v3.0.6.11-104 Wave 9D] iheManager.*
+    // [v3.0.6.11-105 Wave 9D] iheManager.*
     "iheManager.statusLoadFailed": "Failed to load status",
     "iheManager.serviceLoadFailed": "Failed to load IHE service status; showing demo data",
     "iheManager.domainSaved": "Affinity domain config saved",
@@ -48074,7 +48074,7 @@ export const translations: Translations = {
     "iheManager.pixManagerEndpoint": "PIX Manager Endpoint",
     "iheManager.pdqSupplierEndpoint": "PDQ Supplier Endpoint",
     "iheManager.atnaEndpoint": "ATNA Endpoint",
-    // [v3.0.6.11-104 Wave 9D] reportTpl.*
+    // [v3.0.6.11-105 Wave 9D] reportTpl.*
     "reportTpl.loadFailed": "Failed to load templates",
     "reportTpl.updated": "Template updated",
     "reportTpl.updateFailed": "Update failed",
@@ -48130,7 +48130,7 @@ export const translations: Translations = {
     "reportTpl.snippetNameRequired": "Please enter name",
     "reportTpl.snippetContentRequired": "Please enter content",
     "reportTpl.snippetContentPlaceholder": "Snippet text content",
-    // [v3.0.6.11-104 Wave 9D] coSign.*
+    // [v3.0.6.11-105 Wave 9D] coSign.*
     "coSign.statusPending": "Pending",
     "coSign.statusApproved": "Approved",
     "coSign.statusRejected": "Rejected",
@@ -48195,7 +48195,7 @@ export const translations: Translations = {
     "coSign.cosignerIdsLabel": "Co-signer IDs (comma separated)",
     "coSign.cosignerIdsRequired": "At least 1 co-signer",
     "coSign.minReviewersField": "Minimum Reviewers",
-    // [v3.0.6.11-104 Wave 9D] patientDevice.*
+    // [v3.0.6.11-105 Wave 9D] patientDevice.*
     "patientDevice.nameRequired": "Please enter name",
     "patientDevice.saveSuccess": "Saved successfully",
     "patientDevice.maintenanceSent": "Maintenance command sent",
@@ -48253,7 +48253,7 @@ export const translations: Translations = {
     "patientDevice.triggerMaintenance": "Trigger Device Maintenance",
     "patientDevice.maintenanceAlert": "A maintenance order will be created for this device",
     "patientDevice.device": "Device",
-    // [v3.0.6.11-104 Wave 9D] aiCad.*
+    // [v3.0.6.11-105 Wave 9D] aiCad.*
     "aiCad.lungNoduleDetect": "Lung Nodule Detection",
     "aiCad.breastCad": "Breast CAD",
     "aiCad.fractureDetect": "Fracture Detection",
@@ -48323,7 +48323,7 @@ export const translations: Translations = {
     "aiCad.detectedAt": "Detected at",
     "aiCad.detailHint": "Click \"View Details\" above to load real results",
     "aiCad.heatmap": "Heatmap",
-    // [v3.0.6.11-104 Wave 9D] aiEnhanced.*
+    // [v3.0.6.11-105 Wave 9D] aiEnhanced.*
     "aiEnhanced.bodyChest": "Chest",
     "aiEnhanced.bodyAbdomen": "Abdomen",
     "aiEnhanced.bodyHead": "Head",
@@ -48413,7 +48413,7 @@ export const translations: Translations = {
     "aiEnhanced.note4": "Layouts previously applied by a doctor for the same body part are prioritized in the next recommendation (history preference)",
     "aiEnhanced.note5": "Orphan module: no database dependency; application records stored in memory + seed fallback",
     "aiEnhanced.endpoint": "Endpoint",
-    // [v3.0.6.11-104 Wave 9D] terminology.*
+    // [v3.0.6.11-105 Wave 9D] terminology.*
     "terminology.mappingLoadFailed": "Failed to load mappings",
     "terminology.serverLoadFailed": "Failed to load terminology server data",
     "terminology.searchFailed": "Search failed",
@@ -48485,7 +48485,7 @@ export const translations: Translations = {
     "terminology.targetSystem": "Target System",
     "terminology.targetCode": "Target Code",
     "terminology.mapTypePlaceholder": "Equivalent / Broader / Narrower / Related",
-    // [v3.0.6.11-104 Wave 9D] wl.*
+    // [v3.0.6.11-105 Wave 9D] wl.*
     "wl.statusRegistered": "Registered",
     "wl.statusArrived": "Arrived",
     "wl.statusInProgress": "In Progress",
@@ -48543,7 +48543,7 @@ export const translations: Translations = {
     "wl.actionRequisition": "Requisition",
     "wl.actionHistory": "History",
     "wl.empty": "No matching exam records",
-    // [v3.0.6.11-104 Wave 9D] dentalStudies.*
+    // [v3.0.6.11-105 Wave 9D] dentalStudies.*
     "dentalStudies.qualityDiagnostic": "Diagnostic",
     "dentalStudies.qualityAcceptable": "Acceptable",
     "dentalStudies.qualitySuboptimal": "Suboptimal",
@@ -48604,7 +48604,7 @@ export const translations: Translations = {
     "dentalStudies.samePatient": "Same Patient",
     "dentalStudies.acquiredAt": "Acquisition Time",
     "dentalStudies.colItem": "Item",
-    // [v3.0.6.11-104 Wave 9D] triage.*
+    // [v3.0.6.11-105 Wave 9D] triage.*
     "triage.levelCritical": "Critical",
     "triage.levelUrgent": "Urgent",
     "triage.levelSemiUrgent": "Semi-urgent",
@@ -48648,7 +48648,7 @@ export const translations: Translations = {
     "triage.scoreFactors": "Scoring Factors:",
     "triage.detailTitle": "Triage Detail Adjustment",
     "triage.selectDoctor": "Select doctor",
-    // [v3.0.6.11-104 Wave 9B] DentalSchedulePage i18n
+    // [v3.0.6.11-105 Wave 9B] DentalSchedulePage i18n
     "dentalSchedule.pageTitle": "Chair Scheduling · Periodontal PSR",
     "dentalSchedule.benchmarkTag": "Benchmarked vs Dentist Manager",
     "dentalSchedule.statToday": "Today's Appointments",
@@ -48727,7 +48727,7 @@ export const translations: Translations = {
     "dentalSchedule.statusCompleted": "Completed",
     "dentalSchedule.statusCancelled": "Cancelled",
     "dentalSchedule.statusNoShow": "No-show",
-    // [v3.0.6.11-104 Wave 9B] DicomSharePage i18n
+    // [v3.0.6.11-105 Wave 9B] DicomSharePage i18n
     "dicomShare.pageTitle": "DICOM Cross-department Sharing",
     "dicomShare.pageSubtitle": "DICOM TLS / WADO secure transfer",
     "dicomShare.createShare": "Create Share",
@@ -48784,7 +48784,7 @@ export const translations: Translations = {
     "dicomShare.accessPassword": "Access Password",
     "dicomShare.link": "Link",
     "dicomShare.noDetail": "No details loaded",
-    // [v3.0.6.11-104 Wave 9B] TreatmentPlanCenterPage i18n
+    // [v3.0.6.11-105 Wave 9B] TreatmentPlanCenterPage i18n
     "treatmentPlan.pageTitle": "Cross-department Treatment Plan Center",
     "treatmentPlan.refresh": "Refresh",
     "treatmentPlan.retry": "Retry",
@@ -48847,7 +48847,7 @@ export const translations: Translations = {
     "treatmentPlan.status.inProgress": "In Progress",
     "treatmentPlan.status.completed": "Completed",
     "treatmentPlan.status.pending": "Pending",
-    // [v3.0.6.11-104 Wave 9B] LesionTrackingPage i18n
+    // [v3.0.6.11-105 Wave 9B] LesionTrackingPage i18n
     "lesionTrack.pageTitle": "Lesion Tracking Workbench",
     "lesionTrack.pageSubtitle": "Lesion Tracking · longitudinal comparison RECIST-like · trend follow-up",
     "lesionTrack.dataSource": "Data source:",
@@ -48941,7 +48941,7 @@ export const translations: Translations = {
     "lesionTrack.response.SD": "Stable Disease",
     "lesionTrack.response.PD": "Progressive Disease",
     "lesionTrack.response.NE": "Not Evaluable",
-    // [v3.0.6.11-104 Wave 9B] TenantConfigPage i18n
+    // [v3.0.6.11-105 Wave 9B] TenantConfigPage i18n
     "tenantConfig.pageTitle": "Tenant Configuration",
     "tenantConfig.complianceReport": "Compliance Report",
     "tenantConfig.refresh": "Refresh",
@@ -49032,7 +49032,7 @@ export const translations: Translations = {
     "tenantConfig.feat.mobileApp.desc": "Mobile / mini-program access",
     "tenantConfig.feat.teleRadiology.label": "Tele-radiology",
     "tenantConfig.feat.teleRadiology.desc": "Cross-campus remote reading and consultation",
-    // [v3.0.6.11-104 Wave 9B] CommitteeRoomPage i18n
+    // [v3.0.6.11-105 Wave 9B] CommitteeRoomPage i18n
     "committeeRoom.pageTitle": "Committee Consultation Room",
     "committeeRoom.multiDoctor": "Multi-doctor panel",
     "committeeRoom.dataSource": "Committee data source",
@@ -49122,7 +49122,7 @@ export const translations: Translations = {
     "committeeRoom.resolutionRequired": "Please enter resolution content",
     "committeeRoom.resolutionAppended": "Resolution generated and appended to report",
     "committeeRoom.resolutionGenerated": "Resolution generated",
-    // [v3.0.6.11-104 Wave 9B] ConsentEducationPage i18n
+    // [v3.0.6.11-105 Wave 9B] ConsentEducationPage i18n
     "consentEdu.title": "Consent & Education Center",
     "consentEdu.eSign": "E-Signature",
     "consentEdu.refresh": "Refresh",
@@ -49205,7 +49205,7 @@ export const translations: Translations = {
     "consentEdu.type.anesthesia": "Anesthesia Consent",
     "consentEdu.type.transfusion": "Transfusion Consent",
     "consentEdu.type.radiotherapy": "Radiotherapy Consent",
-    // [v3.0.6.11-104 Wave 9B] Hl7ManagerPage i18n
+    // [v3.0.6.11-105 Wave 9B] Hl7ManagerPage i18n
     "hl7Page.dataSourceReal": "Data source: /hl7/archive + /hl7/mllp/status (live)",
     "hl7Page.dataSourceFallback": "Data source: demo fallback (archive/MLLP unavailable, derived by message type)",
     "hl7Page.refresh": "Refresh",
@@ -49309,7 +49309,7 @@ export const translations: Translations = {
     "hl7Page.fallbackTag": "Fallback demo data (2 hardcoded)",
     "hl7Page.archiveHeader": "HL7 Message Management",
     "hl7Page.archiveDesc": "Build and send HL7 messages: ORU (report), ORM (order), DFT (finance)",
-    // [v3.0.6.11-104 Wave 9B] SimilarCasePage i18n
+    // [v3.0.6.11-105 Wave 9B] SimilarCasePage i18n
     "similarCase.pageTitle": "Similar Case Search",
     "similarCase.pageSubtitle": "Text search (Jaccard/SNOMED) + image-level search (intensity histogram/statistics/texture/morphology) — benchmarked against Siemens image search / Infinitt Enterprise Search",
     "similarCase.tabText": "Text Search",
@@ -49394,7 +49394,7 @@ export const translations: Translations = {
     "similarCase.descrMatchKeywords": "Matched Keywords",
     "similarCase.conclusionDivider": "Conclusion",
     "similarCase.reportAnonymized": "Report is anonymized and contains no patient names or identity",
-    // [v3.0.6.11-104 Wave 9B] VoiceWorkstationPage i18n
+    // [v3.0.6.11-105 Wave 9B] VoiceWorkstationPage i18n
     "voiceWs.pageTitle": "Voice Workstation",
     "voiceWs.pageSubtitle": "Voice dictation · medical lexicon · dictation history · correction feedback — automatic homophone correction",
     "voiceWs.tabDictation": "Voice Dictation",
@@ -49497,7 +49497,7 @@ export const translations: Translations = {
     "voiceWs.sessionStatus.completed": "Completed",
     "voiceWs.sessionStatus.processing": "Processing",
     "voiceWs.sessionStatus.error": "Error",
-    // [v3.0.6.11-104 Wave 9B] DirectorDashboardPage i18n
+    // [v3.0.6.11-105 Wave 9B] DirectorDashboardPage i18n
     "directorDash.pageTitle": "Director Management Cockpit",
     "directorDash.hospitalLine": "Handong Provincial People's Hospital · Radiology | Data updated:",
     "directorDash.liveData": "statsApi / biApi live",
@@ -49609,7 +49609,7 @@ export const translations: Translations = {
     "directorDash.qc.issue.TER001": "Non-standard terminology",
     "directorDash.qc.issue.IMG001": "Substandard image quality",
     "directorDash.qc.issue.MEAS001": "Measurement error",
-    // [v3.0.6.11-104 Wave 9B] PatientReportPortalPage i18n
+    // [v3.0.6.11-105 Wave 9B] PatientReportPortalPage i18n
     "patientPortal.pageTitle": "Patient Report Portal H5",
     "patientPortal.pageSubtitle": "Identity verification + QR sharing + report view + image browsing + download + share + device/IP audit",
     "patientPortal.loading": "Loading...",
@@ -49691,7 +49691,7 @@ export const translations: Translations = {
     "patientPortal.feedbackFailed": "Feedback submission failed",
     "patientPortal.shareGenerated": "Share link generated",
     "voiceWs.transcriptInserted": "Transcript inserted into report",
-    // [v3.0.6.11-104 Wave 10A] Audit log page
+    // [v3.0.6.11-105 Wave 10A] Audit log page
     "auditPage.title": "Audit Log",
     "auditPage.export": "Export",
     "auditPage.refresh": "Refresh",
@@ -49753,7 +49753,7 @@ export const translations: Translations = {
     "auditPage.detailResponseStatus": "Response Status",
     "auditPage.detailIp": "IP Address",
     "auditPage.detailTime": "Time",
-    // [v3.0.6.11-104 Wave 10A] Critical value stats section
+    // [v3.0.6.11-105 Wave 10A] Critical value stats section
     "criticalValueStats.tabTrend": "Trend",
     "criticalValueStats.tabModality": "Modality Distribution",
     "criticalValueStats.tabTime": "Processing Time",
@@ -49807,7 +49807,7 @@ export const translations: Translations = {
     "criticalValueStats.guidelineStandardDesc": ": tertiary hospitals ≥90%, secondary hospitals ≥85%",
     "criticalValueStats.guidelineOverdueLabel": "Overdue Handling",
     "criticalValueStats.guidelineOverdueDesc": ": escalation mechanism required if not notified within 30 minutes",
-    // [v3.0.6.11-104 Wave 10A] Smart routing page
+    // [v3.0.6.11-105 Wave 10A] Smart routing page
     "smartRoute.title": "Smart Routing",
     "smartRoute.ruleLoadFailed": "Failed to load routing rules",
     "smartRoute.historyLoadFailed": "Failed to load assignment history",
@@ -49873,7 +49873,7 @@ export const translations: Translations = {
     "smartRoute.oneClickAssign": "One-click Assign",
     "smartRoute.emptyRecommend": "Enter study info to get qualification-aware recommended doctors",
     "smartRoute.editRuleTitle": "Edit Routing Rule",
-    // [v3.0.6.11-104 Wave 10A] Image QC specialty page
+    // [v3.0.6.11-105 Wave 10A] Image QC specialty page
     "imageQualityControl.title": "Image Quality Control",
     "imageQualityControl.subtitle": "ACR Phantom / AI Scoring / Dose Compliance",
     "imageQualityControl.refresh": "Refresh",
@@ -49944,7 +49944,7 @@ export const translations: Translations = {
     "imageQualityControl.retakeHint": "The exam will be set back to In Progress and the retake count will increase (QC_REJECT → IN_PROGRESS)",
     "imageQualityControl.retakeReasonLabel": "Retake Reason (for retake rate analysis)",
     "imageQualityControl.retakeReasonPlaceholder": "Please select a retake reason",
-    // [v3.0.6.11-104 Wave 10A] Dental photo management page
+    // [v3.0.6.11-105 Wave 10A] Dental photo management page
     "dentalPhoto.title": "Patient Photos & Communication",
     "dentalPhoto.catIntraoral": "Intraoral",
     "dentalPhoto.catExtraoral": "Extraoral",
@@ -49984,7 +49984,7 @@ export const translations: Translations = {
     "dentalPhoto.labelPlaceholder": "e.g. Frontal smile",
     "dentalPhoto.imageFileLabel": "Image File",
     "dentalPhoto.chooseImage": "Choose Image",
-    // [v3.0.6.11-104 Wave 10A] Notification/template/dictionary management page
+    // [v3.0.6.11-105 Wave 10A] Notification/template/dictionary management page
     "notificationTemplateDict.title": "Notifications · Templates · Dictionary",
     "notificationTemplateDict.systemBasic": "System-level Component",
     "notificationTemplateDict.clientsEndpoints": "12 Clients + 20 Endpoints",
@@ -50043,7 +50043,7 @@ export const translations: Translations = {
     "notificationTemplateDict.dictCatBodyPart": "Body Part",
     "notificationTemplateDict.dictCatReportTpl": "Report Template",
     "notificationTemplateDict.dictCatOther": "Other",
-    // [v3.0.6.11-104 Wave 10A] Committee consultation V2 panel
+    // [v3.0.6.11-105 Wave 10A] Committee consultation V2 panel
     "consultationV2.statusOpen": "Not Started",
     "consultationV2.statusInProgress": "In Discussion",
     "consultationV2.statusVoting": "Voting",
@@ -50114,7 +50114,7 @@ export const translations: Translations = {
     "consultationV2.opinionApprove": "Approve",
     "consultationV2.opinionReject": "Reject",
     "consultationV2.opinionModify": "Modify",
-    // [v3.0.6.11-104 Wave 10C] 15-page i18n
+    // [v3.0.6.11-105 Wave 10C] 15-page i18n
     "cvQc.recent": "Recent",
     "cvQc.apiUnavailable": "QC API unavailable",
     "cvQc.title": "CV Quality Control Dashboard",
@@ -50991,7 +50991,7 @@ export const translations: Translations = {
     "smartMwl.examTypeWeight": "Exam Type Weight",
     "smartMwl.weightTotal": "Total Weight",
     "smartMwl.weightTotalHint": "(recommended total 100%)",
-    // [v3.0.6.11-104 Wave 10A] Ophthalmology Toric planning page
+    // [v3.0.6.11-105 Wave 10A] Ophthalmology Toric planning page
     "eyeToric.title": "Ophthalmology IOL Planning",
     "eyeToric.formulaTag": "Barrett II / Kane / Hill-RBF Real",
     "eyeToric.backendTag": "Real Backend /eye/iol/*",
@@ -51037,7 +51037,7 @@ export const translations: Translations = {
     "eyeToric.predictedUCVA": "Predicted UCVA",
     "eyeToric.postopAlert": "Target power: {{power}} D · Confidence: {{confidence}}%",
     "eyeToric.clickPostopPredict": "Click Post-op Prediction",
-    // [v3.0.6.11-104 Wave 10A] Ophthalmology teaching case library page
+    // [v3.0.6.11-105 Wave 10A] Ophthalmology teaching case library page
     "eyeCaseLibrary.title": "Ophthalmology Teaching Case Library",
     "eyeCaseLibrary.tagAnnotation": "DICOM Annotation + SR Export",
     "eyeCaseLibrary.tagDeid": "DICOM PS 3.15 De-identification",
@@ -51124,7 +51124,7 @@ export const translations: Translations = {
     "eyeCaseLibrary.statusPendingReview": "Pending Review",
     "eyeCaseLibrary.statusCriticalValue": "Critical Value",
     "eyeCaseLibrary.statusDraft": "Draft",
-    // [v3.0.6.11-104 Wave 10A] Implant 3D planning page
+    // [v3.0.6.11-105 Wave 10A] Implant 3D planning page
     "dentalImplant3d.statusPlanning": "Planning",
     "dentalImplant3d.statusApproved": "Approved",
     "dentalImplant3d.statusGuidedSurgery": "Guide Design",
@@ -51206,7 +51206,7 @@ export const translations: Translations = {
     "dentalImplant3d.guideDesigned": "Surgical guide designed",
     "dentalImplant3d.guideFileExported": "Guide file: {{file}} · exported, ready for 3D printing",
     "dentalImplant3d.guideFile": "Guide file: {{file}}",
-    // [v3.0.6.11-104 Wave 10A] DBT mammography tomosynthesis page
+    // [v3.0.6.11-105 Wave 10A] DBT mammography tomosynthesis page
     "dbtPage.title": "DBT Mammography Tomosynthesis Reading",
     "dbtPage.subtitle": "Digital Breast Tomosynthesis",
     "dbtPage.current": "Current",
@@ -51299,7 +51299,7 @@ export const translations: Translations = {
     "dbtPage.malignancyRisk": "Malignancy Risk",
     "dbtPage.recommendation": "Recommendation",
     "dbtPage.basis": "Scoring Basis ({{count}})",
-    // [v3.0.6.11-104 Wave 10A] Medical alliance management page
+    // [v3.0.6.11-105 Wave 10A] Medical alliance management page
     "medicalAlliance.title": "Medical Alliance Management",
     "medicalAlliance.subtitle": "Alliance member management, resource sharing and referral collaboration",
     "medicalAlliance.mswDemoTag": "Referral data: MSW demo",
@@ -51409,7 +51409,7 @@ export const translations: Translations = {
     "medicalAlliance.syncInline": "Sync {{value}}",
     "medicalAlliance.daysAgo": "{{days}} days ago",
     "medicalAlliance.healthNote": "Institutions with a health score < 75 should have their network links and sync task configuration checked; offline institutions automatically enter degraded mode (local cache first).",
-    // [v3.0.6.11-104 Wave 10A] Nuclear medicine specialty statistics page
+    // [v3.0.6.11-105 Wave 10A] Nuclear medicine specialty statistics page
     "nuclearStats.unitCases": "cases",
     "nuclearStats.loadFailed": "Loading failed",
     "nuclearStats.loading": "Loading...",
@@ -51484,7 +51484,7 @@ export const translations: Translations = {
     "nuclearStats.thresholdLabel": "Differentiation Threshold",
     "nuclearStats.thresholdDesc": "SUVmax to differentiate benign from malignant",
     "nuclearStats.dailySuvTrendTitle": "December Daily Average SUVmax Trend",
-    // [v3.0.6.11-104 Wave 10A] Patient detail panel
+    // [v3.0.6.11-105 Wave 10A] Patient detail panel
     "patientDetailPanel.statusDraft": "Draft",
     "patientDetailPanel.statusPendingReport": "Report Pending",
     "patientDetailPanel.statusReviewing": "Under Review",
@@ -51616,7 +51616,7 @@ export const translations: Translations = {
     "patientDetailPanel.cancel": "Cancel",
     "patientDetailPanel.merging": "Merging...",
     "patientDetailPanel.confirmMerge": "Confirm Merge",
-    // [v3.0.6.11-104 Wave 10B] 15-page i18n (A)
+    // [v3.0.6.11-105 Wave 10B] 15-page i18n (A)
     "neuro.title": "Neuro Specialty",
     "neuro.subtitle": "Neuroimaging specialty · Stroke · Brain tumor · Epilepsy · Aneurysm",
     "neuro.dataSource": "Data source: /neuro/* API (real backend · Exam-derived + seed fallback)",
@@ -51920,7 +51920,7 @@ export const translations: Translations = {
     "aiReportWriter.eyePrefix": "Eye",
     "aiReportWriter.items": "items",
     "aiReportWriter.noVocab": "No vocabulary",
-    // [v3.0.6.11-104 Wave 10B] 15-page i18n (B)
+    // [v3.0.6.11-105 Wave 10B] 15-page i18n (B)
     "mammoQc.errOverview": "Failed to load quality overview",
     "mammoQc.errRecords": "Failed to load review records",
     "mammoQc.errLoad": "Load failed",
@@ -52236,7 +52236,7 @@ export const translations: Translations = {
     "reportSearch.reportsUnit": "reports",
     "reportSearch.footerText": "G005 Advanced Report Search · Full-text + structured + synonyms ·",
     "reportSearch.doctorIdPlaceholder": "e.g. D001",
-    // [v3.0.6.11-104 Wave 10B] 15-page i18n (C)
+    // [v3.0.6.11-105 Wave 10B] 15-page i18n (C)
     "clinicalPathway.errLoadPathways": "Failed to load pathways",
     "clinicalPathway.errLoadData": "Failed to load clinical pathway data",
     "clinicalPathway.pathwayEnabled": "Pathway enabled",
@@ -52508,7 +52508,7 @@ export const translations: Translations = {
     "aiMedicalDevice.todayUsage": "Today's Usage",
     "aiMedicalDevice.lastUpdated": "Last Updated",
     "aiMedicalDevice.casesUnit": "cases",
-    // [v3.0.6.11-104 Wave 10A] Multi-site dashboard page
+    // [v3.0.6.11-105 Wave 10A] Multi-site dashboard page
     "multiSiteDashboard.title": "Multi-Site / Multi-Campus Management Platform",
     "multiSiteDashboard.subtitle": "{{count}} campuses | Real-time sync | Cross-campus routing | DICOM interoperability",
     "multiSiteDashboard.statusActive": "Online",
@@ -52578,7 +52578,7 @@ export const translations: Translations = {
     "multiSiteDashboard.eventSuccess": "Success",
     "multiSiteDashboard.eventFailed": "Failed",
     "multiSiteDashboard.eventWaiting": "Waiting",
-    // [v3.0.6.11-104 Wave 11D] integration/FhirBulkExportDetailPage
+    // [v3.0.6.11-105 Wave 11D] integration/FhirBulkExportDetailPage
     "fhirExport.loadRemoteFailed": "Failed to load remote data, using local demo data",
     "fhirExport.colResourceType": "Resource Type",
     "fhirExport.colFile": "File",
@@ -52599,7 +52599,7 @@ export const translations: Translations = {
     "fhirExport.outputFiles": "Output Files ({{count}})",
     "fhirExport.ndjsonPreview": "NDJSON Content Preview",
     "fhirExport.loadPreview": "Load Preview",
-    // [v3.0.6.11-104 Wave 11D] eye/EyeKpiDashboardPage
+    // [v3.0.6.11-105 Wave 11D] eye/EyeKpiDashboardPage
     "eyeKpi.loadFailed": "Failed to load eye KPI data",
     "eyeKpi.title": "Eye Quality Control Dashboard",
     "eyeKpi.metricCount": "{{count}} metrics",
@@ -52637,7 +52637,7 @@ export const translations: Translations = {
     "eyeKpi.sat.wait": "Wait Time",
     "eyeKpi.sat.environment": "Environment",
     "eyeKpi.sat.recommend": "Recommendation",
-    // [v3.0.6.11-104 Wave 11D] cds/CdsStatisticsPage
+    // [v3.0.6.11-105 Wave 11D] cds/CdsStatisticsPage
     "cdsStats.period.7d": "Last 7 Days",
     "cdsStats.period.30d": "Last 30 Days",
     "cdsStats.period.90d": "Last 90 Days",
@@ -52667,7 +52667,7 @@ export const translations: Translations = {
     "cdsStats.totalOverrides": "Total Overrides",
     "cdsStats.coverageRate": "Coverage Rate",
     "cdsStats.pathwayCompletionRate": "Pathway Completion Rate",
-    // [v3.0.6.11-104 Wave 11D] radpath/RadPathTrackerPage
+    // [v3.0.6.11-105 Wave 11D] radpath/RadPathTrackerPage
     "radpath.consistency.concordant": "Concordant",
     "radpath.consistency.discordant": "Discordant",
     "radpath.consistency.pending": "Pending",
@@ -52691,7 +52691,7 @@ export const translations: Translations = {
     "radpath.emptyHint": "Enter an imaging report ID to query linked pathology comparison records",
     "radpath.trendTitle": "Consistency Trend",
     "radpath.distributionTitle": "Consistency Distribution",
-    // [v3.0.6.11-104 Wave 11D] tech/ExamRoomStatusBoard
+    // [v3.0.6.11-105 Wave 11D] tech/ExamRoomStatusBoard
     "examRoom.status.in_use": "In Use",
     "examRoom.status.paused": "Paused",
     "examRoom.status.overdue": "Overdue",
@@ -52718,7 +52718,7 @@ export const translations: Translations = {
     "examRoom.overdueTip": "Earliest arrived patient has waited over 30 minutes",
     "examRoom.dataSourceApi": "Data source: GET /worklist/room-status (backend room aggregation, real-time) · WS room-status-refresh push",
     "examRoom.dataSourceDemo": "Data source: demo fallback (API unavailable, locally derived)",
-    // [v3.0.6.11-104 Wave 11D] critical/CriticalValueListSection
+    // [v3.0.6.11-105 Wave 11D] critical/CriticalValueListSection
     "cvSection.catalogTitle": "NHC 2024 Edition Critical Value Directory",
     "cvSection.fullCatalog": "Full Directory",
     "cvSection.itemCount": "{{count}} items",
@@ -52727,7 +52727,7 @@ export const translations: Translations = {
     "cvSection.modalSubtitle": "{{count}} critical value entries in total",
     "cvSection.close": "Close",
     "cvSection.exportCatalog": "Export Directory",
-    // [v3.0.6.11-104 Wave 11D] rcm/AccountsReceivablePage
+    // [v3.0.6.11-105 Wave 11D] rcm/AccountsReceivablePage
     "ar.invoiceLoadFailed": "Failed to load invoices",
     "ar.loadFailed": "Load failed",
     "ar.title": "Accounts Receivable Management",
@@ -52760,7 +52760,7 @@ export const translations: Translations = {
     "ar.status.current": "Current",
     "ar.status.overdue": "Overdue",
     "ar.status.writeoff": "Written Off",
-    // [v3.0.6.11-104 Wave 11D] safety/AdverseEventPage
+    // [v3.0.6.11-105 Wave 11D] safety/AdverseEventPage
     "ade.severity.near_miss": "Near Miss",
     "ade.severity.minor": "Minor",
     "ade.severity.moderate": "Moderate",
@@ -52813,7 +52813,7 @@ export const translations: Translations = {
     "ade.colStatus": "Status",
     "ade.colReporter": "Reporter",
     "ade.colDate": "Date",
-    // [v3.0.6.11-104 Wave 11D] safety/CQIPage
+    // [v3.0.6.11-105 Wave 11D] safety/CQIPage
     "cqi.status.planning": "Planning",
     "cqi.status.active": "Active",
     "cqi.status.sustaining": "Sustaining",
@@ -52855,7 +52855,7 @@ export const translations: Translations = {
     "cqi.colOwner": "Owner",
     "cqi.colActions": "Actions",
     "cqi.view": "View",
-    // [v3.0.6.11-104 Wave 11D] safety/RCAAnalysisPage
+    // [v3.0.6.11-105 Wave 11D] safety/RCAAnalysisPage
     "rca.status.open": "Open",
     "rca.status.analyzing": "Analyzing",
     "rca.status.capa_planned": "CAPA Planned",
@@ -52905,7 +52905,7 @@ export const translations: Translations = {
     "rca.colCapa": "CAPA Count",
     "rca.colActions": "Actions",
     "rca.view": "View",
-    // [v3.0.6.11-104 Wave 11D] department/DepartmentSchedule
+    // [v3.0.6.11-105 Wave 11D] department/DepartmentSchedule
     "deptSched.days": "days",
     "deptSched.leavePending": "Pending",
     "deptSched.leaveApproved": "Approved",
@@ -52948,7 +52948,7 @@ export const translations: Translations = {
     "deptSched.thisMonth": "This Month",
     "deptSched.lateCount": "Late Count",
     "deptSched.earlyCount": "Early Leave Count",
-    // [v3.0.6.11-104 Wave 11D] QualityControlPage
+    // [v3.0.6.11-105 Wave 11D] QualityControlPage
     "qcPage.scoresLoadFailed": "Failed to load score list, showing demo data",
     "qcPage.rescoreSuccess": "Rescoring complete (reportQualityApi scoring engine)",
     "qcPage.rescoreFailed": "Rescoring failed",
@@ -52974,7 +52974,7 @@ export const translations: Translations = {
     "qcPage.categoryTree": "Category Tree",
     "qcPage.remediation": "Remediation Tracking",
     "qcPage.tabMonthly": "Monthly Report",
-    // [v3.0.6.11-104 Wave 11D] qc/RadiologistAnnualQCPage
+    // [v3.0.6.11-105 Wave 11D] qc/RadiologistAnnualQCPage
     "annualQc.metric.monthlyReports": "Monthly Reports",
     "annualQc.metric.avgQcScore": "Average QC Score",
     "annualQc.metric.defectRate": "Defect Rate",
@@ -53013,7 +53013,7 @@ export const translations: Translations = {
     "annualQc.trendUp": "↑ Up",
     "annualQc.trendDown": "↓ Down",
     "annualQc.noHistory": "No historical score data",
-    // [v3.0.6.11-104 Wave 11D] ops/HrOperationsPage
+    // [v3.0.6.11-105 Wave 11D] ops/HrOperationsPage
     "hrOps.apiUnavailable": "userApi unavailable, showing built-in demo data",
     "hrOps.physicianFallback": "Physician",
     "hrOps.longTermDemo": "Long-term valid (demo)",
@@ -53063,7 +53063,7 @@ export const translations: Translations = {
     "hrOps.colStatus": "Status",
     "hrOps.certValid": "Valid",
     "hrOps.certExpiring": "Expiring Soon",
-    // [v3.0.6.11-104 Wave 11D] ai/LungCadPage
+    // [v3.0.6.11-105 Wave 11D] ai/LungCadPage
     "lungCad.risk.low": "Low",
     "lungCad.risk.moderate": "Moderate",
     "lungCad.risk.high": "High",
@@ -53094,7 +53094,7 @@ export const translations: Translations = {
     "lungCad.colDensity": "Density",
     "lungCad.colMalignancyRisk": "Malignancy Risk",
     "lungCad.recommendationLabel": "Recommendation:",
-    // [v3.0.6.11-104 Wave 11D] ReportTimelinessPage
+    // [v3.0.6.11-105 Wave 11D] ReportTimelinessPage
     "timeliness.apiUnavailable": "biApi unavailable, showing built-in demo data",
     "timeliness.loadFailed": "Failed to load data, fell back to demo data",
     "timeliness.urgeUnavailable": "Urge API unavailable, logged locally",
@@ -53138,7 +53138,7 @@ export const translations: Translations = {
     "timeliness.urge": "Urge",
     "timeliness.escalated": "Escalated",
     "timeliness.escalate": "Escalate",
-    // [v3.0.6.11-104 Wave 11D] eye/pacs/VisualFieldPage
+    // [v3.0.6.11-105 Wave 11D] eye/pacs/VisualFieldPage
     "visualField.loading": "Loading...",
     "visualField.noData": "No visual field exam data",
     "visualField.analysis": "Visual Field Analysis",
@@ -53168,7 +53168,7 @@ export const translations: Translations = {
     "visualField.note1": "Significant sensitivity reduction in superotemporal sector (-12.5dB)",
     "visualField.note2": "Consistent with superotemporal RNFL thinning",
     "visualField.note3": "Functional damage has reached severe stage",
-    // [v3.0.6.11-104 Wave 11D] critical/CriticalValueList
+    // [v3.0.6.11-105 Wave 11D] critical/CriticalValueList
     "cvList.all": "All",
     "cvList.status.pending": "Pending",
     "cvList.status.notified": "Notified",
@@ -53234,7 +53234,7 @@ export const translations: Translations = {
     "cvList.selectedPrefix": "selected",
     "cvList.selectedSuffix": "items",
     "cvList.transferredLabel": "Transferred to follow-up:",
-    // [v3.0.6.11-104 Wave 11D] eye/EyeWorkspacePage
+    // [v3.0.6.11-105 Wave 11D] eye/EyeWorkspacePage
     "eyeWs.kpi.appt": "Today's Appointments",
     "eyeWs.kpi.exam": "Today's Exams",
     "eyeWs.kpi.rpt": "Pending Reports",
@@ -53273,7 +53273,7 @@ export const translations: Translations = {
     "eyeWs.worklist": "Worklist",
     "eyeWs.noTodos": "No to-dos",
     "eyeWs.appointmentsEndpoint": "Integrate /api/v1/eye/ris/appointments",
-    // [v3.0.6.11-104 Wave 11D] device/DeviceDetail
+    // [v3.0.6.11-105 Wave 11D] device/DeviceDetail
     "deviceDetail.basicInfo": "Basic Device Information",
     "deviceDetail.deviceId": "Device ID",
     "deviceDetail.deviceModel": "Model",
@@ -53334,7 +53334,7 @@ export const translations: Translations = {
     "deviceDetail.mtbf": "MTBF (Mean Time Between Failures)",
     "deviceDetail.maintHistory": "Maintenance History",
     "deviceDetail.noMaintRecords": "No maintenance records",
-    // [v3.0.6.11-104 Wave 11D] DepartmentDashboardPage
+    // [v3.0.6.11-105 Wave 11D] DepartmentDashboardPage
     "deptDash.status.running": "Running",
     "deptDash.status.idle": "Idle",
     "deptDash.status.maintenance": "Under Maintenance",
@@ -53364,7 +53364,7 @@ export const translations: Translations = {
     "deptDash.examStats": "Exam Statistics by Type",
     "deptDash.examProgress": "Pending {{pending}} | Completed {{completed}}",
     "deptDash.footer": "Radiology Information System (RIS) v0.7.0 | Sample data (devices/statistics are demo data, realtime API not connected) | For issues contact: Radiology IT Center ☎ 8001",
-    // [v3.0.6.11-104 Wave 11D] regional/RegionalCollaborationPage (labels) + CollaborationPage
+    // [v3.0.6.11-105 Wave 11D] regional/RegionalCollaborationPage (labels) + CollaborationPage
     "regionalCollab.instStatus.online": "Online",
     "regionalCollab.instStatus.offline": "Offline",
     "regionalCollab.instStatus.busy": "Busy",
@@ -53386,7 +53386,7 @@ export const translations: Translations = {
     "regionalCollab.currentUser": "Current User",
     "regionalCollab.recordFailed": "Record failed",
     "regionalCollab.submitFailed": "Submission failed",
-    // [v3.0.6.11-104 Wave 11D] CollaborationPage
+    // [v3.0.6.11-105 Wave 11D] CollaborationPage
     "collab.status.online": "Online",
     "collab.status.away": "Away",
     "collab.status.offline": "Offline",
@@ -53433,7 +53433,7 @@ export const translations: Translations = {
     "collab.realtimeActivity": "Realtime Activity",
     "collab.noActivity": "No activity",
     "collab.autoScroll": "Auto-scroll",
-    // [v3.0.6.11-104 Wave 11D] contrast/ContrastInjectionWorkstationPage
+    // [v3.0.6.11-105 Wave 11D] contrast/ContrastInjectionWorkstationPage
     "contrastWs.defaultContrast": "Iohexol",
     "contrastWs.demoPatient": "Demo Patient",
     "contrastWs.injectionFailed": "Failed to send injection command",
@@ -53469,7 +53469,7 @@ export const translations: Translations = {
     "contrastWs.recStatus.cancelled": "Cancelled",
     "contrastWs.recStatus.aborted": "Aborted",
     "contrastWs.noRecords": "No records",
-    // [v3.0.6.11-104 Wave 11D] dicom/ViewportArea
+    // [v3.0.6.11-105 Wave 11D] dicom/ViewportArea
     "dcmView.roiTools": "ROI Tools:",
     "dcmView.roi.length": "Length",
     "dcmView.roi.angle": "Angle",
@@ -53522,7 +53522,7 @@ export const translations: Translations = {
     "dcmView.contrastLevel": "Contrast Level",
     "dcmView.contrastLevelAria": "GSOF contrast levels",
     "dcmView.framesUnit": "{{count}} frames",
-    // [v3.0.6.11-104 Wave 11D] reports/ReportWorkflowPage
+    // [v3.0.6.11-105 Wave 11D] reports/ReportWorkflowPage
     "reportWf.title": "Report Workflow Core",
     "reportWf.benchmark": "Nuance PowerScribe Benchmark",
     "reportWf.endpointsTag": "8 endpoints + 9 clients",
@@ -53577,7 +53577,7 @@ export const translations: Translations = {
     "reportWf.rejectReasonPlaceholder": "e.g. Incomplete description of imaging findings",
     "reportWf.qualityScoreTitle": "Please confirm quality score (0-100)",
     "reportWf.selectCosignerTitle": "Select co-sign expert",
-    // [v3.0.6.11-104 Wave 11D] cardiac/CardiacSpecialtyPage
+    // [v3.0.6.11-105 Wave 11D] cardiac/CardiacSpecialtyPage
     "cardiacSpec.seg.lm": "Left Main (LM)",
     "cardiacSpec.seg.ladP": "LAD Proximal",
     "cardiacSpec.seg.ladM": "LAD Mid",
@@ -53629,7 +53629,7 @@ export const translations: Translations = {
     "cardiacSpec.noCalciumData": "No calcium score data for this analysis",
     "cardiacSpec.cadRadsDistribution": "CAD-RADS Distribution",
     "cardiacSpec.efTrend": "EF Trend",
-    // [v3.0.6.11-104 Wave 11A] radiomics/RadiomicsFeaturePage
+    // [v3.0.6.11-105 Wave 11A] radiomics/RadiomicsFeaturePage
     "radiomics.enterInstanceId": "Please enter instance ID",
     "radiomics.loadFailedDemo": "Failed to load features, using demo data",
     "radiomics.roiCoordInvalid": "Invalid ROI coordinates, expected: x,y,width,height",
@@ -53663,7 +53663,7 @@ export const translations: Translations = {
     "radiomics.colFeatureCount": "Feature Count",
     "radiomics.colVolume": "Volume",
     "radiomics.emptyHint": "Enter an instance ID and load features",
-    // [v3.0.6.11-104 Wave 11A] operations/RoomOccupancyPage
+    // [v3.0.6.11-105 Wave 11A] operations/RoomOccupancyPage
     "roomOccupancy.loadFailed": "Failed to load room data",
     "roomOccupancy.statusUpdated": "Status updated",
     "roomOccupancy.updateFailed": "Update failed",
@@ -53699,7 +53699,7 @@ export const translations: Translations = {
     "roomOccupancy.selectRoom": "Select Room",
     "roomOccupancy.targetStatus": "Target Status",
     "roomOccupancy.selectRoomFirst": "Please select a room first",
-    // [v3.0.6.11-104 Wave 11A] dental/DentalOrthoPage
+    // [v3.0.6.11-105 Wave 11A] dental/DentalOrthoPage
     "dentalOrtho.noCasesHint": "No orthodontic cases yet; click \"New Case\" to create one",
     "dentalOrtho.loadFailed": "Failed to load orthodontic cases",
     "dentalOrtho.networkError": "Network error, failed to load orthodontic cases",
@@ -53740,7 +53740,7 @@ export const translations: Translations = {
     "dentalOrtho.currentStage": "Current Stage",
     "dentalOrtho.nextStage": "Next Stage",
     "dentalOrtho.enterRetention": "Enter Retention",
-    // [v3.0.6.11-104 Wave 11A] dental/DentalAIPage
+    // [v3.0.6.11-105 Wave 11A] dental/DentalAIPage
     "dentalAi.loadFindingsFailed": "Failed to load detection records",
     "dentalAi.detectFailed": "AI detection failed",
     "dentalAi.serviceUnavailable": "AI service unavailable",
@@ -53774,7 +53774,7 @@ export const translations: Translations = {
     "dentalAi.confirm": "Confirm",
     "dentalAi.review": "Review",
     "dentalAi.reject": "Reject",
-    // [v3.0.6.11-104 Wave 11A] cardiac/CvOperationsPage
+    // [v3.0.6.11-105 Wave 11A] cardiac/CvOperationsPage
     "cvOps.statsUnavailable": "Stats API unavailable",
     "cvOps.title": "Cardiovascular Operations Center",
     "cvOps.dataSourceApi": "Data source: /stats/daily",
@@ -53809,7 +53809,7 @@ export const translations: Translations = {
     "cvOps.colReorder": "Reorder Point",
     "cvOps.colDose": "Dose",
     "cvOps.colExpiry": "Expiry",
-    // [v3.0.6.11-104 Wave 11A] safety/PatientSafetyGoalsPage
+    // [v3.0.6.11-105 Wave 11A] safety/PatientSafetyGoalsPage
     "safetyGoals.title": "Patient Safety Goals",
     "safetyGoals.newGoal": "New Goal",
     "safetyGoals.totalGoals": "Total Goals",
@@ -53847,7 +53847,7 @@ export const translations: Translations = {
     "safetyGoals.descriptionPlaceholder": "Goal description",
     "safetyGoals.cancel": "Cancel",
     "safetyGoals.createGoal": "Create Goal",
-    // [v3.0.6.11-104 Wave 11A] cds/GuidelineLibraryPage
+    // [v3.0.6.11-105 Wave 11A] cds/GuidelineLibraryPage
     "guideline.listLoadFailed": "Failed to load guideline list",
     "guideline.notFound": "Guideline not found",
     "guideline.detailLoadFailed": "Failed to load guideline details",
@@ -53885,7 +53885,7 @@ export const translations: Translations = {
     "guideline.loadingDetail": "Loading details...",
     "guideline.detailName": "Name",
     "guideline.detailVersion": "Version",
-    // [v3.0.6.11-104 Wave 11A] eye/ris/IntraocularPressurePage
+    // [v3.0.6.11-105 Wave 11A] eye/ris/IntraocularPressurePage
     "iop.loadFailed": "Failed to load IOP records",
     "iop.loadFailedRetry": "Failed to load IOP records, please retry later",
     "iop.saved": "IOP record saved",
@@ -53917,7 +53917,7 @@ export const translations: Translations = {
     "iop.colDevice": "Measurement Method",
     "iop.colActions": "Actions",
     "iop.deleteConfirm": "Delete this record?",
-    // [v3.0.6.11-104 Wave 11A] analytics/TatDashboardPage
+    // [v3.0.6.11-105 Wave 11A] analytics/TatDashboardPage
     "tatDashboard.selectCube": "Please select a data cube",
     "tatDashboard.enterDrillValue": "Please enter a drill-down dimension value (e.g., CT)",
     "tatDashboard.drillFailed": "Drill-down failed",
@@ -53960,7 +53960,7 @@ export const translations: Translations = {
     "tatDashboard.drillHint": "Select a cube and dimension value, then click \"Drill Down\" to view results",
     "tatDashboard.barChart": "Bar Chart",
     "tatDashboard.dimension": "Dimension",
-    // [v3.0.6.11-104 Wave 11A] ihe/VisitPage
+    // [v3.0.6.11-105 Wave 11A] ihe/VisitPage
     "iheVisit.enterPatientId": "Please enter patient ID",
     "iheVisit.title": "IHE Visit Management",
     "iheVisit.searchPlaceholder": "Enter patient ID to search",
@@ -53981,7 +53981,7 @@ export const translations: Translations = {
     "iheVisit.sending": "Sending...",
     "iheVisit.hint": "Current state is {{status}}; only active state transition buttons are enabled",
     "iheVisit.timeline": "Timeline",
-    // [v3.0.6.11-104 Wave 11A] integration/FhirServerPage
+    // [v3.0.6.11-105 Wave 11A] integration/FhirServerPage
     "fhirServer.queryDone": "FHIR query complete",
     "fhirServer.queryNotConfigured": "FHIR query endpoint not configured (using demo data)",
     "fhirServer.title": "FHIR Server Integration",
@@ -54018,7 +54018,7 @@ export const translations: Translations = {
     "fhirServer.createResource": "Create FHIR Resource",
     "fhirServer.resourceCreated": "FHIR resource created",
     "fhirServer.jsonBody": "JSON Request Body",
-    // [v3.0.6.11-104 Wave 11A] rcm/ChargeItemPage
+    // [v3.0.6.11-105 Wave 11A] rcm/ChargeItemPage
     "chargeItem.loadFailed": "Load failed",
     "chargeItem.nameRequired": "Please enter item name",
     "chargeItem.priceInvalid": "Please enter a valid unit price",
@@ -54063,7 +54063,7 @@ export const translations: Translations = {
     "chargeItem.fieldDescription": "Description",
     "chargeItem.descriptionPlaceholder": "Item description (optional)",
     "chargeItem.insuranceEligible": "Insurance reimbursable",
-    // [v3.0.6.11-104 Wave 11A] ai/AiDraftPage
+    // [v3.0.6.11-105 Wave 11A] ai/AiDraftPage
     "aiDraft.selectExam": "Please select an exam",
     "aiDraft.generateFailed": "Generation failed",
     "aiDraft.generateRequestFailed": "Generation request failed",
@@ -54095,7 +54095,7 @@ export const translations: Translations = {
     "aiDraft.acceptAll": "Accept All and Submit",
     "aiDraft.rejectAll": "Reject All",
     "aiDraft.cleared": "Cleared",
-    // [v3.0.6.11-104 Wave 11A] review/DualReadPage
+    // [v3.0.6.11-105 Wave 11A] review/DualReadPage
     "dualRead.listLoadFailed": "Failed to load dual-read list",
     "dualRead.networkError": "Network error",
     "dualRead.linkedExistingReport": "Linked to existing report and wrote dual-read conclusion",
@@ -54141,7 +54141,7 @@ export const translations: Translations = {
     "dualRead.patientNamePlaceholder": "Patient Name",
     "dualRead.patientIdPlaceholder": "Patient ID",
     "dualRead.conclusionAlert": "Dual-read conclusion (written to report impression)",
-    // [v3.0.6.11-104 Wave 11A] eye/pacs/PacsStudyListPage
+    // [v3.0.6.11-105 Wave 11A] eye/pacs/PacsStudyListPage
     "eyePacs.studyCreated": "Study created",
     "eyePacs.createFailed": "Create failed",
     "eyePacs.studyDeleted": "Study deleted",
@@ -54177,7 +54177,7 @@ export const translations: Translations = {
     "eyePacs.findings": "Findings",
     "eyePacs.optional": "(Optional)",
     "eyePacs.impressions": "Impression",
-    // [v3.0.6.11-104 Wave 11A] rcm/FinancialReportsPage
+    // [v3.0.6.11-105 Wave 11A] rcm/FinancialReportsPage
     "financeReport.apiUnavailable": "financeApi is temporarily unavailable; showing built-in demo data",
     "financeReport.loadFailedFallback": "Failed to load data; fell back to demo data",
     "financeReport.title": "Financial Reports",
@@ -54210,7 +54210,7 @@ export const translations: Translations = {
     "financeReport.trendUp": "Up from last month",
     "financeReport.trendDown": "Down from last month",
     "financeReport.kpiExplain": "KPI Descriptions",
-    // [v3.0.6.11-104 Wave 11A] patient/ServiceManagement
+    // [v3.0.6.11-105 Wave 11A] patient/ServiceManagement
     "serviceMgmt.apiUnavailable": "appointmentApi/templatesApi temporarily unavailable; showing built-in demo data",
     "serviceMgmt.loadFailedFallback": "Failed to load data; fell back to demo data",
     "serviceMgmt.syncing": "Syncing data...",
@@ -54254,7 +54254,7 @@ export const translations: Translations = {
     "serviceMgmt.langEn": "English",
     "serviceMgmt.saveSettings": "Save Settings",
     "serviceMgmt.prefsSaved": "Preferences saved",
-    // [v3.0.6.11-104 Wave 11A] dicom/CrossModalSearchPage
+    // [v3.0.6.11-105 Wave 11A] dicom/CrossModalSearchPage
     "crossModal.reindexTriggered": "Reindex triggered",
     "crossModal.reindexFailed": "Reindex failed",
     "crossModal.enterQuery": "Please enter search keyword or patient info",
@@ -54288,7 +54288,7 @@ export const translations: Translations = {
     "crossModal.hitResults": "Hit Results",
     "crossModal.modalitiesInvolved": "Modalities Involved",
     "crossModal.patientsInvolved": "Patients Involved",
-    // [v3.0.6.11-104 Wave 11A] tech/RetakeRateAnalyticsPage
+    // [v3.0.6.11-105 Wave 11A] tech/RetakeRateAnalyticsPage
     "retakeAnalytics.reviewFailed": "Review failed",
     "retakeAnalytics.loadFailed": "Failed to load retake statistics",
     "retakeAnalytics.title": "Retake Rate Statistics & Analysis",
@@ -54334,7 +54334,7 @@ export const translations: Translations = {
     "retakeAnalytics.colActions": "Actions",
     "retakeAnalytics.sourceApi": "Data source: GET /worklist/retake-stats (backend aggregation) · dimension {{dim}}",
     "retakeAnalytics.sourceDemo": "Data source: demo fallback (API unavailable, derived from seed)",
-    // [v3.0.6.11-104 Wave 11A] integration/Hl7BuilderPage
+    // [v3.0.6.11-105 Wave 11A] integration/Hl7BuilderPage
     "hl7Builder.loadHistoryFailed": "Failed to load send history",
     "hl7Builder.missingMessage": "Response is missing the message field",
     "hl7Builder.previewFailed": "Failed to generate preview",
@@ -54381,7 +54381,7 @@ export const translations: Translations = {
     "hl7Builder.rawMessage": "HL7 Raw Message",
     "hl7Builder.sendHistory": "Send History",
     "hl7Builder.refresh": "Refresh",
-    // [v3.0.6.11-104 Wave 11A] ops/DeviceOpsPage
+    // [v3.0.6.11-105 Wave 11A] ops/DeviceOpsPage
     "deviceOps.doseLoadFailed": "Failed to load dose records, showing empty list",
     "deviceOps.fillPatientDevice": "Please enter patient ID and device ID",
     "deviceOps.dosePositive": "Dose value must be positive",
@@ -54437,7 +54437,7 @@ export const translations: Translations = {
     "deviceOps.doseValuePlaceholder": "Dose Value *",
     "deviceOps.submitting": "Submitting...",
     "deviceOps.registerDoseBtn": "Register Dose",
-    // [v3.0.6.11-104 Wave 11A] education/PatientEducationPage
+    // [v3.0.6.11-105 Wave 11A] education/PatientEducationPage
     "patientEdu.loadFailedRetry": "Failed to load education materials, please retry later",
     "patientEdu.titleContentRequired": "Title and content are required",
     "patientEdu.createFailed": "Failed to create education material",
@@ -54482,7 +54482,7 @@ export const translations: Translations = {
     "patientEdu.durationPlaceholder": "Video/audio duration (optional)",
     "patientEdu.tags": "Tags (comma-separated)",
     "patientEdu.tagsPlaceholder": "e.g. CT, exam prep",
-    // [v3.0.6.11-104 Wave 11A] mobile/tech/TechMobileWorkstation
+    // [v3.0.6.11-105 Wave 11A] mobile/tech/TechMobileWorkstation
     "techMobile.startFailed": "Failed to start exam",
     "techMobile.startFailedNetwork": "Failed to start exam: network error",
     "techMobile.completeFailed": "Failed to complete exam",
@@ -54544,7 +54544,7 @@ export const translations: Translations = {
     "techMobile.navDevices": "Devices",
     "techMobile.navScan": "Scan",
     "techMobile.navNotice": "Notice",
-    // [v3.0.6.11-104 Wave 11A] dose/DoseLiveMonitor
+    // [v3.0.6.11-105 Wave 11A] dose/DoseLiveMonitor
     "doseLive.statsLoadFailed": "Failed to load dose statistics",
     "doseLive.loadingRealtime": "Loading realtime dose data...",
     "doseLive.title": "Realtime Dose Monitoring",
@@ -54615,7 +54615,7 @@ export const translations: Translations = {
     "doseLive.colSource": "Source",
     "doseLive.saving": "Saving...",
     "doseLive.save": "Save",
-    // [v3.0.6.11-104 Wave 11A] System/DicomPrintPage
+    // [v3.0.6.11-105 Wave 11A] System/DicomPrintPage
     "dicomPrint.noData": "No data",
     "dicomPrint.apiUnavailable": "Print API unavailable; fell back to local simulated queue (demo data)",
     "dicomPrint.patientNameRequired": "Please enter patient name",
@@ -54670,7 +54670,7 @@ export const translations: Translations = {
     "dicomPrint.pagination": "{{total}} items · Page {{page}}/{{pages}}",
     "dicomPrint.prevPage": "Previous",
     "dicomPrint.nextPage": "Next",
-    // [v3.0.6.11-104 Wave 11A] operation-log/LogStats
+    // [v3.0.6.11-105 Wave 11A] operation-log/LogStats
     "logStats.noData": "No data",
     "logStats.todayOps": "Today's Operations",
     "logStats.yesterday": "Yesterday",
@@ -54720,7 +54720,7 @@ export const translations: Translations = {
     "logStats.opTrend24h": "24-Hour Operation Trend",
     "logStats.peakHeatmap": "Operation Peak Hours Heatmap",
     "logStats.opCount": "Operation Count",
-    // [v3.0.6.11-104 Wave 11A] eye/report/EyeReportWritePage
+    // [v3.0.6.11-105 Wave 11A] eye/report/EyeReportWritePage
     "eyeReport.draftSaved": "Draft saved",
     "eyeReport.draftApiUnavailable": "Draft API unavailable; saved locally",
     "eyeReport.submittedReview": "Report submitted for review",
@@ -54787,7 +54787,7 @@ export const translations: Translations = {
     "eyeReport.noReports": "No report data",
     "eyeReport.reportNotFound": "Report not found",
     "eyeReport.title": "Eye Report Writing",
-    // [v3.0.6.11-104 Wave 11A] patient/PatientCreateForm
+    // [v3.0.6.11-105 Wave 11A] patient/PatientCreateForm
     "patientForm.enterName": "Please enter name",
     "patientForm.enterIdCard": "Please enter ID card number",
     "patientForm.idCard18": "ID card number must be 18 digits",
@@ -54845,7 +54845,7 @@ export const translations: Translations = {
     "patientForm.enterDoctor": "Please enter attending physician name",
     "patientForm.saveInfo": "Save Patient Info",
     // [W11A-ANCHOR-EN]
-    // [v3.0.6.11-104 Wave 11B] CriticalValueRulePage
+    // [v3.0.6.11-105 Wave 11B] CriticalValueRulePage
     "cvRule.cat.neuro": "Neurology",
     "cvRule.cat.cardio": "Cardiovascular",
     "cvRule.cat.pulmo": "Chest",
@@ -54908,7 +54908,7 @@ export const translations: Translations = {
     "cvRule.gotIt": "Got it",
     "cvRule.savedNote": "Rule configuration saved. Changes take effect immediately.",
     "cvRule.disableRule": "Disable Rule",
-    // [v3.0.6.11-104 Wave 11B] DentalCephPage
+    // [v3.0.6.11-105 Wave 11B] DentalCephPage
     "ceph.analysis.steiner": "Steiner Analysis (SNA/SNB/ANB)",
     "ceph.analysis.downs": "Downs Analysis",
     "ceph.analysis.mcnamara": "McNamara Analysis (linear)",
@@ -54959,7 +54959,7 @@ export const translations: Translations = {
     "ceph.mandibleCrowding": "Mandibular Crowding ",
     "ceph.needExtraction": "Extraction Required",
     "ceph.noExtraction": "No Extraction",
-    // [v3.0.6.11-104 Wave 11B] DentalViewerPage
+    // [v3.0.6.11-105 Wave 11B] DentalViewerPage
     "dViewer.loadFailed": "Load failed",
     "dViewer.aiDone": "AI analysis complete",
     "dViewer.aiUnavailable": "AI API unavailable, returning local mock result",
@@ -54997,7 +54997,7 @@ export const translations: Translations = {
     "dViewer.model": "Model: ",
     "dViewer.runAi": "Run AI Analysis",
     "dViewer.noAi": "No AI analysis",
-    // [v3.0.6.11-104 Wave 11B] SelfServicePortal
+    // [v3.0.6.11-105 Wave 11B] SelfServicePortal
     "ssp.state.pending": "Pending",
     "ssp.state.inProgress": "In Progress",
     "ssp.state.completed": "Completed",
@@ -55081,7 +55081,7 @@ export const translations: Translations = {
     "ssp.clinicalDrawer.reportStatus": "Report Status",
     "ssp.clinicalDrawer.findings": "Findings",
     "ssp.clinicalDrawer.diagnosis": "Diagnosis",
-    // [v3.0.6.11-104 Wave 11B] SlaPolicyPage
+    // [v3.0.6.11-105 Wave 11B] SlaPolicyPage
     "sla.priority.critical": "Critical",
     "sla.priority.urgent": "Urgent",
     "sla.priority.normal": "Normal",
@@ -55126,7 +55126,7 @@ export const translations: Translations = {
     "sla.warningLabel": "Warning Time (min)",
     "sla.warningRequired": "Please enter warning minutes",
     "sla.escalationLabel": "Escalation Time (min)",
-    // [v3.0.6.11-104 Wave 11B] AdverseReactionPage
+    // [v3.0.6.11-105 Wave 11B] AdverseReactionPage
     "advR.type.allergic": "Allergic",
     "advR.type.nephrotoxic": "Nephrotoxic",
     "advR.type.extravasation": "Extravasation",
@@ -55194,7 +55194,7 @@ export const translations: Translations = {
     "advR.byType": "By Type",
     "advR.byOutcome": "By Outcome",
     "advR.caseUnit": "cases",
-    // [v3.0.6.11-104 Wave 11B] DicomSrTemplatePage
+    // [v3.0.6.11-105 Wave 11B] DicomSrTemplatePage
     "srTpl.loadFailed": "Failed to load template list",
     "srTpl.updated": "Template updated",
     "srTpl.created": "Template created",
@@ -55221,7 +55221,7 @@ export const translations: Translations = {
     "srTpl.close": "Close",
     "srTpl.cnName": "Chinese Name",
     "srTpl.noData": "No data",
-    // [v3.0.6.11-104 Wave 11B] DicomWebPage
+    // [v3.0.6.11-105 Wave 11B] DicomWebPage
     "dw.server.default": "DICOMweb (Default)",
     "dw.enterStudyUid": "Please enter StudyUID",
     "dw.qidoFailed": "QIDO-RS query failed",
@@ -55249,7 +55249,7 @@ export const translations: Translations = {
     "dw.stowTitle": "STOW-RS Upload",
     "dw.dragHint": "Drag DICOM files here",
     "dw.wadoPreviewTitle": "WADO-RS Image Preview",
-    // [v3.0.6.11-104 Wave 11B] DoctorWorkloadPage
+    // [v3.0.6.11-105 Wave 11B] DoctorWorkloadPage
     "dw2.unknownDoctor": "Unknown doctor",
     "dw2.attending": "Attending Physician",
     "dw2.apiUnavailable": "Workload API unavailable",
@@ -55296,7 +55296,7 @@ export const translations: Translations = {
     "dw2.consulting": "Consulting",
     "dw2.subConsultingDuration": "Consulting Hours",
     "dw2.modalityDist": "Exam Device Distribution",
-    // [v3.0.6.11-104 Wave 11B] FhirImagingStudyPage
+    // [v3.0.6.11-105 Wave 11B] FhirImagingStudyPage
     "fis.detailLoadFailed": "Failed to load study details, showing list data",
     "fis.listLoadFailed": "Failed to load study list, using demo data",
     "fis.colId": "ID",
@@ -55328,7 +55328,7 @@ export const translations: Translations = {
     "fis.noDescription": "No description",
     "fis.instanceSuffix": " instances",
     "fis.noData": "No data",
-    // [v3.0.6.11-104 Wave 11B] BackupPage
+    // [v3.0.6.11-105 Wave 11B] BackupPage
     "bk.type.full": "Full",
     "bk.type.incremental": "Incremental",
     "bk.status.completed": "Completed",
@@ -55369,7 +55369,7 @@ export const translations: Translations = {
     "bk.nextRunValue": "Daily at 2:00 AM",
     "bk.locationLabel": "Backup Location",
     "bk.encryptionLabel": "Encryption",
-    // [v3.0.6.11-104 Wave 11B] PatientSafetyDashboardPage
+    // [v3.0.6.11-105 Wave 11B] PatientSafetyDashboardPage
     "psd.sev.nearMiss": "Near Miss",
     "psd.sev.minor": "Minor",
     "psd.sev.moderate": "Moderate",
@@ -55421,7 +55421,7 @@ export const translations: Translations = {
     "psd.cat.equipmentMalfunction": "Equipment Malfunction",
     "psd.cat.informationLoss": "Information Loss",
     "psd.cat.other": "Other",
-    // [v3.0.6.11-104 Wave 11B] OEEDashboardPage
+    // [v3.0.6.11-105 Wave 11B] OEEDashboardPage
     "oeePage.loadFailed": "Failed to load device OEE data",
     "oeePage.cause.breakdown": "Breakdown",
     "oeePage.cause.setup": "Setup/Changeover",
@@ -55453,7 +55453,7 @@ export const translations: Translations = {
     "oeePage.causeTitle": "Low OEE Cause Analysis",
     "oeePage.noCause": "No cause data",
     "oeePage.listTitle": "Device OEE List (desc by OEE)",
-    // [v3.0.6.11-104 Wave 11B] SchedulingCenterPage
+    // [v3.0.6.11-105 Wave 11B] SchedulingCenterPage
     "sch.state.scheduled": "Scheduled",
     "sch.state.confirmed": "Confirmed",
     "sch.state.checkedIn": "Checked In",
@@ -55494,7 +55494,7 @@ export const translations: Translations = {
     "sch.timeRequired": "Please select a time",
     "sch.roomNote": "Room/Note",
     "sch.selectRoom": "Select room",
-    // [v3.0.6.11-104 Wave 11B] MllpConfigPage
+    // [v3.0.6.11-105 Wave 11B] MllpConfigPage
     "mllp.listenerStarted": "MLLP listener started",
     "mllp.listenerStopped": "MLLP listener stopped",
     "mllp.opFailed": "Operation failed",
@@ -55533,7 +55533,7 @@ export const translations: Translations = {
     "mllp.cancel": "Cancel",
     "mllp.cidrLabel": "CIDR (e.g. 10.0.0.0/8)",
     "mllp.cidrPlaceholder": "e.g. 10.0.0.0/8",
-    // [v3.0.6.11-104 Wave 11B] DentalVolumeViewerPage
+    // [v3.0.6.11-105 Wave 11B] DentalVolumeViewerPage
     "dvv.title": "CBCT Volume Rendering · Curved MPR",
     "dvv.benchRomexis": "Romexis Benchmark",
     "dvv.realBackend": "Real backend /dental/volume/*",
@@ -55571,7 +55571,7 @@ export const translations: Translations = {
     "dvv.sliceThickness": "Slice Thickness",
     "dvv.exportCurved": "Export Curved Image",
     "dvv.backendPrefix": "Backend ",
-    // [v3.0.6.11-104 Wave 11B] SmartAuthPage
+    // [v3.0.6.11-105 Wave 11B] SmartAuthPage
     "smartAuth.configLoadFailed": "Failed to load SMART configuration",
     "smartAuth.authSuccess": "Authorization succeeded, auth code obtained",
     "smartAuth.noCode": "No code found in authorization response",
@@ -55613,7 +55613,7 @@ export const translations: Translations = {
     "smartAuth.status": "Status",
     "smartAuth.subject": "Subject",
     "smartAuth.expiresAt": "Expires At",
-    // [v3.0.6.11-104 Wave 11B] DepartmentOperationsPage
+    // [v3.0.6.11-105 Wave 11B] DepartmentOperationsPage
     "deptOps.unit.case": "cases",
     "deptOps.unit.person": "people",
     "deptOps.unit.report": "reports",
@@ -55651,7 +55651,7 @@ export const translations: Translations = {
     "deptOps.autoAssign": "Auto assign",
     "deptOps.cancel": "Cancel",
     "deptOps.addToQueue": "Add to Queue",
-    // [v3.0.6.11-104 Wave 11B] NurseMobileWorkstation
+    // [v3.0.6.11-105 Wave 11B] NurseMobileWorkstation
     "nurse.status.waiting": "Waiting",
     "nurse.status.inProgress": "In Progress",
     "nurse.status.completed": "Completed",
@@ -55703,7 +55703,7 @@ export const translations: Translations = {
     "nurse.nav.meds": "Meds",
     "nurse.nav.notify": "Notify",
     "nurse.nav.checkIn": "Check In",
-    // [v3.0.6.11-104 Wave 11B] ReportPhraseBankPage
+    // [v3.0.6.11-105 Wave 11B] ReportPhraseBankPage
     "rpb.unnamedPhrase": "Unnamed phrase",
     "rpb.sceneApi": "Smart snippet (templatesApi)",
     "rpb.system": "System",
@@ -55752,7 +55752,7 @@ export const translations: Translations = {
     "rpb.category": "Category",
     "rpb.contentLabel": "Phrase Content (supports {{placeholders}})",
     "rpb.contentPlaceholder": "e.g. Recommend follow-up in {{timeframe}}, biopsy if necessary.",
-    // [v3.0.6.11-104 Wave 11B] KeywordCheckPage
+    // [v3.0.6.11-105 Wave 11B] KeywordCheckPage
     "kwc.sev.error": "Error",
     "kwc.sev.warning": "Warning",
     "kwc.sev.info": "Info",
@@ -55799,7 +55799,7 @@ export const translations: Translations = {
     "kwc.scanPrompt": "Click \"Start Scan\" to check the current report for keywords",
     "kwc.scanPromptHint": "The system will run a full scan across 6 rule categories",
     "kwc.unitCount": "rules",
-    // [v3.0.6.11-104 Wave 11B] TemplateInheritancePage
+    // [v3.0.6.11-105 Wave 11B] TemplateInheritancePage
     "tinh.unnamedTemplate": "Unnamed template",
     "tinh.system": "System",
     "tinh.apiUnavailable": "templatesApi unavailable, showing built-in demo inheritance tree",
@@ -55859,7 +55859,7 @@ export const translations: Translations = {
     "tinh.directChildren": "Direct Child Templates",
     "tinh.familyUsageSummary": "Family Usage Summary (local derivation)",
     "tinh.usageNote": "Usage counts are locally derived (note: pending template usage reporting API templatesApi.usage).",
-    // [v3.0.6.11-104 Wave 11B] ReportExportPage
+    // [v3.0.6.11-105 Wave 11B] ReportExportPage
     "rex.downloadFailed": "Download failed",
     "rex.exportFailed": "Export failed",
     "rex.fileGenFailed": "Failed to generate report file",
@@ -55905,7 +55905,7 @@ export const translations: Translations = {
     "rex.previewSample": "Preview Sample",
     "rex.exportReports": "Export {{count}} reports",
     "rex.templateQuickRef": "Template Quick Reference",
-    // [v3.0.6.11-104 Wave 12B] Page residual i18n cleanup
+    // [v3.0.6.11-105 Wave 12B] Page residual i18n cleanup
     "iheConn.title": "IHE Connectathon Test",
     "iheConn.subtitle": "XDS.b / PIX / PDQ / ATNA / PAM Test Execution Framework",
     "iheConn.mockBadge": "Simulation Tool · Results Generated Locally",
@@ -56217,7 +56217,7 @@ export const translations: Translations = {
     "vesselAnalysis.recommendation": "Recommendation:",
     "vesselAnalysis.model": "Model",
     "vesselAnalysis.status": "Status",
-    // [v3.0.6.11-104 Wave 12C] residual page UI cleanup
+    // [v3.0.6.11-105 Wave 12C] residual page UI cleanup
     "aiProviders.fetchFailed": "Failed to get providers",
     "aiProviders.fetchRequestFailed": "Provider request failed",
     "aiProviders.active": "Active",
@@ -56793,7 +56793,7 @@ export const translations: Translations = {
     "nationalReportPage.statusRejected": "Rejected",
     "nationalReportPage.statusPendingReview": "Pending Review",
     "nationalReportPage.statusPassed": "Passed",
-    // [v3.0.6.11-104 Wave 12A] Page residual i18n cleanup (20 pages)
+    // [v3.0.6.11-105 Wave 12A] Page residual i18n cleanup (20 pages)
     "cvQc.metric.imageQuality": "Image Quality Score",
     "cvQc.metric.motion": "Motion Score",
     "cvQc.metric.cnr": "Contrast-to-Noise Ratio",
