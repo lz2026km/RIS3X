@@ -42,18 +42,19 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Inbox, SearchX } from 'lucide-react'
+import { t } from '../../../../i18n/appI18n';
 
 const SEVERITY_META: Record<DefectSeverityLevel, { color: string; label: string; rank: number }> = {
-  minor: { color: 'gold', label: '轻微', rank: 1 },
-  major: { color: 'orange', label: '重要', rank: 2 },
-  critical: { color: 'red', label: '严重', rank: 3 },
+  minor: { color: 'gold', label: t('defectLibrary.severity.minor'), rank: 1 },
+  major: { color: 'orange', label: t('defectLibrary.severity.major'), rank: 2 },
+  critical: { color: 'red', label: t('defectLibrary.severity.critical'), rank: 3 },
 };
 
 const STATUS_META: Record<DefectStatus, { color: string; label: string }> = {
-  active: { color: 'green', label: '启用' },
-  deprecated: { color: 'default', label: '已停用' },
-  draft: { color: 'blue', label: '草稿' },
-  reviewing: { color: 'purple', label: '审核中' },
+  active: { color: 'green', label: t('defectLibrary.status.active') },
+  deprecated: { color: 'default', label: t('defectLibrary.status.deprecated') },
+  draft: { color: 'blue', label: t('defectLibrary.status.draft') },
+  reviewing: { color: 'purple', label: t('defectLibrary.status.reviewing') },
 };
 
 export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({ onSelect }) => {
@@ -82,7 +83,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
       const data = await defectService.listDefects(filter);
       setDefects(data);
     } catch (e) {
-      message.error('加载缺陷库失败');
+      message.error(t('defectLibrary.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -115,17 +116,17 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
 
   const handleDelete = async (code: string) => {
     Modal.confirm({
-      title: '确认删除缺陷',
+      title: t('defectLibrary.deleteConfirmTitle'),
       content: `确定删除缺陷 ${code}？此操作不可恢复。`,
-      okText: '删除',
+      okText: t('defectLibrary.delete'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: t('defectLibrary.cancel'),
       onOk: async () => {
         try {
-          message.success('已删除 ' + code);
+          message.success(t('defectLibrary.deleted') + code);
           load();
         } catch (e) {
-          message.error('删除失败');
+          message.error(t('defectLibrary.deleteFailed'));
         }
       },
     });
@@ -142,7 +143,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
   };
 
   return (
-    <div data-testid="defect-library" role="region" aria-label="缺陷库">
+    <div data-testid="defect-library" role="region" aria-label={t('defectLibrary.title')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)',
@@ -155,27 +156,27 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <AlertOctagon size={18} />
-            <strong style={{ fontSize: 16 }}>缺陷库</strong>
+            <strong style={{ fontSize: 16 }}>{t('defectLibrary.title')}</strong>
             <Tag color="purple">R3.QUALITY.101-135</Tag>
-            <Tag color="cyan">{DEFECT_CATEGORIES.length} 大类</Tag>
+            <Tag color="cyan">{DEFECT_CATEGORIES.length} {t('defectLibrary.categoryUnit')}</Tag>
           </Space>
           <Space>
             <Button size="small" icon={<Plus size={12} />} onClick={openCreate}>
-              新增缺陷
+              {t('defectLibrary.addDefect')}
             </Button>
             <Button
               size="small"
               icon={<BarChart3 size={12} />}
               onClick={() => setActiveTab('stats')}
             >
-              统计
+              {t('defectLibrary.stats')}
             </Button>
           </Space>
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>缺陷总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectLibrary.totalDefects')}</span>}
               value={stats.total}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<BookOpen size={14} />}
@@ -183,7 +184,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>启用</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectLibrary.status.active')}</span>}
               value={stats.active}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<TagIcon size={14} />}
@@ -191,14 +192,14 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>自定义</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectLibrary.custom')}</span>}
               value={stats.custom}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
             />
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>严重</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectLibrary.severity.critical')}</span>}
               value={stats.critical}
               styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
               prefix={<AlertOctagon size={14} />}
@@ -206,7 +207,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>触发总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectLibrary.totalHits')}</span>}
               value={stats.totalHits}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Activity size={14} />}
@@ -214,7 +215,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均 SLA(h)</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectLibrary.avgSla')}</span>}
               value={stats.avgFix}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Star size={14} />}
@@ -231,7 +232,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             key: 'list',
             label: (
               <span>
-                <FileText size={12} /> 缺陷记录
+                <FileText size={12} /> {t('defectLibrary.tab.records')}
               </span>
             ),
           },
@@ -239,7 +240,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             key: 'template',
             label: (
               <span>
-                <BookOpen size={12} /> 缺陷模板
+                <BookOpen size={12} /> {t('defectLibrary.tab.template')}
               </span>
             ),
           },
@@ -247,7 +248,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             key: 'stats',
             label: (
               <span>
-                <BarChart3 size={12} /> 缺陷统计
+                <BarChart3 size={12} /> {t('defectLibrary.tab.stats')}
               </span>
             ),
           },
@@ -258,47 +259,47 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         <Space wrap>
           <Input
             prefix={<Search size={12} />}
-            placeholder="搜索缺陷名称/编码/描述"
+            placeholder={t('defectLibrary.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onPressEnter={load}
             style={{ width: 240 }}
-            aria-label="搜索缺陷"
+            aria-label={t('defectLibrary.searchAria')}
           />
           <Select
             value={category}
             onChange={setCategory}
             style={{ width: 150 }}
             options={[
-              { value: 'all', label: '全部分类' },
+              { value: 'all', label: t('defectLibrary.allCategories') },
               ...DEFECT_CATEGORIES.map((c) => ({ value: c.code, label: c.name })),
             ]}
-            aria-label="分类筛选"
+            aria-label={t('defectLibrary.categoryFilter')}
           />
           <Select
             value={severity}
             onChange={setSeverity}
             style={{ width: 120 }}
             options={[
-              { value: 'all', label: '全部严重度' },
-              { value: 'minor', label: '轻微' },
-              { value: 'major', label: '重要' },
-              { value: 'critical', label: '严重' },
+              { value: 'all', label: t('defectLibrary.allSeverities') },
+              { value: 'minor', label: t('defectLibrary.severity.minor') },
+              { value: 'major', label: t('defectLibrary.severity.major') },
+              { value: 'critical', label: t('defectLibrary.severity.critical') },
             ]}
-            aria-label="严重度筛选"
+            aria-label={t('defectLibrary.severityFilter')}
           />
           <Select
             value={status}
             onChange={setStatus}
             style={{ width: 120 }}
             options={[
-              { value: 'all', label: '全部状态' },
-              { value: 'active', label: '启用' },
-              { value: 'deprecated', label: '停用' },
-              { value: 'draft', label: '草稿' },
-              { value: 'reviewing', label: '审核中' },
+              { value: 'all', label: t('defectLibrary.allStatus') },
+              { value: 'active', label: t('defectLibrary.status.active') },
+              { value: 'deprecated', label: t('defectLibrary.statusDeprecatedShort') },
+              { value: 'draft', label: t('defectLibrary.status.draft') },
+              { value: 'reviewing', label: t('defectLibrary.status.reviewing') },
             ]}
-            aria-label="状态筛选"
+            aria-label={t('defectLibrary.statusFilter')}
           />
           <Button
             size="small"
@@ -306,13 +307,13 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             onClick={() => setCustomOnly(!customOnly)}
             icon={<Filter size={12} />}
           >
-            仅自定义
+            {t('defectLibrary.customOnly')}
           </Button>
           <Button size="small" onClick={load} type="primary">
-            查询
+            {t('defectLibrary.query')}
           </Button>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            显示 {defects.length} 条
+            {t('defectLibrary.showing')} {defects.length} {t('defectLibrary.itemsUnit')}
           </span>
         </Space>
       </Card>
@@ -321,7 +322,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         <List
           loading={loading}
           dataSource={defects}
-          locale={{ emptyText: <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="无匹配缺陷" /> }}
+          locale={{ emptyText: <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('defectLibrary.noMatch')} /> }}
           style={{
             background: 'var(--bg-card)',
             borderRadius: 8,
@@ -358,9 +359,9 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                           {cat.icon} {cat.name}
                         </Tag>
                       )}
-                      {d.customDefect && <Tag color="purple">自定义</Tag>}
-                      {!d.isActive && <Tag color="default">已停用</Tag>}
-                      {d.trainingRequired && <Tag color="orange">需培训</Tag>}
+                      {d.customDefect && <Tag color="purple">{t('defectLibrary.custom')}</Tag>}
+                      {!d.isActive && <Tag color="default">{t('defectLibrary.status.deprecated')}</Tag>}
+                      {d.trainingRequired && <Tag color="orange">{t('defectLibrary.trainingRequired')}</Tag>}
                     </Space>
                   }
                   description={
@@ -368,21 +369,21 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.description}</div>
                       {d.examples.length > 0 && (
                         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-                          示例：{d.examples.join('；')}
+                          {t('defectLibrary.examplesPrefix')}{d.examples.join('；')}
                         </div>
                       )}
                       <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
-                        解决方案：{d.solution}
+                        {t('defectLibrary.solutionPrefix')}{d.solution}
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-                        触发 {d.count} 次 · 整改 SLA {d.sla}h · 更新 {new Date(d.updatedAt).toLocaleDateString()}
+                        {t('defectLibrary.trigger')} {d.count} {t('defectLibrary.timesUnit')} · {t('defectLibrary.remediationSla')} {d.sla}h · {t('defectLibrary.updated')} {new Date(d.updatedAt).toLocaleDateString()}
                         {d.tags.length > 0 && ` · 标签: ${d.tags.join(', ')}`}
                       </div>
                     </div>
                   }
                 />
                 <Space onClick={(e) => e.stopPropagation()}>
-                  <Tooltip title="详情">
+                  <Tooltip title={t('defectLibrary.detail')}>
                     <Button
                       size="small"
                       icon={<FileText size={10} />}
@@ -397,7 +398,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                     icon={<Edit size={10} />}
                     onClick={() => openEdit(d)}
                   >
-                    编辑
+                    {t('defectLibrary.edit')}
                   </Button>
                   {d.customDefect && (
                     <Button
@@ -406,7 +407,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                       icon={<Trash2 size={10} />}
                       onClick={() => handleDelete(d.code)}
                     >
-                      删除
+                      {t('defectLibrary.delete')}
                     </Button>
                   )}
                 </Space>
@@ -431,10 +432,10 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                       <Tag>{cat.code}</Tag>
                     </Space>
                   }
-                  extra={<Tag color="cyan">{items.length} 模板</Tag>}
+                  extra={<Tag color="cyan">{items.length} {t('defectLibrary.templatesUnit')}</Tag>}
                 >
                   {items.length === 0 ? (
-                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该分类暂无模板" />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('defectLibrary.noTemplateInCategory')} />
                   ) : (
                     <Space orientation="vertical" style={{ width: '100%' }} size={6}>
                       {items.map((d) => (
@@ -454,7 +455,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                             <span style={{ fontSize: 12, fontWeight: 600 }}>{d.name}</span>
                           </Space>
                           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                            模板：{d.solution}
+                            {t('defectLibrary.templatePrefix')}{d.solution}
                           </div>
                         </div>
                       ))}
@@ -470,7 +471,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
       {activeTab === 'stats' && (
         <Row gutter={[12, 12]}>
           <Col span={14}>
-            <Card size="small" title="按分类分布">
+            <Card size="small" title={t('defectLibrary.byCategory')}>
               <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                 {DEFECT_CATEGORIES.map((cat) => {
                   const c = byCategory[cat.code] ?? 0;
@@ -483,7 +484,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                           <span style={{ fontSize: 12 }}>{cat.name}</span>
                           <Tag>{cat.code}</Tag>
                         </Space>
-                        <strong>{c} 次</strong>
+                        <strong>{c} {t('defectLibrary.timesUnit')}</strong>
                       </Space>
                       <div
                         style={{
@@ -509,7 +510,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </Card>
           </Col>
           <Col span={10}>
-            <Card size="small" title="按严重度">
+            <Card size="small" title={t('defectLibrary.bySeverity')}>
               <Space orientation="vertical" style={{ width: '100%' }}>
                 {(['critical', 'major', 'minor'] as DefectSeverityLevel[]).map((s) => {
                   const c = defects.filter((d) => d.severity === s).length;
@@ -517,14 +518,14 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                     <Card key={s} size="small" style={{ background: SEVERITY_META[s].color + '10' }}>
                       <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                         <Tag color={SEVERITY_META[s].color}>{SEVERITY_META[s].label}</Tag>
-                        <strong>{c} 项</strong>
+                        <strong>{c} {t('defectLibrary.entriesUnit')}</strong>
                       </Space>
                     </Card>
                   );
                 })}
               </Space>
             </Card>
-            <Card size="small" title="Top 5 高频缺陷" style={{ marginTop: 12 }}>
+            <Card size="small" title={t('defectLibrary.top5')} style={{ marginTop: 12 }}>
               <List
                 size="small"
                 dataSource={[...defects].sort((a, b) => b.count - a.count).slice(0, 5)}
@@ -544,7 +545,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
       )}
 
       <Modal
-        title={editing ? '编辑缺陷 - ' + editing.code : '新增自定义缺陷'}
+        title={editing ? `${t('defectLibrary.editDefectTitle')} - ${editing.code}` : t('defectLibrary.createDefectTitle')}
         open={editModal}
         onCancel={() => {
           setEditModal(false);
@@ -553,25 +554,25 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         onOk={() => {
           setEditModal(false);
           setEditing(null);
-          message.success('已保存');
+          message.success(t('defectLibrary.saved'));
           load();
         }}
-        okText="保存"
-        cancelText="取消"
+        okText={t('defectLibrary.save')}
+        cancelText={t('defectLibrary.cancel')}
         width={680}
       >
         <Space orientation="vertical" style={{ width: '100%' }} size={10}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>编码 *</div>
-              <Input defaultValue={editing?.code} disabled={!!editing} placeholder="如 CUS-001" />
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.code')}</div>
+              <Input defaultValue={editing?.code} disabled={!!editing} placeholder={t('defectLibrary.codePlaceholder')} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>名称 *</div>
-              <Input defaultValue={editing?.name} placeholder="缺陷名称" />
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.name')}</div>
+              <Input defaultValue={editing?.name} placeholder={t('defectLibrary.namePlaceholder')} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>分类 *</div>
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.category')}</div>
               <Select
                 defaultValue={editing?.category}
                 options={DEFECT_CATEGORIES.map((c) => ({ value: c.code, label: c.name }))}
@@ -579,43 +580,43 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>严重度 *</div>
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.severity')}</div>
               <Select
                 defaultValue={editing?.severity}
                 options={[
-                  { value: 'minor', label: '轻微' },
-                  { value: 'major', label: '重要' },
-                  { value: 'critical', label: '严重' },
+                  { value: 'minor', label: t('defectLibrary.severity.minor') },
+                  { value: 'major', label: t('defectLibrary.severity.major') },
+                  { value: 'critical', label: t('defectLibrary.severity.critical') },
                 ]}
                 style={{ width: '100%' }}
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>整改 SLA (小时)</div>
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.slaHours')}</div>
               <Input type="number" defaultValue={editing?.sla ?? 24} />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>需培训</div>
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.trainingRequired')}</div>
               <Select
                 defaultValue={editing?.trainingRequired ? 'yes' : 'no'}
                 options={[
-                  { value: 'yes', label: '是' },
-                  { value: 'no', label: '否' },
+                  { value: 'yes', label: t('defectLibrary.yes') },
+                  { value: 'no', label: t('defectLibrary.no') },
                 ]}
                 style={{ width: '100%' }}
               />
             </div>
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>描述 *</div>
+            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.description')}</div>
             <Input.TextArea defaultValue={editing?.description} rows={2} />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>解决方案 *</div>
+            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.solution')}</div>
             <Input.TextArea defaultValue={editing?.solution} rows={2} />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>示例 (用分号分隔)</div>
+            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectLibrary.field.examples')}</div>
             <Input defaultValue={editing?.examples.join('；')} />
           </div>
         </Space>
@@ -639,16 +640,16 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
               <Tag color="blue">{detailDrawer.category}</Tag>
             </Space>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>描述</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.description')}</div>
               <div style={{ fontSize: 13 }}>{detailDrawer.description}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>解决方案</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.solution')}</div>
               <div style={{ fontSize: 13, color: '#0891b2' }}>{detailDrawer.solution}</div>
             </div>
             {detailDrawer.examples.length > 0 && (
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>示例</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.examples')}</div>
                 <ul style={{ paddingLeft: 18, margin: 0 }}>
                   {detailDrawer.examples.map((e, i) => (
                     <li key={i} style={{ fontSize: 12 }}>
@@ -660,22 +661,22 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             )}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <div>
-                <Tag>触发次数</Tag> <strong>{detailDrawer.count}</strong>
+                <Tag>{t('defectLibrary.triggerCount')}</Tag> <strong>{detailDrawer.count}</strong>
               </div>
               <div>
-                <Tag>整改 SLA</Tag> <strong>{detailDrawer.sla}h</strong>
+                <Tag>{t('defectLibrary.remediationSla')}</Tag> <strong>{detailDrawer.sla}h</strong>
               </div>
               <div>
-                <Tag>标签</Tag> <strong>{detailDrawer.tags.join(', ') || '-'}</strong>
+                <Tag>{t('defectLibrary.tags')}</Tag> <strong>{detailDrawer.tags.join(', ') || '-'}</strong>
               </div>
               <div>
-                <Tag>需培训</Tag>{' '}
-                <strong>{detailDrawer.trainingRequired ? '是' : '否'}</strong>
+                <Tag>{t('defectLibrary.trainingRequired')}</Tag>{' '}
+                <strong>{detailDrawer.trainingRequired ? t('defectLibrary.yes') : t('defectLibrary.no')}</strong>
               </div>
             </div>
             {detailDrawer.references.length > 0 && (
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>参考文献</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.references')}</div>
                 <Space wrap>
                   {detailDrawer.references.map((r, i) => (
                     <Tag key={i}>{r}</Tag>

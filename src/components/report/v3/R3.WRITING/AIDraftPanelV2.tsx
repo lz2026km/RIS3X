@@ -20,6 +20,7 @@ import {
   type TraceSource,
   type FieldCategory,
 } from '@services/api/aiDraftV2Api';
+import { t } from '../../../../i18n/appI18n';
 
 interface Props {
   reportId?: string;
@@ -38,10 +39,10 @@ interface Props {
 }
 
 const SOURCE_KIND_LABEL: Record<TraceSource['kind'], string> = {
-  template: '模板',
-  rule: '规则',
-  field: '字段',
-  clinicalHistory: '临床输入',
+  template: t('aiDraft.source.template'),
+  rule: t('aiDraft.source.rule'),
+  field: t('aiDraft.source.field'),
+  clinicalHistory: t('aiDraft.source.clinicalHistory'),
   seed: 'seed',
 };
 
@@ -348,7 +349,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
   const handleExtract = useCallback(async () => {
     if (disabled) return;
     if (!findings.trim()) {
-      message.warning('请输入影像所见文本');
+      message.warning(t('aiDraft.msg.enterFindings'));
       return;
     }
     setExtractLoading(true);
@@ -357,10 +358,10 @@ export const AIDraftPanelV2: React.FC<Props> = ({
       if (res.success && res.data) {
         setExtractResult(res.data);
         setDataSource('api');
-        message.success(`已提取 ${res.data.fields.length} 个结构化字段`);
+        message.success(t('aiDraft.msg.extracted', { count: res.data.fields.length }));
         return;
       }
-      throw new Error(res.error?.message ?? '接口失败');
+      throw new Error(res.error?.message ?? t('aiDraft.err.apiFailed'));
     } catch {
       const local: ExtractFieldsResult = {
         fields: localExtract(findings),
@@ -376,7 +377,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
         : 0;
       setExtractResult(local);
       setDataSource('local');
-      message.warning('AI 接口不可用，已使用本地确定性引擎提取 (演示回退)');
+      message.warning(t('aiDraft.msg.extractFallback'));
     } finally {
       setExtractLoading(false);
     }
@@ -391,7 +392,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     onApplyFieldValue?.({ ...field, value: editValue || field.value });
     setEditingFieldId(null);
     setEditValue('');
-    message.success('字段已更新');
+    message.success(t('aiDraft.msg.fieldUpdated'));
   }, [extractResult, editingFieldId, editValue, onApplyFieldValue]);
 
   const handleGenerate = useCallback(async () => {
@@ -410,16 +411,16 @@ export const AIDraftPanelV2: React.FC<Props> = ({
         setDraftResult(res.data);
         setSelectedSegments(new Set(res.data.segments.map((s) => s.id)));
         setDataSource('api');
-        message.success('AI 报告草稿已生成');
+        message.success(t('aiDraft.msg.draftGenerated'));
         return;
       }
-      throw new Error(res.error?.message ?? '接口失败');
+      throw new Error(res.error?.message ?? t('aiDraft.err.apiFailed'));
     } catch {
       const local = localGenerate({ modality, bodyPart, findings, clinicalHistory: clinicalInfo });
       setDraftResult(local);
       setSelectedSegments(new Set(local.segments.map((s) => s.id)));
       setDataSource('local');
-      message.warning('AI 接口不可用，已使用本地确定性引擎生成 (演示回退)');
+      message.warning(t('aiDraft.msg.generateFallback'));
     } finally {
       setDraftLoading(false);
     }
@@ -438,11 +439,11 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     if (!draftResult) return;
     const picked = draftResult.segments.filter((s) => selectedSegments.has(s.id));
     if (picked.length === 0) {
-      message.warning('请至少选择一个段落');
+      message.warning(t('aiDraft.msg.selectSegment'));
       return;
     }
     onApplyDraft?.(picked);
-    message.success(`已应用 ${picked.length} 个段落到编辑器`);
+    message.success(t('aiDraft.msg.appliedSegments', { count: picked.length }));
   }, [draftResult, selectedSegments, onApplyDraft]);
 
   const handleSuggest = useCallback(async () => {
@@ -455,16 +456,16 @@ export const AIDraftPanelV2: React.FC<Props> = ({
         setSuggestResult(res.data);
         setSuggestionActions({});
         setDataSource('api');
-        message.success(`分析完成，共 ${res.data.suggestions.length} 条建议`);
+        message.success(t('aiDraft.msg.suggestDone', { count: res.data.suggestions.length }));
         return;
       }
-      throw new Error(res.error?.message ?? '接口失败');
+      throw new Error(res.error?.message ?? t('aiDraft.err.apiFailed'));
     } catch {
       const local = localSuggest(paragraphs);
       setSuggestResult(local);
       setSuggestionActions({});
       setDataSource('local');
-      message.warning('AI 接口不可用，已使用本地规则分析 (演示回退)');
+      message.warning(t('aiDraft.msg.suggestFallback'));
     } finally {
       setSuggestLoading(false);
     }
@@ -482,12 +483,12 @@ export const AIDraftPanelV2: React.FC<Props> = ({
         sources: [{ kind: 'rule', refId: s.ruleId, description: `修改建议: ${s.title}`, confidence: s.confidence }],
       }]);
     }
-    message.success('已采纳建议');
+    message.success(t('aiDraft.msg.adopted'));
   }, [onApplyDraft]);
 
   const handleIgnoreSuggestion = useCallback((id: string) => {
     setSuggestionActions((prev) => ({ ...prev, [id]: 'ignored' }));
-    message.info('已忽略建议');
+    message.info(t('aiDraft.msg.ignored'));
   }, []);
 
   const resetAll = useCallback(() => {
@@ -496,18 +497,18 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     setSuggestResult(null);
     setSuggestionActions({});
     setSelectedSegments(new Set());
-    message.info('已重置 AI 报告助理');
+    message.info(t('aiDraft.msg.reset'));
   }, []);
 
   const renderSourceContent = (sources: TraceSource[]) => (
     <div className="space-y-1" style={{ maxWidth: 320, fontSize: 11 }}>
-      <div className="font-semibold mb-1" style={{ color: '#475569' }}>信心溯源 ({sources.length})</div>
+      <div className="font-semibold mb-1" style={{ color: '#475569' }}>{t('aiDraft.traceTitle', { count: sources.length })}</div>
       {sources.map((src, i) => (
         <div key={`${src.refId}-${i}`} className="flex items-start gap-1.5" style={{ lineHeight: 1.5 }}>
           <Tag color={SOURCE_KIND_COLOR[src.kind]} style={{ marginRight: 4 }}>{SOURCE_KIND_LABEL[src.kind]}</Tag>
           <div className="flex-1 min-w-0">
             <div className="text-slate-700 truncate" title={src.description}>{src.description}</div>
-            <div className="text-slate-400">refId: {src.refId} · 置信 {(src.confidence * 100).toFixed(0)}%</div>
+            <div className="text-slate-400">refId: {src.refId} · {t('aiDraft.traceConfidence')} {(src.confidence * 100).toFixed(0)}%</div>
           </div>
         </div>
       ))}
@@ -520,11 +521,11 @@ export const AIDraftPanelV2: React.FC<Props> = ({
         size="small"
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
-        placeholder="字段值"
+        placeholder={t('aiDraft.fieldValuePlaceholder')}
       />
       <Space size={4}>
-        <Button size="small" type="primary" onClick={() => handleSaveFieldEdit(field)}>保存</Button>
-        <Button size="small" onClick={() => { setEditingFieldId(null); setEditValue(''); }}>取消</Button>
+        <Button size="small" type="primary" onClick={() => handleSaveFieldEdit(field)}>{t('aiDraft.save')}</Button>
+        <Button size="small" onClick={() => { setEditingFieldId(null); setEditValue(''); }}>{t('aiDraft.cancel')}</Button>
       </Space>
     </div>
   );
@@ -533,42 +534,42 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     <Card
       size="small"
       className="shadow-none"
-      title={<Space size={6}><ScanSearch size={14} color="#4f46e5" /><span className="text-sm font-semibold">结构化字段提取</span><Tag color="geekblue">智能结构化扩展 S-1</Tag></Space>}
-      extra={extractResult ? <Tag color="green">{(extractResult.overallConfidence * 100).toFixed(0)}% 整体置信</Tag> : undefined}
+      title={<Space size={6}><ScanSearch size={14} color="#4f46e5" /><span className="text-sm font-semibold">{t('aiDraft.extract.title')}</span><Tag color="geekblue">{t('aiDraft.extract.tag')}</Tag></Space>}
+      extra={extractResult ? <Tag color="green">{(extractResult.overallConfidence * 100).toFixed(0)}% {t('aiDraft.extract.overallConfidence')}</Tag> : undefined}
       styles={{ body: { padding: 12 } }}
     >
       <Space.Compact style={{ width: '100%', marginBottom: 8 }}>
         <Input.TextArea
           value={findings}
           onChange={(e) => setFindings(e.target.value)}
-          placeholder="粘贴影像所见文本，如: 右肺上叶可见大小约18mm×15mm结节影，边缘毛刺，与既往检查相比无明显变化，考虑周围型肺癌可能。"
+          placeholder={t('aiDraft.extract.placeholder')}
           autoSize={{ minRows: 3, maxRows: 6 }}
           disabled={disabled}
         />
       </Space.Compact>
       <Space>
         <Button type="primary" size="small" icon={<Wand2 size={13} />} onClick={handleExtract} loading={extractLoading} disabled={disabled}>
-          自动提取字段
+          {t('aiDraft.extract.autoExtract')}
         </Button>
         {extractResult && extractResult.fields.length > 0 && (
           <span className="text-[10px] text-slate-400">
-            命中类别: {extractResult.categoriesFound.map((c) => FIELD_CATEGORY_LABEL[c]).join(' / ')}
+            {t('aiDraft.extract.categories')} {extractResult.categoriesFound.map((c) => FIELD_CATEGORY_LABEL[c]).join(' / ')}
           </span>
         )}
       </Space>
       {extractResult && (
         <div className="mt-3">
           {extractResult.fields.length === 0 ? (
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="未识别到结构化字段" style={{ margin: '8px 0' }} />
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('aiDraft.extract.empty')} style={{ margin: '8px 0' }} />
           ) : (
             <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
               {extractResult.fields.map((f) => (
                 <div key={f.id} className="border border-slate-100 rounded p-2">
                   <div className="flex items-center gap-1 mb-1">
                     <Tag color={FIELD_CATEGORY_COLOR[f.category]} style={{ marginRight: 4, fontSize: 10 }}>{f.label}</Tag>
-                    <Tag className="text-[9px]" color={f.source === 'dictionary' ? 'default' : 'purple'}>{f.source === 'dictionary' ? '字典' : '规则'}</Tag>
+                    <Tag className="text-[9px]" color={f.source === 'dictionary' ? 'default' : 'purple'}>{f.source === 'dictionary' ? t('aiDraft.fieldSource.dictionary') : t('aiDraft.fieldSource.rule')}</Tag>
                     {editingFieldId === f.id ? null : (
-                      <Tooltip title="编辑字段值">
+                      <Tooltip title={t('aiDraft.field.editTip')}>
                         <Edit3 size={12} className="ml-auto text-slate-400 cursor-pointer" onClick={() => { setEditingFieldId(f.id); setEditValue(f.value); }} />
                       </Tooltip>
                     )}
@@ -576,7 +577,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
                   {editingFieldId === f.id ? renderFieldEdit(f) : (
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-slate-700 flex-1 truncate" title={f.value}>{f.value}</span>
-                      <Tooltip title={`可追溯: ${f.ruleId} · 来源 ${f.source}`}>
+                      <Tooltip title={t('aiDraft.field.traceTip', { ruleId: f.ruleId, source: f.source })}>
                         <Progress
                           percent={Math.round(f.confidence * 100)}
                           size="small"
@@ -601,11 +602,11 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     <Card
       size="small"
       className="shadow-none"
-      title={<Space size={6}><FileText size={14} color="#7c3aed" /><span className="text-sm font-semibold">AI 报告草稿</span><Tag color="purple">多模态生成 V2</Tag></Space>}
+      title={<Space size={6}><FileText size={14} color="#7c3aed" /><span className="text-sm font-semibold">{t('aiDraft.draft.title')}</span><Tag color="purple">{t('aiDraft.draft.tag')}</Tag></Space>}
       extra={
         draftResult ? (
           <Space size={4}>
-            <Tag color={draftResult.simulated ? 'orange' : 'green'}>{(draftResult.overallConfidence * 100).toFixed(0)}% 信心</Tag>
+            <Tag color={draftResult.simulated ? 'orange' : 'green'}>{(draftResult.overallConfidence * 100).toFixed(0)}% {t('aiDraft.draft.confidence')}</Tag>
             <Tag className="text-[10px]">{draftResult.modelVersion}</Tag>
           </Space>
         ) : undefined
@@ -614,12 +615,12 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     >
       <div className="flex items-center gap-2 mb-2">
         <Button type="primary" size="small" icon={<Wand2 size={13} />} onClick={handleGenerate} loading={draftLoading} disabled={disabled}>
-          一键生成草稿
+          {t('aiDraft.draft.generate')}
         </Button>
         <span className="text-xs text-slate-500">{modality} · {bodyPart}{clinicalInfo ? ` · ${clinicalInfo}` : ''}</span>
-        {draftResult?.simulated && <Tag color="orange" className="text-[10px]" title="接口不可用, 本地确定性回退">演示回退</Tag>}
+        {draftResult?.simulated && <Tag color="orange" className="text-[10px]" title={t('aiDraft.draft.fallbackTip')}>{t('aiDraft.demoFallback')}</Tag>}
       </div>
-      {draftResult && draftResult.segments.length === 0 && <Empty description="无段落" />}
+      {draftResult && draftResult.segments.length === 0 && <Empty description={t('aiDraft.draft.noSegments')} />}
       {draftResult && draftResult.segments.length > 0 && (
         <>
           <div className="space-y-1.5 mb-2">
@@ -632,7 +633,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
                     disabled={disabled}
                   />
                   <span className="text-xs font-semibold text-slate-700">{i + 1}. {seg.heading}</span>
-                  <Tooltip title={`置信度 ${(seg.confidence * 100).toFixed(0)}%`}>
+                  <Tooltip title={t('aiDraft.draft.segmentConfidence', { value: (seg.confidence * 100).toFixed(0) })}>
                     <Progress
                       percent={Math.round(seg.confidence * 100)}
                       size="small"
@@ -643,7 +644,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
                   </Tooltip>
                   <Popover content={renderSourceContent(seg.sources)} title={null} trigger="hover" placement="right">
                     <span className="ml-auto flex items-center gap-1 text-[10px] text-indigo-500 cursor-pointer hover:text-indigo-700">
-                      <Database size={11} />溯源 {seg.sources.length}
+                      <Database size={11} />{t('aiDraft.draft.trace')} {seg.sources.length}
                     </span>
                   </Popover>
                 </div>
@@ -653,9 +654,9 @@ export const AIDraftPanelV2: React.FC<Props> = ({
           </div>
           <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
             <Button type="primary" size="small" icon={<CheckCircle2 size={13} />} onClick={handleApplyDraft} disabled={disabled}>
-              应用所选段落 ({selectedSegments.size})
+              {t('aiDraft.draft.applySelected', { count: selectedSegments.size })}
             </Button>
-            <span className="text-[10px] text-slate-400">段落选择后点击应用写入编辑器 · 悬停「溯源」查看内容来源</span>
+            <span className="text-[10px] text-slate-400">{t('aiDraft.draft.hint')}</span>
           </div>
         </>
       )}
@@ -666,15 +667,15 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     <Card
       size="small"
       className="shadow-none"
-      title={<Space size={6}><ListChecks size={14} color="#0891b2" /><span className="text-sm font-semibold">修改建议</span><Tag color="cyan">确定性规则</Tag></Space>}
-      extra={suggestResult ? <Tag color="blue">完善度 {suggestResult.overallScore} 分</Tag> : undefined}
+      title={<Space size={6}><ListChecks size={14} color="#0891b2" /><span className="text-sm font-semibold">{t('aiDraft.suggest.title')}</span><Tag color="cyan">{t('aiDraft.suggest.tag')}</Tag></Space>}
+      extra={suggestResult ? <Tag color="blue">{t('aiDraft.suggest.score', { score: suggestResult.overallScore })}</Tag> : undefined}
       styles={{ body: { padding: 12 } }}
     >
       <Button size="small" icon={<ShieldCheck size={13} />} onClick={handleSuggest} loading={suggestLoading} disabled={disabled}>
-        分析修改建议
+        {t('aiDraft.suggest.analyze')}
       </Button>
       {suggestResult && suggestResult.suggestions.length === 0 && (
-        <Alert type="success" showIcon title="未发现需要修改的问题" className="mt-2" />
+        <Alert type="success" showIcon title={t('aiDraft.suggest.noIssues')} className="mt-2" />
       )}
       {suggestResult && suggestResult.suggestions.length > 0 && (
         <div className="space-y-1.5 mt-2">
@@ -685,19 +686,19 @@ export const AIDraftPanelV2: React.FC<Props> = ({
               <div key={s.id} className={`border rounded p-2 ${action === 'adopted' ? 'border-green-200 bg-green-50/50' : 'border-slate-100'}`}>
                 <div className="flex items-center gap-1.5 mb-1">
                   <Tag color={SEVERITY_COLOR[s.severity]} style={{ marginRight: 4, fontSize: 10 }}>
-                    {s.severity === 'critical' ? '必改' : s.severity === 'warning' ? '建议' : '提示'}
+                    {s.severity === 'critical' ? t('aiDraft.severity.critical') : s.severity === 'warning' ? t('aiDraft.severity.warning') : t('aiDraft.severity.info')}
                   </Tag>
                   <span className="text-xs font-semibold text-slate-700">{s.title}</span>
                   <span className="text-[10px] text-slate-400 ml-auto">{(s.confidence * 100).toFixed(0)}% · {s.ruleId}</span>
                 </div>
                 <div className="text-xs text-slate-600 mb-1">{s.description}</div>
                 {s.suggestedText && (
-                  <div className="text-[11px] text-indigo-600 bg-indigo-50/60 rounded px-2 py-1 mb-1.5">建议文本: {s.suggestedText}</div>
+                  <div className="text-[11px] text-indigo-600 bg-indigo-50/60 rounded px-2 py-1 mb-1.5">{t('aiDraft.suggest.suggestedText')} {s.suggestedText}</div>
                 )}
                 {action !== 'adopted' && (
                   <Space size={4}>
-                    <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />} onClick={() => handleAdoptSuggestion(s)} disabled={disabled}>采纳</Button>
-                    <Button size="small" icon={<XCircle size={12} />} onClick={() => handleIgnoreSuggestion(s.id)} disabled={disabled}>忽略</Button>
+                    <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />} onClick={() => handleAdoptSuggestion(s)} disabled={disabled}>{t('aiDraft.adopt')}</Button>
+                    <Button size="small" icon={<XCircle size={12} />} onClick={() => handleIgnoreSuggestion(s.id)} disabled={disabled}>{t('aiDraft.ignore')}</Button>
                   </Space>
                 )}
               </div>
@@ -715,16 +716,16 @@ export const AIDraftPanelV2: React.FC<Props> = ({
       title={
         <div className="flex items-center gap-2">
           <Sparkles size={15} color="#4f46e5" />
-          <span className="font-semibold">AI 报告助理 V2</span>
+          <span className="font-semibold">{t('aiDraft.panel.title')}</span>
           <Tag color="indigo">v2.0.0</Tag>
-          <Tag color={dataSource === 'api' ? 'green' : 'orange'} title={dataSource === 'api' ? '后端确定性引擎' : '接口不可用, 本地回退'}>
-            {dataSource === 'api' ? '确定性引擎' : '演示回退'}
+          <Tag color={dataSource === 'api' ? 'green' : 'orange'} title={dataSource === 'api' ? t('aiDraft.panel.engineTip') : t('aiDraft.draft.fallbackTip')}>
+            {dataSource === 'api' ? t('aiDraft.panel.engine') : t('aiDraft.demoFallback')}
           </Tag>
         </div>
       }
       extra={
         <Button size="small" icon={<RefreshCw size={12} />} onClick={resetAll} disabled={disabled}>
-          重置
+          {t('aiDraft.reset')}
         </Button>
       }
     >
@@ -732,7 +733,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
         type="warning"
         showIcon
         icon={<ShieldCheck size={14} />}
-        title="AI 草稿与字段仅作临床参考，最终诊断须由执业医师确认"
+        title={t('aiDraft.disclaimer')}
         style={{ fontSize: 11, marginBottom: 8 }}
       />
       {renderExtractSection()}

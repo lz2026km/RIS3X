@@ -8,6 +8,7 @@ import type { Dayjs } from 'dayjs'
 import { Calendar as CalIcon, Plus, Clock, MapPin, ListChecks } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export interface Appointment {
   id: string
@@ -41,19 +42,19 @@ export interface Device {
 }
 
 const STATUS_META = {
-  SCHEDULED: { color: 'blue', label: '已预约' },
-  CONFIRMED: { color: 'cyan', label: '已确认' },
-  CHECKED_IN: { color: 'purple', label: '已签到' },
-  IN_PROGRESS: { color: 'gold', label: '检查中' },
-  COMPLETED: { color: 'green', label: '已完成' },
-  CANCELLED: { color: 'red', label: '已取消' },
-  NO_SHOW: { color: 'magenta', label: '未到' },
+  SCHEDULED: { color: 'blue', label: t('appointmentCalendar.status.scheduled') },
+  CONFIRMED: { color: 'cyan', label: t('appointmentCalendar.status.confirmed') },
+  CHECKED_IN: { color: 'purple', label: t('appointmentCalendar.status.checkedIn') },
+  IN_PROGRESS: { color: 'gold', label: t('appointmentCalendar.status.inProgress') },
+  COMPLETED: { color: 'green', label: t('appointmentCalendar.status.completed') },
+  CANCELLED: { color: 'red', label: t('appointmentCalendar.status.cancelled') },
+  NO_SHOW: { color: 'magenta', label: t('appointmentCalendar.status.noShow') },
 } as const
 
 const PRIORITY_META = {
-  ROUTINE: { color: 'default', label: '常规' },
-  URGENT: { color: 'orange', label: '加急' },
-  STAT: { color: 'red', label: '急诊' },
+  ROUTINE: { color: 'default', label: t('appointmentCalendar.priority.routine') },
+  URGENT: { color: 'orange', label: t('appointmentCalendar.priority.urgent') },
+  STAT: { color: 'red', label: t('appointmentCalendar.priority.stat') },
 } as const
 
 export interface AppointmentCalendarProps {
@@ -102,7 +103,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             </li>
           )
         })}
-        {dayList.length > 3 && <li style={{ fontSize: 12, color: '#94a3b8' }}>+{dayList.length - 3} 更多</li>}
+        {dayList.length > 3 && <li style={{ fontSize: 12, color: '#94a3b8' }}>{t('appointmentCalendar.more', { count: dayList.length - 3 })}</li>}
       </ul>
     )
   }
@@ -131,7 +132,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     })
     setCreateOpen(false)
     form.resetFields()
-    void message.success('已创建预约')
+    void message.success(t('appointmentCalendar.created'))
   }
 
   return (
@@ -139,48 +140,48 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总预约" value={stats.total} prefix={<ListChecks size={14} />} />
+            <Statistic title={t('appointmentCalendar.stat.total')} value={stats.total} prefix={<ListChecks size={14} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="今日" value={stats.today} prefix={<CalIcon size={14} color="#3b82f6" />} />
+            <Statistic title={t('appointmentCalendar.stat.today')} value={stats.today} prefix={<CalIcon size={14} color="#3b82f6" />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="未来待开始" value={stats.upcoming} styles={{ content: {  color: '#ca8a04'  } }} />
+            <Statistic title={t('appointmentCalendar.stat.upcoming')} value={stats.upcoming} styles={{ content: {  color: '#ca8a04'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="已完成" value={stats.completed} styles={{ content: {  color: '#16a34a'  } }} />
+            <Statistic title={t('appointmentCalendar.stat.completed')} value={stats.completed} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
       </Row>
 
       <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'space-between' }}>
         <Space>
-          <span>设备:</span>
+          <span>{t('appointmentCalendar.deviceLabel')}</span>
           <Select
             value={deviceFilter}
             onChange={setDeviceFilter}
             style={{ width: 180 }}
             data-testid="device-filter"
             options={[
-              { value: 'ALL', label: '全部设备' },
+              { value: 'ALL', label: t('appointmentCalendar.allDevices') },
               ...devices.map((d) => ({ value: d.id, label: `${d.name} (${d.modality})` })),
             ]}
           />
         </Space>
         <Button type="primary" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)} data-testid="apt-create-btn">
-          新建预约
+          {t('appointmentCalendar.newAppointment')}
         </Button>
       </Space>
 
       <Row gutter={12}>
         <Col span={16}>
-          <Card size="small" title="日历视图">
+          <Card size="small" title={t('appointmentCalendar.calendarView')}>
             <Calendar
               value={selectedDate}
               onSelect={setSelectedDate}
@@ -203,7 +204,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             data-testid="apt-day-list"
           >
             {dayAppointments.length === 0 ? (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该日无预约" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('appointmentCalendar.noAppointments')} />
             ) : (
               <Space orientation="vertical" size={6} style={{ width: '100%' }}>
                 {dayAppointments
@@ -231,23 +232,23 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                           <MapPin size={10} /> {a.deviceName} {a.room ? `(${a.room})` : ''}
                         </div>
                         <Space size={2} style={{ marginTop: 4 }}>
-                          <Tooltip title="开始检查">
+                          <Tooltip title={t('appointmentCalendar.startExam')}>
                             <Button
                               size="small"
                               type="text"
                               onClick={() => onUpdate?.(a.id, { status: 'IN_PROGRESS' })}
                               data-testid={`apt-start-${a.id}`}
                             >
-                              开始
+                              {t('appointmentCalendar.start')}
                             </Button>
                           </Tooltip>
-                          <Tooltip title="完成">
+                          <Tooltip title={t('appointmentCalendar.complete')}>
                             <Button
                               size="small"
                               type="text"
                               onClick={() => onUpdate?.(a.id, { status: 'COMPLETED' })}
                             >
-                              完成
+                              {t('appointmentCalendar.complete')}
                             </Button>
                           </Tooltip>
                           <Button
@@ -257,7 +258,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                             onClick={() => onCancel?.(a.id)}
                             data-testid={`apt-cancel-${a.id}`}
                           >
-                            取消
+                            {t('appointmentCalendar.cancel')}
                           </Button>
                         </Space>
                       </Card>
@@ -270,7 +271,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       </Row>
 
       <Modal
-        title="新建预约"
+        title={t('appointmentCalendar.newAppointment')}
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
         onOk={() => form.submit()}
@@ -280,51 +281,51 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         <Form form={form} onFinish={handleCreate} layout="vertical">
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}>
+              <Form.Item name="patientName" label={t('appointmentCalendar.form.patientName')} rules={[{ required: true }]}>
                 <Input data-testid="apt-frm-name" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="patientId" label="患者ID" rules={[{ required: true }]}>
+              <Form.Item name="patientId" label={t('appointmentCalendar.form.patientId')} rules={[{ required: true }]}>
                 <Input data-testid="apt-frm-id" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="date" label="日期" rules={[{ required: true }]} initialValue={dayjs()}>
+              <Form.Item name="date" label={t('appointmentCalendar.form.date')} rules={[{ required: true }]} initialValue={dayjs()}>
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="startTime" label="开始时间" rules={[{ required: true }]} initialValue={dayjs().hour(9).minute(0)}>
+              <Form.Item name="startTime" label={t('appointmentCalendar.form.startTime')} rules={[{ required: true }]} initialValue={dayjs().hour(9).minute(0)}>
                 <TimePicker style={{ width: '100%' }} format="HH:mm" minuteStep={15} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="endTime" label="结束时间" rules={[{ required: true }]} initialValue={dayjs().hour(9).minute(30)}>
+              <Form.Item name="endTime" label={t('appointmentCalendar.form.endTime')} rules={[{ required: true }]} initialValue={dayjs().hour(9).minute(30)}>
                 <TimePicker style={{ width: '100%' }} format="HH:mm" minuteStep={15} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+              <Form.Item name="modality" label={t('appointmentCalendar.form.modality')} rules={[{ required: true }]}>
                 <Select
                   options={['CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => ({ value: m, label: m }))}
                 />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="bodyPart" label="部位">
+              <Form.Item name="bodyPart" label={t('appointmentCalendar.form.bodyPart')}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="priority" label="优先级" initialValue="ROUTINE">
+              <Form.Item name="priority" label={t('appointmentCalendar.form.priority')} initialValue="ROUTINE">
                 <Select
                   options={Object.entries(PRIORITY_META).map(([k, v]) => ({ value: k, label: v.label }))}
                 />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item name="deviceId" label="设备" rules={[{ required: true }]}>
+              <Form.Item name="deviceId" label={t('appointmentCalendar.form.device')} rules={[{ required: true }]}>
                 <Select
                   data-testid="apt-frm-device"
                   options={devices.map((d) => ({ value: d.id, label: `${d.name} (${d.modality}) ${d.room ? '-' + d.room : ''}` }))}
@@ -332,7 +333,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item name="note" label="备注">
+              <Form.Item name="note" label={t('appointmentCalendar.form.note')}>
                 <Input.TextArea rows={2} />
               </Form.Item>
             </Col>

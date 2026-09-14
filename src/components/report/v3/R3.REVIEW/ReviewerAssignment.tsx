@@ -14,19 +14,20 @@ import {
 } from 'lucide-react';
 import { reviewService } from '../../../../services/review/reviewService';
 import type { Reviewer, ReviewerAssignment, ReviewTask, ReviewStage } from '../../../types/R3/R3.REVIEW';
+import { t } from '../../../../i18n/appI18n';
 
 const STAGE_META: Record<ReviewStage, { label: string; color: string }> = {
-  initial: { label: '初审', color: 'orange' },
-  final: { label: '终审', color: 'purple' },
-  cosign: { label: '双签', color: 'magenta' },
-  sign: { label: '签发', color: 'pink' },
+  initial: { label: 'reportReview.stage.initial', color: 'orange' },
+  final: { label: 'reportReview.stage.final', color: 'purple' },
+  cosign: { label: 'reportReview.stage.cosign', color: 'magenta' },
+  sign: { label: 'reportReview.stage.sign', color: 'pink' },
 };
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
-  online: { color: 'green', label: '在线' },
-  away: { color: 'gold', label: '离开' },
-  busy: { color: 'red', label: '忙碌' },
-  offline: { color: 'default', label: '离线' },
+  online: { color: 'green', label: 'reportReview.assign.status.online' },
+  away: { color: 'gold', label: 'reportReview.assign.status.away' },
+  busy: { color: 'red', label: 'reportReview.assign.status.busy' },
+  offline: { color: 'default', label: 'reportReview.assign.status.offline' },
 };
 
 type Strategy = 'manual' | 'auto-workload' | 'auto-shift' | 'round-robin';
@@ -50,7 +51,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
       const data = await reviewService.listReviewers();
       setReviewers(data);
     } catch (e) {
-      message.error('加载审核员失败');
+      message.error(t('reportReview.assign.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -63,7 +64,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
 
   const handleAssign = async () => {
     if (!task || !selected) {
-      message.warning('请选择审核员');
+      message.warning(t('reportReview.assign.selectReviewer'));
       return;
     }
     const reviewer = reviewers.find((r) => r.id === selected);
@@ -77,10 +78,10 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         currentUserId,
         strategy,
       );
-      message.success(`已指派给 ${reviewer.name}`);
+      message.success(t('reportReview.assign.assignedTo', { name: reviewer.name }));
       onAssigned?.(result);
     } catch (e) {
-      message.error('指派失败');
+      message.error(t('reportReview.assign.assignFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -89,7 +90,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
   const autoAssign = (mode: 'workload' | 'shift' | 'round-robin') => {
     const available = reviewers.filter((r) => r.status === 'online' && r.currentLoad < r.maxLoad);
     if (available.length === 0) {
-      message.warning('暂无可用审核员');
+      message.warning(t('reportReview.assign.noAvailable'));
       return;
     }
     let chosen: Reviewer | undefined;
@@ -111,7 +112,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
             ? 'round-robin'
             : 'auto-shift',
       );
-      message.success(`自动选择 ${chosen.name}`);
+      message.success(t('reportReview.assign.autoSelected', { name: chosen.name }));
     }
   };
 
@@ -127,7 +128,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
   };
 
   return (
-    <div data-testid="reviewer-assignment" role="region" aria-label="审核员指派">
+    <div data-testid="reviewer-assignment" role="region" aria-label={t('reportReview.assign.title')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #10b981 0%, #0891b2 100%)',
@@ -140,7 +141,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <UserCheck size={18} />
-            <strong style={{ fontSize: 16 }}>审核员指派</strong>
+            <strong style={{ fontSize: 16 }}>{t('reportReview.assign.title')}</strong>
             <Tag color="purple">R3.REVIEW.020</Tag>
           </Space>
         </Space>
@@ -154,14 +155,14 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
               fontSize: 12,
             }}
           >
-            <strong>当前任务：</strong>
-            {task.patientName} · {task.modality} {task.bodyPart} · {STAGE_META[task.stage].label}
+            <strong>{t('reportReview.assign.currentTask')}</strong>
+            {task.patientName} · {task.modality} {task.bodyPart} · {t(STAGE_META[task.stage].label)}
           </div>
         )}
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>可用</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.assign.available')}</span>}
               value={reviewers.filter((r) => r.status === 'online').length}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Users size={14} />}
@@ -169,7 +170,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
           </Col>
           <Col span={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>总待审</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.assign.totalPending')}</span>}
               value={reviewers.reduce((a, r) => a + r.pendingCount, 0)}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
@@ -177,7 +178,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
           </Col>
           <Col span={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>今日完成</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.assign.completedToday')}</span>}
               value={reviewers.reduce((a, r) => a + r.completedToday, 0)}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Zap size={14} />}
@@ -186,19 +187,19 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         </Row>
       </div>
 
-      <Card title="自动分配策略" size="small" style={{ marginBottom: 12 }}>
+      <Card title={t('reportReview.assign.autoStrategy')} size="small" style={{ marginBottom: 12 }}>
         <Space>
           <Button icon={<Briefcase size={12} />} onClick={() => autoAssign('workload')}>
-            按工作量
+            {t('reportReview.assign.byWorkload')}
           </Button>
           <Button icon={<Shuffle size={12} />} onClick={() => autoAssign('round-robin')}>
-            轮询
+            {t('reportReview.assign.roundRobin')}
           </Button>
           <Button icon={<Target size={12} />} onClick={() => autoAssign('shift')}>
-            按班次
+            {t('reportReview.assign.byShift')}
           </Button>
           <span style={{ fontSize: 12, color: '#64748b' }}>
-            当前策略：<Tag color="cyan">{strategy}</Tag>
+            {t('reportReview.assign.currentStrategy')}<Tag color="cyan">{strategy}</Tag>
           </span>
         </Space>
       </Card>
@@ -207,7 +208,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         title={
           <Space>
             <Users size={14} />
-            审核员列表（点击选择）
+            {t('reportReview.assign.reviewerList')}
           </Space>
         }
         size="small"
@@ -229,7 +230,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
               }}
               data-testid={`reviewer-${r.id}`}
               role="button"
-              aria-label={`审核员 ${r.name}`}
+              aria-label={t('reportReview.assign.reviewerAria', { name: r.name })}
               tabIndex={0}
             >
               <List.Item.Meta
@@ -263,14 +264,14 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
                   <Space>
                     <strong>{r.name}</strong>
                     <Tag color="purple">{r.titleLabel}</Tag>
-                    <Tag color={STATUS_META[r.status].color}>{STATUS_META[r.status].label}</Tag>
-                    {selected === r.id && <Tag color="green">已选</Tag>}
+                    <Tag color={STATUS_META[r.status].color}>{t(STATUS_META[r.status].label)}</Tag>
+                    {selected === r.id && <Tag color="green">{t('reportReview.assign.selected')}</Tag>}
                   </Space>
                 }
                 description={
                   <div>
                     <div style={{ fontSize: 12, color: '#64748b' }}>
-                      专科：{r.specialty.join('/')}
+                      {t('reportReview.assign.specialty')}{r.specialty.join('/')}
                     </div>
                     <div
                       style={{
@@ -282,13 +283,13 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
                       }}
                     >
                       <span>
-                        负载：{r.currentLoad}/{r.maxLoad}
+                        {t('reportReview.assign.load')}{r.currentLoad}/{r.maxLoad}
                       </span>
                       {renderLoadBar(r)}
-                      <span>待审 {r.pendingCount}</span>
-                      <span>今日 {r.completedToday}</span>
+                      <span>{t('reportReview.assign.pending')} {r.pendingCount}</span>
+                      <span>{t('reportReview.assign.today')} {r.completedToday}</span>
                       <span style={{ color: r.onTimeRate >= 90 ? '#10b981' : '#f59e0b' }}>
-                        按时 {r.onTimeRate}%
+                        {t('reportReview.assign.onTime')} {r.onTimeRate}%
                       </span>
                     </div>
                   </div>
@@ -303,7 +304,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
                   setSelected(r.id);
                 }}
               >
-                选择
+                {t('reportReview.assign.select')}
               </Button>
             </List.Item>
           )}
@@ -319,15 +320,15 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
               loading={submitting}
               onClick={handleAssign}
             >
-              确认指派 {reviewers.find((r) => r.id === selected)?.name}
+              {t('reportReview.assign.confirmAssign')} {reviewers.find((r) => r.id === selected)?.name}
             </Button>
-            <Button onClick={() => setSelected(null)}>取消</Button>
+            <Button onClick={() => setSelected(null)}>{t('reportReview.assign.cancel')}</Button>
           </Space>
         </Card>
       )}
 
       <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
-        指派策略：{strategy === 'auto-workload' ? '按工作量均衡' : strategy}
+        {t('reportReview.assign.assignStrategy')}{strategy === 'auto-workload' ? t('reportReview.assign.balancedWorkload') : strategy}
       </div>
     </div>
   );

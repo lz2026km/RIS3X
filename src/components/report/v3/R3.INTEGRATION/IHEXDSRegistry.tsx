@@ -10,6 +10,7 @@ import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Emp
 import { Server, Download, Copy, Eye, CheckCircle2, FileText, Braces, Globe, FolderTree, Link2, Plus, Search } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 interface Props {
   reportId?: string;
@@ -38,12 +39,12 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
   const handleValidate = useCallback(() => {
     if (!selected) return;
     const r = validateXds(selected);
-    if (r.passed) message.success('XDS.b 注册验证通过');
-    else message.error('XDS.b 注册验证失败');
+    if (r.passed) message.success(t('reportIntegration.xds.validatePassed'));
+    else message.error(t('reportIntegration.xds.validateFailed'));
   }, [selected]);
 
   const handleRegister = useCallback(async () => {
-    if (!reportId) { message.warning('请先选择报告'); return; }
+    if (!reportId) { message.warning(t('reportIntegration.selectReport')); return; }
     setRegistering(true);
     const reg = await registerToXds({
       reportId, patientId: patientId ?? 'p-038', patientName: '张三',
@@ -58,20 +59,20 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
     setSelectedId(reg.id);
     setRegistering(false);
     setShowRegister(false);
-    message.success('已注册到 XDS.b Registry');
+    message.success(t('reportIntegration.xds.registered'));
     onRegister?.(reg);
   }, [reportId, patientId, genForm, onRegister]);
 
   const handleQuery = useCallback(async () => {
     const results = await queryXdsRegistry(queryPatientId);
     setQueryResults(results);
-    message.success(`查询到 ${results.length} 个文档`);
+    message.success(t('reportIntegration.xds.queryFound', { count: results.length }));
   }, [queryPatientId]);
 
   const copyXml = useCallback(() => {
     if (!selected) return;
     navigator.clipboard.writeText(buildXdsSubmitTransactionRequest(selected));
-    message.success('ebXML 已复制');
+    message.success(t('reportIntegration.xds.ebxmlCopied'));
   }, [selected]);
 
   const downloadXml = useCallback(() => {
@@ -82,22 +83,22 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
     const a = document.createElement('a');
     a.href = url; a.download = `${selected.id}.xml`; a.click();
     URL.revokeObjectURL(url);
-    message.success('ebXML 已下载');
+    message.success(t('reportIntegration.xds.ebxmlDownloaded'));
   }, [selected]);
 
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title="注册库" value={registries.length} prefix={<Server className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="文档条目" value={registries.reduce((a, r) => a + r.documentEntries.length, 0)} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="文件夹" value={registries.reduce((a, r) => a + r.folders.length, 0)} prefix={<FolderTree className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="关联" value={registries.reduce((a, r) => a + r.associations.length, 0)} prefix={<Link2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.registries')} value={registries.length} prefix={<Server className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.documentEntries')} value={registries.reduce((a, r) => a + r.documentEntries.length, 0)} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.folders')} value={registries.reduce((a, r) => a + r.folders.length, 0)} prefix={<FolderTree className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.associations')} value={registries.reduce((a, r) => a + r.associations.length, 0)} prefix={<Link2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-4 gap-3">
         <Card size="small" className="shadow-sm" title={<Space><Server className="w-4 h-4" /><span>XDS Registry</span></Space>} extra={
           <Space>
-            <Button size="small" type="primary" icon={<Plus className="w-3 h-3" />} onClick={() => setShowRegister(true)} disabled={!reportId}>注册</Button>
+            <Button size="small" type="primary" icon={<Plus className="w-3 h-3" />} onClick={() => setShowRegister(true)} disabled={!reportId}>{t('reportIntegration.register')}</Button>
           </Space>
         }>
           <div className="space-y-1.5 max-h-[500px] overflow-y-auto">
@@ -109,13 +110,13 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
               >
                 <div className="flex items-center justify-between mb-1">
                   <Tag color="red">XDS.b</Tag>
-                  {r.responses[0]?.rs === 'Success' ? <Tag color="green" icon={<CheckCircle2 className="w-3 h-3" />}>成功</Tag> : <Tag color="red">失败</Tag>}
+                  {r.responses[0]?.rs === 'Success' ? <Tag color="green" icon={<CheckCircle2 className="w-3 h-3" />}>{t('reportIntegration.success')}</Tag> : <Tag color="red">{t('reportIntegration.failed')}</Tag>}
                 </div>
                 <div className="text-sm font-mono truncate">{r.id}</div>
-                <div className="text-xs text-slate-500 truncate">患者: {r.patientId}</div>
+                <div className="text-xs text-slate-500 truncate">{t('reportIntegration.patient')}: {r.patientId}</div>
                 <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400">
-                  <span>{r.documentEntries.length} 文档</span>
-                  <span>{r.folders.length} 文件夹</span>
+                  <span>{t('reportIntegration.xds.documents', { count: r.documentEntries.length })}</span>
+                  <span>{t('reportIntegration.xds.folders', { count: r.folders.length })}</span>
                 </div>
               </div>
             ))}
@@ -124,13 +125,13 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
 
         <Card size="small" className="col-span-3 shadow-sm" title={
           <div className="flex items-center justify-between">
-            <Space><Globe className="w-4 h-4" /><span>XDS Registry 详情</span>{selected && <Tag color="red">{selected.registryId}</Tag>}</Space>
+            <Space><Globe className="w-4 h-4" /><span>{t('reportIntegration.xds.detailTitle')}</span>{selected && <Tag color="red">{selected.registryId}</Tag>}</Space>
             {selected && (
               <Space>
-                <Button size="small" icon={<CheckCircle2 className="w-3 h-3" />} onClick={handleValidate}>验证</Button>
-                <Button size="small" icon={<Eye className="w-3 h-3" />} onClick={() => setShowXml(true)}>查看 ebXML</Button>
-                <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={copyXml}>复制 ebXML</Button>
-                <Button size="small" type="primary" icon={<Download className="w-3 h-3" />} onClick={downloadXml}>下载</Button>
+                <Button size="small" icon={<CheckCircle2 className="w-3 h-3" />} onClick={handleValidate}>{t('reportIntegration.validate')}</Button>
+                <Button size="small" icon={<Eye className="w-3 h-3" />} onClick={() => setShowXml(true)}>{t('reportIntegration.xds.viewEbxml')}</Button>
+                <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={copyXml}>{t('reportIntegration.xds.copyEbxml')}</Button>
+                <Button size="small" type="primary" icon={<Download className="w-3 h-3" />} onClick={downloadXml}>{t('reportIntegration.download')}</Button>
               </Space>
             )}
           </div>
@@ -140,7 +141,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
               items={[
                 {
                   key: 'overview',
-                  label: '概览',
+                  label: t('reportIntegration.tab.overview'),
                   children: (
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-2 text-xs">
@@ -149,7 +150,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                           <div className="font-mono text-red-600">{selected.registryId}</div>
                         </div>
                         <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">主社区</div>
+                          <div className="text-slate-500">{t('reportIntegration.xds.homeCommunity')}</div>
                           <div className="font-mono text-xs">{selected.homeCommunityId}</div>
                         </div>
                         <div className="p-2 bg-slate-50 rounded">
@@ -161,11 +162,11 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                           <div className="font-mono text-xs">{selected.repositoryUniqueIds.join(', ')}</div>
                         </div>
                         <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">注册时间</div>
+                          <div className="text-slate-500">{t('reportIntegration.xds.registeredAt')}</div>
                           <div>{new Date(selected.registeredAt).toLocaleString()}</div>
                         </div>
                         <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">注册节点</div>
+                          <div className="text-slate-500">{t('reportIntegration.xds.registeredBy')}</div>
                           <div>{selected.registeredBy}</div>
                         </div>
                       </div>
@@ -176,11 +177,11 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                       <div className="p-2 bg-slate-50 rounded text-xs space-y-1">
                         <div><b>EntryUUID:</b> <span className="font-mono">{selected.submissionSet.entryUUID}</span></div>
                         <div><b>Title:</b> {selected.submissionSet.title} / {selected.submissionSet.titleEn}</div>
-                        <div><b>类型:</b> <Tag>{selected.submissionSet.submissionSetType}</Tag></div>
-                        <div><b>作者:</b> {selected.submissionSet.author.map((a) => a.authorPerson).join(', ')}</div>
+                        <div><b>{t('reportIntegration.type')}:</b> <Tag>{selected.submissionSet.submissionSetType}</Tag></div>
+                        <div><b>{t('reportIntegration.cda.author')}:</b> {selected.submissionSet.author.map((a) => a.authorPerson).join(', ')}</div>
                       </div>
 
-                      <h5 className="text-sm font-semibold mt-2">DocumentEntry ({selected.documentEntries.length})</h5>
+                      <h5 className="text-sm font-semibold mt-2">{t('reportIntegration.xds.documentEntryCount', { count: selected.documentEntries.length })}</h5>
                       <Table
                         size="small"
                         rowKey="entryUUID"
@@ -198,7 +199,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                         ]}
                       />
 
-                      <h5 className="text-sm font-semibold mt-2">Folders ({selected.folders.length})</h5>
+                      <h5 className="text-sm font-semibold mt-2">{t('reportIntegration.xds.foldersCount', { count: selected.folders.length })}</h5>
                       <div className="space-y-1">
                         {selected.folders.map((f) => (
                           <div key={f.entryUUID} className="p-1.5 bg-slate-50 rounded text-xs flex items-center gap-2">
@@ -210,7 +211,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                         ))}
                       </div>
 
-                      <h5 className="text-sm font-semibold mt-2">Associations ({selected.associations.length})</h5>
+                      <h5 className="text-sm font-semibold mt-2">{t('reportIntegration.xds.associationsCount', { count: selected.associations.length })}</h5>
                       <div className="space-y-1">
                         {selected.associations.map((a) => (
                           <div key={a.entryUUID} className="p-1.5 bg-slate-50 rounded text-xs flex items-center gap-2">
@@ -234,15 +235,15 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                 },
                 {
                   key: 'query',
-                  label: '存储查询',
+                  label: t('reportIntegration.xds.storedQuery'),
                   children: (
                     <div className="space-y-3">
                       <div className="flex items-end gap-2">
                         <div className="flex-1">
-                          <div className="text-xs text-slate-500 mb-1">按患者 ID 查询</div>
+                          <div className="text-xs text-slate-500 mb-1">{t('reportIntegration.xds.queryByPatientId')}</div>
                           <Input value={queryPatientId} onChange={(e) => setQueryPatientId(e.target.value)} />
                         </div>
-                        <Button type="primary" icon={<Search className="w-3 h-3" />} onClick={handleQuery}>查询</Button>
+                        <Button type="primary" icon={<Search className="w-3 h-3" />} onClick={handleQuery}>{t('reportIntegration.query')}</Button>
                       </div>
                       {queryResults.length > 0 && (
                         <Table size="small" rowKey="entryUUID" dataSource={queryResults} pagination={false} scroll={{ x: 'max-content' }} columns={[
@@ -254,7 +255,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                         ]} />
                       )}
                       <Divider className="my-2" />
-                      <div className="text-xs font-semibold text-slate-600 mb-1">查询 XML 模板:</div>
+                      <div className="text-xs font-semibold text-slate-600 mb-1">{t('reportIntegration.xds.queryXmlTemplate')}</div>
                       <pre className="bg-slate-900 text-slate-100 p-2 rounded text-xs overflow-auto font-mono">
                         {buildFindDocumentsQuery(queryPatientId, "urn:ihe:iti:2017:Status:Approved")}
                       </pre>
@@ -263,24 +264,24 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                 },
               ]}
             />
-          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择 Registry" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportIntegration.xds.selectRegistry')} />}
         </Card>
       </div>
 
-      <Modal title={<Space><Server className="w-4 h-4" /><span>注册到 XDS.b Registry</span></Space>} open={showRegister} onCancel={() => setShowRegister(false)} footer={null}>
+      <Modal title={<Space><Server className="w-4 h-4" /><span>{t('reportIntegration.xds.registerTitle')}</span></Space>} open={showRegister} onCancel={() => setShowRegister(false)} footer={null}>
         <Form layout="vertical">
-          <Form.Item label="标题"><Input value={genForm.title} onChange={(e) => setGenForm((f) => ({ ...f, title: e.target.value }))} /></Form.Item>
-          <Form.Item label="英文标题"><Input value={genForm.titleEn} onChange={(e) => setGenForm((f) => ({ ...f, titleEn: e.target.value }))} /></Form.Item>
-          <Form.Item label="注释"><Input.TextArea rows={2} value={genForm.comments} onChange={(e) => setGenForm((f) => ({ ...f, comments: e.target.value }))} /></Form.Item>
+          <Form.Item label={t('reportIntegration.cda.titleLabel')}><Input value={genForm.title} onChange={(e) => setGenForm((f) => ({ ...f, title: e.target.value }))} /></Form.Item>
+          <Form.Item label={t('reportIntegration.cda.titleEnLabel')}><Input value={genForm.titleEn} onChange={(e) => setGenForm((f) => ({ ...f, titleEn: e.target.value }))} /></Form.Item>
+          <Form.Item label={t('reportIntegration.comments')}><Input.TextArea rows={2} value={genForm.comments} onChange={(e) => setGenForm((f) => ({ ...f, comments: e.target.value }))} /></Form.Item>
           <Form.Item label="Source ID"><Input value={genForm.sourceId} onChange={(e) => setGenForm((f) => ({ ...f, sourceId: e.target.value }))} /></Form.Item>
         </Form>
         <div className="flex justify-end gap-2">
-          <Button onClick={() => setShowRegister(false)}>取消</Button>
-          <Button type="primary" onClick={handleRegister} loading={registering}>注册</Button>
+          <Button onClick={() => setShowRegister(false)}>{t('reportIntegration.cancel')}</Button>
+          <Button type="primary" onClick={handleRegister} loading={registering}>{t('reportIntegration.register')}</Button>
         </div>
       </Modal>
 
-      <Modal title={<Space><Braces className="w-4 h-4" /><span>ebXML 2.1 提交包</span></Space>} open={showXml} onCancel={() => setShowXml(false)} footer={null} width={900}>
+      <Modal title={<Space><Braces className="w-4 h-4" /><span>{t('reportIntegration.xds.ebxmlPackage')}</span></Space>} open={showXml} onCancel={() => setShowXml(false)} footer={null} width={900}>
         {selected && <pre className="bg-slate-900 text-slate-100 p-3 rounded text-xs overflow-auto max-h-[600px] font-mono">{buildXdsSubmitTransactionRequest(selected)}</pre>}
       </Modal>
     </div>

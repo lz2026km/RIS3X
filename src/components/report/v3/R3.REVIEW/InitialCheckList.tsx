@@ -7,35 +7,36 @@ import { List, Tag, Space, Button, Empty, Input, Select, Statistic, Row, Col, To
 import { Eye, AlertTriangle, Search, FileText, Filter, Clock, User, AlertCircle, ListChecks, Sparkles, ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Inbox } from 'lucide-react'
+import { t } from '../../../../i18n/appI18n';
 
 const STAGE_META: Record<ReviewStage, { color: string; label: string; bg: string }> = {
-  initial: { color: '#f59e0b', label: '初审', bg: 'var(--color-warning-bg)' },
-  final: { color: '#7c2d12', label: '终审', bg: 'var(--color-warning-bg)' },
-  cosign: { color: '#7c3aed', label: '双签', bg: 'var(--color-info-bg)' },
-  sign: { color: '#be185d', label: '签发', bg: 'var(--color-pending-bg)' },
+  initial: { color: '#f59e0b', label: 'reportReview.stage.initial', bg: 'var(--color-warning-bg)' },
+  final: { color: '#7c2d12', label: 'reportReview.stage.final', bg: 'var(--color-warning-bg)' },
+  cosign: { color: '#7c3aed', label: 'reportReview.stage.cosign', bg: 'var(--color-info-bg)' },
+  sign: { color: '#be185d', label: 'reportReview.stage.sign', bg: 'var(--color-pending-bg)' },
 };
 
 const STATUS_META: Record<string, { color: string; label: string; bg: string }> = {
-  pending: { color: '#f59e0b', label: '待审', bg: 'var(--color-warning-bg)' },
-  'in-progress': { color: '#0891b2', label: '审核中', bg: 'var(--color-info-bg)' },
-  completed: { color: '#10b981', label: '已完成', bg: 'var(--color-success-bg)' },
-  rejected: { color: '#dc2626', label: '已驳回', bg: 'var(--color-error-bg)' },
-  overdue: { color: '#7f1d1d', label: '已超时', bg: 'var(--color-error-bg)' },
-  escalated: { color: '#7c3aed', label: '已升级', bg: 'var(--color-info-bg)' },
-  'cosign-required': { color: '#7c3aed', label: '需双签', bg: 'var(--color-info-bg)' },
+  pending: { color: '#f59e0b', label: 'reportReview.status.pending', bg: 'var(--color-warning-bg)' },
+  'in-progress': { color: '#0891b2', label: 'reportReview.status.inProgress', bg: 'var(--color-info-bg)' },
+  completed: { color: '#10b981', label: 'reportReview.status.completed', bg: 'var(--color-success-bg)' },
+  rejected: { color: '#dc2626', label: 'reportReview.status.rejected', bg: 'var(--color-error-bg)' },
+  overdue: { color: '#7f1d1d', label: 'reportReview.status.overdueMarked', bg: 'var(--color-error-bg)' },
+  escalated: { color: '#7c3aed', label: 'reportReview.status.escalated', bg: 'var(--color-info-bg)' },
+  'cosign-required': { color: '#7c3aed', label: 'reportReview.status.cosignRequired', bg: 'var(--color-info-bg)' },
 };
 
 const PRIORITY_META: Record<string, { color: string; label: string; rank: number }> = {
-  stat: { color: 'red', label: '急诊', rank: 0 },
-  critical: { color: 'volcano', label: '危急', rank: 0 },
-  urgent: { color: 'orange', label: '加急', rank: 1 },
-  routine: { color: 'default', label: '常规', rank: 2 },
+  stat: { color: 'red', label: 'reportReview.priority.stat', rank: 0 },
+  critical: { color: 'volcano', label: 'reportReview.priority.critical', rank: 0 },
+  urgent: { color: 'orange', label: 'reportReview.priority.urgent', rank: 1 },
+  routine: { color: 'default', label: 'reportReview.priority.routine', rank: 2 },
 };
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return '刚刚';
+  if (m < 1) return t('reportReview.justNow');
   if (m < 60) return `${m}分钟前`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}小时前`;
@@ -79,7 +80,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
       );
       setTasks(sorted.slice(0, limit));
     } catch (e) {
-      message.error('加载初核清单失败');
+      message.error(t('reportReview.initial.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
   }, [tasks]);
 
   return (
-    <div data-testid="initial-check-list" role="region" aria-label="初核清单">
+    <div data-testid="initial-check-list" role="region" aria-label={t('reportReview.initial.title')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
@@ -114,7 +115,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <ListChecks size={18} />
-            <strong style={{ fontSize: 16 }}>初核清单</strong>
+            <strong style={{ fontSize: 16 }}>{t('reportReview.initial.title')}</strong>
             <Tag color="purple" style={{ marginLeft: 8 }}>
               R3.REVIEW.001
             </Tag>
@@ -123,22 +124,22 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             <Input
               size="small"
               prefix={<Search size={12} />}
-              placeholder="搜索患者/报告ID"
+              placeholder={t('reportReview.initial.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onPressEnter={load}
               style={{ width: 200 }}
-              aria-label="搜索初核任务"
+              aria-label={t('reportReview.initial.searchAria')}
             />
             <Button size="small" onClick={load}>
-              刷新
+              {t('reportReview.common.refresh')}
             </Button>
           </Space>
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.initial.total')}</span>}
               value={stats.total}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<FileText size={14} />}
@@ -146,7 +147,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
           </Col>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>待审</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.status.pending')}</span>}
               value={stats.pending}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
@@ -154,7 +155,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
           </Col>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>审核中</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.status.inProgress')}</span>}
               value={stats.inProgress}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Eye size={14} />}
@@ -162,7 +163,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
           </Col>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>超时</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.status.overdue')}</span>}
               value={stats.overdue}
               styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
               prefix={<AlertCircle size={14} />}
@@ -170,7 +171,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>危急</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.priority.critical')}</span>}
               value={stats.critical}
               styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
               prefix={<AlertTriangle size={14} />}
@@ -196,13 +197,13 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             onChange={(v) => setFilter({ ...filter, status: v })}
             style={{ width: 110 }}
             options={[
-              { value: 'all', label: '全部状态' },
-              { value: 'pending', label: '待审' },
-              { value: 'in-progress', label: '审核中' },
-              { value: 'overdue', label: '超时' },
-              { value: 'rejected', label: '驳回' },
+              { value: 'all', label: t('reportReview.initial.allStatus') },
+              { value: 'pending', label: t('reportReview.status.pending') },
+              { value: 'in-progress', label: t('reportReview.status.inProgress') },
+              { value: 'overdue', label: t('reportReview.status.overdue') },
+              { value: 'rejected', label: t('reportReview.initial.rejected') },
             ]}
-            aria-label="状态筛选"
+            aria-label={t('reportReview.initial.statusFilterAria')}
           />
           <Select
             size="small"
@@ -210,22 +211,22 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             onChange={(v) => setFilter({ ...filter, priority: v })}
             style={{ width: 110 }}
             options={[
-              { value: 'all', label: '全部优先' },
-              { value: 'stat', label: '急诊' },
-              { value: 'critical', label: '危急' },
-              { value: 'urgent', label: '加急' },
-              { value: 'routine', label: '常规' },
+              { value: 'all', label: t('reportReview.initial.allPriority') },
+              { value: 'stat', label: t('reportReview.priority.stat') },
+              { value: 'critical', label: t('reportReview.priority.critical') },
+              { value: 'urgent', label: t('reportReview.priority.urgent') },
+              { value: 'routine', label: t('reportReview.priority.routine') },
             ]}
-            aria-label="优先级筛选"
+            aria-label={t('reportReview.initial.priorityFilterAria')}
           />
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>显示 {tasks.length} 条</span>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('reportReview.initial.showing')} {tasks.length} {t('reportReview.initial.items')}</span>
         </Space>
       </div>
 
       <List
         loading={loading}
         dataSource={tasks}
-        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无初核任务" /> }}
+        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportReview.initial.empty')} /> }}
         style={{
           background: 'var(--bg-card)',
           borderRadius: 8,
@@ -233,36 +234,36 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
           maxHeight: 600,
           overflowY: 'auto',
         }}
-        renderItem={(t) => {
-          const stageConf = STAGE_META[t.stage];
-          const statusConf = STATUS_META[t.status] ?? STATUS_META.pending;
-          const priConf = PRIORITY_META[t.priority] ?? PRIORITY_META.routine;
-          const dl = deadlineInfo(t.deadline, t.isOverdue, t.hoursToDeadline);
+        renderItem={(task) => {
+          const stageConf = STAGE_META[task.stage];
+          const statusConf = STATUS_META[task.status] ?? STATUS_META.pending;
+          const priConf = PRIORITY_META[task.priority] ?? PRIORITY_META.routine;
+          const dl = deadlineInfo(task.deadline, task.isOverdue, task.hoursToDeadline);
           return (
             <List.Item
-              key={t.id}
-              onClick={() => onSelect?.(t)}
+              key={task.id}
+              onClick={() => onSelect?.(task)}
               style={{
                 cursor: 'pointer',
                 padding: '10px 12px',
                 borderRadius: 6,
                 background:
-                  t.id === selectedId ? 'var(--color-info-bg)' : t.isOverdue ? 'var(--color-error-bg)' : 'transparent',
+                  task.id === selectedId ? 'var(--color-info-bg)' : task.isOverdue ? 'var(--color-error-bg)' : 'transparent',
                 borderLeft:
-                  t.id === selectedId
+                  task.id === selectedId
                     ? '3px solid #3b82f6'
-                    : t.isOverdue
+                    : task.isOverdue
                       ? '3px solid #dc2626'
                       : '3px solid transparent',
                 marginBottom: 4,
                 transition: 'all 0.15s',
               }}
-              data-testid={`initial-check-item-${t.id}`}
+              data-testid={`initial-check-item-${task.id}`}
               role="button"
-              aria-label={`初核任务 ${t.patientName} ${t.modality} ${t.bodyPart}`}
+              aria-label={t('reportReview.initial.taskAria', { patient: task.patientName, modality: task.modality, bodyPart: task.bodyPart })}
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') onSelect?.(t);
+                if (e.key === 'Enter') onSelect?.(task);
               }}
             >
               <List.Item.Meta
@@ -272,13 +273,13 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                       width: 36,
                       height: 36,
                       borderRadius: 6,
-                      background: t.criticalFinding ? 'var(--color-error-bg)' : stageConf.bg,
+                      background: task.criticalFinding ? 'var(--color-error-bg)' : stageConf.bg,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    {t.criticalFinding ? (
+                    {task.criticalFinding ? (
                       <AlertTriangle size={18} color="#dc2626" />
                     ) : (
                       <FileText size={18} color={stageConf.color} />
@@ -287,52 +288,52 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                 }
                 title={
                   <Space wrap>
-                    <span style={{ fontWeight: 600 }}>{t.patientName}</span>
-                    <Tag color="blue">{t.modality}</Tag>
-                    <Tag>{t.bodyPart}</Tag>
-                    <Tag color={priConf.color}>{priConf.label}</Tag>
-                    <Tag color={statusConf.color}>{statusConf.label}</Tag>
-                    {t.criticalFinding && (
+                    <span style={{ fontWeight: 600 }}>{task.patientName}</span>
+                    <Tag color="blue">{task.modality}</Tag>
+                    <Tag>{task.bodyPart}</Tag>
+                    <Tag color={priConf.color}>{t(priConf.label)}</Tag>
+                    <Tag color={statusConf.color}>{t(statusConf.label)}</Tag>
+                    {task.criticalFinding && (
                       <Tag color="red" icon={<AlertTriangle size={10} />}>
-                        危急
+                        {t('reportReview.priority.critical')}
                       </Tag>
                     )}
-                    {t.needsCosign && (
+                    {task.needsCosign && (
                       <Tag color="purple" icon={<Sparkles size={10} />}>
-                        需双签
+                        {t('reportReview.status.cosignRequired')}
                       </Tag>
                     )}
-                    {t.rectifyCount > 0 && <Tag color="orange">整改 {t.rectifyCount}/3</Tag>}
+                    {task.rectifyCount > 0 && <Tag color="orange">{t('reportReview.initial.rectify')} {task.rectifyCount}/3</Tag>}
                   </Space>
                 }
                 description={
                   <div>
                     <div style={{ fontSize: 12, color: '#64748b' }}>
-                      <User size={10} /> 报告医生：{t.authorTitle} {t.authorName} · 质量评分{' '}
+                      <User size={10} /> {t('reportReview.initial.reportDoctor')}{task.authorTitle} {task.authorName} · {t('reportReview.initial.qualityScore')}{' '}
                       <strong
                         style={{
                           color:
-                            t.qualityScore >= 90 ? '#10b981' : t.qualityScore >= 75 ? '#f59e0b' : '#dc2626',
+                            task.qualityScore >= 90 ? '#10b981' : task.qualityScore >= 75 ? '#f59e0b' : '#dc2626',
                         }}
                       >
-                        {t.qualityScore}
+                        {task.qualityScore}
                       </strong>{' '}
-                      · 提交 {timeAgo(t.submittedAt)}
+                      · {t('reportReview.initial.submitted')} {timeAgo(task.submittedAt)}
                     </div>
                     <div
                       style={{ fontSize: 12, color: dl.color, marginTop: 2, fontWeight: 600 }}
                     >
-                      <Clock size={10} /> {dl.label} · 报告ID: {t.reportId}
+                      <Clock size={10} /> {dl.label} · {t('reportReview.initial.reportId')}{task.reportId}
                     </div>
                   </div>
                 }
               />
-              <Tooltip title="查看详情">
+              <Tooltip title={t('reportReview.initial.viewDetail')}>
                 <Button
                   type="text"
                   size="small"
                   icon={<ChevronRight size={14} />}
-                  aria-label="查看详情"
+                  aria-label={t('reportReview.initial.viewDetail')}
                 />
               </Tooltip>
             </List.Item>

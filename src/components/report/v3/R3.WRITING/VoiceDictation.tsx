@@ -18,6 +18,7 @@ import { TableProps } from 'antd'
 import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, BookOpen, User , Type, CheckCircle } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 interface Props {
   reportId: string;
@@ -29,19 +30,19 @@ interface Props {
 // ---------- 语言 ----------
 
 const LANG_OPTIONS = [
-  { value: 'zh-CN', label: '中文', color: '#dc2626' },
+  { value: 'zh-CN', label: t('aiDraft.voice.lang.zh'), color: '#dc2626' },
   { value: 'en-US', label: 'English', color: '#3b82f6' },
-  { value: 'zh-EN', label: '中英混合', color: '#7c3aed' },
+  { value: 'zh-EN', label: t('aiDraft.voice.lang.mixed'), color: '#7c3aed' },
 ];
 
 // ---------- 目标段落 ----------
 
 const SECTIONS = [
-  { key: 'findings', label: '影像所见' },
-  { key: 'impression', label: '诊断印象' },
-  { key: 'diagnosis', label: '诊断结论' },
-  { key: 'recommendation', label: '建议' },
-  { key: 'full', label: '全篇' },
+  { key: 'findings', label: t('aiDraft.voice.section.findings') },
+  { key: 'impression', label: t('aiDraft.voice.section.impression') },
+  { key: 'diagnosis', label: t('aiDraft.voice.section.diagnosis') },
+  { key: 'recommendation', label: t('aiDraft.voice.section.recommendation') },
+  { key: 'full', label: t('aiDraft.voice.section.full') },
 ] as const;
 
 type SectionKey = (typeof SECTIONS)[number]['key'];
@@ -49,9 +50,9 @@ type SectionKey = (typeof SECTIONS)[number]['key'];
 // ---------- 多说话人 ----------
 
 const SPEAKERS = [
-  { value: 'resident', label: '住院医' },
-  { value: 'attending', label: '主治医师' },
-  { value: 'transcriber', label: '报告录入员' },
+  { value: 'resident', label: t('aiDraft.voice.speaker.resident') },
+  { value: 'attending', label: t('aiDraft.voice.speaker.attending') },
+  { value: 'transcriber', label: t('aiDraft.voice.speaker.transcriber') },
 ] as const;
 
 type SpeakerKey = (typeof SPEAKERS)[number]['value'];
@@ -59,15 +60,15 @@ type SpeakerKey = (typeof SPEAKERS)[number]['value'];
 // ---------- 语音命令 ----------
 
 const VOICE_COMMANDS = [
-  { command: '换行', action: '插入换行' },
-  { command: '新段落', action: '新段落' },
-  { command: '删除', action: '删除上一句' },
-  { command: '清除', action: '清空所有' },
-  { command: '句号', action: '插入句号' },
-  { command: '逗号', action: '插入逗号' },
-  { command: '冒号', action: '插入冒号' },
-  { command: '左肺', action: '插入"左肺"' },
-  { command: '右肺', action: '插入"右肺"' },
+  { command: '换行', action: t('aiDraft.voice.cmd.newline') },
+  { command: '新段落', action: t('aiDraft.voice.cmd.newParagraph') },
+  { command: '删除', action: t('aiDraft.voice.cmd.deletePrev') },
+  { command: '清除', action: t('aiDraft.voice.cmd.clearAll') },
+  { command: '句号', action: t('aiDraft.voice.cmd.period') },
+  { command: '逗号', action: t('aiDraft.voice.cmd.comma') },
+  { command: '冒号', action: t('aiDraft.voice.cmd.colon') },
+  { command: '左肺', action: t('aiDraft.voice.cmd.leftLung') },
+  { command: '右肺', action: t('aiDraft.voice.cmd.rightLung') },
 ];
 
 interface VoiceCommandTableItem {
@@ -77,17 +78,17 @@ interface VoiceCommandTableItem {
 }
 
 const VOICE_COMMAND_TABLE_DATA: VoiceCommandTableItem[] = [
-  { command: '新段落', english: 'New Paragraph', description: '在当前位置插入新段落' },
-  { command: '下一字段', english: 'Next Field', description: '跳转到下一个输入字段' },
-  { command: '保存草稿', english: 'Save Draft', description: '保存当前报告为草稿' },
-  { command: '正常模板', english: 'Normal Template', description: '插入正常模板' },
-  { command: '提交审核', english: 'Submit Report', description: '提交报告供审核' },
+  { command: '新段落', english: 'New Paragraph', description: t('aiDraft.voice.tblDesc.newParagraph') },
+  { command: '下一字段', english: 'Next Field', description: t('aiDraft.voice.tblDesc.nextField') },
+  { command: '保存草稿', english: 'Save Draft', description: t('aiDraft.voice.tblDesc.saveDraft') },
+  { command: '正常模板', english: 'Normal Template', description: t('aiDraft.voice.tblDesc.normalTemplate') },
+  { command: '提交审核', english: 'Submit Report', description: t('aiDraft.voice.tblDesc.submitReport') },
 ];
 
 const VOICE_COMMAND_TABLE_COLUMNS: TableProps<VoiceCommandTableItem>['columns'] = [
-  { title: '命令', dataIndex: 'command', key: 'command', width: 100 },
+  { title: t('aiDraft.voice.col.command'), dataIndex: 'command', key: 'command', width: 100 },
   { title: 'English', dataIndex: 'english', key: 'english', width: 140 },
-  { title: '说明', dataIndex: 'description', key: 'description' },
+  { title: t('aiDraft.voice.col.description'), dataIndex: 'description', key: 'description' },
 ];
 
 // ---------- 医学术语词汇 ----------
@@ -115,10 +116,10 @@ const MEDICAL_VOCAB: MedicalVocabItem[] = [
 ];
 
 const VOCAB_COLUMNS: TableProps<MedicalVocabItem>['columns'] = [
-  { title: '术语', dataIndex: 'term', key: 'term', width: 100 },
-  { title: '规范化', dataIndex: 'normalized', key: 'normalized', width: 130 },
-  { title: '类别', dataIndex: 'category', key: 'category', width: 100 },
-  { title: '模态', dataIndex: 'modality', key: 'modality', width: 60 },
+  { title: t('aiDraft.voice.col.term'), dataIndex: 'term', key: 'term', width: 100 },
+  { title: t('aiDraft.voice.col.normalized'), dataIndex: 'normalized', key: 'normalized', width: 130 },
+  { title: t('aiDraft.voice.col.category'), dataIndex: 'category', key: 'category', width: 100 },
+  { title: t('aiDraft.voice.col.modality'), dataIndex: 'modality', key: 'modality', width: 60 },
 ];
 
 // ---------- Component ----------
@@ -205,10 +206,10 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       return;
     }
 
-    const nextProcessing = { ...current, state: 'processing' as const, interimText: '正在转写音频...' };
+    const nextProcessing = { ...current, state: 'processing' as const, interimText: t('aiDraft.voice.transcribing') };
     sessionRef.current = nextProcessing;
     setSession(nextProcessing);
-    setInterimDisplay('正在转写音频...');
+    setInterimDisplay(t('aiDraft.voice.transcribing'));
     try {
       const res = await asrApi.transcribe(blob, durationSec, lang);
       // 词库校正: 同音词纠正 + corrections[] 提示
@@ -244,8 +245,8 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       onTextChange?.(finalText);
       message.success(
         corrections.length > 0
-          ? `转写完成(${res.engine}引擎,词库校正 ${corrections.length} 处)`
-          : `转写完成(${res.engine}引擎,置信度 ${(res.confidence * 100).toFixed(0)}%)`,
+          ? t('aiDraft.voice.transcribeDoneCorrected', { engine: res.engine, count: corrections.length })
+          : t('aiDraft.voice.transcribeDone', { engine: res.engine, confidence: (res.confidence * 100).toFixed(0) }),
       );
     } catch (e) {
       console.error('transcribe failed:', e);
@@ -253,14 +254,14 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       sessionRef.current = nextError;
       setSession(nextError);
       setInterimDisplay('');
-      message.error('语音转写失败,请重试');
+      message.error(t('aiDraft.voice.transcribeFailed'));
     }
   }, [lang, onTextChange]);
 
   const start = useCallback(async () => {
     if (disabled) return;
     if (!isSupported && !isMediaRecorderSupported) {
-      message.warning('当前浏览器不支持语音识别,已使用 mock 模式');
+      message.warning(t('aiDraft.voice.unsupportedMock'));
     }
     const newSession = await startVoiceDictation(reportId, lang);
     sessionRef.current = newSession;
@@ -313,7 +314,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         onTextChange?.(final);
       };
       recognition.onerror = (e: any) => {
-        message.error(`识别错误: ${e.error}`);
+        message.error(t('aiDraft.voice.recognizeError', { error: e.error }));
       };
       recognition.onend = () => {
         if (recognitionRef.current && session?.state === 'listening') {
@@ -321,7 +322,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         }
       };
       recognitionRef.current = recognition;
-      try { recognition.start(); } catch (e) { message.error('启动语音识别失败'); }
+      try { recognition.start(); } catch (e) { message.error(t('aiDraft.voice.startFailed')); }
     } else {
       // Mock 模式 - 模拟识别
       mockRecognitionLoop(newSession);
@@ -393,19 +394,19 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
     const nextStopped = { ...session, state: r.state, endedAt: new Date().toISOString(), totalDurationSec: r.durationSec, totalWords: r.totalWords };
     sessionRef.current = nextStopped;
     setSession(nextStopped);
-    message.success(`已停止,共识别 ${r.totalWords} 词,耗时 ${r.durationSec} 秒`);
+    message.success(t('aiDraft.voice.stopped', { words: r.totalWords, seconds: r.durationSec }));
   }, [session]);
 
   const insert = useCallback(() => {
     if (!session) return;
     onInsert?.(session.finalText);
-    message.success('已插入到编辑器');
+    message.success(t('aiDraft.voice.inserted'));
   }, [session, onInsert]);
 
   const clearAll = useCallback(() => {
     setSession((s) => s ? { ...s, finalText: '', interimText: '', segments: [] } : s);
     setInterimDisplay('');
-    message.success('已清空');
+    message.success(t('aiDraft.voice.cleared'));
   }, []);
 
   // 纠正反馈: 将本次校正结果提交给词库学习 (同音词积累为别名/新词条)
@@ -420,9 +421,9 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
     }
     if (ok > 0) {
       setCorrectionSubmitted(true);
-      message.success(`已提交 ${ok} 条纠正反馈,医学词库已学习`);
+      message.success(t('aiDraft.voice.correctionsSubmitted', { count: ok }));
     } else {
-      message.error('纠正反馈提交失败,请重试');
+      message.error(t('aiDraft.voice.correctionsFailed'));
     }
   }, [wsCorrections]);
 
@@ -447,27 +448,27 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         <div className="flex items-center justify-between">
           <Space>
             <Volume2 className="w-4 h-4" style={{ color: state === 'listening' ? '#dc2626' : '#94a3b8' }} />
-            <span className="font-semibold">语音听写</span>
+            <span className="font-semibold">{t('aiDraft.voice.title')}</span>
             <Tag color={state === 'listening' ? 'red' : state === 'paused' ? 'orange' : 'default'}>
-              {({ idle: '待机', listening: '聆听中', paused: '已暂停', processing: '处理中', error: '错误' } as const)[state as VoiceDictationState] ?? state}
+              {({ idle: t('aiDraft.voice.state.idle'), listening: t('aiDraft.voice.state.listening'), paused: t('aiDraft.voice.state.paused'), processing: t('aiDraft.voice.state.processing'), error: t('aiDraft.voice.state.error') } as const)[state as VoiceDictationState] ?? state}
             </Tag>
-            {!isSupported && <Tag color="orange">mock 模式</Tag>}
+            {!isSupported && <Tag color="orange">{t('aiDraft.voice.mockMode')}</Tag>}
           </Space>
           <Space>
-            <Button size="small" icon={<BookOpen className="w-3 h-3" />} onClick={() => setShowVocab(true)}>词汇</Button>
-            <Button size="small" icon={<History className="w-3 h-3" />} onClick={loadHistory}>历史</Button>
+            <Button size="small" icon={<BookOpen className="w-3 h-3" />} onClick={() => setShowVocab(true)}>{t('aiDraft.voice.vocab')}</Button>
+            <Button size="small" icon={<History className="w-3 h-3" />} onClick={loadHistory}>{t('aiDraft.voice.history')}</Button>
           </Space>
         </div>
       }
     >
       {!isSupported && (
-        <Alert type="info" showIcon className="mb-3" title="当前浏览器不支持 Web Speech API,使用 Mock 模拟识别过程" />
+        <Alert type="info" showIcon className="mb-3" title={t('aiDraft.voice.unsupportedAlert')} />
       )}
 
       <div className="space-y-3">
         {/* 1. 段落选择 */}
         <div>
-          <div className="text-xs font-semibold text-slate-600 mb-1">目标段落</div>
+          <div className="text-xs font-semibold text-slate-600 mb-1">{t('aiDraft.voice.targetSection')}</div>
           <Space wrap>
             {SECTIONS.map((s) => (
               <Tag.CheckableTag
@@ -509,7 +510,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           </Col>
           <Col span={8}>
             <Space>
-              <span className="text-xs text-slate-500">自动标点</span>
+              <span className="text-xs text-slate-500">{t('aiDraft.voice.autoPunct')}</span>
               <Switch size="small" checked={autoPunct} onChange={setAutoPunct} disabled={state === 'listening'} />
             </Space>
           </Col>
@@ -517,16 +518,16 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
 
         {speakerHistory.length > 0 && (
           <div className="text-[10px] text-slate-400">
-            当前说话人: {SPEAKERS.find((s) => s.value === speaker)?.label} · 切换 {speakerHistory.length} 次
+            {t('aiDraft.voice.currentSpeaker', { speaker: SPEAKERS.find((s) => s.value === speaker)?.label, count: speakerHistory.length })}
           </div>
         )}
 
         {/* 3. 统计 */}
         <Row gutter={8}>
-          <Col span={6}><Statistic title="时长" value={duration} suffix="s" prefix={<Clock className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
-          <Col span={6}><Statistic title="词数" value={session?.totalWords ?? 0} prefix={<Type className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
-          <Col span={6}><Statistic title="分段" value={session?.segments.length ?? 0} prefix={<FileText className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
-          <Col span={6}><Statistic title="重试" value={0} prefix={<Activity className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.voice.stat.duration')} value={duration} suffix="s" prefix={<Clock className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.voice.stat.words')} value={session?.totalWords ?? 0} prefix={<Type className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.voice.stat.segments')} value={session?.segments.length ?? 0} prefix={<FileText className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.voice.stat.retries')} value={0} prefix={<Activity className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
         </Row>
 
         {/* 4. 识别文本显示 */}
@@ -534,7 +535,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           {session?.finalText ? (
             <div className="text-sm text-slate-800 whitespace-pre-wrap">{session.finalText}</div>
           ) : (
-            <div className="text-sm text-slate-400 text-center py-8">点击"开始"按钮开始语音听写...</div>
+            <div className="text-sm text-slate-400 text-center py-8">{t('aiDraft.voice.startHint')}</div>
           )}
           {interimDisplay && (
             <div className="text-sm text-slate-500 italic mt-2 border-t border-dashed border-slate-300 pt-2">
@@ -548,9 +549,9 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           <div className="border border-green-200 bg-green-50 rounded p-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-green-700 flex items-center gap-1">
-                <BookOpen className="w-3 h-3" />医学词库校正 ({wsCorrections.length} 处)
+                <BookOpen className="w-3 h-3" />{t('aiDraft.voice.lexiconCorrections', { count: wsCorrections.length })}
               </span>
-              <Tag color="green">{lexiconSize > 0 ? `${lexiconSize} 词条` : '词库加载中'}</Tag>
+              <Tag color="green">{lexiconSize > 0 ? t('aiDraft.voice.lexiconEntries', { count: lexiconSize }) : t('aiDraft.voice.lexiconLoading')}</Tag>
             </div>
             <div className="space-y-1 max-h-32 overflow-y-auto">
               {wsCorrections.map((c, i) => (
@@ -565,12 +566,12 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
             <div className="flex items-center gap-2 mt-2">
               {!correctionSubmitted ? (
                 <Button size="small" type="primary" ghost icon={<BookOpen className="w-3 h-3" />} onClick={submitCorrections}>
-                  提交纠正反馈(词库学习)
+                  {t('aiDraft.voice.submitCorrections')}
                 </Button>
               ) : (
-                <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle className="w-3 h-3" />已提交,词库已更新</span>
+                <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle className="w-3 h-3" />{t('aiDraft.voice.correctionsUpdated')}</span>
               )}
-              <Button size="small" onClick={() => { setWsCorrections([]); }}>忽略</Button>
+              <Button size="small" onClick={() => { setWsCorrections([]); }}>{t('aiDraft.voice.ignore')}</Button>
             </div>
           </div>
         )}
@@ -579,19 +580,19 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         <div className="flex items-center justify-center gap-2">
           {state === 'idle' && (
             <Button type="primary" danger size="large" icon={<Mic className="w-5 h-5" />} onClick={start} disabled={disabled}>
-              开始听写
+              {t('aiDraft.voice.start')}
             </Button>
           )}
           {state === 'listening' && (
             <>
-              <Button type="primary" icon={<MicOff className="w-4 h-4" />} onClick={pause}>暂停</Button>
-              <Button danger icon={<Square className="w-4 h-4" />} onClick={stop}>停止</Button>
+              <Button type="primary" icon={<MicOff className="w-4 h-4" />} onClick={pause}>{t('aiDraft.voice.pause')}</Button>
+              <Button danger icon={<Square className="w-4 h-4" />} onClick={stop}>{t('aiDraft.voice.stop')}</Button>
             </>
           )}
           {state === 'paused' && (
             <>
-              <Button type="primary" icon={<Mic className="w-4 h-4" />} onClick={resume}>继续</Button>
-              <Button danger icon={<Square className="w-4 h-4" />} onClick={stop}>停止</Button>
+              <Button type="primary" icon={<Mic className="w-4 h-4" />} onClick={resume}>{t('aiDraft.voice.resume')}</Button>
+              <Button danger icon={<Square className="w-4 h-4" />} onClick={stop}>{t('aiDraft.voice.stop')}</Button>
             </>
           )}
         </div>
@@ -599,8 +600,8 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         {/* 6. 插入/清空 */}
         {session && session.finalText && (
           <div className="flex items-center gap-2">
-            <Button type="primary" icon={<ChevronRight className="w-4 h-4" />} onClick={insert}>插入到编辑器</Button>
-            <Button icon={<Trash2 className="w-4 h-4" />} onClick={clearAll}>清空</Button>
+            <Button type="primary" icon={<ChevronRight className="w-4 h-4" />} onClick={insert}>{t('aiDraft.voice.insertToEditor')}</Button>
+            <Button icon={<Trash2 className="w-4 h-4" />} onClick={clearAll}>{t('aiDraft.voice.clear')}</Button>
           </div>
         )}
 
@@ -612,7 +613,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
               key: 'voice-commands',
               label: (
                 <span className="flex items-center gap-1 text-xs font-semibold text-slate-600">
-                  <Command className="w-3 h-3" />语音命令帮助
+                  <Command className="w-3 h-3" />{t('aiDraft.voice.commandHelp')}
                 </span>
               ),
               children: (
@@ -626,7 +627,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
                     rowKey="command"
                   />
                   <div className="mt-2 pt-2 border-t border-slate-100">
-                    <span className="text-xs text-slate-500">快捷短语:</span>
+                    <span className="text-xs text-slate-500">{t('aiDraft.voice.quickPhrases')}</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {VOICE_COMMANDS.map((c) => (
                         <Tag key={c.command} color="cyan" className="text-xs">
@@ -644,13 +645,13 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         {/* 8. 识别段落 */}
         {session && session.segments.length > 0 && (
           <div className="border-t border-slate-200 pt-3 max-h-32 overflow-y-auto">
-            <h5 className="text-xs font-semibold text-slate-600 mb-2">识别段落 ({session.segments.length})</h5>
+            <h5 className="text-xs font-semibold text-slate-600 mb-2">{t('aiDraft.voice.recognizedSegments', { count: session.segments.length })}</h5>
             <div className="space-y-1">
               {session.segments.slice(-5).map((seg, i) => (
                 <div key={i} className="text-xs p-1 bg-white border border-slate-200 rounded">
                   <div className="text-slate-700">{seg.text}</div>
                   <div className="text-slate-400 text-[10px] mt-0.5">
-                    {(seg.start / 1000).toFixed(1)}s ~ {(seg.end / 1000).toFixed(1)}s · 置信度 {(seg.confidence * 100).toFixed(0)}%
+                    {(seg.start / 1000).toFixed(1)}s ~ {(seg.end / 1000).toFixed(1)}s · {t('aiDraft.voice.confidence')} {(seg.confidence * 100).toFixed(0)}%
                   </div>
                 </div>
               ))}
@@ -662,18 +663,18 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       {/* 9. 医学术语词汇 Modal (在线医学词库 + 静态回退) */}
       <Modal title={
         <span className="flex items-center gap-2">
-          医学术语词汇
-          <Tag color="green">{onlineLexicon ? `${onlineLexicon.length} 词条` : '在线加载中'}</Tag>
+          {t('aiDraft.voice.medicalVocab')}
+          <Tag color="green">{onlineLexicon ? t('aiDraft.voice.lexiconEntries', { count: onlineLexicon.length }) : t('aiDraft.voice.onlineLoading')}</Tag>
         </span>
       } open={showVocab} onCancel={() => setShowVocab(false)} footer={null} width={640}>
         {onlineLexicon ? (
           <Table
             dataSource={onlineLexicon.slice(0, 100)}
             columns={[
-              { title: '术语', dataIndex: 'term', key: 'term', width: 140 },
-              { title: '分类', dataIndex: 'category', key: 'category', width: 70, render: (v: string) => <Tag color="cyan">{v}</Tag> },
-              { title: '优先级', dataIndex: 'priority', key: 'priority', width: 70 },
-              { title: '同音词/别名', dataIndex: 'aliases', key: 'aliases', render: (v: string[]) => v.length > 0 ? v.join(' / ') : '-' },
+              { title: t('aiDraft.voice.col.term'), dataIndex: 'term', key: 'term', width: 140 },
+              { title: t('aiDraft.voice.col.categoryVocab'), dataIndex: 'category', key: 'category', width: 70, render: (v: string) => <Tag color="cyan">{v}</Tag> },
+              { title: t('aiDraft.voice.col.priority'), dataIndex: 'priority', key: 'priority', width: 70 },
+              { title: t('aiDraft.voice.col.aliases'), dataIndex: 'aliases', key: 'aliases', render: (v: string[]) => v.length > 0 ? v.join(' / ') : '-' },
             ]}
             size="small"
             pagination={{ pageSize: 10, showSizeChanger: false }}
@@ -693,13 +694,13 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       </Modal>
 
       {/* 10. 语音听写历史 Modal */}
-      <Modal title="语音听写历史" open={showHistory} onCancel={() => setShowHistory(false)} footer={null} width={600}>
+      <Modal title={t('aiDraft.voice.historyTitle')} open={showHistory} onCancel={() => setShowHistory(false)} footer={null} width={600}>
         {history.length > 0 ? (
           <List
             dataSource={history}
             renderItem={(item) => (
               <List.Item
-                actions={[<Button key="insert" size="small" type="primary" onClick={() => { onInsert?.(item.text); setShowHistory(false); }}>插入</Button>]}
+                actions={[<Button key="insert" size="small" type="primary" onClick={() => { onInsert?.(item.text); setShowHistory(false); }}>{t('aiDraft.voice.insert')}</Button>]}
               >
                 <List.Item.Meta
                   title={<div className="text-sm">{item.text}</div>}
@@ -709,7 +710,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
             )}
           />
         ) : (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无历史" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiDraft.voice.noHistory')} />
         )}
       </Modal>
     </Card>

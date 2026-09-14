@@ -12,6 +12,7 @@ import { SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock'
 import { generateAiDraft } from '@services/writing/writingService';
 import { aiDraftApi, type LlmProviderId, type LlmProviderInfo, type AiDraftRagSource, type AiDraftRagContext, type AiDraftStructuredResult } from '@services/api/aiDraftApi';
 import type { AiDraftRequest, AiDraftResult, AiDraftStage } from '@types/R3/R3.WRITING';
+import { t } from '../../../../i18n/appI18n';
 
 interface Props {
   reportId: string;
@@ -25,9 +26,9 @@ interface Props {
 }
 
 const STYLE_OPTIONS = [
-  { value: 'concise', label: '简洁', icon: Zap, color: '#3b82f6' },
-  { value: 'detailed', label: '详尽', icon: FileText, color: '#7c3aed' },
-  { value: 'structured', label: '结构化', icon: ListOrdered, color: '#10b981' },
+  { value: 'concise', label: t('aiDraft.style.concise'), icon: Zap, color: '#3b82f6' },
+  { value: 'detailed', label: t('aiDraft.style.detailed'), icon: FileText, color: '#7c3aed' },
+  { value: 'structured', label: t('aiDraft.style.structured'), icon: ListOrdered, color: '#10b981' },
 ];
 
 const MODEL_OPTIONS = [
@@ -45,7 +46,7 @@ const FALLBACK_PROVIDERS: LlmProviderInfo[] = [
   { id: 'hunyuan', name: '腾讯混元', model: 'hunyuan-turbo', kind: 'llm', available: false, apiKeyConfigured: false, description: '需 HUNYUAN_API_KEY' },
 ];
 
-const PROVIDER_LABEL: Record<LlmProviderId, string> = { mock: '确定性模板', deepseek: 'DeepSeek', hunyuan: '腾讯混元' };
+const PROVIDER_LABEL: Record<LlmProviderId, string> = { mock: t('aiDraft.provider.mock'), deepseek: 'DeepSeek', hunyuan: t('aiDraft.provider.hunyuan') };
 
 const MOCK_DDX = [
   { diagnosis: '周围型肺癌', probability: 0.72, details: '右肺上叶尖段结节，伴短毛刺征及胸膜牵拉' },
@@ -145,7 +146,7 @@ export const AIDraftPanel: React.FC<Props> = ({
   //   失败回退本地模板生成 (generateAiDraft)
   const handleGenerate = useCallback(async () => {
     if (disabled || !clinicalInfo.trim()) {
-      message.warning('请先填写临床信息');
+      message.warning(t('aiDraft.msg.enterClinicalInfo'));
       return;
     }
     setStage('analyzing');
@@ -181,7 +182,7 @@ export const AIDraftPanel: React.FC<Props> = ({
             styles: [style],
           } as AiDraftResult;
         } else {
-          throw new Error('advanced 生成失败');
+          throw new Error(t('aiDraft.err.advancedFailed'));
         }
       } catch {
         dr = await generateAiDraft(req);
@@ -197,17 +198,17 @@ export const AIDraftPanel: React.FC<Props> = ({
       setDraftVersions(generateDraftVersions(dr));
       setActiveVersion(0);
       setSentenceActions({});
-      message.success('AI 草稿已生成');
+      message.success(t('aiDraft.msg.draftReady'));
     } catch {
       setStage('error');
-      message.error('AI 草稿生成失败');
+      message.error(t('aiDraft.msg.draftFailed'));
     }
   }, [reportId, clinicalInfo, modality, bodyPart, includeImages, includePrior, includeRag, style, selectedProvider, disabled]);
 
   const handleAccept = useCallback(() => {
     if (!result) return;
     onAccept?.(result);
-    message.success('已应用 AI 草稿到编辑器');
+    message.success(t('aiDraft.msg.appliedToEditor'));
   }, [result, onAccept]);
 
   // [v3.0.6.11-100 Wave 3A (G-19)] 加载 RAG 上下文 (既往报告摘要 + 匹配术语)
@@ -217,19 +218,19 @@ export const AIDraftPanel: React.FC<Props> = ({
       const res = await aiDraftApi.getRagContext(reportId);
       if (res.success && res.data) {
         setRagContext(res.data);
-        message.success(`已加载 RAG 上下文 · 既往报告 ${res.data.priorReports.length} 份 · 术语 ${res.data.matchedTerms.length} 条`);
+        message.success(t('aiDraft.rag.loaded', { reports: res.data.priorReports.length, terms: res.data.matchedTerms.length }));
       } else {
-        message.warning('未找到 RAG 上下文 (无既往报告或报告不存在)');
+        message.warning(t('aiDraft.rag.notFound'));
       }
     } catch {
-      message.warning('RAG 上下文加载失败');
+      message.warning(t('aiDraft.rag.loadFailed'));
     }
   }, [reportId]);
 
   // [v3.0.6.11-100 Wave 3A (G-19)] 生成结构化字段 → 预填编辑器对应段落
   const handleGenerateStructured = useCallback(async () => {
     if (!reportId) {
-      message.warning('缺少报告 ID');
+      message.warning(t('aiDraft.structured.missingReportId'));
       return;
     }
     setStructuredLoading(true);
@@ -238,12 +239,12 @@ export const AIDraftPanel: React.FC<Props> = ({
       if (res.success && res.data) {
         setStructuredResult(res.data);
         onApplyStructured?.(res.data.sections ?? []);
-        message.success(`结构化字段已生成并预填 · 信心分 ${Math.round((res.data.confidenceScore ?? 0.9) * 100)}%`);
+        message.success(t('aiDraft.structured.generatedWithScore', { score: Math.round((res.data.confidenceScore ?? 0.9) * 100) }));
       } else {
         message.warning('结构化字段生成失败: ' + (res.error?.message ?? '未知错误'));
       }
     } catch {
-      message.error('结构化字段生成失败:网络异常');
+      message.error(t('aiDraft.structured.failedNetwork'));
     } finally {
       setStructuredLoading(false);
     }
@@ -251,7 +252,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
   const handleRefine = useCallback(async () => {
     if (!result || !refineText.trim()) {
-      message.warning('请输入修改意见');
+      message.warning(t('aiDraft.msg.enterRefine'));
       return;
     }
     setStage('analyzing');
@@ -268,22 +269,22 @@ export const AIDraftPanel: React.FC<Props> = ({
     setProgress(100);
     setShowRefine(false);
     setRefineText('');
-    message.success('已根据反馈重写');
+    message.success(t('aiDraft.msg.refined'));
   }, [result, refineText]);
 
   const copyToClipboard = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
-    message.success('已复制到剪贴板');
+    message.success(t('aiDraft.msg.copied'));
   }, []);
 
   const handleAcceptSentence = useCallback((key: string) => {
     setSentenceActions(prev => ({ ...prev, [key]: 'accepted' }));
-    message.success('已接受此句');
+    message.success(t('aiDraft.msg.sentenceAccepted'));
   }, []);
 
   const handleRejectSentence = useCallback((key: string) => {
     setSentenceActions(prev => ({ ...prev, [key]: 'rejected' }));
-    message.success('已拒绝此句');
+    message.success(t('aiDraft.msg.sentenceRejected'));
   }, []);
 
   const handleEditSentence = useCallback((text: string) => {
@@ -301,7 +302,7 @@ export const AIDraftPanel: React.FC<Props> = ({
     });
     setEditingSentence(null);
     setEditValue('');
-    message.success('句子已修改');
+    message.success(t('aiDraft.msg.sentenceEdited'));
   }, [editingSentence, editValue, sentenceConfidence]);
 
   const handleSelectVersion = useCallback((index: number) => {
@@ -315,12 +316,12 @@ export const AIDraftPanel: React.FC<Props> = ({
       });
       setSentenceActions({});
     }
-    message.success(`已切换到版本 ${index + 1}`);
+    message.success(t('aiDraft.msg.switchedVersion', { version: index + 1 }));
   }, [draftVersions]);
-  const stageLabel = ({ idle: '就绪', analyzing: '分析中', drafting: '撰写中', ready: '已完成', merging: '合并中', error: '失败' } as const)[stage];
+  const stageLabel = ({ idle: t('aiDraft.stage.idle'), analyzing: t('aiDraft.stage.analyzing'), drafting: t('aiDraft.stage.drafting'), ready: t('aiDraft.stage.ready'), merging: t('aiDraft.stage.merging'), error: t('aiDraft.stage.error') } as const)[stage];
 
   const renderConfidenceBar = (confidence: number) => (
-    <Tooltip title={`置信度: ${(confidence * 100).toFixed(0)}%`}>
+    <Tooltip title={t('aiDraft.confidenceTooltip', { value: (confidence * 100).toFixed(0) })}>
       <Progress
         percent={Math.round(confidence * 100)}
         size="small"
@@ -348,8 +349,8 @@ export const AIDraftPanel: React.FC<Props> = ({
                   rows={2}
                 />
                 <Space size="small">
-                  <Button size="small" type="primary" onClick={handleSaveEdit}>保存</Button>
-                  <Button size="small" onClick={() => setEditingSentence(null)}>取消</Button>
+                  <Button size="small" type="primary" onClick={handleSaveEdit}>{t('aiDraft.save')}</Button>
+                  <Button size="small" onClick={() => setEditingSentence(null)}>{t('aiDraft.cancel')}</Button>
                 </Space>
               </div>
             ) : (
@@ -357,13 +358,13 @@ export const AIDraftPanel: React.FC<Props> = ({
                 <span className="text-sm text-slate-700 flex-1 whitespace-pre-wrap">{s.text}</span>
                 <div className="flex items-center gap-1 shrink-0">
                   {renderConfidenceBar(s.confidence)}
-                  <Tooltip title="接受">
+                  <Tooltip title={t('aiDraft.sentence.accept')}>
                     <CheckCircle2 className="w-3.5 h-3.5 text-green-600 cursor-pointer" onClick={() => handleAcceptSentence(key)} />
                   </Tooltip>
-                  <Tooltip title="编辑">
+                  <Tooltip title={t('aiDraft.sentence.edit')}>
                     <Edit3 className="w-3.5 h-3.5 text-blue-600 cursor-pointer" onClick={() => handleEditSentence(s.text)} />
                   </Tooltip>
-                  <Tooltip title="拒绝">
+                  <Tooltip title={t('aiDraft.sentence.reject')}>
                     <span className="text-red-500 cursor-pointer text-xs font-bold leading-none" onClick={() => handleRejectSentence(key)}>✕</span>
                   </Tooltip>
                 </div>
@@ -377,7 +378,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
   const renderDDX = () => (
     <div className="space-y-2">
-      <Alert type="info" showIcon title="AI 鉴别诊断建议，仅供参考" />
+      <Alert type="info" showIcon title={t('aiDraft.ddx.disclaimer')} />
       {MOCK_DDX.map((d, i) => (
         <div key={i} className="flex items-center justify-between p-2 bg-slate-50 rounded">
           <div className="flex-1">
@@ -399,12 +400,12 @@ export const AIDraftPanel: React.FC<Props> = ({
   const renderRisk = () => (
     <div className="space-y-3">
       <div className="text-center p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded">
-        <div className="text-xs text-slate-500">综合风险评分</div>
+        <div className="text-xs text-slate-500">{t('aiDraft.risk.overallScore')}</div>
         <div className="text-3xl font-bold" style={{ color: MOCK_RISK.overallRisk > 0.7 ? '#dc2626' : MOCK_RISK.overallRisk > 0.4 ? '#f59e0b' : '#10b981' }}>
           {(MOCK_RISK.overallRisk * 100).toFixed(0)}
         </div>
         <Tag color={MOCK_RISK.overallRisk > 0.7 ? 'red' : MOCK_RISK.overallRisk > 0.4 ? 'orange' : 'green'}>
-          {MOCK_RISK.overallRisk > 0.7 ? '高风险' : MOCK_RISK.overallRisk > 0.4 ? '中风险' : '低风险'}
+          {MOCK_RISK.overallRisk > 0.7 ? t('aiDraft.risk.high') : MOCK_RISK.overallRisk > 0.4 ? t('aiDraft.risk.medium') : t('aiDraft.risk.low')}
         </Tag>
       </div>
       {MOCK_RISK.categories.map((c, i) => (
@@ -414,7 +415,7 @@ export const AIDraftPanel: React.FC<Props> = ({
             <Progress percent={Math.round(c.score * 100)} size="small" strokeColor={c.color} />
           </div>
           <Tag color={c.level === 'high' ? 'red' : c.level === 'medium' ? 'orange' : 'green'}>
-            {c.level === 'high' ? '高' : c.level === 'medium' ? '中' : '低'}
+            {c.level === 'high' ? t('aiDraft.level.high') : c.level === 'medium' ? t('aiDraft.level.medium') : t('aiDraft.level.low')}
           </Tag>
         </div>
       ))}
@@ -423,7 +424,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
   const renderPreread = () => (
     <div className="space-y-2">
-      <Alert type="warning" showIcon title="AI 预读标注，标注可疑区域供医师重点关注" />
+      <Alert type="warning" showIcon title={t('aiDraft.preread.disclaimer')} />
       {MOCK_PREREAD.map((p, i) => (
         <div key={i} className="p-2 border-l-4 rounded" style={{ borderLeftColor: p.color }}>
           <div className="flex items-center justify-between">
@@ -431,7 +432,7 @@ export const AIDraftPanel: React.FC<Props> = ({
             <Tag color={p.suspicion === '高度可疑' ? 'red' : p.suspicion === '相关征象' || p.suspicion === '随访观察' ? 'orange' : 'green'}>{p.suspicion}</Tag>
           </div>
           <div className="text-xs text-slate-500">{p.finding}</div>
-          <Progress percent={Math.round(p.risk * 100)} size="small" strokeColor={p.color} format={() => `风险 ${(p.risk * 100).toFixed(0)}%`} />
+          <Progress percent={Math.round(p.risk * 100)} size="small" strokeColor={p.color} format={() => `${t('aiDraft.preread.risk')} ${(p.risk * 100).toFixed(0)}%`} />
         </div>
       ))}
     </div>
@@ -441,19 +442,19 @@ export const AIDraftPanel: React.FC<Props> = ({
     if (draftVersions.length === 0) return null;
     return (
       <div className="mt-3 pt-3 border-t border-slate-200">
-        <div className="text-xs font-semibold text-slate-600 mb-2">多版本对比 ({draftVersions.length} 个版本)</div>
+        <div className="text-xs font-semibold text-slate-600 mb-2">{t('aiDraft.compare.title', { count: draftVersions.length })}</div>
         <Row gutter={8}>
           {draftVersions.map((v, i) => (
             <Col span={8} key={v.id}>
               <Card
                 size="small"
                 className={i === activeVersion ? 'border-purple-400' : ''}
-                title={<span className="text-xs">版本 {i + 1}</span>}
+                title={<span className="text-xs">{t('aiDraft.compare.version', { version: i + 1 })}</span>}
                 extra={<Tag color={i === 0 ? 'blue' : 'purple'}>{(v.confidence * 100).toFixed(0)}%</Tag>}
               >
                 <div className="text-xs whitespace-pre-wrap text-slate-700 max-h-32 overflow-y-auto">{v.findings.slice(0, 120)}...</div>
                 <Button size="small" type={i === activeVersion ? 'primary' : 'default'} className="mt-1" onClick={() => handleSelectVersion(i)}>
-                  {i === activeVersion ? '当前' : '选择'}
+                  {i === activeVersion ? t('aiDraft.compare.current') : t('aiDraft.compare.select')}
                 </Button>
               </Card>
             </Col>
@@ -466,7 +467,7 @@ export const AIDraftPanel: React.FC<Props> = ({
   const tabItems = [
     {
       key: 'draft',
-      label: '草稿',
+      label: t('aiDraft.tab.draft'),
       children: (
         <>
           {result && (
@@ -475,50 +476,50 @@ export const AIDraftPanel: React.FC<Props> = ({
                 type="warning"
                 showIcon
                 icon={<AlertCircle className="w-4 h-4" />}
-                message="AI 草稿仅供临床参考,最终诊断须由执业医师确认"
+                message={t('aiDraft.draftDisclaimer')}
                 description={result.warnings.join('; ')}
               />
 
               <Row gutter={8}>
-                <Col span={8}><Statistic title="字数" value={result.findings.length + result.impression.length} prefix={<FileText className="w-3 h-3" />} /></Col>
-                <Col span={8}><Statistic title="Token 用量" value={result.tokens.input + result.tokens.output} prefix={<Cpu className="w-3 h-3" />} /></Col>
-                <Col span={8}><Statistic title="费用" value={result.tokens.cost} prefix={<Activity className="w-3 h-3" />} precision={3} suffix="¥" /></Col>
+                <Col span={8}><Statistic title={t('aiDraft.stat.words')} value={result.findings.length + result.impression.length} prefix={<FileText className="w-3 h-3" />} /></Col>
+                <Col span={8}><Statistic title={t('aiDraft.stat.tokens')} value={result.tokens.input + result.tokens.output} prefix={<Cpu className="w-3 h-3" />} /></Col>
+                <Col span={8}><Statistic title={t('aiDraft.stat.cost')} value={result.tokens.cost} prefix={<Activity className="w-3 h-3" />} precision={3} suffix="¥" /></Col>
               </Row>
 
               {/* [v3.0.6.11-100 Wave 3A (G-19)] 生成信心分 + 提供方 + RAG 标注 */}
               <div className="flex items-center gap-2 p-2 bg-purple-50/60 rounded">
-                <span className="text-xs text-slate-600 shrink-0">生成信心分</span>
+                <span className="text-xs text-slate-600 shrink-0">{t('aiDraft.generationConfidence')}</span>
                 <Progress
                   percent={Math.round((result.confidence ?? 0.9) * 100)}
                   size="small"
                   style={{ flex: 1, marginBottom: 0 }}
                   strokeColor={(result.confidence ?? 0.9) > 0.9 ? '#10b981' : (result.confidence ?? 0.9) > 0.8 ? '#f59e0b' : '#dc2626'}
                 />
-                <Tag color="purple">{(result.confidence ?? 0.9) * 100 > 90 ? '高' : (result.confidence ?? 0.9) * 100 > 80 ? '中' : '低'} {(Math.round((result.confidence ?? 0.9) * 100))}%</Tag>
+                <Tag color="purple">{(result.confidence ?? 0.9) * 100 > 90 ? t('aiDraft.level.high') : (result.confidence ?? 0.9) * 100 > 80 ? t('aiDraft.level.medium') : t('aiDraft.level.low')} {(Math.round((result.confidence ?? 0.9) * 100))}%</Tag>
                 <Tag color="blue">{result.modelVersion}</Tag>
-                {ragSources.length > 0 && <Tag color="cyan" icon={<Database className="w-3 h-3" />}>RAG {ragSources.length} 来源</Tag>}
+                {ragSources.length > 0 && <Tag color="cyan" icon={<Database className="w-3 h-3" />}>RAG {ragSources.length} {t('aiDraft.rag.sources')}</Tag>}
                 {Array.isArray(result.warnings) && result.warnings.length > 0 && <Tag color="orange">{result.warnings[0]}</Tag>}
               </div>
 
-              <Card size="small" title={<span className="text-sm font-semibold">影像所见</span>} extra={<Button size="small" type="text" icon={<Copy className="w-3 h-3" />} onClick={() => copyToClipboard(result.findings)}>复制</Button>}>
+              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.section.findings')}</span>} extra={<Button size="small" type="text" icon={<Copy className="w-3 h-3" />} onClick={() => copyToClipboard(result.findings)}>{t('aiDraft.copy')}</Button>}>
                 {sentenceConfidence ? renderSentences(sentenceConfidence.findings, 'findings') : (
                   <div className="text-sm whitespace-pre-wrap text-slate-700 max-h-48 overflow-y-auto">{result.findings}</div>
                 )}
               </Card>
 
-              <Card size="small" title={<span className="text-sm font-semibold">诊断意见</span>} extra={<Button size="small" type="text" icon={<Copy className="w-3 h-3" />} onClick={() => copyToClipboard(result.impression)}>复制</Button>}>
+              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.section.impression')}</span>} extra={<Button size="small" type="text" icon={<Copy className="w-3 h-3" />} onClick={() => copyToClipboard(result.impression)}>{t('aiDraft.copy')}</Button>}>
                 {sentenceConfidence ? renderSentences(sentenceConfidence.impression, 'impression') : (
                   <div className="text-sm whitespace-pre-wrap text-slate-700 max-h-32 overflow-y-auto">{result.impression}</div>
                 )}
               </Card>
 
-              <Card size="small" title={<span className="text-sm font-semibold">建议</span>}>
+              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.section.recommendation')}</span>}>
                 <div className="text-sm text-slate-700">{result.recommendation}</div>
               </Card>
 
               {/* [v3.0.6.11-100 Wave 3A (G-19)] RAG 来源列表 (点击展开摘要片段) */}
               {ragSources.length > 0 && (
-                <Card size="small" title={<span className="text-sm font-semibold flex items-center gap-1"><Database className="w-3 h-3 text-cyan-600" />RAG 参考来源 ({ragSources.length})</span>}>
+                <Card size="small" title={<span className="text-sm font-semibold flex items-center gap-1"><Database className="w-3 h-3 text-cyan-600" />RAG {t('aiDraft.rag.referenceSources')} ({ragSources.length})</span>}>
                   <div className="space-y-1">
                     {ragSources.map((s) => (
                       <div key={s.reportId} className="border border-slate-100 rounded p-1.5">
@@ -529,7 +530,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                           {expandedSource === s.reportId ? <ChevronDown className="w-3 h-3 text-slate-400" /> : <ChevronRight className="w-3 h-3 text-slate-400" />}
                           <Tag color="cyan">{s.reportId}</Tag>
                           <span className="text-xs text-slate-400">{s.date}</span>
-                          <span className="text-[10px] text-slate-400 ml-auto">点击{expandedSource === s.reportId ? '收起' : '展开'}片段</span>
+                          <span className="text-[10px] text-slate-400 ml-auto">{t('aiDraft.rag.click')}{expandedSource === s.reportId ? t('aiDraft.rag.collapse') : t('aiDraft.rag.expand')}{t('aiDraft.rag.segment')}</span>
                         </div>
                         {expandedSource === s.reportId && (
                           <div className="mt-1 pl-5 text-xs text-slate-600 whitespace-pre-wrap bg-slate-50 rounded p-2">
@@ -545,35 +546,35 @@ export const AIDraftPanel: React.FC<Props> = ({
               {/* [v3.0.6.11-100 Wave 3A (G-19)] RAG 匹配术语 */}
               {ragContext && ragContext.matchedTerms.length > 0 && (
                 <div className="text-xs text-slate-400">
-                  匹配术语: {ragContext.matchedTerms.map((t) => <Tag key={t.code} color="geekblue" className="text-[10px]">{t.term} · {t.code.replace('SNOMED-CT:', '')}</Tag>)}
+                  {t('aiDraft.rag.matchedTerms')} {ragContext.matchedTerms.map((term) => <Tag key={term.code} color="geekblue" className="text-[10px]">{term.term} · {term.code.replace('SNOMED-CT:', '')}</Tag>)}
                 </div>
               )}
 
               {showRefine ? (
                 <div className="space-y-2 p-2 bg-blue-50 rounded">
-                  <div className="text-xs font-semibold text-blue-700">🔧 修改意见(将基于此重写)</div>
+                  <div className="text-xs font-semibold text-blue-700">🔧 {t('aiDraft.refine.title')}</div>
                   <textarea
                     value={refineText}
                     onChange={(e) => setRefineText(e.target.value)}
-                    placeholder="例:补充说明胸膜牵拉征;删除'不除外...'"
+                    placeholder={t('aiDraft.refine.placeholder')}
                     className="w-full text-sm p-2 border border-blue-200 rounded"
                     rows={3}
                   />
                   <Space>
-                    <Button size="small" type="primary" onClick={handleRefine}>应用</Button>
-                    <Button size="small" onClick={() => setShowRefine(false)}>取消</Button>
+                    <Button size="small" type="primary" onClick={handleRefine}>{t('aiDraft.apply')}</Button>
+                    <Button size="small" onClick={() => setShowRefine(false)}>{t('aiDraft.cancel')}</Button>
                   </Space>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={handleAccept}>应用到编辑器</Button>
-                  <Button icon={<Edit3 className="w-4 h-4" />} onClick={() => setShowRefine(true)}>反馈调整</Button>
-                  <Button icon={<Eye className="w-4 h-4" />} onClick={() => setCompareOpen(true)}>对比原片</Button>
+                  <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={handleAccept}>{t('aiDraft.applyToEditor')}</Button>
+                  <Button icon={<Edit3 className="w-4 h-4" />} onClick={() => setShowRefine(true)}>{t('aiDraft.feedback')}</Button>
+                  <Button icon={<Eye className="w-4 h-4" />} onClick={() => setCompareOpen(true)}>{t('aiDraft.compare')}</Button>
                 </div>
               )}
 
               <div className="text-xs text-slate-400 text-center">
-                基于 {result.basedOnReports.length} 份历史报告 · 模型 {result.modelVersion} · {new Date(result.generatedAt).toLocaleString()}
+                {t('aiDraft.basedOn', { count: result.basedOnReports.length, model: result.modelVersion })} · {new Date(result.generatedAt).toLocaleString()}
               </div>
 
               {renderDraftComparison()}
@@ -584,18 +585,18 @@ export const AIDraftPanel: React.FC<Props> = ({
     },
     {
       key: 'ddx',
-      label: '鉴别诊断',
-      children: result ? renderDDX() : <div className="text-sm text-slate-400 text-center py-8">请先生成草稿</div>,
+      label: t('aiDraft.tab.ddx'),
+      children: result ? renderDDX() : <div className="text-sm text-slate-400 text-center py-8">{t('aiDraft.generateFirst')}</div>,
     },
     {
       key: 'risk',
-      label: '风险预测',
-      children: result ? renderRisk() : <div className="text-sm text-slate-400 text-center py-8">请先生成草稿</div>,
+      label: t('aiDraft.tab.risk'),
+      children: result ? renderRisk() : <div className="text-sm text-slate-400 text-center py-8">{t('aiDraft.generateFirst')}</div>,
     },
     {
       key: 'preread',
-      label: '预读',
-      children: result ? renderPreread() : <div className="text-sm text-slate-400 text-center py-8">请先生成草稿</div>,
+      label: t('aiDraft.tab.preread'),
+      children: result ? renderPreread() : <div className="text-sm text-slate-400 text-center py-8">{t('aiDraft.generateFirst')}</div>,
     },
   ];
 
@@ -607,13 +608,13 @@ export const AIDraftPanel: React.FC<Props> = ({
         <div className="flex items-center justify-between">
           <Space>
             <Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} />
-            <span className="font-semibold">AI 智能草稿</span>
+            <span className="font-semibold">{t('aiDraft.smartDraft')}</span>
             <Tag color="purple">MedAI v3.2.1</Tag>
             <Tag color={stage === 'ready' ? 'green' : stage === 'error' ? 'red' : 'blue'}>{stageLabel}</Tag>
           </Space>
           {result && (
             <Tag color="blue" icon={<Cpu className="w-3 h-3" />}>
-              置信度 {(result.confidence * 100).toFixed(0)}%
+              {t('aiDraft.confidenceLabel')} {(result.confidence * 100).toFixed(0)}%
             </Tag>
           )}
         </div>
@@ -622,12 +623,12 @@ export const AIDraftPanel: React.FC<Props> = ({
         <Space>
           {!result && (
             <Button type="primary" icon={<Wand2 className="w-4 h-4" />} onClick={handleGenerate} disabled={disabled || stage === 'analyzing' || stage === 'drafting'} loading={stage === 'analyzing' || stage === 'drafting'}>
-              生成草稿
+              {t('aiDraft.generateDraft')}
             </Button>
           )}
           {result && (
             <Button icon={<RefreshCw className="w-4 h-4" />} onClick={handleGenerate} loading={stage !== 'idle'}>
-              重新生成
+              {t('aiDraft.regenerate')}
             </Button>
           )}
         </Space>
@@ -636,30 +637,30 @@ export const AIDraftPanel: React.FC<Props> = ({
       <div className="mb-3">
         <Space direction="vertical" size={8} style={{ width: '100%' }}>
           <Space>
-            <span className="text-xs text-slate-600">AI模型:</span>
+            <span className="text-xs text-slate-600">{t('aiDraft.aiModel')}</span>
             <Select
               size="small"
               value={selectedModel}
               onChange={(val) => {
                 setSelectedModel(val);
-                message.info(`已切换至 ${val}`);
+                message.info(t('aiDraft.msg.switchedModel', { model: val }));
               }}
               style={{ width: 160 }}
               options={MODEL_OPTIONS.map(m => ({ value: m.value, label: m.label }))}
             />
             {/* [v3.0.6.11-100 Wave 3A (G-19)] LLM 提供方 (mock/deepseek/hunyuan, 从 /ai-draft/providers 加载) */}
-            <span className="text-xs text-slate-600">LLM提供方:</span>
+            <span className="text-xs text-slate-600">{t('aiDraft.llmProvider')}</span>
             <Select
               size="small"
               value={selectedProvider}
               onChange={(val) => {
                 setSelectedProvider(val);
-                message.info(`已切换 LLM 提供方: ${PROVIDER_LABEL[val]}`);
+                message.info(t('aiDraft.msg.switchedProvider', { provider: PROVIDER_LABEL[val] }));
               }}
               style={{ width: 150 }}
               options={providers.map((p) => ({
                 value: p.id,
-                label: `${p.name}${p.available ? '' : ' (未配置)'}`,
+                label: `${p.name}${p.available ? '' : ` ${t('aiDraft.notConfigured')}`}`,
                 disabled: !p.available && p.id !== selectedProvider,
               }))}
             />
@@ -676,7 +677,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                 icon={<Database className="w-3 h-3" />}
                 onClick={handleLoadRagContext}
               >
-                {ragContext ? `RAG 上下文 (${ragContext.priorReports.length} 报告 / ${ragContext.matchedTerms.length} 术语)` : '加载 RAG 上下文'}
+                {ragContext ? t('aiDraft.rag.contextLoaded', { reports: ragContext.priorReports.length, terms: ragContext.matchedTerms.length }) : t('aiDraft.rag.loadContext')}
               </Button>
               <Button
                 size="small"
@@ -685,7 +686,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                 onClick={handleGenerateStructured}
                 loading={structuredLoading}
               >
-                生成结构化字段
+                {t('aiDraft.structured.generate')}
               </Button>
             </Space>
           )}
@@ -696,7 +697,7 @@ export const AIDraftPanel: React.FC<Props> = ({
               style={{ fontSize: 11 }}
               message={
                 <span>
-                  结构化字段已生成: {structuredResult.sections.map((s) => s.heading).join(' / ')} · 信心分 {Math.round((structuredResult.confidenceScore ?? 0.9) * 100)}% · 已预填编辑器对应段落
+                  {t('aiDraft.structured.generated')} {structuredResult.sections.map((s) => s.heading).join(' / ')} · {t('aiDraft.structured.confidenceScore')} {Math.round((structuredResult.confidenceScore ?? 0.9) * 100)}% · {t('aiDraft.structured.prefilled')}
                 </span>
               }
             />
@@ -708,7 +709,7 @@ export const AIDraftPanel: React.FC<Props> = ({
         <>
           <div className="space-y-3 p-1">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">风格</span>
+              <span className="text-sm text-slate-600">{t('aiDraft.style.label')}</span>
               <Select
                 size="small"
                 value={style}
@@ -718,25 +719,25 @@ export const AIDraftPanel: React.FC<Props> = ({
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">包含图像分析</span>
+              <span className="text-sm text-slate-600">{t('aiDraft.includeImages')}</span>
               <Switch size="small" checked={includeImages} onChange={setIncludeImages} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">引用历史报告</span>
+              <span className="text-sm text-slate-600">{t('aiDraft.includePrior')}</span>
               <Switch size="small" checked={includePrior} onChange={setIncludePrior} />
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-slate-600">
-                RAG 增强
-                <Tooltip title="生成时检索该患者既往报告相似段落作为上下文, 输出 confidenceScore + 来源列表">
+                {t('aiDraft.rag.enhance')}
+                <Tooltip title={t('aiDraft.rag.enhanceTip')}>
                   <AlertCircle className="w-3 h-3 text-slate-400 ml-1 inline-block" />
                 </Tooltip>
               </span>
               <Switch size="small" checked={includeRag} onChange={setIncludeRag} />
             </div>
             <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded">
-              <div>📋 <span className="font-medium">临床信息:</span> {clinicalInfo}</div>
-              <div>🩻 <span className="font-medium">检查:</span> {modality} - {bodyPart}</div>
+              <div>📋 <span className="font-medium">{t('aiDraft.clinicalInfo')}</span> {clinicalInfo}</div>
+              <div>🩻 <span className="font-medium">{t('aiDraft.exam')}</span> {modality} - {bodyPart}</div>
             </div>
           </div>
 
@@ -744,7 +745,7 @@ export const AIDraftPanel: React.FC<Props> = ({
             <div className="pt-3 space-y-2">
               <Progress percent={progress} strokeColor={{ from: '#7c3aed', to: '#3b82f6' }} />
               <div className="text-xs text-slate-500 text-center">
-                {stage === 'analyzing' ? '正在分析临床信息与影像...' : '正在撰写报告内容...'}
+                {stage === 'analyzing' ? t('aiDraft.stage.analyzingText') : t('aiDraft.stage.draftingText')}
               </div>
             </div>
           )}
@@ -752,7 +753,7 @@ export const AIDraftPanel: React.FC<Props> = ({
           {PRIOR_REPORTS_MOCK.length > 0 && (
             <div className="mt-3 pt-3 border-t border-slate-200">
               <h5 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
-                <History className="w-3 h-3" />参考历史报告 ({PRIOR_REPORTS_MOCK.length})
+                <History className="w-3 h-3" />{t('aiDraft.priorReports', { count: PRIOR_REPORTS_MOCK.length })}
               </h5>
               <div className="space-y-1">
                 {PRIOR_REPORTS_MOCK.map((r) => (
@@ -768,7 +769,7 @@ export const AIDraftPanel: React.FC<Props> = ({
           {SIMILAR_CASES_MOCK.length > 0 && (
             <div className="mt-3 pt-3 border-t border-slate-200">
               <h5 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
-                <Brain className="w-3 h-3" />相似病例 ({SIMILAR_CASES_MOCK.length})
+                <Brain className="w-3 h-3" />{t('aiDraft.similarCases', { count: SIMILAR_CASES_MOCK.length })}
               </h5>
               <div className="space-y-1">
                 {SIMILAR_CASES_MOCK.map((c) => (
@@ -789,16 +790,16 @@ export const AIDraftPanel: React.FC<Props> = ({
 
       {/* [v3.0.6.11-98 Wave3B P1] 对比原片 Modal: 原片影像数据未透出 → 标注待 DICOM 通道 */}
       <Modal
-        title={<Space><Eye className="w-4 h-4 text-blue-500" /><span>AI 草稿 vs 原片对比</span></Space>}
+        title={<Space><Eye className="w-4 h-4 text-blue-500" /><span>{t('aiDraft.compareModal.title')}</span></Space>}
         open={compareOpen}
         onCancel={() => setCompareOpen(false)}
-        footer={<Button onClick={() => setCompareOpen(false)}>关闭</Button>}
+        footer={<Button onClick={() => setCompareOpen(false)}>{t('aiDraft.close')}</Button>}
         width={720}
       >
         {result && (
           <Row gutter={12}>
             <Col span={12}>
-              <Card size="small" title={<span className="text-sm font-semibold">原片（当前检查影像）</span>} styles={{ body: { padding: 12 } }}>
+              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.compareModal.original')}</span>} styles={{ body: { padding: 12 } }}>
                 <div style={{
                   height: 240, borderRadius: 8,
                   background: 'linear-gradient(135deg, #0f172a, #1e293b)',
@@ -807,17 +808,17 @@ export const AIDraftPanel: React.FC<Props> = ({
                 }}>
                   <div style={{ fontSize: 32, opacity: 0.6 }}>🩻</div>
                   <div>{modality} · {bodyPart}</div>
-                  <div style={{ fontSize: 11 }}>报告 {reportId}</div>
-                  <Alert type="warning" showIcon style={{ fontSize: 11, maxWidth: 220 }} message="原片影像数据未透出，需经 DICOM 影像通道获取（标注: 待接入）" />
+                  <div style={{ fontSize: 11 }}>{t('aiDraft.compareModal.report')} {reportId}</div>
+                  <Alert type="warning" showIcon style={{ fontSize: 11, maxWidth: 220 }} message={t('aiDraft.compareModal.noImage')} />
                 </div>
               </Card>
             </Col>
             <Col span={12}>
-              <Card size="small" title={<span className="text-sm font-semibold">AI 草稿所见</span>} styles={{ body: { padding: 12 } }}>
+              <Card size="small" title={<span className="text-sm font-semibold">{t('aiDraft.compareModal.draftFindings')}</span>} styles={{ body: { padding: 12 } }}>
                 <div style={{ height: 240, overflowY: 'auto', fontSize: 12, lineHeight: 1.9, color: '#334155', whiteSpace: 'pre-wrap' }}>
-                  {result.findings || '（无）'}
+                  {result.findings || t('aiDraft.none')}
                   <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #e2e8f0', color: '#7c3aed', fontWeight: 600 }}>
-                    诊断意见：{result.impression}
+                    {t('aiDraft.compareModal.impression')}{result.impression}
                   </div>
                 </div>
               </Card>

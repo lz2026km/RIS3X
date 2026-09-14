@@ -3,6 +3,7 @@
  * 月度质控报告:等级分布/趋势/缺陷分析/排名/15章节/导出
  */
 import React, { useEffect, useState } from 'react';
+import { t } from '../../../../i18n/appI18n';
 import { Card, Tag, Space, Row, Col, Statistic, Button, Select, message, List, Tabs, Progress } from 'antd';
 import { FileText, Download, TrendingUp, Award, Sparkles, Calendar, Users, BarChart3 } from 'lucide-react';
 import { qualityService } from '../../../../services/quality/qualityService';
@@ -48,7 +49,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
       setReport(data);
       setKpi(kpiData);
     } catch (e) {
-      message.error('加载月报失败');
+      message.error(t('qualityMonthly.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -72,7 +73,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
       URL.revokeObjectURL(url);
       message.success(`已导出 ${format.toUpperCase()}`);
     } catch (e) {
-      message.error('导出失败');
+      message.error(t('qualityMonthly.exportFailed'));
     } finally {
       setExporting(false);
     }
@@ -83,10 +84,10 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
       <div
         data-testid="quality-monthly-report"
         role="status"
-        aria-label="加载质量月报"
+        aria-label={t('qualityMonthly.loadingLabel')}
         style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}
       >
-        加载中...
+        {t('qualityMonthly.loading')}
       </div>
     );
   }
@@ -97,15 +98,15 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
     color: GRADE_COLOR[g],
   }));
 
-  const trendData = report.trends.map((t) => ({
-    date: t.date.slice(5),
-    avgScore: t.avgScore,
-    evaluated: t.evaluated,
-    defects: t.defects,
+  const trendData = report.trends.map((trend) => ({
+    date: trend.date.slice(5),
+    avgScore: trend.avgScore,
+    evaluated: trend.evaluated,
+    defects: trend.defects,
   }));
 
   return (
-    <div data-testid="quality-monthly-report" role="region" aria-label="质量月报">
+    <div data-testid="quality-monthly-report" role="region" aria-label={t('qualityMonthly.ariaLabel')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
@@ -119,7 +120,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           <Space wrap>
             <FileText size={18} />
             <strong style={{ fontSize: 16 }}>
-              质控月报 · {report.year} 年 {report.month} 月
+              {t('qualityMonthly.title')} · {report.year} {t('qualityMonthly.yearUnit')} {report.month} {t('qualityMonthly.monthUnit')}
             </strong>
             <Tag color="purple">R3.QUALITY.152</Tag>
             <Tag color="cyan">v3.0.5.1</Tag>
@@ -131,14 +132,14 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               value={selYear}
               onChange={setSelYear}
               style={{ width: 100 }}
-              options={Array.from({ length: 5 }, (_, i) => ({ value: 2022 + i, label: `${2022 + i} 年` }))}
+              options={Array.from({ length: 5 }, (_, i) => ({ value: 2022 + i, label: `${2022 + i} ${t('qualityMonthly.yearUnit')}` }))}
             />
             <Select
               size="small"
               value={selMonth}
               onChange={setSelMonth}
               style={{ width: 80 }}
-              options={Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `${i + 1} 月` }))}
+              options={Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `${i + 1} ${t('qualityMonthly.monthUnit')}` }))}
             />
             <Button
               size="small"
@@ -169,7 +170,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
         <Row gutter={12} style={{ marginTop: 14 }}>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>评估总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityMonthly.totalEvaluated')}</span>}
               value={report.totalReports}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<FileText size={14} />}
@@ -177,7 +178,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           </Col>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均分</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityMonthly.avgScore')}</span>}
               value={report.avgScore.toFixed(1)}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Award size={14} />}
@@ -185,7 +186,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>环比</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityMonthly.monthOverMonth')}</span>}
               value={report.monthOverMonth}
               suffix="%"
               styles={{ content: { 
@@ -197,7 +198,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           </Col>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>修复率</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityMonthly.fixRate')}</span>}
               value={report.fixRate}
               suffix="%"
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
@@ -205,7 +206,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           </Col>
           <Col span={5}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>自动评估率</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityMonthly.autoRate')}</span>}
               value={report.autoRate}
               suffix="%"
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
@@ -219,14 +220,14 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
         items={[
           {
             key: 'overview',
-            label: '总览',
+            label: t('qualityMonthly.tab.overview'),
             children: (
               <Row gutter={12}>
                 <Col span={6}>
-                  <Card size="small" title={<Space><BarChart3 size={14} />本月核心指标</Space>}>
+                  <Card size="small" title={<Space><BarChart3 size={14} />{t('qualityMonthly.coreMetrics')}</Space>}>
                     <Space orientation="vertical" style={{ width: '100%' }}>
                       <div>
-                        <div style={{ fontSize: 12, color: '#64748b' }}>甲级率</div>
+                        <div style={{ fontSize: 12, color: '#64748b' }}>{t('qualityMonthly.gradeA.rate')}</div>
                         <Progress
                           percent={Math.round(
                             ((report.gradeDistribution['甲'] ?? 0) / Math.max(1, report.totalReports)) * 100,
@@ -235,7 +236,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         />
                       </div>
                       <div>
-                        <div style={{ fontSize: 12, color: '#64748b' }}>乙级率</div>
+                        <div style={{ fontSize: 12, color: '#64748b' }}>{t('qualityMonthly.gradeB.rate')}</div>
                         <Progress
                           percent={Math.round(
                             ((report.gradeDistribution['乙'] ?? 0) / Math.max(1, report.totalReports)) * 100,
@@ -244,7 +245,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         />
                       </div>
                       <div>
-                        <div style={{ fontSize: 12, color: '#64748b' }}>丙级率</div>
+                        <div style={{ fontSize: 12, color: '#64748b' }}>{t('qualityMonthly.gradeC.rate')}</div>
                         <Progress
                           percent={Math.round(
                             ((report.gradeDistribution['丙'] ?? 0) / Math.max(1, report.totalReports)) * 100,
@@ -253,7 +254,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         />
                       </div>
                       <div>
-                        <div style={{ fontSize: 12, color: '#64748b' }}>丁级率</div>
+                        <div style={{ fontSize: 12, color: '#64748b' }}>{t('qualityMonthly.gradeD.rate')}</div>
                         <Progress
                           percent={Math.round(
                             ((report.gradeDistribution['丁'] ?? 0) / Math.max(1, report.totalReports)) * 100,
@@ -265,7 +266,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card size="small" title="质量趋势">
+                  <Card size="small" title={t('qualityMonthly.qualityTrend')}>
                     <ResponsiveContainer width="100%" height={260}>
                       <LineChart data={trendData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -274,37 +275,37 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
                         <RTooltip />
                         <Legend wrapperStyle={{ fontSize: 12 }} />
-                        <Line yAxisId="left" type="monotone" dataKey="avgScore" stroke="#3b82f6" strokeWidth={2} name="平均分" />
-                        <Line yAxisId="right" type="monotone" dataKey="evaluated" stroke="#10b981" strokeWidth={2} name="评估数" />
-                        <Line yAxisId="right" type="monotone" dataKey="defects" stroke="#dc2626" strokeWidth={2} name="缺陷数" />
+                        <Line yAxisId="left" type="monotone" dataKey="avgScore" stroke="#3b82f6" strokeWidth={2} name={t('qualityMonthly.series.avgScore')} />
+                        <Line yAxisId="right" type="monotone" dataKey="evaluated" stroke="#10b981" strokeWidth={2} name={t('qualityMonthly.series.evaluated')} />
+                        <Line yAxisId="right" type="monotone" dataKey="defects" stroke="#dc2626" strokeWidth={2} name={t('qualityMonthly.series.defects')} />
                       </LineChart>
                     </ResponsiveContainer>
                   </Card>
                 </Col>
                 <Col span={6}>
-                  <Card size="small" title={<Space><Users size={14} />KPI 摘要</Space>}>
+                  <Card size="small" title={<Space><Users size={14} />{t('qualityMonthly.kpiSummary')}</Space>}>
                     {kpi && (
                       <Space orientation="vertical" size={6} style={{ width: '100%' }}>
                         <div>
-                          <span style={{ color: '#64748b', fontSize: 12 }}>AI 采纳率: </span>
+                          <span style={{ color: '#64748b', fontSize: 12 }}>{t('qualityMonthly.aiAcceptance')}</span>
                           <strong style={{ color: '#7c3aed' }}>{(kpi.aiAcceptanceRate * 100).toFixed(1)}%</strong>
                         </div>
                         <div>
-                          <span style={{ color: '#64748b', fontSize: 12 }}>P50 评分: </span>
+                          <span style={{ color: '#64748b', fontSize: 12 }}>{t('qualityMonthly.p50Score')}</span>
                           <strong>{kpi.p50Score}</strong>
                         </div>
                         <div>
-                          <span style={{ color: '#64748b', fontSize: 12 }}>P95 评分: </span>
+                          <span style={{ color: '#64748b', fontSize: 12 }}>{t('qualityMonthly.p95Score')}</span>
                           <strong>{kpi.p95Score}</strong>
                         </div>
                         <div>
-                          <span style={{ color: '#64748b', fontSize: 12 }}>危急值漏报: </span>
+                          <span style={{ color: '#64748b', fontSize: 12 }}>{t('qualityMonthly.criticalMissed')}</span>
                           <strong style={{ color: kpi.criticalMissedCount > 0 ? '#dc2626' : '#10b981' }}>
                             {kpi.criticalMissedCount}
                           </strong>
                         </div>
                         <div>
-                          <span style={{ color: '#64748b', fontSize: 12 }}>需复训: </span>
+                          <span style={{ color: '#64748b', fontSize: 12 }}>{t('qualityMonthly.retrainingNeeded')}</span>
                           <strong>{kpi.retrainingNeeded}</strong>
                         </div>
                       </Space>
@@ -316,18 +317,18 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           },
           {
             key: 'grade',
-            label: '等级分布',
+            label: t('qualityMonthly.tab.grade'),
             children: (
               <Row gutter={12}>
                 <Col span={12}>
-                  <Card size="small" title="等级分布">
+                  <Card size="small" title={t('qualityMonthly.gradeDistribution')}>
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={gradeData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="grade" tick={{ fontSize: 12 }} />
                         <YAxis tick={{ fontSize: 12 }} />
                         <RTooltip />
-                        <Bar dataKey="count" name="数量">
+                        <Bar dataKey="count" name={t('qualityMonthly.series.count')}>
                           {gradeData.map((d, i) => (
                             <Cell key={i} fill={d.color} />
                           ))}
@@ -337,7 +338,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card size="small" title="等级占比">
+                  <Card size="small" title={t('qualityMonthly.gradeShare')}>
                     <ResponsiveContainer width="100%" height={280}>
                       <PieChart>
                         <Pie data={gradeData} dataKey="count" nameKey="grade" cx="50%" cy="50%" outerRadius={90} label>
@@ -356,9 +357,9 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           },
           {
             key: 'defect',
-            label: '缺陷分析',
+            label: t('qualityMonthly.tab.defect'),
             children: (
-              <Card size="small" title="Top 缺陷">
+              <Card size="small" title={t('qualityMonthly.topDefects')}>
                 <List
                   dataSource={report.defectStatistics}
                   renderItem={(d) => (
@@ -367,7 +368,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         <Space>
                           <Tag color="blue">{d.code}</Tag>
                           <strong>{d.name}</strong>
-                          <Tag>{d.count} 次</Tag>
+                          <Tag>{d.count} {t('qualityMonthly.timesUnit')}</Tag>
                         </Space>
                         <Tag color={d.changeRate > 0 ? 'red' : 'green'}>
                           {d.changeRate > 0 ? '↑' : '↓'} {Math.abs(d.changeRate).toFixed(1)}%
@@ -381,11 +382,11 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           },
           {
             key: 'ranking',
-            label: '排名',
+            label: t('qualityMonthly.tab.ranking'),
             children: (
               <Row gutter={12}>
                 <Col span={12}>
-                  <Card size="small" title="医生排名">
+                  <Card size="small" title={t('qualityMonthly.doctorRanking')}>
                     <List
                       dataSource={report.doctorRanking}
                       renderItem={(d) => (
@@ -394,9 +395,9 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                             <Tag color={d.rank === 1 ? 'gold' : d.rank <= 3 ? 'blue' : 'default'}>#{d.rank}</Tag>
                             <strong>{d.doctorName}</strong>
                             <span>
-                              均分 <strong style={{ color: '#3b82f6' }}>{d.avgScore}</strong>
+                              {t('qualityMonthly.avgScoreLabel')} <strong style={{ color: '#3b82f6' }}>{d.avgScore}</strong>
                             </span>
-                            <Tag>{d.total} 例</Tag>
+                            <Tag>{d.total} {t('qualityMonthly.casesUnit')}</Tag>
                           </Space>
                         </List.Item>
                       )}
@@ -404,7 +405,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card size="small" title="科室排名">
+                  <Card size="small" title={t('qualityMonthly.departmentRanking')}>
                     <List
                       dataSource={report.departmentRanking}
                       renderItem={(d) => (
@@ -413,9 +414,9 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                             <Tag color={d.rank === 1 ? 'gold' : d.rank <= 3 ? 'blue' : 'default'}>#{d.rank}</Tag>
                             <strong>{d.department}</strong>
                             <span>
-                              均分 <strong style={{ color: '#3b82f6' }}>{d.avgScore}</strong>
+                              {t('qualityMonthly.avgScoreLabel')} <strong style={{ color: '#3b82f6' }}>{d.avgScore}</strong>
                             </span>
-                            <Tag>{d.total} 例</Tag>
+                            <Tag>{d.total} {t('qualityMonthly.casesUnit')}</Tag>
                           </Space>
                         </List.Item>
                       )}
@@ -427,7 +428,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
           },
           {
             key: 'sections',
-            label: '报告章节',
+            label: t('qualityMonthly.tab.sections'),
             children: (
               <Card size="small">
                 {report.sections.map((s) => (
@@ -439,7 +440,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                   </div>
                 ))}
                 <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
-                  生成于 {new Date(report.generatedAt).toLocaleString()} by {report.generatedBy}
+                  {t('qualityMonthly.generatedAt')} {new Date(report.generatedAt).toLocaleString()} by {report.generatedBy}
                 </div>
               </Card>
             ),

@@ -22,23 +22,24 @@ import {
   type TemplateStateV2,
   type TemplateApprovalStatsV2,
 } from '../../../services/api/templateApprovalApi'
+import { t } from '../../../i18n/appI18n'
 
 const { TextArea } = Input
 
 const STATE_META: Record<TemplateStateV2, { color: string; label: string; bg: string }> = {
-  draft: { color: '#64748b', label: '草稿', bg: 'var(--bg-secondary, #f1f5f9)' },
-  pending: { color: '#f59e0b', label: '审批中', bg: 'var(--color-warning-bg)' },
-  approved: { color: '#3b82f6', label: '已通过', bg: 'var(--color-info-bg)' },
-  rejected: { color: '#dc2626', label: '已驳回', bg: 'var(--color-error-bg)' },
-  published: { color: '#10b981', label: '已发布', bg: 'var(--color-success-bg)' },
+  draft: { color: '#64748b', label: t('templateApproval.state.draft'), bg: 'var(--bg-secondary, #f1f5f9)' },
+  pending: { color: '#f59e0b', label: t('templateApproval.state.pending'), bg: 'var(--color-warning-bg)' },
+  approved: { color: '#3b82f6', label: t('templateApproval.state.approved'), bg: 'var(--color-info-bg)' },
+  rejected: { color: '#dc2626', label: t('templateApproval.state.rejected'), bg: 'var(--color-error-bg)' },
+  published: { color: '#10b981', label: t('templateApproval.state.published'), bg: 'var(--color-success-bg)' },
 }
 
 const ACTION_LABEL: Record<string, string> = {
-  submit: '提交审批',
-  approve: '审批通过',
-  reject: '驳回',
-  publish: '发布',
-  rework: '退回草稿',
+  submit: t('templateApproval.action.submit'),
+  approve: t('templateApproval.action.approve'),
+  reject: t('templateApproval.action.reject'),
+  publish: t('templateApproval.action.publish'),
+  rework: t('templateApproval.action.rework'),
 }
 
 const ACTION_COLOR: Record<string, string> = {
@@ -84,17 +85,17 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
   const loadAll = useCallback(async () => {
     setLoading(true)
     try {
-      const [t, s] = await Promise.allSettled([
+      const [tplRes, s] = await Promise.allSettled([
         templateApprovalApi.listTemplates(),
         templateApprovalApi.stats(),
       ])
-      if (t.status === 'fulfilled' && t.value.success) {
-        setTemplates(t.value.data ?? [])
-        if (!selectedId && (t.value.data ?? []).length > 0) setSelectedId(t.value.data![0]!.id)
+      if (tplRes.status === 'fulfilled' && tplRes.value.success) {
+        setTemplates(tplRes.value.data ?? [])
+        if (!selectedId && (tplRes.value.data ?? []).length > 0) setSelectedId(tplRes.value.data![0]!.id)
       }
       if (s.status === 'fulfilled' && s.value.success) setStats(s.value.data)
     } catch {
-      message.error('加载模板数据失败')
+      message.error(t('templateApproval.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -119,70 +120,70 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
 
   const filtered = useMemo(() => {
     let list = templates
-    if (stateFilter) list = list.filter((t) => t.state === stateFilter)
+    if (stateFilter) list = list.filter((tpl) => tpl.state === stateFilter)
     if (keyword.trim()) {
       const q = keyword.trim().toLowerCase()
-      list = list.filter((t) => t.name.toLowerCase().includes(q) || t.content.toLowerCase().includes(q))
+      list = list.filter((tpl) => tpl.name.toLowerCase().includes(q) || tpl.content.toLowerCase().includes(q))
     }
     return list
   }, [templates, stateFilter, keyword])
 
-  const selected = useMemo(() => templates.find((t) => t.id === selectedId), [templates, selectedId])
+  const selected = useMemo(() => templates.find((tpl) => tpl.id === selectedId), [templates, selectedId])
 
   const columns: ColumnsType<ReportTemplateV2> = [
-    { title: '模板名称', dataIndex: 'name', width: 200, render: (v: string, t) => (
+    { title: t('templateApproval.col.name'), dataIndex: 'name', width: 200, render: (v: string, row) => (
         <Space size={4}>
           <FileText size={13} color="#64748b" />
           <span>{v}</span>
-          {t.favoriteCount > 0 && <Star size={12} color="#f59e0b" fill="#f59e0b" />}
+          {row.favoriteCount > 0 && <Star size={12} color="#f59e0b" fill="#f59e0b" />}
         </Space>
       ) },
-    { title: '类别', dataIndex: 'category', width: 70, render: (v: string) => <Tag>{v}</Tag> },
-    { title: '模态', dataIndex: 'modality', width: 60, render: (v?: string) => v ?? '-' },
-    { title: '部位', dataIndex: 'bodyPart', width: 80 },
-    { title: '版本', dataIndex: 'version', width: 60, render: (v: number) => <Tag color="blue">v{v}</Tag> },
-    { title: '状态', dataIndex: 'state', width: 90, render: (v: TemplateStateV2) => {
+    { title: t('templateApproval.col.category'), dataIndex: 'category', width: 70, render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('templateApproval.col.modality'), dataIndex: 'modality', width: 60, render: (v?: string) => v ?? '-' },
+    { title: t('templateApproval.col.bodyPart'), dataIndex: 'bodyPart', width: 80 },
+    { title: t('templateApproval.col.version'), dataIndex: 'version', width: 60, render: (v: number) => <Tag color="blue">v{v}</Tag> },
+    { title: t('templateApproval.col.state'), dataIndex: 'state', width: 90, render: (v: TemplateStateV2) => {
         const m = STATE_META[v]
         return <Tag color={m.color} style={{ fontWeight: 600 }}>{m.label}</Tag>
       } },
-    { title: '审批人', width: 100, render: (_, t) => t.assignee ? (
+    { title: t('templateApproval.col.assignee'), width: 100, render: (_, row) => row.assignee ? (
         <Space size={4}>
           <ClipboardCheck size={12} color="#7c3aed" />
-          <span>{t.assignee.approverName}</span>
+          <span>{row.assignee.approverName}</span>
         </Space>
       ) : '-' },
-    { title: '收藏', dataIndex: 'favoriteCount', width: 60, align: 'center' as const },
-    { title: '使用', dataIndex: 'usageCount', width: 60, align: 'center' as const },
-    { title: '操作', width: 230, fixed: 'right' as const, render: (_, t) => (
+    { title: t('templateApproval.col.favorite'), dataIndex: 'favoriteCount', width: 60, align: 'center' as const },
+    { title: t('templateApproval.col.usage'), dataIndex: 'usageCount', width: 60, align: 'center' as const },
+    { title: t('templateApproval.col.action'), width: 230, fixed: 'right' as const, render: (_, row) => (
         <Space size={4} wrap>
-          {t.state === 'draft' && (
-            <Button size="small" type="primary" icon={<Send size={11} />} onClick={() => { setActionModal({ template: t, kind: 'submit' }); setActionComment('') }}>
-              提交审批
+          {row.state === 'draft' && (
+            <Button size="small" type="primary" icon={<Send size={11} />} onClick={() => { setActionModal({ template: row, kind: 'submit' }); setActionComment('') }}>
+              {t('templateApproval.action.submit')}
             </Button>
           )}
-          {t.state === 'pending' && (
+          {row.state === 'pending' && (
             <>
-              <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} onClick={() => { setActionModal({ template: t, kind: 'approve' }); setActionComment('') }}>
-                通过
+              <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} onClick={() => { setActionModal({ template: row, kind: 'approve' }); setActionComment('') }}>
+                {t('templateApproval.approve')}
               </Button>
-              <Button size="small" danger icon={<XCircle size={11} />} onClick={() => { setActionModal({ template: t, kind: 'reject' }); setActionComment('') }}>
-                驳回
+              <Button size="small" danger icon={<XCircle size={11} />} onClick={() => { setActionModal({ template: row, kind: 'reject' }); setActionComment('') }}>
+                {t('templateApproval.reject')}
               </Button>
             </>
           )}
-          {t.state === 'approved' && (
-            <Button size="small" type="primary" icon={<Rocket size={11} />} onClick={() => { setActionModal({ template: t, kind: 'publish' }); setActionComment('') }}>
-              发布
+          {row.state === 'approved' && (
+            <Button size="small" type="primary" icon={<Rocket size={11} />} onClick={() => { setActionModal({ template: row, kind: 'publish' }); setActionComment('') }}>
+              {t('templateApproval.action.publish')}
             </Button>
           )}
-          <Tooltip title="版本历史">
-            <Button size="small" icon={<History size={11} />} onClick={() => { setSelectedId(t.id); setHistoryOpen(true); void loadDetail(t.id) }} />
+          <Tooltip title={t('templateApproval.versionHistoryTip')}>
+            <Button size="small" icon={<History size={11} />} onClick={() => { setSelectedId(row.id); setHistoryOpen(true); void loadDetail(row.id) }} />
           </Tooltip>
-          {t.state !== 'published' && (
-            <Tooltip title="收藏">
+          {row.state !== 'published' && (
+            <Tooltip title={t('templateApproval.favoriteTip')}>
               <Button size="small" icon={<Bookmark size={11} />} onClick={async () => {
-                const res = await templateApprovalApi.toggleFavorite(t.id, 'u-001')
-                if (res.success) message.success(res.data?.favorite ? '已收藏' : '已取消收藏')
+                const res = await templateApprovalApi.toggleFavorite(row.id, 'u-001')
+                if (res.success) message.success(res.data?.favorite ? t('templateApproval.favorited') : t('templateApproval.unfavorited'))
                 await loadAll()
               }} />
             </Tooltip>
@@ -201,7 +202,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
       if (kind === 'approve') res = await templateApprovalApi.approve(template.id, { approvedBy: '当前用户', comment: actionComment || undefined })
       if (kind === 'reject') {
         if (!actionComment.trim()) {
-          message.warning('请填写驳回原因')
+          message.warning(t('templateApproval.rejectReasonRequired'))
           setSubmitting(false)
           return
         }
@@ -209,14 +210,14 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
       }
       if (kind === 'publish') res = await templateApprovalApi.publish(template.id, { publishedBy: '当前用户', comment: actionComment || undefined })
       if (res && res.success) {
-        message.success(`${ACTION_LABEL[kind]}成功 (v${res.data?.version ?? ''})`)
+        message.success(t('templateApproval.actionSuccess', { action: ACTION_LABEL[kind], version: res.data?.version ?? '' }))
         setActionModal(null)
         await loadAll()
       } else {
-        message.error(res?.error?.message ?? '操作失败 (状态机拒绝非法流转)')
+        message.error(res?.error?.message ?? t('templateApproval.actionRejected'))
       }
     } catch {
-      message.error('操作失败')
+      message.error(t('templateApproval.actionFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -224,11 +225,11 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
 
   const createTemplate = async () => {
     if (!actionName.trim()) {
-      message.warning('请填写模板名称')
+      message.warning(t('templateApproval.nameRequired'))
       return
     }
     if (!actionContent.trim()) {
-      message.warning('请填写模板内容')
+      message.warning(t('templateApproval.contentRequired'))
       return
     }
     setSubmitting(true)
@@ -241,13 +242,13 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
         createdBy: '当前用户',
       })
       if (res.success) {
-        message.success(`已创建草稿模板 (v1)`)
+        message.success(t('templateApproval.draftCreated'))
         setActionModal(null)
         setActionName('')
         setActionContent('')
         await loadAll()
       } else {
-        message.error(res.error?.message ?? '创建失败')
+        message.error(res.error?.message ?? t('templateApproval.createFailed'))
       }
     } finally {
       setSubmitting(false)
@@ -289,34 +290,34 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
   )
 
   const headerItems = [
-    { title: '模板总数', value: stats?.total ?? '-', color: '#fff', prefix: <FileText size={14} /> },
-    { title: '审批中', value: stats?.pendingCount ?? '-', color: '#fcd34d', prefix: <ClipboardCheck size={14} /> },
-    { title: '已发布', value: stats?.publishedCount ?? '-', color: '#bbf7d0', prefix: <Rocket size={14} /> },
-    { title: '总版本数', value: stats?.totalVersions ?? '-', color: '#fff', prefix: <History size={14} /> },
+    { title: t('templateApproval.header.total'), value: stats?.total ?? '-', color: '#fff', prefix: <FileText size={14} /> },
+    { title: t('templateApproval.state.pending'), value: stats?.pendingCount ?? '-', color: '#fcd34d', prefix: <ClipboardCheck size={14} /> },
+    { title: t('templateApproval.state.published'), value: stats?.publishedCount ?? '-', color: '#bbf7d0', prefix: <Rocket size={14} /> },
+    { title: t('templateApproval.header.totalVersions'), value: stats?.totalVersions ?? '-', color: '#fff', prefix: <History size={14} /> },
     ...(compact ? [] : [
-      { title: '平均审批(h)', value: stats?.avgApprovalHours ?? '-', color: '#fff', prefix: <FileCheck2 size={14} /> },
-      { title: '总收藏', value: stats?.totalFavorites ?? '-', color: '#fde68a', prefix: <Star size={14} /> },
-      { title: '总使用', value: stats?.totalUsage ?? '-', color: '#bbf7d0', prefix: <Eye size={14} /> },
+      { title: t('templateApproval.header.avgApprovalHours'), value: stats?.avgApprovalHours ?? '-', color: '#fff', prefix: <FileCheck2 size={14} /> },
+      { title: t('templateApproval.header.totalFavorites'), value: stats?.totalFavorites ?? '-', color: '#fde68a', prefix: <Star size={14} /> },
+      { title: t('templateApproval.header.totalUsage'), value: stats?.totalUsage ?? '-', color: '#bbf7d0', prefix: <Eye size={14} /> },
     ]),
   ]
 
   return (
-    <div data-testid="template-approval-panel-v2" role="region" aria-label="模板审批流 V2 面板">
+    <div data-testid="template-approval-panel-v2" role="region" aria-label={t('templateApproval.panelAria')}>
       <div style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <FileCheck2 size={18} />
-            <strong style={{ fontSize: 16 }}>模板审批流 V2</strong>
+            <strong style={{ fontSize: 16 }}>{t('templateApproval.title')}</strong>
             <Tag color="purple">Wave 6C · F7</Tag>
-            <Tag color="cyan">状态机 + 版本管理</Tag>
+            <Tag color="cyan">{t('templateApproval.subtitle')}</Tag>
           </Space>
           <Space>
             <Button size="small" ghost type="dashed" icon={<Pencil size={12} />} onClick={() => { setActionModal({ template: {} as ReportTemplateV2, kind: 'create' }); setActionName(''); setActionCategory('CT'); setActionBodyPart(''); setActionContent('') }}>
-              新建草稿
+              {t('templateApproval.newDraft')}
             </Button>
-            <Tooltip title="刷新">
+            <Tooltip title={t('templateApproval.refresh')}>
               <Button size="small" ghost icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>
-                刷新
+                {t('templateApproval.refresh')}
               </Button>
             </Tooltip>
           </Space>
@@ -334,27 +335,27 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
         block value={tab}
         onChange={(v) => setTab(String(v))}
         options={[
-          { label: '模板列表', value: 'templates' },
-          { label: '版本与审批历史', value: 'history' },
+          { label: t('templateApproval.tab.templates'), value: 'templates' },
+          { label: t('templateApproval.tab.history'), value: 'history' },
         ]}
         style={{ marginBottom: 12 }}
       />
 
       {tab === 'templates' && (
-        <Card size="small" title={<Space><ClipboardCheck size={14} color="#4f46e5" />模板列表</Space>} extra={<Tag color="blue">{filtered.length} 个</Tag>}>
+        <Card size="small" title={<Space><ClipboardCheck size={14} color="#4f46e5" />{t('templateApproval.templateList')}</Space>} extra={<Tag color="blue">{t('templateApproval.countSuffix', { count: filtered.length })}</Tag>}>
           <Space wrap style={{ marginBottom: 12 }}>
-            <Input allowClear prefix={<Search size={12} />} placeholder="搜索模板名称/内容" style={{ width: 240 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            <Input allowClear prefix={<Search size={12} />} placeholder={t('templateApproval.searchPlaceholder')} style={{ width: 240 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
             <Select
-              allowClear placeholder="按状态过滤" style={{ width: 140 }} value={stateFilter}
+              allowClear placeholder={t('templateApproval.filterByState')} style={{ width: 140 }} value={stateFilter}
               onChange={(v) => setStateFilter(v)}
               options={(Object.keys(STATE_META) as TemplateStateV2[]).map((s) => ({ label: STATE_META[s].label, value: s }))}
             />
           </Space>
           <Table
             rowKey="id" size="small" loading={loading} dataSource={filtered} columns={columns}
-            pagination={{ pageSize: 8, showSizeChanger: false, showTotal: (t) => `共 ${t} 个模板` }}
+            pagination={{ pageSize: 8, showSizeChanger: false, showTotal: (total) => t('templateApproval.showTotal', { count: total }) }}
             scroll={{ x: 'max-content' }}
-            locale={{ emptyText: <Empty description="暂无模板" /> }}
+            locale={{ emptyText: <Empty description={t('templateApproval.noTemplates')} /> }}
           />
         </Card>
       )}
@@ -362,12 +363,12 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
       {tab === 'history' && (
         <Row gutter={12}>
           <Col span={10}>
-            <Card size="small" title={<Space><History size={14} color="#4f46e5" />选择模板</Space>}>
+            <Card size="small" title={<Space><History size={14} color="#4f46e5" />{t('templateApproval.selectTemplate')}</Space>}>
               <Table
                 rowKey="id" size="small" loading={loading} dataSource={templates} columns={[
-                  { title: '名称', dataIndex: 'name', ellipsis: true },
-                  { title: '状态', dataIndex: 'state', width: 90, render: (v: TemplateStateV2) => <Tag color={STATE_META[v]?.color}>{STATE_META[v]?.label}</Tag> },
-                  { title: '版本', dataIndex: 'version', width: 70, render: (v: number) => `v${v}` },
+                  { title: t('templateApproval.col.name'), dataIndex: 'name', ellipsis: true },
+                  { title: t('templateApproval.col.state'), dataIndex: 'state', width: 90, render: (v: TemplateStateV2) => <Tag color={STATE_META[v]?.color}>{STATE_META[v]?.label}</Tag> },
+                  { title: t('templateApproval.col.version'), dataIndex: 'version', width: 70, render: (v: number) => `v${v}` },
                 ]}
                 pagination={{ pageSize: 6, showSizeChanger: false }}
                 onRow={(record) => ({ onClick: () => { setSelectedId(record.id); void loadDetail(record.id) }, style: { cursor: 'pointer' } })}
@@ -377,17 +378,17 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
           </Col>
           <Col span={14}>
             {!selected ? (
-              <Card size="small"><Empty description="请选择模板" /></Card>
+              <Card size="small"><Empty description={t('templateApproval.selectTemplateHint')} /></Card>
             ) : (
               <>
-                <Card size="small" title={<Space><History size={14} color="#4f46e5" />版本历史 ({selected.name})</Space>} style={{ marginBottom: 12 }}>
+                <Card size="small" title={<Space><History size={14} color="#4f46e5" />{t('templateApproval.versionHistory', { name: selected.name })}</Space>} style={{ marginBottom: 12 }}>
                   <Space direction="vertical" size={4} style={{ width: '100%', maxHeight: 260, overflowY: 'auto' }}>
                     <Timeline items={versionTimeline} />
                   </Space>
                 </Card>
-                <Card size="small" title={<Space><ClipboardCheck size={14} color="#4f46e5" />审批记录 ({selected.name})</Space>}>
+                <Card size="small" title={<Space><ClipboardCheck size={14} color="#4f46e5" />{t('templateApproval.approvalRecords', { name: selected.name })}</Space>}>
                   <Space direction="vertical" size={4} style={{ width: '100%', maxHeight: 260, overflowY: 'auto' }}>
-                    {approvalTimeline.length === 0 ? <Empty description="暂无审批记录" /> : <Timeline items={approvalTimeline} />}
+                    {approvalTimeline.length === 0 ? <Empty description={t('templateApproval.noApprovalRecords')} /> : <Timeline items={approvalTimeline} />}
                   </Space>
                 </Card>
               </>
@@ -397,11 +398,11 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
       )}
 
       <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0' }}>
-        状态机: 草稿 → 提交审批 → 审批中 → 通过/驳回 → 发布 · 每次修改自动生成新版本 · 非法流转由后端拒绝
+        {t('templateApproval.footer')}
       </div>
 
       <Drawer
-        title={selected ? `版本历史: ${selected.name}` : '版本历史'}
+        title={selected ? t('templateApproval.versionHistory', { name: selected.name }) : t('templateApproval.versionHistoryTitle')}
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
         width={480}
@@ -417,45 +418,45 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
               <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{versions[i]?.content}</div>
             </div>
           ))}
-          {versions.length === 0 && <Empty description="暂无版本记录" />}
+          {versions.length === 0 && <Empty description={t('templateApproval.noVersions')} />}
         </Space>
       </Drawer>
 
       <Modal
         title={
-          actionModal?.kind === 'create' ? '新建草稿模板'
-            : actionModal?.kind === 'submit' ? `提交审批: ${actionModal?.template.name}`
-            : actionModal?.kind === 'approve' ? `审批通过: ${actionModal?.template.name}`
-            : actionModal?.kind === 'reject' ? `驳回: ${actionModal?.template.name}`
-            : actionModal?.kind === 'publish' ? `发布: ${actionModal?.template.name}`
-            : '操作'
+          actionModal?.kind === 'create' ? t('templateApproval.modal.createTitle')
+            : actionModal?.kind === 'submit' ? t('templateApproval.modal.submitTitle', { name: actionModal?.template.name })
+            : actionModal?.kind === 'approve' ? t('templateApproval.modal.approveTitle', { name: actionModal?.template.name })
+            : actionModal?.kind === 'reject' ? t('templateApproval.modal.rejectTitle', { name: actionModal?.template.name })
+            : actionModal?.kind === 'publish' ? t('templateApproval.modal.publishTitle', { name: actionModal?.template.name })
+            : t('templateApproval.modal.actionTitle')
         }
         open={!!actionModal}
         onCancel={() => setActionModal(null)}
         onOk={() => void (actionModal?.kind === 'create' ? createTemplate() : executeAction())}
-        okText={actionModal?.kind === 'reject' ? '确认驳回' : actionModal?.kind === 'create' ? '创建' : '确认'}
-        cancelText="取消"
+        okText={actionModal?.kind === 'reject' ? t('templateApproval.confirmReject') : actionModal?.kind === 'create' ? t('templateApproval.create') : t('templateApproval.confirm')}
+        cancelText={t('templateApproval.cancel')}
         confirmLoading={submitting}
       >
         {actionModal?.kind === 'create' ? (
           <Space direction="vertical" style={{ width: '100%' }} size={8}>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>模板名称</div>
-              <Input placeholder="如: 头颅CT平扫报告模板" value={actionName} onChange={(e) => setActionName(e.target.value)} />
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.name')}</div>
+              <Input placeholder={t('templateApproval.form.namePlaceholder')} value={actionName} onChange={(e) => setActionName(e.target.value)} />
             </div>
             <Row gutter={8}>
               <Col span={12}>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>类别</div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.category')}</div>
                 <Select style={{ width: '100%' }} value={actionCategory} onChange={(v) => setActionCategory(v)} options={['CT', 'MR', 'DR', 'MG', 'US', 'PET'].map((c) => ({ label: c, value: c }))} />
               </Col>
               <Col span={12}>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>检查部位</div>
-                <Input placeholder="如: 胸部" value={actionBodyPart} onChange={(e) => setActionBodyPart(e.target.value)} />
+                <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.bodyPart')}</div>
+                <Input placeholder={t('templateApproval.form.bodyPartPlaceholder')} value={actionBodyPart} onChange={(e) => setActionBodyPart(e.target.value)} />
               </Col>
             </Row>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>模板内容</div>
-              <TextArea rows={4} placeholder="填写模板正文" value={actionContent} onChange={(e) => setActionContent(e.target.value)} />
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('templateApproval.form.content')}</div>
+              <TextArea rows={4} placeholder={t('templateApproval.form.contentPlaceholder')} value={actionContent} onChange={(e) => setActionContent(e.target.value)} />
             </div>
           </Space>
         ) : (
@@ -465,7 +466,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
               v{actionModal?.template.version} · {actionModal?.template.category}/{actionModal?.template.bodyPart}
               {actionModal?.template.assignee && (
                 <div style={{ marginTop: 4, fontSize: 12, color: '#64748b' }}>
-                  审批人: {actionModal.template.assignee.approverName} ({actionModal.template.assignee.dept} · {actionModal.template.assignee.role})
+                  {t('templateApproval.assigneeLabel')} {actionModal.template.assignee.approverName} ({actionModal.template.assignee.dept} · {actionModal.template.assignee.role})
                 </div>
               )}
             </div>
@@ -474,9 +475,9 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
             </div>
             <div>
               <div style={{ fontSize: 12, marginBottom: 4 }}>
-                {actionModal?.kind === 'reject' ? '驳回原因 (必填)' : `${ACTION_LABEL[actionModal?.kind ?? ''] ?? '意见'} (可选)`}
+                {actionModal?.kind === 'reject' ? t('templateApproval.rejectReasonLabel') : t('templateApproval.commentLabel', { action: ACTION_LABEL[actionModal?.kind ?? ''] ?? t('templateApproval.comment') })}
               </div>
-              <TextArea rows={3} placeholder={actionModal?.kind === 'reject' ? '填写驳回原因' : '填写审批意见'} value={actionComment} onChange={(e) => setActionComment(e.target.value)} />
+              <TextArea rows={3} placeholder={actionModal?.kind === 'reject' ? t('templateApproval.rejectReasonPlaceholder') : t('templateApproval.commentPlaceholder')} value={actionComment} onChange={(e) => setActionComment(e.target.value)} />
             </div>
           </Space>
         )}

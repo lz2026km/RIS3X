@@ -24,13 +24,14 @@ import {
   type ExportCenterStatsV2,
   type ReportRecordV2,
 } from '../../../services/api/reportExportCenterV2Api'
+import { t } from '../../../i18n/appI18n'
 
 const STATE_META: Record<ExportTaskStateV2, { color: string; label: string }> = {
-  PENDING: { color: 'default', label: '待处理' },
-  PROCESSING: { color: 'processing', label: '处理中' },
-  COMPLETED: { color: 'success', label: '已完成' },
-  FAILED: { color: 'error', label: '失败' },
-  CANCELED: { color: 'warning', label: '已取消' },
+  PENDING: { color: 'default', label: t('reportExport.state.pending') },
+  PROCESSING: { color: 'processing', label: t('reportExport.state.processing') },
+  COMPLETED: { color: 'success', label: t('reportExport.state.completed') },
+  FAILED: { color: 'error', label: t('reportExport.state.failed') },
+  CANCELED: { color: 'warning', label: t('reportExport.state.canceled') },
 }
 
 const FORMAT_ICON: Record<ExportFormatV2, React.ReactNode> = {
@@ -100,7 +101,7 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
       if (h.status === 'fulfilled' && h.value.success) setHistory(h.value.data ?? [])
       if (s.status === 'fulfilled' && s.value.success) setStats(s.value.data)
     } catch {
-      message.error('加载导出中心数据失败')
+      message.error(t('reportExport.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -122,7 +123,7 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
 
   const createTask = async (reportIds: string[], batch = false) => {
     if (reportIds.length === 0) {
-      message.warning('请至少选择一份报告')
+      message.warning(t('reportExport.selectAtLeastOne'))
       return
     }
     setBusy(true)
@@ -132,13 +133,13 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
         : await reportExportCenterV2Api.createTask({ format, reportIds, requestedBy: '当前用户', requestedByRole: role })
       if (res.success && res.data) {
         if (batch) {
-          message.success(`批量导出完成: ${res.data.reportIds.length} 份报告 (${FORMAT_OPTIONS_V2.find((f) => f.value === format)?.label})`)
+          message.success(t('reportExport.batchDone', { count: res.data.reportIds.length, format: FORMAT_OPTIONS_V2.find((f) => f.value === format)?.label }))
         } else {
-          message.success(`任务已创建: ${res.data.id} (待处理)`)
+          message.success(t('reportExport.taskCreated', { id: res.data.id }))
         }
         await loadAll()
       } else {
-        message.error(res.error?.message ?? (batch ? '批量导出失败 (可能无权限)' : '创建任务失败 (可能无权限)'))
+        message.error(res.error?.message ?? (batch ? t('reportExport.batchFailed') : t('reportExport.createFailed')))
       }
     } finally {
       setBusy(false)
@@ -150,10 +151,10 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
     try {
       const res = await reportExportCenterV2Api.processTask(id)
       if (res.success) {
-        message.success(`任务已完成: ${res.data?.fileName}`)
+        message.success(t('reportExport.taskDone', { name: res.data?.fileName }))
         await loadAll()
       } else {
-        message.error(res.error?.message ?? '处理失败')
+        message.error(res.error?.message ?? t('reportExport.processFailed'))
       }
     } finally {
       setBusy(false)
@@ -163,10 +164,10 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
   const cancelTask = async (id: string) => {
     const res = await reportExportCenterV2Api.cancelTask(id)
     if (res.success) {
-      message.success('任务已取消')
+      message.success(t('reportExport.taskCanceled'))
       await loadAll()
     } else {
-      message.error(res.error?.message ?? '取消失败')
+      message.error(res.error?.message ?? t('reportExport.cancelFailed'))
     }
   }
 
@@ -174,95 +175,95 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
     const res = await reportExportCenterV2Api.download(id)
     if (res.success && res.data) {
       downloadContent(res.data.fileName, res.data.content, res.data.mimeType)
-      message.success(`已下载: ${res.data.fileName} (${formatSize(res.data.fileSize)})`)
+      message.success(t('reportExport.downloaded', { name: res.data.fileName, size: formatSize(res.data.fileSize) }))
     } else {
-      message.error(res.error?.message ?? '下载失败 (任务可能未完成)')
+      message.error(res.error?.message ?? t('reportExport.downloadFailed'))
     }
   }
 
   const openDetail = async (id: string) => {
     const res = await reportExportCenterV2Api.getTask(id)
     if (res.success) setDetail(res.data)
-    else message.error(res.error?.message ?? '加载任务详情失败')
+    else message.error(res.error?.message ?? t('reportExport.loadDetailFailed'))
   }
 
   const taskColumns: ColumnsType<ExportTaskSummaryV2> = [
-    { title: '任务', dataIndex: 'id', width: 110, render: (v: string, t) => (
+    { title: t('reportExport.col.task'), dataIndex: 'id', width: 110, render: (v: string, row) => (
         <Space size={4}>
-          {FORMAT_ICON[t.format]}
-          <a onClick={() => void openDetail(t.id)}>{v}</a>
+          {FORMAT_ICON[row.format]}
+          <a onClick={() => void openDetail(row.id)}>{v}</a>
         </Space>
       ) },
-    { title: '格式', dataIndex: 'format', width: 90, render: (v: ExportFormatV2) => <Tag>{FORMAT_OPTIONS_V2.find((f) => f.value === v)?.label}</Tag> },
-    { title: '报告数', dataIndex: 'reportCount', width: 70, align: 'center' as const },
-    { title: '状态', dataIndex: 'state', width: 90, render: (v: ExportTaskStateV2) => {
+    { title: t('reportExport.col.format'), dataIndex: 'format', width: 90, render: (v: ExportFormatV2) => <Tag>{FORMAT_OPTIONS_V2.find((f) => f.value === v)?.label}</Tag> },
+    { title: t('reportExport.col.reportCount'), dataIndex: 'reportCount', width: 70, align: 'center' as const },
+    { title: t('reportExport.col.status'), dataIndex: 'state', width: 90, render: (v: ExportTaskStateV2) => {
         const m = STATE_META[v]
         return <Tag color={m.color}>{m.label}</Tag>
       } },
-    { title: '进度', dataIndex: 'progress', width: 130, render: (v: number, t) => t.state === 'CANCELED' ? <Tag color="warning">已取消</Tag> : (
-        <Progress percent={Math.max(0, v)} size="small" status={t.state === 'COMPLETED' ? 'success' : 'active'} />
+    { title: t('reportExport.col.progress'), dataIndex: 'progress', width: 130, render: (v: number, row) => row.state === 'CANCELED' ? <Tag color="warning">{t('reportExport.state.canceled')}</Tag> : (
+        <Progress percent={Math.max(0, v)} size="small" status={row.state === 'COMPLETED' ? 'success' : 'active'} />
       ) },
-    { title: '文件', dataIndex: 'fileName', ellipsis: true, render: (v: string | undefined, t) => v ? (
-        <Space size={4}><CheckCircle2 size={12} color="#10b981" /><span>{v}</span><span style={{ color: '#94a3b8' }}>({formatSize(t.fileSize)})</span></Space>
+    { title: t('reportExport.col.file'), dataIndex: 'fileName', ellipsis: true, render: (v: string | undefined, row) => v ? (
+        <Space size={4}><CheckCircle2 size={12} color="#10b981" /><span>{v}</span><span style={{ color: '#94a3b8' }}>({formatSize(row.fileSize)})</span></Space>
       ) : '-' },
-    { title: '发起人', width: 100, render: (_, t) => `${t.requestedBy} (${t.requestedByRole})` },
-    { title: '创建时间', width: 110, render: (_, t) => formatDateTime(t.createdAt) },
-    { title: '操作', width: 190, render: (_, t) => (
+    { title: t('reportExport.col.requestedBy'), width: 100, render: (_, row) => `${row.requestedBy} (${row.requestedByRole})` },
+    { title: t('reportExport.col.createdAt'), width: 110, render: (_, row) => formatDateTime(row.createdAt) },
+    { title: t('reportExport.col.action'), width: 190, render: (_, row) => (
         <Space size={4}>
-          {t.state === 'PENDING' && (
-            <Button size="small" type="primary" icon={<Play size={11} />} onClick={() => void processTask(t.id)}>处理</Button>
+          {row.state === 'PENDING' && (
+            <Button size="small" type="primary" icon={<Play size={11} />} onClick={() => void processTask(row.id)}>{t('reportExport.process')}</Button>
           )}
-          {(t.state === 'PENDING' || t.state === 'PROCESSING') && (
-            <Button size="small" danger icon={<XCircle size={11} />} onClick={() => void cancelTask(t.id)}>取消</Button>
+          {(row.state === 'PENDING' || row.state === 'PROCESSING') && (
+            <Button size="small" danger icon={<XCircle size={11} />} onClick={() => void cancelTask(row.id)}>{t('reportExport.cancel')}</Button>
           )}
-          {t.state === 'COMPLETED' && (
-            <Button size="small" type="primary" icon={<Download size={11} />} onClick={() => void handleDownload(t.id)}>下载</Button>
+          {row.state === 'COMPLETED' && (
+            <Button size="small" type="primary" icon={<Download size={11} />} onClick={() => void handleDownload(row.id)}>{t('reportExport.download')}</Button>
           )}
-          <Button size="small" icon={<FileText size={11} />} onClick={() => void openDetail(t.id)}>详情</Button>
+          <Button size="small" icon={<FileText size={11} />} onClick={() => void openDetail(row.id)}>{t('reportExport.detail')}</Button>
         </Space>
       ) },
   ]
 
   const historyColumns: ColumnsType<ExportTaskSummaryV2> = [
-    { title: '任务', dataIndex: 'id', width: 110, render: (v: string, t) => (
-        <Space size={4}>{FORMAT_ICON[t.format]}<a onClick={() => void openDetail(t.id)}>{v}</a></Space>
+    { title: t('reportExport.col.task'), dataIndex: 'id', width: 110, render: (v: string, row) => (
+        <Space size={4}>{FORMAT_ICON[row.format]}<a onClick={() => void openDetail(row.id)}>{v}</a></Space>
       ) },
-    { title: '格式', dataIndex: 'format', width: 90, render: (v: ExportFormatV2) => <Tag>{FORMAT_OPTIONS_V2.find((f) => f.value === v)?.label}</Tag> },
-    { title: '报告数', dataIndex: 'reportCount', width: 70, align: 'center' as const },
-    { title: '状态', dataIndex: 'state', width: 90, render: (v: ExportTaskStateV2) => <Tag color={STATE_META[v].color}>{STATE_META[v].label}</Tag> },
-    { title: '文件名', dataIndex: 'fileName', ellipsis: true, render: (v: string | undefined, t) => v ? `${v} (${formatSize(t.fileSize)})` : '-' },
-    { title: '完成时间', width: 110, render: (_, t) => formatDateTime(t.completedAt ?? t.updatedAt) },
-    { title: '发起人', width: 110, render: (_, t) => `${t.requestedBy} (${t.requestedByRole})` },
-    { title: '操作', width: 90, render: (_, t) => t.state === 'COMPLETED' ? (
-        <Button size="small" type="primary" icon={<Download size={11} />} onClick={() => void handleDownload(t.id)}>下载</Button>
+    { title: t('reportExport.col.format'), dataIndex: 'format', width: 90, render: (v: ExportFormatV2) => <Tag>{FORMAT_OPTIONS_V2.find((f) => f.value === v)?.label}</Tag> },
+    { title: t('reportExport.col.reportCount'), dataIndex: 'reportCount', width: 70, align: 'center' as const },
+    { title: t('reportExport.col.status'), dataIndex: 'state', width: 90, render: (v: ExportTaskStateV2) => <Tag color={STATE_META[v].color}>{STATE_META[v].label}</Tag> },
+    { title: t('reportExport.col.fileName'), dataIndex: 'fileName', ellipsis: true, render: (v: string | undefined, row) => v ? `${v} (${formatSize(row.fileSize)})` : '-' },
+    { title: t('reportExport.col.completedAt'), width: 110, render: (_, row) => formatDateTime(row.completedAt ?? row.updatedAt) },
+    { title: t('reportExport.col.requestedBy'), width: 110, render: (_, row) => `${row.requestedBy} (${row.requestedByRole})` },
+    { title: t('reportExport.col.action'), width: 90, render: (_, row) => row.state === 'COMPLETED' ? (
+        <Button size="small" type="primary" icon={<Download size={11} />} onClick={() => void handleDownload(row.id)}>{t('reportExport.download')}</Button>
       ) : '-' },
   ]
 
   const headerItems = [
-    { title: '任务总数', value: stats?.total ?? '-', prefix: <Layers size={14} /> },
-    { title: '已完成', value: stats?.completed ?? '-', prefix: <CheckCircle2 size={14} /> },
-    { title: '处理中', value: stats?.active ?? '-', prefix: <Play size={14} /> },
-    { title: '导出报告数', value: stats?.totalReportsExported ?? '-', prefix: <FileText size={14} /> },
+    { title: t('reportExport.header.totalTasks'), value: stats?.total ?? '-', prefix: <Layers size={14} /> },
+    { title: t('reportExport.header.completed'), value: stats?.completed ?? '-', prefix: <CheckCircle2 size={14} /> },
+    { title: t('reportExport.header.processing'), value: stats?.active ?? '-', prefix: <Play size={14} /> },
+    { title: t('reportExport.header.reportsExported'), value: stats?.totalReportsExported ?? '-', prefix: <FileText size={14} /> },
     ...(compact ? [] : [
-      { title: '导出字节数', value: stats ? formatSize(stats.totalExportedBytes) : '-', prefix: <FileDown size={14} /> },
-      { title: '已取消', value: stats?.canceled ?? '-', prefix: <XCircle size={14} /> },
+      { title: t('reportExport.header.bytesExported'), value: stats ? formatSize(stats.totalExportedBytes) : '-', prefix: <FileDown size={14} /> },
+      { title: t('reportExport.header.canceled'), value: stats?.canceled ?? '-', prefix: <XCircle size={14} /> },
     ]),
   ]
 
   return (
-    <div data-testid="report-export-center-panel-v2" role="region" aria-label="报告导出中心 V2 面板">
+    <div data-testid="report-export-center-panel-v2" role="region" aria-label={t('reportExport.panelAria')}>
       <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #1e1b4b 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <FileDown size={18} />
-            <strong style={{ fontSize: 16 }}>报告导出中心 V2</strong>
+            <strong style={{ fontSize: 16 }}>{t('reportExport.title')}</strong>
             <Tag color="purple">Wave 7B · F15</Tag>
-            <Tag color="cyan">任务流 + 批量 + 权限</Tag>
+            <Tag color="cyan">{t('reportExport.subtitle')}</Tag>
           </Space>
           <Space>
-            <Tooltip title="刷新">
+            <Tooltip title={t('reportExport.refresh')}>
               <Button size="small" ghost icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>
-                刷新
+                {t('reportExport.refresh')}
               </Button>
             </Tooltip>
           </Space>
@@ -280,8 +281,8 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
         block value={tab}
         onChange={(v) => setTab(String(v))}
         options={[
-          { label: '导出任务', value: 'export' },
-          { label: '导出历史', value: 'history' },
+          { label: t('reportExport.tab.export'), value: 'export' },
+          { label: t('reportExport.tab.history'), value: 'history' },
         ]}
         style={{ marginBottom: 12 }}
       />
@@ -289,10 +290,10 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
       {tab === 'export' && (
         <Row gutter={12}>
           <Col span={compact ? 24 : 11}>
-            <Card size="small" title={<Space><FileText size={14} color="#7c3aed" />报告选择 ({selectedReportIds.length} 已选)</Space>} extra={<Tag color="blue">{filteredReports.length} 份</Tag>}>
+            <Card size="small" title={<Space><FileText size={14} color="#7c3aed" />{t('reportExport.reportSelection', { count: selectedReportIds.length })}</Space>} extra={<Tag color="blue">{t('reportExport.reportCountSuffix', { count: filteredReports.length })}</Tag>}>
               <Space wrap style={{ marginBottom: 12 }}>
-                <Input.Search allowClear placeholder="搜索标题/患者" style={{ width: 180 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-                <Select allowClear placeholder="检查类型" style={{ width: 110 }} value={examFilter} onChange={(v) => setExamFilter(v)} options={Array.from(new Set(reports.map((r) => r.examType))).map((m) => ({ value: m, label: m }))} />
+                <Input.Search allowClear placeholder={t('reportExport.searchPlaceholder')} style={{ width: 180 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+                <Select allowClear placeholder={t('reportExport.examTypePlaceholder')} style={{ width: 110 }} value={examFilter} onChange={(v) => setExamFilter(v)} options={Array.from(new Set(reports.map((r) => r.examType))).map((m) => ({ value: m, label: m }))} />
               </Space>
               <Table
                 rowKey="id" size="small" loading={loading} dataSource={filteredReports}
@@ -303,18 +304,18 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
                   onChange: (keys) => setSelectedReportIds(keys.map(String)),
                 }}
                 columns={[
-                  { title: '报告', dataIndex: 'title', ellipsis: true },
-                  { title: '患者', dataIndex: 'patientName', width: 80 },
-                  { title: '类型', dataIndex: 'examType', width: 55, render: (v: string) => <Tag>{v}</Tag> },
-                  { title: '日期', dataIndex: 'examDate', width: 90 },
+                  { title: t('reportExport.col.report'), dataIndex: 'title', ellipsis: true },
+                  { title: t('reportExport.col.patient'), dataIndex: 'patientName', width: 80 },
+                  { title: t('reportExport.col.type'), dataIndex: 'examType', width: 55, render: (v: string) => <Tag>{v}</Tag> },
+                  { title: t('reportExport.col.date'), dataIndex: 'examDate', width: 90 },
                 ]}
-                locale={{ emptyText: <Empty description="暂无报告" /> }}
+                locale={{ emptyText: <Empty description={t('reportExport.noReports')} /> }}
               />
             </Card>
           </Col>
           <Col span={compact ? 24 : 13}>
-            <Card size="small" title={<Space><FileDown size={14} color="#7c3aed" />导出设置</Space>}>
-              <div style={{ fontSize: 12, marginBottom: 6 }}>导出格式</div>
+            <Card size="small" title={<Space><FileDown size={14} color="#7c3aed" />{t('reportExport.exportSettings')}</Space>}>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>{t('reportExport.exportFormat')}</div>
               <Radio.Group
                 value={format}
                 onChange={(e) => setFormat(e.target.value)}
@@ -330,44 +331,44 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
                 buttonStyle="solid"
                 style={{ marginBottom: 12 }}
               />
-              <div style={{ fontSize: 12, marginBottom: 6 }}>当前角色 (权限校验)</div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>{t('reportExport.currentRole')}</div>
               <Select
                 style={{ width: 220, marginBottom: 12 }}
                 value={role}
                 onChange={(v) => setRole(v)}
                 options={[
-                  { value: 'DOCTOR', label: '医生 (单份导出)' },
-                  { value: 'DIRECTOR', label: '主任 (单份+批量)' },
-                  { value: 'ADMIN', label: '管理员 (单份+批量)' },
-                  { value: 'TECH', label: '技师 (无权限演示)' },
+                  { value: 'DOCTOR', label: t('reportExport.role.doctor') },
+                  { value: 'DIRECTOR', label: t('reportExport.role.director') },
+                  { value: 'ADMIN', label: t('reportExport.role.admin') },
+                  { value: 'TECH', label: t('reportExport.role.tech') },
                 ]}
               />
               <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
-                <ShieldCheck size={12} style={{ verticalAlign: -2 }} /> 批量导出 (≥2 份) 需主任/管理员权限; TECH 角色一律禁止。
+                <ShieldCheck size={12} style={{ verticalAlign: -2 }} /> {t('reportExport.roleNote')}
               </div>
               <Space wrap>
                 <Button
                   type="primary" loading={busy} icon={<Zap size={12} />}
                   onClick={() => void createTask(selectedReportIds.length > 0 ? selectedReportIds : (reports[0] ? [reports[0].id] : []), false)}
                 >
-                  创建导出任务
+                  {t('reportExport.createTask')}
                 </Button>
                 <Button
                   danger loading={busy} icon={<Layers size={12} />}
                   onClick={() => void createTask(selectedReportIds, true)}
                 >
-                  批量导出 ({selectedReportIds.length})
+                  {t('reportExport.batchExport', { count: selectedReportIds.length })}
                 </Button>
-                <Button onClick={() => setSelectedReportIds(reports.map((r) => r.id))}>全选</Button>
-                <Button onClick={() => setSelectedReportIds([])}>清空</Button>
+                <Button onClick={() => setSelectedReportIds(reports.map((r) => r.id))}>{t('reportExport.selectAll')}</Button>
+                <Button onClick={() => setSelectedReportIds([])}>{t('reportExport.clear')}</Button>
               </Space>
             </Card>
-            <Card size="small" title={<Space><Play size={14} color="#7c3aed" />任务列表 ({tasks.length})</Space>} style={{ marginTop: 12 }}>
+            <Card size="small" title={<Space><Play size={14} color="#7c3aed" />{t('reportExport.taskList', { count: tasks.length })}</Space>} style={{ marginTop: 12 }}>
               <Table
                 rowKey="id" size="small" loading={loading} dataSource={tasks} columns={taskColumns}
                 pagination={{ pageSize: 5, showSizeChanger: false }}
                 scroll={{ x: 'max-content' }}
-                locale={{ emptyText: <Empty description="暂无导出任务" /> }}
+                locale={{ emptyText: <Empty description={t('reportExport.noTasks')} /> }}
               />
             </Card>
           </Col>
@@ -375,12 +376,12 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
       )}
 
       {tab === 'history' && (
-        <Card size="small" title={<Space><History size={14} color="#7c3aed" />导出历史 ({history.length})</Space>}>
+        <Card size="small" title={<Space><History size={14} color="#7c3aed" />{t('reportExport.historyTitle', { count: history.length })}</Space>}>
           <Table
             rowKey="id" size="small" loading={loading} dataSource={history} columns={historyColumns}
             pagination={{ pageSize: 8, showSizeChanger: false }}
             scroll={{ x: 'max-content' }}
-            locale={{ emptyText: <Empty description="暂无导出历史" /> }}
+            locale={{ emptyText: <Empty description={t('reportExport.noHistory')} /> }}
           />
         </Card>
       )}
@@ -390,25 +391,25 @@ const ReportExportCenterPanelV2: React.FC<ReportExportCenterPanelV2Props> = ({ c
           <Space style={{ width: '100%', justifyContent: 'space-between' }} >
             <Space>
               {FORMAT_ICON[detail.format]}
-              <strong>任务 {detail.id} 详情</strong>
+              <strong>{t('reportExport.taskDetail', { id: detail.id })}</strong>
               <Tag color={STATE_META[detail.state].color}>{STATE_META[detail.state].label}</Tag>
               <span style={{ fontSize: 12, color: '#94a3b8' }}>{formatSize(detail.fileSize)} · {detail.requestedBy} ({detail.requestedByRole})</span>
             </Space>
-            <Button size="small" onClick={() => setDetail(null)}>关闭</Button>
+            <Button size="small" onClick={() => setDetail(null)}>{t('reportExport.close')}</Button>
           </Space>
           <div style={{ fontSize: 12, color: '#475569', marginTop: 8, whiteSpace: 'pre-wrap', maxHeight: 200, overflowY: 'auto', fontFamily: 'monospace' }}>
-            {detail.content ?? '任务尚未处理, 无导出内容'}
+            {detail.content ?? t('reportExport.noContent')}
           </div>
           {detail.state === 'COMPLETED' && (
             <Button size="small" type="primary" style={{ marginTop: 8 }} icon={<Download size={11} />} onClick={() => void handleDownload(detail.id)}>
-              下载 {detail.fileName}
+              {t('reportExport.downloadFile', { name: detail.fileName })}
             </Button>
           )}
         </div>
       )}
 
       <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0' }}>
-        导出格式: PDF/DOCX 为概念导出 (确定性占位内容) · HTML/CSV/DICOM SR 生成完整内容 · 所有格式均包含报告全文 · 任务流转 PENDING → PROCESSING → COMPLETED
+        {t('reportExport.footer')}
       </div>
     </div>
   )

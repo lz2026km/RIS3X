@@ -11,6 +11,7 @@ import { Card, Space, Button, Tag, Empty, Row, Col, Statistic, Divider, Timeline
 import { CheckCircle2, XCircle, Clock, Search, RefreshCw, Eye, Download, FileText, Activity, Shield, AlertCircle, Send } from 'lucide-react';
 import React, { useState, useMemo, useCallback } from 'react';
 import { Inbox } from 'lucide-react'
+import { t } from '../../../../i18n/appI18n';
 
 interface Props {
   reportId?: string;
@@ -20,8 +21,8 @@ interface Props {
 
 
 const STATUS_LABELS: Record<DeliveryStatus, string> = {
-  pending: '待发送', queued: '队列中', sending: '发送中', sent: '已发送',
-  delivered: '已送达', read: '已阅读', failed: '失败', cancelled: '已取消', expired: '已过期',
+  pending: t('reportDist.status.pending'), queued: t('reportDist.status.queued'), sending: t('reportDist.status.sending'), sent: t('reportDist.status.sent'),
+  delivered: t('reportDist.status.delivered'), read: t('reportDist.status.read'), failed: t('reportDist.status.failed'), cancelled: t('reportDist.status.cancelled'), expired: t('reportDist.status.expired'),
 };
 
 const EVENT_ICONS: Record<DeliveryEvent['type'], React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
@@ -124,40 +125,40 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
     <div className="space-y-3">
       {/* 概览 */}
       <Row gutter={8}>
-        <Col span={5}><Card size="small"><Statistic title="总回执" value={stats.total} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="已送达" value={stats.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="已阅读" value={stats.read} prefix={<Eye className="w-3 h-3" style={{ color: '#059669' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="失败" value={stats.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="送达率" value={stats.successRate} suffix="%" styles={{ content: {  fontSize: 18, color: '#10b981'  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title={t('reportDist.receipt.stat.total')} value={stats.total} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title={t('reportDist.status.delivered')} value={stats.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title={t('reportDist.status.read')} value={stats.read} prefix={<Eye className="w-3 h-3" style={{ color: '#059669' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title={t('reportDist.status.failed')} value={stats.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('reportDist.receipt.stat.deliveryRate')} value={stats.successRate} suffix="%" styles={{ content: {  fontSize: 18, color: '#10b981'  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-5 gap-3">
         {/* 左侧:回执列表 */}
         <Card size="small" className="col-span-2 shadow-sm" title={
           <div className="flex items-center justify-between">
-            <Space><FileText className="w-4 h-4" /><span>回执列表</span></Space>
-            <Tag color="orange" style={{ fontSize: 10, marginLeft: 6 }}>演示数据 (ALL_RECEIPTS)</Tag>
+            <Space><FileText className="w-4 h-4" /><span>{t('reportDist.receipt.listTitle')}</span></Space>
+            <Tag color="orange" style={{ fontSize: 10, marginLeft: 6 }}>{t('reportDist.receipt.demoTag')}</Tag>
             <Tag>{filtered.length}</Tag>
           </div>
         } extra={
-          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} loading={refreshing} onClick={() => void handleRefresh()}>刷新</Button>
+          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} loading={refreshing} onClick={() => void handleRefresh()}>{t('reportDist.receipt.refresh')}</Button>
         }>
           <div className="space-y-2 mb-2">
             <Input
               size="small"
               prefix={<Search className="w-3 h-3" />}
-              placeholder="搜索收件人/报告/任务"
+              placeholder={t('reportDist.receipt.searchPlaceholder')}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               allowClear
             />
             <Select size="small" value={filterStatus} onChange={setFilterStatus} style={{ width: '100%' }} options={[
-              { value: 'all', label: '全部状态' },
+              { value: 'all', label: t('reportDist.allStatuses') },
               ...Object.entries(STATUS_LABELS).map(([k, v]) => ({ value: k, label: v })),
             ]} />
           </div>
           <div className="space-y-1.5 max-h-[500px] overflow-y-auto">
-            {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无回执" /> : filtered.map((r) => (
+            {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportDist.receipt.noReceipts')} /> : filtered.map((r) => (
               <div
                 key={r.id}
                 onClick={() => setSelectedId(r.id)}
@@ -171,7 +172,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
                 <div className="text-xs text-slate-600 truncate">→ {r.recipientName ?? r.recipient}</div>
                 <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400">
                   <span>{r.channel}</span>
-                  <span>重试 {r.retryCount}</span>
+                  <span>{t('reportDist.retry')} {r.retryCount}</span>
                   <span>¥{r.cost.toFixed(3)}</span>
                 </div>
               </div>
@@ -182,11 +183,11 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
         {/* 右侧:回执详情 */}
         <Card size="small" className="col-span-3 shadow-sm" title={
           <div className="flex items-center justify-between">
-            <Space><Activity className="w-4 h-4" /><span>回执详情</span>{selected && <Tag color={STATUS_COLORS[selected.status]}>{STATUS_LABELS[selected.status]}</Tag>}</Space>
+            <Space><Activity className="w-4 h-4" /><span>{t('reportDist.receipt.detailTitle')}</span>{selected && <Tag color={STATUS_COLORS[selected.status]}>{STATUS_LABELS[selected.status]}</Tag>}</Space>
             {selected && (
               <Space>
-                <Button size="small" icon={<Shield className="w-3 h-3" />} onClick={handleVerify}>验证签名</Button>
-                <Button size="small" icon={<Download className="w-3 h-3" />} onClick={handleExportPdf}>导出 PDF</Button>
+                <Button size="small" icon={<Shield className="w-3 h-3" />} onClick={handleVerify}>{t('reportDist.receipt.verifySignature')}</Button>
+                <Button size="small" icon={<Download className="w-3 h-3" />} onClick={handleExportPdf}>{t('reportDist.receipt.exportPdf')}</Button>
               </Space>
             )}
           </div>
@@ -195,27 +196,27 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="p-2 bg-slate-50 rounded">
-                  <div className="text-slate-500">任务 ID</div>
+                  <div className="text-slate-500">{t('reportDist.field.taskId')}</div>
                   <div className="font-mono text-blue-600">{selected.taskId}</div>
                 </div>
                 <div className="p-2 bg-slate-50 rounded">
-                  <div className="text-slate-500">报告 ID</div>
+                  <div className="text-slate-500">{t('reportDist.field.reportId')}</div>
                   <div className="font-mono text-blue-600">{selected.reportId}</div>
                 </div>
                 <div className="p-2 bg-slate-50 rounded">
-                  <div className="text-slate-500">收件人</div>
+                  <div className="text-slate-500">{t('reportDist.field.recipient')}</div>
                   <div>{selected.recipientName ?? '-'} <span className="text-slate-400">({selected.recipient})</span></div>
                 </div>
                 <div className="p-2 bg-slate-50 rounded">
-                  <div className="text-slate-500">通道</div>
+                  <div className="text-slate-500">{t('reportDist.field.channel')}</div>
                   <div>{selected.channel}</div>
                 </div>
                 <div className="p-2 bg-slate-50 rounded">
-                  <div className="text-slate-500">完成时间</div>
+                  <div className="text-slate-500">{t('reportDist.receipt.completedAt')}</div>
                   <div>{new Date(selected.finalAt).toLocaleString()}</div>
                 </div>
                 <div className="p-2 bg-slate-50 rounded">
-                  <div className="text-slate-500">成本/吞吐</div>
+                  <div className="text-slate-500">{t('reportDist.receipt.costThroughput')}</div>
                   <div>¥{selected.cost.toFixed(3)} / {selected.throughputKb} KB</div>
                 </div>
               </div>
@@ -224,7 +225,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
 
               <div>
                 <h5 className="text-sm font-semibold mb-2 flex items-center gap-1">
-                  <Activity className="w-3 h-3" />事件时间线 ({selected.events.length})
+                  <Activity className="w-3 h-3" />{t('reportDist.receipt.eventTimeline', { count: selected.events.length })}
                 </h5>
                 <Timeline
                   items={selected.events.map((e) => {
@@ -256,18 +257,18 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
                 <div className="p-2 bg-green-50 border border-green-200 rounded text-xs">
                   <Space>
                     <Shield className="w-3 h-3" style={{ color: '#10b981' }} />
-                    <span className="font-mono text-green-700">签名: {selected.signature}</span>
-                    {selected.verified && <Tag color="success" icon={<CheckCircle2 className="w-3 h-3" />}>已验证</Tag>}
+                    <span className="font-mono text-green-700">{t('reportDist.receipt.signature')} {selected.signature}</span>
+                    {selected.verified && <Tag color="success" icon={<CheckCircle2 className="w-3 h-3" />}>{t('reportDist.receipt.verified')}</Tag>}
                   </Space>
                 </div>
               )}
             </div>
-          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择左侧回执" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportDist.receipt.selectReceipt')} />}
         </Card>
       </div>
 
       <Modal
-        title={<Space><Shield className="w-4 h-4 text-green-500" /><span>数字签名验证</span></Space>}
+        title={<Space><Shield className="w-4 h-4 text-green-500" /><span>{t('reportDist.receipt.verifyTitle')}</span></Space>}
         open={showVerifyModal}
         onCancel={() => setShowVerifyModal(false)}
         footer={null}
@@ -277,14 +278,14 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
             <Alert
               type={verifyResult.verified ? 'success' : 'error'}
               showIcon
-              title={verifyResult.verified ? '签名验证通过' : '签名验证失败'}
+              title={verifyResult.verified ? t('reportDist.receipt.verifyPassed') : t('reportDist.receipt.verifyFailed')}
               description={verifyResult.details}
             />
             <div className="text-xs text-slate-500 space-y-1">
-              <div>• 签名算法: SHA-256 with RSA</div>
-              <div>• 证书链: 3 级</div>
-              <div>• 时间戳: RFC 3161</div>
-              <div>• CA: 卫健委国家信任 CA</div>
+              <div>• {t('reportDist.receipt.sigAlgo')}</div>
+              <div>• {t('reportDist.receipt.certChain')}</div>
+              <div>• {t('reportDist.receipt.timestamp')}</div>
+              <div>• {t('reportDist.receipt.ca')}</div>
             </div>
           </div>
         )}

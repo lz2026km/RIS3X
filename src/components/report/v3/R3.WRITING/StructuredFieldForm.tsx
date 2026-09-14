@@ -11,6 +11,7 @@ import dayjs, { type Dayjs } from 'dayjs';
 import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText, Table as TableIcon } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 const {  } = Input;
 
@@ -45,8 +46,8 @@ export const StructuredFieldForm: React.FC<Props> = ({
   const [values, setValues] = useState<Record<string, unknown>>(initialValues ?? {});
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
-  const template = useMemo(() => getStructuredTemplates().find((t) => t.id === activeTab), [activeTab]);
-  const activeTabMeta = useMemo(() => TABS.find((t) => t.id === activeTab) ?? TABS[0]!, [activeTab]);
+  const template = useMemo(() => getStructuredTemplates().find((tpl) => tpl.id === activeTab), [activeTab]);
+  const activeTabMeta = useMemo(() => TABS.find((tab) => tab.id === activeTab) ?? TABS[0]!, [activeTab]);
 
   // 公式自动计算
   useEffect(() => {
@@ -234,11 +235,11 @@ export const StructuredFieldForm: React.FC<Props> = ({
 
   const handleGenerateSection = useCallback(() => {
     if (!hasMeasurableData) {
-      message.info('当前结构化表单无测量数据,请先填写测量值后再生成测量表');
+      message.info(t('aiDraft.structuredForm.noMeasurementData'));
       return;
     }
     if (!onGenerateReportSection) {
-      message.info('当前环境未接入报告编辑器,无法插入测量表');
+      message.info(t('aiDraft.structuredForm.noEditor'));
       return;
     }
     onGenerateReportSection(buildMeasurementHtml());
@@ -351,15 +352,15 @@ export const StructuredFieldForm: React.FC<Props> = ({
             {...commonProps}
             checked={Boolean(values[f.key])}
             onChange={(v) => handleValueChange(f.key, v)}
-            checkedChildren="是"
-            unCheckedChildren="否"
+            checkedChildren={t('aiDraft.structuredForm.yes')}
+            unCheckedChildren={t('aiDraft.structuredForm.no')}
           />
         );
         break;
       case 'image':
         control = (
           <Upload listType="picture-card" showUploadList={{ showPreviewIcon: true }} beforeUpload={() => false}>
-            <Button icon={<ImageIcon className="w-4 h-4" />} type="text">上传</Button>
+            <Button icon={<ImageIcon className="w-4 h-4" />} type="text">{t('aiDraft.structuredForm.upload')}</Button>
           </Upload>
         );
         break;
@@ -370,9 +371,9 @@ export const StructuredFieldForm: React.FC<Props> = ({
             type="dashed"
             disabled={isLocked}
             // [v3.0.6.11-98 Wave3B P2] 未锁定时点击: 提示先完成表单 (签名需在表单锁定/提交后)
-            onClick={() => message.info('请先完成表单并提交，锁定后执行签名')}
+            onClick={() => message.info(t('aiDraft.structuredForm.signatureHint'))}
           >
-            {values[f.key] ? '已签名' : '点击签名'}
+            {values[f.key] ? t('aiDraft.structuredForm.signed') : t('aiDraft.structuredForm.clickToSign')}
           </Button>
         );
         break;
@@ -391,13 +392,13 @@ export const StructuredFieldForm: React.FC<Props> = ({
         {control}
         {f.referenceRange && (
           <div className="text-xs text-slate-500 mt-1">
-            参考范围: {f.referenceRange.min ?? '-'} ~ {f.referenceRange.max ?? '-'} {f.referenceRange.unit ?? ''}
+            {t('aiDraft.structuredForm.referenceRange')} {f.referenceRange.min ?? '-'} ~ {f.referenceRange.max ?? '-'} {f.referenceRange.unit ?? ''}
             {f.referenceRange.note && ` (${f.referenceRange.note})`}
           </div>
         )}
         {f.example && (
           <div className="text-xs text-blue-500 mt-1">
-            示例: {f.example}
+            {t('aiDraft.structuredForm.example')} {f.example}
           </div>
         )}
       </div>
@@ -446,7 +447,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
         <Row gutter={16} align="middle">
           <Col span={6}>
             <Statistic
-              title="必填完成度"
+              title={t('aiDraft.structuredForm.requiredCompletion')}
               value={completion.percent}
               suffix="%"
               prefix={completion.percent === 100 ? <CheckCircle2 className="w-4 h-4" style={{ color: '#10b981' }} /> : <AlertTriangle className="w-4 h-4" style={{ color: '#f59e0b' }} />}
@@ -455,23 +456,23 @@ export const StructuredFieldForm: React.FC<Props> = ({
             <Progress percent={completion.percent} showInfo={false} strokeColor={completion.percent === 100 ? '#10b981' : '#f59e0b'} />
           </Col>
           <Col span={6}>
-            <Statistic title="字段质量分" value={fieldScore} suffix="/100" prefix={<Award className="w-4 h-4" style={{ color: '#3b82f6' }} />} styles={{ content: {  color: '#3b82f6', fontSize: 24  } }} />
+            <Statistic title={t('aiDraft.structuredForm.fieldQualityScore')} value={fieldScore} suffix="/100" prefix={<Award className="w-4 h-4" style={{ color: '#3b82f6' }} />} styles={{ content: {  color: '#3b82f6', fontSize: 24  } }} />
           </Col>
           <Col span={6}>
-            <Statistic title="已填字段" value={completion.filled} suffix={`/ ${completion.total}`} prefix={<Hash className="w-4 h-4" style={{ color: '#8b5cf6' }} />} />
+            <Statistic title={t('aiDraft.structuredForm.filledFields')} value={completion.filled} suffix={`/ ${completion.total}`} prefix={<Hash className="w-4 h-4" style={{ color: '#8b5cf6' }} />} />
           </Col>
           <Col span={6}>
             <div className="flex items-center gap-2">
               {/* [v3.0.6.11-98 Wave2B (报告 P1)] 测量表生成: 表单值 → 结构化段落 HTML → 编辑器 */}
-              <Tooltip title={hasMeasurableData ? '按当前表单值生成测量表/分级段落,插入报告正文' : '无测量数据,请先填写测量值'}>
+              <Tooltip title={hasMeasurableData ? t('aiDraft.structuredForm.generateTableTip') : t('aiDraft.structuredForm.noMeasurementTip')}>
                 <Button icon={<TableIcon className="w-4 h-4" />} onClick={handleGenerateSection} disabled={!hasMeasurableData || readOnly}>
-                  生成测量表
+                  {t('aiDraft.structuredForm.generateTable')}
                 </Button>
               </Tooltip>
               <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={() => onSubmit?.(values)} disabled={completion.percent < 100 || readOnly}>
-                提交
+                {t('aiDraft.structuredForm.submit')}
               </Button>
-              <Button onClick={() => { setValues({}); onChange?.({}); }}>清空</Button>
+              <Button onClick={() => { setValues({}); onChange?.({}); }}>{t('aiDraft.structuredForm.clear')}</Button>
             </div>
           </Col>
         </Row>
@@ -480,15 +481,15 @@ export const StructuredFieldForm: React.FC<Props> = ({
       <Tabs
         activeKey={activeTab}
         onChange={(k) => setActiveTab(k as StructuredTemplate['id'])}
-        items={TABS.map((t) => ({
-          key: t.id,
+        items={TABS.map((tab) => ({
+          key: tab.id,
           label: (
             <Space>
-              <t.icon className="w-4 h-4" style={{ color: t.color }} />
-              {t.label}
+              <tab.icon className="w-4 h-4" style={{ color: tab.color }} />
+              {tab.label}
             </Space>
           ),
-          children: template ? renderTab(template) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />,
+          children: template ? renderTab(template) : <Empty description={t('aiDraft.structuredForm.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />,
         }))}
       />
     </div>
@@ -511,11 +512,11 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
       ? calcRecistResponse(lesions)
       : RECIST_RESPONSE;
     return (
-      <Card size="small" title="RECIST 1.1 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.recistAssessment')} className="shadow-sm">
         <Row gutter={16}>
-          <Col span={6}><Statistic title="长径总和" value={response.sumOfDiameters} suffix="mm" /></Col>
-          <Col span={6}><Statistic title="基线总和" value={response.baselineSum} suffix="mm" /></Col>
-          <Col span={6}><Statistic title="变化" value={response.percentChange} suffix="%" precision={1} styles={{ content: {  color: response.percentChange < 0 ? '#10b981' : '#dc2626'  } }} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.sumOfDiameters')} value={response.sumOfDiameters} suffix="mm" /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.baselineSum')} value={response.baselineSum} suffix="mm" /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.change')} value={response.percentChange} suffix="%" precision={1} styles={{ content: {  color: response.percentChange < 0 ? '#10b981' : '#dc2626'  } }} /></Col>
           <Col span={6}>
             <Tag color={{ CR: 'green', PR: 'blue', SD: 'orange', PD: 'red', NE: 'default' }[response.category]} style={{ fontSize: 16, padding: '4px 12px' }}>
               {response.categoryLabel} ({response.category})
@@ -529,13 +530,13 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
     const cat = (values['biradsCategory'] as BiradsCategory) ?? '2';
     const a = getBiradsByCategory(cat);
     return (
-      <Card size="small" title="BI-RADS 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.biradsAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
           <Col span={6}>
             <Tag color={a.color} style={{ fontSize: 18, padding: '6px 16px' }}>BI-RADS {a.category}</Tag>
           </Col>
           <Col span={6}><div className="font-semibold text-lg">{a.label}</div><div className="text-xs text-slate-500">{a.labelEn}</div></Col>
-          <Col span={6}><Statistic title="恶性风险" value={a.malignancyRisk} suffix="%" /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.malignancyRisk')} value={a.malignancyRisk} suffix="%" /></Col>
           <Col span={6}><div className="text-sm">{a.recommendation}</div></Col>
         </Row>
       </Card>
@@ -545,16 +546,16 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
     const overall = Number(values['overallScore'] ?? PIRADS_ASSESSMENT.overallScore) as PiradsScore;
     const psad = Number(values['psad'] ?? PIRADS_ASSESSMENT.psad);
     return (
-      <Card size="small" title="PI-RADS v2.1 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.piradsAssessment')} className="shadow-sm">
         <Row gutter={16}>
           <Col span={6}>
             <div className="text-center">
               <div className="text-5xl font-bold" style={{ color: overall >= 4 ? '#dc2626' : overall >= 3 ? '#f59e0b' : '#10b981' }}>{overall}</div>
-              <div className="text-xs text-slate-500">综合评分</div>
+              <div className="text-xs text-slate-500">{t('aiDraft.structuredForm.overallScore')}</div>
             </div>
           </Col>
           <Col span={6}><Statistic title="PSA" value={Number(values['psa'] ?? 0)} suffix="ng/mL" /></Col>
-          <Col span={6}><Statistic title="前列腺体积" value={Number(values['prostateVolume'] ?? 0)} suffix="cc" /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.prostateVolume')} value={Number(values['prostateVolume'] ?? 0)} suffix="cc" /></Col>
           <Col span={6}><Statistic title="PSAD" value={psad} suffix="ng/mL/cc" precision={3} /></Col>
         </Row>
       </Card>
@@ -565,12 +566,12 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
     const catColor: Record<string, string> = { '0': '#9ca3af', '1': '#10b981', '2': '#10b981', '3': '#f59e0b', '4A': '#fb923c', '4B': '#ea580c', '4X': '#dc2626' };
     const modifier = (values['lungRadsModifier'] as string[]) ?? [];
     return (
-      <Card size="small" title="Lung-RADS 2022 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.lungRadsAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
           <Col span={6}><Tag color={catColor[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>Lung-RADS {cat}</Tag></Col>
-          <Col span={6}><Statistic title="结节数量" value={Number(values['noduleCount'] ?? 0)} /></Col>
-          <Col span={6}><Statistic title="结节大小" value={Number(values['noduleSizeMm'] ?? 0)} suffix="mm" /></Col>
-          <Col span={6}>{modifier.length > 0 && <div className="text-sm">修饰符: {modifier.join(', ')}</div>}</Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.noduleCount')} value={Number(values['noduleCount'] ?? 0)} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.noduleSize')} value={Number(values['noduleSizeMm'] ?? 0)} suffix="mm" /></Col>
+          <Col span={6}>{modifier.length > 0 && <div className="text-sm">{t('aiDraft.structuredForm.modifier')} {modifier.join(', ')}</div>}</Col>
         </Row>
       </Card>
     );
@@ -579,12 +580,12 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
     const cat = String(values['cadRadsCategory'] ?? '0');
     const catColor: Record<string, string> = { '0': '#10b981', '1': '#3b82f6', '2': '#f59e0b', '3': '#fb923c', '4': '#ea580c', '5': '#dc2626' };
     return (
-      <Card size="small" title="CAD-RADS 2.0 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.cadRadsAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
           <Col span={6}><Tag color={catColor[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>CAD-RADS {cat}</Tag></Col>
-          <Col span={6}><Statistic title="LM狭窄" value={String(values['lmStenosis'] ?? '-')} /></Col>
-          <Col span={6}><Statistic title="LAD狭窄" value={String(values['ladStenosis'] ?? '-')} /></Col>
-          <Col span={6}><Statistic title="RCA狭窄" value={String(values['rcaStenosis'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.lmStenosis')} value={String(values['lmStenosis'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.ladStenosis')} value={String(values['ladStenosis'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.rcaStenosis')} value={String(values['rcaStenosis'] ?? '-')} /></Col>
         </Row>
       </Card>
     );
@@ -592,12 +593,12 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
   if (templateId === 'liRads') {
     const cat = String(values['liRadsCategory'] ?? 'LR-3');
     return (
-      <Card size="small" title="LI-RADS v2024 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.liRadsAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
           <Col span={6}><Tag color={{ 'LR-1': '#10b981', 'LR-2': '#3b82f6', 'LR-3': '#f59e0b', 'LR-4': '#fb923c', 'LR-5': '#dc2626', 'LR-M': '#7c3aed', 'LR-TIV': '#991b1b' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>{cat}</Tag></Col>
           <Col span={6}><Statistic title="APHE" value={String(values['aphe'] ?? '-')} /></Col>
-          <Col span={6}><Statistic title="廓清" value={String(values['washout'] ?? '-')} /></Col>
-          <Col span={6}><Statistic title="病灶数" value={Number(values['lesionCountLiver'] ?? 1)} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.washout')} value={String(values['washout'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.lesionCount')} value={Number(values['lesionCountLiver'] ?? 1)} /></Col>
         </Row>
       </Card>
     );
@@ -605,12 +606,12 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
   if (templateId === 'tiRads') {
     const cat = String(values['tiRadsCategory'] ?? 'TR1');
     return (
-      <Card size="small" title="ACR TI-RADS 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.tiRadsAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
           <Col span={6}><Tag color={{ 'TR1': '#10b981', 'TR2': '#3b82f6', 'TR3': '#f59e0b', 'TR4': '#fb923c', 'TR5': '#dc2626' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>{cat}</Tag></Col>
-          <Col span={6}><Statistic title="总分" value={Number(values['totalTiradsScore'] ?? 0)} suffix="分" /></Col>
-          <Col span={6}><Statistic title="结节大小" value={Number(values['noduleSizeTi'] ?? 0)} suffix="mm" /></Col>
-          <Col span={6}><div className="text-sm text-slate-500">依据ACR TI-RADS指南</div></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.totalScore')} value={Number(values['totalTiradsScore'] ?? 0)} suffix={t('aiDraft.structuredForm.points')} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.noduleSize')} value={Number(values['noduleSizeTi'] ?? 0)} suffix="mm" /></Col>
+          <Col span={6}><div className="text-sm text-slate-500">{t('aiDraft.structuredForm.perAcrTirads')}</div></Col>
         </Row>
       </Card>
     );
@@ -618,12 +619,12 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
   if (templateId === 'cRads') {
     const cat = String(values['cRadsCategory'] ?? 'C1');
     return (
-      <Card size="small" title="C-RADS 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.cRadsAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
           <Col span={6}><Tag color={{ 'C0': '#9ca3af', 'C1': '#10b981', 'C2': '#fb923c', 'C3': '#ea580c', 'C4': '#dc2626' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>{cat}</Tag></Col>
-          <Col span={6}><Statistic title="息肉数量" value={Number(values['polypCount'] ?? 0)} /></Col>
-          <Col span={6}><Statistic title="肠道准备" value={String(values['prepQuality'] ?? '-')} /></Col>
-          <Col span={6}><div className="text-sm">管理建议: {String(values['cRadsManagement'] ?? '')}</div></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.polypCount')} value={Number(values['polypCount'] ?? 0)} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.bowelPrep')} value={String(values['prepQuality'] ?? '-')} /></Col>
+          <Col span={6}><div className="text-sm">{t('aiDraft.structuredForm.managementRecommendation')} {String(values['cRadsManagement'] ?? '')}</div></Col>
         </Row>
       </Card>
     );
@@ -631,32 +632,32 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
   if (templateId === 'oRads') {
     const cat = String(values['oRadsCategory'] ?? '1');
     return (
-      <Card size="small" title="O-RADS MRI 评估" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.oRadsAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
           <Col span={6}><Tag color={{ '0': '#9ca3af', '1': '#10b981', '2': '#3b82f6', '3': '#f59e0b', '4': '#fb923c', '5': '#dc2626' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>O-RADS {cat}</Tag></Col>
-          <Col span={6}><Statistic title="病变大小" value={Number(values['lesionSizeOr'] ?? 0)} suffix="mm" /></Col>
-          <Col span={6}><Statistic title="强化" value={String(values['enhancement'] ?? '-')} /></Col>
-          <Col span={6}><Statistic title="弥散受限" value={String(values['diffusionRestriction'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.lesionSize')} value={Number(values['lesionSizeOr'] ?? 0)} suffix="mm" /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.enhancement')} value={String(values['enhancement'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title={t('aiDraft.structuredForm.diffusionRestriction')} value={String(values['diffusionRestriction'] ?? '-')} /></Col>
         </Row>
       </Card>
     );
   }
   if (templateId === 'tnm') {
-    const t = String(values['tCategory'] ?? 'TX');
+    const tCat = String(values['tCategory'] ?? 'TX');
     const n = String(values['nCategory'] ?? 'NX');
     const m = String(values['mCategory'] ?? 'M0');
     const stage = String(values['stageGroup'] ?? '');
     return (
-      <Card size="small" title="TNM/AJCC 8th 分期" className="shadow-sm">
+      <Card size="small" title={t('aiDraft.structuredForm.tnmAssessment')} className="shadow-sm">
         <Row gutter={16} align="middle">
-          <Col span={4}><Tag color="#3b82f6" style={{ fontSize: 18, padding: '4px 12px' }}>{t}{n}{m}</Tag></Col>
-          <Col span={4}><Statistic title="T" value={t} /></Col>
+          <Col span={4}><Tag color="#3b82f6" style={{ fontSize: 18, padding: '4px 12px' }}>{tCat}{n}{m}</Tag></Col>
+          <Col span={4}><Statistic title="T" value={tCat} /></Col>
           <Col span={4}><Statistic title="N" value={n} /></Col>
           <Col span={4}><Statistic title="M" value={m} /></Col>
           <Col span={4}>
             <div className="text-center">
               <div className="text-3xl font-bold" style={{ color: stage.startsWith('IV') ? '#dc2626' : stage.startsWith('III') ? '#ea580c' : stage.startsWith('II') ? '#f59e0b' : '#10b981' }}>{stage || '-'}</div>
-              <div className="text-xs text-slate-500">分期</div>
+              <div className="text-xs text-slate-500">{t('aiDraft.structuredForm.stage')}</div>
             </div>
           </Col>
         </Row>

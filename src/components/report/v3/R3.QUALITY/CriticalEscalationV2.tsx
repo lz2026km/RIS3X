@@ -31,19 +31,20 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { Siren, Clock, ArrowUp, CheckCircle2, XCircle, Settings, Activity, ShieldAlert } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 const STATUS_META: Record<ChainStatus, { label: string; color: string }> = {
-  NOTIFYING: { label: '通知中', color: 'blue' },
-  PENDING_CONFIRM: { label: '待确认', color: 'gold' },
-  CONFIRMED: { label: '已确认', color: 'green' },
-  ESCALATED: { label: '已升级', color: 'volcano' },
-  CLOSED: { label: '已关闭', color: 'default' },
+  NOTIFYING: { label: t('criticalEscalation.status.notifying'), color: 'blue' },
+  PENDING_CONFIRM: { label: t('criticalEscalation.status.pendingConfirm'), color: 'gold' },
+  CONFIRMED: { label: t('criticalEscalation.status.confirmed'), color: 'green' },
+  ESCALATED: { label: t('criticalEscalation.status.escalated'), color: 'volcano' },
+  CLOSED: { label: t('criticalEscalation.status.closed'), color: 'default' },
 };
 
 const LEVEL_META: Record<EscalationLevel, { label: string; color: string }> = {
-  1: { label: '一级电话', color: 'blue' },
-  2: { label: '二级值班', color: 'gold' },
-  3: { label: '三级科主任', color: 'red' },
+  1: { label: t('criticalEscalation.level.1'), color: 'blue' },
+  2: { label: t('criticalEscalation.level.2'), color: 'gold' },
+  3: { label: t('criticalEscalation.level.3'), color: 'red' },
 };
 
 const SEVERITY_META: Record<string, string> = {
@@ -226,7 +227,7 @@ export const CriticalEscalationV2: React.FC = () => {
       message.success(`${c.id} 已升级至 ${LEVEL_META[res.data.currentLevel]?.label}`);
       await load();
     } else {
-      message.error(res.error?.message ?? '升级失败');
+      message.error(res.error?.message ?? t('criticalEscalation.escalateFailed'));
     }
   };
 
@@ -236,7 +237,7 @@ export const CriticalEscalationV2: React.FC = () => {
       message.success(`${c.id} 已关闭`);
       await load();
     } else {
-      message.error(res.error?.message ?? '关闭失败');
+      message.error(res.error?.message ?? t('criticalEscalation.closeFailed'));
     }
   };
 
@@ -250,7 +251,7 @@ export const CriticalEscalationV2: React.FC = () => {
       setConfirming(null);
       await load();
     } else {
-      message.error(res.error?.message ?? '确认失败');
+      message.error(res.error?.message ?? t('criticalEscalation.confirmFailed'));
     }
   };
 
@@ -261,9 +262,9 @@ export const CriticalEscalationV2: React.FC = () => {
       const res = await criticalEscalationApi.updateConfig(levels).catch(() => ({ success: false as const, data: null as unknown as { levels: EscalationConfig['levels'] } }));
       if (res.success) {
         setConfig({ ...config, levels: res.data.levels });
-        message.success('升级链配置已保存');
+        message.success(t('criticalEscalation.configSaved'));
       } else {
-        message.warning('保存失败 (演示模式, 仅本地生效)');
+        message.warning(t('criticalEscalation.saveFailed'));
       }
       setEditing(false);
     } finally {
@@ -274,26 +275,26 @@ export const CriticalEscalationV2: React.FC = () => {
   const remainingMin = (deadline: string): number => Math.max(0, Math.round((new Date(deadline).getTime() - Date.now()) / 60000));
 
   const columns: ColumnsType<EscalationChain> = [
-    { title: '链', dataIndex: 'id', key: 'id', width: 80, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 80 },
-    { title: '危急值', dataIndex: 'title', key: 'title', ellipsis: true },
-    { title: '级别', dataIndex: 'severity', key: 'severity', width: 80, render: (v: string) => <Tag color={SEVERITY_META[v] ?? 'blue'}>{v}</Tag> },
+    { title: t('criticalEscalation.col.chain'), dataIndex: 'id', key: 'id', width: 80, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: t('criticalEscalation.col.patient'), dataIndex: 'patientName', key: 'patientName', width: 80 },
+    { title: t('criticalEscalation.col.criticalValue'), dataIndex: 'title', key: 'title', ellipsis: true },
+    { title: t('criticalEscalation.col.level'), dataIndex: 'severity', key: 'severity', width: 80, render: (v: string) => <Tag color={SEVERITY_META[v] ?? 'blue'}>{v}</Tag> },
     {
-      title: '当前级别',
+      title: t('criticalEscalation.col.currentLevel'),
       dataIndex: 'currentLevel',
       key: 'currentLevel',
       width: 100,
       render: (v: EscalationLevel, r) => <Tag color={LEVEL_META[v]?.color}>{LEVEL_META[v]?.label}{r.escalatedCount > 0 ? ` (升级×${r.escalatedCount})` : ''}</Tag>,
     },
     {
-      title: '状态',
+      title: t('criticalEscalation.col.status'),
       dataIndex: 'status',
       key: 'status',
       width: 90,
       render: (v: ChainStatus) => <Tag color={STATUS_META[v]?.color}>{STATUS_META[v]?.label}</Tag>,
     },
     {
-      title: '超时倒计时',
+      title: t('criticalEscalation.col.countdown'),
       key: 'countdown',
       width: 120,
       render: (_, r) => {
@@ -303,30 +304,30 @@ export const CriticalEscalationV2: React.FC = () => {
           <Space size={4}>
             <Clock size={12} color={min <= 2 ? '#dc2626' : min <= 5 ? '#f59e0b' : '#10b981'} />
             <strong style={{ color: min <= 2 ? '#dc2626' : min <= 5 ? '#f59e0b' : '#10b981' }}>{min}</strong>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>分钟</span>
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('criticalEscalation.minutes')}</span>
           </Space>
         );
       },
     },
     {
-      title: '操作',
+      title: t('criticalEscalation.col.action'),
       key: 'action',
       width: 260,
       render: (_, r) => (
         <Space size={4} wrap>
-          <Button size="small" icon={<Activity size={12} />} onClick={() => void runTick(r.id)}>超时检查</Button>
+          <Button size="small" icon={<Activity size={12} />} onClick={() => void runTick(r.id)}>{t('criticalEscalation.tickCheck')}</Button>
           {(r.status === 'NOTIFYING' || r.status === 'PENDING_CONFIRM' || r.status === 'ESCALATED') && (
             <>
-              <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => { setConfirmBy('值班医师'); setConfirming(r); }}>确认</Button>
-              <Tooltip title={r.currentLevel >= 3 ? '已达最高升级级别' : '手动升级至下一级别'}>
-                <Button size="small" danger icon={<ArrowUp size={12} />} disabled={r.currentLevel >= 3} onClick={() => void runEscalate(r)}>升级</Button>
+              <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => { setConfirmBy('值班医师'); setConfirming(r); }}>{t('criticalEscalation.confirm')}</Button>
+              <Tooltip title={r.currentLevel >= 3 ? t('criticalEscalation.atMaxLevel') : t('criticalEscalation.escalateNextHint')}>
+                <Button size="small" danger icon={<ArrowUp size={12} />} disabled={r.currentLevel >= 3} onClick={() => void runEscalate(r)}>{t('criticalEscalation.escalate')}</Button>
               </Tooltip>
             </>
           )}
           {r.status !== 'CLOSED' && (
-            <Button size="small" icon={<XCircle size={12} />} onClick={() => void runClose(r)}>关闭</Button>
+            <Button size="small" icon={<XCircle size={12} />} onClick={() => void runClose(r)}>{t('criticalEscalation.close')}</Button>
           )}
-          <Button size="small" onClick={() => setDetail(r)}>阶梯图</Button>
+          <Button size="small" onClick={() => setDetail(r)}>{t('criticalEscalation.staircase')}</Button>
         </Space>
       ),
     },
@@ -341,23 +342,23 @@ export const CriticalEscalationV2: React.FC = () => {
   }
 
   return (
-    <div data-testid="critical-escalation-v2" role="region" aria-label="危急值升级链 V2" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div data-testid="critical-escalation-v2" role="region" aria-label={t('criticalEscalation.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <Card size="small" style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 12 } }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <Siren size={18} color="#fff" />
-            <strong style={{ color: '#fff', fontSize: 16 }}>危急值升级链 V2 · 超时自动升级</strong>
+            <strong style={{ color: '#fff', fontSize: 16 }}>{t('criticalEscalation.title')}</strong>
             <Tag color="red">F12</Tag>
-            <Tag color="gold">状态机: 通知中→待确认→已确认/已升级/已关闭</Tag>
+            <Tag color="gold">{t('criticalEscalation.stateMachine')}</Tag>
           </Space>
           <Button size="small" icon={<Settings size={12} />} onClick={() => setEditing(!editing)}>
-            {editing ? '收起配置' : '升级链配置'}
+            {editing ? t('criticalEscalation.collapseConfig') : t('criticalEscalation.chainConfig')}
           </Button>
         </Space>
       </Card>
 
       {editing && (
-        <Card size="small" title={<Space><Settings size={14} /> 升级链配置 (级别 + 每级超时时间 + 升级规则)</Space>}>
+        <Card size="small" title={<Space><Settings size={14} /> {t('criticalEscalation.configTitle')}</Space>}>
           <Row gutter={[12, 12]}>
             {config.levels.map((l) => (
               <Col xs={24} md={8} key={l.level}>
@@ -369,7 +370,7 @@ export const CriticalEscalationV2: React.FC = () => {
                     </Space>
                     <span style={{ fontSize: 11, color: '#94a3b8' }}>{l.channels.join('/')}</span>
                   </Space>
-                  <div style={{ margin: '8px 0 4px', fontSize: 12 }}>超时时间 (分钟)</div>
+                  <div style={{ margin: '8px 0 4px', fontSize: 12 }}>{t('criticalEscalation.timeoutMinutes')}</div>
                   <InputNumber
                     size="small"
                     min={1}
@@ -389,7 +390,7 @@ export const CriticalEscalationV2: React.FC = () => {
               </Tooltip>
             ))}
             <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} loading={saving} onClick={() => void saveConfig()}>
-              保存配置
+              {t('criticalEscalation.saveConfig')}
             </Button>
           </Space>
         </Card>
@@ -397,42 +398,42 @@ export const CriticalEscalationV2: React.FC = () => {
 
       <Row gutter={12}>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title="升级链总数" value={stats.total} prefix={<Siren size={14} />} valueStyle={{ color: '#1e40af' }} /></Card>
+          <Card size="small"><Statistic title={t('criticalEscalation.totalChains')} value={stats.total} prefix={<Siren size={14} />} valueStyle={{ color: '#1e40af' }} /></Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title="平均确认耗时" value={stats.avgResponseMinutes} suffix="分钟" prefix={<Clock size={14} />} valueStyle={{ color: '#0d9488' }} /></Card>
+          <Card size="small"><Statistic title={t('criticalEscalation.avgConfirmTime')} value={stats.avgResponseMinutes} suffix={t('criticalEscalation.minutes')} prefix={<Clock size={14} />} valueStyle={{ color: '#0d9488' }} /></Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title="升级率" value={stats.escalationRate} suffix="%" prefix={<ArrowUp size={14} />} valueStyle={{ color: '#f59e0b' }} /></Card>
+          <Card size="small"><Statistic title={t('criticalEscalation.escalationRate')} value={stats.escalationRate} suffix="%" prefix={<ArrowUp size={14} />} valueStyle={{ color: '#f59e0b' }} /></Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title="平均升级次数" value={stats.avgEscalationCount} prefix={<ShieldAlert size={14} />} valueStyle={{ color: '#dc2626' }} /></Card>
+          <Card size="small"><Statistic title={t('criticalEscalation.avgEscalationCount')} value={stats.avgEscalationCount} prefix={<ShieldAlert size={14} />} valueStyle={{ color: '#dc2626' }} /></Card>
         </Col>
       </Row>
 
       <Card
         size="small"
-        title={<Space><Activity size={14} /> 升级链列表 (超时倒计时 + 手动升级)</Space>}
-        extra={<Space><Tag color="purple">{stats.byStatus.ESCALATED ?? 0} 已升级</Tag><Tag color="green">{stats.byStatus.CONFIRMED ?? 0} 已确认</Tag></Space>}
+        title={<Space><Activity size={14} /> {t('criticalEscalation.chainList')}</Space>}
+        extra={<Space><Tag color="purple">{stats.byStatus.ESCALATED ?? 0} {t('criticalEscalation.status.escalated')}</Tag><Tag color="green">{stats.byStatus.CONFIRMED ?? 0} {t('criticalEscalation.status.confirmed')}</Tag></Space>}
       >
         {chains.length === 0 ? (
-          <Empty description="暂无升级链" />
+          <Empty description={t('criticalEscalation.noChains')} />
         ) : (
           <Table size="small" rowKey="id" columns={columns} dataSource={chains} pagination={{ pageSize: 6, showSizeChanger: false }} scroll={{ x: 'max-content' }} />
         )}
       </Card>
 
-      <Card size="small" title={<Space><Clock size={14} /> 按级别响应耗时统计</Space>}>
+      <Card size="small" title={<Space><Clock size={14} /> {t('criticalEscalation.byLevelStats')}</Space>}>
         <Row gutter={[8, 8]}>
           {stats.byLevel.map((l) => (
             <Col xs={24} md={8} key={l.level}>
               <Card size="small" style={{ borderLeft: `4px solid ${LEVEL_META[l.level]?.color}` }}>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <strong style={{ fontSize: 13 }}>{l.levelName}</strong>
-                  <Tag color={LEVEL_META[l.level]?.color}>{l.count} 次</Tag>
+                  <Tag color={LEVEL_META[l.level]?.color}>{l.count} {t('criticalEscalation.times')}</Tag>
                 </Space>
                 <div style={{ marginTop: 6, fontSize: 12, color: '#64748b' }}>
-                  确认 {l.confirmed} 次 · 超时 {l.escalated} 次 · 平均 {l.avgResponseMinutes} 分钟
+                  {t('criticalEscalation.confirmed')} {l.confirmed} {t('criticalEscalation.times')} · {t('criticalEscalation.timeout')} {l.escalated} {t('criticalEscalation.times')} · {t('criticalEscalation.avg')} {l.avgResponseMinutes} {t('criticalEscalation.minutes')}
                 </div>
               </Card>
             </Col>
@@ -441,16 +442,16 @@ export const CriticalEscalationV2: React.FC = () => {
       </Card>
 
       {/* ===== 确认弹窗 ===== */}
-      <Modal title={confirming ? `确认危急值 · ${confirming.id}` : ''} open={!!confirming} onCancel={() => setConfirming(null)} onOk={() => void runAcknowledge()} okText="确认" width={420}>
+      <Modal title={confirming ? `确认危急值 · ${confirming.id}` : ''} open={!!confirming} onCancel={() => setConfirming(null)} onOk={() => void runAcknowledge()} okText={t('criticalEscalation.confirm')} width={420}>
         {confirming && (
           <Space direction="vertical" style={{ width: '100%' }} size={8}>
             <Descriptions size="small" column={1}>
-              <Descriptions.Item label="患者">{confirming.patientName}</Descriptions.Item>
-              <Descriptions.Item label="危急值">{confirming.title}</Descriptions.Item>
-              <Descriptions.Item label="当前级别">{LEVEL_META[confirming.currentLevel]?.label} ({confirming.steps[confirming.steps.length - 1]?.role})</Descriptions.Item>
-              <Descriptions.Item label="超时剩余">{remainingMin(confirming.currentDeadline)} 分钟</Descriptions.Item>
+              <Descriptions.Item label={t('criticalEscalation.col.patient')}>{confirming.patientName}</Descriptions.Item>
+              <Descriptions.Item label={t('criticalEscalation.col.criticalValue')}>{confirming.title}</Descriptions.Item>
+              <Descriptions.Item label={t('criticalEscalation.col.currentLevel')}>{LEVEL_META[confirming.currentLevel]?.label} ({confirming.steps[confirming.steps.length - 1]?.role})</Descriptions.Item>
+              <Descriptions.Item label={t('criticalEscalation.timeoutRemaining')}>{remainingMin(confirming.currentDeadline)} {t('criticalEscalation.minutes')}</Descriptions.Item>
             </Descriptions>
-            <div style={{ marginBottom: 4 }}>确认人</div>
+            <div style={{ marginBottom: 4 }}>{t('criticalEscalation.confirmBy')}</div>
             <Select size="small" style={{ width: '100%' }} value={confirmBy} onChange={setConfirmBy} options={['值班医师', '值班主任医师', '科主任', '护士站'].map((v) => ({ value: v, label: v }))} />
           </Space>
         )}
@@ -481,21 +482,21 @@ const ChainStaircase: React.FC<{ chain: EscalationChain }> = ({ chain }) => {
     title: (
       <Space size={6}>
         <Tag color={levelOf(s.level)?.color}>{s.levelName}</Tag>
-        {s.status === 'CONFIRMED' ? <Tag color="green">已确认</Tag> : s.status === 'TIMEOUT' ? <Tag color="red">超时</Tag> : <Tag color="blue">已通知</Tag>}
+        {s.status === 'CONFIRMED' ? <Tag color="green">{t('criticalEscalation.status.confirmed')}</Tag> : s.status === 'TIMEOUT' ? <Tag color="red">{t('criticalEscalation.timeout')}</Tag> : <Tag color="blue">{t('criticalEscalation.notified')}</Tag>}
       </Space>
     ),
     description: (
       <Space direction="vertical" size={2}>
-        <span style={{ fontSize: 12 }}>角色: {s.role} · 开始 {fmt(s.startedAt)} · 截止 {fmt(s.deadline)}</span>
+        <span style={{ fontSize: 12 }}>{t('criticalEscalation.role')} {s.role} · {t('criticalEscalation.started')} {fmt(s.startedAt)} · {t('criticalEscalation.deadline')} {fmt(s.deadline)}</span>
         {s.status === 'NOTIFIED' && s.deadline && (
           <span style={{ fontSize: 12, color: remainingMin(s.deadline) <= 2 ? '#dc2626' : '#f59e0b' }}>
-            超时倒计时: {remainingMin(s.deadline)} 分钟
+            {t('criticalEscalation.countdownLabel')} {remainingMin(s.deadline)} {t('criticalEscalation.minutes')}
           </span>
         )}
         {s.status === 'CONFIRMED' && s.confirmedBy && (
-          <span style={{ fontSize: 12, color: '#10b981' }}>{s.confirmedBy} 于 {fmt(s.confirmedAt)} 确认</span>
+          <span style={{ fontSize: 12, color: '#10b981' }}>{s.confirmedBy} {t('criticalEscalation.confirmedAt')} {fmt(s.confirmedAt)} {t('criticalEscalation.confirmedVerb')}</span>
         )}
-        {s.status === 'TIMEOUT' && <span style={{ fontSize: 12, color: '#dc2626' }}>超时未确认, 自动升级</span>}
+        {s.status === 'TIMEOUT' && <span style={{ fontSize: 12, color: '#dc2626' }}>{t('criticalEscalation.autoEscalated')}</span>}
         {i < chain.steps.length - 1 && <ArrowUp size={12} style={{ color: '#dc2626', marginTop: 4 }} />}
       </Space>
     ),
@@ -510,12 +511,12 @@ const ChainStaircase: React.FC<{ chain: EscalationChain }> = ({ chain }) => {
         title={`状态: ${STATUS_META[chain.status]?.label} · 当前 ${LEVEL_META[chain.currentLevel]?.label}`}
         description={
           <Space size={4}>
-            <span style={{ fontSize: 12 }}>开始 {fmt(chain.startedAt)} · 升级 {chain.escalatedCount} 次 · 确认人 {chain.acknowledgedBy ?? '-'}</span>
+            <span style={{ fontSize: 12 }}>{t('criticalEscalation.started')} {fmt(chain.startedAt)} · {t('criticalEscalation.escalate')} {chain.escalatedCount} {t('criticalEscalation.times')} · {t('criticalEscalation.confirmBy')} {chain.acknowledgedBy ?? '-'}</span>
           </Space>
         }
       />
       <Steps direction="vertical" size="small" current={chain.steps.length - 1} items={steps} />
-      <Card size="small" title={<span style={{ fontSize: 12 }}>升级记录</span>}>
+      <Card size="small" title={<span style={{ fontSize: 12 }}>{t('criticalEscalation.escalationRecords')}</span>}>
         <Space direction="vertical" size={4}>
           {chain.history.map((h, i) => (
             <div key={i} style={{ fontSize: 12, color: '#475569' }}>

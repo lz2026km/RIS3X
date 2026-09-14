@@ -8,18 +8,19 @@ import { Tag, Space, Button, Input, Modal, message, Tooltip, Badge } from 'antd'
 import { Phone, MessageSquare, CheckCircle2, AlertOctagon, BellRing, Clock, RefreshCw } from 'lucide-react';
 import { criticalAlertApi, type CriticalAlert } from '../../../../services/api/criticalAlertApi';
 import AutoCallSmsLog from './AutoCallSmsLog';
+import { t } from '../../../../i18n/appI18n';
 
 const SEVERITY_META: Record<string, { color: string; label: string }> = {
-  info: { color: '#3b82f6', label: '提示' },
-  warning: { color: '#f59e0b', label: '警告' },
-  critical: { color: '#dc2626', label: '危急' },
-  emergency: { color: '#7f1d1d', label: '紧急' },
+  info: { color: '#3b82f6', label: t('criticalValue.level.info') },
+  warning: { color: '#f59e0b', label: t('criticalValue.level.warning') },
+  critical: { color: '#dc2626', label: t('criticalValue.level.critical') },
+  emergency: { color: '#7f1d1d', label: t('criticalValue.level.urgent') },
 };
 
 function timeAgo(iso?: string): string {
   if (!iso) return '-';
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (m < 1) return '刚刚';
+  if (m < 1) return t('criticalValue.justNow');
   if (m < 60) return `${m} 分钟前`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h} 小时前`;
@@ -41,7 +42,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
   const [busy, setBusy] = useState(false);
   const [logRefresh, setLogRefresh] = useState(0);
 
-  const sev = SEVERITY_META[alert.severity] ?? { color: '#3b82f6', label: '提示' };
+  const sev = SEVERITY_META[alert.severity] ?? { color: '#3b82f6', label: t('criticalValue.level.info') };
 
   const handleCall = async () => {
     setBusy(true);
@@ -59,7 +60,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         message.error(`呼叫失败:${res.error?.message ?? '未知错误'}`);
       }
     } catch {
-      message.error('呼叫失败:网络错误');
+      message.error(t('criticalValueCard.callNetworkError'));
     } finally {
       setBusy(false);
     }
@@ -67,7 +68,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
 
   const submitSms = async () => {
     if (!smsPhone.trim()) {
-      message.warning('请填写接收手机号');
+      message.warning(t('criticalValueCard.enterPhone'));
       return;
     }
     setBusy(true);
@@ -83,7 +84,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         message.error(`短信发送失败:${res.error?.message ?? '未知错误'}`);
       }
     } catch {
-      message.error('短信发送失败:网络错误');
+      message.error(t('criticalValueCard.smsNetworkError'));
     } finally {
       setBusy(false);
     }
@@ -94,13 +95,13 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
     try {
       const res = await criticalAlertApi.acknowledge(alert.id, { comment: '已电话/短信通知临床' });
       if (res.success) {
-        message.success('已记录通知,危急值状态更新为已确认');
+        message.success(t('criticalValueCard.notifiedRecorded'));
         onNotified?.(res.data);
       } else {
         message.error(`记录失败:${res.error?.message ?? '未知错误'}`);
       }
     } catch {
-      message.error('记录失败:网络错误');
+      message.error(t('criticalValueCard.recordNetworkError'));
     } finally {
       setBusy(false);
     }
@@ -110,7 +111,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
     <div
       data-testid="critical-value-card"
       role="region"
-      aria-label="危急值通知卡片"
+      aria-label={t('criticalValueCard.ariaLabel')}
       className="no-print"
       style={{
         border: '2px solid #dc2626',
@@ -141,9 +142,9 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         <div style={{ flex: 1, minWidth: 240 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <AlertOctagon size={16} color="#dc2626" />
-            <strong style={{ color: '#7f1d1d', fontSize: 14 }}>危急值告警</strong>
+            <strong style={{ color: '#7f1d1d', fontSize: 14 }}>{t('criticalValueCard.alertTitle')}</strong>
             <Tag color={sev.color} style={{ marginRight: 0 }}>{sev.label}</Tag>
-            <Tag color="red" icon={<BellRing size={10} />}>待通知</Tag>
+            <Tag color="red" icon={<BellRing size={10} />}>{t('criticalValueCard.pendingNotify')}</Tag>
             <span style={{ fontSize: 11, color: '#94a3b8' }}>
               <Clock size={10} style={{ verticalAlign: -1 }} /> {timeAgo(alert.createdAt)}
             </span>
@@ -164,7 +165,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         </div>
 
         <Space wrap style={{ flexShrink: 0 }}>
-          <Tooltip title="自动呼叫临床值班电话">
+          <Tooltip title={t('criticalValueCard.autoCallTooltip')}>
             <Button
               size="small"
               type="primary"
@@ -174,7 +175,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
               onClick={handleCall}
               data-testid="cv-auto-call"
             >
-              电话通知
+              {t('criticalValueCard.phoneNotify')}
             </Button>
           </Tooltip>
           <Button
@@ -184,7 +185,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
             onClick={() => setSmsModal(true)}
             data-testid="cv-auto-sms"
           >
-            发送短信
+            {t('criticalValueCard.sendSms')}
           </Button>
           {alert.status === 'active' && (
             <Button
@@ -195,11 +196,11 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
               onClick={handleNotified}
               data-testid="cv-mark-notified"
             >
-              记录已通知
+              {t('criticalValueCard.markNotified')}
             </Button>
           )}
           {!compact && (
-            <Tooltip title="刷新通话/短信记录">
+            <Tooltip title={t('criticalValueCard.refreshLogTooltip')}>
               <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setLogRefresh((v) => v + 1)} />
             </Tooltip>
           )}
@@ -213,12 +214,12 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
       )}
 
       <Modal
-        title={<Space><MessageSquare size={14} color="#3b82f6" />发送危急值短信</Space>}
+        title={<Space><MessageSquare size={14} color="#3b82f6" />{t('criticalValueCard.smsModalTitle')}</Space>}
         open={smsModal}
         onCancel={() => setSmsModal(false)}
         onOk={submitSms}
-        okText="发送"
-        cancelText="取消"
+        okText={t('criticalValueCard.send')}
+        cancelText={t('criticalValueCard.cancel')}
         okButtonProps={{ loading: busy }}
         width={480}
         destroyOnHidden
@@ -227,16 +228,16 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
           <Badge color="#dc2626" /> {alert.patientName} · {alert.title}
         </div>
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>接收手机号</div>
+          <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValueCard.receivingPhone')}</div>
           <Input
-            placeholder="如: 13800000001"
+            placeholder={t('criticalValueCard.phonePlaceholder')}
             value={smsPhone}
             onChange={(e) => setSmsPhone(e.target.value)}
             data-testid="cv-sms-phone"
           />
         </div>
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>短信内容(留空使用默认模板)</div>
+          <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValueCard.smsContentLabel')}</div>
           <Input.TextArea
             rows={3}
             value={smsContent}

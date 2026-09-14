@@ -28,12 +28,13 @@ import {
   Legend,
 } from 'recharts';
 import ChartContainer from '../../../charts/ChartContainer';
+import { t } from '../../../../i18n/appI18n';
 
 const STAGE_META: Record<ReviewStage, { label: string; color: string }> = {
-  initial: { label: '初审', color: '#f59e0b' },
-  final: { label: '终审', color: '#7c2d12' },
-  cosign: { label: '双签', color: '#7c3aed' },
-  sign: { label: '签发', color: '#be185d' },
+  initial: { label: 'reportReview.stage.initial', color: '#f59e0b' },
+  final: { label: 'reportReview.stage.final', color: '#7c2d12' },
+  cosign: { label: 'reportReview.stage.cosign', color: '#7c3aed' },
+  sign: { label: 'reportReview.stage.sign', color: '#be185d' },
 };
 
 export const ReviewSLA: React.FC = () => {
@@ -46,7 +47,7 @@ export const ReviewSLA: React.FC = () => {
       const data = await reviewService.getSLA();
       setSla(data);
     } catch (e) {
-      message.error('加载 SLA 数据失败');
+      message.error(t('reportReview.sla.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -61,17 +62,17 @@ export const ReviewSLA: React.FC = () => {
     return (
       <div
         role="status"
-        aria-label="加载"
+        aria-label={t('reportReview.sla.loading')}
         data-testid="sla-loading"
         style={{ padding: 40, textAlign: 'center' }}
       >
-        加载中...
+        {t('reportReview.sla.loading')}
       </div>
     );
   }
 
   const breachData = Object.entries(sla.breachByStage).map(([stage, count]) => ({
-    stage: STAGE_META[stage as ReviewStage].label,
+    stage: t(STAGE_META[stage as ReviewStage].label),
     color: STAGE_META[stage as ReviewStage].color,
     count,
   }));
@@ -84,7 +85,7 @@ export const ReviewSLA: React.FC = () => {
   }));
 
   return (
-    <div data-testid="review-sla" role="region" aria-label="审核 SLA 监控">
+    <div data-testid="review-sla" role="region" aria-label={t('reportReview.sla.title')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #dc2626 0%, #f59e0b 100%)',
@@ -97,18 +98,17 @@ export const ReviewSLA: React.FC = () => {
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Clock size={18} />
-            <strong style={{ fontSize: 16 }}>SLA 监控</strong>
+            <strong style={{ fontSize: 16 }}>{t('reportReview.sla.title')}</strong>
             <Tag color="purple">R3.REVIEW.027</Tag>
           </Space>
           <Tag icon={<Settings size={12} />} color="orange">
-            SLA 阈值：初审 {sla.initialReviewSLA}h / 终审 {sla.finalReviewSLA}h / 签发 {sla.signSLA}h /
-            双签 {sla.cosignSLA}h
+            {t('reportReview.sla.threshold', { initial: sla.initialReviewSLA, final: sla.finalReviewSLA, sign: sla.signSLA, cosign: sla.cosignSLA })}
           </Tag>
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>按时率</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.sla.onTimeRate')}</span>}
               value={sla.onTimeRate}
               suffix="%"
               styles={{ content: {  color: '#fff', fontSize: 20  } }}
@@ -117,7 +117,7 @@ export const ReviewSLA: React.FC = () => {
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>超时任务</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.sla.overdueTasks')}</span>}
               value={sla.overdueCount}
               styles={{ content: {  color: '#fca5a5', fontSize: 20  } }}
               prefix={<AlertTriangle size={16} />}
@@ -125,18 +125,18 @@ export const ReviewSLA: React.FC = () => {
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均初审</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.sla.avgInitial')}</span>}
               value={sla.averageInitialMinutes}
-              suffix="分钟"
+              suffix={t('reportReview.sla.minutes')}
               styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Clock size={16} />}
             />
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均终审</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.sla.avgFinal')}</span>}
               value={sla.averageFinalMinutes}
-              suffix="分钟"
+              suffix={t('reportReview.sla.minutes')}
               styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Clock size={16} />}
             />
@@ -151,21 +151,21 @@ export const ReviewSLA: React.FC = () => {
             <Zap size={14} />
             <span>
               {sla.onTimeRate >= 90
-                ? 'SLA 达成良好'
+                ? t('reportReview.sla.good')
                 : sla.onTimeRate >= 80
-                  ? 'SLA 接近阈值，请关注'
-                  : 'SLA 严重超标，请立即处理'}
+                  ? t('reportReview.sla.nearThreshold')
+                  : t('reportReview.sla.critical')}
             </span>
           </Space>
         }
         description={
           <div>
             <div>
-              当前 P95 初审时长 <strong>{sla.p95InitialMinutes}分钟</strong>,P95 终审{' '}
-              <strong>{sla.p95FinalMinutes}分钟</strong>
+              {t('reportReview.sla.p95Initial')} <strong>{sla.p95InitialMinutes}{t('reportReview.sla.minutes')}</strong>,{t('reportReview.sla.p95Final')}{' '}
+              <strong>{sla.p95FinalMinutes}{t('reportReview.sla.minutes')}</strong>
             </div>
             <div style={{ marginTop: 4 }}>
-              超时任务数：<strong>{sla.overdueCount}</strong>,超时率{' '}
+              {t('reportReview.sla.overdueCount')}<strong>{sla.overdueCount}</strong>,{t('reportReview.sla.overdueRate')}{' '}
               <strong>{(100 - sla.onTimeRate).toFixed(1)}%</strong>
             </div>
           </div>
@@ -176,14 +176,14 @@ export const ReviewSLA: React.FC = () => {
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={12}>
-          <Card title="按阶段超时统计" size="small">
-            <ChartContainer height={200} state={breachData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+          <Card title={t('reportReview.sla.byStage')} size="small">
+            <ChartContainer height={200} state={breachData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
               <BarChart data={breachData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="stage" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Bar dataKey="count" name="超时数">
+                <Bar dataKey="count" name={t('reportReview.sla.overdueCountLabel')}>
                   {breachData.map((d, i) => (
                     <Cell key={i} fill={d.color} />
                   ))}
@@ -193,8 +193,8 @@ export const ReviewSLA: React.FC = () => {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="24h 审核时长分布" size="small">
-            <ChartContainer height={200} state={hourlyData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+          <Card title={t('reportReview.sla.hourly')} size="small">
+            <ChartContainer height={200} state={hourlyData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
               <LineChart data={hourlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
@@ -206,21 +206,21 @@ export const ReviewSLA: React.FC = () => {
                   dataKey="initial"
                   stroke="#f59e0b"
                   strokeWidth={2}
-                  name="初审"
+                  name={t('reportReview.stage.initial')}
                 />
                 <Line
                   type="monotone"
                   dataKey="final"
                   stroke="#7c2d12"
                   strokeWidth={2}
-                  name="终审"
+                  name={t('reportReview.stage.final')}
                 />
                 <Line
                   type="monotone"
                   dataKey="cosign"
                   stroke="#7c3aed"
                   strokeWidth={2}
-                  name="双签"
+                  name={t('reportReview.stage.cosign')}
                 />
               </LineChart>
             </ChartContainer>
@@ -234,14 +234,14 @@ export const ReviewSLA: React.FC = () => {
             title={
               <Space>
                 <CheckCircle2 size={14} color="#10b981" />
-                SLA 达成
+                {t('reportReview.sla.achieved')}
               </Space>
             }
             size="small"
           >
             <Progress percent={sla.onTimeRate} strokeColor="#10b981" />
             <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-              本周期按时完成的审核任务比例
+              {t('reportReview.sla.achievedDesc')}
             </div>
           </Card>
         </Col>
@@ -250,20 +250,20 @@ export const ReviewSLA: React.FC = () => {
             title={
               <Space>
                 <TrendingUp size={14} color="#3b82f6" />
-                平均时长
+                {t('reportReview.sla.avgDuration')}
               </Space>
             }
             size="small"
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div>
-                <Tag color="orange">初审</Tag> <strong>{sla.averageInitialMinutes}</strong> 分钟
+                <Tag color="orange">{t('reportReview.stage.initial')}</Tag> <strong>{sla.averageInitialMinutes}</strong> {t('reportReview.sla.minutes')}
               </div>
               <div>
-                <Tag color="purple">终审</Tag> <strong>{sla.averageFinalMinutes}</strong> 分钟
+                <Tag color="purple">{t('reportReview.stage.final')}</Tag> <strong>{sla.averageFinalMinutes}</strong> {t('reportReview.sla.minutes')}
               </div>
               <div>
-                <Tag color="cyan">双签</Tag> <strong>{sla.averageCosignMinutes}</strong> 分钟
+                <Tag color="cyan">{t('reportReview.stage.cosign')}</Tag> <strong>{sla.averageCosignMinutes}</strong> {t('reportReview.sla.minutes')}
               </div>
             </div>
           </Card>
@@ -273,20 +273,20 @@ export const ReviewSLA: React.FC = () => {
             title={
               <Space>
                 <BarChart3 size={14} color="#7c3aed" />
-                P95 时长
+                {t('reportReview.sla.p95Duration')}
               </Space>
             }
             size="small"
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div>
-                <Tag color="orange">P95 初审</Tag> <strong>{sla.p95InitialMinutes}</strong> 分钟
+                <Tag color="orange">{t('reportReview.sla.p95InitialTag')}</Tag> <strong>{sla.p95InitialMinutes}</strong> {t('reportReview.sla.minutes')}
               </div>
               <div>
-                <Tag color="purple">P95 终审</Tag> <strong>{sla.p95FinalMinutes}</strong> 分钟
+                <Tag color="purple">{t('reportReview.sla.p95FinalTag')}</Tag> <strong>{sla.p95FinalMinutes}</strong> {t('reportReview.sla.minutes')}
               </div>
               <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
-                95% 的任务在该时长内完成
+                {t('reportReview.sla.p95Desc')}
               </div>
             </div>
           </Card>

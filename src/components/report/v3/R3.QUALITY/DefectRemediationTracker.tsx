@@ -41,34 +41,35 @@ import {
 } from 'lucide-react';
 import { Inbox, Map } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 const STATUS_META: Record<
   DefectRemediation['status'],
   { color: string; label: string; bg: string; stage: 'plan' | 'do' | 'check' | 'act' }
 > = {
-  pending: { color: '#dc2626', label: '待整改', bg: 'var(--color-error-bg)', stage: 'plan' },
-  'in-progress': { color: '#f59e0b', label: '整改中', bg: 'var(--color-warning-bg)', stage: 'do' },
-  rectified: { color: '#10b981', label: '已整改', bg: 'var(--color-success-bg)', stage: 'check' },
-  overdue: { color: '#7f1d1d', label: '已逾期', bg: 'var(--color-error-bg)', stage: 'plan' },
-  cancelled: { color: '#64748b', label: '已取消', bg: 'var(--border-color)', stage: 'act' },
+  pending: { color: '#dc2626', label: t('defectRemediation.status.pending'), bg: 'var(--color-error-bg)', stage: 'plan' },
+  'in-progress': { color: '#f59e0b', label: t('defectRemediation.status.inProgress'), bg: 'var(--color-warning-bg)', stage: 'do' },
+  rectified: { color: '#10b981', label: t('defectRemediation.status.rectified'), bg: 'var(--color-success-bg)', stage: 'check' },
+  overdue: { color: '#7f1d1d', label: t('defectRemediation.status.overdue'), bg: 'var(--color-error-bg)', stage: 'plan' },
+  cancelled: { color: '#64748b', label: t('defectRemediation.status.cancelled'), bg: 'var(--border-color)', stage: 'act' },
 };
 
 const SEVERITY_META: Record<DefectSeverityLevel, { color: string; label: string }> = {
-  minor: { color: 'gold', label: '轻微' },
-  major: { color: 'orange', label: '重要' },
-  critical: { color: 'red', label: '严重' },
+  minor: { color: 'gold', label: t('defectRemediation.severity.minor') },
+  major: { color: 'orange', label: t('defectRemediation.severity.major') },
+  critical: { color: 'red', label: t('defectRemediation.severity.critical') },
 };
 
 const PDCA_META: Record<'plan' | 'do' | 'check' | 'act', { color: string; label: string; icon: React.ReactNode }> = {
-  plan: { color: '#3b82f6', label: 'P 计划', icon: <Target size={12} /> },
-  do: { color: '#f59e0b', label: 'D 执行', icon: <PlayCircle size={12} /> },
-  check: { color: '#10b981', label: 'C 检查', icon: <ShieldCheck size={12} /> },
-  act: { color: '#7c3aed', label: 'A 处理', icon: <RotateCcw size={12} /> },
+  plan: { color: '#3b82f6', label: t('defectRemediation.pdca.plan'), icon: <Target size={12} /> },
+  do: { color: '#f59e0b', label: t('defectRemediation.pdca.do'), icon: <PlayCircle size={12} /> },
+  check: { color: '#10b981', label: t('defectRemediation.pdca.check'), icon: <ShieldCheck size={12} /> },
+  act: { color: '#7c3aed', label: t('defectRemediation.pdca.act'), icon: <RotateCcw size={12} /> },
 };
 
 function timeAgo(iso: string): string {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (m < 1) return '刚刚';
+  if (m < 1) return t('defectRemediation.justNow');
   if (m < 60) return `${m}分钟前`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}小时前`;
@@ -96,7 +97,7 @@ export const DefectRemediationTracker: React.FC = () => {
       const data = await defectService.listRemediations();
       setList(data);
     } catch (e) {
-      message.error('加载整改列表失败');
+      message.error(t('defectRemediation.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -107,20 +108,20 @@ export const DefectRemediationTracker: React.FC = () => {
   }, []);
 
   const stats = useMemo(() => {
-    const t = list.length;
+    const total = list.length;
     const pending = list.filter((r) => r.status === 'pending').length;
     const inProgress = list.filter((r) => r.status === 'in-progress').length;
     const rectified = list.filter((r) => r.status === 'rectified').length;
     const overdue = list.filter((r) => r.status === 'overdue').length;
     const rate = defectRate(list);
     return {
-      total: t,
+      total,
       pending,
       inProgress,
       rectified,
       overdue,
       fixRate: rate.rate.toFixed(1),
-      closureRate: t > 0 ? (((rectified + list.filter((r) => r.status === 'cancelled').length) / t) * 100).toFixed(1) : '0',
+      closureRate: total > 0 ? (((rectified + list.filter((r) => r.status === 'cancelled').length) / total) * 100).toFixed(1) : '0',
     };
   }, [list]);
 
@@ -153,30 +154,30 @@ export const DefectRemediationTracker: React.FC = () => {
   const handleRectify = async () => {
     if (!editing) return;
     if (note.trim().length < 5) {
-      message.error('整改说明不能少于 5 字符');
+      message.error(t('defectRemediation.noteTooShort'));
       return;
     }
     try {
-      message.success('整改已提交');
+      message.success(t('defectRemediation.rectifySubmitted'));
       setRectifyModal(false);
       setNote('');
       load();
     } catch (e) {
-      message.error('提交失败');
+      message.error(t('defectRemediation.submitFailed'));
     }
   };
 
   const handleSendReminder = async (_id: string) => {
     try {
-      message.success('提醒已发送');
+      message.success(t('defectRemediation.reminderSent'));
       load();
     } catch (e) {
-      message.error('发送失败');
+      message.error(t('defectRemediation.sendFailed'));
     }
   };
 
   return (
-    <div data-testid="defect-remediation-tracker" role="region" aria-label="缺陷整改追踪">
+    <div data-testid="defect-remediation-tracker" role="region" aria-label={t('defectRemediation.title')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #f59e0b 0%, #dc2626 100%)',
@@ -189,16 +190,16 @@ export const DefectRemediationTracker: React.FC = () => {
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Wrench size={18} />
-            <strong style={{ fontSize: 16 }}>缺陷整改追踪</strong>
+            <strong style={{ fontSize: 16 }}>{t('defectRemediation.title')}</strong>
             <Tag color="purple">R3.QUALITY.144-146</Tag>
-            <Tag color="cyan">PDCA 闭环</Tag>
+            <Tag color="cyan">{t('defectRemediation.pdcaLoop')}</Tag>
           </Space>
-          <Tag color="default">已闭环 {stats.closureRate}%</Tag>
+          <Tag color="default">{t('defectRemediation.closedLoop')} {stats.closureRate}%</Tag>
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectRemediation.total')}</span>}
               value={stats.total}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<ListChecks size={14} />}
@@ -206,7 +207,7 @@ export const DefectRemediationTracker: React.FC = () => {
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>待整改</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectRemediation.status.pending')}</span>}
               value={stats.pending}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
@@ -214,7 +215,7 @@ export const DefectRemediationTracker: React.FC = () => {
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>整改中</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectRemediation.status.inProgress')}</span>}
               value={stats.inProgress}
               styles={{ content: {  color: '#fde68a', fontSize: 18  } }}
               prefix={<Edit size={14} />}
@@ -222,7 +223,7 @@ export const DefectRemediationTracker: React.FC = () => {
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>已整改</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectRemediation.status.rectified')}</span>}
               value={stats.rectified}
               styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
@@ -230,7 +231,7 @@ export const DefectRemediationTracker: React.FC = () => {
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>已逾期</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectRemediation.status.overdue')}</span>}
               value={stats.overdue}
               styles={{ content: {  color: '#fecaca', fontSize: 18  } }}
               prefix={<AlertTriangle size={14} />}
@@ -238,7 +239,7 @@ export const DefectRemediationTracker: React.FC = () => {
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>修复率</span>}
+              title={<span style={{ color: '#fff' }}>{t('defectRemediation.fixRate')}</span>}
               value={stats.fixRate}
               suffix="%"
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
@@ -250,7 +251,7 @@ export const DefectRemediationTracker: React.FC = () => {
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={16}>
-          <Card size="small" title={<Space><Activity size={14} /> 整改列表</Space>}>
+          <Card size="small" title={<Space><Activity size={14} /> {t('defectRemediation.list')}</Space>}>
             <Segmented
               options={[
                 { value: 'all', label: `全部 (${list.length})` },
@@ -266,7 +267,7 @@ export const DefectRemediationTracker: React.FC = () => {
             <List
               loading={loading}
               dataSource={filtered}
-              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无整改任务" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('defectRemediation.noTasks')} /> }}
               style={{
                 background: 'var(--bg-primary)',
                 borderRadius: 6,
@@ -323,9 +324,9 @@ export const DefectRemediationTracker: React.FC = () => {
                           <Tag>{r.defectCode}</Tag>
                           <Tag color="blue">{r.patientName}</Tag>
                           <Tag color={sm.color}>{sm.label}</Tag>
-                          {overdue && <Tag color="red">已逾期</Tag>}
+                          {overdue && <Tag color="red">{t('defectRemediation.status.overdue')}</Tag>}
                           {r.remindersSent > 0 && (
-                            <Tag color="orange">提醒 {r.remindersSent}</Tag>
+                            <Tag color="orange">{t('defectRemediation.reminder')} {r.remindersSent}</Tag>
                           )}
                         </Space>
                       }
@@ -333,10 +334,10 @@ export const DefectRemediationTracker: React.FC = () => {
                         <div>
                           <div style={{ fontSize: 12, color: '#475569' }}>{r.description}</div>
                           <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
-                            建议：{r.suggestedFix}
+                            {t('defectRemediation.suggestionPrefix')}{r.suggestedFix}
                           </div>
                           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
-                            报告医生：{r.doctorName} · 截止 {new Date(r.deadlineAt).toLocaleString()} · 创建 {timeAgo(r.reportedAt)}
+                            {t('defectRemediation.reportingDoctor')}{r.doctorName} · {t('defectRemediation.deadline')} {new Date(r.deadlineAt).toLocaleString()} · {t('defectRemediation.created')} {timeAgo(r.reportedAt)}
                           </div>
                           {r.rectifiedNote && (
                             <div
@@ -350,8 +351,8 @@ export const DefectRemediationTracker: React.FC = () => {
                                 color: '#065f46',
                               }}
                             >
-                              整改说明：{r.rectifiedNote}
-                              {r.verifiedBy && <span> · 验证：{r.verifiedBy}</span>}
+                              {t('defectRemediation.rectifyNotePrefix')}{r.rectifiedNote}
+                              {r.verifiedBy && <span> · {t('defectRemediation.verifyPrefix')}{r.verifiedBy}</span>}
                             </div>
                           )}
                         </div>
@@ -363,7 +364,7 @@ export const DefectRemediationTracker: React.FC = () => {
                         icon={<Eye size={10} />}
                         onClick={() => setDetailModal(r)}
                       >
-                        详情
+                        {t('defectRemediation.detail')}
                       </Button>
                       {(r.status === 'pending' ||
                         r.status === 'in-progress' ||
@@ -377,20 +378,20 @@ export const DefectRemediationTracker: React.FC = () => {
                               setRectifyModal(true);
                             }}
                           >
-                            提交整改
+                            {t('defectRemediation.submitRectify')}
                           </Button>
                           <Button
                             size="small"
                             icon={<Bell size={10} />}
                             onClick={() => handleSendReminder(r.id)}
                           >
-                            提醒
+                            {t('defectRemediation.reminder')}
                           </Button>
                         </>
                       )}
                       {r.status === 'rectified' && (
                         <Tag icon={<CheckCircle2 size={10} />} color="green">
-                          已验证
+                          {t('defectRemediation.verified')}
                         </Tag>
                       )}
                     </Space>
@@ -401,7 +402,7 @@ export const DefectRemediationTracker: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={<Space><Activity size={14} /> PDCA 闭环</Space>}>
+          <Card size="small" title={<Space><Activity size={14} /> {t('defectRemediation.pdcaLoop')}</Space>}>
             <Timeline
               items={(['plan', 'do', 'check', 'act'] as const).map((s) => {
                 const meta = PDCA_META[s];
@@ -412,7 +413,7 @@ export const DefectRemediationTracker: React.FC = () => {
                     <div>
                       <Space>
                         <strong style={{ color: meta.color }}>{meta.label}</strong>
-                        <Tag>{byStage[s] ?? 0} 项</Tag>
+                        <Tag>{byStage[s] ?? 0} {t('defectRemediation.itemsUnit')}</Tag>
                       </Space>
                       <Progress
                         percent={
@@ -428,7 +429,7 @@ export const DefectRemediationTracker: React.FC = () => {
             />
             <div style={{ marginTop: 8, padding: 8, background: '#f0fdf4', borderRadius: 4 }}>
               <div style={{ fontSize: 12, color: '#065f46' }}>
-                闭环率 {stats.closureRate}% · 修复率 {stats.fixRate}%
+                {t('defectRemediation.closureRateLabel')} {stats.closureRate}% · {t('defectRemediation.fixRateLabel')} {stats.fixRate}%
               </div>
               <Progress
                 percent={Number(stats.closureRate)}
@@ -438,7 +439,7 @@ export const DefectRemediationTracker: React.FC = () => {
               />
             </div>
           </Card>
-          <Card size="small" title="分类缺陷率" style={{ marginTop: 12 }}>
+          <Card size="small" title={t('defectRemediation.defectRateByCategory')} style={{ marginTop: 12 }}>
             <Space orientation="vertical" style={{ width: '100%' }} size={6}>
               {Object.entries(defectRateByCategory)
                 .sort((a, b) => b[1].total - a[1].total)
@@ -462,7 +463,7 @@ export const DefectRemediationTracker: React.FC = () => {
                   );
                 })}
               {Object.keys(defectRateByCategory).length === 0 && (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('defectRemediation.noData')} />
               )}
             </Space>
           </Card>
@@ -477,26 +478,26 @@ export const DefectRemediationTracker: React.FC = () => {
           setNote('');
         }}
         onOk={handleRectify}
-        okText="提交"
-        cancelText="取消"
+        okText={t('defectRemediation.submit')}
+        cancelText={t('defectRemediation.cancel')}
         width={560}
       >
         <Space orientation="vertical" style={{ width: '100%' }} size={10}>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>报告 ID</div>
+            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectRemediation.reportId')}</div>
             <Input value={editing?.reportId} disabled />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>建议方案</div>
+            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectRemediation.suggestedFix')}</div>
             <Input value={editing?.suggestedFix} disabled />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12 }}>整改说明 *</div>
+            <div style={{ marginBottom: 4, fontSize: 12 }}>{t('defectRemediation.rectifyNoteRequired')}</div>
             <Input.TextArea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={4}
-              placeholder="详细说明整改内容..."
+              placeholder={t('defectRemediation.notePlaceholder')}
             />
           </div>
         </Space>
@@ -521,20 +522,20 @@ export const DefectRemediationTracker: React.FC = () => {
               <Tag color="blue">{detailModal.patientName}</Tag>
             </Space>
             <div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>缺陷</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.defect')}</div>
               <div style={{ fontSize: 13 }}>{detailModal.defectName}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>描述</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.description')}</div>
               <div style={{ fontSize: 13 }}>{detailModal.description}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>建议方案</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.suggestedFix')}</div>
               <div style={{ fontSize: 13, color: '#0891b2' }}>{detailModal.suggestedFix}</div>
             </div>
             {detailModal.rectifiedNote && (
               <div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>整改说明</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.rectifyNote')}</div>
                 <div
                   style={{
                     fontSize: 13,
@@ -550,26 +551,26 @@ export const DefectRemediationTracker: React.FC = () => {
             )}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <div>
-                <Tag>报告医生</Tag> <strong>{detailModal.doctorName}</strong>
+                <Tag>{t('defectRemediation.reportingDoctorTag')}</Tag> <strong>{detailModal.doctorName}</strong>
               </div>
               <div>
-                <Tag>报告 ID</Tag> <strong>{detailModal.reportId}</strong>
+                <Tag>{t('defectRemediation.reportId')}</Tag> <strong>{detailModal.reportId}</strong>
               </div>
               <div>
-                <Tag>创建</Tag> <strong>{timeAgo(detailModal.reportedAt)}</strong>
+                <Tag>{t('defectRemediation.created')}</Tag> <strong>{timeAgo(detailModal.reportedAt)}</strong>
               </div>
               <div>
-                <Tag>截止</Tag>{' '}
+                <Tag>{t('defectRemediation.deadline')}</Tag>{' '}
                 <strong>{new Date(detailModal.deadlineAt).toLocaleString()}</strong>
               </div>
               {detailModal.verifiedBy && (
                 <div>
-                  <Tag>验证人</Tag> <strong>{detailModal.verifiedBy}</strong>
+                  <Tag>{t('defectRemediation.verifiedBy')}</Tag> <strong>{detailModal.verifiedBy}</strong>
                 </div>
               )}
               {detailModal.remindersSent > 0 && (
                 <div>
-                  <Tag>提醒次数</Tag> <strong>{detailModal.remindersSent}</strong>
+                  <Tag>{t('defectRemediation.reminderCount')}</Tag> <strong>{detailModal.remindersSent}</strong>
                 </div>
               )}
             </div>

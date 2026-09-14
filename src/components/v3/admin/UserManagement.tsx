@@ -6,6 +6,7 @@ import { Card, Table, Tag, Space, Button, Modal, Form, Select, Input, Switch, Em
 import { Shield, User, Lock, Edit, Trash2, Plus, CheckCircle, XCircle, KeyRound } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export type Role = 'ADMIN' | 'DIRECTOR' | 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'REGISTRAR' | 'AUDITOR'
 
@@ -40,13 +41,13 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
 }
 
 const ROLE_META: Record<Role, { color: string; label: string; description: string }> = {
-  ADMIN: { color: 'red', label: '系统管理员', description: '全部权限' },
-  DIRECTOR: { color: 'magenta', label: '科主任', description: '审核/统计/模板编辑' },
-  DOCTOR: { color: 'blue', label: '诊断医师', description: '写/编辑/查看报告' },
-  TECHNICIAN: { color: 'cyan', label: '技师', description: '检查操作/影像查看' },
-  NURSE: { color: 'pink', label: '护士', description: '通知/预约' },
-  REGISTRAR: { color: 'orange', label: '登记员', description: '患者/预约登记' },
-  AUDITOR: { color: 'purple', label: '审计员', description: '审计/只读' },
+  ADMIN: { color: 'red', label: t('userMgmt.role.admin'), description: t('userMgmt.role.adminDesc') },
+  DIRECTOR: { color: 'magenta', label: t('userMgmt.role.director'), description: t('userMgmt.role.directorDesc') },
+  DOCTOR: { color: 'blue', label: t('userMgmt.role.doctor'), description: t('userMgmt.role.doctorDesc') },
+  TECHNICIAN: { color: 'cyan', label: t('userMgmt.role.technician'), description: t('userMgmt.role.technicianDesc') },
+  NURSE: { color: 'pink', label: t('userMgmt.role.nurse'), description: t('userMgmt.role.nurseDesc') },
+  REGISTRAR: { color: 'orange', label: t('userMgmt.role.registrar'), description: t('userMgmt.role.registrarDesc') },
+  AUDITOR: { color: 'purple', label: t('userMgmt.role.auditor'), description: t('userMgmt.role.auditorDesc') },
 }
 
 /** 中文角色名 → 英文枚举（后端可能返回中文角色） */
@@ -108,29 +109,29 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总用户" value={stats.total} prefix={<User size={14} />} />
+            <Statistic title={t('userMgmt.stat.totalUsers')} value={stats.total} prefix={<User size={14} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="活跃" value={stats.active} styles={{ content: {  color: '#16a34a'  } }} />
+            <Statistic title={t('userMgmt.stat.active')} value={stats.active} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="双因素认证" value={stats.twoFA} styles={{ content: {  color: '#3b82f6'  } }} prefix={<KeyRound size={14} />} />
+            <Statistic title={t('userMgmt.stat.twoFactor')} value={stats.twoFA} styles={{ content: {  color: '#3b82f6'  } }} prefix={<KeyRound size={14} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="角色数" value={stats.roles} prefix={<Shield size={14} />} />
+            <Statistic title={t('userMgmt.stat.roles')} value={stats.roles} prefix={<Shield size={14} />} />
           </Card>
         </Col>
       </Row>
 
       <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'space-between' }}>
         <Input
-          placeholder="搜索用户名/姓名/科室"
+          placeholder={t('userMgmt.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ width: 300 }}
@@ -138,7 +139,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
           allowClear
         />
         <Button type="primary" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)} data-testid="user-create-btn">
-          新建用户
+          {t('userMgmt.newUser')}
         </Button>
       </Space>
 
@@ -149,33 +150,33 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         pagination={{ pageSize: 10 }}
         data-testid="user-table"
         columns={[
-          { title: '账号', dataIndex: 'username', width: 120 },
-          { title: '姓名', dataIndex: 'name', width: 100 },
+          { title: t('userMgmt.col.username'), dataIndex: 'username', width: 120 },
+          { title: t('userMgmt.col.name'), dataIndex: 'name', width: 100 },
           {
-            title: '角色', dataIndex: 'role', width: 120,
+            title: t('userMgmt.col.role'), dataIndex: 'role', width: 120,
             render: (r: Role) => {
               const m = resolveRoleMeta(String(r))
               return <Tag color={m.color} data-testid={`user-role-${r}`}>{m.label}</Tag>
             },
           },
-          { title: '科室', dataIndex: 'department', width: 120 },
+          { title: t('userMgmt.col.department'), dataIndex: 'department', width: 120 },
           {
-            title: '状态', dataIndex: 'active', width: 80,
+            title: t('userMgmt.col.status'), dataIndex: 'active', width: 80,
             render: (a: boolean) =>
-              a ? <Tag icon={<CheckCircle size={10} />} color="green">启用</Tag>
-              : <Tag icon={<XCircle size={10} />} color="red">停用</Tag>,
+              a ? <Tag icon={<CheckCircle size={10} />} color="green">{t('userMgmt.active')}</Tag>
+              : <Tag icon={<XCircle size={10} />} color="red">{t('userMgmt.inactive')}</Tag>,
           },
           {
             title: '2FA', dataIndex: 'twoFactor', width: 60,
-            render: (v: boolean) => v ? <Tag color="blue">已开启</Tag> : <Tag>未开启</Tag>,
+            render: (v: boolean) => v ? <Tag color="blue">{t('userMgmt.enabled')}</Tag> : <Tag>{t('userMgmt.disabled')}</Tag>,
           },
-          { title: '上次登录', dataIndex: 'lastLoginAt', width: 140, render: (v) => v ?? <span style={{ color: '#94a3b8' }}>从未</span> },
+          { title: t('userMgmt.col.lastLogin'), dataIndex: 'lastLoginAt', width: 140, render: (v) => v ?? <span style={{ color: '#94a3b8' }}>{t('userMgmt.never')}</span> },
           {
-            title: '失败次数', dataIndex: 'failedLogins', width: 80,
+            title: t('userMgmt.col.failedLogins'), dataIndex: 'failedLogins', width: 80,
             render: (v) => v > 3 ? <Tag color="red">{v}</Tag> : <span>{v}</span>,
           },
           {
-            title: '操作', dataIndex: 'id', width: 220, fixed: 'right',
+            title: t('userMgmt.col.action'), dataIndex: 'id', width: 220, fixed: 'right',
             render: (id: string) => {
               const u = users.find((x) => x.id === id)!
               return (
@@ -191,24 +192,24 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
                     }}
                     data-testid={`user-edit-${id}`}
                   >
-                    编辑
+                    {t('userMgmt.edit')}
                   </Button>
                   <Button size="small" type="text" icon={<Shield size={12} />} onClick={() => setPermModal(u)} data-testid={`user-perm-${id}`}>
-                    权限
+                    {t('userMgmt.permissions')}
                   </Button>
                   <Popconfirm
-                    title="确认重置该用户密码?"
-                    description="系统将生成一次性临时密码, 需转交用户"
-                    okText="重置"
-                    cancelText="取消"
+                    title={t('userMgmt.resetConfirmTitle')}
+                    description={t('userMgmt.resetConfirmDesc')}
+                    okText={t('userMgmt.reset')}
+                    cancelText={t('userMgmt.cancel')}
                     onConfirm={() => onResetPassword?.(id)}
                   >
                     <Button size="small" type="text" icon={<Lock size={12} />} data-testid={`user-reset-${id}`}>
-                      重置密码
+                      {t('userMgmt.resetPassword')}
                     </Button>
                   </Popconfirm>
                   <Button size="small" type="text" danger icon={<Trash2 size={12} />} onClick={() => onDelete?.(id)}>
-                    删除
+                    {t('userMgmt.delete')}
                   </Button>
                 </Space>
               )
@@ -216,11 +217,11 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
           },
         ]}
         scroll={{ x: 1100 }}
-        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无用户" /> }}
+        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('userMgmt.noUsers')} /> }}
       />
 
       <Modal
-        title={editing ? '编辑用户' : '新建用户'}
+        title={editing ? t('userMgmt.editUser') : t('userMgmt.newUser')}
         open={createOpen}
         onCancel={() => {
           setCreateOpen(false)
@@ -238,10 +239,10 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
           onFinish={(values) => {
             if (editing) {
               onUpdate?.(editing.id, values)
-              void message.success('已更新')
+              void message.success(t('userMgmt.updated'))
             } else {
               onCreate?.({ ...values, active: values.active ?? true, twoFactor: values.twoFactor ?? false })
-              void message.success('已创建')
+              void message.success(t('userMgmt.created'))
             }
             setCreateOpen(false)
             setEditing(null)
@@ -250,17 +251,17 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         >
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="username" label="账号" rules={[{ required: true }]}>
+              <Form.Item name="username" label={t('userMgmt.col.username')} rules={[{ required: true }]}>
                 <Input disabled={!!editing} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="name" label="姓名" rules={[{ required: true }]}>
+              <Form.Item name="name" label={t('userMgmt.col.name')} rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="role" label="角色" rules={[{ required: true }]}>
+              <Form.Item name="role" label={t('userMgmt.col.role')} rules={[{ required: true }]}>
                 <Select
                   data-testid="user-form-role"
                   options={Object.entries(ROLE_META).map(([k, v]) => ({ value: k, label: `${v.label} - ${v.description}` }))}
@@ -268,27 +269,27 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="department" label="科室" rules={[{ required: true }]}>
+              <Form.Item name="department" label={t('userMgmt.col.department')} rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="email" label="邮箱">
+              <Form.Item name="email" label={t('userMgmt.email')}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="phone" label="电话">
+              <Form.Item name="phone" label={t('userMgmt.phone')}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="active" label="启用" valuePropName="checked">
+              <Form.Item name="active" label={t('userMgmt.enableLabel')} valuePropName="checked">
                 <Switch />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="twoFactor" label="双因素认证" valuePropName="checked">
+              <Form.Item name="twoFactor" label={t('userMgmt.stat.twoFactor')} valuePropName="checked">
                 <Switch />
               </Form.Item>
             </Col>
@@ -297,7 +298,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
       </Modal>
 
       <Modal
-        title={`权限 · ${permModal?.name}`}
+        title={t('userMgmt.permModalTitle', { name: permModal?.name })}
         open={!!permModal}
         onCancel={() => setPermModal(null)}
         footer={null}
@@ -312,7 +313,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
               <Alert
                 type="info"
                 showIcon
-                title={`角色 ${roleMeta.label} 默认权限`}
+                title={t('userMgmt.roleDefaultPerms', { role: roleMeta.label })}
                 description={
                   <Space wrap>
                     {rolePerms.map((p) => <Tag key={p}>{p}</Tag>)}
@@ -323,7 +324,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
                 <Alert
                   type="warning"
                   showIcon
-                  title="自定义覆盖"
+                  title={t('userMgmt.customOverride')}
                   description={
                     <Space wrap>
                       {permModal.customPermissions.map((p) => <Tag key={p} color="orange">{p}</Tag>)}

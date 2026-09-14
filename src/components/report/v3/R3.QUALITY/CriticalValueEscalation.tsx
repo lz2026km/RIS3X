@@ -33,29 +33,30 @@ import {
 import { TrendingUp, AlertCircle, Clock, Bell, Settings, Edit, ArrowUp, Plus, Trash2, Save, MessageSquare, Mail, Phone, Smartphone, Send, Zap, Activity } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Inbox } from 'lucide-react'
+import { t } from '../../../../i18n/appI18n';
 
 const CHANNEL_META: Record<NotificationChannel, { label: string; color: string; icon: React.ReactNode }> = {
-  phone: { label: '电话', color: 'green', icon: <Phone size={10} /> },
-  sms: { label: '短信', color: 'blue', icon: <MessageSquare size={10} /> },
-  wechat: { label: '微信', color: 'cyan', icon: <Smartphone size={10} /> },
-  inApp: { label: '应用内', color: 'purple', icon: <Bell size={10} /> },
-  email: { label: '邮件', color: 'orange', icon: <Mail size={10} /> },
-  pager: { label: '传呼', color: 'red', icon: <Send size={10} /> },
+  phone: { label: t('criticalValue.channel.phone'), color: 'green', icon: <Phone size={10} /> },
+  sms: { label: t('criticalValue.channel.sms'), color: 'blue', icon: <MessageSquare size={10} /> },
+  wechat: { label: t('criticalValue.channel.wechat'), color: 'cyan', icon: <Smartphone size={10} /> },
+  inApp: { label: t('criticalValue.channel.inApp'), color: 'purple', icon: <Bell size={10} /> },
+  email: { label: t('criticalValue.channel.email'), color: 'orange', icon: <Mail size={10} /> },
+  pager: { label: t('criticalValue.channel.pager'), color: 'red', icon: <Send size={10} /> },
 };
 
 const LEVEL_META: Record<CriticalLevel, { color: string; label: string }> = {
-  critical: { color: 'red', label: '危急' },
-  urgent: { color: 'orange', label: '紧急' },
-  warning: { color: 'gold', label: '警告' },
-  info: { color: 'blue', label: '提示' },
+  critical: { color: 'red', label: t('criticalValue.level.critical') },
+  urgent: { color: 'orange', label: t('criticalValue.level.urgent') },
+  warning: { color: 'gold', label: t('criticalValue.level.warning') },
+  info: { color: 'blue', label: t('criticalValue.level.info') },
 };
 
 const ROLE_OPTIONS: Array<{ value: CriticalEscalationRule['toRole']; label: string }> = [
-  { value: 'attending', label: '主治医师' },
-  { value: 'associateChief', label: '副主任' },
-  { value: 'chief', label: '科主任' },
-  { value: 'director', label: '院长' },
-  { value: 'medicalAffairs', label: '医务处' },
+  { value: 'attending', label: t('criticalValueEscalation.role.attending') },
+  { value: 'associateChief', label: t('criticalValueEscalation.role.associateChief') },
+  { value: 'chief', label: t('criticalValueEscalation.role.chief') },
+  { value: 'director', label: t('criticalValueEscalation.role.director') },
+  { value: 'medicalAffairs', label: t('criticalValueEscalation.role.medicalAffairs') },
 ];
 
 export interface CriticalValueEscalationProps {
@@ -77,7 +78,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
       setRules(r);
       setLevels(l);
     } catch (e) {
-      message.error('加载升级规则失败');
+      message.error(t('criticalValueEscalation.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -90,11 +91,11 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
   const toggleRule = async (rule: CriticalEscalationRule) => {
     try {
       const updated = await criticalValueService.updateEscalationRule(rule.id, { enabled: !rule.enabled });
-      message.success(updated.enabled ? '已启用' : '已禁用');
+      message.success(updated.enabled ? t('criticalValueEscalation.enabled') : t('criticalValueEscalation.disabled'));
       onRuleChange?.(updated);
       load();
     } catch (e) {
-      message.error('操作失败');
+      message.error(t('criticalValueEscalation.opFailed'));
     }
   };
 
@@ -121,15 +122,15 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
   const saveEdit = async () => {
     if (!editing) return;
     if (editing.triggerAfterMinutes < 1) {
-      message.warning('触发时长必须 ≥ 1 分钟');
+      message.warning(t('criticalValueEscalation.durationMin'));
       return;
     }
     if (editing.messageTemplate.length < 5) {
-      message.warning('消息模板至少 5 字符');
+      message.warning(t('criticalValueEscalation.templateMin'));
       return;
     }
     if (editing.channels.length === 0) {
-      message.warning('请至少选择一种通知渠道');
+      message.warning(t('criticalValue.selectChannel'));
       return;
     }
     try {
@@ -139,30 +140,30 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           id: `es-${Date.now()}`,
         };
         setRules((prev) => [...prev, created]);
-        message.success('已新增规则(本地模式)');
+        message.success(t('criticalValueEscalation.ruleAdded'));
       } else {
         const updated = await criticalValueService.updateEscalationRule(editing.id, editing);
-        message.success('已保存');
+        message.success(t('criticalValueEscalation.saved'));
         onRuleChange?.(updated);
       }
       setEditModal(false);
       setEditing(null);
       load();
     } catch (e) {
-      message.error('保存失败');
+      message.error(t('criticalValueEscalation.saveFailed'));
     }
   };
 
   const removeRule = async (rule: CriticalEscalationRule) => {
     Modal.confirm({
-      title: '删除升级规则',
+      title: t('criticalValueEscalation.deleteRuleTitle'),
       content: `确定要删除规则 ${rule.id}(触发:${rule.triggerAfterMinutes}分钟)吗?`,
-      okText: '删除',
+      okText: t('criticalValueEscalation.delete'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: t('criticalValueEscalation.cancel'),
       onOk: () => {
         setRules((prev) => prev.filter((r) => r.id !== rule.id));
-        message.success('已删除(本地模式)');
+        message.success(t('criticalValueEscalation.ruleDeleted'));
       },
     });
   };
@@ -178,7 +179,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
   };
 
   return (
-    <div data-testid="critical-value-escalation" role="region" aria-label="危急值升级规则">
+    <div data-testid="critical-value-escalation" role="region" aria-label={t('criticalValueEscalation.ariaLabel')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #7c3aed 0%, #be185d 100%)',
@@ -191,13 +192,13 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <TrendingUp size={18} />
-            <strong style={{ fontSize: 16 }}>危急值升级规则编辑器</strong>
+            <strong style={{ fontSize: 16 }}>{t('criticalValueEscalation.title')}</strong>
             <Tag color="purple">R3.QUALITY.218-219</Tag>
           </Space>
           <Space>
-            <Tooltip title="新增规则">
+            <Tooltip title={t('criticalValueEscalation.addRuleTitle')}>
               <Button size="small" icon={<Plus size={12} />} onClick={openNew}>
-                新增
+                {t('criticalValueEscalation.add')}
               </Button>
             </Tooltip>
           </Space>
@@ -205,7 +206,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>规则总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValueEscalation.totalRules')}</span>}
               value={stats.total}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Settings size={14} />}
@@ -213,7 +214,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>已启用</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValueEscalation.enabled')}</span>}
               value={stats.enabled}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Bell size={14} />}
@@ -221,7 +222,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>危急级</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValueEscalation.criticalLevel')}</span>}
               value={stats.critical}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<AlertCircle size={14} />}
@@ -229,7 +230,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>紧急级</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValueEscalation.urgentLevel')}</span>}
               value={stats.urgent}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
@@ -237,7 +238,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>月触发估算</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValueEscalation.monthlyTriggerEstimate')}</span>}
               value={stats.autoTrigger}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Zap size={14} />}
@@ -245,7 +246,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均响应</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValueEscalation.avgResponse')}</span>}
               value={Math.round((stats.autoTrigger / Math.max(stats.enabled, 1)) * 10) / 10}
               suffix="min"
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
@@ -258,7 +259,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
       <Alert
         type="warning"
         showIcon
-        title="自动升级策略:危急值超时未通报则按规则升级至上级医务,确保 10 分钟内完成通报闭环"
+        title={t('criticalValueEscalation.strategyAlert')}
         style={{ marginBottom: 12 }}
       />
 
@@ -268,7 +269,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             value={filterLevel}
             onChange={(v) => setFilterLevel(v as CriticalLevel | 'all')}
             options={[
-              { label: '全部', value: 'all' },
+              { label: t('criticalValueEscalation.all'), value: 'all' },
               ...levels.map((l) => ({ label: l.label, value: l.level })),
             ]}
           />
@@ -277,7 +278,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
 
       <Card size="small" loading={loading}>
         {filtered.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无升级规则" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('criticalValueEscalation.noRules')} />
         ) : (
           <List
             dataSource={filtered}
@@ -305,7 +306,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                     icon={<Edit size={10} />}
                     onClick={() => openEdit(rule)}
                   >
-                    编辑
+                    {t('criticalValueEscalation.edit')}
                   </Button>,
                   <Button
                     key="del"
@@ -314,7 +315,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                     icon={<Trash2 size={10} />}
                     onClick={() => removeRule(rule)}
                   >
-                    删除
+                    {t('criticalValueEscalation.delete')}
                   </Button>,
                 ]}
               >
@@ -338,12 +339,12 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                     <Space wrap>
                       <Tag color={LEVEL_META[rule.fromLevel].color}>{LEVEL_META[rule.fromLevel].label}</Tag>
                       <span>
-                        触发 <strong>{rule.triggerAfterMinutes}</strong> 分钟未响应
+                        {t('criticalValueEscalation.trigger')} <strong>{rule.triggerAfterMinutes}</strong> {t('criticalValueEscalation.noResponseMinutes')}
                       </span>
                       <span>→</span>
                       <Tag color="purple">{rule.toRoleLabel}</Tag>
                       <Tag color="cyan">P{rule.priority}</Tag>
-                      {!rule.enabled && <Tag color="default">已禁用</Tag>}
+                      {!rule.enabled && <Tag color="default">{t('criticalValueEscalation.disabled')}</Tag>}
                     </Space>
                   }
                   description={
@@ -385,7 +386,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
         title={
           <Space>
             <Edit size={14} />
-            {editing?.id === 'new' ? '新增升级规则' : '编辑升级规则'}
+            {editing?.id === 'new' ? t('criticalValueEscalation.newRuleTitle') : t('criticalValueEscalation.editRuleTitle')}
           </Space>
         }
         open={editModal}
@@ -394,8 +395,8 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           setEditing(null);
         }}
         onOk={saveEdit}
-        okText="保存"
-        cancelText="取消"
+        okText={t('criticalValueEscalation.save')}
+        cancelText={t('criticalValueEscalation.cancel')}
         width={620}
         okButtonProps={{ icon: <Save size={12} /> }}
       >
@@ -403,7 +404,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
           <Space orientation="vertical" style={{ width: '100%' }} size={10}>
             <Row gutter={8}>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>来源级别</div>
+                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.fromLevel')}</div>
                 <Select
                   style={{ width: '100%' }}
                   value={editing.fromLevel}
@@ -412,7 +413,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                 />
               </Col>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>升级目标角色</div>
+                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.toRole')}</div>
                 <Select
                   style={{ width: '100%' }}
                   value={editing.toRole}
@@ -426,7 +427,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             </Row>
             <Row gutter={8}>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>触发时长(分钟)</div>
+                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.triggerDuration')}</div>
                 <InputNumber
                   style={{ width: '100%' }}
                   min={1}
@@ -436,7 +437,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                 />
               </Col>
               <Col span={12}>
-                <div style={{ marginBottom: 4, fontSize: 12 }}>优先级</div>
+                <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.priority')}</div>
                 <InputNumber
                   style={{ width: '100%' }}
                   min={1}
@@ -447,7 +448,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
               </Col>
             </Row>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>消息模板</div>
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValueEscalation.messageTemplate')}</div>
               <Input.TextArea
                 rows={3}
                 value={editing.messageTemplate}
@@ -455,19 +456,19 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
               />
             </div>
             <div>
-              <div style={{ marginBottom: 4, fontSize: 12 }}>通知渠道(可多选)</div>
+              <div style={{ marginBottom: 4, fontSize: 12 }}>{t('criticalValue.notifyChannels')}</div>
               <Select
                 mode="multiple"
                 style={{ width: '100%' }}
                 value={editing.channels}
                 onChange={(v) => setEditing({ ...editing, channels: v as NotificationChannel[] })}
                 options={[
-                  { label: '☎ 电话', value: 'phone' },
-                  { label: '✉ 短信', value: 'sms' },
-                  { label: '💬 微信', value: 'wechat' },
-                  { label: '🔔 应用内', value: 'inApp' },
-                  { label: '📧 邮件', value: 'email' },
-                  { label: '📟 传呼', value: 'pager' },
+                  { label: t('criticalValue.channelOption.phone'), value: 'phone' },
+                  { label: t('criticalValue.channelOption.sms'), value: 'sms' },
+                  { label: t('criticalValue.channelOption.wechat'), value: 'wechat' },
+                  { label: t('criticalValue.channelOption.inApp'), value: 'inApp' },
+                  { label: t('criticalValue.channelOption.email'), value: 'email' },
+                  { label: t('criticalValue.channelOption.pager'), value: 'pager' },
                 ]}
               />
             </div>
@@ -476,9 +477,9 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                 <Switch
                   checked={editing.enabled}
                   onChange={(v) => setEditing({ ...editing, enabled: v })}
-                  aria-label="启用"
+                  aria-label={t('criticalValueEscalation.enabled')}
                 />
-                <span style={{ fontSize: 12 }}>启用此规则</span>
+                <span style={{ fontSize: 12 }}>{t('criticalValueEscalation.enableRule')}</span>
               </Space>
             </div>
           </Space>

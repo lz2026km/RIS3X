@@ -61,6 +61,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { BarChart3 } from 'lucide-react'
+import { t } from '../../../../i18n/appI18n'
 
 const CATEGORY_META: Record<
   ScoringDimensionCategory,
@@ -86,7 +87,7 @@ export const QualityDimensionCard: React.FC<{
   const [activeTab, setActiveTab] = useState('weights');
 
   return (
-    <div data-testid="quality-dimension-card" role="region" aria-label="评分维度配置">
+    <div data-testid="quality-dimension-card" role="region" aria-label={t('reportQuality.dimensionConfig')}>
       <Card
         size="small"
         style={{ marginBottom: 8, background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)', border: 'none' }}
@@ -95,10 +96,10 @@ export const QualityDimensionCard: React.FC<{
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <Sliders size={18} color="#fff" />
-            <strong style={{ color: '#fff', fontSize: 16, fontWeight: 600 }}>评分维度配置</strong>
+            <strong style={{ color: '#fff', fontSize: 16, fontWeight: 600 }}>{t('reportQuality.dimensionConfig')}</strong>
             <Tag color="purple">R3.QUALITY.SCORING</Tag>
           </Space>
-          <Tag color="cyan">20 点 · 5 个能力域</Tag>
+          <Tag color="cyan">{t('reportQuality.pointsDomains')}</Tag>
         </Space>
       </Card>
       <Tabs
@@ -107,32 +108,32 @@ export const QualityDimensionCard: React.FC<{
         items={[
           {
             key: 'weights',
-            label: <span><Sliders size={12} /> 维度权重</span>,
+            label: <span><Sliders size={12} /> {t('reportQuality.tab.weights')}</span>,
             children: <WeightsTab onWeightsChange={onWeightsChange} />,
           },
           {
             key: 'threshold',
-            label: <span><Settings size={12} /> 阈值配置</span>,
+            label: <span><Settings size={12} /> {t('reportQuality.tab.threshold')}</span>,
             children: <ThresholdTab />,
           },
           {
             key: 'history',
-            label: <span><History size={12} /> 评分历史</span>,
+            label: <span><History size={12} /> {t('reportQuality.tab.history')}</span>,
             children: <HistoryTab />,
           },
           {
             key: 'report',
-            label: <span><FileText size={12} /> 报告生成</span>,
+            label: <span><FileText size={12} /> {t('reportQuality.tab.report')}</span>,
             children: <ReportTab />,
           },
           {
             key: 'bonus',
-            label: <span><Award size={12} /> 奖励联动</span>,
+            label: <span><Award size={12} /> {t('reportQuality.tab.bonus')}</span>,
             children: <BonusTab onTrigger={onBonusTrigger} />,
           },
           {
             key: 'template',
-            label: <span><Layers size={12} /> 模板评分</span>,
+            label: <span><Layers size={12} /> {t('reportQuality.tab.template')}</span>,
             children: <TemplateTab onGenerated={onReportGenerated} />,
           },
         ]}
@@ -187,7 +188,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
     }
     setSaving(true);
     try {
-      message.success('维度权重已保存');
+      message.success(t('reportQuality.weightsSaved'));
       onWeightsChange?.(await scoringService.getThresholdConfig());
     } finally {
       setSaving(false);
@@ -208,7 +209,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
   const distributeEvenly = () => {
     const enabledKeys = dimensions.filter((d) => enabled[d.key]).map((d) => d.key);
     if (enabledKeys.length === 0) {
-      message.warning('请先启用至少一个维度');
+      message.warning(t('reportQuality.enableAtLeastOne'));
       return;
     }
     const even = 1 / enabledKeys.length;
@@ -229,7 +230,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
         <Row gutter={12}>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>维度总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.dimensionTotal')}</span>}
               value={dimensions.length}
               styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
               prefix={<Target size={14} />}
@@ -237,7 +238,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>已启用</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.enabled')}</span>}
               value={Object.values(enabled).filter(Boolean).length}
               styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
               prefix={<CheckCircle2 size={14} />}
@@ -245,7 +246,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>权重合计</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.weightTotal')}</span>}
               value={Math.round(totalWeight * 100)}
               suffix="%"
               styles={{ content: { 
@@ -258,10 +259,10 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
           <Col xs={12} sm={6}>
             <Space style={{ marginTop: 18 }}>
               <Button size="small" icon={<RotateCcw size={12} />} onClick={reset}>
-                重置
+                {t('reportQuality.reset')}
               </Button>
               <Button size="small" icon={<Settings size={12} />} onClick={distributeEvenly}>
-                等分
+                {t('reportQuality.splitEvenly')}
               </Button>
               <Button
                 size="small"
@@ -270,7 +271,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                 loading={saving}
                 onClick={save}
               >
-                保存
+                {t('reportQuality.save')}
               </Button>
             </Space>
           </Col>
@@ -326,7 +327,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                     aria-label={`${d.name} 权重`}
                   />
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
-                    子规则 ({d.rules.length}): {d.passingRule}
+                    {t('reportQuality.subRules')} ({d.rules.length}): {d.passingRule}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                     {d.rules.map((r) => (
@@ -355,7 +356,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
             fontSize: 12,
           }}
         >
-          权重合计 {(totalWeight * 100).toFixed(1)}% ≠ 100%,请调整后再保存
+          {t('reportQuality.weightSumWarn', { percent: (totalWeight * 100).toFixed(1) })}
         </div>
       )}
     </div>
@@ -373,12 +374,12 @@ const ThresholdTab: React.FC = () => {
   const load = async () => {
     setLoading(true);
     try {
-      const [t, ts] = await Promise.all([
+      const [cfg, ts] = await Promise.all([
         scoringService.getThresholdConfig(),
         scoringService.getThresholds(),
       ]);
-      setThreshold(t);
-      setDraft(t);
+      setThreshold(cfg);
+      setDraft(cfg);
       setThresholds(ts);
     } finally {
       setLoading(false);
@@ -392,7 +393,7 @@ const ThresholdTab: React.FC = () => {
   const save = async () => {
     if (!draft) return;
     if (draft.criticalMaxMinutes <= 0 || draft.emergencyMaxHours <= 0 || draft.routineMaxHours <= 0) {
-      message.error('阈值必须为正数');
+      message.error(t('reportQuality.thresholdMustPositive'));
       return;
     }
     setSaving(true);
@@ -424,7 +425,7 @@ const ThresholdTab: React.FC = () => {
         <Row gutter={12}>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>危急值 (分钟)</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.criticalMinutes')}</span>}
               value={draft.criticalMaxMinutes}
               styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<Zap size={14} />}
@@ -433,7 +434,7 @@ const ThresholdTab: React.FC = () => {
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>急诊 (小时)</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.emergencyHours')}</span>}
               value={draft.emergencyMaxHours}
               styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<TrendingUp size={14} />}
@@ -442,7 +443,7 @@ const ThresholdTab: React.FC = () => {
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>普通 (小时)</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.routineHours')}</span>}
               value={draft.routineMaxHours}
               styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<History size={14} />}
@@ -451,7 +452,7 @@ const ThresholdTab: React.FC = () => {
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>发布阈值</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.publishThreshold')}</span>}
               value={draft.publishBlockThreshold}
               styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<Target size={14} />}
@@ -459,10 +460,10 @@ const ThresholdTab: React.FC = () => {
           </Col>
         </Row>
       </Card>
-      <Card size="small" title="TAT 阈值 (4 档)">
+      <Card size="small" title={t('reportQuality.tatThreshold')}>
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>危急值 (min)</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.criticalMin')}</div>
             <InputNumber
               min={1}
               max={120}
@@ -472,7 +473,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>急诊 (h)</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.emergencyH')}</div>
             <InputNumber
               min={0.5}
               max={24}
@@ -483,7 +484,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>普通 (h)</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.routineH')}</div>
             <InputNumber
               min={1}
               max={96}
@@ -493,7 +494,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>住院 (h)</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.inpatientH')}</div>
             <InputNumber
               min={1}
               max={72}
@@ -503,7 +504,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>发布阈值 (分)</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.publishThresholdPts')}</div>
             <InputNumber
               min={0}
               max={100}
@@ -513,7 +514,7 @@ const ThresholdTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: 4 }}>奖励阈值 (分)</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.bonusThresholdPts')}</div>
             <InputNumber
               min={0}
               max={100}
@@ -530,36 +531,36 @@ const ThresholdTab: React.FC = () => {
             loading={saving}
             onClick={save}
           >
-            保存阈值 (v{threshold.version + 1})
+            {t('reportQuality.saveThreshold')} (v{threshold.version + 1})
           </Button>
           <Button icon={<RotateCcw size={12} />} onClick={() => setDraft(threshold)}>
-            重置
+            {t('reportQuality.reset')}
           </Button>
-          <Tag color="blue">版本: v{threshold.version}</Tag>
-          <Tag color="cyan">更新人: {threshold.updatedBy}</Tag>
+          <Tag color="blue">{t('reportQuality.versionPrefix')}{threshold.version}</Tag>
+          <Tag color="cyan">{t('reportQuality.updatedByPrefix')}{threshold.updatedBy}</Tag>
         </Space>
       </Card>
-      <Card size="small" title="等级阈值映射" style={{ marginTop: 12 }}>
+      <Card size="small" title={t('reportQuality.gradeThresholdMapping')} style={{ marginTop: 12 }}>
         <Row gutter={[12, 12]}>
-          {thresholds.map((t) => (
-            <Col xs={12} sm={6} key={t.grade}>
+          {thresholds.map((th) => (
+            <Col xs={12} sm={6} key={th.grade}>
               <Card
                 size="small"
-                style={{ borderTop: `4px solid ${t.color}`, background: t.bg }}
+                style={{ borderTop: `4px solid ${th.color}`, background: th.bg }}
               >
-                <div style={{ fontSize: 28, fontWeight: 700, color: t.color }}>{t.grade}</div>
-                <div style={{ fontSize: 13, color: t.color }}>
-                  {t.minScore} - {t.maxScore}
+                <div style={{ fontSize: 28, fontWeight: 700, color: th.color }}>{th.grade}</div>
+                <div style={{ fontSize: 13, color: th.color }}>
+                  {th.minScore} - {th.maxScore}
                 </div>
                 <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                  {t.description}
+                  {th.description}
                 </div>
                 <Space style={{ marginTop: 4 }}>
-                  <Tag color={t.publishable ? 'green' : 'red'}>
-                    {t.publishable ? '可发布' : '不可发布'}
+                  <Tag color={th.publishable ? 'green' : 'red'}>
+                    {th.publishable ? t('reportQuality.publishable') : t('reportQuality.notPublishable')}
                   </Tag>
-                  <Tag color={t.bonusEligible ? 'gold' : 'default'}>
-                    {t.bonusEligible ? '有奖励' : '无奖励'}
+                  <Tag color={th.bonusEligible ? 'gold' : 'default'}>
+                    {th.bonusEligible ? t('reportQuality.bonusEligible') : t('reportQuality.bonusIneligible')}
                   </Tag>
                 </Space>
               </Card>
@@ -615,25 +616,25 @@ const HistoryTab: React.FC = () => {
   }, [page, filterGrade, filterTrigger]);
 
   const columns: ColumnsType<ScoreHistoryEntry> = [
-    { title: '评分 ID', dataIndex: 'scoreId', key: 'scoreId', width: 110, render: (v) => <Tag color="purple">{v}</Tag> },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 90 },
-    { title: '检查', dataIndex: 'modality', key: 'modality', width: 70, render: (v) => <Tag color="cyan">{v}</Tag> },
-    { title: '医生', dataIndex: 'doctorName', key: 'doctorName', width: 100 },
-    { title: '科室', dataIndex: 'department', key: 'department', width: 130 },
+    { title: t('reportQuality.scoreId'), dataIndex: 'scoreId', key: 'scoreId', width: 110, render: (v) => <Tag color="purple">{v}</Tag> },
+    { title: t('reportQuality.patient'), dataIndex: 'patientName', key: 'patientName', width: 90 },
+    { title: t('reportQuality.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v) => <Tag color="cyan">{v}</Tag> },
+    { title: t('reportQuality.doctor'), dataIndex: 'doctorName', key: 'doctorName', width: 100 },
+    { title: t('reportQuality.department'), dataIndex: 'department', key: 'department', width: 130 },
     {
-      title: '分类均分',
+      title: t('reportQuality.catAvg'),
       key: 'cat',
       width: 220,
       render: (_, r) => (
         <Space size={4}>
-          <Tag color="blue">完 {r.categoryScores.completeness}</Tag>
-          <Tag color="green">准 {r.categoryScores.accuracy}</Tag>
-          <Tag color="orange">时 {r.categoryScores.timeliness}</Tag>
+          <Tag color="blue">{t('reportQuality.catShortCompleteness')} {r.categoryScores.completeness}</Tag>
+          <Tag color="green">{t('reportQuality.catShortAccuracy')} {r.categoryScores.accuracy}</Tag>
+          <Tag color="orange">{t('reportQuality.catShortTimeliness')} {r.categoryScores.timeliness}</Tag>
         </Space>
       ),
     },
     {
-      title: '总分',
+      title: t('reportQuality.totalScore'),
       dataIndex: 'totalScore',
       key: 'totalScore',
       width: 80,
@@ -644,7 +645,7 @@ const HistoryTab: React.FC = () => {
       ),
     },
     {
-      title: '等级',
+      title: t('reportQuality.grade'),
       dataIndex: 'grade',
       key: 'grade',
       width: 70,
@@ -652,21 +653,21 @@ const HistoryTab: React.FC = () => {
         <Tag color={v === 'A' ? 'green' : v === 'B' ? 'blue' : v === 'C' ? 'gold' : 'red'}>{v}</Tag>
       ),
     },
-    { title: '触发', dataIndex: 'trigger', key: 'trigger', width: 80, render: (v) => <Tag>{v}</Tag> },
+    { title: t('reportQuality.trigger'), dataIndex: 'trigger', key: 'trigger', width: 80, render: (v) => <Tag>{v}</Tag> },
     {
-      title: '时间',
+      title: t('reportQuality.time'),
       dataIndex: 'evaluatedAt',
       key: 'evaluatedAt',
       width: 130,
       render: (v: string) => new Date(v).toLocaleString('zh-CN'),
     },
     {
-      title: '操作',
+      title: t('reportQuality.action'),
       key: 'action',
       width: 90,
       render: (_, r) => (
         <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>
-          详情
+          {t('reportQuality.detail')}
         </Button>
       ),
     },
@@ -681,11 +682,11 @@ const HistoryTab: React.FC = () => {
       >
         <Row gutter={12}>
           <Col xs={24} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>历史总数</span>} value={total} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<History size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.historyTotal')}</span>} value={total} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<History size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
             <Select
-              placeholder="等级筛选"
+              placeholder={t('reportQuality.filterGrade')}
               allowClear
               style={{ width: '100%', marginTop: 14 }}
               value={filterGrade}
@@ -695,22 +696,22 @@ const HistoryTab: React.FC = () => {
           </Col>
           <Col xs={12} sm={6}>
             <Select
-              placeholder="触发点"
+              placeholder={t('reportQuality.triggerPoint')}
               allowClear
               style={{ width: '100%', marginTop: 14 }}
               value={filterTrigger}
               onChange={setFilterTrigger}
               options={[
-                { value: 'submit', label: '提交时' },
-                { value: 'review', label: '审核时' },
-                { value: 'sign', label: '签发时' },
-                { value: 'manual', label: '手动' },
+                { value: 'submit', label: t('reportQuality.trigger.submit') },
+                { value: 'review', label: t('reportQuality.trigger.review') },
+                { value: 'sign', label: t('reportQuality.trigger.sign') },
+                { value: 'manual', label: t('reportQuality.trigger.manual') },
               ]}
             />
           </Col>
           <Col xs={24} sm={6}>
             <Button style={{ marginTop: 14, width: '100%' }} icon={<RefreshCw size={12} />} onClick={load}>
-              刷新
+              {t('reportQuality.refresh')}
             </Button>
           </Col>
         </Row>
@@ -741,39 +742,39 @@ const HistoryTab: React.FC = () => {
         {detail && (
           <Spin spinning={detailLoading}>
             <Descriptions bordered size="small" column={2}>
-              <Descriptions.Item label="患者">{detail.entry.patientName}</Descriptions.Item>
-              <Descriptions.Item label="检查">{detail.entry.modality}</Descriptions.Item>
-              <Descriptions.Item label="医生">{detail.entry.doctorName}</Descriptions.Item>
-              <Descriptions.Item label="科室">{detail.entry.department}</Descriptions.Item>
-              <Descriptions.Item label="触发">{detail.entry.trigger}</Descriptions.Item>
-              <Descriptions.Item label="评价时间">
+              <Descriptions.Item label={t('reportQuality.patient')}>{detail.entry.patientName}</Descriptions.Item>
+              <Descriptions.Item label={t('reportQuality.modality')}>{detail.entry.modality}</Descriptions.Item>
+              <Descriptions.Item label={t('reportQuality.doctor')}>{detail.entry.doctorName}</Descriptions.Item>
+              <Descriptions.Item label={t('reportQuality.department')}>{detail.entry.department}</Descriptions.Item>
+              <Descriptions.Item label={t('reportQuality.trigger')}>{detail.entry.trigger}</Descriptions.Item>
+              <Descriptions.Item label={t('reportQuality.evalTime')}>
                 {new Date(detail.entry.evaluatedAt).toLocaleString('zh-CN')}
               </Descriptions.Item>
-              <Descriptions.Item label="总分">
+              <Descriptions.Item label={t('reportQuality.totalScore')}>
                 <strong style={{ color: (detail.result?.totalScore ?? detail.entry.totalScore) >= 90 ? '#16a34a' : (detail.result?.totalScore ?? detail.entry.totalScore) >= 75 ? '#2563eb' : '#dc2626' }}>
                   {detail.result?.totalScore ?? detail.entry.totalScore}
                 </strong>
               </Descriptions.Item>
-              <Descriptions.Item label="等级">
+              <Descriptions.Item label={t('reportQuality.grade')}>
                 <Tag color={detail.result ? (detail.result.grade === 'A' ? 'green' : detail.result.grade === 'B' ? 'blue' : detail.result.grade === 'C' ? 'gold' : 'red') : undefined}>
                   {detail.result?.grade ?? detail.entry.grade}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="分类均分" span={2}>
-                完整 {detail.result?.categoryScores.completeness ?? detail.entry.categoryScores.completeness} / 准确 {detail.result?.categoryScores.accuracy ?? detail.entry.categoryScores.accuracy} / 及时 {detail.result?.categoryScores.timeliness ?? detail.entry.categoryScores.timeliness}
+              <Descriptions.Item label={t('reportQuality.catAvg')} span={2}>
+                {t('reportQuality.completenessShort')} {detail.result?.categoryScores.completeness ?? detail.entry.categoryScores.completeness} / {t('reportQuality.accuracyShort')} {detail.result?.categoryScores.accuracy ?? detail.entry.categoryScores.accuracy} / {t('reportQuality.timelinessShort')} {detail.result?.categoryScores.timeliness ?? detail.entry.categoryScores.timeliness}
               </Descriptions.Item>
               {detail.result && (
                 <>
-                  <Descriptions.Item label="可发布">
-                    <Tag color={detail.result.publishable ? 'green' : 'red'}>{detail.result.publishable ? '是' : '否'}</Tag>
+                  <Descriptions.Item label={t('reportQuality.publishable')}>
+                    <Tag color={detail.result.publishable ? 'green' : 'red'}>{detail.result.publishable ? t('reportQuality.yes') : t('reportQuality.no')}</Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label="奖励资格">
-                    <Tag color={detail.result.bonusEligible ? 'gold' : 'default'}>{detail.result.bonusEligible ? '有' : '无'}</Tag>
+                  <Descriptions.Item label={t('reportQuality.bonusEligible')}>
+                    <Tag color={detail.result.bonusEligible ? 'gold' : 'default'}>{detail.result.bonusEligible ? t('reportQuality.has') : t('reportQuality.none')}</Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label="模型版本">{detail.result.modelVersion}</Descriptions.Item>
-                  <Descriptions.Item label="评估耗时">{detail.result.durationMs} ms</Descriptions.Item>
+                  <Descriptions.Item label={t('reportQuality.modelVersion')}>{detail.result.modelVersion}</Descriptions.Item>
+                  <Descriptions.Item label={t('reportQuality.evalDuration')}>{detail.result.durationMs} ms</Descriptions.Item>
                   {detail.result.hardFailTriggered.length > 0 && (
-                    <Descriptions.Item label="一票否决" span={2}>
+                    <Descriptions.Item label={t('reportQuality.hardFail')} span={2}>
                       {detail.result.hardFailTriggered.map((h) => (
                         <Tag color="red" key={h}>{h}</Tag>
                       ))}
@@ -784,7 +785,7 @@ const HistoryTab: React.FC = () => {
             </Descriptions>
             {detail.result && (
               <div style={{ marginTop: 12 }}>
-                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>维度明细 (15 维度)</div>
+                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{t('reportQuality.dimensionDetail15')}</div>
                 <Table
                   size="small"
                   rowKey="key"
@@ -792,14 +793,14 @@ const HistoryTab: React.FC = () => {
                   scroll={{ x: 'max-content' }}
                   dataSource={Object.entries(detail.result.dimensionScores).map(([key, score]) => ({ key, score }))}
                   columns={[
-                    { title: '维度', dataIndex: 'key', key: 'key' },
-                    { title: '得分', dataIndex: 'score', key: 'score', width: 90 },
+                    { title: t('reportQuality.dimension'), dataIndex: 'key', key: 'key' },
+                    { title: t('reportQuality.score'), dataIndex: 'score', key: 'score', width: 90 },
                   ]}
                 />
               </div>
             )}
             {!detail.result && !detailLoading && (
-              <Alert style={{ marginTop: 12 }} type="warning" showIcon message="无完整评估明细（历史归档，仅保留汇总信息）" />
+              <Alert style={{ marginTop: 12 }} type="warning" showIcon message={t('reportQuality.noDetailArchive')} />
             )}
           </Spin>
         )}
@@ -880,7 +881,7 @@ const ReportTab: React.FC = () => {
 
   const generate = async () => {
     if (!scoreId) {
-      message.warning('请输入评分 ID');
+      message.warning(t('reportQuality.enterScoreId'));
       return;
     }
     setGenerating(true);
@@ -902,20 +903,20 @@ const ReportTab: React.FC = () => {
       >
         <Row gutter={12}>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>报告格式</span>} value={format.toUpperCase()} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<FileText size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportFormat')}</span>} value={format.toUpperCase()} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<FileText size={14} />} />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>已生成</span>} value={reportUrl ? '1' : '0'} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Download size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.generatedCount')}</span>} value={reportUrl ? '1' : '0'} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Download size={14} />} />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>报告类型</span>} value="15 维度" styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Sparkles size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportType')}</span>} value={t('reportQuality.dimension15')} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Sparkles size={14} />} />
           </Col>
         </Row>
       </Card>
-      <Card size="small" title="生成评分报告">
+      <Card size="small" title={t('reportQuality.generateReportTitle')}>
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={12}>
-            <div style={{ marginBottom: 4 }}>评分 ID</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.scoreId')}</div>
             <input
               type="text"
               value={scoreId}
@@ -931,7 +932,7 @@ const ReportTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12}>
-            <div style={{ marginBottom: 4 }}>格式</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQuality.format')}</div>
             <Select
               value={format}
               onChange={setFormat}
@@ -947,11 +948,11 @@ const ReportTab: React.FC = () => {
         </Row>
         <Space style={{ marginTop: 16 }}>
           <Button type="primary" icon={<FileText size={12} />} loading={generating} onClick={generate}>
-            生成报告
+            {t('reportQuality.generateReport')}
           </Button>
           {reportUrl && (
             <Button icon={<Download size={12} />} loading={downloading} onClick={download}>
-              下载 {format.toUpperCase()}
+              {t('reportQuality.download')} {format.toUpperCase()}
             </Button>
           )}
         </Space>
@@ -960,25 +961,25 @@ const ReportTab: React.FC = () => {
             style={{ marginTop: 12 }}
             type="success"
             showIcon
-            title="报告已生成"
+            title={t('reportQuality.reportGenerated')}
             description={
               <Space direction="vertical" size={4}>
                 <code style={{ fontSize: 12 }}>{reportUrl}</code>
-                <Tag color="orange">演示数据: 后端为 Mock URL，下载时生成本地模拟文件</Tag>
+                <Tag color="orange">{t('reportQuality.mockDataNote')}</Tag>
               </Space>
             }
           />
         )}
       </Card>
-      <Card size="small" title="报告内容预览" style={{ marginTop: 12 }}>
+      <Card size="small" title={t('reportQuality.reportPreview')} style={{ marginTop: 12 }}>
         <Row gutter={[12, 12]}>
           {[
-            { k: '总分', v: '0-100', c: '#3b82f6' },
-            { k: '等级', v: 'A/B/C/D', c: '#10b981' },
-            { k: '15 维度明细', v: '15 项', c: '#7c3aed' },
-            { k: '证据链', v: '≤30 条', c: '#f59e0b' },
-            { k: '一票否决', v: '可见', c: '#dc2626' },
-            { k: '奖励资格', v: '可见', c: '#0891b2' },
+            { k: t('reportQuality.preview.totalScore'), v: t('reportQuality.preview.totalScoreRange'), c: '#3b82f6' },
+            { k: t('reportQuality.preview.grade'), v: t('reportQuality.preview.gradeRange'), c: '#10b981' },
+            { k: t('reportQuality.preview.dimension15'), v: t('reportQuality.preview.dimension15Count'), c: '#7c3aed' },
+            { k: t('reportQuality.preview.evidenceChain'), v: t('reportQuality.preview.evidenceCount'), c: '#f59e0b' },
+            { k: t('reportQuality.preview.hardFail'), v: t('reportQuality.visible'), c: '#dc2626' },
+            { k: t('reportQuality.preview.bonus'), v: t('reportQuality.visible'), c: '#0891b2' },
           ].map((item, i) => (
             <Col xs={12} sm={8} md={4} key={i}>
               <Card size="small" style={{ borderLeft: `3px solid ${item.c}` }}>
@@ -1019,7 +1020,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
 
   const trigger = async (b: BonusLinkage) => {
     Modal.confirm({
-      title: `触发奖励联动?`,
+      title: t('reportQuality.triggerBonusConfirm'),
       content: `将触发 ${b.name} (阈值 ${b.thresholdScore} 分)`,
       onOk: async () => {
         const updated = await scoringService.triggerBonusLinkage(b.id);
@@ -1048,7 +1049,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
         <Row gutter={12}>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>联动总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.bonusTotal')}</span>}
               value={bonuses.length}
               styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
               prefix={<Award size={14} />}
@@ -1056,7 +1057,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
           </Col>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>已启用</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.enabled')}</span>}
               value={bonuses.filter((b) => b.enabled).length}
               styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
               prefix={<CheckCircle2 size={14} />}
@@ -1064,7 +1065,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
           </Col>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>累计触发</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.bonusTriggered')}</span>}
               value={bonuses.reduce((a, b) => a + b.triggeredCount, 0)}
               styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
               prefix={<Sparkles size={14} />}
@@ -1072,7 +1073,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
           </Col>
           <Col xs={24} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>受益人数</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportQuality.beneficiaries')}</span>}
               value={bonuses.reduce((a, b) => a + b.beneficiariesCount, 0)}
               styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
               prefix={<Target size={14} />}
@@ -1108,29 +1109,29 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
               <Row gutter={8} style={{ marginTop: 8 }}>
                 <Col span={8}>
                   <Statistic
-                    title="阈值"
+                    title={t('reportQuality.threshold')}
                     value={b.thresholdScore}
-                    suffix="分"
+                    suffix={t('reportQuality.scoreUnit')}
                     styles={{ content: {  fontSize: 14  } }}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="已触发"
+                    title={t('reportQuality.triggered')}
                     value={b.triggeredCount}
                     styles={{ content: {  fontSize: 14  } }}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="受益"
+                    title={t('reportQuality.benefit')}
                     value={b.beneficiariesCount}
                     styles={{ content: {  fontSize: 14  } }}
                   />
                 </Col>
               </Row>
               <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>权益:</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('reportQuality.benefits')}</div>
                 <Space wrap>
                   {b.benefits.map((ben) => (
                     <Tag key={ben} color="blue" style={{ fontSize: 12 }}>{ben}</Tag>
@@ -1139,11 +1140,11 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
               </div>
               <Space style={{ marginTop: 8 }}>
                 <Button size="small" icon={<Sparkles size={12} />} onClick={() => trigger(b)} disabled={!b.enabled}>
-                  手动触发
+                  {t('reportQuality.manualTrigger')}
                 </Button>
                 {b.lastTriggeredAt && (
                   <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                    上次: {new Date(b.lastTriggeredAt).toLocaleString('zh-CN')}
+                    {t('reportQuality.lastTriggered')}{new Date(b.lastTriggeredAt).toLocaleString('zh-CN')}
                   </span>
                 )}
               </Space>
@@ -1166,9 +1167,9 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
   const load = async () => {
     setLoading(true);
     try {
-      const t = await scoringService.listTemplates();
-      setTemplates(t);
-      if (t.length > 0) setSelectedId(t[0]!.templateId);
+      const tpls = await scoringService.listTemplates();
+      setTemplates(tpls);
+      if (tpls.length > 0) setSelectedId(tpls[0]!.templateId);
     } finally {
       setLoading(false);
     }
@@ -1208,32 +1209,32 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>模板总数</span>} value={templates.length} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Layers size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.templateTotal')}</span>} value={templates.length} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Layers size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>已发布</span>} value={templates.filter((t) => t.published).length} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<CheckCircle2 size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.published')}</span>} value={templates.filter((tpl) => tpl.published).length} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<CheckCircle2 size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>基础分均值</span>} value={Math.round((templates.reduce((a, t) => a + t.baseScore, 0) / templates.length) * 10) / 10} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Target size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.baseScoreAvg')}</span>} value={Math.round((templates.reduce((a, tpl) => a + tpl.baseScore, 0) / templates.length) * 10) / 10} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Target size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>当前模板</span>} value={templates.find((t) => t.templateId === selectedId)?.templateName ?? '-'} styles={{ content: {  color: '#fff', fontSize: 14  } }} prefix={<FileText size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.currentTemplate')}</span>} value={templates.find((tpl) => tpl.templateId === selectedId)?.templateName ?? '-'} styles={{ content: {  color: '#fff', fontSize: 14  } }} prefix={<FileText size={14} />} />
           </Col>
         </Row>
       </Card>
-      <Card size="small" title="模板评分">
+      <Card size="small" title={t('reportQuality.templateScoring')}>
         <Row gutter={12}>
           <Col xs={24} sm={16}>
             <Select
               value={selectedId}
               onChange={setSelectedId}
               style={{ width: '100%' }}
-              options={templates.map((t) => ({ value: t.templateId, label: `${t.templateName} (${t.modality}/${t.bodyPart})` }))}
+              options={templates.map((tpl) => ({ value: tpl.templateId, label: `${tpl.templateName} (${tpl.modality}/${tpl.bodyPart})` }))}
             />
           </Col>
           <Col xs={24} sm={8}>
             <Button type="primary" icon={<Sparkles size={12} />} loading={scoring} onClick={run} style={{ width: '100%' }}>
-              评分模板
+              {t('reportQuality.scoreTemplate')}
             </Button>
           </Col>
         </Row>
@@ -1242,39 +1243,39 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
             <Row gutter={12}>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>基础分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.baseScore')}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{result.baseScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>加分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.bonusScore')}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#10b981' }}>+{result.bonusApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>扣分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.penaltyScore')}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626' }}>-{result.penaltyApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>最终</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.finalScore')}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>{result.finalScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 12, color: '#64748b' }}>通过分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.passingScore')}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#64748b' }}>{result.passingScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small" style={{ background: result.passed ? 'var(--color-success-bg)' : 'var(--color-error-bg)' }}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>结果</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.result')}</div>
                   <Tag color={result.passed ? 'green' : 'red'} style={{ fontSize: 16, padding: '2px 10px' }}>
-                    {result.passed ? '通过' : '不通过'}
+                    {result.passed ? t('reportQuality.passed') : t('reportQuality.failed')}
                   </Tag>
                 </Card>
               </Col>
@@ -1292,42 +1293,42 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
                 pagination={false}
                 dataSource={result.details}
                 columns={[
-                  { title: '维度', dataIndex: 'dimension', key: 'dimension' },
-                  { title: '基础分', dataIndex: 'base', key: 'base' },
-                  { title: '加分', dataIndex: 'bonus', key: 'bonus', render: (v: number) => <span style={{ color: v > 0 ? '#10b981' : '#64748b' }}>+{v}</span> },
-                  { title: '扣分', dataIndex: 'penalty', key: 'penalty', render: (v: number) => <span style={{ color: v > 0 ? '#dc2626' : '#64748b' }}>-{v}</span> },
-                  { title: '最终', dataIndex: 'final', key: 'final', render: (v: number) => <strong>{v}</strong> },
+                  { title: t('reportQuality.dimension'), dataIndex: 'dimension', key: 'dimension' },
+                  { title: t('reportQuality.baseScore'), dataIndex: 'base', key: 'base' },
+                  { title: t('reportQuality.bonusScore'), dataIndex: 'bonus', key: 'bonus', render: (v: number) => <span style={{ color: v > 0 ? '#10b981' : '#64748b' }}>+{v}</span> },
+                  { title: t('reportQuality.penaltyScore'), dataIndex: 'penalty', key: 'penalty', render: (v: number) => <span style={{ color: v > 0 ? '#dc2626' : '#64748b' }}>-{v}</span> },
+                  { title: t('reportQuality.finalScore'), dataIndex: 'final', key: 'final', render: (v: number) => <strong>{v}</strong> },
                 ]}
               />
             )}
           </div>
         )}
-        {!result && <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="点击评分模板查看结果" style={{ marginTop: 24 }} />}
+        {!result && <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('reportQuality.clickToScore')} style={{ marginTop: 24 }} />}
       </Card>
-      <Card size="small" title="模板列表" style={{ marginTop: 12 }}>
+      <Card size="small" title={t('reportQuality.templateList')} style={{ marginTop: 12 }}>
         <Row gutter={[12, 12]}>
-          {templates.map((t) => (
-            <Col xs={24} sm={12} md={8} key={t.templateId}>
+          {templates.map((tpl) => (
+            <Col xs={24} sm={12} md={8} key={tpl.templateId}>
               <Card
                 size="small"
                 style={{
-                  borderLeft: `4px solid ${t.published ? '#10b981' : '#94a3b8'}`,
+                  borderLeft: `4px solid ${tpl.published ? '#10b981' : '#94a3b8'}`,
                   cursor: 'pointer',
                 }}
-                onClick={() => setSelectedId(t.templateId)}
+                onClick={() => setSelectedId(tpl.templateId)}
               >
                 <Space>
-                  <Tag color="cyan">{t.modality}</Tag>
-                  <Tag color="blue">{t.bodyPart}</Tag>
-                  {t.published ? <Tag color="green">已发布</Tag> : <Tag>未发布</Tag>}
+                  <Tag color="cyan">{tpl.modality}</Tag>
+                  <Tag color="blue">{tpl.bodyPart}</Tag>
+                  {tpl.published ? <Tag color="green">{t('reportQuality.published')}</Tag> : <Tag>{t('reportQuality.unpublished')}</Tag>}
                 </Space>
-                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{t.templateName}</div>
+                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{tpl.templateName}</div>
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
-                  基础 {t.baseScore} / 通过 {t.passingScore}
+                  {t('reportQuality.basePrefix')} {tpl.baseScore} / {t('reportQuality.passPrefix')} {tpl.passingScore}
                 </div>
                 <Space size={4} style={{ marginTop: 4 }}>
-                  <Tag color="green">{t.bonusRules.length} 加分</Tag>
-                  <Tag color="red">{t.penaltyRules.length} 扣分</Tag>
+                  <Tag color="green">{tpl.bonusRules.length} {t('reportQuality.bonusScore')}</Tag>
+                  <Tag color="red">{tpl.penaltyRules.length} {t('reportQuality.penaltyScore')}</Tag>
                 </Space>
               </Card>
             </Col>

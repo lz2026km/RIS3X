@@ -30,6 +30,7 @@ import {
   Cell,
 } from 'recharts';
 import ChartContainer from '../../../charts/ChartContainer';
+import { t } from '../../../../i18n/appI18n';
 
 const STAGE_COLORS: Record<ReviewStage, string> = {
   initial: '#f59e0b',
@@ -39,18 +40,18 @@ const STAGE_COLORS: Record<ReviewStage, string> = {
 };
 
 const STAGE_LABELS: Record<ReviewStage, string> = {
-  initial: '初审',
-  final: '终审',
-  cosign: '双签',
-  sign: '签发',
+  initial: 'reportReview.stage.initial',
+  final: 'reportReview.stage.final',
+  cosign: 'reportReview.stage.cosign',
+  sign: 'reportReview.stage.sign',
 };
 
 const TITLE_LABEL: Record<string, string> = {
-  chief: '主任',
-  associateChief: '副主任',
-  attending: '主治',
-  resident: '住院',
-  director: '院长',
+  chief: 'reportReview.title.chief',
+  associateChief: 'reportReview.title.associateChief',
+  attending: 'reportReview.title.attending',
+  resident: 'reportReview.title.resident',
+  director: 'reportReview.title.director',
 };
 
 export const ReviewWorkloadStats: React.FC = () => {
@@ -69,7 +70,7 @@ export const ReviewWorkloadStats: React.FC = () => {
       setStats(s);
       setReviewers(r);
     } catch (e) {
-      message.error('加载工作量统计失败');
+      message.error(t('reportReview.workload.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -129,41 +130,41 @@ export const ReviewWorkloadStats: React.FC = () => {
 
   const columns = [
     {
-      title: '审核员',
+      title: t('reportReview.workload.colReviewer'),
       dataIndex: 'reviewerName',
       key: 'reviewerName',
       render: (v: string, r: WorkloadStat) => (
         <Space>
           <Award size={12} color="#7c3aed" />
           <strong>{v}</strong>
-          <Tag color="purple">{TITLE_LABEL[r.reviewerTitle] ?? r.reviewerTitle}</Tag>
+          <Tag color="purple">{t(TITLE_LABEL[r.reviewerTitle] ?? r.reviewerTitle)}</Tag>
         </Space>
       ),
     },
     {
-      title: '已完成',
+      title: t('reportReview.workload.colCompleted'),
       dataIndex: 'totalCompleted',
       key: 'totalCompleted',
       sorter: (a: WorkloadStat, b: WorkloadStat) => a.totalCompleted - b.totalCompleted,
     },
     {
-      title: '已驳回',
+      title: t('reportReview.workload.colRejected'),
       dataIndex: 'totalRejected',
       key: 'totalRejected',
       render: (v: number) => <Tag color={v > 5 ? 'red' : 'orange'}>{v}</Tag>,
     },
     {
-      title: '平均时长',
+      title: t('reportReview.workload.colAvgTime'),
       dataIndex: 'averageMinutes',
       key: 'averageMinutes',
       render: (v: number) => (
         <span style={{ color: v > 90 ? '#dc2626' : v > 75 ? '#f59e0b' : '#10b981' }}>
-          {v}分钟
+          {v}{t('reportReview.workload.minutes')}
         </span>
       ),
     },
     {
-      title: '按时率',
+      title: t('reportReview.workload.colOnTime'),
       dataIndex: 'onTimeRate',
       key: 'onTimeRate',
       sorter: (a: WorkloadStat, b: WorkloadStat) => a.onTimeRate - b.onTimeRate,
@@ -176,7 +177,7 @@ export const ReviewWorkloadStats: React.FC = () => {
       ),
     },
     {
-      title: '驳回率',
+      title: t('reportReview.workload.colRejectRate'),
       dataIndex: 'rejectionRate',
       key: 'rejectionRate',
       render: (v: number) => (
@@ -186,7 +187,7 @@ export const ReviewWorkloadStats: React.FC = () => {
   ];
 
   return (
-    <div data-testid="review-workload-stats" role="region" aria-label="审核工作量统计">
+    <div data-testid="review-workload-stats" role="region" aria-label={t('reportReview.workload.title')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #0891b2 0%, #3b82f6 100%)',
@@ -199,7 +200,7 @@ export const ReviewWorkloadStats: React.FC = () => {
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <BarChart3 size={18} />
-            <strong style={{ fontSize: 16 }}>审核工作量统计</strong>
+            <strong style={{ fontSize: 16 }}>{t('reportReview.workload.title')}</strong>
             <Tag color="purple">R3.REVIEW.246</Tag>
           </Space>
           <Select
@@ -208,16 +209,16 @@ export const ReviewWorkloadStats: React.FC = () => {
             onChange={(v) => setPeriod(v as 'day' | 'week' | 'month')}
             style={{ width: 100 }}
             options={[
-              { value: 'day', label: '今日' },
-              { value: 'week', label: '本周' },
-              { value: 'month', label: '本月' },
+              { value: 'day', label: t('reportReview.workload.today') },
+              { value: 'week', label: t('reportReview.workload.thisWeek') },
+              { value: 'month', label: t('reportReview.workload.thisMonth') },
             ]}
           />
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>总完成</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.workload.totalCompleted')}</span>}
               value={overallStats.total}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
@@ -225,7 +226,7 @@ export const ReviewWorkloadStats: React.FC = () => {
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>总驳回</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.workload.totalRejected')}</span>}
               value={overallStats.rejected}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<XCircle size={14} />}
@@ -233,16 +234,16 @@ export const ReviewWorkloadStats: React.FC = () => {
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均时长</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.workload.avgTime')}</span>}
               value={overallStats.avgTime}
-              suffix="分钟"
+              suffix={t('reportReview.workload.minutes')}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
             />
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均按时率</span>}
+              title={<span style={{ color: '#fff' }}>{t('reportReview.workload.avgOnTime')}</span>}
               value={overallStats.onTime}
               suffix="%"
               styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }}
@@ -254,14 +255,14 @@ export const ReviewWorkloadStats: React.FC = () => {
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={8}>
-          <Card title="按阶段分布" size="small">
-            <ChartContainer height={200} state={byStageData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+          <Card title={t('reportReview.workload.byStage')} size="small">
+            <ChartContainer height={200} state={byStageData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
               <BarChart data={byStageData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="stage" tick={{ fontSize: 12 }} tickFormatter={(v) => STAGE_LABELS[v as ReviewStage] ?? v} />
+                <XAxis dataKey="stage" tick={{ fontSize: 12 }} tickFormatter={(v) => t(STAGE_LABELS[v as ReviewStage] ?? v)} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Bar dataKey="count" name="数量">
+                <Bar dataKey="count" name={t('reportReview.workload.count')}>
                   {byStageData.map((d) => (
                     <Cell
                       key={d.stage}
@@ -274,8 +275,8 @@ export const ReviewWorkloadStats: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="按模态分布" size="small">
-            <ChartContainer height={200} state={byModalityData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+          <Card title={t('reportReview.workload.byModality')} size="small">
+            <ChartContainer height={200} state={byModalityData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
               <PieChart>
                 <Pie
                   data={byModalityData}
@@ -300,8 +301,8 @@ export const ReviewWorkloadStats: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="审核员负载" size="small">
-            <ChartContainer height={200} state={reviewers.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+          <Card title={t('reportReview.workload.reviewerLoad')} size="small">
+            <ChartContainer height={200} state={reviewers.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
               <BarChart
                 data={reviewers
                   .slice(0, 6)
@@ -312,8 +313,8 @@ export const ReviewWorkloadStats: React.FC = () => {
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="load" fill="#3b82f6" name="当前" />
-                <Bar dataKey="max" fill="#e2e8f0" name="上限" />
+                <Bar dataKey="load" fill="#3b82f6" name={t('reportReview.workload.current')} />
+                <Bar dataKey="max" fill="#e2e8f0" name={t('reportReview.workload.max')} />
               </BarChart>
             </ChartContainer>
           </Card>
@@ -324,13 +325,13 @@ export const ReviewWorkloadStats: React.FC = () => {
         title={
           <Space>
             <Activity size={14} />
-            工作量趋势
+            {t('reportReview.workload.trend')}
           </Space>
         }
         size="small"
         style={{ marginBottom: 12 }}
       >
-        <ChartContainer height={220} state={trendData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
+        <ChartContainer height={220} state={trendData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('reportReview.common.noData')}>
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
@@ -354,7 +355,7 @@ export const ReviewWorkloadStats: React.FC = () => {
         title={
           <Space>
             <Users size={14} />
-            审核员详情
+            {t('reportReview.workload.reviewerDetail')}
           </Space>
         }
         size="small"

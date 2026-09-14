@@ -26,6 +26,7 @@ import {
   type TemplateSearchResultV2,
   type TemplateUsageStatsV2,
 } from '../../../services/api/templateLibraryV2Api'
+import { t } from '../../../i18n/appI18n'
 
 const PURPOSE_OPTIONS = Object.entries(PURPOSE_LABEL_V2).map(([value, label]) => ({ value, label }))
 
@@ -98,7 +99,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
         if (f.success) setFavorites(f.data ?? [])
       }
     } catch {
-      message.error('加载模板库数据失败')
+      message.error(t('templateLibrary.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -129,18 +130,18 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
     const list = searchResult.items.length > 0 || keyword || tagFilter || modalityFilter || deptFilter || purposeFilter
       ? searchResult.items
       : templates
-    return list.filter((t) => {
+    return list.filter((tpl) => {
       if (selectedKeys.length === 0) return true
       const key = String(selectedKeys[0])
-      if (key.startsWith('modality:')) return t.modality === key.slice('modality:'.length)
-      if (key.startsWith('dept:')) return t.dept === key.slice('dept:'.length)
-      if (key.startsWith('purpose:')) return t.purpose === key.slice('purpose:'.length)
+      if (key.startsWith('modality:')) return tpl.modality === key.slice('modality:'.length)
+      if (key.startsWith('dept:')) return tpl.dept === key.slice('dept:'.length)
+      if (key.startsWith('purpose:')) return tpl.purpose === key.slice('purpose:'.length)
       return true
     })
   }, [templates, searchResult, keyword, tagFilter, modalityFilter, deptFilter, purposeFilter, selectedKeys])
 
   const loadUsageStats = useCallback(async () => {
-    const ids = displayed.slice(0, 12).map((t) => t.id)
+    const ids = displayed.slice(0, 12).map((tpl) => tpl.id)
     const results = await Promise.allSettled(ids.map((id) => templateLibraryV2Api.templateStats(id)))
     const map: Record<string, TemplateUsageStatsV2> = {}
     results.forEach((r, i) => {
@@ -172,17 +173,17 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
   const handleUse = async (id: string) => {
     const res = await templateLibraryV2Api.recordUsage(id, 'u-001')
     if (res.success) {
-      message.success(`已使用模板: ${res.data?.name}`)
+      message.success(t('templateLibrary.usedTemplate', { name: res.data?.name }))
       await reloadTemplates()
     } else {
-      message.error(res.error?.message ?? '记录使用失败')
+      message.error(res.error?.message ?? t('templateLibrary.recordUsageFailed'))
     }
   }
 
   const handleFavorite = async (id: string) => {
     const res = await templateLibraryV2Api.toggleFavorite(id, 'u-001')
     if (res.success) {
-      message.success(res.data?.favorite ? '已收藏' : '已取消收藏')
+      message.success(res.data?.favorite ? t('templateLibrary.favorited') : t('templateLibrary.unfavorited'))
       await reloadTemplates()
     }
   }
@@ -190,10 +191,10 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
   const handleCopy = async (id: string) => {
     const res = await templateLibraryV2Api.copyTemplate(id, '当前用户')
     if (res.success) {
-      message.success(`已复制: ${res.data?.name}`)
+      message.success(t('templateLibrary.copiedTemplate', { name: res.data?.name }))
       await reloadTemplates()
     } else {
-      message.error(res.error?.message ?? '复制失败')
+      message.error(res.error?.message ?? t('templateLibrary.copyFailed'))
     }
   }
 
@@ -201,9 +202,9 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
     const res = await templateLibraryV2Api.exportTemplates(ids)
     if (res.success && res.data) {
       downloadTextFile(`template-library-export-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(res.data, null, 2), 'application/json; charset=utf-8')
-      message.success(`已导出 ${res.data.templates.length} 个模板 (JSON)`)
+      message.success(t('templateLibrary.exported', { count: res.data.templates.length }))
     } else {
-      message.error(res.error?.message ?? '导出失败')
+      message.error(res.error?.message ?? t('templateLibrary.exportFailed'))
     }
   }
 
@@ -211,60 +212,60 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
     const text = await file.text()
     const res = await templateLibraryV2Api.importTemplates(text, '当前用户')
     if (res.success) {
-      message.success(`导入成功: ${res.data?.imported} 个模板`)
+      message.success(t('templateLibrary.imported', { count: res.data?.imported }))
       await reloadTemplates()
     } else {
-      message.error(res.error?.message ?? '导入失败 (JSON 格式不正确)')
+      message.error(res.error?.message ?? t('templateLibrary.importFailed'))
     }
   }
 
   const columns: ColumnsType<ReportTemplateLibraryItemV2> = [
-    { title: '模板名称', dataIndex: 'name', width: 190, render: (v: string, t) => (
+    { title: t('templateLibrary.col.name'), dataIndex: 'name', width: 190, render: (v: string, row) => (
         <Space size={4}>
           <FileText size={13} color="#4f46e5" />
           <span>{v}</span>
-          {t.isSystem && <Tag color="cyan" style={{ fontSize: 10, lineHeight: '14px', marginInlineEnd: 0 }}>内置</Tag>}
-          {t.sourceTemplateId && <Tag color="geekblue" style={{ fontSize: 10, lineHeight: '14px', marginInlineEnd: 0 }}>副本</Tag>}
+          {row.isSystem && <Tag color="cyan" style={{ fontSize: 10, lineHeight: '14px', marginInlineEnd: 0 }}>{t('templateLibrary.builtin')}</Tag>}
+          {row.sourceTemplateId && <Tag color="geekblue" style={{ fontSize: 10, lineHeight: '14px', marginInlineEnd: 0 }}>{t('templateLibrary.copy')}</Tag>}
         </Space>
       ) },
-    { title: '模态', dataIndex: 'modality', width: 55, render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '科室', dataIndex: 'dept', width: 90 },
-    { title: '用途', dataIndex: 'purpose', width: 80, render: (v: TemplatePurposeV2) => <Tag>{PURPOSE_LABEL_V2[v]}</Tag> },
-    { title: '部位', dataIndex: 'bodyPart', width: 70 },
-    { title: '标签', dataIndex: 'tags', width: 150, render: (tags: string[]) => tags.slice(0, 3).map((tag) => <Tag key={tag} color="purple" style={{ marginInlineEnd: 4 }}>{tag}</Tag>) },
-    { title: '使用', dataIndex: 'usageCount', width: 60, align: 'center' as const },
-    { title: '采纳率', width: 70, align: 'center' as const, render: (_, t) => {
-        const s = usageStats[t.id]
+    { title: t('templateLibrary.col.modality'), dataIndex: 'modality', width: 55, render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: t('templateLibrary.col.dept'), dataIndex: 'dept', width: 90 },
+    { title: t('templateLibrary.col.purpose'), dataIndex: 'purpose', width: 80, render: (v: TemplatePurposeV2) => <Tag>{PURPOSE_LABEL_V2[v]}</Tag> },
+    { title: t('templateLibrary.col.bodyPart'), dataIndex: 'bodyPart', width: 70 },
+    { title: t('templateLibrary.col.tags'), dataIndex: 'tags', width: 150, render: (tags: string[]) => tags.slice(0, 3).map((tag) => <Tag key={tag} color="purple" style={{ marginInlineEnd: 4 }}>{tag}</Tag>) },
+    { title: t('templateLibrary.col.usage'), dataIndex: 'usageCount', width: 60, align: 'center' as const },
+    { title: t('templateLibrary.col.adoptionRate'), width: 70, align: 'center' as const, render: (_, row) => {
+        const s = usageStats[row.id]
         return <span style={{ color: (s?.adoptionRate ?? 0) >= 50 ? '#10b981' : '#64748b' }}>{(s?.adoptionRate ?? 0).toFixed(1)}%</span>
       } },
-    { title: '最近使用', width: 100, render: (_, t) => formatDateTime(t.lastUsedAt) },
-    { title: '收藏', dataIndex: 'favoriteCount', width: 55, align: 'center' as const, render: (v: number) => v > 0 ? <Star size={13} color="#f59e0b" fill="#f59e0b" /> : <span style={{ color: '#cbd5e1' }}>0</span> },
-    { title: '操作', width: 210, fixed: 'right' as const, render: (_, t) => (
+    { title: t('templateLibrary.col.lastUsed'), width: 100, render: (_, row) => formatDateTime(row.lastUsedAt) },
+    { title: t('templateLibrary.col.favorite'), dataIndex: 'favoriteCount', width: 55, align: 'center' as const, render: (v: number) => v > 0 ? <Star size={13} color="#f59e0b" fill="#f59e0b" /> : <span style={{ color: '#cbd5e1' }}>0</span> },
+    { title: t('templateLibrary.col.action'), width: 210, fixed: 'right' as const, render: (_, row) => (
         <Space size={4} wrap>
-          <Tooltip title="使用模板 (计入统计)">
-            <Button size="small" type="primary" icon={<Zap size={11} />} onClick={() => void handleUse(t.id)}>使用</Button>
+          <Tooltip title={t('templateLibrary.useTip')}>
+            <Button size="small" type="primary" icon={<Zap size={11} />} onClick={() => void handleUse(row.id)}>{t('templateLibrary.use')}</Button>
           </Tooltip>
-          <Tooltip title="收藏">
-            <Button size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(t.id)} />
+          <Tooltip title={t('templateLibrary.favoriteTip')}>
+            <Button size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(row.id)} />
           </Tooltip>
-          <Tooltip title="复制模板">
-            <Button size="small" icon={<Copy size={11} />} onClick={() => void handleCopy(t.id)} />
+          <Tooltip title={t('templateLibrary.copyTip')}>
+            <Button size="small" icon={<Copy size={11} />} onClick={() => void handleCopy(row.id)} />
           </Tooltip>
-          <Tooltip title="导出 JSON">
-            <Button size="small" icon={<Download size={11} />} onClick={() => void handleExport([t.id])} />
+          <Tooltip title={t('templateLibrary.exportJsonTip')}>
+            <Button size="small" icon={<Download size={11} />} onClick={() => void handleExport([row.id])} />
           </Tooltip>
         </Space>
       ) },
   ]
 
   const headerItems = [
-    { title: '模板总数', value: stats?.total ?? '-', prefix: <FileText size={14} /> },
-    { title: '内置模板', value: stats?.systemCount ?? '-', prefix: <PackageOpen size={14} /> },
-    { title: '总使用', value: stats?.totalUsage ?? '-', prefix: <Zap size={14} /> },
-    { title: '平均采纳率', value: stats ? `${stats.avgAdoptionRate}%` : '-', prefix: <TrendingUp size={14} /> },
+    { title: t('templateLibrary.header.totalTemplates'), value: stats?.total ?? '-', prefix: <FileText size={14} /> },
+    { title: t('templateLibrary.header.builtinTemplates'), value: stats?.systemCount ?? '-', prefix: <PackageOpen size={14} /> },
+    { title: t('templateLibrary.header.totalUsage'), value: stats?.totalUsage ?? '-', prefix: <Zap size={14} /> },
+    { title: t('templateLibrary.header.avgAdoptionRate'), value: stats ? `${stats.avgAdoptionRate}%` : '-', prefix: <TrendingUp size={14} /> },
     ...(compact ? [] : [
-      { title: '总收藏', value: stats?.totalFavorites ?? '-', prefix: <Star size={14} /> },
-      { title: '自定义', value: stats?.userCount ?? '-', prefix: <Sparkles size={14} /> },
+      { title: t('templateLibrary.header.totalFavorites'), value: stats?.totalFavorites ?? '-', prefix: <Star size={14} /> },
+      { title: t('templateLibrary.header.custom'), value: stats?.userCount ?? '-', prefix: <Sparkles size={14} /> },
     ]),
   ]
 
@@ -279,24 +280,24 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
   const treeData = useMemo(() => toTreeData(categoryTree), [categoryTree])
 
   return (
-    <div data-testid="template-library-panel-v2" role="region" aria-label="模板库 V2 面板">
+    <div data-testid="template-library-panel-v2" role="region" aria-label={t('templateLibrary.panelAria')}>
       <div style={{ background: 'linear-gradient(135deg, #0e7490 0%, #164e63 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <LayoutGrid size={18} />
-            <strong style={{ fontSize: 16 }}>模板库 V2</strong>
+            <strong style={{ fontSize: 16 }}>{t('templateLibrary.title')}</strong>
             <Tag color="cyan">Wave 7B · F13</Tag>
-            <Tag color="gold">分类树 + 推荐 + 统计</Tag>
+            <Tag color="gold">{t('templateLibrary.subtitle')}</Tag>
           </Space>
           <Space>
-            <Tooltip title="导出全部模板 (JSON)">
-              <Button size="small" ghost icon={<Download size={12} />} onClick={() => void handleExport(templates.map((t) => t.id))}>
-                全部导出
+            <Tooltip title={t('templateLibrary.exportAllTip')}>
+              <Button size="small" ghost icon={<Download size={12} />} onClick={() => void handleExport(templates.map((tpl) => tpl.id))}>
+                {t('templateLibrary.exportAll')}
               </Button>
             </Tooltip>
-            <Tooltip title="导入模板 (JSON)">
+            <Tooltip title={t('templateLibrary.importTip')}>
               <Button size="small" ghost icon={<Upload size={12} />} onClick={() => fileInputRef.current?.click()}>
-                导入
+                {t('templateLibrary.import')}
               </Button>
             </Tooltip>
             <input
@@ -310,9 +311,9 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
                 e.target.value = ''
               }}
             />
-            <Tooltip title="刷新">
+            <Tooltip title={t('templateLibrary.refresh')}>
               <Button size="small" ghost icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>
-                刷新
+                {t('templateLibrary.refresh')}
               </Button>
             </Tooltip>
           </Space>
@@ -330,9 +331,9 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
         block value={tab}
         onChange={(v) => setTab(String(v))}
         options={[
-          { label: '模板库', value: 'library' },
-          { label: `我的收藏 (${favorites.length})`, value: 'favorites' },
-          { label: '推荐分析', value: 'recommend' },
+          { label: t('templateLibrary.tab.library'), value: 'library' },
+          { label: t('templateLibrary.tab.favorites', { count: favorites.length }), value: 'favorites' },
+          { label: t('templateLibrary.tab.recommend'), value: 'recommend' },
         ]}
         style={{ marginBottom: 12 }}
       />
@@ -340,8 +341,8 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
       {tab === 'library' && (
         <Row gutter={12}>
           <Col span={5}>
-            <Card size="small" title={<Space><FolderTree size={14} color="#0e7490" />分类树</Space>} styles={{ body: { maxHeight: 520, overflowY: 'auto' } }}>
-              {treeData.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="分类加载中" /> : (
+            <Card size="small" title={<Space><FolderTree size={14} color="#0e7490" />{t('templateLibrary.categoryTree')}</Space>} styles={{ body: { maxHeight: 520, overflowY: 'auto' } }}>
+              {treeData.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('templateLibrary.categoryLoading')} /> : (
                 <Tree
                   treeData={treeData}
                   selectedKeys={selectedKeys}
@@ -352,22 +353,22 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
             </Card>
           </Col>
           <Col span={19}>
-            <Card size="small" title={<Space><Search size={14} color="#0e7490" />搜索与列表 ({displayed.length})</Space>} extra={<Tag color="blue">共 {searchResult.total || templates.length} 个</Tag>}>
+            <Card size="small" title={<Space><Search size={14} color="#0e7490" />{t('templateLibrary.searchAndList', { count: displayed.length })}</Space>} extra={<Tag color="blue">{t('templateLibrary.totalCount', { count: searchResult.total || templates.length })}</Tag>}>
               <Space wrap style={{ marginBottom: 12 }}>
-                <Input allowClear prefix={<Search size={12} />} placeholder="搜索名称/内容/标签" style={{ width: 220 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-                <Select allowClear placeholder="标签" style={{ width: 130 }} value={tagFilter} onChange={(v) => setTagFilter(v)} options={TAG_OPTIONS} />
-                <Select allowClear placeholder="模态" style={{ width: 100 }} value={modalityFilter} onChange={(v) => setModalityFilter(v)} options={MODALITY_OPTIONS} />
-                <Select allowClear placeholder="科室" style={{ width: 130 }} value={deptFilter} onChange={(v) => setDeptFilter(v)} options={Array.from(new Set(templates.map((t) => t.dept))).map((d) => ({ value: d, label: d }))} />
-                <Select allowClear placeholder="用途" style={{ width: 120 }} value={purposeFilter} onChange={(v) => setPurposeFilter(v)} options={PURPOSE_OPTIONS} />
+                <Input allowClear prefix={<Search size={12} />} placeholder={t('templateLibrary.searchPlaceholder')} style={{ width: 220 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+                <Select allowClear placeholder={t('templateLibrary.filterTags')} style={{ width: 130 }} value={tagFilter} onChange={(v) => setTagFilter(v)} options={TAG_OPTIONS} />
+                <Select allowClear placeholder={t('templateLibrary.filterModality')} style={{ width: 100 }} value={modalityFilter} onChange={(v) => setModalityFilter(v)} options={MODALITY_OPTIONS} />
+                <Select allowClear placeholder={t('templateLibrary.filterDept')} style={{ width: 130 }} value={deptFilter} onChange={(v) => setDeptFilter(v)} options={Array.from(new Set(templates.map((tpl) => tpl.dept))).map((d) => ({ value: d, label: d }))} />
+                <Select allowClear placeholder={t('templateLibrary.filterPurpose')} style={{ width: 120 }} value={purposeFilter} onChange={(v) => setPurposeFilter(v)} options={PURPOSE_OPTIONS} />
                 {selectedKeys.length > 0 && (
-                  <Tag color="gold" closable onClose={() => setSelectedKeys([])}>已按分类筛选</Tag>
+                  <Tag color="gold" closable onClose={() => setSelectedKeys([])}>{t('templateLibrary.filteredByCategory')}</Tag>
                 )}
               </Space>
               <Table
                 rowKey="id" size="small" loading={loading} dataSource={displayed} columns={columns}
-                pagination={{ pageSize: compact ? 6 : 8, showSizeChanger: false, showTotal: (t) => `共 ${t} 个模板` }}
+                pagination={{ pageSize: compact ? 6 : 8, showSizeChanger: false, showTotal: (total) => t('templateLibrary.showTotal', { count: total }) }}
                 scroll={{ x: 'max-content' }}
-                locale={{ emptyText: <Empty description="暂无模板" /> }}
+                locale={{ emptyText: <Empty description={t('templateLibrary.noTemplates')} /> }}
               />
             </Card>
           </Col>
@@ -375,12 +376,12 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
       )}
 
       {tab === 'favorites' && (
-        <Card size="small" title={<Space><Star size={14} color="#f59e0b" />我的收藏 ({favorites.length})</Space>}>
+        <Card size="small" title={<Space><Star size={14} color="#f59e0b" />{t('templateLibrary.myFavorites', { count: favorites.length })}</Space>}>
           <Table
             rowKey="id" size="small" loading={loading} dataSource={favorites} columns={columns}
             pagination={{ pageSize: 8, showSizeChanger: false }}
             scroll={{ x: 'max-content' }}
-            locale={{ emptyText: <Empty description="暂无收藏, 点击模板行的收藏按钮添加" /> }}
+            locale={{ emptyText: <Empty description={t('templateLibrary.noFavorites')} /> }}
           />
         </Card>
       )}
@@ -388,7 +389,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
       {tab === 'recommend' && (
         <Row gutter={12}>
           <Col span={14}>
-            <Card size="small" title={<Space><Sparkles size={14} color="#7c3aed" />智能推荐 (确定性评分)</Space>} extra={<Tag color="purple">频率×时效×分类匹配</Tag>}>
+            <Card size="small" title={<Space><Sparkles size={14} color="#7c3aed" />{t('templateLibrary.smartRecommend')}</Space>} extra={<Tag color="purple">{t('templateLibrary.recommendBasis')}</Tag>}>
               <Space direction="vertical" size={10} style={{ width: '100%' }}>
                 {recommendations.map((r, i) => (
                   <div key={r.templateId} style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, padding: 10, background: i === 0 ? 'linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%)' : undefined }}>
@@ -401,32 +402,32 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
                         <Tag>{r.template.dept}</Tag>
                       </Space>
                       <Space>
-                        <Tag color="purple">评分 {r.score.toFixed(1)}</Tag>
-                        <Button size="small" type="primary" icon={<Zap size={11} />} onClick={() => void handleUse(r.template.id)}>使用</Button>
+                        <Tag color="purple">{t('templateLibrary.score', { score: r.score.toFixed(1) })}</Tag>
+                        <Button size="small" type="primary" icon={<Zap size={11} />} onClick={() => void handleUse(r.template.id)}>{t('templateLibrary.use')}</Button>
                         <Button size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(r.template.id)} />
                       </Space>
                     </Space>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>推荐理由: {r.reason}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{t('templateLibrary.reason')} {r.reason}</div>
                     <div style={{ fontSize: 12, color: '#475569', marginTop: 4, maxHeight: 40, overflow: 'hidden' }}>{r.template.content.slice(0, 80)}...</div>
                   </div>
                 ))}
-                {recommendations.length === 0 && <Empty description="暂无推荐" />}
+                {recommendations.length === 0 && <Empty description={t('templateLibrary.noRecommend')} />}
               </Space>
             </Card>
           </Col>
           <Col span={10}>
-            <Card size="small" title={<Space><Eye size={14} color="#0e7490" />使用统计速览</Space>}>
+            <Card size="small" title={<Space><Eye size={14} color="#0e7490" />{t('templateLibrary.usageOverview')}</Space>}>
               <Table
                 rowKey="id" size="small" loading={loading}
                 dataSource={displayed.slice(0, 10)}
                 columns={[
-                  { title: '模板', dataIndex: 'name', ellipsis: true, width: 140 },
-                  { title: '使用次数', dataIndex: 'usageCount', width: 70, align: 'center' as const },
-                  { title: '采纳率', width: 70, align: 'center' as const, render: (_, t) => `${(usageStats[t.id]?.adoptionRate ?? 0).toFixed(1)}%` },
-                  { title: '最近使用', width: 100, render: (_, t) => formatDateTime(t.lastUsedAt) },
+                  { title: t('templateLibrary.col.template'), dataIndex: 'name', ellipsis: true, width: 140 },
+                  { title: t('templateLibrary.col.usageCount'), dataIndex: 'usageCount', width: 70, align: 'center' as const },
+                  { title: t('templateLibrary.col.adoptionRate'), width: 70, align: 'center' as const, render: (_, row) => `${(usageStats[row.id]?.adoptionRate ?? 0).toFixed(1)}%` },
+                  { title: t('templateLibrary.col.lastUsed'), width: 100, render: (_, row) => formatDateTime(row.lastUsedAt) },
                 ]}
                 pagination={{ pageSize: 6, showSizeChanger: false }}
-                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" /> }}
+                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('templateLibrary.noData')} /> }}
               />
             </Card>
           </Col>
@@ -434,7 +435,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
       )}
 
       <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0' }}>
-        推荐评分 = 使用频率 ×40 + 时效衰减 ×30 + 分类匹配 (模态50/科室25/用途15/标签5/部位10) · 分类树按 检查类型/科室/用途 组织 · 内置 {stats?.systemCount ?? '30+'} 个放射模板 (seed 回退)
+        {t('templateLibrary.footer', { count: stats?.systemCount ?? '30+' })}
       </div>
     </div>
   )

@@ -9,6 +9,7 @@ import type { RadiologyReport } from '../../types';
 import { StatusBadge } from './StatusBadge';
 import { statusTransitionLog } from '../../data/reportSubsystemMock';
 import { REPORT_STATUS_ORDER } from './statusMeta';
+import { t } from '../../i18n/appI18n';
 
 // [v3.0.6.11-95 Wave2B P1] 真实审计轨迹事件 (与 ReportAuditTrailDrawer 形状对齐)
 export interface AuditTrailEvent {
@@ -61,7 +62,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '待分配',
       timestamp: report.createdTime,
       operator: 'system',
-      operatorName: '系统',
+      operatorName: t('reportStatus.system'),
       isCurrent: true,
       isFuture: false,
     });
@@ -70,7 +71,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: report.assignedTime ? '已分配' : '待分配',
       timestamp: report.assignedTime || report.createdTime,
       operator: report.assignedDoctorId || 'system',
-      operatorName: report.assignedDoctorName || '系统',
+      operatorName: report.assignedDoctorName || t('reportStatus.system'),
       comment: report.assignedTime ? `智能分诊指派给 ${report.assignedDoctorName}` : undefined,
       isCurrent: report.status === '已分配',
       isFuture: false,
@@ -84,7 +85,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '书写中',
       timestamp: writingTime,
       operator: report.assignedDoctorId || 'system',
-      operatorName: report.assignedDoctorName || '系统',
+      operatorName: report.assignedDoctorName || t('reportStatus.system'),
       comment: `字数 ${report.wordCount || 0}`,
       isCurrent: report.status === '书写中',
       isFuture: false,
@@ -97,7 +98,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已提交',
       timestamp: report.reportDoctorId ? report.updatedTime : report.createdTime,
       operator: report.reportDoctorId || 'system',
-      operatorName: report.reportDoctorName || '系统',
+      operatorName: report.reportDoctorName || t('reportStatus.system'),
       isCurrent: report.status === '已提交',
       isFuture: false,
     });
@@ -109,7 +110,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: report.initialAuditSuggestion ? '初审通过' : '初审中',
       timestamp: report.initialAuditTime,
       operator: report.initialAuditDoctorId || 'system',
-      operatorName: report.initialAuditDoctorName || '系统',
+      operatorName: report.initialAuditDoctorName || t('reportStatus.system'),
       comment: report.initialAuditSuggestion,
       isCurrent: report.status === '初审中' || (report.status === '初审通过' && !report.finalAuditTime),
       isFuture: false,
@@ -122,8 +123,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已审核',
       timestamp: report.finalAuditTime,
       operator: report.finalAuditDoctorId || 'system',
-      operatorName: report.finalAuditDoctorName || '系统',
-      comment: '终审通过',
+      operatorName: report.finalAuditDoctorName || t('reportStatus.system'),
+      comment: t('reportStatus.finalApproved'),
       isCurrent: report.status === '已审核',
       isFuture: false,
     });
@@ -135,8 +136,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已签发',
       timestamp: report.signedTime,
       operator: report.reportDoctorId || 'system',
-      operatorName: report.reportDoctorName || '系统',
-      comment: 'CA 签名完成',
+      operatorName: report.reportDoctorName || t('reportStatus.system'),
+      comment: t('reportStatus.caSigComplete'),
       isCurrent: report.status === '已签发' || report.status === '签发中',
       isFuture: false,
     });
@@ -148,8 +149,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已发布',
       timestamp: report.publishedTime,
       operator: report.publishedBy || 'system',
-      operatorName: report.publishedBy || '系统',
-      comment: '报告已发布给临床和患者',
+      operatorName: report.publishedBy || t('reportStatus.system'),
+      comment: t('reportStatus.publishedComment'),
       isCurrent: report.status === '已发布',
       isFuture: false,
     });
@@ -161,8 +162,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已驳回',
       timestamp: report.finalAuditTime || report.initialAuditTime || report.updatedTime,
       operator: report.finalAuditDoctorId || report.initialAuditDoctorId || 'system',
-      operatorName: report.finalAuditDoctorName || report.initialAuditDoctorName || '系统',
-      comment: '报告驳回，等待医生修改',
+      operatorName: report.finalAuditDoctorName || report.initialAuditDoctorName || t('reportStatus.system'),
+      comment: t('reportStatus.rejectedComment'),
       isCurrent: true,
       isFuture: false,
     });
@@ -171,8 +172,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '修订中',
       timestamp: report.updatedTime,
       operator: report.reportDoctorId || 'system',
-      operatorName: report.reportDoctorName || '系统',
-      comment: '报告修订中（病理回报/补充发现）',
+      operatorName: report.reportDoctorName || t('reportStatus.system'),
+      comment: t('reportStatus.revisingComment'),
       isCurrent: true,
       isFuture: false,
     });
@@ -181,8 +182,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已修订',
       timestamp: report.updatedTime,
       operator: report.reportDoctorId || 'system',
-      operatorName: report.reportDoctorName || '系统',
-      comment: '报告已修订完成',
+      operatorName: report.reportDoctorName || t('reportStatus.system'),
+      comment: t('reportStatus.revisedComment'),
       isCurrent: true,
       isFuture: false,
     });
@@ -191,8 +192,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已撤回',
       timestamp: report.updatedTime,
       operator: report.publishedBy || 'system',
-      operatorName: report.publishedBy || '系统',
-      comment: '已发布报告被撤回',
+      operatorName: report.publishedBy || t('reportStatus.system'),
+      comment: t('reportStatus.recalledComment'),
       isCurrent: true,
       isFuture: false,
     });
@@ -201,8 +202,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       status: '已归档',
       timestamp: report.updatedTime,
       operator: 'system',
-      operatorName: '系统',
-      comment: '报告已归档到长期存储',
+      operatorName: t('reportStatus.system'),
+      comment: t('reportStatus.archivedComment'),
       isCurrent: true,
       isFuture: false,
     });
@@ -231,17 +232,17 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={14} color="#64748b" />
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>状态时间线</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>{t('reportStatus.timelineTitle')}</span>
           {realEvents ? (
             <span style={{
               fontSize: 10, padding: '1px 6px', borderRadius: 3,
               background: 'var(--color-success-bg)', color: '#15803d', fontWeight: 700,
-            }}>真实轨迹</span>
+            }}>{t('reportStatus.realTrail')}</span>
           ) : (
             <span style={{
               fontSize: 10, padding: '1px 6px', borderRadius: 3,
               background: 'var(--color-warning-bg)', color: '#b45309', fontWeight: 700,
-            }}>演示数据</span>
+            }}>{t('reportStatus.demoData')}</span>
           )}
         </div>
         <StatusBadge status={report.status} size="sm" />
@@ -250,7 +251,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       <div style={{ position: 'relative' }}>
         {realEvents ? realEvents.map((ev, idx) => {
           const isLast = idx === realEvents.length - 1;
-          const label = ev.action || [ev.fromState, ev.toState].filter(Boolean).join(' → ') || '状态变更';
+          const label = ev.action || [ev.fromState, ev.toState].filter(Boolean).join(' → ') || t('reportStatus.statusChanged');
           return (
             <div key={ev.id ?? idx} style={{ display: 'flex', gap: 12, paddingLeft: 8, paddingBottom: isLast ? 0 : 12, position: 'relative' }}>
               {!isLast && (
@@ -274,7 +275,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                   </div>
                 )}
                 {showAuditInfo && ev.actor && (
-                  <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>操作人: {ev.actor}</div>
+                  <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{t('reportStatus.operator')}: {ev.actor}</div>
                 )}
                 {showAuditInfo && ev.reason && (
                   <div style={{
@@ -367,9 +368,9 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
         }}>
           <CheckCircle2 size={12} />
           <span>
-            状态机进度：
+            {t('reportStatus.machineProgress')}
             <strong> {currentStatusIndex + 1} / {REPORT_STATUS_ORDER.length} </strong>
-            （共 {REPORT_STATUS_ORDER.length} 态）
+            {t('reportStatus.totalStates', { n: REPORT_STATUS_ORDER.length })}
           </span>
         </div>
       )}

@@ -10,6 +10,7 @@ import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Em
 import { Braces, Download, Send, Copy, CheckCircle2, FileJson, Layers, Server, Globe, Lock, Key, Plus } from 'lucide-react';
 import React, { useState, useCallback, useMemo } from 'react';
 import { Inbox } from 'lucide-react'
+import { t } from '../../../../i18n/appI18n';
 
 interface Props {
   reportId?: string;
@@ -24,9 +25,9 @@ const STATUS_COLORS: Record<FhirDiagnosticReport['status'], string> = {
 };
 
 const STATUS_LABELS: Record<FhirDiagnosticReport['status'], string> = {
-  registered: '已注册', partial: '部分', preliminary: '初步', final: '最终',
-  amended: '已修订', corrected: '已更正', appended: '已补充', cancelled: '已取消',
-  'entered-in-error': '错误录入', unknown: '未知',
+  registered: t('reportIntegration.fhir.status.registered'), partial: t('reportIntegration.fhir.status.partial'), preliminary: t('reportIntegration.fhir.status.preliminary'), final: t('reportIntegration.fhir.status.final'),
+  amended: t('reportIntegration.fhir.status.amended'), corrected: t('reportIntegration.fhir.status.corrected'), appended: t('reportIntegration.fhir.status.appended'), cancelled: t('reportIntegration.fhir.status.cancelled'),
+  'entered-in-error': t('reportIntegration.fhir.status.enteredInError'), unknown: t('reportIntegration.fhir.status.unknown'),
 };
 
 export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patientId, onExport }) => {
@@ -46,8 +47,8 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
   const handleValidate = useCallback(() => {
     if (!selected) return;
     const r = validateFhir(selected);
-    if (r.passed) message.success('FHIR R4 验证通过');
-    else message.error('FHIR R4 验证失败');
+    if (r.passed) message.success(t('reportIntegration.fhir.validatePassed'));
+    else message.error(t('reportIntegration.fhir.validateFailed'));
   }, [selected]);
 
   const handleDownload = useCallback(async () => {
@@ -59,11 +60,11 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
     const a = document.createElement('a');
     a.href = url; a.download = r.filename; a.click();
     URL.revokeObjectURL(url);
-    message.success(`已下载 ${r.filename}`);
+    message.success(t('reportIntegration.fhir.downloaded', { filename: r.filename }));
   }, [selected]);
 
   const handleGenerate = useCallback(async () => {
-    if (!reportId) { message.warning('请先选择报告'); return; }
+    if (!reportId) { message.warning(t('reportIntegration.selectReport')); return; }
     setGenerating(true);
     const dr = await generateFhirDr({
       reportId, patientId: patientId ?? 'p-038', modality: genForm.modality, bodyPart: genForm.bodyPart,
@@ -73,7 +74,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
     setSelectedId(dr.id);
     setGenerating(false);
     setShowGenerate(false);
-    message.success('FHIR DiagnosticReport 已生成');
+    message.success(t('reportIntegration.fhir.generated'));
     onExport?.(dr);
   }, [reportId, patientId, genForm, onExport]);
 
@@ -83,7 +84,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
     const r = await sendFhirDr(selected.id, fhirServerUrl);
     setSendResult({ success: r.success, statusCode: r.statusCode, durationMs: r.durationMs });
     setSending(false);
-    if (r.success) message.success('FHIR 服务器接收成功');
+    if (r.success) message.success(t('reportIntegration.fhir.serverReceived'));
   }, [selected, fhirServerUrl]);
 
   const handleBundle = useCallback(() => {
@@ -93,13 +94,13 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
     const a = document.createElement('a');
     a.href = url; a.download = 'fhir-bundle.json'; a.click();
     URL.revokeObjectURL(url);
-    message.success(`Bundle 已下载 (${bundle.total} 资源)`);
+    message.success(t('reportIntegration.fhir.bundleDownloaded', { count: bundle.total }));
   }, [documents]);
 
   const copyJson = useCallback(() => {
     if (!selected) return;
     navigator.clipboard.writeText(selected.json);
-    message.success('JSON 已复制');
+    message.success(t('reportIntegration.fhir.jsonCopied'));
   }, [selected]);
 
   return (
@@ -112,26 +113,26 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="已验证" value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} />
+            <Statistic title={t('reportIntegration.verified')} value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="已发送" value={0} prefix={<Globe className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} />
+            <Statistic title={t('reportIntegration.dicomSr.stat.sent')} value={0} prefix={<Globe className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="资源包" value={documents.length} prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} suffix="资源" />
+            <Statistic title={t('reportIntegration.fhir.stat.bundles')} value={documents.length} prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} suffix={t('reportIntegration.fhir.resources')} />
           </Card>
         </Col>
       </Row>
 
       <div className="grid grid-cols-4 gap-3">
-        <Card size="small" className="shadow-sm" title={<Space><FileJson className="w-4 h-4" /><span>FHIR 列表</span></Space>} extra={
+        <Card size="small" className="shadow-sm" title={<Space><FileJson className="w-4 h-4" /><span>{t('reportIntegration.fhir.listTitle')}</span></Space>} extra={
           <Space>
             <Button size="small" icon={<Layers className="w-3 h-3" />} onClick={handleBundle}>Bundle</Button>
-            <Button size="small" type="primary" icon={<Plus className="w-3 h-3" />} onClick={() => setShowGenerate(true)} disabled={!reportId}>生成</Button>
+            <Button size="small" type="primary" icon={<Plus className="w-3 h-3" />} onClick={() => setShowGenerate(true)} disabled={!reportId}>{t('reportIntegration.generate')}</Button>
           </Space>
         }>
           <div className="space-y-1.5 max-h-[500px] overflow-y-auto">
@@ -149,7 +150,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
                 <div className="text-xs text-slate-500 truncate">{d.code.text}</div>
                 <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400">
                   <span>{(d.json.length / 1024).toFixed(1)} KB</span>
-                  <span>{d.result.length + d.media.length + d.note.length} refs</span>
+                  <span>{t('reportIntegration.fhir.refs', { count: d.result.length + d.media.length + d.note.length })}</span>
                 </div>
               </div>
             ))}
@@ -158,14 +159,14 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
 
         <Card size="small" className="col-span-3 shadow-sm" title={
           <div className="flex items-center justify-between">
-            <Space><Braces className="w-4 h-4" /><span>DiagnosticReport 详情</span>{selected && <Tag color="orange">{selected.id}</Tag>}</Space>
+            <Space><Braces className="w-4 h-4" /><span>{t('reportIntegration.fhir.detailTitle')}</span>{selected && <Tag color="orange">{selected.id}</Tag>}</Space>
             {selected && (
               <Space>
-                <Button size="small" icon={<CheckCircle2 className="w-3 h-3" />} onClick={handleValidate}>验证</Button>
-                <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={copyJson}>复制 JSON</Button>
+                <Button size="small" icon={<CheckCircle2 className="w-3 h-3" />} onClick={handleValidate}>{t('reportIntegration.validate')}</Button>
+                <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={copyJson}>{t('reportIntegration.fhir.copyJson')}</Button>
                 <Button size="small" icon={<Lock className="w-3 h-3" />} onClick={() => setShowOAuth(true)}>OAuth2</Button>
-                <Button size="small" type="primary" icon={<Send className="w-3 h-3" />} onClick={() => setShowSend(true)}>POST 到 FHIR 服务器</Button>
-                <Button size="small" icon={<Download className="w-3 h-3" />} onClick={handleDownload}>下载</Button>
+                <Button size="small" type="primary" icon={<Send className="w-3 h-3" />} onClick={() => setShowSend(true)}>{t('reportIntegration.fhir.postToServer')}</Button>
+                <Button size="small" icon={<Download className="w-3 h-3" />} onClick={handleDownload}>{t('reportIntegration.download')}</Button>
               </Space>
             )}
           </div>
@@ -175,7 +176,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
               items={[
                 {
                   key: 'overview',
-                  label: '概览',
+                  label: t('reportIntegration.tab.overview'),
                   children: (
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-2 text-xs">
@@ -222,7 +223,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
 
                       <Divider className="my-2" />
 
-                      <h5 className="text-sm font-semibold">引用资源</h5>
+                      <h5 className="text-sm font-semibold">{t('reportIntegration.fhir.referencedResources')}</h5>
                       <div className="grid grid-cols-2 gap-2">
                         {selected.result.map((r, i) => (
                           <div key={i} className="p-1.5 bg-slate-50 rounded text-xs">
@@ -256,7 +257,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
                 },
                 {
                   key: 'json',
-                  label: 'JSON 源',
+                  label: t('reportIntegration.tab.jsonSource'),
                   children: (
                     <pre className="bg-slate-900 text-slate-100 p-3 rounded text-xs overflow-auto max-h-[500px] font-mono">
                       {selected.json}
@@ -265,28 +266,28 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
                 },
               ]}
             />
-          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择 FHIR 文档" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('reportIntegration.fhir.selectDocument')} />}
         </Card>
       </div>
 
-      <Modal title={<Space><FileJson className="w-4 h-4" /><span>生成 FHIR DiagnosticReport</span></Space>} open={showGenerate} onCancel={() => setShowGenerate(false)} footer={null}>
+      <Modal title={<Space><FileJson className="w-4 h-4" /><span>{t('reportIntegration.fhir.generateTitle')}</span></Space>} open={showGenerate} onCancel={() => setShowGenerate(false)} footer={null}>
         <Form layout="vertical">
-          <Form.Item label="模态"><Select value={genForm.modality} onChange={(v) => setGenForm((f) => ({ ...f, modality: v }))} options={['CT', 'MR', 'DR', 'US', 'MG'].map((m) => ({ value: m, label: m }))} /></Form.Item>
-          <Form.Item label="部位"><Input value={genForm.bodyPart} onChange={(e) => setGenForm((f) => ({ ...f, bodyPart: e.target.value }))} /></Form.Item>
-          <Form.Item label="影像所见"><Input.TextArea rows={2} value={genForm.findings} onChange={(e) => setGenForm((f) => ({ ...f, findings: e.target.value }))} /></Form.Item>
-          <Form.Item label="诊断意见"><Input.TextArea rows={2} value={genForm.impression} onChange={(e) => setGenForm((f) => ({ ...f, impression: e.target.value }))} /></Form.Item>
+          <Form.Item label={t('reportIntegration.fhir.modality')}><Select value={genForm.modality} onChange={(v) => setGenForm((f) => ({ ...f, modality: v }))} options={['CT', 'MR', 'DR', 'US', 'MG'].map((m) => ({ value: m, label: m }))} /></Form.Item>
+          <Form.Item label={t('reportIntegration.fhir.bodyPart')}><Input value={genForm.bodyPart} onChange={(e) => setGenForm((f) => ({ ...f, bodyPart: e.target.value }))} /></Form.Item>
+          <Form.Item label={t('aiDraft.section.findings')}><Input.TextArea rows={2} value={genForm.findings} onChange={(e) => setGenForm((f) => ({ ...f, findings: e.target.value }))} /></Form.Item>
+          <Form.Item label={t('aiDraft.section.impression')}><Input.TextArea rows={2} value={genForm.impression} onChange={(e) => setGenForm((f) => ({ ...f, impression: e.target.value }))} /></Form.Item>
         </Form>
         <div className="flex justify-end gap-2">
-          <Button onClick={() => setShowGenerate(false)}>取消</Button>
-          <Button type="primary" onClick={handleGenerate} loading={generating}>生成</Button>
+          <Button onClick={() => setShowGenerate(false)}>{t('reportIntegration.cancel')}</Button>
+          <Button type="primary" onClick={handleGenerate} loading={generating}>{t('reportIntegration.generate')}</Button>
         </div>
       </Modal>
 
-      <Modal title={<Space><Server className="w-4 h-4" /><span>发送到 FHIR 服务器</span></Space>} open={showSend} onCancel={() => setShowSend(false)} footer={null}>
+      <Modal title={<Space><Server className="w-4 h-4" /><span>{t('reportIntegration.fhir.sendTitle')}</span></Space>} open={showSend} onCancel={() => setShowSend(false)} footer={null}>
         {sendResult ? (
           <div className="py-4 text-center space-y-3">
             <CheckCircle2 className="w-12 h-12 mx-auto text-green-500" />
-            <div className="text-base font-semibold">FHIR 服务器接收成功</div>
+            <div className="text-base font-semibold">{t('reportIntegration.fhir.serverReceived')}</div>
             <div className="text-xs text-slate-500">HTTP {sendResult.statusCode} · {sendResult.durationMs}ms</div>
           </div>
         ) : (
@@ -295,8 +296,8 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
               <Form.Item label="FHIR Server URL"><Input value={fhirServerUrl} onChange={(e) => setFhirServerUrl(e.target.value)} /></Form.Item>
             </Form>
             <div className="flex justify-end gap-2">
-              <Button onClick={() => setShowSend(false)}>取消</Button>
-              <Button type="primary" onClick={handleSend} loading={sending}>发送</Button>
+              <Button onClick={() => setShowSend(false)}>{t('reportIntegration.cancel')}</Button>
+              <Button type="primary" onClick={handleSend} loading={sending}>{t('reportIntegration.send')}</Button>
             </div>
           </>
         )}
@@ -304,14 +305,14 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
 
       <Modal title={<Space><Lock className="w-4 h-4" /><span>SMART on FHIR OAuth2</span></Space>} open={showOAuth} onCancel={() => setShowOAuth(false)} footer={null}>
         <div className="space-y-3">
-          <Alert type="info" title="SMART on FHIR OAuth2 认证" description="使用 OpenID Connect + OAuth2 进行身份认证与授权" />
+          <Alert type="info" title={t('reportIntegration.fhir.oauthTitle')} description={t('reportIntegration.fhir.oauthDesc')} />
           <div className="text-xs space-y-1">
-            <div>授权端点: <span className="font-mono text-blue-600">https://fhir.hospital.com/oauth2/authorize</span></div>
-            <div>Token 端点: <span className="font-mono text-blue-600">https://fhir.hospital.com/oauth2/token</span></div>
-            <div>客户端 ID: <span className="font-mono">g005-ris-client</span></div>
+            <div>{t('reportIntegration.fhir.authorizeEndpoint')} <span className="font-mono text-blue-600">https://fhir.hospital.com/oauth2/authorize</span></div>
+            <div>{t('reportIntegration.fhir.tokenEndpoint')} <span className="font-mono text-blue-600">https://fhir.hospital.com/oauth2/token</span></div>
+            <div>{t('reportIntegration.fhir.clientId')} <span className="font-mono">g005-ris-client</span></div>
             <div>Scope: <Tag color="cyan">patient/DiagnosticReport.read patient/Patient.read launch/patient offline_access</Tag></div>
           </div>
-          <Button type="primary" block icon={<Key className="w-3 h-3" />}>发起授权</Button>
+          <Button type="primary" block icon={<Key className="w-3 h-3" />}>{t('reportIntegration.fhir.authorize')}</Button>
         </div>
       </Modal>
     </div>

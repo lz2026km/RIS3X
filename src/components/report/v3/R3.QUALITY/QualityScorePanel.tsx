@@ -37,6 +37,7 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
+import { t } from '../../../../i18n/appI18n';
 import {
   RadarChart,
   Radar,
@@ -61,19 +62,19 @@ const CATEGORY_META: Record<
   ScoringDimensionCategory,
   { label: string; labelEn: string; color: string; icon: React.ReactNode }
 > = {
-  completeness: { label: '完整性', labelEn: 'Completeness', color: '#3b82f6', icon: <FileText size={14} /> },
-  accuracy: { label: '准确性', labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
-  timeliness: { label: '时效性', labelEn: 'Timeliness', color: '#f59e0b', icon: <Clock size={14} /> },
+  completeness: { label: t('qualityScore.category.completeness'), labelEn: 'Completeness', color: '#3b82f6', icon: <FileText size={14} /> },
+  accuracy: { label: t('qualityScore.category.accuracy'), labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
+  timeliness: { label: t('qualityScore.category.timeliness'), labelEn: 'Timeliness', color: '#f59e0b', icon: <Clock size={14} /> },
 };
 
 const GRADE_META: Record<
   ScoringThresholdConfig['grade'],
   { color: string; bg: string; border: string; label: string }
 > = {
-  A: { color: '#047857', bg: '#d1fae5', border: '#6ee7b7', label: 'A 级 · 优秀' },
-  B: { color: '#1e40af', bg: '#dbeafe', border: '#93c5fd', label: 'B 级 · 良好' },
-  C: { color: '#92400e', bg: '#fef3c7', border: '#fcd34d', label: 'C 级 · 合格' },
-  D: { color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', label: 'D 级 · 不合格' },
+  A: { color: '#047857', bg: '#d1fae5', border: '#6ee7b7', label: t('qualityScore.grade.A') },
+  B: { color: '#1e40af', bg: '#dbeafe', border: '#93c5fd', label: t('qualityScore.grade.B') },
+  C: { color: '#92400e', bg: '#fef3c7', border: '#fcd34d', label: t('qualityScore.grade.C') },
+  D: { color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', label: t('qualityScore.grade.D') },
 };
 
 export const QualityScorePanel: React.FC<{
@@ -138,7 +139,7 @@ export const QualityScorePanel: React.FC<{
 
   const handleGenerateReport = async (format: QualityScoreReport['format']) => {
     if (!score) {
-      message.warning('暂无评分可生成报告');
+      message.warning(t('qualityScore.noScoreForReport'));
       return;
     }
     setGenerating(true);
@@ -211,7 +212,7 @@ export const QualityScorePanel: React.FC<{
     return (
       <Card>
         <div style={{ textAlign: 'center', padding: 60 }}>
-          <Spin /> <div style={{ marginTop: 12, color: '#64748b' }}>加载 15 维度评分…</div>
+          <Spin /> <div style={{ marginTop: 12, color: '#64748b' }}>{t('qualityScore.loading')}</div>
         </div>
       </Card>
     );
@@ -219,8 +220,8 @@ export const QualityScorePanel: React.FC<{
 
   if (!score) {
     return (
-      <Card data-testid="quality-score-panel" role="region" aria-label="15 维度评分">
-        <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无评分,请点击重新评分" />
+      <Card data-testid="quality-score-panel" role="region" aria-label={t('qualityScore.ariaLabel')}>
+        <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('qualityScore.noScore')} />
       </Card>
     );
   }
@@ -228,7 +229,7 @@ export const QualityScorePanel: React.FC<{
   const gradeMeta = GRADE_META[score.grade];
 
   return (
-    <div data-testid="quality-score-panel" role="region" aria-label="15 维度评分">
+    <div data-testid="quality-score-panel" role="region" aria-label={t('qualityScore.ariaLabel')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 50%, #db2777 100%)',
@@ -241,10 +242,10 @@ export const QualityScorePanel: React.FC<{
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space size="middle" wrap>
             <Award size={20} />
-            <strong style={{ fontSize: 17 }}>15 维度质量评分</strong>
+            <strong style={{ fontSize: 17 }}>{t('qualityScore.title')}</strong>
             <Tag color="purple">R3.QUALITY.SCORING</Tag>
             <Tag color="cyan">{score.modelVersion}</Tag>
-            {reportId && <Tag color="blue">报告: {reportId}</Tag>}
+            {reportId && <Tag color="blue">{t('qualityScore.reportPrefix')}{reportId}</Tag>}
           </Space>
           <Space wrap>
             <Button
@@ -253,7 +254,7 @@ export const QualityScorePanel: React.FC<{
               onClick={onRescore ?? handleEvaluate}
               loading={evaluating}
             >
-              重新评分
+              {t('qualityScore.rescore')}
             </Button>
             <Select
               size="small"
@@ -262,10 +263,10 @@ export const QualityScorePanel: React.FC<{
               onChange={(v: QualityScoreReport['format']) => handleGenerateReport(v)}
               loading={generating}
               options={[
-                { value: 'pdf', label: 'PDF 报告' },
-                { value: 'word', label: 'Word 报告' },
-                { value: 'excel', label: 'Excel 报告' },
-                { value: 'html', label: 'HTML 报告' },
+                { value: 'pdf', label: t('qualityScore.reportFormat.pdf') },
+                { value: 'word', label: t('qualityScore.reportFormat.word') },
+                { value: 'excel', label: t('qualityScore.reportFormat.excel') },
+                { value: 'html', label: t('qualityScore.reportFormat.html') },
               ]}
               suffixIcon={<Download size={12} />}
             />
@@ -296,13 +297,13 @@ export const QualityScorePanel: React.FC<{
                 {gradeMeta.label}
               </Tag>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
-                满分 100
+                {t('qualityScore.fullScore100')}
               </div>
             </div>
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>完整性均分</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityScore.completenessAvg')}</span>}
               value={score.categoryScores.completeness}
               precision={1}
               styles={{ content: {  color: '#fff', fontSize: 22  } }}
@@ -312,7 +313,7 @@ export const QualityScorePanel: React.FC<{
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>准确性均分</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityScore.accuracyAvg')}</span>}
               value={score.categoryScores.accuracy}
               precision={1}
               styles={{ content: {  color: '#fff', fontSize: 22  } }}
@@ -322,7 +323,7 @@ export const QualityScorePanel: React.FC<{
           </Col>
           <Col xs={12} sm={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>时效性均分</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityScore.timelinessAvg')}</span>}
               value={score.categoryScores.timeliness}
               precision={1}
               styles={{ content: {  color: '#fff', fontSize: 22  } }}
@@ -334,8 +335,8 @@ export const QualityScorePanel: React.FC<{
         <Row gutter={12} style={{ marginTop: 8 }}>
           <Col xs={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>可发布</span>}
-              value={score.publishable ? '是' : '否'}
+              title={<span style={{ color: '#fff' }}>{t('qualityScore.publishable')}</span>}
+              value={score.publishable ? t('qualityScore.yes') : t('qualityScore.no')}
               styles={{ content: { 
                 color: score.publishable ? '#bbf7d0' : '#fca5a5',
                 fontSize: 18,
@@ -345,8 +346,8 @@ export const QualityScorePanel: React.FC<{
           </Col>
           <Col xs={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>奖励资格</span>}
-              value={score.bonusEligible ? '是' : '否'}
+              title={<span style={{ color: '#fff' }}>{t('qualityScore.bonusEligible')}</span>}
+              value={score.bonusEligible ? t('qualityScore.yes') : t('qualityScore.no')}
               styles={{ content: { 
                 color: score.bonusEligible ? '#bbf7d0' : '#fcd34d',
                 fontSize: 18,
@@ -356,7 +357,7 @@ export const QualityScorePanel: React.FC<{
           </Col>
           <Col xs={8}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>评估耗时</span>}
+              title={<span style={{ color: '#fff' }}>{t('qualityScore.evalDuration')}</span>}
               value={score.durationMs}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Activity size={14} />}
@@ -371,8 +372,8 @@ export const QualityScorePanel: React.FC<{
           type="error"
           showIcon
           style={{ marginBottom: 12 }}
-          title={`一票否决触发: ${score.hardFailTriggered.join(', ')}`}
-          description="总分已置零或低于发布阈值,请立即整改"
+          title={`${t('qualityScore.hardFailTriggered')} ${score.hardFailTriggered.join(', ')}`}
+          description={t('qualityScore.hardFailDescription')}
         />
       )}
 
@@ -381,9 +382,9 @@ export const QualityScorePanel: React.FC<{
         items={[
           {
             key: 'radar',
-            label: <span><BarChart3 size={12} /> 维度雷达</span>,
+            label: <span><BarChart3 size={12} /> {t('qualityScore.tab.radar')}</span>,
             children: (
-              <Card size="small" title="15 维度评分雷达图">
+              <Card size="small" title={t('qualityScore.radarTitle')}>
                 <Row gutter={12}>
                   <Col xs={24} md={14}>
                     <ResponsiveContainer width="100%" height={320}>
@@ -392,7 +393,7 @@ export const QualityScorePanel: React.FC<{
                         <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
                         <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 12 }} />
                         <Radar
-                          name="评分"
+                          name={t('qualityScore.series.score')}
                           dataKey="score"
                           stroke="#7c3aed"
                           fill="#7c3aed"
@@ -409,7 +410,7 @@ export const QualityScorePanel: React.FC<{
                         <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
                         <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 12 }} />
                         <Radar
-                          name="分类均分"
+                          name={t('qualityScore.series.categoryAvg')}
                           dataKey="score"
                           stroke="#10b981"
                           fill="#10b981"
@@ -426,16 +427,16 @@ export const QualityScorePanel: React.FC<{
           },
           {
             key: 'bar',
-            label: <span><BarChart3 size={12} /> 维度柱状</span>,
+            label: <span><BarChart3 size={12} /> {t('qualityScore.tab.bar')}</span>,
             children: (
-              <Card size="small" title="维度评分 (按类别着色)">
+              <Card size="small" title={t('qualityScore.barTitle')}>
                 <ResponsiveContainer width="100%" height={360}>
                   <BarChart data={barData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} />
                     <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={130} />
                     <RTooltip />
-                    <Bar dataKey="score" name="评分">
+                    <Bar dataKey="score" name={t('qualityScore.series.score')}>
                       {barData.map((d, i) => (
                         <Cell
                           key={i}
@@ -451,7 +452,7 @@ export const QualityScorePanel: React.FC<{
                     <XAxis dataKey="category" tick={{ fontSize: 12 }} />
                     <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
                     <RTooltip />
-                    <Bar dataKey="score" name="分类均分">
+                    <Bar dataKey="score" name={t('qualityScore.series.categoryAvg')}>
                       {categoryBarData.map((d, i) => (
                         <Cell key={i} fill={d.fill} />
                       ))}
@@ -463,13 +464,13 @@ export const QualityScorePanel: React.FC<{
           },
           {
             key: 'category',
-            label: <span><FileText size={12} /> 分类明细</span>,
+            label: <span><FileText size={12} /> {t('qualityScore.tab.category')}</span>,
             children: (
               <Card
                 size="small"
                 title={
                   <Space>
-                    <span>按分类查看 15 维度</span>
+                    <span>{t('qualityScore.viewByCategory')}</span>
                     <Select
                       size="small"
                       value={activeCategory}
@@ -519,10 +520,10 @@ export const QualityScorePanel: React.FC<{
                             style={{ marginTop: 8 }}
                           />
                           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
-                            权重 {(d.weight * 100).toFixed(1)}% · 得分 {s.toFixed(1)}/100
+                            {t('qualityScore.weight')} {(d.weight * 100).toFixed(1)}% · {t('qualityScore.score')} {s.toFixed(1)}/100
                           </div>
                           <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
-                            规则: {d.passingRule}
+                            {t('qualityScore.rule')} {d.passingRule}
                           </div>
                         </Card>
                       </Col>
@@ -534,11 +535,11 @@ export const QualityScorePanel: React.FC<{
           },
           {
             key: 'evidence',
-            label: <span><Sparkles size={12} /> 评分证据</span>,
+            label: <span><Sparkles size={12} /> {t('qualityScore.tab.evidence')}</span>,
             children: (
               <Card size="small" title={`评分证据 (${score.evidence.length} 条)`}>
                 {score.evidence.length === 0 ? (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无证据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('qualityScore.noEvidence')} />
                 ) : (
                   score.evidence.map((e, i) => (
                     <div
@@ -554,7 +555,7 @@ export const QualityScorePanel: React.FC<{
                       <Space>
                         <Tag color="purple">{e.dimension}</Tag>
                         <Tag color="cyan">{e.rule}</Tag>
-                        <strong>{e.score} 分</strong>
+                        <strong>{e.score} {t('qualityScore.pointsUnit')}</strong>
                       </Space>
                       <div style={{ color: '#475569', marginTop: 4 }}>{e.explanation}</div>
                     </div>
@@ -565,34 +566,34 @@ export const QualityScorePanel: React.FC<{
           },
           {
             key: 'threshold',
-            label: <span><TrendingUp size={12} /> 等级对照</span>,
+            label: <span><TrendingUp size={12} /> {t('qualityScore.tab.threshold')}</span>,
             children: (
-              <Card size="small" title="等级阈值表">
+              <Card size="small" title={t('qualityScore.thresholdTable')}>
                 <Row gutter={[12, 12]}>
-                  {thresholds.map((t) => (
-                    <Col xs={12} sm={6} key={t.grade}>
+                  {thresholds.map((th) => (
+                    <Col xs={12} sm={6} key={th.grade}>
                       <Card
                         size="small"
                         style={{
-                          borderTop: `4px solid ${t.color}`,
-                          background: t.bg,
+                          borderTop: `4px solid ${th.color}`,
+                          background: th.bg,
                         }}
                       >
-                        <div style={{ fontSize: 28, fontWeight: 800, color: t.color }}>
-                          {t.grade}
+                        <div style={{ fontSize: 28, fontWeight: 800, color: th.color }}>
+                          {th.grade}
                         </div>
-                        <div style={{ fontSize: 12, color: t.color }}>
-                          {t.minScore} - {t.maxScore} 分
+                        <div style={{ fontSize: 12, color: th.color }}>
+                          {th.minScore} - {th.maxScore} {t('qualityScore.pointsUnit')}
                         </div>
                         <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                          {t.description}
+                          {th.description}
                         </div>
                         <Space style={{ marginTop: 6 }}>
-                          <Tag color={t.publishable ? 'green' : 'red'}>
-                            {t.publishable ? '可发布' : '不可发布'}
+                          <Tag color={th.publishable ? 'green' : 'red'}>
+                            {th.publishable ? t('qualityScore.publishable') : t('qualityScore.notPublishable')}
                           </Tag>
-                          <Tag color={t.bonusEligible ? 'gold' : 'default'}>
-                            {t.bonusEligible ? '奖励' : '无奖励'}
+                          <Tag color={th.bonusEligible ? 'gold' : 'default'}>
+                            {th.bonusEligible ? t('qualityScore.bonus') : t('qualityScore.noBonus')}
                           </Tag>
                         </Space>
                       </Card>
@@ -610,7 +611,7 @@ export const QualityScorePanel: React.FC<{
           size="small"
           title={
             <Space>
-              <Activity size={14} /> 趋势预览
+              <Activity size={14} /> {t('qualityScore.trendPreview')}
             </Space>
           }
           style={{ marginTop: 12 }}
@@ -632,7 +633,7 @@ export const QualityScorePanel: React.FC<{
                 stroke="#7c3aed"
                 strokeWidth={2}
                 dot={{ r: 3 }}
-                name="近 10 次评分"
+                name={t('qualityScore.recent10Scores')}
               />
             </LineChart>
           </ResponsiveContainer>

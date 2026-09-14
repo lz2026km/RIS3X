@@ -32,31 +32,32 @@ import {
 import { AlertOctagon, Bell, Phone, MessageSquare, Smartphone, CheckCircle2, Clock, PhoneCall, Send, Mail, Search, RefreshCw, Activity, TrendingUp, Zap, X, Stethoscope } from 'lucide-react';
 import { BellOff } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 const STATUS_META: Record<CriticalStatus, { color: string; label: string; bg: string; icon: React.ReactNode }> = {
-  pending: { color: '#dc2626', label: '待通报', bg: 'var(--color-error-bg)', icon: <PhoneCall size={12} /> },
-  notified: { color: '#f59e0b', label: '已通报', bg: 'var(--color-warning-bg)', icon: <Bell size={12} /> },
-  acknowledged: { color: '#3b82f6', label: '已确认', bg: 'var(--color-info-bg)', icon: <CheckCircle2 size={12} /> },
-  resolved: { color: '#10b981', label: '已处置', bg: 'var(--color-success-bg)', icon: <CheckCircle2 size={12} /> },
-  overdue: { color: '#7f1d1d', label: '已超时', bg: 'var(--color-error-bg)', icon: <Clock size={12} /> },
-  escalated: { color: '#7c3aed', label: '已升级', bg: 'var(--color-info-bg)', icon: <TrendingUp size={12} /> },
-  cancelled: { color: '#64748b', label: '已取消', bg: 'var(--border-color)', icon: <X size={12} /> },
+  pending: { color: '#dc2626', label: t('criticalValue.status.pending'), bg: 'var(--color-error-bg)', icon: <PhoneCall size={12} /> },
+  notified: { color: '#f59e0b', label: t('criticalValue.status.notified'), bg: 'var(--color-warning-bg)', icon: <Bell size={12} /> },
+  acknowledged: { color: '#3b82f6', label: t('criticalValue.status.acknowledged'), bg: 'var(--color-info-bg)', icon: <CheckCircle2 size={12} /> },
+  resolved: { color: '#10b981', label: t('criticalValue.status.resolved'), bg: 'var(--color-success-bg)', icon: <CheckCircle2 size={12} /> },
+  overdue: { color: '#7f1d1d', label: t('criticalValue.status.overdue'), bg: 'var(--color-error-bg)', icon: <Clock size={12} /> },
+  escalated: { color: '#7c3aed', label: t('criticalValue.status.escalated'), bg: 'var(--color-info-bg)', icon: <TrendingUp size={12} /> },
+  cancelled: { color: '#64748b', label: t('criticalValue.status.cancelled'), bg: 'var(--border-color)', icon: <X size={12} /> },
 };
 
 const LEVEL_META: Record<CriticalLevel, { color: string; label: string; bg: string }> = {
-  critical: { color: '#7f1d1d', label: '危急', bg: 'var(--color-error-bg)' },
-  urgent: { color: '#dc2626', label: '紧急', bg: 'var(--color-error-bg)' },
-  warning: { color: '#f59e0b', label: '警告', bg: 'var(--color-warning-bg)' },
-  info: { color: '#3b82f6', label: '提示', bg: 'var(--color-info-bg)' },
+  critical: { color: '#7f1d1d', label: t('criticalValue.level.critical'), bg: 'var(--color-error-bg)' },
+  urgent: { color: '#dc2626', label: t('criticalValue.level.urgent'), bg: 'var(--color-error-bg)' },
+  warning: { color: '#f59e0b', label: t('criticalValue.level.warning'), bg: 'var(--color-warning-bg)' },
+  info: { color: '#3b82f6', label: t('criticalValue.level.info'), bg: 'var(--color-info-bg)' },
 };
 
 const CHANNEL_META: Record<NotificationChannel, { icon: React.ComponentType<{ size?: number; color?: string }>; color: string; label: string }> = {
-  phone: { icon: Phone, color: '#10b981', label: '电话' },
-  sms: { icon: MessageSquare, color: '#3b82f6', label: '短信' },
-  wechat: { icon: Smartphone, color: '#10b981', label: '微信' },
-  inApp: { icon: Bell, color: '#7c3aed', label: '应用内' },
-  email: { icon: Mail, color: '#f59e0b', label: '邮件' },
-  pager: { icon: Send, color: '#dc2626', label: '传呼' },
+  phone: { icon: Phone, color: '#10b981', label: t('criticalValue.channel.phone') },
+  sms: { icon: MessageSquare, color: '#3b82f6', label: t('criticalValue.channel.sms') },
+  wechat: { icon: Smartphone, color: '#10b981', label: t('criticalValue.channel.wechat') },
+  inApp: { icon: Bell, color: '#7c3aed', label: t('criticalValue.channel.inApp') },
+  email: { icon: Mail, color: '#f59e0b', label: t('criticalValue.channel.email') },
+  pager: { icon: Send, color: '#dc2626', label: t('criticalValue.channel.pager') },
 };
 
 const CURRENT_USER_ID = 'U001';
@@ -64,7 +65,7 @@ const CURRENT_USER_NAME = '张明远';
 
 function timeAgo(iso: string): string {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (m < 1) return '刚刚';
+  if (m < 1) return t('criticalValue.justNow');
   if (m < 60) return `${m}分钟前`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}小时前`;
@@ -114,7 +115,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       setEvents(list);
       setKpi(k);
     } catch (e) {
-      message.error('加载危急值事件失败');
+      message.error(t('criticalValue.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -123,8 +124,8 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
   useEffect(() => {
     load();
     if (autoRefreshSec > 0) {
-      const t = setInterval(load, autoRefreshSec * 1000);
-      return () => clearInterval(t);
+      const timer = setInterval(load, autoRefreshSec * 1000);
+      return () => clearInterval(timer);
     }
   }, [autoRefreshSec]);
 
@@ -164,27 +165,27 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
   const handleAcknowledge = async (eventId: string) => {
     try {
       await criticalValueService.acknowledgeEvent(eventId, CURRENT_USER_ID, CURRENT_USER_NAME);
-      message.success('已确认接收');
+      message.success(t('criticalValue.ackReceived'));
       load();
     } catch (e) {
-      message.error('操作失败');
+      message.error(t('criticalValue.opFailed'));
     }
   };
 
   const handleResolve = async (eventId: string) => {
     try {
       await criticalValueService.resolveEvent(eventId);
-      message.success('已处置归档');
+      message.success(t('criticalValue.resolveArchived'));
       load();
     } catch (e) {
-      message.error('操作失败');
+      message.error(t('criticalValue.opFailed'));
     }
   };
 
   const handleEscalate = async (eventId: string) => {
     let reason = '';
     Modal.confirm({
-      title: '请输入升级原因(至少 5 字符)',
+      title: t('criticalValue.escalateReasonTitle'),
       content: (
         <Input.TextArea
           rows={3}
@@ -192,18 +193,18 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           onChange={(e) => { reason = e.target.value; }}
         />
       ),
-      okText: '升级',
-      cancelText: '取消',
+      okText: t('criticalValue.escalate'),
+      cancelText: t('criticalValue.cancel'),
       onOk: async () => {
         if (!reason || reason.length < 5) {
-          message.warning('升级原因过短');
+          message.warning(t('criticalValue.reasonTooShort'));
           return;
         }
         try {
           await criticalValueService.escalateEvent(eventId, 'D900', '科主任(升级)', reason);
-          message.success('已升级至科主任');
+          message.success(t('criticalValue.escalatedToDirector'));
         } catch (e) {
-          message.error('操作失败');
+          message.error(t('criticalValue.opFailed'));
         }
       },
     });
@@ -218,11 +219,11 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
   const submitNotify = async () => {
     if (!notifyModal.event) return;
     if (!recipient.trim()) {
-      message.warning('请填写接收医生');
+      message.warning(t('criticalValue.enterRecipient'));
       return;
     }
     if (notifyChannels.length === 0) {
-      message.warning('请至少选择一种通知渠道');
+      message.warning(t('criticalValue.selectChannel'));
       return;
     }
     try {
@@ -231,12 +232,12 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       setNotifyModal({ open: false, event: null });
       load();
     } catch (e) {
-      message.error('通知失败');
+      message.error(t('criticalValue.notifyFailed'));
     }
   };
 
   return (
-    <div data-testid="critical-value-alerter" role="region" aria-label="危急值告警中心">
+    <div data-testid="critical-value-alerter" role="region" aria-label={t('criticalValue.centerTitle')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)',
@@ -249,14 +250,14 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <AlertOctagon size={18} />
-            <strong style={{ fontSize: 16 }}>危急值告警中心</strong>
+            <strong style={{ fontSize: 16 }}>{t('criticalValue.centerTitle')}</strong>
             <Tag color="purple">R3.QUALITY.211-217</Tag>
-            <Tag color="cyan">自动检测</Tag>
+            <Tag color="cyan">{t('criticalValue.autoDetect')}</Tag>
           </Space>
           <Space>
-            <Tooltip title="刷新">
+            <Tooltip title={t('criticalValue.refresh')}>
               <Button size="small" icon={<RefreshCw size={12} />} onClick={load}>
-                刷新
+                {t('criticalValue.refresh')}
               </Button>
             </Tooltip>
           </Space>
@@ -264,7 +265,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>本月总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValue.thisMonthTotal')}</span>}
               value={kpi?.totalThisMonth ?? stats.total}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Activity size={14} />}
@@ -272,7 +273,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>待通报</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValue.status.pending')}</span>}
               value={stats.pending}
               styles={{ content: {  color: stats.pending > 0 ? '#fca5a5' : '#fff', fontSize: 18  } }}
               prefix={<PhoneCall size={14} />}
@@ -280,7 +281,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>已确认</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValue.status.acknowledged')}</span>}
               value={stats.acknowledged}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
@@ -288,7 +289,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>已处置</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValue.status.resolved')}</span>}
               value={stats.resolved}
               styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
@@ -296,7 +297,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>通报按时率</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValue.onTimeRate')}</span>}
               value={(kpi?.onTimeNotificationRate ?? parseFloat(stats.onTimeRate)).toFixed(1)}
               suffix="%"
               styles={{ content: { 
@@ -308,7 +309,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           </Col>
           <Col span={4}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>平均响应(min)</span>}
+              title={<span style={{ color: '#fff' }}>{t('criticalValue.avgResponseMin')}</span>}
               value={kpi?.avgResponseTimeMinutes?.toFixed(1) ?? '-'}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
@@ -320,7 +321,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       {showStatistics && kpi && (
         <Row gutter={12} style={{ marginBottom: 12 }}>
           <Col span={6}>
-            <Card size="small" title="按分级分布">
+            <Card size="small" title={t('criticalValue.byLevel')}>
               <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 {(Object.keys(kpi.byLevel) as CriticalLevel[]).map((lv) => {
                   const v = kpi.byLevel[lv] ?? 0;
@@ -344,7 +345,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             </Card>
           </Col>
           <Col span={6}>
-            <Card size="small" title="TOP 危急值规则">
+            <Card size="small" title={t('criticalValue.topRules')}>
               <List
                 size="small"
                 dataSource={kpi.topRules.slice(0, 5)}
@@ -361,7 +362,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             </Card>
           </Col>
           <Col span={6}>
-            <Card size="small" title="医生响应排行">
+            <Card size="small" title={t('criticalValue.doctorRanking')}>
               <List
                 size="small"
                 dataSource={kpi.byDoctor.slice(0, 5)}
@@ -372,7 +373,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       <span style={{ fontSize: 12 }}>{d.doctorName}</span>
                     </Space>
                     <Space size={4}>
-                      <Tag color="blue">{d.reportedCount}次</Tag>
+                      <Tag color="blue">{d.reportedCount}{t('criticalValue.times')}</Tag>
                       <Tag color={d.onTimeRate >= 0.9 ? 'green' : 'orange'}>{Math.round(d.onTimeRate * 100)}%</Tag>
                     </Space>
                   </List.Item>
@@ -381,22 +382,22 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             </Card>
           </Col>
           <Col span={6}>
-            <Card size="small" title="30 天趋势">
+            <Card size="small" title={t('criticalValue.trend30d')}>
               <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12 }}>双审完成率</span>
+                  <span style={{ fontSize: 12 }}>{t('criticalValue.dualReviewCompletion')}</span>
                   <Tag color="green">{kpi.dualReviewCompletion.toFixed(1)}%</Tag>
                 </Space>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12 }}>漏报</span>
+                  <span style={{ fontSize: 12 }}>{t('criticalValue.missedReports')}</span>
                   <Tag color={kpi.missedReports > 0 ? 'red' : 'green'}>{kpi.missedReports}</Tag>
                 </Space>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12 }}>P95 响应</span>
+                  <span style={{ fontSize: 12 }}>{t('criticalValue.p95Response')}</span>
                   <Tag>{kpi.p95ResponseTimeMinutes.toFixed(1)} min</Tag>
                 </Space>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12 }}>中位响应</span>
+                  <span style={{ fontSize: 12 }}>{t('criticalValue.medianResponse')}</span>
                   <Tag color="blue">{kpi.medianResponseTimeMinutes.toFixed(1)} min</Tag>
                 </Space>
               </Space>
@@ -410,7 +411,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           <Input
             allowClear
             prefix={<Search size={12} />}
-            placeholder="搜索患者/规则/ID"
+            placeholder={t('criticalValue.searchPlaceholder')}
             style={{ width: 220 }}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -419,23 +420,23 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             value={filterLevel}
             onChange={(v) => setFilterLevel(v as CriticalLevel | 'all')}
             options={[
-              { label: '全部', value: 'all' },
-              { label: '危急', value: 'critical' },
-              { label: '紧急', value: 'urgent' },
-              { label: '警告', value: 'warning' },
-              { label: '提示', value: 'info' },
+              { label: t('criticalValue.all'), value: 'all' },
+              { label: t('criticalValue.level.critical'), value: 'critical' },
+              { label: t('criticalValue.level.urgent'), value: 'urgent' },
+              { label: t('criticalValue.level.warning'), value: 'warning' },
+              { label: t('criticalValue.level.info'), value: 'info' },
             ]}
           />
           <Segmented
             value={filterStatus}
             onChange={(v) => setFilterStatus(v as CriticalStatus | 'all')}
             options={[
-              { label: '全部状态', value: 'all' },
-              { label: '待通报', value: 'pending' },
-              { label: '已通报', value: 'notified' },
-              { label: '已确认', value: 'acknowledged' },
-              { label: '已处置', value: 'resolved' },
-              { label: '已升级', value: 'escalated' },
+              { label: t('criticalValue.allStatus'), value: 'all' },
+              { label: t('criticalValue.status.pending'), value: 'pending' },
+              { label: t('criticalValue.status.notified'), value: 'notified' },
+              { label: t('criticalValue.status.acknowledged'), value: 'acknowledged' },
+              { label: t('criticalValue.status.resolved'), value: 'resolved' },
+              { label: t('criticalValue.status.escalated'), value: 'escalated' },
             ]}
           />
         </Space>
@@ -444,7 +445,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       <List
         loading={loading}
         dataSource={filtered}
-        locale={{ emptyText: <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="无危急值事件" /> }}
+        locale={{ emptyText: <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description={t('criticalValue.noEvents')} /> }}
         style={{
           background: 'var(--bg-card)',
           borderRadius: 8,
@@ -509,7 +510,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                   <Space wrap>
                     <strong>{e.patientName}</strong>
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                      {e.gender} · {e.age}岁 · {e.modality}/{e.bodyPart}
+                      {e.gender} · {e.age}{t('criticalValue.yearsOld')} · {e.modality}/{e.bodyPart}
                     </span>
                     <Tag color={lm.color} style={{ marginLeft: 4 }}>
                       {lm.label}
@@ -517,12 +518,12 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     <Tag color={sm.color}>{sm.label}</Tag>
                     {e.veto && (
                       <Tag color="red" data-testid={`veto-${e.id}`}>
-                        一票否决
+                        {t('criticalValue.veto')}
                       </Tag>
                     )}
                     {e.dualReviewRequired && (
                       <Tag color="purple" data-testid={`dual-${e.id}`}>
-                        双审
+                        {t('criticalValue.dualReview')}
                       </Tag>
                     )}
                   </Space>
@@ -534,10 +535,10 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     </div>
                     <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>📋 {e.detail}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
-                      <Clock size={10} /> 报告 {timeAgo(e.reportedAt)} by {e.reportedByName}(
+                      <Clock size={10} /> {t('criticalValue.report')} {timeAgo(e.reportedAt)} by {e.reportedByName}(
                       {e.reportedByTitle})
                       {e.receivingDoctorName && (
-                        <span style={{ color: '#10b981' }}> · 接收:{e.receivingDoctorName}</span>
+                        <span style={{ color: '#10b981' }}> · {t('criticalValue.receivedBy')}{e.receivingDoctorName}</span>
                       )}
                     </div>
                     {e.channels.length > 0 && (
@@ -568,7 +569,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                           color: e.onTimeNotification ? '#10b981' : '#dc2626',
                         }}
                       >
-                        响应 {e.responseTimeMinutes} 分钟 · {e.onTimeNotification ? '✓ 按时' : '⚠ 超时'}
+                        {t('criticalValue.response')} {e.responseTimeMinutes} {t('criticalValue.minutes')} · {e.onTimeNotification ? t('criticalValue.onTime') : t('criticalValue.overdue')}
                       </div>
                     )}
                   </div>
@@ -585,7 +586,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       openNotify(e);
                     }}
                   >
-                    多渠道通知
+                    {t('criticalValue.multiChannelNotify')}
                   </Button>
                 )}
                 {e.status === 'pending' || e.status === 'notified' ? (
@@ -593,7 +594,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     <span onClick={(ev) => ev.stopPropagation()}>
                       <SmsSender
                         size="small"
-                        text="短信"
+                        text={t('criticalValue.channel.sms')}
                         patientName={e.patientName}
                         ruleName={e.ruleName}
                         reportedBy={e.reportedByName}
@@ -603,7 +604,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     <span onClick={(ev) => ev.stopPropagation()}>
                       <VoiceCallButton
                         size="small"
-                        text="语音"
+                        text={t('criticalValue.voice')}
                         patientName={e.patientName}
                         ruleName={e.ruleName}
                         modality={e.modality}
@@ -621,7 +622,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       handleAcknowledge(e.id);
                     }}
                   >
-                    确认
+                    {t('criticalValue.confirm')}
                   </Button>
                 )}
                 {e.status === 'acknowledged' && (
@@ -634,12 +635,12 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       handleResolve(e.id);
                     }}
                   >
-                    处理
+                    {t('criticalValue.handle')}
                   </Button>
                 )}
                 {e.status === 'resolved' && (
                   <Tag color="green" icon={<CheckCircle2 size={10} />}>
-                    已闭环
+                    {t('criticalValue.closedLoop')}
                   </Tag>
                 )}
                 {(e.status === 'pending' || e.status === 'notified' || e.status === 'acknowledged') && (
@@ -652,7 +653,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       handleEscalate(e.id);
                     }}
                   >
-                    升级
+                    {t('criticalValue.escalate')}
                   </Button>
                 )}
               </Space>
@@ -665,7 +666,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         title={
           <Space>
             <AlertOctagon size={16} color="#dc2626" />
-            <span>危急值详情</span>
+            <span>{t('criticalValue.detailTitle')}</span>
             {detailEvent && <Tag color={LEVEL_META[detailEvent.level].color}>{LEVEL_META[detailEvent.level].label}</Tag>}
           </Space>
         }
@@ -675,54 +676,54 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       >
         {detailEvent && (
           <Space orientation="vertical" size={12} style={{ width: '100%' }}>
-            <Card size="small" title="基本信息">
+            <Card size="small" title={t('criticalValue.basicInfo')}>
               <Row gutter={[8, 8]}>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>患者</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.patient')}</div>
                   <div>
-                    {detailEvent.patientName}({detailEvent.gender} · {detailEvent.age}岁)
+                    {detailEvent.patientName}({detailEvent.gender} · {detailEvent.age}{t('criticalValue.yearsOld')})
                   </div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>检查</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.exam')}</div>
                   <div>
                     {detailEvent.modality} / {detailEvent.bodyPart}
                   </div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>报告医生</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.reportingDoctor')}</div>
                   <div>
                     {detailEvent.reportedByName}({detailEvent.reportedByTitle})
                   </div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>报告时间</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.reportTime')}</div>
                   <div>{new Date(detailEvent.reportedAt).toLocaleString()}</div>
                 </Col>
                 <Col span={24}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>危急值规则</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.criticalRule')}</div>
                   <div>
                     <Tag color="red">{detailEvent.ruleCode}</Tag>
                     {detailEvent.ruleName}
-                    {detailEvent.veto && <Tag color="red">一票否决</Tag>}
-                    {detailEvent.dualReviewRequired && <Tag color="purple">需双审</Tag>}
+                    {detailEvent.veto && <Tag color="red">{t('criticalValue.veto')}</Tag>}
+                    {detailEvent.dualReviewRequired && <Tag color="purple">{t('criticalValue.needsDualReview')}</Tag>}
                   </div>
                 </Col>
                 <Col span={24}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>危急值所见</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.findings')}</div>
                   <div style={{ color: '#dc2626', fontWeight: 600 }}>{detailEvent.detail}</div>
                 </Col>
               </Row>
             </Card>
 
-            <Card size="small" title="通知与响应">
+            <Card size="small" title={t('criticalValue.notifyAndResponse')}>
               <Timeline
                 items={[
                   {
                     color: 'red',
                     children: (
                       <>
-                        <strong>报告生成</strong> {formatHM(detailEvent.reportedAt)} ·{' '}
+                        <strong>{t('criticalValue.reportGenerated')}</strong> {formatHM(detailEvent.reportedAt)} ·{' '}
                         {detailEvent.reportedByName}
                       </>
                     ),
@@ -733,7 +734,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                           color: 'orange',
                           children: (
                             <>
-                              <strong>通报接收医生</strong> {formatHM(detailEvent.receivingTime)} ·{' '}
+                              <strong>{t('criticalValue.notifyReceivingDoctor')}</strong> {formatHM(detailEvent.receivingTime)} ·{' '}
                               {detailEvent.receivingDoctorName}
                             </>
                           ),
@@ -746,7 +747,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                           color: 'blue',
                           children: (
                             <>
-                              <strong>医生确认</strong> {formatHM(detailEvent.acknowledgedTime)} ·{' '}
+                              <strong>{t('criticalValue.doctorConfirmed')}</strong> {formatHM(detailEvent.acknowledgedTime)} ·{' '}
                               {detailEvent.acknowledgedByName}
                               {detailEvent.responseTimeMinutes !== undefined && (
                                 <Tag
@@ -767,7 +768,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                           color: 'green',
                           children: (
                             <>
-                              <strong>处置闭环</strong> {formatHM(detailEvent.resolvedTime)}
+                              <strong>{t('criticalValue.resolutionClosedLoop')}</strong> {formatHM(detailEvent.resolvedTime)}
                             </>
                           ),
                         },
@@ -779,10 +780,10 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                           color: 'purple',
                           children: (
                             <>
-                              <strong>升级</strong> {formatHM(detailEvent.escalatedAt)} →{' '}
+                              <strong>{t('criticalValue.escalate')}</strong> {formatHM(detailEvent.escalatedAt)} →{' '}
                               {detailEvent.escalatedToName}
                               <div style={{ fontSize: 12, color: '#64748b' }}>
-                                原因:{detailEvent.escalationReason}
+                                {t('criticalValue.reason')}{detailEvent.escalationReason}
                               </div>
                             </>
                           ),
@@ -794,7 +795,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               {detailEvent.channels.length > 0 && (
                 <>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>已使用通知渠道</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('criticalValue.usedChannels')}</div>
                   <Space wrap>
                     {detailEvent.channelAttempts.map((a, i) => {
                       const cm = CHANNEL_META[a.channel];
@@ -815,11 +816,11 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             </Card>
 
             {detailEvent.dualReview && (
-              <Card size="small" title="双审记录">
+              <Card size="small" title={t('criticalValue.dualReviewRecord')}>
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>第一审</div>
-                    <div>{detailEvent.dualReview.firstReviewerName ?? '待审'}</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.firstReview')}</div>
+                    <div>{detailEvent.dualReview.firstReviewerName ?? t('criticalValue.pendingReview')}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>
                       {detailEvent.dualReview.firstReviewAt
                         ? formatHM(detailEvent.dualReview.firstReviewAt)
@@ -827,8 +828,8 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     </div>
                   </Col>
                   <Col span={12}>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>第二审</div>
-                    <div>{detailEvent.dualReview.secondReviewerName ?? '待审'}</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.secondReview')}</div>
+                    <div>{detailEvent.dualReview.secondReviewerName ?? t('criticalValue.pendingReview')}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>
                       {detailEvent.dualReview.secondReviewAt
                         ? formatHM(detailEvent.dualReview.secondReviewAt)
@@ -840,7 +841,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             )}
 
             {detailEvent.sop && detailEvent.sop.length > 0 && (
-              <Card size="small" title="SOP 6 步闭环">
+              <Card size="small" title={t('criticalValue.sop6')}>
                 <Timeline
                   items={detailEvent.sop.map((s) => ({
                     color: s.completed ? 'green' : 'gray',
@@ -858,16 +859,16 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               </Card>
             )}
 
-            <Card size="small" title="元数据">
+            <Card size="small" title={t('criticalValue.metadata')}>
               <Space orientation="vertical" size={2} style={{ fontSize: 12 }}>
                 <div>
-                  <strong>事件 ID:</strong> {detailEvent.id}
+                  <strong>{t('criticalValue.eventId')}</strong> {detailEvent.id}
                 </div>
                 <div>
-                  <strong>哈希:</strong> <code>{detailEvent.hash}</code>
+                  <strong>{t('criticalValue.hash')}</strong> <code>{detailEvent.hash}</code>
                 </div>
                 <div>
-                  <strong>升级级别:</strong> {detailEvent.escalationLevel}
+                  <strong>{t('criticalValue.escalationLevel')}</strong> {detailEvent.escalationLevel}
                 </div>
               </Space>
             </Card>
@@ -876,12 +877,12 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       </Drawer>
 
       <Modal
-        title="多渠道通知"
+        title={t('criticalValue.multiChannelNotify')}
         open={notifyModal.open}
         onCancel={() => setNotifyModal({ open: false, event: null })}
         onOk={submitNotify}
-        okText="发送"
-        cancelText="取消"
+        okText={t('criticalValue.send')}
+        cancelText={t('criticalValue.cancel')}
       >
         {notifyModal.event && (
           <Space orientation="vertical" style={{ width: '100%' }}>
@@ -889,27 +890,27 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               <strong>{notifyModal.event.patientName}</strong> · {notifyModal.event.ruleName}
             </div>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>接收医生</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValue.recipientDoctor')}</div>
               <Input
-                placeholder="如:陈雅芝(急诊神内)"
+                placeholder={t('criticalValue.recipientPlaceholder')}
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
               />
             </div>
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>通知渠道(可多选)</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValue.notifyChannels')}</div>
               <Select
                 mode="multiple"
                 style={{ width: '100%' }}
                 value={notifyChannels}
                 onChange={(v) => setNotifyChannels(v as NotificationChannel[])}
                 options={[
-                  { label: '☎ 电话', value: 'phone' },
-                  { label: '✉ 短信', value: 'sms' },
-                  { label: '💬 微信', value: 'wechat' },
-                  { label: '🔔 应用内', value: 'inApp' },
-                  { label: '📧 邮件', value: 'email' },
-                  { label: '📟 传呼', value: 'pager' },
+                  { label: t('criticalValue.channelOption.phone'), value: 'phone' },
+                  { label: t('criticalValue.channelOption.sms'), value: 'sms' },
+                  { label: t('criticalValue.channelOption.wechat'), value: 'wechat' },
+                  { label: t('criticalValue.channelOption.inApp'), value: 'inApp' },
+                  { label: t('criticalValue.channelOption.email'), value: 'email' },
+                  { label: t('criticalValue.channelOption.pager'), value: 'pager' },
                 ]}
               />
             </div>

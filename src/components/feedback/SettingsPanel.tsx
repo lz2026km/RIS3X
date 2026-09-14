@@ -9,9 +9,10 @@ import {
   formatShortcut,
 } from "../../config/shortcuts";
 import type { UserConfig } from "../../config/userConfig";
+import { t } from "../../i18n/appI18n";
 
 const FONT_FAMILIES = [
-  { value: "inherit", label: "继承 (inherit)" },
+  { value: "inherit", label: t("settings.font.inherit") },
   { value: "serif", label: "Serif" },
   { value: "sans-serif", label: "Sans-Serif" },
   { value: "monospace", label: "Monospace" },
@@ -20,21 +21,21 @@ const FONT_FAMILIES = [
 ];
 
 const LAYOUT_PRESETS = [
-  { value: "full", label: "完整" },
-  { value: "compact", label: "紧凑" },
-  { value: "focus", label: "专注" },
+  { value: "full", label: t("settings.layout.full") },
+  { value: "compact", label: t("settings.layout.compact") },
+  { value: "focus", label: t("settings.layout.focus") },
 ];
 
 const SHORTCUT_PRESETS = [
-  { value: "default", label: "默认" },
+  { value: "default", label: t("settings.shortcut.default") },
   { value: "vscode", label: "VS Code" },
   { value: "word", label: "Word" },
 ];
 
 const THEME_OPTIONS = [
-  { value: "light", label: "浅色" },
-  { value: "dark", label: "深色" },
-  { value: "high-contrast", label: "高对比度" },
+  { value: "light", label: t("settings.theme.light") },
+  { value: "dark", label: t("settings.theme.dark") },
+  { value: "high-contrast", label: t("settings.theme.highContrast") },
 ];
 
 export interface SettingsPanelProps {
@@ -79,7 +80,7 @@ export function SettingsPanel({
         }}
         role="button"
         tabIndex={0}
-        aria-label={isZh ? "设置" : "Settings"}
+        aria-label={t("settings.title")}
         onKeyDown={(e) => {
           if (e.key === "Enter") setOpen(true);
         }}
@@ -93,7 +94,7 @@ export function SettingsPanel({
       </div>
 
       <Modal
-        title={isZh ? "设置" : "Settings"}
+        title={t("settings.title")}
         open={open}
         onCancel={() => setOpen(false)}
         footer={null}
@@ -105,20 +106,20 @@ export function SettingsPanel({
           items={[
             {
               key: "layout",
-              label: isZh ? "布局" : "Layout",
+              label: t("settings.tab.layout"),
               children: (
                 <div style={{ padding: "8px 0" }}>
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="layoutPreset"
-                      aria-label="布局预设"
+                      aria-label={t("settings.layoutPreset")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      布局预设
+                      {t("settings.layoutPreset")}
                     </label>
                     <Radio.Group
                       id="layoutPreset"
@@ -135,14 +136,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="leftPanelWidth"
-                      aria-label="左侧面板宽度"
+                      aria-label={t("settings.leftPanelWidth")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      左侧面板宽度: {config.leftPanelWidth}px
+                      {t("settings.leftPanelWidthValue", { value: config.leftPanelWidth })}
                     </label>
                     <Slider
                       id="leftPanelWidth"
@@ -157,14 +158,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="rightPanelWidth"
-                      aria-label="右侧面板宽度"
+                      aria-label={t("settings.rightPanelWidth")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      右侧面板宽度: {config.rightPanelWidth}px
+                      {t("settings.rightPanelWidthValue", { value: config.rightPanelWidth })}
                     </label>
                     <Slider
                       id="rightPanelWidth"
@@ -180,14 +181,14 @@ export function SettingsPanel({
                     <div>
                       <label
                         htmlFor="showLeftPanel"
-                        aria-label="显示左侧面板"
+                        aria-label={t("settings.showLeftPanel")}
                         style={{
                           display: "block",
                           marginBottom: 6,
                           fontWeight: 500,
                         }}
                       >
-                        显示左侧面板
+                        {t("settings.showLeftPanel")}
                       </label>
                       <Switch
                         id="showLeftPanel"
@@ -198,14 +199,14 @@ export function SettingsPanel({
                     <div>
                       <label
                         htmlFor="showRightPanel"
-                        aria-label="显示右侧面板"
+                        aria-label={t("settings.showRightPanel")}
                         style={{
                           display: "block",
                           marginBottom: 6,
                           fontWeight: 500,
                         }}
                       >
-                        显示右侧面板
+                        {t("settings.showRightPanel")}
                       </label>
                       <Switch
                         id="showRightPanel"
@@ -218,14 +219,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="rightPanelDefaultTab"
-                      aria-label="右侧面板默认标签"
+                      aria-label={t("settings.rightPanelDefaultTab")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      右侧面板默认标签
+                      {t("settings.rightPanelDefaultTab")}
                     </label>
                     <Select
                       id="rightPanelDefaultTab"
@@ -233,9 +234,9 @@ export function SettingsPanel({
                       onChange={(v) => updateField("rightPanelDefaultTab", v)}
                       style={{ width: 200 }}
                       options={[
-                        { value: "templates", label: "模板" },
-                        { value: "measurements", label: "测量" },
-                        { value: "ai-assist", label: "AI 辅助" },
+                        { value: "templates", label: t("settings.panel.templates") },
+                        { value: "measurements", label: t("settings.panel.measurements") },
+                        { value: "ai-assist", label: t("settings.panel.aiAssist") },
                       ]}
                     />
                   </div>
@@ -243,14 +244,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="leftPanelDefaultSection"
-                      aria-label="左侧面板默认区段"
+                      aria-label={t("settings.leftPanelDefaultSection")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      左侧面板默认区段
+                      {t("settings.leftPanelDefaultSection")}
                     </label>
                     <Select
                       id="leftPanelDefaultSection"
@@ -260,9 +261,9 @@ export function SettingsPanel({
                       }
                       style={{ width: 200 }}
                       options={[
-                        { value: "images", label: "影像" },
-                        { value: "reports", label: "报告" },
-                        { value: "history", label: "历史" },
+                        { value: "images", label: t("settings.section.images") },
+                        { value: "reports", label: t("settings.section.reports") },
+                        { value: "history", label: t("settings.section.history") },
                       ]}
                     />
                   </div>
@@ -271,20 +272,20 @@ export function SettingsPanel({
             },
             {
               key: "editor",
-              label: isZh ? "编辑" : "Editor",
+              label: t("settings.tab.editor"),
               children: (
                 <div style={{ padding: "8px 0" }}>
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="editorFontSize"
-                      aria-label="字体大小"
+                      aria-label={t("settings.editor.fontSize")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      字体大小: {config.editorFontSize}px
+                      {t("settings.editor.fontSizeValue", { value: config.editorFontSize })}
                     </label>
                     <Slider
                       id="editorFontSize"
@@ -299,14 +300,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="editorFontFamily"
-                      aria-label="字体"
+                      aria-label={t("settings.editor.fontFamily")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      字体
+                      {t("settings.editor.fontFamily")}
                     </label>
                     <Select
                       id="editorFontFamily"
@@ -320,14 +321,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="editorLineHeight"
-                      aria-label="行高"
+                      aria-label={t("settings.editor.lineHeight")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      行高: {config.editorLineHeight.toFixed(1)}
+                      {t("settings.editor.lineHeightValue", { value: config.editorLineHeight.toFixed(1) })}
                     </label>
                     <Slider
                       id="editorLineHeight"
@@ -342,14 +343,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="editorTabSize"
-                      aria-label="Tab 大小"
+                      aria-label={t("settings.editor.tabSize")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      Tab 大小: {config.editorTabSize}
+                      {t("settings.editor.tabSizeValue", { value: config.editorTabSize })}
                     </label>
                     <Slider
                       id="editorTabSize"
@@ -365,14 +366,14 @@ export function SettingsPanel({
                     <div>
                       <label
                         htmlFor="autoSave"
-                        aria-label="自动保存"
+                        aria-label={t("settings.editor.autoSave")}
                         style={{
                           display: "block",
                           marginBottom: 6,
                           fontWeight: 500,
                         }}
                       >
-                        自动保存
+                        {t("settings.editor.autoSave")}
                       </label>
                       <Switch
                         id="autoSave"
@@ -384,14 +385,14 @@ export function SettingsPanel({
                       <div>
                         <label
                           htmlFor="autoSaveInterval"
-                          aria-label="自动保存间隔"
+                          aria-label={t("settings.editor.autoSaveInterval")}
                           style={{
                             display: "block",
                             marginBottom: 6,
                             fontWeight: 500,
                           }}
                         >
-                          间隔: {config.autoSaveInterval}s
+                          {t("settings.editor.intervalValue", { value: config.autoSaveInterval })}
                         </label>
                         <Slider
                           id="autoSaveInterval"
@@ -410,20 +411,20 @@ export function SettingsPanel({
             },
             {
               key: "theme",
-              label: isZh ? "主题" : "Theme",
+              label: t("settings.tab.theme"),
               children: (
                 <div style={{ padding: "8px 0" }}>
                   <div style={{ marginBottom: 24 }}>
                     <label
                       htmlFor="theme"
-                      aria-label="主题"
+                      aria-label={t("settings.themeLabel")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      主题
+                      {t("settings.themeLabel")}
                     </label>
                     <Radio.Group
                       id="theme"
@@ -442,14 +443,14 @@ export function SettingsPanel({
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="fontSizeScale"
-                      aria-label="字体缩放"
+                      aria-label={t("settings.fontSizeScale")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      字体缩放: {config.fontSizeScale.toFixed(1)}x
+                      {t("settings.fontSizeScaleValue", { value: config.fontSizeScale.toFixed(1) })}
                     </label>
                     <Slider
                       id="fontSizeScale"
@@ -465,14 +466,14 @@ export function SettingsPanel({
                     <div>
                       <label
                         htmlFor="reducedMotion"
-                        aria-label="减少动效"
+                        aria-label={t("settings.reducedMotion")}
                         style={{
                           display: "block",
                           marginBottom: 6,
                           fontWeight: 500,
                         }}
                       >
-                        减少动效
+                        {t("settings.reducedMotion")}
                       </label>
                       <Switch
                         id="reducedMotion"
@@ -483,14 +484,14 @@ export function SettingsPanel({
                     <div>
                       <label
                         htmlFor="highContrast"
-                        aria-label="高对比度"
+                        aria-label={t("settings.theme.highContrast")}
                         style={{
                           display: "block",
                           marginBottom: 6,
                           fontWeight: 500,
                         }}
                       >
-                        高对比度
+                        {t("settings.theme.highContrast")}
                       </label>
                       <Switch
                         id="highContrast"
@@ -507,20 +508,20 @@ export function SettingsPanel({
             },
             {
               key: "shortcuts",
-              label: isZh ? "快捷键" : "Shortcuts",
+              label: t("settings.tab.shortcuts"),
               children: (
                 <div style={{ padding: "8px 0" }}>
                   <div style={{ marginBottom: 20 }}>
                     <label
                       htmlFor="shortcutPreset"
-                      aria-label="快捷键预设"
+                      aria-label={t("settings.shortcutPreset")}
                       style={{
                         display: "block",
                         marginBottom: 6,
                         fontWeight: 500,
                       }}
                     >
-                      快捷键预设
+                      {t("settings.shortcutPreset")}
                     </label>
                     <Select
                       id="shortcutPreset"
@@ -594,7 +595,7 @@ export function SettingsPanel({
 
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button danger onClick={resetConfig}>
-            {isZh ? "重置为默认设置" : "Reset to Default"}
+            {t("settings.reset")}
           </Button>
         </div>
       </Modal>

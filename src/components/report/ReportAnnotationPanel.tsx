@@ -23,6 +23,7 @@ import type {
   ReportAnnotation,
   ReportAnnotationStats,
 } from '../../services/api/reportAnnotationApi';
+import { t } from '../../i18n/appI18n';
 
 export interface ReportAnnotationPanelProps {
   reportId: string;
@@ -37,7 +38,7 @@ export interface ReportAnnotationPanelProps {
 const timeAgo = (iso: string): string => {
   if (!iso) return '';
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (m < 1) return '刚刚';
+  if (m < 1) return t('reportAnnotation.justNow');
   if (m < 60) return `${m}分钟前`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}小时前`;
@@ -80,7 +81,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
     } catch {
       setItems([]);
       setStats(null);
-      message.error('批注加载失败');
+      message.error(t('reportAnnotation.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -121,7 +122,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
     if (!txt) {
       const live = window.getSelection()?.toString().trim() ?? '';
       if (live) { setNewQuote(live.slice(0, 500)); return; }
-      message.info('未检测到编辑器选中文本, 请先在正文中选中文本或手动输入引用');
+      message.info(t('reportAnnotation.noSelection'));
       return;
     }
     setNewQuote(txt);
@@ -151,14 +152,14 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
           return;
         }
       }
-      message.info('当前编辑器正文中未找到该引用段落');
+      message.info(t('reportAnnotation.quoteNotFound'));
     } catch { /* noop */ }
   };
 
   const submitCreate = async () => {
     const content = newContent.trim();
     if (content.length < 2) {
-      message.warning('批注内容不能少于 2 字符');
+      message.warning(t('reportAnnotation.contentMin'));
       return;
     }
     try {
@@ -170,17 +171,17 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
       });
       setNewContent('');
       setNewQuote('');
-      message.success('批注已发布');
+      message.success(t('reportAnnotation.created'));
       void reload();
     } catch {
-      message.error('批注发布失败');
+      message.error(t('reportAnnotation.createFailed'));
     }
   };
 
   const submitReply = async (annotationId: string) => {
     const content = replyContent.trim();
     if (content.length < 2) {
-      message.warning('回复内容不能少于 2 字符');
+      message.warning(t('reportAnnotation.replyMin'));
       return;
     }
     try {
@@ -189,14 +190,14 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
       setReplyTo(null);
       void reload();
     } catch {
-      message.error('回复失败');
+      message.error(t('reportAnnotation.replyFailed'));
     }
   };
 
   const submitEdit = async (annotationId: string) => {
     const content = editContent.trim();
     if (content.length < 2) {
-      message.warning('内容不能少于 2 字符');
+      message.warning(t('reportAnnotation.editMin'));
       return;
     }
     try {
@@ -204,7 +205,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
       setEditId(null);
       void reload();
     } catch {
-      message.error('编辑失败');
+      message.error(t('reportAnnotation.editFailed'));
     }
   };
 
@@ -213,10 +214,10 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
       await reportAnnotationApi.resolve(annotationId, resolveText.trim() || undefined);
       setResolveId(null);
       setResolveText('');
-      message.success('批注已解决');
+      message.success(t('reportAnnotation.resolved'));
       void reload();
     } catch {
-      message.error('解决失败');
+      message.error(t('reportAnnotation.resolveFailed'));
     }
   };
 
@@ -232,7 +233,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
     <div
       data-testid={testIdPrefix}
       role="region"
-      aria-label="报告批注"
+      aria-label={t('reportAnnotation.panelLabel')}
       style={{
         background: 'var(--bg-primary)',
         borderRadius: 8,
@@ -243,14 +244,14 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: 'var(--bg-card)' }}>
         <Space>
           <MessageSquareText size={14} color="#3b82f6" />
-          <strong style={{ fontSize: 13 }}>报告批注</strong>
+          <strong style={{ fontSize: 13 }}>{t('reportAnnotation.title')}</strong>
           {stats ? (
             <Space size={2}>
-              <Tag color="blue" style={{ fontSize: 12, marginInline: 0 }}>{stats.total} 总</Tag>
-              <Tag color={stats.open > 0 ? 'volcano' : 'green'} style={{ fontSize: 12, marginInline: 0 }}>{stats.open} 未解决</Tag>
+              <Tag color="blue" style={{ fontSize: 12, marginInline: 0 }}>{stats.total} {t('reportAnnotation.total')}</Tag>
+              <Tag color={stats.open > 0 ? 'volcano' : 'green'} style={{ fontSize: 12, marginInline: 0 }}>{stats.open} {t('reportAnnotation.open')}</Tag>
             </Space>
           ) : (
-            <Tag color="default" style={{ fontSize: 12, marginInline: 0 }}>无数据</Tag>
+            <Tag color="default" style={{ fontSize: 12, marginInline: 0 }}>{t('reportAnnotation.noData')}</Tag>
           )}
         </Space>
         <div style={{ marginTop: 6 }}>
@@ -263,7 +264,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                 onClick={() => setFilter(s)}
                 data-testid={`${testIdPrefix}-filter-${s}`}
               >
-                {s === 'all' ? '全部' : s === 'open' ? '未解决' : '已解决'}
+                {s === 'all' ? t('reportAnnotation.filterAll') : s === 'open' ? t('reportAnnotation.open') : t('reportAnnotation.resolvedTag')}
               </Button>
             ))}
             {stats && stats.byAuthor.length > 0 && (
@@ -272,13 +273,13 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                   <div>
                     {stats.byAuthor.map((b) => (
                       <div key={b.authorId || b.authorName} style={{ fontSize: 12 }}>
-                        {b.authorName}: {b.count} 条 ({b.open} 未解决)
+                        {b.authorName}: {b.count} {t('reportAnnotation.items')} ({b.open} {t('reportAnnotation.open')})
                       </div>
                     ))}
                   </div>
                 }
               >
-                <Tag color="purple" style={{ fontSize: 12, cursor: 'pointer' }}>按作者</Tag>
+                <Tag color="purple" style={{ fontSize: 12, cursor: 'pointer' }}>{t('reportAnnotation.byAuthor')}</Tag>
               </Tooltip>
             )}
           </Space>
@@ -289,31 +290,31 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
         <Input.TextArea
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
-          placeholder="新建批注 / 协作讨论…"
+          placeholder={t('reportAnnotation.newPlaceholder')}
           rows={compact ? 1 : 2}
           data-testid={`${testIdPrefix}-new-input`}
         />
         {newQuote && (
           <div style={{ marginTop: 6 }}>
-            <Tooltip title="引用段落 (点击可从编辑器选区带入)" trigger="click">
+            <Tooltip title={t('reportAnnotation.quoteTooltip')} trigger="click">
               <Tag color="gold" style={{ whiteSpace: 'pre-wrap', maxHeight: 64, overflow: 'auto' }} icon={<Quote size={11} />}>
                 {newQuote}
               </Tag>
             </Tooltip>
-            <Button size="small" type="text" aria-label="清除引用" onClick={() => setNewQuote('')}>
-              清除引用
+            <Button size="small" type="text" aria-label={t('reportAnnotation.clearQuote')} onClick={() => setNewQuote('')}>
+              {t('reportAnnotation.clearQuote')}
             </Button>
           </div>
         )}
         <Space style={{ marginTop: 6 }} wrap>
           {editorSelector ? (
             <Button size="small" icon={<Pin size={11} />} onClick={useSelectedText} data-testid={`${testIdPrefix}-use-selection`}>
-              引用选中文本
+              {t('reportAnnotation.quoteSelection')}
             </Button>
           ) : (
             <Input
               size="small"
-              placeholder="引用段落 (可选)"
+              placeholder={t('reportAnnotation.quotePlaceholder')}
               value={newQuote}
               onChange={(e) => setNewQuote(e.target.value.slice(0, 500))}
               style={{ width: 200 }}
@@ -328,18 +329,18 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
             disabled={!newContent.trim()}
             data-testid={`${testIdPrefix}-submit`}
           >
-            发布批注
+            {t('reportAnnotation.publish')}
           </Button>
         </Space>
       </div>
 
       <div style={{ maxHeight, overflowY: 'auto' }} data-testid={`${testIdPrefix}-list`}>
         {loading ? (
-          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>批注加载中…</div>
+          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('reportAnnotation.loading')}</div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
             <MessageSquareText size={20} style={{ opacity: 0.4 }} />
-            <div style={{ marginTop: 6 }}>暂无批注</div>
+            <div style={{ marginTop: 6 }}>{t('reportAnnotation.empty')}</div>
           </div>
         ) : (
           filtered.map((a) => (
@@ -374,14 +375,14 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                   <Space size={4} wrap>
                     <strong style={{ fontSize: 12, color: '#0f172a' }}>{a.authorName}</strong>
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(a.createdAt)}</span>
-                    {isMine(a) && <Tag color="cyan" style={{ fontSize: 12, marginInline: 0 }}>我</Tag>}
-                    {a.editedAt && <Tag style={{ fontSize: 12, marginInline: 0 }}>已编辑</Tag>}
+                    {isMine(a) && <Tag color="cyan" style={{ fontSize: 12, marginInline: 0 }}>{t('reportAnnotation.me')}</Tag>}
+                    {a.editedAt && <Tag style={{ fontSize: 12, marginInline: 0 }}>{t('reportAnnotation.edited')}</Tag>}
                     <Tag
                       color={a.status === 'open' ? 'volcano' : 'green'}
                       style={{ fontSize: 12, marginInline: 0 }}
                       data-testid={`${testIdPrefix}-status-${a.id}`}
                     >
-                      {a.status === 'open' ? '未解决' : '已解决'}
+                      {a.status === 'open' ? t('reportAnnotation.open') : t('reportAnnotation.resolvedTag')}
                     </Tag>
                   </Space>
                   {a.quote ? (
@@ -399,7 +400,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         wordBreak: 'break-word',
                       }}
                       onClick={() => locateQuote(a.quote ?? '')}
-                      title={editorSelector ? '点击定位到报告正文' : undefined}
+                      title={editorSelector ? t('reportAnnotation.locateTitle') : undefined}
                       data-testid={`${testIdPrefix}-quote-${a.id}`}
                     >
                       <Quote size={10} style={{ marginRight: 4, verticalAlign: -1 }} />
@@ -415,8 +416,8 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         data-testid={`${testIdPrefix}-edit-input-${a.id}`}
                       />
                       <Space style={{ marginTop: 4 }}>
-                        <Button size="small" type="primary" onClick={() => void submitEdit(a.id)}>保存</Button>
-                        <Button size="small" onClick={() => setEditId(null)}>取消</Button>
+                        <Button size="small" type="primary" onClick={() => void submitEdit(a.id)}>{t('reportAnnotation.save')}</Button>
+                        <Button size="small" onClick={() => setEditId(null)}>{t('reportAnnotation.cancel')}</Button>
                       </Space>
                     </div>
                   ) : (
@@ -430,12 +431,12 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         size="small"
                         value={resolveText}
                         onChange={(e) => setResolveText(e.target.value)}
-                        placeholder="解决说明 (可选)"
+                        placeholder={t('reportAnnotation.resolvePlaceholder')}
                         data-testid={`${testIdPrefix}-resolve-input-${a.id}`}
                       />
                       <Space style={{ marginTop: 4 }}>
-                        <Button size="small" type="primary" onClick={() => void submitResolve(a.id)}>确认解决</Button>
-                        <Button size="small" onClick={() => { setResolveId(null); setResolveText(''); }}>取消</Button>
+                        <Button size="small" type="primary" onClick={() => void submitResolve(a.id)}>{t('reportAnnotation.confirmResolve')}</Button>
+                        <Button size="small" onClick={() => { setResolveId(null); setResolveText(''); }}>{t('reportAnnotation.cancel')}</Button>
                       </Space>
                     </div>
                   )}
@@ -452,7 +453,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                   ))}
                   {a.status === 'resolved' && a.resolution && (
                     <div style={{ marginTop: 6, fontSize: 11, color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 4, padding: '4px 8px' }}>
-                      解决说明: {a.resolution} ({a.resolvedBy ?? ''} · {timeAgo(a.resolvedAt ?? '')})
+                      {t('reportAnnotation.resolution')}: {a.resolution} ({a.resolvedBy ?? ''} · {timeAgo(a.resolvedAt ?? '')})
                     </div>
                   )}
                   <Space size={4} style={{ marginTop: 4 }} wrap>
@@ -461,9 +462,9 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                       type="text"
                       icon={<Reply size={11} />}
                       onClick={() => setReplyTo(replyTo === a.id ? null : a.id)}
-                      aria-label="回复"
+                      aria-label={t('reportAnnotation.reply')}
                     >
-                      回复
+                      {t('reportAnnotation.reply')}
                     </Button>
                     {a.status !== 'resolved' && (
                       <Button
@@ -471,9 +472,9 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         type="text"
                         icon={<CheckCircle2 size={11} />}
                         onClick={() => { setResolveId(a.id); setResolveText(''); }}
-                        aria-label="解决"
+                        aria-label={t('reportAnnotation.resolve')}
                       >
-                        解决
+                        {t('reportAnnotation.resolve')}
                       </Button>
                     )}
                     {a.status === 'resolved' && (
@@ -482,9 +483,9 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         type="text"
                         icon={<RotateCcw size={11} />}
                         onClick={() => { void reportAnnotationApi.reopen(a.id).then(() => reload()); }}
-                        aria-label="重开"
+                        aria-label={t('reportAnnotation.reopen')}
                       >
-                        重开
+                        {t('reportAnnotation.reopen')}
                       </Button>
                     )}
                     {isMine(a) && a.status !== 'resolved' && (
@@ -493,17 +494,17 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         type="text"
                         icon={<Pencil size={11} />}
                         onClick={() => { setEditId(a.id); setEditContent(a.content); }}
-                        aria-label="编辑"
+                        aria-label={t('reportAnnotation.edit')}
                       >
-                        编辑
+                        {t('reportAnnotation.edit')}
                       </Button>
                     )}
                     {isMine(a) && (
                       <Popconfirm
-                        title="删除该批注?"
+                        title={t('reportAnnotation.confirmDelete')}
                         onConfirm={() => { void reportAnnotationApi.remove(a.id).then(() => reload()); }}
                       >
-                        <Button size="small" type="text" danger icon={<Trash2 size={11} />} aria-label="删除" />
+                        <Button size="small" type="text" danger icon={<Trash2 size={11} />} aria-label={t('reportAnnotation.delete')} />
                       </Popconfirm>
                     )}
                   </Space>
@@ -513,15 +514,15 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         rows={2}
-                        placeholder={`回复 ${a.authorName}…`}
+                        placeholder={t('reportAnnotation.replyPlaceholder', { name: a.authorName })}
                         data-testid={`${testIdPrefix}-reply-input-${a.id}`}
                       />
                       <Space style={{ marginTop: 4 }}>
                         <Button size="small" type="primary" icon={<Send size={11} />} onClick={() => void submitReply(a.id)}>
-                          发送
+                          {t('reportAnnotation.send')}
                         </Button>
                         <Button size="small" onClick={() => { setReplyTo(null); setReplyContent(''); }}>
-                          取消
+                          {t('reportAnnotation.cancel')}
                         </Button>
                       </Space>
                     </div>

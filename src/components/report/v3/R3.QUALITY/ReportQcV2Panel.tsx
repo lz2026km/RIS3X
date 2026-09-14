@@ -35,6 +35,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { FileCheck2, Gauge, ListChecks, Users, Clock, Award, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 const GRADE_COLOR: Record<QcGrade, string> = {
   A: '#10b981',
@@ -44,10 +45,10 @@ const GRADE_COLOR: Record<QcGrade, string> = {
 };
 
 const TASK_STATUS_META: Record<QcTaskStatus, { label: string; color: string }> = {
-  pending: { label: '待分配', color: 'default' },
-  in_progress: { label: '质控中', color: 'blue' },
-  reviewing: { label: '待二次复核', color: 'gold' },
-  closed: { label: '已关闭', color: 'green' },
+  pending: { label: t('reportQcV2.taskStatus.pending'), color: 'default' },
+  in_progress: { label: t('reportQcV2.taskStatus.inProgress'), color: 'blue' },
+  reviewing: { label: t('reportQcV2.taskStatus.reviewing'), color: 'gold' },
+  closed: { label: t('reportQcV2.taskStatus.closed'), color: 'green' },
 };
 
 // ================= 演示回退数据 (API 不可用) =================
@@ -136,19 +137,19 @@ const DEMO_TASKS: QcTask[] = [
   },
 ];
 
-const DEMO_RECORDS: QcRecord[] = DEMO_TASKS.map((t) => ({
-  id: t.id,
-  reportId: t.reportId,
-  patientName: t.patientName,
-  modality: t.modality,
-  totalScore: t.totalScore,
-  grade: t.grade,
-  status: t.status,
-  assigneeName: t.assigneeName,
-  defectCount: t.defects.length,
-  reviewedRounds: t.reviews.length,
-  createdAt: t.createdAt,
-  closedAt: t.closedAt,
+const DEMO_RECORDS: QcRecord[] = DEMO_TASKS.map((task) => ({
+  id: task.id,
+  reportId: task.reportId,
+  patientName: task.patientName,
+  modality: task.modality,
+  totalScore: task.totalScore,
+  grade: task.grade,
+  status: task.status,
+  assigneeName: task.assigneeName,
+  defectCount: task.defects.length,
+  reviewedRounds: task.reviews.length,
+  createdAt: task.createdAt,
+  closedAt: task.closedAt,
 }));
 
 const DEMO_STATS: QcStatsData = {
@@ -240,7 +241,7 @@ export const ReportQcV2Panel: React.FC = () => {
     setRefreshing(true);
     try {
       await Promise.all([loadTasks(), loadStats()]);
-      message.success('质控数据已刷新');
+      message.success(t('reportQcV2.refreshed'));
     } finally {
       setRefreshing(false);
     }
@@ -248,7 +249,7 @@ export const ReportQcV2Panel: React.FC = () => {
 
   const doScore = async () => {
     if (!form.reportId.trim()) {
-      message.warning('请输入报告 ID');
+      message.warning(t('reportQcV2.enterReportId'));
       return;
     }
     setScoring(true);
@@ -272,7 +273,7 @@ export const ReportQcV2Panel: React.FC = () => {
       setTasks((prev) => [res.data, ...prev]);
       message.success(`质控任务 ${res.data.id} 已创建`);
     } else {
-      message.warning('任务创建失败 (演示模式)');
+      message.warning(t('reportQcV2.taskCreateFailed'));
     }
     await loadTasks();
   };
@@ -288,28 +289,28 @@ export const ReportQcV2Panel: React.FC = () => {
             ? await reportQcV2Api.secondReviewTask(task.id, { reviewer, opinion: extra?.opinion ?? 'pass', comment: extra?.comment })
             : await reportQcV2Api.closeTask(task.id, { comment: extra?.comment });
     if (res.success) {
-      message.success('操作成功');
+      message.success(t('reportQcV2.opSuccess'));
       await loadTasks();
       await loadStats();
     } else {
-      message.error(res.error?.message ?? '操作失败');
+      message.error(res.error?.message ?? t('reportQcV2.opFailed'));
     }
   };
 
   return (
-    <div data-testid="report-qc-v2-panel" role="region" aria-label="报告质控 V2 多维评分" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div data-testid="report-qc-v2-panel" role="region" aria-label={t('reportQcV2.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <Card size="small" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 12 } }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <FileCheck2 size={18} color="#fff" />
-            <strong style={{ color: '#fff', fontSize: 16 }}>报告质控 V2 · 多维智能评分</strong>
-            <Tag color="purple">QC-V2 · 5 维度</Tag>
+            <strong style={{ color: '#fff', fontSize: 16 }}>{t('reportQcV2.title')}</strong>
+            <Tag color="purple">{t('reportQcV2.tag5dim')}</Tag>
             <Tag color="cyan">F4</Tag>
           </Space>
           <Space>
-            <Tag color="gold" icon={<Clock size={12} />}>总分 0-100 · A/B/C/D</Tag>
+            <Tag color="gold" icon={<Clock size={12} />}>{t('reportQcV2.totalGradeScope')}</Tag>
             <Button size="small" icon={<RefreshCw size={12} />} loading={refreshing} onClick={refresh}>
-              刷新
+              {t('reportQcV2.refresh')}
             </Button>
           </Space>
         </Space>
@@ -318,57 +319,57 @@ export const ReportQcV2Panel: React.FC = () => {
       <Row gutter={12}>
         {/* ============ 1. 多维评分 ============ */}
         <Col xs={24} xl={10}>
-          <Card size="small" title={<Space><Gauge size={14} /> 多维评分</Space>} extra={<Tag color="blue">评分输入</Tag>}>
+          <Card size="small" title={<Space><Gauge size={14} /> {t('reportQcV2.multiDimScore')}</Space>} extra={<Tag color="blue">{t('reportQcV2.scoreInput')}</Tag>}>
             {loadingDims ? (
               <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div>
             ) : (
               <Space direction="vertical" style={{ width: '100%' }} size={8}>
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>报告 ID</div>
+                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.reportId')}</div>
                     <Input size="small" value={form.reportId} onChange={(e) => setForm({ ...form, reportId: e.target.value })} placeholder="RPT-xxx" />
                   </Col>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>检查模态</div>
+                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.modality')}</div>
                     <Select size="small" style={{ width: '100%' }} value={form.modality} onChange={(v) => setForm({ ...form, modality: v })} options={['CT', 'MR', 'DR', 'MG', 'US'].map((m) => ({ value: m, label: m }))} />
                   </Col>
                 </Row>
-                <div style={{ marginBottom: 4 }}>影像所见</div>
+                <div style={{ marginBottom: 4 }}>{t('reportQcV2.findings')}</div>
                 <Input.TextArea size="small" rows={3} value={form.findings} onChange={(e) => setForm({ ...form, findings: e.target.value })} />
-                <div style={{ marginBottom: 4 }}>诊断意见</div>
+                <div style={{ marginBottom: 4 }}>{t('reportQcV2.diagnosis')}</div>
                 <Input size="small" value={form.diagnosis} onChange={(e) => setForm({ ...form, diagnosis: e.target.value })} />
-                <div style={{ marginBottom: 4 }}>诊断结论</div>
+                <div style={{ marginBottom: 4 }}>{t('reportQcV2.conclusion')}</div>
                 <Input size="small" value={form.conclusion} onChange={(e) => setForm({ ...form, conclusion: e.target.value })} />
-                <div style={{ marginBottom: 4 }}>随访建议</div>
+                <div style={{ marginBottom: 4 }}>{t('reportQcV2.recommendations')}</div>
                 <Input size="small" value={form.recommendations} onChange={(e) => setForm({ ...form, recommendations: e.target.value })} />
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>技术参数</div>
+                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.techParams')}</div>
                     <Input size="small" value={form.techParams} onChange={(e) => setForm({ ...form, techParams: e.target.value })} />
                   </Col>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>RADS 分级</div>
+                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.radsCategory')}</div>
                     <Select size="small" allowClear style={{ width: '100%' }} value={form.radsCategory} onChange={(v) => setForm({ ...form, radsCategory: v ?? '' })} options={['RADS 不适用', 'BI-RADS 5', 'PI-RADS 5', 'LI-RADS 4', 'TI-RADS 4'].map((v) => ({ value: v, label: v }))} />
                   </Col>
                 </Row>
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>报告耗时 (分钟)</div>
+                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.reportTimeMinutes')}</div>
                     <InputNumber size="small" min={0} max={1440} style={{ width: '100%' }} value={form.reportTimeMinutes} onChange={(v) => setForm({ ...form, reportTimeMinutes: Number(v ?? 0) })} />
                   </Col>
                   <Col span={12}>
-                    <div style={{ marginBottom: 4 }}>结构完整度</div>
+                    <div style={{ marginBottom: 4 }}>{t('reportQcV2.structuredCompletion')}</div>
                     <Slider min={0} max={100} value={form.structuredCompletion} onChange={(v) => setForm({ ...form, structuredCompletion: v })} tooltip={{ formatter: (v) => `${v}%` }} />
                   </Col>
                 </Row>
                 <Space>
                   <Switch size="small" checked={form.isCritical} onChange={(v) => setForm({ ...form, isCritical: v })} />
-                  <span style={{ fontSize: 12 }}>危急值报告</span>
+                  <span style={{ fontSize: 12 }}>{t('reportQcV2.criticalReport')}</span>
                   <Button type="primary" size="small" icon={<Gauge size={12} />} loading={scoring} onClick={doScore}>
-                    开始评分
+                    {t('reportQcV2.startScoring')}
                   </Button>
                   <Button size="small" onClick={createTask}>
-                    评分并建任务
+                    {t('reportQcV2.scoreAndCreateTask')}
                   </Button>
                 </Space>
                 {result && (
@@ -388,11 +389,11 @@ export const ReportQcV2Panel: React.FC = () => {
         <Col xs={24} xl={14}>
           <Card
             size="small"
-            title={<Space><Award size={14} /> 评分结果</Space>}
-            extra={result ? <Tag color={GRADE_COLOR[result.grade]}>{result.grade} 级</Tag> : undefined}
+            title={<Space><Award size={14} /> {t('reportQcV2.scoreResult')}</Space>}
+            extra={result ? <Tag color={GRADE_COLOR[result.grade]}>{result.grade}{t('reportQcV2.gradeSuffix')}</Tag> : undefined}
           >
             {!result ? (
-              <Empty image={<Gauge size={48} style={{ opacity: 0.4 }} />} description="填写左侧报告内容后点击「开始评分」" />
+              <Empty image={<Gauge size={48} style={{ opacity: 0.4 }} />} description={t('reportQcV2.emptyHint')} />
             ) : (
               <ScoreResultView result={result} dimensions={dimensions} />
             )}
@@ -403,14 +404,14 @@ export const ReportQcV2Panel: React.FC = () => {
       <Row gutter={12}>
         {/* ============ 3. 质控任务流 ============ */}
         <Col xs={24} xl={14}>
-          <Card size="small" title={<Space><ListChecks size={14} /> 质控任务流 (创建/分配/一级复核/二次复核/关闭)</Space>} extra={<Tag color="purple">双人复核</Tag>}>
+          <Card size="small" title={<Space><ListChecks size={14} /> {t('reportQcV2.taskFlow')}</Space>} extra={<Tag color="purple">{t('reportQcV2.dualReview')}</Tag>}>
             <TaskFlowTable tasks={tasks} onAction={runAction} />
           </Card>
         </Col>
 
         {/* ============ 4. 统计 ============ */}
         <Col xs={24} xl={10}>
-          <Card size="small" title={<Space><BarChartIcon /> 质控统计</Space>} extra={<Tag color="cyan">{stats.totalTasks} 任务</Tag>}>
+          <Card size="small" title={<Space><BarChartIcon /> {t('reportQcV2.stats')}</Space>} extra={<Tag color="cyan">{stats.totalTasks} {t('reportQcV2.tasksSuffix')}</Tag>}>
             <StatsView stats={stats} records={records} />
           </Card>
         </Col>
@@ -424,11 +425,11 @@ export const ReportQcV2Panel: React.FC = () => {
 const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimensionMeta[] }> = ({ result, dimensions }) => {
   const dimColors = new Map(dimensions.map((d) => [d.key, d.color]));
   const defectColumns: ColumnsType<QcScoreResult['defects'][number]> = [
-    { title: '缺陷码', dataIndex: 'code', key: 'code', width: 170, render: (v: string) => <Tag color="red">{v}</Tag> },
-    { title: '维度', dataIndex: 'dimensionLabel', key: 'dimensionLabel', width: 70 },
-    { title: '缺陷项', dataIndex: 'name', key: 'name', width: 110 },
-    { title: '严重度', dataIndex: 'severity', key: 'severity', width: 70, render: (v: string) => <Tag color={v === 'high' ? 'red' : v === 'medium' ? 'orange' : 'gold'}>{v === 'high' ? '高' : v === 'medium' ? '中' : '低'}</Tag> },
-    { title: '说明', dataIndex: 'message', key: 'message' },
+    { title: t('reportQcV2.defectCode'), dataIndex: 'code', key: 'code', width: 170, render: (v: string) => <Tag color="red">{v}</Tag> },
+    { title: t('reportQcV2.dimension'), dataIndex: 'dimensionLabel', key: 'dimensionLabel', width: 70 },
+    { title: t('reportQcV2.defectItem'), dataIndex: 'name', key: 'name', width: 110 },
+    { title: t('reportQcV2.severity'), dataIndex: 'severity', key: 'severity', width: 70, render: (v: string) => <Tag color={v === 'high' ? 'red' : v === 'medium' ? 'orange' : 'gold'}>{v === 'high' ? t('reportQcV2.sevHigh') : v === 'medium' ? t('reportQcV2.sevMedium') : t('reportQcV2.sevLow')}</Tag> },
+    { title: t('reportQcV2.message'), dataIndex: 'message', key: 'message' },
   ];
 
   return (
@@ -436,23 +437,23 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
       <Row gutter={12}>
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
-            <Statistic title="总分" value={result.totalScore} suffix="/100" valueStyle={{ color: GRADE_COLOR[result.grade], fontWeight: 700 }} />
+            <Statistic title={t('reportQcV2.totalScore')} value={result.totalScore} suffix="/100" valueStyle={{ color: GRADE_COLOR[result.grade], fontWeight: 700 }} />
           </Card>
         </Col>
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>等级</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('reportQcV2.grade')}</div>
             <div style={{ fontSize: 28, fontWeight: 700, color: GRADE_COLOR[result.grade] }}>{result.grade}</div>
           </Card>
         </Col>
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
-            <Statistic title="缺陷数" value={result.defects.length} valueStyle={{ color: result.defects.length > 0 ? '#dc2626' : '#10b981' }} />
+            <Statistic title={t('reportQcV2.defectCount')} value={result.defects.length} valueStyle={{ color: result.defects.length > 0 ? '#dc2626' : '#10b981' }} />
           </Card>
         </Col>
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
-            <Statistic title="报告" value={result.reportId} valueStyle={{ fontSize: 13 }} />
+            <Statistic title={t('reportQcV2.report')} value={result.reportId} valueStyle={{ fontSize: 13 }} />
           </Card>
         </Col>
       </Row>
@@ -469,7 +470,7 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
               <Progress percent={Math.round((d.score / d.max) * 100)} showInfo={false} size="small" strokeColor={dimColors.get(d.key) ?? '#3b82f6'} />
               <Space wrap size={4}>
                 {d.subItems.map((s) => (
-                  <Tooltip key={s.key} title={s.deducted ? '未满分' : '满分'}>
+                  <Tooltip key={s.key} title={s.deducted ? t('reportQcV2.notFullScore') : t('reportQcV2.fullScore')}>
                     <Tag color={s.deducted ? 'default' : 'green'} style={{ fontSize: 11 }}>
                       {s.name} {s.score}/{s.max}
                     </Tag>
@@ -488,7 +489,7 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
           dataSource={result.defects}
           pagination={false}
           scroll={{ x: 'max-content' }}
-          title={() => <strong style={{ fontSize: 12 }}>自动识别缺陷 ({result.defects.length})</strong>}
+          title={() => <strong style={{ fontSize: 12 }}>{t('reportQcV2.autoDefects')} ({result.defects.length})</strong>}
         />
       )}
     </Space>
@@ -511,39 +512,39 @@ const TaskFlowTable: React.FC<{
     void onAction(reviewing.task, reviewing.round === 1 ? 'review' : 'second-review', {
       reviewer: reviewer.trim() || '当前质控员',
       opinion,
-      comment: reviewComment.trim() || (opinion === 'pass' ? '复核通过' : '退回修改'),
+      comment: reviewComment.trim() || (opinion === 'pass' ? t('reportQcV2.reviewPassComment') : t('reportQcV2.reviewReturnComment')),
     });
     setReviewing(null);
     setReviewComment('');
   };
 
   const columns: ColumnsType<QcTask> = [
-    { title: '任务', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: '报告', dataIndex: 'reportId', key: 'reportId', width: 130 },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 80 },
-    { title: '评分', key: 'score', width: 100, render: (_, r) => (r.totalScore !== undefined ? <Space size={4}><strong style={{ color: GRADE_COLOR[gradeOf(r.grade)] }}>{r.totalScore}</strong><Tag color={GRADE_COLOR[gradeOf(r.grade)]}>{gradeOf(r.grade)}</Tag></Space> : <span style={{ color: '#94a3b8' }}>-</span>) },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: QcTaskStatus) => <Tag color={TASK_STATUS_META[v]?.color}>{TASK_STATUS_META[v]?.label}</Tag> },
-    { title: '质控员', dataIndex: 'assigneeName', key: 'assigneeName', width: 90, render: (v?: string) => v ?? '-' },
-    { title: '复核', key: 'reviews', width: 90, render: (_, r) => <Tag color={r.reviews.length >= 2 ? 'green' : 'default'}>{r.reviews.length}/2 人</Tag> },
+    { title: t('reportQcV2.task'), dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: t('reportQcV2.report'), dataIndex: 'reportId', key: 'reportId', width: 130 },
+    { title: t('reportQcV2.patient'), dataIndex: 'patientName', key: 'patientName', width: 80 },
+    { title: t('reportQcV2.score'), key: 'score', width: 100, render: (_, r) => (r.totalScore !== undefined ? <Space size={4}><strong style={{ color: GRADE_COLOR[gradeOf(r.grade)] }}>{r.totalScore}</strong><Tag color={GRADE_COLOR[gradeOf(r.grade)]}>{gradeOf(r.grade)}</Tag></Space> : <span style={{ color: '#94a3b8' }}>-</span>) },
+    { title: t('reportQcV2.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: QcTaskStatus) => <Tag color={TASK_STATUS_META[v]?.color}>{TASK_STATUS_META[v]?.label}</Tag> },
+    { title: t('reportQcV2.assignee'), dataIndex: 'assigneeName', key: 'assigneeName', width: 90, render: (v?: string) => v ?? '-' },
+    { title: t('reportQcV2.reviews'), key: 'reviews', width: 90, render: (_, r) => <Tag color={r.reviews.length >= 2 ? 'green' : 'default'}>{r.reviews.length}/2 {t('reportQcV2.peopleSuffix')}</Tag> },
     {
-      title: '操作',
+      title: t('reportQcV2.action'),
       key: 'action',
       width: 210,
       render: (_, r) => (
         <Space size={4} wrap>
           {r.status === 'pending' && (
-            <Button size="small" type="primary" icon={<Users size={12} />} onClick={() => onAction(r, 'assign')}>分配</Button>
+            <Button size="small" type="primary" icon={<Users size={12} />} onClick={() => onAction(r, 'assign')}>{t('reportQcV2.assign')}</Button>
           )}
           {r.status === 'in_progress' && (
-            <Button size="small" icon={<CheckCircle2 size={12} />} onClick={() => { setReviewer('张质控'); setReviewing({ task: r, round: 1 }); }}>一级复核</Button>
+            <Button size="small" icon={<CheckCircle2 size={12} />} onClick={() => { setReviewer('张质控'); setReviewing({ task: r, round: 1 }); }}>{t('reportQcV2.firstReview')}</Button>
           )}
           {r.status === 'reviewing' && (
-            <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => { setReviewer('王主任'); setReviewing({ task: r, round: 2 }); }}>二次复核</Button>
+            <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => { setReviewer('王主任'); setReviewing({ task: r, round: 2 }); }}>{t('reportQcV2.secondReview')}</Button>
           )}
           {r.status !== 'closed' && (
-            <Button size="small" danger icon={<XCircle size={12} />} onClick={() => onAction(r, 'close', { comment: '人工关闭' })}>关闭</Button>
+            <Button size="small" danger icon={<XCircle size={12} />} onClick={() => onAction(r, 'close', { comment: t('reportQcV2.manualCloseComment') })}>{t('reportQcV2.close')}</Button>
           )}
-          <Button size="small" onClick={() => setDetail(r)}>历史</Button>
+          <Button size="small" onClick={() => setDetail(r)}>{t('reportQcV2.history')}</Button>
         </Space>
       ),
     },
@@ -582,23 +583,23 @@ const TaskFlowTable: React.FC<{
         {reviewing && (
           <Space direction="vertical" style={{ width: '100%' }} size={10}>
             <Descriptions size="small" column={1}>
-              <Descriptions.Item label="报告">{reviewing.task.reportId}</Descriptions.Item>
-              <Descriptions.Item label="患者">{reviewing.task.patientName}</Descriptions.Item>
-              <Descriptions.Item label="当前得分">{reviewing.task.totalScore ?? '-'} ({reviewing.task.grade ?? '-'})</Descriptions.Item>
+              <Descriptions.Item label={t('reportQcV2.report')}>{reviewing.task.reportId}</Descriptions.Item>
+              <Descriptions.Item label={t('reportQcV2.patient')}>{reviewing.task.patientName}</Descriptions.Item>
+              <Descriptions.Item label={t('reportQcV2.currentScore')}>{reviewing.task.totalScore ?? '-'} ({reviewing.task.grade ?? '-'})</Descriptions.Item>
               {reviewing.round === 2 && (
-                <Descriptions.Item label="双人复核">一级复核人已通过, 需第二复核人独立确认</Descriptions.Item>
+                <Descriptions.Item label={t('reportQcV2.dualReview')}>{t('reportQcV2.dualReviewHint')}</Descriptions.Item>
               )}
             </Descriptions>
-            <div style={{ marginBottom: 4 }}>复核人</div>
+            <div style={{ marginBottom: 4 }}>{t('reportQcV2.reviewer')}</div>
             <Select size="small" style={{ width: '100%' }} value={reviewer} onChange={setReviewer} options={['张质控', '李质控', '王主任'].map((v) => ({ value: v, label: v }))} />
-            <div style={{ marginBottom: 4 }}>复核意见</div>
-            <Input.TextArea size="small" rows={2} value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder="填写复核意见 (可留空)" />
+            <div style={{ marginBottom: 4 }}>{t('reportQcV2.reviewOpinion')}</div>
+            <Input.TextArea size="small" rows={2} value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder={t('reportQcV2.reviewCommentPlaceholder')} />
             <Space>
               <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => submitReview('pass')}>
-                通过
+                {t('reportQcV2.pass')}
               </Button>
               <Button size="small" danger icon={<XCircle size={12} />} onClick={() => submitReview('return')}>
-                退回
+                {t('reportQcV2.return')}
               </Button>
             </Space>
           </Space>
@@ -616,29 +617,29 @@ const BarChartIcon: React.FC = () => <FileCheck2 size={14} />;
 
 const StatsView: React.FC<{ stats: QcStatsData; records: QcRecord[] }> = ({ stats, records }) => {
   const columns: ColumnsType<{ key: string; label: string; count: number; high: number; medium: number; low: number }> = [
-    { title: '维度', dataIndex: 'label', key: 'label' },
-    { title: '缺陷数', dataIndex: 'count', key: 'count', width: 70, render: (v: number) => <strong>{v}</strong> },
-    { title: '高', dataIndex: 'high', key: 'high', width: 50, render: (v: number) => (v > 0 ? <Tag color="red">{v}</Tag> : <span style={{ color: '#cbd5e1' }}>{v}</span>) },
-    { title: '中', dataIndex: 'medium', key: 'medium', width: 50, render: (v: number) => (v > 0 ? <Tag color="orange">{v}</Tag> : <span style={{ color: '#cbd5e1' }}>{v}</span>) },
-    { title: '低', dataIndex: 'low', key: 'low', width: 50, render: (v: number) => (v > 0 ? <Tag color="gold">{v}</Tag> : <span style={{ color: '#cbd5e1' }}>{v}</span>) },
+    { title: t('reportQcV2.dimension'), dataIndex: 'label', key: 'label' },
+    { title: t('reportQcV2.defectCount'), dataIndex: 'count', key: 'count', width: 70, render: (v: number) => <strong>{v}</strong> },
+    { title: t('reportQcV2.sevHigh'), dataIndex: 'high', key: 'high', width: 50, render: (v: number) => (v > 0 ? <Tag color="red">{v}</Tag> : <span style={{ color: '#cbd5e1' }}>{v}</span>) },
+    { title: t('reportQcV2.sevMedium'), dataIndex: 'medium', key: 'medium', width: 50, render: (v: number) => (v > 0 ? <Tag color="orange">{v}</Tag> : <span style={{ color: '#cbd5e1' }}>{v}</span>) },
+    { title: t('reportQcV2.sevLow'), dataIndex: 'low', key: 'low', width: 50, render: (v: number) => (v > 0 ? <Tag color="gold">{v}</Tag> : <span style={{ color: '#cbd5e1' }}>{v}</span>) },
   ];
   const trendColumns: ColumnsType<{ month: string; count: number; avgScore: number }> = [
-    { title: '月份', dataIndex: 'month', key: 'month' },
-    { title: '任务数', dataIndex: 'count', key: 'count', width: 70 },
-    { title: '平均分', dataIndex: 'avgScore', key: 'avgScore', width: 80, render: (v: number) => <strong style={{ color: v >= 85 ? '#10b981' : '#f59e0b' }}>{v}</strong> },
+    { title: t('reportQcV2.month'), dataIndex: 'month', key: 'month' },
+    { title: t('reportQcV2.taskCount'), dataIndex: 'count', key: 'count', width: 70 },
+    { title: t('reportQcV2.avgScore'), dataIndex: 'avgScore', key: 'avgScore', width: 80, render: (v: number) => <strong style={{ color: v >= 85 ? '#10b981' : '#f59e0b' }}>{v}</strong> },
   ];
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={8}>
       <Row gutter={8}>
         <Col span={8}>
-          <Card size="small"><Statistic title="平均分" value={stats.avgScore} valueStyle={{ fontSize: 20, color: stats.avgScore >= 85 ? '#10b981' : '#f59e0b' }} /></Card>
+          <Card size="small"><Statistic title={t('reportQcV2.avgScore')} value={stats.avgScore} valueStyle={{ fontSize: 20, color: stats.avgScore >= 85 ? '#10b981' : '#f59e0b' }} /></Card>
         </Col>
         <Col span={8}>
-          <Card size="small"><Statistic title="通过率" value={stats.passRate} suffix="%" valueStyle={{ fontSize: 20, color: '#3b82f6' }} /></Card>
+          <Card size="small"><Statistic title={t('reportQcV2.passRate')} value={stats.passRate} suffix="%" valueStyle={{ fontSize: 20, color: '#3b82f6' }} /></Card>
         </Col>
         <Col span={8}>
-          <Card size="small"><Statistic title="缺陷总数" value={stats.defectDistribution.reduce((a, d) => a + d.count, 0)} valueStyle={{ fontSize: 20, color: '#dc2626' }} /></Card>
+          <Card size="small"><Statistic title={t('reportQcV2.totalDefects')} value={stats.defectDistribution.reduce((a, d) => a + d.count, 0)} valueStyle={{ fontSize: 20, color: '#dc2626' }} /></Card>
         </Col>
       </Row>
       <Space wrap>
@@ -646,16 +647,16 @@ const StatsView: React.FC<{ stats: QcStatsData; records: QcRecord[] }> = ({ stat
           const count = stats.gradeDistribution.find((x) => x.grade === g)?.count ?? 0;
           return (
             <Tag key={g} color={GRADE_COLOR[g]} style={{ fontSize: 12 }}>
-              {g} 级 × {count}
+              {g}{t('reportQcV2.gradeSuffix')} × {count}
             </Tag>
           );
         })}
-        <Tag color="purple">{stats.taskByStatus.closed ?? 0} 已闭环</Tag>
+        <Tag color="purple">{stats.taskByStatus.closed ?? 0} {t('reportQcV2.closedLoop')}</Tag>
       </Space>
-      <Table size="small" rowKey="key" columns={columns} dataSource={stats.defectDistribution} pagination={false} title={() => <strong style={{ fontSize: 12 }}>缺陷分布 (按维度 × 严重度)</strong>} />
-      <Table size="small" rowKey="month" columns={trendColumns} dataSource={stats.monthlyTrend} pagination={false} title={() => <strong style={{ fontSize: 12 }}>月度趋势</strong>} />
+      <Table size="small" rowKey="key" columns={columns} dataSource={stats.defectDistribution} pagination={false} title={() => <strong style={{ fontSize: 12 }}>{t('reportQcV2.defectDistribution')}</strong>} />
+      <Table size="small" rowKey="month" columns={trendColumns} dataSource={stats.monthlyTrend} pagination={false} title={() => <strong style={{ fontSize: 12 }}>{t('reportQcV2.monthlyTrend')}</strong>} />
       <div style={{ fontSize: 12, color: '#94a3b8' }}>
-        最近记录: {records.slice(0, 3).map((r) => r.id).join(' / ') || '-'}
+        {t('reportQcV2.recentRecords')} {records.slice(0, 3).map((r) => r.id).join(' / ') || '-'}
       </div>
     </Space>
   );
