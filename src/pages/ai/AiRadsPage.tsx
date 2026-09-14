@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { Card, Space, Select, InputNumber, Button, Typography, Tag, Divider, message, Form, Tabs, Table, Tooltip } from 'antd'
 import { Sparkles, Cpu, History, FileText } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { t } from '../../i18n/appI18n'
 import RadsScoring from '../../components/ai/RadsScoring'
 import { radsApi } from '../../services/api/radsApi'
 import type { RadsScore, RadsHistoryEntry, RadsRules, RadsRule } from '../../services/api/radsApi'
@@ -16,11 +16,11 @@ const { Text, Title } = Typography
 type RadsType = 'lung' | 'breast' | 'prostate' | 'liver' | 'thyroid'
 
 const radsTabs: { key: RadsType; label: string }[] = [
-  { key: 'lung', label: 'Lung-RADS (肺)' },
-  { key: 'breast', label: 'BI-RADS (乳腺)' },
-  { key: 'prostate', label: 'PI-RADS (前列腺)' },
-  { key: 'liver', label: 'LI-RADS (肝脏)' },
-  { key: 'thyroid', label: 'TI-RADS (甲状腺)' },
+  { key: 'lung', label: t('aiRads.tab.lung') },
+  { key: 'breast', label: t('aiRads.tab.breast') },
+  { key: 'prostate', label: t('aiRads.tab.prostate') },
+  { key: 'liver', label: t('aiRads.tab.liver') },
+  { key: 'thyroid', label: t('aiRads.tab.thyroid') },
 ]
 
 // [v3.0.6.11-99 W10C] 本地规则回退: RADS 规则词典 (radsRules.ts) → 后端规则表结构
@@ -60,37 +60,36 @@ interface FieldDef {
 
 const FIELDS: Record<Exclude<RadsType, 'breast'>, FieldDef[]> = {
   lung: [
-    { name: 'noduleSizeMm', label: '结节大小 (mm)', type: 'number', min: 1, max: 50, defaultValue: 8 },
-    { name: 'spiculatedMargin', label: '毛刺状边缘', type: 'boolean', options: [{ value: true, label: '是' }, { value: false, label: '否' }], defaultValue: false },
-    { name: 'solidComponent', label: '实性成分', type: 'boolean', options: [{ value: true, label: '是' }, { value: false, label: '否' }], defaultValue: true },
+    { name: 'noduleSizeMm', label: t('aiRads.f.noduleSize'), type: 'number', min: 1, max: 50, defaultValue: 8 },
+    { name: 'spiculatedMargin', label: t('aiRads.f.spiculatedMargin'), type: 'boolean', options: [{ value: true, label: t('aiRads.opt.yes') }, { value: false, label: t('aiRads.opt.no') }], defaultValue: false },
+    { name: 'solidComponent', label: t('aiRads.f.solidComponent'), type: 'boolean', options: [{ value: true, label: t('aiRads.opt.yes') }, { value: false, label: t('aiRads.opt.no') }], defaultValue: true },
   ],
   prostate: [
-    { name: 'lesionZone', label: '病灶分区', type: 'select', options: [{ value: 'PZ', label: '外周带 PZ' }, { value: 'TZ', label: '移行带 TZ' }, { value: 'AFS', label: '前纤维肌基质区 AFS' }], defaultValue: 'PZ' },
-    { name: 'lesionSizeMm', label: '病灶大小 (mm)', type: 'number', min: 1, max: 50, defaultValue: 12 },
-    { name: 'dwiSignal', label: 'DWI 信号', type: 'select', options: [{ value: 'low', label: '低信号' }, { value: 'mild', label: '轻度增高' }, { value: 'high', label: '明显增高' }], defaultValue: 'high' },
-    { name: 't2Signal', label: 'T2WI 信号', type: 'select', options: [{ value: 'low', label: '低信号' }, { value: 'mild', label: '中等信号' }, { value: 'high', label: '高信号' }], defaultValue: 'low' },
-    { name: 'adcValue', label: 'ADC 值 (μm²/s)', type: 'number', min: 0, max: 3000, defaultValue: 900 },
+    { name: 'lesionZone', label: t('aiRads.f.lesionZone'), type: 'select', options: [{ value: 'PZ', label: t('aiRads.opt.pz') }, { value: 'TZ', label: t('aiRads.opt.tz') }, { value: 'AFS', label: t('aiRads.opt.afs') }], defaultValue: 'PZ' },
+    { name: 'lesionSizeMm', label: t('aiRads.f.lesionSize'), type: 'number', min: 1, max: 50, defaultValue: 12 },
+    { name: 'dwiSignal', label: t('aiRads.f.dwiSignal'), type: 'select', options: [{ value: 'low', label: t('aiRads.opt.lowSignal') }, { value: 'mild', label: t('aiRads.opt.mildIncrease') }, { value: 'high', label: t('aiRads.opt.markedIncrease') }], defaultValue: 'high' },
+    { name: 't2Signal', label: t('aiRads.f.t2Signal'), type: 'select', options: [{ value: 'low', label: t('aiRads.opt.lowSignal') }, { value: 'mild', label: t('aiRads.opt.mediumSignal') }, { value: 'high', label: t('aiRads.opt.highSignal') }], defaultValue: 'low' },
+    { name: 'adcValue', label: t('aiRads.f.adcValue'), type: 'number', min: 0, max: 3000, defaultValue: 900 },
   ],
   liver: [
-    { name: 'sizeMm', label: '病灶大小 (mm)', type: 'number', min: 1, max: 100, defaultValue: 22 },
-    { name: 'arterialPhaseEnhancement', label: '动脉期强化', type: 'select', options: [
-      { value: 'nonrim', label: '非环状强化' }, { value: 'rim', label: '环状强化' }, { value: 'none', label: '无强化' }, { value: 'nodule-in-nodule', label: '结节内结节' }, { value: 'corona', label: '冠状强化' }], defaultValue: 'nonrim' },
-    { name: 'washout', label: '廓清', type: 'select', options: [{ value: 'yes', label: '有' }, { value: 'no', label: '无' }], defaultValue: 'yes' },
-    { name: 'enhancingCapsule', label: '增强假包膜', type: 'select', options: [{ value: 'yes', label: '有' }, { value: 'no', label: '无' }], defaultValue: 'yes' },
-    { name: 'thresholdGrowth', label: '阈值增长', type: 'select', options: [{ value: 'yes', label: '有' }, { value: 'no', label: '无' }], defaultValue: 'no' },
-    { name: 'tumorInVein', label: '静脉内肿瘤', type: 'select', options: [{ value: 'yes', label: '有' }, { value: 'no', label: '无' }], defaultValue: 'no' },
+    { name: 'sizeMm', label: t('aiRads.f.lesionSize'), type: 'number', min: 1, max: 100, defaultValue: 22 },
+    { name: 'arterialPhaseEnhancement', label: t('aiRads.f.arterialEnhancement'), type: 'select', options: [
+      { value: 'nonrim', label: t('aiRads.opt.nonrim') }, { value: 'rim', label: t('aiRads.opt.rim') }, { value: 'none', label: t('aiRads.opt.none') }, { value: 'nodule-in-nodule', label: t('aiRads.opt.noduleInNodule') }, { value: 'corona', label: t('aiRads.opt.corona') }], defaultValue: 'nonrim' },
+    { name: 'washout', label: t('aiRads.f.washout'), type: 'select', options: [{ value: 'yes', label: t('aiRads.opt.present') }, { value: 'no', label: t('aiRads.opt.absent') }], defaultValue: 'yes' },
+    { name: 'enhancingCapsule', label: t('aiRads.f.enhancingCapsule'), type: 'select', options: [{ value: 'yes', label: t('aiRads.opt.present') }, { value: 'no', label: t('aiRads.opt.absent') }], defaultValue: 'yes' },
+    { name: 'thresholdGrowth', label: t('aiRads.f.thresholdGrowth'), type: 'select', options: [{ value: 'yes', label: t('aiRads.opt.present') }, { value: 'no', label: t('aiRads.opt.absent') }], defaultValue: 'no' },
+    { name: 'tumorInVein', label: t('aiRads.f.tumorInVein'), type: 'select', options: [{ value: 'yes', label: t('aiRads.opt.present') }, { value: 'no', label: t('aiRads.opt.absent') }], defaultValue: 'no' },
   ],
   thyroid: [
-    { name: 'composition', label: '成分', type: 'select', options: [{ value: 'cystic', label: '囊性' }, { value: 'spongiform', label: '海绵状' }, { value: 'mixed', label: '混合囊实性' }, { value: 'solid', label: '实性' }], defaultValue: 'solid' },
-    { name: 'echogenicity', label: '回声', type: 'select', options: [{ value: 'anechoic', label: '无回声' }, { value: 'hyper', label: '高回声' }, { value: 'iso', label: '等回声' }, { value: 'hypo', label: '低回声' }], defaultValue: 'hypo' },
-    { name: 'shape', label: '形态', type: 'select', options: [{ value: 'wider-than-tall', label: '横径大于纵径' }, { value: 'taller-than-wide', label: '纵径大于横径' }], defaultValue: 'taller-than-wide' },
-    { name: 'margins', label: '边缘', type: 'select', options: [{ value: 'smooth', label: '光滑' }, { value: 'ill-defined', label: '边界不清' }, { value: 'lobulated', label: '分叶状' }, { value: 'irregular', label: '不规则' }, { value: 'extrathyroidal', label: '甲状腺外侵犯' }], defaultValue: 'irregular' },
-    { name: 'echogenicFoci', label: '钙化灶', type: 'select', options: [{ value: 'none', label: '无' }, { value: 'comet', label: '彗星尾' }, { value: 'macrocalc', label: '粗大钙化' }, { value: 'rim', label: '周边钙化' }, { value: 'punctate', label: '点状微小钙化' }], defaultValue: 'punctate' },
+    { name: 'composition', label: t('aiRads.f.composition'), type: 'select', options: [{ value: 'cystic', label: t('aiRads.opt.cystic') }, { value: 'spongiform', label: t('aiRads.opt.spongiform') }, { value: 'mixed', label: t('aiRads.opt.mixedCysticSolid') }, { value: 'solid', label: t('aiRads.opt.solid') }], defaultValue: 'solid' },
+    { name: 'echogenicity', label: t('aiRads.f.echogenicity'), type: 'select', options: [{ value: 'anechoic', label: t('aiRads.opt.anechoic') }, { value: 'hyper', label: t('aiRads.opt.hyper') }, { value: 'iso', label: t('aiRads.opt.iso') }, { value: 'hypo', label: t('aiRads.opt.hypo') }], defaultValue: 'hypo' },
+    { name: 'shape', label: t('aiRads.f.shape'), type: 'select', options: [{ value: 'wider-than-tall', label: t('aiRads.opt.widerThanTall') }, { value: 'taller-than-wide', label: t('aiRads.opt.tallerThanWide') }], defaultValue: 'taller-than-wide' },
+    { name: 'margins', label: t('aiRads.f.margins'), type: 'select', options: [{ value: 'smooth', label: t('aiRads.opt.smooth') }, { value: 'ill-defined', label: t('aiRads.opt.illDefined') }, { value: 'lobulated', label: t('aiRads.opt.lobulated') }, { value: 'irregular', label: t('aiRads.opt.irregular') }, { value: 'extrathyroidal', label: t('aiRads.opt.extrathyroidal') }], defaultValue: 'irregular' },
+    { name: 'echogenicFoci', label: t('aiRads.f.echogenicFoci'), type: 'select', options: [{ value: 'none', label: t('aiRads.opt.absent') }, { value: 'comet', label: t('aiRads.opt.comet') }, { value: 'macrocalc', label: t('aiRads.opt.macrocalc') }, { value: 'rim', label: t('aiRads.opt.rimCalc') }, { value: 'punctate', label: t('aiRads.opt.punctate') }], defaultValue: 'punctate' },
   ],
 }
 
 const AiRadsPage: React.FC = () => {
-  const { t } = useTranslation('rads')
   const [radsType, setRadsType] = useState<RadsType>('lung')
   const [patientId, setPatientId] = useState('P2024001')
   const [loading, setLoading] = useState(false)
@@ -146,7 +145,7 @@ const AiRadsPage: React.FC = () => {
     } catch {
       const local = scoreRadsLocally(radsType as LocalRadsType, dto)
       setResult({ ...local, source: 'local' })
-      message.warning('后端评分不可用, 已按本地规则回退')
+      message.warning(t('aiRads.localFallback'))
     } finally {
       setLoading(false)
     }
@@ -157,12 +156,12 @@ const AiRadsPage: React.FC = () => {
     if (!result) return
     const esc = (v: unknown): string =>
       String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch)
-    const sourceTag = result.source === 'local' ? '(本地规则回退)' : '(后端规则)'
+    const sourceTag = result.source === 'local' ? `(${t('aiRads.localTag')})` : `(${t('aiRads.backendTag')})`
     const findingsHtml = (result.findings ?? [])
       .map((f) => `<li>${esc(f)}</li>`)
       .join('')
     const html = [
-      '<h3>AI 影像辅助分级</h3>',
+      `<h3>${t('aiRads.insertTitleHtml')}</h3>`,
       `<p><strong>${esc(result.category)}</strong> ${esc(sourceTag)}</p>`,
       `<p>分级: <strong>${esc(result.score)}</strong> · ${esc(result.description)}</p>`,
       findingsHtml ? `<ul>${findingsHtml}</ul>` : '',
@@ -170,7 +169,7 @@ const AiRadsPage: React.FC = () => {
     ].join('\n')
     window.dispatchEvent(new CustomEvent('report-insert-html', { detail: { html } }))
     try { window.localStorage.setItem('ris_rads_pending_insert', html) } catch { /* 忽略 */ }
-    message.success('RADS 评分段落已发送至报告编辑器')
+    message.success(t('aiRads.insertSuccess'))
   }, [result])
 
   const handleLoadHistory = useCallback(async () => {
@@ -180,7 +179,7 @@ const AiRadsPage: React.FC = () => {
       if (res.success) {
         setHistory(res.data)
       } else {
-        message.error(res.error?.message || '历史记录加载失败')
+        message.error(res.error?.message || t('aiRads.historyFail'))
       }
     } finally {
       setLoading(false)
@@ -191,7 +190,7 @@ const AiRadsPage: React.FC = () => {
     if (tabKey === 'breast') {
       return (
         <div style={{ padding: 12, background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8 }}>
-          <Text>BI-RADS 乳腺分级: 选择特征后提交, 系统按特征自动分级 (支持直接指定 biradsCategory)</Text>
+          <Text>{t('aiRads.biradsHint')}</Text>
         </div>
       )
     }
@@ -220,14 +219,14 @@ const AiRadsPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Cpu size={20} color="#2563eb" />
-        <Title level={4} style={{ margin: 0 }}>AI 阅片助手 V3 — 多 RADS 自动评分</Title>
+        <Title level={4} style={{ margin: 0 }}>{t('aiRads.title')}</Title>
         <Tag color="blue">Lung / BI / PI / LI / TI-RADS</Tag>
       </Space>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space wrap style={{ marginBottom: 12 }}>
           <div>
-            <Text strong>{t('patientId')}: </Text>
+            <Text strong>{t('aiRads.patientId')}: </Text>
             <Select
               value={patientId}
               onChange={setPatientId}
@@ -241,18 +240,18 @@ const AiRadsPage: React.FC = () => {
           </div>
           <Divider orientation="vertical" />
           <Button type="primary" icon={<Sparkles size={14} />} onClick={() => handleScore()} loading={loading}>
-            {t('startScoring')}
+            {t('aiRads.startScoring')}
           </Button>
           <Button icon={<History size={14} />} onClick={() => handleLoadHistory()} loading={loading}>
-            {t('loadHistory')}
+            {t('aiRads.loadHistory')}
           </Button>
-          <Tooltip title="评分结果生成报告段落, 经 insertHtml 通道插入书写页编辑器">
+          <Tooltip title={t('aiRads.insertTooltip')}>
             <Button icon={<FileText size={14} />} disabled={!result} onClick={() => handleInsertToReport()}>
-              插入报告
+              {t('aiRads.insertToReport')}
             </Button>
           </Tooltip>
           <Tag color={result?.source === 'local' ? 'orange' : 'green'}>
-            {result ? (result.source === 'local' ? '本地规则回退' : '后端规则') : (rulesSource === 'api' ? '规则来源: 后端' : '规则来源: 本地')}
+            {result ? (result.source === 'local' ? t('aiRads.localTag') : t('aiRads.backendTag')) : (rulesSource === 'api' ? t('aiRads.ruleSourceBackend') : t('aiRads.ruleSourceLocal'))}
           </Tag>
         </Space>
 
@@ -298,10 +297,10 @@ const AiRadsPage: React.FC = () => {
               dataSource={group.levels}
               pagination={false}
               columns={[
-                { title: '级别', dataIndex: 'level', width: 80, render: (v) => <Tag color="blue">{v}</Tag> },
-                { title: '描述', dataIndex: 'description', width: 130 },
-                { title: '判定标准 (criteria)', dataIndex: 'criteria' },
-                { title: '建议', dataIndex: 'recommendations' },
+                { title: t('aiRads.col.level'), dataIndex: 'level', width: 80, render: (v) => <Tag color="blue">{v}</Tag> },
+                { title: t('aiRads.col.description'), dataIndex: 'description', width: 130 },
+                { title: t('aiRads.col.criteria'), dataIndex: 'criteria' },
+                { title: t('aiRads.col.recommendations'), dataIndex: 'recommendations' },
               ]}
             />
           </Card>

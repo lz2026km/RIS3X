@@ -11,6 +11,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Card, Steps, Button, Tag, Row, Col, Statistic, Alert, Descriptions, Modal, Input, message, Table, Spin, Empty } from 'antd'
 import { ShieldAlert, Phone, CheckCircle, FileCheck, Archive, AlertTriangle, RefreshCw, Inbox } from 'lucide-react'
 import { criticalApi } from '../../services/api/criticalApi'
+import { t } from '../../i18n/appI18n'
 
 const { TextArea } = Input
 
@@ -30,11 +31,11 @@ interface CriticalValue5Step {
 }
 
 const STEP_CONFIG = [
-  { title: '发现', icon: AlertTriangle, color: '#dc2626', description: '危急值被检测或上报' },
-  { title: '电话通知', icon: Phone, color: '#ea580c', description: '电话通知临床医生' },
-  { title: '临床确认', icon: CheckCircle, color: '#ca8a04', description: '临床医生确认接收' },
-  { title: '临床回执', icon: FileCheck, color: '#16a34a', description: '临床医生签字回传' },
-  { title: '闭环完成', icon: Archive, color: '#2563eb', description: '危急值处理完成' },
+  { titleKey: 'cv5.stepDiscovered', icon: AlertTriangle, color: '#dc2626', descKey: 'cv5.stepDiscoveredDesc' },
+  { titleKey: 'cv5.stepNotified', icon: Phone, color: '#ea580c', descKey: 'cv5.stepNotifiedDesc' },
+  { titleKey: 'cv5.stepConfirmed', icon: CheckCircle, color: '#ca8a04', descKey: 'cv5.stepConfirmedDesc' },
+  { titleKey: 'cv5.stepReceipt', icon: FileCheck, color: '#16a34a', descKey: 'cv5.stepReceiptDesc' },
+  { titleKey: 'cv5.stepClosed', icon: Archive, color: '#2563eb', descKey: 'cv5.stepClosedDesc' },
 ]
 
 export default function CriticalValue5StepPage() {
@@ -107,14 +108,14 @@ export default function CriticalValue5StepPage() {
         res = await criticalApi.closeLoop(selected.id, '系统')
       }
       if (res?.success) {
-        message.success('操作成功')
+        message.success(t('cv5.actionSuccess'))
         setShowActionModal(false)
         await loadData()
       } else {
-        message.error(res?.error?.message ?? '操作失败')
+        message.error(res?.error?.message ?? t('cv5.actionFailed'))
       }
     } catch (err) {
-      message.error((err as Error)?.message ?? '操作失败')
+      message.error((err as Error)?.message ?? t('cv5.actionFailed'))
     } finally {
       setActionLoading(false)
     }
@@ -122,24 +123,24 @@ export default function CriticalValue5StepPage() {
 
   const columns = [
     {
-      title: '危急值ID',
+      title: t('cv5.colId'),
       dataIndex: 'id',
       key: 'id',
       render: (id: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{id}</span>,
     },
     {
-      title: '患者',
+      title: t('cv5.colPatient'),
       dataIndex: 'patientName',
       key: 'patientName',
     },
     {
-      title: '危急发现',
+      title: t('cv5.colFinding'),
       dataIndex: 'finding',
       key: 'finding',
       render: (f: string) => <span style={{ fontWeight: 600, color: '#dc2626' }}>{f}</span>,
     },
     {
-      title: '严重程度',
+      title: t('cv5.colSeverity'),
       dataIndex: 'severity',
       key: 'severity',
       render: (s: string) => (
@@ -147,31 +148,31 @@ export default function CriticalValue5StepPage() {
       ),
     },
     {
-      title: '当前步骤',
+      title: t('cv5.colStep'),
       key: 'step',
       render: (_: unknown, record: CriticalValue5Step) => (
         <Tag color={STEP_CONFIG[record.currentStep]?.color || '#94a3b8'}>
-          {STEP_CONFIG[record.currentStep]?.title || '未知'}
+          {t(STEP_CONFIG[record.currentStep]?.titleKey ?? 'cv5.unknown')}
         </Tag>
       ),
     },
     {
-      title: '操作',
+      title: t('cv5.colActions'),
       key: 'actions',
       render: (_: unknown, record: CriticalValue5Step) => {
         if (record.currentStep === 1) {
-          return <Button size="small" type="primary" icon={<Phone size={12} />} onClick={() => handleAction(record, 'voiceCall')}>电话通知</Button>
+          return <Button size="small" type="primary" icon={<Phone size={12} />} onClick={() => handleAction(record, 'voiceCall')}>{t('cv5.notify')}</Button>
         }
         if (record.currentStep === 2) {
-          return <Button size="small" type="primary" icon={<CheckCircle size={12} />} onClick={() => handleAction(record, 'acknowledge')}>确认接收</Button>
+          return <Button size="small" type="primary" icon={<CheckCircle size={12} />} onClick={() => handleAction(record, 'acknowledge')}>{t('cv5.acknowledge')}</Button>
         }
         if (record.currentStep === 3) {
-          return <Button size="small" type="primary" icon={<FileCheck size={12} />} onClick={() => handleAction(record, 'receipt')}>临床回执</Button>
+          return <Button size="small" type="primary" icon={<FileCheck size={12} />} onClick={() => handleAction(record, 'receipt')}>{t('cv5.receipt')}</Button>
         }
         if (record.currentStep === 4) {
-          return <Button size="small" type="primary" icon={<Archive size={12} />} onClick={() => handleAction(record, 'close')}>闭环完成</Button>
+          return <Button size="small" type="primary" icon={<Archive size={12} />} onClick={() => handleAction(record, 'close')}>{t('cv5.close')}</Button>
         }
-        return <Tag color="green">已完成</Tag>
+        return <Tag color="green">{t('cv5.done')}</Tag>
       },
     },
   ]
@@ -180,8 +181,8 @@ export default function CriticalValue5StepPage() {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>危急值5步工作流</h1>
-        <Tag color="red">5节点闭环</Tag>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('cv5.title')}</h1>
+        <Tag color="red">{t('cv5.loopTag')}</Tag>
       </div>
 
       {/* 5步流程图 */}
@@ -190,7 +191,7 @@ export default function CriticalValue5StepPage() {
           {STEP_CONFIG.map((step, idx) => {
             const Icon = step.icon
             return (
-              <React.Fragment key={step.title}>
+              <React.Fragment key={step.titleKey}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                   <div style={{
                     width: 48, height: 48, borderRadius: '50%',
@@ -200,8 +201,8 @@ export default function CriticalValue5StepPage() {
                   }}>
                     <Icon size={20} style={{ color: step.color }} />
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: step.color }}>{step.title}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', maxWidth: 80 }}>{step.description}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: step.color }}>{t(step.titleKey)}</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', maxWidth: 80 }}>{t(step.descKey)}</div>
                 </div>
                 {idx < STEP_CONFIG.length - 1 && (
                   <div style={{ flex: 1, height: 2, background: 'var(--border-color)', margin: '0 4px', marginBottom: 40 }} />
@@ -215,31 +216,31 @@ export default function CriticalValue5StepPage() {
       {/* 统计 */}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}>
-          <Card size="small"><Statistic title="总数" value={stats.total} /></Card>
+          <Card size="small"><Statistic title={t('cv5.statTotal')} value={stats.total} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待通知" value={stats.step2} styles={{ content: {  color: '#dc2626'  } }} prefix={<Phone size={14} />} /></Card>
+          <Card size="small"><Statistic title={t('cv5.statToNotify')} value={stats.step2} styles={{ content: {  color: '#dc2626'  } }} prefix={<Phone size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待确认" value={stats.step3} styles={{ content: {  color: '#ca8a04'  } }} prefix={<CheckCircle size={14} />} /></Card>
+          <Card size="small"><Statistic title={t('cv5.statToConfirm')} value={stats.step3} styles={{ content: {  color: '#ca8a04'  } }} prefix={<CheckCircle size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待回执" value={stats.step4} styles={{ content: {  color: '#16a34a'  } }} prefix={<FileCheck size={14} />} /></Card>
+          <Card size="small"><Statistic title={t('cv5.statToReceipt')} value={stats.step4} styles={{ content: {  color: '#16a34a'  } }} prefix={<FileCheck size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待闭环" value={stats.step5} styles={{ content: {  color: '#2563eb'  } }} prefix={<Archive size={14} />} /></Card>
+          <Card size="small"><Statistic title={t('cv5.statToClose')} value={stats.step5} styles={{ content: {  color: '#2563eb'  } }} prefix={<Archive size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="已完成" value={stats.step5} styles={{ content: {  color: '#059669'  } }} prefix={<CheckCircle size={14} />} /></Card>
+          <Card size="small"><Statistic title={t('cv5.statDone')} value={stats.step5} styles={{ content: {  color: '#059669'  } }} prefix={<CheckCircle size={14} />} /></Card>
         </Col>
       </Row>
 
       {/* 列表 */}
-      <Card title="危急值工作流列表" extra={<Button icon={<RefreshCw size={14} />} onClick={loadData} loading={loading}>刷新</Button>}>
+      <Card title={t('cv5.listTitle')} extra={<Button icon={<RefreshCw size={14} />} onClick={loadData} loading={loading}>{t('cv5.refresh')}</Button>}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
         ) : data.length === 0 ? (
-          <Empty description="暂无危急值数据" image={<Inbox size={48} color="#94a3b8" />} />
+          <Empty description={t('cv5.empty')} image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
           <Table dataSource={data} columns={columns} rowKey="id" size="small" pagination={false} scroll={{ x: 'max-content' }}/>
         )}
@@ -247,15 +248,15 @@ export default function CriticalValue5StepPage() {
 
       {/* 详情侧边栏 */}
       {selected && (
-        <Card title={`详情 - ${selected.id}`} style={{ marginTop: 16 }}>
+        <Card title={`${t('cv5.detail')} - ${selected.id}`} style={{ marginTop: 16 }}>
           <Descriptions bordered column={2} size="small">
-            <Descriptions.Item label="患者">{selected.patientName}</Descriptions.Item>
-            <Descriptions.Item label="严重程度"><Tag color={selected.severity === '危及生命' ? 'red' : 'orange'}>{selected.severity}</Tag></Descriptions.Item>
-            <Descriptions.Item label="危急发现" span={2}>{selected.finding}</Descriptions.Item>
+            <Descriptions.Item label={t('cv5.colPatient')}>{selected.patientName}</Descriptions.Item>
+            <Descriptions.Item label={t('cv5.colSeverity')}><Tag color={selected.severity === '危及生命' ? 'red' : 'orange'}>{selected.severity}</Tag></Descriptions.Item>
+            <Descriptions.Item label={t('cv5.colFinding')} span={2}>{selected.finding}</Descriptions.Item>
           </Descriptions>
 
           <div style={{ marginTop: 16 }}>
-            <h4>5步进度</h4>
+            <h4>{t('cv5.progress')}</h4>
             <Steps
               current={selected.currentStep}
               orientation="vertical"
@@ -263,16 +264,16 @@ export default function CriticalValue5StepPage() {
               items={STEP_CONFIG.map((step, idx) => {
                 const stepData = Object.values(selected.steps)[idx]
                 return {
-                  title: <span style={{ fontWeight: 600 }}>{step.title}</span>,
+                  title: <span style={{ fontWeight: 600 }}>{t(step.titleKey)}</span>,
                   description: stepData?.done ? (
                     <div style={{ fontSize: 12, color: '#666' }}>
-                      {stepData.time && <div>时间: {stepData.time}</div>}
-                      {stepData.user && <div>操作人: {stepData.user}</div>}
-                      {'phone' in stepData && stepData.phone && <div>电话: {stepData.phone}</div>}
-                      {'comment' in stepData && stepData.comment && <div>备注: {stepData.comment}</div>}
+                      {stepData.time && <div>{t('cv5.time')}: {stepData.time}</div>}
+                      {stepData.user && <div>{t('cv5.operator')}: {stepData.user}</div>}
+                      {'phone' in stepData && stepData.phone && <div>{t('cv5.phone')}: {stepData.phone}</div>}
+                      {'comment' in stepData && stepData.comment && <div>{t('cv5.note')}: {stepData.comment}</div>}
                     </div>
                   ) : (
-                    <span style={{ color: '#999', fontSize: 12 }}>待处理</span>
+                    <span style={{ color: '#999', fontSize: 12 }}>{t('cv5.pending')}</span>
                   ),
                   status: stepData?.done ? 'finish' : idx === selected.currentStep ? 'process' : 'wait',
                   icon: stepData?.done ? <CheckCircle size={14} /> : undefined,
@@ -283,25 +284,25 @@ export default function CriticalValue5StepPage() {
 
           <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
             {selected.currentStep === 1 && (
-              <Button type="primary" icon={<Phone size={14} />} onClick={() => handleAction(selected, 'voiceCall')}>电话通知</Button>
+              <Button type="primary" icon={<Phone size={14} />} onClick={() => handleAction(selected, 'voiceCall')}>{t('cv5.notify')}</Button>
             )}
             {selected.currentStep === 2 && (
-              <Button type="primary" icon={<CheckCircle size={14} />} onClick={() => handleAction(selected, 'acknowledge')}>确认接收</Button>
+              <Button type="primary" icon={<CheckCircle size={14} />} onClick={() => handleAction(selected, 'acknowledge')}>{t('cv5.acknowledge')}</Button>
             )}
             {selected.currentStep === 3 && (
-              <Button type="primary" icon={<FileCheck size={14} />} onClick={() => handleAction(selected, 'receipt')}>临床回执</Button>
+              <Button type="primary" icon={<FileCheck size={14} />} onClick={() => handleAction(selected, 'receipt')}>{t('cv5.receipt')}</Button>
             )}
             {selected.currentStep === 4 && (
-              <Button type="primary" icon={<Archive size={14} />} onClick={() => handleAction(selected, 'close')}>闭环完成</Button>
+              <Button type="primary" icon={<Archive size={14} />} onClick={() => handleAction(selected, 'close')}>{t('cv5.close')}</Button>
             )}
-            <Button onClick={() => setSelected(null)}>关闭</Button>
+            <Button onClick={() => setSelected(null)}>{t('cv5.cancel')}</Button>
           </div>
         </Card>
       )}
 
       {/* 操作模态框 */}
       <Modal
-        title={actionType === 'voiceCall' ? '电话通知' : actionType === 'acknowledge' ? '临床确认' : actionType === 'receipt' ? '临床回执' : '闭环完成'}
+        title={actionType === 'voiceCall' ? t('cv5.notify') : actionType === 'acknowledge' ? t('cv5.confirmClinical') : actionType === 'receipt' ? t('cv5.receipt') : t('cv5.close')}
         open={showActionModal}
         onOk={() => void confirmAction()}
         onCancel={() => setShowActionModal(false)}
@@ -310,30 +311,30 @@ export default function CriticalValue5StepPage() {
         {actionType === 'voiceCall' && (
           <div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>联系电话</div>
-              <Input value={actionPhone} onChange={e => setActionPhone(e.target.value)} placeholder="请输入联系电话" />
+              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('cv5.contactPhone')}</div>
+              <Input value={actionPhone} onChange={e => setActionPhone(e.target.value)} placeholder={t('cv5.contactPhonePlaceholder')} />
             </div>
-            <Alert title="电话通知后将自动记录通知时间及操作人" type="info" showIcon />
+            <Alert title={t('cv5.notifyAlert')} type="info" showIcon />
           </div>
         )}
         {actionType === 'acknowledge' && (
           <div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>确认医生</div>
-              <Input value={actionNote} onChange={e => setActionNote(e.target.value)} placeholder="请输入确认医生姓名" />
+              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('cv5.confirmDoctor')}</div>
+              <Input value={actionNote} onChange={e => setActionNote(e.target.value)} placeholder={t('cv5.confirmDoctorPlaceholder')} />
             </div>
           </div>
         )}
         {actionType === 'receipt' && (
           <div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>临床意见/备注</div>
-              <TextArea rows={3} value={actionNote} onChange={e => setActionNote(e.target.value)} placeholder="请输入临床处理意见" />
+              <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>{t('cv5.clinicalNote')}</div>
+              <TextArea rows={3} value={actionNote} onChange={e => setActionNote(e.target.value)} placeholder={t('cv5.clinicalNotePlaceholder')} />
             </div>
           </div>
         )}
         {actionType === 'close' && (
-          <Alert title="确认闭环后，该危急值将标记为已完成 (CLOSED_LOOP)" type="warning" showIcon />
+          <Alert title={t('cv5.closeAlert')} type="warning" showIcon />
         )}
       </Modal>
     </div>

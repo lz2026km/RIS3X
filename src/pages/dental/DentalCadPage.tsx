@@ -30,6 +30,7 @@ import {
   Palette,
 } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { t } from "../../i18n/appI18n";
 
 const DESIGN_TYPES = [
   { value: "inlay", label: "嵌体 Inlay" },
@@ -119,7 +120,7 @@ export const DentalCadPage: React.FC = () => {
       setMode("design");
       setMarginPoints([]);
       setPreview(null);
-      message.success("新建修复设计");
+      message.success(t('dentalCad.designCreated'));
     } catch (e: any) {
       message.error(e.message);
     } finally {
@@ -143,11 +144,11 @@ export const DentalCadPage: React.FC = () => {
 
   const handleSaveMargin = async () => {
     if (!current || marginPoints.length < 3) {
-      message.warning("至少 3 个边缘点");
+      message.warning(t('dentalCad.minMarginPoints'));
       return;
     }
     await dentalApi.saveMarginLine(current.id, marginPoints);
-    message.success("边缘线已保存");
+    message.success(t('dentalCad.marginSaved'));
   };
 
   // [G005 Wave1A P1] 解剖保存: dentalApi.saveAnatomy (PUT /dental/cad/design/:id/anatomy)
@@ -162,10 +163,10 @@ export const DentalCadPage: React.FC = () => {
         material: current?.material ?? "zirconia",
         updatedBy: "current-doctor",
       });
-      if (res && res.success === false) throw new Error(res.error?.message ?? "保存失败");
-      message.success("解剖数据已保存");
+      if (res && res.success === false) throw new Error(res.error?.message ?? t('dentalCad.saveFailed'));
+      message.success(t('dentalCad.anatomySaved'));
     } catch (e: any) {
-      message.error(e?.message ?? "保存失败");
+      message.error(e?.message ?? t('dentalCad.saveFailed'));
     }
     setBusy(false);
   };
@@ -199,7 +200,7 @@ export const DentalCadPage: React.FC = () => {
   // 导出 STL：调用后端导出端点并下载文件（后端无真实文件时下载 JSON 记录）
   const handleExportStl = async () => {
     if (!current) {
-      message.warning("请先创建设计");
+      message.warning(t('dentalCad.createFirst'));
       return;
     }
     setBusy(true);
@@ -215,9 +216,9 @@ export const DentalCadPage: React.FC = () => {
       a.download = `${current.id || "design"}.stl`;
       a.click();
       URL.revokeObjectURL(url);
-      message.success("STL 文件已导出");
+      message.success(t('dentalCad.stlExported'));
     } catch (e: any) {
-      message.error(e?.message || "导出失败");
+      message.error(e?.message || t('dentalCad.exportFailed'));
     } finally {
       setBusy(false);
     }
@@ -303,22 +304,22 @@ export const DentalCadPage: React.FC = () => {
         <Space style={{ marginBottom: 16 }}>
           <Pen size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            修复 CAD/CAM 设计中心
+            {t('dentalCad.title')}
           </span>
           <Tag color="cyan">v3.0.6.8-87</Tag>
-          <Tag color="blue">Sirona Cerec 对标</Tag>
-          <Tag color="purple">3Shape 对标</Tag>
+          <Tag color="blue">{t('dentalCad.tagSirona')}</Tag>
+          <Tag color="purple">{t('dentalCad.tag3Shape')}</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">
-              <Statistic title="设计总数" value={designs.length} />
+              <Statistic title={t('dentalCad.statDesigns')} value={designs.length} />
             </Card>
           </Col>
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="待研磨"
+                title={t('dentalCad.statPendingMill')}
                 value={
                   designs.filter((d: any) => d.status === "designed").length
                 }
@@ -328,7 +329,7 @@ export const DentalCadPage: React.FC = () => {
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="已粘接"
+                title={t('dentalCad.statCemented')}
                 value={
                   designs.filter((d: any) => d.status === "cemented").length
                 }
@@ -339,7 +340,7 @@ export const DentalCadPage: React.FC = () => {
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="本月产值"
+                title={t('dentalCad.statMonthlyOutput')}
                 prefix="¥"
                 value={designs.length * 2500}
               />
@@ -348,9 +349,9 @@ export const DentalCadPage: React.FC = () => {
         </Row>
         <Row gutter={16}>
           <Col span={8}>
-            <Card size="small" title="新建设计">
+            <Card size="small" title={t('dentalCad.newDesign')}>
               <Form layout="vertical" size="small">
-                <Form.Item label="修复类型">
+                <Form.Item label={t('dentalCad.restorationType')}>
                   <Select
                     value={designParams.type}
                     onChange={(v) =>
@@ -359,7 +360,7 @@ export const DentalCadPage: React.FC = () => {
                     options={DESIGN_TYPES}
                   />
                 </Form.Item>
-                <Form.Item label="牙位 (FDI)">
+                <Form.Item label={t('dentalCad.toothNoFdi')}>
                   <InputNumber
                     value={designParams.toothNo}
                     onChange={(v) =>
@@ -371,7 +372,7 @@ export const DentalCadPage: React.FC = () => {
                     style={{ width: "100%" }}
                   />
                 </Form.Item>
-                <Form.Item label="患者">
+                <Form.Item label={t('dentalCad.patient')}>
                   <Select
                     value={designParams.patientId}
                     onChange={(v) =>
@@ -384,7 +385,7 @@ export const DentalCadPage: React.FC = () => {
                     ]}
                   />
                 </Form.Item>
-                <Form.Item label="材料">
+                <Form.Item label={t('dentalCad.material')}>
                   <Select
                     value={designParams.material}
                     onChange={(v) =>
@@ -396,7 +397,7 @@ export const DentalCadPage: React.FC = () => {
                     }))}
                   />
                 </Form.Item>
-                <Form.Item label="比色">
+                <Form.Item label={t('dentalCad.shade')}>
                   <Select
                     value={designParams.shade}
                     onChange={(v) =>
@@ -419,13 +420,13 @@ export const DentalCadPage: React.FC = () => {
                   onClick={handleCreate}
                   loading={busy}
                 >
-                  开始设计
+                  {t('dentalCad.startDesign')}
                 </Button>
               </Form>
             </Card>
           </Col>
           <Col span={16}>
-            <Card size="small" title="设计列表">
+            <Card size="small" title={t('dentalCad.designList')}>
               <div
                 style={{
                   display: "grid",
@@ -480,16 +481,16 @@ export const DentalCadPage: React.FC = () => {
     <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
-          返回列表
+          {t('dentalCad.backToList')}
         </Button>
         <span style={{ fontSize: 16, fontWeight: 600 }}>
-          修复设计 -{" "}
-          {DESIGN_TYPES.find((t) => t.value === current?.type)?.label} #
+          {t('dentalCad.restorationDesign')} -{" "}
+          {DESIGN_TYPES.find((dt) => dt.value === current?.type)?.label} #
           {current?.toothNo}
         </span>
         <Tag color="cyan">v3.0.6.8-87</Tag>
         <Tag color="blue" icon={<Settings size={10} />}>
-          边缘线绘制
+          {t('dentalCad.marginLineDrawing')}
         </Tag>
       </Space>
       <Row gutter={12}>
@@ -499,11 +500,11 @@ export const DentalCadPage: React.FC = () => {
             title={
               <Space>
                 <MousePointer2 size={14} />
-                边缘线绘制
+                {t('dentalCad.marginLineDrawing')}
                 {drawing ? (
-                  <Tag color="green">绘制中</Tag>
+                  <Tag color="green">{t('dentalCad.drawing')}</Tag>
                 ) : (
-                  <Tag>点击开始</Tag>
+                  <Tag>{t('dentalCad.clickToStart')}</Tag>
                 )}
               </Space>
             }
@@ -514,14 +515,14 @@ export const DentalCadPage: React.FC = () => {
                   type={drawing ? "primary" : "default"}
                   onClick={() => setDrawing(!drawing)}
                 >
-                  {drawing ? "完成绘制" : "开始绘制"}
+                  {drawing ? t('dentalCad.finishDrawing') : t('dentalCad.startDrawing')}
                 </Button>
                 <Button
                   size="small"
                   icon={<RotateCcw size={10} />}
                   onClick={() => setMarginPoints([])}
                 >
-                  清除
+                  {t('dentalCad.clear')}
                 </Button>
                 <Button
                   size="small"
@@ -529,7 +530,7 @@ export const DentalCadPage: React.FC = () => {
                   onClick={handleSaveMargin}
                   icon={<Save size={10} />}
                 >
-                  保存边缘
+                  {t('dentalCad.saveMargin')}
                 </Button>
                 <Button
                   size="small"
@@ -537,7 +538,7 @@ export const DentalCadPage: React.FC = () => {
                   icon={<Save size={10} />}
                   loading={busy}
                 >
-                  保存解剖
+                  {t('dentalCad.saveAnatomy')}
                 </Button>
               </Space>
             }
@@ -555,7 +556,7 @@ export const DentalCadPage: React.FC = () => {
               }}
             />
             <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4 }}>
-              点击牙齿轮廓边缘添加控制点 (已标记 {marginPoints.length} 个)
+              {t('dentalCad.marginHint')} ({marginPoints.length} {t('dentalCad.controlPoints')})
             </div>
           </Card>
           <Card
@@ -563,26 +564,26 @@ export const DentalCadPage: React.FC = () => {
             title={
               <Space>
                 <Settings size={14} />
-                设计参数
+                {t('dentalCad.designParams')}
               </Space>
             }
             style={{ marginTop: 8 }}
           >
             <Row gutter={12}>
               <Col span={8}>
-                <Form.Item label="解剖形态">
+                <Form.Item label={t('dentalCad.occlusalAnatomy')}>
                   <Select
                     value={current?.occlusalAnatomy || "anatomic"}
                     options={[
-                      { value: "anatomic", label: "解剖式" },
-                      { value: "semi-anatomic", label: "半解剖式" },
-                      { value: "flat", label: "平面式" },
+                      { value: "anatomic", label: t('dentalCad.anatomic') },
+                      { value: "semi-anatomic", label: t('dentalCad.semiAnatomic') },
+                      { value: "flat", label: t('dentalCad.flat') },
                     ]}
                   />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="厚度 (mm)">
+                <Form.Item label={t('dentalCad.thickness')}>
                   <InputNumber
                     value={current?.thickness || 1.5}
                     min={0.5}
@@ -593,7 +594,7 @@ export const DentalCadPage: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="粘接间隙 (μm)">
+                <Form.Item label={t('dentalCad.cementGap')}>
                   <InputNumber
                     value={current?.cementGap || 30}
                     min={10}
@@ -612,13 +613,13 @@ export const DentalCadPage: React.FC = () => {
             title={
               <Space>
                 <Palette size={14} />
-                材料与比色
+                {t('dentalCad.materialShade')}
               </Space>
             }
           >
             <Row gutter={[8, 8]}>
               <Col span={12}>
-                <Form.Item label="材料" style={{ margin: 0 }}>
+                <Form.Item label={t('dentalCad.material')} style={{ margin: 0 }}>
                   <Select
                     value={current?.material || "zirconia"}
                     options={materials.map((m: any) => ({
@@ -630,7 +631,7 @@ export const DentalCadPage: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="VITA 比色" style={{ margin: 0 }}>
+                <Form.Item label={t('dentalCad.vitaShade')} style={{ margin: 0 }}>
                   <Select
                     value={current?.colorShade || "A2"}
                     options={
@@ -659,14 +660,14 @@ export const DentalCadPage: React.FC = () => {
                     onClick={handlePreview}
                     loading={busy}
                   >
-                    3D 预览
+                    {t('dentalCad.preview3d')}
                   </Button>
                   <Select
                     size="small"
                     value={selMillUnit}
                     onChange={setSelMillUnit}
                     style={{ width: 150 }}
-                    placeholder="铣削单元"
+                    placeholder={t('dentalCad.millingUnit')}
                     options={millingUnits.map((u: any) => ({ value: u.id, label: u.name }))}
                   />
                   <Button
@@ -674,7 +675,7 @@ export const DentalCadPage: React.FC = () => {
                     onClick={handleSubmitMill}
                     loading={busy}
                   >
-                    提交研磨
+                    {t('dentalCad.submitMill')}
                   </Button>
                 </Space>
               <Button
@@ -682,7 +683,7 @@ export const DentalCadPage: React.FC = () => {
                 icon={<Download size={14} />}
                 loading={busy}
               >
-                导出 STL
+                {t('dentalCad.exportStl')}
               </Button>
             </Space>
             {preview && (
@@ -698,7 +699,7 @@ export const DentalCadPage: React.FC = () => {
                 }}
               >
                 <div>
-                  三角形面: {preview.triangleCount.toLocaleString()} | 体积:{" "}
+                  {t('dentalCad.triangles')} {preview.triangleCount.toLocaleString()} | {t('dentalCad.volume')}{" "}
                   {(preview.volume * 1000).toFixed(0)} mm³
                 </div>
                 <Progress
@@ -707,7 +708,7 @@ export const DentalCadPage: React.FC = () => {
                   strokeColor="#2563eb"
                   style={{ marginTop: 4 }}
                 />
-                <Tag color="green">预览生成完成</Tag>
+                <Tag color="green">{t('dentalCad.previewDone')}</Tag>
               </div>
             )}
             {current?.status === "milling" && (
@@ -716,7 +717,7 @@ export const DentalCadPage: React.FC = () => {
                 title={
                   <Space>
                     <Spin size="small" />
-                    研磨中: Sirona CEREC MC XL
+                    {t('dentalCad.millingInProgress')}
                   </Space>
                 }
                 type="info"
@@ -724,7 +725,7 @@ export const DentalCadPage: React.FC = () => {
               />
             )}
           </Card>
-          <Card size="small" title="设计流程" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('dentalCad.designFlow')} style={{ marginTop: 8 }}>
             <div style={{ display: "flex", gap: 4 }}>
               {[
                 "draft",

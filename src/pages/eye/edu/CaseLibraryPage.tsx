@@ -44,28 +44,28 @@ import { eyeApi } from "../../../services/api/eyeApi";
 import { t } from "../../../i18n/appI18n";
 
 const MODALITY_LABELS_DICT: Record<string, string> = {
-  fundus: "眼底照相",
-  fundus_photo: "眼底照相",
+  fundus: "eyeCaseLibrary.modalityFundus",
+  fundus_photo: "eyeCaseLibrary.modalityFundus",
   oct: "OCT",
   oct_a: "OCT-A",
   oct_bscan: "OCT B-Scan",
   ffa: "FFA",
   icga: "ICG",
-  corneal_endothelium: "角膜内皮",
-  tear_film: "泪膜",
-  fundus_autofluorescence: "眼底自发荧光",
-  slit_lamp: "裂隙灯",
-  topography: "角膜地形图",
-  visual_field: "视野",
-  specular: "角膜内皮镜",
-  ultrasound: "眼部超声",
+  corneal_endothelium: "eyeCaseLibrary.modalityCornealEndothelium",
+  tear_film: "eyeCaseLibrary.modalityTearFilm",
+  fundus_autofluorescence: "eyeCaseLibrary.modalityFundusAutofluorescence",
+  slit_lamp: "eyeCaseLibrary.modalitySlitLamp",
+  topography: "eyeCaseLibrary.modalityTopography",
+  visual_field: "eyeCaseLibrary.modalityVisualField",
+  specular: "eyeCaseLibrary.modalitySpecular",
+  ultrasound: "eyeCaseLibrary.modalityUltrasound",
 };
 const STATUS_LABELS_DICT: Record<string, string> = {
-  archive: "已归档",
-  published: "已发布",
-  pending_review: "待审核",
-  critical_value: "危急值",
-  draft: "草稿",
+  archive: "eyeCaseLibrary.statusArchive",
+  published: "eyeCaseLibrary.statusPublished",
+  pending_review: "eyeCaseLibrary.statusPendingReview",
+  critical_value: "eyeCaseLibrary.statusCriticalValue",
+  draft: "eyeCaseLibrary.statusDraft",
 };
 
 export const CaseLibraryPage: React.FC = () => {
@@ -127,14 +127,14 @@ export const CaseLibraryPage: React.FC = () => {
 
   const handleCreateCase = async () => {
     if (!newCase.patientName.trim() || !newCase.patientId.trim()) {
-      message.warning("请填写患者姓名与患者ID");
+      message.warning(t("eyeCaseLibrary.enterPatientInfo"));
       return;
     }
     setCreating(true);
     try {
       const res = await eyeApi.createEduCase({ ...newCase, status: "draft" });
       if (res.success) {
-        message.success("教学病例已创建");
+        message.success(t("eyeCaseLibrary.caseCreated"));
         void loadCases();
         setShowCreateModal(false);
         setNewCase({
@@ -149,10 +149,10 @@ export const CaseLibraryPage: React.FC = () => {
         setCreating(false);
         return;
       } else {
-        message.warning("创建接口不可用，已本地加入列表");
+        message.warning(t("eyeCaseLibrary.createUnavailableLocal"));
       }
     } catch {
-      message.warning("创建接口不可用，已本地加入列表");
+      message.warning(t("eyeCaseLibrary.createUnavailableLocal"));
     }
     setBackendDown(true);
     setCases(prev => [{
@@ -218,7 +218,7 @@ export const CaseLibraryPage: React.FC = () => {
         label: newAnnotation.label || "test",
         color: newAnnotation.color,
       });
-      if (res.success) message.success("标注已添加");
+      if (res.success) message.success(t("eyeCaseLibrary.annotationAdded"));
       else setBackendDown(true);
     } catch (e: any) {
       setBackendDown(true);
@@ -237,7 +237,7 @@ export const CaseLibraryPage: React.FC = () => {
       });
       if (res.success) {
         setSrExportResult(res.data);
-        message.success("DICOM-SR 已导出");
+        message.success(t("eyeCaseLibrary.srExported"));
       } else setBackendDown(true);
     } catch (e: any) {
       setBackendDown(true);
@@ -252,7 +252,7 @@ export const CaseLibraryPage: React.FC = () => {
       const res = await eyeApi.eduDeidentify({ caseId: selectedCase.id, level: "basic" });
       if (res.success) {
         setDeidentifiedResult(res.data);
-        message.success("脱敏完成");
+        message.success(t("eyeCaseLibrary.deidDone"));
       } else setBackendDown(true);
     } catch (e: any) {
       setBackendDown(true);
@@ -278,7 +278,7 @@ export const CaseLibraryPage: React.FC = () => {
         const sres = await eyeApi.eduStats({ cohortId: cohortData.cohortId });
         if (sres.success) setStats(sres.data);
         message.success(
-          `队列 ${cohortData.cohortId}: ${cohortData.totalCases} 例`,
+          t("eyeCaseLibrary.cohortMsg", { id: cohortData.cohortId, count: cohortData.totalCases }),
         );
       } else setBackendDown(true);
     } catch (e: any) {
@@ -290,19 +290,19 @@ export const CaseLibraryPage: React.FC = () => {
   // [v3.0.6.11-103 Wave 3A] 创建标注项目
   const handleCreateProject = async () => {
     if (!newProject.name.trim()) {
-      message.warning("请填写项目名称");
+      message.warning(t("eyeCaseLibrary.enterProjectName"));
       return;
     }
     setCreatingProject(true);
     try {
       const res = await eyeApi.createEduAnnotationProject(newProject);
       if (res.success) {
-        message.success("标注项目已创建");
+        message.success(t("eyeCaseLibrary.projectCreated"));
         setProjects((prev) => [res.data, ...prev]);
         setShowProjectModal(false);
         setNewProject({ name: "", total: 100, completed: 0 });
       } else {
-        message.warning("创建接口不可用");
+        message.warning(t("eyeCaseLibrary.createUnavailable"));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -315,16 +315,16 @@ export const CaseLibraryPage: React.FC = () => {
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <BookOpen size={20} />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科教学病例库</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("eyeCaseLibrary.title")}</span>
         <Tag color="cyan">PR9</Tag>
         <Tag color="purple">v3.0.6.8-42</Tag>
-        <Tag color="blue">DICOM 标注 + SR 导出</Tag>
-        <Tag color="green">DICOM PS 3.15 脱敏</Tag>
+        <Tag color="blue">{t("eyeCaseLibrary.tagAnnotation")}</Tag>
+        <Tag color="green">{t("eyeCaseLibrary.tagDeid")}</Tag>
         {/* [G005 Wave1A P0] /eye/edu/* 已接真实后端 (eye-edu 模块), 失败时回退本地并标注 */}
         {backendDown ? (
-          <Tag color="orange">离线回退 (后端不可用)</Tag>
+          <Tag color="orange">{t("eyeCaseLibrary.offlineFallback")}</Tag>
         ) : (
-          <Tag color="green">真实后端 /eye/edu/*</Tag>
+          <Tag color="green">{t("eyeCaseLibrary.realBackend")}</Tag>
         )}
       </Space>
 
@@ -337,7 +337,7 @@ export const CaseLibraryPage: React.FC = () => {
             key: "cases",
             label: (
               <span>
-                <Library size={14} /> 病例库
+                <Library size={14} /> {t("eyeCaseLibrary.tabCases")}
               </span>
             ),
             children: (
@@ -348,29 +348,29 @@ export const CaseLibraryPage: React.FC = () => {
                       title={
                         <Space>
                           <Filter size={16} />
-                          病例检索
+                          {t("eyeCaseLibrary.caseSearch")}
                         </Space>
                       }
                       size="small"
                     >
                       <Input
-                        placeholder="搜索患者姓名 / 主诉"
+                        placeholder={t("eyeCaseLibrary.searchPlaceholder")}
                         prefix={<Search size={14} />}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ marginBottom: 8 }}
                       />
                       <Select
-                        placeholder="按病种筛选"
+                        placeholder={t("eyeCaseLibrary.filterByDisease")}
                         value={diseaseFilter || undefined}
                         onChange={setDiseaseFilter}
                         allowClear
                         style={{ width: "100%", marginBottom: 8 }}
                         options={[
-                          { value: "DR", label: "DR 糖尿病视网膜病变" },
-                          { value: "AMD", label: "AMD 老年黄斑变性" },
-                          { value: "青光眼", label: "青光眼" },
-                          { value: "白内障", label: "白内障" },
+                          { value: "DR", label: t("eyeCaseLibrary.diseaseDR") },
+                          { value: "AMD", label: t("eyeCaseLibrary.diseaseAMD") },
+                          { value: "青光眼", label: t("eyeCaseLibrary.diseaseGlaucoma") },
+                          { value: "白内障", label: t("eyeCaseLibrary.diseaseCataract") },
                         ]}
                       />
                       <Button
@@ -379,13 +379,13 @@ export const CaseLibraryPage: React.FC = () => {
                         icon={<Filter size={14} />}
                         onClick={handleCohort}
                       >
-                        科研队列筛选
+                        {t("eyeCaseLibrary.cohortFilter")}
                       </Button>
 
                       {cohort && (
                         <div style={{ marginTop: 12 }}>
                           <Alert
-                            title={`队列 ${cohort.cohortId}: ${cohort.totalCases} 例`}
+                            title={t("eyeCaseLibrary.cohortMsg", { id: cohort.cohortId, count: cohort.totalCases })}
                             type="success"
                             showIcon
                           />
@@ -394,27 +394,27 @@ export const CaseLibraryPage: React.FC = () => {
                               <Row gutter={[8, 4]}>
                                 <Col span={12}>
                                   <Statistic
-                                    title="男"
+                                    title={t("eyeCaseLibrary.male")}
                                     value={stats.demographics.male}
                                   />
                                 </Col>
                                 <Col span={12}>
                                   <Statistic
-                                    title="女"
+                                    title={t("eyeCaseLibrary.female")}
                                     value={stats.demographics.female}
                                   />
                                 </Col>
                                 <Col span={24}>
                                   <Statistic
-                                    title="平均年龄"
+                                    title={t("eyeCaseLibrary.meanAge")}
                                     value={stats.demographics.meanAge}
-                                    suffix="岁"
+                                    suffix={t("eyeCaseLibrary.yearsOld")}
                                   />
                                 </Col>
                               </Row>
                               <Divider style={{ margin: "8px 0" }} />
                               <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                                病种分布:
+                                {t("eyeCaseLibrary.diseaseDistribution")}
                               </div>
                               {Object.entries(stats.diseaseDistribution).map(
                                 ([k, v]: any) => (
@@ -427,7 +427,7 @@ export const CaseLibraryPage: React.FC = () => {
                                   >
                                     <span>{k}</span>
                                     <span style={{ fontWeight: 600 }}>
-                                      {v} 例
+                                      {t("eyeCaseLibrary.caseCount", { count: v })}
                                     </span>
                                   </div>
                                 ),
@@ -444,12 +444,12 @@ export const CaseLibraryPage: React.FC = () => {
                       title={
                         <Space>
                           <GraduationCap size={16} />
-                          病例列表 (前 20)
+                          {t("eyeCaseLibrary.caseList")}
                           <Tag color="blue">{cases.length}</Tag>
                         </Space>
                       }
                       size="small"
-                      extra={<Button icon={<Plus size={12} />} onClick={() => setShowCreateModal(true)}>新增</Button>}
+                      extra={<Button icon={<Plus size={12} />} onClick={() => setShowCreateModal(true)}>{t("eyeCaseLibrary.add")}</Button>}
                     >
                       <List
                         size="small"
@@ -464,7 +464,7 @@ export const CaseLibraryPage: React.FC = () => {
                                   handleCaseDetail(c.id || c.reportId)
                                 }
                               >
-                                查看
+                                {t("eyeCaseLibrary.view")}
                               </Button>,
                             ]}
                           >
@@ -476,23 +476,23 @@ export const CaseLibraryPage: React.FC = () => {
                               }
                               title={
                                 <Space>
-                                  <span>{c.patientName || "未知"}</span>
+                                  <span>{c.patientName || t("eyeCaseLibrary.unknown")}</span>
                                   <Tag color="cyan">
-                                    {MODALITY_LABELS_DICT[c.modality] ||
+                                    {t(MODALITY_LABELS_DICT[c.modality] ||
                                       c.modality ||
-                                      "眼底照相"}
+                                      "eyeCaseLibrary.modalityFundus")}
                                   </Tag>
                                   <Tag>
-                                    {STATUS_LABELS_DICT[c.status] ||
+                                    {t(STATUS_LABELS_DICT[c.status] ||
                                       c.status ||
-                                      "已归档"}
+                                      "eyeCaseLibrary.statusArchive")}
                                   </Tag>
                                 </Space>
                               }
                               description={
                                 <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                                   ID: {c.id || c.reportId} |{" "}
-                                  {c.chiefComplaint || "常规检查"}
+                                  {c.chiefComplaint || t("eyeCaseLibrary.routineExam")}
                                 </span>
                               }
                             />
@@ -507,7 +507,7 @@ export const CaseLibraryPage: React.FC = () => {
                   title={
                     <Space>
                       <FileText size={16} />
-                      病例详情 {selectedCase?.id}
+                      {t("eyeCaseLibrary.caseDetail")} {selectedCase?.id}
                     </Space>
                   }
                   open={!!selectedCase}
@@ -517,21 +517,21 @@ export const CaseLibraryPage: React.FC = () => {
                   {selectedCase && (
                     <>
                       <Descriptions bordered column={1} size="small">
-                        <Descriptions.Item label="患者">
+                        <Descriptions.Item label={t("eyeCaseLibrary.patient")}>
                           {selectedCase.patientName}
                         </Descriptions.Item>
-                        <Descriptions.Item label="模态">
-                          {MODALITY_LABELS_DICT[selectedCase.modality] ||
+                        <Descriptions.Item label={t("eyeCaseLibrary.modality")}>
+                          {t(MODALITY_LABELS_DICT[selectedCase.modality] ||
                             selectedCase.modality ||
-                            "眼底照相"}
+                            "eyeCaseLibrary.modalityFundus")}
                         </Descriptions.Item>
-                        <Descriptions.Item label="检查部位">
+                        <Descriptions.Item label={t("eyeCaseLibrary.bodyPart")}>
                           {selectedCase.bodyPart || "-"}
                         </Descriptions.Item>
-                        <Descriptions.Item label="主诉">
+                        <Descriptions.Item label={t("eyeCaseLibrary.chiefComplaint")}>
                           {selectedCase.chiefComplaint || "-"}
                         </Descriptions.Item>
-                        <Descriptions.Item label="诊断">
+                        <Descriptions.Item label={t("eyeCaseLibrary.diagnosis")}>
                           {selectedCase.diagnosis ||
                             selectedCase.impression ||
                             "-"}
@@ -546,13 +546,13 @@ export const CaseLibraryPage: React.FC = () => {
                             key: "annotate",
                             label: (
                               <span>
-                                <Edit size={12} /> DICOM 标注
+                                <Edit size={12} /> {t("eyeCaseLibrary.tabAnnotate")}
                               </span>
                             ),
                             children: (
                               <>
                                 <Form layout="inline" size="small">
-                                  <Form.Item label="类型">
+                                  <Form.Item label={t("eyeCaseLibrary.type")}>
                                     <Select
                                       value={newAnnotation.type}
                                       onChange={(v) =>
@@ -563,18 +563,18 @@ export const CaseLibraryPage: React.FC = () => {
                                       }
                                       style={{ width: 120 }}
                                       options={[
-                                        { value: "roi", label: "ROI 区域" },
+                                        { value: "roi", label: t("eyeCaseLibrary.annoRoi") },
                                         {
                                           value: "segmentation",
-                                          label: "分割",
+                                          label: t("eyeCaseLibrary.annoSegmentation"),
                                         },
-                                        { value: "measurement", label: "测量" },
-                                        { value: "text", label: "文字" },
-                                        { value: "arrow", label: "箭头" },
+                                        { value: "measurement", label: t("eyeCaseLibrary.annoMeasurement") },
+                                        { value: "text", label: t("eyeCaseLibrary.annoText") },
+                                        { value: "arrow", label: t("eyeCaseLibrary.annoArrow") },
                                       ]}
                                     />
                                   </Form.Item>
-                                  <Form.Item label="标签">
+                                  <Form.Item label={t("eyeCaseLibrary.label")}>
                                     <Input
                                       value={newAnnotation.label}
                                       onChange={(e) =>
@@ -592,12 +592,12 @@ export const CaseLibraryPage: React.FC = () => {
                                       icon={<Save size={12} />}
                                       onClick={handleAnnotate}
                                     >
-                                      添加
+                                      {t("eyeCaseLibrary.add")}
                                     </Button>
                                   </Form.Item>
                                 </Form>
                                 <Alert
-                                  title="标注将使用 DICOM-SR TID 1500 标准导出"
+                                  title={t("eyeCaseLibrary.annotateSrHint")}
                                   type="info"
                                   showIcon
                                   style={{ marginTop: 8 }}
@@ -609,7 +609,7 @@ export const CaseLibraryPage: React.FC = () => {
                             key: "export",
                             label: (
                               <span>
-                                <Download size={12} /> 导出 SR
+                                <Download size={12} /> {t("eyeCaseLibrary.tabExportSr")}
                               </span>
                             ),
                             children: (
@@ -619,19 +619,19 @@ export const CaseLibraryPage: React.FC = () => {
                                   icon={<Download size={12} />}
                                   onClick={handleExportSR}
                                 >
-                                  导出 DICOM-SR TID 1500
+                                  {t("eyeCaseLibrary.exportSrBtn")}
                                 </Button>
                                 {srExportResult && (
                                   <div style={{ marginTop: 12, fontSize: 12 }}>
                                     <div>
-                                      SOP 实例 UID:{" "}
+                                      {t("eyeCaseLibrary.sopInstanceUid")}{" "}
                                       <code>
                                         {srExportResult.sopInstanceUID}
                                       </code>
                                     </div>
-                                    <div>格式: {srExportResult.format}</div>
+                                    <div>{t("eyeCaseLibrary.formatLabel")} {srExportResult.format}</div>
                                     <div>
-                                      内容数:{" "}
+                                      {t("eyeCaseLibrary.contentCount")}{" "}
                                       {srExportResult.contentSequence?.length ||
                                         0}
                                     </div>
@@ -644,7 +644,7 @@ export const CaseLibraryPage: React.FC = () => {
                             key: "deid",
                             label: (
                               <span>
-                                <Shield size={12} /> 脱敏 (PS 3.15)
+                                <Shield size={12} /> {t("eyeCaseLibrary.tabDeid")}
                               </span>
                             ),
                             children: (
@@ -654,7 +654,7 @@ export const CaseLibraryPage: React.FC = () => {
                                   icon={<Shield size={12} />}
                                   onClick={handleDeidentify}
                                 >
-                                  脱敏 (basic 等级)
+                                  {t("eyeCaseLibrary.deidBtn")}
                                 </Button>
                                 {deidentifiedResult && (
                                   <div style={{ marginTop: 12 }}>
@@ -662,7 +662,7 @@ export const CaseLibraryPage: React.FC = () => {
                                       {deidentifiedResult.deidentifiedId}
                                     </Tag>
                                     <div style={{ fontSize: 12, marginTop: 8 }}>
-                                      已执行操作:
+                                      {t("eyeCaseLibrary.actionsExecuted")}
                                     </div>
                                     {deidentifiedResult.actions.map(
                                       (a: string, i: number) => (
@@ -717,13 +717,13 @@ export const CaseLibraryPage: React.FC = () => {
                         <div
                           style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8 }}
                         >
-                          {p.completed} / {p.total} 标注
+                          {t("eyeCaseLibrary.annotationsProgress", { completed: p.completed, total: p.total })}
                         </div>
                         <Tag
                           color={p.status === "completed" ? "green" : "blue"}
                           style={{ marginTop: 4 }}
                         >
-                          {p.status === "completed" ? "已完成" : "进行中"}
+                          {p.status === "completed" ? t("eyeCaseLibrary.completed") : t("eyeCaseLibrary.inProgress")}
                         </Tag>
                       </Card>
                     </Col>
@@ -736,44 +736,44 @@ export const CaseLibraryPage: React.FC = () => {
       />
 
       <Modal
-        title="新增教学病例"
+        title={t("eyeCaseLibrary.addCaseTitle")}
         open={showCreateModal}
         onCancel={() => setShowCreateModal(false)}
         onOk={() => void handleCreateCase()}
         confirmLoading={creating}
-        okText="创建"
+        okText={t("eyeCaseLibrary.create")}
         width={500}
       >
         <Form layout="vertical" size="small">
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item label="患者姓名 *" required>
-                <Input value={newCase.patientName} onChange={(e) => setNewCase({ ...newCase, patientName: e.target.value })} placeholder="请输入姓名" />
+              <Form.Item label={t("eyeCaseLibrary.patientNameRequired")} required>
+                <Input value={newCase.patientName} onChange={(e) => setNewCase({ ...newCase, patientName: e.target.value })} placeholder={t("eyeCaseLibrary.enterName")} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="患者ID *" required>
-                <Input value={newCase.patientId} onChange={(e) => setNewCase({ ...newCase, patientId: e.target.value })} placeholder="如 p-1009" />
+              <Form.Item label={t("eyeCaseLibrary.patientIdRequired")} required>
+                <Input value={newCase.patientId} onChange={(e) => setNewCase({ ...newCase, patientId: e.target.value })} placeholder={t("eyeCaseLibrary.patientIdPlaceholder")} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="检查模态">
-                <Select value={newCase.modality} onChange={(v) => setNewCase({ ...newCase, modality: v })} options={Object.entries(MODALITY_LABELS_DICT).map(([value, label]) => ({ value, label }))} />
+              <Form.Item label={t("eyeCaseLibrary.examModality")}>
+                <Select value={newCase.modality} onChange={(v) => setNewCase({ ...newCase, modality: v })} options={Object.entries(MODALITY_LABELS_DICT).map(([value, label]) => ({ value, label: t(label) }))} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="检查日期">
+              <Form.Item label={t("eyeCaseLibrary.examDate")}>
                 <Input type="date" value={newCase.studyDate} onChange={(e) => setNewCase({ ...newCase, studyDate: e.target.value })} />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item label="主诉">
-                <Input value={newCase.chiefComplaint} onChange={(e) => setNewCase({ ...newCase, chiefComplaint: e.target.value })} placeholder="如 视物模糊 2 周" />
+              <Form.Item label={t("eyeCaseLibrary.chiefComplaint")}>
+                <Input value={newCase.chiefComplaint} onChange={(e) => setNewCase({ ...newCase, chiefComplaint: e.target.value })} placeholder={t("eyeCaseLibrary.chiefComplaintPlaceholder")} />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item label="诊断">
-                <Input value={newCase.diagnosis} onChange={(e) => setNewCase({ ...newCase, diagnosis: e.target.value })} placeholder="如 糖尿病视网膜病变" />
+              <Form.Item label={t("eyeCaseLibrary.diagnosis")}>
+                <Input value={newCase.diagnosis} onChange={(e) => setNewCase({ ...newCase, diagnosis: e.target.value })} placeholder={t("eyeCaseLibrary.diagnosisPlaceholder")} />
               </Form.Item>
             </Col>
           </Row>
@@ -795,7 +795,7 @@ export const CaseLibraryPage: React.FC = () => {
             <Input
               value={newProject.name}
               onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-              placeholder="如 DR 微动脉瘤标注"
+              placeholder={t("eyeCaseLibrary.projectNamePlaceholder")}
             />
           </Form.Item>
           <Form.Item label={t("eye.edu.projectTotal")}>

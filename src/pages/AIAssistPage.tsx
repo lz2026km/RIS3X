@@ -11,6 +11,7 @@ import {
 import { Sparkles, Copy, Check, History, RefreshCw, FileText, ClipboardPaste, BrainCircuit } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../i18n/appI18n'
 
 const { Text, Paragraph } = Typography
 
@@ -23,7 +24,17 @@ const MODALITY_OPTIONS = [
   { label: 'DSA', value: 'DSA' },
 ]
 
-const BODYPART_OPTIONS = ['头部', '胸部', '腹部', '盆腔', '脊柱', '四肢关节', '乳腺', '颈部', '血管'].map((b) => ({ label: b, value: b }))
+const BODYPART_OPTIONS = [
+  { value: '头部', label: t('aiAssist.body.head') },
+  { value: '胸部', label: t('aiAssist.body.chest') },
+  { value: '腹部', label: t('aiAssist.body.abdomen') },
+  { value: '盆腔', label: t('aiAssist.body.pelvis') },
+  { value: '脊柱', label: t('aiAssist.body.spine') },
+  { value: '四肢关节', label: t('aiAssist.body.joint') },
+  { value: '乳腺', label: t('aiAssist.body.breast') },
+  { value: '颈部', label: t('aiAssist.body.neck') },
+  { value: '血管', label: t('aiAssist.body.vessel') },
+]
 
 interface HistoryItem {
   id: string
@@ -49,9 +60,9 @@ const AIAssistPage: React.FC = () => {
     try {
       const res = await aiDraftApi.getReportDraft(reportId)
       if (res.success) setDraft(res.data)
-      else setError(res.error?.message ?? '历史草稿加载失败')
+      else setError(res.error?.message ?? t('aiAssist.loadDraftFail'))
     } catch (e) {
-      setError(e instanceof Error ? e.message : '历史草稿加载失败')
+      setError(e instanceof Error ? e.message : t('aiAssist.loadDraftFail'))
     } finally {
       setLoadingHistory(false)
     }
@@ -93,14 +104,14 @@ const AIAssistPage: React.FC = () => {
         style: values.style,
       })
       if (!res.success) {
-        setError(res.error?.message ?? '生成失败,请稍后重试')
+        setError(res.error?.message ?? t('aiAssist.generateFail'))
         return
       }
       setDraft(res.data)
       setHistory((prev) => [{ id: res.data.id, reportId, style: values.style, createdAt: res.data.createdAt, modality: values.modality, bodyPart: values.bodyPart }, ...prev].slice(0, 20))
-      message.success('AI 草稿已生成')
+      message.success(t('aiAssist.generated'))
     } catch (e) {
-      setError(e instanceof Error ? e.message : '生成失败,请检查网络后重试')
+      setError(e instanceof Error ? e.message : t('aiAssist.generateFailNet'))
     } finally {
       setGenerating(false)
     }
@@ -110,10 +121,10 @@ const AIAssistPage: React.FC = () => {
     try {
       await navigator.clipboard.writeText(text)
       setCopied(key)
-      message.success('已复制到剪贴板')
+      message.success(t('aiAssist.copied'))
       setTimeout(() => setCopied(null), 1500)
     } catch {
-      message.error('复制失败,请手动选择文本')
+      message.error(t('aiAssist.copyFail'))
     }
   }
 
@@ -122,12 +133,12 @@ const AIAssistPage: React.FC = () => {
     try {
       const res = await aiDraftApi.acceptDraft(draft.id)
       if (res.success) {
-        message.success('草稿已接受,可粘贴到报告编辑器中')
+        message.success(t('aiAssist.acceptSuccess'))
       } else {
-        message.error(res.error?.message ?? '接受失败')
+        message.error(res.error?.message ?? t('aiAssist.acceptFail'))
       }
     } catch (e) {
-      message.error(e instanceof Error ? e.message : '接受失败')
+      message.error(e instanceof Error ? e.message : t('aiAssist.acceptFail'))
     }
   }
 
@@ -137,7 +148,7 @@ const AIAssistPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Sparkles size={20} color="#7c3aed" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>AI 辅助助手</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiAssist.title')}</span>
         <Tag color="purple">v3.0.6.11-75</Tag>
         <Tag icon={<BrainCircuit size={12} />} color="blue">deepseek-v3.0</Tag>
       </Space>
@@ -146,66 +157,66 @@ const AIAssistPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          message="操作失败"
+          message={t('aiAssist.opFail')}
           description={error}
           style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => setError('')}>关闭</Button>}
+          action={<Button size="small" onClick={() => setError('')}>{t('aiAssist.close')}</Button>}
         />
       )}
 
       <Row gutter={16}>
         <Col xs={24} lg={9}>
-          <Card size="small" title="临床描述输入" extra={<Tag color="geekblue">生成式草稿</Tag>} style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('aiAssist.clinicalInput')} extra={<Tag color="geekblue">{t('aiAssist.genDraftTag')}</Tag>} style={{ marginBottom: 16 }}>
             <Form form={form} layout="vertical" size="small" initialValues={{ modality: 'CT', bodyPart: '胸部', style: 'standard' }}>
               <Row gutter={8}>
                 <Col span={12}>
-                  <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+                  <Form.Item name="modality" label={t('aiAssist.form.modality')} rules={[{ required: true }]}>
                     <Select options={MODALITY_OPTIONS} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="bodyPart" label="检查部位" rules={[{ required: true }]}>
+                  <Form.Item name="bodyPart" label={t('aiAssist.form.bodyPart')} rules={[{ required: true }]}>
                     <Select options={BODYPART_OPTIONS} showSearch />
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item name="clinicalInfo" label="临床信息" rules={[{ required: true, message: '请输入临床描述' }]}>
-                <Input.TextArea rows={3} placeholder="例: 男性 65 岁,咳嗽 2 周,低热,否认吸烟史,CT 示右肺上叶磨玻璃结节。" />
+              <Form.Item name="clinicalInfo" label={t('aiAssist.form.clinicalInfo')} rules={[{ required: true, message: t('aiAssist.validate.clinicalInfo') }]}>
+                <Input.TextArea rows={3} placeholder={t('aiAssist.ph.clinicalInfo')} />
               </Form.Item>
-              <Form.Item name="findings" label="影像所见关键词">
-                <Input.TextArea rows={3} placeholder="例: 右肺上叶磨玻璃结节,边界清晰,约 8mm;余肺野清晰。" />
+              <Form.Item name="findings" label={t('aiAssist.form.findings')}>
+                <Input.TextArea rows={3} placeholder={t('aiAssist.ph.findings')} />
               </Form.Item>
-              <Form.Item name="style" label="书写风格">
+              <Form.Item name="style" label={t('aiAssist.form.style')}>
                 <Segmented
                   options={[
-                    { label: '简洁', value: 'concise' },
-                    { label: '标准', value: 'standard' },
-                    { label: '详细', value: 'detailed' },
+                    { label: t('aiAssist.style.concise'), value: 'concise' },
+                    { label: t('aiAssist.style.standard'), value: 'standard' },
+                    { label: t('aiAssist.style.detailed'), value: 'detailed' },
                   ]}
                 />
               </Form.Item>
               <Button type="primary" block icon={<Sparkles size={14} />} onClick={handleGenerate} loading={generating}>
-                {generating ? 'AI 生成中...' : '生成建议草稿'}
+                {generating ? t('aiAssist.generating') : t('aiAssist.generateBtn')}
               </Button>
             </Form>
           </Card>
 
           <Card
             size="small"
-            title={<Space><History size={14} color="#2563eb" />历史记录</Space>}
+            title={<Space><History size={14} color="#2563eb" />{t('aiAssist.historyTitle')}</Space>}
             style={{ marginBottom: 16 }}
           >
             {loadingHistory ? (
               <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /></div>
             ) : history.length === 0 ? (
-              <EmptyState description="暂无历史记录" />
+              <EmptyState description={t('aiAssist.emptyHistory')} />
             ) : (
               <List
                 size="small"
                 dataSource={history}
                 renderItem={(item) => (
                   <List.Item
-                    actions={[<Button key="view" size="small" type="link" onClick={() => loadDraft(item.reportId)}>查看</Button>]}
+                    actions={[<Button key="view" size="small" type="link" onClick={() => loadDraft(item.reportId)}>{t('aiAssist.view')}</Button>]}
                   >
                     <List.Item.Meta
                       title={<Space><Tag color="blue">{item.modality}</Tag><Text>{item.bodyPart}</Text><Tag>{item.style}</Tag></Space>}
@@ -221,14 +232,14 @@ const AIAssistPage: React.FC = () => {
         <Col xs={24} lg={15}>
           <Card
             size="small"
-            title={<Space><FileText size={14} color="#2563eb" />AI 生成草稿</Space>}
+            title={<Space><FileText size={14} color="#2563eb" />{t('aiAssist.draftTitle')}</Space>}
             extra={draft && (
               <Space size={4}>
-                <Tooltip title="复制全文">
+                <Tooltip title={t('aiAssist.copyAll')}>
                   <Button size="small" icon={copied === 'all' ? <Check size={12} /> : <Copy size={12} />} onClick={() => copyText(allText, 'all')} />
                 </Tooltip>
-                <Tooltip title="接受草稿">
-                  <Button size="small" type="primary" icon={<ClipboardPaste size={12} />} onClick={handleAccept}>接受草稿</Button>
+                <Tooltip title={t('aiAssist.acceptDraft')}>
+                  <Button size="small" type="primary" icon={<ClipboardPaste size={12} />} onClick={handleAccept}>{t('aiAssist.acceptDraft')}</Button>
                 </Tooltip>
               </Space>
             )}
@@ -236,26 +247,26 @@ const AIAssistPage: React.FC = () => {
             {generating ? (
               <div style={{ textAlign: 'center', padding: '48px 0' }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 12, color: '#8b5cf6' }}>AI 正在分析临床描述并生成草稿...</div>
+                <div style={{ marginTop: 12, color: '#8b5cf6' }}>{t('aiAssist.analyzing')}</div>
               </div>
             ) : !draft ? (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="输入临床描述后点击「生成建议草稿」" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiAssist.emptyDraft')} />
             ) : (
               <>
                 <Row gutter={16} style={{ marginBottom: 12 }}>
                   <Col span={8}>
                     <Card size="small" styles={{ body: { padding: '8px 12px' } }}>
-                      <Statistic title="整体置信度" value={Math.round((draft.confidence ?? 0) * 100)} suffix="%" valueStyle={{ color: '#7c3aed', fontSize: 20 }} />
+                      <Statistic title={t('aiAssist.stat.confidence')} value={Math.round((draft.confidence ?? 0) * 100)} suffix="%" valueStyle={{ color: '#7c3aed', fontSize: 20 }} />
                     </Card>
                   </Col>
                   <Col span={8}>
                     <Card size="small" styles={{ body: { padding: '8px 12px' } }}>
-                      <Statistic title="模型版本" value={draft.modelVersion || '-'} valueStyle={{ fontSize: 14 }} />
+                      <Statistic title={t('aiAssist.stat.modelVersion')} value={draft.modelVersion || '-'} valueStyle={{ fontSize: 14 }} />
                     </Card>
                   </Col>
                   <Col span={8}>
                     <Card size="small" styles={{ body: { padding: '8px 12px' } }}>
-                      <Statistic title="状态" value={draft.status} valueStyle={{ fontSize: 14, color: draft.status === 'ACCEPTED' ? '#52c41a' : '#faad14' }} />
+                      <Statistic title={t('aiAssist.stat.status')} value={draft.status} valueStyle={{ fontSize: 14, color: draft.status === 'ACCEPTED' ? '#52c41a' : '#faad14' }} />
                     </Card>
                   </Col>
                 </Row>
@@ -270,17 +281,17 @@ const AIAssistPage: React.FC = () => {
                         icon={copied === s.heading ? <Check size={12} color="#52c41a" /> : <Copy size={12} />}
                         onClick={() => copyText(s.content, s.heading)}
                       >
-                        {copied === s.heading ? '已复制' : '复制'}
+                        {copied === s.heading ? t('aiAssist.copiedShort') : t('aiAssist.copy')}
                       </Button>
                     </div>
                     <Paragraph style={{ marginBottom: 0, whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>{s.content}</Paragraph>
                   </div>
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                  <Text type="secondary" style={{ fontSize: 12 }}>生成时间: {new Date(draft.createdAt).toLocaleString('zh-CN')}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{t('aiAssist.generateTime')} {new Date(draft.createdAt).toLocaleString('zh-CN')}</Text>
                   <Space>
-                    <Button size="small" icon={<RefreshCw size={12} />} onClick={handleGenerate} loading={generating}>重新生成</Button>
-                    <Button size="small" type="primary" icon={<ClipboardPaste size={12} />} onClick={() => copyText(allText, 'all')}>复制全文到报告</Button>
+                    <Button size="small" icon={<RefreshCw size={12} />} onClick={handleGenerate} loading={generating}>{t('aiAssist.regenerate')}</Button>
+                    <Button size="small" type="primary" icon={<ClipboardPaste size={12} />} onClick={() => copyText(allText, 'all')}>{t('aiAssist.copyAllToReport')}</Button>
                   </Space>
                 </div>
               </>
@@ -288,7 +299,7 @@ const AIAssistPage: React.FC = () => {
           </Card>
           {draft && draft.sections.length > 0 && (
             <div style={{ marginTop: 12 }}>
-              <Card size="small" title={<Space><Sparkles size={13} color="#f59e0b" />段落置信度</Space>}>
+              <Card size="small" title={<Space><Sparkles size={13} color="#f59e0b" />{t('aiAssist.sectionConfidence')}</Space>}>
                 <Row gutter={[12, 8]}>
                   {draft.sections.map((s) => (
                     <Col span={12} key={s.heading}>

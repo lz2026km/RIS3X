@@ -3,41 +3,42 @@ import { Card, Tabs, Table, Button, Form, Input, Select, DatePicker, Upload, mes
 import { UploadOutlined, SendOutlined, SearchOutlined, ForwardOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { api } from '../../services/api/client';
 import { usePagination } from '../../hooks/usePagination';
+import { t } from '../../i18n/appI18n';
 
 const { RangePicker } = DatePicker;
 
 const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功', FAIL: '失败' };
 
 const ECHO_COLUMNS: any[] = [
-  { title: '应用实体名', dataIndex: 'aeTitle', key: 'aeTitle' },
-  { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
-  { title: '端口', dataIndex: 'port', key: 'port' },
-  { title: '设备', dataIndex: 'modality', key: 'modality' },
-  { title: '连通性', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> : '-' },
+  { title: t('dimse.colAeTitle'), dataIndex: 'aeTitle', key: 'aeTitle' },
+  { title: t('dimse.colIp'), dataIndex: 'ip', key: 'ip' },
+  { title: t('dimse.colPort'), dataIndex: 'port', key: 'port' },
+  { title: t('dimse.colModality'), dataIndex: 'modality', key: 'modality' },
+  { title: t('dimse.colConnectivity'), dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
+  { title: t('dimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> : '-' },
 ];
 
 const MWL_COLUMNS = [
-  { title: '患者姓名', dataIndex: 'patientName', key: 'patientName' },
-  { title: '患者 ID', dataIndex: 'patientId', key: 'patientId' },
-  { title: '检查号', dataIndex: 'accessionNumber', key: 'accessionNumber' },
-  { title: '设备', dataIndex: 'modality', key: 'modality' },
-  { title: '检查日期', dataIndex: 'studyDate', key: 'studyDate' },
-  { title: '状态', dataIndex: 'status', key: 'status' },
+  { title: t('dimse.colPatientName'), dataIndex: 'patientName', key: 'patientName' },
+  { title: t('dimse.colPatientId'), dataIndex: 'patientId', key: 'patientId' },
+  { title: t('dimse.colAccession'), dataIndex: 'accessionNumber', key: 'accessionNumber' },
+  { title: t('dimse.colModality'), dataIndex: 'modality', key: 'modality' },
+  { title: t('dimse.colStudyDate'), dataIndex: 'studyDate', key: 'studyDate' },
+  { title: t('dimse.colStatus'), dataIndex: 'status', key: 'status' },
 ];
 
 const C_STORE_COLUMNS = [
-  { title: 'SOP 实例 UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
-  { title: '存储路径', dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
-  { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
+  { title: t('dimse.colSopInstanceUid'), dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
+  { title: t('dimse.colStoragePath'), dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
+  { title: t('dimse.colSize'), dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
+  { title: t('dimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ];
 
 const C_MOVE_COLUMNS = [
-  { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
-  { title: '目标 AE', dataIndex: 'destAe', key: 'destAe' },
-  { title: '传输数', dataIndex: 'transferredCount', key: 'transferredCount' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
+  { title: t('dimse.colStudyUid'), dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
+  { title: t('dimse.colDestAe'), dataIndex: 'destAe', key: 'destAe' },
+  { title: t('dimse.colTransferredCount'), dataIndex: 'transferredCount', key: 'transferredCount' },
+  { title: t('dimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ];
 
 const MOCK_DEVICES = [
@@ -90,7 +91,7 @@ export const DimsePage: React.FC = () => {
     if (res.success) {
       setMwlResults(res.data!);
     } else {
-      message.error(res.error?.message || '查询失败');
+      message.error(res.error?.message || t('dimse.errQuery'));
     }
     setMwlLoading(false);
   };
@@ -102,10 +103,10 @@ export const DimsePage: React.FC = () => {
     const res = await api.post<any>('/dicom-dimse/store', formData);
     if (res.success) {
       setStoreResults(prev => [...prev, { ...res.data, status: 'SUCCESS' }]);
-      message.success('存储成功');
+      message.success(t('dimse.storeSuccess'));
     } else {
       setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sopInstanceUid: '-', storagePath: '-', sizeBytes: file.size }]);
-      message.error(res.error?.message || '存储失败');
+      message.error(res.error?.message || t('dimse.errStore'));
     }
     setStoreLoading(false);
   };
@@ -123,7 +124,7 @@ export const DimsePage: React.FC = () => {
       message.success(`移动完成：${res.data!.transferredCount} 个实例已传输`);
     } else {
       setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: 0, status: 'FAIL' }]);
-      message.error(res.error?.message || '移动失败');
+      message.error(res.error?.message || t('dimse.errMove'));
     }
     setMoveLoading(false);
   };
@@ -133,7 +134,7 @@ export const DimsePage: React.FC = () => {
       key: 'echo',
       label: <Space><SendOutlined />C-ECHO</Space>,
       children: (
-        <Card size="small" title="DICOM 设备列表">
+        <Card size="small" title={t('dimse.deviceList')}>
           <Table scroll={{ x: 'max-content' }}
             dataSource={devices}
             rowKey="aeTitle"
@@ -141,10 +142,10 @@ export const DimsePage: React.FC = () => {
             columns={[
               ...ECHO_COLUMNS,
               {
-                title: '操作',
+                title: t('dimse.colAction'),
                 key: 'action',
                 render: (_: any, record: any) => (
-                  <Button type="primary" size="small" icon={<SendOutlined />} loading={record._echoing} onClick={() => handleEcho(record)}>ECHO 测试</Button>
+                  <Button type="primary" size="small" icon={<SendOutlined />} loading={record._echoing} onClick={() => handleEcho(record)}>{t('dimse.echoTest')}</Button>
                 ),
               },
             ]}
@@ -159,22 +160,22 @@ export const DimsePage: React.FC = () => {
         <>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Form form={mwlForm} layout="inline" onFinish={handleMwlQuery} initialValues={{ modality: undefined }}>
-              <Form.Item name="patientName" label="名称"><Input placeholder="患者姓名" allowClear /></Form.Item>
-              <Form.Item name="patientId" label="编号"><Input placeholder="患者 ID" allowClear /></Form.Item>
-              <Form.Item name="accessionNumber" label="检查号"><Input placeholder="检查号" allowClear /></Form.Item>
-              <Form.Item name="modality" label="设备">
-                <Select allowClear placeholder="全部" style={{ width: 100 }}>
+              <Form.Item name="patientName" label={t('dimse.labelName')}><Input placeholder={t('dimse.placeholderPatientName')} allowClear /></Form.Item>
+              <Form.Item name="patientId" label={t('dimse.labelNumber')}><Input placeholder={t('dimse.placeholderPatientId')} allowClear /></Form.Item>
+              <Form.Item name="accessionNumber" label={t('dimse.labelAccession')}><Input placeholder={t('dimse.placeholderAccession')} allowClear /></Form.Item>
+              <Form.Item name="modality" label={t('dimse.labelModality')}>
+                <Select allowClear placeholder={t('dimse.placeholderAll')} style={{ width: 100 }}>
                   <Select.Option value="CT">CT</Select.Option>
                   <Select.Option value="MR">MR</Select.Option>
                   <Select.Option value="XA">XA</Select.Option>
                   <Select.Option value="US">US</Select.Option>
                 </Select>
               </Form.Item>
-              <Form.Item name="dateRange" label="日期"><RangePicker /></Form.Item>
-              <Form.Item><Button type="primary" htmlType="submit" icon={<SearchOutlined />} loading={mwlLoading}>查询</Button></Form.Item>
+              <Form.Item name="dateRange" label={t('dimse.labelDate')}><RangePicker /></Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<SearchOutlined />} loading={mwlLoading}>{t('dimse.query')}</Button></Form.Item>
             </Form>
           </Card>
-          <Card size="small" title="工作列表条目">
+          <Card size="small" title={t('dimse.worklistEntries')}>
             <Table scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
           </Card>
         </>
@@ -184,16 +185,16 @@ export const DimsePage: React.FC = () => {
       key: 'cstore',
       label: <Space><UploadOutlined />C-STORE</Space>,
       children: (
-        <Card size="small" title="DICOM 文件上传">
+        <Card size="small" title={t('dimse.fileUpload')}>
           <Upload
             accept=".dcm"
             showUploadList={false}
             beforeUpload={(file) => { handleStore(file); return false; }}
             disabled={storeLoading}
           >
-            <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>选择 .dcm 文件</Button>
+            <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>{t('dimse.selectDcm')}</Button>
           </Upload>
-          <Alert title="支持 DICOM .dcm 文件上传，系统将解析并存储至 PACS" type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
+          <Alert title={t('dimse.uploadHint')} type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
           <Table scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
@@ -205,22 +206,22 @@ export const DimsePage: React.FC = () => {
         <>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Form form={moveForm} layout="inline" onFinish={handleMove}>
-              <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
+              <Form.Item name="studyUid" label={t('dimse.labelStudyUid')} rules={[{ required: true, message: t('dimse.enterStudyUid') }]}>
                 <Input placeholder="1.2.840.xxxxx" style={{ width: 320 }} />
               </Form.Item>
-              <Form.Item name="destAe" label="目标 AE" rules={[{ required: true }]}>
+              <Form.Item name="destAe" label={t('dimse.labelDestAe')} rules={[{ required: true }]}>
                 <Input placeholder="DEST_AE" />
               </Form.Item>
-              <Form.Item name="destHost" label="主机">
+              <Form.Item name="destHost" label={t('dimse.labelHost')}>
                 <Input placeholder="192.168.1.200" />
               </Form.Item>
-              <Form.Item name="destPort" label="端口">
+              <Form.Item name="destPort" label={t('dimse.labelPort')}>
                 <InputNumber placeholder="11112" min={1} max={65535} />
               </Form.Item>
-              <Form.Item><Button type="primary" htmlType="submit" icon={<ForwardOutlined />} loading={moveLoading}>转发</Button></Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<ForwardOutlined />} loading={moveLoading}>{t('dimse.forward')}</Button></Form.Item>
             </Form>
           </Card>
-          <Card size="small" title="转存记录">
+          <Card size="small" title={t('dimse.transferRecords')}>
             <Table scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
           </Card>
         </>
@@ -231,12 +232,12 @@ export const DimsePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 设备集成</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimse.title')}</span>
         <Tag color="blue">v3.0</Tag>
-        <Tag color="gold">演示数据 · MOCK_DEVICES</Tag>
+        <Tag color="gold">{t('dimse.demoData')}</Tag>
       </Space>
-      <Alert title="演示数据（旧版 DIMSE 页面，功能以 /dicom/dimse 为准）" type="warning" showIcon style={{ marginBottom: 16 }} />
-      <Alert title="DIMSE (DICOM Message Service Element) 设备集成测试与管理工作台，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 四种服务" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title={t('dimse.demoAlert')} type="warning" showIcon style={{ marginBottom: 16 }} />
+      <Alert title={t('dimse.introAlert')} type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
     </div>
   );

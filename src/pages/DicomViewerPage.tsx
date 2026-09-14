@@ -1,4 +1,5 @@
 import ViewerSelector from '../components/common/ViewerSelector'
+import { t } from '../i18n/appI18n'
 import AppModal from '../components/common/AppModal'
 import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { useState, useRef, useEffect, useCallback } from 'react'
@@ -49,7 +50,7 @@ export default function DicomViewerPage() {
         setLoadError(null)
       } else {
         setExams(initialRadiologyExams)
-        setLoadError('API 不可用，使用本地数据')
+        setLoadError(t('dicomViewer.apiUnavailable'))
       }
       setLoading(false)
     })()
@@ -75,11 +76,11 @@ export default function DicomViewerPage() {
             examId: String(e.examId ?? e.id ?? ''),
             examDate: e.examDate ?? e.scheduledAt ?? '',
             examTime: e.examTime ?? '',
-            examItemName: e.examItemName ?? e.examItem ?? '未知检查',
+            examItemName: e.examItemName ?? e.examItem ?? t('dicomViewer.unknownExam'),
             modality: e.modality ?? '',
             bodyPart: e.bodyPart ?? '',
             deviceName: e.deviceName ?? '',
-            status: e.status ?? '已完成',
+            status: e.status ?? t('dicomViewer.statusCompleted'),
             reportDate: e.reportDate,
             reportDoctor: e.reportDoctor,
             finding: e.finding ?? e.examFindings,
@@ -274,7 +275,7 @@ export default function DicomViewerPage() {
   const clearAllAnnotations = () => { setAnnotations([]); setSelectedAnnotationId(null) }
 
   const getMeasureTypeLabel = (type: string) => {
-    const labels: Record<string, string> = { line: '长度', angle: '角度', ellipse: '椭圆ROI', rectangle: '矩形ROI', circle: '圆ROI', ctvalue: 'CT值', area: '面积', cobb: 'Cobb角', polygon: '多边形面积' }
+    const labels: Record<string, string> = { line: t('dicomViewer.measure.line'), angle: t('dicomViewer.measure.angle'), ellipse: t('dicomViewer.measure.ellipse'), rectangle: t('dicomViewer.measure.rectangle'), circle: t('dicomViewer.measure.circle'), ctvalue: t('dicomViewer.measure.ctvalue'), area: t('dicomViewer.measure.area'), cobb: t('dicomViewer.measure.cobb'), polygon: t('dicomViewer.measure.polygon') }
     return labels[type] || type
   }
 
@@ -392,34 +393,34 @@ export default function DicomViewerPage() {
 
   // ---- 伪彩工具按钮 ----
   const pseudoColorTools = [
-    { mode: 'none' as PseudoColorMode, icon: <EyeOff size={16} />, label: '原始' },
-    { mode: 'hotIron' as PseudoColorMode, icon: <Flame size={16} />, label: '热铁' },
-    { mode: 'coolBlue' as PseudoColorMode, icon: <Droplets size={16} />, label: '冷蓝' },
-    { mode: 'pet' as PseudoColorMode, icon: <Activity size={16} />, label: 'PET' },
-    { mode: 'softTissue' as PseudoColorMode, icon: <Wind size={16} />, label: '软组织' },
+    { mode: 'none' as PseudoColorMode, icon: <EyeOff size={16} />, label: t('dicomViewer.pseudo.original') },
+    { mode: 'hotIron' as PseudoColorMode, icon: <Flame size={16} />, label: t('dicomViewer.pseudo.hotIron') },
+    { mode: 'coolBlue' as PseudoColorMode, icon: <Droplets size={16} />, label: t('dicomViewer.pseudo.coolBlue') },
+    { mode: 'pet' as PseudoColorMode, icon: <Activity size={16} />, label: t('dicomViewer.pseudo.pet') },
+    { mode: 'softTissue' as PseudoColorMode, icon: <Wind size={16} />, label: t('dicomViewer.pseudo.softTissue') },
   ]
 
   // ---- 标注工具按钮类型 ----
   const annotationTypes = [
-    { type: 'text' as AnnotationType, icon: <Type size={16} />, label: '文字' },
-    { type: 'arrow' as AnnotationType, icon: <ArrowUpRight size={16} />, label: '箭头' },
-    { type: 'rect' as AnnotationType, icon: <RectIcon size={16} />, label: '矩形' },
-    { type: 'ellipse' as AnnotationType, icon: <CircleIcon size={16} />, label: '椭圆' },
+    { type: 'text' as AnnotationType, icon: <Type size={16} />, label: t('dicomViewer.ann.text') },
+    { type: 'arrow' as AnnotationType, icon: <ArrowUpRight size={16} />, label: t('dicomViewer.ann.arrow') },
+    { type: 'rect' as AnnotationType, icon: <RectIcon size={16} />, label: t('dicomViewer.ann.rect') },
+    { type: 'ellipse' as AnnotationType, icon: <CircleIcon size={16} />, label: t('dicomViewer.ann.ellipse') },
   ]
 
   // ---- 工具按钮列表 ----
   const tools: { tool: Tool; icon: React.ReactNode; label: string; divider?: boolean }[] = [
-    { tool: 'zoom', icon: <ZoomIn size={20} />, label: '缩放' },
-    { tool: 'pan', icon: <Move size={20} />, label: '平移' },
-    { tool: 'wl', icon: <Sun size={20} />, label: '窗口/级别' },
-    { tool: 'rotate', icon: <RotateCw size={20} />, label: '旋转90°' },
-    { tool: 'flipH', icon: <FlipHorizontal size={20} />, label: '水平翻转', divider: true },
-    { tool: 'flipV', icon: <FlipVertical size={20} />, label: '垂直翻转' },
-    { tool: 'reset', icon: <RefreshCw size={20} />, label: '重置', divider: true },
-    { tool: 'measure', icon: <Ruler size={20} />, label: '测量' },
-    { tool: 'annotate', icon: <PenTool size={20} />, label: '标注' },
-    { tool: 'play', icon: isPlaying ? <Pause size={20} /> : <Play size={20} />, label: isPlaying ? '暂停' : '播放', divider: true },
-    { tool: 'print', icon: <Printer size={20} />, label: '胶片打印' },
+    { tool: 'zoom', icon: <ZoomIn size={20} />, label: t('dicomViewer.tool.zoom') },
+    { tool: 'pan', icon: <Move size={20} />, label: t('dicomViewer.tool.pan') },
+    { tool: 'wl', icon: <Sun size={20} />, label: t('dicomViewer.tool.wl') },
+    { tool: 'rotate', icon: <RotateCw size={20} />, label: t('dicomViewer.tool.rotate') },
+    { tool: 'flipH', icon: <FlipHorizontal size={20} />, label: t('dicomViewer.tool.flipH'), divider: true },
+    { tool: 'flipV', icon: <FlipVertical size={20} />, label: t('dicomViewer.tool.flipV') },
+    { tool: 'reset', icon: <RefreshCw size={20} />, label: t('dicomViewer.tool.reset'), divider: true },
+    { tool: 'measure', icon: <Ruler size={20} />, label: t('dicomViewer.tool.measure') },
+    { tool: 'annotate', icon: <PenTool size={20} />, label: t('dicomViewer.tool.annotate') },
+    { tool: 'play', icon: isPlaying ? <Pause size={20} /> : <Play size={20} />, label: isPlaying ? t('dicomViewer.tool.pause') : t('dicomViewer.tool.play'), divider: true },
+    { tool: 'print', icon: <Printer size={20} />, label: t('dicomViewer.tool.print') },
   ]
 
   const gridConfig = { '1x1': { cols: 1, rows: 1 }, '2x2': { cols: 2, rows: 2 }, '1x2': { cols: 1, rows: 2 }, '2x1': { cols: 2, rows: 1 } }[layout]
@@ -448,20 +449,20 @@ export default function DicomViewerPage() {
   const handleExamChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSelectedExamIdx(parseInt(e.target.value))
 
   const handleExternalSearch = () => {
-    if (!externalInstitution) { showToast('请先选择外部机构'); return }
-    if (!externalSearchText.trim()) { showToast('请输入检索条件'); return }
+    if (!externalInstitution) { showToast(t('dicomViewer.selectInstitution')); return }
+    if (!externalSearchText.trim()) { showToast(t('dicomViewer.enterSearchCriteria')); return }
     const results = EXTERNAL_INSTITUTIONS.filter(i => i.status === 'online').map(() => ({
       id: `ext-${Date.now()}`, institutionId: externalInstitution, patientId: 'P001', patientName: '模拟患者',
       gender: '男', age: 45, examDate: '2026-04-15', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: 'CHEST',
       deviceName: 'GE Revolution', accessionNumber: 'EXT001', status: 'available',
     }))
     setExternalSearchResults(results)
-    if (results.length === 0) showToast('未找到匹配的检查记录')
+    if (results.length === 0) showToast(t('dicomViewer.noMatchingExam'))
   }
 
   const handleArchiveRequest = () => {
-    setArchiveRequestStatus('pending'); showToast('正在申请调阅...')
-    setTimeout(() => { setArchiveRequestStatus('success'); showToast('调阅申请已提交') }, 1500)
+    setArchiveRequestStatus('pending'); showToast(t('dicomViewer.requesting'))
+    setTimeout(() => { setArchiveRequestStatus('success'); showToast(t('dicomViewer.requestSubmitted')) }, 1500)
   }
 
   const toggleFullscreen = () => {
@@ -473,7 +474,7 @@ export default function DicomViewerPage() {
     if (selectedHistoryExams.length > 0) {
       // [W3-C] 对比目标使用真实历史检查, 不再写死 mockExam
       const history = historyExams.find((h) => selectedHistoryExams.includes(h.id))
-      if (!history) { showToast('未找到所选历史检查'); return }
+      if (!history) { showToast(t('dicomViewer.historyNotFound')); return }
       setCompareExam({
         id: history.id,
         examDate: history.examDate,
@@ -484,10 +485,10 @@ export default function DicomViewerPage() {
         examItemName: history.examItemName,
         modality: history.modality,
       })
-      setIsCompareMode(true); showToast('进入对比模式')
+      setIsCompareMode(true); showToast(t('dicomViewer.enterCompare'))
     }
   }
-  const exitCompareMode = () => { setIsCompareMode(false); setCompareExam(null); showToast('退出对比模式') }
+  const exitCompareMode = () => { setIsCompareMode(false); setCompareExam(null); showToast(t('dicomViewer.exitCompare')) }
 
   const toggleHistoryExam = (id: string) => {
     setSelectedHistoryExams(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
@@ -496,15 +497,15 @@ export default function DicomViewerPage() {
   const getCompareDiffInfo = () => {
     if (!compareExam) return null
     return [
-      { label: '结节大小', oldVal: '6mm', newVal: '8mm', type: 'increase' as const },
-      { label: '密度', oldVal: '磨玻璃', newVal: '磨玻璃', type: 'nochange' as const },
-      { label: '新发病灶', oldVal: '无', newVal: '无', type: 'nochange' as const },
+      { label: t('dicomViewer.noduleSize'), oldVal: '6mm', newVal: '8mm', type: 'increase' as const },
+      { label: t('dicomViewer.density'), oldVal: '磨玻璃', newVal: '磨玻璃', type: 'nochange' as const },
+      { label: t('dicomViewer.newLesion'), oldVal: '无', newVal: '无', type: 'nochange' as const },
     ]
   }
 
   const exportMeasurements = (_format: string) => {
     const report = interactiveMeasures.map(m => `${m.label || m.type}: ${m.value}${m.unit}`).join('\n')
-    navigator.clipboard.writeText(report || '暂无测量数据'); showToast('测量报告已复制到剪贴板')
+    navigator.clipboard.writeText(report || t('dicomViewer.noMeasureData')); showToast(t('dicomViewer.measureCopied'))
   }
 
   // [Wave2A] 确认打印 → printApi.createJob 真实创建打印任务
@@ -525,10 +526,10 @@ export default function DicomViewerPage() {
         showToast(`打印任务已创建: ${res.data?.id ?? ''} (${printFilmSpec} × ${printCopies} 份)`)
         setShowPrintPreview(false)
       } else {
-        showToast(res.error?.message ?? '打印任务创建失败')
+        showToast(res.error?.message ?? t('dicomViewer.printCreateFailed'))
       }
     } catch {
-      showToast('打印服务暂不可用')
+      showToast(t('dicomViewer.printUnavailable'))
     } finally {
       setPrintSubmitting(false)
     }
@@ -545,14 +546,14 @@ export default function DicomViewerPage() {
       })
       if (res.success && Array.isArray(res.data)) {
         setSimilarResults(res.data)
-        if (res.data.length === 0) showToast('未找到相似病例')
+        if (res.data.length === 0) showToast(t('dicomViewer.noSimilar'))
       } else {
         setSimilarResults([])
-        showToast(res.error?.message || '相似病例检索失败')
+        showToast(res.error?.message || t('dicomViewer.similarFailed'))
       }
     } catch {
       setSimilarResults([])
-      showToast('相似病例检索失败')
+      showToast(t('dicomViewer.similarFailed'))
     } finally {
       setSimilarLoading(false)
     }
@@ -568,7 +569,7 @@ export default function DicomViewerPage() {
     <>
       <ViewerSelector current="classic" />
       <div data-testid="dicom-viewer-page" style={s.root}>
-        {loading && <LoadingBanner message="正在从 API 加载影像数据..." />}
+        {loading && <LoadingBanner message={t('dicomViewer.loadingImages')} />}
         {loadError && !loading && <ErrorBanner message={loadError} />}
         <div style={{ position: 'absolute', top: 48, right: 296, zIndex: 40, width: 260 }}>
           <HangingProtocolPanel
@@ -688,14 +689,14 @@ export default function DicomViewerPage() {
         <AppModal
           open={showPrintPreview}
           onClose={() => setShowPrintPreview(false)}
-          title="胶片打印预览"
+          title={t('dicomViewer.printPreview')}
           icon={<Printer size={18} color="#fff" />}
           iconBg={PRIMARY}
           width={640}
           footer={
             <>
-              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>取消</button>
-              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', opacity: printSubmitting ? 0.6 : 1 }} disabled={printSubmitting} onClick={() => void handleConfirmPrint()}><Printer size={14} />{printSubmitting ? '提交中...' : '确认打印'}</button>
+              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>{t('dicomViewer.cancel')}</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', opacity: printSubmitting ? 0.6 : 1 }} disabled={printSubmitting} onClick={() => void handleConfirmPrint()}><Printer size={14} />{printSubmitting ? t('dicomViewer.submitting') : t('dicomViewer.confirmPrint')}</button>
             </>
           }
         >
@@ -714,15 +715,15 @@ export default function DicomViewerPage() {
           </div>
           <div style={{ display: 'flex', gap: 16, padding: '12px 0 0', fontSize: 13 }}>
             <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
-              胶片尺寸:
+              {t('dicomViewer.filmSize')}
               <select value={printFilmSpec} onChange={e => setPrintFilmSpec(e.target.value as typeof printFilmSpec)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 13 }}>
-                <option value="14x17">14×17 英寸</option>
-                <option value="10x12">10×12 英寸</option>
-                <option value="8x10">8×10 英寸</option>
+                <option value="14x17">{t('dicomViewer.film14x17')}</option>
+                <option value="10x12">{t('dicomViewer.film10x12')}</option>
+                <option value="8x10">{t('dicomViewer.film8x10')}</option>
               </select>
             </label>
             <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
-              份数:
+              {t('dicomViewer.copies')}
               <input type="number" min={1} max={5} value={printCopies} onChange={e => setPrintCopies(Math.max(1, Math.min(5, Number(e.target.value) || 1)))} style={{ width: 60, padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 13 }} />
             </label>
           </div>
@@ -732,24 +733,24 @@ export default function DicomViewerPage() {
         <AppModal
           open={similarOpen}
           onClose={() => setSimilarOpen(false)}
-          title="相似病例检索"
+          title={t('dicomViewer.similarSearch')}
           icon={<Activity size={18} color="#fff" />}
           iconBg={PRIMARY}
           width={720}
           footer={
             <>
-              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setSimilarOpen(false)}>关闭</button>
-              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => void lookSimilarExams()}><RefreshCw size={14} />重新检索</button>
+              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setSimilarOpen(false)}>{t('dicomViewer.close')}</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => void lookSimilarExams()}><RefreshCw size={14} />{t('dicomViewer.research')}</button>
             </>
           }
         >
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
-            基于当前检查检索: {exam.patientName} · {exam.modality} · {exam.bodyPart}
+            {t('dicomViewer.basedOnCurrent')} {exam.patientName} · {exam.modality} · {exam.bodyPart}
           </div>
           {similarLoading ? (
-            <div style={{ textAlign: 'center', padding: 32 }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /><div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>正在检索相似病例...</div></div>
+            <div style={{ textAlign: 'center', padding: 32 }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />                <div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>{t('dicomViewer.searchingSimilar')}</div></div>
           ) : similarResults.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontSize: 13 }}>未找到相似病例，可尝试重新检索</div>
+            <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontSize: 13 }}>{t('dicomViewer.noSimilarRetry')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 420, overflow: 'auto' }}>
               {similarResults.map((r) => (
@@ -757,14 +758,14 @@ export default function DicomViewerPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
                       {r.modality} · {r.bodyPart}
-                      <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>{r.gender} {r.age}岁 · {r.studyDate}</span>
+                      <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>{r.gender} {r.age}{t('dicomViewer.yearsOld')} · {r.studyDate}</span>
                     </span>
                     <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.similarity >= 70 ? '#dcfce7' : r.similarity >= 40 ? '#fef3c7' : '#f1f5f9', color: r.similarity >= 70 ? '#16a34a' : r.similarity >= 40 ? '#d97706' : '#64748b' }}>
-                      相似度 {r.similarity}%
+                      {t('dicomViewer.similarity')} {r.similarity}%
                     </span>
                   </div>
-                  {r.findings && <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, marginBottom: 4 }}>所见: {r.findings}</div>}
-                  {r.impression && <div style={{ fontSize: 12, color: '#059669', lineHeight: 1.5 }}>结论: {r.impression}</div>}
+                  {r.findings && <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, marginBottom: 4 }}>{t('dicomViewer.findings')} {r.findings}</div>}
+                  {r.impression && <div style={{ fontSize: 12, color: '#059669', lineHeight: 1.5 }}>{t('dicomViewer.impression')} {r.impression}</div>}
                   {r.keywords?.length > 0 && (
                     <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                       {r.keywords.slice(0, 5).map((k) => <span key={k} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: '#dbeafe', color: '#1e40af' }}>{k}</span>)}
@@ -788,11 +789,11 @@ export default function DicomViewerPage() {
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {exam.patientName} · {exam.examItemName}
           </span>
-          <span>检查号: {exam.accessionNumber}</span>
-          <span>设备: {exam.deviceName?.split('（')[0]}</span>
-          <span style={{ color: '#3b82f6' }}>窗口: {ww}/{wl}</span>
-          <span style={{ color: '#22c55e' }}>缩放: {zoom}%</span>
-          <span style={{ color: '#f59e0b' }}>旋转: {rotation}°</span>
+          <span>{t('dicomViewer.accessionNo')} {exam.accessionNumber}</span>
+          <span>{t('dicomViewer.device')} {exam.deviceName?.split('（')[0]}</span>
+          <span style={{ color: '#3b82f6' }}>{t('dicomViewer.window')} {ww}/{wl}</span>
+          <span style={{ color: '#22c55e' }}>{t('dicomViewer.zoomLabel')} {zoom}%</span>
+          <span style={{ color: '#f59e0b' }}>{t('dicomViewer.rotationLabel')} {rotation}°</span>
           <span style={{ color: '#a855f7' }}>{activeSeries.seriesDescription}</span>
           <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Activity size={12} />DICOM Viewer v0.4.0 | {exam.modality}-{exam.bodyPart}

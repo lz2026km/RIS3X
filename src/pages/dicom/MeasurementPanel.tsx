@@ -30,23 +30,37 @@ const V2_TOOL_ICONS: Record<MeasureV2Type, React.ReactNode> = {
   calciumScore: <HeartPulse size={14} />,
 }
 
-const V2_TOOL_HINT: Record<MeasureV2Type, string> = {
-  line: '直线长度 (2点)',
-  angle: '角度 (顶点+2点)',
-  ellipseArea: '椭圆面积 (2点对角)',
-  rectangleArea: '矩形面积 (2点对角)',
-  polygonArea: '多边形面积 (≥3点+完成)',
-  polyline: '折线长度 (≥2点+完成)',
-  cobb: 'Cobb角 (两条线/4点)',
-  calciumScore: '钙化评分 (逐点 HU+完成)',
+const V2_TOOL_HINT_KEY: Record<MeasureV2Type, string> = {
+  line: 'measPanel.hintLine',
+  angle: 'measPanel.hintAngle',
+  ellipseArea: 'measPanel.hintEllipseArea',
+  rectangleArea: 'measPanel.hintRectangleArea',
+  polygonArea: 'measPanel.hintPolygonArea',
+  polyline: 'measPanel.hintPolyline',
+  cobb: 'measPanel.hintCobb',
+  calciumScore: 'measPanel.hintCalciumScore',
 }
+const toolHint = (type: MeasureV2Type) => t(V2_TOOL_HINT_KEY[type])
 
 const ANN_TYPE_LABEL: Record<AnnotationV2Type, string> = {
-  text: '文字',
-  arrow: '箭头',
-  rect: '矩形',
-  ellipse: '椭圆',
-  freehand: '自由线',
+  text: 'measPanel.annText',
+  arrow: 'measPanel.annArrow',
+  rect: 'measPanel.annRect',
+  ellipse: 'measPanel.annEllipse',
+  freehand: 'measPanel.annFreehand',
+}
+
+const LEGACY_TOOL_LABEL_KEY: Record<Exclude<MeasureSubMenu, null>, string> = {
+  length: 'measPanel.toolLength',
+  angle: 'measPanel.toolAngle',
+  area: 'measPanel.toolArea',
+  ct: 'measPanel.toolCt',
+  ellipse: 'measPanel.toolEllipse',
+  rectangle: 'measPanel.toolRectangle',
+  circle: 'measPanel.toolCircle',
+  ctvalue: 'measPanel.toolCtValue',
+  cobb: 'measPanel.toolCobb',
+  polygon: 'measPanel.toolPolygon',
 }
 
 interface V2SceneOptions {
@@ -186,7 +200,7 @@ function drawV2Scene(ctx: CanvasRenderingContext2D, o: V2SceneOptions) {
         ctx.stroke()
       }
     })
-    text(6, 20, o.v2Tool ? `${V2_TOOL_HINT[o.v2Tool]} · 已取 ${o.v2Draft.length} 点` : '', '#86efac')
+    text(6, 20, o.v2Tool ? `${toolHint(o.v2Tool)} · ${t('measPanel.pointsTaken')} ${o.v2Draft.length} ${t('measPanel.points')}` : '', '#86efac')
   }
 
   // 后端标注对象 (双向同步渲染)
@@ -197,7 +211,7 @@ function drawV2Scene(ctx: CanvasRenderingContext2D, o: V2SceneOptions) {
     ctx.lineWidth = 1.5
     ctx.setLineDash([4, 3])
     if (a.type === 'text' && pts.length >= 1) {
-      text(pts[0]!.x + 6, pts[0]!.y - 4, a.text || '标注', color, a.fontSize / 1.4)
+      text(pts[0]!.x + 6, pts[0]!.y - 4, a.text || t('measPanel.annotationFallback'), color, a.fontSize / 1.4)
     } else if (a.type === 'arrow' && pts.length >= 2) {
       ctx.beginPath()
       ctx.moveTo(pts[0]!.x, pts[0]!.y)
@@ -246,11 +260,11 @@ function drawV2Scene(ctx: CanvasRenderingContext2D, o: V2SceneOptions) {
     if (o.annType === 'text' && o.annText) {
       text(o.annDraft[0]!.x + 8, o.annDraft[0]!.y + 4, o.annText, '#fbbf24', 12)
     }
-    text(6, CANVAS_SIZE - 8, `标注绘制中 (${o.annType ?? ''}) · ${o.annDraft.length} 点`, '#fbbf24')
+    text(6, CANVAS_SIZE - 8, `${t('measPanel.drawingAnnotation')} (${o.annType ? t(ANN_TYPE_LABEL[o.annType]) : ''}) · ${o.annDraft.length} ${t('measPanel.points')}`, '#fbbf24')
   }
 
   if (!o.v2Tool && !o.annType && o.v2Draft.length === 0 && o.annDraft.length === 0) {
-    text(12, 24, '选择 V2 工具后点击画布取点', '#64748b')
+    text(12, 24, t('measPanel.canvasHint'), '#64748b')
   }
 }
 
@@ -466,9 +480,9 @@ export default function MeasurementPanel(props: Props) {
       })
       setV2Records((prev) => prev.map((r) => (r.id === local.id ? server : r)))
       setV2Synced(true)
-      showToast(`测量已同步: ${MEASURE_V2_META[type].label} ${result.value} ${result.unit}`)
+      showToast(`${t('measPanel.measureSynced')}: ${MEASURE_V2_META[type].label} ${result.value} ${result.unit}`)
     } catch {
-      showToast(`测量已保存 (离线): ${MEASURE_V2_META[type].label} ${result.value} ${result.unit}`)
+      showToast(`${t('measPanel.measureSavedOffline')}: ${MEASURE_V2_META[type].label} ${result.value} ${result.unit}`)
     }
   }, [currentStudyUid, showToast])
 
@@ -485,10 +499,10 @@ export default function MeasurementPanel(props: Props) {
     try {
       const updated = await measurementV2Api.updateMeasurement(sel.id, { label: v2LabelDraft })
       setV2Records((prev) => prev.map((r) => (r.id === sel.id ? updated : r)))
-      showToast('标签已更新')
+      showToast(t('measPanel.labelUpdated'))
     } catch {
       setV2Records((prev) => prev.map((r) => (r.id === sel.id ? { ...r, label: v2LabelDraft } : r)))
-      showToast('标签已更新 (离线)')
+      showToast(t('measPanel.labelUpdatedOffline'))
     } finally {
       setV2Busy(false)
     }
@@ -499,9 +513,9 @@ export default function MeasurementPanel(props: Props) {
     if (selectedV2Id === id) setSelectedV2Id(null)
     try {
       await measurementV2Api.removeMeasurement(id)
-      showToast('测量已删除')
+      showToast(t('measPanel.measureDeleted'))
     } catch {
-      showToast('测量已删除 (离线)')
+      showToast(t('measPanel.measureDeletedOffline'))
     }
   }, [selectedV2Id, showToast])
 
@@ -521,9 +535,9 @@ export default function MeasurementPanel(props: Props) {
       const rec = await measurementV2Api.rollbackMeasurement(id, version)
       setV2Records((prev) => prev.map((r) => (r.id === id ? rec : r)))
       setV2Versions(await measurementV2Api.getMeasurementVersions(id))
-      showToast(`已回滚到 v${version}`)
+      showToast(`${t('measPanel.rolledBackTo')} v${version}`)
     } catch {
-      showToast('回滚失败: 后端不可达')
+      showToast(t('measPanel.rollbackFailed'))
     }
   }, [showToast])
 
@@ -565,10 +579,10 @@ export default function MeasurementPanel(props: Props) {
       })
       setAnnRecords((prev) => [...prev, server])
       setAnnSynced(true)
-      showToast('标注已同步到后端')
+      showToast(t('measPanel.annSynced'))
     } catch {
       setAnnRecords((prev) => [...prev, local])
-      showToast('标注已保存 (离线)')
+      showToast(t('measPanel.annSavedOffline'))
     }
   }, [annType, annDraft, annText, currentStudyUid, showToast])
 
@@ -586,9 +600,9 @@ export default function MeasurementPanel(props: Props) {
     }
     try {
       await measurementV2Api.removeAnnotation(id)
-      showToast('标注已删除')
+      showToast(t('measPanel.annDeleted'))
     } catch {
-      showToast('标注已删除 (离线)')
+      showToast(t('measPanel.annDeletedOffline'))
     }
   }, [annVersionsFor, showToast])
 
@@ -607,9 +621,9 @@ export default function MeasurementPanel(props: Props) {
       const rec = await measurementV2Api.rollbackAnnotation(id, version)
       setAnnRecords((prev) => prev.map((a) => (a.id === id ? rec : a)))
       setAnnVersions(await measurementV2Api.getAnnotationVersions(id))
-      showToast(`标注已回滚到 v${version}`)
+      showToast(`${t('measPanel.annRolledBackTo')} v${version}`)
     } catch {
-      showToast('回滚失败: 后端不可达')
+      showToast(t('measPanel.rollbackFailed'))
     }
   }, [showToast])
 
@@ -617,16 +631,16 @@ export default function MeasurementPanel(props: Props) {
   const linkAnnToMeasurement = useCallback(async (annId: string) => {
     const sel = selectedV2
     if (!sel) {
-      showToast('请先选中一个 V2 测量')
+      showToast(t('measPanel.selectV2First'))
       return
     }
     try {
       const result = await measurementV2Api.linkAnnotation(sel.id, annId)
       setAnnRecords((prev) => prev.map((a) => (a.id === annId ? result.annotation : a)))
       setV2Records((prev) => prev.map((r) => (r.id === sel.id ? result.measurement : r)))
-      showToast('标注已关联到测量')
+      showToast(t('measPanel.annLinked'))
     } catch {
-      showToast('关联失败: 后端不可达')
+      showToast(t('measPanel.linkFailed'))
     }
   }, [selectedV2, showToast])
 
@@ -697,15 +711,15 @@ export default function MeasurementPanel(props: Props) {
     <>
       {/* ── 传统 ROI 测量 (兼容) ── */}
       <div style={s.infoSection}>
-        <div style={s.infoSectionTitle}>ROI测量工具</div>
+        <div style={s.infoSectionTitle}>{t('measPanel.roiTools')}</div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
-          {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue', 'cobb', 'polygon'] as MeasureSubMenu[]).map(type => (
+          {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue', 'cobb', 'polygon'] as Array<Exclude<MeasureSubMenu, null>>).map(type => (
             <button key={type} style={{
               flex: 1, minWidth: 60, padding: '6px 4px', borderRadius: 6, border: `1px solid ${measureSubMenu === type ? PRIMARY : '#e2e8f0'}`,
               background: measureSubMenu === type ? PRIMARY : '#fff', color: measureSubMenu === type ? '#fff' : '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2
             }} onClick={() => { setMeasureSubMenu(type); setActiveTool('measure') }}>
               {type === 'length' && <Ruler size={14} />}{type === 'angle' && <Triangle size={14} />}{type === 'ellipse' && <CircleIcon size={14} />}{type === 'rectangle' && <RectIcon size={14} />}{type === 'circle' && <CircleIcon size={14} />}{type === 'ctvalue' && <Activity size={14} />}{type === 'cobb' && <Bone size={14} />}{type === 'polygon' && <ScanLine size={14} />}
-              {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : type === 'ctvalue' ? 'CT值' : type === 'cobb' ? 'Cobb角' : '多边形'}
+              {t(LEGACY_TOOL_LABEL_KEY[type])}
             </button>
           ))}
         </div>
@@ -714,16 +728,16 @@ export default function MeasurementPanel(props: Props) {
       {/* ── 测量 V2: 完整 8 工具 ── */}
       <div style={{ ...s.infoSection, border: '1px solid #bfdbfe', borderRadius: 10, padding: 10, background: '#f8fbff' }}>
         <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><PenTool size={12} />影像测量 V2</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><PenTool size={12} />{t('measPanel.measureV2')}</span>
           <span style={{ ...s.badge, background: v2Synced ? '#dcfce7' : '#fef3c7', color: v2Synced ? '#16a34a' : '#d97706' }}>
-            {v2Synced ? '后端已同步' : '本地模式'}
+            {v2Synced ? t('measPanel.backendSynced') : t('measPanel.localMode')}
           </span>
         </div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
           {MEASURE_V2_TOOL_ORDER.map(type => (
             <button key={type} style={{ ...s.v2ToolBtn, ...(v2Tool === type ? s.v2ToolBtnActive : {}) }}
               onClick={() => { setV2Tool(v2Tool === type ? null : type); setV2Draft([]) }}
-              title={`${MEASURE_V2_META[type].label} · ${V2_TOOL_HINT[type]}`}>
+              title={`${MEASURE_V2_META[type].label} · ${toolHint(type)}`}>
               {V2_TOOL_ICONS[type]}
               {MEASURE_V2_META[type].label}
             </button>
@@ -739,14 +753,14 @@ export default function MeasurementPanel(props: Props) {
         />
         <div style={{ display: 'flex', gap: 4, marginTop: 6, alignItems: 'center' }}>
           <span style={{ fontSize: 11, color: '#64748b', flex: 1 }}>
-            {v2Tool ? `${V2_TOOL_HINT[v2Tool]} · 单位 ${MEASURE_V2_META[v2Tool].unit} · 确定性 ✓` : annType ? `标注绘制: ${ANN_TYPE_LABEL[annType]} (点击画布取点)` : '选择工具后点击画布测量'}
+            {v2Tool ? `${toolHint(v2Tool)} · ${t('measPanel.unit')} ${MEASURE_V2_META[v2Tool].unit} · ${t('measPanel.deterministicCheck')}` : annType ? `${t('measPanel.drawingAnnotation')}: ${t(ANN_TYPE_LABEL[annType])} (${t('measPanel.clickCanvasToPoint')})` : t('measPanel.selectToolHint')}
           </span>
           {v2Draft.length > 0 && (
             <>
               {v2VariableTool && (
-                <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} onClick={() => { if (v2Tool) void finishV2Measurement(v2Tool, v2Draft) }}>完成</button>
+                <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} onClick={() => { if (v2Tool) void finishV2Measurement(v2Tool, v2Draft) }}>{t('measPanel.done')}</button>
               )}
-              <button style={s.smallBtn} onClick={cancelV2Draft}>取消</button>
+              <button style={s.smallBtn} onClick={cancelV2Draft}>{t('measPanel.cancel')}</button>
             </>
           )}
         </div>
@@ -755,35 +769,35 @@ export default function MeasurementPanel(props: Props) {
         {selectedV2 && (
           <div style={{ marginTop: 8, border: '1px solid #dbeafe', borderRadius: 8, padding: 8, background: '#fff' }}>
             <div style={{ ...s.infoSectionTitle, marginBottom: 4 }}>
-              <CircleIcon size={11} />属性面板
+              <CircleIcon size={11} />{t('measPanel.properties')}
               <span style={{ ...s.badge, background: '#dbeafe', color: PRIMARY, marginLeft: 'auto' }}>{MEASURE_V2_META[selectedV2.type].label}</span>
             </div>
-            <div style={s.propRow}><span style={s.propLabel}>数值</span><span style={s.propValue}>{selectedV2.value} {selectedV2.unit}</span></div>
-            <div style={s.propRow}><span style={s.propLabel}>公式</span><span style={{ fontSize: 11, color: '#64748b' }}>{selectedV2.formula}</span></div>
-            <div style={s.propRow}><span style={s.propLabel}>确定性</span><span style={{ color: selectedV2.deterministic ? '#16a34a' : '#d97706', fontWeight: 700 }}>{selectedV2.deterministic ? '确定性计算 ✓' : '近似'}</span></div>
-            <div style={s.propRow}><span style={s.propLabel}>版本</span><span style={{ color: '#64748b', fontWeight: 700 }}>v{selectedV2.version}</span></div>
+            <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.value')}</span><span style={s.propValue}>{selectedV2.value} {selectedV2.unit}</span></div>
+            <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.formula')}</span><span style={{ fontSize: 11, color: '#64748b' }}>{selectedV2.formula}</span></div>
+            <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.deterministic')}</span><span style={{ color: selectedV2.deterministic ? '#16a34a' : '#d97706', fontWeight: 700 }}>{selectedV2.deterministic ? t('measPanel.deterministicCheck') : t('measPanel.approximate')}</span></div>
+            <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.version')}</span><span style={{ color: '#64748b', fontWeight: 700 }}>v{selectedV2.version}</span></div>
             <div style={s.propRow}>
-              <span style={s.propLabel}>世界坐标</span>
+              <span style={s.propLabel}>{t('measPanel.worldCoords')}</span>
               <span style={{ fontSize: 10, color: '#64748b' }}>{selectedV2.worldPoints.slice(0, 2).map(p => `(${p.x},${p.y})`).join(' ') || '-'}</span>
             </div>
             <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
-              <input style={s.input} value={v2LabelDraft} onChange={e => setV2LabelDraft(e.target.value)} placeholder="测量标签..." />
-              <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} onClick={() => void saveV2Label()} disabled={v2Busy}>保存</button>
+              <input style={s.input} value={v2LabelDraft} onChange={e => setV2LabelDraft(e.target.value)} placeholder={t('measPanel.measureLabelPlaceholder')} />
+              <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} onClick={() => void saveV2Label()} disabled={v2Busy}>{t('measPanel.save')}</button>
             </div>
             <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
-              <button style={s.smallBtn} onClick={() => void openV2Versions(selectedV2.id)}><History size={11} />版本历史</button>
-              <button style={{ ...s.smallBtn, ...s.smallBtnDanger }} onClick={() => void removeV2Measurement(selectedV2.id)}><Trash2 size={11} />删除</button>
+              <button style={s.smallBtn} onClick={() => void openV2Versions(selectedV2.id)}><History size={11} />{t('measPanel.versionHistory')}</button>
+              <button style={{ ...s.smallBtn, ...s.smallBtnDanger }} onClick={() => void removeV2Measurement(selectedV2.id)}><Trash2 size={11} />{t('measPanel.delete')}</button>
             </div>
             {v2VersionsFor === selectedV2.id && (
               <div style={{ marginTop: 6, maxHeight: 120, overflowY: 'auto' }}>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>历史版本 ({v2Versions.length})</div>
-                {v2Versions.length === 0 && <div style={{ fontSize: 11, color: '#94a3b8' }}>暂无版本记录</div>}
+                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{t('measPanel.historyVersions')} ({v2Versions.length})</div>
+                {v2Versions.length === 0 && <div style={{ fontSize: 11, color: '#94a3b8' }}>{t('measPanel.noVersions')}</div>}
                 {v2Versions.map(v => (
                   <div key={v.version} style={s.versionItem}>
                     <span style={{ fontWeight: 700, color: PRIMARY, width: 26 }}>v{v.version}</span>
                     <span style={{ flex: 1, color: '#475569' }}>{v.label || `${v.value}${v.unit}`}</span>
                     <span style={{ color: '#94a3b8' }}>{v.note}</span>
-                    <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void rollbackV2(selectedV2.id, v.version)}><RotateCcw size={10} />回滚</button>
+                    <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void rollbackV2(selectedV2.id, v.version)}><RotateCcw size={10} />{t('measPanel.rollback')}</button>
                   </div>
                 ))}
               </div>
@@ -794,11 +808,11 @@ export default function MeasurementPanel(props: Props) {
         {/* ── V2 测量列表 ── */}
         <div style={{ marginTop: 8 }}>
           <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>V2 测量 ({v2Records.length})</span>
-            <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void refreshV2Measurements()}><RefreshCw size={10} />同步</button>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('measPanel.v2Measurements')} ({v2Records.length})</span>
+            <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void refreshV2Measurements()}><RefreshCw size={10} />{t('measPanel.sync')}</button>
           </div>
           {v2Records.length === 0 ? (
-            <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: '8px 0' }}>暂无 V2 测量</div>
+            <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: '8px 0' }}>{t('measPanel.noV2Measurements')}</div>
           ) : (
             v2Records.map(m => (
               <div key={m.id} style={{ ...s.measureItem, padding: '6px 8px', cursor: 'pointer', borderColor: selectedV2Id === m.id ? PRIMARY : 'var(--border-color)' }}
@@ -822,56 +836,56 @@ export default function MeasurementPanel(props: Props) {
       {/* ── 标注 V2 双向同步 ── */}
       <div style={{ ...s.infoSection, border: '1px solid #ddd6fe', borderRadius: 10, padding: 10, background: '#fdfaff' }}>
         <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Link2 size={12} />标注双向同步</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Link2 size={12} />{t('measPanel.annSync')}</span>
           <span style={{ ...s.badge, background: annSynced ? '#dcfce7' : '#fef3c7', color: annSynced ? '#16a34a' : '#d97706' }}>
-            {annSynced ? '后端已同步' : '本地模式'}
+            {annSynced ? t('measPanel.backendSynced') : t('measPanel.localMode')}
           </span>
         </div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap' }}>
-          {(Object.keys(ANN_TYPE_LABEL) as AnnotationV2Type[]).map(t => (
-            <button key={t} style={{ ...s.v2ToolBtn, minWidth: 48, padding: '4px 2px', ...(annType === t ? s.v2ToolBtnActive : {}) }}
-              onClick={() => { setAnnType(annType === t ? null : t); setAnnDraft([]) }}>
-              {t === 'text' ? 'T' : t === 'arrow' ? '↗' : t === 'rect' ? '▭' : t === 'ellipse' ? '◯' : '✎'}
-              {ANN_TYPE_LABEL[t]}
+          {(Object.keys(ANN_TYPE_LABEL) as AnnotationV2Type[]).map(ty => (
+            <button key={ty} style={{ ...s.v2ToolBtn, minWidth: 48, padding: '4px 2px', ...(annType === ty ? s.v2ToolBtnActive : {}) }}
+              onClick={() => { setAnnType(annType === ty ? null : ty); setAnnDraft([]) }}>
+              {ty === 'text' ? 'T' : ty === 'arrow' ? '↗' : ty === 'rect' ? '▭' : ty === 'ellipse' ? '◯' : '✎'}
+              {t(ANN_TYPE_LABEL[ty])}
             </button>
           ))}
         </div>
         {annType === 'text' && (
-          <input style={{ ...s.input, marginBottom: 6 }} value={annText} onChange={e => setAnnText(e.target.value)} placeholder="标注文字..." />
+          <input style={{ ...s.input, marginBottom: 6 }} value={annText} onChange={e => setAnnText(e.target.value)} placeholder={t('measPanel.annTextPlaceholder')} />
         )}
         <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
           {annDraft.length > 0 && (
             <>
-              <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} onClick={() => void finishAnnotation()}>完成标注</button>
-              <button style={s.smallBtn} onClick={cancelAnnotation}>取消</button>
+              <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} onClick={() => void finishAnnotation()}>{t('measPanel.finishAnnotation')}</button>
+              <button style={s.smallBtn} onClick={cancelAnnotation}>{t('measPanel.cancel')}</button>
             </>
           )}
         </div>
         <div style={{ ...s.infoSectionTitle, marginTop: 4, justifyContent: 'space-between' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>标注对象 ({annRecords.length})</span>
-          <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void refreshV2Annotations()}><RefreshCw size={10} />同步</button>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('measPanel.annotationObjects')} ({annRecords.length})</span>
+          <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void refreshV2Annotations()}><RefreshCw size={10} />{t('measPanel.sync')}</button>
         </div>
         {annRecords.length === 0 ? (
-          <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: '8px 0' }}>暂无标注对象 (在画布上选择标注类型后点击绘制)</div>
+          <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: '8px 0' }}>{t('measPanel.noAnnotations')}</div>
         ) : (
           annRecords.map(a => (
             <div key={a.id}>
               <div style={s.annItem}>
                 <div style={{ ...s.measureItemColor, background: a.color, borderRadius: 2 }} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ fontWeight: 700, color: '#1e293b' }}>{a.text || ANN_TYPE_LABEL[a.type]}</span>
-                  <span style={{ color: '#94a3b8', marginLeft: 4 }}>{ANN_TYPE_LABEL[a.type]} · {a.pixelPoints.length}点{a.measurementId ? ' · 🔗' : ''}</span>
+                  <span style={{ fontWeight: 700, color: '#1e293b' }}>{a.text || t(ANN_TYPE_LABEL[a.type])}</span>
+                  <span style={{ color: '#94a3b8', marginLeft: 4 }}>{t(ANN_TYPE_LABEL[a.type])} · {a.pixelPoints.length}{t('measPanel.points')}{a.measurementId ? ' · 🔗' : ''}</span>
                 </span>
-                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title="编辑标注文字 (PUT /annotations/:id)" onClick={() => startEditAnn(a)}>✎</button>
-                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title="关联到选中测量" onClick={() => void linkAnnToMeasurement(a.id)}><Link2 size={10} /></button>
+                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.editAnnTitle')} onClick={() => startEditAnn(a)}>✎</button>
+                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.linkAnnTitle')} onClick={() => void linkAnnToMeasurement(a.id)}><Link2 size={10} /></button>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void openAnnVersions(a.id)}><History size={10} /></button>
                 <button style={{ ...s.smallBtn, padding: '1px 6px', ...s.smallBtnDanger }} onClick={() => void removeAnnotation(a.id)}><Trash2 size={10} /></button>
               </div>
               {editingAnnId === a.id && (
                 <div style={{ display: 'flex', gap: 4, marginTop: 4, alignItems: 'center' }}>
-                  <input style={s.input} value={annEditText} onChange={e => setAnnEditText(e.target.value)} placeholder="标注文字..." />
-                  <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} disabled={annEditBusy} onClick={() => void saveAnnText()}>保存</button>
-                  <button style={s.smallBtn} onClick={() => setEditingAnnId(null)}>取消</button>
+                  <input style={s.input} value={annEditText} onChange={e => setAnnEditText(e.target.value)} placeholder={t('measPanel.annTextPlaceholder')} />
+                  <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} disabled={annEditBusy} onClick={() => void saveAnnText()}>{t('measPanel.save')}</button>
+                  <button style={s.smallBtn} onClick={() => setEditingAnnId(null)}>{t('measPanel.cancel')}</button>
                 </div>
               )}
             </div>
@@ -879,14 +893,14 @@ export default function MeasurementPanel(props: Props) {
         )}
         {annVersionsFor && (
           <div style={{ marginTop: 6, maxHeight: 100, overflowY: 'auto', border: '1px solid #ede9fe', borderRadius: 6, padding: 6 }}>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>标注版本 ({annVersions.length})</div>
-            {annVersions.length === 0 && <div style={{ fontSize: 11, color: '#94a3b8' }}>暂无版本记录</div>}
+            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{t('measPanel.annVersions')} ({annVersions.length})</div>
+            {annVersions.length === 0 && <div style={{ fontSize: 11, color: '#94a3b8' }}>{t('measPanel.noVersions')}</div>}
             {annVersions.map(v => (
               <div key={v.version} style={s.versionItem}>
                 <span style={{ fontWeight: 700, color: PRIMARY, width: 26 }}>v{v.version}</span>
-                <span style={{ flex: 1, color: '#475569' }}>{v.text || ANN_TYPE_LABEL[v.type]}</span>
+                <span style={{ flex: 1, color: '#475569' }}>{v.text || t(ANN_TYPE_LABEL[v.type])}</span>
                 <span style={{ color: '#94a3b8' }}>{v.note}</span>
-                <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void rollbackAnnotation(annVersionsFor, v.version)}><RotateCcw size={10} />回滚</button>
+                <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void rollbackAnnotation(annVersionsFor, v.version)}><RotateCcw size={10} />{t('measPanel.rollback')}</button>
               </div>
             ))}
           </div>
@@ -912,8 +926,8 @@ export default function MeasurementPanel(props: Props) {
             <div key={meta.type} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', borderBottom: '1px solid #f0fdfa', fontSize: 11 }}>
               <span style={{ fontWeight: 700, color: '#0f766e', width: 90 }}>{meta.label}</span>
               <span style={{ color: '#475569', width: 56 }}>{meta.unit}</span>
-              <span style={{ color: '#94a3b8', width: 74 }}>{meta.fixedPoints > 0 ? `${meta.fixedPoints}点` : `${meta.minPoints}点+`}</span>
-              <span style={{ color: meta.deterministic ? '#16a34a' : '#d97706', width: 64 }}>{meta.deterministic ? '确定性' : '近似'}</span>
+              <span style={{ color: '#94a3b8', width: 74 }}>{meta.fixedPoints > 0 ? t('measPanel.pointsFixed', { n: meta.fixedPoints }) : t('measPanel.pointsMin', { n: meta.minPoints })}</span>
+              <span style={{ color: meta.deterministic ? '#16a34a' : '#d97706', width: 64 }}>{meta.deterministic ? t('measPanel.deterministic') : t('measPanel.approximate')}</span>
               <span style={{ color: '#94a3b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta.formula}</span>
             </div>
           ))}
@@ -948,8 +962,8 @@ export default function MeasurementPanel(props: Props) {
             onChange={e => setConvDirection(e.target.value as 'pixelToWorld' | 'worldToPixel')}
             style={{ ...s.input, maxWidth: 130 }}
           >
-            <option value="pixelToWorld">像素 → 世界</option>
-            <option value="worldToPixel">世界 → 像素</option>
+            <option value="pixelToWorld">{t('measPanel.pixelToWorld')}</option>
+            <option value="worldToPixel">{t('measPanel.worldToPixel')}</option>
           </select>
           <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} disabled={convBusy} onClick={() => void runCoordConvert()}>
             <Repeat2 size={10} />{t('measurementV2.convertBtn') || '换算'}
@@ -979,18 +993,18 @@ export default function MeasurementPanel(props: Props) {
       {/* ── 测量结果 (传统) ── */}
       <div style={s.infoSection}>
         <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>测量结果 ({interactiveMeasures.length})</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('measPanel.measureResults')} ({interactiveMeasures.length})</span>
           <div style={{ display: 'flex', gap: 4 }}>
             <button style={{ padding: '2px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none', background: showMeasurementsOverlay ? PRIMARY : '#e2e8f0', color: showMeasurementsOverlay ? '#fff' : '#64748b', display: 'flex', alignItems: 'center', gap: 3 }} onClick={() => setShowMeasurementsOverlay(!showMeasurementsOverlay)}>
-              {showMeasurementsOverlay ? <EyeIcon size={10} /> : <EyeOff size={10} />}{showMeasurementsOverlay ? '显示' : '隐藏'}
+              {showMeasurementsOverlay ? <EyeIcon size={10} /> : <EyeOff size={10} />}{showMeasurementsOverlay ? t('measPanel.show') : t('measPanel.hide')}
             </button>
           </div>
         </div>
         {interactiveMeasures.length === 0 ? (
           <div style={{ fontSize: 12, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
             <Ruler size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
-            <div>暂无测量数据</div>
-            <div style={{ fontSize: 12, marginTop: 4 }}>选择ROI工具后点击图像开始测量</div>
+            <div>{t('measPanel.noMeasureData')}</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>{t('measPanel.selectRoiHint')}</div>
           </div>
         ) : (
           interactiveMeasures.map(measure => (
@@ -1016,11 +1030,11 @@ export default function MeasurementPanel(props: Props) {
 
       {/* ── 历史测量数据 (传统) ── */}
       <div style={s.infoSection}>
-        <div style={s.infoSectionTitle}>历史测量数据</div>
+        <div style={s.infoSectionTitle}>{t('measPanel.historyMeasureData')}</div>
         <div style={s.infoSection}>
-          <div style={s.infoSectionTitle}>长度测量</div>
+          <div style={s.infoSectionTitle}>{t('measPanel.lengthMeasurement')}</div>
           {measurements.length.length === 0 ? (
-            <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>暂无长度测量数据</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>{t('measPanel.noLengthData')}</div>
           ) : (
             measurements.length.map((m: any) => (
               <div key={m.id} style={s.measureListItem}>
@@ -1033,9 +1047,9 @@ export default function MeasurementPanel(props: Props) {
           )}
         </div>
         <div style={s.infoSection}>
-          <div style={s.infoSectionTitle}>CT值(HU)</div>
+          <div style={s.infoSectionTitle}>{t('measPanel.ctValueHu')}</div>
           {measurements.ct.length === 0 ? (
-            <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>暂无CT值测量数据</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>{t('measPanel.noCtData')}</div>
           ) : (
             measurements.ct.map((m: any) => (
               <div key={m.id} style={s.measureListItem}>
@@ -1050,12 +1064,12 @@ export default function MeasurementPanel(props: Props) {
       </div>
 
       <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-        <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569', flex: 1 }} onClick={clearAllMeasures}><Trash2 size={14} />清除全部</button>
+        <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569', flex: 1 }} onClick={clearAllMeasures}><Trash2 size={14} />{t('measPanel.clearAll')}</button>
         <button style={{ ...s.reportBtn, background: '#22c55e', color: '#fff', flex: 1 }} onClick={() => {
           const allMeasures = [...interactiveMeasures]
-          const reportText = allMeasures.length > 0 ? allMeasures.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n') : '暂无测量数据'
-          navigator.clipboard.writeText(reportText); showToast('测量报告已复制到剪贴板')
-        }}><FileText size={14} />导出报告</button>
+          const reportText = allMeasures.length > 0 ? allMeasures.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n') : t('measPanel.noMeasureData')
+          navigator.clipboard.writeText(reportText); showToast(t('measPanel.reportCopied'))
+        }}><FileText size={14} />{t('measPanel.exportReport')}</button>
       </div>
     </>
   )

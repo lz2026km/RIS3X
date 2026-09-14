@@ -6,6 +6,7 @@ import { ProTable, type ProColumn } from '../components/data/ProTable'
 import { PageHeader } from '../components/common/PageHeader'
 import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined, WarningOutlined, LineChartOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
 import { Search } from 'lucide-react'
+import { t } from '../i18n/appI18n'
 
 export default function AuditPage() {
   const [logs, setLogs] = useState<AuditLogDto[]>([])
@@ -81,11 +82,11 @@ export default function AuditPage() {
       if (res.success && res.data) {
         setDetail(res.data)
       } else {
-        message.error(res.error?.message ?? '加载审计详情失败')
+        message.error(res.error?.message ?? t('auditPage.loadDetailFailed'))
         setDetailOpen(false)
       }
     } catch {
-      message.error('加载审计详情失败')
+      message.error(t('auditPage.loadDetailFailed'))
       setDetailOpen(false)
     } finally {
       setDetailLoading(false)
@@ -95,17 +96,17 @@ export default function AuditPage() {
   useEffect(() => { fetchLogs(1); fetchStats(); fetchExtended() }, [])
 
   const columns: ProColumn<AuditLogDto>[] = [
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, sorter: (a, b) => a.createdAt.localeCompare(b.createdAt), defaultSortOrder: 'descend', render: (v) => new Date(String(v)).toLocaleString('zh-CN') },
-    { title: '用户', dataIndex: 'userId', key: 'userId', width: 120, searchable: true, sorter: (a, b) => String(a.userId).localeCompare(String(b.userId)) },
-    { title: '操作', dataIndex: 'action', key: 'action', width: 100, filters: ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'PRINT'].map((value) => ({ text: value, value })), onFilter: (value, record) => record.action === value, render: (v) => {
+    { title: t('auditPage.colTime'), dataIndex: 'createdAt', key: 'createdAt', width: 180, sorter: (a, b) => a.createdAt.localeCompare(b.createdAt), defaultSortOrder: 'descend', render: (v) => new Date(String(v)).toLocaleString('zh-CN') },
+    { title: t('auditPage.colUser'), dataIndex: 'userId', key: 'userId', width: 120, searchable: true, sorter: (a, b) => String(a.userId).localeCompare(String(b.userId)) },
+    { title: t('auditPage.colAction'), dataIndex: 'action', key: 'action', width: 100, filters: ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'PRINT'].map((value) => ({ text: value, value })), onFilter: (value, record) => record.action === value, render: (v) => {
       const colorMap: Record<string, string> = { CREATE: 'green', UPDATE: 'blue', DELETE: 'red', LOGIN: 'cyan', LOGOUT: 'default', EXPORT: 'orange', PRINT: 'purple' }
       return <Tag color={colorMap[String(v)] ?? 'default'}>{String(v)}</Tag>
     }},
-    { title: '资源', dataIndex: 'resource', key: 'resource', width: 200, searchable: true, sorter: (a, b) => a.resource.localeCompare(b.resource) },
-    { title: 'IP地址', dataIndex: 'ip', key: 'ip', width: 130, render: (v) => <Tooltip title={String(v ?? '-')}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{String(v ?? '-')}</span></Tooltip> },
-    { title: '详情', dataIndex: 'details', key: 'details', ellipsis: true, render: (value) => String(value ?? '-') },
-    { title: '操作', key: 'actions', width: 90, render: (_value, record) => (
-      <Button size="small" type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(record.id)}>详情</Button>
+    { title: t('auditPage.colResource'), dataIndex: 'resource', key: 'resource', width: 200, searchable: true, sorter: (a, b) => a.resource.localeCompare(b.resource) },
+    { title: t('auditPage.colIp'), dataIndex: 'ip', key: 'ip', width: 130, render: (v) => <Tooltip title={String(v ?? '-')}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{String(v ?? '-')}</span></Tooltip> },
+    { title: t('auditPage.colDetails'), dataIndex: 'details', key: 'details', ellipsis: true, render: (value) => String(value ?? '-') },
+    { title: t('auditPage.colActions'), key: 'actions', width: 90, render: (_value, record) => (
+      <Button size="small" type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(record.id)}>{t('auditPage.viewDetail')}</Button>
     ) },
   ]
 
@@ -121,7 +122,7 @@ export default function AuditPage() {
       URL.revokeObjectURL(url)
       message.success(`审计日志已导出 (${logs.length}+ 条)`)
     } catch (e) {
-      message.error((e as Error)?.message || '导出失败')
+      message.error((e as Error)?.message || t('auditPage.exportFailed'))
     } finally {
       setLoading(false)
     }
@@ -132,34 +133,34 @@ export default function AuditPage() {
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
 <Row justify="space-between" align="middle">
-<PageHeader variant="flex" icon={<AuditOutlined />} title="审计日志" style={{ marginBottom: 0 }} />
+<PageHeader variant="flex" icon={<AuditOutlined />} title={t('auditPage.title')} style={{ marginBottom: 0 }} />
             <Space>
-              <Button icon={<DownloadOutlined />} onClick={handleExport}>导出</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended() }}>刷新</Button>
+              <Button icon={<DownloadOutlined />} onClick={handleExport}>{t('auditPage.export')}</Button>
+              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended() }}>{t('auditPage.refresh')}</Button>
             </Space>
           </Row>
           <Tabs items={[
             {
               key: 'overview',
-              label: <span><BarChartOutlined /> 统计概览</span>,
+              label: <span><BarChartOutlined /> {t('auditPage.tabOverview')}</span>,
               children: stats ? (
                 <>
                   <Row gutter={16}>
-                    <Col span={4}><Card size="small"><Statistic title="总日志数" value={stats.total} prefix={<AuditOutlined />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title="24h 内" value={stats.last24h} prefix={<BarChartOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTotalLogs')} value={stats.total} prefix={<AuditOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statLast24h')} value={stats.last24h} prefix={<BarChartOutlined />} /></Card></Col>
                     {/* [Wave 4B] 后端 GET /audit/overview 真实数据 */}
-                    <Col span={4}><Card size="small"><Statistic title="今日操作" value={overview?.todayOperations ?? '-'} prefix={<LineChartOutlined />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title="活跃用户" value={overview?.activeUsers ?? '-'} prefix={<UserOutlined />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title="高危操作" value={overview?.highRiskCount ?? '-'} prefix={<WarningOutlined />} styles={{ content: { color: (overview?.highRiskCount ?? 0) > 0 ? '#fa8c16' : '#52c41a' } }} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title="成功率" value={overview ? `${overview.successRate}%` : '-'} prefix={<SafetyCertificateOutlined />} styles={{ content: { color: (overview?.successRate ?? 0) >= 90 ? '#52c41a' : '#fa8c16' } }} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTodayOps')} value={overview?.todayOperations ?? '-'} prefix={<LineChartOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statActiveUsers')} value={overview?.activeUsers ?? '-'} prefix={<UserOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statHighRisk')} value={overview?.highRiskCount ?? '-'} prefix={<WarningOutlined />} styles={{ content: { color: (overview?.highRiskCount ?? 0) > 0 ? '#fa8c16' : '#52c41a' } }} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statSuccessRate')} value={overview ? `${overview.successRate}%` : '-'} prefix={<SafetyCertificateOutlined />} styles={{ content: { color: (overview?.successRate ?? 0) >= 90 ? '#52c41a' : '#fa8c16' } }} /></Card></Col>
                     {overview?.seeded === true && (
                       <Col span={24} style={{ marginTop: 4 }}>
-                        <Tag color="gold" style={{ fontSize: 11 }}>种子数据（后端不可用回退）</Tag>
+                        <Tag color="gold" style={{ fontSize: 11 }}>{t('auditPage.seededTag')}</Tag>
                       </Col>
                     )}
                     {byAction && Object.keys(byAction).length > 0 && (
                       <Col span={24} style={{ marginTop: 12 }}>
-                        <Card size="small" title="按操作类型分布 (Top)">
+                        <Card size="small" title={t('auditPage.byActionTitle')}>
                           <Space wrap size={[8, 8]}>
                             {Object.entries(byAction)
                               .sort((a, b) => b[1] - a[1])
@@ -176,14 +177,14 @@ export default function AuditPage() {
                   </Row>
                   {/* [Wave 4B] 近 30 日操作趋势 (GET /audit/action-trend) */}
                   {trend.length > 0 && (
-                    <Card size="small" title={<span><LineChartOutlined /> 近 30 日操作趋势</span>} style={{ marginTop: 12 }}>
+                    <Card size="small" title={<span><LineChartOutlined /> {t('auditPage.trendTitle')}</span>} style={{ marginTop: 12 }}>
                       <Row gutter={[8, 8]}>
                         {trend.slice(-14).map((p) => {
                           const max = Math.max(...trend.map((t) => t.total), 1)
                           return (
                             <Col key={p.date} span={Math.floor(24 / Math.min(trend.slice(-14).length, 14))}>
                               <div style={{ textAlign: 'center' }}>
-                                <Tooltip title={`${p.label} 总操作 ${p.total} · 高危 ${p.highRisk} · 失败 ${p.failed}`}>
+                                <Tooltip title={t('auditPage.trendTooltip', { label: p.label, total: p.total, highRisk: p.highRisk, failed: p.failed })}>
                                   <div>
                                     <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{p.label}</div>
                                     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', height: 64 }}>
@@ -202,9 +203,9 @@ export default function AuditPage() {
                   <Row gutter={16} style={{ marginTop: 12 }}>
                     {/* [Wave 4B] 用户活跃排行 (GET /audit/user-activity) */}
                     <Col span={12}>
-                      <Card size="small" title={<span><UserOutlined /> 用户活跃排行</span>}>
+                      <Card size="small" title={<span><UserOutlined /> {t('auditPage.userActivityTitle')}</span>}>
                         {userActivity.length === 0 ? (
-                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>暂无数据</div>
+                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>{t('auditPage.noData')}</div>
                         ) : (
                           <List
                             size="small"
@@ -214,10 +215,10 @@ export default function AuditPage() {
                                 <Space>
                                   <Tag color={i === 0 ? 'gold' : i < 3 ? 'blue' : 'default'}>{i + 1}</Tag>
                                   <b>{u.userName ?? u.userId}</b>
-                                  <span style={{ fontSize: 12, color: '#999' }}>{u.count} 次</span>
+                                  <span style={{ fontSize: 12, color: '#999' }}>{t('auditPage.timesSuffix', { count: u.count })}</span>
                                   <Progress percent={u.successRate} size="small" style={{ width: 90 }} format={(p) => `${p}%`} />
                                 </Space>
-                                <span style={{ fontSize: 11, color: '#999' }}>最近 {new Date(u.lastActive).toLocaleString('zh-CN')}</span>
+                                <span style={{ fontSize: 11, color: '#999' }}>{t('auditPage.lastActive', { time: new Date(u.lastActive).toLocaleString('zh-CN') })}</span>
                               </List.Item>
                             )}
                           />
@@ -226,18 +227,18 @@ export default function AuditPage() {
                     </Col>
                     {/* [Wave 4B] 高危操作清单 (GET /audit/high-risk) */}
                     <Col span={12}>
-                      <Card size="small" title={<span><WarningOutlined /> 高危操作清单</span>} extra={highRisk ? <Tag color="red">共 {highRisk.total} 次</Tag> : null}>
+                      <Card size="small" title={<span><WarningOutlined /> {t('auditPage.highRiskTitle')}</span>} extra={highRisk ? <Tag color="red">{t('auditPage.totalTimes', { total: highRisk.total })}</Tag> : null}>
                         {!highRisk || highRisk.actions.length === 0 ? (
-                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>暂无高危操作</div>
+                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>{t('auditPage.noHighRisk')}</div>
                         ) : (
                           <ProTable<AuditHighRiskActionDto>
                             dataSource={highRisk.actions.slice(0, 10)}
                             columns={[
-                              { title: '操作', dataIndex: 'action', key: 'action', render: (v) => <Tag color="red" style={{ fontFamily: 'monospace' }}>{String(v)}</Tag> },
-                              { title: '分类', dataIndex: 'patternZh', key: 'pattern', width: 90, render: (v) => <Tag>{String(v)}</Tag> },
-                              { title: '次数', dataIndex: 'count', key: 'count', width: 70, sorter: (a, b) => a.count - b.count },
-                              { title: '最近时间', dataIndex: 'lastAt', key: 'lastAt', width: 150, render: (v) => v ? new Date(String(v)).toLocaleString('zh-CN') : '-' },
-                              { title: '涉及用户', dataIndex: 'recentUsers', key: 'users', render: (v) => Array.isArray(v) ? (v as string[]).slice(0, 3).join('、') : '-' },
+                              { title: t('auditPage.colAction'), dataIndex: 'action', key: 'action', render: (v) => <Tag color="red" style={{ fontFamily: 'monospace' }}>{String(v)}</Tag> },
+                              { title: t('auditPage.colCategory'), dataIndex: 'patternZh', key: 'pattern', width: 90, render: (v) => <Tag>{String(v)}</Tag> },
+                              { title: t('auditPage.colCount'), dataIndex: 'count', key: 'count', width: 70, sorter: (a, b) => a.count - b.count },
+                              { title: t('auditPage.colLastAt'), dataIndex: 'lastAt', key: 'lastAt', width: 150, render: (v) => v ? new Date(String(v)).toLocaleString('zh-CN') : '-' },
+                              { title: t('auditPage.colUsers'), dataIndex: 'recentUsers', key: 'users', render: (v) => Array.isArray(v) ? (v as string[]).slice(0, 3).join('、') : '-' },
                             ]}
                             rowKey="action"
                             pagination={false}
@@ -249,17 +250,17 @@ export default function AuditPage() {
                     </Col>
                   </Row>
                 </>
-              ) : <Card size="small"><Statistic title="加载中..." value="-" /></Card>,
+              ) : <Card size="small"><Statistic title={t('auditPage.loading')} value="-" /></Card>,
             },
             {
               key: 'logs',
-              label: <span><FilterOutlined /> 日志列表</span>,
+              label: <span><FilterOutlined /> {t('auditPage.tabLogs')}</span>,
               children: (
                 <>
                   <Space style={{ marginBottom: 16 }}>
-                    <Select allowClear placeholder="操作类型" style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, action: v }))} options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'PRINT'].map((a) => ({ value: a, label: a }))} />
-                    <Select allowClear placeholder="资源类型" style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, resource: v }))} options={['patient', 'report', 'user', 'exam', 'dicom'].map((r) => ({ value: r, label: r }))} />
-                    <Button type="primary" icon={<Search size={14} />} onClick={() => fetchLogs(1)}>查询</Button>
+                    <Select allowClear placeholder={t('auditPage.filterAction')} style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, action: v }))} options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'PRINT'].map((a) => ({ value: a, label: a }))} />
+                    <Select allowClear placeholder={t('auditPage.filterResource')} style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, resource: v }))} options={['patient', 'report', 'user', 'exam', 'dicom'].map((r) => ({ value: r, label: r }))} />
+                    <Button type="primary" icon={<Search size={14} />} onClick={() => fetchLogs(1)}>{t('auditPage.query')}</Button>
                   </Space>
                   <ProTable<AuditLogDto>
                     dataSource={logs}
@@ -267,7 +268,7 @@ export default function AuditPage() {
                     rowKey="id"
                     loading={loading}
                     showToolbar={false}
-                    pagination={{ current: page, pageSize: 10, total, showTotal: (t) => `共 ${t} 条`, onChange: (nextPage) => fetchLogs(nextPage) }}
+                    pagination={{ current: page, pageSize: 10, total, showTotal: (total) => t('auditPage.totalItems', { total }), onChange: (nextPage) => fetchLogs(nextPage) }}
                     size="small"
                   />
                 </>
@@ -275,14 +276,14 @@ export default function AuditPage() {
             },
             {
               key: 'policy',
-              label: <span><AuditOutlined /> 审计策略</span>,
+              label: <span><AuditOutlined /> {t('auditPage.tabPolicy')}</span>,
               children: (
                 <Card size="small">
                   <Descriptions bordered column={2}>
-                    <Descriptions.Item label="日志保留期">365 天</Descriptions.Item>
-                    <Descriptions.Item label="归档策略">自动归档到冷存储</Descriptions.Item>
-                    <Descriptions.Item label="实时告警">异常登录检测</Descriptions.Item>
-                    <Descriptions.Item label="日志加密">AES-256 加密存储</Descriptions.Item>
+                    <Descriptions.Item label={t('auditPage.policyLogRetention')}>{t('auditPage.policyLogRetentionValue')}</Descriptions.Item>
+                    <Descriptions.Item label={t('auditPage.policyArchive')}>{t('auditPage.policyArchiveValue')}</Descriptions.Item>
+                    <Descriptions.Item label={t('auditPage.policyRealtimeAlert')}>{t('auditPage.policyRealtimeAlertValue')}</Descriptions.Item>
+                    <Descriptions.Item label={t('auditPage.policyEncryption')}>{t('auditPage.policyEncryptionValue')}</Descriptions.Item>
                   </Descriptions>
                 </Card>
               ),
@@ -292,7 +293,7 @@ export default function AuditPage() {
       </Card>
       {/* [W2-C] 审计记录详情 Drawer */}
       <Drawer
-        title={<Space><EyeOutlined /> 审计记录详情</Space>}
+        title={<Space><EyeOutlined /> {t('auditPage.detailTitle')}</Space>}
         width={520}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
@@ -307,24 +308,24 @@ export default function AuditPage() {
         )}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}><Spin tip="加载中..." /></div>
+          <div style={{ textAlign: 'center', padding: 48 }}><Spin tip={t('auditPage.loading')} /></div>
         ) : detail ? (
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="记录 ID">{detail.id}</Descriptions.Item>
-            <Descriptions.Item label="操作者">{detail.username ?? detail.userId}{detail.username && detail.username !== detail.userId ? ` (${detail.userId})` : ''}</Descriptions.Item>
-            <Descriptions.Item label="角色">{detail.userRole ?? '-'}</Descriptions.Item>
-            <Descriptions.Item label="操作类型"><Tag>{detail.action}</Tag></Descriptions.Item>
-            <Descriptions.Item label="资源">{detail.resource}</Descriptions.Item>
-            <Descriptions.Item label="资源 ID">{detail.resourceId ?? '-'}</Descriptions.Item>
-            <Descriptions.Item label="请求详情">{Array.isArray(detail.details) ? (detail.details as string[]).join('；') : detail.details ?? '-'}</Descriptions.Item>
-            <Descriptions.Item label="响应状态">
+            <Descriptions.Item label={t('auditPage.detailRecordId')}>{detail.id}</Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailOperator')}>{detail.username ?? detail.userId}{detail.username && detail.username !== detail.userId ? ` (${detail.userId})` : ''}</Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailRole')}>{detail.userRole ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailActionType')}><Tag>{detail.action}</Tag></Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailResource')}>{detail.resource}</Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailResourceId')}>{detail.resourceId ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailRequestDetails')}>{Array.isArray(detail.details) ? (detail.details as string[]).join('；') : detail.details ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailResponseStatus')}>
               <Tag color={detail.status === 'SUCCESS' ? 'success' : detail.status === 'FAILURE' ? 'error' : detail.status === 'DENIED' ? 'warning' : 'default'}>
                 {detail.status ?? '-'}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="IP 地址"><span style={{ fontFamily: 'monospace' }}>{detail.ip ?? '-'}</span></Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailIp')}><span style={{ fontFamily: 'monospace' }}>{detail.ip ?? '-'}</span></Descriptions.Item>
             <Descriptions.Item label="User-Agent"><span style={{ fontSize: 12, wordBreak: 'break-all' }}>{detail.userAgent ?? '-'}</span></Descriptions.Item>
-            <Descriptions.Item label="时间">{new Date(detail.createdAt).toLocaleString('zh-CN')}</Descriptions.Item>
+            <Descriptions.Item label={t('auditPage.detailTime')}>{new Date(detail.createdAt).toLocaleString('zh-CN')}</Descriptions.Item>
           </Descriptions>
         ) : null}
       </Drawer>

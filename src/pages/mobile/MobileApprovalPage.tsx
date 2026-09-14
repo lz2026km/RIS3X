@@ -21,6 +21,7 @@ import {
   MobileApprovalStats,
   MobileApprovalType,
 } from '../../services/api/mobileApprovalApi'
+import { t } from '../../i18n/appI18n'
 
 const TYPE_COLORS: Record<MobileApprovalType, string> = {
   报告签发: 'blue',
@@ -38,11 +39,11 @@ const TYPE_ICONS: Record<MobileApprovalType, React.ReactNode> = {
   请假审批: <CalendarClock size={14} />,
 }
 
-const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  pending: { label: '待审批', color: '#3b82f6', bg: '#dbeafe' },
-  approved: { label: '已通过', color: '#10b981', bg: '#d1fae5' },
-  rejected: { label: '已驳回', color: '#ef4444', bg: '#ffe4e6' },
-  delegated: { label: '委派中', color: '#f59e0b', bg: '#fef3c7' },
+const STATUS_LABELS: Record<string, { labelKey: string; color: string; bg: string }> = {
+  pending: { labelKey: 'mobileApproval.stPending', color: '#3b82f6', bg: '#dbeafe' },
+  approved: { labelKey: 'mobileApproval.stApproved', color: '#10b981', bg: '#d1fae5' },
+  rejected: { labelKey: 'mobileApproval.stRejected', color: '#ef4444', bg: '#ffe4e6' },
+  delegated: { labelKey: 'mobileApproval.stDelegated', color: '#f59e0b', bg: '#fef3c7' },
 }
 
 const DELEGATE_OPTIONS = [
@@ -137,23 +138,23 @@ export default function MobileApprovalPage() {
     try {
       if (modalKind === 'approve') {
         await mobileApprovalApi.approve(acting.id, comment.trim() || undefined)
-        message.success(`已通过「${acting.title}」`)
+        message.success(`${t('mobileApproval.approvedMsg')}「${acting.title}」`)
       } else if (modalKind === 'reject') {
         if (!reason.trim()) {
-          message.warning('请填写驳回原因')
+          message.warning(t('mobileApproval.rejectReasonRequired'))
           setSubmitting(false)
           return
         }
         await mobileApprovalApi.reject(acting.id, reason.trim())
-        message.success(`已驳回「${acting.title}」`)
+        message.success(`${t('mobileApproval.rejectedMsg')}「${acting.title}」`)
       } else {
         await mobileApprovalApi.delegate(acting.id, toUserId.trim())
-        message.success(`已委派「${acting.title}」给 ${toUserId}`)
+        message.success(`${t('mobileApproval.delegatedMsg')}「${acting.title}」${t('mobileApproval.to')} ${toUserId}`)
       }
       setActing(null)
       void loadAll()
     } catch (e) {
-      message.error((e as Error).message ?? '操作失败')
+      message.error((e as Error).message ?? t('mobileApproval.opFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -161,10 +162,10 @@ export default function MobileApprovalPage() {
 
   const statCards = useMemo(() => {
     const cards = [
-      { key: 'pending', label: '待审批', value: stats?.pending ?? pending.filter((i) => i.status === 'pending').length, color: '#3b82f6', bg: '#dbeafe', icon: <Inbox size={18} /> },
-      { key: 'approved', label: '已审批', value: stats ? stats.approved + stats.rejected : history.length, color: '#10b981', bg: '#d1fae5', icon: <CheckCircle2 size={18} /> },
-      { key: 'delegated', label: '委派中', value: stats?.delegated ?? pending.filter((i) => i.status === 'delegated').length, color: '#f59e0b', bg: '#fef3c7', icon: <UserRoundCog size={18} /> },
-      { key: 'overdue', label: '逾期', value: stats?.overdue ?? pending.filter(isOverdue).length, color: '#ef4444', bg: '#ffe4e6', icon: <AlertTriangle size={18} /> },
+      { key: 'pending', label: t('mobileApproval.cardPending'), value: stats?.pending ?? pending.filter((i) => i.status === 'pending').length, color: '#3b82f6', bg: '#dbeafe', icon: <Inbox size={18} /> },
+      { key: 'approved', label: t('mobileApproval.cardApproved'), value: stats ? stats.approved + stats.rejected : history.length, color: '#10b981', bg: '#d1fae5', icon: <CheckCircle2 size={18} /> },
+      { key: 'delegated', label: t('mobileApproval.cardDelegated'), value: stats?.delegated ?? pending.filter((i) => i.status === 'delegated').length, color: '#f59e0b', bg: '#fef3c7', icon: <UserRoundCog size={18} /> },
+      { key: 'overdue', label: t('mobileApproval.cardOverdue'), value: stats?.overdue ?? pending.filter(isOverdue).length, color: '#ef4444', bg: '#ffe4e6', icon: <AlertTriangle size={18} /> },
     ]
     return cards
   }, [stats, pending, history])
@@ -185,9 +186,9 @@ export default function MobileApprovalPage() {
 
   const renderActions = (item: MobileApprovalItem) => (
     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-      <Button size="small" type="primary" icon={<Check size={12} />} onClick={() => openAction(item, 'approve')}>通过</Button>
-      <Button size="small" danger icon={<X size={12} />} onClick={() => openAction(item, 'reject')}>驳回</Button>
-      <Button size="small" icon={<UserPlus2 size={12} />} onClick={() => openAction(item, 'delegate')}>委派</Button>
+      <Button size="small" type="primary" icon={<Check size={12} />} onClick={() => openAction(item, 'approve')}>{t('mobileApproval.pass')}</Button>
+      <Button size="small" danger icon={<X size={12} />} onClick={() => openAction(item, 'reject')}>{t('mobileApproval.reject')}</Button>
+      <Button size="small" icon={<UserPlus2 size={12} />} onClick={() => openAction(item, 'delegate')}>{t('mobileApproval.delegate')}</Button>
     </div>
   )
 
@@ -195,7 +196,7 @@ export default function MobileApprovalPage() {
     const s = STATUS_LABELS[item.status] ?? STATUS_LABELS.pending!
     return (
       <Tag color="default" style={{ margin: 0, background: s.bg, color: s.color, borderColor: s.bg, fontWeight: 600, fontSize: 11 }}>
-        {s.label}
+        {t(s.labelKey)}
         {item.status === 'delegated' && item.delegatedTo ? ` → ${item.delegatedTo}` : ''}
       </Tag>
     )
@@ -216,18 +217,18 @@ export default function MobileApprovalPage() {
       </div>
       <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', lineHeight: 1.45 }}>{item.title}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 12, color: '#64748b' }}>
-        <span>申请人: <b style={{ color: '#334155' }}>{item.applicant}</b></span>
-        <span>提交: {fmtTime(item.submittedAt)} · 归属: {item.assignee}</span>
+        <span>{t('mobileApproval.applicant')}: <b style={{ color: '#334155' }}>{item.applicant}</b></span>
+        <span>{t('mobileApproval.submitted')}: {fmtTime(item.submittedAt)} · {t('mobileApproval.owner')}: {item.assignee}</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Clock size={12} />截止: {fmtTime(item.dueAt)}
+          <Clock size={12} />{t('mobileApproval.due')}: {fmtTime(item.dueAt)}
           {isOverdue(item) && (
-            <span style={{ color: '#dc2626', fontWeight: 700, background: '#fee2e2', padding: '0 6px', borderRadius: 4, fontSize: 11 }}>已逾期</span>
+            <span style={{ color: '#dc2626', fontWeight: 700, background: '#fee2e2', padding: '0 6px', borderRadius: 4, fontSize: 11 }}>{t('mobileApproval.overdue')}</span>
           )}
         </span>
       </div>
       {renderDetail(item)}
       {item.status === 'delegated' && (
-        <Alert type="warning" showIcon style={{ padding: '4px 10px', fontSize: 11 }} message={`已委派给 ${item.delegatedTo ?? '-'} 处理, 待受托人操作`} />
+        <Alert type="warning" showIcon style={{ padding: '4px 10px', fontSize: 11 }} message={`${t('mobileApproval.delegatedTo')} ${item.delegatedTo ?? '-'} ${t('mobileApproval.delegatedHint')}`} />
       )}
       <div style={{ marginTop: 'auto', paddingTop: 6 }}>{renderActions(item)}</div>
     </div>
@@ -248,13 +249,13 @@ export default function MobileApprovalPage() {
       </div>
       <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', lineHeight: 1.45 }}>{item.title}</div>
       <div style={{ fontSize: 12, color: '#64748b', display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <span>申请人: <b style={{ color: '#334155' }}>{item.applicant}</b> · 提交: {fmtTime(item.submittedAt)}</span>
-        <span>处理人: {item.processedBy ?? '-'} · 处理时间: {fmtTime(item.processedAt)}</span>
+        <span>{t('mobileApproval.applicant')}: <b style={{ color: '#334155' }}>{item.applicant}</b> · {t('mobileApproval.submitted')}: {fmtTime(item.submittedAt)}</span>
+        <span>{t('mobileApproval.processedBy')}: {item.processedBy ?? '-'} · {t('mobileApproval.processedAt')}: {fmtTime(item.processedAt)}</span>
         {item.comment && (
-          <span style={{ color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: 6 }}>备注: {item.comment}</span>
+          <span style={{ color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: 6 }}>{t('mobileApproval.comment')}: {item.comment}</span>
         )}
         {item.reason && (
-          <span style={{ color: '#dc2626', background: '#fef2f2', padding: '4px 8px', borderRadius: 6 }}>驳回原因: {item.reason}</span>
+          <span style={{ color: '#dc2626', background: '#fef2f2', padding: '4px 8px', borderRadius: 6 }}>{t('mobileApproval.rejectReason')}: {item.reason}</span>
         )}
       </div>
       {renderDetail(item)}
@@ -265,8 +266,8 @@ export default function MobileApprovalPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
         icon={<Smartphone size={20} color="#3b82f6" />}
-        title="移动审批"
-        subtitle="待办审批 · 报告签发 / 发布 / 危急值处置 / 费用 / 请假 — 支持通过 / 驳回 / 委派"
+        title={t('mobileApproval.title')}
+        subtitle={t('mobileApproval.subtitle')}
       />
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* 统计卡 */}
@@ -285,11 +286,11 @@ export default function MobileApprovalPage() {
         {/* 类型分布 */}
         {stats && (
           <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '12px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>待办分布:</span>
+            <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('mobileApproval.distribution')}:</span>
             {stats.byType.map((t) => (
               <Tag key={t.type} color={TYPE_COLORS[t.type] ?? 'default'} style={{ margin: 0 }}>{t.type} {t.count}</Tag>
             ))}
-            <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>数据源: mobile-approval (报告/危急值/费用/请假 派生 + seed)</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>{t('mobileApproval.dataSource')}</span>
           </div>
         )}
 
@@ -301,7 +302,7 @@ export default function MobileApprovalPage() {
             items={[
               {
                 key: 'pending',
-                label: `待审批 (${pending.filter((i) => i.status === 'pending' || i.status === 'delegated').length})`,
+                label: `${t('mobileApproval.tabPending')} (${pending.filter((i) => i.status === 'pending' || i.status === 'delegated').length})`,
                 children: (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -310,7 +311,7 @@ export default function MobileApprovalPage() {
                         <Input
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
-                          placeholder="检索标题 / 申请人 / 归属"
+                          placeholder={t('mobileApproval.searchPlaceholder')}
                           size="small"
                           style={{ paddingLeft: 30 }}
                         />
@@ -320,14 +321,14 @@ export default function MobileApprovalPage() {
                         onChange={setTypeFilter}
                         size="small"
                         style={{ width: 140 }}
-                        options={[{ label: '全部类型', value: 'all' }, ...(Object.keys(TYPE_COLORS) as MobileApprovalType[]).map((t) => ({ label: t, value: t }))]}
+                        options={[{ label: t('mobileApproval.allTypes'), value: 'all' }, ...(Object.keys(TYPE_COLORS) as MobileApprovalType[]).map((ty) => ({ label: ty, value: ty }))]}
                       />
-                      <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadAll()} loading={loading}>刷新</Button>
+                      <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadAll()} loading={loading}>{t('mobileApproval.refresh')}</Button>
                     </div>
                     {loading && pending.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div>
                     ) : filteredPending.length === 0 ? (
-                      <Empty description="暂无待审批事项" style={{ padding: 32 }} />
+                      <Empty description={t('mobileApproval.emptyPending')} style={{ padding: 32 }} />
                     ) : (
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(420px, 1fr))', gap: 12 }}>
                         {filteredPending.map(renderCard)}
@@ -338,19 +339,19 @@ export default function MobileApprovalPage() {
               },
               {
                 key: 'history',
-                label: `已审批 (${history.length})`,
+                label: `${t('mobileApproval.tabHistory')} (${history.length})`,
                 children: (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <Alert
                       type="info"
                       showIcon
                       style={{ padding: '6px 12px', fontSize: 12 }}
-                      message={`共 ${history.length} 条处理记录: 通过 ${history.filter((i) => i.status === 'approved').length} · 驳回 ${history.filter((i) => i.status === 'rejected').length}`}
+                      message={`${t('mobileApproval.historySummary')} ${history.length} ${t('mobileApproval.records')}: ${t('mobileApproval.pass')} ${history.filter((i) => i.status === 'approved').length} · ${t('mobileApproval.reject')} ${history.filter((i) => i.status === 'rejected').length}`}
                     />
                     {loading && history.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div>
                     ) : history.length === 0 ? (
-                      <Empty description="暂无已审批记录" style={{ padding: 32 }} />
+                      <Empty description={t('mobileApproval.emptyHistory')} style={{ padding: 32 }} />
                     ) : (
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(420px, 1fr))', gap: 12 }}>
                         {history.map(renderHistoryCard)}
@@ -365,19 +366,19 @@ export default function MobileApprovalPage() {
 
         {/* 数据源徽标 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#64748b', padding: '0 4px' }}>
-          <Tag color="blue" style={{ margin: 0 }}>数据源</Tag>
-          <span>后端 /mobile-approval (内存 seed + 报告/危急值派生) · MSW 同步 mock · 逾期按截止时间自动红标</span>
+          <Tag color="blue" style={{ margin: 0 }}>{t('mobileApproval.dataSourceTag')}</Tag>
+          <span>{t('mobileApproval.dataSourceDesc')}</span>
         </div>
       </div>
 
       {/* 通过 / 驳回 / 委派 Modal */}
       <Modal
-        title={acting ? `${modalKind === 'approve' ? '通过' : modalKind === 'reject' ? '驳回' : '委派'}: ${acting.title}` : ''}
+        title={acting ? `${modalKind === 'approve' ? t('mobileApproval.pass') : modalKind === 'reject' ? t('mobileApproval.reject') : t('mobileApproval.delegate')}: ${acting.title}` : ''}
         open={!!acting}
         onOk={() => void handleSubmit()}
         onCancel={() => setActing(null)}
-        okText={modalKind === 'approve' ? '确认通过' : modalKind === 'reject' ? '确认驳回' : '确认委派'}
-        cancelText="取消"
+        okText={modalKind === 'approve' ? t('mobileApproval.confirmPass') : modalKind === 'reject' ? t('mobileApproval.confirmReject') : t('mobileApproval.confirmDelegate')}
+        cancelText={t('mobileApproval.cancel')}
         confirmLoading={submitting}
         okButtonProps={modalKind === 'reject' ? { danger: true } : undefined}
         width={520}
@@ -386,16 +387,16 @@ export default function MobileApprovalPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569' }}>
               <Tag color={TYPE_COLORS[acting.type] ?? 'default'} icon={TYPE_ICONS[acting.type]} style={{ margin: 0 }}>{acting.type}</Tag>
-              <span>{acting.applicant} · 提交于 {fmtTime(acting.submittedAt)}</span>
+              <span>{acting.applicant} · {t('mobileApproval.submittedAt')} {fmtTime(acting.submittedAt)}</span>
             </div>
             {modalKind === 'approve' && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>审批意见 (可选)</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.approveComment')}</div>
                 <Input.TextArea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
-                  placeholder="如: 报告完整, 同意签发"
+                  placeholder={t('mobileApproval.approvePlaceholder')}
                   maxLength={500}
                   showCount
                 />
@@ -403,12 +404,12 @@ export default function MobileApprovalPage() {
             )}
             {modalKind === 'reject' && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>驳回原因 <span style={{ color: '#dc2626' }}>*</span></div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.rejectReason')} <span style={{ color: '#dc2626' }}>*</span></div>
                 <Input.TextArea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={3}
-                  placeholder="请说明驳回原因, 将回退给申请人"
+                  placeholder={t('mobileApproval.rejectPlaceholder')}
                   maxLength={500}
                   showCount
                 />
@@ -416,7 +417,7 @@ export default function MobileApprovalPage() {
             )}
             {modalKind === 'delegate' && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>委派给 <span style={{ color: '#dc2626' }}>*</span></div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.delegateTo')} <span style={{ color: '#dc2626' }}>*</span></div>
                 <Select
                   value={toUserId}
                   onChange={setToUserId}
@@ -425,7 +426,7 @@ export default function MobileApprovalPage() {
                   showSearch
                   optionFilterProp="label"
                 />
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>委派后事项保留在待办列表, 标记为「委派中」, 由受托人处理</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>{t('mobileApproval.delegateNote')}</div>
               </div>
             )}
           </div>

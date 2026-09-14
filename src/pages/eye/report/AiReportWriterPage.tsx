@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useRef } from "react";
+import { t } from "../../../i18n/appI18n";
 
 const { TextArea } = Input;
 
@@ -142,7 +143,7 @@ export const AiReportWriterPage: React.FC = () => {
   // 多轮改写
   const handleRewrite = useCallback(async () => {
     if (!aiText || !rewriteInstruction) {
-      message.warning("请先有 AI 文本并输入改写指令");
+      message.warning(t('aiReportWriter.needAiTextAndInstruction'));
       return;
     }
     setBusy(true);
@@ -159,7 +160,7 @@ export const AiReportWriterPage: React.FC = () => {
       const data = await r.json();
       if (data.success) {
         setAiText(data.data.rewritten);
-        message.success("已改写");
+        message.success(t('aiReportWriter.rewritten'));
       }
     } catch (e: any) {
       message.error(`改写失败: ${e.message}`);
@@ -171,7 +172,7 @@ export const AiReportWriterPage: React.FC = () => {
   // NLP 提取
   const handleExtract = useCallback(async () => {
     if (!aiText) {
-      message.warning("请先有 AI 文本");
+      message.warning(t('aiReportWriter.needAiText'));
       return;
     }
     setExtracting(true);
@@ -184,7 +185,7 @@ export const AiReportWriterPage: React.FC = () => {
       const data = await r.json();
       if (data.success) {
         setExtraction(data.data);
-        message.success("NLP 提取完成");
+        message.success(t('aiReportWriter.nlpDone'));
       }
     } catch (e: any) {
       message.error(`提取失败: ${e.message}`);
@@ -221,7 +222,7 @@ export const AiReportWriterPage: React.FC = () => {
       }
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
-      message.warning("转写服务暂不可用");
+      message.warning(t('aiReportWriter.transcribeUnavailable'));
     }
   }, [condition]);
 
@@ -247,7 +248,7 @@ export const AiReportWriterPage: React.FC = () => {
       }, 200);
       timerRef.current = interval;
       setTimeout(() => { void transcribeAudio("", true); }, 7000);
-      message.warning("当前浏览器不支持录音，已回退模拟录音");
+      message.warning(t('aiReportWriter.recordingUnsupported'));
       return;
     }
     try {
@@ -265,7 +266,7 @@ export const AiReportWriterPage: React.FC = () => {
           void transcribeAudio(base64, false);
         };
         reader.readAsDataURL(blob);
-        mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
         mediaStreamRef.current = null;
         mediaRecorderRef.current = null;
       };
@@ -278,9 +279,9 @@ export const AiReportWriterPage: React.FC = () => {
         setSttProgress((p) => (p >= 100 ? 100 : p + 5));
       }, 200);
       timerRef.current = interval;
-      message.success("录音中，再次点击「停止录音」并转写");
+      message.success(t('aiReportWriter.recordingStarted'));
     } catch {
-      message.error("无法访问麦克风，请检查浏览器权限设置");
+      message.error(t('aiReportWriter.micDenied'));
     }
   }, [recording, transcribeAudio]);
 
@@ -300,7 +301,7 @@ export const AiReportWriterPage: React.FC = () => {
         setHistory((prev) =>
           prev.map((h) => (h.id === suggestion.id ? { ...h, rating } : h)),
         );
-        message.success("反馈已记录");
+        message.success(t('aiReportWriter.feedbackRecorded'));
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
       }
@@ -312,22 +313,22 @@ export const AiReportWriterPage: React.FC = () => {
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科 AI 报告书写</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiReportWriter.title')}</span>
         <Tag color="cyan">PR2</Tag>
         <Tag color="purple">v3.0.6.8-35</Tag>
         <Tag color="blue">DeepSeek-Opthalmic</Tag>
         {/* [v3.0.6.11-88 Round10] /eye/report/ai|nlp|voice 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        <Tag color="orange">{t('aiReportWriter.demoData')}</Tag>
       </Space>
 
       <Row gutter={16}>
         {/* 左侧输入?*/}
         <Col span={10}>
-          <Card title="输入信息" size="small">
+          <Card title={t('aiReportWriter.inputInfo')} size="small">
             <Form layout="vertical" size="small">
               <Row gutter={8}>
                 <Col span={12}>
-                  <Form.Item label="患者姓名">
+                  <Form.Item label={t('aiReportWriter.patientName')}>
                     <Input
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
@@ -335,7 +336,7 @@ export const AiReportWriterPage: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="患者ID">
+                  <Form.Item label={t('aiReportWriter.patientId')}>
                     <Input
                       value={patientId}
                       onChange={(e) => setPatientId(e.target.value)}
@@ -345,40 +346,40 @@ export const AiReportWriterPage: React.FC = () => {
               </Row>
               <Row gutter={8}>
                 <Col span={12}>
-                  <Form.Item label="病种">
+                  <Form.Item label={t('aiReportWriter.condition')}>
                     <Select
                       value={condition}
                       onChange={setCondition}
                       options={[
-                        { value: "dr", label: "糖尿病视网膜病变 (DR)" },
-                        { value: "amd", label: "老年黄斑变性(AMD)" },
-                        { value: "glaucoma", label: "青光眼" },
-                        { value: "cataract", label: "白内障" },
-                        { value: "retinal-detachment", label: "视网膜脱离" },
-                        { value: "keratoconus", label: "圆锥角膜" },
-                        { value: "uveitis", label: "葡萄膜炎" },
-                        { value: "optic-neuritis", label: "视神经炎" },
-                        { value: "strabismus", label: "斜视" },
-                        { value: "oculoplasty", label: "眼整形" },
-                        { value: "default", label: "通用" },
+                        { value: "dr", label: t('aiReportWriter.condDr') },
+                        { value: "amd", label: t('aiReportWriter.condAmd') },
+                        { value: "glaucoma", label: t('aiReportWriter.condGlaucoma') },
+                        { value: "cataract", label: t('aiReportWriter.condCataract') },
+                        { value: "retinal-detachment", label: t('aiReportWriter.condRetinalDetachment') },
+                        { value: "keratoconus", label: t('aiReportWriter.condKeratoconus') },
+                        { value: "uveitis", label: t('aiReportWriter.condUveitis') },
+                        { value: "optic-neuritis", label: t('aiReportWriter.condOpticNeuritis') },
+                        { value: "strabismus", label: t('aiReportWriter.condStrabismus') },
+                        { value: "oculoplasty", label: t('aiReportWriter.condOculoplasty') },
+                        { value: "default", label: t('aiReportWriter.condDefault') },
                       ]}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="影像模态">
+                  <Form.Item label={t('aiReportWriter.modality')}>
                     <Select
                       value={modality}
                       onChange={setModality}
                       options={[
-                        { value: "fundus", label: "眼底彩照" },
+                        { value: "fundus", label: t('aiReportWriter.modFundus') },
                         { value: "oct", label: "OCT" },
                         { value: "octa", label: "OCT-A" },
                         { value: "ffa", label: "FFA" },
-                        { value: "visualfield", label: "视野" },
-                        { value: "topography", label: "角膜地形图" },
-                        { value: "slitlamp", label: "裂隙灯" },
-                        { value: "autofluorescence", label: "自发荧光" },
+                        { value: "visualfield", label: t('aiReportWriter.modVisualField') },
+                        { value: "topography", label: t('aiReportWriter.modTopography') },
+                        { value: "slitlamp", label: t('aiReportWriter.modSlitLamp') },
+                        { value: "autofluorescence", label: t('aiReportWriter.modAutofluorescence') },
                       ]}
                     />
                   </Form.Item>
@@ -387,23 +388,23 @@ export const AiReportWriterPage: React.FC = () => {
               <Form.Item
                 label={
                   <Space>
-                    <span>检查所见</span>
+                    <span>{t('aiReportWriter.findingsLabel')}</span>
                     <Switch
                       size="small"
                       checked={voiceEnabled}
                       onChange={setVoiceEnabled}
-                      checkedChildren="语音"
-                      unCheckedChildren="键盘"
+                      checkedChildren={t('aiReportWriter.voice')}
+                      unCheckedChildren={t('aiReportWriter.keyboard')}
                     />
                     {voiceEnabled && (
-                      <Tooltip title="点击开始录音，再次点击停止并转写（浏览器不支持时回退模拟）">
+                      <Tooltip title={t('aiReportWriter.recordTip')}>
                         <Button
                           size="small"
                           icon={<Mic size={12} />}
                           onClick={() => void handleRecord()}
                           danger={recording}
                         >
-                          {recording ? "录音中..点击停止" : "开始录音"}
+                          {recording ? t('aiReportWriter.recordingClickStop') : t('aiReportWriter.startRecord')}
                         </Button>
                       </Tooltip>
                     )}
@@ -412,7 +413,7 @@ export const AiReportWriterPage: React.FC = () => {
                       icon={<BookOpen size={12} />}
                       onClick={() => setShowVocabModal(true)}
                     >
-                      术语库
+                      {t('aiReportWriter.vocabLibrary')}
                     </Button>
                   </Space>
                 }
@@ -421,7 +422,7 @@ export const AiReportWriterPage: React.FC = () => {
                   value={findings}
                   onChange={(e) => setFindings(e.target.value)}
                   rows={5}
-                  placeholder="输入检查所见或使用语音识别"
+                  placeholder={t('aiReportWriter.findingsPlaceholder')}
                 />
                 {recording && (
                   <Progress
@@ -434,7 +435,7 @@ export const AiReportWriterPage: React.FC = () => {
             </Form>
           </Card>
 
-          <Card title="AI 操作" size="small" style={{ marginTop: 16 }}>
+          <Card title={t('aiReportWriter.aiOps')} size="small" style={{ marginTop: 16 }}>
             <Space wrap>
               <Button
                 type="primary"
@@ -442,7 +443,7 @@ export const AiReportWriterPage: React.FC = () => {
                 loading={busy}
                 onClick={handleContinue}
               >
-                AI 续写
+                {t('aiReportWriter.aiContinue')}
               </Button>
               <Button
                 icon={<Wand2 size={14} />}
@@ -450,7 +451,7 @@ export const AiReportWriterPage: React.FC = () => {
                 onClick={handleExtract}
                 disabled={!aiText}
               >
-                NLP 提取
+                {t('aiReportWriter.nlpExtract')}
               </Button>
               <Button
                 icon={<RefreshCw size={14} />}
@@ -458,16 +459,16 @@ export const AiReportWriterPage: React.FC = () => {
                 onClick={handleRewrite}
                 disabled={!aiText || !rewriteInstruction}
               >
-                多轮改写
+                {t('aiReportWriter.multiRewrite')}
               </Button>
               <Button icon={<Save size={14} />} disabled={!aiText}>
-                保存报告
+                {t('aiReportWriter.saveReport')}
               </Button>
             </Space>
             <Divider style={{ margin: "8px 0" }} />
             <Space.Compact style={{ width: "100%" }}>
               <Input
-                placeholder="改写指令, 如 简化语言 / 添加 OCT 描述 / 转为英文"
+                placeholder={t('aiReportWriter.rewritePlaceholder')}
                 value={rewriteInstruction}
                 onChange={(e) => setRewriteInstruction(e.target.value)}
               />
@@ -476,9 +477,9 @@ export const AiReportWriterPage: React.FC = () => {
                 onChange={setRewriteStyle as any}
                 style={{ width: 100 }}
                 options={[
-                  { value: "concise", label: "精简" },
-                  { value: "detailed", label: "详细" },
-                  { value: "academic", label: "学术" },
+                  { value: "concise", label: t('aiReportWriter.styleConcise') },
+                  { value: "detailed", label: t('aiReportWriter.styleDetailed') },
+                  { value: "academic", label: t('aiReportWriter.styleAcademic') },
                 ]}
               />
             </Space.Compact>
@@ -491,8 +492,8 @@ export const AiReportWriterPage: React.FC = () => {
             title={
               <Space>
                 <Sparkles size={16} color="#2563eb" />
-                AI 生成报告
-                {extraction && <Tag color="green">NLP 已提取</Tag>}
+                {t('aiReportWriter.aiGeneratedReport')}
+                {extraction && <Tag color="green">{t('aiReportWriter.nlpExtracted')}</Tag>}
               </Space>
             }
             size="small"
@@ -502,7 +503,7 @@ export const AiReportWriterPage: React.FC = () => {
               <div style={{ textAlign: "center", padding: 60 }}>
                 <Spin size="large" />
                 <div style={{ marginTop: 16, color: "var(--text-secondary)" }}>
-                  DeepSeek-Opthalmic 推理中...
+                  {t('aiReportWriter.inferring')}
                 </div>
               </div>
             ) : aiText ? (
@@ -513,7 +514,7 @@ export const AiReportWriterPage: React.FC = () => {
                 style={{ fontSize: 14, lineHeight: 1.6, fontFamily: "inherit" }}
               />
             ) : (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击 AI 续写 生成报告" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiReportWriter.continueHint')} />
             )}
           </Card>
 
@@ -522,9 +523,9 @@ export const AiReportWriterPage: React.FC = () => {
               title={
                 <Space>
                   <Wand2 size={16} color="#52c41a" />
-                  NLP 结构化提取
+                  {t('aiReportWriter.nlpStructured')}
                   <Tag color="cyan">
-                    置信度 {(extraction.confidence * 100).toFixed(0)}%
+                    {t('aiReportWriter.confidence')} {(extraction.confidence * 100).toFixed(0)}%
                   </Tag>
                 </Space>
               }
@@ -537,23 +538,23 @@ export const AiReportWriterPage: React.FC = () => {
                 <Row gutter={[8, 8]}>
                   <Col span={8}>
                     <Tag color="blue">
-                      侧别: {extraction.extracted.laterality || "未识别"}
+                      {t('aiReportWriter.laterality')} {extraction.extracted.laterality || t('aiReportWriter.notRecognized')}
                     </Tag>
                   </Col>
                   <Col span={8}>
                     <Tag color="green">
-                      分级: {extraction.extracted.grade || "未识别"}
+                      {t('aiReportWriter.grade')} {extraction.extracted.grade || t('aiReportWriter.notRecognized')}
                     </Tag>
                   </Col>
                   <Col span={8}>
-                    <Tag color="purple">模型: {extraction.model}</Tag>
+                    <Tag color="purple">{t('aiReportWriter.model')} {extraction.model}</Tag>
                   </Col>
                   <Col span={24}>
                     <Divider style={{ margin: "4px 0" }} />
                     <div
                       style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}
                     >
-                      诊断 (ICD-10):
+                      {t('aiReportWriter.diagnosisIcd')}
                     </div>
                     {extraction.extracted.diagnoses.length > 0 ? (
                       extraction.extracted.diagnoses.map((d, i) => (
@@ -562,7 +563,7 @@ export const AiReportWriterPage: React.FC = () => {
                         </Tag>
                       ))
                     ) : (
-                      <Tag>未识别</Tag>
+                      <Tag>{t('aiReportWriter.notRecognized')}</Tag>
                     )}
                   </Col>
                   {extraction.extracted.iol && (
@@ -592,7 +593,7 @@ export const AiReportWriterPage: React.FC = () => {
               title={
                 <Space>
                   <History size={16} />
-                  AI 续写历史
+                  {t('aiReportWriter.continueHistory')}
                 </Space>
               }
               size="small"
@@ -616,7 +617,7 @@ export const AiReportWriterPage: React.FC = () => {
                         <Space>
                           <Tag color="cyan">{item.condition}</Tag>
                           <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                            {item.wordCount} 字
+                            {item.wordCount} {t('aiReportWriter.words')}
                           </span>
                         </Space>
                       }
@@ -639,8 +640,8 @@ export const AiReportWriterPage: React.FC = () => {
         title={
           <Space>
             <BookOpen size={16} />
-            眼科 {vocab?.cn || "术语库"}
-            {vocab && <Tag color="cyan">{vocab.terms.length} 个</Tag>}
+            {t('aiReportWriter.eyePrefix')} {vocab?.cn || t('aiReportWriter.vocabLibrary')}
+            {vocab && <Tag color="cyan">{vocab.terms.length} {t('aiReportWriter.items')}</Tag>}
           </Space>
         }
         open={showVocabModal}
@@ -657,25 +658,25 @@ export const AiReportWriterPage: React.FC = () => {
               style={{ marginBottom: 12 }}
             />
             <div>
-              {vocab.terms.map((t: string, i: number) => (
+              {vocab.terms.map((term: string, i: number) => (
                 <Tag.CheckableTag
                   key={i}
                   checked={false}
                   onChange={(checked) => {
                     if (checked)
                       setFindings(
-                        (prev) => prev + (prev.endsWith(" ") ? "" : " ") + t,
+                        (prev) => prev + (prev.endsWith(" ") ? "" : " ") + term,
                       );
                   }}
                   style={{ margin: 4, fontSize: 13 }}
                 >
-                  {t}
+                  {term}
                 </Tag.CheckableTag>
               ))}
             </div>
           </>
         ) : (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无术语库" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiReportWriter.noVocab')} />
         )}
       </Modal>
     </div>

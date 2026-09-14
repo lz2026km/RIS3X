@@ -4,9 +4,10 @@ import { aiTriageApi, type AiTriageResult } from '../../services/api/aiTriageApi
 import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Progress, message, Alert, Empty, Tooltip, Segmented } from 'antd'
 import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap, UserCheck, Search } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
+import { t } from '../../i18n/appI18n'
 
 const levelColor: Record<string, string> = { CRITICAL: 'red', URGENT: 'orange', SEMI_URGENT: 'gold', ROUTINE: 'green' }
-const levelLabel: Record<string, string> = { CRITICAL: '危急', URGENT: '紧急', SEMI_URGENT: '半紧急', ROUTINE: '常规' }
+const levelLabelKey: Record<string, string> = { CRITICAL: 'aiTriage.levelCritical', URGENT: 'aiTriage.levelUrgent', SEMI_URGENT: 'aiTriage.levelSemiUrgent', ROUTINE: 'aiTriage.levelRoutine' }
 const levelOrder: Record<string, number> = { CRITICAL: 0, URGENT: 1, SEMI_URGENT: 2, ROUTINE: 3 }
 
 interface TriageStats {
@@ -41,11 +42,11 @@ const AiTriagePage: React.FC = () => {
         setItems(sorted)
       } else {
         setItems([])
-        setError(res.error?.message ?? '加载失败')
+        setError(res.error?.message ?? t('aiTriage.loadFailed'))
       }
     } catch (e) {
       console.error('[AiTriage] fetchPending:', e)
-      setError('分检任务加载失败, 请检查网络后重试')
+      setError(t('aiTriage.loadFailedNetwork'))
     } finally {
       setLoading(false)
     }
@@ -74,7 +75,7 @@ const AiTriagePage: React.FC = () => {
       const res = await aiTriageApi.score({
         examId: values.examId || `EXAM-${Date.now()}`,
         patientId: `P${Date.now()}`,
-        patientName: values.patientName || '当前患者',
+        patientName: values.patientName || t('aiTriage.currentPatient'),
         examType: values.examType || 'CT',
         symptoms: values.symptoms,
       })
@@ -86,13 +87,13 @@ const AiTriagePage: React.FC = () => {
         setScoreModal(false)
         setSelectedItem(res.data)
         setShowDetail(true)
-        message.success(`AI 评分完成: ${res.data.score} 分 (${levelLabel[res.data.level]})`)
+        message.success(`${t('aiTriage.scoreDone')}: ${res.data.score} ${t('aiTriage.points')} (${t(levelLabelKey[res.data.level] ?? res.data.level)})`)
         void fetchStats()
       } else {
-        message.error(res.error?.message ?? '评分失败')
+        message.error(res.error?.message ?? t('aiTriage.scoreFailed'))
       }
     } catch {
-      message.error('评分失败, 请稍后重试')
+      message.error(t('aiTriage.scoreFailedRetry'))
     } finally {
       setScoring(false)
     }
@@ -104,18 +105,18 @@ const AiTriagePage: React.FC = () => {
       const res = await aiTriageApi.assign({
         examId: item.examId,
         patientId: item.patientId ?? `P${Date.now()}`,
-        patientName: item.patientName ?? '当前患者',
+        patientName: item.patientName ?? t('aiTriage.currentPatient'),
         examType: item.examType ?? 'CT',
       })
       if (res.success && res.data) {
         setItems(prev => prev.map(i => i.examId === item.examId ? { ...i, status: 'ASSIGNED', assignedDoctor: res.data.assignedDoctor } : i))
         setShowDetail(false)
-        message.success(`已分配: ${res.data.assignedDoctor}`)
+        message.success(`${t('aiTriage.assignedMsg')}: ${res.data.assignedDoctor}`)
       } else {
-        message.error(res.error?.message ?? '分配失败')
+        message.error(res.error?.message ?? t('aiTriage.assignFailed'))
       }
     } catch {
-      message.error('分配失败')
+      message.error(t('aiTriage.assignFailed'))
     } finally {
       setAssigning(false)
     }
@@ -125,18 +126,18 @@ const AiTriagePage: React.FC = () => {
   const { pageData: triagePageData, pagination: triagePagination } = usePagination(filtered, 10)
 
   const columns = [
-    { title: '检查ID', dataIndex: 'examId', key: 'examId', width: 150, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 90 },
-    { title: 'AI评分', dataIndex: 'score', key: 'score', width: 140, sorter: (a: AiTriageResult, b: AiTriageResult) => b.score - a.score, render: (s: number) => <Progress percent={s} size="small" strokeColor={s >= 80 ? '#ff4d4f' : s >= 60 ? '#faad14' : '#52c41a'} /> },
-    { title: '优先级', dataIndex: 'level', key: 'level', width: 90, sorter: (a: AiTriageResult, b: AiTriageResult) => (levelOrder[a.level] ?? 0) - (levelOrder[b.level] ?? 0), render: (l: string) => <Tag color={levelColor[l]}>{levelLabel[l]}</Tag> },
-    { title: 'AI置信度', dataIndex: 'aiConfidence', key: 'aiConfidence', width: 100, render: (c: number) => `${((c ?? 0) * 100).toFixed(1)}%` },
-    { title: '建议医生', dataIndex: 'suggestedDoctor', key: 'suggestedDoctor', ellipsis: true, render: (d: string) => d || '-' },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={s === 'COMPLETED' ? 'green' : s === 'ASSIGNED' ? 'blue' : 'orange'}>{s === 'COMPLETED' ? '已完成' : s === 'ASSIGNED' ? '已分配' : '待分检'}</Tag> },
-    { title: '操作', key: 'actions', width: 120, render: (_: unknown, r: AiTriageResult) => (
+    { title: t('aiTriage.colExamId'), dataIndex: 'examId', key: 'examId', width: 150, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
+    { title: t('aiTriage.colPatient'), dataIndex: 'patientName', key: 'patientName', width: 90 },
+    { title: t('aiTriage.colAiScore'), dataIndex: 'score', key: 'score', width: 140, sorter: (a: AiTriageResult, b: AiTriageResult) => b.score - a.score, render: (s: number) => <Progress percent={s} size="small" strokeColor={s >= 80 ? '#ff4d4f' : s >= 60 ? '#faad14' : '#52c41a'} /> },
+    { title: t('aiTriage.colLevel'), dataIndex: 'level', key: 'level', width: 90, sorter: (a: AiTriageResult, b: AiTriageResult) => (levelOrder[a.level] ?? 0) - (levelOrder[b.level] ?? 0), render: (l: string) => <Tag color={levelColor[l]}>{t(levelLabelKey[l] ?? l)}</Tag> },
+    { title: t('aiTriage.colAiConfidence'), dataIndex: 'aiConfidence', key: 'aiConfidence', width: 100, render: (c: number) => `${((c ?? 0) * 100).toFixed(1)}%` },
+    { title: t('aiTriage.colSuggestedDoctor'), dataIndex: 'suggestedDoctor', key: 'suggestedDoctor', ellipsis: true, render: (d: string) => d || '-' },
+    { title: t('aiTriage.colStatus'), dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={s === 'COMPLETED' ? 'green' : s === 'ASSIGNED' ? 'blue' : 'orange'}>{s === 'COMPLETED' ? t('aiTriage.stCompleted') : s === 'ASSIGNED' ? t('aiTriage.stAssigned') : t('aiTriage.stPending')}</Tag> },
+    { title: t('aiTriage.colActions'), key: 'actions', width: 120, render: (_: unknown, r: AiTriageResult) => (
       <Space>
-        <Button size="small" onClick={() => { setSelectedItem(r); setShowDetail(true) }}>详情</Button>
+        <Button size="small" onClick={() => { setSelectedItem(r); setShowDetail(true) }}>{t('aiTriage.detail')}</Button>
         {r.status !== 'ASSIGNED' && r.status !== 'COMPLETED' && (
-          <Button size="small" type="primary" icon={<UserCheck size={12} />} loading={assigning} onClick={() => void handleAssign(r)}>分配</Button>
+          <Button size="small" type="primary" icon={<UserCheck size={12} />} loading={assigning} onClick={() => void handleAssign(r)}>{t('aiTriage.assign')}</Button>
         )}
       </Space>
     ) },
@@ -145,17 +146,17 @@ const AiTriagePage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Bot size={20} color="#722ed1" /><h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>AI 智能分检</h1><Tag color="purple">AI 辅助诊断</Tag>
+        <Bot size={20} color="#722ed1" /><h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('aiTriage.title')}</h1><Tag color="purple">{t('aiTriage.tag')}</Tag>
       </div>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> {t('aiTriage.retry')}</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title="总分检数" value={stats.total ?? items.length} prefix={<FileText size={16} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title="危急" value={stats.byLevel?.CRITICAL ?? items.filter(i => i.level === 'CRITICAL').length} styles={{ content: { color: '#cf1322' } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title="AI准确率" value={stats.accuracy ?? 95} suffix="%" prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title="平均评分" value={stats.avgScore ?? '-'} prefix={<Clock size={16} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.statTotal')} value={stats.total ?? items.length} prefix={<FileText size={16} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.levelCritical')} value={stats.byLevel?.CRITICAL ?? items.filter(i => i.level === 'CRITICAL').length} styles={{ content: { color: '#cf1322' } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.statAccuracy')} value={stats.accuracy ?? 95} suffix="%" prefix={<CheckCircle size={16} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.statAvgScore')} value={stats.avgScore ?? '-'} prefix={<Clock size={16} />} /></Card></Col>
       </Row>
       <Card
-        title="AI分检任务"
+        title={t('aiTriage.taskList')}
         extra={
           <Space wrap>
             <Segmented
@@ -163,13 +164,13 @@ const AiTriagePage: React.FC = () => {
               value={filter}
               onChange={(v) => setFilter(v as typeof filter)}
               options={[
-                { label: '全部', value: 'ALL' },
-                { label: '待分检', value: 'PENDING' },
-                { label: '已分配', value: 'ASSIGNED' },
+                { label: t('aiTriage.filterAll'), value: 'ALL' },
+                { label: t('aiTriage.stPending'), value: 'PENDING' },
+                { label: t('aiTriage.stAssigned'), value: 'ASSIGNED' },
               ]}
             />
-            <Button type="primary" icon={<Zap size={14} />} onClick={() => setScoreModal(true)}>AI评分</Button>
-            <Button icon={<RefreshCw size={14} />} onClick={() => { void fetchPending(); void fetchStats() }}>刷新</Button>
+            <Button type="primary" icon={<Zap size={14} />} onClick={() => setScoreModal(true)}>{t('aiTriage.aiScore')}</Button>
+            <Button icon={<RefreshCw size={14} />} onClick={() => { void fetchPending(); void fetchStats() }}>{t('aiTriage.refresh')}</Button>
           </Space>
         }
       >
@@ -180,23 +181,23 @@ const AiTriagePage: React.FC = () => {
           loading={loading}
           pagination={triagePagination}
           size="small"
-          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无分检任务" /> }}
+          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('aiTriage.empty')} /> }}
         scroll={{ x: 'max-content' }}
         />
       </Card>
 
-      <Modal title="AI分检详情" open={showDetail} onCancel={() => { setShowDetail(false); setSelectedItem(null) }} footer={
+      <Modal title={t('aiTriage.detailTitle')} open={showDetail} onCancel={() => { setShowDetail(false); setSelectedItem(null) }} footer={
         selectedItem && selectedItem.status !== 'ASSIGNED' && selectedItem.status !== 'COMPLETED' ? (
-          <Button type="primary" icon={<UserCheck size={14} />} loading={assigning} onClick={() => void handleAssign(selectedItem)}>分配医生</Button>
+          <Button type="primary" icon={<UserCheck size={14} />} loading={assigning} onClick={() => void handleAssign(selectedItem)}>{t('aiTriage.assignDoctor')}</Button>
         ) : null
       } width={640}>
         {selectedItem && (<div>
           <Row gutter={16} style={{ marginBottom: 16 }}>
-            <Col span={8}><Card size="small"><Statistic title="综合评分" value={selectedItem.score} styles={{ content: { color: levelColor[selectedItem.level] } }} /></Card></Col>
-            <Col span={8}><Card size="small"><Statistic title="优先级" value={levelLabel[selectedItem.level]} styles={{ content: { color: levelColor[selectedItem.level] } }} /></Card></Col>
-            <Col span={8}><Card size="small"><Statistic title="AI置信度" value={`${((selectedItem.aiConfidence ?? 0) * 100).toFixed(1)}%`} /></Card></Col>
+            <Col span={8}><Card size="small"><Statistic title={t('aiTriage.overallScore')} value={selectedItem.score} styles={{ content: { color: levelColor[selectedItem.level] } }} /></Card></Col>
+            <Col span={8}><Card size="small"><Statistic title={t('aiTriage.colLevel')} value={t(levelLabelKey[selectedItem.level] ?? selectedItem.level)} styles={{ content: { color: levelColor[selectedItem.level] } }} /></Card></Col>
+            <Col span={8}><Card size="small"><Statistic title={t('aiTriage.colAiConfidence')} value={`${((selectedItem.aiConfidence ?? 0) * 100).toFixed(1)}%`} /></Card></Col>
           </Row>
-          <Card size="small" title="评估因子" style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('aiTriage.factors')} style={{ marginBottom: 16 }}>
             {(selectedItem.factors ?? []).map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <Tooltip title={f.description}>
@@ -207,18 +208,18 @@ const AiTriagePage: React.FC = () => {
               </div>
             ))}
           </Card>
-          <Card size="small" title="AI推理" style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('aiTriage.reasoning')} style={{ marginBottom: 16 }}>
             <p style={{ color: '#666', fontSize: 13, margin: 0 }}>{selectedItem.reasoning}</p>
           </Card>
           <Space wrap>
-            {selectedItem.suggestedDoctor && <Tag icon={<UserCheck size={12} />} color="purple">建议分配给: {selectedItem.suggestedDoctor}</Tag>}
-            {selectedItem.assignedDoctor && <Tag color="blue">已分配: {selectedItem.assignedDoctor}</Tag>}
+            {selectedItem.suggestedDoctor && <Tag icon={<UserCheck size={12} />} color="purple">{t('aiTriage.suggestAssign')}: {selectedItem.suggestedDoctor}</Tag>}
+            {selectedItem.assignedDoctor && <Tag color="blue">{t('aiTriage.assignedLabel')}: {selectedItem.assignedDoctor}</Tag>}
             {selectedItem.examType && <Tag icon={<Search size={12} />}>{selectedItem.examType}</Tag>}
           </Space>
         </div>)}
       </Modal>
 
-      <Modal title="AI 分检评分" open={scoreModal} onCancel={() => setScoreModal(false)} footer={null} width={420}>
+      <Modal title={t('aiTriage.scoreTitle')} open={scoreModal} onCancel={() => setScoreModal(false)} footer={null} width={420}>
         <ScoreForm submitting={scoring} onSubmit={handleScore} />
       </Modal>
     </div>
@@ -234,22 +235,22 @@ const ScoreForm: React.FC<{ submitting: boolean; onSubmit: (v: { examId: string;
   return (
     <div>
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>检查ID (可选)</div>
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.examIdOptional')}</div>
         <input className="ant-input" style={{ width: '100%' }} value={examId} onChange={(e) => setExamId(e.target.value)} placeholder="EXAM-20260807-005" />
       </div>
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>患者姓名</div>
-        <input className="ant-input" style={{ width: '100%' }} value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="请输入患者姓名" />
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.patientName')}</div>
+        <input className="ant-input" style={{ width: '100%' }} value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder={t('aiTriage.patientNamePlaceholder')} />
       </div>
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>检查类型</div>
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.examType')}</div>
         <Segmented options={['CT', 'MR', 'X-ray', 'US']} value={examType} onChange={(v) => setExamType(v as string)} />
       </div>
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>主诉症状</div>
-        <textarea className="ant-input" rows={2} style={{ width: '100%' }} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="如: 突发胸痛、呼吸困难" />
+        <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{t('aiTriage.symptoms')}</div>
+        <textarea className="ant-input" rows={2} style={{ width: '100%' }} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder={t('aiTriage.symptomsPlaceholder')} />
       </div>
-      <Button type="primary" block loading={submitting} icon={<Zap size={14} />} onClick={() => onSubmit({ examId, patientName, examType, symptoms })}>开始评分</Button>
+      <Button type="primary" block loading={submitting} icon={<Zap size={14} />} onClick={() => onSubmit({ examId, patientName, examType, symptoms })}>{t('aiTriage.startScore')}</Button>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { Route, CheckCircle2, Clock, Users, Activity, Play, PauseCircle, Refresh
 import { Forward, LogOut } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react';
 import { usePagination } from '../../hooks/usePagination';
+import { t } from '../../i18n/appI18n';
 
 export const ClinicalPathwayPage: React.FC = () => {
   const [detail, setDetail] = useState<PathwayPatient | null>(null);
@@ -32,11 +33,11 @@ export const ClinicalPathwayPage: React.FC = () => {
         clinicalPathwayApi.getStats(),
       ]);
       if (pwRes.success && Array.isArray(pwRes.data)) setPathways(pwRes.data);
-      else setError(pwRes.error?.message ?? '路径加载失败');
+      else setError(pwRes.error?.message ?? t('clinicalPathway.errLoadPathways'));
       if (ptRes.success && Array.isArray(ptRes.data)) setPatients(ptRes.data);
       if (statsRes.success && statsRes.data) setStats(statsRes.data as PathwayStats);
     } catch {
-      setError('临床路径数据加载失败');
+      setError(t('clinicalPathway.errLoadData'));
     } finally {
       setLoading(false);
     }
@@ -49,10 +50,10 @@ export const ClinicalPathwayPage: React.FC = () => {
   const togglePathway = async (pathway: ClinicalPathway, status: 'active' | 'paused') => {
     const res = await clinicalPathwayApi.togglePathway(pathway.id, status);
     if (res.success) {
-      message.success(status === 'active' ? '路径已启用' : '路径已暂停');
+      message.success(status === 'active' ? t('clinicalPathway.pathwayEnabled') : t('clinicalPathway.pathwayPaused'));
       void load();
     } else {
-      message.error(res.error?.message ?? '操作失败');
+      message.error(res.error?.message ?? t('clinicalPathway.opFailed'));
     }
   };
 
@@ -63,12 +64,12 @@ export const ClinicalPathwayPage: React.FC = () => {
       pathwayName: values.pathwayName,
     });
     if (res.success) {
-      message.success('患者已登记进入路径');
+      message.success(t('clinicalPathway.enrolled'));
       setEnrollModal(false);
       enrollForm.resetFields();
       void load();
     } else {
-      message.error(res.error?.message ?? '登记失败');
+      message.error(res.error?.message ?? t('clinicalPathway.errEnroll'));
     }
   };
 
@@ -113,45 +114,45 @@ export const ClinicalPathwayPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Route size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>临床路径管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('clinicalPathway.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
-        <Tag color="green" icon={<Activity size={10} />}>基于临床路径的护理</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
+        <Tag color="green" icon={<Activity size={10} />}>{t('clinicalPathway.tagEvidenceBased')}</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('clinicalPathway.refresh')}</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('clinicalPathway.retry')}</Button>} />}
 
       <Spin spinning={loading}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={12} md={4}><Card size="small"><Statistic title="启用路径" value={stats?.active ?? pathways.filter((p) => p.status === 'active').length} prefix={<Play size={14} color="#52c41a" />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title="暂停路径" value={stats?.paused ?? pathways.filter((p) => p.status === 'paused').length} prefix={<PauseCircle size={14} color="#faad14" />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title="路径内患者" value={stats?.totalPatients ?? patients.length} prefix={<Users size={14} />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title="按计划" value={stats?.onTrack ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title="已延迟" value={stats?.delayed ?? 0} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title="路径数" value={pathways.length} prefix={<Route size={14} />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statActive')} value={stats?.active ?? pathways.filter((p) => p.status === 'active').length} prefix={<Play size={14} color="#52c41a" />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statPaused')} value={stats?.paused ?? pathways.filter((p) => p.status === 'paused').length} prefix={<PauseCircle size={14} color="#faad14" />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statPatients')} value={stats?.totalPatients ?? patients.length} prefix={<Users size={14} />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statOnTrack')} value={stats?.onTrack ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statDelayed')} value={stats?.delayed ?? 0} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statPathways')} value={pathways.length} prefix={<Route size={14} />} /></Card></Col>
         </Row>
       </Spin>
 
-      <Card size="small" title="路径定义" style={{ marginBottom: 16 }}>
+      <Card size="small" title={t('clinicalPathway.pathwayDef')} style={{ marginBottom: 16 }}>
         <Table
           dataSource={pathways}
           rowKey="id"
           pagination={false}
           size="small"
           columns={[
-            { title: '名称', dataIndex: 'name' },
-            { title: '科室', dataIndex: 'dept', render: (d: string) => <Tag>{d}</Tag> },
-            { title: '当前阶段', dataIndex: 'phase' },
-            { title: '进度', dataIndex: 'progress', render: (p: number) => <Progress percent={p} size="small" /> },
-            { title: '患者数', dataIndex: 'patients' },
-            { title: '版本', dataIndex: 'version', render: (v: string) => <Tag color="default">{v}</Tag> },
-            { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'active' ? 'processing' : s === 'paused' ? 'warning' : 'default'} text={s === 'active' ? '启用中' : s === 'paused' ? '已暂停' : s} /> },
+            { title: t('clinicalPathway.colName'), dataIndex: 'name' },
+            { title: t('clinicalPathway.colDept'), dataIndex: 'dept', render: (d: string) => <Tag>{d}</Tag> },
+            { title: t('clinicalPathway.colPhase'), dataIndex: 'phase' },
+            { title: t('clinicalPathway.colProgress'), dataIndex: 'progress', render: (p: number) => <Progress percent={p} size="small" /> },
+            { title: t('clinicalPathway.colPatients'), dataIndex: 'patients' },
+            { title: t('clinicalPathway.colVersion'), dataIndex: 'version', render: (v: string) => <Tag color="default">{v}</Tag> },
+            { title: t('clinicalPathway.colStatus'), dataIndex: 'status', render: (s: string) => <Badge status={s === 'active' ? 'processing' : s === 'paused' ? 'warning' : 'default'} text={s === 'active' ? t('clinicalPathway.statusActive') : s === 'paused' ? t('clinicalPathway.statusPaused') : s} /> },
             {
-              title: '操作',
+              title: t('clinicalPathway.colAction'),
               render: (_, r: ClinicalPathway) => (
                 <Space>
-                  {r.status !== 'active' && <Button size="small" type="primary" icon={<Play size={10} />} onClick={() => void togglePathway(r, 'active')}>启用</Button>}
-                  {r.status === 'active' && <Button size="small" icon={<PauseCircle size={10} />} onClick={() => void togglePathway(r, 'paused')}>暂停</Button>}
+                  {r.status !== 'active' && <Button size="small" type="primary" icon={<Play size={10} />} onClick={() => void togglePathway(r, 'active')}>{t('clinicalPathway.enable')}</Button>}
+                  {r.status === 'active' && <Button size="small" icon={<PauseCircle size={10} />} onClick={() => void togglePathway(r, 'paused')}>{t('clinicalPathway.pause')}</Button>}
                 </Space>
               ),
             },
@@ -161,32 +162,32 @@ export const ClinicalPathwayPage: React.FC = () => {
       </Card>
 
       <Card
-        extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setEnrollModal(true)}>登记患者</Button>}
+        extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setEnrollModal(true)}>{t('clinicalPathway.enrollPatient')}</Button>}
         size="small"
-        title="患者路径追踪"
+        title={t('clinicalPathway.patientTracking')}
       >
         <Table
           dataSource={patientPagination.pageData}
           rowKey="id"
           pagination={patientPagination.pagination}
           size="small"
-          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无路径内患者" /> }}
+          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('clinicalPathway.noPatients')} /> }}
           columns={[
-            { title: '患者', dataIndex: 'patient' },
-            { title: '路径', dataIndex: 'pathway' },
-            { title: '步骤', render: (_, r: PathwayPatient) => <Tag color="blue">{r.step}/{r.totalSteps}</Tag> },
+            { title: t('clinicalPathway.colPatient'), dataIndex: 'patient' },
+            { title: t('clinicalPathway.colPathway'), dataIndex: 'pathway' },
+            { title: t('clinicalPathway.colStep'), render: (_, r: PathwayPatient) => <Tag color="blue">{r.step}/{r.totalSteps}</Tag> },
             {
-              title: '进度',
+              title: t('clinicalPathway.colProgress'),
               render: (_, r: PathwayPatient) => <Progress percent={Math.round((r.step / Math.max(1, r.totalSteps)) * 100)} size="small" />,
             },
-            { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'on-track' ? 'success' : s === 'delayed' ? 'error' : 'default'} text={s === 'on-track' ? '按计划' : s === 'delayed' ? '延迟' : s} /> },
-            { title: '录入时间', dataIndex: 'enteredAt' },
-            { title: '偏差', dataIndex: 'variance', render: (v: string | null) => <span style={{ color: v ? '#ff4d4f' : '#52c41a', fontSize: 12 }}>{v || '无'}</span> },
+            { title: t('clinicalPathway.colStatus'), dataIndex: 'status', render: (s: string) => <Badge status={s === 'on-track' ? 'success' : s === 'delayed' ? 'error' : 'default'} text={s === 'on-track' ? t('clinicalPathway.onTrack') : s === 'delayed' ? t('clinicalPathway.delayed') : s} /> },
+            { title: t('clinicalPathway.colEnteredAt'), dataIndex: 'enteredAt' },
+            { title: t('clinicalPathway.colVariance'), dataIndex: 'variance', render: (v: string | null) => <span style={{ color: v ? '#ff4d4f' : '#52c41a', fontSize: 12 }}>{v || t('clinicalPathway.none')}</span> },
             {
-              title: '操作',
+              title: t('clinicalPathway.colAction'),
               render: (_, r: PathwayPatient) => (
                 <Space size={4} wrap>
-                  <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>查看步骤</Button>
+                  <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>{t('clinicalPathway.viewSteps')}</Button>
                   <Button
                     size="small"
                     type="primary"
@@ -196,13 +197,13 @@ export const ClinicalPathwayPage: React.FC = () => {
                     loading={rowActionId === r.id}
                     onClick={() => void advancePatient(r)}
                   >
-                    推进阶段
+                    {t('clinicalPathway.advanceStep')}
                   </Button>
                   <Popconfirm
                     title={`确认让 ${r.patient} 退出路径?`}
-                    description="退出后需重新登记入径"
-                    okText="退出"
-                    cancelText="取消"
+                    description={t('clinicalPathway.exitHint')}
+                    okText={t('clinicalPathway.exit')}
+                    cancelText={t('clinicalPathway.cancel')}
                     okButtonProps={{ danger: true }}
                     onConfirm={() => void exitPatient(r)}
                   >
@@ -212,7 +213,7 @@ export const ClinicalPathwayPage: React.FC = () => {
                       icon={<LogOut size={12} />}
                       disabled={rowActionId === r.id}
                     >
-                      退出路径
+                      {t('clinicalPathway.exitPathway')}
                     </Button>
                   </Popconfirm>
                 </Space>
@@ -223,12 +224,12 @@ export const ClinicalPathwayPage: React.FC = () => {
         />
       </Card>
 
-      <Modal title={`路径详情 - ${detail?.patient ?? ''}`} open={!!detail} onCancel={() => setDetail(null)} footer={null} width={480}>
+      <Modal title={`${t('clinicalPathway.detailTitle')} - ${detail?.patient ?? ''}`} open={!!detail} onCancel={() => setDetail(null)} footer={null} width={480}>
         {detail && (
           <>
             <Space style={{ marginBottom: 12 }}>
               <Tag color="blue">{detail.pathway}</Tag>
-              <Badge status={detail.status === 'on-track' ? 'success' : 'error'} text={detail.status === 'on-track' ? '按计划' : '延迟'} />
+              <Badge status={detail.status === 'on-track' ? 'success' : 'error'} text={detail.status === 'on-track' ? t('clinicalPathway.onTrack') : t('clinicalPathway.delayed')} />
             </Space>
             <Steps
               current={detail.step - 1}
@@ -238,7 +239,7 @@ export const ClinicalPathwayPage: React.FC = () => {
                 title: s,
                 status: i < detail.step - 1 ? 'finish' : i === detail.step - 1 ? 'process' : 'wait',
                 icon: i < detail.step ? <CheckCircle2 size={14} color="#52c41a" /> : <Clock size={14} />,
-                description: i < detail.step ? '已完成' : '待处理',
+                description: i < detail.step ? t('clinicalPathway.stepDone') : t('clinicalPathway.stepPending'),
               }))}
             />
             <Timeline
@@ -252,13 +253,13 @@ export const ClinicalPathwayPage: React.FC = () => {
         )}
       </Modal>
 
-      <Modal title="登记患者入径" open={enrollModal} onOk={() => void enrollPatient()} onCancel={() => setEnrollModal(false)} okText="登记">
+      <Modal title={t('clinicalPathway.enrollModalTitle')} open={enrollModal} onOk={() => void enrollPatient()} onCancel={() => setEnrollModal(false)} okText={t('clinicalPathway.enrollOk')}>
         <Form form={enrollForm} layout="vertical">
-          <Form.Item name="patientName" label="患者姓名" rules={[{ required: true, message: '请输入患者姓名' }]}>
-            <Input placeholder="请输入患者姓名" />
+          <Form.Item name="patientName" label={t('clinicalPathway.patientName')} rules={[{ required: true, message: t('clinicalPathway.enterPatientName') }]}>
+            <Input placeholder={t('clinicalPathway.enterPatientName')} />
           </Form.Item>
-          <Form.Item name="pathwayName" label="临床路径" rules={[{ required: true, message: '请选择路径' }]}>
-            <Input placeholder="如：白内障手术临床路径" list="pathway-options" />
+          <Form.Item name="pathwayName" label={t('clinicalPathway.clinicalPathway')} rules={[{ required: true, message: t('clinicalPathway.selectPathway') }]}>
+            <Input placeholder={t('clinicalPathway.pathwayPlaceholder')} list="pathway-options" />
             <datalist id="pathway-options">
               {pathways.map((p) => <option key={p.id} value={p.name} />)}
             </datalist>

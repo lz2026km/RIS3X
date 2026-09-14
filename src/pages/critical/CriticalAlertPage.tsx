@@ -22,11 +22,14 @@ const { TextArea } = Input
 
 const severityColor: Record<string, string> = { info: 'blue', warning: 'orange', critical: 'red', emergency: 'volcano' }
 const statusColor: Record<string, string> = { active: 'red', acknowledged: 'orange', resolved: 'green', escalated: 'purple' }
-const severityLabel: Record<string, string> = { info: '提示', warning: '警告', critical: '危急', emergency: '紧急' }
-const statusLabel: Record<string, string> = { active: '活动中', acknowledged: '已确认', resolved: '已解决', escalated: '已升级' }
-const typeLabel: Record<string, string> = {
-  critical_value: '危急值', unexpected_finding: '意外发现', technical_issue: '技术问题', protocol_deviation: '协议偏离',
+const severityLabelKey: Record<string, string> = { info: 'criticalAlert.sevInfo', warning: 'criticalAlert.sevWarning', critical: 'criticalAlert.sevCritical', emergency: 'criticalAlert.sevEmergency' }
+const statusLabelKey: Record<string, string> = { active: 'criticalAlert.stActive', acknowledged: 'criticalAlert.stAcknowledged', resolved: 'criticalAlert.stResolved', escalated: 'criticalAlert.stEscalated' }
+const typeLabelKey: Record<string, string> = {
+  critical_value: 'criticalAlert.typeCriticalValue', unexpected_finding: 'criticalAlert.typeUnexpectedFinding', technical_issue: 'criticalAlert.typeTechnicalIssue', protocol_deviation: 'criticalAlert.typeProtocolDeviation',
 }
+const sevLabel = (v: string) => severityLabelKey[v] ? tr(severityLabelKey[v]) : v
+const statLabel = (v: string) => statusLabelKey[v] ? tr(statusLabelKey[v]) : v
+const typLabel = (v: string) => typeLabelKey[v] ? tr(typeLabelKey[v]) : v
 
 // [v3.0.6.11-103 Wave 13] 危急值 5 步流程元数据 (i18n 文案走 critical.* 键)
 const FLOW_STEP_KEYS: Array<{ key: CriticalFlowStep; label: string; desc: string }> = [
@@ -87,7 +90,7 @@ const CriticalAlertPage: React.FC = () => {
       }
       if (statsRes.status === 'fulfilled' && statsRes.value.success) setStats(statsRes.value.data)
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败')
+      setError((e as Error)?.message ?? tr('criticalAlert.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -187,13 +190,13 @@ const CriticalAlertPage: React.FC = () => {
     try {
       const res = await criticalAlertApi.escalate(item.id, '值班主任医师')
       if (res.success) {
-        message.success('已上报')
+        message.success(tr('criticalAlert.escalated'))
         refresh()
       } else {
-        message.error(res.error?.message ?? '上报失败')
+        message.error(res.error?.message ?? tr('criticalAlert.escalateFailed'))
       }
     } catch {
-      message.error('上报失败')
+      message.error(tr('criticalAlert.escalateFailed'))
     }
   }
 
@@ -201,7 +204,7 @@ const CriticalAlertPage: React.FC = () => {
   const handleSearchByReport = async (value: string) => {
     const reportId = value.trim()
     if (!reportId) {
-      message.warning('请输入报告 ID')
+      message.warning(tr('criticalAlert.enterReportId'))
       return
     }
     setRelatedLoading(true)
@@ -210,13 +213,13 @@ const CriticalAlertPage: React.FC = () => {
       if (res.success) setRelatedAlerts(res.data ?? [])
       else {
         setRelatedAlerts([])
-        message.warning(res.error?.message ?? '查询失败')
+        message.warning(res.error?.message ?? tr('criticalAlert.queryFailed'))
       }
       setRelatedShown(true)
     } catch {
       setRelatedAlerts([])
       setRelatedShown(true)
-      message.error('查询失败')
+      message.error(tr('criticalAlert.queryFailed'))
     } finally {
       setRelatedLoading(false)
     }
@@ -250,21 +253,21 @@ const CriticalAlertPage: React.FC = () => {
   }
 
   const columns = [
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 110 },
-    { title: '告警类型', dataIndex: 'alertType', key: 'alertType', width: 110, render: (v: string) => <Tag>{typeLabel[v] ?? v}</Tag> },
-    { title: '严重度', dataIndex: 'severity', key: 'severity', width: 100, render: (v: string) => <Tag color={severityColor[v]}>{severityLabel[v] ?? v}</Tag> },
-    { title: '标题', dataIndex: 'title', key: 'title' },
-    { title: '模态', dataIndex: 'modality', key: 'modality', width: 70 },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 110, render: (v: string) => <Tag color={statusColor[v]}>{statusLabel[v] ?? v}</Tag> },
+    { title: tr('criticalAlert.colPatient'), dataIndex: 'patientName', key: 'patientName', width: 110 },
+    { title: tr('criticalAlert.colAlertType'), dataIndex: 'alertType', key: 'alertType', width: 110, render: (v: string) => <Tag>{typLabel(v)}</Tag> },
+    { title: tr('criticalAlert.colSeverity'), dataIndex: 'severity', key: 'severity', width: 100, render: (v: string) => <Tag color={severityColor[v]}>{sevLabel(v)}</Tag> },
+    { title: tr('criticalAlert.colTitle'), dataIndex: 'title', key: 'title' },
+    { title: tr('criticalAlert.colModality'), dataIndex: 'modality', key: 'modality', width: 70 },
+    { title: tr('criticalAlert.colStatus'), dataIndex: 'status', key: 'status', width: 110, render: (v: string) => <Tag color={statusColor[v]}>{statLabel(v)}</Tag> },
     { title: t('flowColumn'), dataIndex: 'flowStatus', key: 'flowStatus', width: 100, render: (v: string) => v ? <Tag color={v === 'closed' ? 'green' : v === 'escalated' ? 'purple' : 'blue'}>{flowLabel(v)}</Tag> : <Tag>—</Tag> },
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => new Date(v).toLocaleString() },
-    { title: '操作', key: 'action', width: 160, render: (_: unknown, r: CriticalAlert) => (
+    { title: tr('criticalAlert.colTime'), dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => new Date(v).toLocaleString() },
+    { title: tr('criticalAlert.colActions'), key: 'action', width: 160, render: (_: unknown, r: CriticalAlert) => (
       <Space size={4}>
         <Button size="small" type="primary" icon={<CheckCircle size={12} />}
           disabled={r.status !== 'active' && r.status !== 'acknowledged'}
-onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }}>处理</Button>
+onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }}>{tr('criticalAlert.handle')}</Button>
         {r.status === 'active' && (
-          <Button size="small" icon={<ArrowUp size={12} />} onClick={() => void handleEscalate(r)}>上报</Button>
+          <Button size="small" icon={<ArrowUp size={12} />} onClick={() => void handleEscalate(r)}>{tr('criticalAlert.escalate')}</Button>
         )}
       </Space>
     )},
@@ -277,7 +280,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <AlertTriangle size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>危急值告警</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{tr('criticalAlert.title')}</span>
         <Input.Search
           size="small"
           placeholder={t('byReportPlaceholder')}
@@ -286,30 +289,30 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           style={{ width: 280 }}
           prefix={<Search size={12} />}
         />
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={refresh} loading={loading}>刷新</Button>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={refresh} loading={loading}>{tr('criticalAlert.refresh')}</Button>
       </Space>
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={refresh}><RefreshCw size={14} /> 重试</Button>} />
+          action={<Button size="small" onClick={refresh}><RefreshCw size={14} /> {tr('criticalAlert.retry')}</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title="总告警" value={stats?.totalAlerts ?? alerts.length} prefix={<Bell size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="待处理" value={stats?.activeCount ?? pendingCount} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已确认" value={stats?.acknowledgedCount ?? 0} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={tr('criticalAlert.statTotal')} value={stats?.totalAlerts ?? alerts.length} prefix={<Bell size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title={tr('criticalAlert.statPending')} value={stats?.activeCount ?? pendingCount} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title={tr('criticalAlert.statAcknowledged')} value={stats?.acknowledgedCount ?? 0} styles={{ content: { color: '#faad14' } }} /></Card></Col>
         <Col span={6}><Card>
-          <Statistic title="平均响应" value={stats?.avgResponseTimeMinutes ?? 0} suffix="min" prefix={<Clock size={14} />} />
+          <Statistic title={tr('criticalAlert.statAvgResponse')} value={stats?.avgResponseTimeMinutes ?? 0} suffix="min" prefix={<Clock size={14} />} />
         </Card></Col>
       </Row>
 
       {severityDist.length > 0 && (
-        <Card size="small" title="级别分布" style={{ marginBottom: 16 }}>
+        <Card size="small" title={tr('criticalAlert.severityDist')} style={{ marginBottom: 16 }}>
           <Row gutter={16}>
             {severityDist.map((s) => (
               <Col span={6} key={s.severity}>
                 <Space style={{ marginBottom: 4 }}>
-                  <Tag color={severityColor[s.severity]}>{severityLabel[s.severity] ?? s.severity}</Tag>
+                  <Tag color={severityColor[s.severity]}>{sevLabel(s.severity)}</Tag>
                   <span>{s.count}</span>
                 </Space>
                 <Progress percent={Math.round((s.count / maxSev) * 100)} showInfo={false}
@@ -350,13 +353,13 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
             </Row>
             <Space wrap size={[8, 8]}>
               {(['emergency', 'critical', 'warning', 'info'] as string[]).map((sev) => (
-                <Tag key={sev} color={severityColor[sev]}>{severityLabel[sev] ?? sev}: {aggBySeverity[sev] ?? 0}</Tag>
+                <Tag key={sev} color={severityColor[sev]}>{sevLabel(sev)}: {aggBySeverity[sev] ?? 0}</Tag>
               ))}
             </Space>
             <div style={{ marginTop: 8 }}>
               <Space wrap size={[8, 8]}>
                 {(['active', 'acknowledged', 'resolved', 'escalated'] as string[]).map((st) => (
-                  <Tag key={st} color={statusColor[st]}>{statusLabel[st] ?? st}: {aggByStatus[st] ?? 0}</Tag>
+                  <Tag key={st} color={statusColor[st]}>{statLabel(st)}: {aggByStatus[st] ?? 0}</Tag>
                 ))}
               </Space>
             </div>
@@ -370,7 +373,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           size="small"
           title={t('relatedAlerts')}
           style={{ marginBottom: 16 }}
-          extra={<Button size="small" onClick={() => { setRelatedShown(false); setRelatedAlerts([]) }}>关闭</Button>}
+          extra={<Button size="small" onClick={() => { setRelatedShown(false); setRelatedAlerts([]) }}>{tr('criticalAlert.close')}</Button>}
         >
           <Spin spinning={relatedLoading}>
             {relatedAlerts.length === 0 ? (
@@ -382,18 +385,18 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
                 dataSource={relatedAlerts}
                 pagination={false}
                 columns={[
-                  { title: '患者', dataIndex: 'patientName', key: 'patientName' },
-                  { title: '类型', dataIndex: 'alertType', key: 'alertType', render: (v: string) => <Tag>{typeLabel[v] ?? v}</Tag> },
-                  { title: '严重度', dataIndex: 'severity', key: 'severity', render: (v: string) => <Tag color={severityColor[v]}>{severityLabel[v] ?? v}</Tag> },
-                  { title: '标题', dataIndex: 'title', key: 'title' },
-                  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={statusColor[v]}>{statusLabel[v] ?? v}</Tag> },
-                  { title: '时间', dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => new Date(v).toLocaleString() },
+                  { title: tr('criticalAlert.colPatient'), dataIndex: 'patientName', key: 'patientName' },
+                  { title: tr('criticalAlert.colType'), dataIndex: 'alertType', key: 'alertType', render: (v: string) => <Tag>{typLabel(v)}</Tag> },
+                  { title: tr('criticalAlert.colSeverity'), dataIndex: 'severity', key: 'severity', render: (v: string) => <Tag color={severityColor[v]}>{sevLabel(v)}</Tag> },
+                  { title: tr('criticalAlert.colTitle'), dataIndex: 'title', key: 'title' },
+                  { title: tr('criticalAlert.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={statusColor[v]}>{statLabel(v)}</Tag> },
+                  { title: tr('criticalAlert.colTime'), dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => new Date(v).toLocaleString() },
                   {
-                    title: '操作',
+                    title: tr('criticalAlert.colActions'),
                     key: 'action',
                     render: (_: unknown, r: CriticalAlert) => (
                       <Space size={4}>
-                        <Button size="small" icon={<RefreshCw size={11} />} onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }}>处理</Button>
+                        <Button size="small" icon={<RefreshCw size={11} />} onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }}>{tr('criticalAlert.handle')}</Button>
                         <Button size="small" icon={<Phone size={11} />} onClick={() => void openCommunicationLog(r.id)}>{t('communicationLog')}</Button>
                       </Space>
                     ),
@@ -407,16 +410,16 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
 
       <Card
         size="small"
-        title="告警列表"
+        title={tr('criticalAlert.listTitle')}
         extra={
           <Space>
             <Select
-              size="small" allowClear placeholder="级别筛选" style={{ width: 130 }}
+              size="small" allowClear placeholder={tr('criticalAlert.severityFilter')} style={{ width: 130 }}
               value={severityFilter} onChange={(v) => { setSeverityFilter(v); setAlertPage(1) }}
               options={['info', 'warning', 'critical', 'emergency'].map((s) => ({ value: s, label: s }))}
             />
             <Select
-              size="small" allowClear placeholder="状态筛选" style={{ width: 130 }}
+              size="small" allowClear placeholder={tr('criticalAlert.statusFilter')} style={{ width: 130 }}
               value={statusFilter} onChange={(v) => { setStatusFilter(v); setAlertPage(1) }}
               options={['active', 'acknowledged', 'resolved', 'escalated'].map((s) => ({ value: s, label: s }))}
             />
@@ -425,23 +428,23 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
       >
         <Spin spinning={loading}>
           {alerts.length === 0 && !loading ? (
-            <EmptyState description="暂无告警" />
+            <EmptyState description={tr('criticalAlert.empty')} />
           ) : (
-            <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 'max-content' }}/>
+            <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (n) => `共 ${n} 条` }} size="small" scroll={{ x: 'max-content' }}/>
           )}
         </Spin>
       </Card>
 
       <Modal
-        title="处理告警"
+        title={tr('criticalAlert.handleTitle')}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         confirmLoading={submitting}
         width={640}
         footer={selected ? [
-          <Button key="cancel" onClick={() => setDetailOpen(false)}>取消</Button>,
+          <Button key="cancel" onClick={() => setDetailOpen(false)}>{tr('criticalAlert.cancel')}</Button>,
           <Button key="log" icon={<Phone size={12} />} onClick={() => void openCommunicationLog(selected.id)}>{t('communicationLog')}</Button>,
-          <Button key="escalate" danger icon={<ArrowUp size={12} />} onClick={() => { void handleEscalate(selected); setDetailOpen(false) }}>升级上报</Button>,
+          <Button key="escalate" danger icon={<ArrowUp size={12} />} onClick={() => { void handleEscalate(selected); setDetailOpen(false) }}>{tr('criticalAlert.escalateUp')}</Button>,
           <Button key="flow" type="primary" loading={submitting} disabled={!selected.flowStatus || selected.flowStatus === 'closed' || selected.flowStatus === 'escalated'} onClick={() => void handleFlowStep(nextFlowAction(selected.flowStatus))}>
             {nextFlowActionLabel(selected.flowStatus)}
           </Button>,
@@ -453,14 +456,14 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
               <Space direction="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Text strong>{selected.patientName}</Text>
-                  <Tag color={severityColor[selected.severity]}>{severityLabel[selected.severity] ?? selected.severity}</Tag>
-                  <Tag>{typeLabel[selected.alertType] ?? selected.alertType}</Tag>
-                  <Badge status={(statusColor[selected.status] as any)} text={statusLabel[selected.status] ?? selected.status} />
+                  <Tag color={severityColor[selected.severity]}>{sevLabel(selected.severity)}</Tag>
+                  <Tag>{typLabel(selected.alertType)}</Tag>
+                  <Badge status={(statusColor[selected.status] as any)} text={statLabel(selected.status)} />
                   {selected.flowStatus && <Tag color={selected.flowStatus === 'closed' ? 'green' : 'blue'}>{flowLabel(selected.flowStatus)}</Tag>}
                 </Space>
-                <Text strong>标题: {selected.title}</Text>
-                <Text type="secondary">描述: {selected.description}</Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>检查: {selected.studyId} · 模态 {selected.modality} · 触发时间 {new Date(selected.createdAt).toLocaleString()}</Text>
+                <Text strong>{tr('criticalAlert.detailTitle')}: {selected.title}</Text>
+                <Text type="secondary">{tr('criticalAlert.detailDesc')}: {selected.description}</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>{tr('criticalAlert.detailStudy')}: {selected.studyId} · {tr('criticalAlert.colModality')} {selected.modality} · {tr('criticalAlert.detailTriggeredAt')} {new Date(selected.createdAt).toLocaleString()}</Text>
               </Space>
             </Card>
 
@@ -491,8 +494,8 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
                 <Text type="secondary">{t('flowNotifyDesc')}</Text>
                 <Radio.Group value={flowNotifyMethod} onChange={(e) => setFlowNotifyMethod(e.target.value)}>
-                  <Radio.Button value="phone">电话</Radio.Button>
-                  <Radio.Button value="sms">短信</Radio.Button>
+                  <Radio.Button value="phone">{tr('criticalAlert.phone')}</Radio.Button>
+                  <Radio.Button value="sms">{tr('criticalAlert.sms')}</Radio.Button>
                 </Radio.Group>
               </Space>
             )}
@@ -516,7 +519,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
         title={<Space><MessageSquare size={14} color="#3b82f6" />{t('communicationLog')}</Space>}
         open={logOpen}
         onCancel={() => setLogOpen(false)}
-        footer={<Button onClick={() => setLogOpen(false)}>关闭</Button>}
+        footer={<Button onClick={() => setLogOpen(false)}>{tr('criticalAlert.close')}</Button>}
         width={640}
       >
         <Spin spinning={logLoading}>
@@ -533,12 +536,12 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
                   title: t('channel'),
                   dataIndex: 'channel',
                   key: 'channel',
-                  render: (v: string) => <Tag color={v === 'phone' ? 'blue' : 'green'} icon={v === 'phone' ? <Phone size={11} /> : <MessageSquare size={11} />}>{v === 'phone' ? '电话' : '短信'}</Tag>,
+                  render: (v: string) => <Tag color={v === 'phone' ? 'blue' : 'green'} icon={v === 'phone' ? <Phone size={11} /> : <MessageSquare size={11} />}>{v === 'phone' ? tr('criticalAlert.phone') : tr('criticalAlert.sms')}</Tag>,
                 },
-                { title: '号码', dataIndex: 'phone', key: 'phone' },
-                { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'sent' || v === 'connected' || v === 'initiated' ? 'blue' : v === 'failed' ? 'red' : 'default'}>{v}</Tag> },
+                { title: tr('criticalAlert.colNumber'), dataIndex: 'phone', key: 'phone' },
+                { title: tr('criticalAlert.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'sent' || v === 'connected' || v === 'initiated' ? 'blue' : v === 'failed' ? 'red' : 'default'}>{v}</Tag> },
                 { title: t('communicationAt'), dataIndex: 'at', key: 'at', render: (v: string) => v ? new Date(v).toLocaleString() : '—' },
-                { title: '时长', dataIndex: 'durationSec', key: 'durationSec', render: (v: number) => (v != null ? `${v}s` : '—') },
+                { title: tr('criticalAlert.colDuration'), dataIndex: 'durationSec', key: 'durationSec', render: (v: number) => (v != null ? `${v}s` : '—') },
               ]}
             />
           )}

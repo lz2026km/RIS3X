@@ -4,6 +4,7 @@ import { FileSignature, CheckCircle, XCircle, Pen, Eye, Plus } from 'lucide-reac
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { usePagination } from '../../hooks/usePagination'
+import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -41,11 +42,11 @@ const TeleSignPage: React.FC = () => {
         createForm.resetFields()
         void fetchSessions()
       } else {
-        message.error((res.error as { message?: string })?.message || '发起失败')
+        message.error((res.error as { message?: string })?.message || t('teleSign.createFail'))
       }
     } catch (e: any) {
       if (e?.errorFields) return
-      message.error((e as Error)?.message || '发起失败')
+      message.error((e as Error)?.message || t('teleSign.createFail'))
     } finally {
       setCreateSaving(false)
     }
@@ -56,10 +57,10 @@ const TeleSignPage: React.FC = () => {
     setError(null)
     try {
       const res = await teleSignApi.listSessions()
-      if (!res.success) throw new Error((res.error as { message?: string })?.message || '签署会话加载失败')
+      if (!res.success) throw new Error((res.error as { message?: string })?.message || t('teleSign.sessionLoadFail'))
       setSessions(res.data)
     } catch (e) {
-      setError((e as Error)?.message || '加载失败')
+      setError((e as Error)?.message || t('teleSign.loadFail'))
     } finally {
       setLoading(false)
     }
@@ -99,26 +100,26 @@ const TeleSignPage: React.FC = () => {
     const signatureData = canvas ? canvas.toDataURL() : ''
     const res = await teleSignApi.approve(selectedSession.id, signatureData, comment || undefined)
     if (!res.success) {
-      message.error((res.error as { message?: string })?.message || '远程批准失败')
+      message.error((res.error as { message?: string })?.message || t('teleSign.approveFail'))
       return
     }
     setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
     setSignOpen(false)
     setComment('')
-    message.success('远程批准成功')
+    message.success(t('teleSign.approveSuccess'))
   }
 
   const handleReject = async () => {
-    if (!selectedSession || !comment) { message.warning('请输入拒绝原因'); return }
+    if (!selectedSession || !comment) { message.warning(t('teleSign.rejectReason')); return }
     const res = await teleSignApi.reject(selectedSession.id, comment)
     if (!res.success) {
-      message.error((res.error as { message?: string })?.message || '拒绝失败')
+      message.error((res.error as { message?: string })?.message || t('teleSign.rejectFail'))
       return
     }
     setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
     setSignOpen(false)
     setComment('')
-    message.success('已拒绝')
+    message.success(t('teleSign.rejected'))
   }
 
   const clearCanvas = () => {
@@ -130,16 +131,16 @@ const TeleSignPage: React.FC = () => {
   }
 
   const columns = [
-    { title: '报告ID', dataIndex: 'reportId', key: 'reportId' },
-    { title: '报告标题', dataIndex: 'reportTitle', key: 'reportTitle' },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName' },
-    { title: '签署人', dataIndex: 'signerName', key: 'signerName' },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'approved' ? 'green' : s === 'rejected' ? 'red' : 'orange'}>{s === 'approved' ? '已批准' : s === 'rejected' ? '已拒绝' : '待签署'}</Tag> },
-    { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', render: (t: string) => new Date(t).toLocaleString('zh-CN') },
-    { title: '操作', key: 'action', render: (_: unknown, r: TeleSignSession) => (
+    { title: t('teleSign.col.reportId'), dataIndex: 'reportId', key: 'reportId' },
+    { title: t('teleSign.col.reportTitle'), dataIndex: 'reportTitle', key: 'reportTitle' },
+    { title: t('teleSign.col.patient'), dataIndex: 'patientName', key: 'patientName' },
+    { title: t('teleSign.col.signer'), dataIndex: 'signerName', key: 'signerName' },
+    { title: t('teleSign.col.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'approved' ? 'green' : s === 'rejected' ? 'red' : 'orange'}>{s === 'approved' ? t('teleSign.status.approved') : s === 'rejected' ? t('teleSign.status.rejected') : t('teleSign.status.pending')}</Tag> },
+    { title: t('teleSign.col.createdAt'), dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => new Date(v).toLocaleString('zh-CN') },
+    { title: t('teleSign.col.action'), key: 'action', render: (_: unknown, r: TeleSignSession) => (
       <Space>
-        <Button size="small" icon={<Eye size={14} />} onClick={() => { setSelectedSession(r); setPreviewOpen(true) }}>预览</Button>
-        {r.status === 'pending' && <Button size="small" type="primary" icon={<Pen size={14} />} onClick={() => { setSelectedSession(r); setSignOpen(true) }}>签署</Button>}
+        <Button size="small" icon={<Eye size={14} />} onClick={() => { setSelectedSession(r); setPreviewOpen(true) }}>{t('teleSign.preview')}</Button>
+        {r.status === 'pending' && <Button size="small" type="primary" icon={<Pen size={14} />} onClick={() => { setSelectedSession(r); setSignOpen(true) }}>{t('teleSign.sign')}</Button>}
       </Space>
     )},
   ]
@@ -148,58 +149,58 @@ const TeleSignPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <FileSignature size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>远程双签</span>
-        <Button type="primary" size="small" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>发起签署会话</Button>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('teleSign.title')}</span>
+        <Button type="primary" size="small" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>{t('teleSign.createSession')}</Button>
       </Space>
-      {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> 重试</Button>} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="warning" showIcon message={t('teleSign.loadFail')} description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> {t('teleSign.retry')}</Button>} style={{ marginBottom: 16 }} />}
       <Card>
         <Table rowKey="id" dataSource={pagedSessions} columns={columns} pagination={sessionsPagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
-      <Modal title="签署报告" open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
+      <Modal title={t('teleSign.signReport')} open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
         <Space>
-          <Button onClick={clearCanvas}>清除签名</Button>
-          <Button icon={<XCircle size={14} />} danger onClick={handleReject}>拒绝</Button>
-          <Button type="primary" icon={<CheckCircle size={14} />} onClick={handleApprove}>批准签署</Button>
+          <Button onClick={clearCanvas}>{t('teleSign.clearSignature')}</Button>
+          <Button icon={<XCircle size={14} />} danger onClick={handleReject}>{t('teleSign.reject')}</Button>
+          <Button type="primary" icon={<CheckCircle size={14} />} onClick={handleApprove}>{t('teleSign.approve')}</Button>
         </Space>
       }>
         <Card size="small" title={selectedSession?.reportTitle} style={{ marginBottom: 16 }}>
-          <Text>患者: {selectedSession?.patientName}</Text><br />
-          <Text>签署人: {selectedSession?.signerName}</Text>
+          <Text>{t('teleSign.patientStrong')} {selectedSession?.patientName}</Text><br />
+          <Text>{t('teleSign.signerStrong')} {selectedSession?.signerName}</Text>
         </Card>
-        <Text strong>签名板:</Text>
+        <Text strong>{t('teleSign.signatureBoard')}</Text>
         <div style={{ border: '1px solid #d9d9d9', borderRadius: 4, marginTop: 8, marginBottom: 16 }}>
           <canvas ref={canvasRef} width={500} height={150} style={{ width: '100%', height: 150, cursor: 'crosshair' }} onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onMouseLeave={stopDrawing} />
         </div>
-        <TextArea placeholder="备注（选填）" rows={2} value={comment} onChange={e => setComment(e.target.value)} />
+        <TextArea placeholder={t('teleSign.remarkPlaceholder')} rows={2} value={comment} onChange={e => setComment(e.target.value)} />
       </Modal>
       <Modal title={`报告预览 - ${selectedSession?.reportTitle}`} open={previewOpen} onCancel={() => setPreviewOpen(false)} width={600}>
         <Card>
-          <Text strong>报告ID: </Text><Text>{selectedSession?.reportId}</Text><br />
-          <Text strong>患者: </Text><Text>{selectedSession?.patientName}</Text><br />
-          <Text strong>签署人: </Text><Text>{selectedSession?.signerName}</Text><br />
-          <Text strong>状态: </Text><Tag color={selectedSession?.status === 'approved' ? 'green' : selectedSession?.status === 'rejected' ? 'red' : 'orange'}>{selectedSession?.status === 'approved' ? '已批准' : selectedSession?.status === 'rejected' ? '已拒绝' : '待签署'}</Tag><br />
-          {selectedSession?.comment && <><Text strong>备注: </Text><Text>{selectedSession.comment}</Text></>}
-          {selectedSession?.signatureData && <div style={{ marginTop: 16 }}><Text strong>签名:</Text><img src={selectedSession.signatureData} alt="signature" loading="lazy" decoding="async" style={{ maxWidth: 200, border: '1px solid #eee', marginTop: 8 }} /></div>}
+          <Text strong>{t('teleSign.col.reportId')}: </Text><Text>{selectedSession?.reportId}</Text><br />
+          <Text strong>{t('teleSign.col.patient')}: </Text><Text>{selectedSession?.patientName}</Text><br />
+          <Text strong>{t('teleSign.col.signer')}: </Text><Text>{selectedSession?.signerName}</Text><br />
+          <Text strong>{t('teleSign.col.status')}: </Text><Tag color={selectedSession?.status === 'approved' ? 'green' : selectedSession?.status === 'rejected' ? 'red' : 'orange'}>{selectedSession?.status === 'approved' ? t('teleSign.status.approved') : selectedSession?.status === 'rejected' ? t('teleSign.status.rejected') : t('teleSign.status.pending')}</Tag><br />
+          {selectedSession?.comment && <><Text strong>{t('teleSign.remarkStrong')} </Text><Text>{selectedSession.comment}</Text></>}
+          {selectedSession?.signatureData && <div style={{ marginTop: 16 }}><Text strong>{t('teleSign.signatureStrong')}</Text><img src={selectedSession.signatureData} alt="signature" loading="lazy" decoding="async" style={{ maxWidth: 200, border: '1px solid #eee', marginTop: 8 }} /></div>}
         </Card>
       </Modal>
 
       {/* [W1-B] 发起签署会话: POST /tele-sign/session */}
-      <Modal title="发起签署会话" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={480}>
+      <Modal title={t('teleSign.createSessionTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={480}>
         <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
-          <Form.Item label="报告ID" name="reportId" rules={[{ required: true, message: '请输入报告ID' }]}>
-            <Input placeholder="如 R20260718-001" />
+          <Form.Item label={t('teleSign.col.reportId')} name="reportId" rules={[{ required: true, message: t('teleSign.validate.reportId') }]}>
+            <Input placeholder={t('teleSign.ph.reportId')} />
           </Form.Item>
-          <Form.Item label="报告标题" name="reportTitle" rules={[{ required: true, message: '请输入报告标题' }]}>
-            <Input placeholder="胸部CT平扫报告" />
+          <Form.Item label={t('teleSign.col.reportTitle')} name="reportTitle" rules={[{ required: true, message: t('teleSign.validate.reportTitle') }]}>
+            <Input placeholder={t('teleSign.ph.reportTitle')} />
           </Form.Item>
-          <Form.Item label="患者姓名" name="patientName" rules={[{ required: true, message: '请输入患者姓名' }]}>
-            <Input placeholder="患者姓名" />
+          <Form.Item label={t('teleSign.form.patientName')} name="patientName" rules={[{ required: true, message: t('teleSign.validate.patientName') }]}>
+            <Input placeholder={t('teleSign.ph.patientName')} />
           </Form.Item>
-          <Form.Item label="签署人ID" name="signerId" rules={[{ required: true, message: '请输入签署人ID' }]}>
-            <Input placeholder="如 D002" />
+          <Form.Item label={t('teleSign.form.signerId')} name="signerId" rules={[{ required: true, message: t('teleSign.validate.signerId') }]}>
+            <Input placeholder={t('teleSign.ph.signerId')} />
           </Form.Item>
-          <Form.Item label="签署人姓名" name="signerName" rules={[{ required: true, message: '请输入签署人姓名' }]}>
-            <Input placeholder="签署医师姓名" />
+          <Form.Item label={t('teleSign.form.signerName')} name="signerName" rules={[{ required: true, message: t('teleSign.validate.signerName') }]}>
+            <Input placeholder={t('teleSign.ph.signerName')} />
           </Form.Item>
         </Form>
       </Modal>

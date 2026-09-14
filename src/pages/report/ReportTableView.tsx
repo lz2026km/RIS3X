@@ -11,14 +11,13 @@ import { formatDateTime } from '../../utils/date';
 import { usePagination } from '../../hooks/usePagination';
 import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWritable, isDraftOverdue } from './reportUtils';
 import { normalizeReportStatus, toEnState } from '../../components/report/statusMeta';
+import { t } from '../../i18n/appI18n';
 
 const PRIMARY = '#1e40af'
 const DANGER = '#dc2626'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; border: string }> = {
   待审核: { bg: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '#c4b5fd' },
-  已审核: { bg: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'var(--color-info-border)' },
-  已发布: { bg: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'var(--color-success-border)' },
   已修改: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: 'var(--color-warning-border)' },
   已退回: { bg: 'var(--color-error-bg)', color: 'var(--color-error)', border: 'var(--color-error-border)' },
   ...REPORT_STATUS_META,
@@ -51,11 +50,11 @@ function QualityBadge({ score }: { score?: number }) {
   if (score === undefined || score === null) return <span style={{ color: '#cbd5e1', fontSize: 12 }}>-</span>
   const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626'
   const background = score >= 80 ? 'var(--color-success-bg)' : score >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)'
-  const label = score >= 80 ? '优秀' : score >= 60 ? '良好' : '待改进'
+  const label = score >= 80 ? t('rptTable.quality.excellent') : score >= 60 ? t('rptTable.quality.good') : t('rptTable.quality.improve')
   return (
     <span style={{ position: 'relative', display: 'inline-block' }} onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
       <span style={{ padding: '2px 7px', borderRadius: 4, fontSize: 12, fontWeight: 700, background, color, cursor: 'help' }}>{score}</span>
-      {showTooltip && <span style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 4, background: '#1e293b', color: '#fff', fontSize: 12, borderRadius: 4, padding: '4px 8px', whiteSpace: 'nowrap', zIndex: 10 }}>{label} · 评分: {score}/100</span>}
+      {showTooltip && <span style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 4, background: '#1e293b', color: '#fff', fontSize: 12, borderRadius: 4, padding: '4px 8px', whiteSpace: 'nowrap', zIndex: 10 }}>{t('rptTable.qualityTooltip', { label, score })}</span>}
     </span>
   )
 }
@@ -134,7 +133,7 @@ export default function ReportTableView({
   const listPagination = usePagination(reports, 10);
   const columns = useMemo<ProColumn<RadiologyReport>[]>(() => [
     {
-      title: '患者信息',
+      title: t('rptTable.col.patient'),
       dataIndex: 'patientName',
       key: 'patientName',
       width: 180,
@@ -145,13 +144,13 @@ export default function ReportTableView({
           <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-info-bg)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color={PRIMARY} /></span>
           <span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'var(--text-primary)' }}>{String(value)} {report.criticalFinding && <Zap size={11} color={DANGER} />}</span>
-            <span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.gender} · {report.age}岁 · {report.patientType}</span>
+            <span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.gender} · {report.age}{t('rptTable.yearsOld')} · {report.patientType}</span>
           </span>
         </span>
       ),
     },
     {
-      title: '检查项目',
+      title: t('rptTable.col.examItem'),
       dataIndex: 'examItemName',
       key: 'examItemName',
       width: 180,
@@ -160,7 +159,7 @@ export default function ReportTableView({
       render: (value, report) => <span><span style={{ display: 'block', fontWeight: 500, color: 'var(--text-secondary)' }}>{String(value)}</span><span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.modality} · {report.bodyPart}</span></span>,
     },
     {
-      title: '状态',
+      title: t('rptTable.col.status'),
       dataIndex: 'status',
       key: 'status',
       width: 110,
@@ -172,17 +171,17 @@ export default function ReportTableView({
           <StatusBadge status={String(value)} size="sm" />
           {/* [v3.0.6.11-95 Wave2B P1] 草稿超时角标: DRAFT/WRITING 且 updatedTime 超 24h */}
           {isDraftOverdue(report.status, report.updatedTime) && (
-            <Tag color="orange" icon={<AlertTriangle size={10} />} style={{ fontSize: 11, margin: 0 }}>待提交提醒</Tag>
+            <Tag color="orange" icon={<AlertTriangle size={10} />} style={{ fontSize: 11, margin: 0 }}>{t('rptTable.draftOverdue')}</Tag>
           )}
         </span>
       ),
     },
-    { title: '报告医生', dataIndex: 'reportDoctorName', key: 'reportDoctorName', width: 110, searchable: true, render: (value) => String(value || '-') },
-    { title: '审核医生', dataIndex: 'auditorName', key: 'auditorName', width: 110, searchable: true, render: (value) => String(value || '-') },
-    { title: '创建时间', dataIndex: 'createdTime', key: 'createdTime', width: 150, sorter: (a, b) => String(a.createdTime).localeCompare(String(b.createdTime)), defaultSortOrder: 'descend', render: (value) => formatDateTime(String(value)) },
-    { title: '质量', dataIndex: 'qualityScore', key: 'qualityScore', width: 80, sorter: (a, b) => (a.qualityScore ?? 0) - (b.qualityScore ?? 0), render: (value) => <QualityBadge score={typeof value === 'number' ? value : undefined} /> },
+    { title: t('rptTable.col.reportDoctor'), dataIndex: 'reportDoctorName', key: 'reportDoctorName', width: 110, searchable: true, render: (value) => String(value || '-') },
+    { title: t('rptTable.col.auditor'), dataIndex: 'auditorName', key: 'auditorName', width: 110, searchable: true, render: (value) => String(value || '-') },
+    { title: t('rptTable.col.createdTime'), dataIndex: 'createdTime', key: 'createdTime', width: 150, sorter: (a, b) => String(a.createdTime).localeCompare(String(b.createdTime)), defaultSortOrder: 'descend', render: (value) => formatDateTime(String(value)) },
+    { title: t('rptTable.col.quality'), dataIndex: 'qualityScore', key: 'qualityScore', width: 80, sorter: (a, b) => (a.qualityScore ?? 0) - (b.qualityScore ?? 0), render: (value) => <QualityBadge score={typeof value === 'number' ? value : undefined} /> },
     {
-      title: '操作',
+      title: t('rptTable.col.actions'),
       dataIndex: 'id',
       key: 'actions',
       fixed: 'right',
@@ -191,33 +190,33 @@ export default function ReportTableView({
         const isPending = ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW'].includes(toEnState(report.status))
         const menuItems = [
           // [v3.0.6.11-95 Wave2B P1] 报告列表 → 书写页入口 (可写态: 继续书写; 已发布/已签署: 查看)
-          ...(onWrite ? [{ key: 'write', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><PenLine size={12} /> {isReportWritable(report.status) ? '继续书写' : '查看'}</span> }] : []),
+          ...(onWrite ? [{ key: 'write', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><PenLine size={12} /> {isReportWritable(report.status) ? t('rptTable.menu.write') : t('rptTable.menu.view')}</span> }] : []),
           // [v3.0.6.11-95 Wave3B P1] 患者画像入口
-          ...(onOpen360 ? [{ key: 'open360', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Radar size={12} /> 患者画像 360</span> }] : []),
-          ...(onRevise ? [{ key: 'revise', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Edit3 size={12} /> 修订</span> }] : []),
-          ...(onRepublish ? [{ key: 'republish', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RotateCcw size={12} /> 补发（重新发布）</span> }] : []),
-          ...(onRequestApproval ? [{ key: 'approval', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> 申请审批导出</span> }] : []),
-          ...(onDeliver ? [{ key: 'deliver', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Send size={12} /> 分发 / 推送</span> }] : []),
-          ...(onCritical ? [{ key: 'critical', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Zap size={12} /> 转危急值</span> }] : []),
-          ...(onCompare ? [{ key: 'compare', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><GitCompare size={12} /> 版本对比</span> }] : []),
-          ...(onAudit ? [{ key: 'audit', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><History size={12} /> 审计轨迹</span> }] : []),
-          ...(onCreateFollowUp ? [{ key: 'followup', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Activity size={12} /> 创建随访</span> }] : []),
+          ...(onOpen360 ? [{ key: 'open360', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Radar size={12} /> {t('rptTable.menu.open360')}</span> }] : []),
+          ...(onRevise ? [{ key: 'revise', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Edit3 size={12} /> {t('rptTable.menu.revise')}</span> }] : []),
+          ...(onRepublish ? [{ key: 'republish', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RotateCcw size={12} /> {t('rptTable.menu.republish')}</span> }] : []),
+          ...(onRequestApproval ? [{ key: 'approval', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> {t('rptTable.menu.approval')}</span> }] : []),
+          ...(onDeliver ? [{ key: 'deliver', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Send size={12} /> {t('rptTable.menu.deliver')}</span> }] : []),
+          ...(onCritical ? [{ key: 'critical', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Zap size={12} /> {t('rptTable.menu.critical')}</span> }] : []),
+          ...(onCompare ? [{ key: 'compare', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><GitCompare size={12} /> {t('rptTable.menu.compare')}</span> }] : []),
+          ...(onAudit ? [{ key: 'audit', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><History size={12} /> {t('rptTable.menu.audit')}</span> }] : []),
+          ...(onCreateFollowUp ? [{ key: 'followup', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Activity size={12} /> {t('rptTable.menu.followup')}</span> }] : []),
           // [v3.0.6.11-92 Wave1B P0] 报告特殊态 (按状态启用, 对齐 backend REPORT_TRANSITIONS)
-          ...(onSupplement && CAN_SUPPLEMENT.includes(toEnState(report.status)) ? [{ key: 'supplement', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> 补充报告</span> }] : []),
-          ...(onRectify && CAN_RECTIFY.includes(toEnState(report.status)) ? [{ key: 'rectify', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RefreshCw size={12} /> 整改</span> }] : []),
-          ...(onRedistribute && CAN_REDISTRIBUTE.includes(toEnState(report.status)) ? [{ key: 'redistribute', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowLeftRight size={12} /> 跨院区重分配</span> }] : []),
-          ...(onEscalate && CAN_ESCALATE.includes(toEnState(report.status)) ? [{ key: 'escalate', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowUp size={12} /> 升级</span> }] : []),
+          ...(onSupplement && CAN_SUPPLEMENT.includes(toEnState(report.status)) ? [{ key: 'supplement', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> {t('rptTable.menu.supplement')}</span> }] : []),
+          ...(onRectify && CAN_RECTIFY.includes(toEnState(report.status)) ? [{ key: 'rectify', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RefreshCw size={12} /> {t('rptTable.menu.rectify')}</span> }] : []),
+          ...(onRedistribute && CAN_REDISTRIBUTE.includes(toEnState(report.status)) ? [{ key: 'redistribute', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowLeftRight size={12} /> {t('rptTable.menu.redistribute')}</span> }] : []),
+          ...(onEscalate && CAN_ESCALATE.includes(toEnState(report.status)) ? [{ key: 'escalate', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowUp size={12} /> {t('rptTable.menu.escalate')}</span> }] : []),
         ]
         return (
           <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            <Button size="small" icon={<Eye size={12} />} onClick={(event) => { event.stopPropagation(); onView(report) }} title="查看" />
-            <Button size="small" icon={<Printer size={12} />} onClick={(event) => { event.stopPropagation(); onPrint(report) }} title="打印" />
-            <Button size="small" icon={<Download size={12} />} onClick={(event) => { event.stopPropagation(); onExportPDF(report) }} title="导出PDF" />
+            <Button size="small" icon={<Eye size={12} />} onClick={(event) => { event.stopPropagation(); onView(report) }} title={t('rptTable.tip.view')} />
+            <Button size="small" icon={<Printer size={12} />} onClick={(event) => { event.stopPropagation(); onPrint(report) }} title={t('rptTable.tip.print')} />
+            <Button size="small" icon={<Download size={12} />} onClick={(event) => { event.stopPropagation(); onExportPDF(report) }} title={t('rptTable.tip.exportPdf')} />
             {/* [v3.0.6.11-99 Wave7B] 离线报告包: 保存 HTML 快照到 IndexedDB */}
             {onOfflineSave && (
-              <Button size="small" icon={<Save size={12} />} onClick={(event) => { event.stopPropagation(); onOfflineSave(report) }} title="离线保存（断网可浏览）" />
+              <Button size="small" icon={<Save size={12} />} onClick={(event) => { event.stopPropagation(); onOfflineSave(report) }} title={t('rptTable.tip.offlineSave')} />
             )}
-            {isPending && <Button size="small" type="primary" icon={<ShieldCheck size={12} />} onClick={(event) => { event.stopPropagation(); onReview(report) }}>审核</Button>}
+            {isPending && <Button size="small" type="primary" icon={<ShieldCheck size={12} />} onClick={(event) => { event.stopPropagation(); onReview(report) }}>{t('rptTable.review')}</Button>}
             {menuItems.length > 0 && (
               <Dropdown
                 menu={{
@@ -242,16 +241,16 @@ export default function ReportTableView({
                 }}
                 trigger={['click']}
               >
-                <Button size="small" icon={<MoreHorizontal size={12} />} title="更多操作" onClick={(e) => e.stopPropagation()} />
+                <Button size="small" icon={<MoreHorizontal size={12} />} title={t('rptTable.moreActions')} onClick={(e) => e.stopPropagation()} />
               </Dropdown>
             )}
             {onDelete && (
               <Popconfirm
-                title="删除报告"
+                title={t('rptTable.deleteReport')}
                 description={`确认删除报告 ${report.reportId}？(状态将置为已撤回)`}
-                okText="删除"
+                okText={t('rptTable.delete')}
                 okButtonProps={{ danger: true }}
-                cancelText="取消"
+                cancelText={t('rptTable.cancel')}
                 onConfirm={(event) => { event?.stopPropagation(); onDelete(report) }}
                 onCancel={(event) => event?.stopPropagation()}
               >
@@ -260,12 +259,12 @@ export default function ReportTableView({
                   danger
                   loading={deletingIds?.has(report.id)}
                   icon={<Trash2 size={12} />}
-                  title="删除"
+                  title={t('rptTable.tip.delete')}
                   onClick={(e) => e.stopPropagation()}
                 />
               </Popconfirm>
             )}
-            <Button size="small" icon={expandedId === report.id ? <ChevronDown size={12} /> : <ChevronRight size={12} />} onClick={(event) => { event.stopPropagation(); onToggleExpand(report.id) }} title="更多" />
+            <Button size="small" icon={expandedId === report.id ? <ChevronDown size={12} /> : <ChevronRight size={12} />} onClick={(event) => { event.stopPropagation(); onToggleExpand(report.id) }} title={t('rptTable.tip.more')} />
           </span>
         )
       },
@@ -295,24 +294,24 @@ export default function ReportTableView({
           <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 10 }}>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>检查所见</div>
-                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.examFindings) || '(未填写)'}</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>{t('rptTable.findings')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.examFindings) || t('rptTable.notFilled')}</div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>诊断意见</div>
-                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.diagnosis) || '(未填写)'}</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>{t('rptTable.diagnosis')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.diagnosis) || t('rptTable.notFilled')}</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: 12, color: '#64748b' }}>
               <StatusTimeline report={report} />
-              <span style={{ marginLeft: 'auto' }}>报告: {report.reportDoctorName || '-'}</span>
-              {report.auditorName && <span>审核: {report.auditorName}</span>}
-              {report.qualityScore !== undefined && <Tag>评分: {report.qualityScore}</Tag>}
+              <span style={{ marginLeft: 'auto' }}>{t('rptTable.reportLabel')} {report.reportDoctorName || '-'}</span>
+              {report.auditorName && <span>{t('rptTable.auditorLabel')} {report.auditorName}</span>}
+              {report.qualityScore !== undefined && <Tag>{t('rptTable.scoreLabel', { score: report.qualityScore })}</Tag>}
             </div>
           </div>
         ),
       }}
-      locale={{ emptyText: <Empty image={<Search size={32} style={{ color: "#94a3b8" }} />} description={<span style={{ fontSize: 13, color: "#94a3b8" }}>未找到符合条件的报告</span>} /> }}
+      locale={{ emptyText: <Empty image={<Search size={32} style={{ color: "#94a3b8" }} />} description={<span style={{ fontSize: 13, color: "#94a3b8" }}>{t('rptTable.empty')}</span>} /> }}
       onRow={(report) => ({ onClick: () => onView(report), style: { cursor: 'pointer' } })}
     />
   )

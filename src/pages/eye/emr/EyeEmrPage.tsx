@@ -5,6 +5,7 @@ import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 import { PageContainer, PageHeader } from "@/components/common";
 import { usePagination } from "@/hooks/usePagination";
+import { t } from "../../../i18n/appI18n";
 
 const EyeEmrPage: React.FC = () => {
   const [emrList, setEmrList] = useState<any[]>([]);
@@ -40,12 +41,12 @@ const EyeEmrPage: React.FC = () => {
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-emr-page">
       <PageHeader
-        title="眼科 EMR"
+        title={t('eyeEmr.title')}
         icon={<BookOpen size={24} color="#8b5cf6" />}
         variant="inline"
         actions={
           <Input.Search
-            placeholder="搜索患者/诊断"
+            placeholder={t('eyeEmr.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ width: 240 }}
@@ -54,13 +55,13 @@ const EyeEmrPage: React.FC = () => {
       />
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 60 }}><Spin tip="加载中..." /></div>
+        <div style={{ textAlign: 'center', padding: 60 }}><Spin tip={t('eyeEmr.loading')} /></div>
       ) : !selected ? (
-        <Alert type="info" title="暂无病历数据" style={{ marginTop: 16 }} />
+        <Alert type="info" title={t('eyeEmr.noData')} style={{ marginTop: 16 }} />
       ) : (
       <Row gutter={12}>
         <Col span={6}>
-          <Card size="small" title="病历列表">
+          <Card size="small" title={t('eyeEmr.recordList')}>
             <Table
               dataSource={emrPagination.pageData}
               rowKey="id"
@@ -75,20 +76,20 @@ const EyeEmrPage: React.FC = () => {
               })}
               columns={[
                 {
-                  title: "患者",
+                  title: t('eyeEmr.colPatient'),
                   dataIndex: "patientName",
                   key: "patientName",
                   width: 60,
                 },
                 {
-                  title: "日期",
+                  title: t('eyeEmr.colDate'),
                   dataIndex: "createdAt",
                   key: "createdAt",
                   width: 80,
                   render: (v: string) => v.slice(0, 10),
                 },
                 {
-                  title: "诊断",
+                  title: t('eyeEmr.colDiagnosis'),
                   dataIndex: "diagnosis",
                   key: "diagnosis",
                   ellipsis: true,
@@ -123,36 +124,36 @@ const EyeEmrPage: React.FC = () => {
               items={[
                 {
                   key: "basic",
-                  label: "基本信息",
+                  label: t('eyeEmr.tabBasic'),
                   children: (
                     <Descriptions
                       size="small"
                       column={2}
                       items={[
-                        { label: "主诉", children: selected.chiefComplaint },
-                        { label: "现病史", children: selected.hpi, span: 2 },
+                        { label: t('eyeEmr.infoChiefComplaint'), children: selected.chiefComplaint },
+                        { label: t('eyeEmr.infoHpi'), children: selected.hpi, span: 2 },
                         {
-                          label: "既往史",
+                          label: t('eyeEmr.infoPastHistory'),
                           children: selected.pastHistory.join("; "),
                         },
                         {
-                          label: "全身史",
+                          label: t('eyeEmr.infoSystemicHistory'),
                           children: selected.systemicHistory.join("; "),
                         },
                         {
-                          label: "用药史",
+                          label: t('eyeEmr.infoMedicationHistory'),
                           children: selected.medicationHistory.join("; "),
                         },
                         {
-                          label: "过敏史",
+                          label: t('eyeEmr.infoAllergyHistory'),
                           children: selected.allergyHistory.join("; "),
                         },
                         {
-                          label: "家族史",
+                          label: t('eyeEmr.infoFamilyHistory'),
                           children: selected.familyHistory.join("; "),
                         },
                         {
-                          label: "社会史",
+                          label: t('eyeEmr.infoSocialHistory'),
                           children: selected.socialHistory.join("; "),
                         },
                       ]}
@@ -161,25 +162,25 @@ const EyeEmrPage: React.FC = () => {
                 },
                 {
                   key: "exam",
-                  label: "眼科检查",
+                  label: t('eyeEmr.tabEyeExam'),
                   children: (
                     <Row gutter={12}>
                       <Col span={8}>
-                        <Card size="small" title="视力">
+                        <Card size="small" title={t('eyeEmr.vision')}>
                           <Descriptions
                             size="small"
                             column={2}
                             items={[
-                              { label: "右眼裸眼视力 (UCVA OD)", children: selected.visionOd[0] },
-                              { label: "右眼矫正视力 (BCVA OD)", children: selected.visionOd[1] },
-                              { label: "左眼裸眼视力 (UCVA OS)", children: selected.visionOs[0] },
-                              { label: "左眼矫正视力 (BCVA OS)", children: selected.visionOs[1] },
+                              { label: t('eyeEmr.ucvaOd'), children: selected.visionOd[0] },
+                              { label: t('eyeEmr.bcvaOd'), children: selected.visionOd[1] },
+                              { label: t('eyeEmr.ucvaOs'), children: selected.visionOs[0] },
+                              { label: t('eyeEmr.bcvaOs'), children: selected.visionOs[1] },
                             ]}
                           />
                         </Card>
                         <Card
                           size="small"
-                          title="眼压"
+                          title={t('eyeEmr.iop')}
                           style={{ marginTop: 4 }}
                         >
                           <div style={{ fontSize: 12 }}>
@@ -189,7 +190,7 @@ const EyeEmrPage: React.FC = () => {
                         </Card>
                         <Card
                           size="small"
-                          title="验光"
+                          title={t('eyeEmr.refraction')}
                           style={{ marginTop: 4 }}
                         >
                           <div style={{ fontSize: 12 }}>
@@ -204,63 +205,63 @@ const EyeEmrPage: React.FC = () => {
                         </Card>
                       </Col>
                       <Col span={8}>
-                        <Card size="small" title="裂隙灯">
+                        <Card size="small" title={t('eyeEmr.slitLamp')}>
                           <div style={{ fontSize: 12, lineHeight: 1.8 }}>
                             <div>
-                              <strong>眼睑:</strong>{" "}
+                              <strong>{t('eyeEmr.slitLampLid')}</strong>{" "}
                               {selected.slitLamp.lid || "-"}
                             </div>
                             <div>
-                              <strong>结膜:</strong>{" "}
+                              <strong>{t('eyeEmr.slitLampConjunctiva')}</strong>{" "}
                               {selected.slitLamp.conjunctiva || "-"}
                             </div>
                             <div>
-                              <strong>角膜:</strong>{" "}
+                              <strong>{t('eyeEmr.slitLampCornea')}</strong>{" "}
                               {selected.slitLamp.cornea || "-"}
                             </div>
                             <div>
-                              <strong>前房:</strong>{" "}
+                              <strong>{t('eyeEmr.slitLampAnteriorChamber')}</strong>{" "}
                               {selected.slitLamp.anteriorChamber || "-"}
                             </div>
                             <div>
-                              <strong>虹膜:</strong>{" "}
+                              <strong>{t('eyeEmr.slitLampIris')}</strong>{" "}
                               {selected.slitLamp.iris || "-"}
                             </div>
                             <div>
-                              <strong>瞳孔:</strong>{" "}
+                              <strong>{t('eyeEmr.slitLampPupil')}</strong>{" "}
                               {selected.slitLamp.pupil || "-"}
                             </div>
                             <div>
-                              <strong>晶体:</strong>{" "}
+                              <strong>{t('eyeEmr.slitLampLens')}</strong>{" "}
                               {selected.slitLamp.lens || "-"}
                             </div>
                           </div>
                         </Card>
                       </Col>
                       <Col span={8}>
-                        <Card size="small" title="眼底">
+                        <Card size="small" title={t('eyeEmr.fundus')}>
                           <div style={{ fontSize: 12, lineHeight: 1.8 }}>
                             <div>
-                              <strong>视盘:</strong>{" "}
+                              <strong>{t('eyeEmr.fundusDisc')}</strong>{" "}
                               {selected.fundus.disc || "-"}
                             </div>
                             <div>
-                              <strong>黄斑:</strong>{" "}
+                              <strong>{t('eyeEmr.fundusMacula')}</strong>{" "}
                               {selected.fundus.macula || "-"}
                             </div>
                             <div>
-                              <strong>血管:</strong>{" "}
+                              <strong>{t('eyeEmr.fundusVessel')}</strong>{" "}
                               {selected.fundus.vessel || "-"}
                             </div>
                             <div>
-                              <strong>周边:</strong>{" "}
+                              <strong>{t('eyeEmr.fundusPeriphery')}</strong>{" "}
                               {selected.fundus.periphery || "-"}
                             </div>
                           </div>
                         </Card>
                         <Card
                           size="small"
-                          title="房角镜"
+                          title={t('eyeEmr.gonioscopy')}
                           style={{ marginTop: 4 }}
                         >
                           <div style={{ fontSize: 12 }}>
@@ -273,11 +274,11 @@ const EyeEmrPage: React.FC = () => {
                 },
                 {
                   key: "diagnosis",
-                  label: "诊断 & 计划",
+                  label: t('eyeEmr.tabDiagnosisPlan'),
                   children: (
                     <div>
                       <div style={{ marginBottom: 8 }}>
-                        <Tag color="red">ICD编码</Tag>{" "}
+                        <Tag color="red">{t('eyeEmr.icdCode')}</Tag>{" "}
                         {selected.icdCodes.join(", ")}
                       </div>
                       <Descriptions
@@ -285,7 +286,7 @@ const EyeEmrPage: React.FC = () => {
                         column={1}
                         items={[
                           {
-                            label: "诊断",
+                            label: t('eyeEmr.diagnosis'),
                             children: selected.diagnosis.map((d, i) => (
                               <Tag key={i} color="orange">
                                 {d}
@@ -293,12 +294,12 @@ const EyeEmrPage: React.FC = () => {
                             )),
                           },
                           {
-                            label: "治疗方案",
+                            label: t('eyeEmr.treatmentPlan'),
                             children: selected.plan,
                             span: 2,
                           },
                           {
-                            label: "随访",
+                            label: t('eyeEmr.followUp'),
                             children: selected.followUpDays
                               ? `${selected.followUpDays}天后复查`
                               : "-",
@@ -312,7 +313,7 @@ const EyeEmrPage: React.FC = () => {
                   ? [
                       {
                         key: "preop",
-                        label: "术前评估",
+                        label: t('eyeEmr.tabPreOp'),
                         children: (
                           <Descriptions
                             size="small"
@@ -323,29 +324,29 @@ const EyeEmrPage: React.FC = () => {
                                 children: `ASA ${selected.preOpAssessment.asaGrade}`,
                               },
                               {
-                                label: "血压",
+                                label: t('eyeEmr.bloodPressure'),
                                 children:
                                   selected.preOpAssessment.bloodPressure,
                               },
                               {
-                                label: "心率",
+                                label: t('eyeEmr.heartRate'),
                                 children: `${selected.preOpAssessment.heartRate}bpm`,
                               },
                               {
                                 label: "ECG",
                                 children: selected.preOpAssessment.ecgNormal
-                                  ? "正常"
-                                  : "异常",
+                                  ? t('eyeEmr.normal')
+                                  : t('eyeEmr.abnormal'),
                               },
                               {
-                                label: "用药调整",
+                                label: t('eyeEmr.medicationAdjustments'),
                                 children:
                                   selected.preOpAssessment
                                     .medicationAdjustments,
                                 span: 2,
                               },
                               {
-                                label: "麻醉意见",
+                                label: t('eyeEmr.anesthesiaNote'),
                                 children:
                                   selected.preOpAssessment.anesthesiologistNote,
                                 span: 2,

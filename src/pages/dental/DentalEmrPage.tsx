@@ -66,11 +66,11 @@ export const DentalEmrPage: React.FC = () => {
           notes: values.notes,
         });
         if (res.success) {
-          message.success('预约已更新');
+          message.success(t('dentalEmr.apptUpdated'));
           setApptEditItem(null);
           void loadPatient(selectedId);
         } else {
-          message.error(res.error?.message ?? '更新失败');
+          message.error(res.error?.message ?? t('dentalEmr.updateFailed'));
         }
       } else {
         const res = await dentalApi.createAppointment({
@@ -81,12 +81,12 @@ export const DentalEmrPage: React.FC = () => {
           notes: values.notes,
         });
         if (res.success) {
-          message.success('预约已登记');
+          message.success(t('dentalEmr.apptCreated'));
           setApptCreateOpen(false);
           apptForm.resetFields();
           void loadPatient(selectedId);
         } else {
-          message.error(res.error?.message ?? '登记失败');
+          message.error(res.error?.message ?? t('dentalEmr.createFailed'));
         }
       }
     } catch {
@@ -182,11 +182,11 @@ export const DentalEmrPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 360° 患者视图</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalEmr.title')}</span>
         <Tag color="cyan">v3.0.6.8-94</Tag>
-        <Tag color="blue">牙医管家 对标</Tag>
-        <Tag color={emrSource === 'api' ? 'green' : 'orange'} title="后端 /dental/patients/:id/overview* 7 端点真实实现 (失败回退演示数据)">
-          {emrSource === 'api' ? '真实数据' : '演示回退'}
+        <Tag color="blue">{t('dentalEmr.benchmark')}</Tag>
+        <Tag color={emrSource === 'api' ? 'green' : 'orange'} title={t('dentalEmr.sourceTitle')}>
+          {emrSource === 'api' ? t('dentalEmr.realData') : t('dentalEmr.mockFallback')}
         </Tag>
         <Select value={selectedId} onChange={loadPatient} style={{ width: 180 }} options={patients.map(p => ({ value: p.id, label: `${p.name} (${p.id})` }))} />
       </Space>
@@ -198,7 +198,7 @@ export const DentalEmrPage: React.FC = () => {
                 <Space>
                   <Avatar size={40} style={{ backgroundColor: '#2563eb' }}>{overview.name[0]}</Avatar>
                   <div>
-                    <div style={{ fontWeight: 600 }}>{overview.name} <Tag>{overview.gender === 'M' ? '男' : '女'}</Tag><Tag>{overview.age}岁</Tag></div>
+                    <div style={{ fontWeight: 600 }}>{overview.name} <Tag>{overview.gender === 'M' ? t('dentalEmr.male') : t('dentalEmr.female')}</Tag><Tag>{overview.age}{t('dentalEmr.ageSuffix')}</Tag></div>
                     <Space size={2}>
                       <Phone size={10} color="var(--text-secondary)" /><span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{overview.phone}</span>
                     </Space>
@@ -206,84 +206,84 @@ export const DentalEmrPage: React.FC = () => {
                 </Space>
               </Card>
             </Col>
-            <Col span={3}><Card size="small"><Statistic title="就诊次数" value={overview.totalVisits} prefix={<Calendar size={12}/>} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title="累计消费" prefix="¥" value={overview.totalSpent} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title="待缴费" prefix="¥" value={overview.summary?.unpaid || 0} styles={{ content: {  color: (overview.summary?.unpaid || 0) > 0 ? '#ff4d4f' : '#52c41a'  } }} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title="待复诊" value={overview.summary?.appointments || 0} styles={{ content: {  color: (overview.summary?.appointments || 0) > 0 ? '#faad14' : '#52c41a'  } }} /></Card></Col>
+            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statVisits')} value={overview.totalVisits} prefix={<Calendar size={12}/>} /></Card></Col>
+            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statSpent')} prefix="¥" value={overview.totalSpent} /></Card></Col>
+            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statUnpaid')} prefix="¥" value={overview.summary?.unpaid || 0} styles={{ content: {  color: (overview.summary?.unpaid || 0) > 0 ? '#ff4d4f' : '#52c41a'  } }} /></Card></Col>
+            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statToRevisit')} value={overview.summary?.appointments || 0} styles={{ content: {  color: (overview.summary?.appointments || 0) > 0 ? '#faad14' : '#52c41a'  } }} /></Card></Col>
             <Col span={6}>
               <Card size="small">
                 <Space wrap>
-                  <Tag color={overview.allergies?.length > 0 ? 'red' : 'green'}>{overview.allergies?.length > 0 ? `过敏: ${overview.allergies.join(',')}` : '无过敏'}</Tag>
+                  <Tag color={overview.allergies?.length > 0 ? 'red' : 'green'}>{overview.allergies?.length > 0 ? `${t('dentalEmr.allergy')}: ${overview.allergies.join(',')}` : t('dentalEmr.noAllergy')}</Tag>
                   {overview.systemicDisease?.map((d: string) => <Tag key={d} color="orange">{d}</Tag>)}
-                  {overview.tags?.map((t: string) => <Tag key={t} color="purple">{t}</Tag>)}
+                  {overview.tags?.map((tag: string) => <Tag key={tag} color="purple">{tag}</Tag>)}
                 </Space>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>首诊: {overview.firstVisit} | 主治: {overview.dentist}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{t('dentalEmr.firstVisit')}: {overview.firstVisit} | {t('dentalEmr.attending')}: {overview.dentist}</div>
               </Card>
             </Col>
           </Row>
-          <Card size="small" title={<Space><History size={14}/>完整档案</Space>}>
+          <Card size="small" title={<Space><History size={14}/>{t('dentalEmr.fullRecord')}</Space>}>
             <Tabs activeKey={tab} onChange={setTab} items={[
-              {key:'overview', label:<span><Eye size={12}/>概览</span>, children:<>
+              {key:'overview', label:<span><Eye size={12}/>{t('dentalEmr.tabOverview')}</span>, children:<>
                 <Descriptions size="small" column={3}>
-                  <Descriptions.Item label="姓名">{overview.name}</Descriptions.Item>
-                  <Descriptions.Item label="性别">{overview.gender === 'M' ? '男' : '女'}</Descriptions.Item>
-                  <Descriptions.Item label="年龄">{overview.age}岁</Descriptions.Item>
-                  <Descriptions.Item label="手机">{overview.phone}</Descriptions.Item>
-                  <Descriptions.Item label="医保">{overview.insuranceType}</Descriptions.Item>
-                  <Descriptions.Item label="职业">{overview.occupation}</Descriptions.Item>
-                  <Descriptions.Item label="地址" span={2}>{overview.address}</Descriptions.Item>
-                  <Descriptions.Item label="过敏史">{overview.allergies?.join(',') || '无'}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.name')}>{overview.name}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.gender')}>{overview.gender === 'M' ? t('dentalEmr.male') : t('dentalEmr.female')}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.age')}>{overview.age}{t('dentalEmr.ageSuffix')}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.mobile')}>{overview.phone}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.insurance')}>{overview.insuranceType}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.occupation')}>{overview.occupation}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.address')} span={2}>{overview.address}</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.allergyHistory')}>{overview.allergies?.join(',') || t('dentalEmr.none')}</Descriptions.Item>
                 </Descriptions>
-                <Timeline style={{marginTop:16}} items={treatments.slice(0,5).map((t:any)=>({color:t.type==='Implant'?'red':t.type==='Endodontic'?'orange':'blue',children:<><b>{t.date}</b> {t.description} <Tag>{t.type}</Tag> <Tag>¥{t.cost}</Tag></>}))} />
+                <Timeline style={{marginTop:16}} items={treatments.slice(0,5).map((tr:any)=>({color:tr.type==='Implant'?'red':tr.type==='Endodontic'?'orange':'blue',children:<><b>{tr.date}</b> {tr.description} <Tag>{tr.type}</Tag> <Tag>¥{tr.cost}</Tag></>}))} />
               </>},
-              {key:'treatments', label:<span><FileText size={12}/>治疗记录 ({treatments.length})</span>, children:<Table dataSource={pagedTreatments} rowKey="id" size="small" pagination={treatmentsPagination}
-                columns={[{title:'日期',dataIndex:'date',width:100},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>,width:100},{title:'牙位',dataIndex:'toothNo',width:60,render:(t:number)=>t?<Tag color="blue">#{t}</Tag>:'全口'},{title:'描述',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'费用',dataIndex:'cost',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'patientPaid',render:(v:number)=>`¥${v}`,width:80}]} 
+              {key:'treatments', label:<span><FileText size={12}/>{t('dentalEmr.tabTreatments')} ({treatments.length})</span>, children:<Table dataSource={pagedTreatments} rowKey="id" size="small" pagination={treatmentsPagination}
+                columns={[{title:t('dentalEmr.colDate'),dataIndex:'date',width:100},{title:t('dentalEmr.colType'),dataIndex:'type',render:(v:string)=><Tag>{v}</Tag>,width:100},{title:t('dentalEmr.colTooth'),dataIndex:'toothNo',width:60,render:(n:number)=>n?<Tag color="blue">#{n}</Tag>:t('dentalEmr.fullMouth')},{title:t('dentalEmr.colDescription'),dataIndex:'description'},{title:t('dentalEmr.colDentist'),dataIndex:'dentist'},{title:t('dentalEmr.colCost'),dataIndex:'cost',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colSelfPay'),dataIndex:'patientPaid',render:(v:number)=>`¥${v}`,width:80}]} 
               scroll={{ x: 'max-content' }}/>},
-              {key:'appointments', label:<span><Clock size={12}/>预约 ({appts.length})</span>, children:<>
+              {key:'appointments', label:<span><Clock size={12}/>{t('dentalEmr.tabAppointments')} ({appts.length})</span>, children:<>
                 <div style={{ marginBottom: 8 }}>
                   <Button size="small" type="primary" icon={<Plus size={12} />} onClick={openApptCreate}>{t("w3b.apptCreate")}</Button>
                 </div>
                 <Table dataSource={pagedAppts} rowKey="id" size="small" pagination={apptsPagination}
-                columns={[{title:'日期',dataIndex:'date'},{title:'时间',dataIndex:'time'},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>},{title:'内容',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'牙椅',dataIndex:'chair'},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='scheduled'?'processing':'default'} text={({completed:'已完成',scheduled:'已预约',cancelled:'已取消'})[s] ?? s} />},{title:'操作',width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>openApptEdit(r)}>{t("w3b.apptEdit")}</Button>}]} 
+                columns={[{title:t('dentalEmr.colDate'),dataIndex:'date'},{title:t('dentalEmr.colTime'),dataIndex:'time'},{title:t('dentalEmr.colType'),dataIndex:'type',render:(v:string)=><Tag>{v}</Tag>},{title:t('dentalEmr.colContent'),dataIndex:'description'},{title:t('dentalEmr.colDentist'),dataIndex:'dentist'},{title:t('dentalEmr.colChair'),dataIndex:'chair'},{title:t('dentalEmr.colStatus'),dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='scheduled'?'processing':'default'} text={({completed:t('dentalEmr.apptCompleted'),scheduled:t('dentalEmr.apptScheduled'),cancelled:t('dentalEmr.apptCancelled')})[s] ?? s} />},{title:t('dentalEmr.colActions'),width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>openApptEdit(r)}>{t("w3b.apptEdit")}</Button>}]} 
                 scroll={{ x: 'max-content' }}/>
               </>},
-              {key:'billing', label:<span><DollarSign size={12}/>费用 ({bills.length})</span>, children:<Table dataSource={pagedBills} rowKey="id" size="small" pagination={billsPagination}
-                columns={[{title:'日期',dataIndex:'date'},{title:'项目',dataIndex:'items',render:(i:any[])=><>{i.map((x:any)=><Tag key={x.name}>{x.name}</Tag>)}</>},{title:'总金额',dataIndex:'total',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insurance',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='partial'?'warning':'error'} text={({paid:'已支付',partial:'部分支付'})[s] ?? '欠费'} />}]} 
+              {key:'billing', label:<span><DollarSign size={12}/>{t('dentalEmr.tabBilling')} ({bills.length})</span>, children:<Table dataSource={pagedBills} rowKey="id" size="small" pagination={billsPagination}
+                columns={[{title:t('dentalEmr.colDate'),dataIndex:'date'},{title:t('dentalEmr.colItems'),dataIndex:'items',render:(i:any[])=><>{i.map((x:any)=><Tag key={x.name}>{x.name}</Tag>)}</>},{title:t('dentalEmr.colTotal'),dataIndex:'total',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colInsurance'),dataIndex:'insurance',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colSelfPay'),dataIndex:'selfPay',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colStatus'),dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='partial'?'warning':'error'} text={({paid:t('dentalEmr.billPaid'),partial:t('dentalEmr.billPartial')})[s] ?? t('dentalEmr.billOverdue')} />}]} 
               scroll={{ x: 'max-content' }}/>},
-              {key:'rx', label:<span><Pill size={12}/>处方 ({scripts.length})</span>, children:<List size="small" dataSource={scripts} renderItem={(rx:any)=><List.Item><List.Item.Meta title={<Space><Tag color="green">{rx.drug}</Tag><span>{rx.dosage}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{rx.date} | {rx.dentist} | {rx.note}</div>} /></List.Item>} />},
-              {key:'consents', label:<span><FileText size={12}/>知情同意 ({consents.length})</span>, children:<List size="small" dataSource={consents} renderItem={(c:any)=><List.Item><List.Item.Meta title={<Space><Tag color={c.signed?'green':'orange'}>{c.type}</Tag><Badge status={c.signed?'success':'default'} text={c.signed?'已签署':'待签署'} /></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{c.date} | {c.signedBy || '-'} | {c.witness || '-'}</div>} /></List.Item>} />},
-              {key:'recalls', label:<span><AlertTriangle size={12}/>回访 ({recalls.length})</span>, children:<List size="small" dataSource={recalls} renderItem={(r:any)=><List.Item><List.Item.Meta title={<Space><Tag>{r.type}</Tag><span>{r.description}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{r.date} | 方式: {r.method} | <Badge status={r.sent?'success':'default'} text={r.sent?'已发送':'待发送'} /></div>} /></List.Item>} />},
-              {key:'images', label:<span><Eye size={12}/>影像 ({panoImages.length + periaImages.length + bitewingImages.length})</span>, children:<Spin spinning={imgLoading}>
+              {key:'rx', label:<span><Pill size={12}/>{t('dentalEmr.tabRx')} ({scripts.length})</span>, children:<List size="small" dataSource={scripts} renderItem={(rx:any)=><List.Item><List.Item.Meta title={<Space><Tag color="green">{rx.drug}</Tag><span>{rx.dosage}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{rx.date} | {rx.dentist} | {rx.note}</div>} /></List.Item>} />},
+              {key:'consents', label:<span><FileText size={12}/>{t('dentalEmr.tabConsents')} ({consents.length})</span>, children:<List size="small" dataSource={consents} renderItem={(c:any)=><List.Item><List.Item.Meta title={<Space><Tag color={c.signed?'green':'orange'}>{c.type}</Tag><Badge status={c.signed?'success':'default'} text={c.signed?t('dentalEmr.consentSigned'):t('dentalEmr.consentPending')} /></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{c.date} | {c.signedBy || '-'} | {c.witness || '-'}</div>} /></List.Item>} />},
+              {key:'recalls', label:<span><AlertTriangle size={12}/>{t('dentalEmr.tabRecalls')} ({recalls.length})</span>, children:<List size="small" dataSource={recalls} renderItem={(r:any)=><List.Item><List.Item.Meta title={<Space><Tag>{r.type}</Tag><span>{r.description}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{r.date} | {t('dentalEmr.method')}: {r.method} | <Badge status={r.sent?'success':'default'} text={r.sent?t('dentalEmr.recallSent'):t('dentalEmr.recallPending')} /></div>} /></List.Item>} />},
+              {key:'images', label:<span><Eye size={12}/>{t('dentalEmr.tabImages')} ({panoImages.length + periaImages.length + bitewingImages.length})</span>, children:<Spin spinning={imgLoading}>
                 <Table dataSource={pagedImages} rowKey="id" size="small" pagination={imagesPagination}
-                  columns={[{title:'类型',dataIndex:'modality',width:100,render:(m:string)=><Tag color={m==='Panoramic'?'purple':m==='Bitewing'?'cyan':'blue'}>{({Panoramic:'全景片',Periapical:'根尖片',Bitewing:'咬合翼片'})[m] || m}</Tag>},{title:'患者',dataIndex:'patientName'},{title:'部位',dataIndex:'region',width:80},{title:'拍摄日期',dataIndex:'acquisitionDate',width:110,render:(v:string)=>v?.slice(0,10)},({title:'状态',dataIndex:'status',width:90,render:(s:string)=><Badge status={s==='reported'?'success':s==='reviewed'?'processing':'default'} text={({reported:'已报告',reviewed:'已审核'})[s] ?? '检查中'} />}),( {title:'缩略图',dataIndex:'thumbnail',width:90,render:(t:string)=><a href={t} target="_blank" rel="noreferrer"><Button size="small" type="link">查看</Button></a>}),{title:'操作',width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>void openImageDetail(r)}>详情</Button>}]} 
+                  columns={[{title:t('dentalEmr.colType'),dataIndex:'modality',width:100,render:(m:string)=><Tag color={m==='Panoramic'?'purple':m==='Bitewing'?'cyan':'blue'}>{({Panoramic:t('dentalEmr.modPanoramic'),Periapical:t('dentalEmr.modPeriapical'),Bitewing:t('dentalEmr.modBitewing')})[m] || m}</Tag>},{title:t('dentalEmr.colPatient'),dataIndex:'patientName'},{title:t('dentalEmr.colRegion'),dataIndex:'region',width:80},{title:t('dentalEmr.colAcquisitionDate'),dataIndex:'acquisitionDate',width:110,render:(v:string)=>v?.slice(0,10)},({title:t('dentalEmr.colStatus'),dataIndex:'status',width:90,render:(s:string)=><Badge status={s==='reported'?'success':s==='reviewed'?'processing':'default'} text={({reported:t('dentalEmr.imgReported'),reviewed:t('dentalEmr.imgReviewed')})[s] ?? t('dentalEmr.imgInProgress')} />}),( {title:t('dentalEmr.colThumbnail'),dataIndex:'thumbnail',width:90,render:(url:string)=><a href={url} target="_blank" rel="noreferrer"><Button size="small" type="link">{t('dentalEmr.view')}</Button></a>}),{title:t('dentalEmr.colActions'),width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>void openImageDetail(r)}>{t('dentalEmr.detail')}</Button>}]} 
                   scroll={{ x: 'max-content' }}/>
               </Spin>},
             ]} />
           </Card>
           <Modal
-            title={`影像详情 - ${imgDetail?.id ?? ''}`}
+            title={`${t('dentalEmr.imageDetail')} - ${imgDetail?.id ?? ''}`}
             open={!!imgDetail}
             onCancel={() => setImgDetail(null)}
-            footer={<Button onClick={() => setImgDetail(null)}>关闭</Button>}
+            footer={<Button onClick={() => setImgDetail(null)}>{t('dentalEmr.close')}</Button>}
             width={560}
           >
             {detailLoading ? <Spin /> : imgDetail && (
               <Descriptions bordered size="small" column={2}>
-                <Descriptions.Item label="模态"><Tag color={imgDetail.modality === 'Panoramic' ? 'purple' : imgDetail.modality === 'Bitewing' ? 'cyan' : 'blue'}>{imgDetail.modality}</Tag></Descriptions.Item>
-                <Descriptions.Item label="状态">{imgDetail.status || '-'}</Descriptions.Item>
-                <Descriptions.Item label="患者">{imgDetail.patientName || '-'}</Descriptions.Item>
-                <Descriptions.Item label="部位">{imgDetail.region || '-'}</Descriptions.Item>
-                <Descriptions.Item label="设备">{imgDetail.deviceModel || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.modality')}><Tag color={imgDetail.modality === 'Panoramic' ? 'purple' : imgDetail.modality === 'Bitewing' ? 'cyan' : 'blue'}>{imgDetail.modality}</Tag></Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.colStatus')}>{imgDetail.status || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.colPatient')}>{imgDetail.patientName || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.colRegion')}>{imgDetail.region || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.device')}>{imgDetail.deviceModel || '-'}</Descriptions.Item>
                 <Descriptions.Item label="FOV">{imgDetail.fieldOfView || '-'}</Descriptions.Item>
-                <Descriptions.Item label="体素">{imgDetail.voxelSize ? `${imgDetail.voxelSize} mm` : '-'}</Descriptions.Item>
-                <Descriptions.Item label="辐射剂量">{imgDetail.radiationDose ? `${imgDetail.radiationDose} mSv` : '-'}</Descriptions.Item>
-                <Descriptions.Item label="拍摄日期" span={2}>{imgDetail.acquisitionDate ? new Date(imgDetail.acquisitionDate).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
-                <Descriptions.Item label="指征" span={2}>{imgDetail.indications || '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.voxel')}>{imgDetail.voxelSize ? `${imgDetail.voxelSize} mm` : '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.radiationDose')}>{imgDetail.radiationDose ? `${imgDetail.radiationDose} mSv` : '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.colAcquisitionDate')} span={2}>{imgDetail.acquisitionDate ? new Date(imgDetail.acquisitionDate).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('dentalEmr.indication')} span={2}>{imgDetail.indications || '-'}</Descriptions.Item>
                 {imgDetail.aiAnalysis && (
-                  <Descriptions.Item label="AI 分析" span={2}>龋齿 {imgDetail.aiAnalysis.cariesDetected ?? 0} 处 · 骨量 {imgDetail.aiAnalysis.boneLossLevel ?? '-'} · 置信度 {(imgDetail.aiAnalysis.confidence ?? 0) * 100}%</Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.aiAnalysis')} span={2}>{t('dentalEmr.caries')} {imgDetail.aiAnalysis.cariesDetected ?? 0} {t('dentalEmr.places')} · {t('dentalEmr.boneMass')} {imgDetail.aiAnalysis.boneLossLevel ?? '-'} · {t('dentalEmr.confidence')} {(imgDetail.aiAnalysis.confidence ?? 0) * 100}%</Descriptions.Item>
                 )}
                 {imgDetail.thumbnail && (
-                  <Descriptions.Item label="影像" span={2}><a href={imgDetail.thumbnail} target="_blank" rel="noreferrer">打开原图</a></Descriptions.Item>
+                  <Descriptions.Item label={t('dentalEmr.image')} span={2}><a href={imgDetail.thumbnail} target="_blank" rel="noreferrer">{t('dentalEmr.openOriginal')}</a></Descriptions.Item>
                 )}
               </Descriptions>
             )}
@@ -299,21 +299,21 @@ export const DentalEmrPage: React.FC = () => {
           >
             <Form form={apptForm} layout="vertical" size="small">
               {!apptEditItem && (
-                <Form.Item label="患者 ID" name="patientId" rules={[{ required: true, message: '请输入患者ID' }]}>
-                  <Input placeholder="患者 ID" />
+                <Form.Item label={t('dentalEmr.patientId')} name="patientId" rules={[{ required: true, message: t('dentalEmr.enterPatientId') }]}>
+                  <Input placeholder={t('dentalEmr.patientId')} />
                 </Form.Item>
               )}
-              <Form.Item label="日期时间" name="dateTime" rules={[{ required: true, message: '请输入日期时间' }]}>
-                <Input placeholder="如 2025-12-01 09:00" />
+              <Form.Item label={t('dentalEmr.dateTime')} name="dateTime" rules={[{ required: true, message: t('dentalEmr.enterDateTime') }]}>
+                <Input placeholder={t('dentalEmr.dateTimePlaceholder')} />
               </Form.Item>
-              <Form.Item label="医生" name="dentistId" rules={[{ required: true }]}>
+              <Form.Item label={t('dentalEmr.dentist')} name="dentistId" rules={[{ required: true }]}>
                 <Select options={DENTIST_OPTIONS.map((d) => ({ value: d, label: d }))} />
               </Form.Item>
-              <Form.Item label="事由" name="reason" rules={[{ required: true, message: '请输入事由' }]}>
-                <Input placeholder="如 复诊 / 洁牙" />
+              <Form.Item label={t('dentalEmr.reason')} name="reason" rules={[{ required: true, message: t('dentalEmr.enterReason') }]}>
+                <Input placeholder={t('dentalEmr.reasonPlaceholder')} />
               </Form.Item>
-              <Form.Item label="备注" name="notes">
-                <Input.TextArea rows={2} placeholder="备注（可选）" />
+              <Form.Item label={t('dentalEmr.notes')} name="notes">
+                <Input.TextArea rows={2} placeholder={t('dentalEmr.notesPlaceholder')} />
               </Form.Item>
             </Form>
           </Modal>

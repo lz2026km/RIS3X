@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SearchX } from 'lucide-react'
+import { t } from '../i18n/appI18n';
 
 interface SearchReport extends ReportDto {
   reportDate: string
@@ -147,7 +148,7 @@ export default function ReportSearchPage() {
 
   // [G005 v3.0.6.11-99 Wave 10E-1] 导出当前检索结果为 CSV
   const exportResultsCsv = useCallback(() => {
-    if (results.length === 0) { message.warning('暂无结果可导出'); return }
+    if (results.length === 0) { message.warning(t('reportSearch.noExportData')); return }
     const header = ['报告ID', '患者姓名', '模态', '部位', '状态', '医生ID', '报告日期', '质量分', '危急值', '所见摘要', '印象摘要'];
     const rows = results.map(r => [
       r.reportId || r.id, r.patientName, r.modality, r.bodyPart || '', r.status, r.doctorId || '',
@@ -228,12 +229,12 @@ export default function ReportSearchPage() {
       } else {
         setResults([]);
         setTotal(0);
-        if (!res.success) setError(res.error?.message || '报告检索失败');
+        if (!res.success) setError(res.error?.message || t('reportSearch.errSearch'));
       }
     } catch {
       setResults([]);
       setTotal(0);
-      setError('报告检索服务暂不可用，请稍后重试');
+      setError(t('reportSearch.errService'));
     } finally {
       setLoading(false);
     }
@@ -252,7 +253,7 @@ export default function ReportSearchPage() {
 
   const handleSearch = useCallback(() => {
     if (!query.trim() && modality === 'all' && status === 'all' && bodyPart === 'all' && !doctor.trim() && !dateFrom && !dateTo) {
-      message.warning('请输入搜索关键词或选择筛选条件');
+      message.warning(t('reportSearch.errEmptyQuery'));
       return;
     }
     void fetchReports(query.trim());
@@ -267,7 +268,7 @@ export default function ReportSearchPage() {
 
   const handleSaveQuery = () => {
     if (!query.trim() && modality === 'all') {
-      message.warning('请先输入检索条件再保存');
+      message.warning(t('reportSearch.errSaveEmpty'));
       return;
     }
     try {
@@ -278,7 +279,7 @@ export default function ReportSearchPage() {
       localStorage.setItem(key, JSON.stringify(saved.slice(0, 50)));
       message.success(`查询「${label}」已保存`);
     } catch {
-      message.error('保存失败，浏览器存储不可用');
+      message.error(t('reportSearch.errSaveFailed'));
     }
   };
 
@@ -292,13 +293,13 @@ export default function ReportSearchPage() {
     if (!query || query.length < 1) return [];
     const q = query.toLowerCase();
     const list: any[] = [];
-    FEATURED_TERMS.forEach(t => {
-      if (t.term.includes(query) || t.pinyin.includes(q) || t.synonyms.some(s => s.includes(query))) {
-        list.push({ type: 'term', icon: Brain, label: t.term, desc: t.definition, color: '#7c3aed' });
+    FEATURED_TERMS.forEach(term => {
+      if (term.term.includes(query) || term.pinyin.includes(q) || term.synonyms.some(s => s.includes(query))) {
+        list.push({ type: 'term', icon: Brain, label: term.term, desc: term.definition, color: '#7c3aed' });
       }
     });
     REPORT_PHRASES.forEach(p => {
-      if (p.title.includes(query) || p.tags.some(t => t.includes(query))) {
+      if (p.title.includes(query) || p.tags.some(term => term.includes(query))) {
         list.push({ type: 'phrase', icon: Sparkles, label: p.title, desc: p.scene, color: '#3b82f6' });
       }
     });
@@ -323,11 +324,11 @@ export default function ReportSearchPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Search size={20} color="#1e40af" /> 报告高级检索
+          <Search size={20} color="#1e40af" /> {t('reportSearch.title')}
           <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
         </h1>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-          全文 + 结构化 + 同义词 · 智能联想 · 7 维筛选 · 关键词高亮
+          {t('reportSearch.subtitle')}
         </p>
       </div>
 
@@ -341,17 +342,17 @@ export default function ReportSearchPage() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder="输入关键字, 如: 磨玻璃结节 / GGN / 肝右叶 / 急性脑梗死"
+              placeholder={t('reportSearch.searchPlaceholder')}
               style={{ flex: 1, padding: '10px 4px', border: 'none', background: 'transparent', fontSize: 14, outline: 'none' }}
             />
             {query && <X size={14} onClick={() => setQuery('')} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />}
           </div>
           <button onClick={handleSearch} disabled={loading} style={{ padding: '10px 18px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 4 }}>
             <Search size={13} />
-            {loading ? '检索中...' : '搜索'}
+            {loading ? t('reportSearch.searching') : t('reportSearch.search')}
           </button>
           <button onClick={() => setShowAdvanced(!showAdvanced)} style={{ padding: '10px 14px', background: showAdvanced ? '#1e40af' : 'var(--bg-card)', color: showAdvanced ? '#fff' : '#475569', border: '1px solid ' + (showAdvanced ? '#1e40af' : '#cbd5e1'), borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Filter size={12} /> 高级筛选
+            <Filter size={12} /> {t('reportSearch.advancedFilter')}
           </button>
         </div>
 
@@ -367,7 +368,7 @@ export default function ReportSearchPage() {
                   <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{s.label}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.desc}</div>
                 </div>
-                <span style={{ fontSize: 12, padding: '1px 4px', background: s.color + '20', color: s.color, borderRadius: 2 }}>{s.type === 'term' ? '术语' : '短语'}</span>
+                <span style={{ fontSize: 12, padding: '1px 4px', background: s.color + '20', color: s.color, borderRadius: 2 }}>{s.type === 'term' ? t('reportSearch.term') : t('reportSearch.phrase')}</span>
               </div>
             ))}
           </div>
@@ -378,7 +379,7 @@ export default function ReportSearchPage() {
           <div style={{ marginTop: 12, padding: 12, background: 'var(--bg-card)', borderRadius: 6, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             {/* [G005 v3.0.6.11-99 Wave 10E-1] 模态多选 */}
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>设备 (多选)</label>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.modalityMulti')}</label>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {modalityOptions.map(m => {
                   const on = modalityMulti.includes(m) || (modalityMulti.length === 0 && modality === m);
@@ -392,14 +393,14 @@ export default function ReportSearchPage() {
                 })}
               </div>
             </div>
-            <FilterSelect label="部位" value={bodyPart} onChange={setBodyPart} options={[{ v: 'all', l: '全部' }, ...bodyPartOptions.map(b => ({ v: b, l: b }))]} />
+            <FilterSelect label={t('reportSearch.bodyPart')} value={bodyPart} onChange={setBodyPart} options={[{ v: 'all', l: t('reportSearch.all') }, ...bodyPartOptions.map(b => ({ v: b, l: b }))]} />
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>医生ID</label>
-              <input type="text" value={doctor} onChange={e => setDoctor(e.target.value)} placeholder="如 D001" style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.doctorId')}</label>
+              <input type="text" value={doctor} onChange={e => setDoctor(e.target.value)} placeholder={t('reportSearch.doctorIdPlaceholder')} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             {/* [G005 v3.0.6.11-99 Wave 10E-1] 状态多选 */}
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>状态 (多选)</label>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.statusMulti')}</label>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {statusOptions.map(st => {
                   const on = statusMulti.includes(st) || (statusMulti.length === 0 && status === st);
@@ -414,24 +415,24 @@ export default function ReportSearchPage() {
               </div>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>开始日期</label>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.dateFrom')}</label>
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>结束日期</label>
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportSearch.dateTo')}</label>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-end', gap: 6 }}>
-              <button onClick={handleSearch} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>应用筛选</button>
-              <button onClick={() => { setModality('all'); setBodyPart('all'); setStatus('all'); setDoctor(''); setDateFrom(''); setDateTo(''); setModalityMulti([]); setStatusMulti([]) }} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>重置</button>
+              <button onClick={handleSearch} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>{t('reportSearch.applyFilter')}</button>
+              <button onClick={() => { setModality('all'); setBodyPart('all'); setStatus('all'); setDoctor(''); setDateFrom(''); setDateTo(''); setModalityMulti([]); setStatusMulti([]) }} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>{t('reportSearch.reset')}</button>
               <button onClick={handleSaveQuery} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Save size={10} /> 保存查询
+                <Save size={10} /> {t('reportSearch.saveQuery')}
               </button>
               <button onClick={() => setShowHistoryPanel(v => !v)} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <History size={10} /> 历史 ({searchHistory.length})
+                <History size={10} /> {t('reportSearch.history')} ({searchHistory.length})
               </button>
               <button onClick={() => setShowFavorites(v => !v)} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Star size={10} /> 收藏 ({favorites.length})
+                <Star size={10} /> {t('reportSearch.favorites')} ({favorites.length})
               </button>
             </div>
           </div>
@@ -449,27 +450,27 @@ export default function ReportSearchPage() {
         color: error ? '#d97706' : '#059669',
       }} data-testid="report-search-source-badge">
         {error ? (
-          <>数据源: 检索服务不可用 (展示空结果) · 收藏夹/历史/热门词基于本地存储</>
+          <>{t('reportSearch.sourceUnavailable')}</>
         ) : (
-          <>数据源: reportApi 真实接口 · 收藏夹/检索历史/列偏好已本地持久化 (localStorage)</>
+          <>{t('reportSearch.sourceReal')}</>
         )}
         <span style={{ marginLeft: 'auto', opacity: 0.75 }}>
-          检索记录 {searchHistory.length} 条 · 收藏 {favorites.length + reportFavs.length} 项
+          {t('reportSearch.searchRecords')} {searchHistory.length} {t('reportSearch.itemsCount')} · {t('reportSearch.favoritesLabel')} {favorites.length + reportFavs.length} {t('reportSearch.entriesCount')}
         </span>
       </div>
 
       {/* 统计 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
-        <StatBox label="结果数" value={stats.total} color="#3b82f6" />
-        <StatBox label="平均质量分" value={stats.avgScore} color="#10b981" />
-        <StatBox label="危急值" value={stats.critical} color="#dc2626" />
-        <StatBox label="及时签发" value={stats.onTime + '%'} color="#7c3aed" />
+        <StatBox label={t('reportSearch.statResults')} value={stats.total} color="#3b82f6" />
+        <StatBox label={t('reportSearch.statAvgQuality')} value={stats.avgScore} color="#10b981" />
+        <StatBox label={t('reportSearch.statCritical')} value={stats.critical} color="#dc2626" />
+        <StatBox label={t('reportSearch.statOnTime')} value={stats.onTime + '%'} color="#7c3aed" />
       </div>
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 结果统计条: 命中数 + 按模态分布 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 14px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 12, fontSize: 12, flexWrap: 'wrap' }} data-testid="search-result-stats">
         <span style={{ fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
-          <FileText size={13} /> 命中 <b style={{ fontSize: 16 }}>{total}</b> 条
+          <FileText size={13} /> {t('reportSearch.hits')} <b style={{ fontSize: 16 }}>{total}</b> {t('reportSearch.itemsCount')}
         </span>
         {results.length > 0 && (
           <>
@@ -489,7 +490,7 @@ export default function ReportSearchPage() {
               );
             })}
             <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>
-              检索耗时 {(Math.random() * 0.4 + 0.2).toFixed(2)}s · 数据源: reportApi
+              {t('reportSearch.elapsed')} {(Math.random() * 0.4 + 0.2).toFixed(2)}s · {t('reportSearch.dataSourceReportApi')}
             </span>
           </>
         )}
@@ -502,12 +503,12 @@ export default function ReportSearchPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Star size={13} /> 收藏夹 ({favorites.length})
+                  <Star size={13} /> {t('reportSearch.favoritesPanel')} ({favorites.length})
                 </span>
                 <button onClick={() => setShowFavorites(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={13} /></button>
               </div>
               {favorites.length === 0 ? (
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无收藏 · 搜索后点击「收藏」按钮添加</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('reportSearch.noFavorites')}</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
                   {favorites.map((f, i) => (
@@ -517,7 +518,7 @@ export default function ReportSearchPage() {
                         {f.label}
                       </button>
                       <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{new Date(f.savedAt).toLocaleDateString('zh-CN')}</span>
-                      <button onClick={() => removeFavorite(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex', padding: 2 }} title="删除收藏">
+                      <button onClick={() => removeFavorite(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex', padding: 2 }} title={t('reportSearch.removeFavorite')}>
                         <X size={12} />
                       </button>
                     </div>
@@ -530,24 +531,24 @@ export default function ReportSearchPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <History size={13} /> 检索历史 ({searchHistory.length})
+                  <History size={13} /> {t('reportSearch.searchHistoryPanel')} ({searchHistory.length})
                 </span>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {searchHistory.length > 0 && (
-                    <button onClick={() => { setSearchHistory([]); localStorage.removeItem('report-search:history') }} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#dc2626', textDecoration: 'underline' }}>清空</button>
+                    <button onClick={() => { setSearchHistory([]); localStorage.removeItem('report-search:history') }} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#dc2626', textDecoration: 'underline' }}>{t('reportSearch.clear')}</button>
                   )}
                   <button onClick={() => setShowHistoryPanel(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={13} /></button>
                 </div>
               </div>
               {searchHistory.length === 0 ? (
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无检索记录</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('reportSearch.noHistory')}</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
                   {searchHistory.map((h, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 6, fontSize: 12 }}>
                       <History size={11} color="#3b82f6" />
                       <button onClick={() => applyCriteria(h)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-primary)', textAlign: 'left', flex: 1 }}>
-                        <b style={{ color: '#1e40af' }}>{h.label || '全部'}</b>
+                        <b style={{ color: '#1e40af' }}>{h.label || t('reportSearch.all')}</b>
                         <span style={{ color: 'var(--text-secondary)', marginLeft: 6 }}>{h.query || ''}</span>
                       </button>
                       <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{new Date(h.savedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>
@@ -564,26 +565,26 @@ export default function ReportSearchPage() {
       {results.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr 1fr', gap: 12, marginBottom: 12 }} data-testid="search-insights">
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>质量与风险</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>{t('reportSearch.qualityRisk')}</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
               <div style={{ flex: 1, background: 'var(--color-success-bg)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#059669' }}>{insights.avgScore}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>平均质量分</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('reportSearch.avgQuality')}</div>
               </div>
               <div style={{ flex: 1, background: 'var(--color-error-bg)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#dc2626' }}>{insights.criticalRate}%</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>危急值占比</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('reportSearch.criticalRate')}</div>
               </div>
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              高分报告 (≥90分): <b style={{ color: '#059669' }}>{results.filter(r => (r.qualityScore ?? 0) >= 90).length}</b> 份<br />
-              待审核/审核中: <b style={{ color: '#d97706' }}>{results.filter(r => ['待审核', '审核中'].includes(r.status)).length}</b> 份
+              {t('reportSearch.highScoreReports')} <b style={{ color: '#059669' }}>{results.filter(r => (r.qualityScore ?? 0) >= 90).length}</b> {t('reportSearch.itemsCount')}<br />
+              {t('reportSearch.pendingReview')} <b style={{ color: '#d97706' }}>{results.filter(r => ['待审核', '审核中'].includes(r.status)).length}</b> {t('reportSearch.itemsCount')}
             </div>
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>按模态分布</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>{t('reportSearch.byModality')}</div>
             {insights.modalityCounts.length === 0 ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>暂无分布数据</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportSearch.noDistribution')}</div>
             ) : (
               <>
                 <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-deep)' }}>
@@ -606,9 +607,9 @@ export default function ReportSearchPage() {
             )}
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>部位 TOP</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>{t('reportSearch.bodyPartTop')}</div>
             {insights.bodyPartTop.length === 0 ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>暂无数据</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportSearch.noData')}</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {insights.bodyPartTop.map(([part, count]) => {
@@ -634,10 +635,10 @@ export default function ReportSearchPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 12, marginBottom: 12 }} data-testid="search-hot-and-report-favs">
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Search size={13} /> 热门检索词
+              <Search size={13} /> {t('reportSearch.hotKeywords')}
             </div>
             {hotKeywords.length === 0 ? (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>暂无检索统计</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportSearch.noSearchStats')}</div>
             ) : (
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {hotKeywords.map(([kw, count]) => (
@@ -651,21 +652,21 @@ export default function ReportSearchPage() {
               </div>
             )}
             <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)' }}>
-              近 30 条检索历史中按词频聚合 · 点击词条直接检索
+              {t('reportSearch.hotNote')}
             </div>
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Star size={13} /> 收藏的报告 ({reportFavs.length})
+                <Star size={13} /> {t('reportSearch.favoritedReports')} ({reportFavs.length})
               </span>
               {reportFavs.length > 0 && (
-                <button onClick={() => { setReportFavs([]); localStorage.removeItem('report-search:report-favs') }} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#dc2626', textDecoration: 'underline' }}>清空全部</button>
+                <button onClick={() => { setReportFavs([]); localStorage.removeItem('report-search:report-favs') }} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#dc2626', textDecoration: 'underline' }}>{t('reportSearch.clearAll')}</button>
               )}
             </div>
             {reportFavs.length === 0 ? (
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '10px 0', textAlign: 'center' }}>
-                结果卡片上点击「收藏」保存单条报告
+                {t('reportSearch.favHint')}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 180, overflowY: 'auto' }}>
@@ -678,7 +679,7 @@ export default function ReportSearchPage() {
                     <span style={{ color: 'var(--text-secondary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {String(f.findings || '').slice(0, 40) || String(f.impression || '').slice(0, 40)}
                     </span>
-                    <button onClick={() => removeReportFav(f.reportId)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex', padding: 2 }} title="取消收藏">
+                    <button onClick={() => removeReportFav(f.reportId)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex', padding: 2 }} title={t('reportSearch.unfavorite')}>
                       <X size={12} />
                     </button>
                   </div>
@@ -693,17 +694,17 @@ export default function ReportSearchPage() {
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>
-            检索结果 ({total} 条)
+            {t('reportSearch.searchResults')} ({total} {t('reportSearch.itemsCount')})
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             <button onClick={() => setSortByScore(v => !v)} style={{ padding: '4px 10px', background: sortByScore ? '#eff6ff' : 'var(--bg-card)', border: sortByScore ? '1px solid #3b82f6' : '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', color: sortByScore ? '#1e40af' : 'var(--text-secondary)', fontWeight: sortByScore ? 700 : 400 }}>
-              按质量分 {sortByScore ? '↓' : ''}
+              {t('reportSearch.sortByScore')} {sortByScore ? '↓' : ''}
             </button>
             <button onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')} style={{ padding: '4px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
-              按时间 {sortDir === 'desc' ? '↓' : '↑'} {sortDir === 'desc' ? '新→旧' : '旧→新'}
+              {t('reportSearch.sortByTime')} {sortDir === 'desc' ? '↓' : '↑'} {sortDir === 'desc' ? t('reportSearch.newToOld') : t('reportSearch.oldToNew')}
             </button>
             <button onClick={exportResultsCsv} style={{ padding: '4px 10px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Download size={11} /> 导出CSV
+              <Download size={11} /> {t('reportSearch.exportCsv')}
             </button>
           </div>
         </div>
@@ -721,16 +722,16 @@ export default function ReportSearchPage() {
 
         {loading ? (
           <div style={{ padding: 60, textAlign: 'center' }}>
-            <Spin size="large" tip="正在检索报告...">
+            <Spin size="large" tip={t('reportSearch.searchingReports')}>
               <div style={{ height: 60 }} />
             </Spin>
           </div>
         ) : !searched ? (
-          <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="请输入关键词开始检索" style={{ padding: 40 }} />
+          <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('reportSearch.searchHint')} style={{ padding: 40 }} />
         ) : results.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
             <Search size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
-            <div>未检索到匹配报告, 请调整搜索词或筛选条件</div>
+            <div>{t('reportSearch.noResults')}</div>
           </div>
         ) : (
           <>
@@ -748,25 +749,25 @@ export default function ReportSearchPage() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, flexWrap: 'wrap' }}>
                   <span><User size={10} style={{ verticalAlign: 'middle' }} /> {highlight(r.patientName, query)}</span>
-                  <span><Stethoscope size={10} /> {r.doctorName || '待分配'}</span>
+                  <span><Stethoscope size={10} /> {r.doctorName || t('reportSearch.unassigned')}</span>
                   <span><Calendar size={10} style={{ verticalAlign: 'middle' }} /> {r.reportDate || '-'}</span>
-                  {(r.qualityScore ?? 0) > 0 && <span style={{ marginLeft: 'auto', fontWeight: 700, color: (r.qualityScore ?? 0) >= 90 ? '#10b981' : '#f59e0b' }}>分 {r.qualityScore}</span>}
-                  {r.hasCriticalValue && <span style={{ padding: '1px 6px', background: 'var(--color-error-bg)', color: '#dc2626', borderRadius: 3, fontSize: 11, fontWeight: 600 }}>危急值</span>}
+                  {(r.qualityScore ?? 0) > 0 && <span style={{ marginLeft: 'auto', fontWeight: 700, color: (r.qualityScore ?? 0) >= 90 ? '#10b981' : '#f59e0b' }}>{t('reportSearch.scoreUnit')} {r.qualityScore}</span>}
+                  {r.hasCriticalValue && <span style={{ padding: '1px 6px', background: 'var(--color-error-bg)', color: '#dc2626', borderRadius: 3, fontSize: 11, fontWeight: 600 }}>{t('reportSearch.criticalValue')}</span>}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 4, lineHeight: 1.6 }}>
-                  <span style={{ color: '#7c3aed', fontWeight: 600 }}>所见:</span> {highlight(r.findings, query)}
+                  <span style={{ color: '#7c3aed', fontWeight: 600 }}>{t('reportSearch.findings')}</span> {highlight(r.findings, query)}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 6, lineHeight: 1.6 }}>
-                  <span style={{ color: '#dc2626', fontWeight: 600 }}>印象:</span> {highlight(r.impression || r.diagnosis, query)}
+                  <span style={{ color: '#dc2626', fontWeight: 600 }}>{t('reportSearch.impression')}</span> {highlight(r.impression || r.diagnosis, query)}
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
                   <button style={{ padding: '2px 8px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                     onClick={() => window.open(`/reports?reportId=${r.reportId || r.id}`, '_blank')}>
-                    <Eye size={10} /> 查看
+                    <Eye size={10} /> {t('reportSearch.view')}
                   </button>
                   <button style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}
-                    onClick={() => { navigator.clipboard?.writeText(`${r.patientName} ${r.findings || ''} ${r.impression || ''}`).catch(() => undefined); message.success('已复制报告内容') }}>
-                    复制
+                    onClick={() => { navigator.clipboard?.writeText(`${r.patientName} ${r.findings || ''} ${r.impression || ''}`).catch(() => undefined); message.success(t('reportSearch.copied')) }}>
+                    {t('reportSearch.copy')}
                   </button>
                   {/* [G005 v3.0.6.11-99 Wave 10E-1] 收藏单条报告 */}
                   <button style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
@@ -774,13 +775,13 @@ export default function ReportSearchPage() {
                       try {
                         const key = 'report-search:report-favs';
                         const favs = JSON.parse(localStorage.getItem(key) || '[]');
-                        if (favs.some((f: any) => f.reportId === (r.reportId || r.id))) { message.info('该报告已在收藏中'); return }
+                        if (favs.some((f: any) => f.reportId === (r.reportId || r.id))) { message.info(t('reportSearch.alreadyFavorited')); return }
                         favs.unshift({ reportId: r.reportId || r.id, patientName: r.patientName, modality: r.modality, findings: r.findings, impression: r.impression, savedAt: new Date().toISOString() });
                         localStorage.setItem(key, JSON.stringify(favs.slice(0, 100)));
-                        message.success('报告已收藏');
-                      } catch { message.error('收藏失败') }
+                        message.success(t('reportSearch.reportFavorited'));
+                      } catch { message.error(t('reportSearch.favoriteFailed')) }
                     }}>
-                    <Star size={10} /> 收藏
+                    <Star size={10} /> {t('reportSearch.favorite')}
                   </button>
                 </div>
               </div>
@@ -790,10 +791,10 @@ export default function ReportSearchPage() {
           {resultTotalPages > 1 && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, fontSize: 12 }}>
               <span style={{ color: 'var(--text-secondary)' }}>
-                共 <b style={{ color: '#1e40af' }}>{results.length}</b> 条 · 第 {resultPage}/{resultTotalPages} 页
+                {t('reportSearch.totalPrefix')} <b style={{ color: '#1e40af' }}>{results.length}</b> {t('reportSearch.itemsCount')} · {t('reportSearch.pageLabel')} {resultPage}/{resultTotalPages} {t('reportSearch.pageUnit')}
               </span>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button disabled={resultPage === 1} onClick={() => setResultPage(p => Math.max(1, p - 1))} style={{ padding: '4px 12px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: resultPage === 1 ? 'not-allowed' : 'pointer', opacity: resultPage === 1 ? 0.5 : 1 }}>上一页</button>
+                <button disabled={resultPage === 1} onClick={() => setResultPage(p => Math.max(1, p - 1))} style={{ padding: '4px 12px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: resultPage === 1 ? 'not-allowed' : 'pointer', opacity: resultPage === 1 ? 0.5 : 1 }}>{t('reportSearch.prevPage')}</button>
                 {Array.from({ length: Math.min(5, resultTotalPages) }, (_, i) => {
                   let num = i + 1;
                   if (resultTotalPages > 5) {
@@ -810,7 +811,7 @@ export default function ReportSearchPage() {
                     }}>{num}</button>
                   );
                 })}
-                <button disabled={resultPage === resultTotalPages} onClick={() => setResultPage(p => Math.min(resultTotalPages, p + 1))} style={{ padding: '4px 12px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: resultPage === resultTotalPages ? 'not-allowed' : 'pointer', opacity: resultPage === resultTotalPages ? 0.5 : 1 }}>下一页</button>
+                <button disabled={resultPage === resultTotalPages} onClick={() => setResultPage(p => Math.min(resultTotalPages, p + 1))} style={{ padding: '4px 12px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: resultPage === resultTotalPages ? 'not-allowed' : 'pointer', opacity: resultPage === resultTotalPages ? 0.5 : 1 }}>{t('reportSearch.nextPage')}</button>
               </div>
             </div>
           )}
@@ -825,14 +826,14 @@ export default function ReportSearchPage() {
         fontSize: 12, color: 'var(--text-secondary)', flexWrap: 'wrap',
       }} data-testid="report-search-footer">
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <Search size={12} /> 本次检索: {searched ? `${total} 条结果` : '未检索'}
+          <Search size={12} /> {t('reportSearch.thisSearch')} {searched ? `${total} 条结果` : t('reportSearch.notSearched')}
         </span>
-        <span>模态覆盖: {insights.modalityCounts.length} 类</span>
-        <span>部位覆盖: {insights.bodyPartTop.length} 类</span>
-        <span>历史检索: {searchHistory.length} 条</span>
-        <span>收藏: {favorites.length} 查询 / {reportFavs.length} 报告</span>
+        <span>{t('reportSearch.modalityCoverage')} {insights.modalityCounts.length} {t('reportSearch.categories')}</span>
+        <span>{t('reportSearch.bodyPartCoverage')} {insights.bodyPartTop.length} {t('reportSearch.categories')}</span>
+        <span>{t('reportSearch.historySearch')} {searchHistory.length} {t('reportSearch.itemsCount')}</span>
+        <span>{t('reportSearch.favoritesLabel')} {favorites.length} {t('reportSearch.queriesUnit')} / {reportFavs.length} {t('reportSearch.reportsUnit')}</span>
         <span style={{ marginLeft: 'auto' }}>
-          G005 报告高级检索 · 全文 + 结构化 + 同义词 · {new Date().toLocaleDateString('zh-CN')}
+          {t('reportSearch.footerText')} {new Date().toLocaleDateString('zh-CN')}
         </span>
       </div>
     </div>

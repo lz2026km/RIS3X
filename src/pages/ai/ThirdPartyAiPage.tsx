@@ -30,11 +30,12 @@ import {
   RefreshCw,
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
+import { t } from "../../i18n/appI18n";
 
 const statusLabel: Record<string, string> = {
-  active: "已连接",
-  inactive: "已断开",
-  deprecated: "异常",
+  active: t("thirdAi.status.active"),
+  inactive: t("thirdAi.status.inactive"),
+  deprecated: t("thirdAi.status.deprecated"),
 };
 const statusBadge: Record<string, "success" | "default" | "error"> = {
   active: "success",
@@ -49,11 +50,11 @@ const typeColor: Record<string, string> = {
   nlp: "orange",
 };
 const typeLabel: Record<string, string> = {
-  diagnosis: "诊断",
-  segmentation: "分割",
-  detection: "检测",
-  classification: "分类",
-  nlp: "NLP",
+  diagnosis: t("thirdAi.type.diagnosis"),
+  segmentation: t("thirdAi.type.segmentation"),
+  detection: t("thirdAi.type.detection"),
+  classification: t("thirdAi.type.classification"),
+  nlp: t("thirdAi.type.nlp"),
 };
 
 const ThirdPartyAiPage: React.FC = () => {
@@ -78,10 +79,10 @@ const ThirdPartyAiPage: React.FC = () => {
         aiPlatformApi.getStats(),
       ]);
       if (modelsRes.success) setProviders(modelsRes.data ?? []);
-      else setError(modelsRes.error?.message ?? "加载失败");
+      else setError(modelsRes.error?.message ?? t("thirdAi.loadFail"));
       if (statsRes.success) setStats(statsRes.data);
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t("thirdAi.loadFail"));
     } finally {
       setLoading(false);
     }
@@ -111,9 +112,9 @@ const ThirdPartyAiPage: React.FC = () => {
             : p,
         ),
       );
-      message.success(checked ? "已启用" : "已停用");
+      message.success(checked ? t("thirdAi.enabled") : t("thirdAi.disabled"));
     } else {
-      message.error(res.error?.message ?? "操作失败");
+      message.error(res.error?.message ?? t("thirdAi.opFail"));
     }
   };
 
@@ -121,9 +122,9 @@ const ThirdPartyAiPage: React.FC = () => {
     const res = await aiPlatformApi.deleteModel(record.id);
     if (res.success) {
       setProviders((prev) => prev.filter((p) => p.id !== record.id));
-      message.success("已移除");
+      message.success(t("thirdAi.removed"));
     } else {
-      message.error(res.error?.message ?? "移除失败");
+      message.error(res.error?.message ?? t("thirdAi.removeFail"));
     }
   };
 
@@ -137,11 +138,11 @@ const ThirdPartyAiPage: React.FC = () => {
       if (res.success && res.data) {
         setTestResult(res.data);
       } else {
-        setTestError(res.error?.message ?? "测试失败");
+        setTestError(res.error?.message ?? t("thirdAi.testFail"));
         setTestResult(null);
       }
     } catch (e) {
-      setTestError((e as Error)?.message ?? "测试请求失败");
+      setTestError((e as Error)?.message ?? t("thirdAi.testRequestFail"));
       setTestResult(null);
     } finally {
       setTestBusyId(null);
@@ -164,9 +165,9 @@ const ThirdPartyAiPage: React.FC = () => {
         setProviders((prev) => [res.data!, ...prev]);
         setAddOpen(false);
         form.resetFields();
-        message.success("已添加");
+        message.success(t("thirdAi.added"));
       } else {
-        message.error(res.error?.message ?? "添加失败");
+        message.error(res.error?.message ?? t("thirdAi.addFail"));
       }
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
@@ -175,7 +176,7 @@ const ThirdPartyAiPage: React.FC = () => {
 
   const columns = [
     {
-      title: "名称",
+      title: t("thirdAi.col.name"),
       dataIndex: "name",
       key: "name",
       render: (v: string) => (
@@ -186,16 +187,16 @@ const ThirdPartyAiPage: React.FC = () => {
       ),
     },
     {
-      title: "类型",
+      title: t("thirdAi.col.type"),
       dataIndex: "type",
       key: "type",
       render: (v: string) => (
         <Tag color={typeColor[v]}>{typeLabel[v] || v}</Tag>
       ),
     },
-    { title: "模型", dataIndex: "version", key: "version" },
+    { title: t("thirdAi.col.model"), dataIndex: "version", key: "version" },
     {
-      title: "状态",
+      title: t("thirdAi.col.status"),
       dataIndex: "status",
       key: "status",
       render: (v: string) => (
@@ -206,14 +207,14 @@ const ThirdPartyAiPage: React.FC = () => {
       ),
     },
     {
-      title: "准确率",
+      title: t("thirdAi.col.accuracy"),
       dataIndex: "accuracy",
       key: "accuracy",
       render: (v?: number) =>
         (v ?? 0) > 0 ? `${((v ?? 0) * 100).toFixed(0)}%` : "-",
     },
     {
-      title: "启用",
+      title: t("thirdAi.col.enabled"),
       dataIndex: "status",
       key: "enabled",
       render: (v: string, r: AiPlatformModel) => (
@@ -225,12 +226,12 @@ const ThirdPartyAiPage: React.FC = () => {
       ),
     },
     {
-      title: "操作",
+      title: t("thirdAi.col.action"),
       key: "action",
       render: (_: unknown, r: AiPlatformModel) => (
         <Space>
           <Button size="small" type="primary" onClick={() => setDetail(r)}>
-            详情
+            {t("thirdAi.detail")}
           </Button>
           <Button
             size="small"
@@ -238,7 +239,7 @@ const ThirdPartyAiPage: React.FC = () => {
             loading={testBusyId === r.id}
             onClick={() => void handleTest(r)}
           >
-            测试
+            {t("thirdAi.test")}
           </Button>
           <Button
             size="small"
@@ -246,7 +247,7 @@ const ThirdPartyAiPage: React.FC = () => {
             icon={<Trash2 size={14} />}
             onClick={() => void handleDelete(r)}
           >
-            移除
+            {t("thirdAi.remove")}
           </Button>
         </Space>
       ),
@@ -257,21 +258,21 @@ const ThirdPartyAiPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <Plug size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>第三方 AI 集成</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("thirdAi.title")}</span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
           onClick={() => void load()}
           loading={loading}
         >
-          刷新
+          {t("thirdAi.refresh")}
         </Button>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
             <Statistic
-              title="提供商总数"
+              title={t("thirdAi.statTotal")}
               value={providers.length}
               prefix={<Plug size={16} />}
             />
@@ -280,7 +281,7 @@ const ThirdPartyAiPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="已连接"
+              title={t("thirdAi.statConnected")}
               value={connected}
               styles={{ content: {  color: "#52c41a"  } }}
               prefix={<CheckCircle size={16} />}
@@ -290,7 +291,7 @@ const ThirdPartyAiPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="总请求量"
+              title={t("thirdAi.statRequests")}
               value={totalRequests}
               prefix={<Zap size={16} />}
             />
@@ -299,7 +300,7 @@ const ThirdPartyAiPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="平均准确率"
+              title={t("thirdAi.statAvgAccuracy")}
               value={`${(avgAccuracy * 100).toFixed(1)}%`}
               prefix={<Shield size={16} />}
             />
@@ -313,7 +314,7 @@ const ThirdPartyAiPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-              重试
+              {t("thirdAi.retry")}
             </Button>
           }
         />
@@ -325,7 +326,7 @@ const ThirdPartyAiPage: React.FC = () => {
             icon={<Plus size={14} />}
             onClick={() => setAddOpen(true)}
           >
-            添加提供商
+            {t("thirdAi.addProvider")}
           </Button>
         }
       >
@@ -341,30 +342,30 @@ const ThirdPartyAiPage: React.FC = () => {
         </Spin>
       </Card>
       <Modal
-        title="添加第三方 AI 提供商"
+        title={t("thirdAi.addModal")}
         open={addOpen}
         onOk={handleAdd}
         onCancel={() => setAddOpen(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="名称" rules={[{ required: true }]}>
+          <Form.Item name="name" label={t("thirdAi.form.name")} rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="type" label="类型" rules={[{ required: true }]}>
+          <Form.Item name="type" label={t("thirdAi.form.type")} rules={[{ required: true }]}>
             <Select
               options={[
-                { value: "diagnosis", label: "诊断" },
-                { value: "segmentation", label: "分割" },
-                { value: "detection", label: "检测" },
-                { value: "classification", label: "分类" },
-                { value: "nlp", label: "NLP" },
+                { value: "diagnosis", label: t("thirdAi.type.diagnosis") },
+                { value: "segmentation", label: t("thirdAi.type.segmentation") },
+                { value: "detection", label: t("thirdAi.type.detection") },
+                { value: "classification", label: t("thirdAi.type.classification") },
+                { value: "nlp", label: t("thirdAi.type.nlp") },
               ]}
             />
           </Form.Item>
-          <Form.Item name="endpoint" label="端点" rules={[{ required: true }]}>
+          <Form.Item name="endpoint" label={t("thirdAi.form.endpoint")} rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="model" label="模型版本">
+          <Form.Item name="model" label={t("thirdAi.form.modelVersion")}>
             <Input placeholder="1.0" />
           </Form.Item>
         </Form>
@@ -377,28 +378,28 @@ const ThirdPartyAiPage: React.FC = () => {
       >
         {detail && (
           <Descriptions column={1} size="small" bordered>
-            <Descriptions.Item label="名称">{detail.name}</Descriptions.Item>
-            <Descriptions.Item label="类型">
+            <Descriptions.Item label={t("thirdAi.form.name")}>{detail.name}</Descriptions.Item>
+            <Descriptions.Item label={t("thirdAi.form.type")}>
               {typeLabel[detail.type] || detail.type}
             </Descriptions.Item>
-            <Descriptions.Item label="模型版本">
+            <Descriptions.Item label={t("thirdAi.form.modelVersion")}>
               {detail.version}
             </Descriptions.Item>
-            <Descriptions.Item label="端点">
+            <Descriptions.Item label={t("thirdAi.form.endpoint")}>
               {detail.endpoint}
             </Descriptions.Item>
-            <Descriptions.Item label="状态">
+            <Descriptions.Item label={t("thirdAi.descriptions.status")}>
               {statusLabel[detail.status] || detail.status}
             </Descriptions.Item>
-            <Descriptions.Item label="准确率">
+            <Descriptions.Item label={t("thirdAi.descriptions.accuracy")}>
               {detail.accuracy != null
                 ? `${(detail.accuracy * 100).toFixed(0)}%`
                 : "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="创建时间">
+            <Descriptions.Item label={t("thirdAi.descriptions.createdAt")}>
               {detail.createdAt}
             </Descriptions.Item>
-            <Descriptions.Item label="描述">
+            <Descriptions.Item label={t("thirdAi.descriptions.description")}>
               {detail.description || "-"}
             </Descriptions.Item>
           </Descriptions>
@@ -415,7 +416,7 @@ const ThirdPartyAiPage: React.FC = () => {
             type="error"
             showIcon
             style={{ marginBottom: 12 }}
-            title="测试失败（回退标注）"
+            title={t("thirdAi.testFailFallback")}
             description={testError}
           />
         )}
@@ -428,13 +429,13 @@ const ThirdPartyAiPage: React.FC = () => {
               description={`端点: ${testResult.endpoint ?? "-"}`}
             />
             <Descriptions column={1} size="small" bordered>
-              <Descriptions.Item label="连通状态">
-                <Badge status={testResult.reachable ? "success" : "error"} text={testResult.reachable ? "正常" : "超时"} />
+              <Descriptions.Item label={t("thirdAi.connectStatus")}>
+                <Badge status={testResult.reachable ? "success" : "error"} text={testResult.reachable ? t("thirdAi.normal") : t("thirdAi.timeout")} />
               </Descriptions.Item>
-              <Descriptions.Item label="延迟">{testResult.latencyMs} ms</Descriptions.Item>
-              <Descriptions.Item label="超时阈值">{testResult.timeoutMs} ms</Descriptions.Item>
-              <Descriptions.Item label="测试时间">{testResult.testedAt}</Descriptions.Item>
-              <Descriptions.Item label="输出预览">
+              <Descriptions.Item label={t("thirdAi.latency")}>{testResult.latencyMs} ms</Descriptions.Item>
+              <Descriptions.Item label={t("thirdAi.timeoutThreshold")}>{testResult.timeoutMs} ms</Descriptions.Item>
+              <Descriptions.Item label={t("thirdAi.testedAt")}>{testResult.testedAt}</Descriptions.Item>
+              <Descriptions.Item label={t("thirdAi.outputPreview")}>
                 <div style={{ fontFamily: "monospace", fontSize: 12, background: "var(--bg-primary)", padding: "8px 12px", borderRadius: 6 }}>
                   {JSON.stringify({ id: testResult.id, reachable: testResult.reachable, status: testResult.status, latencyMs: testResult.latencyMs }, null, 2)}
                 </div>

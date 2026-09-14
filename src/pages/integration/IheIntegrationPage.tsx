@@ -9,6 +9,7 @@ import {
 } from 'antd';
 import { Globe, Activity, RefreshCw, ArrowLeftRight, Server, Network, Database, FileSearch, IdCard, CalendarRange } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const IheIntegrationPage: React.FC = () => {
   const [status, setStatus] = useState<IheStatus | null>(null);
@@ -28,9 +29,9 @@ const IheIntegrationPage: React.FC = () => {
     try {
       const res = await iheApi.getStatus();
       if (res.success && res.data) setStatus(res.data);
-      else setError(res.error?.message ?? '获取 IHE 状态失败');
+      else setError(res.error?.message ?? t('iheInt.statusFailed'));
     } catch (e) {
-      setError(e instanceof Error ? e.message : '获取 IHE 状态失败');
+      setError(e instanceof Error ? e.message : t('iheInt.statusFailed'));
     } finally {
       setLoading(false);
     }
@@ -39,24 +40,24 @@ const IheIntegrationPage: React.FC = () => {
   useEffect(() => { void fetchStatus() }, [fetchStatus]);
 
   const handlePixQuery = async () => {
-    if (!patientId.trim()) { message.warning('请输入患者 ID'); return }
+    if (!patientId.trim()) { message.warning(t('iheInt.enterPatientId')); return }
     const res = await iheApi.pixQuery({ patientId: patientId.trim(), sourceDomain: status?.affinityDomain.assigningAuthorityId ?? 'HOSP', targetDomains: ['OTHER-HOSP', 'CDC'] });
     if (res.success) {
       const hits = (res.data as { results?: Array<{ patientId: string; assigningAuthority: string }> }).results ?? [];
-      setPixResult(hits.length > 0 ? hits.map((h) => `${h.patientId} @ ${h.assigningAuthority}`).join('\n') : '未找到交叉引用记录');
+      setPixResult(hits.length > 0 ? hits.map((h) => `${h.patientId} @ ${h.assigningAuthority}`).join('\n') : t('iheInt.noCrossReference'));
     } else {
-      setPixResult('查询失败: ' + (res.error?.message ?? ''));
+      setPixResult(`${t('iheInt.queryFailed')}: ` + (res.error?.message ?? ''));
     }
   };
 
   const handlePdqQuery = async () => {
-    if (!patientId.trim()) { message.warning('请输入患者 ID'); return }
+    if (!patientId.trim()) { message.warning(t('iheInt.enterPatientId')); return }
     const res = await iheApi.pdqQuery({ patientId: patientId.trim(), limit: 5 });
     if (res.success) {
       const results = (res.data as { results?: Array<{ patientId: string; name: { family: string; given: string[] }; confidence: number }> }).results ?? [];
-      setPixResult(results.length > 0 ? results.map((r) => `${r.name.family}${r.name.given.join('')} · ${r.patientId} · 置信度 ${(r.confidence * 100).toFixed(0)}%`).join('\n') : '未找到患者记录');
+      setPixResult(results.length > 0 ? results.map((r) => `${r.name.family}${r.name.given.join('')} · ${r.patientId} · ${t('iheInt.confidence')} ${(r.confidence * 100).toFixed(0)}%`).join('\n') : t('iheInt.noPatientRecord'));
     } else {
-      setPixResult('查询失败: ' + (res.error?.message ?? ''));
+      setPixResult(`${t('iheInt.queryFailed')}: ` + (res.error?.message ?? ''));
     }
   };
 
@@ -69,37 +70,37 @@ const IheIntegrationPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Globe size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 集成引擎</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheInt.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         <Tag color="geekblue">{status?.profile ?? 'PIX · PDQ · PAM'}</Tag>
         {loading && <Spin size="small" />}
       </Space>
 
       {error && (
-        <Alert type="error" showIcon message="状态加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void fetchStatus()}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="error" showIcon message={t('iheInt.statusFailedTitle')} description={error} style={{ marginBottom: 16 }}
+          action={<Button size="small" onClick={() => void fetchStatus()}><RefreshCw size={14} /> {t('iheInt.retry')}</Button>} />
       )}
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title="PIX 记录" value={pixCount} prefix={<IdCard size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title="PDQ 缓存" value={pdqCount} prefix={<FileSearch size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title="PAM 日志条目" value={status?.metrics.pamLogSize ?? 0} prefix={<CalendarRange size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title="支持事务" value={transactions.length} prefix={<Activity size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statPixRecords')} value={pixCount} prefix={<IdCard size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statPdqCache')} value={pdqCount} prefix={<FileSearch size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statPamLog')} value={status?.metrics.pamLogSize ?? 0} prefix={<CalendarRange size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statTransactions')} value={transactions.length} prefix={<Activity size={14} />} /></Card></Col>
       </Row>
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={10}>
           <Card
             size="small"
-            title={<Space><Server size={14} />归属域</Space>}
-            extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchStatus()} loading={loading}>刷新</Button>}
+            title={<Space><Server size={14} />{t('iheInt.affinityDomain')}</Space>}
+            extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchStatus()} loading={loading}>{t('iheInt.refresh')}</Button>}
             style={{ marginBottom: 16 }}
           >
             {loading ? <Spin /> : domain ? (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                <div><Tag color="blue">名称</Tag> {domain.name} {domain.nameEn ? <span style={{ color: '#64748b' }}>({domain.nameEn})</span> : null}</div>
-                <div><Tag>家庭社区 ID</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.homeCommunityId}</code></div>
-                <div><Tag>主索引机构 (Assigning Authority)</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.assigningAuthorityId}</code></div>
+                <div><Tag color="blue">{t('iheInt.name')}</Tag> {domain.name} {domain.nameEn ? <span style={{ color: '#64748b' }}>({domain.nameEn})</span> : null}</div>
+                <div><Tag>{t('iheInt.homeCommunityId')}</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.homeCommunityId}</code></div>
+                <div><Tag>{t('iheInt.assigningAuthority')}</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.assigningAuthorityId}</code></div>
                 <Divider style={{ margin: '4px 0' }} />
                 <Space size={4} wrap>
                   {domain.pixManagerEndpoint && <Tag icon={<Network size={10} />} color="purple">PIX: {domain.pixManagerEndpoint}</Tag>}
@@ -108,14 +109,14 @@ const IheIntegrationPage: React.FC = () => {
                 </Space>
               </Space>
             ) : (
-              <Tag color="default">暂无数据</Tag>
+              <Tag color="default">{t('iheInt.noData')}</Tag>
             )}
           </Card>
 
-          <Card size="small" title={<Space><Database size={14} />配置与联调入口</Space>}>
+          <Card size="small" title={<Space><Database size={14} />{t('iheInt.configEntry')}</Space>}>
             <Space direction="vertical" size={8} style={{ width: '100%' }}>
-              <Button block icon={<IdCard size={14} />} onClick={() => { setPixModal(true); setPixResult('') }}>PIX 患者索引查询</Button>
-              <Button block icon={<FileSearch size={14} />} onClick={() => { setPdqModal(true); setPixResult('') }}>PDQ 患者人口学查询</Button>
+              <Button block icon={<IdCard size={14} />} onClick={() => { setPixModal(true); setPixResult('') }}>{t('iheInt.pixQueryBtn')}</Button>
+              <Button block icon={<FileSearch size={14} />} onClick={() => { setPdqModal(true); setPixResult('') }}>{t('iheInt.pdqQueryBtn')}</Button>
               <Button block icon={<ArrowLeftRight size={14} />} onClick={async () => {
                 try {
                   const res = await iheApi.pixUpdateNotification({
@@ -123,19 +124,19 @@ const IheIntegrationPage: React.FC = () => {
                     identifiers: [{ domain: 'HOSP', value: 'PAT-10086', assigningAuthority: 'HOSP' }],
                     name: { family: '测试', given: ['患者'] }, birthDate: '1990-01-01', gender: 'U',
                   });
-                  if (res.success) message.success(`PIX 增量更新通知已发送 (${res.data?.messageId ?? ''})`);
-                  else message.warning(`PIX 增量更新通知未送达(模拟): ${res.error?.message ?? ''}`);
+                  if (res.success) message.success(`${t('iheInt.pixUpdateSent')} (${res.data?.messageId ?? ''})`);
+                  else message.warning(`${t('iheInt.pixUpdateUndelivered')}: ${res.error?.message ?? ''}`);
                 } catch (e) {
-                  message.warning('PIX 增量更新通知未送达(模拟): ' + (e instanceof Error ? e.message : String(e)));
+                  message.warning(`${t('iheInt.pixUpdateUndelivered')}: ` + (e instanceof Error ? e.message : String(e)));
                 }
-              }}>PIX 增量更新通知</Button>
-              <Button block icon={<CalendarRange size={14} />} onClick={() => setPamModal(true)}>PAM 就诊管理文档</Button>
+              }}>{t('iheInt.pixUpdateBtn')}</Button>
+              <Button block icon={<CalendarRange size={14} />} onClick={() => setPamModal(true)}>{t('iheInt.pamDocBtn')}</Button>
             </Space>
           </Card>
         </Col>
 
         <Col xs={24} lg={14}>
-          <Card size="small" title={<Space><ArrowLeftRight size={14} />支持的 IHE 事务</Space>}>
+          <Card size="small" title={<Space><ArrowLeftRight size={14} />{t('iheInt.supportedTxns')}</Space>}>
             {loading ? (
               <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div>
             ) : (
@@ -143,11 +144,11 @@ const IheIntegrationPage: React.FC = () => {
                 dataSource={transactions.map((t, i) => ({ key: i, transaction: t }))}
                 rowKey="key" pagination={false} size="small"
                 columns={[
-                  { title: '事务', dataIndex: 'transaction', render: (t: string) => <Tag color="blue">{t}</Tag> },
-                  { title: '标准', render: (_, r) => <Tag color="purple">{TRANSACTION_STANDARD[r.transaction as string] ?? 'HL7 v2.x'}</Tag> },
-                  { title: '说明', render: (_, r) => <span style={{ fontSize: 12, color: '#64748b' }}>{TRANSACTION_DESC[r.transaction as string] ?? 'IHE 集成事务'}</span> },
-                  { title: '状态', render: () => <Tag color="green">已启用</Tag> },
-                  { title: '操作', render: (_, r) => <Button size="small" onClick={() => setDetailTxn(r.transaction as string)}>查看详情</Button> },
+                  { title: t('iheInt.colTransaction'), dataIndex: 'transaction', render: (v: string) => <Tag color="blue">{v}</Tag> },
+                  { title: t('iheInt.colStandard'), render: (_, r) => <Tag color="purple">{TRANSACTION_STANDARD[r.transaction as string] ?? 'HL7 v2.x'}</Tag> },
+                  { title: t('iheInt.colDescription'), render: (_, r) => <span style={{ fontSize: 12, color: '#64748b' }}>{txnDesc(r.transaction as string)}</span> },
+                  { title: t('iheInt.colStatus'), render: () => <Tag color="green">{t('iheInt.enabled')}</Tag> },
+                  { title: t('iheInt.colActions'), render: (_, r) => <Button size="small" onClick={() => setDetailTxn(r.transaction as string)}>{t('iheInt.viewDetail')}</Button> },
                 ]}
               scroll={{ x: 'max-content' }} />
             )}
@@ -155,51 +156,51 @@ const IheIntegrationPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Modal title="PIX 患者索引查询" open={pixModal} onCancel={() => setPixModal(false)} footer={null} width={460}>
+      <Modal title={t('iheInt.pixQueryBtn')} open={pixModal} onCancel={() => setPixModal(false)} footer={null} width={460}>
         <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 12 }}>
           <Input.Search
-            placeholder="输入患者 ID (本地域)"
-            enterButton="查询"
+            placeholder={t('iheInt.pixPlaceholder')}
+            enterButton={t('iheInt.query')}
             onSearch={handlePixQuery}
             value={patientId}
             onChange={(e) => setPatientId(e.target.value)}
           />
-          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || '查询结果将在此显示'}</pre>
+          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || t('iheInt.resultPlaceholder')}</pre>
         </Space>
       </Modal>
 
-      <Modal title="PDQ 患者人口学查询" open={pdqModal} onCancel={() => setPdqModal(false)} footer={null} width={460}>
+      <Modal title={t('iheInt.pdqQueryBtn')} open={pdqModal} onCancel={() => setPdqModal(false)} footer={null} width={460}>
         <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 12 }}>
           <Input.Search
-            placeholder="输入患者 ID 或姓名"
-            enterButton="查询"
+            placeholder={t('iheInt.pdqPlaceholder')}
+            enterButton={t('iheInt.query')}
             onSearch={handlePdqQuery}
             value={patientId}
             onChange={(e) => setPatientId(e.target.value)}
           />
-          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || '查询结果将在此显示'}</pre>
+          <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || t('iheInt.resultPlaceholder')}</pre>
         </Space>
       </Modal>
 
-      <Modal title={`事务详情 - ${detailTxn ?? ''}`} open={!!detailTxn} onCancel={() => setDetailTxn(null)} footer={<Button type="primary" onClick={() => setDetailTxn(null)}>关闭</Button>} width={480}>
+      <Modal title={`${t('iheInt.txnDetailTitle')} - ${detailTxn ?? ''}`} open={!!detailTxn} onCancel={() => setDetailTxn(null)} footer={<Button type="primary" onClick={() => setDetailTxn(null)}>{t('iheInt.close')}</Button>} width={480}>
         {detailTxn && (
           <Descriptions bordered column={1} size="small" style={{ marginTop: 12 }}>
-            <Descriptions.Item label="事务名称">{detailTxn}</Descriptions.Item>
-            <Descriptions.Item label="标准">{TRANSACTION_STANDARD[detailTxn] ?? 'HL7 v2.x'}</Descriptions.Item>
-            <Descriptions.Item label="说明">{TRANSACTION_DESC[detailTxn] ?? 'IHE 集成事务'}</Descriptions.Item>
-            <Descriptions.Item label="状态"><Tag color="green">已启用</Tag></Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.txnName')}>{detailTxn}</Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.colStandard')}>{TRANSACTION_STANDARD[detailTxn] ?? 'HL7 v2.x'}</Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.colDescription')}>{txnDesc(detailTxn)}</Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.colStatus')}><Tag color="green">{t('iheInt.enabled')}</Tag></Descriptions.Item>
           </Descriptions>
         )}
       </Modal>
 
-      <Modal title="PAM 就诊管理" open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>关闭</Button>} width={520}>
+      <Modal title={t('iheInt.pamTitle')} open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>{t('iheInt.close')}</Button>} width={520}>
         <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 8 }}>
-          <Alert type="info" showIcon message="PAM 就诊状态消息由 HL7 ADT (A01 入院 / A03 出院 / A04 登记 / A08 信息更新) 驱动" />
+          <Alert type="info" showIcon message={t('iheInt.pamAlert')} />
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="PAM 事务">PAM 消息 (ADT^A01/A04) · PAM 查询 (ADT^Q22)</Descriptions.Item>
-            <Descriptions.Item label="消息来源">HIS / EMR 通过 HL7 网关 (mllp://localhost:2575) 推送</Descriptions.Item>
-            <Descriptions.Item label="PAM 日志条目">{status?.metrics.pamLogSize ?? 0}</Descriptions.Item>
-            <Descriptions.Item label="当前配置">就诊状态变更实时同步至 PACS 工作列表与危急值接收端</Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.pamTxn')}>{t('iheInt.pamTxnValue')}</Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.messageSource')}>{t('iheInt.messageSourceValue')}</Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.pamLogEntries')}>{status?.metrics.pamLogSize ?? 0}</Descriptions.Item>
+            <Descriptions.Item label={t('iheInt.currentConfig')}>{t('iheInt.pamConfigDesc')}</Descriptions.Item>
           </Descriptions>
         </Space>
       </Modal>
@@ -208,13 +209,14 @@ const IheIntegrationPage: React.FC = () => {
 };
 
 const TRANSACTION_DESC: Record<string, string> = {
-  'PIX Feed': '患者标识交叉引用注册',
-  'PIX Query': '跨域患者标识查询',
-  'PDQ Query': '患者人口学数据查询',
-  'PAM Message': '就诊通知管理',
-  'PAM Query': '就诊状态查询',
-  'ATNA Audit': '审计追踪节点访问',
+  'PIX Feed': 'iheInt.txnPixFeed',
+  'PIX Query': 'iheInt.txnPixQuery',
+  'PDQ Query': 'iheInt.txnPdqQuery',
+  'PAM Message': 'iheInt.txnPamMessage',
+  'PAM Query': 'iheInt.txnPamQuery',
+  'ATNA Audit': 'iheInt.txnAtnaAudit',
 };
+const txnDesc = (k: string) => TRANSACTION_DESC[k] ? t(TRANSACTION_DESC[k]) : t('iheInt.txnDescFallback');
 
 const TRANSACTION_STANDARD: Record<string, string> = {
   'PIX Feed': 'IHE ITI-8 / HL7 v2.x',

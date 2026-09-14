@@ -4,6 +4,7 @@ import { dentalApi } from '@/services/api/dentalApi';
 import { Card, Tag, Button, Row, Col, Statistic, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge } from 'antd';
 import { Plus, RefreshCw, CheckCircle2, Eye } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
@@ -16,7 +17,7 @@ const STATUS_META: Record<string, { color: string; label: string }> = {
   pending: { color: 'orange', label: '待种植' },
 };
 
-const TYPE_OPTIONS = ['单颗种植', '多颗种植', '全口种植', '即刻种植'].map(t => ({ value: t, label: t }));
+const TYPE_OPTIONS = ['单颗种植', '多颗种植', '全口种植', '即刻种植'].map(item => ({ value: item, label: item }));
 
 export const DentalImplantPlanPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
@@ -36,11 +37,11 @@ export const DentalImplantPlanPage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setPlans(res.data as any[]);
       } else {
-        setError(res.error?.message ?? '种植计划加载失败');
+        setError(res.error?.message ?? t('dentalImplantPlan.errLoad'));
       }
     } catch (e) {
       console.error('[ImplantPlan] load:', e);
-      setError('种植计划加载失败');
+      setError(t('dentalImplantPlan.errLoad'));
     } finally {
       setLoading(false);
     }
@@ -63,16 +64,16 @@ export const DentalImplantPlanPage: React.FC = () => {
         status: 'planning',
       });
       if (res.success) {
-        message.success('种植计划已创建');
+        message.success(t('dentalImplantPlan.created'));
         setCreateModal(false);
         form.resetFields();
         void load();
       } else {
-        message.error(res.error?.message ?? '创建失败');
+        message.error(res.error?.message ?? t('dentalImplantPlan.createFailed'));
       }
     } catch (e) {
       if (e instanceof Error && e.message) message.error(e.message);
-      else message.error('创建失败');
+      else message.error(t('dentalImplantPlan.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -81,19 +82,19 @@ export const DentalImplantPlanPage: React.FC = () => {
   const handleValidate = async (plan: any) => {
     const res = await dentalApi.validateImplantPlan(plan.id);
     if (res.success) {
-      message.success(res.data?.valid ? '验证通过: 无碰撞, 距神经管安全' : '验证未通过, 请调整规划');
+      message.success(res.data?.valid ? t('dentalImplantPlan.validatePass') : t('dentalImplantPlan.validateFail'));
     } else {
-      message.error(res.error?.message ?? '验证失败');
+      message.error(res.error?.message ?? t('dentalImplantPlan.errValidate'));
     }
   };
 
   const handleApprove = async (plan: any) => {
     const res = await dentalApi.approveImplantPlan(plan.id);
     if (res.success) {
-      message.success('计划已批准, 可进入手术实施');
+      message.success(t('dentalImplantPlan.approved'));
       void load();
     } else {
-      message.error(res.error?.message ?? '批准失败');
+      message.error(res.error?.message ?? t('dentalImplantPlan.errApprove'));
     }
   };
 
@@ -101,44 +102,44 @@ export const DentalImplantPlanPage: React.FC = () => {
   const totalCost = display.reduce((s, p) => s + (p.cost || 0), 0);
 
   return (
-    <DentalPageLayout header={{ title: '种植规划', tags: [<Tag key='b' color='blue'>Straumann/Nobel 对标</Tag>, <Tag key='s' color='green'>4 大品牌 / 12 型号</Tag>] }}>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
+    <DentalPageLayout header={{ title: t('dentalImplantPlan.title'), tags: [<Tag key='b' color='blue'>{t('dentalImplantPlan.tagBenchmark')}</Tag>, <Tag key='s' color='green'>{t('dentalImplantPlan.tagBrands')}</Tag>] }}>
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalImplantPlan.retry')}</Button>} />}
       <Row gutter={12} style={{ marginBottom: 12 }}>
-        <Col span={6}><Card size="small"><Statistic title="规划总数" value={display.length} prefix={<Plus size={12} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="待种植" value={display.filter(p => p.status === 'pending' || p.status === 'planning').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已批准/实施" value={display.filter(p => p.status === 'approved' || p.status === 'implementing').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="累计费用" value={(totalCost / 10000).toFixed(1)} suffix="万" styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statTotal')} value={display.length} prefix={<Plus size={12} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statPending')} value={display.filter(p => p.status === 'pending' || p.status === 'planning').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statApproved')} value={display.filter(p => p.status === 'approved' || p.status === 'implementing').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statCost')} value={(totalCost / 10000).toFixed(1)} suffix="万" styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
       <Row gutter={16}>
         <Col span={16}>
           <Card
             size="small"
-            title={<Space>种植规划列表 <Badge count={display.length} size="small" /></Space>}
-            extra={<Space><Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /><Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>新建规划</Button></Space>}
+            title={<Space>{t('dentalImplantPlan.planList')} <Badge count={display.length} size="small" /></Space>}
+            extra={<Space><Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /><Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('dentalImplantPlan.newPlan')}</Button></Space>}
           >
             <Spin spinning={loading}>
               <List
                 dataSource={display}
-                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无种植规划" /> }}
-                renderItem={(t: any) => {
-                  const meta = STATUS_META[t.status] ?? { color: 'default', label: t.status ?? '未知' };
+                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalImplantPlan.noPlans')} /> }}
+                renderItem={(item: any) => {
+                  const meta = STATUS_META[item.status] ?? { color: 'default', label: item.status ?? t('dentalImplantPlan.unknown') };
                   return (
                     <List.Item
                       actions={[
-                        <Button key='v' size="small" icon={<Eye size={12} />} onClick={() => { setDetail(t); setDetailModal(true); }}>查看</Button>,
-                        (t.status === 'planning' || t.status === 'pending') && (
-                          <Button key='a' size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => void handleValidate(t)}>验证</Button>
+                        <Button key='v' size="small" icon={<Eye size={12} />} onClick={() => { setDetail(item); setDetailModal(true); }}>{t('dentalImplantPlan.view')}</Button>,
+                        (item.status === 'planning' || item.status === 'pending') && (
+                          <Button key='a' size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => void handleValidate(item)}>{t('dentalImplantPlan.validate')}</Button>
                         ),
-                        t.status === 'planning' && (
-                          <Popconfirm key='p' title="批准该计划?" onConfirm={() => void handleApprove(t)}>
-                            <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />}>批准</Button>
+                        item.status === 'planning' && (
+                          <Popconfirm key='p' title={t('dentalImplantPlan.confirmApprove')} onConfirm={() => void handleApprove(item)}>
+                            <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />}>{t('dentalImplantPlan.approve')}</Button>
                           </Popconfirm>
                         ),
                       ].filter(Boolean)}
                     >
                       <List.Item.Meta
-                        title={<span><Tag color='blue'>FDI {t.toothNo}</Tag>{t.patientName} - {t.type} <Tag color={meta.color}>{meta.label}</Tag></span>}
-                        description={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.diagnosis || '-'} | {t.plan || '-'} | 门诊¥{t.cost ?? 0} | {t.entryPoint ? `植入位点 (${t.entryPoint.x}, ${t.entryPoint.y}, ${t.entryPoint.z})` : ''}</span>}
+                        title={<span><Tag color='blue'>FDI {item.toothNo}</Tag>{item.patientName} - {item.type} <Tag color={meta.color}>{meta.label}</Tag></span>}
+                        description={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.diagnosis || '-'} | {item.plan || '-'} | {t('dentalImplantPlan.outpatientFee')}{item.cost ?? 0} | {item.entryPoint ? `植入位点 (${item.entryPoint.x}, ${item.entryPoint.y}, ${item.entryPoint.z})` : ''}</span>}
                       />
                     </List.Item>
                   );
@@ -148,7 +149,7 @@ export const DentalImplantPlanPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="种植体库 (4 品牌 12 型号)">
+          <Card size="small" title={t('dentalImplantPlan.implantLibrary')}>
             {[{ name: 'Straumann BLT', tag: 'RC', desc: '4.1×8/10/12mm · 4.8×10/12mm' }, { name: 'Nobel Active', tag: 'NP', desc: '3.5×10/13mm · 4.3×10/13mm' }, { name: 'Nobel CC', tag: 'RP', desc: '3.5×8/10mm · 4.3×10/12mm' }, { name: 'Straumann BLX', tag: 'RB', desc: '3.75×8/10/12/14mm · 4.5×10/12mm' }].map((b, i) => (
               <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><b>{b.name}</b><Tag color={['blue', 'purple', 'cyan', 'green'][i]}>{b.tag}</Tag></div>
@@ -156,61 +157,61 @@ export const DentalImplantPlanPage: React.FC = () => {
               </div>
             ))}
           </Card>
-          <Card size="small" title="骨量分析 (248 案例)" style={{ marginTop: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>A 类骨 (D1/D2)</span><Tag color='green'>42%</Tag></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>B 类骨 (D3)</span><Tag color='blue'>38%</Tag></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>C 类骨 (D4)</span><Tag color='orange'>20%</Tag></div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>基于术后随访数据 · 1 年成功率 98.5%</div>
+          <Card size="small" title={t('dentalImplantPlan.boneAnalysis')} style={{ marginTop: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t('dentalImplantPlan.boneTypeA')}</span><Tag color='green'>42%</Tag></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t('dentalImplantPlan.boneTypeB')}</span><Tag color='blue'>38%</Tag></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t('dentalImplantPlan.boneTypeC')}</span><Tag color='orange'>20%</Tag></div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>{t('dentalImplantPlan.boneNote')}</div>
           </Card>
         </Col>
       </Row>
 
-      <Modal title="新建种植规划" open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={480}>
+      <Modal title={t('dentalImplantPlan.newPlanModal')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={480}>
         <Form form={form} layout="vertical" size="small" initialValues={{ type: '单颗种植', toothNo: 36 }}>
-          <Form.Item label="患者姓名" name="patientName" rules={[{ required: true, message: '请输入患者姓名' }]}>
-            <Input placeholder="患者姓名" />
+          <Form.Item label={t('dentalImplantPlan.patientName')} name="patientName" rules={[{ required: true, message: t('dentalImplantPlan.enterPatientName') }]}>
+            <Input placeholder={t('dentalImplantPlan.patientName')} />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item label="牙位 (FDI)" name="toothNo" rules={[{ required: true, message: '请输入牙位' }]}>
+              <Form.Item label={t('dentalImplantPlan.toothNoFdi')} name="toothNo" rules={[{ required: true, message: t('dentalImplantPlan.enterToothNo') }]}>
                 <InputNumber min={1} max={48} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="治疗类型" name="type">
+              <Form.Item label={t('dentalImplantPlan.treatmentType')} name="type">
                 <Select options={TYPE_OPTIONS} />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item label="诊断" name="diagnosis">
-            <Input placeholder="如: 36 位缺牙" />
+          <Form.Item label={t('dentalImplantPlan.diagnosis')} name="diagnosis">
+            <Input placeholder={t('dentalImplantPlan.diagnosisPlaceholder')} />
           </Form.Item>
-          <Form.Item label="方案" name="plan">
-            <TextArea rows={2} placeholder="如: Straumann BLT 4.1×10mm 植入" />
+          <Form.Item label={t('dentalImplantPlan.plan')} name="plan">
+            <TextArea rows={2} placeholder={t('dentalImplantPlan.planPlaceholder')} />
           </Form.Item>
-          <Form.Item label="费用 (元)" name="cost">
+          <Form.Item label={t('dentalImplantPlan.cost')} name="cost">
             <InputNumber min={0} step={100} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title={`种植计划详情 - ${detail?.id ?? ''}`} open={detailModal} onCancel={() => setDetailModal(false)} footer={null} width={560}>
+      <Modal title={`${t('dentalImplantPlan.detailTitle')} - ${detail?.id ?? ''}`} open={detailModal} onCancel={() => setDetailModal(false)} footer={null} width={560}>
         {detail && (
           <>
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="患者">{detail.patientName}</Descriptions.Item>
-              <Descriptions.Item label="牙位"><Tag color="blue">FDI {detail.toothNo}</Tag></Descriptions.Item>
-              <Descriptions.Item label="类型">{detail.type}</Descriptions.Item>
-              <Descriptions.Item label="状态"><Tag color={STATUS_META[detail.status]?.color ?? 'default'}>{STATUS_META[detail.status]?.label ?? detail.status}</Tag></Descriptions.Item>
-              <Descriptions.Item label="诊断" span={2}>{detail.diagnosis || '-'}</Descriptions.Item>
-              <Descriptions.Item label="方案" span={2}>{detail.plan || '-'}</Descriptions.Item>
-              <Descriptions.Item label="费用">¥{detail.cost ?? 0}</Descriptions.Item>
-              <Descriptions.Item label="距神经管">{detail.distanceToNerve ?? '-'} mm</Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.patient')}>{detail.patientName}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.toothPosition')}><Tag color="blue">FDI {detail.toothNo}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.type')}>{detail.type}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.status')}><Tag color={STATUS_META[detail.status]?.color ?? 'default'}>{STATUS_META[detail.status]?.label ?? detail.status}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.diagnosis')} span={2}>{detail.diagnosis || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.plan')} span={2}>{detail.plan || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.cost')}>¥{detail.cost ?? 0}</Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.distanceToNerve')}>{detail.distanceToNerve ?? '-'} mm</Descriptions.Item>
             </Descriptions>
             <Steps
               size="small"
               current={detail.status === 'planning' ? 0 : detail.status === 'approved' ? 1 : detail.status === 'implementing' ? 2 : 3}
-              items={[{ title: '规划' }, { title: '批准' }, { title: '实施' }, { title: '完成' }]}
+              items={[{ title: t('dentalImplantPlan.stepPlanning') }, { title: t('dentalImplantPlan.stepApproved') }, { title: t('dentalImplantPlan.stepImplementing') }, { title: t('dentalImplantPlan.stepCompleted') }]}
             />
           </>
         )}

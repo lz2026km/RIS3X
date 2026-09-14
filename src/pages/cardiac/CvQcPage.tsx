@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { Shield, CheckCircle2, AlertTriangle, XCircle, BarChart3, ClipboardCheck } from 'lucide-react'
 import { qcextApi } from '../../services/api/qcextApi'
+import { t } from '../../i18n/appI18n'
 
 type QcMetric = {
   label: string
@@ -101,14 +102,14 @@ export default function CvQcPage() {
           setError(null)
         } else if (statsRes.success && statsRes.data) {
           const s = statsRes.data
-          setDashboard({ totalInspected: s.totalReports, passedRate: 100 - (s.defectDistribution?.reduce((a, d) => a + (d.count ?? 0), 0) ?? 0), avgScore: s.avgScore, period: '近期' })
+          setDashboard({ totalInspected: s.totalReports, passedRate: 100 - (s.defectDistribution?.reduce((a, d) => a + (d.count ?? 0), 0) ?? 0), avgScore: s.avgScore, period: t('cvQc.recent') })
           setSource('api')
           setError(null)
         } else {
-          setError(dashRes.error?.message ?? statsRes.error?.message ?? '质控接口不可用')
+          setError(dashRes.error?.message ?? statsRes.error?.message ?? t('cvQc.apiUnavailable'))
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : '质控接口不可用')
+        if (!cancelled) setError(e instanceof Error ? e.message : t('cvQc.apiUnavailable'))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -159,9 +160,9 @@ export default function CvQcPage() {
   return (
     <div style={{ padding: 24 }}>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
-        <Shield size={24} /> CV 质量控制仪表盘
+        <Shield size={24} /> {t('cvQc.title')}
         <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', padding: '2px 8px', borderRadius: 10 }}>
-          {source === 'api' ? '数据源: /qc-ext/dashboard' : '演示数据(接口不可用)'}
+          {source === 'api' ? t('cvQc.dataSourceApi') : t('cvQc.demoData')}
         </span>
       </h1>
 
@@ -169,7 +170,7 @@ export default function CvQcPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24, opacity: loading ? 0.6 : 1 }}>
         <div style={{ padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
-          <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, textTransform: 'uppercase' }}>整体质控通过率</div>
+          <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, textTransform: 'uppercase' }}>{t('cvQc.overallPassRate')}</div>
           <div style={{ fontSize: 28, fontWeight: 'bold', marginTop: 4 }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
           <div style={{ fontSize: 12, color: '#64748b' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
         </div>
@@ -177,23 +178,23 @@ export default function CvQcPage() {
           <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid #1e40af' : '1px solid var(--border-color)', cursor: 'pointer' }}>
             <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{m.modality}</div>
             <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 4 }}>{Math.round(m.metrics.filter(x => x.status !== 'fail').length / m.metrics.length * 100)}%</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{m.metrics.filter(x => x.status === 'pass').length} 通过, {m.metrics.filter(x => x.status === 'fail').length} 失败</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{m.metrics.filter(x => x.status === 'pass').length} {t('cvQc.statusPass')}, {m.metrics.filter(x => x.status === 'fail').length} {t('cvQc.statusFail')}</div>
           </div>
         ))}
       </div>
 
       <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>
-          {MODALITY_QC[activeModality]?.modality ?? ''} — 详细指标
-          <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 8 }}>演示数据</span>
+          {MODALITY_QC[activeModality]?.modality ?? ''} — {t('cvQc.detailMetrics')}
+          <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 8 }}>{t('cvQc.demoDataLabel')}</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-              <th style={{ padding: '10px 16px', textAlign: 'left' }}>指标</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center' }}>当前</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center' }}>目标</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center' }}>状态</th>
+              <th style={{ padding: '10px 16px', textAlign: 'left' }}>{t('cvQc.colMetric')}</th>
+              <th style={{ padding: '10px 16px', textAlign: 'center' }}>{t('cvQc.colCurrent')}</th>
+              <th style={{ padding: '10px 16px', textAlign: 'center' }}>{t('cvQc.colTarget')}</th>
+              <th style={{ padding: '10px 16px', textAlign: 'center' }}>{t('cvQc.colStatus')}</th>
             </tr>
           </thead>
           <tbody>
@@ -209,7 +210,7 @@ export default function CvQcPage() {
                   <td style={{ padding: '10px 16px', textAlign: 'center', color: '#64748b' }}>{m.target}</td>
                   <td style={{ padding: '10px 16px', textAlign: 'center' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
-                      <Icon size={14} /> {m.status === 'pass' ? '通过' : m.status === 'warning' ? '警告' : '失败'}
+                      <Icon size={14} /> {m.status === 'pass' ? t('cvQc.statusPass') : m.status === 'warning' ? t('cvQc.statusWarning') : t('cvQc.statusFail')}
                     </span>
                   </td>
                 </tr>
@@ -221,7 +222,7 @@ export default function CvQcPage() {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
         <button onClick={handleGenerateReport} disabled={generating} style={{ padding: '8px 16px', background: generating ? '#94a3b8' : '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: generating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <BarChart3 size={16} /> {generating ? '生成中...' : '生成质控报告'}
+          <BarChart3 size={16} /> {generating ? t('cvQc.generating') : t('cvQc.generateReport')}
         </button>
       </div>
     </div>

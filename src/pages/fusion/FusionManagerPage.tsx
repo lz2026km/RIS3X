@@ -8,6 +8,7 @@ import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Descript
 import { Layers, Play, Search } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState } from 'react'
+import { t } from '../../i18n/appI18n'
 
 export const FusionManagerPage: React.FC = () => {
   const [patientId, setPatientId] = useState('')
@@ -24,7 +25,7 @@ export const FusionManagerPage: React.FC = () => {
 
   const fetchSeries = async () => {
     if (!patientId.trim()) {
-      message.warning('请输入患者 ID')
+      message.warning(t('fusionMgr.patientRequired'))
       return
     }
     setLoading(true)
@@ -35,7 +36,7 @@ export const FusionManagerPage: React.FC = () => {
         message.success(`加载 ${res.data.series?.length || 0} 组序列`)
       }
     } catch {
-      message.warning('序列加载失败，使用演示数据')
+      message.warning(t('fusionMgr.seriesLoadFail'))
       setSeries([
         { modality: 'CT', seriesDescription: '胸部 CT 平扫', instanceCount: 320 },
         { modality: 'PT', seriesDescription: 'PET 全身显像', instanceCount: 256 },
@@ -47,7 +48,7 @@ export const FusionManagerPage: React.FC = () => {
 
   const handleRegister = async () => {
     if (!fixedSeries || !movingSeries) {
-      message.warning('请选择固定序列和移动序列')
+      message.warning(t('fusionMgr.selectBoth'))
       return
     }
     setRegistering(true)
@@ -59,7 +60,7 @@ export const FusionManagerPage: React.FC = () => {
         message.success(`配准完成: Dice=${res.data.metrics.dice.toFixed(3)}`)
       }
     } catch {
-      message.warning('配准服务不可用，使用演示结果')
+      message.warning(t('fusionMgr.registerUnavailable'))
         setRegistrationResult({
           registrationId: `reg-${Date.now()}`,
           fixedSeriesUid: fixedSeries,
@@ -76,7 +77,7 @@ export const FusionManagerPage: React.FC = () => {
 
   const handleRender = async () => {
     if (!fixedSeries || !movingSeries) {
-      message.warning('请先完成配准')
+      message.warning(t('fusionMgr.registerFirst'))
       return
     }
     setRendering(true)
@@ -90,10 +91,10 @@ export const FusionManagerPage: React.FC = () => {
       })
       if (res.success && res.data) {
         setRenderResult(res.data)
-        message.success('融合渲染完成')
+        message.success(t('fusionMgr.renderDone'))
       }
     } catch {
-      message.warning('融合渲染服务不可用')
+      message.warning(t('fusionMgr.renderUnavailable'))
     }
     setRendering(false)
   }
@@ -102,27 +103,27 @@ export const FusionManagerPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>融合管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fusionMgr.title')}</span>
         <Tag color="blue">PET-CT / MR</Tag>
-        <Tag color="purple">多模态融合</Tag>
+        <Tag color="purple">{t('fusionMgr.tagMultimodal')}</Tag>
       </Space>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space>
           <Input
-            placeholder="输入患者 ID"
+            placeholder={t('fusionMgr.phPatientId')}
             value={patientId}
             onChange={e => setPatientId(e.target.value)}
             style={{ width: 200 }}
             onPressEnter={fetchSeries}
           />
-          <Button type="primary" icon={<Search size={14} />} onClick={fetchSeries} loading={loading}>加载序列</Button>
+          <Button type="primary" icon={<Search size={14} />} onClick={fetchSeries} loading={loading}>{t('fusionMgr.loadSeries')}</Button>
         </Space>
       </Card>
 
       {series.length > 0 && (
         <>
-          <Card size="small" title="可用序列" style={{ marginBottom: 16 }}>
+          <Card size="small" title={t('fusionMgr.availableSeries')} style={{ marginBottom: 16 }}>
             <Table
               dataSource={series}
               rowKey={(_, i) => `${i}`}
@@ -131,57 +132,57 @@ export const FusionManagerPage: React.FC = () => {
               scroll={{ x: 'max-content' }}
               columns={[
                 {
-                  title: '设备类型',
+                  title: t('fusionMgr.col.modality'),
                   dataIndex: 'modality',
                   render: (m: string) => <Tag color={m === 'CT' ? 'blue' : m === 'PT' ? 'orange' : 'green'}>{m}</Tag>,
                 },
-                { title: '描述', dataIndex: 'seriesDescription' },
-                { title: '实例数', dataIndex: 'instanceCount' },
+                { title: t('fusionMgr.col.description'), dataIndex: 'seriesDescription' },
+                { title: t('fusionMgr.col.instances'), dataIndex: 'instanceCount' },
               ]}
             />
           </Card>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <Card size="small" title="序列选择">
+            <Card size="small" title={t('fusionMgr.seriesSelection')}>
               <Form layout="vertical" size="small">
-                <Form.Item label="固定序列 (Fixed)">
-                  <Select placeholder="选择固定序列" value={fixedSeries || undefined} onChange={setFixedSeries}>
+                <Form.Item label={t('fusionMgr.fixedSeries')}>
+                  <Select placeholder={t('fusionMgr.selectFixedPh')} value={fixedSeries || undefined} onChange={setFixedSeries}>
                     {series.map((s, i) => (
                       <Select.Option key={i} value={`series-${i}`}>{s.modality} - {s.seriesDescription}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item label="移动序列 (Moving)">
-                  <Select placeholder="选择移动序列" value={movingSeries || undefined} onChange={setMovingSeries}>
+                <Form.Item label={t('fusionMgr.movingSeries')}>
+                  <Select placeholder={t('fusionMgr.selectMovingPh')} value={movingSeries || undefined} onChange={setMovingSeries}>
                     {series.map((s, i) => (
                       <Select.Option key={i} value={`series-${i}`}>{s.modality} - {s.seriesDescription}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item label="配准类型">
+                <Form.Item label={t('fusionMgr.registrationType')}>
                   <Select value={transformType} onChange={(v: any) => setTransformType(v)}>
-                    <Select.Option value="rigid">刚性配准 (Rigid)</Select.Option>
-                    <Select.Option value="affine">仿射配准 (Affine)</Select.Option>
-                    <Select.Option value="deformable">形变配准 (Deformable)</Select.Option>
-                    <Select.Option value="nonlinear">非线性配准 (Nonlinear)</Select.Option>
+                    <Select.Option value="rigid">{t('fusionMgr.rigid')}</Select.Option>
+                    <Select.Option value="affine">{t('fusionMgr.affine')}</Select.Option>
+                    <Select.Option value="deformable">{t('fusionMgr.deformable')}</Select.Option>
+                    <Select.Option value="nonlinear">{t('fusionMgr.nonlinear')}</Select.Option>
                   </Select>
                 </Form.Item>
                 <Space>
-                  <Button type="primary" icon={<Play size={14} />} onClick={handleRegister} loading={registering}>执行配准</Button>
-                  <Button onClick={handleRender} loading={rendering}>融合渲染</Button>
+                  <Button type="primary" icon={<Play size={14} />} onClick={handleRegister} loading={registering}>{t('fusionMgr.runRegister')}</Button>
+                  <Button onClick={handleRender} loading={rendering}>{t('fusionMgr.fusionRender')}</Button>
                 </Space>
               </Form>
             </Card>
 
-            <Card size="small" title="融合控制">
+            <Card size="small" title={t('fusionMgr.fusionControl')}>
               <Form layout="vertical" size="small">
-                <Form.Item label={`融合透明度: ${alpha}%`}>
+                <Form.Item label={`${t('fusionMgr.alphaLabel')}: ${alpha}%`}>
                   <Slider min={0} max={100} value={alpha} onChange={setAlpha} />
                 </Form.Item>
               </Form>
               {renderResult && (
                 <div>
-                  <Tag color="green">渲染完成</Tag>
+                  <Tag color="green">{t('fusionMgr.renderComplete')}</Tag>
                   <span style={{ fontSize: 12, color: '#666', marginLeft: 8 }}>
                     {renderResult.width}x{renderResult.height} | Slice {renderResult.sliceIndex}
                   </span>
@@ -191,12 +192,12 @@ export const FusionManagerPage: React.FC = () => {
           </div>
 
           {registrationResult && (
-            <Card size="small" title="配准结果" style={{ marginTop: 16 }}>
+            <Card size="small" title={t('fusionMgr.registerResult')} style={{ marginTop: 16 }}>
               <Descriptions column={3} size="small" bordered>
-                <Descriptions.Item label="配准 ID">{registrationResult.registrationId}</Descriptions.Item>
-                <Descriptions.Item label="配准类型"><Tag color="blue">{registrationResult.transformType}</Tag></Descriptions.Item>
-                <Descriptions.Item label="状态"><Tag color={registrationResult.status === 'completed' ? 'green' : 'blue'}>{({ completed: '已完成', running: '进行中', pending: '待处理', failed: '失败' } as Record<string, string>)[registrationResult.status] ?? registrationResult.status}</Tag></Descriptions.Item>
-                <Descriptions.Item label="Dice 系数">
+                <Descriptions.Item label={t('fusionMgr.regId')}>{registrationResult.registrationId}</Descriptions.Item>
+                <Descriptions.Item label={t('fusionMgr.regType')}><Tag color="blue">{registrationResult.transformType}</Tag></Descriptions.Item>
+                <Descriptions.Item label={t('fusionMgr.status')}><Tag color={registrationResult.status === 'completed' ? 'green' : 'blue'}>{({ completed: t('fusionMgr.status.completed'), running: t('fusionMgr.status.running'), pending: t('fusionMgr.status.pending'), failed: t('fusionMgr.status.failed') } as Record<string, string>)[registrationResult.status] ?? registrationResult.status}</Tag></Descriptions.Item>
+                <Descriptions.Item label={t('fusionMgr.dice')}>
                   <Progress percent={Math.round(registrationResult.metrics.dice * 100)} size="small" />
                 </Descriptions.Item>
                 <Descriptions.Item label="HD95">{registrationResult.metrics.hd95} mm</Descriptions.Item>
@@ -209,7 +210,7 @@ export const FusionManagerPage: React.FC = () => {
 
       {series.length === 0 && !loading && (
         <Card>
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请输入患者 ID 并加载序列" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('fusionMgr.emptyHint')} />
         </Card>
       )}
     </div>

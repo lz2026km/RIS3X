@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, List, Statistic, InputNumber, Modal, Badge, Table, Switch, Avatar } from 'antd';
 import { Bell, FileText, BookOpen, Plus, Edit3, CheckCircle2, RefreshCw } from 'lucide-react';
 import { notificationApi, templateApi, dictionaryApi } from '@/services/api/notificationTemplateDictApi';
+import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
@@ -62,14 +63,14 @@ export const NotificationTemplateDictPage: React.FC = () => {
   const handleMarkRead = async (id: string) => {
     try {
       const r = await notificationApi.markRead(id);
-      if (r.success) { message.success('已读'); loadNotifs(); }
+      if (r.success) { message.success(t('notificationTemplateDict.markedRead')); loadNotifs(); }
     } catch (e: any) { message.error(e.message); }
   };
 
   const handleMarkAllRead = async () => {
     try {
       const r = await notificationApi.markAllRead();
-      if (r.success) { message.success('全部已读'); loadNotifs(); }
+      if (r.success) { message.success(t('notificationTemplateDict.allMarkedRead')); loadNotifs(); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -98,8 +99,8 @@ export const NotificationTemplateDictPage: React.FC = () => {
       let r;
       if (tplModal.type === 'create') r = await templateApi.create(payload);
       else r = await templateApi.update(payload.id, payload);
-      if (r.success) { message.success('保存成功'); setTplModal({ type: null, data: {} }); tplForm.resetFields(); loadTemplates(); }
-      else message.error(r.error?.message ?? '保存失败');
+      if (r.success) { message.success(t('notificationTemplateDict.saveSuccess')); setTplModal({ type: null, data: {} }); tplForm.resetFields(); loadTemplates(); }
+      else message.error(r.error?.message ?? t('notificationTemplateDict.saveFailed'));
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -130,8 +131,8 @@ export const NotificationTemplateDictPage: React.FC = () => {
       let r;
       if (dictModal.type === 'create') r = await dictionaryApi.create(payload);
       else r = await dictionaryApi.update(payload.id, payload);
-      if (r.success) { message.success('保存成功'); setDictModal({ type: null, data: {} }); dictForm.resetFields(); loadDict(); }
-      else message.error(r.error?.message ?? '保存失败');
+      if (r.success) { message.success(t('notificationTemplateDict.saveSuccess')); setDictModal({ type: null, data: {} }); dictForm.resetFields(); loadDict(); }
+      else message.error(r.error?.message ?? t('notificationTemplateDict.saveFailed'));
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -160,42 +161,42 @@ export const NotificationTemplateDictPage: React.FC = () => {
         <Bell size={20} color="#f5222d" />
         <FileText size={20} color="#2563eb" />
         <BookOpen size={20} color="#52c41a" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>通知 · 模板 · 词典</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('notificationTemplateDict.title')}</span>
         <Tag color="cyan">PR3 (v3.0.6.8-47)</Tag>
-        <Tag color="purple">系统级基础组件</Tag>
-        <Tag color="green">12 客户端 + 20 端点</Tag>
+        <Tag color="purple">{t('notificationTemplateDict.systemBasic')}</Tag>
+        <Tag color="green">{t('notificationTemplateDict.clientsEndpoints')}</Tag>
       </Space>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* 通知中心 */}
         <Tabs.TabPane tab={
           <span>
-            <Bell size={14} /> 通知
+            <Bell size={14} /> {t('notificationTemplateDict.tabNotifications')}
             {unreadCount > 0 && <Badge count={unreadCount} offset={[8, -2]} />}
           </span>
         } key="notifications">
           <Row gutter={16}>
             <Col span={4}>
               <Card size="small">
-                <Statistic title="未读" value={unreadCount} styles={{ content: {  color: '#f5222d'  } }} />
+                <Statistic title={t('notificationTemplateDict.unread')} value={unreadCount} styles={{ content: {  color: '#f5222d'  } }} />
               </Card>
             </Col>
             <Col span={4}>
               <Card size="small">
-                <Statistic title="总通知" value={notifs.length} />
+                <Statistic title={t('notificationTemplateDict.totalNotifs')} value={notifs.length} />
               </Card>
             </Col>
             <Col span={4}>
               <Card size="small">
-                <Statistic title="危急" value={notifs.filter((n: any) => n.severity === 'critical').length} styles={{ content: {  color: '#f5222d'  } }} />
+                <Statistic title={t('notificationTemplateDict.critical')} value={notifs.filter((n: any) => n.severity === 'critical').length} styles={{ content: {  color: '#f5222d'  } }} />
               </Card>
             </Col>
             <Col span={12}>
               <Space>
-                <Button type="primary" icon={<CheckCircle2 size={14} />} onClick={handleMarkAllRead}>全部已读</Button>
-                <Button icon={<RefreshCw size={14} />} onClick={loadNotifs}>刷新</Button>
-                <Select size="small" value={notifFilter.isRead || undefined} onChange={v => setNotifFilter({ ...notifFilter, isRead: v })} allowClear placeholder="已读/未读" style={{ width: 120 }} options={[{value:'false',label:'未读'},{value:'true',label:'已读'}]} />
-                <Select size="small" value={notifFilter.type || undefined} onChange={v => setNotifFilter({ ...notifFilter, type: v })} allowClear placeholder="类型" style={{ width: 120 }} options={['critical','review','system','reminder','task'].map(t=>({value:t,label:t}))} />
+                <Button type="primary" icon={<CheckCircle2 size={14} />} onClick={handleMarkAllRead}>{t('notificationTemplateDict.allMarkedRead')}</Button>
+                <Button icon={<RefreshCw size={14} />} onClick={loadNotifs}>{t('notificationTemplateDict.refresh')}</Button>
+                <Select size="small" value={notifFilter.isRead || undefined} onChange={v => setNotifFilter({ ...notifFilter, isRead: v })} allowClear placeholder={t('notificationTemplateDict.readStatus')} style={{ width: 120 }} options={[{value:'false',label:t('notificationTemplateDict.unreadOption')},{value:'true',label:t('notificationTemplateDict.readOption')}]} />
+                <Select size="small" value={notifFilter.type || undefined} onChange={v => setNotifFilter({ ...notifFilter, type: v })} allowClear placeholder={t('notificationTemplateDict.typePlaceholder')} style={{ width: 120 }} options={['critical','review','system','reminder','task'].map(v=>({value:v,label:v}))} />
               </Space>
             </Col>
           </Row>
@@ -204,7 +205,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               dataSource={filteredNotifs}
               renderItem={(n: any) => (
                 <List.Item
-                  actions={!n.isRead ? [<Button key="r" type="link" size="small" onClick={() => handleMarkRead(n.id)}>标为已读</Button>] : []}
+                  actions={!n.isRead ? [<Button key="r" type="link" size="small" onClick={() => handleMarkRead(n.id)}>{t('notificationTemplateDict.markAsRead')}</Button>] : []}
                 >
                   <List.Item.Meta
                     avatar={
@@ -237,15 +238,15 @@ export const NotificationTemplateDictPage: React.FC = () => {
         </Tabs.TabPane>
 
         {/* 模板管理 */}
-        <Tabs.TabPane tab={<span><FileText size={14} /> 模板</span>} key="templates">
+        <Tabs.TabPane tab={<span><FileText size={14} /> {t('notificationTemplateDict.tabTemplates')}</span>} key="templates">
           <Card
-            title={`报告模板 (${filteredTemplates.length})`}
+            title={t('notificationTemplateDict.templateCardTitle', { count: filteredTemplates.length })}
             size="small"
             extra={
               <Space>
-                <Select size="small" value={tplFilter.modality || undefined} onChange={v => setTplFilter({ ...tplFilter, modality: v })} allowClear placeholder="模态" style={{ width: 100 }} options={['CT','MR','DR','US','MG'].map(m=>({value:m,label:m}))} />
-                <Select size="small" value={tplFilter.category || undefined} onChange={v => setTplFilter({ ...tplFilter, category: v })} allowClear placeholder="类别" style={{ width: 100 }} options={['CT','MR','DR','US','MG','通用'].map(c=>({value:c,label:c}))} />
-                <Button type="primary" icon={<Plus size={14} />} onClick={() => openTplModal('create', { sections: [], isDefault: false })}>新增</Button>
+                <Select size="small" value={tplFilter.modality || undefined} onChange={v => setTplFilter({ ...tplFilter, modality: v })} allowClear placeholder={t('notificationTemplateDict.modality')} style={{ width: 100 }} options={['CT','MR','DR','US','MG'].map(m=>({value:m,label:m}))} />
+                <Select size="small" value={tplFilter.category || undefined} onChange={v => setTplFilter({ ...tplFilter, category: v })} allowClear placeholder={t('notificationTemplateDict.category')} style={{ width: 100 }} options={['CT','MR','DR','US','MG'].map(c=>({value:c,label:c})).concat([{value:t('notificationTemplateDict.general'),label:t('notificationTemplateDict.general')}])} />
+                <Button type="primary" icon={<Plus size={14} />} onClick={() => openTplModal('create', { sections: [], isDefault: false })}>{t('notificationTemplateDict.add')}</Button>
               </Space>
             }
           >
@@ -255,14 +256,14 @@ export const NotificationTemplateDictPage: React.FC = () => {
               rowKey="id"
               pagination={{ current: tplPage, pageSize: PAGE_SIZE, total: filteredTemplates.length, onChange: setTplPage, showSizeChanger: false }}
               columns={[
-                { title: '名称', dataIndex: 'name' },
-                { title: '模态', dataIndex: 'modality', render: (m) => <Tag color="blue">{m}</Tag> },
-                { title: '类别', dataIndex: 'category' },
-                { title: '段数', render: (_, t) => t.sections?.length || 0 },
-                { title: '使用', dataIndex: 'usageCount' },
-                { title: '默认', dataIndex: 'isDefault', render: (d) => d ? <Tag color="green">是</Tag> : '-' },
-                { title: '更新', dataIndex: 'updatedAt', render: (d) => new Date(d).toLocaleDateString('zh-CN') },
-                { title: '操作', render: (_, t) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openTplModal('update', { ...t })}>编辑</Button> },
+                { title: t('notificationTemplateDict.colName'), dataIndex: 'name' },
+                { title: t('notificationTemplateDict.modality'), dataIndex: 'modality', render: (m) => <Tag color="blue">{m}</Tag> },
+                { title: t('notificationTemplateDict.category'), dataIndex: 'category' },
+                { title: t('notificationTemplateDict.sectionCount'), render: (_, row) => row.sections?.length || 0 },
+                { title: t('notificationTemplateDict.usage'), dataIndex: 'usageCount' },
+                { title: t('notificationTemplateDict.isDefaultCol'), dataIndex: 'isDefault', render: (d) => d ? <Tag color="green">{t('notificationTemplateDict.yes')}</Tag> : '-' },
+                { title: t('notificationTemplateDict.updatedAtCol'), dataIndex: 'updatedAt', render: (d) => new Date(d).toLocaleDateString('zh-CN') },
+                { title: t('notificationTemplateDict.colActions'), render: (_, row) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openTplModal('update', { ...row })}>{t('notificationTemplateDict.edit')}</Button> },
               ]}
             scroll={{ x: 'max-content' }}
             />
@@ -270,15 +271,15 @@ export const NotificationTemplateDictPage: React.FC = () => {
         </Tabs.TabPane>
 
         {/* 词典维护 */}
-        <Tabs.TabPane tab={<span><BookOpen size={14} /> 词典</span>} key="dictionary">
+        <Tabs.TabPane tab={<span><BookOpen size={14} /> {t('notificationTemplateDict.tabDictionary')}</span>} key="dictionary">
           <Card
-            title={`数据字典 (${filteredDict.length})`}
+            title={t('notificationTemplateDict.dictCardTitle', { count: filteredDict.length })}
             size="small"
             extra={
               <Space>
-                <Select size="small" value={dictFilter.category || undefined} onChange={v => setDictFilter({ ...dictFilter, category: v })} allowClear placeholder="分类" style={{ width: 150 }} options={['检查项目','诊断','药品','设备','科室','检查部位','报告模板','其他'].map(c=>({value:c,label:c}))} />
-                <Input.Search size="small" placeholder="编码/名称" value={dictFilter.keyword} onChange={e => setDictFilter({ ...dictFilter, keyword: e.target.value })} style={{ width: 180 }} />
-                <Button type="primary" icon={<Plus size={14} />} onClick={() => openDictModal('create', {})}>新增</Button>
+                <Select size="small" value={dictFilter.category || undefined} onChange={v => setDictFilter({ ...dictFilter, category: v })} allowClear placeholder={t('notificationTemplateDict.category')} style={{ width: 150 }} options={[t('notificationTemplateDict.dictCatExam'),t('notificationTemplateDict.dictCatDiagnosis'),t('notificationTemplateDict.dictCatDrug'),t('notificationTemplateDict.dictCatDevice'),t('notificationTemplateDict.dictCatDept'),t('notificationTemplateDict.dictCatBodyPart'),t('notificationTemplateDict.dictCatReportTpl'),t('notificationTemplateDict.dictCatOther')].map(c=>({value:c,label:c}))} />
+                <Input.Search size="small" placeholder={t('notificationTemplateDict.codeOrName')} value={dictFilter.keyword} onChange={e => setDictFilter({ ...dictFilter, keyword: e.target.value })} style={{ width: 180 }} />
+                <Button type="primary" icon={<Plus size={14} />} onClick={() => openDictModal('create', {})}>{t('notificationTemplateDict.add')}</Button>
               </Space>
             }
           >
@@ -288,14 +289,14 @@ export const NotificationTemplateDictPage: React.FC = () => {
               rowKey="id"
               pagination={{ current: dictPage, pageSize: PAGE_SIZE, total: filteredDict.length, onChange: setDictPage, showSizeChanger: false }}
               columns={[
-                { title: '分类', dataIndex: 'category', render: (c) => <Tag color="blue">{c}</Tag> },
-                { title: '编码', dataIndex: 'code' },
-                { title: '名称', dataIndex: 'name' },
-                { title: '英文', dataIndex: 'enName' },
-                { title: '说明', dataIndex: 'description' },
-                { title: '排序', dataIndex: 'sortOrder' },
-                { title: '状态', dataIndex: 'isActive', render: (a) => a ? <Tag color="green">启用</Tag> : <Tag>禁用</Tag> },
-                { title: '操作', render: (_, d) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openDictModal('update', { ...d })}>编辑</Button> },
+                { title: t('notificationTemplateDict.category'), dataIndex: 'category', render: (c) => <Tag color="blue">{c}</Tag> },
+                { title: t('notificationTemplateDict.code'), dataIndex: 'code' },
+                { title: t('notificationTemplateDict.colName'), dataIndex: 'name' },
+                { title: t('notificationTemplateDict.english'), dataIndex: 'enName' },
+                { title: t('notificationTemplateDict.description'), dataIndex: 'description' },
+                { title: t('notificationTemplateDict.sortOrder'), dataIndex: 'sortOrder' },
+                { title: t('notificationTemplateDict.status'), dataIndex: 'isActive', render: (a) => a ? <Tag color="green">{t('notificationTemplateDict.enabled')}</Tag> : <Tag>{t('notificationTemplateDict.disabled')}</Tag> },
+                { title: t('notificationTemplateDict.colActions'), render: (_, row) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openDictModal('update', { ...row })}>{t('notificationTemplateDict.edit')}</Button> },
               ]}
             scroll={{ x: 'max-content' }}
             />
@@ -305,7 +306,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
 
       {/* 模板 Modal */}
       <Modal
-        title={tplModal.type === 'create' ? '新增模板' : '编辑模板'}
+        title={tplModal.type === 'create' ? t('notificationTemplateDict.addTemplate') : t('notificationTemplateDict.editTemplate')}
         open={!!tplModal.type}
         onCancel={() => { setTplModal({ type: null, data: {} }); tplForm.resetFields(); }}
         onOk={handleTplSave}
@@ -313,18 +314,18 @@ export const NotificationTemplateDictPage: React.FC = () => {
       >
         <Form form={tplForm} layout="vertical" size="small" initialValues={{ isDefault: false }}>
           <Row gutter={8}>
-            <Col span={16}><Form.Item name="name" label="模板名称" rules={[{ required: true, message: '请输入模板名称' }]}><Input /></Form.Item></Col>
-            <Col span={8}><Form.Item name="modality" label="模态"><Select options={['CT','MR','DR','US','MG'].map(m=>({value:m,label:m}))} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="category" label="类别"><Select options={['CT','MR','DR','US','MG','通用'].map(c=>({value:c,label:c}))} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="isDefault" label="设为默认" valuePropName="checked"><Switch /></Form.Item></Col>
-            <Col span={24}><Form.Item name="description" label="说明"><TextArea rows={2} /></Form.Item></Col>
+            <Col span={16}><Form.Item name="name" label={t('notificationTemplateDict.templateName')} rules={[{ required: true, message: t('notificationTemplateDict.enterTemplateName') }]}><Input /></Form.Item></Col>
+            <Col span={8}><Form.Item name="modality" label={t('notificationTemplateDict.modality')}><Select options={['CT','MR','DR','US','MG'].map(m=>({value:m,label:m}))} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="category" label={t('notificationTemplateDict.category')}><Select options={['CT','MR','DR','US','MG'].map(c=>({value:c,label:c})).concat([{value:t('notificationTemplateDict.general'),label:t('notificationTemplateDict.general')}])} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="isDefault" label={t('notificationTemplateDict.setDefault')} valuePropName="checked"><Switch /></Form.Item></Col>
+            <Col span={24}><Form.Item name="description" label={t('notificationTemplateDict.description')}><TextArea rows={2} /></Form.Item></Col>
           </Row>
         </Form>
       </Modal>
 
       {/* 词典 Modal */}
       <Modal
-        title={dictModal.type === 'create' ? '新增词典项' : '编辑词典项'}
+        title={dictModal.type === 'create' ? t('notificationTemplateDict.addDictItem') : t('notificationTemplateDict.editDictItem')}
         open={!!dictModal.type}
         onCancel={() => { setDictModal({ type: null, data: {} }); dictForm.resetFields(); }}
         onOk={handleDictSave}
@@ -332,13 +333,13 @@ export const NotificationTemplateDictPage: React.FC = () => {
       >
         <Form form={dictForm} layout="vertical" size="small" initialValues={{ sortOrder: 0, isActive: true }}>
           <Row gutter={8}>
-            <Col span={12}><Form.Item name="category" label="分类"><Input /></Form.Item></Col>
-            <Col span={12}><Form.Item name="code" label="编码" rules={[{ required: true, message: '请输入编码' }]}><Input /></Form.Item></Col>
-            <Col span={24}><Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}><Input /></Form.Item></Col>
-            <Col span={24}><Form.Item name="enName" label="英文"><Input /></Form.Item></Col>
-            <Col span={24}><Form.Item name="description" label="说明"><TextArea rows={2} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="sortOrder" label="排序"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="isActive" label="启用" valuePropName="checked"><Switch /></Form.Item></Col>
+            <Col span={12}><Form.Item name="category" label={t('notificationTemplateDict.category')}><Input /></Form.Item></Col>
+            <Col span={12}><Form.Item name="code" label={t('notificationTemplateDict.code')} rules={[{ required: true, message: t('notificationTemplateDict.enterCode') }]}><Input /></Form.Item></Col>
+            <Col span={24}><Form.Item name="name" label={t('notificationTemplateDict.colName')} rules={[{ required: true, message: t('notificationTemplateDict.enterName') }]}><Input /></Form.Item></Col>
+            <Col span={24}><Form.Item name="enName" label={t('notificationTemplateDict.english')}><Input /></Form.Item></Col>
+            <Col span={24}><Form.Item name="description" label={t('notificationTemplateDict.description')}><TextArea rows={2} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="sortOrder" label={t('notificationTemplateDict.sortOrder')}><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="isActive" label={t('notificationTemplateDict.enabled')} valuePropName="checked"><Switch /></Form.Item></Col>
           </Row>
         </Form>
       </Modal>

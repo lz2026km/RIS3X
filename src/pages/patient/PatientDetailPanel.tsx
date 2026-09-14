@@ -36,16 +36,16 @@ const TIMELINE_COLORS: Record<string, string> = {
 }
 
 const STATUS_MAP: Record<string, string> = {
-  draft: '草稿', pending: '待出报告', submitted: '待出报告', reviewed: '审核中',
-  cosigned: '已双签', published: '报告已发', signed: '已签发', completed: '已完成',
-  in_progress: '检查中', scheduled: '已登记', checked_in: '已到检', cancelled: '已取消',
-  no_show: '爽约',
+  draft: 'patientDetailPanel.statusDraft', pending: 'patientDetailPanel.statusPendingReport', submitted: 'patientDetailPanel.statusPendingReport', reviewed: 'patientDetailPanel.statusReviewing',
+  cosigned: 'patientDetailPanel.statusCosigned', published: 'patientDetailPanel.statusPublished', signed: 'patientDetailPanel.statusSigned', completed: 'patientDetailPanel.statusCompleted',
+  in_progress: 'patientDetailPanel.statusInProgress', scheduled: 'patientDetailPanel.statusScheduled', checked_in: 'patientDetailPanel.statusCheckedIn', cancelled: 'patientDetailPanel.statusCancelled',
+  no_show: 'patientDetailPanel.statusNoShow',
 }
 
 function normalizeStatus(status?: string): string {
-  if (!status) return '未知'
+  if (!status) return t('patientDetailPanel.unknown')
   if (/[\u4e00-\u9fa5]/.test(status)) return status
-  return STATUS_MAP[status.toLowerCase()] || status
+  return t(STATUS_MAP[status.toLowerCase()] || status)
 }
 
 function normalizeDate(value?: string): string {
@@ -128,7 +128,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
                     </span>
                   )}
                   {evt.extra && <span style={{ fontSize: 11, color: '#94a3b8' }}>{evt.extra}</span>}
-                  {evt.link && <span style={{ fontSize: 11, color: '#2563eb', marginLeft: 'auto' }}>查看 →</span>}
+                  {evt.link && <span style={{ fontSize: 11, color: '#2563eb', marginLeft: 'auto' }}>{t('patientDetailPanel.viewArrow')}</span>}
                 </div>
               </div>
             </div>
@@ -136,7 +136,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
         )
       })}
       {sorted.length === 0 && (
-        <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>暂无时间线事件</div>
+        <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>{t('patientDetailPanel.noTimelineEvents')}</div>
       )}
     </div>
   )
@@ -274,7 +274,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       apiExams.length === 0 && reports.length === 0 && criticalValues.length === 0
     if (!coreEmpty) return
     const delays = [2500, 5000, 9000]
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       // mock 首访空结果会被客户端 GET 缓存(60s TTL)污染 → 重拉前先失效相关缓存
       try {
         invalidateApiCacheByPrefix('/patients/')
@@ -283,7 +283,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       setWarmRetryCount((c) => c + 1)
       setReloadKey((k) => k + 1)
     }, delays[warmRetryCount] ?? 9000)
-    return () => clearTimeout(t)
+    return () => clearTimeout(timer)
   }, [dataLoaded, warmRetryCount, apiExams, reports, criticalValues, patientId])
 
   const stats = useMemo(() => {
@@ -310,7 +310,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         description: `${e.modality} · ${e.bodyPart}${e.deviceName || e.deviceModel ? ` · ${e.deviceName || e.deviceModel}` : ''}`,
         status: normalizeStatus(e.status),
         link: `/dicom-viewer?studyUid=${encodeURIComponent(e.id ?? '')}`,
-        extra: '点击查看影像',
+        extra: t('patientDetailPanel.clickViewImages'),
       })
     })
     reports.forEach((r, i) => {
@@ -318,11 +318,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         key: `report-${r.reportId}-${i}`,
         date: String(r.createdTime ?? r.updatedTime ?? '').slice(0, 16) || '-',
         type: 'report',
-        title: `${r.modality} ${r.bodyPart} 报告`,
-        description: (r.findings || r.impression || '').slice(0, 60) || '暂无内容',
+        title: t('patientDetailPanel.reportTitle', { modality: r.modality, bodyPart: r.bodyPart }),
+        description: (r.findings || r.impression || '').slice(0, 60) || t('patientDetailPanel.noContent'),
         status: normalizeStatus(r.status),
         link: `/reports?reportId=${encodeURIComponent(r.reportId || r.id)}`,
-        extra: '点击查看报告',
+        extra: t('patientDetailPanel.clickViewReport'),
       })
     })
     appointments.forEach((a, i) => {
@@ -332,11 +332,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         key: `apt-${a.id}-${i}`,
         date: String(date).slice(0, 16) || '-',
         type: 'appointment',
-        title: `预约检查 ${aptAny.modality ?? ''} ${aptAny.bodyPart ?? ''}`.trim(),
-        description: `${aptAny.deviceName || aptAny.deviceId || '未排设备'} · 优先级 ${aptAny.priority ?? '-'}`,
+        title: t('patientDetailPanel.appointmentTitle', { modality: aptAny.modality ?? '', bodyPart: aptAny.bodyPart ?? '' }).trim(),
+        description: t('patientDetailPanel.appointmentDesc', { device: aptAny.deviceName || aptAny.deviceId || t('patientDetailPanel.noDevice'), priority: aptAny.priority ?? '-' }),
         status: normalizeStatus(a.state),
         link: `/appointments?patientId=${encodeURIComponent(patientId ?? '')}`,
-        extra: '点击前往预约',
+        extra: t('patientDetailPanel.clickGoAppointment'),
       })
     })
     criticalValues.forEach((c, i) => {
@@ -344,11 +344,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         key: `critical-${c.id}-${i}`,
         date: String(c.triggeredAt ?? c.createdAt ?? '').slice(0, 16) || '-',
         type: 'critical',
-        title: `危急值: ${c.finding || c.description || c.category || '未知'}`,
-        description: `严重度 ${c.severity ?? '-'} · 状态 ${criticalClosed(c) ? '已闭环' : normalizeStatus(c.state ?? c.status)}`,
-        status: criticalClosed(c) ? '已闭环' : (c.state ?? c.status ?? '处理中'),
+        title: t('patientDetailPanel.criticalTitle', { finding: c.finding || c.description || c.category || t('patientDetailPanel.unknown') }),
+        description: t('patientDetailPanel.criticalDesc', { severity: c.severity ?? '-', status: criticalClosed(c) ? t('patientDetailPanel.closedLoop') : normalizeStatus(c.state ?? c.status) }),
+        status: criticalClosed(c) ? t('patientDetailPanel.closedLoop') : (c.state ?? c.status ?? t('patientDetailPanel.processing')),
         link: `/critical-value?cvId=${encodeURIComponent(c.id)}`,
-        extra: '点击前往危急值',
+        extra: t('patientDetailPanel.clickGoCritical'),
       })
     })
     return events
@@ -365,13 +365,13 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       const res = await patientApi.merge(selectedPatient.id, mergeTargetId.trim())
       if (res.success && res.data?.ok) {
         setMergeResult(res.data.merged as MergeResult)
-        showToast(`合并成功: ${selectedPatient.id} → ${mergeTargetId.trim()}`, 'success')
+        showToast(t('patientDetailPanel.mergeSuccess', { from: selectedPatient.id, to: mergeTargetId.trim() }), 'success')
         setReloadKey((k) => k + 1)
       } else {
-        setMergeError(res.error?.message ?? '合并失败')
+        setMergeError(res.error?.message ?? t('patientDetailPanel.mergeFailed'))
       }
     } catch (e) {
-      setMergeError((e as Error)?.message ?? '合并失败')
+      setMergeError((e as Error)?.message ?? t('patientDetailPanel.mergeFailed'))
     } finally {
       setMergeLoading(false)
     }
@@ -383,12 +383,12 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
     try {
       const res = await reportApi.exportReport(id, 'pdf')
       if (res.success) {
-        showToast(`报告 ${id} 已加入导出队列` + (res.data?.downloadUrl ? ` (${res.data.format})` : ''), 'success')
+        showToast(t('patientDetailPanel.exportQueued', { id, format: res.data?.downloadUrl ? ` (${res.data.format})` : '' }), 'success')
       } else {
-        showToast(`导出失败: ${res.error?.message ?? '未知错误'}`, 'error')
+        showToast(t('patientDetailPanel.exportFailedDetail', { error: res.error?.message ?? t('patientDetailPanel.unknownError') }), 'error')
       }
     } catch {
-      showToast('导出请求失败，请稍后重试', 'error')
+      showToast(t('patientDetailPanel.exportRequestFailed'), 'error')
     } finally {
       setExportingId(null)
     }
@@ -398,9 +398,9 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
     return (
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 60, textAlign: 'center' }}>
         <User size={48} color="#cbd5e1" style={{ marginBottom: 16 }} />
-        <div style={{ fontSize: 14, color: '#64748b' }}>请从患者列表选择一个患者查看详情</div>
+        <div style={{ fontSize: 14, color: '#64748b' }}>{t('patientDetailPanel.selectPatientHint')}</div>
         <button onClick={onBack} style={{ marginTop: 16, padding: '8px 20px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-          返回患者列表
+          {t('patientDetailPanel.backToPatientList')}
         </button>
       </div>
     )
@@ -412,25 +412,25 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
     <>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
-          <ArrowLeft size={14} />返回列表
+          <ArrowLeft size={14} />{t('patientDetailPanel.backToList')}
         </button>
         <button
           onClick={() => navigate('/patients/' + encodeURIComponent(selectedPatient.id) + '/360')}
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'var(--color-info-bg)', border: '1px solid var(--color-info-border)', borderRadius: 8, fontSize: 12, fontWeight: 600, color: 'var(--color-info)', cursor: 'pointer' }}
         >
-          <Layers size={14} />打开 360° 视图
+          <Layers size={14} />{t('patientDetailPanel.open360View')}
         </button>
         {dataLoading && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
-            <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> 正在加载多源数据...
+            <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('patientDetailPanel.loadingMultiSource')}
           </span>
         )}
         <button
           onClick={() => setReloadKey((k) => k + 1)}
-          title="刷新数据"
+          title={t('patientDetailPanel.refreshDataTitle')}
           style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
         >
-          <RefreshCw size={14} />刷新
+          <RefreshCw size={14} />{t('patientDetailPanel.refresh')}
         </button>
       </div>
 
@@ -451,54 +451,54 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           </div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>{selectedPatient.name}</div>
-            <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{selectedPatient.gender} · {selectedPatient.age}岁 · {selectedPatient.patientType}</div>
+            <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{selectedPatient.gender} · {selectedPatient.age}{t('patientDetailPanel.ageSuffix')} · {selectedPatient.patientType}</div>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>ID: {selectedPatient.id}</div>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <button
               onClick={() => navigate(`/appointments?patientId=${encodeURIComponent(selectedPatient.id)}`)}
-              title="为患者新建检查预约"
+              title={t('patientDetailPanel.newAppointmentTitle')}
               style={{ padding: '8px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 4px rgba(30,58,95,0.3)' }}
             >
-              <CalendarPlus size={14} />预约检查
+              <CalendarPlus size={14} />{t('patientDetailPanel.newAppointment')}
             </button>
             <button
               onClick={() => navigate(`/follow-up?patientId=${encodeURIComponent(selectedPatient.id)}`)}
-              title="进入随访管理"
+              title={t('patientDetailPanel.followUpTitle')}
               style={{ padding: '8px 16px', background: 'var(--color-success-bg)', color: 'var(--color-success)', border: '1px solid var(--color-success-border)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
             >
-              <ClipboardList size={14} />随访
+              <ClipboardList size={14} />{t('patientDetailPanel.followUp')}
             </button>
             {isAdminView && (
               <button
                 onClick={() => { setShowMergeModal(true); setMergeTargetId(''); setMergeError(null); setMergeResult(null) }}
-                title="管理员: 合并重复患者 (此患者归入目标患者)"
+                title={t('patientDetailPanel.mergeTitle')}
                 style={{ padding: '8px 16px', background: 'var(--color-error-bg)', color: 'var(--color-error)', border: '1px solid var(--color-error-border)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
               >
-                <GitMerge size={14} />合并
+                <GitMerge size={14} />{t('patientDetailPanel.merge')}
               </button>
             )}
             <button onClick={() => onEdit(selectedPatient)}
               style={{ padding: '8px 16px', background: 'var(--bg-card)', color: 'var(--color-success)', border: '1px solid var(--color-success-border)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Edit2 size={14} />编辑
+              <Edit2 size={14} />{t('patientDetailPanel.edit')}
             </button>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           {[
-            { label: '出生日期', value: getBirthDateFromIdCard(selectedPatient.idCard), icon: <Calendar size={14} /> },
-            { label: '身份证号', value: selectedPatient.idCard, icon: <CreditCard size={14} /> },
-            { label: '联系电话', value: selectedPatient.phone, icon: <Phone size={14} /> },
-            { label: '家庭住址', value: selectedPatient.address, icon: <MapPin size={14} /> },
-            { label: '联系人', value: selectedPatient.emergencyContact, icon: <Contact size={14} /> },
-            { label: '联系人电话', value: selectedPatient.emergencyPhone, icon: <Phone size={14} /> },
-            { label: '就诊卡号', value: selectedPatient.id, icon: <CreditCard size={14} /> },
-            { label: '患者类型', value: selectedPatient.patientType, icon: <User size={14} /> },
-            { label: '医保类型', value: selectedPatient.insuranceType || '-', icon: <Shield size={14} /> },
-            { label: '床位号', value: selectedPatient.bedNumber || '-', icon: <User size={14} /> },
-            { label: '主治医师', value: selectedPatient.attendingDoctor || '-', icon: <Stethoscope size={14} /> },
-            { label: '建档日期', value: selectedPatient.registrationDate, icon: <Calendar size={14} /> },
+            { label: t('patientDetailPanel.birthDate'), value: getBirthDateFromIdCard(selectedPatient.idCard), icon: <Calendar size={14} /> },
+            { label: t('patientDetailPanel.idCardNo'), value: selectedPatient.idCard, icon: <CreditCard size={14} /> },
+            { label: t('patientDetailPanel.phone'), value: selectedPatient.phone, icon: <Phone size={14} /> },
+            { label: t('patientDetailPanel.address'), value: selectedPatient.address, icon: <MapPin size={14} /> },
+            { label: t('patientDetailPanel.emergencyContact'), value: selectedPatient.emergencyContact, icon: <Contact size={14} /> },
+            { label: t('patientDetailPanel.emergencyPhone'), value: selectedPatient.emergencyPhone, icon: <Phone size={14} /> },
+            { label: t('patientDetailPanel.cardNo'), value: selectedPatient.id, icon: <CreditCard size={14} /> },
+            { label: t('patientDetailPanel.patientType'), value: selectedPatient.patientType, icon: <User size={14} /> },
+            { label: t('patientDetailPanel.insuranceType'), value: selectedPatient.insuranceType || '-', icon: <Shield size={14} /> },
+            { label: t('patientDetailPanel.bedNumber'), value: selectedPatient.bedNumber || '-', icon: <User size={14} /> },
+            { label: t('patientDetailPanel.attendingDoctor'), value: selectedPatient.attendingDoctor || '-', icon: <Stethoscope size={14} /> },
+            { label: t('patientDetailPanel.registrationDate'), value: selectedPatient.registrationDate, icon: <Calendar size={14} /> },
           ].map(item => (
             <div key={item.label} style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
@@ -511,19 +511,19 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
-          <div style={{ padding: 16, background: selectedPatient.allergyHistory && selectedPatient.allergyHistory !== '无' ? 'var(--color-error-bg)' : 'var(--bg-card)', border: `1px solid ${selectedPatient.allergyHistory && selectedPatient.allergyHistory !== '无' ? 'var(--color-error-border)' : 'var(--border-color)'}`, borderRadius: 8 }}>
+          <div style={{ padding: 16, background: selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? 'var(--color-error-bg)' : 'var(--bg-card)', border: `1px solid ${selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? 'var(--color-error-border)' : 'var(--border-color)'}`, borderRadius: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-              <AlertTriangle size={14} color={selectedPatient.allergyHistory && selectedPatient.allergyHistory !== '无' ? '#dc2626' : '#94a3b8'} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>过敏史</span>
+              <AlertTriangle size={14} color={selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? '#dc2626' : '#94a3b8'} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.allergyHistory')}</span>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.allergyHistory || '无'}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.allergyHistory || t('patientDetailPanel.none')}</div>
           </div>
           <div style={{ padding: 16, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <Clock size={14} color="#94a3b8" />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>既往史</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.medicalHistory')}</span>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.medicalHistory || '无'}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.medicalHistory || t('patientDetailPanel.none')}</div>
           </div>
         </div>
       </div>
@@ -559,44 +559,44 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>检查统计</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>{t('patientDetailPanel.examStatsTitle')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-info-bg)', borderRadius: 8 }}>
             <Activity size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
             <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af' }}>{stats.totalExams}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>总检查次数</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.totalExamCount')}</div>
           </div>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-error-bg)', borderRadius: 8 }}>
             <AlertTriangle size={24} color="#dc2626" style={{ marginBottom: 8 }} />
             <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626' }}>{stats.positiveCount}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>阳性/危急</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.positiveCritical')}</div>
           </div>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-success-bg)', borderRadius: 8 }}>
             <CheckCircle size={24} color="#16a34a" style={{ marginBottom: 8 }} />
             <div style={{ fontSize: 28, fontWeight: 800, color: '#16a34a' }}>{stats.negativeCount}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>阴性/正常</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.negativeNormal')}</div>
           </div>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--content-bg)', borderRadius: 8 }}>
             <Clock size={24} color="#64748b" style={{ marginBottom: 8 }} />
             <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{stats.firstExamDate}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>首次检查日期</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.firstExamDate')}</div>
           </div>
         </div>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>检查历史</div>
-          <span style={{ fontSize: 12, color: '#64748b' }}>共 {patientExams.length} 条记录</span>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.examHistoryTitle')}</div>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.recordsCount', { count: patientExams.length })}</span>
         </div>
         {patientExams.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>暂无检查记录</div>
+          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('patientDetailPanel.noExamRecords')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {['检查日期', '检查项目', '设备', '检查类型', '优先级', '状态', '报告结果', '操作'].map(h => (
+                  {[t('patientDetailPanel.colExamDate'), t('patientDetailPanel.colExamItem'), t('patientDetailPanel.colDevice'), t('patientDetailPanel.colExamType'), t('patientDetailPanel.colPriority'), t('patientDetailPanel.colStatus'), t('patientDetailPanel.colReportResult'), t('patientDetailPanel.colActions')].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -608,7 +608,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   return (
                     <tr key={ex.id ?? idx} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)', cursor: 'pointer' }}
                       onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(ex.id ?? '')}`)}
-                      title="点击查看影像">
+                      title={t('patientDetailPanel.clickViewImages')}>
                       <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{normalizeDate(ex.scheduledAt || ex.examDate)}</td>
                       <td style={{ padding: '10px 12px' }}>
                         <div style={{ fontWeight: 600, color: '#1e40af' }}>{itemName}</div>
@@ -616,11 +616,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                       </td>
                       <td style={{ padding: '10px 12px', color: '#64748b', fontSize: 12 }}>{deviceName}</td>
                       <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--content-bg)', color: '#475569' }}>{ex.patientType || '门诊'}</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--content-bg)', color: '#475569' }}>{ex.patientType || t('patientDetailPanel.outpatient')}</span>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
                         <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: ex.priority === '危重' || ex.priority === '紧急' ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: ex.priority === '危重' || ex.priority === '紧急' ? 'var(--color-error)' : 'var(--color-success)' }}>
-                          {ex.priority || '普通'}
+                          {ex.priority || t('patientDetailPanel.normal')}
                         </span>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
@@ -631,14 +631,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                       <td style={{ padding: '10px 12px' }}>
                         {ex.hasCriticalValue ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#dc2626', fontWeight: 600 }}>
-                            <AlertCircle size={14} />阳性
+                            <AlertCircle size={14} />{t('patientDetailPanel.positive')}
                           </span>
                         ) : (
-                          <span style={{ color: '#16a34a' }}>正常</span>
+                          <span style={{ color: '#16a34a' }}>{t('patientDetailPanel.normalResult')}</span>
                         )}
                       </td>
                       <td style={{ padding: '10px 12px' }}>
-                        <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>查看影像 →</span>
+                        <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>{t('patientDetailPanel.viewImagesArrow')}</span>
                       </td>
                     </tr>
                   )
@@ -653,18 +653,18 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <BellRing size={16} color="#dc2626" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>危急值历史</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.criticalHistoryTitle')}</div>
           </div>
-          <span style={{ fontSize: 12, color: '#64748b' }}>共 {criticalValues.length} 条记录</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.recordsCount', { count: criticalValues.length })}</span>
         </div>
         {criticalValues.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>该患者暂无危急值记录</div>
+          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noCriticalRecords')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {['触发时间', '类型', '严重度', '状态', '闭环状态', '操作'].map(h => (
+                  {[t('patientDetailPanel.colTriggeredAt'), t('patientDetailPanel.colType'), t('patientDetailPanel.colSeverity'), t('patientDetailPanel.colStatus'), t('patientDetailPanel.colClosedState'), t('patientDetailPanel.colActions')].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -673,7 +673,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                 {criticalValues.map((cv, idx) => (
                   <tr key={cv.id} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)', cursor: 'pointer' }}
                     onClick={() => navigate(`/critical-value?cvId=${encodeURIComponent(cv.id)}`)}
-                    title="点击查看危急值详情">
+                    title={t('patientDetailPanel.clickViewCriticalDetail')}>
                     <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: 12 }}>{String(cv.triggeredAt ?? cv.createdAt ?? '').slice(0, 16) || '-'}</td>
                     <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{cv.finding || cv.description || cv.category || '-'}</td>
                     <td style={{ padding: '10px 12px' }}>
@@ -689,14 +689,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                     <td style={{ padding: '10px 12px' }}>
                       {criticalClosed(cv) ? (
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16a34a', fontWeight: 600 }}>
-                          <CheckCircle size={14} />已闭环
+                          <CheckCircle size={14} />{t('patientDetailPanel.closedLoop')}
                         </span>
                       ) : (
-                        <span style={{ color: '#d97706', fontWeight: 600 }}>处理中</span>
+                        <span style={{ color: '#d97706', fontWeight: 600 }}>{t('patientDetailPanel.processing')}</span>
                       )}
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>详情 →</span>
+                      <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>{t('patientDetailPanel.detailArrow')}</span>
                     </td>
                   </tr>
                 ))}
@@ -710,18 +710,18 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <FileText size={16} color="#059669" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>检查报告</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.reportSectionTitle')}</div>
           </div>
-          <span style={{ fontSize: 12, color: '#64748b' }}>共 {reports.length} 份报告</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.reportsCount', { count: reports.length })}</span>
         </div>
         {reports.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>该患者暂无报告</div>
+          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noReports')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {['报告编号', '检查项目', '状态', '出具时间', '报告医生', '操作'].map(h => (
+                  {[t('patientDetailPanel.colReportId'), t('patientDetailPanel.colExamItem'), t('patientDetailPanel.colStatus'), t('patientDetailPanel.colIssuedAt'), t('patientDetailPanel.colReportDoctor'), t('patientDetailPanel.colActions')].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -744,14 +744,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                           onClick={() => navigate(`/reports?reportId=${encodeURIComponent(r.reportId || r.id)}`)}
                           style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >
-                          <Eye size={14} />查看
+                          <Eye size={14} />{t('patientDetailPanel.view')}
                         </button>
                         <button
                           onClick={() => handleExportReport(r)}
                           disabled={exportingId === (r.reportId || r.id)}
                           style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >
-                          <Download size={14} />{exportingId === (r.reportId || r.id) ? '导出中...' : '下载'}
+                          <Download size={14} />{exportingId === (r.reportId || r.id) ? t('patientDetailPanel.exporting') : t('patientDetailPanel.download')}
                         </button>
                       </div>
                     </td>
@@ -767,18 +767,18 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Receipt size={16} color="#d97706" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>费用账单</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.invoiceSectionTitle')}</div>
           </div>
-          <span style={{ fontSize: 12, color: '#64748b' }}>共 {invoices.length} 张账单</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.invoicesCount', { count: invoices.length })}</span>
         </div>
         {invoices.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>该患者暂无账单记录</div>
+          <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noInvoices')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {['账单号', '检查项目', '日期', '总金额', '已付', '待缴', '状态'].map(h => (
+                  {[t('patientDetailPanel.colInvoiceNo'), t('patientDetailPanel.colExamItem'), t('patientDetailPanel.colDate'), t('patientDetailPanel.colTotalAmount'), t('patientDetailPanel.colPaid'), t('patientDetailPanel.colBalance'), t('patientDetailPanel.colStatus')].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -800,7 +800,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                       <td style={{ padding: '10px 12px', color: balance > 0 ? '#dc2626' : '#94a3b8', fontWeight: 600 }}>¥{balance.toFixed(2)}</td>
                       <td style={{ padding: '10px 12px' }}>
                         <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: status === 'PAID' ? 'var(--color-success-bg)' : status === 'PARTIAL' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: status === 'PAID' ? 'var(--color-success)' : status === 'PARTIAL' ? 'var(--color-warning)' : 'var(--color-error)' }}>
-                          {status === 'PAID' ? '已结清' : status === 'PARTIAL' ? '部分支付' : '未支付'}
+                          {status === 'PAID' ? t('patientDetailPanel.settled') : status === 'PARTIAL' ? t('patientDetailPanel.partialPaid') : t('patientDetailPanel.unpaid')}
                         </span>
                       </td>
                     </tr>
@@ -815,8 +815,8 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Layers size={16} color="#1e40af" />
-          患者360°时间线
-          <span style={{ fontSize: 12, fontWeight: 400, color: '#94a3b8' }}>(检查 · 报告 · 预约 · 危急值)</span>
+          {t('patientDetailPanel.timelineTitle')}
+          <span style={{ fontSize: 12, fontWeight: 400, color: '#94a3b8' }}>{t('patientDetailPanel.timelineSubtitle')}</span>
         </div>
         <PatientTimeline events={timelineEvents} />
       </div>
@@ -825,12 +825,12 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Image size={16} color="#1e40af" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>影像历史</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.imageHistoryTitle')}</div>
           </div>
-          <span style={{ fontSize: 12, color: '#64748b' }}>共 {patientExams.length} 组影像 · 点击卡片打开 DICOM 浏览器</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.imageCount', { count: patientExams.length })}</span>
         </div>
         {patientExams.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>暂无影像记录</div>
+          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('patientDetailPanel.noImages')}</div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {patientExams.map((ex, idx) => {
@@ -839,7 +839,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               return (
                 <div key={ex.id ?? idx} style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer' }}
                   onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(ex.id ?? '')}`)}
-                  title={`打开 ${itemName} 影像`}
+                  title={t('patientDetailPanel.openImageTitle', { name: itemName })}
                   onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#1e40af'}
                   onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-color)'}>
                   <div style={{ width: '100%', height: 80, background: 'linear-gradient(135deg, #1e40af, #3b82f6)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
@@ -848,8 +848,8 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 2 }}>{itemName}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>{normalizeDate(ex.scheduledAt || ex.examDate)}</div>
                   <div style={{ fontSize: 12, color: '#64748b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{imageCount > 0 ? `${imageCount} 帧` : '待采集'}</span>
-                    <span style={{ color: '#2563eb', fontWeight: 600 }}>打开 →</span>
+                    <span>{imageCount > 0 ? t('patientDetailPanel.frames', { count: imageCount }) : t('patientDetailPanel.pendingAcquisition')}</span>
+                    <span style={{ color: '#2563eb', fontWeight: 600 }}>{t('patientDetailPanel.openArrow')}</span>
                   </div>
                 </div>
               )
@@ -868,8 +868,8 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <GitMerge size={22} color="#fff" />
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>患者合并</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>将当前患者 {selectedPatient.name} ({selectedPatient.id}) 的所有关联数据归并到目标患者</div>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{t('patientDetailPanel.mergeModalTitle')}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{t('patientDetailPanel.mergeModalDesc', { name: selectedPatient.name, id: selectedPatient.id })}</div>
                 </div>
               </div>
               <button onClick={() => { if (!mergeLoading) setShowMergeModal(false) }} style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -877,35 +877,35 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               </button>
             </div>
             <div style={{ padding: 24 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>目标患者 ID</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>{t('patientDetailPanel.mergeTargetLabel')}</label>
               <input
                 value={mergeTargetId}
                 onChange={(e) => setMergeTargetId(e.target.value)}
-                placeholder="例如 P000002"
+                placeholder={t('patientDetailPanel.mergeTargetPlaceholder')}
                 style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
               />
               <div style={{ marginTop: 10, padding: 10, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)', borderRadius: 8, fontSize: 12, color: 'var(--color-warning)', lineHeight: 1.6 }}>
-                合并后 {selectedPatient.name} 的检查、报告、预约、危急值将全部迁移至目标患者，源患者记录将被软删除。此操作不可撤销。
+                {t('patientDetailPanel.mergeWarning', { name: selectedPatient.name })}
               </div>
               {mergeError && (
                 <div style={{ marginTop: 10, padding: 10, background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', borderRadius: 8, fontSize: 12, color: 'var(--color-error)' }}>{mergeError}</div>
               )}
               {mergeResult && (
                 <div style={{ marginTop: 10, padding: 10, background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', borderRadius: 8, fontSize: 12, color: 'var(--color-success)' }}>
-                  合并成功: 迁移检查 {mergeResult.movedExams ?? 0} 条 · 报告 {mergeResult.movedReports ?? 0} 份 · 预约 {mergeResult.movedAppointments ?? 0} 条 · 危急值 {mergeResult.movedCriticalValues ?? 0} 条
+                  {t('patientDetailPanel.mergeResultDetail', { exams: mergeResult.movedExams ?? 0, reports: mergeResult.movedReports ?? 0, appointments: mergeResult.movedAppointments ?? 0, criticals: mergeResult.movedCriticalValues ?? 0 })}
                 </div>
               )}
             </div>
             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button onClick={() => setShowMergeModal(false)} disabled={mergeLoading} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: '#64748b', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                取消
+                {t('patientDetailPanel.cancel')}
               </button>
               <button
                 onClick={handleMerge}
                 disabled={mergeLoading || !mergeTargetId.trim()}
                 style={{ padding: '8px 20px', background: mergeLoading ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: mergeLoading || !mergeTargetId.trim() ? 'not-allowed' : 'pointer' }}
               >
-                {mergeLoading ? '合并中...' : '确认合并'}
+                {mergeLoading ? t('patientDetailPanel.merging') : t('patientDetailPanel.confirmMerge')}
               </button>
             </div>
           </div>

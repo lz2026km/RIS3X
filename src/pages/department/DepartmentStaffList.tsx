@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { Edit3 } from "lucide-react";
+import { t } from "../../i18n/appI18n";
 
 const C = {
   primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
@@ -11,22 +12,22 @@ const C = {
 };
 
 const ROLES = {
-  director: { label: "主任", color: "#dc2626", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config", "user_manage"] },
-  vice_director: { label: "副主任", color: "#d97706", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config"] },
-  physician: { label: "医师", color: "#059669", icon: null, permission: ["report_write", "report_review", "report_print"] },
-  technician: { label: "技师", color: "#3b82f6", icon: null, permission: ["device_operate", "report_print"] },
-  nurse: { label: "护士", color: "#7c3aed", icon: null, permission: ["report_print"] },
-  intern: { label: "实习生", color: "#6b7280", icon: null, permission: [] },
+  director: { label: t("deptStaff.role.director"), color: "#dc2626", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config", "user_manage"] },
+  vice_director: { label: t("deptStaff.role.vice_director"), color: "#d97706", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config"] },
+  physician: { label: t("deptStaff.role.physician"), color: "#059669", icon: null, permission: ["report_write", "report_review", "report_print"] },
+  technician: { label: t("deptStaff.role.technician"), color: "#3b82f6", icon: null, permission: ["device_operate", "report_print"] },
+  nurse: { label: t("deptStaff.role.nurse"), color: "#7c3aed", icon: null, permission: ["report_print"] },
+  intern: { label: t("deptStaff.role.intern"), color: "#6b7280", icon: null, permission: [] },
 };
 
 const PERMISSIONS = [
-  { key: "report_write", label: "报告书写", icon: null },
-  { key: "report_review", label: "报告审核", icon: null },
-  { key: "report_print", label: "报告打印", icon: null },
-  { key: "device_operate", label: "设备操作", icon: null },
-  { key: "data_export", label: "数据导出", icon: null },
-  { key: "system_config", label: "系统配置", icon: null },
-  { key: "user_manage", label: "用户管理", icon: null },
+  { key: "report_write", label: t("deptStaff.perm.report_write"), icon: null },
+  { key: "report_review", label: t("deptStaff.perm.report_review"), icon: null },
+  { key: "report_print", label: t("deptStaff.perm.report_print"), icon: null },
+  { key: "device_operate", label: t("deptStaff.perm.device_operate"), icon: null },
+  { key: "data_export", label: t("deptStaff.perm.data_export"), icon: null },
+  { key: "system_config", label: t("deptStaff.perm.system_config"), icon: null },
+  { key: "user_manage", label: t("deptStaff.perm.user_manage"), icon: null },
 ];
 
 export const DEPT_STAFF = [
@@ -78,8 +79,8 @@ export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, r
   });
 
   const roleFilters = [
-    { key: "all", label: "全部" }, { key: "director", label: "主任" }, { key: "vice_director", label: "副主任" },
-    { key: "physician", label: "医师" }, { key: "technician", label: "技师" }, { key: "nurse", label: "护士" }, { key: "intern", label: "实习生" },
+    { key: "all", label: t("deptStaff.filter.all") }, { key: "director", label: t("deptStaff.role.director") }, { key: "vice_director", label: t("deptStaff.role.vice_director") },
+    { key: "physician", label: t("deptStaff.role.physician") }, { key: "technician", label: t("deptStaff.role.technician") }, { key: "nurse", label: t("deptStaff.role.nurse") }, { key: "intern", label: t("deptStaff.role.intern") },
   ];
 
   const panelStyle = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
@@ -89,10 +90,10 @@ export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, r
   return (
     <div style={{ display: "grid", gridTemplateColumns: "280px 1fr 320px", gap: 16, marginBottom: 16 }}>
       <div style={panelStyle}>
-        <div style={panelHeaderStyle}><span>科室人员</span><span style={{ fontSize: 12, color: C.textLight }}>{filteredStaff.length}人</span></div>
+        <div style={panelHeaderStyle}><span>{t("deptStaff.title")}</span><span style={{ fontSize: 12, color: C.textLight }}>{t("deptStaff.memberCount", { count: filteredStaff.length })}</span></div>
         <div style={{ padding: 12 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <input type="text" placeholder="搜索姓名/职称..." value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} style={{ flex: 1, padding: "6px 10px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+            <input type="text" placeholder={t("deptStaff.searchPlaceholder")} value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} style={{ flex: 1, padding: "6px 10px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 12 }}>
             {roleFilters.map((f) => (
@@ -107,7 +108,7 @@ export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, r
         </div>
       </div>
       <div style={panelStyle}>
-        <div style={panelHeaderStyle}><span>人员详情</span><button onClick={onEdit} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Edit3 style={{ width: 12, height: 12 }} /> 编辑</button></div>
+        <div style={panelHeaderStyle}><span>{t("deptStaff.detail")}</span><button onClick={onEdit} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Edit3 style={{ width: 12, height: 12 }} /> {t("deptStaff.edit")}</button></div>
         <div style={panelBodyStyle}>
           {selectedStaff && (
             <div>
@@ -116,23 +117,23 @@ export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, r
                 <div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: C.textDark, marginBottom: 4 }}>{selectedStaff.name}</div>
                   <div style={{ fontSize: 14, color: ROLES[selectedStaff.role]?.color, marginBottom: 8 }}>{ROLES[selectedStaff.role]?.label} · {selectedStaff.title}</div>
-                  <div style={{ display: "flex", gap: 16, fontSize: 13, color: C.textMid }}><span>工号：{selectedStaff.id}</span><span>科室：{selectedStaff.dept}</span></div>
+                  <div style={{ display: "flex", gap: 16, fontSize: 13, color: C.textMid }}><span>{t("deptStaff.employeeId")}{selectedStaff.id}</span><span>{t("deptStaff.dept")}{selectedStaff.dept}</span></div>
                 </div>
               </div>
               <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>联系信息</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>{t("deptStaff.contactInfo")}</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>电话：</span>{selectedStaff.phone}</div>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>邮箱：</span>{selectedStaff.email}</div>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>入职日期：</span>{selectedStaff.joinDate}</div>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>状态：</span><span style={{ color: selectedStaff.status === "online" ? C.success : selectedStaff.status === "busy" ? C.warning : C.textLight }}>{selectedStaff.status === "online" ? "在线" : selectedStaff.status === "busy" ? "工作中" : "离线"}</span></div>
+                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.phone")}</span>{selectedStaff.phone}</div>
+                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.email")}</span>{selectedStaff.email}</div>
+                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.joinDate")}</span>{selectedStaff.joinDate}</div>
+                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.status")}</span><span style={{ color: selectedStaff.status === "online" ? C.success : selectedStaff.status === "busy" ? C.warning : C.textLight }}>{selectedStaff.status === "online" ? t("deptStaff.status.online") : selectedStaff.status === "busy" ? t("deptStaff.status.busy") : t("deptStaff.status.offline")}</span></div>
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>权限配置</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>{t("deptStaff.permissions")}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                   {(ROLES[selectedStaff.role]?.permission || []).map((p) => <PermissionTag key={p} permission={p} />)}
-                  {(!ROLES[selectedStaff.role]?.permission || []).length === 0 && <span style={{ fontSize: 13, color: C.textLight, fontStyle: "italic" }}>暂无权限</span>}
+                  {(!ROLES[selectedStaff.role]?.permission || []).length === 0 && <span style={{ fontSize: 13, color: C.textLight, fontStyle: "italic" }}>{t("deptStaff.noPermissions")}</span>}
                 </div>
               </div>
             </div>

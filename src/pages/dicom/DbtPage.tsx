@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Card, Slider, Tag, Select, Spin, Alert, Segmented, Button, message, Modal, InputNumber, Checkbox, Divider } from 'antd'
 import { Layers, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Maximize, Crosshair, ScanLine, GitCompareArrows, Sparkles, FileText } from 'lucide-react'
 import { dbtApi, type DbtStudyDto, type DbtSliceDto, type DbtCompareResultDto, type DbtReconstructResultDto, type DbtBiradsScoreResultDto, type DbtBiradsScoreDto, type DbtBiradsCalcificationDto, type DbtBiradsMassDto } from '../../services/api/dbtApi'
+import { t } from '../../i18n/appI18n'
 
 const BLUE = '#3b82f6'
 const GREEN = '#22c55e'
@@ -232,7 +233,7 @@ function SliceCanvas({ pixels, ww, wl, zoom, pan, markers, label, subLabel, mark
       />
       {markerMode && (
         <div style={{ position: 'absolute', top: 30, left: 4, background: 'rgba(249,115,22,0.85)', color: '#fff', fontSize: 11, padding: '2px 6px', borderRadius: 3 }}>
-          微钙化标记模式: 点击图像添加/移除标记
+          {t('dbtPage.markerModeHint')}
         </div>
       )}
     </div>
@@ -316,7 +317,7 @@ const DbtPage: React.FC = () => {
           setSelectedSeriesUid(current.series[0]?.seriesInstanceUid ?? '')
         }
       } else {
-        setStudiesError(res.error?.message ?? 'DBT 检查列表加载失败')
+        setStudiesError(res.error?.message ?? t('dbtPage.studiesLoadFailed'))
       }
       setStudiesLoading(false)
     })
@@ -338,10 +339,10 @@ const DbtPage: React.FC = () => {
         setReconstructResult(null)
         setReconstructPixels(null)
       } else {
-        setSlicesError(res.error?.message ?? '断层切片加载失败')
+        setSlicesError(res.error?.message ?? t('dbtPage.slicesLoadFailed'))
       }
     } catch {
-      setSlicesError('断层切片加载失败')
+      setSlicesError(t('dbtPage.slicesLoadFailed'))
     } finally {
       setSlicesLoading(false)
     }
@@ -389,10 +390,10 @@ const DbtPage: React.FC = () => {
         setReconstructPixels(decodeRaw16(res.data.pixelData.dataBase64, res.data.pixelData.signed))
         setMode('reconstruct')
       } else {
-        message.error(res.error?.message ?? '断层重建失败')
+        message.error(res.error?.message ?? t('dbtPage.reconstructFailed'))
       }
     } catch {
-      message.error('断层重建失败')
+      message.error(t('dbtPage.reconstructFailed'))
     } finally {
       setReconstructing(false)
     }
@@ -403,7 +404,7 @@ const DbtPage: React.FC = () => {
     const current = studies.find((s) => s.isCurrent)
     const prior = studies.find((s) => !s.isCurrent)
     if (!current || !prior) {
-      message.warning('缺少当前/既往 DBT 检查数据')
+      message.warning(t('dbtPage.missingCompareData'))
       return
     }
     setCompareLoading(true)
@@ -425,10 +426,10 @@ const DbtPage: React.FC = () => {
           prior: priPix ? decodeRaw16(priPix.dataBase64, priPix.signed) : null,
         })
       } else {
-        setCompareError(res.error?.message ?? '对比数据加载失败')
+        setCompareError(res.error?.message ?? t('dbtPage.compareLoadFailed'))
       }
     } catch {
-      setCompareError('对比数据加载失败')
+      setCompareError(t('dbtPage.compareLoadFailed'))
     } finally {
       setCompareLoading(false)
     }
@@ -459,7 +460,7 @@ const DbtPage: React.FC = () => {
   // [G-21 Wave3C] 打开评分弹窗: 自动带入当前层自动检出微钙化数量
   const openBirads = () => {
     if (!selectedStudyId) {
-      message.warning('请先选择 DBT 检查')
+      message.warning(t('dbtPage.selectDbtStudy'))
       return
     }
     const auto = currentMarkers.filter((m) => m.auto).length
@@ -482,10 +483,10 @@ const DbtPage: React.FC = () => {
       if (res.success && res.data) {
         setBiradsResult(res.data)
       } else {
-        message.error(res.error?.message ?? 'BI-RADS 评分失败')
+        message.error(res.error?.message ?? t('dbtPage.biradsScoreFailed'))
       }
     } catch {
-      message.error('BI-RADS 评分失败')
+      message.error(t('dbtPage.biradsScoreFailed'))
     } finally {
       setBiradsLoading(false)
     }
@@ -507,15 +508,15 @@ const DbtPage: React.FC = () => {
     ].join('\n')
     window.dispatchEvent(new CustomEvent('report-insert-html', { detail: { html } }))
     try { window.localStorage.setItem('ris_rads_pending_insert', html) } catch { /* 忽略 */ }
-    message.success('BI-RADS 评分段落已发送至报告编辑器')
+    message.success(t('dbtPage.biradsInserted'))
   }
 
   const viewportCanvas = (view: 'single' | 'reconstruct') => {
     const isRecon = view === 'reconstruct'
     const px = isRecon ? reconstructPixels : currentPixelForSlice
     const label = isRecon
-      ? `DBT 重建 ${reconstructResult?.projection === 'mip' ? 'MIP' : 'Mean'} | ${reconstructResult?.thickness ?? 15}mm`
-      : `DBT | ${selectedSeries?.viewPosition ?? ''} | ${slices[currentSlice]?.tomoAngle.toFixed(1)}° | 第 ${currentSlice + 1}/${sliceCount} 层`
+      ? t('dbtPage.reconLabel', { proj: reconstructResult?.projection === 'mip' ? 'MIP' : 'Mean', thickness: reconstructResult?.thickness ?? 15 })
+      : t('dbtPage.singleLabel', { view: selectedSeries?.viewPosition ?? '', angle: slices[currentSlice]?.tomoAngle.toFixed(1), current: currentSlice + 1, total: sliceCount })
     return (
       <SliceCanvas
         pixels={px}
@@ -525,7 +526,7 @@ const DbtPage: React.FC = () => {
         pan={pan}
         markers={isRecon ? [] : currentMarkers}
         label={label}
-        subLabel={isRecon ? `来源: ${reconstructResult?.source === 'real' ? '真实像素' : '模拟'}` : `${selectedStudy?.patientName ?? ''} ${selectedStudy ? formatDate(selectedStudy.studyDate) : ''}`}
+        subLabel={isRecon ? t('dbtPage.reconSource', { source: reconstructResult?.source === 'real' ? t('dbtPage.sourceReal') : t('dbtPage.sourceSimulated') }) : `${selectedStudy?.patientName ?? ''} ${selectedStudy ? formatDate(selectedStudy.studyDate) : ''}`}
         markerMode={!isRecon && markerMode}
         onWheel={(dy) => setZoom((z) => Math.max(1, Math.min(10, z * (dy > 0 ? 0.88 : 1.12))))}
         onPan={(dx, dy) => setPan((p) => ({ x: p.x + dx, y: p.y + dy }))}
@@ -539,11 +540,11 @@ const DbtPage: React.FC = () => {
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>DBT 乳腺断层阅片</span>
-        <Tag color="cyan">数字乳腺断层合成</Tag>
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dbtPage.title')}</span>
+        <Tag color="cyan">{t('dbtPage.subtitle')}</Tag>
         {selectedStudy && (
           <>
-            <Tag color={selectedStudy.isCurrent ? 'green' : 'default'}>{selectedStudy.isCurrent ? '当前' : '既往'}</Tag>
+            <Tag color={selectedStudy.isCurrent ? 'green' : 'default'}>{selectedStudy.isCurrent ? t('dbtPage.current') : t('dbtPage.prior')}</Tag>
             <Tag>{formatDate(selectedStudy.studyDate)}</Tag>
             <Tag>{selectedStudy.patientName} ({selectedStudy.patientId})</Tag>
           </>
@@ -551,41 +552,41 @@ const DbtPage: React.FC = () => {
       </div>
 
       {studiesError && <Alert type="error" showIcon message={studiesError} style={{ marginBottom: 12 }} />}
-      {studiesLoading && <Spin tip="加载 DBT 检查列表..." style={{ display: 'block', margin: '40px 0' }} />}
+      {studiesLoading && <Spin tip={t('dbtPage.loadingStudies')} style={{ display: 'block', margin: '40px 0' }} />}
 
       {!studiesLoading && studies.length === 0 && !studiesError && (
-        <Alert type="warning" showIcon message="暂无 DBT 检查数据" description="请确认后端 dicom-samples/DBT 样本已生成或存在 modality=DBT 的 DicomInstance 记录。" style={{ marginBottom: 12 }} />
+        <Alert type="warning" showIcon message={t('dbtPage.noDbtData')} description={t('dbtPage.noDbtDataDesc')} style={{ marginBottom: 12 }} />
       )}
 
       {studies.length > 0 && (
         <>
           <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>检查列表:</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>{t('dbtPage.studyList')}</span>
               <Select
                 value={selectedStudyId || undefined}
                 onChange={onSeriesChange}
                 style={{ width: 420 }}
                 options={studies.map((s) => ({
                   value: s.id,
-                  label: `${s.isCurrent ? '【当前】' : '【既往】'} ${formatDate(s.studyDate)} ${s.studyDescription} (${s.series.length} 系列)`,
+                  label: t('dbtPage.studyOption', { status: s.isCurrent ? t('dbtPage.currentBracket') : t('dbtPage.priorBracket'), date: formatDate(s.studyDate), desc: s.studyDescription, count: s.series.length }),
                 }))}
               />
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>系列:</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>{t('dbtPage.seriesLabel')}</span>
               <Select
                 value={selectedSeriesUid || undefined}
                 onChange={(v) => setSelectedSeriesUid(v)}
                 style={{ width: 220 }}
                 options={(selectedStudy?.series ?? []).map((s) => ({
                   value: s.seriesInstanceUid,
-                  label: `${s.viewPosition} (${s.laterality === 'L' ? '左' : '右'}乳, ${s.sliceCount} 层)`,
+                  label: t('dbtPage.seriesOption', { view: s.viewPosition, side: s.laterality === 'L' ? t('dbtPage.left') : t('dbtPage.right'), count: s.sliceCount }),
                 }))}
               />
               <div style={{ flex: 1 }} />
-              <Button size="small" icon={<GitCompareArrows size={14} />} loading={compareLoading} onClick={runCompare}>双图对比</Button>
-              <Button size="small" icon={<ScanLine size={14} />} loading={reconstructing} onClick={() => runReconstruct('mip')}>断层重建 MIP</Button>
+              <Button size="small" icon={<GitCompareArrows size={14} />} loading={compareLoading} onClick={runCompare}>{t('dbtPage.compareBtn')}</Button>
+              <Button size="small" icon={<ScanLine size={14} />} loading={reconstructing} onClick={() => runReconstruct('mip')}>{t('dbtPage.reconstructBtn')}</Button>
               {/* [G-21 Wave3C] 微钙化检测 → BI-RADS 自动评分 */}
-              <Button size="small" type="primary" icon={<Sparkles size={14} />} onClick={openBirads}>BI-RADS 自动评分</Button>
+              <Button size="small" type="primary" icon={<Sparkles size={14} />} onClick={openBirads}>{t('dbtPage.biradsBtn')}</Button>
             </div>
           </Card>
 
@@ -593,9 +594,9 @@ const DbtPage: React.FC = () => {
             value={mode}
             onChange={(v) => setMode(v as ViewMode)}
             options={[
-              { label: '断层阅片', value: 'single' },
-              { label: '厚度投影', value: 'reconstruct' },
-              { label: '双图对比', value: 'compare' },
+              { label: t('dbtPage.viewSingle'), value: 'single' },
+              { label: t('dbtPage.viewReconstruct'), value: 'reconstruct' },
+              { label: t('dbtPage.viewCompare'), value: 'compare' },
             ]}
             style={{ marginBottom: 12 }}
           />
@@ -604,7 +605,7 @@ const DbtPage: React.FC = () => {
             <div style={{ display: 'flex', gap: 12 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: 'calc(100vh - 300px)' }}>
-                  {slicesLoading && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}><Spin tip="加载断层切片..." /></div>}
+                  {slicesLoading && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}><Spin tip={t('dbtPage.loadingSlices')} /></div>}
                   {!slicesLoading && slicesError && <div style={{ padding: 24 }}><Alert type="error" showIcon message={slicesError} /></div>}
                   {!slicesLoading && !slicesError && viewportCanvas(mode)}
                 </div>
@@ -619,24 +620,24 @@ const DbtPage: React.FC = () => {
                     <SkipForward size={14} />
                   </button>
                   <div style={{ width: 1, height: 20, background: '#334155' }} />
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>速度:</span>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('dbtPage.speedLabel')}</span>
                   {[0.5, 1, 2, 4].map((v) => (
                     <button key={v} style={speed === v ? activeBtnStyle : btnStyle} onClick={() => setSpeed(v)}>{v}x</button>
                   ))}
                   <div style={{ width: 1, height: 20, background: '#334155' }} />
-                  <button style={markerMode ? activeBtnStyle : btnStyle} onClick={() => setMarkerMode((v) => !v)} title="微钙化标记">
-                    <Crosshair size={14} /> 微钙化标记
+                  <button style={markerMode ? activeBtnStyle : btnStyle} onClick={() => setMarkerMode((v) => !v)} title={t('dbtPage.markerBtn')}>
+                    <Crosshair size={14} /> {t('dbtPage.markerBtn')}
                   </button>
-                  <button style={btnStyle} onClick={() => setZoom((z) => Math.min(10, z * 1.3))} title="放大"><ZoomIn size={14} /></button>
-                  <button style={btnStyle} onClick={() => setZoom((z) => Math.max(1, z / 1.3))} title="缩小"><ZoomOut size={14} /></button>
-                  <button style={btnStyle} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }} title="适应"><Maximize size={14} /></button>
+                  <button style={btnStyle} onClick={() => setZoom((z) => Math.min(10, z * 1.3))} title={t('dbtPage.zoomInTitle')}><ZoomIn size={14} /></button>
+                  <button style={btnStyle} onClick={() => setZoom((z) => Math.max(1, z / 1.3))} title={t('dbtPage.zoomOutTitle')}><ZoomOut size={14} /></button>
+                  <button style={btnStyle} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }} title={t('dbtPage.fitTitle')}><Maximize size={14} /></button>
                   <Slider min={0} max={Math.max(0, sliceCount - 1)} value={currentSlice} onChange={(v) => { setCurrentSlice(v); setPlaying(false) }} style={{ flex: 1, margin: 0 }} />
                   <span style={{ fontSize: 11, color: '#94a3b8' }}>{sliceCount > 0 ? `${currentSlice + 1}/${sliceCount}` : '-'}</span>
                 </div>
               </div>
 
               <div style={{ width: 240, flexShrink: 0 }}>
-                <Card size="small" title="窗宽窗位" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
+                <Card size="small" title={t('dbtPage.windowCard')} style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
                   <div style={{ marginBottom: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>
                       <span>WW</span><span style={{ color: '#facc15' }}>{ww}</span>
@@ -649,21 +650,21 @@ const DbtPage: React.FC = () => {
                     </div>
                     <Slider min={0} max={4000} value={wl} onChange={setWl} />
                   </div>
-                  <Button size="small" block onClick={() => { setWw(2400); setWl(1600) }}>重置窗位</Button>
+                  <Button size="small" block onClick={() => { setWw(2400); setWl(1600) }}>{t('dbtPage.resetWindow')}</Button>
                 </Card>
-                <Card size="small" title="微钙化标记" style={{ background: PANEL_BG, border: '1px solid #334155' }}>
-                  {currentMarkers.length === 0 && <div style={{ fontSize: 12, color: '#64748b', padding: '6px 0' }}>当前层无标记 (自动检测 ±)</div>}
+                <Card size="small" title={t('dbtPage.markerCard')} style={{ background: PANEL_BG, border: '1px solid #334155' }}>
+                  {currentMarkers.length === 0 && <div style={{ fontSize: 12, color: '#64748b', padding: '6px 0' }}>{t('dbtPage.noMarkers')}</div>}
                   {currentMarkers.map((m) => (
                     <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '3px 0', borderBottom: '1px solid #1e293b' }}>
                       <span style={{ width: 10, height: 10, background: m.auto ? '#facc15' : '#f97316', borderRadius: 2, display: 'inline-block' }} />
-                      <span style={{ color: '#cbd5e1' }}>{m.auto ? '自动' : '手动'}</span>
+                      <span style={{ color: '#cbd5e1' }}>{m.auto ? t('dbtPage.auto') : t('dbtPage.manual')}</span>
                       <span style={{ color: '#64748b' }}>x:{m.x} y:{m.y} {m.w}×{m.h}px</span>
                       <span style={{ flex: 1 }} />
-                      <button style={{ ...btnStyle, padding: '2px 6px', fontSize: 11 }} onClick={() => setMarkersBySlice((prev) => ({ ...prev, [currentSlice]: (prev[currentSlice] ?? []).filter((mm) => mm.id !== m.id) }))}>删</button>
+                      <button style={{ ...btnStyle, padding: '2px 6px', fontSize: 11 }} onClick={() => setMarkersBySlice((prev) => ({ ...prev, [currentSlice]: (prev[currentSlice] ?? []).filter((mm) => mm.id !== m.id) }))}>{t('dbtPage.delete')}</button>
                     </div>
                   ))}
                   <div style={{ fontSize: 11, color: '#64748b', marginTop: 8 }}>
-                    检出阈值: {Math.round(wl + ww * 0.55)} ({currentMarkers.filter((m) => m.auto).length} 处自动检出)
+                    {t('dbtPage.threshold', { value: Math.round(wl + ww * 0.55), count: currentMarkers.filter((m) => m.auto).length })}
                   </div>
                 </Card>
               </div>
@@ -672,19 +673,19 @@ const DbtPage: React.FC = () => {
 
           {mode === 'compare' && (
             <div>
-              {compareLoading && <Spin tip="加载双图对比..." style={{ display: 'block', margin: '40px 0' }} />}
+              {compareLoading && <Spin tip={t('dbtPage.loadingCompare')} style={{ display: 'block', margin: '40px 0' }} />}
               {compareError && <Alert type="error" showIcon message={compareError} style={{ marginBottom: 12 }} />}
               {!compareLoading && compareResult && (
                 <>
                   <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
                     <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', fontSize: 12 }}>
                       <span style={{ color: GREEN }}>
-                        当前: {formatDate(compareResult.current.studyDate)} {compareResult.current.patientName} ({compareResult.current.accessionNumber})
+                        {t('dbtPage.compareCurrent', { date: formatDate(compareResult.current.studyDate), name: compareResult.current.patientName, accession: compareResult.current.accessionNumber })}
                       </span>
                       <span style={{ color: BLUE }}>
-                        既往: {formatDate(compareResult.prior.studyDate)} {compareResult.prior.patientName} ({compareResult.prior.accessionNumber})
+                        {t('dbtPage.comparePrior', { date: formatDate(compareResult.prior.studyDate), name: compareResult.prior.patientName, accession: compareResult.prior.accessionNumber })}
                       </span>
-                      <span style={{ color: '#94a3b8' }}>同步滚动: 已开启</span>
+                      <span style={{ color: '#94a3b8' }}>{t('dbtPage.syncScrollOn')}</span>
                     </div>
                   </Card>
                   <div style={{ display: 'flex', gap: 12 }}>
@@ -692,7 +693,7 @@ const DbtPage: React.FC = () => {
                       <SliceCanvas
                         pixels={comparePixels.current}
                         ww={ww} wl={wl} zoom={zoom} pan={pan} markers={[]}
-                        label={`当前 | ${compareResult.current.series[0]?.viewPosition ?? ''} | ${compareSlice + 1}/${15} 层`}
+                        label={t('dbtPage.compareCanvasCurrent', { view: compareResult.current.series[0]?.viewPosition ?? '', current: compareSlice + 1 })}
                         subLabel={`${formatDate(compareResult.current.studyDate)} (2026)`}
                         markerMode={false}
                         onWheel={(dy) => setZoom((z) => Math.max(1, Math.min(10, z * (dy > 0 ? 0.88 : 1.12))))}
@@ -704,7 +705,7 @@ const DbtPage: React.FC = () => {
                       <SliceCanvas
                         pixels={comparePixels.prior}
                         ww={ww} wl={wl} zoom={zoom} pan={pan} markers={[]}
-                        label={`既往 | ${compareResult.prior.series[0]?.viewPosition ?? ''} | ${compareSlice + 1}/${15} 层`}
+                        label={t('dbtPage.compareCanvasPrior', { view: compareResult.prior.series[0]?.viewPosition ?? '', current: compareSlice + 1 })}
                         subLabel={`${formatDate(compareResult.prior.studyDate)} (2025)`}
                         markerMode={false}
                         onWheel={(dy) => setZoom((z) => Math.max(1, Math.min(10, z * (dy > 0 ? 0.88 : 1.12))))}
@@ -714,7 +715,7 @@ const DbtPage: React.FC = () => {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, background: PANEL_BG, borderRadius: 6, padding: '8px 12px' }}>
-                    <span style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>同步层位:</span>
+                    <span style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>{t('dbtPage.syncSliceLabel')}</span>
                     <Slider min={0} max={14} value={compareSlice} onChange={setCompareSlice} style={{ flex: 1, margin: 0 }} />
                     <span style={{ fontSize: 11, color: '#94a3b8' }}>{compareSlice + 1}/15</span>
                     <button style={btnStyle} onClick={() => setCompareSlice((c) => Math.min(14, c + 1))}><SkipForward size={14} /></button>
@@ -728,84 +729,84 @@ const DbtPage: React.FC = () => {
 
       {/* [G-21 Wave3C] BI-RADS 自动评分弹窗: 特征确认 → 评分结果卡 → 可插入报告 */}
       <Modal
-        title={<span><Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} />DBT 微钙化 BI-RADS 自动评分{selectedStudy ? ` · ${selectedStudy.patientName} (${selectedStudy.studyDescription})` : ''}</span>}
+        title={<span><Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} />{t('dbtPage.biradsModalTitle')}{selectedStudy ? ` · ${selectedStudy.patientName} (${selectedStudy.studyDescription})` : ''}</span>}
         open={biradsOpen}
         onCancel={() => setBiradsOpen(false)}
         footer={null}
         width={680}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <Card size="small" title="特征确认 (微钙化检测结果 + 补充特征)">
+          <Card size="small" title={t('dbtPage.featureConfirm')}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>微钙化数量 (当前层自动检出 {currentMarkers.filter(m => m.auto).length} 处)</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.calcCount', { count: currentMarkers.filter(m => m.auto).length })}</div>
                 <InputNumber min={0} max={500} value={biradsCalcCount} onChange={(v) => setBiradsCalcCount(v ?? 0)} style={{ width: '100%' }} />
               </div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>分布</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.distribution')}</div>
                 <Select value={biradsDistribution} onChange={setBiradsDistribution} style={{ width: '100%' }} options={[
-                  { value: 'clustered', label: '簇状' }, { value: 'linear', label: '线样' }, { value: 'segmental', label: '段样' },
-                  { value: 'regional', label: '区域' }, { value: 'diffuse', label: '弥漫' },
+                  { value: 'clustered', label: t('dbtPage.distClustered') }, { value: 'linear', label: t('dbtPage.distLinear') }, { value: 'segmental', label: t('dbtPage.distSegmental') },
+                  { value: 'regional', label: t('dbtPage.distRegional') }, { value: 'diffuse', label: t('dbtPage.distDiffuse') },
                 ]} />
               </div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>钙化形态</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.morphology')}</div>
                 <Select value={biradsMorphology} onChange={setBiradsMorphology} style={{ width: '100%' }} options={[
-                  { value: 'punctate', label: '点状 (典型良性)' }, { value: 'round', label: '圆形 (典型良性)' },
-                  { value: 'coarse', label: '粗大 (典型良性)' }, { value: 'popcorn', label: '爆米花样 (典型良性)' },
-                  { value: 'amorphous', label: '无定形 (可疑)' }, { value: 'coarse_heterogeneous', label: '粗糙不均质 (可疑)' },
-                  { value: 'fine_pleomorphic', label: '细小多形性 (高度可疑)' }, { value: 'fine_linear', label: '细小线样 (高度可疑)' },
+                  { value: 'punctate', label: t('dbtPage.morphPunctate') }, { value: 'round', label: t('dbtPage.morphRound') },
+                  { value: 'coarse', label: t('dbtPage.morphCoarse') }, { value: 'popcorn', label: t('dbtPage.morphPopcorn') },
+                  { value: 'amorphous', label: t('dbtPage.morphAmorphous') }, { value: 'coarse_heterogeneous', label: t('dbtPage.morphCoarseHeterogeneous') },
+                  { value: 'fine_pleomorphic', label: t('dbtPage.morphFinePleomorphic') }, { value: 'fine_linear', label: t('dbtPage.morphFineLinear') },
                 ]} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Checkbox checked={biradsHasMass} onChange={(e) => setBiradsHasMass(e.target.checked)}>合并肿块特征</Checkbox>
+                <Checkbox checked={biradsHasMass} onChange={(e) => setBiradsHasMass(e.target.checked)}>{t('dbtPage.hasMass')}</Checkbox>
               </div>
               {biradsHasMass && (
                 <>
                   <div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>肿块大小 (mm)</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.massSize')}</div>
                     <InputNumber min={1} max={200} value={biradsMassSize} onChange={(v) => setBiradsMassSize(v ?? 15)} style={{ width: '100%' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>肿块形态</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.massShape')}</div>
                     <Select value={biradsMassShape} onChange={setBiradsMassShape} style={{ width: '100%' }} options={[
-                      { value: 'round', label: '圆形' }, { value: 'oval', label: '卵圆形' }, { value: 'irregular', label: '不规则' },
+                      { value: 'round', label: t('dbtPage.shapeRound') }, { value: 'oval', label: t('dbtPage.shapeOval') }, { value: 'irregular', label: t('dbtPage.shapeIrregular') },
                     ]} />
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>边缘</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dbtPage.margin')}</div>
                     <Select value={biradsMassMargin} onChange={setBiradsMassMargin} style={{ width: '100%' }} options={[
-                      { value: 'circumscribed', label: '清晰' }, { value: 'microlobulated', label: '微分叶' },
-                      { value: 'indistinct', label: '模糊' }, { value: 'spiculated', label: '毛刺' },
+                      { value: 'circumscribed', label: t('dbtPage.marginCircumscribed') }, { value: 'microlobulated', label: t('dbtPage.marginMicrolobulated') },
+                      { value: 'indistinct', label: t('dbtPage.marginIndistinct') }, { value: 'spiculated', label: t('dbtPage.marginSpiculated') },
                     ]} />
                   </div>
                 </>
               )}
             </div>
             <div style={{ marginTop: 10 }}>
-              <Button type="primary" icon={<Sparkles size={14} />} loading={biradsLoading} onClick={runBiradsScore}>开始评分</Button>
+              <Button type="primary" icon={<Sparkles size={14} />} loading={biradsLoading} onClick={runBiradsScore}>{t('dbtPage.startScore')}</Button>
             </div>
           </Card>
 
           {biradsResult && (
             <Card
               size="small"
-              title={<span>评分结果 · <Tag color={biradsResult.category === '5' ? 'red' : biradsResult.category.startsWith('4') ? 'volcano' : biradsResult.category === '3' ? 'gold' : biradsResult.category === '0' ? 'default' : 'green'}>{biradsResult.categoryLabel}</Tag></span>}
-              extra={<Button size="small" icon={<FileText size={12} />} onClick={insertBiradsToReport}>插入报告</Button>}
+              title={<span>{t('dbtPage.scoreResult')} · <Tag color={biradsResult.category === '5' ? 'red' : biradsResult.category.startsWith('4') ? 'volcano' : biradsResult.category === '3' ? 'gold' : biradsResult.category === '0' ? 'default' : 'green'}>{biradsResult.categoryLabel}</Tag></span>}
+              extra={<Button size="small" icon={<FileText size={12} />} onClick={insertBiradsToReport}>{t('dbtPage.insertReport')}</Button>}
             >
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                 <div style={{ padding: 10, background: '#f0fdf4', borderRadius: 8 }}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>分类</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('dbtPage.category')}</div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: biradsResult.category === '5' ? '#dc2626' : biradsResult.category.startsWith('4') ? '#ea580c' : biradsResult.category === '3' ? '#ca8a04' : '#16a34a' }}>{biradsResult.categoryLabel}</div>
                 </div>
                 <div style={{ padding: 10, background: '#fffbeb', borderRadius: 8 }}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>恶性可能</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('dbtPage.malignancyRisk')}</div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#b45309' }}>{biradsResult.malignancyRisk}</div>
                 </div>
               </div>
-              <Alert type={biradsResult.category === '5' || biradsResult.category.startsWith('4') ? 'warning' : biradsResult.category === '3' ? 'info' : 'success'} showIcon message={<b>建议</b>} description={biradsResult.recommendation} style={{ marginBottom: 10 }} />
+              <Alert type={biradsResult.category === '5' || biradsResult.category.startsWith('4') ? 'warning' : biradsResult.category === '3' ? 'info' : 'success'} showIcon message={<b>{t('dbtPage.recommendation')}</b>} description={biradsResult.recommendation} style={{ marginBottom: 10 }} />
               <Divider style={{ margin: '8px 0' }} />
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>评分依据 ({biradsResult.basis.length})</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('dbtPage.basis', { count: biradsResult.basis.length })}</div>
               <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#334155' }}>
                 {biradsResult.basis.map((b, i) => <li key={i} style={{ marginBottom: 3 }}>{b}</li>)}
               </ul>

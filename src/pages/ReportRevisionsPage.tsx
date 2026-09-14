@@ -20,24 +20,25 @@ import {
 } from '../data/reviewRevisionCollabMock';
 import { extendedReportMock } from '../data/reportSubsystemMock';
 import { reportApi } from '../services/api/reportApi';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 修订动作配置
 // ============================================================
 const ACTION_CONFIG = {
-  initial:  { label: '初次发布', color: '#3b82f6', bg: '#3b82f622', icon: FileText },
-  revise:   { label: '修订',     color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
-  addendum: { label: '补发',     color: '#7c3aed', bg: '#8b5cf622', icon: Plus },
-  recall:   { label: '撤回',     color: '#ef4444', bg: '#ef444422', icon: RotateCcw },
+  initial:  { label: t('reportRev.action.initial'), color: '#3b82f6', bg: '#3b82f622', icon: FileText },
+  revise:   { label: t('reportRev.action.revise'),     color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
+  addendum: { label: t('reportRev.action.addendum'),     color: '#7c3aed', bg: '#8b5cf622', icon: Plus },
+  recall:   { label: t('reportRev.action.recall'),     color: '#ef4444', bg: '#ef444422', icon: RotateCcw },
 };
 
 // ============================================================
 // 变更类型配置
 // ============================================================
 const CHANGE_CONFIG = {
-  modified: { label: '修改', color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
-  added:    { label: '新增', color: '#10b981', bg: '#22c55e22', icon: Plus },
-  deleted:  { label: '删除', color: '#ef4444', bg: '#ef444422', icon: X },
+  modified: { label: t('reportRev.change.modified'), color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
+  added:    { label: t('reportRev.change.added'), color: '#10b981', bg: '#22c55e22', icon: Plus },
+  deleted:  { label: t('reportRev.change.deleted'), color: '#ef4444', bg: '#ef444422', icon: X },
 };
 
 // ============================================================
@@ -108,7 +109,7 @@ export default function ReportRevisionsPage() {
       const reports = Array.isArray(res.data) ? res.data : Array.isArray((res.data as any)?.items) ? (res.data as any).items : [];
       if (!Array.isArray(reports) || reports.length === 0) {
         setSource('demo');
-        setError('reportApi 暂不可用，当前展示内置演示修订数据');
+        setError(t('reportRev.apiUnavailable'));
         return;
       }
       const meta: Record<string, { patientName: string; modality: string; bodyPart: string }> = {};
@@ -143,7 +144,7 @@ export default function ReportRevisionsPage() {
             versionNumber: i + 1,
             versionLabel: `v1.${i}`,
             authorId: String(ev.actor ?? 'unknown'),
-            authorName: String(ev.actor ?? '未知用户'),
+            authorName: String(ev.actor ?? t('reportRev.unknownUser')),
             authorTitle: '—',
             action: mapAction(String(ev.fromState ?? ''), String(ev.toState ?? '')),
             reason: String(ev.reason ?? `${ev.fromState ?? ''} → ${ev.toState ?? ''}`),
@@ -164,11 +165,11 @@ export default function ReportRevisionsPage() {
         setSource('api');
       } else {
         setSource('demo');
-        setError('未检索到带修订记录的报告，展示演示数据');
+        setError(t('reportRev.noTrail'));
       }
     } catch (e) {
       setSource('demo');
-      setError(e instanceof Error ? e.message : '修订数据加载失败，已回退演示数据');
+      setError(e instanceof Error ? e.message : t('reportRev.loadFail'));
     } finally {
       setLoading(false);
     }
@@ -233,11 +234,11 @@ export default function ReportRevisionsPage() {
       if (res.success) {
         message.success(`已发送通知给 ${report.patientName}`);
       } else {
-        message.warning('通知服务暂不可用，已本地标记（待补发）');
+        message.warning(t('reportRev.notifyUnavailable'));
       }
     } catch {
       setAllRevisions(prev => prev.map(r => r.id === rightRev.id ? { ...r, patientNotified: true } : r));
-      message.warning('通知服务暂不可用，已本地标记（待补发）');
+      message.warning(t('reportRev.notifyUnavailable'));
     } finally {
       setNotifyLoading(false);
     }
@@ -247,11 +248,11 @@ export default function ReportRevisionsPage() {
   const handleWithdrawReport = () => {
     if (!report) return;
     Modal.confirm({
-      title: '确认撤回报告',
+      title: t('reportRev.withdrawTitle'),
       content: `撤回后报告 ${selectedReportId} 将置为「已撤回 (WITHDRAWN)」，患者端不可见。是否继续？`,
-      okText: '确认撤回',
+      okText: t('reportRev.withdrawOk'),
       okButtonProps: { danger: true },
-      cancelText: '取消',
+      cancelText: t('reportRev.cancel'),
       onOk: async () => {
         setWithdrawing(true);
         try {
@@ -260,10 +261,10 @@ export default function ReportRevisionsPage() {
             message.success(`报告 ${selectedReportId} 已撤回（WITHDRAWN）`);
             await loadRevisions();
           } else {
-            message.error(res.error?.message ?? '撤回失败');
+            message.error(res.error?.message ?? t('reportRev.withdrawFail'));
           }
         } catch {
-          message.error('撤回失败，请稍后重试');
+          message.error(t('reportRev.withdrawFailRetry'));
         } finally {
           setWithdrawing(false);
         }
@@ -273,11 +274,11 @@ export default function ReportRevisionsPage() {
 
   // [v3.0.6.11-99 Wave8A P1] 创建修订/补发: reportApi.revise → AMENDING (修订说明本地记录, 随修订链展示)
   const handleCreateAddendum = async () => {
-    if (!addendumNote.trim()) { message.warning('请填写修订说明'); return; }
+    if (!addendumNote.trim()) { message.warning(t('reportRev.addendumNoteRequired')); return; }
     setAddendumLoading(true);
     try {
       const res = await reportApi.revise(selectedReportId);
-      if (!res.success) { message.error(res.error?.message ?? '补发失败'); return; }
+      if (!res.success) { message.error(res.error?.message ?? t('reportRev.addendumFail')); return; }
       const user = getCurrentUser();
       const latest = currentRevisions[currentRevisions.length - 1];
       const newRev: ReportRevision = {
@@ -286,7 +287,7 @@ export default function ReportRevisionsPage() {
         versionNumber: (latest?.versionNumber ?? 0) + 1,
         versionLabel: `v1.${(latest?.versionNumber ?? 0) + 1}`,
         authorId: user?.id ?? 'unknown',
-        authorName: (user as any)?.name ?? '当前用户',
+        authorName: (user as any)?.name ?? t('reportRev.currentUser'),
         authorTitle: '—',
         action: 'addendum',
         reason: addendumNote.trim(),
@@ -302,7 +303,7 @@ export default function ReportRevisionsPage() {
       setShowAddendumModal(false);
       message.success(`报告 ${selectedReportId} 已置为修订中 (AMENDING)，补发说明已记录`);
     } catch {
-      message.error('补发失败，请稍后重试');
+      message.error(t('reportRev.addendumFailRetry'));
     } finally {
       setAddendumLoading(false);
     }
@@ -314,7 +315,7 @@ export default function ReportRevisionsPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <History size={20} color="#f59e0b" /> 报告修订与版本管理
+            <History size={20} color="#f59e0b" /> {t('reportRev.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
@@ -323,11 +324,11 @@ export default function ReportRevisionsPage() {
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
-              {loading ? '同步中...' : source === 'api' ? '数据源: reportApi.auditTrail/diff 实时' : '演示数据(接口不可用)'}
+              {loading ? t('reportRev.syncing') : source === 'api' ? t('reportRev.sourceApi') : t('reportRev.sourceDemo')}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            修订链追溯 · 版本对比 (Diff) · 补发/勘误 · 患者告知
+            {t('reportRev.subtitle')}
             {error && <span style={{ color: '#dc2626', marginLeft: 8 }}>{error}</span>}
           </p>
         </div>
@@ -342,7 +343,7 @@ export default function ReportRevisionsPage() {
               display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            <Plus size={12} /> 创建修订/补发
+            <Plus size={12} /> {t('reportRev.createRevision')}
           </button>
           <button
             onClick={() => navigate('/reports')}
@@ -351,7 +352,7 @@ export default function ReportRevisionsPage() {
               background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
             }}
           >
-            返回报告列表
+            {t('reportRev.backToList')}
           </button>
         </div>
       </div>
@@ -364,7 +365,7 @@ export default function ReportRevisionsPage() {
         }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Layers size={12} /> 修订报告 ({reportIds.length})
+              <Layers size={12} /> {t('reportRev.revisedReports', { count: reportIds.length })}
             </div>
             <div style={{ position: 'relative' }}>
               <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
@@ -372,7 +373,7 @@ export default function ReportRevisionsPage() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="搜索报告 ID / 患者..."
+                placeholder={t('reportRev.searchPlaceholder')}
                 style={{
                   width: '100%', padding: '5px 8px 5px 26px',
                   border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
@@ -411,7 +412,7 @@ export default function ReportRevisionsPage() {
                       <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r?.modality}</span>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                      {rid} · {revs.length} 个版本
+                      {rid} · {t('reportRev.versionCount', { count: revs.length })}
                     </div>
                     <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                       {revs.map(rev => {
@@ -429,7 +430,7 @@ export default function ReportRevisionsPage() {
               })}
             {reportIds.length === 0 && (
               <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-                暂无修订报告
+                {t('reportRev.emptyRevisions')}
               </div>
             )}
           </div>
@@ -449,10 +450,10 @@ export default function ReportRevisionsPage() {
                       <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
                         {report.patientName} · {report.modality} {report.bodyPart}
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>报告 ID：{selectedReportId}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('reportRev.reportIdLabel')}{selectedReportId}</div>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>修订次数</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.revisionCount')}</span>
                       <span style={{ marginLeft: 6, fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{currentRevisions.length}</span>
                     </div>
                   </div>
@@ -464,7 +465,7 @@ export default function ReportRevisionsPage() {
                 background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <GitBranch size={14} /> 修订链时间线
+                  <GitBranch size={14} /> {t('reportRev.timeline')}
                 </div>
                 <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
                   {currentRevisions.map((rev, idx) => {
@@ -487,8 +488,8 @@ export default function ReportRevisionsPage() {
                             position: 'relative',
                           }}
                         >
-                          {isLeft && <span style={{ position: 'absolute', top: -8, left: 8, fontSize: 12, padding: '1px 5px', background: '#f59e0b', color: '#fff', borderRadius: 3, fontWeight: 700 }}>左侧</span>}
-                          {isRight && <span style={{ position: 'absolute', top: -8, right: 8, fontSize: 12, padding: '1px 5px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>右侧</span>}
+                          {isLeft &&                     <span style={{ position: 'absolute', top: -8, left: 8, fontSize: 12, padding: '1px 5px', background: '#f59e0b', color: '#fff', borderRadius: 3, fontWeight: 700 }}>{t('reportRev.left')}</span>}
+                          {isRight && <span style={{ position: 'absolute', top: -8, right: 8, fontSize: 12, padding: '1px 5px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>{t('reportRev.right')}</span>}
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
                             <Icon size={12} color={aConf.color} />
                             <strong style={{ fontSize: 12, color: aConf.color }}>{rev.versionLabel}</strong>
@@ -499,10 +500,10 @@ export default function ReportRevisionsPage() {
                           </div>
                           <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{rev.createdAt}</div>
                           {rev.publishedAt && (
-                            <div style={{ fontSize: 12, color: '#10b981', marginTop: 4 }}>✓ 已发布 {rev.publishedAt}</div>
+                            <div style={{ fontSize: 12, color: '#10b981', marginTop: 4 }}>{t('reportRev.published')} {rev.publishedAt}</div>
                           )}
                           {rev.patientNotified && (
-                            <div style={{ fontSize: 12, color: '#3b82f6', marginTop: 2 }}>🔔 已通知患者</div>
+                            <div style={{ fontSize: 12, color: '#3b82f6', marginTop: 2 }}>{t('reportRev.notified')}</div>
                           )}
                           <div style={{ fontSize: 12, color: '#dc2626', marginTop: 4, fontStyle: 'italic' }}>{rev.reason}</div>
                         </div>
@@ -518,7 +519,7 @@ export default function ReportRevisionsPage() {
 
                 {/* 对比控制栏 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>对比：</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.compare')}</span>
                   <select value={leftVersion} onChange={e => setLeftVersion(Number(e.target.value))} style={selectStyle}>
                     {currentRevisions.map(r => <option key={r.id} value={r.versionNumber}>{r.versionLabel} {ACTION_CONFIG[r.action].label}</option>)}
                   </select>
@@ -526,11 +527,11 @@ export default function ReportRevisionsPage() {
                   <select value={rightVersion} onChange={e => setRightVersion(Number(e.target.value))} style={selectStyle}>
                     {currentRevisions.map(r => <option key={r.id} value={r.versionNumber}>{r.versionLabel} {ACTION_CONFIG[r.action].label}</option>)}
                   </select>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>字段：</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.field')}</span>
                   <select value={diffField} onChange={e => setDiffField(e.target.value as any)} style={selectStyle}>
-                    <option value="findings">检查所见</option>
-                    <option value="diagnosis">诊断</option>
-                    <option value="impression">意见</option>
+                    <option value="findings">{t('reportRev.field.findings')}</option>
+                    <option value="diagnosis">{t('reportRev.field.diagnosis')}</option>
+                    <option value="impression">{t('reportRev.field.impression')}</option>
                   </select>
                   <button
                     onClick={() => setShowDiff(!showDiff)}
@@ -541,7 +542,7 @@ export default function ReportRevisionsPage() {
                       fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    <GitCompare size={11} /> {showDiff ? '隐藏' : '显示'} Diff
+                    <GitCompare size={11} /> {showDiff ? t('reportRev.hideDiff') : t('reportRev.showDiff')}
                   </button>
                 </div>
               </div>
@@ -553,12 +554,12 @@ export default function ReportRevisionsPage() {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <div style={{ flex: 1, padding: 8, background: '#f9731622', border: '1px solid #fed7aa', borderRadius: 4 }}>
-                      <div style={{ fontSize: 12, color: '#9a3412', fontWeight: 600 }}>左侧：{leftRev.versionLabel} {ACTION_CONFIG[leftRev.action].label}</div>
+                      <div style={{ fontSize: 12, color: '#9a3412', fontWeight: 600 }}>{t('reportRev.leftVersion')}{leftRev.versionLabel} {ACTION_CONFIG[leftRev.action].label}</div>
                       <div style={{ fontSize: 12, color: '#7c2d12' }}>{leftRev.authorName} · {leftRev.createdAt}</div>
                     </div>
                     <ArrowLeftRight size={16} color="var(--text-secondary)" />
                     <div style={{ flex: 1, padding: 8, background: 'var(--color-success-bg)', border: '1px solid #bbf7d0', borderRadius: 4 }}>
-                      <div style={{ fontSize: 12, color: '#15803d', fontWeight: 600 }}>右侧：{rightRev.versionLabel} {ACTION_CONFIG[rightRev.action].label}</div>
+                      <div style={{ fontSize: 12, color: '#15803d', fontWeight: 600 }}>{t('reportRev.rightVersion')}{rightRev.versionLabel} {ACTION_CONFIG[rightRev.action].label}</div>
                       <div style={{ fontSize: 12, color: '#166534' }}>{rightRev.authorName} · {rightRev.createdAt}</div>
                     </div>
                   </div>
@@ -566,12 +567,12 @@ export default function ReportRevisionsPage() {
                   {/* Diff 内容 */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     <DiffPanel
-                      title="变更前"
+                      title={t('reportRev.before')}
                       text={leftRev[diffField] || ''}
                       variant="before"
                     />
                     <DiffPanel
-                      title="变更后"
+                      title={t('reportRev.after')}
                       text={rightRev[diffField] || ''}
                       variant="after"
                     />
@@ -579,7 +580,7 @@ export default function ReportRevisionsPage() {
 
                   {/* 合并视图 */}
                   <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>合并视图（红=删除 绿=新增 黑=相同）</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>{t('reportRev.mergedView')}</div>
                     <div style={{
                       padding: 12, background: 'var(--bg-card)', borderRadius: 6,
                       border: '1px solid var(--border-color)', fontSize: 12, lineHeight: 1.8,
@@ -604,12 +605,12 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                   {rightRev.changes && rightRev.changes.length > 0 && (
                     <div style={{ marginTop: 12, padding: 10, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d' }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
-                        📝 修订变更列表（{rightRev.changes.length} 项）
+                        {t('reportRev.changesList', { count: rightRev.changes.length })}
                       </div>
                       {rightRev.changes.map((change, i) => {
                         const cConf = CHANGE_CONFIG[change.changeType];
                         const CIcon = cConf.icon;
-                        const fieldLabel = { findings: '检查所见', diagnosis: '诊断', impression: '意见', recommendation: '建议', critical: '危急值' }[change.field] || change.field;
+                        const fieldLabel = { findings: t('reportRev.field.findings'), diagnosis: t('reportRev.field.diagnosis'), impression: t('reportRev.field.impression'), recommendation: t('reportRev.field.recommendation'), critical: t('reportRev.field.critical') }[change.field] || change.field;
                         return (
                           <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
@@ -651,7 +652,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  <Eye size={11} /> 预览终版
+                  <Eye size={11} /> {t('reportRev.previewFinal')}
                 </button>
                 <button
                   onClick={() => void handleNotifyPatient()}
@@ -662,7 +663,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  <Bell size={11} /> {notifyLoading ? '发送中...' : '通知患者'}
+                  <Bell size={11} /> {notifyLoading ? t('reportRev.sending') : t('reportRev.notifyPatient')}
                 </button>
                 <button
                   onClick={handleWithdrawReport}
@@ -673,13 +674,13 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  <RotateCcw size={11} /> {withdrawing ? '撤回中...' : '撤回报告'}
+                  <RotateCcw size={11} /> {withdrawing ? t('reportRev.withdrawing') : t('reportRev.withdrawReport')}
                 </button>
               </div>
             </>
           ) : (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--bg-card)', borderRadius: 8 }}>
-              请从左侧选择有修订的报告
+              {t('reportRev.selectReportHint')}
             </div>
           )}
         </div>
@@ -687,7 +688,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
 
       {/* [v3.0.6.11-98 Wave3B P1] 终版预览 Modal */}
       <Modal
-        title={rightRev ? `终版预览 · ${selectedReportId} ${rightRev.versionLabel}（${ACTION_CONFIG[rightRev.action].label}）` : '终版预览'}
+        title={rightRev ? `终版预览 · ${selectedReportId} ${rightRev.versionLabel}（${ACTION_CONFIG[rightRev.action].label}）` : t('reportRev.finalPreview')}
         open={previewFinal}
         onCancel={() => setPreviewFinal(false)}
         footer={null}
@@ -697,19 +698,19 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
           <div style={{ fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)' }}>
             {report && (
               <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6, fontSize: 12 }}>
-                患者：{report.patientName} · {report.modality} · {report.bodyPart} · 修订人：{rightRev.authorName} · {rightRev.createdAt}
+                {t('reportRev.patient')}{report.patientName} · {report.modality} · {report.bodyPart} · {t('reportRev.reviser')}{rightRev.authorName} · {rightRev.createdAt}
               </div>
             )}
             {['findings', 'diagnosis', 'impression'].map((field) => (
               <div key={field} style={{ marginBottom: 10 }}>
-                <strong style={{ color: '#1e40af' }}>{field === 'findings' ? '【检查所见】' : field === 'diagnosis' ? '【诊断】' : '【意见】'}</strong>
+                <strong style={{ color: '#1e40af' }}>{field === 'findings' ? t('reportRev.findingsBracket') : field === 'diagnosis' ? t('reportRev.diagnosisBracket') : t('reportRev.impressionBracket')}</strong>
                 <div style={{ marginTop: 2, padding: 8, background: 'var(--content-bg)', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
-                  {(rightRev as any)[field] || '（无内容）'}
+                  {(rightRev as any)[field] || t('reportRev.noContent')}
                 </div>
               </div>
             ))}
             {rightRev.reason && (
-              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>修订原因：{rightRev.reason}</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.revisionReason')}{rightRev.reason}</div>
             )}
           </div>
         )}
@@ -722,20 +723,20 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
         onCancel={() => setShowAddendumModal(false)}
         onOk={() => void handleCreateAddendum()}
         confirmLoading={addendumLoading}
-        okText="确认补发"
-        cancelText="取消"
+        okText={t('reportRev.confirmAddendum')}
+        cancelText={t('reportRev.cancel')}
         width={480}
       >
         <div style={{ fontSize: 13 }}>
           <p style={{ marginBottom: 10, color: 'var(--text-secondary)' }}>
             将报告 {selectedReportId} 置为修订中 (AMENDING)，修订完成后需重新签署发布。当前已有 {currentRevisions.length} 个版本。
           </p>
-          <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>修订说明 (必填)</label>
+          <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportRev.addendumNoteLabel')}</label>
           <Input.TextArea
             rows={4}
             value={addendumNote}
             onChange={e => setAddendumNote(e.target.value)}
-            placeholder="例如: 补充危急值说明 / 修正诊断意见 / 增加影像补充"
+            placeholder={t('reportRev.addendumPlaceholder')}
             maxLength={200}
             showCount
           />
@@ -768,7 +769,7 @@ const DiffPanel: React.FC<{ title: string; text: string; variant: 'before' | 'af
         {title}
       </div>
       <div style={{ fontSize: 12, lineHeight: 1.7, color: isBefore ? '#7c2d12' : '#166534', whiteSpace: 'pre-wrap' }}>
-        {text || <em style={{ color: 'var(--text-secondary)' }}>（空）</em>}
+        {text || <em style={{ color: 'var(--text-secondary)' }}>{t('reportRev.empty')}</em>}
       </div>
     </div>
   );

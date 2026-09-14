@@ -16,16 +16,17 @@ import {
   type ExportRecord,
 } from '../../services/api/consultationV2Api'
 import { useAuth } from '../../hooks/useAuth'
+import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
 const { TextArea } = Input
 
-const roomStatusMap: Record<string, { color: string; label: string }> = {
-  open: { color: 'default', label: '待开始' },
-  in_progress: { color: 'processing', label: '讨论中' },
-  voting: { color: 'warning', label: '投票中' },
-  concluded: { color: 'success', label: '已结论' },
-  cancelled: { color: 'default', label: '已取消' },
+const roomStatusMap: Record<string, { color: string; labelKey: string }> = {
+  open: { color: 'default', labelKey: 'consultationV2.statusOpen' },
+  in_progress: { color: 'processing', labelKey: 'consultationV2.statusInProgress' },
+  voting: { color: 'warning', labelKey: 'consultationV2.statusVoting' },
+  concluded: { color: 'success', labelKey: 'consultationV2.statusConcluded' },
+  cancelled: { color: 'default', labelKey: 'consultationV2.statusCancelled' },
 }
 
 const opinionColor: Record<VoteOpinion, string> = { approve: 'green', reject: 'red', modify: 'orange' }
@@ -69,9 +70,9 @@ const ConsultationV2Panel: React.FC = () => {
       const list = unwrap<ConsultationRoomV2[]>(r) ?? []
       setRooms(list)
       setStats(unwrap<ConsultationV2Stats>(s) ?? null)
-      if (!r.success) setError(r.error?.message ?? '加载失败')
+      if (!r.success) setError(r.error?.message ?? t('consultationV2.loadFailed'))
     } catch (e) {
-      setError((e as Error)?.message ?? '网络错误')
+      setError((e as Error)?.message ?? t('consultationV2.networkError'))
     } finally {
       setLoading(false)
     }
@@ -97,7 +98,7 @@ const ConsultationV2Panel: React.FC = () => {
 
   const openRoom = async (room: ConsultationRoomV2) => {
     setActive(room)
-    const viewer = user?.name ?? '当前用户'
+    const viewer = user?.name ?? t('consultationV2.currentUser')
     const member = room.members.find(m => m.name === viewer) ?? room.members[0] ?? null
     setMyMemberId(member?.id ?? '')
     await refreshSummary(room.id)
@@ -109,22 +110,22 @@ const ConsultationV2Panel: React.FC = () => {
     try {
       const res = await consultationV2Api.startRoom(active.id)
       if (res.success) {
-        message.success('会诊已开始')
+        message.success(t('consultationV2.started'))
         await refreshActive(active.id)
         void loadData()
       } else {
-        message.error(res.error?.message ?? '开始失败')
+        message.error(res.error?.message ?? t('consultationV2.startFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '开始失败')
+      message.error((e as Error)?.message ?? t('consultationV2.startFailed'))
     } finally {
       setActionLoading(false)
     }
   }
 
   const handleSend = async () => {
-    if (!active || !myMemberId) { message.warning('请先在右侧选择发言成员'); return }
-    if (!messageText.trim()) { message.warning('请输入发言内容'); return }
+    if (!active || !myMemberId) { message.warning(t('consultationV2.selectSpeaker')); return }
+    if (!messageText.trim()) { message.warning(t('consultationV2.enterContent')); return }
     setActionLoading(true)
     try {
       const res = await consultationV2Api.sendMessage(active.id, { memberId: myMemberId, content: messageText })
@@ -133,17 +134,17 @@ const ConsultationV2Panel: React.FC = () => {
         await refreshActive(active.id)
         void loadData()
       } else {
-        message.error(res.error?.message ?? '发言失败')
+        message.error(res.error?.message ?? t('consultationV2.sendFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '发言失败')
+      message.error((e as Error)?.message ?? t('consultationV2.sendFailed'))
     } finally {
       setActionLoading(false)
     }
   }
 
   const handleCreate = async () => {
-    if (!createForm.reportId.trim()) { message.warning('请输入报告编号'); return }
+    if (!createForm.reportId.trim()) { message.warning(t('consultationV2.enterReportId')); return }
     setActionLoading(true)
     try {
       const res = await consultationV2Api.createRoom({
@@ -152,15 +153,15 @@ const ConsultationV2Panel: React.FC = () => {
         createdBy: user?.name ?? 'system',
       })
       if (res.success && unwrap<ConsultationRoomV2>(res)) {
-        message.success('会诊室创建成功')
+        message.success(t('consultationV2.createSuccess'))
         setCreateOpen(false)
         setCreateForm({ reportId: '', reportTitle: '', patientName: '', modality: 'CT', memberCount: 5 })
         void loadData()
       } else {
-        message.error(res.error?.message ?? '创建失败')
+        message.error(res.error?.message ?? t('consultationV2.createFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '创建失败')
+      message.error((e as Error)?.message ?? t('consultationV2.createFailed'))
     } finally {
       setActionLoading(false)
     }
@@ -172,17 +173,17 @@ const ConsultationV2Panel: React.FC = () => {
     try {
       const res = await consultationV2Api.vote(active.id, { memberId: myMemberId, opinion: voteOpinion, comment: voteComment })
       if (res.success) {
-        message.success(`已投票: ${voteOpinion === 'approve' ? '通过' : voteOpinion === 'reject' ? '驳回' : '修改'}`)
+        message.success(t('consultationV2.voteSuccess', { opinion: voteOpinion === 'approve' ? t('consultationV2.opinionApprove') : voteOpinion === 'reject' ? t('consultationV2.opinionReject') : t('consultationV2.opinionModify') }))
         setVoteOpen(false)
         setVoteComment('')
         await refreshActive(active.id)
         await refreshSummary(active.id)
         void loadData()
       } else {
-        message.error(res.error?.message ?? '投票失败')
+        message.error(res.error?.message ?? t('consultationV2.voteFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '投票失败')
+      message.error((e as Error)?.message ?? t('consultationV2.voteFailed'))
     } finally {
       setActionLoading(false)
     }
@@ -194,17 +195,17 @@ const ConsultationV2Panel: React.FC = () => {
     try {
       const res = await consultationV2Api.conclude(active.id, { finalOpinion: finalOpinion || undefined, generatedBy: user?.name ?? 'system' })
       if (res.success) {
-        message.success('会诊结论已生成 (含签名列表)')
+        message.success(t('consultationV2.concludeSuccess'))
         setConcludeOpen(false)
         setFinalOpinion('')
         await refreshActive(active.id)
         await refreshSummary(active.id)
         void loadData()
       } else {
-        message.error(res.error?.message ?? '结论生成失败')
+        message.error(res.error?.message ?? t('consultationV2.concludeFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '结论生成失败')
+      message.error((e as Error)?.message ?? t('consultationV2.concludeFailed'))
     } finally {
       setActionLoading(false)
     }
@@ -218,10 +219,10 @@ const ConsultationV2Panel: React.FC = () => {
       if (res.success) {
         setExportData(unwrap<ExportRecord>(res))
       } else {
-        message.error(res.error?.message ?? '导出失败')
+        message.error(res.error?.message ?? t('consultationV2.exportFailed'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '导出失败')
+      message.error((e as Error)?.message ?? t('consultationV2.exportFailed'))
     } finally {
       setActionLoading(false)
     }
@@ -232,17 +233,17 @@ const ConsultationV2Panel: React.FC = () => {
   return (
     <div>
       <Card
-        title={<Space><Users size={16} color="#2563eb" /><span>委员会会诊 V2</span><Tag color="blue">多人合议</Tag></Space>}
-        extra={<Button type="primary" icon={<PlusCircle size={14} />} onClick={() => setCreateOpen(true)}>创建会诊室</Button>}
+        title={<Space><Users size={16} color="#2563eb" /><span>{t('consultationV2.panelTitle')}</span><Tag color="blue">{t('consultationV2.multiPartyTag')}</Tag></Space>}
+        extra={<Button type="primary" icon={<PlusCircle size={14} />} onClick={() => setCreateOpen(true)}>{t('consultationV2.createRoom')}</Button>}
       >
         {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title="会诊室" value={stats?.totalRooms ?? 0} prefix={<Users size={14} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="讨论中" value={stats?.byStatus.in_progress ?? 0} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="投票中" value={stats?.byStatus.voting ?? 0} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="已结论" value={stats?.concludedCount ?? 0} prefix={<Award size={14} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="总发言" value={stats?.totalMessages ?? 0} prefix={<MessageSquareText size={14} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="总投票" value={stats?.totalVotes ?? 0} prefix={<Vote size={14} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statRooms')} value={stats?.totalRooms ?? 0} prefix={<Users size={14} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statusInProgress')} value={stats?.byStatus.in_progress ?? 0} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statusVoting')} value={stats?.byStatus.voting ?? 0} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statusConcluded')} value={stats?.concludedCount ?? 0} prefix={<Award size={14} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statMessages')} value={stats?.totalMessages ?? 0} prefix={<MessageSquareText size={14} />} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statVotes')} value={stats?.totalVotes ?? 0} prefix={<Vote size={14} />} /></Card></Col>
         </Row>
         <Row gutter={16}>
           <Col span={10}>
@@ -252,15 +253,15 @@ const ConsultationV2Panel: React.FC = () => {
                 <List.Item
                   actions={[
                     <Button key="open" size="small" type={active?.id === room.id ? 'primary' : 'default'}
-                      onClick={() => void openRoom(room)}>进入</Button>,
-                  ]}
-                >
+                      onClick={() => void openRoom(room)}>{t('consultationV2.enter')}</Button>,
+                    ]}
+                  >
                   <List.Item.Meta
                     title={<Space>
                       <Text strong>{room.reportTitle}</Text>
-                      <Tag color={roomStatusMap[room.status]?.color}>{roomStatusMap[room.status]?.label}</Tag>
+                      <Tag color={roomStatusMap[room.status]?.color}>{t(roomStatusMap[room.status]?.labelKey ?? room.status)}</Tag>
                     </Space>}
-                    description={`${room.reportId} | ${room.patientName} (${room.modality}) | 成员 ${room.members.length} | 发言 ${room.messages.length}`}
+                    description={t('consultationV2.roomDesc', { reportId: room.reportId, patientName: room.patientName, modality: room.modality, members: room.members.length, messages: room.messages.length })}
                   />
                 </List.Item>
               )}
@@ -268,30 +269,30 @@ const ConsultationV2Panel: React.FC = () => {
           </Col>
           <Col span={14}>
             {!active ? (
-              <Empty description="选择左侧会诊室进入" style={{ paddingTop: 40 }} />
+              <Empty description={t('consultationV2.selectRoomHint')} style={{ paddingTop: 40 }} />
             ) : (
               <Space direction="vertical" style={{ width: '100%' }}>
                 <Card size="small"
                   title={<Space>
                     <Text strong>{active.reportTitle}</Text>
-                    <Tag color={roomStatusMap[active.status]?.color}>{roomStatusMap[active.status]?.label}</Tag>
-                    {active.conclusion && <Tag color="success">已签名 {active.conclusion.signatures.length} 人</Tag>}
+                    <Tag color={roomStatusMap[active.status]?.color}>{t(roomStatusMap[active.status]?.labelKey ?? active.status)}</Tag>
+                    {active.conclusion && <Tag color="success">{t('consultationV2.signedCount', { count: active.conclusion.signatures.length })}</Tag>}
                   </Space>}
                   extra={<Space>
-                    {active.status === 'open' && <Button size="small" icon={<PlayCircle size={13} />} onClick={() => void handleStart()}>开始会诊</Button>}
+                    {active.status === 'open' && <Button size="small" icon={<PlayCircle size={13} />} onClick={() => void handleStart()}>{t('consultationV2.startConsultation')}</Button>}
                     {active.status !== 'concluded' && active.status !== 'cancelled' && (
                       <>
-                        <Button size="small" icon={<Vote size={13} />} onClick={() => setVoteOpen(true)}>投票</Button>
-                        <Button size="small" type="primary" icon={<FileCheck2 size={13} />} onClick={() => setConcludeOpen(true)}>生成结论</Button>
+                        <Button size="small" icon={<Vote size={13} />} onClick={() => setVoteOpen(true)}>{t('consultationV2.vote')}</Button>
+                        <Button size="small" type="primary" icon={<FileCheck2 size={13} />} onClick={() => setConcludeOpen(true)}>{t('consultationV2.generateConclusion')}</Button>
                       </>
                     )}
-                    <Button size="small" icon={<Download size={13} />} onClick={() => void handleExport()}>导出记录</Button>
-                    <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void refreshActive(active.id); void refreshSummary(active.id) }}>刷新</Button>
+                    <Button size="small" icon={<Download size={13} />} onClick={() => void handleExport()}>{t('consultationV2.exportRecord')}</Button>
+                    <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void refreshActive(active.id); void refreshSummary(active.id) }}>{t('consultationV2.refresh')}</Button>
                   </Space>}
                 >
                   <Row gutter={16}>
                     <Col span={8}>
-                      <Text strong>成员 ({active.members.length})</Text>
+                      <Text strong>{t('consultationV2.membersTitle', { count: active.members.length })}</Text>
                       <List
                         size="small" dataSource={active.members}
                         renderItem={m => (
@@ -311,10 +312,10 @@ const ConsultationV2Panel: React.FC = () => {
                       />
                     </Col>
                     <Col span={16}>
-                      <Text strong>发言流 (时序)</Text>
+                      <Text strong>{t('consultationV2.messageStream')}</Text>
                       <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid #f0f0f0', borderRadius: 6, padding: 8 }}>
                         {active.messages.length === 0 ? (
-                          <Empty description="暂无发言" />
+                          <Empty description={t('consultationV2.noMessages')} />
                         ) : (
                           <Timeline
                             items={[...active.messages].sort((a, b) => a.seq - b.seq).map(m => ({
@@ -323,7 +324,7 @@ const ConsultationV2Panel: React.FC = () => {
                                   <Space size={6}>
                                     <Tag color={m.role === 'chair' ? 'gold' : 'blue'}>{`#${m.seq}`}</Tag>
                                     <Text strong>{m.memberName}</Text>
-                                    <Text type="secondary">{m.role === 'chair' ? '主持' : '委员'}</Text>
+                                    <Text type="secondary">{m.role === 'chair' ? t('consultationV2.chair') : t('consultationV2.committeeMember')}</Text>
                                     <Text type="secondary" style={{ fontSize: 12 }}>{m.at.slice(11, 19)}</Text>
                                   </Space>
                                   <div style={{ marginTop: 2 }}>{m.content}</div>
@@ -339,8 +340,8 @@ const ConsultationV2Panel: React.FC = () => {
                           onChange={v => setMyMemberId(v)}
                           options={active.members.map(m => ({ value: m.id, label: `${m.name} (${m.title})` }))} />
                         <Input value={messageText} onChange={e => setMessageText(e.target.value)}
-                          placeholder="输入发言内容..." onPressEnter={() => void handleSend()} />
-                        <Button type="primary" icon={<PenLine size={14} />} loading={actionLoading} onClick={() => void handleSend()}>发言</Button>
+                          placeholder={t('consultationV2.inputPlaceholder')} onPressEnter={() => void handleSend()} />
+                        <Button type="primary" icon={<PenLine size={14} />} loading={actionLoading} onClick={() => void handleSend()}>{t('consultationV2.speak')}</Button>
                       </Space.Compact>
                     </Col>
                   </Row>
@@ -349,24 +350,24 @@ const ConsultationV2Panel: React.FC = () => {
                   )}
                   {summary && (
                     <Row gutter={16}>
-                      <Col span={4}><Statistic title="已投票" value={summary.votedCount} suffix={`/ ${summary.totalMembers}`} /></Col>
-                      <Col span={4}><Statistic title="通过" value={summary.approveCount} valueStyle={{ color: '#16a34a' }} /></Col>
-                      <Col span={4}><Statistic title="驳回" value={summary.rejectCount} valueStyle={{ color: '#ef4444' }} /></Col>
-                      <Col span={4}><Statistic title="修改" value={summary.modifyCount} valueStyle={{ color: '#f59e0b' }} /></Col>
-                      <Col span={4}><Statistic title="通过率" value={summary.approveRate} suffix="%" /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.statVoted')} value={summary.votedCount} suffix={`/ ${summary.totalMembers}`} /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.statApprove')} value={summary.approveCount} valueStyle={{ color: '#16a34a' }} /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.statReject')} value={summary.rejectCount} valueStyle={{ color: '#ef4444' }} /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.statModify')} value={summary.modifyCount} valueStyle={{ color: '#f59e0b' }} /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.approveRate')} value={summary.approveRate} suffix="%" /></Col>
                       <Col span={4}>
-                        <Text type="secondary">待投票: {summary.pendingMembers.join('、') || '无'}</Text>
+                        <Text type="secondary">{t('consultationV2.pendingVote', { members: summary.pendingMembers.join('、') || t('consultationV2.noPending') })}</Text>
                       </Col>
                     </Row>
                   )}
                   {active.conclusion && (
                     <Alert type="success" showIcon style={{ marginTop: 8 }}
-                      title="会诊结论 (最终意见)"
+                      title={t('consultationV2.conclusionTitle')}
                       description={
                         <div>
                           <Text style={{ whiteSpace: 'pre-wrap' }}>{active.conclusion.finalOpinion}</Text>
                           <Divider style={{ margin: '8px 0' }} />
-                          <Text strong>签名委员 ({active.conclusion.signatures.length}): </Text>
+                          <Text strong>{t('consultationV2.signatureMembers', { count: active.conclusion.signatures.length })}</Text>
                           <Space wrap>
                             {active.conclusion.signatures.map(s => (
                               <Tooltip key={s.memberId} title={`${s.title} | ${s.signedAt.slice(0, 19).replace('T', ' ')}`}>
@@ -374,7 +375,7 @@ const ConsultationV2Panel: React.FC = () => {
                               </Tooltip>
                             ))}
                           </Space>
-                          <div style={{ marginTop: 4 }}><Text type="secondary">生成人: {active.conclusion.generatedBy}</Text></div>
+                          <div style={{ marginTop: 4 }}><Text type="secondary">{t('consultationV2.generatedBy', { name: active.conclusion.generatedBy })}</Text></div>
                         </div>
                       }
                     />
@@ -387,50 +388,50 @@ const ConsultationV2Panel: React.FC = () => {
       </Card>
 
       {/* 创建会诊室 */}
-      <Modal title="创建委员会会诊室" open={createOpen} onOk={() => void handleCreate()} onCancel={() => setCreateOpen(false)} confirmLoading={actionLoading}>
+      <Modal title={t('consultationV2.createModalTitle')} open={createOpen} onOk={() => void handleCreate()} onCancel={() => setCreateOpen(false)} confirmLoading={actionLoading}>
         <Space direction="vertical" style={{ width: '100%' }}>
-          <Input placeholder="报告编号 (必填)" value={createForm.reportId} onChange={e => setCreateForm(p => ({ ...p, reportId: e.target.value }))} />
-          <Input placeholder="会诊标题" value={createForm.reportTitle} onChange={e => setCreateForm(p => ({ ...p, reportTitle: e.target.value }))} />
+          <Input placeholder={t('consultationV2.reportIdPlaceholder')} value={createForm.reportId} onChange={e => setCreateForm(p => ({ ...p, reportId: e.target.value }))} />
+          <Input placeholder={t('consultationV2.reportTitlePlaceholder')} value={createForm.reportTitle} onChange={e => setCreateForm(p => ({ ...p, reportTitle: e.target.value }))} />
           <Space style={{ width: '100%' }}>
-            <Input placeholder="患者姓名" value={createForm.patientName} onChange={e => setCreateForm(p => ({ ...p, patientName: e.target.value }))} style={{ flex: 2 }} />
+            <Input placeholder={t('consultationV2.patientNamePlaceholder')} value={createForm.patientName} onChange={e => setCreateForm(p => ({ ...p, patientName: e.target.value }))} style={{ flex: 2 }} />
             <Select value={createForm.modality} onChange={v => setCreateForm(p => ({ ...p, modality: v }))} style={{ width: 90 }}
               options={['CT', 'MR', 'DR', 'MG', 'US'].map(m => ({ value: m, label: m }))} />
           </Space>
           <Space>
-            <Text>成员数量: </Text>
+            <Text>{t('consultationV2.memberCountLabel')}</Text>
             <Select value={createForm.memberCount} onChange={v => setCreateForm(p => ({ ...p, memberCount: v }))} style={{ width: 90 }}
-              options={[3, 4, 5, 6].map(n => ({ value: n, label: `${n} 人` }))} />
+              options={[3, 4, 5, 6].map(n => ({ value: n, label: t('consultationV2.memberCountOption', { count: n }) }))} />
           </Space>
-          <Alert type="info" showIcon message="未指定成员时按报告编号确定性选取成员 (同报告恒同组合), 首位为主持。" />
+          <Alert type="info" showIcon message={t('consultationV2.createInfo')} />
         </Space>
       </Modal>
 
       {/* 投票 */}
-      <Modal title="委员投票" open={voteOpen} onOk={() => void handleVote()} onCancel={() => { setVoteOpen(false); setVoteComment('') }} confirmLoading={actionLoading}>
+      <Modal title={t('consultationV2.voteModalTitle')} open={voteOpen} onOk={() => void handleVote()} onCancel={() => { setVoteOpen(false); setVoteComment('') }} confirmLoading={actionLoading}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Select value={voteOpinion} onChange={v => setVoteOpinion(v)} style={{ width: 200 }}
             options={[
-              { value: 'approve', label: '通过' },
-              { value: 'reject', label: '驳回' },
-              { value: 'modify', label: '修改' },
+              { value: 'approve', label: t('consultationV2.opinionApprove') },
+              { value: 'reject', label: t('consultationV2.opinionReject') },
+              { value: 'modify', label: t('consultationV2.opinionModify') },
             ]} />
-          <TextArea rows={3} placeholder="投票意见 (选填)" value={voteComment} onChange={e => setVoteComment(e.target.value)} />
+          <TextArea rows={3} placeholder={t('consultationV2.voteCommentPlaceholder')} value={voteComment} onChange={e => setVoteComment(e.target.value)} />
           {summary && summary.votedCount > 0 && (
-            <Text type="secondary">当前: 通过 {summary.approveCount} / 驳回 {summary.rejectCount} / 修改 {summary.modifyCount}, 通过率 {summary.approveRate}%</Text>
+            <Text type="secondary">{t('consultationV2.currentVote', { approve: summary.approveCount, reject: summary.rejectCount, modify: summary.modifyCount, rate: summary.approveRate })}</Text>
           )}
         </Space>
       </Modal>
 
       {/* 生成结论 */}
-      <Modal title="生成会诊结论" open={concludeOpen} onOk={() => void handleConclude()} onCancel={() => { setConcludeOpen(false); setFinalOpinion('') }} confirmLoading={actionLoading}>
+      <Modal title={t('consultationV2.concludeModalTitle')} open={concludeOpen} onOk={() => void handleConclude()} onCancel={() => { setConcludeOpen(false); setFinalOpinion('') }} confirmLoading={actionLoading}>
         <Space direction="vertical" style={{ width: '100%' }}>
-          <TextArea rows={4} placeholder="最终意见 (留空则按多数投票自动归纳)" value={finalOpinion} onChange={e => setFinalOpinion(e.target.value)} />
-          <Alert type="warning" showIcon message="结论将包含全部已投票成员的签名列表, 会诊状态置为已结论。" />
+          <TextArea rows={4} placeholder={t('consultationV2.finalOpinionPlaceholder')} value={finalOpinion} onChange={e => setFinalOpinion(e.target.value)} />
+          <Alert type="warning" showIcon message={t('consultationV2.concludeInfo')} />
         </Space>
       </Modal>
 
       {/* 导出记录 */}
-      <Modal title={`会诊记录导出 - ${exportData?.reportTitle ?? ''}`} open={!!exportData}
+      <Modal title={t('consultationV2.exportModalTitle', { title: exportData?.reportTitle ?? '' })} open={!!exportData}
         onCancel={() => setExportData(null)} footer={null} width={720}>
         {exportData && (
           <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: '#fafafa', padding: 12, borderRadius: 6, maxHeight: 480, overflowY: 'auto' }}>

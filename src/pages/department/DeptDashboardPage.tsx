@@ -37,6 +37,7 @@ import {
   YAxis,
 } from 'recharts'
 import { biApi } from '../../services/api/biApi'
+import { t } from '../../i18n/appI18n'
 import { ChartContainer } from '../../components/charts'
 import type {
   CriticalSlaDto,
@@ -51,9 +52,9 @@ const { Text, Title } = Typography
 
 const TIMELINESS_COLORS = ['#52c41a', '#7cb305', '#faad14', '#fa8c16', '#f5222d']
 const REFRESH_OPTIONS = [
-  { value: 30000, label: '30秒' },
-  { value: 60000, label: '1分钟' },
-  { value: 300000, label: '5分钟' },
+  { value: 30000, label: t('deptDash.refresh30s') },
+  { value: 60000, label: t('deptDash.refresh1m') },
+  { value: 300000, label: t('deptDash.refresh5m') },
 ]
 
 interface DashboardState {
@@ -86,9 +87,9 @@ function severityColor(severity: string): string {
 }
 
 function severityLabel(severity: string): string {
-  if (severity === 'CRITICAL') return '危急'
-  if (severity === 'URGENT') return '紧急'
-  if (severity === 'HIGH') return '高'
+  if (severity === 'CRITICAL') return t('deptDash.sevCritical')
+  if (severity === 'URGENT') return t('deptDash.sevUrgent')
+  if (severity === 'HIGH') return t('deptDash.sevHigh')
   return severity
 }
 
@@ -125,7 +126,7 @@ export default function DeptDashboardPage() {
         (r) => r.status === 'fulfilled' && r.value.success === true,
       ).length
       if (ok === 0) {
-        setError('BI 数据加载失败，请检查网络后重试')
+        setError(t('deptDash.loadFailed'))
         setLoading(false)
         return
       }
@@ -188,27 +189,27 @@ export default function DeptDashboardPage() {
   }, [state.timeliness])
 
   const trendChartData = useMemo(
-    () => state.trend.map((t) => ({ date: t.date.slice(5), 检查量: t.examCount, 报告量: t.reportCount })),
+    () => state.trend.map((pt) => ({ date: pt.date.slice(5), [t('deptDash.examCount')]: pt.examCount, [t('deptDash.reportVolume')]: pt.reportCount })),
     [state.trend],
   )
 
   const rvuColumns: ColumnsType<PhysicianRvuDto> = [
-    { title: '医生', dataIndex: 'doctorName', key: 'doctorName' },
+    { title: t('deptDash.doctor'), dataIndex: 'doctorName', key: 'doctorName' },
     {
-      title: '报告数',
+      title: t('deptDash.reportCount'),
       dataIndex: 'reportCount',
       key: 'reportCount',
       sorter: (a, b) => a.reportCount - b.reportCount,
     },
     {
-      title: 'RVU 工作量',
+      title: t('deptDash.rvuWorkload'),
       dataIndex: 'rvu',
       key: 'rvu',
       sorter: (a, b) => a.rvu - b.rvu,
       render: (v: number) => <Text strong>{v.toFixed(1)}</Text>,
     },
     {
-      title: '平均时长(分)',
+      title: t('deptDash.avgDurationMin'),
       dataIndex: 'avgMinutes',
       key: 'avgMinutes',
       render: (v: number) => (
@@ -218,29 +219,29 @@ export default function DeptDashboardPage() {
   ]
 
   const oeeColumns: ColumnsType<DeviceOeeDto> = [
-    { title: '设备', dataIndex: 'deviceName', key: 'deviceName' },
-    { title: '模态', dataIndex: 'modality', key: 'modality', width: 70 },
+    { title: t('deptDash.device'), dataIndex: 'deviceName', key: 'deviceName' },
+    { title: t('deptDash.modality'), dataIndex: 'modality', key: 'modality', width: 70 },
     {
-      title: 'OEE',
+      title: t('deptDash.oee'),
       dataIndex: 'avgOee',
       key: 'avgOee',
       sorter: (a, b) => a.avgOee - b.avgOee,
       render: (v: number) => <Tag color={oeeColor(v)}>{v.toFixed(1)}%</Tag>,
     },
     {
-      title: '可用性',
+      title: t('deptDash.availability'),
       dataIndex: 'avgAvailability',
       key: 'avgAvailability',
       render: (v: number) => `${v.toFixed(1)}%`,
     },
     {
-      title: '性能',
+      title: t('deptDash.performance'),
       dataIndex: 'avgPerformance',
       key: 'avgPerformance',
       render: (v: number) => `${v.toFixed(1)}%`,
     },
     {
-      title: '质量',
+      title: t('deptDash.quality'),
       dataIndex: 'avgQuality',
       key: 'avgQuality',
       render: (v: number) => `${v.toFixed(1)}%`,
@@ -248,26 +249,26 @@ export default function DeptDashboardPage() {
   ]
 
   const slaColumns: ColumnsType<CriticalSlaDto['overdue'][number]> = [
-    { title: '编号', dataIndex: 'id', key: 'id' },
+    { title: t('deptDash.id'), dataIndex: 'id', key: 'id' },
     {
-      title: '严重度',
+      title: t('deptDash.severity'),
       dataIndex: 'severity',
       key: 'severity',
       render: (v: string) => <Tag color={severityColor(v)}>{severityLabel(v)}</Tag>,
     },
-    { title: '状态', dataIndex: 'state', key: 'state' },
+    { title: t('deptDash.state'), dataIndex: 'state', key: 'state' },
     {
-      title: '响应时长',
+      title: t('deptDash.responseDuration'),
       dataIndex: 'responseMinutes',
       key: 'responseMinutes',
-      render: (v: number) => <Text type="danger">{v.toFixed(0)} 分钟</Text>,
+      render: (v: number) => <Text type="danger">{v.toFixed(0)} {t('deptDash.minutes')}</Text>,
     },
   ]
 
   const sourceTags = (
     <>
-      {state.sources.has('database') && <Tag color="green">实时数据库</Tag>}
-      {state.sources.has('demo') && <Tag color="blue">演示数据 (seed)</Tag>}
+      {state.sources.has('database') && <Tag color="green">{t('deptDash.realtimeDb')}</Tag>}
+      {state.sources.has('demo') && <Tag color="blue">{t('deptDash.demoData')}</Tag>}
     </>
   )
 
@@ -277,7 +278,7 @@ export default function DeptDashboardPage() {
         <Space>
           <BarChart3 size={20} color="#2563eb" />
           <Title level={4} style={{ margin: 0 }}>
-            放射科运营 BI 实时仪表板
+            {t('deptDash.title')}
           </Title>
           {sourceTags}
         </Space>
@@ -297,7 +298,7 @@ export default function DeptDashboardPage() {
             loading={loading}
             onClick={() => void loadAll()}
           >
-            刷新
+            {t('deptDash.refresh')}
           </Button>
         </Space>
       </Space>
@@ -306,12 +307,12 @@ export default function DeptDashboardPage() {
         <Alert type="warning" showIcon message={error} style={{ marginBottom: 16 }} />
       )}
 
-      <Spin spinning={loading} description="加载中...">
+      <Spin spinning={loading} description={t('deptDash.loading')}>
         <Row gutter={[16, 16]}>
           <Col xs={12} sm={8} lg={4}>
             <Card>
               <Statistic
-                title="今日检查量"
+                title={t('deptDash.todayExam')}
                 value={state.kpi?.examCount ?? 0}
                 prefix={<Activity size={16} />}
               />
@@ -320,7 +321,7 @@ export default function DeptDashboardPage() {
           <Col xs={12} sm={8} lg={4}>
             <Card>
               <Statistic
-                title="今日报告量"
+                title={t('deptDash.todayReport')}
                 value={state.kpi?.reportCount ?? 0}
                 prefix={<FileText size={16} />}
               />
@@ -329,7 +330,7 @@ export default function DeptDashboardPage() {
           <Col xs={12} sm={8} lg={4}>
             <Card>
               <Statistic
-                title="报告完成率"
+                title={t('deptDash.completionRate')}
                 value={state.kpi?.completionRate ?? 0}
                 suffix="%"
                 precision={1}
@@ -340,9 +341,9 @@ export default function DeptDashboardPage() {
           <Col xs={12} sm={8} lg={4}>
             <Card>
               <Statistic
-                title="平均报告时长"
+                title={t('deptDash.avgReportDuration')}
                 value={state.kpi?.avgReportMinutes ?? 0}
-                suffix="分"
+                suffix={t('deptDash.minutesShort')}
                 precision={0}
                 prefix={<Clock size={16} />}
               />
@@ -351,7 +352,7 @@ export default function DeptDashboardPage() {
           <Col xs={12} sm={8} lg={4}>
             <Card>
               <Statistic
-                title="报告超时率"
+                title={t('deptDash.overtimeRate')}
                 value={state.kpi?.overtimeRate ?? 0}
                 suffix="%"
                 precision={1}
@@ -363,7 +364,7 @@ export default function DeptDashboardPage() {
           <Col xs={12} sm={8} lg={4}>
             <Card>
               <Statistic
-                title="危急值 SLA 达标率"
+                title={t('deptDash.criticalSlaRate')}
                 value={state.kpi?.criticalSlaRate ?? 0}
                 suffix="%"
                 precision={1}
@@ -375,12 +376,12 @@ export default function DeptDashboardPage() {
 
           <Col xs={24} lg={10}>
             <Card
-              title="报告时效分布 (近30天)"
+              title={t('deptDash.timelinessDist')}
               extra={
                 state.timeliness ? (
                   <Space size={12}>
-                    <Tag color="blue">中位数 {state.timeliness.medianMinutes}min</Tag>
-                    <Tag color="purple">P90 {state.timeliness.p90Minutes} 分钟</Tag>
+                    <Tag color="blue">{t('deptDash.median')} {state.timeliness.medianMinutes}min</Tag>
+                    <Tag color="purple">P90 {state.timeliness.p90Minutes} {t('deptDash.minutes')}</Tag>
                   </Space>
                 ) : null
               }
@@ -408,21 +409,21 @@ export default function DeptDashboardPage() {
                   </BarChart>
                 </ChartContainer>
               ) : (
-                <Text type="secondary">暂无数据</Text>
+                <Text type="secondary">{t('deptDash.noData')}</Text>
               )}
             </Card>
           </Col>
 
           <Col xs={24} lg={14}>
-            <Card title="医生工作量 (报告数 / RVU)">
-              <ChartContainer height={160} state={state.rvu.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无工作量数据">
+            <Card title={t('deptDash.doctorWorkload')}>
+              <ChartContainer height={160} state={state.rvu.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptDash.noWorkload')}>
                 <BarChart data={state.rvu}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="doctorName" />
                   <YAxis />
                   <ReTooltip />
                   <Legend />
-                  <Bar dataKey="reportCount" name="报告数" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="reportCount" name={t('deptDash.reportCount')} fill="#2563eb" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="rvu" name="RVU" fill="#52c41a" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
@@ -439,15 +440,15 @@ export default function DeptDashboardPage() {
 
           <Col xs={24} lg={12}>
             <Card
-              title="设备 OEE 实时"
+              title={t('deptDash.deviceOeeRealtime')}
               extra={
                 <Select
                   value={oeeDays}
                   onChange={(v) => setOeeDays(v)}
                   options={[
-                    { value: 7, label: '近7天' },
-                    { value: 14, label: '近14天' },
-                    { value: 30, label: '近30天' },
+                    { value: 7, label: t('deptDash.last7d') },
+                    { value: 14, label: t('deptDash.last14d') },
+                    { value: 30, label: t('deptDash.last30d') },
                   ]}
                   style={{ width: 100 }}
                   size="small"
@@ -464,9 +465,9 @@ export default function DeptDashboardPage() {
               />
               <div style={{ marginTop: 12 }}>
                 <Text type="secondary" style={{ fontSize: 12 }}>
-                  全院日均 OEE 趋势
+                  {t('deptDash.hospitalOeeTrend')}
                 </Text>
-                <ChartContainer height={160} state={state.oeeTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无OEE趋势数据">
+                <ChartContainer height={160} state={state.oeeTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptDash.noOeeTrend')}>
                   <LineChart data={state.oeeTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tick={{ fontSize: 11 }} />
@@ -480,18 +481,18 @@ export default function DeptDashboardPage() {
           </Col>
 
           <Col xs={24} lg={12}>
-            <Card title="危急值 SLA (近30天)">
+            <Card title={t('deptDash.criticalSla30')}>
               <Row gutter={16}>
                 <Col span={8}>
                   <Statistic
-                    title="危急值总数"
+                    title={t('deptDash.criticalTotal')}
                     value={state.sla?.total ?? 0}
                     prefix={<AlertTriangle size={16} />}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="达标率 (≤30min)"
+                    title={t('deptDash.complianceRate30')}
                     value={state.sla?.complianceRate ?? 0}
                     suffix="%"
                     precision={1}
@@ -500,21 +501,21 @@ export default function DeptDashboardPage() {
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="平均响应"
+                    title={t('deptDash.avgResponse')}
                     value={state.sla?.avgResponseMinutes ?? 0}
-                    suffix="分"
+                    suffix={t('deptDash.minutesShort')}
                     precision={1}
                   />
                 </Col>
               </Row>
               <div style={{ marginTop: 12, height: 150 }}>
-                <ChartContainer height={150} state={(state.sla?.distribution ?? []).length === 0 ? 'empty' : 'ready'} emptyDescription="暂无SLA分布数据">
+                <ChartContainer height={150} state={(state.sla?.distribution ?? []).length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptDash.noSlaDist')}>
                   <BarChart data={state.sla?.distribution ?? []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="bucket" tick={{ fontSize: 10 }} />
                     <YAxis />
                     <ReTooltip />
-                    <Bar dataKey="count" name="例数" fill="#fa8c16" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="count" name={t('deptDash.caseCount')} fill="#fa8c16" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ChartContainer>
               </div>
@@ -523,7 +524,7 @@ export default function DeptDashboardPage() {
                   <Space style={{ marginBottom: 8 }}>
                     <AlertTriangle size={14} color="#cf1322" />
                     <Text strong type="danger">
-                      超时清单 (Top {state.sla.overdue.length})
+                      {t('deptDash.overdueList', { count: state.sla.overdue.length })}
                     </Text>
                   </Space>
                   <Table scroll={{ x: 'max-content' }}
@@ -540,46 +541,46 @@ export default function DeptDashboardPage() {
 
           <Col span={24}>
             <Card
-              title={`核心指标趋势 (近${trendDays}天)`}
+              title={t('deptDash.trendTitle', { days: trendDays })}
               extra={
                 <Select
                   value={trendDays}
                   onChange={(v) => setTrendDays(v)}
                   options={[
-                    { value: 14, label: '近14天' },
-                    { value: 30, label: '近30天' },
-                    { value: 90, label: '近90天' },
+                    { value: 14, label: t('deptDash.last14d') },
+                    { value: 30, label: t('deptDash.last30d') },
+                    { value: 90, label: t('deptDash.last90d') },
                   ]}
                   style={{ width: 100 }}
                   size="small"
                 />
               }
             >
-              <ChartContainer height={280} state={trendChartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无指标趋势数据">
+              <ChartContainer height={280} state={trendChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptDash.noTrendData')}>
                 <LineChart data={trendChartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
                   <ReTooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="检查量" stroke="#2563eb" dot={false} />
-                  <Line type="monotone" dataKey="报告量" stroke="#52c41a" dot={false} />
+                  <Line type="monotone" dataKey={t('deptDash.examCount')} stroke="#2563eb" dot={false} />
+                  <Line type="monotone" dataKey={t('deptDash.reportVolume')} stroke="#52c41a" dot={false} />
                 </LineChart>
               </ChartContainer>
               <div style={{ marginTop: 8, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-                <Tooltip title="按时完成的报告占比">
+                <Tooltip title={t('deptDash.onTimeRatio')}>
                   <Tag color="blue" style={{ cursor: 'pointer' }}>
-                    最近完成率 {(state.trend[state.trend.length - 1]?.completionRate ?? 0).toFixed(1)}%
+                    {t('deptDash.recentCompletion')} {(state.trend[state.trend.length - 1]?.completionRate ?? 0).toFixed(1)}%
                   </Tag>
                 </Tooltip>
                 <Tag color="orange">
-                  最近平均时长 {(state.trend[state.trend.length - 1]?.avgReportMinutes ?? 0).toFixed(0)}分
+                  {t('deptDash.recentAvgDuration')} {(state.trend[state.trend.length - 1]?.avgReportMinutes ?? 0).toFixed(0)}{t('deptDash.minutesShort')}
                 </Tag>
                 <Tag color="red">
-                  最近超时 {(state.trend[state.trend.length - 1]?.overtimeCount ?? 0)}例
+                  {t('deptDash.recentOvertime')} {(state.trend[state.trend.length - 1]?.overtimeCount ?? 0)}{t('deptDash.cases')}
                 </Tag>
                 <Tag color="volcano">
-                  最近危急值 {(state.trend[state.trend.length - 1]?.criticalCount ?? 0)}例
+                  {t('deptDash.recentCritical')} {(state.trend[state.trend.length - 1]?.criticalCount ?? 0)}{t('deptDash.cases')}
                 </Tag>
               </div>
             </Card>

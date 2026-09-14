@@ -10,6 +10,7 @@ import {
   TrendingDown, Percent, Pill, Gauge, Eye, Target, Timer
 } from 'lucide-react'
 import { nuclearStatsApi } from '../services/api/nuclearStatsApi'
+import { t } from '../i18n/appI18n'
 
 // ============================================================
 // 样式常量
@@ -243,7 +244,7 @@ const PieChartSVG = ({ data, size = 160 }) => {
         ))}
         <circle cx={cx} cy={cy} r={r * 0.5} fill={C.white} />
         <text x={cx} y={cy - 5} textAnchor="middle" fontSize={14} fontWeight={700} fill={C.text}>{total}</text>
-        <text x={cx} y={cy + 12} textAnchor="middle" fontSize={10} fill={C.textMuted}>例</text>
+        <text x={cx} y={cy + 12} textAnchor="middle" fontSize={10} fill={C.textMuted}>{t('nuclearStats.unitCases')}</text>
       </svg>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px', justifyContent: 'center', maxWidth: 200 }}>
         {data.map((d, i) => (
@@ -334,7 +335,7 @@ export default function NuclearStatsPage() {
       if (drOk) setDrugs(dr.value.data)
       setUsingFallback(!(dOk && mOk && dvOk && svOk && drOk))
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败')
+      setError((e as Error)?.message ?? t('nuclearStats.loadFailed'))
       setUsingFallback(true)
     } finally {
       setLoading(false)
@@ -350,21 +351,21 @@ export default function NuclearStatsPage() {
   const avgPositive = daily.length ? (daily.reduce((sum, d) => sum + d.positive, 0) / daily.length).toFixed(1) : '0'
 
   const tabs = [
-    { key: 'overview', label: '总览', icon: <BarChart3 size={15} /> },
-    { key: 'exams', label: '检查数量', icon: <Activity size={15} /> },
-    { key: 'drug', label: '药物消耗', icon: <Pill size={15} /> },
-    { key: 'equipment', label: '设备利用率', icon: <Gauge size={15} /> },
-    { key: 'positive', label: '阳性率', icon: <Target size={15} /> },
-    { key: 'suv', label: 'SUV统计', icon: <TrendingUp size={15} /> },
+    { key: 'overview', label: t('nuclearStats.tabOverview'), icon: <BarChart3 size={15} /> },
+    { key: 'exams', label: t('nuclearStats.tabExams'), icon: <Activity size={15} /> },
+    { key: 'drug', label: t('nuclearStats.tabDrug'), icon: <Pill size={15} /> },
+    { key: 'equipment', label: t('nuclearStats.tabEquipment'), icon: <Gauge size={15} /> },
+    { key: 'positive', label: t('nuclearStats.tabPositive'), icon: <Target size={15} /> },
+    { key: 'suv', label: t('nuclearStats.tabSuv'), icon: <TrendingUp size={15} /> },
   ]
 
-  if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('nuclearStats.loading')}</div>;
   if (error) return <div role="alert" data-testid="nuclear-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (!daily || daily.length === 0) {
     return (
       <div data-testid="nuclear-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无核医学统计数据</div>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请选择其他月份或检查核医学设备联网状态</div>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('nuclearStats.noDataTitle')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('nuclearStats.noDataDesc')}</div>
       </div>
     );
   }
@@ -379,16 +380,16 @@ export default function NuclearStatsPage() {
               <Radio size={28} color={C.accent} />
             </div>
             <div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: '0 0 4px' }}>核医学科专项统计
-                {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>演示数据（接口回退兜底）</span>}
+              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: '0 0 4px' }}>{t('nuclearStats.title')}
+                {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>{t('nuclearStats.demoTag')}</span>}
               </h1>
-              <p style={{ fontSize: 13, color: C.textMuted, margin: 0 }}>检查数量 · 药物消耗 · 设备利用率 · 阳性率 · SUV统计</p>
+              <p style={{ fontSize: 13, color: C.textMuted, margin: 0 }}>{t('nuclearStats.subtitle')}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: C.accentLight, borderRadius: 8 }}>
               <Calendar size={15} color={C.accent} />
-              <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>2025年12月</span>
+              <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.period')}</span>
             </div>
             <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: C.white, color: C.accent, border: `1px solid ${C.accent}`, borderRadius: 8, cursor: 'pointer', fontSize: 13 }}
               onClick={() => {
@@ -401,10 +402,10 @@ export default function NuclearStatsPage() {
                 a.click()
                 URL.revokeObjectURL(url)
               }}>
-              <Download size={15} /> 导出报告
+              <Download size={15} /> {t('nuclearStats.exportReport')}
             </button>
             <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: C.accent, color: C.white, border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13 }} onClick={() => void load()}>
-              <RefreshCw size={15} /> 刷新数据
+              <RefreshCw size={15} /> {t('nuclearStats.refreshData')}
             </button>
           </div>
         </div>
@@ -436,11 +437,11 @@ export default function NuclearStatsPage() {
           {/* 核心指标卡片 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
             {[
-              { label: '检查总数', value: totalExams.toLocaleString(), sub: `较上月 ${summary?.examMoM != null ? (summary.examMoM > 0 ? '+' : '') + summary.examMoM + '%' : '-7.6%'}`, icon: <Activity size={20} />, color: C.accent, bg: C.accentLight, trend: 'down' },
-              { label: '药物消耗', value: (totalDrug / 1000).toFixed(1), unit: 'Ci', sub: '日均 2.76 Ci', icon: <Droplets size={20} />, color: '#3b82f6', bg: '#3b82f622', trend: 'up' },
-              { label: '设备利用率', value: `${avgUtilization}%`, sub: '目标 ≥80%', icon: <Gauge size={20} />, color: '#22c55e', bg: '#22c55e22', trend: 'up' },
-              { label: '阳性率', value: `${avgPositive}%`, sub: '较上月 +1.0%', icon: <Target size={20} />, color: '#f59e0b', bg: '#f59e0b22', trend: 'up' },
-              { label: '平均SUV', value: (suv?.avg ?? 0).toFixed(1), sub: `范围 ${suv?.min ?? 2.1}-${suv?.max ?? 12.8}`, icon: <TrendingUp size={20} />, color: '#8b5cf6', bg: '#8b5cf622', trend: 'stable' },
+              { label: t('nuclearStats.statTotalExams'), value: totalExams.toLocaleString(), sub: t('nuclearStats.momCompare', { value: summary?.examMoM != null ? (summary.examMoM > 0 ? '+' : '') + summary.examMoM + '%' : '-7.6%' }), icon: <Activity size={20} />, color: C.accent, bg: C.accentLight, trend: 'down' },
+              { label: t('nuclearStats.statDrugConsumption'), value: (totalDrug / 1000).toFixed(1), unit: 'Ci', sub: t('nuclearStats.dailyAvg'), icon: <Droplets size={20} />, color: '#3b82f6', bg: '#3b82f622', trend: 'up' },
+              { label: t('nuclearStats.statEquipmentUtilization'), value: `${avgUtilization}%`, sub: t('nuclearStats.target80'), icon: <Gauge size={20} />, color: '#22c55e', bg: '#22c55e22', trend: 'up' },
+              { label: t('nuclearStats.statPositiveRate'), value: `${avgPositive}%`, sub: t('nuclearStats.momUp'), icon: <Target size={20} />, color: '#f59e0b', bg: '#f59e0b22', trend: 'up' },
+              { label: t('nuclearStats.statAvgSuv'), value: (suv?.avg ?? 0).toFixed(1), sub: t('nuclearStats.rangeSub', { min: suv?.min ?? 2.1, max: suv?.max ?? 12.8 }), icon: <TrendingUp size={20} />, color: '#8b5cf6', bg: '#8b5cf622', trend: 'stable' },
             ].map((card, i) => (
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 16, borderTop: `3px solid ${card.color}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -464,12 +465,12 @@ export default function NuclearStatsPage() {
           {/* 12月趋势图 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>12月每日趋势</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('nuclearStats.dailyTrendTitle')}</h3>
               <div style={{ display: 'flex', gap: 16 }}>
                 {[
-                  { label: '检查数量', color: C.accent },
-                  { label: '阳性率', color: '#f59e0b' },
-                  { label: '设备利用率', color: '#22c55e' },
+                  { label: t('nuclearStats.legendExams'), color: C.accent },
+                  { label: t('nuclearStats.legendPositive'), color: '#f59e0b' },
+                  { label: t('nuclearStats.legendUtilization'), color: '#22c55e' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 12, height: 3, background: item.color, borderRadius: 2 }} />
@@ -509,7 +510,7 @@ export default function NuclearStatsPage() {
 
           {/* 设备利用率排名 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>设备利用率排名</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>{t('nuclearStats.equipmentRankTitle')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {devices.slice(0, 4).map((device, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -535,16 +536,16 @@ export default function NuclearStatsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* 设备检查分布 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>各类设备检查数量分布</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.deviceExamDistTitle')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
                 <BarChartSVG
                   data={[
                     { label: 'PET-CT', value: 356 },
                     { label: 'SPECT', value: 248 },
-                    { label: '骨密度', value: 156 },
-                    { label: '肾动态', value: 98 },
-                    { label: '心肌灌注', value: 86 },
+                    { label: t('nuclearStats.boneDensity'), value: 156 },
+                    { label: t('nuclearStats.renalDynamic'), value: 98 },
+                    { label: t('nuclearStats.myocardialPerfusion'), value: 86 },
                   ]}
                   width={380} height={220}
                   barColor={C.accent}
@@ -556,8 +557,8 @@ export default function NuclearStatsPage() {
                 {[
                   { name: 'PET-CT', count: 356, color: C.accent, percent: 42 },
                   { name: 'SPECT', count: 248, color: '#3b82f6', percent: 29 },
-                  { name: '骨密度', count: 156, color: '#8b5cf6', percent: 19 },
-                  { name: '肾动态', count: 98, color: '#22c55e', percent: 12 },
+                  { name: t('nuclearStats.boneDensity'), count: 156, color: '#8b5cf6', percent: 19 },
+                  { name: t('nuclearStats.renalDynamic'), count: 98, color: '#22c55e', percent: 12 },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
@@ -577,7 +578,7 @@ export default function NuclearStatsPage() {
 
           {/* 月度趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>近6月检查数量趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.monthlyExamTrendTitle')}</h3>
             <BarChartSVG
               data={monthly.map(m => ({ label: m.month, value: m.exams }))}
               width={900} height={200}
@@ -595,9 +596,9 @@ export default function NuclearStatsPage() {
           {/* 药物消耗概览 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
             {[
-              { label: '¹⁸F-FDG', value: 48520, unit: 'mCi', usage: 'PET-CT显像', color: C.accent },
-              { label: '⁹⁹mTc-MDP', value: 18250, unit: 'mCi', usage: '骨扫描', color: '#3b82f6' },
-              { label: '¹³¹I', value: 5800, unit: 'mCi', usage: '甲状腺', color: '#8b5cf6' },
+              { label: '¹⁸F-FDG', value: 48520, unit: 'mCi', usage: t('nuclearStats.usagePetCtImaging'), color: C.accent },
+              { label: '⁹⁹mTc-MDP', value: 18250, unit: 'mCi', usage: t('nuclearStats.usageBoneScan'), color: '#3b82f6' },
+              { label: '¹³¹I', value: 5800, unit: 'mCi', usage: t('nuclearStats.usageThyroid'), color: '#8b5cf6' },
             ].map((item, i) => (
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderLeft: `4px solid ${item.color}` }}>
                 <p style={{ fontSize: 13, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
@@ -605,14 +606,14 @@ export default function NuclearStatsPage() {
                   <span style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{(item.value / 1000).toFixed(1)}</span>
                   <span style={{ fontSize: 14, color: C.textMuted }}>{item.unit}</span>
                 </div>
-                <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>用途：{item.usage}</p>
+                <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('nuclearStats.usageLabel')}{item.usage}</p>
               </div>
             ))}
           </div>
 
           {/* 消耗占比 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>药物消耗占比</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.drugShareTitle')}</h3>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 40 }}>
               <PieChartSVG
                 data={drugs.map(d => ({ name: d.name, value: d.percent, color: d.color }))}
@@ -633,7 +634,7 @@ export default function NuclearStatsPage() {
 
           {/* 每日消耗趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日药物消耗趋势 (mCi)</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.dailyDrugTrendTitle')}</h3>
             <BarChartSVG
               data={daily.map(d => ({ label: d.date, value: d.drug }))}
               width={1100} height={220}
@@ -656,22 +657,22 @@ export default function NuclearStatsPage() {
                   <div>
                     <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 4px' }}>{device.name}</h4>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>
-                      {device.name.includes('CT') ? 'PET-CT系统' : device.name.includes('SPECT') ? 'SPECT系统' : '回旋加速器'}
+                      {device.name.includes('CT') ? t('nuclearStats.petCtSystem') : device.name.includes('SPECT') ? t('nuclearStats.spectSystem') : t('nuclearStats.cyclotron')}
                     </p>
                   </div>
                   <div style={{ padding: '4px 10px', background: device.utilization >= 80 ? C.successBg : C.warningBg, borderRadius: 12 }}>
                     <span style={{ fontSize: 12, color: device.utilization >= 80 ? C.success : C.warning, fontWeight: 600 }}>
-                      {device.utilization >= 80 ? '正常' : '维护中'}
+                      {device.utilization >= 80 ? t('nuclearStats.normal') : t('nuclearStats.maintenance')}
                     </span>
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
-                    <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>检查量</p>
+                    <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{t('nuclearStats.examVolume')}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, color: C.text, margin: 0 }}>{device.exams || device.cycles || '-'}</p>
                   </div>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
-                    <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>利用率</p>
+                    <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{t('nuclearStats.utilizationLabel')}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, color: device.utilization >= 80 ? C.success : C.warning, margin: 0 }}>{device.utilization}%</p>
                   </div>
                 </div>
@@ -681,7 +682,7 @@ export default function NuclearStatsPage() {
 
           {/* 利用率趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日设备利用率趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.dailyUtilTrendTitle')}</h3>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.utilization }))}
               width={1100} height={220}
@@ -698,13 +699,13 @@ export default function NuclearStatsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* 阳性率概览 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>阳性率统计概览</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.positiveOverviewTitle')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
               {[
-                { label: '平均阳性率', value: `${avgPositive}%`, color: C.accent },
-                { label: '最高阳性率', value: '74.5%', color: C.success },
-                { label: '最低阳性率', value: '60.8%', color: C.warning },
-                { label: '阳性病例数', value: (totalExams * parseFloat(avgPositive) / 100).toFixed(0), color: C.danger },
+                { label: t('nuclearStats.avgPositiveRate'), value: `${avgPositive}%`, color: C.accent },
+                { label: t('nuclearStats.maxPositiveRate'), value: '74.5%', color: C.success },
+                { label: t('nuclearStats.minPositiveRate'), value: '60.8%', color: C.warning },
+                { label: t('nuclearStats.positiveCaseCount'), value: (totalExams * parseFloat(avgPositive) / 100).toFixed(0), color: C.danger },
               ].map((item, i) => (
                 <div key={i} style={{ background: C.background, padding: 16, borderRadius: 10, textAlign: 'center' }}>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
@@ -714,7 +715,7 @@ export default function NuclearStatsPage() {
             </div>
 
             {/* 阳性率趋势 */}
-            <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>12月每日阳性率趋势</h4>
+            <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>{t('nuclearStats.dailyPositiveTrendTitle')}</h4>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.positive }))}
               width={1100} height={220}
@@ -726,13 +727,13 @@ export default function NuclearStatsPage() {
 
           {/* 检查类型阳性率 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>各检查类型阳性率</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.byTypePositiveTitle')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
               {[
-                { type: 'PET-CT全身', positive: 71.5, exams: 356, trend: '+2.3%' },
-                { type: 'PET-CT心脏', positive: 85.2, exams: 86, trend: '+5.1%' },
-                { type: 'SPECT骨扫描', positive: 58.3, exams: 248, trend: '-1.2%' },
-                { type: '肾动态显像', positive: 42.5, exams: 98, trend: '+0.8%' },
+                { type: t('nuclearStats.typePetCtWholeBody'), positive: 71.5, exams: 356, trend: '+2.3%' },
+                { type: t('nuclearStats.typePetCtHeart'), positive: 85.2, exams: 86, trend: '+5.1%' },
+                { type: t('nuclearStats.typeSpectBoneScan'), positive: 58.3, exams: 248, trend: '-1.2%' },
+                { type: t('nuclearStats.typeRenalDynamicImaging'), positive: 42.5, exams: 98, trend: '+0.8%' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 16, background: C.background, borderRadius: 10 }}>
                   <div style={{ flex: 1 }}>
@@ -744,7 +745,7 @@ export default function NuclearStatsPage() {
                       </div>
                     </div>
                     <ProgressBar value={item.positive} color={item.positive >= 60 ? C.success : C.warning} />
-                    <p style={{ fontSize: 12, color: C.textMuted, margin: '6px 0 0' }}>{item.exams} 例检查</p>
+                    <p style={{ fontSize: 12, color: C.textMuted, margin: '6px 0 0' }}>{t('nuclearStats.examCount', { count: item.exams })}</p>
                   </div>
                 </div>
               ))}
@@ -759,10 +760,10 @@ export default function NuclearStatsPage() {
           {/* SUV统计概览 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {[
-              { label: '平均SUVmax', value: (suv?.avg ?? 0).toFixed(1), icon: <TrendingUp size={20} />, color: C.accent, bg: C.accentLight },
-              { label: '最大SUVmax', value: suv?.max ?? 0, icon: <TrendingUp size={20} />, color: C.danger, bg: C.dangerBg },
-              { label: '最小SUVmax', value: suv?.min ?? 0, icon: <TrendingDown size={20} />, color: C.success, bg: C.successBg },
-              { label: '标准差', value: (suv?.std ?? 0).toFixed(1), icon: <Percent size={20} />, color: C.purple, bg: C.purpleBg },
+              { label: t('nuclearStats.avgSuvmax'), value: (suv?.avg ?? 0).toFixed(1), icon: <TrendingUp size={20} />, color: C.accent, bg: C.accentLight },
+              { label: t('nuclearStats.maxSuvmax'), value: suv?.max ?? 0, icon: <TrendingUp size={20} />, color: C.danger, bg: C.dangerBg },
+              { label: t('nuclearStats.minSuvmax'), value: suv?.min ?? 0, icon: <TrendingDown size={20} />, color: C.success, bg: C.successBg },
+              { label: t('nuclearStats.stdDev'), value: (suv?.std ?? 0).toFixed(1), icon: <Percent size={20} />, color: C.purple, bg: C.purpleBg },
             ].map((item, i) => (
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderTop: `3px solid ${item.color}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -778,11 +779,11 @@ export default function NuclearStatsPage() {
 
           {/* SUV分布 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>SUVmax分布</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.suvDistTitle')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               {/* 病灶SUV分布 */}
               <div>
-                <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 12px' }}>病灶SUVmax分布</h4>
+                <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 12px' }}>{t('nuclearStats.lesionSuvDistTitle')}</h4>
                 <BarChartSVG
                   data={(suv?.distribution?.length ? suv.distribution : [
                     { range: '0-2', count: 8 },
@@ -803,7 +804,7 @@ export default function NuclearStatsPage() {
                 <div style={{ background: C.accentLight, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <Target size={18} color={C.accent} />
-                    <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>肿瘤摄取平均值</span>
+                    <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.tumorUptakeAvg')}</span>
                   </div>
                   <p style={{ fontSize: 28, fontWeight: 700, color: C.accent, margin: 0 }}>{suv?.tumorAvg ?? 0}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
@@ -811,7 +812,7 @@ export default function NuclearStatsPage() {
                 <div style={{ background: C.successBg, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <AlertCircle size={18} color={C.success} />
-                    <span style={{ fontSize: 13, color: C.success, fontWeight: 600 }}>炎症摄取平均值</span>
+                    <span style={{ fontSize: 13, color: C.success, fontWeight: 600 }}>{t('nuclearStats.inflammationUptakeAvg')}</span>
                   </div>
                   <p style={{ fontSize: 28, fontWeight: 700, color: C.success, margin: 0 }}>{suv?.inflammationAvg ?? 0}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
@@ -819,10 +820,10 @@ export default function NuclearStatsPage() {
                 <div style={{ background: C.warningBg, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <Eye size={18} color={C.warning} />
-                    <span style={{ fontSize: 13, color: C.warning, fontWeight: 600 }}>鉴别阈值</span>
+                    <span style={{ fontSize: 13, color: C.warning, fontWeight: 600 }}>{t('nuclearStats.thresholdLabel')}</span>
                   </div>
                   <p style={{ fontSize: 28, fontWeight: 700, color: C.warning, margin: 0 }}>{suv?.threshold ?? 4.5}</p>
-                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax 区分良恶性</p>
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>{t('nuclearStats.thresholdDesc')}</p>
                 </div>
               </div>
             </div>
@@ -830,7 +831,7 @@ export default function NuclearStatsPage() {
 
           {/* SUV趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日平均SUVmax趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>{t('nuclearStats.dailySuvTrendTitle')}</h3>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.suvAvg }))}
               width={1100} height={220}

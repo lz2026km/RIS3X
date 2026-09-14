@@ -1,4 +1,5 @@
 import { usePagination } from '../../hooks/usePagination'
+import { t } from '../../i18n/appI18n'
 import { fhirApi, type FhirSubscription } from '../../services/api/fhirApi'
 import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Popconfirm, Empty } from 'antd'
 import { Bell, Plus, Trash, RefreshCw, Eye } from 'lucide-react'
@@ -26,10 +27,10 @@ export const FhirSubscriptionPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedSub(res.data)
       } else {
-        message.warning(res.error?.message ?? '订阅详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? t('fhirSub.detailLoadFail'))
       }
     } catch {
-      message.warning('订阅详情加载失败，展示列表数据')
+      message.warning(t('fhirSub.detailLoadFail'))
     }
     setDetailLoading(false)
   }
@@ -42,7 +43,7 @@ export const FhirSubscriptionPage: React.FC = () => {
         setSubscriptions(Array.isArray(res.data) ? res.data : [])
       }
     } catch {
-      message.warning('订阅列表加载失败，使用演示数据')
+      message.warning(t('fhirSub.listLoadFail'))
       setSubscriptions([
         { id: 'sub1', resourceType: 'Subscription', status: 'active', reason: '监控新检查报告', criteria: 'DiagnosticReport?status=final', channel: { type: 'rest-hook', endpoint: 'https://example.com/hook', payload: 'id-only' } },
         { id: 'sub2', resourceType: 'Subscription', status: 'inactive', reason: '患者变更通知', criteria: 'Patient?name=张', channel: { type: 'websocket', payload: 'full-resource' } },
@@ -70,16 +71,16 @@ export const FhirSubscriptionPage: React.FC = () => {
       }
       const res = await fhirApi.createSubscription(body)
       if (res.success) {
-        message.success('订阅已创建')
+        message.success(t('fhirSub.createSuccess'))
         setModalOpen(false)
         form.resetFields()
         fetchSubscriptions()
       } else {
-        message.error('创建失败')
+        message.error(t('fhirSub.createFail'))
       }
     } catch (err: any) {
       if (err?.errorFields) return
-      message.error('操作失败')
+      message.error(t('fhirSub.opFail'))
     } finally {
       setSaving(false)
     }
@@ -88,23 +89,23 @@ export const FhirSubscriptionPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     const res = await fhirApi.deleteSubscription(id)
     if (res.success) {
-      message.success('订阅已删除')
+      message.success(t('fhirSub.deleteSuccess'))
       fetchSubscriptions()
     } else {
-      message.error('删除失败')
+      message.error(t('fhirSub.deleteFail'))
     }
   }
 
   const columns = [
     {
-      title: '编号',
+      title: t('fhirSub.col.id'),
       dataIndex: 'id',
       key: 'id',
       width: 100,
       render: (id: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{id}</span>,
     },
     {
-      title: '状态',
+      title: t('fhirSub.col.status'),
       dataIndex: 'status',
       key: 'status',
       render: (s: string) => {
@@ -113,38 +114,38 @@ export const FhirSubscriptionPage: React.FC = () => {
       },
     },
     {
-      title: '原因',
+      title: t('fhirSub.col.reason'),
       dataIndex: 'reason',
       key: 'reason',
       ellipsis: true,
     },
     {
-      title: '筛选条件',
+      title: t('fhirSub.col.criteria'),
       dataIndex: 'criteria',
       key: 'criteria',
       ellipsis: true,
       render: (c: string) => <code style={{ fontSize: 11 }}>{c}</code>,
     },
     {
-      title: '通道类型',
+      title: t('fhirSub.col.channelType'),
       key: 'channelType',
       render: (_: any, r: FhirSubscription) => <Tag color="blue">{r.channel?.type}</Tag>,
     },
     {
-      title: '端点',
+      title: t('fhirSub.col.endpoint'),
       key: 'endpoint',
       render: (_: any, r: FhirSubscription) => r.channel?.endpoint || '-',
       ellipsis: true,
     },
     {
-      title: '操作',
+      title: t('fhirSub.col.action'),
       key: 'action',
       width: 150,
       render: (_: any, r: FhirSubscription) => (
         <Space size="small">
-          <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>详情</Button>
-          <Popconfirm title="确认删除此订阅?" onConfirm={() => handleDelete(r.id!)}>
-            <Button size="small" danger icon={<Trash size={12} />}>删除</Button>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>{t('fhirSub.detail')}</Button>
+          <Popconfirm title={t('fhirSub.confirmDelete')} onConfirm={() => handleDelete(r.id!)}>
+            <Button size="small" danger icon={<Trash size={12} />}>{t('fhirSub.delete')}</Button>
           </Popconfirm>
         </Space>
       ),
@@ -155,17 +156,17 @@ export const FhirSubscriptionPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Bell size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 订阅管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirSub.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
 
       <Card
         size="small"
-        title={`订阅列表 (${subscriptions.length})`}
+        title={t('fhirSub.listTitle', { count: subscriptions.length })}
         extra={
           <Space>
-            <Button icon={<RefreshCw size={14} />} onClick={fetchSubscriptions}>刷新</Button>
-            <Button type="primary" icon={<Plus size={14} />} onClick={() => { form.resetFields(); setModalOpen(true) }}>新建订阅</Button>
+            <Button icon={<RefreshCw size={14} />} onClick={fetchSubscriptions}>{t('fhirSub.refresh')}</Button>
+            <Button type="primary" icon={<Plus size={14} />} onClick={() => { form.resetFields(); setModalOpen(true) }}>{t('fhirSub.create')}</Button>
           </Space>
         }
       >
@@ -181,7 +182,7 @@ export const FhirSubscriptionPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="新建订阅"
+        title={t('fhirSub.createTitle')}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleCreate}
@@ -189,52 +190,52 @@ export const FhirSubscriptionPage: React.FC = () => {
         width={600}
       >
         <Form form={form} layout="vertical" size="small" initialValues={{ channelType: 'rest-hook', payload: 'id-only' }}>
-          <Form.Item name="reason" label="订阅原因" rules={[{ required: true }]}>
-            <Input placeholder="描述此订阅的用途" />
+          <Form.Item name="reason" label={t('fhirSub.reasonLabel')} rules={[{ required: true }]}>
+            <Input placeholder={t('fhirSub.reasonPlaceholder')} />
           </Form.Item>
-          <Form.Item name="criteria" label="筛选条件 (Criteria)" rules={[{ required: true }]}>
-            <Input placeholder="例如: DiagnosticReport?status=final" />
+          <Form.Item name="criteria" label={t('fhirSub.criteriaLabel')} rules={[{ required: true }]}>
+            <Input placeholder={t('fhirSub.criteriaPlaceholder')} />
           </Form.Item>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-            <Form.Item name="channelType" label="通道类型" rules={[{ required: true }]}>
+            <Form.Item name="channelType" label={t('fhirSub.col.channelType')} rules={[{ required: true }]}>
               <Select options={[
-                { value: 'rest-hook', label: 'REST 钩子 (Webhook)' },
+                { value: 'rest-hook', label: t('fhirSub.channelRestHook') },
                 { value: 'websocket', label: 'WebSocket' },
-                { value: 'email', label: '邮件' },
-                { value: 'sms', label: '短信' },
-                { value: 'message', label: '消息' },
+                { value: 'email', label: t('fhirSub.channelEmail') },
+                { value: 'sms', label: t('fhirSub.channelSms') },
+                { value: 'message', label: t('fhirSub.channelMessage') },
               ]} />
             </Form.Item>
-            <Form.Item name="payload" label="负载类型">
+            <Form.Item name="payload" label={t('fhirSub.payloadLabel')}>
               <Select options={[
-                { value: 'id-only', label: '仅 ID' },
-                { value: 'full-resource', label: '完整资源' },
-                { value: 'none', label: '无' },
+                { value: 'id-only', label: t('fhirSub.payloadIdOnly') },
+                { value: 'full-resource', label: t('fhirSub.payloadFull') },
+                { value: 'none', label: t('fhirSub.payloadNone') },
               ]} />
             </Form.Item>
           </div>
-          <Form.Item name="endpoint" label="端点 URL" rules={[{ required: true }]}>
+          <Form.Item name="endpoint" label={t('fhirSub.endpointLabel')} rules={[{ required: true }]}>
             <Input placeholder="https://example.com/hook" />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="订阅详情"
+        title={t('fhirSub.detailTitle')}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
-        footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
+        footer={<Button onClick={() => setDetailOpen(false)}>{t('fhirSub.close')}</Button>}
         width={600}
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fhirSub.loadingDetail')}</div>
         ) : selectedSub ? (
           <div>
             <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: 16, borderRadius: 6, fontSize: 12, overflow: 'auto', maxHeight: 400 }}>
               {JSON.stringify(selectedSub, null, 2)}
             </pre>
           </div>
-        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
+        ) : <Empty description={t('fhirSub.empty')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

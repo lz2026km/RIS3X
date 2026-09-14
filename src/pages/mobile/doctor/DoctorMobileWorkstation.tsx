@@ -11,6 +11,7 @@ import {
   type LatestReportItem,
   type ReportDto,
 } from '../../../services/api'
+import { t } from '../../../i18n/appI18n'
 
 export { type DoctorWorklistItem, type DoctorStats } from '../../../services/api'
 
@@ -21,9 +22,9 @@ const PRIORITY_COLORS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  pending: '待报告',
-  reading: '报告中',
-  reported: '已报告',
+  pending: t('docMobile.status.pending'),
+  reading: t('docMobile.status.reading'),
+  reported: t('docMobile.status.reported'),
 }
 
 // ── 离线演示数据兜底 (后端 /mobile 不可用时展示, 与 backend mobile.service seed 对齐)
@@ -57,7 +58,7 @@ const MOCK_REVIEWS: ReportDto[] = [
 ]
 
 const REVIEW_STATE_LABELS: Record<string, string> = {
-  INITIAL_REVIEW: '初核待审', FINAL_REVIEW: '终核待审', CO_SIGN_REVIEW: '待双签', REVIEWED: '已审核',
+  INITIAL_REVIEW: t('docMobile.reviewState.initial'), FINAL_REVIEW: t('docMobile.reviewState.final'), CO_SIGN_REVIEW: t('docMobile.reviewState.coSign'), REVIEWED: t('docMobile.reviewState.reviewed'),
 }
 
 const s = {
@@ -183,12 +184,12 @@ export default function DoctorMobileWorkstation() {
       const res = await mobileApi.ackCriticalValue(id, currentUserName())
       if (res.success) {
         setCriticals(prev => prev.map(c => c.id === id ? { ...c, state: 'ACKNOWLEDGED', ackedAt: new Date().toISOString(), ackedBy: currentUserName() } : c))
-        message.success('危急值已确认')
+        message.success(t('docMobile.ackSuccess'))
       } else {
         message.error(`确认失败: ${res.error?.message ?? '未知错误'}`)
       }
     } catch {
-      message.error('确认失败: 网络错误')
+      message.error(t('docMobile.ackFailNetwork'))
     }
     setAckingId(null)
   }, [])
@@ -201,7 +202,7 @@ export default function DoctorMobileWorkstation() {
     if (!reviewTarget) return
     const id = reviewTarget.id
     if (!approve && !reviewComment.trim()) {
-      message.warning('驳回原因不能为空')
+      message.warning(t('docMobile.rejectReasonRequired'))
       return
     }
     setReviewSubmitting(true)
@@ -212,14 +213,14 @@ export default function DoctorMobileWorkstation() {
         setFailedReviewIds(prev => { const n = { ...prev }; delete n[id]; return n })
         setReviewTarget(null)
         setReviewComment('')
-        message.success(approve ? '审批通过' : '已驳回')
+        message.success(approve ? t('docMobile.approved') : t('docMobile.rejected'))
       } else {
-        setFailedReviewIds(prev => ({ ...prev, [id]: res.error?.message ?? '审批失败' }))
+        setFailedReviewIds(prev => ({ ...prev, [id]: res.error?.message ?? t('docMobile.approveFail') }))
         message.error(`审批失败: ${res.error?.message ?? '未知错误'}`)
       }
     } catch (e) {
-      setFailedReviewIds(prev => ({ ...prev, [id]: e instanceof Error ? e.message : '网络错误' }))
-      message.error(`审批失败: ${e instanceof Error ? e.message : '网络错误'}`)
+      setFailedReviewIds(prev => ({ ...prev, [id]: e instanceof Error ? e.message : t('docMobile.networkError') }))
+      message.error(`审批失败: ${e instanceof Error ? e.message : t('docMobile.networkError')}`)
     } finally {
       setReviewSubmitting(false)
     }
@@ -235,39 +236,39 @@ export default function DoctorMobileWorkstation() {
       {(pullDist > 0 || refreshing) && (
         <div style={{ textAlign: 'center', padding: '8px 0', fontSize: 12, color: '#64748b', background: 'var(--bg-card)' }}>
           <RefreshCw size={12} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle', animation: refreshing ? 'spin 1s linear infinite' : undefined }} />
-          {refreshing ? '刷新中...' : pullDist >= 80 ? '松开刷新' : '下拉刷新'}
+          {refreshing ? t('docMobile.refreshing') : pullDist >= 80 ? t('docMobile.releaseRefresh') : t('docMobile.pullRefresh')}
         </div>
       )}
 
       {usingMock && (
         <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
-          ⚠ 后端不可用，当前展示离线演示数据
+          {t('docMobile.offlineBanner')}
         </div>
       )}
 
       <div style={s.header}>
-        <div style={s.headerTitle}>医生移动工作站</div>
-        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 诊断工作台{summary.date ? ` · ${summary.date}` : ''}</div>
+        <div style={s.headerTitle}>{t('docMobile.headerTitle')}</div>
+        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>{t('docMobile.headerSubtitle')}{summary.date ? ` · ${summary.date}` : ''}</div>
         <div style={s.statsRow}>
-          <div style={s.statCard('var(--color-info-bg)')}><div style={s.statValue}>{summary.pendingExams}</div><div style={s.statLabel}>待报告</div></div>
-          <div style={s.statCard('var(--color-warning-bg)')}><div style={s.statValue}>{summary.inProgressExams}</div><div style={s.statLabel}>报告中</div></div>
-          <div style={s.statCard('var(--color-success-bg)')}><div style={s.statValue}>{summary.signedReportsToday}</div><div style={s.statLabel}>今日完成</div></div>
-          <div style={s.statCard('var(--color-error-bg)')}><div style={s.statValue}>{summary.criticalValues}</div><div style={s.statLabel}>危急值</div></div>
+          <div style={s.statCard('var(--color-info-bg)')}><div style={s.statValue}>{summary.pendingExams}</div><div style={s.statLabel}>{t('docMobile.stat.pending')}</div></div>
+          <div style={s.statCard('var(--color-warning-bg)')}><div style={s.statValue}>{summary.inProgressExams}</div><div style={s.statLabel}>{t('docMobile.stat.reading')}</div></div>
+          <div style={s.statCard('var(--color-success-bg)')}><div style={s.statValue}>{summary.signedReportsToday}</div><div style={s.statLabel}>{t('docMobile.stat.completed')}</div></div>
+          <div style={s.statCard('var(--color-error-bg)')}><div style={s.statValue}>{summary.criticalValues}</div><div style={s.statLabel}>{t('docMobile.stat.critical')}</div></div>
         </div>
       </div>
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者、检查号..." style={{ border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('docMobile.searchPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
         <Filter size={16} color="#94a3b8" style={{ cursor: 'pointer' }} />
       </div>
 
       <div style={s.tabRow}>
-        {[{ key: 'worklist' as const, icon: ListChecks, label: '工作列表' }, { key: 'critical' as const, icon: AlertTriangle, label: '危急值' }, { key: 'approval' as const, icon: FileCheck2, label: '待审批' }, { key: 'reports' as const, icon: FileText, label: '报告' }, { key: 'stats' as const, icon: BarChart3, label: '统计' }].map(t => (
-          <div key={t.key} style={s.tab(tab === t.key)} onClick={() => setTab(t.key)}>
-            <t.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-            {t.label}
-            {t.key === 'approval' && pendingReviews.length > 0 && (
+        {[{ key: 'worklist' as const, icon: ListChecks, label: t('docMobile.tab.worklist') }, { key: 'critical' as const, icon: AlertTriangle, label: t('docMobile.tab.critical') }, { key: 'approval' as const, icon: FileCheck2, label: t('docMobile.tab.approval') }, { key: 'reports' as const, icon: FileText, label: t('docMobile.tab.reports') }, { key: 'stats' as const, icon: BarChart3, label: t('docMobile.tab.stats') }].map(tb => (
+          <div key={tb.key} style={s.tab(tab === tb.key)} onClick={() => setTab(tb.key)}>
+            <tb.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+            {tb.label}
+            {tb.key === 'approval' && pendingReviews.length > 0 && (
               <span style={{ marginLeft: 2, background: '#dc2626', color: '#fff', borderRadius: 8, padding: '0 5px', fontSize: 10, fontWeight: 700 }}>{pendingReviews.length}</span>
             )}
           </div>
@@ -275,11 +276,11 @@ export default function DoctorMobileWorkstation() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13 }}>加载中...</div>
+        <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.loading')}</div>
       ) : tab === 'worklist' ? (
         <>
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
-            {[{ key: 'all', label: '全部' }, { key: 'pending', label: '待报告' }, { key: 'reading', label: '报告中' }].map(f => (
+            {[{ key: 'all', label: t('docMobile.filter.all') }, { key: 'pending', label: t('docMobile.filter.pending') }, { key: 'reading', label: t('docMobile.filter.reading') }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
                 style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e40af' : 'var(--bg-card)', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
@@ -296,23 +297,23 @@ export default function DoctorMobileWorkstation() {
                     <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName}</span>
                     {item.urgency === 'critical' && <AlertTriangle size={12} color="#dc2626" />}
                     <span style={s.badge(PRIORITY_COLORS[item.urgency] ?? '#64748b')}>
-                      {item.urgency === 'critical' ? '危急' : item.urgency === 'urgent' ? '紧急' : '普通'}
+                      {item.urgency === 'critical' ? t('docMobile.urgency.critical') : item.urgency === 'urgent' ? t('docMobile.urgency.urgent') : t('docMobile.urgency.routine')}
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 8 }}>
-                    <span>{item.gender}/{item.age ?? '-'}岁</span>
+                    <span>{item.gender}/{item.age ?? '-'}{t('docMobile.yearsOld')}</span>
                     <span>{item.modality}</span>
                     <span>{item.bodyPart}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.accessionNumber} · 预约 {formatTime(item.scheduledAt)}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.accessionNumber} · {t('docMobile.appointment')} {formatTime(item.scheduledAt)}</div>
                 </div>
                 <div style={{ textAlign: 'right' as const }}>
-                  <span style={s.badge(STATUS_LABELS[item.status] === '已报告' ? '#059669' : '#d97706')}>{STATUS_LABELS[item.status] ?? item.state}</span>
+                  <span style={s.badge(STATUS_LABELS[item.status] === t('docMobile.status.reported') ? '#059669' : '#d97706')}>{STATUS_LABELS[item.status] ?? item.state}</span>
                 </div>
                 <ChevronRight size={14} color="#cbd5e1" />
               </div>
             ))}
-            {filtered.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>暂无工作项</div>}
+            {filtered.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.noWorkItems')}</div>}
           </div>
         </>
       ) : tab === 'critical' ? (
@@ -322,16 +323,16 @@ export default function DoctorMobileWorkstation() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.patientName}</span>
                 <span style={s.badge(c.severity === 'CRITICAL' ? '#dc2626' : '#d97706')}>
-                  {c.severity === 'CRITICAL' ? '危急' : c.severity === 'URGENT' ? '紧急' : c.severity}
+                  {c.severity === 'CRITICAL' ? t('docMobile.urgency.critical') : c.severity === 'URGENT' ? t('docMobile.urgency.urgent') : c.severity}
                 </span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>{formatTime(c.createdAt)} · {c.notifiedTo ?? '未通知'}</span>
+                <span>{formatTime(c.createdAt)} · {c.notifiedTo ?? t('docMobile.notNotified')}</span>
                 {isAcked(c) ? (
                   <span style={{ color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <CheckCircle size={14} /> 已确认
+                    <CheckCircle size={14} /> {t('docMobile.confirmed')}
                   </span>
                 ) : (
                   <button
@@ -339,13 +340,13 @@ export default function DoctorMobileWorkstation() {
                     disabled={ackingId === c.id}
                     style={{ padding: '4px 14px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: ackingId === c.id ? 0.6 : 1 }}
                   >
-                    {ackingId === c.id ? '确认中...' : '确认接收'}
+                    {ackingId === c.id ? t('docMobile.confirming') : t('docMobile.ackReceive')}
                   </button>
                 )}
               </div>
             </div>
           ))}
-          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>暂无危急值</div>}
+          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.noCriticals')}</div>}
         </div>
       ) : tab === 'reports' ? (
         <div style={{ padding: 16 }}>
@@ -353,7 +354,7 @@ export default function DoctorMobileWorkstation() {
             <div key={r.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName}</span>
-                {r.isCritical && <span style={s.badge('#dc2626')}>危急</span>}
+                {r.isCritical && <span style={s.badge('#dc2626')}>{t('docMobile.urgency.critical')}</span>}
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{r.modality ?? ''} {r.bodyPart ?? ''}</span>
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{r.impression || '—'}</div>
@@ -363,7 +364,7 @@ export default function DoctorMobileWorkstation() {
               </div>
             </div>
           ))}
-          {reports.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>暂无报告</div>}
+          {reports.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.noReports')}</div>}
         </div>
       ) : tab === 'approval' ? (
         <div style={{ padding: 16 }}>
@@ -383,40 +384,40 @@ export default function DoctorMobileWorkstation() {
               </div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{r.reportId} · {formatTime(r.updatedTime ?? r.createdTime)}</div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5, WebkitLineClamp: 2, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
-                {r.impression || r.diagnosis || r.findings || '暂无描述'}
+                {r.impression || r.diagnosis || r.findings || t('docMobile.noDescription')}
               </div>
               {failedReviewIds[r.id] && (
                 <div style={{ marginTop: 6, fontSize: 12, color: '#dc2626', background: 'var(--color-error-bg)', borderRadius: 6, padding: '4px 8px' }}>
-                  ⚠ 审批同步失败（{failedReviewIds[r.id]}），可重试
+                  {t('docMobile.reviewSyncFail', { reason: failedReviewIds[r.id] })}
                 </div>
               )}
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                 <button
                   onClick={() => setReviewTarget(r)}
                   style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-                >审批（通过 / 驳回）</button>
+                >{t('docMobile.reviewAction')}</button>
               </div>
             </div>
           ))}
           {pendingReviews.length === 0 && (
             <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13, background: 'var(--bg-card)', borderRadius: 12 }}>
               <CheckCircle size={28} style={{ margin: '0 auto 8px', display: 'block', opacity: 0.5 }} />
-              暂无待审批报告
+              {t('docMobile.noReviews')}
             </div>
           )}
         </div>
       ) : (
         <div style={{ padding: 16 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>今日工作统计 ({summary.date})</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>{t('docMobile.statsTitle', { date: summary.date })}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
               {[
-                { label: '今日检查', value: `${summary.examsToday}例`, color: '#2563eb' },
-                { label: '今日报告', value: `${summary.reportsToday}份`, color: '#059669' },
-                { label: '已签发', value: `${summary.signedReportsToday}份`, color: '#7c3aed' },
-                { label: '危急值', value: `${summary.criticalValues}个`, color: '#dc2626' },
-                { label: '待检查', value: `${summary.pendingExams}例`, color: '#d97706' },
-                { label: '检查中', value: `${summary.inProgressExams}例`, color: '#0891b2' },
+                { label: t('docMobile.stat2.todayExam'), value: `${summary.examsToday}例`, color: '#2563eb' },
+                { label: t('docMobile.stat2.todayReport'), value: `${summary.reportsToday}份`, color: '#059669' },
+                { label: t('docMobile.stat2.signed'), value: `${summary.signedReportsToday}份`, color: '#7c3aed' },
+                { label: t('docMobile.stat.critical'), value: `${summary.criticalValues}个`, color: '#dc2626' },
+                { label: t('docMobile.stat2.pendingExam'), value: `${summary.pendingExams}例`, color: '#d97706' },
+                { label: t('docMobile.stat2.inProgress'), value: `${summary.inProgressExams}例`, color: '#0891b2' },
               ].map(stat => (
                 <div key={stat.label} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{stat.label}</div>
@@ -430,10 +431,10 @@ export default function DoctorMobileWorkstation() {
 
       <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' }}>
         {[
-          { key: 'worklist', icon: ListChecks, label: '工作台' },
-          { key: 'viewer', icon: Image, label: '阅片' },
-          { key: 'input', icon: Mic, label: '报告' },
-          { key: 'bell', icon: Bell, label: '消息' },
+          { key: 'worklist', icon: ListChecks, label: t('docMobile.nav.workbench') },
+          { key: 'viewer', icon: Image, label: t('docMobile.nav.viewer') },
+          { key: 'input', icon: Mic, label: t('docMobile.nav.input') },
+          { key: 'bell', icon: Bell, label: t('docMobile.nav.bell') },
         ].map(nav => (
           <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#1e40af' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
@@ -447,24 +448,24 @@ export default function DoctorMobileWorkstation() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { if (!reviewSubmitting) setReviewTarget(null) }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 14, width: '90%', maxWidth: 420, padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>报告审批</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{t('docMobile.reviewModalTitle')}</div>
               <button onClick={() => setReviewTarget(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12 }}>
               <div><strong>{reviewTarget.patientName}</strong> · {reviewTarget.modality} {reviewTarget.bodyPart}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{reviewTarget.reportId} · {REVIEW_STATE_LABELS[reviewTarget.state ?? ''] ?? reviewTarget.state ?? reviewTarget.status}</div>
               <div style={{ marginTop: 6, padding: 8, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                {reviewTarget.impression || reviewTarget.diagnosis || reviewTarget.findings || '暂无描述'}
+                {reviewTarget.impression || reviewTarget.diagnosis || reviewTarget.findings || t('docMobile.noDescription')}
               </div>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>驳回原因（驳回时必填）</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>{t('docMobile.rejectReasonLabel')}</div>
               <textarea
                 value={reviewComment}
                 onChange={e => setReviewComment(e.target.value)}
                 rows={2}
                 maxLength={200}
-                placeholder="如：影像描述不完整，请补充..."
+                placeholder={t('docMobile.rejectPlaceholder')}
                 style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
               />
             </div>
@@ -473,12 +474,12 @@ export default function DoctorMobileWorkstation() {
                 onClick={() => void handleReviewSubmit(false)}
                 disabled={reviewSubmitting}
                 style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: '1px solid #fecaca', background: 'var(--bg-card)', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
-              >{reviewSubmitting ? '提交中...' : '驳回'}</button>
+              >{reviewSubmitting ? t('docMobile.submitting') : t('docMobile.reject')}</button>
               <button
                 onClick={() => void handleReviewSubmit(true)}
                 disabled={reviewSubmitting}
                 style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
-              >{reviewSubmitting ? '提交中...' : '通过'}</button>
+              >{reviewSubmitting ? t('docMobile.submitting') : t('docMobile.approve')}</button>
             </div>
           </div>
         </div>

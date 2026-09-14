@@ -37,13 +37,13 @@ import {
 import { dentalApi } from "../../services/api/dentalApi";
 import { t } from "../../i18n/appI18n";
 
-const STATUS_META: Record<string, { color: string; label: string }> = {
-  planning: { color: "default", label: "规划中" },
-  approved: { color: "green", label: "已批准" },
-  guided_surgery: { color: "cyan", label: "导板设计" },
-  implementing: { color: "blue", label: "实施中" },
-  completed: { color: "purple", label: "已完成" },
-  pending: { color: "orange", label: "待种植" },
+const STATUS_META: Record<string, { color: string; labelKey: string }> = {
+  planning: { color: "default", labelKey: "dentalImplant3d.statusPlanning" },
+  approved: { color: "green", labelKey: "dentalImplant3d.statusApproved" },
+  guided_surgery: { color: "cyan", labelKey: "dentalImplant3d.statusGuidedSurgery" },
+  implementing: { color: "blue", labelKey: "dentalImplant3d.statusImplementing" },
+  completed: { color: "purple", labelKey: "dentalImplant3d.statusCompleted" },
+  pending: { color: "orange", labelKey: "dentalImplant3d.statusPending" },
 };
 
 export const DentalImplant3DPage: React.FC = () => {
@@ -132,16 +132,16 @@ export const DentalImplant3DPage: React.FC = () => {
         status: d.status,
       });
       if (res.success) {
-        message.success(`种植体 ${d.id} 已更新`);
+        message.success(t('dentalImplant3d.implantUpdated', { id: d.id }));
         setImplantModal({ open: false, data: null, saving: false });
         const list = await dentalApi.listImplants();
         if (Array.isArray(list)) setImplants(list);
       } else {
-        message.error(res.error?.message ?? '更新失败');
+        message.error(res.error?.message ?? t('dentalImplant3d.updateFailed'));
         setImplantModal(prev => ({ ...prev, saving: false }));
       }
     } catch (e: any) {
-      message.error(e?.message ?? '更新失败');
+      message.error(e?.message ?? t('dentalImplant3d.updateFailed'));
       setImplantModal(prev => ({ ...prev, saving: false }));
     }
   };
@@ -155,15 +155,15 @@ export const DentalImplant3DPage: React.FC = () => {
         patientId: selPatient || `P${Date.now()}`,
       });
       if (res.success && res.data) {
-        message.success(`种植体 ${res.data.id ?? ''} 已登记`);
+        message.success(t('dentalImplant3d.implantRegistered', { id: res.data.id ?? '' }));
         setCreateImplantOpen(false);
         const list = await dentalApi.listImplants();
         if (Array.isArray(list)) setImplants(list);
       } else {
-        message.error(res.error?.message ?? '登记失败');
+        message.error(res.error?.message ?? t('dentalImplant3d.registerFailed'));
       }
     } catch (e: any) {
-      message.error(e?.message ?? '登记失败');
+      message.error(e?.message ?? t('dentalImplant3d.registerFailed'));
     } finally {
       setCreateImplantSaving(false);
     }
@@ -216,7 +216,7 @@ export const DentalImplant3DPage: React.FC = () => {
     try {
       const v = await dentalApi.validateImplantPlan(current.id);
       setValidation(v);
-      message.success("验证完成");
+      message.success(t('dentalImplant3d.validateDone'));
     } catch (e: any) {
       message.error(e.message);
     }
@@ -228,7 +228,7 @@ export const DentalImplant3DPage: React.FC = () => {
     setBusy(true);
     try {
       await dentalApi.approveImplantPlan(current.id);
-      message.success("规划已审批");
+      message.success(t('dentalImplant3d.planApproved'));
       setMode("list");
     } catch (e: any) {
       message.error(e.message);
@@ -242,15 +242,15 @@ export const DentalImplant3DPage: React.FC = () => {
     setBusy(true);
     try {
       const a = await dentalApi.updateImplantModel(current.id, selBrand, selModel);
-      if (!a.success) throw new Error(a.error?.message ?? "模型保存失败");
+      if (!a.success) throw new Error(a.error?.message ?? t('dentalImplant3d.modelSaveFailed'));
       const b = await dentalApi.updateImplantPlacement(current.id, {
         entryPoint: { x: planEdit.entryX, y: planEdit.entryY, z: current.entryPoint?.z ?? 80 },
         angleMesioDistal: planEdit.angle,
       });
-      if (!b.success) throw new Error(b.error?.message ?? "位置保存失败");
-      message.success("规划参数已保存 (模型/位置)");
+      if (!b.success) throw new Error(b.error?.message ?? t('dentalImplant3d.positionSaveFailed'));
+      message.success(t('dentalImplant3d.planSaved'));
     } catch (e: any) {
-      message.error(e?.message ?? "保存失败");
+      message.error(e?.message ?? t('dentalImplant3d.saveFailed'));
     }
     setBusy(false);
   };
@@ -263,10 +263,10 @@ export const DentalImplant3DPage: React.FC = () => {
       const res = await dentalApi.markImplantNerve(current.id, [
         { x: 150, y: 115, z: 35, label: "下牙槽神经" },
       ]);
-      if (!res.success) throw new Error(res.error?.message ?? "标记失败");
-      message.success(`神经已标记 (${res.data?.markedPoints?.length ?? 1} 点)`);
+      if (!res.success) throw new Error(res.error?.message ?? t('dentalImplant3d.markFailed'));
+      message.success(t('dentalImplant3d.nerveMarked', { count: res.data?.markedPoints?.length ?? 1 }));
     } catch (e: any) {
-      message.error(e?.message ?? "标记失败");
+      message.error(e?.message ?? t('dentalImplant3d.markFailed'));
     }
     setBusy(false);
   };
@@ -274,11 +274,11 @@ export const DentalImplant3DPage: React.FC = () => {
   // 导板导出：调用后端导板导出端点并下载（后端无文件时下载 JSON 记录）
   const handleExportGuide = async () => {
     if (!current) {
-      message.warning("请先选择种植规划");
+      message.warning(t('dentalImplant3d.selectPlanFirst'));
       return;
     }
     if (!current.guideDesigned) {
-      message.warning("请先完成导板设计");
+      message.warning(t('dentalImplant3d.designGuideFirst'));
       return;
     }
     setBusy(true);
@@ -295,9 +295,9 @@ export const DentalImplant3DPage: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
       setGuideExported(true);
-      message.success("手术导板已导出，可提交 3D 打印");
+      message.success(t('dentalImplant3d.guideExported'));
     } catch (e: any) {
-      message.error(e?.message || "导板导出失败");
+      message.error(e?.message || t('dentalImplant3d.guideExportFailed'));
     } finally {
       setBusy(false);
     }
@@ -305,7 +305,7 @@ export const DentalImplant3DPage: React.FC = () => {
 
   const handleCreate = async () => {
     if (!selPatient) {
-      message.warning("请先选择患者");
+      message.warning(t('dentalImplant3d.selectPatientFirst'));
       return;
     }
     setBusy(true);
@@ -319,7 +319,7 @@ export const DentalImplant3DPage: React.FC = () => {
       setCurrent(plan);
       setMode("plan");
       setPlanEdit({ entryX: 150, entryY: 120, angle: 0 });
-      message.success("新建 3D 规划");
+      message.success(t('dentalImplant3d.planCreated'));
     } catch (e: any) {
       message.error(e.message);
     }
@@ -395,7 +395,7 @@ export const DentalImplant3DPage: React.FC = () => {
     ctx.stroke();
     ctx.fillStyle = "#fff";
     ctx.font = "10px monospace";
-    ctx.fillText("轴位 | WW:" + ww + " WC:" + wc, 4, 12);
+    ctx.fillText(t('dentalImplant3d.mprOverlay', { ww, wc }), 4, 12);
   };
 
   useEffect(() => {
@@ -411,21 +411,21 @@ export const DentalImplant3DPage: React.FC = () => {
         <Space style={{ marginBottom: 16 }}>
           <Box size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
-            种植 3D 规划中心
+            {t('dentalImplant3d.title')}
           </span>
           <Tag color="cyan">v3.0.6.8-88</Tag>
-          <Tag color="blue">Implant Studio 对标</Tag>
+          <Tag color="blue">{t('dentalImplant3d.benchmark')}</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">
-              <Statistic title="总规划" value={plans.length} />
+              <Statistic title={t('dentalImplant3d.statTotalPlans')} value={plans.length} />
             </Card>
           </Col>
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="待审批"
+                title={t('dentalImplant3d.statPendingApproval')}
                 value={plans.filter((p: any) => p.status === "planning").length}
                 styles={{ content: {  color: "#faad14"  } }}
               />
@@ -434,7 +434,7 @@ export const DentalImplant3DPage: React.FC = () => {
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="已审批"
+                title={t('dentalImplant3d.statApproved')}
                 value={plans.filter((p: any) => p.status === "approved").length}
                 styles={{ content: {  color: "#52c41a"  } }}
               />
@@ -443,7 +443,7 @@ export const DentalImplant3DPage: React.FC = () => {
           <Col span={4}>
             <Card size="small">
               <Statistic
-                title="已有导板"
+                title={t('dentalImplant3d.statHasGuide')}
                 value={plans.filter((p: any) => p.guideDesigned).length}
               />
             </Card>
@@ -451,21 +451,21 @@ export const DentalImplant3DPage: React.FC = () => {
         </Row>
         <Row gutter={16}>
           <Col span={8}>
-            <Card title="新建设计" size="small">
+            <Card title={t('dentalImplant3d.newDesign')} size="small">
               <Form layout="vertical" size="small">
-                <Form.Item label="患者" required>
+                <Form.Item label={t('dentalImplant3d.patient')} required>
                   <Select
                     value={selPatient}
                     onChange={(v) => setSelPatient(v)}
-                    placeholder="选择患者"
+                    placeholder={t('dentalImplant3d.selectPatient')}
                     options={patients.map((p: any) => ({
                       value: p.id || p.patientId,
                       label: `${p.name} (${p.id || p.patientId})`,
                     }))}
-                    notFoundContent="暂无患者 (dentalApi.listPatients)"
+                    notFoundContent={t('dentalImplant3d.noPatients')}
                   />
                 </Form.Item>
-                <Form.Item label="品牌">
+                <Form.Item label={t('dentalImplant3d.brand')}>
                   <Select
                     value={selBrand}
                     onChange={(v) => setSelBrand(v)}
@@ -475,7 +475,7 @@ export const DentalImplant3DPage: React.FC = () => {
                     }))}
                   />
                 </Form.Item>
-                <Form.Item label="型号">
+                <Form.Item label={t('dentalImplant3d.model')}>
                   <Select
                     value={selModel}
                     onChange={(v) => setSelModel(v)}
@@ -485,7 +485,7 @@ export const DentalImplant3DPage: React.FC = () => {
                     }))}
                   />
                 </Form.Item>
-                <Form.Item label="牙位 (FDI)">
+                <Form.Item label={t('dentalImplant3d.toothFdi')}>
                   <InputNumber
                     min={11}
                     max={48}
@@ -502,12 +502,12 @@ export const DentalImplant3DPage: React.FC = () => {
                   onClick={handleCreate}
                   loading={busy}
                 >
-                  新建 3D 规划
+                  {t('dentalImplant3d.createPlanBtn')}
                 </Button>
               </Form>
             </Card>
             {/* [G005 Wave1B] 种植体登记库 (dentalApi.listImplants / updateImplant) */}
-            <Card title={<Space><Tag color="cyan">种植体登记</Tag>{implants.length} 条</Space>} size="small" style={{ marginTop: 12 }}
+            <Card title={<Space><Tag color="cyan">{t('dentalImplant3d.implantRegister')}</Tag>{t('dentalImplant3d.recordsCount', { count: implants.length })}</Space>} size="small" style={{ marginTop: 12 }}
               extra={<Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => setCreateImplantOpen(true)}>{t("w3b.implantRegister")}</Button>}>
               <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                 {implants.map((im: any) => (
@@ -522,15 +522,15 @@ export const DentalImplant3DPage: React.FC = () => {
                         {im.diameter}×{im.length}mm · <Tag style={{ fontSize: 10, margin: 0 }}>{im.status ?? 'PLANNED'}</Tag>
                       </div>
                     </div>
-                    <Button size="small" type="link" onClick={() => setImplantModal({ open: true, data: { ...im }, saving: false })}>更新</Button>
+                    <Button size="small" type="link" onClick={() => setImplantModal({ open: true, data: { ...im }, saving: false })}>{t('dentalImplant3d.update')}</Button>
                   </div>
                 ))}
-                {implants.length === 0 && <div style={{ padding: 12, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>暂无种植体登记</div>}
+                {implants.length === 0 && <div style={{ padding: 12, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('dentalImplant3d.noImplants')}</div>}
               </div>
             </Card>
           </Col>
           <Col span={16}>
-            <Card title="规划列表" size="small">
+            <Card title={t('dentalImplant3d.planList')} size="small">
               {plans.map((p: any) => (
                 <Card
                   key={p.id}
@@ -566,11 +566,11 @@ export const DentalImplant3DPage: React.FC = () => {
                             ? "processing"
                             : "default"
                       }
-                      text={STATUS_META[p.status]?.label ?? p.status}
+                      text={t(STATUS_META[p.status]?.labelKey ?? p.status)}
                     />
                   </Space>
                   <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4 }}>
-                    {p.model} | 神距: {p.distanceToNerve}mm | 骨密度:{" "}
+                    {p.model} | {t('dentalImplant3d.nerveDistance')} {p.distanceToNerve}mm | {t('dentalImplant3d.boneDensity')}{" "}
                     {p.boneDensityAtApex}HU | {p.createdAt?.slice(0, 10)}
                   </div>
                 </Card>
@@ -581,7 +581,7 @@ export const DentalImplant3DPage: React.FC = () => {
 
         {/* [G005 Wave1B] 种植体登记更新 Modal (dentalApi.updateImplant) */}
         <Modal
-          title={`更新种植体登记 - ${implantModal.data?.id ?? ''}`}
+          title={t('dentalImplant3d.updateImplantTitle', { id: implantModal.data?.id ?? '' })}
           open={implantModal.open}
           onCancel={() => setImplantModal({ open: false, data: null, saving: false })}
           onOk={() => void handleUpdateImplant()}
@@ -590,13 +590,13 @@ export const DentalImplant3DPage: React.FC = () => {
         >
           {implantModal.data && (
             <Form layout="vertical" size="small" style={{ marginTop: 8 }}>
-              <Form.Item label="品牌">
+              <Form.Item label={t('dentalImplant3d.brand')}>
                 <Input value={implantModal.data.implantBrand ?? ''} onChange={e => setImplantModal({ ...implantModal, data: { ...implantModal.data, implantBrand: e.target.value } })} />
               </Form.Item>
-              <Form.Item label="型号">
+              <Form.Item label={t('dentalImplant3d.model')}>
                 <Input value={implantModal.data.implantModel ?? ''} onChange={e => setImplantModal({ ...implantModal, data: { ...implantModal.data, implantModel: e.target.value } })} />
               </Form.Item>
-              <Form.Item label="状态">
+              <Form.Item label={t('dentalImplant3d.status')}>
                 <Select value={implantModal.data.status ?? 'PLANNED'} onChange={v => setImplantModal({ ...implantModal, data: { ...implantModal.data, status: v } })} options={['PLANNED', 'SURGERY_DONE', 'FINALIZED', 'REMOVED'].map(s => ({ value: s, label: s }))} />
               </Form.Item>
             </Form>
@@ -625,19 +625,19 @@ export const DentalImplant3DPage: React.FC = () => {
             </Form.Item>
             <Row gutter={12}>
               <Col span={12}>
-                <Form.Item label="直径 (mm)">
+                <Form.Item label={t('dentalImplant3d.diameter')}>
                   <InputNumber min={2.5} max={7} step={0.1} value={createImplantForm.diameter} style={{ width: '100%' }}
                     onChange={(v) => setCreateImplantForm({ ...createImplantForm, diameter: v ?? 4.1 })} />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="长度 (mm)">
+                <Form.Item label={t('dentalImplant3d.length')}>
                   <InputNumber min={6} max={18} step={0.5} value={createImplantForm.length} style={{ width: '100%' }}
                     onChange={(v) => setCreateImplantForm({ ...createImplantForm, length: v ?? 10 })} />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item label="状态">
+            <Form.Item label={t('dentalImplant3d.status')}>
               <Select value={createImplantForm.status} style={{ width: '100%' }}
                 onChange={(v) => setCreateImplantForm({ ...createImplantForm, status: v })}
                 options={['PLANNED', 'SURGERY_DONE', 'FINALIZED', 'REMOVED'].map(s => ({ value: s, label: s }))} />
@@ -652,24 +652,24 @@ export const DentalImplant3DPage: React.FC = () => {
     <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
-          返回列表
+          {t('dentalImplant3d.backToList')}
         </Button>
         <Box size={18} color="#2563eb" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
-          种植 3D 规划 - #{current.toothNo}
+          {t('dentalImplant3d.planTitle', { toothNo: current.toothNo })}
         </span>
         <Tag color="cyan">v3.0.6.8-88</Tag>
         <Tag color={current.status === "approved" ? "green" : "purple"}>
-          {STATUS_META[current.status]?.label ?? current.status}
+          {t(STATUS_META[current.status]?.labelKey ?? current.status)}
         </Tag>
         <Segmented
           size="small"
           value={viewAxial}
           onChange={(v) => setViewAxial(v as any)}
           options={[
-            { value: "axial", label: "轴位" },
-            { value: "sagittal", label: "矢状位" },
-            { value: "coronal", label: "冠状位" },
+            { value: "axial", label: t('dentalImplant3d.viewAxial') },
+            { value: "sagittal", label: t('dentalImplant3d.viewSagittal') },
+            { value: "coronal", label: t('dentalImplant3d.viewCoronal') },
           ]}
         />
       </Space>
@@ -680,7 +680,7 @@ export const DentalImplant3DPage: React.FC = () => {
             title={
               <Space>
                 <Crosshair size={14} />
-                CBCT MPR 引导
+                {t('dentalImplant3d.mprGuide')}
               </Space>
             }
             extra={
@@ -723,7 +723,7 @@ export const DentalImplant3DPage: React.FC = () => {
             />
             <Row gutter={8} style={{ marginTop: 8 }}>
               <Col span={12}>
-                <Form.Item label="窗宽">
+                <Form.Item label={t('dentalImplant3d.windowWidth')}>
                   <InputNumber
                     value={ww}
                     onChange={(v) => setWw(v || 1500)}
@@ -735,7 +735,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="窗位">
+                <Form.Item label={t('dentalImplant3d.windowCenter')}>
                   <InputNumber
                     value={wc}
                     onChange={(v) => setWc(v || 500)}
@@ -753,14 +753,14 @@ export const DentalImplant3DPage: React.FC = () => {
             title={
               <Space>
                 <Layers size={14} />
-                种植体参数
+                {t('dentalImplant3d.implantParams')}
               </Space>
             }
             style={{ marginTop: 8 }}
           >
             <Row gutter={12}>
               <Col span={12}>
-                <Form.Item label="品牌">
+                <Form.Item label={t('dentalImplant3d.brand')}>
                   <Select
                     value={selBrand}
                     onChange={(v) => {
@@ -774,7 +774,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="型号">
+                <Form.Item label={t('dentalImplant3d.model')}>
                   <Select
                     value={selModel}
                     onChange={(v) => setSelModel(v)}
@@ -788,7 +788,7 @@ export const DentalImplant3DPage: React.FC = () => {
             </Row>
             <Row gutter={8}>
               <Col span={8}>
-                <Form.Item label="穿出 x" style={{ margin: 0 }}>
+                <Form.Item label={t('dentalImplant3d.entryX')} style={{ margin: 0 }}>
                   <InputNumber
                     value={planEdit.entryX}
                     min={0}
@@ -800,7 +800,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="穿出 y" style={{ margin: 0 }}>
+                <Form.Item label={t('dentalImplant3d.entryY')} style={{ margin: 0 }}>
                   <InputNumber
                     value={planEdit.entryY}
                     min={0}
@@ -812,7 +812,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="角度 MD °" style={{ margin: 0 }}>
+                <Form.Item label={t('dentalImplant3d.angleMd')} style={{ margin: 0 }}>
                   <InputNumber
                     value={planEdit.angle}
                     min={-30}
@@ -832,7 +832,7 @@ export const DentalImplant3DPage: React.FC = () => {
               loading={busy}
               onClick={() => void handleSavePlanEdit()}
             >
-              保存规划参数 (模型/位置)
+              {t('dentalImplant3d.savePlanParams')}
             </Button>
           </Card>
         </Col>
@@ -844,12 +844,12 @@ export const DentalImplant3DPage: React.FC = () => {
                 title={
                   <Space>
                     <AlertTriangle size={14} />
-                    安全分析
+                    {t('dentalImplant3d.safetyAnalysis')}
                   </Space>
                 }
               >
                 <Statistic
-                  title="距神经管"
+                  title={t('dentalImplant3d.distanceToNerve')}
                   value={`${safeDist} mm`}
                   styles={{ content: {  color: safe ? "#52c41a" : "#ff4d4f"  } }}
                   prefix={safe ? null : <AlertTriangle size={14} />}
@@ -861,13 +861,13 @@ export const DentalImplant3DPage: React.FC = () => {
                   style={{ marginTop: 8 }}
                 />
                 <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
-                  安全阈值: ≥2mm
+                  {t('dentalImplant3d.safetyThreshold')}
                 </div>
                 <Divider style={{ margin: "6px 0" }} />
                 {nerveData?.closestNerve && (
                   <Alert
                     type={nerveData.closestNerve.safe ? "success" : "error"}
-                    title={`最邻近神经: ${nerveData.closestNerve.distance}mm`}
+                    title={t('dentalImplant3d.closestNerve', { distance: nerveData.closestNerve.distance })}
                     showIcon
                   />
                 )}
@@ -879,12 +879,12 @@ export const DentalImplant3DPage: React.FC = () => {
                 title={
                   <Space>
                     <BarChart3 size={14} />
-                    骨密度
+                    {t('dentalImplant3d.boneDensityTitle')}
                   </Space>
                 }
               >
                 <Statistic
-                  title="骨质量"
+                  title={t('dentalImplant3d.boneQuality')}
                   value={boneData?.overallQuality || "D2/D3"}
                   styles={{ content: {  color: "#2563eb", fontSize: 13  } }}
                 />
@@ -921,7 +921,7 @@ export const DentalImplant3DPage: React.FC = () => {
                   style={{ marginTop: 4 }}
                 />
                 <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
-                  平均 {boneData?.averageHU || 750} HU
+                  {t('dentalImplant3d.averageHu', { hu: boneData?.averageHU || 750 })}
                 </div>
               </Card>
             </Col>
@@ -931,7 +931,7 @@ export const DentalImplant3DPage: React.FC = () => {
             title={
               <Space>
                 <CheckCircle2 size={14} />
-                规划验证
+                {t('dentalImplant3d.planValidation')}
               </Space>
             }
             style={{ marginTop: 8 }}
@@ -942,14 +942,14 @@ export const DentalImplant3DPage: React.FC = () => {
               loading={busy}
               icon={<CheckCircle2 size={14} />}
             >
-              运行验证
+              {t('dentalImplant3d.runValidation')}
             </Button>
             {validation && (
               <div style={{ marginTop: 8 }}>
                 <Alert
                   type={validation.data?.valid ? "success" : "error"}
                   title={
-                    validation.data?.valid ? "规划通过, 无冲突" : "存在冲突"
+                    validation.data?.valid ? t('dentalImplant3d.validationPass') : t('dentalImplant3d.validationConflict')
                   }
                   showIcon
                 />
@@ -979,7 +979,7 @@ export const DentalImplant3DPage: React.FC = () => {
                   loading={busy}
                   onClick={() => void handleMarkNerve()}
                 >
-                  标记神经
+                  {t('dentalImplant3d.markNerve')}
                 </Button>
                 {current.status === "planning" && (
                   <Button
@@ -987,7 +987,7 @@ export const DentalImplant3DPage: React.FC = () => {
                     icon={<Save size={14} />}
                     onClick={handleApprove}
                   >
-                    审批规划
+                    {t('dentalImplant3d.approvePlan')}
                   </Button>
                 )}
               </Space>
@@ -996,13 +996,13 @@ export const DentalImplant3DPage: React.FC = () => {
                 loading={busy}
                 onClick={() => void handleExportGuide()}
               >
-                导板导出
+                {t('dentalImplant3d.exportGuide')}
               </Button>
               <Button
                 icon={<AlertTriangle size={14} />}
                 onClick={() => window.open("/dental/cad", "_blank")}
               >
-                修复设计
+                {t('dentalImplant3d.restorationDesign')}
               </Button>
             </Space>
           </Card>
@@ -1012,10 +1012,10 @@ export const DentalImplant3DPage: React.FC = () => {
               title={
                 <Space>
                   <CheckCircle2 size={14} color="#52c41a" />
-                  手术导板已设计
+                  {t('dentalImplant3d.guideDesigned')}
                 </Space>
               }
-              description={guideExported ? `导板文件: ${current.guideFile} · 已导出，可提交 3D 打印` : `导板文件: ${current.guideFile}`}
+              description={guideExported ? t('dentalImplant3d.guideFileExported', { file: current.guideFile }) : t('dentalImplant3d.guideFile', { file: current.guideFile })}
               type={guideExported ? "success" : "info"}
               showIcon
             />

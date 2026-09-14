@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { RefreshCw } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const ACTION_COLOR: Record<string, string> = {
   CREATE: 'green', UPDATE: 'blue', DELETE: 'red', LOGIN: 'cyan', LOGOUT: 'cyan',
@@ -55,7 +56,7 @@ export const AuditCompliancePage: React.FC = () => {
       }
       if (aggRes.status === 'fulfilled' && aggRes.value.success) setAgg(aggRes.value.data);
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败');
+      setError((e as Error)?.message ?? t('auditComp.loadFail'));
     } finally {
       setLoading(false);
     }
@@ -86,53 +87,53 @@ export const AuditCompliancePage: React.FC = () => {
   const topUsers = (agg?.byUser ?? []).slice(0, 3);
 
   const columns = [
-    { title: '编号', dataIndex: 'id', width: 110 },
-    { title: '用户', key: 'user', width: 130, render: (_: unknown, r: AuditEventDto) =>
+    { title: t('auditComp.colId'), dataIndex: 'id', width: 110 },
+    { title: t('auditComp.colUser'), key: 'user', width: 130, render: (_: unknown, r: AuditEventDto) =>
       <Space size={4}><UserCheck size={11} color="#2563eb" />{r.username ?? r.userId}</Space> },
-    { title: '操作', dataIndex: 'action', width: 120, render: (a: string) =>
+    { title: t('auditComp.colAction'), dataIndex: 'action', width: 120, render: (a: string) =>
       <Tag color={ACTION_COLOR[a] ?? 'default'}>{a}</Tag> },
-    { title: '资源', key: 'resource', render: (_: unknown, r: AuditEventDto) =>
+    { title: t('auditComp.colResource'), key: 'resource', render: (_: unknown, r: AuditEventDto) =>
       <span style={{ fontSize: 12 }}>{r.resource}{r.resourceId ? ` (${r.resourceId})` : ''}</span> },
-    { title: 'IP 地址', dataIndex: 'ip', width: 130 },
-    { title: '时间', dataIndex: 'createdAt', width: 170, render: (v: string) =>
+    { title: t('auditComp.colIp'), dataIndex: 'ip', width: 130 },
+    { title: t('auditComp.colTime'), dataIndex: 'createdAt', width: 170, render: (v: string) =>
       v ? new Date(v).toLocaleString() : '-' },
-    { title: '结果', dataIndex: 'status', width: 110, render: (s: string) =>
+    { title: t('auditComp.colResult'), dataIndex: 'status', width: 110, render: (s: string) =>
       <Badge status={(STATUS_COLOR[s] ?? 'default') as any} text={s ?? '-'} /> },
-    { title: '操作', key: 'action2', width: 80, render: (_: unknown, r: AuditEventDto) =>
-      <Button size="small" onClick={() => setDetail(r)}>详情</Button> },
+    { title: t('auditComp.colActions'), key: 'action2', width: 80, render: (_: unknown, r: AuditEventDto) =>
+      <Button size="small" onClick={() => setDetail(r)}>{t('auditComp.detail')}</Button> },
   ];
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Shield size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>审计与合规中心</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('auditComp.title')}</span>
         <Tag color="red" icon={<AlertTriangle size={10} />}>HIPAA</Tag>
         <Tag color="orange">三甲等级</Tag>
       </Space>
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load(page)}><RefreshCw size={14} /> 重试</Button>} />
+          action={<Button size="small" onClick={() => void load(page)}><RefreshCw size={14} /> {t('auditComp.retry')}</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="事件总数" value={agg?.total ?? total} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="近 24 小时" value={agg?.last24h ?? '-'} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已拒绝" value={agg?.byAction?.['DENIED'] ?? (events.filter(e => e.status === 'DENIED').length)} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-        <Col span={6}><Card size="small" title="高频操作">
-          {topActions.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>暂无</span> :
+        <Col span={4}><Card size="small"><Statistic title={t('auditComp.statTotal')} value={agg?.total ?? total} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('auditComp.stat24h')} value={agg?.last24h ?? '-'} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('auditComp.statDenied')} value={agg?.byAction?.['DENIED'] ?? (events.filter(e => e.status === 'DENIED').length)} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+        <Col span={6}><Card size="small" title={t('auditComp.topActions')}>
+          {topActions.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>{t('auditComp.none')}</span> :
             <Space wrap>{topActions.map(([k, v]) => <Tag key={k}>{k} {v}</Tag>)}</Space>}
         </Card></Col>
-        <Col span={6}><Card size="small" title="活跃用户">
-          {topUsers.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>暂无</span> :
+        <Col span={6}><Card size="small" title={t('auditComp.activeUsers')}>
+          {topUsers.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>{t('auditComp.none')}</span> :
             <Space wrap>{topUsers.map(u => <Tag key={u.userId} color="blue">{u.userId} ({u.count})</Tag>)}</Space>}
         </Card></Col>
       </Row>
 
       <Card
         size="small"
-        title={<Space><FileSearch size={14} />审计轨迹</Space>}
+        title={<Space><FileSearch size={14} />{t('auditComp.trail')}</Space>}
         extra={<Button icon={<Download size={12} />} loading={exporting} onClick={async () => {
           setExporting(true);
           try {
@@ -143,27 +144,27 @@ export const AuditCompliancePage: React.FC = () => {
             a.download = `审计轨迹_${new Date().toISOString().slice(0, 10)}.csv`;
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
-            message.success('审计轨迹已导出');
+            message.success(t('auditComp.exported'));
           } catch (e) {
-            message.error((e as Error)?.message ?? '导出失败');
+            message.error((e as Error)?.message ?? t('auditComp.exportFail'));
           } finally {
             setExporting(false);
           }
-        }}>导出</Button>}
+        }}>{t('auditComp.export')}</Button>}
       >
         <Form form={form} layout="inline" size="small" style={{ marginBottom: 12 }}>
-          <Form.Item name="user" label="用户"><Input placeholder="用户 ID" allowClear /></Form.Item>
-          <Form.Item name="action" label="操作">
-            <Select allowClear placeholder="全部" style={{ width: 120 }}
+          <Form.Item name="user" label={t('auditComp.formUser')}><Input placeholder={t('auditComp.userIdPlaceholder')} allowClear /></Form.Item>
+          <Form.Item name="action" label={t('auditComp.formAction')}>
+            <Select allowClear placeholder={t('auditComp.all')} style={{ width: 120 }}
               options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'VIEW'].map(a => ({ value: a, label: a }))} />
           </Form.Item>
-          <Form.Item name="status" label="结果">
-            <Select allowClear placeholder="全部" style={{ width: 110 }}
+          <Form.Item name="status" label={t('auditComp.formResult')}>
+            <Select allowClear placeholder={t('auditComp.all')} style={{ width: 110 }}
               options={['SUCCESS', 'FAILURE', 'DENIED'].map(s => ({ value: s, label: s }))} />
           </Form.Item>
-          <Form.Item name="search" label="关键词"><Input placeholder="资源/详情搜索" allowClear /></Form.Item>
-          <Form.Item><Button type="primary" icon={<Filter size={12} />} onClick={onSearch}>筛选</Button></Form.Item>
-          <Form.Item><Button onClick={onReset}>重置</Button></Form.Item>
+          <Form.Item name="search" label={t('auditComp.formKeyword')}><Input placeholder={t('auditComp.resourcePlaceholder')} allowClear /></Form.Item>
+          <Form.Item><Button type="primary" icon={<Filter size={12} />} onClick={onSearch}>{t('auditComp.filter')}</Button></Form.Item>
+          <Form.Item><Button onClick={onReset}>{t('auditComp.reset')}</Button></Form.Item>
         </Form>
         <Spin spinning={loading}>
           <Table
@@ -184,28 +185,28 @@ export const AuditCompliancePage: React.FC = () => {
       </Card>
 
       <Drawer
-        title={<Space><Shield size={14} />审计事件详情</Space>}
+        title={<Space><Shield size={14} />{t('auditComp.drawerTitle')}</Space>}
         open={detail != null}
         onClose={() => setDetail(null)}
         size={520}
       >
         {detail && (
           <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="事件编号">{detail.id}</Descriptions.Item>
-            <Descriptions.Item label="用户">{detail.username ?? detail.userId} ({detail.userRole ?? '未知角色'})</Descriptions.Item>
-            <Descriptions.Item label="操作">
+            <Descriptions.Item label={t('auditComp.eventId')}>{detail.id}</Descriptions.Item>
+            <Descriptions.Item label={t('auditComp.colUser')}>{detail.username ?? detail.userId} ({detail.userRole ?? t('auditComp.unknownRole')})</Descriptions.Item>
+            <Descriptions.Item label={t('auditComp.colAction')}>
               <Tag color={ACTION_COLOR[detail.action] ?? 'default'}>{detail.action}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="资源">
+            <Descriptions.Item label={t('auditComp.colResource')}>
               <Typography.Text style={{ fontSize: 12, wordBreak: 'break-all' }}>{detail.resource}</Typography.Text>
             </Descriptions.Item>
-            {detail.resourceId && <Descriptions.Item label="资源 ID">{detail.resourceId}</Descriptions.Item>}
-            <Descriptions.Item label="结果"><Badge status={(STATUS_COLOR[detail.status] ?? 'default') as any} text={detail.status} /></Descriptions.Item>
+            {detail.resourceId && <Descriptions.Item label={t('auditComp.resourceId')}>{detail.resourceId}</Descriptions.Item>}
+            <Descriptions.Item label={t('auditComp.colResult')}><Badge status={(STATUS_COLOR[detail.status] ?? 'default') as any} text={detail.status} /></Descriptions.Item>
             <Descriptions.Item label="IP / User-Agent">
               {detail.ip ?? '-'}<br /><span style={{ fontSize: 11, color: '#999' }}>{detail.userAgent ?? ''}</span>
             </Descriptions.Item>
-            <Descriptions.Item label="时间">{new Date(detail.createdAt).toLocaleString()}</Descriptions.Item>
-            {detail.details && <Descriptions.Item label="详情">{detail.details}</Descriptions.Item>}
+            <Descriptions.Item label={t('auditComp.colTime')}>{new Date(detail.createdAt).toLocaleString()}</Descriptions.Item>
+            {detail.details && <Descriptions.Item label={t('auditComp.details')}>{detail.details}</Descriptions.Item>}
           </Descriptions>
         )}
       </Drawer>

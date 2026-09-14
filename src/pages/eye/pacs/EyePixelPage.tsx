@@ -18,6 +18,7 @@ import {
   Database, RefreshCw, Grid3X3, Droplets, BarChart2,
 } from "lucide-react";
 import { eyeApi } from "@/services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 const FRAME_COUNT = 30;
 
@@ -213,8 +214,8 @@ const EyePixelPage: React.FC = () => {
       if (res.success && res.data) {
         const data = res.data;
         if (!Array.isArray(data.lut) || data.lut.length < 2) {
-          const t = String(data.type ?? "").toUpperCase();
-          const mode = t === "JET" ? "jet" : t === "HOT" ? "hot" : t === "GRAY_INVERT" ? "linear" : t === "RAINBOW" || t === "SPECTRUM" ? "rainbow" : t === "PET" ? "pet" : t === "BONE" ? "bone" : "linear";
+          const typeStr = String(data.type ?? "").toUpperCase();
+          const mode = typeStr === "JET" ? "jet" : typeStr === "HOT" ? "hot" : typeStr === "GRAY_INVERT" ? "linear" : typeStr === "RAINBOW" || typeStr === "SPECTRUM" ? "rainbow" : typeStr === "PET" ? "pet" : typeStr === "BONE" ? "bone" : "linear";
           data.lut = Array.from({ length: 256 }, (_, i) => {
             const c = i / 255;
             let r = 0, g = 0, b = 0;
@@ -233,7 +234,7 @@ const EyePixelPage: React.FC = () => {
         throw new Error("colormap 不可达");
       }
     } catch {
-      message.warning("后端伪彩表不可达, 使用本地线性 LUT");
+      message.warning(t('eyePixel.errColormapFallback'));
       setColormap({ id, name: id, lut: Array.from({ length: 256 }, (_, i) => [i, i, i]) });
       setSource("demo");
     } finally {
@@ -261,12 +262,12 @@ const EyePixelPage: React.FC = () => {
       if (res.success && res.data) {
         setHistogram(res.data);
         setSource("api");
-        message.success("像素直方图已加载");
+        message.success(t('eyePixel.histogramLoaded'));
       } else {
         throw new Error("histogram 不可达");
       }
     } catch {
-      message.warning("直方图接口不可达, 使用本地确定性直方图");
+      message.warning(t('eyePixel.errHistogramFallback'));
       const bins = Array.from({ length: 256 }, (_, i) => {
         const x = i - 128;
         return { intensity: i, count: Math.round(9000 * Math.exp(-x * x / 5000)) };
@@ -290,7 +291,7 @@ const EyePixelPage: React.FC = () => {
         throw new Error("sharpness 不可达");
       }
     } catch {
-      message.warning("锐度接口不可达, 使用本地估算");
+      message.warning(t('eyePixel.errSharpnessFallback'));
       setSharpness({ instanceId, sharpness: { laplacian: 24.6, tenengrad: 38.2, variance: 1580, overall: 82.4 }, grade: "B (良)", passed: true, measuredAt: new Date().toISOString(), source: "local-fallback" });
       setSource("demo");
     } finally {
@@ -310,7 +311,7 @@ const EyePixelPage: React.FC = () => {
         throw new Error("artifact 不可达");
       }
     } catch {
-      message.warning("伪影接口不可达, 使用本地估算");
+      message.warning(t('eyePixel.errArtifactFallback'));
       setArtifacts({ instanceId, artifacts: [{ type: "motion", severity: 0.08, location: { x: 256, y: 200, w: 80, h: 60 } }], qualityScore: 86.2, passed: true, recommendations: ["图像质量良好, 可进入阅片流程"], detectedAt: new Date().toISOString(), source: "local-fallback" });
       setSource("demo");
     } finally {
@@ -331,7 +332,7 @@ const EyePixelPage: React.FC = () => {
         throw new Error("mpr 不可达");
       }
     } catch {
-      message.warning("MPR 接口不可达, 使用本地重建参数");
+      message.warning(t('eyePixel.errMprFallback'));
       setMpr({ mprId: `MPR-${Date.now()}`, studyId, axis: mprAxis, sliceCount: 30, resolution: "512x512", format: "WebGL Texture Array", renderedAt: new Date().toISOString(), source: "local-fallback" });
       setSource("demo");
     } finally {
@@ -347,15 +348,15 @@ const EyePixelPage: React.FC = () => {
   const stats = useMemo(() => {
     if (!histogram) return [];
     const items: Array<[string, number | string]> = [
-      ["均值 Mean", histogram.mean],
-      ["标准差 Std", histogram.stdDev],
-      ["最小值 Min", histogram.min],
-      ["最大值 Max", histogram.max],
-      ["众数 Mode", histogram.mode],
-      ["中位数 Median", histogram.median],
+      [t('eyePixel.statMean'), histogram.mean],
+      [t('eyePixel.statStd'), histogram.stdDev],
+      [t('eyePixel.statMin'), histogram.min],
+      [t('eyePixel.statMax'), histogram.max],
+      [t('eyePixel.statMode'), histogram.mode],
+      [t('eyePixel.statMedian'), histogram.median],
       ["P25", histogram.p25],
       ["P75", histogram.p75],
-      ["总像素", histogram.totalPixels ?? 262144],
+      [t('eyePixel.statTotalPixels'), histogram.totalPixels ?? 262144],
     ];
     return items;
   }, [histogram]);
@@ -367,12 +368,12 @@ const EyePixelPage: React.FC = () => {
       {/* 页头 */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
         <ScanLine size={18} color="#7c3aed" />
-        <span style={{ fontSize: 16, fontWeight: 700 }}>影像像素实验室</span>
+        <span style={{ fontSize: 16, fontWeight: 700 }}>{t('eyePixel.title')}</span>
         <Tag color="purple">G005 Wave 4B</Tag>
         <Tag color="geekblue">Eye Pixel Lab</Tag>
-        <Tag color="cyan">对标 ZEISS FORUM / HEYEX 2</Tag>
+        <Tag color="cyan">{t('eyePixel.tagBenchmark')}</Tag>
         <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--text-secondary)" }}>
-          实例 {instanceId} · {pixelInfo ? `${pixelInfo.rows}×${pixelInfo.columns} ${pixelInfo.bitsAllocated}bit ${pixelInfo.modality}` : "加载元数据中…"}
+          {t('eyePixel.instance')} {instanceId} · {pixelInfo ? `${pixelInfo.rows}×${pixelInfo.columns} ${pixelInfo.bitsAllocated}bit ${pixelInfo.modality}` : t('eyePixel.loadingMeta')}
         </span>
       </div>
 
@@ -389,14 +390,14 @@ const EyePixelPage: React.FC = () => {
       >
         <Database size={12} />
         {source === "api"
-          ? "数据源: 后端 /eye/pixel/* (确定性派生) · MSW 兜底"
-          : "数据源: 本地 demo 回退 (部分接口不可达)"}
+          ? t('eyePixel.sourceApi')
+          : t('eyePixel.sourceDemo')}
       </div>
 
       {/* 检查 / 实例选择 */}
-      <Card size="small" title={<Space><Activity size={15} />检查与实例选择</Space>} style={{ marginBottom: 12 }}>
+      <Card size="small" title={<Space><Activity size={15} />{t('eyePixel.studyInstanceSelect')}</Space>} style={{ marginBottom: 12 }}>
         <Space wrap>
-          <span style={{ fontSize: 12 }}>检查:</span>
+          <span style={{ fontSize: 12 }}>{t('eyePixel.studyLabel')}</span>
           <Select
             data-testid="eye-pixel-study-select"
             style={{ width: 320 }}
@@ -407,7 +408,7 @@ const EyePixelPage: React.FC = () => {
               label: `${s.patientName} · ${s.modality} · ${s.eye ?? ""} · ${(s.acquisitionDate ?? s.studyDate ?? "").slice(0, 10)}`,
             }))}
           />
-          <span style={{ fontSize: 12 }}>实例:</span>
+          <span style={{ fontSize: 12 }}>{t('eyePixel.instanceLabel')}</span>
           <Select
             data-testid="eye-pixel-instance-select"
             style={{ width: 140 }}
@@ -418,12 +419,12 @@ const EyePixelPage: React.FC = () => {
           {currentStudy && (
             <Tag color="blue">{currentStudy.patientName} {currentStudy.modality} {currentStudy.eye ?? ""}</Tag>
           )}
-          <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void handleHistogram(); void loadColormap(colormapId); }}>刷新分析</Button>
+          <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void handleHistogram(); void loadColormap(colormapId); }}>{t('eyePixel.refreshAnalysis')}</Button>
         </Space>
       </Card>
 
       {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: 80 }}><Spin description="加载中…" /></div>
+        <div style={{ display: "flex", justifyContent: "center", padding: 80 }}><Spin description={t('eyePixel.loading')} /></div>
       ) : (
         <>
           <Row gutter={12}>
@@ -431,12 +432,12 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={14}>
               <Card
                 size="small"
-                title={<Space><BarChart2 size={15} color="#2563eb" />像素直方图 <Tag color="blue">256 bins</Tag></Space>}
-                extra={<Button size="small" type="primary" data-testid="eye-pixel-histogram-btn" loading={histLoading} onClick={() => void handleHistogram()}>加载直方图</Button>}
+                title={<Space><BarChart2 size={15} color="#2563eb" />{t('eyePixel.histogram')} <Tag color="blue">256 bins</Tag></Space>}
+                extra={<Button size="small" type="primary" data-testid="eye-pixel-histogram-btn" loading={histLoading} onClick={() => void handleHistogram()}>{t('eyePixel.loadHistogram')}</Button>}
                 style={{ marginBottom: 12 }}
               >
                 {!histogram ? (
-                  <Empty description="选择实例后点击「加载直方图」" style={{ padding: 24 }} />
+                  <Empty description={t('eyePixel.histogramHint')} style={{ padding: 24 }} />
                 ) : (
                   <>
                     <div style={{ height: 240 }}>
@@ -455,8 +456,8 @@ const EyePixelPage: React.FC = () => {
                     </div>
                     <div style={{ marginTop: 8 }}>
                       <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 6 }}>
-                        <span style={{ color: "#ef4444" }}>— 均值线 {histogram.mean}</span>
-                        {histogram.source && <Tag style={{ marginLeft: 8 }} color="orange">本地回退</Tag>}
+                        <span style={{ color: "#ef4444" }}>{t('eyePixel.meanLine')} {histogram.mean}</span>
+                        {histogram.source && <Tag style={{ marginLeft: 8 }} color="orange">{t('eyePixel.localFallback')}</Tag>}
                       </div>
                       <Row gutter={[8, 8]}>
                         {stats.map(([label, value]) => (
@@ -475,13 +476,13 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={10}>
               <Card
                 size="small"
-                title={<Space><Palette size={15} color="#7c3aed" />伪彩色映射</Space>}
+                title={<Space><Palette size={15} color="#7c3aed" />{t('eyePixel.colormap')}</Space>}
                 extra={colormapLoading ? <Spin size="small" /> : <Tag color="purple">{colormap?.type ?? "-"}</Tag>}
                 style={{ marginBottom: 12 }}
               >
                 <Space direction="vertical" style={{ width: "100%" }} size={8}>
                   <Space wrap>
-                    <span style={{ fontSize: 12 }}>映射:</span>
+                    <span style={{ fontSize: 12 }}>{t('eyePixel.mapping')}</span>
                     <Select
                       data-testid="eye-pixel-colormap-select"
                       style={{ width: 200 }}
@@ -489,13 +490,13 @@ const EyePixelPage: React.FC = () => {
                       onChange={setColormapId}
                       options={colormaps.map((m) => ({ value: m.id, label: m.name }))}
                     />
-                    <Tooltip title="将 LUT 应用到灰度预览图">
+                    <Tooltip title={t('eyePixel.applyLutTip')}>
                       <Switch
                         size="small"
                         checked={applyLut}
                         onChange={setApplyLut}
-                        checkedChildren="伪彩"
-                        unCheckedChildren="灰度"
+                        checkedChildren={t('eyePixel.pseudoColor')}
+                        unCheckedChildren={t('eyePixel.grayscale')}
                         data-testid="eye-pixel-apply-lut"
                       />
                     </Tooltip>
@@ -520,7 +521,7 @@ const EyePixelPage: React.FC = () => {
                     style={{ width: "100%", height: 220, borderRadius: 6, border: "1px solid var(--border-color)", background: "#0f172a" }}
                   />
                   <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
-                    {applyLut ? `已应用 ${colormap?.name ?? colormapId} 伪彩 · 预览帧 frame-${frameIdx + 1}` : "灰度预览 (合成眼底图) — 打开「伪彩」开关应用 LUT"}
+                    {applyLut ? `已应用 ${colormap?.name ?? colormapId} 伪彩 · 预览帧 frame-${frameIdx + 1}` : t('eyePixel.grayscalePreview')}
                   </div>
                 </Space>
               </Card>
@@ -532,12 +533,12 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={8}>
               <Card
                 size="small"
-                title={<Space><Focus size={15} color="#059669" />锐度分析</Space>}
-                extra={<Button size="small" data-testid="eye-pixel-sharpness-btn" loading={sharpLoading} onClick={() => void handleSharpness()}>分析</Button>}
+                title={<Space><Focus size={15} color="#059669" />{t('eyePixel.sharpness')}</Space>}
+                extra={<Button size="small" data-testid="eye-pixel-sharpness-btn" loading={sharpLoading} onClick={() => void handleSharpness()}>{t('eyePixel.analyze')}</Button>}
                 style={{ marginBottom: 12 }}
               >
                 {!sharpness ? (
-                  <Empty description="点击「分析」评估图像锐度" style={{ padding: 16 }} />
+                  <Empty description={t('eyePixel.sharpnessHint')} style={{ padding: 16 }} />
                 ) : (
                   <Space direction="vertical" style={{ width: "100%" }} size={8}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -551,11 +552,11 @@ const EyePixelPage: React.FC = () => {
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 700 }}>
                           <Tag color={sharpness.passed ? "green" : "orange"}>{sharpness.grade}</Tag>
-                          {sharpness.passed ? "质量合格" : "建议重扫"}
+                          {sharpness.passed ? t('eyePixel.qualityPass') : t('eyePixel.rescanSuggested')}
                         </div>
                         <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                          测量于 {String(sharpness.measuredAt ?? "").slice(0, 19).replace("T", " ")}
-                          {sharpness.source && <Tag style={{ marginLeft: 6 }} color="orange">回退</Tag>}
+                          {t('eyePixel.measuredAt')} {String(sharpness.measuredAt ?? "").slice(0, 19).replace("T", " ")}
+                          {sharpness.source && <Tag style={{ marginLeft: 6 }} color="orange">{t('eyePixel.fallback')}</Tag>}
                         </div>
                       </div>
                     </div>
@@ -574,12 +575,12 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={8}>
               <Card
                 size="small"
-                title={<Space><ShieldAlert size={15} color="#dc2626" />伪影检测</Space>}
-                extra={<Button size="small" data-testid="eye-pixel-artifact-btn" loading={artifactLoading} onClick={() => void handleArtifact()}>检测</Button>}
+                title={<Space><ShieldAlert size={15} color="#dc2626" />{t('eyePixel.artifactDetection')}</Space>}
+                extra={<Button size="small" data-testid="eye-pixel-artifact-btn" loading={artifactLoading} onClick={() => void handleArtifact()}>{t('eyePixel.detect')}</Button>}
                 style={{ marginBottom: 12 }}
               >
                 {!artifacts ? (
-                  <Empty description="点击「检测」运行 AI 伪影分析" style={{ padding: 16 }} />
+                  <Empty description={t('eyePixel.artifactHint')} style={{ padding: 16 }} />
                 ) : (
                   <Space direction="vertical" style={{ width: "100%" }} size={8}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -591,9 +592,9 @@ const EyePixelPage: React.FC = () => {
                         format={(p) => <span style={{ fontSize: 13, fontWeight: 700 }}>{p}</span>}
                       />
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700 }}>图像质量评分</div>
-                        <Tag color={artifacts.passed ? "green" : "orange"}>{artifacts.passed ? "通过" : "需关注"}</Tag>
-                        {artifacts.source && <Tag color="orange">回退</Tag>}
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{t('eyePixel.imageQualityScore')}</div>
+                        <Tag color={artifacts.passed ? "green" : "orange"}>{artifacts.passed ? t('eyePixel.passed') : t('eyePixel.needsAttention')}</Tag>
+                        {artifacts.source && <Tag color="orange">{t('eyePixel.fallback')}</Tag>}
                       </div>
                     </div>
                     <Divider style={{ margin: "4px 0" }} />
@@ -601,8 +602,8 @@ const EyePixelPage: React.FC = () => {
                       <div key={`art-${i}`} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, padding: "4px 0" }}>
                         <Droplets size={13} color="#dc2626" />
                         <span>{ARTIFACT_LABELS[a.type] ?? a.type}</span>
-                        <span style={{ color: "var(--text-secondary)" }}>严重度 {(Number(a.severity) * 100).toFixed(1)}%</span>
-                        {a.location && <Tag>定位 x:{a.location.x} y:{a.location.y}</Tag>}
+                        <span style={{ color: "var(--text-secondary)" }}>{t('eyePixel.severity')} {(Number(a.severity) * 100).toFixed(1)}%</span>
+                        {a.location && <Tag>{t('eyePixel.location')} x:{a.location.x} y:{a.location.y}</Tag>}
                       </div>
                     ))}
                     {Array.isArray(artifacts.recommendations) && artifacts.recommendations.map((r: string, i: number) => (
@@ -617,13 +618,13 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={8}>
               <Card
                 size="small"
-                title={<Space><Layers size={15} color="#0891b2" />MPR 重建</Space>}
-                extra={<Button size="small" data-testid="eye-pixel-mpr-btn" loading={mprLoading} onClick={() => void handleMpr()}>重建</Button>}
+                title={<Space><Layers size={15} color="#0891b2" />{t('eyePixel.mpr')}</Space>}
+                extra={<Button size="small" data-testid="eye-pixel-mpr-btn" loading={mprLoading} onClick={() => void handleMpr()}>{t('eyePixel.reconstruct')}</Button>}
                 style={{ marginBottom: 12 }}
               >
                 <Space direction="vertical" style={{ width: "100%" }} size={8}>
                   <Space wrap>
-                    <span style={{ fontSize: 12 }}>轴:</span>
+                    <span style={{ fontSize: 12 }}>{t('eyePixel.axis')}</span>
                     <Select
                       data-testid="eye-pixel-mpr-axis"
                       size="small"
@@ -631,14 +632,14 @@ const EyePixelPage: React.FC = () => {
                       value={mprAxis}
                       onChange={setMprAxis}
                       options={[
-                        { value: "axial", label: "横断面 Axial" },
-                        { value: "sagittal", label: "矢状面 Sagittal" },
-                        { value: "coronal", label: "冠状面 Coronal" },
+                        { value: "axial", label: t('eyePixel.axisAxial') },
+                        { value: "sagittal", label: t('eyePixel.axisSagittal') },
+                        { value: "coronal", label: t('eyePixel.axisCoronal') },
                       ]}
                     />
                   </Space>
                   {!mpr ? (
-                    <Empty description="选择重建轴向后点击「重建」" style={{ padding: 12 }} />
+                    <Empty description={t('eyePixel.mprHint')} style={{ padding: 12 }} />
                   ) : (
                     <>
                       <div
@@ -648,24 +649,24 @@ const EyePixelPage: React.FC = () => {
                         }}
                       >
                         <Grid3X3 size={30} color="#0891b2" style={{ marginBottom: 8 }} />
-                        <div>MPR {mpr.axis} 重建预览</div>
+                        <div>MPR {mpr.axis} {t('eyePixel.reconstructPreview')}</div>
                         <div style={{ marginTop: 4, opacity: 0.8 }}>
-                          {mpr.sliceCount} 层 · {mpr.resolution} · {mpr.format}
+                          {mpr.sliceCount} {t('eyePixel.slices')} · {mpr.resolution} · {mpr.format}
                         </div>
                       </div>
                       <Space wrap size={6} style={{ fontSize: 12 }}>
                         <Tag color="cyan">{mpr.mprId}</Tag>
                         <Tag color="blue">{mpr.axis}</Tag>
                         <span style={{ color: "var(--text-secondary)" }}>
-                          重建于 {String(mpr.renderedAt ?? "").slice(0, 19).replace("T", " ")}
+                          {t('eyePixel.renderedAt')} {String(mpr.renderedAt ?? "").slice(0, 19).replace("T", " ")}
                         </span>
-                        {mpr.source && <Tag color="orange">回退</Tag>}
+                        {mpr.source && <Tag color="orange">{t('eyePixel.fallback')}</Tag>}
                       </Space>
                     </>
                   )}
                   <Alert
                     type="info" showIcon style={{ fontSize: 11, padding: "4px 10px" }}
-                    message="WebGL 纹理数组实时渲染, 支持窗宽窗位与切片切换 (阅片器内操作)"
+                    message={t('eyePixel.webglNote')}
                   />
                 </Space>
               </Card>
@@ -676,20 +677,20 @@ const EyePixelPage: React.FC = () => {
           {pixelInfo && (
             <Card
               size="small"
-              title={<Space><Grid3X3 size={14} />DICOM 实例元数据</Space>}
+              title={<Space><Grid3X3 size={14} />{t('eyePixel.dicomMeta')}</Space>}
               extra={<span style={{ fontSize: 11, color: "var(--text-secondary)" }}>SOP: {pixelInfo.sopInstanceUID}</span>}
             >
               <Row gutter={[12, 8]} style={{ fontSize: 12 }}>
                 {[
-                  ["行×列", `${pixelInfo.rows}×${pixelInfo.columns}`],
-                  ["位分配", `${pixelInfo.bitsAllocated} bit (存储 ${pixelInfo.bitsStored})`],
-                  ["光度解释", pixelInfo.photometricInterpretation],
-                  ["传输语法", String(pixelInfo.transferSyntaxUID).slice(0, 26) + "…"],
-                  ["窗位/窗宽", `${pixelInfo.windowCenter} / ${pixelInfo.windowWidth}`],
-                  ["重定标", `斜率 ${pixelInfo.rescaleSlope} · 截距 ${pixelInfo.rescaleIntercept}`],
-                  ["样本/像素", pixelInfo.samplesPerPixel],
-                  ["像素数据", pixelInfo.pixelDataRef],
-                  ["数据大小", `${(Number(pixelInfo.size) / 1024 / 1024).toFixed(2)} MB`],
+                  [t('eyePixel.metaRowsCols'), `${pixelInfo.rows}×${pixelInfo.columns}`],
+                  [t('eyePixel.metaBitAlloc'), `${pixelInfo.bitsAllocated} bit (存储 ${pixelInfo.bitsStored})`],
+                  [t('eyePixel.metaPhotometric'), pixelInfo.photometricInterpretation],
+                  [t('eyePixel.metaTransferSyntax'), String(pixelInfo.transferSyntaxUID).slice(0, 26) + "…"],
+                  [t('eyePixel.metaWindow'), `${pixelInfo.windowCenter} / ${pixelInfo.windowWidth}`],
+                  [t('eyePixel.metaRescale'), `斜率 ${pixelInfo.rescaleSlope} · 截距 ${pixelInfo.rescaleIntercept}`],
+                  [t('eyePixel.metaSamples'), pixelInfo.samplesPerPixel],
+                  [t('eyePixel.metaPixelData'), pixelInfo.pixelDataRef],
+                  [t('eyePixel.metaSize'), `${(Number(pixelInfo.size) / 1024 / 1024).toFixed(2)} MB`],
                 ].map(([k, v]) => (
                   <Col span={8} key={String(k)}>
                     <span style={{ color: "var(--text-secondary)" }}>{k}: </span>

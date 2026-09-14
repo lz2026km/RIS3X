@@ -13,18 +13,19 @@ import { Activity, Server, BookOpen, Cpu, Network, Play, Square, RefreshCw } fro
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BellOff } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 const POLL_MS = 30_000;
 
 const ACK_META: Record<string, { color: string; label: string }> = {
-  SUCCESS: { color: 'success', label: '成功' },
-  FAILED: { color: 'error', label: '失败' },
-  PENDING: { color: 'warning', label: '待确认' },
+  SUCCESS: { color: 'success', label: t('mllpMon.ack.success') },
+  FAILED: { color: 'error', label: t('mllpMon.ack.failed') },
+  PENDING: { color: 'warning', label: t('mllpMon.ack.pending') },
 };
 
-const DIRECTION_LABEL: Record<string, string> = { INBOUND: '入站', OUTBOUND: '出站' };
+const DIRECTION_LABEL: Record<string, string> = { INBOUND: t('mllpMon.dir.inbound'), OUTBOUND: t('mllpMon.dir.outbound') };
 
-const EVENT_LABEL: Record<string, string> = { connect: '连接', disconnect: '断开', message: '消息', error: '错误' };
+const EVENT_LABEL: Record<string, string> = { connect: t('mllpMon.event.connect'), disconnect: t('mllpMon.event.disconnect'), message: t('mllpMon.event.message'), error: t('mllpMon.event.error') };
 
 const MllpMonitorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const MllpMonitorPage: React.FC = () => {
       if (archiveRes.success && Array.isArray(archiveRes.data)) setArchive(archiveRes.data);
       setError('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'MLLP 数据加载失败');
+      setError(e instanceof Error ? e.message : t('mllpMon.loadFail'));
     } finally {
       setLoading(false);
     }
@@ -73,18 +74,18 @@ const MllpMonitorPage: React.FC = () => {
     setOperating(true);
     try {
       const res = await hl7Api.startMllp();
-      if (res.success) { message.success('MLLP 服务已启动'); void fetchAll() }
-      else message.error(res.error?.message ?? '启动失败');
-    } catch (e) { message.error(e instanceof Error ? e.message : '启动失败') } finally { setOperating(false) }
+      if (res.success) { message.success(t('mllpMon.startSuccess')); void fetchAll() }
+      else message.error(res.error?.message ?? t('mllpMon.startFail'));
+    } catch (e) { message.error(e instanceof Error ? e.message : t('mllpMon.startFail')) } finally { setOperating(false) }
   };
 
   const handleStop = async () => {
     setOperating(true);
     try {
       const res = await hl7Api.stopMllp();
-      if (res.success) { message.success('MLLP 服务已停止'); void fetchAll() }
-      else message.error(res.error?.message ?? '停止失败');
-    } catch (e) { message.error(e instanceof Error ? e.message : '停止失败') } finally { setOperating(false) }
+      if (res.success) { message.success(t('mllpMon.stopSuccess')); void fetchAll() }
+      else message.error(res.error?.message ?? t('mllpMon.stopFail'));
+    } catch (e) { message.error(e instanceof Error ? e.message : t('mllpMon.stopFail')) } finally { setOperating(false) }
   };
 
   const uptimeText = status ? `${Math.floor((status.uptimeMs ?? 0) / 3600000)}h ${Math.floor(((status.uptimeMs ?? 0) % 3600000) / 60000)}m` : '-';
@@ -96,35 +97,35 @@ const MllpMonitorPage: React.FC = () => {
           <Space>
             <Activity size={18} color="#7c3aed" />
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>MLLP 监控</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>HL7 v2.x Minimal Lower Layer Protocol · TCP {status?.port ?? 2575}</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{t('mllpMon.title')}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{t('mllpMon.subtitle')} · TCP {status?.port ?? 2575}</div>
             </div>
           </Space>
           <Space wrap>
-            <Badge status={status?.running ? 'processing' : 'default'} text={status?.running ? '运行中' : '已停止'} />
+            <Badge status={status?.running ? 'processing' : 'default'} text={status?.running ? t('mllpMon.running') : t('mllpMon.stopped')} />
             <Tag color="purple">v3.0.6.11-75</Tag>
-            <Tag color="cyan">30s 自动轮询</Tag>
+            <Tag color="cyan">{t('mllpMon.autoPoll')}</Tag>
             <Button size="small" icon={<BookOpen size={12} />} onClick={() => navigate('/integration/ihe-connectathon')}>IHE Connectathon</Button>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchAll()}>刷新</Button>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchAll()}>{t('mllpMon.refresh')}</Button>
           </Space>
         </div>
       </Card>
 
       {error && (
-        <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> 重试</Button>} />
+        <Alert type="error" showIcon message={t('mllpMon.loadFailTitle')} description={error} style={{ marginBottom: 16 }}
+          action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> {t('mllpMon.retry')}</Button>} />
       )}
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={8}>
           <Card
             size="small"
-            title={<Space><Server size={14} />服务状态</Space>}
+            title={<Space><Server size={14} />{t('mllpMon.serviceStatus')}</Space>}
             extra={
               <Space size={4}>
                 {status?.running
-                  ? <Button size="small" danger icon={<Square size={12} />} onClick={handleStop} loading={operating}>停止</Button>
-                  : <Button size="small" type="primary" icon={<Play size={12} />} onClick={handleStart} loading={operating}>启动</Button>}
+                  ? <Button size="small" danger icon={<Square size={12} />} onClick={handleStop} loading={operating}>{t('mllpMon.stop')}</Button>
+                  : <Button size="small" type="primary" icon={<Play size={12} />} onClick={handleStart} loading={operating}>{t('mllpMon.start')}</Button>}
               </Space>
             }
             style={{ marginBottom: 12 }}
@@ -132,33 +133,33 @@ const MllpMonitorPage: React.FC = () => {
             {loading ? <Spin /> : (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
                 <Row gutter={8}>
-                  <Col span={8}><Statistic title="端口" value={status?.port ?? '-'} valueStyle={{ fontSize: 18 }} /></Col>
-                  <Col span={8}><Statistic title="连接数" value={status?.totalConnections ?? 0} valueStyle={{ fontSize: 18 }} /></Col>
-                  <Col span={8}><Statistic title="消息数" value={status?.totalMessages ?? 0} valueStyle={{ fontSize: 18 }} /></Col>
+                  <Col span={8}><Statistic title={t('mllpMon.stat.port')} value={status?.port ?? '-'} valueStyle={{ fontSize: 18 }} /></Col>
+                  <Col span={8}><Statistic title={t('mllpMon.stat.connections')} value={status?.totalConnections ?? 0} valueStyle={{ fontSize: 18 }} /></Col>
+                  <Col span={8}><Statistic title={t('mllpMon.stat.messages')} value={status?.totalMessages ?? 0} valueStyle={{ fontSize: 18 }} /></Col>
                 </Row>
                 <Row gutter={8}>
-                  <Col span={12}><Statistic title="运行时长" value={uptimeText} valueStyle={{ fontSize: 16 }} /></Col>
-                  <Col span={12}><Statistic title="TLS" value={status?.tlsEnabled ? '开启' : '关闭'} valueStyle={{ fontSize: 16, color: status?.tlsEnabled ? '#52c41a' : '#999' }} /></Col>
+                  <Col span={12}><Statistic title={t('mllpMon.stat.uptime')} value={uptimeText} valueStyle={{ fontSize: 16 }} /></Col>
+                  <Col span={12}><Statistic title="TLS" value={status?.tlsEnabled ? t('mllpMon.on') : t('mllpMon.off')} valueStyle={{ fontSize: 16, color: status?.tlsEnabled ? '#52c41a' : '#999' }} /></Col>
                 </Row>
-                <DividerCustom label="白名单" />
+                <DividerCustom label={t('mllpMon.whitelist')} />
                 {status?.whitelist?.length ? (
                   <Space size={4} wrap>
                     {status.whitelist.map((cidr) => <Tag key={cidr} color="geekblue">{cidr}</Tag>)}
                   </Space>
-                ) : <Tag>未配置</Tag>}
+                ) : <Tag>{t('mllpMon.notConfigured')}</Tag>}
               </Space>
             )}
           </Card>
 
-          <Card size="small" title={<Space><Network size={14} />连接事件</Space>}>
+          <Card size="small" title={<Space><Network size={14} />{t('mllpMon.connectionEvents')}</Space>}>
             {loading ? <Spin /> : logs.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
               <Table
                 rowKey="id" size="small" scroll={{ x: 'max-content' }} pagination={logsPagination.pagination}
                 dataSource={logsPagination.pageData}
                 columns={[
-                  { title: '事件', dataIndex: 'event', width: 90, render: (v: string) => <Tag color={v === 'error' ? 'red' : v === 'message' ? 'blue' : 'default'}>{EVENT_LABEL[v] ?? v}</Tag> },
-                  { title: '对端', dataIndex: 'peer', ellipsis: true },
-                  { title: '时间', dataIndex: 'timestamp', width: 130, render: (v: string) => new Date(v).toLocaleTimeString('zh-CN') },
+                  { title: t('mllpMon.col.event'), dataIndex: 'event', width: 90, render: (v: string) => <Tag color={v === 'error' ? 'red' : v === 'message' ? 'blue' : 'default'}>{EVENT_LABEL[v] ?? v}</Tag> },
+                  { title: t('mllpMon.col.peer'), dataIndex: 'peer', ellipsis: true },
+                  { title: t('mllpMon.col.time'), dataIndex: 'timestamp', width: 130, render: (v: string) => new Date(v).toLocaleTimeString('zh-CN') },
                 ]}
               />
             )}
@@ -170,39 +171,39 @@ const MllpMonitorPage: React.FC = () => {
             items={[
               {
                 key: 'live',
-                label: <Space><Cpu size={13} />实时模拟</Space>,
+                label: <Space><Cpu size={13} />{t('mllpMon.tab.live')}</Space>,
                 children: <MllpMonitor />,
               },
               {
                 key: 'archive',
-                label: <Space><Activity size={13} />消息档案</Space>,
+                label: <Space><Activity size={13} />{t('mllpMon.tab.archive')}</Space>,
                 children: (
                   <Card size="small" extra={
                     <Select
                       size="small"
                       style={{ width: 140 }}
-                      placeholder="消息类型"
+                      placeholder={t('mllpMon.ph.messageType')}
                       allowClear
                       value={msgType || undefined}
                       onChange={(v) => setMsgType(v ?? '')}
-                      options={['ORM', 'ORU', 'ADT', 'DFT'].map((t) => ({ value: t, label: t }))}
+                      options={['ORM', 'ORU', 'ADT', 'DFT'].map((mt) => ({ value: mt, label: mt }))}
                     />
                   }>
                     {loading ? (
                       <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
-                    ) : archive.length === 0 ? <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="暂无 HL7 消息档案" /> : (
+                    ) : archive.length === 0 ? <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description={t('mllpMon.emptyArchive')} /> : (
                       <Table
                         rowKey="id" size="small"
                         dataSource={archivePagination.pageData}
                         pagination={archivePagination.pagination}
                         columns={[
                           { title: 'ID', dataIndex: 'id', width: 60 },
-                          { title: '消息类型', dataIndex: 'messageType', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
-                          { title: '方向', dataIndex: 'direction', width: 90, render: (v: string) => <Tag color={v === 'INBOUND' ? 'green' : v === 'OUTBOUND' ? 'purple' : 'orange'}>{DIRECTION_LABEL[v] ?? v}</Tag> },
+                          { title: t('mllpMon.col.messageType'), dataIndex: 'messageType', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
+                          { title: t('mllpMon.col.direction'), dataIndex: 'direction', width: 90, render: (v: string) => <Tag color={v === 'INBOUND' ? 'green' : v === 'OUTBOUND' ? 'purple' : 'orange'}>{DIRECTION_LABEL[v] ?? v}</Tag> },
                           { title: 'ACK', dataIndex: 'ackStatus', width: 90, render: (v: string) => <Tag color={ACK_META[v]?.color}>{ACK_META[v]?.label ?? v}</Tag> },
-                          { title: '控制标识', dataIndex: 'controlId', width: 130, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
-                          { title: '重试', dataIndex: 'retryCount', width: 60 },
-                          { title: '时间', dataIndex: 'createdAt', width: 150, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
+                          { title: t('mllpMon.col.controlId'), dataIndex: 'controlId', width: 130, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+                          { title: t('mllpMon.col.retry'), dataIndex: 'retryCount', width: 60 },
+                          { title: t('mllpMon.col.time'), dataIndex: 'createdAt', width: 150, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
                         ]}
                       scroll={{ x: 'max-content' }}
                       />

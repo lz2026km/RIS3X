@@ -4,6 +4,7 @@ import { UploadProps } from 'antd'
 import { Camera, Share2, Download, ZoomIn, ZoomOut, X } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
+import { t } from '../../i18n/appI18n';
 
 interface Photo {
   id: string;
@@ -16,11 +17,11 @@ interface Photo {
 }
 
 const CAT_LABEL: Record<string, string> = {
-  intraoral: '口内',
-  extraoral: '口外',
-  radiograph: 'X光',
-  model: '模型',
-  other: '其他',
+  intraoral: 'dentalPhoto.catIntraoral',
+  extraoral: 'dentalPhoto.catExtraoral',
+  radiograph: 'dentalPhoto.catRadiograph',
+  model: 'dentalPhoto.catModel',
+  other: 'dentalPhoto.catOther',
 };
 
 const CAT_COLORS: Record<string, string> = {
@@ -55,10 +56,10 @@ const SAMPLE_PHOTOS: Record<string, Photo[]> = {
 };
 
 const PHOTO_CATEGORIES = [
-  { value: 'intraoral', label: '口内' },
-  { value: 'extraoral', label: '口外' },
-  { value: 'radiograph', label: 'X光' },
-  { value: 'model', label: '模型' },
+  { value: 'intraoral', labelKey: 'dentalPhoto.catIntraoral' },
+  { value: 'extraoral', labelKey: 'dentalPhoto.catExtraoral' },
+  { value: 'radiograph', labelKey: 'dentalPhoto.catRadiograph' },
+  { value: 'model', labelKey: 'dentalPhoto.catModel' },
 ];
 
 export const DentalPhotoPage: React.FC = () => {
@@ -94,11 +95,11 @@ export const DentalPhotoPage: React.FC = () => {
 
   const handleUpload = () => {
     if (!uploadFile) {
-      message.warning('请先选择文件');
+      message.warning(t('dentalPhoto.selectFileFirst'));
       return;
     }
     if (!uploadLabel.trim()) {
-      message.warning('请输入照片标签');
+      message.warning(t('dentalPhoto.enterLabel'));
       return;
     }
     const reader = new FileReader();
@@ -113,7 +114,7 @@ export const DentalPhotoPage: React.FC = () => {
         patientId: selected,
       };
       setPhotos([newPhoto, ...photos]);
-      message.success('照片已添加');
+      message.success(t('dentalPhoto.photoAdded'));
       setUploadOpen(false);
       setUploadFile(null);
       setUploadLabel('');
@@ -127,7 +128,7 @@ export const DentalPhotoPage: React.FC = () => {
     const url = `https://share.dentalcloud.com/case/${linkId}`;
     setShareLink(url);
     setShareOpen(true);
-    message.success('分享链接已生成');
+    message.success(t('dentalPhoto.shareGenerated'));
   };
 
   const intraoral = photos.filter(p => p.category === 'intraoral').length;
@@ -138,7 +139,7 @@ export const DentalPhotoPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Camera size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>患者照片与沟通</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalPhoto.title')}</span>
         <Tag color="cyan">v3.0.6.8-102</Tag>
         <Tag color="purple">3Shape Unite</Tag>
         <Select value={selected} onChange={v => setSelected(v)} style={{ width: 180 }}
@@ -149,44 +150,44 @@ export const DentalPhotoPage: React.FC = () => {
           ]}
         />
         <Button type="primary" icon={<Camera size={14} />} onClick={() => setUploadOpen(true)}>
-          上传照片
+          {t('dentalPhoto.uploadPhoto')}
         </Button>
         <Button icon={<Share2 size={14} />} onClick={handleGenerateShare}>
-          生成分享链接
+          {t('dentalPhoto.generateShareLink')}
         </Button>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="照片总数" value={photos.length} />
+            <Statistic title={t('dentalPhoto.statTotal')} value={photos.length} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="口内" value={intraoral} />
+            <Statistic title={t('dentalPhoto.catIntraoral')} value={intraoral} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="口外" value={extraoral} />
+            <Statistic title={t('dentalPhoto.catExtraoral')} value={extraoral} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="X光" value={radiograph} />
+            <Statistic title={t('dentalPhoto.catRadiograph')} value={radiograph} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="分类" value={new Set(photos.map(p => p.category)).size} />
+            <Statistic title={t('dentalPhoto.statCategories')} value={new Set(photos.map(p => p.category)).size} />
           </Card>
         </Col>
       </Row>
 
-      <Card size="small" title="照片图库">
+      <Card size="small" title={t('dentalPhoto.gallery')}>
         {photos.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无照片, 点击右上角 '上传照片' 上传第一张" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalPhoto.noPhotosHint')} />
         ) : (
           <Row gutter={[12, 12]}>
             {photos.map(p => (
@@ -207,7 +208,7 @@ export const DentalPhotoPage: React.FC = () => {
                     </div>
                   }
                 >
-                  <Tag color={CAT_COLORS[p.category]}>{CAT_LABEL[p.category] || p.category}</Tag>
+                  <Tag color={CAT_COLORS[p.category]}>{t(CAT_LABEL[p.category] ?? p.category)}</Tag>
                   <div style={{ fontSize: 12, fontWeight: 500, marginTop: 2 }}>{p.label}</div>
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
                     {p.takenAt?.slice(0, 10) || '—'}
@@ -223,41 +224,41 @@ export const DentalPhotoPage: React.FC = () => {
         items={[
           {
             key: 'before-after',
-            label: '治疗前 / 治疗后',
+            label: t('dentalPhoto.beforeAfter'),
             children: (
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small" title="治疗前">
+                  <Card size="small" title={t('dentalPhoto.beforeTreatment')}>
                     {photos.length > 1 ? (
                       <img
                         src={photos[photos.length - 1].url}
-                        alt="治疗前"
+                        alt={t('dentalPhoto.beforeTreatment')}
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />
                     ) : (
-                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="需要至少 2 张照片" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalPhoto.needTwoPhotos')} />
                     )}
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card size="small" title="治疗后(最新)">
+                  <Card size="small" title={t('dentalPhoto.afterTreatmentLatest')}>
                     {photos.length > 0 ? (
                       <img
                         src={photos?.[0]?.url}
-                        alt="治疗后"
+                        alt={t('dentalPhoto.afterTreatment')}
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />
                     ) : (
-                      <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
+                      <Empty description={t('dentalPhoto.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />
                     )}
                   </Card>
                 </Col>
                 <Col span={24} style={{ marginTop: 12 }}>
                   <Space>
-                    <Button icon={<ZoomIn size={14} />} onClick={() => setZoom(Math.min(2, zoom + 0.2))}>放大</Button>
-                    <Button icon={<ZoomOut size={14} />} onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}>缩小</Button>
+                    <Button icon={<ZoomIn size={14} />} onClick={() => setZoom(Math.min(2, zoom + 0.2))}>{t('dentalPhoto.zoomIn')}</Button>
+                    <Button icon={<ZoomOut size={14} />} onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}>{t('dentalPhoto.zoomOut')}</Button>
                     <Slider min={0.5} max={2} step={0.1} value={zoom} onChange={setZoom} style={{ width: 200 }} />
-                    <span>缩放: {(zoom * 100).toFixed(0)}%</span>
+                    <span>{t('dentalPhoto.zoomLabel', { percent: (zoom * 100).toFixed(0) })}</span>
                   </Space>
                 </Col>
               </Row>
@@ -265,24 +266,24 @@ export const DentalPhotoPage: React.FC = () => {
           },
           {
             key: 'share',
-            label: '云共享',
+            label: t('dentalPhoto.cloudShare'),
             children: (
-              <Card size="small" title="与患者分享病例">
+              <Card size="small" title={t('dentalPhoto.shareWithPatient')}>
                 {shareLink ? (
                   <Alert
-                    title="分享链接已生成"
+                    title={t('dentalPhoto.shareGenerated')}
                     description={
                       <Space orientation="vertical" style={{ width: '100%' }}>
                         <code style={{ background: 'var(--bg-card)', padding: 4, borderRadius: 4, display: 'block' }}>
                           {shareLink}
                         </code>
                         <Space>
-                          <Tag color="green">7 天有效期</Tag>
-                          <Tag color="orange">密码: 8888</Tag>
+                          <Tag color="green">{t('dentalPhoto.valid7Days')}</Tag>
+                          <Tag color="orange">{t('dentalPhoto.passwordTag', { password: '8888' })}</Tag>
                           <Button size="small" icon={<Download size={10} />} onClick={() => {
                             navigator.clipboard?.writeText(shareLink);
-                            message.success('已复制');
-                          }}>复制链接</Button>
+                            message.success(t('dentalPhoto.copied'));
+                          }}>{t('dentalPhoto.copyLink')}</Button>
                         </Space>
                       </Space>
                     }
@@ -290,7 +291,7 @@ export const DentalPhotoPage: React.FC = () => {
                     showIcon
                   />
                 ) : (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击「生成分享链接」按钮生成分享链接" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalPhoto.generateShareHint')} />
                 )}
               </Card>
             ),
@@ -300,33 +301,33 @@ export const DentalPhotoPage: React.FC = () => {
 
       {/* 上传照片 Modal */}
       <Modal
-        title="上传照片"
+        title={t('dentalPhoto.uploadPhoto')}
         open={uploadOpen}
         onCancel={() => { setUploadOpen(false); setUploadFile(null); setUploadLabel(''); }}
         onOk={handleUpload}
-        okText="上传"
-        cancelText="取消"
+        okText={t('dentalPhoto.upload')}
+        cancelText={t('dentalPhoto.cancel')}
         width={520}
       >
         <Space orientation="vertical" style={{ width: '100%' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>分类</label>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>{t('dentalPhoto.categoryLabel')}</label>
             <Select value={uploadCategory} onChange={setUploadCategory} style={{ width: '100%' }}
-              options={PHOTO_CATEGORIES.map(c => ({ value: c.value, label: c.label }))} />
+              options={PHOTO_CATEGORIES.map(c => ({ value: c.value, label: t(c.labelKey) }))} />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>标签</label>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>{t('dentalPhoto.tagLabel')}</label>
             <input
               value={uploadLabel}
               onChange={e => setUploadLabel(e.target.value)}
-              placeholder="例如: 正面微笑像"
+              placeholder={t('dentalPhoto.labelPlaceholder')}
               style={{ width: '100%', height: 32, padding: '4px 11px', border: '1px solid var(--border-color)', borderRadius: 6 }}
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>图片文件</label>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>{t('dentalPhoto.imageFileLabel')}</label>
             <Upload {...uploadProps} listType="picture">
-              <Button icon={<Camera size={14} />}>选择图片</Button>
+              <Button icon={<Camera size={14} />}>{t('dentalPhoto.chooseImage')}</Button>
             </Upload>
           </div>
         </Space>
@@ -357,7 +358,7 @@ export const DentalPhotoPage: React.FC = () => {
               />
             </div>
             <Space style={{ marginTop: 12 }}>
-              <Tag color={CAT_COLORS[preview.category]}>{CAT_LABEL[preview.category]}</Tag>
+              <Tag color={CAT_COLORS[preview.category]}>{t(CAT_LABEL[preview.category] ?? preview.category)}</Tag>
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{preview.takenAt}</span>
             </Space>
           </div>
