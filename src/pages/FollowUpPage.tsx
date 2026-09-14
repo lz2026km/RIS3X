@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useMemo } from 'react';
-import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar } from 'lucide-react';
-import { followupApi, type FollowUpPlan, type FollowUpStats } from '../services/api/followupApi';
+import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar, FileText } from 'lucide-react';
+import { followupApi, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue } from '../services/api/followupApi';
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
 import { worklistApi } from '../services/api/worklistApi';
@@ -93,6 +93,16 @@ export default function FollowUpPage() {
   const [fromExamForm, setFromExamForm] = useState({ examId: '', templateId: '' });
   const [fromExamTemplates, setFromExamTemplates] = useState<FollowUpTemplate[]>([]);
   const [fromExamBusy, setFromExamBusy] = useState(false);
+
+  // [v3.0.6.11-104 Wave 2C] 随访催办队列 (GET /followups/reminder-queue): 逾期/今日到期/未来 N 天
+  const [reminderQueue, setReminderQueue] = useState<FollowUpReminderQueue | null>(null);
+  const [reminderLoading, setReminderLoading] = useState(false);
+  const [reminderError, setReminderError] = useState<string | null>(null);
+
+  // [v3.0.6.11-104 Wave 2C] 报告→随访 (POST /followups/from-report): 关键词规则手动补建
+  const [showFromReportModal, setShowFromReportModal] = useState(false);
+  const [fromReportForm, setFromReportForm] = useState({ reportId: '', reason: '' });
+  const [fromReportBusy, setFromReportBusy] = useState(false);
 
   // [v3.0.6.11-103 Wave 1B] 编辑随访计划 (PUT /followups/:id)
   const [showEditModal, setShowEditModal] = useState(false);
@@ -196,6 +206,72 @@ export default function FollowUpPage() {
       setFromExamBusy(false);
     }
   };
+
+  // [v3.0.6.11-104 Wave 2C] 催办队列加载: GET /followups/reminder-queue?days=7
+  const loadReminderQueue = async () => {
+    setReminderLoading(true);
+    setReminderError(null);
+    try {
+      const res = await followupApi.reminderQueue(7);
+      if (res.success && res.data) setReminderQueue(res.data);
+      else setReminderError(res.error?.message ?? t('followup.reminderQueue.loadFailed'));
+    } catch (err) {
+      setReminderError((err as Error)?.message ?? t('followup.reminderQueue.loadFailed'));
+    } finally {
+      setReminderLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadReminderQueue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [followUpList.length]);
+
+  // [v3.0.6.11-104 Wave 2C] 报告→随访入口 + 提交 (POST /followups/from-report)
+  const openFromReport = () => {
+    setFromReportForm({ reportId: '', reason: '' });
+    setShowFromReportModal(true);
+  };
+
+  const handleFromReport = async () => {
+    if (!fromReportForm.reportId.trim()) {
+      setLoadError(t('followup.fromReport.required'));
+      return;
+    }
+    setFromReportBusy(true);
+    setLoadError(null);
+    try {
+      const res = await followupApi.fromReport(fromReportForm.reportId.trim(), fromReportForm.reason.trim() || undefined);
+      if (res.success && res.data) {
+        const d = res.data;
+        window.alert(t('followup.fromReport.success', { created: d.created, matched: d.matched.join('、') || '—' }));
+        setShowFromReportModal(false);
+        void loadFollowUps();
+        void loadReminderQueue();
+      } else {
+        setLoadError(res.error?.message ?? t('followup.fromReport.failed'));
+      }
+    } catch (err) {
+      setLoadError((err as Error)?.message ?? t('followup.fromReport.failed'));
+    } finally {
+      setFromReportBusy(false);
+    }
+  };
+
+  // [v3.0.6.11-104 Wave 2C] 催办队列按分组拆分 (逾期/今日到期/未来)
+  const reminderGroups = useMemo(() => {
+    const items = reminderQueue?.items ?? [];
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(todayStart); todayEnd.setDate(todayEnd.getDate() + 1);
+    const overdue: FollowUpPlan[] = []; const dueToday: FollowUpPlan[] = []; const upcoming: FollowUpPlan[] = [];
+    for (const p of items) {
+      const ts = new Date(p.nextDate).getTime();
+      if (ts < todayStart.getTime()) overdue.push(p);
+      else if (ts < todayEnd.getTime()) dueToday.push(p);
+      else upcoming.push(p);
+    }
+    return { overdue, dueToday, upcoming };
+  }, [reminderQueue]);
 
   // [v3.0.6.11-103 Wave 1B] 编辑随访计划 (PUT /followups/:id)
   const openEditPlan = (item: FollowUpPatient) => {
@@ -890,6 +966,10 @@ export default function FollowUpPage() {
           <button style={{ ...buttonStyle, backgroundColor: '#1677ff' }} onClick={() => void openFromExam()}>
             <Calendar size={14} /> {t('followUp.examLink')}
           </button>
+          {/* [v3.0.6.11-104 Wave 2C] 报告→随访: 关键词规则手动补建 (POST /followups/from-report) */}
+          <button style={{ ...buttonStyle, backgroundColor: '#eb2f96' }} onClick={openFromReport}>
+            <FileText size={14} /> {t('followup.fromReport.button')}
+          </button>
           <button style={{ ...buttonStyle, backgroundColor: '#722ed1' }} onClick={openTemplates}>
             <LayoutTemplate size={14} /> {t('followUp.templates')}
           </button>
@@ -1060,6 +1140,78 @@ export default function FollowUpPage() {
             <Bell size={11} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.dueHint')}
           </div>
         </div>
+      </div>
+
+      {/* [v3.0.6.11-104 Wave 2C] 催办队列面板: 逾期/今日到期/未来 N 天 (GET /followups/reminder-queue) */}
+      <div style={{ ...statCardStyle, marginBottom: 24 }} data-testid="followup-reminder-queue">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <BellRing size={14} /> {t('followup.reminderQueue.title')}
+            {reminderQueue && (
+              <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
+                {t('followup.reminderQueue.total', { count: reminderQueue.total })}
+              </span>
+            )}
+          </div>
+          <button style={{ ...cancelButtonStyle, padding: '4px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void loadReminderQueue()} disabled={reminderLoading}>
+            <RotateCcw size={12} /> {t('followup.reminderQueue.refresh')}
+          </button>
+        </div>
+
+        {reminderLoading && !reminderQueue ? (
+          <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 13 }}>
+            <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followup.reminderQueue.loading')}
+          </div>
+        ) : reminderError ? (
+          <div style={{
+            padding: '12px 16px', borderRadius: 8, backgroundColor: 'var(--color-error-bg)',
+            border: '1px solid #ffa39e', fontSize: 13, color: '#cf1322',
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <AlertTriangle size={14} /> {reminderError}
+            <button style={{ ...cancelButtonStyle, padding: '2px 10px', fontSize: 12 }} onClick={() => void loadReminderQueue()}>{t('followup.reminderQueue.retry')}</button>
+          </div>
+        ) : !reminderQueue || reminderQueue.total === 0 ? (
+          <div style={{ textAlign: 'center', padding: 24, color: 'var(--text-secondary)', fontSize: 13, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <CheckCircle size={26} color="#52c41a" />
+            {t('followup.reminderQueue.empty')}
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            {([
+              { key: 'overdue', label: t('followup.reminderQueue.overdue'), count: reminderQueue.overdue, color: '#ff4d4f', list: reminderGroups.overdue },
+              { key: 'dueToday', label: t('followup.reminderQueue.dueToday'), count: reminderQueue.dueToday, color: '#fa8c16', list: reminderGroups.dueToday },
+              { key: 'upcoming', label: t('followup.reminderQueue.upcoming', { days: reminderQueue.days }), count: reminderQueue.upcoming, color: '#1677ff', list: reminderGroups.upcoming },
+            ] as Array<{ key: string; label: string; count: number; color: string; list: FollowUpPlan[] }>).map(g => (
+              <div key={g.key} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: g.color }}>{g.label}</span>
+                  <span style={{ fontSize: 18, fontWeight: 700, color: g.color }}>{g.count}</span>
+                </div>
+                {g.list.length === 0 ? (
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '8px 0' }}>{t('followup.reminderQueue.none')}</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 160, overflowY: 'auto' }}>
+                    {g.list.slice(0, 6).map(p => (
+                      <div
+                        key={p.id}
+                        onClick={() => { setSelectedPatient(mapPlan(p)); setShowModal(true); }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer', padding: '4px 0', borderBottom: '1px solid var(--border-color)' }}
+                      >
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: g.color, flexShrink: 0 }} />
+                        <span style={{ flex: 1, color: 'var(--text-secondary)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.patientName}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{String(p.nextDate || '').slice(5, 10)}</span>
+                      </div>
+                    ))}
+                    {g.list.length > 6 && (
+                      <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-secondary)' }}>{t('followup.reminderQueue.more', { count: g.list.length - 6 })}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div style={searchBarStyle}>
@@ -1974,6 +2126,50 @@ export default function FollowUpPage() {
                 disabled={editBusy}
               >
                 <Save size={14} /> {editBusy ? t('followUp.saving') : t('followUp.saveChanges')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-104 Wave 2C] 报告→随访: 手动补建 (POST /followups/from-report, 关键词规则触发) */}
+      {showFromReportModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowFromReportModal(false)}>
+          <div style={{ ...modalStyle, width: '460px' }} onClick={e => e.stopPropagation()}>
+            <h2 style={modalTitleStyle}>{t('followup.fromReport.title')}</h2>
+            <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
+              {t('followup.fromReport.desc')}
+            </p>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>{t('followup.fromReport.reportId')} *</label>
+              <input
+                type="text"
+                value={fromReportForm.reportId}
+                onChange={e => setFromReportForm(f => ({ ...f, reportId: e.target.value }))}
+                placeholder={t('followup.fromReport.reportIdPlaceholder')}
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>{t('followup.fromReport.reason')}</label>
+              <textarea
+                value={fromReportForm.reason}
+                onChange={e => setFromReportForm(f => ({ ...f, reason: e.target.value }))}
+                placeholder={t('followup.fromReport.reasonPlaceholder')}
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box', minHeight: '60px', fontFamily: 'inherit' }}
+              />
+            </div>
+
+            <div style={modalButtonContainer}>
+              <button style={cancelButtonStyle} onClick={() => setShowFromReportModal(false)}>{t('followUp.cancel')}</button>
+              <button
+                style={{ ...buttonStyle, backgroundColor: '#eb2f96' }}
+                onClick={() => void handleFromReport()}
+                disabled={fromReportBusy}
+              >
+                <Play size={14} /> {fromReportBusy ? t('followup.fromReport.busy') : t('followup.fromReport.confirm')}
               </button>
             </div>
           </div>

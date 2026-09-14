@@ -117,6 +117,17 @@ export interface AutoSmsDto {
   content?: string
 }
 
+// [v3.0.6.11-104 Wave 2C] 安全构造查询串 (params 含 number 字段, 不能直接喂 URLSearchParams)
+function buildAlertQuery(params?: CriticalAlertQueryParams): string {
+  const q = new URLSearchParams()
+  if (params?.status) q.set('status', params.status)
+  if (params?.severity) q.set('severity', params.severity)
+  if (params?.alertType) q.set('alertType', params.alertType)
+  if (params?.page !== undefined) q.set('page', String(params.page))
+  if (params?.pageSize !== undefined) q.set('pageSize', String(params.pageSize))
+  return q.toString()
+}
+
 export const criticalAlertApi = {
   create: async (dto: CreateCriticalAlertDto) => {
     const res = await api.post<CriticalAlert>('/critical-alert', dto)
@@ -125,7 +136,11 @@ export const criticalAlertApi = {
   },
 
   listAlerts: (params?: CriticalAlertQueryParams) =>
-    api.get<CriticalAlert[]>(`/critical-alert/alerts?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<CriticalAlert[]>(`/critical-alert/alerts?${buildAlertQuery(params)}`),
+
+  // [v3.0.6.11-104 Wave 2C] 聚合列表: GET /critical-alert (默认聚合, 与 /alerts 为同一处理器)
+  listAggregated: (params?: CriticalAlertQueryParams) =>
+    api.get<CriticalAlert[]>(`/critical-alert?${buildAlertQuery(params)}`),
 
   getAlert: (id: string) =>
     api.get<CriticalAlert>(`/critical-alert/alerts/${id}`),

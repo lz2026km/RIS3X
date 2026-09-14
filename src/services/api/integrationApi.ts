@@ -240,6 +240,47 @@ export interface VisitState {
 
 // ─── HL7 API ────────────────────────────────────────────────────────────────
 
+// [v3.0.6.11-104 Wave 2D] HL7 监控扩展端点 DTO (对齐 backend hl7.service)
+export interface Hl7OverviewDto {
+  totalMessages: number
+  todayMessages: number
+  inboundCount: number
+  outboundCount: number
+  successCount: number
+  failedCount: number
+  successRate: number
+  ackStatusBreakdown: Array<{ ackStatus: string; count: number }>
+  byType: Array<{ messageType: string; count: number; percent: number }>
+  seeded: boolean
+}
+
+export interface Hl7ErrorAnalysisDto {
+  totalErrors: number
+  byErrorType: Array<{ errorType: string; count: number; percent: number }>
+  byChannel: Array<{ channel: string; count: number }>
+  byHour: Array<{ hour: string; count: number }>
+  recentErrors: Array<{ id: string; messageType: string; ackStatus: string; createdAt: string }>
+  seeded: boolean
+}
+
+export interface Hl7ThroughputPoint {
+  date: string
+  label: string
+  total: number
+  success: number
+  failed: number
+  successRate: number
+  seeded: boolean
+}
+
+export interface Hl7MessageTypeDto {
+  messageType: string
+  count: number
+  percent: number
+  avgBytes: number
+  direction: string
+}
+
 export const hl7Api = {
   buildOru: (data: Hl7Report) =>
     api.post<Hl7OruResponse>('/hl7/oru', data),
@@ -289,6 +330,19 @@ export const hl7Api = {
 
   toggleMllpTls: (enabled: boolean) =>
     api.post<{ success: boolean }>('/hl7/mllp/tls', { enabled }),
+
+  // [v3.0.6.11-104 Wave 2D] HL7 监控看板
+  getOverview: () =>
+    api.get<Hl7OverviewDto>('/hl7/overview'),
+
+  getErrorAnalysis: () =>
+    api.get<Hl7ErrorAnalysisDto>('/hl7/error-analysis'),
+
+  getThroughput: (days = 30) =>
+    api.get<Hl7ThroughputPoint[]>(`/hl7/throughput?days=${days}`),
+
+  getMessageTypes: () =>
+    api.get<Hl7MessageTypeDto[]>('/hl7/message-types'),
 }
 
 // ─── IHE API ────────────────────────────────────────────────────────────────

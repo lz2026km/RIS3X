@@ -4,6 +4,7 @@
 // [v3.0.6.11-98 Wave2A P1] 模板审批流 (草稿/待审批/已批准/已驳回) + 我的模板筛选 (个人模板库)
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { templatesApi, type TemplateApprovalStatus } from '../services/api/templatesApi'
+import TemplatePendingSection from './TemplatePendingSection'
 import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Upload, Download, Send, ShieldCheck, XCircle, Clock3 } from 'lucide-react'
 
@@ -133,7 +134,7 @@ export default function TemplateManagementPage() {
   const [toast, setToast] = useState<string | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
   const pageSize = 10
-  const [activeTab, setActiveTab] = useState<'manage' | 'version' | 'analytics' | 'share'>('manage')
+  const [activeTab, setActiveTab] = useState<'manage' | 'version' | 'analytics' | 'share' | 'pending'>('manage')
 
   // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入文件输入
   const importFileRef = useRef<HTMLInputElement>(null)
@@ -854,6 +855,7 @@ export default function TemplateManagementPage() {
         {renderTab('version', '版本管理', <History size={14} />)}
         {renderTab('analytics', '使用分析', <TrendingUp size={14} />)}
         {renderTab('share', '分享协作', <Share2 size={14} />)}
+        {renderTab('pending', '待审模板', <Clock3 size={14} />)}
       </div>
 
       {activeTab === 'manage' && (
@@ -953,6 +955,12 @@ export default function TemplateManagementPage() {
       {renderVersionTab()}
       {renderAnalyticsTab()}
       {renderShareTab()}
+
+      {activeTab === 'pending' && (
+        <div style={{ display: 'block' }}>
+          <TemplatePendingSection />
+        </div>
+      )}
 
       {showModal && (
         <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>

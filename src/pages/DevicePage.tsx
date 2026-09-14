@@ -31,6 +31,7 @@ import {
   C, ModalityBadge, PIE_COLORS,
   DeviceFilter, DeviceList,
   DeviceDetailPanel, MaintenanceHistoryTable, MaintenancePlanTable,
+  DeviceMgmtDashboard,
 } from './device'
 import type { DeviceData } from './device'
 // [v3.0.6.11-103 Wave 10] 重复页合并: DeviceFaultPage (故障登记/维修进度/统计) 嵌入为 DevicePage 新 Tab, 旧路由 /device-fault redirect → /devices
@@ -665,7 +666,7 @@ export default function DevicePage() {
       if (res.success && res.data) setDeviceFaults(res.data);
     }).catch((err) => { console.error('[F04]', err); });
     deviceMgmtApi.listEquipmentLifecycle().then(res => {
-      if (res.success && res.data) setEquipmentLifecycle(res.data);
+      if (res.success && res.data) setEquipmentLifecycle(res.data.items ?? []);
     }).catch((err) => { console.error('[F04]', err); });
   }, [])
 
@@ -1152,6 +1153,8 @@ export default function DevicePage() {
           </table></div>
         </div>
       </div>
+      {/* [v3.0.6.11-104 Wave 2A] 设备管理看板: overview / usage-trend / by-room / maintenance-calendar / lifecycle */}
+      <DeviceMgmtDashboard />
     </div>
   )
 

@@ -102,6 +102,9 @@ export const templatesApi = {
   submit: (id: string) =>
     api.post<TemplateDto>(`/templates/${id}/submit`),
 
+  // [v3.0.6.11-104 Wave 2D] 待审批模板列表 (GET /templates/pending)
+  listPending: () =>
+    api.get<TemplateDto[]>('/templates/pending'),
   approve: (id: string, approvedBy: string) =>
     api.post<TemplateDto>(`/templates/${id}/approve`, { approvedBy }),
 

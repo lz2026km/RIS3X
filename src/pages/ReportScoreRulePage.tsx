@@ -18,6 +18,7 @@ import {
   type ScoreGradeConfig,
 } from '../data/qualityScoreMock';
 import { reportQualityApi } from '../services/api';
+import ReportReEvaluateSection from './ReportReEvaluateSection';
 import { message } from 'antd';
 
 // ============================================================
@@ -296,6 +297,8 @@ export default function ReportScoreRulePage() {
           </div>
         )}
       </div>
+
+      <ReportReEvaluateSection />
     </div>
   );
 }

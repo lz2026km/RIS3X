@@ -59,6 +59,94 @@ export const deviceMgmtHandlers = [
     return HttpResponse.json({ success: true, data: updated });
   }),
 
+  // [v3.0.6.11-104 Wave 2A] 设备管理看板: overview / usage-trend / by-room / maintenance-calendar
+  // ⚠️ 静态路径必须注册在 GET /:id 通配之前
+  http.get(`${API}/overview`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: 8,
+        online: 6,
+        byState: { IDLE: 3, IN_USE: 3, MAINTENANCE: 1, BROKEN: 1, OFFLINE: 0 },
+        todayExams: 31,
+        todayUsageMin: 640,
+        faultsToday: 1,
+        faultRate: 12.5,
+        maintenanceDue: 2,
+        byModality: [
+          { modality: 'CT', total: 1, online: 1 },
+          { modality: 'MR', total: 1, online: 1 },
+          { modality: 'DR', total: 2, online: 1 },
+          { modality: 'US', total: 2, online: 2 },
+          { modality: 'MG', total: 1, online: 1 },
+          { modality: 'DSA', total: 1, online: 0 },
+        ],
+      },
+    });
+  }),
+
+  http.get(`${API}/usage-trend`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const days = Math.min(365, Math.max(1, Number(url.searchParams.get('days') ?? 30)));
+    const dates = Array.from({ length: days }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (days - 1 - i));
+      return d.toISOString().slice(0, 10);
+    });
+    const items = dates.map((date, idx) => ({ date, count: 3 + ((idx * 5) % 11) }));
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items,
+        byModality: [
+          { modality: 'CT', counts: dates.map((date, idx) => ({ date, count: 1 + ((idx * 3) % 6) })) },
+          { modality: 'MR', counts: dates.map((date, idx) => ({ date, count: (idx * 2) % 5 })) },
+        ],
+        total: days,
+      },
+    });
+  }),
+
+  http.get(`${API}/by-room`, async () => {
+    await delay(delayMs());
+    const items = [
+      { room: 'CT室1', devices: 1, online: 1, todayExams: 14 },
+      { room: 'MR室1', devices: 1, online: 1, todayExams: 10 },
+      { room: 'DR室1', devices: 2, online: 1, todayExams: 9 },
+      { room: '超声室', devices: 2, online: 2, todayExams: 8 },
+    ];
+    return HttpResponse.json({ success: true, data: { items, total: items.length } });
+  }),
+
+  http.get(`${API}/maintenance-calendar`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const month = url.searchParams.get('month');
+    const plans = getMaintenancePlans();
+    const byMonth = new Map<string, any[]>();
+    let pendingCount = 0;
+    let overdueCount = 0;
+    let totalCost = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (const p of plans) {
+      const m = String(p.maintenanceDate).slice(0, 7);
+      if (month && m !== month) continue;
+      const arr = byMonth.get(m) ?? [];
+      arr.push(p);
+      byMonth.set(m, arr);
+      if (p.status !== 'COMPLETED') pendingCount += 1;
+      if (p.status !== 'COMPLETED' && new Date(p.maintenanceDate).getTime() < today.getTime()) overdueCount += 1;
+      if (typeof p.estimatedCost === 'number') totalCost += p.estimatedCost;
+    }
+    const months = [...byMonth.entries()]
+      .map(([monthKey, items]) => ({ month: monthKey, items, count: items.length }))
+      .sort((a, b) => (a.month < b.month ? -1 : 1));
+    return HttpResponse.json({ success: true, data: { months, pendingCount, overdueCount, totalCost: Number(totalCost.toFixed(2)) } });
+  }),
+
   http.get(`${API}/devices`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);

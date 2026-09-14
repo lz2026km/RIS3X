@@ -56,6 +56,67 @@ export interface SplitExamResult {
   splitAt: string
 }
 
+// [v3.0.6.11-104 Wave 2B] 检查统计 / 时间线 / 技师备注
+export interface ExamOverviewDto {
+  total: number
+  todayScheduled: number
+  todayCompleted: number
+  avgDurationMin: number
+  totalRetake: number
+  retakeRate: number
+  byState: Record<string, number>
+  byModality: { modality: string; count: number }[]
+}
+
+export interface ExamByModalityItem {
+  modality: string
+  total: number
+  inProgress: number
+  completed: number
+  avgDurationMin: number
+}
+
+export interface ExamByModalityDto {
+  items: ExamByModalityItem[]
+  total: number
+}
+
+export interface ExamDailyTrendItem {
+  date: string
+  created: number
+  completed: number
+}
+
+export interface ExamDailyTrendDto {
+  items: ExamDailyTrendItem[]
+  total: number
+}
+
+export interface ExamTimelineEvent {
+  type: string
+  label: string
+  timestamp: string
+  actor?: string
+  note?: string
+}
+
+export interface ExamTimelineDto {
+  examId: string
+  accessionNumber: string
+  patientName: string
+  modality: string
+  bodyPart: string
+  state: string
+  totalEvents: number
+  events: ExamTimelineEvent[]
+}
+
+export interface ExamNotesResult {
+  ok: boolean
+  examId: string
+  techNotes: string
+}
+
 export const examApi = {
   list: (params?: ExamQueryParams) =>
     api.get<ListPayload<ExamDto>>(`/exams?${new URLSearchParams(params as Record<string, string>).toString()}`),
@@ -136,6 +197,30 @@ export const examApi = {
   // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分
   splitExam: async (id: string, payload: SplitExamPayload) => {
     const res = await api.post<SplitExamResult>(`/exams/${encodeURIComponent(id)}/split`, payload)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
+
+  // [v3.0.6.11-104 Wave 2B] 检查总览: 状态/模态分布 + 今日量 + 平均耗时/重拍率
+  overview: () =>
+    api.get<ExamOverviewDto>('/exams/overview'),
+
+  // [v3.0.6.11-104 Wave 2B] 模态维度统计: 每模态 总数/进行中/已完成/平均时长
+  byModality: () =>
+    api.get<ExamByModalityDto>('/exams/by-modality'),
+
+  // [v3.0.6.11-104 Wave 2B] 近 N 日检查趋势: 每日 新建/完成
+  dailyTrend: (days = 30) =>
+    api.get<ExamDailyTrendDto>(`/exams/daily-trend?days=${encodeURIComponent(String(days))}`),
+
+  // [v3.0.6.11-104 Wave 2B] 检查完整时间线
+  timeline: (id: string) =>
+    api.get<ExamTimelineDto>(`/exams/timeline/${encodeURIComponent(id)}`),
+
+  // [v3.0.6.11-104 Wave 2B] 技师备注保存
+  saveNotes: async (id: string, note: string) => {
+    const res = await api.post<ExamNotesResult>(`/exams/${encodeURIComponent(id)}/notes`, { note })
+    await invalidateApiCache(`/exams/${id}`)
     await invalidateApiCacheByPrefix('/exams')
     return res
   },

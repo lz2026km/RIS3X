@@ -42,7 +42,12 @@ import {
   initialModalityDevices,
 } from "../data/initialData";
 import { examApi } from "../services/api";
-import type { ImportExamRow } from "../services/api";
+import type {
+  ImportExamRow,
+  ExamOverviewDto,
+  ExamByModalityItem,
+  ExamDailyTrendItem,
+} from "../services/api";
 import { worklistApi } from "../services/api/worklistApi";
 import { reportApi } from "../services/api/reportApi";
 import { printApi } from "../services/api/printApi";
@@ -54,6 +59,9 @@ import { Modal, Form, Input, Select, Popconfirm, message } from "antd";
 import type { TableColumnsType } from "antd";
 // [v3.0.6.11-103 Wave 6] 表格统一: 自定义 table → DataTable (斑马纹/行高/列头/分页统一)
 import { DataTable } from "../components/common/DataTable";
+import { StatCard } from "../components/common/StatCard";
+import { DashboardCard } from "../components/dashboard/DashboardCard";
+import { TrendChart } from "../components/dashboard/TrendChart";
 import BatchActionBar from "../components/batch/BatchActionBar";
 import { AppButton } from "../components/common/AppButton";
 import { useOperationLog } from "../hooks/useOperationLog";
@@ -115,7 +123,7 @@ type ModalState = {
   action: "start" | "complete" | "cancel" | "quality" | null;
 };
 
-type TabType = "list" | "technician" | "transfer" | "analytics";
+type TabType = "list" | "technician" | "transfer" | "analytics" | "statistics";
 
 // 检查闭环状态节点
 type ExamStatusNode = {
@@ -536,6 +544,79 @@ export default function ExamPage() {
   }, [])
 
   useEffect(() => { void loadAnalytics() }, [loadAnalytics])
+
+  // ============================================================
+  // [v3.0.6.11-104 Wave 2B] 检查统计: overview / by-modality / daily-trend
+  // 真实 API: examApi.overview() + byModality() + dailyTrend()
+  // 失败回退演示数据 + 数据源徽标 (与深度分析一致)
+  // ============================================================
+  const DEMO_STAT_OVERVIEW: ExamOverviewDto = {
+    total: 86,
+    todayScheduled: 31,
+    todayCompleted: 12,
+    avgDurationMin: 26,
+    totalRetake: 3,
+    retakeRate: 3.5,
+    byState: { SCHEDULED: 12, ARRIVED: 5, IN_PROGRESS: 8, PAUSED: 2, COMPLETED: 46, CANCELLED: 3 },
+    byModality: [
+      { modality: 'CT', count: 20 },
+      { modality: 'MR', count: 15 },
+      { modality: 'DR', count: 12 },
+      { modality: 'US', count: 10 },
+    ],
+  }
+  const DEMO_STAT_BY_MODALITY: ExamByModalityItem[] = [
+    { modality: 'CT', total: 20, inProgress: 3, completed: 14, avgDurationMin: 18 },
+    { modality: 'MR', total: 15, inProgress: 2, completed: 10, avgDurationMin: 32 },
+    { modality: 'DR', total: 12, inProgress: 1, completed: 9, avgDurationMin: 8 },
+  ]
+  const DEMO_STAT_TREND: ExamDailyTrendItem[] = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (29 - i))
+    const date = d.toISOString().slice(0, 10)
+    return { date, created: 4 + ((i * 5) % 10), completed: 3 + ((i * 3) % 8) }
+  })
+  const [statOverview, setStatOverview] = useState<ExamOverviewDto>(DEMO_STAT_OVERVIEW)
+  const [statByModality, setStatByModality] = useState<ExamByModalityItem[]>(DEMO_STAT_BY_MODALITY)
+  const [statTrend, setStatTrend] = useState<ExamDailyTrendItem[]>(DEMO_STAT_TREND)
+  const [statSource, setStatSource] = useState<'real' | 'demo'>('demo')
+  const [statLoading, setStatLoading] = useState(false)
+  const [statError, setStatError] = useState<string | null>(null)
+
+  const loadStatistics = useCallback(async () => {
+    setStatLoading(true)
+    setStatError(null)
+    try {
+      const [overviewRes, byModRes, trendRes] = await Promise.allSettled([
+        examApi.overview(),
+        examApi.byModality(),
+        examApi.dailyTrend(30),
+      ])
+      let anyReal = false
+      if (overviewRes.status === 'fulfilled' && overviewRes.value.success && overviewRes.value.data) {
+        setStatOverview(overviewRes.value.data)
+        anyReal = true
+      }
+      if (byModRes.status === 'fulfilled' && byModRes.value.success && Array.isArray(byModRes.value.data?.items)) {
+        setStatByModality(byModRes.value.data.items)
+        anyReal = true
+      }
+      if (trendRes.status === 'fulfilled' && trendRes.value.success && Array.isArray(trendRes.value.data?.items)) {
+        setStatTrend(trendRes.value.data.items)
+        anyReal = true
+      }
+      setStatSource(anyReal ? 'real' : 'demo')
+      if (!anyReal) setStatError(t("examPage.statisticsFallback"))
+    } catch (e) {
+      setStatSource('demo')
+      setStatError(`检查统计加载失败: ${(e as Error)?.message ?? t("examPage.networkError")}（回退本地派生）`)
+    } finally {
+      setStatLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => { void loadStatistics() }, [loadStatistics])
 
   // 确定性哈希 (重拍率派生)
   function hashSeed(s: string): number {
@@ -1075,6 +1156,7 @@ export default function ExamPage() {
         { key: "technician" as TabType, label: t("examPage.techExecution"), icon: Monitor },
         { key: "transfer" as TabType, label: t("examPage.deptTransferTrack"), icon: ArrowRight },
         { key: "analytics" as TabType, label: t("examPage.deepAnalysis"), icon: BarChart3 },
+        { key: "statistics" as TabType, label: t("examPage.statisticsOverview"), icon: TrendingUp },
       ].map((tab) => (
         <AppButton
           key={tab.key}
@@ -3146,6 +3228,101 @@ export default function ExamPage() {
     );
   };
 
+  // [v3.0.6.11-104 Wave 2B] 统计总览: 检查概览卡 + 按模态分布表 + 每日趋势图
+  const StatisticsTab = () => {
+    const modalityColumns: TableColumnsType<ExamByModalityItem> = [
+      {
+        title: t("examPage.colModality"), dataIndex: "modality", key: "modality", width: 100,
+        render: (v: string) => <span style={{ fontWeight: 700, color: PRIMARY }}>{v}</span>,
+      },
+      { title: t("examPage.colTotal"), dataIndex: "total", key: "total", width: 90, align: "center" },
+      { title: t("examPage.colInProgress"), dataIndex: "inProgress", key: "inProgress", width: 100, align: "center" },
+      { title: t("examPage.colCompleted"), dataIndex: "completed", key: "completed", width: 100, align: "center" },
+      {
+        title: t("examPage.colAvgDuration"), dataIndex: "avgDurationMin", key: "avgDurationMin", width: 120, align: "center",
+        render: (v: number) => `${v} ${t("examPage.minuteShort")}`,
+      },
+    ]
+    return (
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* 数据源徽标 */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+          padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8,
+          border: '1px solid var(--border-color)', fontSize: 12,
+        }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 12px', borderRadius: 999, fontWeight: 600,
+            background: statSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+            color: statSource === 'real' ? '#065f46' : '#92400e',
+          }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: statSource === 'real' ? '#059669' : '#d97706' }} />
+            {t("examPage.dataSource")} {statSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
+          </span>
+          {statLoading && <span style={{ color: '#d97706' }}>{t("examPage.syncing")}</span>}
+          <button
+            onClick={() => void loadStatistics()}
+            style={{
+              marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              padding: '4px 12px', borderRadius: 6, fontSize: 12,
+              border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY,
+            }}
+          >
+            <RefreshCcw size={12} /> {t("examPage.refresh")}
+          </button>
+        </div>
+        {statError && (
+          <div style={{
+            padding: '8px 12px', borderRadius: 6, fontSize: 12, color: '#92400e',
+            background: 'var(--color-warning-bg)', border: '1px solid #fcd34d',
+          }}>
+            {statError}
+          </div>
+        )}
+
+        {/* 1. 检查概览 KPI */}
+        <DashboardCard title={t("examPage.examOverview")} icon={<Activity size={14} />} loading={statLoading} skeletonRows={2} testId="exam-stats-overview">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+            <StatCard title={t("examPage.overviewTotal")} value={statOverview.total} icon={<Layers size={20} />} color="primary" />
+            <StatCard title={t("examPage.overviewTodayScheduled")} value={statOverview.todayScheduled} icon={<ClipboardList size={20} />} color="info" />
+            <StatCard title={t("examPage.overviewTodayCompleted")} value={statOverview.todayCompleted} icon={<CheckCircle2 size={20} />} color="success" />
+            <StatCard title={t("examPage.overviewAvgDuration")} value={statOverview.avgDurationMin} suffix={t("examPage.minuteShort")} icon={<Timer size={20} />} color="warning" />
+            <StatCard title={t("examPage.overviewRetakeRate")} value={`${statOverview.retakeRate}%`} icon={<RefreshCcw size={20} />} color="error" />
+          </div>
+        </DashboardCard>
+
+        {/* 2. 按模态分布 */}
+        <DashboardCard title={t("examPage.byModalityStat")} icon={<PieChartIcon size={14} />} loading={statLoading} skeletonRows={5} testId="exam-stats-by-modality">
+          <DataTable<ExamByModalityItem>
+            rowKey="modality"
+            columns={modalityColumns}
+            dataSource={statByModality}
+            showPagination={false}
+            emptyText={t("examPage.noExamData")}
+          />
+        </DashboardCard>
+
+        {/* 3. 每日趋势 */}
+        <DashboardCard title={t("examPage.dailyTrendStat")} icon={<TrendingUp size={14} />} loading={statLoading} skeletonRows={6} testId="exam-stats-daily-trend">
+          <div style={{ marginBottom: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+            {t("examPage.last30Days")} · {statTrend.length} {t("examPage.casesUnit")}
+          </div>
+          <TrendChart
+            type="area"
+            data={statTrend.map((i) => ({ date: String(i.date).slice(5), created: i.created, completed: i.completed }))}
+            xKey="date"
+            series={[
+              { key: 'created', name: t("examPage.seriesCreated"), color: '#3b82f6', gradient: true },
+              { key: 'completed', name: t("examPage.seriesCompleted"), color: '#22c55e', gradient: true },
+            ]}
+            height={240}
+            testId="exam-stats-daily-trend-chart"
+          />
+        </DashboardCard>
+      </div>
+    )
+  }
+
   // ==================== 主渲染 ====================
   return (
     <div
@@ -3215,6 +3392,9 @@ export default function ExamPage() {
 
       {/* [v3.0.6.11-99 Wave10B] 深度分析Tab */}
       {activeTab === "analytics" && <AnalyticsTab />}
+
+      {/* [v3.0.6.11-104 Wave 2B] 检查统计Tab */}
+      {activeTab === "statistics" && <StatisticsTab />}
 
       {/* 底部统计栏 */}
       <StatsBar />

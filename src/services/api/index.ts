@@ -30,11 +30,29 @@ export type {
   ImportExamRow,
   ImportResultDto as ExamImportResult,
   ExportCsvDto as ExamExportCsv,
+  // [v3.0.6.11-104 Wave 2B] 检查统计 / 时间线 / 备注
+  ExamOverviewDto,
+  ExamByModalityDto,
+  ExamByModalityItem,
+  ExamDailyTrendDto,
+  ExamDailyTrendItem,
+  ExamTimelineDto,
+  ExamTimelineEvent,
+  ExamNotesResult,
 } from "./examApi";
 
 export { patientApi } from "./patientApi";
 export type { PatientDto } from "./patientApi";
 export type { ImportPatientRow as PatientImportRow } from "./patientApi";
+export type {
+  // [v3.0.6.11-104 Wave 2B] 患者档案: 总览 / 年龄分布 / 摘要 / 就诊历史
+  PatientOverviewDto,
+  PatientAgeDistributionDto,
+  PatientAgeBucket,
+  PatientSummaryDto,
+  PatientVisitHistoryDto,
+  PatientVisitEvent,
+} from "./patientApi";
 
 // [W4-A v3.0.6.11-79] 数据字典: 分类列表 + 分类条目 CRUD
 export { dictionaryApi } from "./dictionaryApi";

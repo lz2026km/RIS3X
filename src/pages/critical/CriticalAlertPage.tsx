@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { AlertTriangle, CheckCircle, Bell, ArrowUp, RefreshCw, Clock, Phone, MessageSquare, Search } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { t as tr } from '../../i18n/appI18n'
 import type { CommunicationEntry } from '../../services/api/criticalAlertApi'
 
 const { Text } = Typography
@@ -50,7 +51,6 @@ const CriticalAlertPage: React.FC = () => {
   // [W2-C] 受控分页
   const [alertPage, setAlertPage] = useState(1)
   // [G005 Wave1A] 按报告查询关联告警 (GET /critical-alert/for-report/:reportId)
-  const [reportIdInput, setReportIdInput] = useState('')
   const [relatedAlerts, setRelatedAlerts] = useState<CriticalAlert[]>([])
   const [relatedShown, setRelatedShown] = useState(false)
   const [relatedLoading, setRelatedLoading] = useState(false)
@@ -61,6 +61,11 @@ const CriticalAlertPage: React.FC = () => {
   // [v3.0.6.11-103 Wave 13] 5 步流程: 当前步骤输入 (通知方式 / 确认人 / 处置 / 闭环摘要)
   const [flowNotifyMethod, setFlowNotifyMethod] = useState<'phone' | 'sms'>('phone')
   const [flowInput, setFlowInput] = useState('')
+
+  // [v3.0.6.11-104 Wave 2C] 聚合列表: GET /critical-alert (默认聚合, 与 /alerts 同一处理器)
+  const [aggregate, setAggregate] = useState<CriticalAlert[]>([])
+  const [aggregateLoading, setAggregateLoading] = useState(false)
+  const [aggregateError, setAggregateError] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -87,6 +92,37 @@ const CriticalAlertPage: React.FC = () => {
   useEffect(() => {
     void load()
   }, [load])
+
+  // [v3.0.6.11-104 Wave 2C] 聚合列表加载: GET /critical-alert
+  const loadAggregate = useCallback(async () => {
+    setAggregateLoading(true)
+    setAggregateError('')
+    try {
+      const res = await criticalAlertApi.listAggregated()
+      if (res.success && Array.isArray(res.data)) setAggregate(res.data)
+      else setAggregateError(res.error?.message ?? tr('criticalAgg.loadFailed'))
+    } catch (e) {
+      setAggregateError((e as Error)?.message ?? tr('criticalAgg.loadFailed'))
+    } finally {
+      setAggregateLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadAggregate()
+  }, [loadAggregate])
+
+  const aggBySeverity = useMemo(() => {
+    const m: Record<string, number> = {}
+    for (const a of aggregate) m[a.severity] = (m[a.severity] ?? 0) + 1
+    return m
+  }, [aggregate])
+
+  const aggByStatus = useMemo(() => {
+    const m: Record<string, number> = {}
+    for (const a of aggregate) m[a.status] = (m[a.status] ?? 0) + 1
+    return m
+  }, [aggregate])
 
   const pendingCount = useMemo(() => alerts.filter((a) => a.status === 'active').length, [alerts])
 
@@ -279,6 +315,50 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           </Row>
         </Card>
       )}
+
+      {/* [v3.0.6.11-104 Wave 2C] 危急值聚合列表: GET /critical-alert (默认聚合, 与 /alerts 同一处理器) */}
+      <Card
+        size="small"
+        title={<Space size={6}><Bell size={13} color="#2563eb" />{tr('criticalAgg.title')}</Space>}
+        style={{ marginBottom: 16 }}
+        extra={<Button size="small" icon={<RefreshCw size={12} />} loading={aggregateLoading} onClick={() => void loadAggregate()}>{tr('criticalAgg.refresh')}</Button>}
+        data-testid="critical-aggregate"
+      >
+        {aggregateLoading && aggregate.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 16, color: '#94a3b8' }}><Spin size="small" /> {tr('criticalAgg.loading')}</div>
+        ) : aggregateError ? (
+          <Alert
+            type="warning"
+            showIcon
+            message={`${tr('criticalAgg.loadFailed')}: ${aggregateError}`}
+            action={<Button size="small" onClick={() => void loadAggregate()}>{tr('criticalAgg.retry')}</Button>}
+          />
+        ) : aggregate.length === 0 ? (
+          <EmptyState description={tr('criticalAgg.empty')} />
+        ) : (
+          <>
+            <Alert type="info" showIcon style={{ marginBottom: 12 }} message={tr('criticalAgg.aliasNote')} />
+            <Row gutter={16} style={{ marginBottom: 12 }}>
+              <Col span={6}><Statistic title={tr('criticalAgg.total')} value={aggregate.length} /></Col>
+              <Col span={6}><Statistic title={tr('criticalAgg.active')} value={aggregate.filter((a) => a.status === 'active').length} styles={{ content: { color: '#ff4d4f' } }} /></Col>
+              <Col span={6}><Statistic title={tr('criticalAgg.acknowledged')} value={aggregate.filter((a) => a.status === 'acknowledged').length} styles={{ content: { color: '#faad14' } }} /></Col>
+              <Col span={6}><Statistic title={tr('criticalAgg.resolved')} value={aggregate.filter((a) => a.status === 'resolved').length} styles={{ content: { color: '#52c41a' } }} /></Col>
+            </Row>
+            <Space wrap size={[8, 8]}>
+              {(['emergency', 'critical', 'warning', 'info'] as string[]).map((sev) => (
+                <Tag key={sev} color={severityColor[sev]}>{severityLabel[sev] ?? sev}: {aggBySeverity[sev] ?? 0}</Tag>
+              ))}
+            </Space>
+            <div style={{ marginTop: 8 }}>
+              <Space wrap size={[8, 8]}>
+                {(['active', 'acknowledged', 'resolved', 'escalated'] as string[]).map((st) => (
+                  <Tag key={st} color={statusColor[st]}>{statusLabel[st] ?? st}: {aggByStatus[st] ?? 0}</Tag>
+                ))}
+              </Space>
+            </div>
+          </>
+        )}
+      </Card>
 
       {/* [G005 Wave1A] 按报告查询关联告警 (GET /critical-alert/for-report/:reportId) */}
       {relatedShown && (

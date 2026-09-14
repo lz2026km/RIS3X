@@ -83,6 +83,35 @@ export interface AiDiagnosisRetrainResult {
   message: string
 }
 
+// ===== [v3.0.6.11-104 Wave 2D] AI 病例库 (GET /ai-diagnosis/cases[/:model/:id]) =====
+
+export interface AiCaseCategoryStat {
+  key: string
+  count: number
+}
+
+export interface AiCaseModelSummary {
+  total: number
+  byCategory: AiCaseCategoryStat[]
+}
+
+export interface AiCaseLibraryDto {
+  lungCad: AiCaseModelSummary
+  breastCad: AiCaseModelSummary
+  fractureCad: AiCaseModelSummary
+  cardiacAi: AiCaseModelSummary
+  generatedAt: string
+}
+
+export interface AiCaseDetail {
+  id: string
+  studyId?: string
+  patientName?: string
+  status?: string
+  createdAt?: string
+  [key: string]: unknown
+}
+
 function toQuery<T extends object>(params: T | undefined): string {
   const query = new URLSearchParams()
   if (params) {
@@ -156,4 +185,13 @@ export const aiDiagnosisApi = {
   // GET /ai-diagnosis/trend
   getTrend: (params?: { startDate?: string; endDate?: string; siteId?: string; modality?: string }) =>
     api.get<AiDiagnosisTrendPoint[]>(`/ai-diagnosis/trend${toQuery(resolveDateRange(params))}`),
+
+  // [v3.0.6.11-104 Wave 2D] AI 病例库
+  // GET /ai-diagnosis/cases
+  listCases: () =>
+    api.get<AiCaseLibraryDto>('/ai-diagnosis/cases'),
+
+  // GET /ai-diagnosis/cases/:model/:id
+  getCase: (model: AiDiagnosisModelKey, id: string) =>
+    api.get<AiCaseDetail>(`/ai-diagnosis/cases/${encodeURIComponent(model)}/${encodeURIComponent(id)}`),
 }

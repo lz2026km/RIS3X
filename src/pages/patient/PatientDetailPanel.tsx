@@ -12,11 +12,12 @@ import type { TimelineEvent } from './types'
 import { getBirthDateFromIdCard, getPatientStats } from './utils'
 import {
   patientApi, criticalApi, appointmentApi, reportApi, financeApi,
-  type CriticalValueDto, type AppointmentDto,
+  type CriticalValueDto, type AppointmentDto, type PatientSummaryDto,
 } from '../../services/api'
 import { invalidateApiCacheByPrefix } from '../../services/api/client'
 import type { ReportDto, ExamDto, InvoiceDto } from '../../types/dto'
 import { useAuth } from '../../hooks/useAuth'
+import { t } from '../../i18n/appI18n'
 
 const TIMELINE_ICONS: Record<string, React.ReactNode> = {
   exam: <Image size={14} />,
@@ -189,6 +190,38 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
   }, [])
 
   const patientId = selectedPatient?.id
+
+  // [v3.0.6.11-104 Wave 2B] 患者综合摘要 (GET /patients/:id/summary)
+  const [summary, setSummary] = useState<PatientSummaryDto | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+  const [summaryError, setSummaryError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!patientId) return
+    let cancelled = false
+    setSummaryLoading(true)
+    setSummaryError(null)
+    void (async () => {
+      try {
+        const res = await patientApi.getSummary(patientId)
+        if (cancelled) return
+        if (res.success && res.data) {
+          setSummary(res.data)
+        } else {
+          setSummary(null)
+          setSummaryError(res.error?.message ?? t('patientPage.summaryLoadFailed'))
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setSummary(null)
+          setSummaryError((e as Error)?.message ?? t('patientPage.summaryLoadFailed'))
+        }
+      } finally {
+        if (!cancelled) setSummaryLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [patientId, reloadKey])
 
   // [W2-4] 多源数据加载: 检查 + 报告 + 危急值 + 预约 + 账单
   useEffect(() => {
@@ -493,6 +526,36 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
             <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.medicalHistory || '无'}</div>
           </div>
         </div>
+      </div>
+
+      {/* [v3.0.6.11-104 Wave 2B] 患者综合摘要 (GET /patients/:id/summary) */}
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{t('patientPage.summaryCard')}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {summaryLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('common.loading')}</span>}
+            {summaryError && <span style={{ fontSize: 12, color: '#d97706' }}>{summaryError}</span>}
+          </div>
+        </div>
+        {!summary ? (
+          <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 13 }}>{t('patientPage.summaryEmpty')}</div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
+            {[
+              { label: t('patientPage.summaryExams'), value: summary.counts.exams, color: '#1e40af', bg: 'var(--color-info-bg)' },
+              { label: t('patientPage.summaryReports'), value: summary.counts.reports, color: '#16a34a', bg: 'var(--color-success-bg)' },
+              { label: t('patientPage.summaryFollowUps'), value: summary.counts.followUps, color: '#d97706', bg: 'var(--color-warning-bg)' },
+              { label: t('patientPage.summaryCriticals'), value: summary.counts.criticalValues, color: '#dc2626', bg: 'var(--color-error-bg)' },
+              { label: t('patientPage.summaryInvoices'), value: summary.counts.invoices, color: '#7c3aed', bg: 'var(--bg-card)' },
+              { label: t('patientPage.summaryCharges'), value: `¥${summary.totalCharges}`, color: '#d97706', bg: 'var(--content-bg)' },
+            ].map((item) => (
+              <div key={item.label} style={{ textAlign: 'center', padding: 14, borderRadius: 8, background: item.bg }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: item.color }}>{item.value}</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{item.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>

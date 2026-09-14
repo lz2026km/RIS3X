@@ -29,6 +29,9 @@ export interface RoomQueueDetail {
   queue: QueueCallDto[]
 }
 
+// [v3.0.6.11-104 Wave 2D] 排队优先级 (POST /queue/:id/priority)
+export type QueuePriority = '普通' | '紧急' | '危重'
+
 export const queueApi = {
   list: () =>
     api.get<QueueCallDto[]>('/queue'),
@@ -52,4 +55,8 @@ export const queueApi = {
 
   recall: (id: string) =>
     api.post<QueueCallDto>(`/queue/${id}/recall`),
+
+  // [v3.0.6.11-104 Wave 2D] 调整排队优先级
+  setPriority: (id: string, priority: QueuePriority) =>
+    api.post<QueueCallDto>(`/queue/${encodeURIComponent(id)}/priority`, { priority }),
 }

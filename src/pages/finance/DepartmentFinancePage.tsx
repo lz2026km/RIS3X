@@ -8,6 +8,7 @@ import {
 } from 'recharts'
 import { DollarSign, TrendingUp, TrendingDown, PieChart as PieIcon, BarChart3, Download, FileText, Receipt, RefreshCw, Eye, CreditCard } from 'lucide-react'
 import { ChartContainer } from '../../components/charts'
+import FinanceAnalyticsSection from './FinanceAnalyticsSection'
 
 type Period = 'monthly' | 'quarterly' | 'yearly'
 type PageTab = 'overview' | 'invoices' | 'reports'
@@ -290,6 +291,7 @@ export default function DepartmentFinancePage() {
 
       {tab === 'overview' && (
         <div style={{ padding: '20px 24px' }}>
+          <FinanceAnalyticsSection />
           <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
             {[
               { title: '总收入', value: totalRev.toLocaleString(), unit: '¥', icon: TrendingUp, trend: 'up', color: '#22c55e' },

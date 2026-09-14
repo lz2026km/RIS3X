@@ -133,6 +133,15 @@ function ProgressBar({ value, color }: { value: number; color: string }) {
   )
 }
 
+// [v3.0.6.11-104 Wave 2A] 设备状态 → i18n key
+const LIFECYCLE_STATE_KEYS: Record<string, string> = {
+  IDLE: 'deviceMgmtBoard.stateIdle',
+  IN_USE: 'deviceMgmtBoard.stateInUse',
+  MAINTENANCE: 'deviceMgmtBoard.stateMaintenance',
+  BROKEN: 'deviceMgmtBoard.stateBroken',
+  OFFLINE: 'deviceMgmtBoard.stateOffline',
+}
+
 export default function EquipmentLifecyclePage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('全部')
@@ -144,6 +153,9 @@ export default function EquipmentLifecyclePage() {
   const [showMaintPlanModal, setShowMaintPlanModal] = useState(false)
   const [selectedMaintRecord, setSelectedMaintRecord] = useState<typeof maintenanceRecords[0] | null>(null)
   const [apiLifecycleData, setApiLifecycleData] = useState<EquipmentLifecycle[]>([])
+  // [v3.0.6.11-104 Wave 2A] GET /device-mgmt/equipment-lifecycle/:id — 单设备生命周期详情
+  const [lifecycleDetail, setLifecycleDetail] = useState<any | null>(null)
+  const [lifecycleDetailLoading, setLifecycleDetailLoading] = useState(false)
 
   // [G005 Wave2A P1] 本地设备/计划列表 (API 创建失败时的回退展示源)
   const [localDevices, setLocalDevices] = useState<typeof mockDevices>(mockDevices)
@@ -199,17 +211,29 @@ export default function EquipmentLifecyclePage() {
 
   useEffect(() => {
     deviceMgmtApi.listEquipmentLifecycle().then(res => {
-      if (res.success && res.data) setApiLifecycleData(res.data);
+      if (res.success && res.data) setApiLifecycleData(res.data.items ?? []);
     }).catch((err) => { console.error('[F04]', err); });
     void loadMaintPlans()
     void loadMaintRecords()
   }, [loadMaintPlans, loadMaintRecords]);
 
+  // [v3.0.6.11-104 Wave 2A] 选择设备 → 拉取 /device-mgmt/equipment-lifecycle/:id
+  useEffect(() => {
+    let cancelled = false
+    if (!selectedDevice?.id) { setLifecycleDetail(null); return }
+    setLifecycleDetailLoading(true)
+    void deviceMgmtApi.getEquipmentLifecycle(String(selectedDevice.id))
+      .then(res => { if (!cancelled) setLifecycleDetail(res.success ? res.data : null) })
+      .catch(() => { if (!cancelled) setLifecycleDetail(null) })
+      .finally(() => { if (!cancelled) setLifecycleDetailLoading(false) })
+    return () => { cancelled = true }
+  }, [selectedDevice])
+
   // [G005 Wave2A P1] 刷新设备列表 (真实 API)
   const loadLifecycle = useCallback(async () => {
     try {
       const res = await deviceMgmtApi.listEquipmentLifecycle()
-      if (res.success && res.data) setApiLifecycleData(res.data)
+      if (res.success && res.data) setApiLifecycleData(res.data.items ?? [])
     } catch { /* 保持现有数据 */ }
   }, [])
 
@@ -1195,6 +1219,30 @@ export default function EquipmentLifecyclePage() {
               <div style={s.modalTitle}>{t('equipLifecycle.deviceDetailTitle', { name: selectedDevice.name })}</div>
               <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedDevice(null)}><X size={18} /></button>
             </div>
+            {/* [v3.0.6.11-104 Wave 2A] /device-mgmt/equipment-lifecycle/:id 实时详情 */}
+            {lifecycleDetailLoading && (
+              <div style={{ fontSize: 12.5, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('deviceMgmtBoard.loading')}</div>
+            )}
+            {!lifecycleDetailLoading && lifecycleDetail && (
+              <>
+                <div style={s.sectionTitle}>{t('deviceMgmtBoard.lifecycleDetail')}</div>
+                <div style={s.detailGrid}>
+                  {[
+                    { label: t('deviceMgmtBoard.fieldCode'), value: lifecycleDetail.code ?? '-' },
+                    { label: t('deviceMgmtBoard.fieldModality'), value: lifecycleDetail.modality ?? '-' },
+                    { label: t('deviceMgmtBoard.fieldManufacturer'), value: lifecycleDetail.manufacturer ?? '-' },
+                    { label: t('deviceMgmtBoard.fieldLocation'), value: lifecycleDetail.location ?? '-' },
+                    { label: t('deviceMgmtBoard.fieldState'), value: lifecycleDetail.state ? t(LIFECYCLE_STATE_KEYS[lifecycleDetail.state] ?? lifecycleDetail.state) : '-' },
+                    { label: t('deviceMgmtBoard.todayExams'), value: String(lifecycleDetail.todayExams ?? 0) },
+                  ].map(item => (
+                    <div key={item.label} style={s.detailItem}>
+                      <div style={s.detailLabel}>{item.label}</div>
+                      <div style={s.detailValue}>{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
             <div style={s.detailGrid}>
               {[
                 { label: t('equipLifecycle.detailDeviceId'), value: selectedDevice.id },

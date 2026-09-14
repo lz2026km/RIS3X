@@ -17,6 +17,7 @@ import { getCurrentUser } from '../utils/auth'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { formatTime } from '../utils/date';
 import { t } from '../i18n/appI18n'
+import NotificationPreferencesSection from './NotificationPreferencesSection'
 
 // ============================================================
 // 常量定义
@@ -2074,6 +2075,11 @@ export default function NotificationCenter() {
                 </div>
               )}
               {showPreferences && <PreferencesPanel preferences={userPreferences} onUpdate={setUserPreferences} />}
+              {showPreferences && (
+                <div style={{ marginTop: 16 }}>
+                  <NotificationPreferencesSection />
+                </div>
+              )}
             </div>
           )}
         </div>

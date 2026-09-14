@@ -2,9 +2,10 @@ import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
 import { qcImageAiApi } from "../../services/api/qcImageAiApi"
-import { QcImageAiScoreV2Result, QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
+import { QcImageAiScoreV2Result, QcImageAiScoreV1Result, QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
+import { t as tr } from "../../i18n/appI18n"
 import { Button, Input, Select, Space, Alert, Spin } from 'antd'
-import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, Zap, Target, Eye, Sparkles, RefreshCw } from 'lucide-react'
+import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, Zap, Target, Eye, Sparkles, RefreshCw, Search } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from "react-i18next"
 
@@ -40,6 +41,58 @@ export default function QcImageAiPage() {
   const [scored, setScored] = useState<QcImageAiScoreV2Result | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detail, setDetail] = useState<QcImageAiScoreV2Result | null>(null)
+
+  // [v3.0.6.11-104 Wave 2C] V2 结果列表回读 (GET /qc/image-ai/result-v2) 三态
+  const [recordsLoading, setRecordsLoading] = useState(false)
+  const [recordsError, setRecordsError] = useState("")
+
+  // [v3.0.6.11-104 Wave 2C] V1 结果按实例查询 (GET /qc/image-ai/result/:instanceId)
+  const [lookupId, setLookupId] = useState("")
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [lookupResult, setLookupResult] = useState<QcImageAiScoreV1Result | null>(null)
+  const [lookupError, setLookupError] = useState("")
+
+  const loadRecords = useCallback(async (m: string, from: string, to: string) => {
+    setRecordsLoading(true)
+    setRecordsError("")
+    try {
+      const params: { modality?: string; dateFrom?: string; dateTo?: string } = {}
+      if (m !== "all") params.modality = m
+      if (from) params.dateFrom = from
+      if (to) params.dateTo = to
+      const res = await qcImageAiApi.listV2Results(params)
+      if (res.success && Array.isArray(res.data)) setRecords(res.data)
+      else setRecordsError(res.error?.message ?? tr("qcai.resultList.loadFailed"))
+    } catch (e) {
+      setRecordsError((e as Error)?.message ?? tr("qcai.resultList.loadFailed"))
+    } finally {
+      setRecordsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadRecords(modality, dateFrom, dateTo)
+  }, [modality, dateFrom, dateTo, loadRecords])
+
+  const lookupByInstance = useCallback(async () => {
+    const id = lookupId.trim()
+    if (!id) {
+      setLookupError(tr("qcai.lookup.required"))
+      return
+    }
+    setLookupLoading(true)
+    setLookupError("")
+    setLookupResult(null)
+    try {
+      const res = await qcImageAiApi.getResultV1(id)
+      if (res.success && res.data) setLookupResult(res.data)
+      else setLookupError(res.error?.message ?? tr("qcai.lookup.notFound"))
+    } catch (e) {
+      setLookupError((e as Error)?.message ?? tr("qcai.lookup.notFound"))
+    } finally {
+      setLookupLoading(false)
+    }
+  }, [lookupId])
 
   const loadStats = useCallback(async (m: string, from: string, to: string) => {
     setLoadingStats(true)
@@ -206,6 +259,48 @@ export default function QcImageAiPage() {
           )}
         </div>
 
+        {/* [v3.0.6.11-104 Wave 2C] AI 质控结果回读: 按实例查询 (V1) + V2 结果列表 (三态) */}
+        <div style={{ marginBottom: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }} data-testid="qcai-result-readback">
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 6 }}>
+            <Eye size={18} color="#3b82f6" /> {tr("qcai.lookup.title")}
+          </h3>
+          <Space wrap style={{ marginBottom: 12 }}>
+            <Input placeholder={tr("qcai.lookup.placeholder")} value={lookupId} onChange={e => setLookupId(e.target.value)} onPressEnter={() => void lookupByInstance()} style={{ width: 300 }} allowClear />
+            <Button type="primary" icon={<Search size={14} />} loading={lookupLoading} onClick={() => void lookupByInstance()}>{tr("qcai.lookup.button")}</Button>
+            <span style={{ color: "#94a3b8", fontSize: 12 }}>{tr("qcai.lookup.endpointHint")}</span>
+          </Space>
+
+          {lookupLoading ? (
+            <div style={{ padding: 16, textAlign: "center", color: "#94a3b8" }}><Spin /></div>
+          ) : lookupError ? (
+            <Alert type="warning" showIcon message={lookupError} />
+          ) : lookupResult ? (
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "var(--bg-card)", borderRadius: 8, padding: 12 }} data-testid="qcai-v1-result">
+              <ScoreBlock title={tr("qcai.lookup.artifact")} scores={[lookupResult.motionArtifact, lookupResult.metalArtifact, lookupResult.ringArtifact]} labels={[tr("qcai.motion"), tr("qcai.metal"), tr("qcai.ring")]} colors={["#f59e0b", "#ef4444", "#8b5cf6"]} />
+              <ScoreBlock title={tr("qcai.lookup.positioning")} scores={[lookupResult.positioningCorrect, lookupResult.positioningMildRotation, lookupResult.positioningSevereOffset]} labels={[tr("qcai.setup"), tr("qcai.rotation"), tr("qcai.offset")]} colors={["#8b5cf6", "#3b82f6", "#06b6d4"]} />
+              <div style={{ flex: "1 1 140px" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>{tr("qcai.lookup.overall")}: {lookupResult.overall.toFixed(1)}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: scoreColor(lookupResult.overall) }}>{lookupResult.overall.toFixed(1)}</div>
+                <div style={{ fontSize: 12, color: "#64748b" }}>{lookupResult.instanceId} · {lookupResult.modality}</div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>{tr("qcai.lookup.empty")}</div>
+          )}
+
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border-color)", fontSize: 12, color: "#64748b" }}>
+            {recordsLoading ? (
+              <span><Spin size="small" /> {tr("qcai.resultList.loading")}</span>
+            ) : recordsError ? (
+              <span style={{ color: "#dc2626" }}>{tr("qcai.resultList.loadFailed")}: {recordsError}</span>
+            ) : records.length === 0 ? (
+              <span>{tr("qcai.resultList.empty")}</span>
+            ) : (
+              <span>{tr("qcai.resultList.summary", { count: records.length })}</span>
+            )}
+          </div>
+        </div>
+
         {activeTab === "v2" && (
           <>
             <div style={{ display: "flex", gap: 20, marginTop: 4 }}>
@@ -264,7 +359,7 @@ export default function QcImageAiPage() {
 
         <div style={{ marginTop: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>{t("scoreTable")}</h3>
-          <Spin spinning={detailLoading}>
+          <Spin spinning={detailLoading || recordsLoading}>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
                 <thead>

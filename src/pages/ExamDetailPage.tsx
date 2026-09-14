@@ -3,10 +3,13 @@
 // 含状态流转 + 阅片/写报告跳转。仅跳转可达 (routeTable 注册, sidebarConfig 不加菜单)。
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Eye, FileText, RefreshCw, MonitorPlay } from "lucide-react";
+import { ArrowLeft, Eye, FileText, RefreshCw, MonitorPlay, History, MessageSquare, Send } from "lucide-react";
 import { message } from "antd";
 import { ExamDetailView, toRadiologyExamFromDto } from "./worklist/ExamDetailView";
-import { examApi } from "../services/api/examApi";
+import { examApi, type ExamTimelineDto } from "../services/api/examApi";
+import { DashboardCard } from "../components/dashboard/DashboardCard";
+import { EmptyState } from "../components/common/EmptyState";
+import { t } from "../i18n/appI18n";
 import { worklistApi, type WorklistItemDto } from "../services/api/worklistApi";
 import { normalizeExamStatus } from "../utils/statusMaps";
 import type { RadiologyExam } from "../types";
@@ -38,6 +41,21 @@ const toExamFromWorklist = (dto: WorklistItemDto): RadiologyExam => {
   };
 };
 
+// [v3.0.6.11-104 Wave 2B] 检查时间线事件配色
+const TIMELINE_COLOR: Record<string, string> = {
+  register: '#64748b',
+  scheduled: '#3b82f6',
+  checkin: '#0891b2',
+  start: '#f59e0b',
+  pause: '#d97706',
+  complete: '#16a34a',
+  retake: '#dc2626',
+  'qc-rating': '#7c3aed',
+  notes: '#2563eb',
+  report: '#059669',
+  op: '#94a3b8',
+}
+
 export default function ExamDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -67,6 +85,60 @@ export default function ExamDetailPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // [v3.0.6.11-104 Wave 2B] 检查时间线 + 技师备注
+  const [timeline, setTimeline] = useState<ExamTimelineDto | null>(null);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
+  const [noteText, setNoteText] = useState("");
+  const [savingNote, setSavingNote] = useState(false);
+
+  const loadTimeline = useCallback(async () => {
+    if (!id) return;
+    setTimelineLoading(true);
+    setTimelineError(null);
+    try {
+      const res = await examApi.timeline(id);
+      if (res.success && res.data) {
+        setTimeline(res.data);
+      } else {
+        setTimeline(null);
+        setTimelineError(res.error?.message ?? t("examPage.timelineEmpty"));
+      }
+    } catch (e) {
+      setTimeline(null);
+      setTimelineError((e as Error)?.message ?? t("examPage.timelineEmpty"));
+    } finally {
+      setTimelineLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    void loadTimeline();
+  }, [loadTimeline]);
+
+  const handleSaveNotes = async () => {
+    if (!id) return;
+    if (!noteText.trim()) {
+      message.warning(t("examPage.notesRequired"));
+      return;
+    }
+    setSavingNote(true);
+    try {
+      const res = await examApi.saveNotes(id, noteText.trim());
+      if (res.success) {
+        message.success(t("examPage.notesSaved"));
+        setNoteText("");
+        void loadTimeline();
+      } else {
+        message.error(res.error?.message ?? t("examPage.notesSaveFailed"));
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("examPage.notesSaveFailed"));
+    } finally {
+      setSavingNote(false);
+    }
+  };
 
   const handleStart = async (exam: RadiologyExam) => {
     const res = await worklistApi.start(exam.id);
@@ -259,6 +331,71 @@ export default function ExamDetailPage() {
             onStartExam={(exam) => void handleStart(exam)}
             onCancelExam={(exam) => void handleCancel(exam)}
           />
+
+          {/* [v3.0.6.11-104 Wave 2B] 检查时间线 */}
+          <div style={{ marginTop: 16 }}>
+            <DashboardCard
+              title={t("examPage.timelineTitle")}
+              icon={<History size={14} />}
+              loading={timelineLoading}
+              error={timeline ? null : timelineError}
+              onRetry={() => void loadTimeline()}
+              skeletonRows={5}
+              testId="exam-timeline-card"
+            >
+              {!timeline || timeline.events.length === 0 ? (
+                <EmptyState type="nodata" description={t("examPage.timelineEmpty")} style={{ padding: 24 }} />
+              ) : (
+                <>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+                    {t("examPage.timelineEvents", { count: timeline.totalEvents })}
+                  </div>
+                  <div style={{ position: "relative", paddingLeft: 20 }}>
+                    <div style={{ position: "absolute", left: 5, top: 4, bottom: 4, width: 2, background: "var(--border-color)" }} />
+                    {timeline.events.map((ev, i) => {
+                      const color = TIMELINE_COLOR[ev.type] ?? "#3b82f6"
+                      return (
+                        <div key={`${ev.type}-${i}`} style={{ position: "relative", paddingBottom: 14 }}>
+                          <div style={{ position: "absolute", left: -20, top: 3, width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 0 3px ${color}22` }} />
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{ev.label}</span>
+                            {ev.actor && <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>{ev.actor}</span>}
+                            <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted, #94a3b8)", fontFamily: "monospace" }}>
+                              {String(ev.timestamp).slice(0, 16).replace("T", " ")}
+                            </span>
+                          </div>
+                          {ev.note && <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{ev.note}</div>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              )}
+            </DashboardCard>
+          </div>
+
+          {/* [v3.0.6.11-104 Wave 2B] 技师备注编辑 (POST /exams/:id/notes) */}
+          <div style={{ marginTop: 16 }}>
+            <DashboardCard title={t("examPage.techNotesTitle")} icon={<MessageSquare size={14} />} testId="exam-notes-card">
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder={t("examPage.techNotesPlaceholder")}
+                rows={3}
+                maxLength={2000}
+                style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--border-color)", borderRadius: 6, fontSize: 12, resize: "vertical", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+              />
+              <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => void handleSaveNotes()}
+                  disabled={savingNote}
+                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 6, border: "none", background: "#1e40af", color: "#fff", fontSize: 13, fontWeight: 600, cursor: savingNote ? "not-allowed" : "pointer", opacity: savingNote ? 0.6 : 1 }}
+                >
+                  <Send size={13} /> {savingNote ? t("examPage.savingNotes") : t("examPage.saveNotes")}
+                </button>
+              </div>
+            </DashboardCard>
+          </div>
         </div>
       )}
     </div>

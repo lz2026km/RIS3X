@@ -68,6 +68,26 @@ export interface FollowUpStats {
   byMonth: Array<{ month: string; total: number; completed: number; missed: number }>
 }
 
+// [v3.0.6.11-104 Wave 2C] 催办队列返回结构 (GET /followups/reminder-queue)
+export interface FollowUpReminderQueue {
+  items: FollowUpPlan[]
+  total: number
+  days: number
+  overdue: number
+  dueToday: number
+  upcoming: number
+  queueType: 'OVERDUE' | 'DUE_TODAY' | 'UPCOMING'
+}
+
+// [v3.0.6.11-104 Wave 2C] 报告→随访返回结构 (POST /followups/from-report)
+export interface FollowUpFromReportResult {
+  created: number
+  items: FollowUpPlan[]
+  matched: string[]
+  skipped: string[]
+  reason: string | null
+}
+
 const LIST_PREFIX = '/followups'
 
 // [W4-B] 随访计划: 列表/创建/更新/删除/完成/到期提醒
@@ -141,6 +161,17 @@ export const followupApi = {
       examId,
       templateId,
     })
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
+
+  // [v3.0.6.11-104 Wave 2C] 随访催办队列: 逾期/今日到期/未来 N 天分组
+  reminderQueue: (days: number = 7) =>
+    api.get<FollowUpReminderQueue>(`${LIST_PREFIX}/reminder-queue?days=${days}`),
+
+  // [v3.0.6.11-104 Wave 2C] 报告→随访: 按报告内容关键词手动补建随访计划 (不受 auto/hint 模式限制)
+  fromReport: async (reportId: string, reason?: string) => {
+    const res = await api.post<FollowUpFromReportResult>(`${LIST_PREFIX}/from-report`, { reportId, reason })
     await invalidateApiCacheByPrefix(LIST_PREFIX)
     return res
   },

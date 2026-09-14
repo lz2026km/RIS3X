@@ -9,6 +9,7 @@ import { aiDiagnosisApi, type AiDiagnosisAccuracyResult, type AiDiagnosisTrendPo
 import { cadApi } from '../../services/api/cadApi'
 import { CadResult } from '../../services/api/cadApi'
 import { EmptyState } from '../../components/common/EmptyState'
+import AiCaseLibrarySection from './AiCaseLibrarySection'
 import { Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress, Card,
   Input, Table,
 } from 'antd'
@@ -23,6 +24,7 @@ import {
   Crosshair,
   BarChart3,
   Gauge,
+  BookOpen,
 } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
@@ -314,6 +316,7 @@ const AiCadPage: React.FC = () => {
             { key: 'fracture', label: '骨折检测', children: <FractureCadPage /> },
             { key: 'cardiac', label: '心脏 AI', children: <CardiacAiPage /> },
             { key: 'accuracy', label: <Space><BarChart3 size={14} />准确率分析</Space>, children: <AccuracyPanel /> },
+            { key: 'cases', label: <Space><BookOpen size={14} />病例库</Space>, children: <AiCaseLibrarySection /> },
           ]}
         />
       </Card>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, Tabs, Table, Button, Space, Tag, Form, Input, Select, message, Alert, Row, Col, InputNumber } from 'antd'
 import { Archive, Send, RefreshCw, Play, Download, Activity, AlertTriangle, PieChart as PieIcon, TrendingUp } from 'lucide-react'
 import { hl7Api, type Hl7Report, type Hl7OrmOrder, type Hl7DftTransaction, type Hl7ArchiveRecord } from '../../services/api/integrationApi'
+import Hl7AnalyticsSection from './Hl7AnalyticsSection'
 import {
   PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -451,6 +452,11 @@ export const Hl7ManagerPage: React.FC = () => {
       key: 'monitor',
       label: <Space><Activity size={14} />监控面板</Space>,
       children: <MonitorPanel archive={archive} loading={archiveLoading} />,
+    },
+    {
+      key: 'analytics',
+      label: <Space><TrendingUp size={14} />接口分析</Space>,
+      children: <Hl7AnalyticsSection />,
     },
     {
       key: 'oru',

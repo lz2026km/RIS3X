@@ -1,14 +1,31 @@
 import { api, invalidateApiCacheByPrefix } from './client'
 
+// [v3.0.6.11-104 Wave 2A] query 拼接 (过滤空值)
+const withQuery = (path: string, params?: Record<string, string | number | undefined>): string => {
+  if (!params) return path
+  const qs = Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .join('&')
+  return qs ? `${path}?${qs}` : path
+}
+
 //  Equipment Lifecycle 
+// [v3.0.6.11-104 Wave 2A] 后端 equipment-lifecycle 返回 Prisma device 实体 (code/modality/state/...),
+// 兼容历史前端字段 (model/serialNumber/status) 均为可选。
 export interface EquipmentLifecycle {
   id: string
+  code?: string
   name: string
-  model: string
-  serialNumber: string
-  manufacturer: string
-  location: string
-  status: 'ACTIVE' | 'MAINTENANCE' | 'RETIRED'
+  modality?: string
+  model?: string
+  serialNumber?: string
+  manufacturer?: string
+  location?: string
+  status?: 'ACTIVE' | 'MAINTENANCE' | 'RETIRED'
+  state?: 'IDLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'OFFLINE'
+  todayExams?: number
+  todayUsageMin?: number
   purchaseDate?: string
   installationDate?: string
   warrantyExpiry?: string
@@ -16,6 +33,8 @@ export interface EquipmentLifecycle {
   nextMaintenanceDate?: string
   totalCost?: number
   maintenanceCost?: number
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface UpdateEquipmentLifecycleDto {
@@ -23,6 +42,57 @@ export interface UpdateEquipmentLifecycleDto {
   maintenanceDate?: string
   notes?: string
 }
+
+// [v3.0.6.11-104 Wave 2A] GET /device-mgmt/overview — 设备总览
+export interface DeviceMgmtOverview {
+  total: number
+  online: number
+  byState: Record<string, number>
+  todayExams: number
+  todayUsageMin: number
+  faultsToday: number
+  faultRate: number
+  maintenanceDue: number
+  byModality: { modality: string; total: number; online: number }[]
+}
+
+// [v3.0.6.11-104 Wave 2A] GET /device-mgmt/usage-trend — 近 N 日使用趋势
+export interface DeviceUsageTrendPoint { date: string; count: number }
+export interface DeviceUsageTrend {
+  items: DeviceUsageTrendPoint[]
+  byModality: { modality: string; counts: DeviceUsageTrendPoint[] }[]
+  total: number
+}
+
+// [v3.0.6.11-104 Wave 2A] GET /device-mgmt/by-room — 机房设备分布
+export interface DeviceRoomStat { room: string; devices: number; online: number; todayExams: number }
+export interface DeviceByRoom { items: DeviceRoomStat[]; total: number }
+
+// [v3.0.6.11-104 Wave 2A] GET /device-mgmt/maintenance-calendar — 维护计划日历 (按月分组)
+export interface MaintenanceCalendarItem {
+  id: string
+  deviceId?: string
+  deviceName: string
+  maintenanceDate: string
+  type: string
+  status: string
+  estimatedCost: number | null
+}
+export interface MaintenanceCalendarMonth {
+  month: string
+  items: MaintenanceCalendarItem[]
+  count: number
+}
+export interface MaintenanceCalendar {
+  months: MaintenanceCalendarMonth[]
+  pendingCount: number
+  overdueCount: number
+  totalCost: number
+  seeded?: boolean
+}
+
+// [v3.0.6.11-104 Wave 2A] GET /device-mgmt/equipment-lifecycle/:id — 单个设备生命周期详情
+export type DeviceLifecycleDetail = EquipmentLifecycle
 
 //  Device (CRUD) 
 export interface DeviceMgmtItem {
@@ -211,9 +281,25 @@ export interface UpdateMaintenancePlanDto extends Partial<CreateMaintenancePlanD
 
 //  API Client 
 export const deviceMgmtApi = {
+  //  [v3.0.6.11-104 Wave 2A] 设备管理看板 (设备总览/使用趋势/机房分布/维护日历)
+  getOverview: () =>
+    api.get<DeviceMgmtOverview>('/device-mgmt/overview'),
+
+  getUsageTrend: (days = 30) =>
+    api.get<DeviceUsageTrend>(withQuery('/device-mgmt/usage-trend', { days })),
+
+  getByRoom: () =>
+    api.get<DeviceByRoom>('/device-mgmt/by-room'),
+
+  getMaintenanceCalendar: (month?: string) =>
+    api.get<MaintenanceCalendar>(withQuery('/device-mgmt/maintenance-calendar', { month })),
+
   //  Equipment Lifecycle 
   listEquipmentLifecycle: () =>
-    api.get<EquipmentLifecycle[]>('/device-mgmt/equipment-lifecycle'),
+    api.get<{ items: EquipmentLifecycle[]; total: number }>('/device-mgmt/equipment-lifecycle'),
+
+  getEquipmentLifecycle: (id: string) =>
+    api.get<DeviceLifecycleDetail>(`/device-mgmt/equipment-lifecycle/${id}`),
 
   updateEquipmentLifecycle: async (id: string, dto: UpdateEquipmentLifecycleDto) => {
     const res = await api.put<EquipmentLifecycle>(`/device-mgmt/equipment-lifecycle/${id}`, dto)

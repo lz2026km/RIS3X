@@ -28,6 +28,12 @@ export interface ScoreRule {
   value: unknown;
 }
 
+// [v3.0.6.11-104 Wave 2D] 评分规则列表 (GET /report-quality-ext/score-rules)
+export interface ScoreRuleListDto {
+  items: ScoreRule[];
+  total: number;
+}
+
 export interface DefectEntry {
   id: string;
   action: string;
@@ -86,12 +92,26 @@ export const reportQualityApi = {
   evaluate: (data: EvaluateDto) =>
     api.post<QualityEvaluation>("/reports/quality/evaluate", data),
 
+  // [v3.0.6.11-104 Wave 2D] 报告质量复评 (POST /reports/quality/re-evaluate/:reportId)
+  reEvaluate: async (reportId: string, data: EvaluateDto) => {
+    const res = await api.post<QualityEvaluation>(
+      `/reports/quality/re-evaluate/${encodeURIComponent(reportId)}`,
+      data,
+    );
+    await invalidateApiCache(`/reports/quality/history/${reportId}`);
+    return res;
+  },
+
   getTrend: (reportId: string, days?: number) =>
     api.get<QualityEvaluation[]>(
       `/reports/quality/trend/${reportId}?days=${days ?? 30}`,
     ),
 
   // ── Score rules (report-quality-ext.controller) ──
+
+  // [v3.0.6.11-104 Wave 2D] 评分规则列表 (GET /report-quality-ext/score-rules)
+  getScoreRules: () =>
+    api.get<ScoreRuleListDto>("/report-quality-ext/score-rules"),
 
   createScoreRule: async (data: unknown) => {
     const res = await api.post<ScoreRule>(

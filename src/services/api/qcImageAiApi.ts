@@ -80,6 +80,25 @@ export interface QcImageAiScoreV2Result extends QcImageAiScoreV2Dto {
   createdAt: string;
 }
 
+// [v3.0.6.11-104 Wave 2C] V1 评分结果 (对齐 backend GET /qc/image-ai/result/:instanceId → AiScoreResult)
+export interface QcImageAiScoreV1Result {
+  id: string;
+  instanceId: string;
+  modality: string;
+  motionArtifact: number;
+  metalArtifact: number;
+  ringArtifact: number;
+  exposureLow: number;
+  exposureNormal: number;
+  exposureOver: number;
+  positioningCorrect: number;
+  positioningMildRotation: number;
+  positioningSevereOffset: number;
+  overall: number;
+  operatorId?: string;
+  createdAt: string;
+}
+
 export interface QcImageAiStatsV2 {
   totalScores: number;
   avgArtifactMotion: number;
@@ -256,10 +275,28 @@ export const qcImageAiApi = {
   getResultV2: (instanceId: string) =>
     api.get<QcImageAiScoreV2Result>(`/qc/image-ai/result-v2/${instanceId}`),
 
-  getStatsV2: (params?: QcImageAiStatsV2Query) =>
-    api.get<QcImageAiStatsV2>(
-      `/qc/image-ai/stats-v2?${new URLSearchParams(params ?? {}).toString()}`,
-    ),
+  // [v3.0.6.11-104 Wave 2C] V1 结果按实例查询: GET /qc/image-ai/result/:instanceId
+  getResultV1: (instanceId: string) =>
+    api.get<QcImageAiScoreV1Result>(`/qc/image-ai/result/${encodeURIComponent(instanceId)}`),
+
+  // [v3.0.6.11-104 Wave 2C] V2 结果列表 (原始 V2 形状): GET /qc/image-ai/result-v2
+  listV2Results: (params?: QcImageAiStatsV2Query) => {
+    const query = new URLSearchParams()
+    if (params?.modality) query.set("modality", params.modality)
+    if (params?.dateFrom) query.set("dateFrom", params.dateFrom)
+    if (params?.dateTo) query.set("dateTo", params.dateTo)
+    if (params?.operatorId) query.set("operatorId", params.operatorId)
+    return api.get<QcImageAiScoreV2Result[]>(`/qc/image-ai/result-v2?${query.toString()}`)
+  },
+
+  getStatsV2: (params?: QcImageAiStatsV2Query) => {
+    const query = new URLSearchParams()
+    if (params?.modality) query.set("modality", params.modality)
+    if (params?.dateFrom) query.set("dateFrom", params.dateFrom)
+    if (params?.dateTo) query.set("dateTo", params.dateTo)
+    if (params?.operatorId) query.set("operatorId", params.operatorId)
+    return api.get<QcImageAiStatsV2>(`/qc/image-ai/stats-v2?${query.toString()}`)
+  },
 
   // [G005 Wave4A] G-24 AI 自动质控三维度评估 (伪影/曝光/体位 + 总分)
   assess: (data: QcAiAssessDto) =>

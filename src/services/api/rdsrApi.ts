@@ -169,6 +169,10 @@ export const rdsrApi = {
   getDrls: (modality?: string, bodyPart?: string, ageGroup?: "adult" | "child") =>
     api.get<DrlEntry[]>(withQuery("/rdsr/drl", { modality, bodyPart, ageGroup })),
 
+  // [v3.0.6.11-104 Wave 2A] 兼容旧路径 GET /rdsr/drls (与 /rdsr/drl 同返回)
+  getDrlsLegacy: (modality?: string, bodyPart?: string, ageGroup?: "adult" | "child") =>
+    api.get<DrlEntry[]>(withQuery("/rdsr/drls", { modality, bodyPart, ageGroup })),
+
   updateDrl: (payload: DrlUpsertPayload) =>
     api.post<DrlEntry[]>("/rdsr/drl", payload),
 

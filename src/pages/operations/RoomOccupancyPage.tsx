@@ -2,6 +2,7 @@
 // [G005 W1-1] 接入后端 /occupancy/rooms|queue|trends|room/:id/status (30s 轮询)
 import { occupancyApi } from '../../services/api';
 import { OccupancyQueueEntry, OccupancyRoom, OccupancyTrendPoint, RoomStatusValue } from '../../services/api'
+import RoomOccupancyExtendedSection from './RoomOccupancyExtendedSection';
 import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Select, Alert, Spin } from 'antd';
 import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -100,6 +101,8 @@ export const RoomOccupancyPage: React.FC = () => {
         </Space>
         <Button size="small" icon={<RefreshCw size={14} />} loading={loading} onClick={() => void refresh()}>刷新</Button>
       </Space>
+
+      <RoomOccupancyExtendedSection />
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message="加载失败"

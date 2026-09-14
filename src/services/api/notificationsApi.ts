@@ -96,6 +96,33 @@ export const notificationsApi = {
 
   updateSubscriptions: (userId: string, types: NotificationSubscriptionType[]) =>
     api.put<{ userId: string; types: NotificationSubscriptionType[] }>(`/notifications/subscriptions/${userId}`, { types }),
+
+  // [v3.0.6.11-104 Wave 2D] 通知偏好 (类型开关 + 渠道 + 免打扰)
+  getPreferences: (userId: string) =>
+    api.get<NotificationPreferencesDto>(`/notifications/preferences/${userId}`),
+
+  updatePreferences: (userId: string, data: UpdateNotificationPreferencesData) =>
+    api.put<NotificationPreferencesDto>(`/notifications/preferences/${userId}`, data),
 }
 
 export type NotificationSubscriptionType = 'CRITICAL' | 'REPORT' | 'FOLLOWUP' | 'QUALITY' | 'SYSTEM'
+
+export interface NotificationQuietHours {
+  enabled: boolean
+  from: string
+  to: string
+}
+
+export interface NotificationPreferencesDto {
+  userId: string
+  types: NotificationSubscriptionType[]
+  channels: Record<string, boolean>
+  quietHours: NotificationQuietHours
+  defaulted: boolean
+}
+
+export interface UpdateNotificationPreferencesData {
+  types?: NotificationSubscriptionType[]
+  channels?: Record<string, boolean>
+  quietHours?: NotificationQuietHours
+}

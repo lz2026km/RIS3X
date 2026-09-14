@@ -2,6 +2,7 @@
 import { ChartContainer } from '../../components/charts'
 import { oeeApi } from '../../services/api';
 import { OeeDeviceDetail, OeeDeviceMetric, OeePoint, OeeStats } from '../../services/api'
+import OeeOverviewSection from './OeeOverviewSection';
 import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Spin, Empty, Alert, Select } from 'antd';
 import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -165,6 +166,8 @@ export const OEEDashboardPage: React.FC = () => {
       </Space>
 
       {error && <Alert type="warning" showIcon style={{ marginBottom: 16 }} message="部分数据加载失败" description={error} closable onClose={() => setError(null)} />}
+
+      <OeeOverviewSection />
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><KpiCard title="综合 OEE" value={avgOEE} icon={<Gauge size={16} />} color={oeeColor(avgOEE)} /></Col>

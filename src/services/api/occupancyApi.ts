@@ -35,6 +35,41 @@ export interface OccupancyTrendPoint {
   rate: number
 }
 
+// ===== [v3.0.6.11-104 Wave 2D] 占用扩展端点 (总览/每日趋势/班次对比) =====
+
+export interface OccupancyOverviewDto {
+  totalRooms: number
+  occupiedRooms: number
+  idleRooms: number
+  disinfectingRooms: number
+  faultRooms: number
+  occupancyRate: number
+  avgSessionMinutes: number
+  todayExams: number
+  overdueRooms: number
+  seeded: boolean
+}
+
+export interface OccupancyDailyPoint {
+  date: string
+  label: string
+  occupancyRate: number
+  occupiedAvg: number
+  totalRooms: number
+  exams: number
+  seeded: boolean
+}
+
+export interface ShiftStatDto {
+  shift: 'morning' | 'afternoon' | 'evening' | 'night'
+  shiftZh: string
+  timeRange: string
+  occupancyRate: number
+  exams: number
+  avgSessionMinutes: number
+  seeded: boolean
+}
+
 export const occupancyApi = {
   getRooms: () => api.get<OccupancyRoom[]>('/occupancy/rooms'),
 
@@ -44,4 +79,11 @@ export const occupancyApi = {
 
   updateRoomStatus: (roomId: string, status: RoomStatusValue) =>
     api.post<OccupancyRoom>(`/occupancy/room/${roomId}/status`, { status }),
+
+  // [v3.0.6.11-104 Wave 2D]
+  getOverview: () => api.get<OccupancyOverviewDto>('/occupancy/overview'),
+
+  getDailyTrend: (days = 7) => api.get<OccupancyDailyPoint[]>(`/occupancy/daily-trend?days=${days}`),
+
+  getByShift: () => api.get<ShiftStatDto[]>('/occupancy/by-shift'),
 }

@@ -800,6 +800,16 @@ export default function QueueCallPage() {
     ))
   }
 
+  // [v3.0.6.11-104 Wave 2D] 调整排队优先级 (POST /queue/:id/priority)
+  const handleSetPriority = async (item: QueueCallItem, priority: QueueCallItem['priority']) => {
+    const res = await queueApi.setPriority(item.id, priority)
+    if (res.success) {
+      setQueueCalls(prev => prev.map(q => (q.id === item.id ? { ...q, priority } : q)))
+    } else {
+      setLoadError(res.error?.message ?? '优先级调整失败')
+    }
+  }
+
   return (
     <div data-testid="queue-call-page" style={styles.root}>
       {loading && <LoadingBanner message="正在从 API 加载排队数据..." />}
@@ -923,6 +933,21 @@ export default function QueueCallPage() {
                       <span style={{ ...styles.priorityBadge, ...getPriorityStyle(item.priority) }}>
                         {item.priority}
                       </span>
+                      {/* [v3.0.6.11-104 Wave 2D] 优先级调整 (POST /queue/:id/priority) */}
+                      <select
+                        value={item.priority}
+                        onChange={(e) => void handleSetPriority(item, e.target.value as QueueCallItem['priority'])}
+                        title="调整优先级"
+                        style={{
+                          fontSize: 12, borderRadius: 4, padding: '1px 4px',
+                          border: '1px solid var(--border-color)',
+                          background: 'var(--bg-card)', color: 'var(--text-primary)', cursor: 'pointer',
+                        }}
+                      >
+                        <option value="普通">普通</option>
+                        <option value="紧急">紧急</option>
+                        <option value="危重">危重</option>
+                      </select>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' as const, minWidth: 80 }}>

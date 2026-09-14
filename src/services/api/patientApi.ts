@@ -31,6 +31,67 @@ export interface ExportCsvDto {
   count: number
 }
 
+// [v3.0.6.11-104 Wave 2B] 患者总览 / 年龄分布 / 综合摘要 / 就诊历史
+export interface PatientOverviewDto {
+  total: number
+  todayNew: number
+  monthlyNew: number
+  active: number
+  activeRate: number
+  typeDistribution: Record<string, number>
+  genderDistribution: Record<string, number>
+}
+
+export interface PatientAgeBucket {
+  bucket: string
+  count: number
+  male: number
+  female: number
+}
+
+export interface PatientAgeDistributionDto {
+  total: number
+  items: PatientAgeBucket[]
+}
+
+export interface PatientSummaryDto {
+  patient: {
+    id: string
+    name: string
+    gender: string
+    birthDate: string | null
+    phone: string | null
+    type: string
+    createdAt: string
+  }
+  counts: {
+    exams: number
+    reports: number
+    followUps: number
+    criticalValues: number
+    invoices: number
+  }
+  totalCharges: number
+  recentExams: { id: string; modality: string; bodyPart: string; state: string; createdAt: string }[]
+  recentReports: { id: string; state: string; conclusion: string | null; createdAt: string }[]
+  followUps: { id: string; nextDate: string; status: string; note?: string }[]
+  criticals: { id: string; description: string; severity: string; state: string; createdAt: string }[]
+}
+
+export interface PatientVisitEvent {
+  type: string
+  label: string
+  date: string
+  detail: string
+  status: string
+}
+
+export interface PatientVisitHistoryDto {
+  patientId: string
+  total: number
+  events: PatientVisitEvent[]
+}
+
 export const patientApi = {
   list: (params?: PatientQueryParams) =>
     api.get<ListPayload<PatientDto>>(`/patients?${new URLSearchParams(params as Record<string, string>).toString()}`),
@@ -96,4 +157,20 @@ export const patientApi = {
       : ''
     return api.get<ExportCsvDto>(`/patients/export${q}`)
   },
+
+  // [v3.0.6.11-104 Wave 2B] 患者总览: 总数/今日新增/月新增/活跃 + 类型与性别分布
+  overview: () =>
+    api.get<PatientOverviewDto>('/patients/overview'),
+
+  // [v3.0.6.11-104 Wave 2B] 年龄分布: 分段 + 性别拆分
+  ageDistribution: () =>
+    api.get<PatientAgeDistributionDto>('/patients/age-distribution'),
+
+  // [v3.0.6.11-104 Wave 2B] 患者综合摘要: 检查/报告/随访/费用/危急值
+  getSummary: (id: string) =>
+    api.get<PatientSummaryDto>(`/patients/${encodeURIComponent(id)}/summary`),
+
+  // [v3.0.6.11-104 Wave 2B] 就诊历史时间线
+  getVisitHistory: (id: string) =>
+    api.get<PatientVisitHistoryDto>(`/patients/${encodeURIComponent(id)}/visit-history`),
 }

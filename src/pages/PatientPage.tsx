@@ -7,13 +7,15 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { PageContainer } from "../components/common/PageContainer";
 import { StatCard as CommonStatCard } from "../components/common/StatCard";
+import { DashboardCard } from "../components/dashboard/DashboardCard";
+import { TrendChart } from "../components/dashboard/TrendChart";
 import { AppText } from "../components/common/AppText";
 import { ErrorBanner } from "../components/feedback";
 import { t } from '../i18n/appI18n';
-import { Search, User, Phone, AlertCircle, X, Eye, Download, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
+import { Search, User, Phone, AlertCircle, X, Eye, Download, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3, RefreshCw } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
 import { patientApi } from "../services/api";
-import type { PatientImportRow } from "../services/api";
+import type { PatientImportRow, PatientOverviewDto, PatientAgeBucket } from "../services/api";
 import type { Patient } from "../types";
 import { useRBAC } from "../hooks/useRBAC";
 import { useAuth } from "../hooks/useAuth";
@@ -486,6 +488,61 @@ export default function PatientPage() {
       cancelled = true;
     };
   }, [checkAccess, user?.department]);
+
+  // ============================================================
+  // [v3.0.6.11-104 Wave 2B] 患者统计: overview + age-distribution (真实 API, 失败回退演示)
+  // ============================================================
+  const DEMO_PATIENT_OVERVIEW: PatientOverviewDto = {
+    total: 326,
+    todayNew: 7,
+    monthlyNew: 58,
+    active: 42,
+    activeRate: 12.9,
+    typeDistribution: { OUTPATIENT: 262, INPATIENT: 38, EMERGENCY: 14, PHYSICAL: 12 },
+    genderDistribution: { MALE: 168, FEMALE: 158 },
+  }
+  const DEMO_AGE_DIST: PatientAgeBucket[] = [
+    { bucket: '0-17', count: 14, male: 8, female: 6 },
+    { bucket: '18-30', count: 42, male: 20, female: 22 },
+    { bucket: '31-45', count: 78, male: 41, female: 37 },
+    { bucket: '46-60', count: 95, male: 50, female: 45 },
+    { bucket: '61-75', count: 72, male: 38, female: 34 },
+    { bucket: '76+', count: 25, male: 11, female: 14 },
+  ]
+  const [patientOverview, setPatientOverview] = useState<PatientOverviewDto>(DEMO_PATIENT_OVERVIEW)
+  const [ageDistribution, setAgeDistribution] = useState<PatientAgeBucket[]>(DEMO_AGE_DIST)
+  const [statsSource, setStatsSource] = useState<'real' | 'demo'>('demo')
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [statsError, setStatsError] = useState<string | null>(null)
+
+  const loadPatientStats = useCallback(async () => {
+    setStatsLoading(true)
+    setStatsError(null)
+    try {
+      const [ovRes, ageRes] = await Promise.allSettled([
+        patientApi.overview(),
+        patientApi.ageDistribution(),
+      ])
+      let anyReal = false
+      if (ovRes.status === 'fulfilled' && ovRes.value.success && ovRes.value.data) {
+        setPatientOverview(ovRes.value.data)
+        anyReal = true
+      }
+      if (ageRes.status === 'fulfilled' && ageRes.value.success && Array.isArray(ageRes.value.data?.items)) {
+        setAgeDistribution(ageRes.value.data.items)
+        anyReal = true
+      }
+      setStatsSource(anyReal ? 'real' : 'demo')
+    } catch (e) {
+      setStatsSource('demo')
+      setStatsError((e as Error)?.message ?? t('patientPage.apiUnavailable'))
+    } finally {
+      setStatsLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => { void loadPatientStats() }, [loadPatientStats]);
 
   // [W2-4] 深链: /patients/:id → 自动选中并打开详情
   useEffect(() => {
@@ -1719,6 +1776,55 @@ export default function PatientPage() {
   // ==================== 渲染：标签页4 - 患者分析 ====================
   const renderPatientAnalytics = () => (
     <>
+      {/* [v3.0.6.11-104 Wave 2B] 患者总览 (GET /patients/overview) */}
+      <div style={{ marginBottom: 16 }}>
+        <DashboardCard
+          title={`${t("patientPage.overviewCard")} · ${statsSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}`}
+          icon={<Users size={14} />}
+          extra={
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {statsLoading && <span style={{ fontSize: 12, color: '#d97706' }}>{t("examPage.syncing")}</span>}
+              <button
+                onClick={() => void loadPatientStats()}
+                style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', padding: '3px 10px', borderRadius: 6, fontSize: 12, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af' }}
+              >
+                <RefreshCw size={12} /> {t("examPage.refresh")}
+              </button>
+            </div>
+          }
+          loading={statsLoading}
+          error={statsError}
+          skeletonRows={2}
+          testId="patient-overview-card"
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+            <StatCard label={t("patientPage.overviewTotal")} value={patientOverview.total} icon={<Users size={22} />} color="#1e40af" bgColor="#eff6ff" />
+            <StatCard label={t("patientPage.overviewTodayNew")} value={patientOverview.todayNew} icon={<PlusCircle size={22} />} color="#16a34a" bgColor="#f0fdf4" />
+            <StatCard label={t("patientPage.overviewMonthlyNew")} value={patientOverview.monthlyNew} icon={<TrendingUp size={22} />} color="#0ea5e9" bgColor="#f0f9ff" />
+            <StatCard label={t("patientPage.overviewActive")} value={patientOverview.active} icon={<Activity size={22} />} color="#8b5cf6" bgColor="#f5f3ff" />
+            <StatCard label={t("patientPage.overviewActiveRate")} value={`${patientOverview.activeRate}%`} icon={<Percent size={22} />} color="#f59e0b" bgColor="#fffbeb" />
+          </div>
+        </DashboardCard>
+      </div>
+
+      {/* [v3.0.6.11-104 Wave 2B] 年龄分布 (GET /patients/age-distribution) */}
+      <div style={{ marginBottom: 16 }}>
+        <DashboardCard title={t("patientPage.ageDistributionStat")} icon={<PieChart size={14} />} testId="patient-age-distribution-card">
+          <TrendChart
+            type="bar"
+            data={ageDistribution.map((b) => ({ bucket: b.bucket, total: b.count, male: b.male, female: b.female }))}
+            xKey="bucket"
+            series={[
+              { key: 'total', name: t("patientPage.overviewTotal"), color: '#2563eb' },
+              { key: 'male', name: t("patientPage.ageMale"), color: '#0891b2' },
+              { key: 'female', name: t("patientPage.ageFemale"), color: '#db2777' },
+            ]}
+            height={220}
+            testId="patient-age-distribution-chart"
+          />
+        </DashboardCard>
+      </div>
+
       <div
         style={{
           display: "grid",

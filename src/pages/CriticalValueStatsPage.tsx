@@ -19,6 +19,7 @@ import {
 } from '../data/criticalValueAssessmentMock';
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi';
 import { criticalStatsApi, type NotificationCompletionStats } from '../services/api/criticalStatsApi';
+import CriticalValueStatsExtended from './critical/CriticalValueStatsExtended';
 
 // ============================================================
 // 状态配置
@@ -128,6 +129,8 @@ export default function CriticalValueStatsPage() {
           </button>
         </div>
       </div>
+
+      <CriticalValueStatsExtended />
 
       {/* 大字 KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>

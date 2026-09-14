@@ -54,6 +54,70 @@ export interface FinancialReportDto {
   url?: string
 }
 
+// ===== [v3.0.6.11-104 Wave 2D] 财务看板扩展端点 (总览/趋势/模态构成/应收) =====
+
+export interface FinanceOverviewDto {
+  period: string
+  income: number
+  receivable: number
+  cost: number
+  profit: number
+  invoiceCount: number
+  paidCount: number
+  unpaidCount: number
+  lastMonthIncome: number
+  incomeChangePercent: number
+  byStatus: Record<string, number>
+  categoryBreakdown: Array<{ category: string; amount: number; count: number }>
+}
+
+export interface FinanceDailyTrendItem {
+  date: string
+  income: number
+  receivable: number
+  count: number
+  cumulativeIncome: number
+}
+
+export interface FinanceDailyTrendDto {
+  items: FinanceDailyTrendItem[]
+  total: number
+}
+
+export interface FinanceModalityItem {
+  modality: string
+  amount: number
+  count: number
+  percent: number
+}
+
+export interface FinanceModalityDto {
+  items: FinanceModalityItem[]
+  totalAmount: number
+}
+
+export interface ArAgingBucket {
+  label: string
+  amount: number
+  count: number
+}
+
+export interface ArTopReceivable {
+  id: string
+  invoiceNumber: string
+  patientId: string
+  amount: number
+  status: string
+  issuedAt: string
+}
+
+export interface AccountsReceivableDto {
+  totalReceivable: number
+  totalCount: number
+  aging: ArAgingBucket[]
+  topReceivables: ArTopReceivable[]
+}
+
 export const financeApi = {
   // Charge items
   listChargeItems: () =>
@@ -109,4 +173,17 @@ export const financeApi = {
   // Financial reports
   getFinancialReports: () =>
     api.get<FinancialReportDto[]>('/finance/financial-reports'),
+
+  // [v3.0.6.11-104 Wave 2D]
+  getOverview: () =>
+    api.get<FinanceOverviewDto>('/finance/overview'),
+
+  getDailyTrend: (days = 30) =>
+    api.get<FinanceDailyTrendDto>(`/finance/daily-trend?days=${days}`),
+
+  getByModality: () =>
+    api.get<FinanceModalityDto>('/finance/by-modality'),
+
+  getAccountsReceivable: () =>
+    api.get<AccountsReceivableDto>('/finance/accounts-receivable'),
 }

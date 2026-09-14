@@ -1,6 +1,7 @@
 
 import { patientApi } from '../../services/api/patientApi'
 import type { PatientDto } from '../../types/dto'
+import type { PatientSummaryDto, PatientVisitHistoryDto } from '../../services/api/patientApi'
 import { ExamDto } from '../../types/dto'
 import { Card, Descriptions, Tag, Timeline, Table, Collapse, Button, Badge, Spin, Alert, Empty, Divider, Statistic, Row, Col } from 'antd'
 import {
@@ -21,6 +22,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
 import { lesionTrackingApi, type TrackedLesion, type LesionStats } from '../../services/api/lesionTrackingApi'
 import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
+import { t } from '../../i18n/appI18n'
 
 interface ExamView {
   id: string
@@ -236,6 +238,48 @@ export default function Patient360Page() {
     return () => { cancelled = true }
   }, [id])
 
+  // ============================================================
+  // [v3.0.6.11-104 Wave 2B] 患者档案: 综合摘要 (summary) + 就诊历史 (visit-history)
+  // ============================================================
+  const [summary, setSummary] = useState<PatientSummaryDto | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+  const [summaryError, setSummaryError] = useState<string | null>(null)
+  const [visitHistory, setVisitHistory] = useState<PatientVisitHistoryDto | null>(null)
+  const [visitLoading, setVisitLoading] = useState(false)
+  const [visitError, setVisitError] = useState<string | null>(null)
+  const [profileReloadKey, setProfileReloadKey] = useState(0)
+
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    void (async () => {
+      setSummaryLoading(true)
+      setVisitLoading(true)
+      setSummaryError(null)
+      setVisitError(null)
+      const [summaryRes, visitRes] = await Promise.allSettled([
+        patientApi.getSummary(id),
+        patientApi.getVisitHistory(id),
+      ])
+      if (cancelled) return
+      if (summaryRes.status === 'fulfilled' && summaryRes.value.success && summaryRes.value.data) {
+        setSummary(summaryRes.value.data)
+      } else {
+        setSummary(null)
+        setSummaryError(t('patientPage.summaryLoadFailed'))
+      }
+      if (visitRes.status === 'fulfilled' && visitRes.value.success && visitRes.value.data) {
+        setVisitHistory(visitRes.value.data)
+      } else {
+        setVisitHistory(null)
+        setVisitError(t('patientPage.visitHistoryLoadFailed'))
+      }
+      setSummaryLoading(false)
+      setVisitLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [id, profileReloadKey])
+
   // 时间轴事件流: 检查/报告/随访/危急值 合并为统一事件流
   const eventStream = useMemo(() => {
     const events: Array<{
@@ -395,6 +439,108 @@ export default function Patient360Page() {
           ))}
         </div>
       )}
+
+      {/* [v3.0.6.11-104 Wave 2B] 患者综合摘要 (GET /patients/:id/summary) */}
+      <Card
+        title={<span><Database size={14} /> {t('patientPage.summaryCard')}</span>}
+        style={{ marginBottom: 16, borderRadius: 12 }}
+        extra={
+          <Button size="small" onClick={() => setProfileReloadKey((k) => k + 1)} loading={summaryLoading}>
+            {t('examPage.refresh')}
+          </Button>
+        }
+      >
+        {summaryError && !summaryLoading ? (
+          <Alert type="warning" showIcon message={summaryError} />
+        ) : !summary ? (
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description={t('patientPage.summaryEmpty')} style={{ padding: 16 }} />
+        ) : (
+          <>
+            <Row gutter={[12, 12]}>
+              {[
+                { label: t('patientPage.summaryExams'), value: summary.counts.exams, color: '#1e40af', bg: 'var(--color-info-bg)' },
+                { label: t('patientPage.summaryReports'), value: summary.counts.reports, color: '#16a34a', bg: 'var(--color-success-bg)' },
+                { label: t('patientPage.summaryFollowUps'), value: summary.counts.followUps, color: '#d97706', bg: 'var(--color-warning-bg)' },
+                { label: t('patientPage.summaryCriticals'), value: summary.counts.criticalValues, color: '#dc2626', bg: 'var(--color-error-bg)' },
+                { label: t('patientPage.summaryInvoices'), value: summary.counts.invoices, color: '#7c3aed', bg: 'var(--bg-card)' },
+              ].map((item) => (
+                <Col xs={12} sm={8} md={4} key={item.label}>
+                  <div style={{ textAlign: 'center', padding: 12, borderRadius: 10, background: item.bg }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.value}</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>{item.label}</div>
+                  </div>
+                </Col>
+              ))}
+              <Col xs={12} sm={8} md={4}>
+                <div style={{ textAlign: 'center', padding: 12, borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: '#d97706' }}>¥{summary.totalCharges}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientPage.summaryCharges')}</div>
+                </div>
+              </Col>
+            </Row>
+            <Divider style={{ margin: '12px 0' }} />
+            <Row gutter={[12, 12]}>
+              <Col xs={24} md={12}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('patientPage.recentExams')}</div>
+                {summary.recentExams.length === 0 ? (
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientPage.noRecord')}</div>
+                ) : summary.recentExams.map((ex) => (
+                  <div key={ex.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '4px 0' }}>
+                    <Tag color="blue">{ex.modality}</Tag>
+                    <span style={{ color: '#334155' }}>{ex.bodyPart}</span>
+                    <span style={{ color: '#94a3b8', marginLeft: 'auto' }}>{String(ex.createdAt).slice(0, 10)}</span>
+                  </div>
+                ))}
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('patientPage.recentReports')}</div>
+                {summary.recentReports.length === 0 ? (
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientPage.noRecord')}</div>
+                ) : summary.recentReports.map((r) => (
+                  <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '4px 0' }}>
+                    <Tag color="green">{r.state}</Tag>
+                    <span style={{ color: '#334155', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.conclusion || '—'}</span>
+                    <span style={{ color: '#94a3b8' }}>{String(r.createdAt).slice(0, 10)}</span>
+                  </div>
+                ))}
+              </Col>
+            </Row>
+          </>
+        )}
+      </Card>
+
+      {/* [v3.0.6.11-104 Wave 2B] 就诊历史 (GET /patients/:id/visit-history) */}
+      <Card
+        title={<span><Calendar size={14} /> {t('patientPage.visitHistoryCard')}</span>}
+        style={{ marginBottom: 16, borderRadius: 12 }}
+        extra={<Tag color={visitError ? 'orange' : 'blue'}>{visitHistory?.total ?? 0}</Tag>}
+      >
+        {visitError && !visitLoading ? (
+          <Alert type="warning" showIcon message={visitError} />
+        ) : !visitHistory || visitHistory.events.length === 0 ? (
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description={t('patientPage.visitHistoryEmpty')} style={{ padding: 16 }} />
+        ) : (
+          <Timeline
+            style={{ maxHeight: 360, overflowY: 'auto', paddingRight: 8 }}
+            items={visitHistory.events.map((ev, idx) => ({
+              color: ev.type === 'exam' ? '#16a34a' : ev.type === 'appointment' ? '#d97706' : '#2563eb',
+              children: (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 13 }}>{ev.label}</span>
+                    <Tag style={{ fontSize: 11, margin: 0 }}>{ev.status || ev.type}</Tag>
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>
+                      {String(ev.date || '').slice(0, 10)}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{ev.detail}</div>
+                </div>
+              ),
+              key: `vh-${idx}`,
+            }))}
+          />
+        )}
+      </Card>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <Card title="历次检查时间线" style={{ borderRadius: 12 }}>
