@@ -117,10 +117,10 @@ export default function Patient360Page() {
         const views = rawExams.map(e => toExamView(e, reportByExam.get(e.id) || reportByExam.get(e.examId)))
         setExams(views)
         if (!patientRes.success && !examRes.success && !reportRes.success) {
-          setError('患者数据加载失败，请稍后重试')
+          setError(t('patient360.loadFailed'))
         }
       } catch {
-        if (!cancelled) setError('患者数据加载失败，请稍后重试')
+        if (!cancelled) setError(t('patient360.loadFailed'))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -225,11 +225,11 @@ export default function Patient360Page() {
         }
 
         setDeepSource(anyReal ? 'real' : 'demo')
-        if (!anyReal) setDeepError('深化接口 (随访/病灶/费用/时间轴) 暂不可用，展示派生演示数据')
+        if (!anyReal) setDeepError(t('patient360.deepUnavailable'))
       } catch {
         if (!cancelled) {
           setDeepSource('demo')
-          setDeepError('深化数据加载失败，展示派生演示数据')
+          setDeepError(t('patient360.deepLoadFailed'))
         }
       } finally {
         if (!cancelled) setDeepLoading(false)
@@ -358,7 +358,7 @@ export default function Patient360Page() {
   if (loading) {
     return (
       <div style={{ padding: 80, textAlign: 'center' }}>
-        <Spin size="large" tip="正在加载患者全景数据...">
+        <Spin size="large" tip={t('patient360.loadingTip')}>
           <div style={{ height: 60 }} />
         </Spin>
       </div>
@@ -368,7 +368,7 @@ export default function Patient360Page() {
   if (error) {
     return (
       <div style={{ padding: 24 }}>
-        <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => navigate('/patients')}>返回患者列表</Button>} />
+        <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => navigate('/patients')}>{t('patient360.backToList')}</Button>} />
       </div>
     )
   }
@@ -377,9 +377,9 @@ export default function Patient360Page() {
     return (
       <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8' }}>
         <User size={48} style={{ marginBottom: 16, color: '#cbd5e1' }} />
-        <div style={{ fontSize: 16, fontWeight: 600 }}>患者不存在或暂无数据</div>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>{t('patient360.notFound')}</div>
         <Button type="primary" style={{ marginTop: 16 }} onClick={() => navigate('/patients')}>
-          返回患者列表
+          {t('patient360.backToList')}
         </Button>
       </div>
     )
@@ -405,10 +405,10 @@ export default function Patient360Page() {
               {patient.patientType && <Tag color="blue" style={{ marginLeft: 12, fontSize: 12 }}>{patient.patientType}</Tag>}
             </div>
             <div style={{ display: 'flex', gap: 24, marginTop: 8, fontSize: 13, color: '#64748b', flexWrap: 'wrap' }}>
-              <span><User size={13} style={{ marginRight: 4 }} />{patient.gender} · {patient.age}岁</span>
+              <span><User size={13} style={{ marginRight: 4 }} />{patient.gender} · {patient.age}{t('patient360.ageUnit')}</span>
               {patient.phone && <span><Phone size={13} style={{ marginRight: 4 }} />{patient.phone}</span>}
               <span><Calendar size={13} style={{ marginRight: 4 }} />ID: {patient.id}</span>
-              {patient.birthDate && <span>出生：{patient.birthDate.slice(0, 10)}</span>}
+              {patient.birthDate && <span>{t('patient360.birth')}{patient.birthDate.slice(0, 10)}</span>}
             </div>
           </div>
           <Button
@@ -416,7 +416,7 @@ export default function Patient360Page() {
             icon={<Image size={14} />}
             onClick={() => navigate(`/dicom/fusion-v2?patientId=${patient.id}`)}
           >
-            影像对比
+            {t('patient360.imageCompare')}
           </Button>
         </div>
       </Card>
@@ -424,10 +424,10 @@ export default function Patient360Page() {
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
           {[
-            { label: '总检查次数', value: stats.totalExams, color: '#1e40af', bg: 'var(--color-info-bg)', icon: Activity },
-            { label: '阳性/危急', value: stats.positiveCount, color: 'var(--color-error)', bg: 'var(--color-error-bg)', icon: AlertTriangle },
-            { label: '阴性/正常', value: stats.negativeCount, color: 'var(--color-success)', bg: 'var(--color-success-bg)', icon: Clock },
-            { label: '首次检查', value: stats.firstExamDate, color: 'var(--text-secondary)', bg: 'var(--bg-card)', icon: Calendar },
+            { label: t('patient360.statTotalExams'), value: stats.totalExams, color: '#1e40af', bg: 'var(--color-info-bg)', icon: Activity },
+            { label: t('patient360.statPositive'), value: stats.positiveCount, color: 'var(--color-error)', bg: 'var(--color-error-bg)', icon: AlertTriangle },
+            { label: t('patient360.statNegative'), value: stats.negativeCount, color: 'var(--color-success)', bg: 'var(--color-success-bg)', icon: Clock },
+            { label: t('patient360.statFirstExam'), value: stats.firstExamDate, color: 'var(--text-secondary)', bg: 'var(--bg-card)', icon: Calendar },
           ].map((item) => (
             <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
               <item.icon size={22} style={{ color: item.color }} />
@@ -543,9 +543,9 @@ export default function Patient360Page() {
       </Card>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <Card title="历次检查时间线" style={{ borderRadius: 12 }}>
+        <Card title={t('patient360.examTimeline')} style={{ borderRadius: 12 }}>
           {timelineEvents.length === 0 ? (
-            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无检查记录" style={{ padding: 24 }} />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('patient360.noExamRecord')} style={{ padding: 24 }} />
           ) : (
             <Timeline
               items={timelineEvents.map((evt) => ({
@@ -555,7 +555,7 @@ export default function Patient360Page() {
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontWeight: 600, color: '#1e40af' }}>{evt.title}</span>
-                      {evt.isCritical && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px' }}>危急值</Tag>}
+                      {evt.isCritical && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px' }}>{t('patient360.criticalValue')}</Tag>}
                     </div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{evt.description}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
@@ -572,9 +572,9 @@ export default function Patient360Page() {
           )}
         </Card>
 
-        <Card title="历次报告摘要" style={{ borderRadius: 12 }}>
+        <Card title={t('patient360.reportSummary')} style={{ borderRadius: 12 }}>
           {exams.length === 0 ? (
-            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无报告记录" style={{ padding: 24 }} />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('patient360.noReportRecord')} style={{ padding: 24 }} />
           ) : (
             <Collapse
               ghost
@@ -589,25 +589,25 @@ export default function Patient360Page() {
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>{ex.examDate}</span>
                   </div>
                 ),
-                extra: ex.criticalFinding ? <Tag color="red">危急</Tag> : null,
+                extra: ex.criticalFinding ? <Tag color="red">{t('patient360.critical')}</Tag> : null,
                 children: (
                   <div>
                     <Descriptions size="small" column={1} style={{ fontSize: 13 }}>
-                      <Descriptions.Item label="检查日期">{ex.examDate || '-'}</Descriptions.Item>
-                      <Descriptions.Item label="检查类型">{ex.modality || '-'}</Descriptions.Item>
-                      <Descriptions.Item label="检查部位">{ex.bodyPart || '-'}</Descriptions.Item>
-                      <Descriptions.Item label="设备">{ex.deviceName || '-'}</Descriptions.Item>
-                      <Descriptions.Item label="状态">{ex.status}</Descriptions.Item>
-                      <Descriptions.Item label="影像所见">{ex.findings || '未见明显异常'}</Descriptions.Item>
-                      <Descriptions.Item label="诊断意见">{ex.diagnosis || '-'}</Descriptions.Item>
+                      <Descriptions.Item label={t('patient360.examDate')}>{ex.examDate || '-'}</Descriptions.Item>
+                      <Descriptions.Item label={t('patient360.examType')}>{ex.modality || '-'}</Descriptions.Item>
+                      <Descriptions.Item label={t('patient360.examBodyPart')}>{ex.bodyPart || '-'}</Descriptions.Item>
+                      <Descriptions.Item label={t('patient360.device')}>{ex.deviceName || '-'}</Descriptions.Item>
+                      <Descriptions.Item label={t('patient360.status')}>{ex.status}</Descriptions.Item>
+                      <Descriptions.Item label={t('patient360.findings')}>{ex.findings || t('patient360.noAbnormal')}</Descriptions.Item>
+                      <Descriptions.Item label={t('patient360.diagnosis')}>{ex.diagnosis || '-'}</Descriptions.Item>
                     </Descriptions>
                     <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
                       <Button size="small" icon={<Eye size={12} />} onClick={() => navigate(`/dicom-viewer?examId=${ex.id}`)}>
-                        查看影像
+                        {t('patient360.viewImage')}
                       </Button>
                       {ex.reportId && (
                         <Button size="small" icon={<FileText size={12} />} onClick={() => navigate(`/reports?reportId=${ex.reportId}`)}>
-                          查看报告
+                          {t('patient360.viewReport')}
                         </Button>
                       )}
                     </div>
@@ -619,29 +619,29 @@ export default function Patient360Page() {
         </Card>
       </div>
 
-      <Card title="危急值标记" style={{ marginTop: 16, borderRadius: 12 }}>
+      <Card title={t('patient360.criticalMark')} style={{ marginTop: 16, borderRadius: 12 }}>
         {criticalExams.length === 0 ? (
-          <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="该患者暂无危急值记录" style={{ padding: 16 }} />
+          <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description={t('patient360.noCriticalRecord')} style={{ padding: 16 }} />
         ) : (
           <Table
             dataSource={criticalExams}
             columns={[
-              { title: '检查日期', dataIndex: 'examDate', key: 'examDate', width: 120 },
+              { title: t('patient360.examDate'), dataIndex: 'examDate', key: 'examDate', width: 120 },
               {
-                title: '检查项目', dataIndex: 'examItemName', key: 'examItemName',
+                title: t('patient360.examItem'), dataIndex: 'examItemName', key: 'examItemName',
                 render: (_, r) => <span style={{ color: '#dc2626', fontWeight: 600 }}>{r.examItemName}</span>,
               },
-              { title: '设备', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
-              { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', width: 100 },
+              { title: t('patient360.device'), dataIndex: 'deviceName', key: 'deviceName', width: 120 },
+              { title: t('patient360.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', width: 100 },
               {
-                title: '危急值详情', key: 'criticalFindingDetails',
-                render: (_, r) => r.findings || '有危急发现',
+                title: t('patient360.criticalDetails'), key: 'criticalFindingDetails',
+                render: (_, r) => r.findings || t('patient360.hasCriticalFinding'),
               },
               {
-                title: '操作', key: 'action', width: 120,
+                title: t('patient360.action'), key: 'action', width: 120,
                 render: (_, r) => (
                   <Button type="link" danger size="small" onClick={() => navigate(`/critical-value?examId=${r.id}`)}>
-                    查看处理
+                    {t('patient360.viewHandle')}
                   </Button>
                 ),
               },
@@ -667,20 +667,20 @@ export default function Patient360Page() {
           border: `1px solid ${deepSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
         }}>
           <Database size={12} />
-          深化数据源: {deepSource === 'real' ? '真实 (followupApi / lesionTrackingApi / financeApi / timeline)' : '派生演示'}
+          {t('patient360.deepSource')}{deepSource === 'real' ? t('patient360.deepReal') : t('patient360.deepDemo')}
         </span>
-        {deepLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>加载中…</span>}
+        {deepLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('patient360.loading')}</span>}
         {deepError && <span style={{ fontSize: 11, color: '#d97706' }}>{deepError}</span>}
       </div>
 
       {/* 1. 时间轴视图 (事件流: 检查/报告/随访/危急值) */}
       <Card
-        title={<span><Calendar size={14} /> 患者事件时间轴</span>}
+        title={<span><Calendar size={14} /> {t('patient360.eventTimeline')}</span>}
         style={{ marginTop: 16, borderRadius: 12 }}
-        extra={<Tag color={deepSource === 'real' ? 'green' : 'orange'}>{deepSource === 'real' ? 'API 实时' : '派生'}</Tag>}
+        extra={<Tag color={deepSource === 'real' ? 'green' : 'orange'}>{deepSource === 'real' ? t('patient360.apiRealtime') : t('patient360.derived')}</Tag>}
       >
         {eventStream.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无事件记录" style={{ padding: 16 }} />
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description={t('patient360.noEventRecord')} style={{ padding: 16 }} />
         ) : (
           <Timeline
             style={{ maxHeight: 420, overflowY: 'auto', paddingRight: 8 }}
@@ -694,8 +694,8 @@ export default function Patient360Page() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontWeight: 600, color: ev.color, fontSize: 13 }}>{ev.title}</span>
-                    {ev.kind === 'critical' && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>危急</Tag>}
-                    {ev.kind === 'followup' && <Tag color="orange" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>随访</Tag>}
+                    {ev.kind === 'critical' && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>{t('patient360.critical')}</Tag>}
+                    {ev.kind === 'followup' && <Tag color="orange" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>{t('patient360.followup')}</Tag>}
                     <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>
                       {String(ev.date || '').slice(0, 16).replace('T', ' ')}
                     </span>
@@ -710,12 +710,12 @@ export default function Patient360Page() {
 
       {/* 2. 随访计划卡 */}
       <Card
-        title={<span><PhoneCall size={14} /> 随访计划</span>}
+        title={<span><PhoneCall size={14} /> {t('patient360.followupPlan')}</span>}
         style={{ marginTop: 16, borderRadius: 12 }}
-        extra={<Button size="small" type="primary" ghost onClick={() => navigate(`/follow-up?patientId=${patient.id}`)}>前往随访管理</Button>}
+        extra={<Button size="small" type="primary" ghost onClick={() => navigate(`/follow-up?patientId=${patient.id}`)}>{t('patient360.goFollowupMgmt')}</Button>}
       >
         {followUps.length === 0 ? (
-          <Empty image={<BellOff size={48} style={{ opacity: 0.4 }} />} description="该患者暂无随访计划" style={{ padding: 16 }} />
+          <Empty image={<BellOff size={48} style={{ opacity: 0.4 }} />} description={t('patient360.noFollowupPlan')} style={{ padding: 16 }} />
         ) : (
           <Table
             dataSource={followUps}
@@ -725,27 +725,27 @@ export default function Patient360Page() {
             scroll={{ x: 'max-content' }}
             columns={[
               {
-                title: '状态', dataIndex: 'status', key: 'status', width: 100,
+                title: t('patient360.status'), dataIndex: 'status', key: 'status', width: 100,
                 render: (s: string) => {
                   const map: Record<string, { label: string; color: string }> = {
-                    PENDING: { label: '待随访', color: '#d97706' },
-                    REMINDED: { label: '已提醒', color: '#2563eb' },
-                    IN_PROGRESS: { label: '进行中', color: '#7c3aed' },
-                    COMPLETED: { label: '已完成', color: '#16a34a' },
-                    MISSED: { label: '已失访', color: '#dc2626' },
-                    CANCELLED: { label: '已取消', color: '#94a3b8' },
-                    OVERDUE: { label: '逾期', color: '#dc2626' },
+                    PENDING: { label: t('patient360.fuPending'), color: '#d97706' },
+                    REMINDED: { label: t('patient360.fuReminded'), color: '#2563eb' },
+                    IN_PROGRESS: { label: t('patient360.fuInProgress'), color: '#7c3aed' },
+                    COMPLETED: { label: t('patient360.fuCompleted'), color: '#16a34a' },
+                    MISSED: { label: t('patient360.fuMissed'), color: '#dc2626' },
+                    CANCELLED: { label: t('patient360.fuCancelled'), color: '#94a3b8' },
+                    OVERDUE: { label: t('patient360.fuOverdue'), color: '#dc2626' },
                   }
                   const cfg = map[s] || { label: s, color: '#64748b' }
                   return <Tag color={cfg.color}>{cfg.label}</Tag>
                 },
               },
-              { title: '计划日期', dataIndex: 'planDate', key: 'planDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
-              { title: '下次日期', dataIndex: 'nextDate', key: 'nextDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
-              { title: '间隔', dataIndex: 'intervalDays', key: 'intervalDays', width: 70, render: (v: number) => `${v ?? '-'} 天` },
-              { title: '备注', dataIndex: 'note', key: 'note', ellipsis: true },
+              { title: t('patient360.planDate'), dataIndex: 'planDate', key: 'planDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
+              { title: t('patient360.nextDate'), dataIndex: 'nextDate', key: 'nextDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
+              { title: t('patient360.interval'), dataIndex: 'intervalDays', key: 'intervalDays', width: 70, render: (v: number) => `${v ?? '-'} ${t('patient360.days')}` },
+              { title: t('patient360.note'), dataIndex: 'note', key: 'note', ellipsis: true },
               {
-                title: '完成时间', dataIndex: 'completedAt', key: 'completedAt', width: 130,
+                title: t('patient360.completedAt'), dataIndex: 'completedAt', key: 'completedAt', width: 130,
                 render: (v: string | null) => v ? String(v).slice(0, 10) : '—',
               },
             ]}
@@ -755,18 +755,18 @@ export default function Patient360Page() {
 
       {/* 3. 病灶追踪摘要 */}
       <Card
-        title={<span><Crosshair size={14} /> 病灶追踪摘要</span>}
+        title={<span><Crosshair size={14} /> {t('patient360.lesionSummary')}</span>}
         style={{ marginTop: 16, borderRadius: 12 }}
         extra={
           lesionStats && (
             <Tag color="purple">
-              共 {lesionStats.total} 个 · 新发 {lesionStats.new} · 增大 {lesionStats.progressed} · 稳定 {lesionStats.stable}
+              {t('patient360.lesionCount', { total: lesionStats.total, newCount: lesionStats.new, progressed: lesionStats.progressed, stable: lesionStats.stable })}
             </Tag>
           )
         }
       >
         {lesions.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="该患者暂无登记病灶" style={{ padding: 16 }} />
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description={t('patient360.noLesion')} style={{ padding: 16 }} />
         ) : (
           <Row gutter={[12, 12]}>
             {lesions.slice(0, 4).map(l => {
@@ -790,18 +790,18 @@ export default function Patient360Page() {
                       <Tag color="cyan">{l.site}</Tag>
                     </div>
                     <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
-                      {l.modality} · 登记于 {String(l.createdAt || '').slice(0, 10)}
+                      {l.modality} · {t('patient360.registeredAt')} {String(l.createdAt || '').slice(0, 10)}
                     </div>
                     {first && last && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div>
                           <div style={{ fontSize: 18, fontWeight: 700, color: '#1e40af' }}>{last.sizeMm}mm</div>
-                          <div style={{ fontSize: 11, color: '#94a3b8' }}>最新 ({String(last.date).slice(0, 10)})</div>
+                          <div style={{ fontSize: 11, color: '#94a3b8' }}>{t('patient360.latest')} ({String(last.date).slice(0, 10)})</div>
                         </div>
                         <div style={{ fontSize: 12, color: '#94a3b8' }}>→</div>
                         <div>
                           <div style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>{first.sizeMm}mm</div>
-                          <div style={{ fontSize: 11, color: '#94a3b8' }}>基线 ({String(first.date).slice(0, 10)})</div>
+                          <div style={{ fontSize: 11, color: '#94a3b8' }}>{t('patient360.baseline')} ({String(first.date).slice(0, 10)})</div>
                         </div>
                         <span style={{
                           marginLeft: 'auto', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 999,
@@ -819,7 +819,7 @@ export default function Patient360Page() {
                         display: 'flex', alignItems: 'center', gap: 6,
                       }}>
                         <Stethoscope size={12} />
-                        关联随访: {String(linked.nextDate || '').slice(0, 10)} · {linked.status}
+                        {t('patient360.linkedFollowup')} {String(linked.nextDate || '').slice(0, 10)} · {linked.status}
                       </div>
                     )}
                   </div>
@@ -831,30 +831,30 @@ export default function Patient360Page() {
       </Card>
 
       {/* 4. 费用汇总 */}
-      <Card title={<span><Wallet size={14} /> 费用汇总</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+      <Card title={<span><Wallet size={14} /> {t('patient360.financeSummary')}</span>} style={{ marginTop: 16, borderRadius: 12 }}>
         {financeSummary ? (
           <>
             <Row gutter={[12, 12]}>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-info-bg)', borderRadius: 10 }}>
-                  <Statistic title="总费用" value={financeSummary.totalAmount} precision={2} prefix="¥" valueStyle={{ color: '#1e40af', fontSize: 22 }} />
+                  <Statistic title={t('patient360.totalCost')} value={financeSummary.totalAmount} precision={2} prefix="¥" valueStyle={{ color: '#1e40af', fontSize: 22 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-success-bg)', borderRadius: 10 }}>
-                  <Statistic title="已支付" value={financeSummary.paidAmount} precision={2} prefix="¥" valueStyle={{ color: '#16a34a', fontSize: 22 }} />
+                  <Statistic title={t('patient360.paid')} value={financeSummary.paidAmount} precision={2} prefix="¥" valueStyle={{ color: '#16a34a', fontSize: 22 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: financeSummary.balance > 0 ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', borderRadius: 10 }}>
-                  <Statistic title="待缴" value={financeSummary.balance} precision={2} prefix="¥" valueStyle={{ color: financeSummary.balance > 0 ? '#d97706' : '#16a34a', fontSize: 22 }} />
+                  <Statistic title={t('patient360.unpaid')} value={financeSummary.balance} precision={2} prefix="¥" valueStyle={{ color: financeSummary.balance > 0 ? '#d97706' : '#16a34a', fontSize: 22 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>医保/自付</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t('patient360.insuranceSelfPay')}</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#7c3aed' }}>¥{financeSummary.insuranceCovered} / ¥{financeSummary.selfPay}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>未结账单 {financeSummary.unpaid} 笔</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{t('patient360.unpaidCount', { count: financeSummary.unpaid })}</div>
                 </div>
               </Col>
             </Row>
@@ -866,26 +866,26 @@ export default function Patient360Page() {
               pagination={false}
               scroll={{ x: 'max-content' }}
               columns={[
-                { title: '检查项目', dataIndex: 'examItem', key: 'examItem' },
-                { title: '检查日期', dataIndex: 'examDate', key: 'examDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
-                { title: '总金额', dataIndex: 'totalAmount', key: 'totalAmount', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
-                { title: '医保', dataIndex: 'insuranceCovered', key: 'insuranceCovered', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
-                { title: '余额', dataIndex: 'balance', key: 'balance', width: 100, render: (v: number) => (
+                { title: t('patient360.examItem'), dataIndex: 'examItem', key: 'examItem' },
+                { title: t('patient360.examDate'), dataIndex: 'examDate', key: 'examDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
+                { title: t('patient360.totalAmount'), dataIndex: 'totalAmount', key: 'totalAmount', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
+                { title: t('patient360.insurance'), dataIndex: 'insuranceCovered', key: 'insuranceCovered', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
+                { title: t('patient360.balance'), dataIndex: 'balance', key: 'balance', width: 100, render: (v: number) => (
                     <span style={{ color: Number(v ?? 0) > 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>¥{Number(v ?? 0).toFixed(2)}</span>
                   ) },
-                { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={String(v).toLowerCase().includes('paid') ? 'green' : 'orange'}>{v}</Tag> },
+                { title: t('patient360.status'), dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={String(v).toLowerCase().includes('paid') ? 'green' : 'orange'}>{v}</Tag> },
               ]}
             />
           </>
         ) : (
-          <Empty image={<Wallet size={48} style={{ opacity: 0.4 }} />} description="暂无费用记录" style={{ padding: 16 }} />
+          <Empty image={<Wallet size={48} style={{ opacity: 0.4 }} />} description={t('patient360.noFinanceRecord')} style={{ padding: 16 }} />
         )}
       </Card>
 
       {/* 5. 检查频次趋势 */}
-      <Card title={<span><LineChartIcon size={14} /> 检查频次趋势 (按月)</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+      <Card title={<span><LineChartIcon size={14} /> {t('patient360.freqTrend')}</span>} style={{ marginTop: 16, borderRadius: 12 }}>
         {examFreqTrend.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无检查频次数据" style={{ padding: 16 }} />
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description={t('patient360.noFreqData')} style={{ padding: 16 }} />
         ) : (
           <div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 140, padding: '0 8px' }}>
@@ -897,19 +897,19 @@ export default function Patient360Page() {
                     background: m.count >= Math.max(...examFreqTrend.map(x => x.count)) ? 'linear-gradient(180deg, #1e40af, #3b82f6)' : 'linear-gradient(180deg, #93c5fd, #bfdbfe)',
                     transition: 'height 0.3s',
                   }} title={`${m.month}: ${m.count} 次`} />
-                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{m.month.slice(5)}月</span>
+                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{m.month.slice(5)}{t('patient360.monthUnit')}</span>
                 </div>
               ))}
             </div>
             <div style={{ marginTop: 10, fontSize: 12, color: '#64748b' }}>
-              近 {examFreqTrend.length} 个月共 <strong>{exams.length}</strong> 次检查 · 峰值 <strong>{Math.max(...examFreqTrend.map(x => x.count))}</strong> 次/月
+              {t('patient360.freqSummaryPrefix', { months: examFreqTrend.length })} <strong>{exams.length}</strong> {t('patient360.freqSummaryMid')} <strong>{Math.max(...examFreqTrend.map(x => x.count))}</strong> {t('patient360.freqSummarySuffix')}
             </div>
             <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 12, color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <Activity size={12} /> 首次检查: {stats?.firstExamDate || '—'}
+                <Activity size={12} /> {t('patient360.firstExam')} {stats?.firstExamDate || '—'}
               </span>
               <span style={{ fontSize: 12, color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <Clock size={12} /> 最近一次: {exams.map(e => e.examDate).filter(Boolean).sort().slice(-1)[0]?.slice(0, 10) || '—'}
+                <Clock size={12} /> {t('patient360.lastExam')} {exams.map(e => e.examDate).filter(Boolean).sort().slice(-1)[0]?.slice(0, 10) || '—'}
               </span>
             </div>
           </div>
@@ -920,9 +920,9 @@ export default function Patient360Page() {
           [v3.0.6.11-99 Wave10B] 深化 II: 报告要点/对比剂/就诊时段分布
           ============================================================ */}
       {/* 6. 报告结构化要点卡 */}
-      <Card title={<span><FileText size={14} /> 报告结构化要点</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+      <Card title={<span><FileText size={14} /> {t('patient360.reportKeyPoints')}</span>} style={{ marginTop: 16, borderRadius: 12 }}>
         {exams.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无报告要点" style={{ padding: 16 }} />
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description={t('patient360.noReportPoints')} style={{ padding: 16 }} />
         ) : (
           <Row gutter={[12, 12]}>
             {exams.filter(ex => ex.findings || ex.diagnosis).slice(0, 3).map(ex => (
@@ -937,15 +937,15 @@ export default function Patient360Page() {
                     <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>{String(ex.examDate || '').slice(0, 10)}</span>
                   </div>
                   <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.7, marginBottom: 8, maxHeight: 84, overflow: 'hidden' }}>
-                    <strong style={{ color: '#1e40af' }}>所见:</strong> {ex.findings || '未填写'}
+                    <strong style={{ color: '#1e40af' }}>{t('patient360.findingsLabel')}</strong> {ex.findings || t('patient360.notFilled')}
                   </div>
                   <div style={{
                     fontSize: 12, lineHeight: 1.7, padding: '8px 10px', borderRadius: 6,
                     background: ex.criticalFinding ? 'var(--color-error-bg)' : 'var(--color-info-bg)',
                     color: ex.criticalFinding ? '#991b1b' : '#1e40af',
                   }}>
-                    <strong>诊断:</strong> {ex.diagnosis || '—'}
-                    {ex.criticalFinding && <Tag color="red" style={{ marginLeft: 8 }}>危急</Tag>}
+                    <strong>{t('patient360.diagnosisLabel')}</strong> {ex.diagnosis || '—'}
+                    {ex.criticalFinding && <Tag color="red" style={{ marginLeft: 8 }}>{t('patient360.critical')}</Tag>}
                   </div>
                 </div>
               </Col>
@@ -955,7 +955,7 @@ export default function Patient360Page() {
       </Card>
 
       {/* 7. 对比剂与就诊时段分布 */}
-      <Card title={<span><Activity size={14} /> 就诊画像</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+      <Card title={<span><Activity size={14} /> {t('patient360.visitProfile')}</span>} style={{ marginTop: 16, borderRadius: 12 }}>
         {(() => {
           const contrastCount = exams.filter(e => String(e.findings || '').includes('对比剂') || String(e.deviceName || '').includes('增强') || String(e.examItemName).includes('增强')).length
           const hourBuckets = { '上午 (8-12)': 0, '下午 (12-18)': 0, '晚间 (18-24)': 0, '凌晨 (0-8)': 0 }
@@ -973,7 +973,7 @@ export default function Patient360Page() {
             <Row gutter={[12, 12]}>
               <Col xs={24} md={12}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Activity size={13} /> 对比剂使用
+                  <Activity size={13} /> {t('patient360.contrastUsage')}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0' }}>
                   <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
@@ -985,29 +985,29 @@ export default function Patient360Page() {
                       <text x="50" y="48" textAnchor="middle" fontSize="16" fontWeight="700" fill="#1e40af">
                         {total > 0 ? Math.round((contrastCount / total) * 100) : 0}%
                       </text>
-                      <text x="50" y="63" textAnchor="middle" fontSize="8" fill="#94a3b8">增强占比</text>
+                      <text x="50" y="63" textAnchor="middle" fontSize="8" fill="#94a3b8">{t('patient360.contrastRatio')}</text>
                     </svg>
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
-                      增强检查 <strong style={{ color: '#8b5cf6' }}>{contrastCount}</strong> 次 / 总检查 <strong>{total}</strong> 次
+                      {t('patient360.contrastExamPrefix')} <strong style={{ color: '#8b5cf6' }}>{contrastCount}</strong> {t('patient360.contrastExamMid')} <strong>{total}</strong> {t('patient360.contrastExamSuffix')}
                     </div>
                     <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
-                      CT/MR 增强检查需提前评估肾功能与过敏史；对比剂相关随访已纳入随访计划管理。
+                      {t('patient360.contrastHint')}
                     </div>
                   </div>
                 </div>
               </Col>
               <Col xs={24} md={12}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Clock size={13} /> 检查时段分布
+                  <Clock size={13} /> {t('patient360.hourDistribution')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {Object.entries(hourBuckets).map(([label, count]) => (
                     <div key={label}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                         <span style={{ color: '#64748b' }}>{label}</span>
-                        <span style={{ color: '#1e40af', fontWeight: 700 }}>{count} 次</span>
+                        <span style={{ color: '#1e40af', fontWeight: 700 }}>{count} {t('patient360.times')}</span>
                       </div>
                       <div style={{ height: 7, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
                         <div style={{
@@ -1019,7 +1019,7 @@ export default function Patient360Page() {
                   ))}
                 </div>
                 <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
-                  高峰时段: {Object.entries(hourBuckets).sort((a, b) => b[1] - a[1])[0]?.[0] || '—'}
+                  {t('patient360.peakHour')} {Object.entries(hourBuckets).sort((a, b) => b[1] - a[1])[0]?.[0] || '—'}
                 </div>
               </Col>
             </Row>

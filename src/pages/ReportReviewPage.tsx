@@ -74,17 +74,17 @@ function reportToReviewTask(r: ReportDto): ReviewTask | null {
 // 阶段配置
 // ============================================================
 const STAGE_CONFIG: Record<ReviewStage, { label: string; color: string; bg: string; icon: any; description: string }> = {
-  initial: { label: '初审', color: '#f59e0b', bg: '#f59e0b22', icon: Eye,         description: '高年资主治/副主任审核' },
-  final:   { label: '终审', color: '#7c2d12', bg: '#f9731622', icon: ShieldCheck, description: '副主任以上终审' },
-  sign:    { label: '签发', color: '#be185d', bg: '#ec489922', icon: Award,        description: '医生 CA 签发' },
+  initial: { label: t('reportReviewPage.stageInitial'), color: '#f59e0b', bg: '#f59e0b22', icon: Eye,         description: t('reportReviewPage.stageInitialDesc') },
+  final:   { label: t('reportReviewPage.stageFinal'), color: '#7c2d12', bg: '#f9731622', icon: ShieldCheck, description: t('reportReviewPage.stageFinalDesc') },
+  sign:    { label: t('reportReviewPage.stageSign'), color: '#be185d', bg: '#ec489922', icon: Award,        description: t('reportReviewPage.stageSignDesc') },
 };
 
 const STATUS_CONFIG: Record<ReviewStatus, { label: string; color: string; bg: string; border: string }> = {
-  'pending':     { label: '待审核', color: '#f59e0b', bg: '#f59e0b22', border: '#fcd34d' },
-  'in-progress': { label: '审核中', color: '#0891b2', bg: '#06b6d422', border: '#67e8f9' },
-  'completed':   { label: '已完成', color: '#10b981', bg: '#22c55e22', border: '#6ee7b7' },
-  'rejected':    { label: '已驳回', color: '#ef4444', bg: '#ef444422', border: '#fca5a5' },
-  'overdue':     { label: '已超时', color: '#7f1d1d', bg: '#ef444422', border: '#f87171' },
+  'pending':     { label: t('reportReviewPage.statusPending'), color: '#f59e0b', bg: '#f59e0b22', border: '#fcd34d' },
+  'in-progress': { label: t('reportReviewPage.statusInProgress'), color: '#0891b2', bg: '#06b6d422', border: '#67e8f9' },
+  'completed':   { label: t('reportReviewPage.statusCompleted'), color: '#10b981', bg: '#22c55e22', border: '#6ee7b7' },
+  'rejected':    { label: t('reportReviewPage.statusRejected'), color: '#ef4444', bg: '#ef444422', border: '#fca5a5' },
+  'overdue':     { label: t('reportReviewPage.statusOverdue'), color: '#7f1d1d', bg: '#ef444422', border: '#f87171' },
 };
 
 // ============================================================
@@ -140,7 +140,7 @@ export default function ReportReviewPage() {
     setError(null);
     const res = await reportApi.list({ take: '200' });
     if (!res.success || !Array.isArray(res.data)) {
-      setError(res.error?.message ?? '审核任务加载失败');
+      setError(res.error?.message ?? t('reportReviewPage.msgLoadFailed'));
       setTasks([]);
       setLoading(false);
       return;
@@ -187,7 +187,7 @@ export default function ReportReviewPage() {
   const handleAuditSubmit = useCallback(async (decision: 'approve' | 'reject') => {
     if (!selectedTask) return;
     if (decision === 'reject' && !auditSuggestion.trim()) {
-      message.warning('驳回必须填写审核意见');
+      message.warning(t('reportReviewPage.msgRejectReasonRequired'));
       return;
     }
     setSubmitting(true);
@@ -195,23 +195,23 @@ export default function ReportReviewPage() {
       ? await reportApi.review(selectedTask.reportId)
       : await reportApi.reject(selectedTask.reportId, auditSuggestion.trim());
     if (res.success) {
-      message.success(decision === 'approve' ? `已通过 (${STAGE_CONFIG[selectedTask.stage].label})` : '已驳回并退回报告医师');
+      message.success(decision === 'approve' ? `已通过 (${STAGE_CONFIG[selectedTask.stage].label})` : t('reportReviewPage.msgRejectedBack'));
       setAuditDecision(null);
       setAuditSuggestion('');
       await loadTasks();
     } else {
-      message.error(res.error?.message ?? '审核操作失败,请重试');
+      message.error(res.error?.message ?? t('reportReviewPage.msgAuditFailed'));
     }
     setSubmitting(false);
   }, [selectedTask, auditSuggestion, loadTasks]);
 
-  if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.loading')}</div>;
   if (error) return <div role="alert" data-testid="review-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (tasks.length === 0) {
     return (
       <div data-testid="review-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无审核任务</div>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>当前没有待审核的报告,可从报告书写页提交报告后查看</div>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>{t('reportReviewPage.emptyTitle')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportReviewPage.emptyHint')}</div>
       </div>
     );
   }
@@ -227,7 +227,7 @@ export default function ReportReviewPage() {
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
               <ClipboardCheck size={20} />
-              报告审核工作台
+              {t('reportReviewPage.title')}
               <span style={{
                 fontSize: 12, padding: '2px 6px',
                 background: '#10b981', color: '#fff',
@@ -235,22 +235,22 @@ export default function ReportReviewPage() {
               }}>R3</span>
             </div>
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>
-              双审流程（初+终）+ 审核时效 KPI + 驳回闭环 · 已接入真实报告流转
+              {t('reportReviewPage.subtitle')}
             </div>
           </div>
           <div style={{ fontSize: 12, opacity: 0.9 }}>
-            当前审核员：<strong>{currentUser.name}（{currentUser.title}）</strong>
+            {t('reportReviewPage.currentReviewer')}：<strong>{currentUser.name}（{currentUser.title}）</strong>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
-          <KpiMini icon={ListChecks} label="今日审核" value={reviewKpi.totalToday} color="#bfdbfe" />
-          <KpiMini icon={Clock} label="待初审" value={reviewKpi.pendingInitial} color="#fde68a" />
-          <KpiMini icon={ShieldCheck} label="待终审" value={reviewKpi.pendingFinal} color="#fed7aa" />
-          <KpiMini icon={Award} label="待签发" value={reviewKpi.pendingSign} color="#fbcfe8" />
-          <KpiMini icon={AlertTriangle} label="已超时" value={reviewKpi.overdue} color="#fca5a5" alert />
-          <KpiMini icon={XCircle} label="已驳回" value={reviewKpi.rejected} color="#fca5a5" />
-          <KpiMini icon={TrendingUp} label="按时率" value={`${reviewKpi.onTimeRate}%`} color="#bbf7d0" good />
+          <KpiMini icon={ListChecks} label={t('reportReviewPage.kpiToday')} value={reviewKpi.totalToday} color="#bfdbfe" />
+          <KpiMini icon={Clock} label={t('reportReviewPage.kpiPendingInitial')} value={reviewKpi.pendingInitial} color="#fde68a" />
+          <KpiMini icon={ShieldCheck} label={t('reportReviewPage.kpiPendingFinal')} value={reviewKpi.pendingFinal} color="#fed7aa" />
+          <KpiMini icon={Award} label={t('reportReviewPage.kpiPendingSign')} value={reviewKpi.pendingSign} color="#fbcfe8" />
+          <KpiMini icon={AlertTriangle} label={t('reportReviewPage.kpiOverdue')} value={reviewKpi.overdue} color="#fca5a5" alert />
+          <KpiMini icon={XCircle} label={t('reportReviewPage.kpiRejected')} value={reviewKpi.rejected} color="#fca5a5" />
+          <KpiMini icon={TrendingUp} label={t('reportReviewPage.kpiOnTimeRate')} value={`${reviewKpi.onTimeRate}%`} color="#bbf7d0" good />
         </div>
       </div>
 
@@ -260,26 +260,26 @@ export default function ReportReviewPage() {
         padding: '0 20px', display: 'flex', alignItems: 'center', flexShrink: 0,
       }}>
         {[
-          { key: 'all', label: '全部', icon: BarChart3 },
-          { key: 'initial', label: '初审', icon: Eye },
-          { key: 'final', label: '终审', icon: ShieldCheck },
-          { key: 'sign', label: '签发', icon: Award },
-        ].map(t => {
-          const Icon = t.icon;
+          { key: 'all', label: t('reportReviewPage.all'), icon: BarChart3 },
+          { key: 'initial', label: t('reportReviewPage.stageInitial'), icon: Eye },
+          { key: 'final', label: t('reportReviewPage.stageFinal'), icon: ShieldCheck },
+          { key: 'sign', label: t('reportReviewPage.stageSign'), icon: Award },
+        ].map(tab => {
+          const Icon = tab.icon;
           return (
             <button
-              key={t.key}
-              onClick={() => setStage(t.key as any)}
+              key={tab.key}
+              onClick={() => setStage(tab.key as any)}
               style={{
                 padding: '10px 16px', border: 'none', background: 'transparent',
-                color: stage === t.key ? '#1e40af' : '#64748b',
-                fontWeight: stage === t.key ? 700 : 500,
+                color: stage === tab.key ? '#1e40af' : '#64748b',
+                fontWeight: stage === tab.key ? 700 : 500,
                 fontSize: 13, cursor: 'pointer',
-                borderBottom: `2px solid ${stage === t.key ? '#3b82f6' : 'transparent'}`,
+                borderBottom: `2px solid ${stage === tab.key ? '#3b82f6' : 'transparent'}`,
                 display: 'flex', alignItems: 'center', gap: 6,
               }}
             >
-              <Icon size={13} /> {t.label}
+              <Icon size={13} /> {tab.label}
             </button>
           );
         })}
@@ -291,7 +291,7 @@ export default function ReportReviewPage() {
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="搜索患者/报告 ID..."
+              placeholder={t('reportReviewPage.searchPlaceholder')}
               style={{
                 padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, outline: 'none', width: 180,
@@ -303,11 +303,11 @@ export default function ReportReviewPage() {
             onChange={e => setStatus(e.target.value as any)}
             style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
           >
-            <option value="all">全部状态</option>
-            <option value="pending">待审核</option>
-            <option value="in-progress">审核中</option>
-            <option value="rejected">已驳回</option>
-            <option value="overdue">已超时</option>
+            <option value="all">{t('reportReviewPage.allStatus')}</option>
+            <option value="pending">{t('reportReviewPage.statusPending')}</option>
+            <option value="in-progress">{t('reportReviewPage.statusInProgress')}</option>
+            <option value="rejected">{t('reportReviewPage.statusRejected')}</option>
+            <option value="overdue">{t('reportReviewPage.statusOverdue')}</option>
           </select>
         </div>
       </div>
@@ -323,8 +323,8 @@ export default function ReportReviewPage() {
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
             fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <span><strong style={{ color: '#1e40af' }}>{filteredTasks.length}</strong> 个任务</span>
-            <span>共 {tasks.length} 条记录</span>
+            <span><strong style={{ color: '#1e40af' }}>{filteredTasks.length}</strong> {t('reportReviewPage.taskUnit')}</span>
+            <span>{t('reportReviewPage.totalPrefix')} {tasks.length} {t('reportReviewPage.recordUnit')}</span>
           </div>
           {filteredTasks.map(task => {
             const stageConf = STAGE_CONFIG[task.stage];
@@ -364,7 +364,7 @@ export default function ReportReviewPage() {
                         fontSize: 12, padding: '1px 4px',
                         background: '#dc2626', color: '#fff', borderRadius: 2,
                         fontWeight: 700,
-                      }}>危急值</span>
+                      }}>{t('reportReviewPage.critical')}</span>
                     )}
                   </div>
                   <span style={{ fontSize: 12, color: deadline.color, fontWeight: 600 }}>
@@ -376,9 +376,9 @@ export default function ReportReviewPage() {
                   {task.patientName} · {task.modality} {task.bodyPart}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <span>报告：<strong>{task.reportDoctorTitle} {task.reportDoctorName}</strong></span>
+                  <span>{t('reportReviewPage.reportLabel')}<strong>{task.reportDoctorTitle} {task.reportDoctorName}</strong></span>
                   <span>·</span>
-                  <span>质量 {task.qualityScore}</span>
+                  <span>{t('reportReviewPage.quality')} {task.qualityScore}</span>
                   <span>·</span>
                   <span>{timeAgo(task.submittedAt)}</span>
                 </div>
@@ -404,7 +404,7 @@ export default function ReportReviewPage() {
           })}
           {filteredTasks.length === 0 && (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-              无匹配任务
+              {t('reportReviewPage.noMatchingTask')}
             </div>
           )}
         </div>
@@ -426,7 +426,7 @@ export default function ReportReviewPage() {
               onReloadTasks={() => { void loadTasks(); }}
             />
           ) : (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>请从左侧选择审核任务</div>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.selectTaskHint')}</div>
           )}
         </div>
       </div>
@@ -477,7 +477,7 @@ const ReviewTaskDetail: React.FC<{
 
   // [v3.0.6.11-70] 报告正文: 优先展示真实所见/诊断
   const findingsText = (task as any).findingsText || `${task.modality}平扫+增强示${task.bodyPart}区正常结构存在。${task.criticalFinding ? ' 病灶内见异常信号/密度影。' : ''}`;
-  const impressionText = (task as any).impressionText || (task.criticalFinding ? '考虑恶性可能，建议进一步检查。' : '考虑良性可能，建议随访。');
+  const impressionText = (task as any).impressionText || (task.criticalFinding ? t('reportReviewPage.impressionMalignant') : t('reportReviewPage.impressionBenign'));
 
   // [v3.0.6.11-98 Wave3B P1] 全屏预览: 报告内容全屏 Modal (详情组件内状态)
   const [previewFull, setPreviewFull] = useState(false);
@@ -580,8 +580,8 @@ const ReviewTaskDetail: React.FC<{
           ) : diffData && diffData.old !== diffData.cur ? (
             <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
               <div style={{ marginBottom: 6, color: '#64748b' }}>
-                <span style={{ background: '#fef2f2', color: '#b91c1c', padding: '1px 6px', borderRadius: 3, marginRight: 8 }}>删除 (修改前)</span>
-                <span style={{ background: '#ecfdf5', color: '#047857', padding: '1px 6px', borderRadius: 3 }}>新增 (修改后)</span>
+                <span style={{ background: '#fef2f2', color: '#b91c1c', padding: '1px 6px', borderRadius: 3, marginRight: 8 }}>{t('reportReviewPage.diffRemoved')}</span>
+                <span style={{ background: '#ecfdf5', color: '#047857', padding: '1px 6px', borderRadius: 3 }}>{t('reportReviewPage.diffAdded')}</span>
               </div>
               <DiffHighlight oldText={diffData.old} newText={diffData.cur} />
               {diffData.changes.length > 0 && (
@@ -668,7 +668,7 @@ const ReviewTaskDetail: React.FC<{
               {task.patientName}
               <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 400 }}>· {task.modality} {task.bodyPart}</span>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>报告 ID：{task.reportId}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('reportReviewPage.reportIdLabel')}：{task.reportId}</div>
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{
@@ -691,15 +691,15 @@ const ReviewTaskDetail: React.FC<{
 
         {/* 三栏信息 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, fontSize: 12 }}>
-          <InfoCell label="报告医生" value={`${task.reportDoctorTitle} ${task.reportDoctorName}`} />
-          <InfoCell label="提交时间" value={task.submittedAt} />
-          <InfoCell label="截止时间" value={task.deadline} alert={task.isOverdue} />
-          <InfoCell label="质量评分" value={`${task.qualityScore}/100`} />
+          <InfoCell label={t('reportReviewPage.infoReportDoctor')} value={`${task.reportDoctorTitle} ${task.reportDoctorName}`} />
+          <InfoCell label={t('reportReviewPage.infoSubmitTime')} value={task.submittedAt} />
+          <InfoCell label={t('reportReviewPage.infoDeadline')} value={task.deadline} alert={task.isOverdue} />
+          <InfoCell label={t('reportReviewPage.infoQualityScore')} value={`${task.qualityScore}/100`} />
         </div>
 
         {/* 阶段进度 */}
         <div style={{ marginTop: 12, padding: 10, background: 'var(--content-bg)', borderRadius: 6 }}>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>三阶段审核流程</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>{t('reportReviewPage.threeStageProcess')}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {['initial', 'final', 'sign'].map((s, i) => {
               const sConf = STAGE_CONFIG[s as ReviewStage];
@@ -717,9 +717,9 @@ const ReviewTaskDetail: React.FC<{
                       <strong>{sConf.label}</strong>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                      {s === 'initial' && (task.initialAuditCompletedAt ? '✓ 已完成' : task.initialAuditStartAt ? '⏳ 进行中' : '○ 待开始')}
-                      {s === 'final' && (task.finalAuditCompletedAt ? '✓ 已完成' : task.finalAuditStartAt ? '⏳ 进行中' : '○ 待开始')}
-                      {s === 'sign' && (task.status === 'rejected' ? '✗ 已驳回' : '○ 待开始')}
+                      {s === 'initial' && (task.initialAuditCompletedAt ? t('reportReviewPage.done') : task.initialAuditStartAt ? t('reportReviewPage.inProgress') : t('reportReviewPage.notStarted'))}
+                      {s === 'final' && (task.finalAuditCompletedAt ? t('reportReviewPage.done') : task.finalAuditStartAt ? t('reportReviewPage.inProgress') : t('reportReviewPage.notStarted'))}
+                      {s === 'sign' && (task.status === 'rejected' ? t('reportReviewPage.rejectStatus') : t('reportReviewPage.notStarted'))}
                     </div>
                   </div>
                   {i < 2 && <ArrowRight size={12} color="#cbd5e1" />}
@@ -737,7 +737,7 @@ const ReviewTaskDetail: React.FC<{
       }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={14} /> 报告内容
+              <FileText size={14} /> {t('reportReviewPage.reportContent')}
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               {/* [v3.0.6.11-103 Wave 12] 修改痕迹开关: 原文 ↔ diff 高亮 */}
@@ -760,27 +760,27 @@ const ReviewTaskDetail: React.FC<{
                   display: 'flex', alignItems: 'center', gap: 4,
                 }}
               >
-                <Eye size={11} /> 全屏预览
+                <Eye size={11} /> {t('reportReviewPage.fullscreenPreview')}
               </button>
             </div>
           </div>
         <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
           <div style={{ marginBottom: 8 }}>
-            <strong style={{ color: '#1e40af' }}>【检查所见】</strong>
+            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionFindings')}</strong>
             <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {findingsText}
             </div>
           </div>
           <div style={{ marginBottom: 8 }}>
-            <strong style={{ color: '#1e40af' }}>【诊断意见】</strong>
+            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionImpression')}</strong>
             <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {impressionText}
             </div>
           </div>
           <div>
-            <strong style={{ color: '#1e40af' }}>【建议】</strong>
+            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
             <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
-              {(task as any).recommendationsText || '3 个月后复查。'}
+              {(task as any).recommendationsText || t('reportReviewPage.followupAdvice')}
             </div>
           </div>
         </div>
@@ -798,24 +798,24 @@ const ReviewTaskDetail: React.FC<{
         <div style={{ fontSize: 13, lineHeight: 2, color: 'var(--text-primary)' }}>
           <div style={{ marginBottom: 16, padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, fontSize: 12 }}>
-              <div><span style={{ color: 'var(--text-secondary)' }}>患者: </span>{task.patientName}</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>检查: </span>{task.bodyPart}（{task.modality}）</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>报告医生: </span>{task.reportDoctorTitle} {task.reportDoctorName}</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>提交时间: </span>{task.submittedAt}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.patientLabel')}</span>{task.patientName}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.examLabel')}</span>{task.bodyPart}（{task.modality}）</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.reportDoctorLabel')}</span>{task.reportDoctorTitle} {task.reportDoctorName}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.submitTimeLabel')}</span>{task.submittedAt}</div>
             </div>
           </div>
           <div style={{ marginBottom: 12 }}>
-            <strong style={{ color: '#1e40af' }}>【检查所见】</strong>
+            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionFindings')}</strong>
             <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{findingsText}</div>
           </div>
           <div style={{ marginBottom: 12 }}>
-            <strong style={{ color: '#1e40af' }}>【诊断意见】</strong>
+            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionImpression')}</strong>
             <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{impressionText}</div>
           </div>
           <div>
-            <strong style={{ color: '#1e40af' }}>【建议】</strong>
+            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
             <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>
-              {(task as any).recommendationsText || '3 个月后复查。'}
+              {(task as any).recommendationsText || t('reportReviewPage.followupAdvice')}
             </div>
           </div>
         </div>
@@ -828,16 +828,16 @@ const ReviewTaskDetail: React.FC<{
           border: '1px solid var(--border-color)',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <History size={14} /> 审核历史
+            <History size={14} /> {t('reportReviewPage.auditHistory')}
           </div>
           {task.initialAuditCompletedAt && (
             <div style={{ padding: 10, background: 'var(--color-info-bg)', border: '1px solid #bae6fd', borderRadius: 6, marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <strong style={{ color: '#0369a1', fontSize: 12 }}>✓ 初审完成</strong>
+                <strong style={{ color: '#0369a1', fontSize: 12 }}>✓ {t('reportReviewPage.initialAuditDone')}</strong>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.initialAuditCompletedAt}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                {task.initialAuditTitle} {task.initialAuditDoctorName} · 评分 {task.initialAuditScore}/100
+                {task.initialAuditTitle} {task.initialAuditDoctorName} · {t('reportReviewPage.score')} {task.initialAuditScore}/100
               </div>
               {task.initialAuditSuggestion && (
                 <div style={{ fontSize: 12, color: '#0c4a6e', padding: 6, background: 'var(--bg-card)', borderRadius: 4 }}>
@@ -849,11 +849,11 @@ const ReviewTaskDetail: React.FC<{
           {task.finalAuditCompletedAt && (
             <div style={{ padding: 10, background: '#8b5cf622', border: '1px solid #f0abfc', borderRadius: 6 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <strong style={{ color: '#86198f', fontSize: 12 }}>✓ 终审完成</strong>
+                <strong style={{ color: '#86198f', fontSize: 12 }}>✓ {t('reportReviewPage.finalAuditDone')}</strong>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.finalAuditCompletedAt}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                {task.finalAuditTitle} {task.finalAuditDoctorName} · 评分 {task.finalAuditScore}/100
+                {task.finalAuditTitle} {task.finalAuditDoctorName} · {t('reportReviewPage.score')} {task.finalAuditScore}/100
               </div>
               {task.finalAuditSuggestion && (
                 <div style={{ fontSize: 12, color: '#86198f', padding: 6, background: 'var(--bg-card)', borderRadius: 4 }}>
@@ -865,7 +865,7 @@ const ReviewTaskDetail: React.FC<{
           {task.rejectedReason && (
             <div style={{ padding: 10, background: 'var(--color-error-bg)', border: '1px solid #fca5a5', borderRadius: 6 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#b91c1c', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <XCircle size={12} /> 已驳回
+                <XCircle size={12} /> {t('reportReviewPage.statusRejected')}
               </div>
               <div style={{ fontSize: 12, color: '#7f1d1d' }}>{task.rejectedReason}</div>
             </div>
@@ -880,23 +880,23 @@ const ReviewTaskDetail: React.FC<{
           border: '1px solid var(--border-color)',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Edit2 size={14} /> {stageConf.label}操作
+            <Edit2 size={14} /> {stageConf.label}{t('reportReviewPage.actions')}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>审核评分（0-100）</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('reportReviewPage.auditScoreLabel')}</div>
               <input
                 type="range" min={0} max={100} value={auditScore}
                 onChange={e => setAuditScore(Number(e.target.value))}
                 style={{ width: '100%' }}
               />
               <div style={{ textAlign: 'center', fontSize: 16, fontWeight: 700, color: auditScore >= 90 ? '#10b981' : auditScore >= 75 ? '#f59e0b' : '#dc2626' }}>
-                {auditScore} 分
+                {auditScore} {t('reportReviewPage.scoreUnit')}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>快捷评分</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('reportReviewPage.quickScore')}</div>
               <div style={{ display: 'flex', gap: 4 }}>
                 {[60, 75, 85, 90, 95].map(s => (
                   <button
@@ -919,12 +919,12 @@ const ReviewTaskDetail: React.FC<{
           </div>
 
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>审核意见</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('reportReviewPage.auditOpinion')}</div>
             <textarea
               value={auditSuggestion}
               onChange={e => setAuditSuggestion(e.target.value)}
               rows={3}
-              placeholder="请输入审核意见（驳回必填，通过建议填写）"
+              placeholder={t('reportReviewPage.auditOpinionPlaceholder')}
               style={{
                 width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
@@ -965,7 +965,7 @@ const ReviewTaskDetail: React.FC<{
                 borderBottom: auditDecision === 'approve' ? 'none' : '2px solid #10b981',
               }}
             >
-              <ThumbsUp size={14} /> 通过（{stageConf.label}）
+              <ThumbsUp size={14} /> {t('reportReviewPage.pass')}（{stageConf.label}）
             </button>
             <button
               onClick={() => setAuditDecision('reject')}
@@ -978,7 +978,7 @@ const ReviewTaskDetail: React.FC<{
                 borderBottom: auditDecision === 'reject' ? 'none' : '2px solid #dc2626',
               }}
             >
-              <ThumbsDown size={14} /> 驳回
+              <ThumbsDown size={14} /> {t('reportReviewPage.rejectBtn')}
             </button>
           </div>
 
@@ -993,7 +993,7 @@ const ReviewTaskDetail: React.FC<{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}
           >
-            <Send size={14} /> {submitting ? '提交中...' : `提交${stageConf.label}（${currentUser.name}）`}
+            <Send size={14} /> {submitting ? t('reportReviewPage.submitting') : `提交${stageConf.label}（${currentUser.name}）`}
           </button>
         </div>
       )}
@@ -1033,9 +1033,9 @@ const DiffHighlight: React.FC<{ oldText: string; newText: string }> = ({ oldText
 
 // [v3.0.6.11-103 Wave 12] 退回快捷原因 (一键填充审核意见)
 const QUICK_REJECT_REASONS = [
-  '影像所见与诊断意见不一致, 请复核图像后修改',
-  '诊断意见缺少关键所见描述, 建议补充病灶特征',
-  '检查部位与申请单不符, 请核对后重新书写',
-  '术语使用不规范, 建议按 ICD 标准术语修改',
-  '建议漏写, 请补充随访/复查建议',
+  t('reportReviewPage.quickReason1'),
+  t('reportReviewPage.quickReason2'),
+  t('reportReviewPage.quickReason3'),
+  t('reportReviewPage.quickReason4'),
+  t('reportReviewPage.quickReason5'),
 ];

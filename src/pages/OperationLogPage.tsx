@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { X, Clock, User, FileText, CheckCircle, Download, BarChart3, Activity, AlertCircle, History, List, Globe, Loader2, FileSpreadsheet, Users, Shield, AlertTriangle, Pause, Play, Radio, GitBranch, Fingerprint, FileJson, FileBarChart } from 'lucide-react'
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { userApi } from '../services/api'
+import { t } from '../i18n/appI18n'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import {
   LogDetail, LogFilter, LogTable, TimelineView,
@@ -27,7 +28,7 @@ export default function OperationLogPage() {
       if (res.success) {
         setLoadError(null)
       } else {
-        setLoadError('API 不可用,使用本地数据')
+        setLoadError(t('opLog.apiUnavailableLocal'))
       }
       setLoading(false)
     })()
@@ -99,7 +100,7 @@ export default function OperationLogPage() {
 
   // [Wave2A] 真实 CSV 导出 (当前筛选数据 Blob 下载)
   const exportLogsCsv = useCallback(() => {
-    const header = ['操作ID', '用户', '部门', '动作', '模块', '目标', '目标ID', '患者ID', '报告ID', 'IP', '时间', '合规等级']
+    const header = [t('opLog.hOpId'), t('opLog.hUser'), t('opLog.hDept'), t('opLog.hAction'), t('opLog.hModule'), t('opLog.hTarget'), t('opLog.hTargetId'), t('opLog.hPatientId'), t('opLog.hReportId'), 'IP', t('opLog.hTime'), t('opLog.hComplianceLevel')]
     const rows = filteredLogs.map((log) => [
       log.id, log.userName, log.department ?? '', log.action, log.module,
       log.targetDesc, log.targetId, log.patientId ?? '', log.reportId ?? '',
@@ -220,7 +221,7 @@ export default function OperationLogPage() {
   const handleExportCSV = useCallback(() => {
     setIsExporting(true)
     setTimeout(() => {
-      const headers = ['日志ID', '时间', '用户', '用户ID', '操作类型', '模块', '目标ID', '目标描述', 'IP地址', '设备', '来源', '耗时(秒)']
+      const headers = [t('opLog.hLogId'), t('opLog.hTime'), t('opLog.hUser'), t('opLog.hUserId'), t('opLog.hActionType'), t('opLog.hModule'), t('opLog.hTargetId'), t('opLog.hTargetDesc'), t('opLog.hIp'), t('opLog.hDevice'), t('opLog.hSource'), t('opLog.hDuration')]
       const rows = filteredLogs.map(log => [
         log.id, formatDateTime(log.timestamp), log.userName, log.userId, log.action, log.module,
         log.targetId, log.targetDesc, log.ipAddress, log.device, log.source, log.duration || 0,
@@ -240,11 +241,11 @@ export default function OperationLogPage() {
   const handleHipaaExportCSV = useCallback(() => {
     setIsExporting(true)
     setTimeout(() => {
-      const headers = ['日志ID', '时间', '用户', '科室', '操作类型', '患者ID', '报告ID', 'IP地址', '操作详情', '合规状态', '告警信息']
+      const headers = [t('opLog.hLogId'), t('opLog.hTime'), t('opLog.hUser'), t('opLog.hDept'), t('opLog.hActionType'), t('opLog.hPatientId'), t('opLog.hReportId'), t('opLog.hIp'), t('opLog.hOpDetail'), t('opLog.hComplianceStatus'), t('opLog.hAlertInfo')]
       const rows = hipaaFilteredLogs.map(log => [
         log.id, formatDateTime(log.timestamp), log.userName, log.department || '-', log.action,
         log.patientId || '-', log.reportId || log.targetId, log.ipAddress, log.targetDesc,
-        log.complianceLevel === 'critical' ? '违规' : log.complianceLevel === 'warning' ? '警告' : '合规',
+        log.complianceLevel === 'critical' ? t('opLog.cViolation') : log.complianceLevel === 'warning' ? t('opLog.cWarning') : t('opLog.cCompliant'),
         log.complianceAlerts?.map(a => a.message).join('; ') || '-',
       ])
       const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
@@ -326,7 +327,7 @@ export default function OperationLogPage() {
   const anomalyScores = useMemo(() => anomalyLogs.map(l => ({
     id: l.id, userName: l.userName, action: l.action,
     score: Math.floor(Math.random() * 60) + 20,
-    reason: l.action === '删除报告' ? '删除操作预警' : l.action === '批量导出' ? '批量导出预警' : '非工作时间操作',
+    reason: l.action === '删除报告' ? t('opLog.reasonDelete') : l.action === '批量导出' ? t('opLog.reasonBatchExport') : t('opLog.reasonOffHours'),
     timestamp: l.timestamp,
   })), [anomalyLogs])
   const anomalyTrend = [
@@ -350,6 +351,7 @@ export default function OperationLogPage() {
     }))
   })
   const [verifyResult, setVerifyResult] = useState<string | null>(null)
+  const [verifyOk, setVerifyOk] = useState(false)
 
   const filterBtnStyle = (active: boolean) => ({
     padding: '5px 12px', borderRadius: 6, border: `1px solid ${active ? ACCENT : 'var(--border-color)'}`,
@@ -359,7 +361,7 @@ export default function OperationLogPage() {
 
   return (
     <div data-testid="operation-log-page" style={{ minHeight: '100vh', background: BG }}>
-      {loading && <LoadingBanner message="正在从 API 加载操作日志..." />}
+      {loading && <LoadingBanner message={t('opLog.loadingBanner')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部导航 */}
       <div style={{
@@ -369,8 +371,8 @@ export default function OperationLogPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <History size={24} color={PRIMARY} />
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>操作痕迹日志</div>
-            <div style={{ fontSize: 12, color: GRAY }}>操作日志 - 共 {filteredLogs.length} 条记录</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{t('opLog.title')}</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{t('opLog.recordCount', { count: filteredLogs.length })}</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
@@ -385,26 +387,26 @@ export default function OperationLogPage() {
             }}
           >
             {isExporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
-            {isExporting ? '导出中...' : '导出CSV'}
+            {isExporting ? t('opLog.exporting') : t('opLog.exportCsv')}
           </button>
           <button
             onClick={() => setShowStats(!showStats)}
             style={{ ...filterBtnStyle(showStats), display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <BarChart3 size={14} />
-            {showStats ? '隐藏' : '显示'}统计
+            {showStats ? t('opLog.hide') : t('opLog.show')}{t('opLog.stats')}
           </button>
           <button
             onClick={() => setViewMode('table')}
             style={{ ...filterBtnStyle(viewMode === 'table'), display: 'flex', alignItems: 'center', gap: 6 }}
           >
-            <List size={14} />列表视图
+            <List size={14} />{t('opLog.tableView')}
           </button>
           <button
             onClick={() => setViewMode('timeline')}
             style={{ ...filterBtnStyle(viewMode === 'timeline'), display: 'flex', alignItems: 'center', gap: 6 }}
           >
-            <Clock size={14} />时间线视图
+            <Clock size={14} />{t('opLog.timelineView')}
           </button>
         </div>
       </div>
@@ -425,7 +427,7 @@ export default function OperationLogPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             {/* 快捷时间筛选 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 12, color: GRAY, marginRight: 4 }}>快捷筛选:</span>
+              <span style={{ fontSize: 12, color: GRAY, marginRight: 4 }}>{t('opLog.quickFilter')}</span>
               {QUICK_TIME_FILTERS.map(filter => (
                 <button
                   key={filter.value}
@@ -446,10 +448,10 @@ export default function OperationLogPage() {
             {/* Tab切换 */}
             {showStats && (
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                <button onClick={() => setViewTab('logs')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'logs' ? PRIMARY : 'transparent', color: viewTab === 'logs' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>日志统计</button>
-                <button onClick={() => setViewTab('duration')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'duration' ? PRIMARY : 'transparent', color: viewTab === 'duration' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>耗时分析</button>
-                <button onClick={() => setViewTab('heatmap')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'heatmap' ? PRIMARY : 'transparent', color: viewTab === 'heatmap' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>热力图</button>
-                <button onClick={() => setViewTab('hipaa')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'hipaa' ? PRIMARY : 'transparent', color: viewTab === 'hipaa' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Shield size={14} />HIPAA安全审计</button>
+                <button onClick={() => setViewTab('logs')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'logs' ? PRIMARY : 'transparent', color: viewTab === 'logs' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('opLog.tabLogStats')}</button>
+                <button onClick={() => setViewTab('duration')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'duration' ? PRIMARY : 'transparent', color: viewTab === 'duration' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('opLog.tabDuration')}</button>
+                <button onClick={() => setViewTab('heatmap')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'heatmap' ? PRIMARY : 'transparent', color: viewTab === 'heatmap' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('opLog.tabHeatmap')}</button>
+                <button onClick={() => setViewTab('hipaa')} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: viewTab === 'hipaa' ? PRIMARY : 'transparent', color: viewTab === 'hipaa' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Shield size={14} />{t('opLog.tabHipaa')}</button>
               </div>
             )}
           </div>
@@ -495,7 +497,7 @@ export default function OperationLogPage() {
             {viewTab === 'heatmap' && (
               <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Activity size={16} />用户活跃时段热力图
+                  <Activity size={16} />{t('opLog.userActivityHeatmap')}
                 </div>
                 <UserActivityHeatmap logs={filteredLogs} />
               </div>
@@ -527,11 +529,11 @@ export default function OperationLogPage() {
                   marginTop: -1,
                 }}>
                   <div style={{ fontSize: 12, color: GRAY }}>
-                    显示 {((hipaaCurrentPage - 1) * hipaaPageSize) + 1} - {Math.min(hipaaCurrentPage * hipaaPageSize, hipaaFilteredLogs.length)} 条，共 {hipaaFilteredLogs.length} 条
+                    {t('opLog.hipaaPager', { from: ((hipaaCurrentPage - 1) * hipaaPageSize) + 1, to: Math.min(hipaaCurrentPage * hipaaPageSize, hipaaFilteredLogs.length), total: hipaaFilteredLogs.length })}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 12, color: GRAY }}>每页</span>
+                      <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.perPage')}</span>
                       <select
                         value={hipaaPageSize}
                         onChange={e => { setHipaaPageSize(Number(e.target.value)); setHipaaCurrentPage(1) }}
@@ -539,13 +541,13 @@ export default function OperationLogPage() {
                       >
                         {PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
-                      <span style={{ fontSize: 12, color: GRAY }}>条</span>
+                      <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.itemsUnit')}</span>
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))} disabled={hipaaCurrentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
-                      <button onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))} disabled={hipaaCurrentPage === hipaaTotalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
+                      <button onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))} disabled={hipaaCurrentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer' }}>{t('opLog.prevPage')}</button>
+                      <button onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))} disabled={hipaaCurrentPage === hipaaTotalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer' }}>{t('opLog.nextPage')}</button>
                     </div>
-                    <span style={{ fontSize: 12, color: GRAY }}>第 {hipaaCurrentPage} / {hipaaTotalPages} 页</span>
+                    <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.pageOf', { page: hipaaCurrentPage, total: hipaaTotalPages })}</span>
                   </div>
                 </div>
               </>
@@ -578,11 +580,11 @@ export default function OperationLogPage() {
                   padding: '12px 0', borderTop: '1px solid var(--border-color)', marginTop: 16,
                 }}>
                   <div style={{ fontSize: 12, color: GRAY }}>
-                    显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} 条，共 {filteredLogs.length} 条
+                    {t('opLog.hipaaPager', { from: ((currentPage - 1) * pageSize) + 1, to: Math.min(currentPage * pageSize, filteredLogs.length), total: filteredLogs.length })}
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
-                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === totalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
+                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>{t('opLog.prevPage')}</button>
+                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === totalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>{t('opLog.nextPage')}</button>
                   </div>
                 </div>
               </div>
@@ -594,11 +596,11 @@ export default function OperationLogPage() {
       {/* 实时流/异常检测/会话追踪/合规报告/区块链 Tab栏 */}
       <div style={{ background: WHITE, borderRadius: 10, padding: '4px', margin: '0 20px 16px', display: 'flex', gap: 4, border: `1px solid var(--border-color)`, flexWrap: 'wrap' }}>
         {[
-          { key: 'stream', label: '实时日志流', icon: <Radio size={14} /> },
-          { key: 'anomaly', label: '异常检测', icon: <AlertTriangle size={14} /> },
-          { key: 'session', label: '会话追踪', icon: <Users size={14} /> },
-          { key: 'complianceReports', label: '合规报告', icon: <FileBarChart size={14} /> },
-          { key: 'blockchain', label: '区块链存证', icon: <Fingerprint size={14} /> },
+          { key: 'stream', label: t('opLog.liveStream'), icon: <Radio size={14} /> },
+          { key: 'anomaly', label: t('opLog.anomalyDetect'), icon: <AlertTriangle size={14} /> },
+          { key: 'session', label: t('opLog.sessionTrack'), icon: <Users size={14} /> },
+          { key: 'complianceReports', label: t('opLog.complianceReport'), icon: <FileBarChart size={14} /> },
+          { key: 'blockchain', label: t('opLog.blockchainEvidence'), icon: <Fingerprint size={14} /> },
         ].map(tab => (
           <button key={tab.key} onClick={() => setLiveTab(tab.key as typeof liveTab)} style={{
             padding: '6px 14px', borderRadius: 6, border: 'none',
@@ -615,16 +617,16 @@ export default function OperationLogPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#1e293b', color: WHITE }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Radio size={16} color="#22c55e" />
-              <span style={{ fontWeight: 600, fontSize: 13 }}>实时日志流</span>
+              <span style={{ fontWeight: 600, fontSize: 13 }}>{t('opLog.liveStream')}</span>
               <span style={{ background: '#22c55e', width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>5s轮询</span>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opLog.poll5s')}</span>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#334155', color: WHITE, fontSize: 12, outline: 'none' }}>
                 {['全部', 'info', 'warn', 'error', 'critical'].map(s => (<option key={s} value={s}>{s}</option>))}
               </select>
               <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? '#22c55e' : '#64748b', color: WHITE, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                {autoScroll ? <Play size={12} /> : <Pause size={12} />}{autoScroll ? '自动滚动' : '暂停'}
+                {autoScroll ? <Play size={12} /> : <Pause size={12} />}{autoScroll ? t('opLog.autoScroll') : t('opLog.pause')}
               </button>
             </div>
           </div>
@@ -650,10 +652,10 @@ export default function OperationLogPage() {
         <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '异常事件数', value: anomalyLogs.length, icon: <AlertTriangle size={18} />, color: DANGER, bg: 'var(--color-error-bg)' },
-              { label: '高危异常', value: anomalyScores.filter(s => s.score >= 70).length, icon: <AlertCircle size={18} />, color: '#7c3aed', bg: 'var(--color-info-bg)' },
-              { label: '非工作时间', value: anomalyLogs.filter(l => new Date(l.timestamp).getHours() >= 22 || new Date(l.timestamp).getHours() < 6).length, icon: <Clock size={18} />, color: WARNING, bg: 'var(--color-warning-bg)' },
-              { label: '批量导出/删除', value: anomalyLogs.filter(l => l.action === '批量导出' || l.action === '删除报告').length, icon: <Download size={18} />, color: '#f97316', bg: 'var(--color-warning-bg)' },
+              { label: t('opLog.anomalyEvents'), value: anomalyLogs.length, icon: <AlertTriangle size={18} />, color: DANGER, bg: 'var(--color-error-bg)' },
+              { label: t('opLog.highRiskAnomaly'), value: anomalyScores.filter(s => s.score >= 70).length, icon: <AlertCircle size={18} />, color: '#7c3aed', bg: 'var(--color-info-bg)' },
+              { label: t('opLog.offHours'), value: anomalyLogs.filter(l => new Date(l.timestamp).getHours() >= 22 || new Date(l.timestamp).getHours() < 6).length, icon: <Clock size={18} />, color: WARNING, bg: 'var(--color-warning-bg)' },
+              { label: t('opLog.batchExportDelete'), value: anomalyLogs.filter(l => l.action === '批量导出' || l.action === '删除报告').length, icon: <Download size={18} />, color: '#f97316', bg: 'var(--color-warning-bg)' },
             ].map(card => (
               <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
@@ -662,10 +664,10 @@ export default function OperationLogPage() {
             ))}
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>异常评分明细</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('opLog.anomalyScoreDetail')}</h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-                {['用户', '操作', '异常评分', '原因', '时间'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
+                {[t('opLog.colUser'), t('opLog.colAction'), t('opLog.colAnomalyScore'), t('opLog.colReason'), t('opLog.colTime')].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
               </tr></thead>
               <tbody>
                 {anomalyScores.filter(s => s.score >= 50).slice(0, 10).map((s, idx) => (
@@ -684,19 +686,19 @@ export default function OperationLogPage() {
             {anomalyScores.filter(s => s.score >= 70).length > 0 && (
               <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--color-error-bg)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={16} color={DANGER} />
-                <span style={{ fontSize: 12, color: '#991b1b' }}>检测到 {anomalyScores.filter(s => s.score >= 70).length} 例高危异常，建议立即审查</span>
+                <span style={{ fontSize: 12, color: '#991b1b' }}>{t('opLog.highRiskWarning', { count: anomalyScores.filter(s => s.score >= 70).length })}</span>
               </div>
             )}
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>异常趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('opLog.anomalyTrend')}</h3>
             <ResponsiveContainer width='100%' height={200}>
               <AreaChart data={anomalyTrend}>
                 <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                 <XAxis dataKey='month' tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Area type='monotone' dataKey='count' stroke={DANGER} fill='var(--color-error-bg)' strokeWidth={2} name='异常次数' />
+                <Area type='monotone' dataKey='count' stroke={DANGER} fill='var(--color-error-bg)' strokeWidth={2} name={t('opLog.anomalyCount')} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -707,7 +709,7 @@ export default function OperationLogPage() {
       {liveTab === 'session' && (
         <div style={{ margin: '0 20px 16px', display: 'flex', gap: 16 }}>
           <div style={{ width: 220, flexShrink: 0, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>选择用户</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>{t('opLog.selectUser')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {sessionUsers.map(name => (
                 <button key={name} onClick={() => setSelectedSessionUser(name)} style={{
@@ -726,9 +728,9 @@ export default function OperationLogPage() {
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <User size={16} />{selectedSessionUser} 的会话时间线
+                    <User size={16} />{t('opLog.userSessionTimeline', { name: selectedSessionUser })}
                   </h3>
-                  <span style={{ fontSize: 12, color: GRAY }}>共 {sessionLogs.length} 条操作</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.sessionOpsCount', { count: sessionLogs.length })}</span>
                 </div>
                 <div style={{ position: 'relative' }}>
                   {sessionLogs.slice(0, 30).map((log, idx) => (
@@ -756,7 +758,7 @@ export default function OperationLogPage() {
             ) : (
               <div style={{ textAlign: 'center', padding: 40, color: GRAY }}>
                 <Users size={40} style={{ marginBottom: 12, opacity: 0.5 }} />
-                <div style={{ fontSize: 14 }}>请从左侧选择一个用户查看会话时间线</div>
+                <div style={{ fontSize: 14 }}>{t('opLog.selectUserHint')}</div>
               </div>
             )}
           </div>
@@ -769,7 +771,7 @@ export default function OperationLogPage() {
           <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <FileBarChart size={18} color={PRIMARY} />
-              <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>合规报告模板</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>{t('opLog.complianceTemplate')}</span>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {(['daily' as const, 'weekly' as const, 'monthly' as const]).map(s => (
@@ -777,7 +779,7 @@ export default function OperationLogPage() {
                   padding: '4px 12px', borderRadius: 6, border: `1px solid ${reportSchedule === s ? ACCENT : 'var(--border-color)'}`,
                   background: reportSchedule === s ? ACCENT : WHITE, color: reportSchedule === s ? WHITE : GRAY,
                   fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                }}>{s === 'daily' ? '日报' : s === 'weekly' ? '周报' : '月报'}</button>
+                }}>{s === 'daily' ? t('opLog.daily') : s === 'weekly' ? t('opLog.weekly') : t('opLog.monthly')}</button>
               ))}
             </div>
             <button onClick={() => setGeneratingReport(true)} disabled={generatingReport} style={{
@@ -785,26 +787,26 @@ export default function OperationLogPage() {
               fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
             }}>
               {generatingReport ? <Loader2 size={14} /> : <FileText size={14} />}
-              {generatingReport ? '生成中...' : '生成报告'}
+              {generatingReport ? t('opLog.generating') : t('opLog.generateReport')}
             </button>
             <button onClick={exportLogsCsv} style={{
               padding: '6px 14px', borderRadius: 6, border: `1px solid #059669`, background: `${SUCCESS}10`,
               color: SUCCESS, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            }}><FileSpreadsheet size={14} />导出CSV</button>
+            }}><FileSpreadsheet size={14} />{t('opLog.exportCsv')}</button>
             <button onClick={exportLogsPdf} style={{
               padding: '6px 14px', borderRadius: 6, border: `1px solid #dc2626`, background: `${DANGER}10`,
               color: DANGER, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            }}><FileJson size={14} />导出PDF</button>
+            }}><FileJson size={14} />{t('opLog.exportPdf')}</button>
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>
-              {reportSchedule === 'daily' ? '日' : reportSchedule === 'weekly' ? '周' : '月'}度合规报告摘要
+              {t('opLog.complianceSummaryTitle', { period: reportSchedule === 'daily' ? t('opLog.daily') : reportSchedule === 'weekly' ? t('opLog.weekly') : t('opLog.monthly') })}
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               {[
-                { label: '总操作数', value: filteredLogs.length, color: ACCENT },
-                { label: '合规操作', value: Math.round(filteredLogs.length * 0.92), color: SUCCESS },
-                { label: '告警操作', value: Math.round(filteredLogs.length * 0.08), color: WARNING },
+                { label: t('opLog.totalOps'), value: filteredLogs.length, color: ACCENT },
+                { label: t('opLog.compliantOps'), value: Math.round(filteredLogs.length * 0.92), color: SUCCESS },
+                { label: t('opLog.alertOps'), value: Math.round(filteredLogs.length * 0.08), color: WARNING },
               ].map(card => (
                 <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: card.color }}>{card.value}</div>
@@ -814,7 +816,7 @@ export default function OperationLogPage() {
             </div>
             <div style={{ marginTop: 16, background: 'var(--color-success-bg)', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Shield size={16} color={SUCCESS} />
-              <span style={{ fontSize: 12, color: '#065f46' }}>HIPAA / GDPR / 等保 合规要求已满足，报告已就绪</span>
+              <span style={{ fontSize: 12, color: '#065f46' }}>{t('opLog.complianceReady')}</span>
             </div>
           </div>
         </div>
@@ -826,27 +828,28 @@ export default function OperationLogPage() {
           <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Fingerprint size={18} color={PRIMARY} />
-              <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>区块链日志存证</span>
-              <span style={{ fontSize: 12, color: GRAY }}>SHA-256 哈希链</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>{t('opLog.blockchainEvidence')}</span>
+              <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.sha256Chain')}</span>
             </div>
             <button onClick={() => {
               const allMatch = blockchainData.every(b => b.verified)
-              setVerifyResult(allMatch ? '全部日志验证通过 ✓' : '检测到篡改！哈希不匹配')
+              setVerifyOk(allMatch)
+              setVerifyResult(allMatch ? t('opLog.verifyPassed') : t('opLog.verifyTampered'))
               setTimeout(() => setVerifyResult(null), 4000)
             }} style={{
               padding: '6px 14px', borderRadius: 6, border: 'none', background: ACCENT, color: WHITE,
               fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            }}><Shield size={14} />验证完整性</button>
+            }}><Shield size={14} />{t('opLog.verifyIntegrity')}</button>
           </div>
           {verifyResult && (
-            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyResult.includes('通过') ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: verifyResult.includes('通过') ? SUCCESS : DANGER, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-              {verifyResult.includes('通过') ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyOk ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: verifyOk ? SUCCESS : DANGER, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+              {verifyOk ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
               {verifyResult}
             </div>
           )}
           <div style={{ background: WHITE, borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px', padding: '10px 14px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: GRAY }}>
-              <div>日志ID</div><div>用户</div><div>区块哈希</div><div>前一哈希</div><div>验证</div>
+              <div>{t('opLog.colLogId')}</div><div>{t('opLog.colUser')}</div><div>{t('opLog.colBlockHash')}</div><div>{t('opLog.colPrevHash')}</div><div>{t('opLog.colVerify')}</div>
             </div>
             {blockchainData.slice(0, 10).map(b => (
               <div key={b.id} style={{
@@ -865,7 +868,7 @@ export default function OperationLogPage() {
           </div>
           <div style={{ display: 'flex', gap: 8, padding: '8px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
             <GitBranch size={14} color={GRAY} />
-            <span style={{ fontSize: 12, color: GRAY }}>区块链高度: {blockchainData.length} · 最新区块: {new Date().toISOString().slice(0, 10)} · 哈希算法: SHA-256</span>
+            <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.blockchainFooter', { height: blockchainData.length, latest: new Date().toISOString().slice(0, 10) })}</span>
           </div>
         </div>
       )}
@@ -891,10 +894,10 @@ export default function OperationLogPage() {
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               <Loader2 size={40} style={{ color: PRIMARY, animation: 'spin 1s linear infinite', marginBottom: 12 }} />
               <div style={{ fontSize: 15, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>
-                {exportProgress < 100 ? '正在导出...' : '导出完成'}
+                {exportProgress < 100 ? t('opLog.exportingProgress') : t('opLog.exportDone')}
               </div>
               <div style={{ fontSize: 13, color: GRAY, marginBottom: 16 }}>
-                {exportProgress < 100 ? '请稍候' : '文件已准备好'}
+                {exportProgress < 100 ? t('opLog.pleaseWait') : t('opLog.fileReady')}
               </div>
               <div style={{ width: '100%', height: 8, background: 'var(--border-color)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{ width: `${exportProgress}%`, height: '100%', background: exportProgress === 100 ? SUCCESS : PRIMARY, transition: 'width 0.2s ease-out' }} />

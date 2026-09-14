@@ -854,7 +854,7 @@ const HomePage: FC = () => {
               marginBottom: 4,
               letterSpacing: '0.5px',
             }}>
-              放射科信息管理系统
+              {t('homePage.systemName')}
             </div>
             <div style={{
               fontSize: 14,
@@ -1573,7 +1573,7 @@ const HomePage: FC = () => {
       <div style={{
         maxHeight: 280,
         overflowY: 'auto',
-      }} tabIndex={0} aria-label="设备列表">
+      }} tabIndex={0} aria-label={t('homePage.ariaDeviceList')}>
         {devices.map((device) => (
           <div
             key={device.id}
@@ -1663,7 +1663,7 @@ const HomePage: FC = () => {
         </div>
       </div>
 
-      <div style={{ maxHeight: 400, overflowY: 'auto' }} tabIndex={0} aria-label="待检列表">
+      <div style={{ maxHeight: 400, overflowY: 'auto' }} tabIndex={0} aria-label={t('homePage.ariaPendingExamList')}>
         {pendingExams.map((exam, index) => (
           <div
             key={exam.id}
@@ -1861,7 +1861,7 @@ const HomePage: FC = () => {
           </div>
         </div>
       ) : (
-        <div style={{ maxHeight: 320, overflowY: 'auto' }} tabIndex={0} aria-label="危急值列表">
+        <div style={{ maxHeight: 320, overflowY: 'auto' }} tabIndex={0} aria-label={t('homePage.ariaCriticalList')}>
           {criticalPending.map((cv, index) => (
             <div
               key={cv.id}
@@ -2431,7 +2431,7 @@ const HomePage: FC = () => {
               color: COLORS.primary,
               marginBottom: 4,
             }}>
-              ¥{(item.value / 10000).toFixed(1)}万
+              ¥{(item.value / 10000).toFixed(1)}{t('homePage.tenThousandUnit')}
             </div>
             <div style={{
               fontSize: 12,
@@ -2698,7 +2698,7 @@ const HomePage: FC = () => {
             <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Users size={14} color={COLORS.info} /> {t('homePage.deptAnnouncements')}
             </div>
-            <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label="科室公告列表">
+            <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label={t('homePage.ariaAnnouncementList')}>
               {deptAnnouncements.length === 0 ? (
                 <div style={{
                   textAlign: 'center', padding: '30px 0', color: COLORS.textMuted, fontSize: 12,
@@ -2743,7 +2743,7 @@ const HomePage: FC = () => {
             <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <CalendarClock size={14} color={COLORS.warning} /> {t('homePage.todayOnCall')}
             </div>
-            <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label="今日值班列表">
+            <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label={t('homePage.ariaOnCallList')}>
               {todayOnCall.length === 0 ? (
                 <div style={{
                   textAlign: 'center', padding: '30px 0', color: COLORS.textMuted, fontSize: 12,
@@ -2867,7 +2867,7 @@ const HomePage: FC = () => {
                 color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
               }}
             >
-              <RefreshCcw size={12} /> 刷新
+              <RefreshCcw size={12} /> {t('homePage.refresh')}
             </button>
           </div>
         </div>

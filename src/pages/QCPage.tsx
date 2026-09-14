@@ -524,7 +524,7 @@ export default function QCPage() {
   const [editingRules, setEditingRules] = useState(false)
   const [tempRules, setTempRules] = useState({ ...qcRulesDefault })
   const [trendRange, setTrendRange] = useState<'7d' | '30d'>('7d')
-  const [filterStatus, setFilterStatus] = useState('全部')
+  const [filterStatus, setFilterStatus] = useState(t('qcPage.all'))
 
   // 区域质控相关状态
   const [regionalReportType, setRegionalReportType] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly')
@@ -716,7 +716,7 @@ export default function QCPage() {
 
   const filteredReports = reportQCData.filter(r => {
     const matchSearch = !search || r.patientName.includes(search) || r.id.includes(search)
-    const matchStatus = filterStatus === '全部' || r.status === filterStatus
+    const matchStatus = filterStatus === t('qcPage.all') || r.status === filterStatus
     return matchSearch && matchStatus
   })
 
@@ -1114,7 +1114,7 @@ export default function QCPage() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("qcPage.searchPlaceholder")} style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent', color: PRIMARY }} />
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {['全部', t("qcPage.excellent"), t("qcPage.good"), t("qcPage.fair"), t("qcPage.poor")].map(s => (
+              {[t('qcPage.all'), t("qcPage.excellent"), t("qcPage.good"), t("qcPage.fair"), t("qcPage.poor")].map(s => (
                 <button key={s} onClick={() => setFilterStatus(s)} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${filterStatus === s ? ACCENT : BORDER}`, background: filterStatus === s ? ACCENT : 'var(--bg-card)', color: filterStatus === s ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   {s}
                 </button>
@@ -1967,9 +1967,9 @@ export default function QCPage() {
                     ]}>
                       <PolarGrid stroke='var(--border-color)' />
                       <PolarAngleAxis dataKey='subject' tick={{ fontSize: 12, color: GRAY }} />
-                      <Radar name='市第一人民医院' dataKey='top1' stroke={PIE_COLORS[0]} fill={PIE_COLORS[0]} fillOpacity={0.2} />
-                      <Radar name='市中医院' dataKey='top2' stroke={PIE_COLORS[1]} fill={PIE_COLORS[1]} fillOpacity={0.2} />
-                      <Radar name='市第三医院' dataKey='top3' stroke={PIE_COLORS[2]} fill={PIE_COLORS[2]} fillOpacity={0.2} />
+                      <Radar name={t('qcPage.hospitalCity1')} dataKey='top1' stroke={PIE_COLORS[0]} fill={PIE_COLORS[0]} fillOpacity={0.2} />
+                      <Radar name={t('qcPage.hospitalTcm')} dataKey='top2' stroke={PIE_COLORS[1]} fill={PIE_COLORS[1]} fillOpacity={0.2} />
+                      <Radar name={t('qcPage.hospitalCity3')} dataKey='top3' stroke={PIE_COLORS[2]} fill={PIE_COLORS[2]} fillOpacity={0.2} />
                       <Legend />
                     </RadarChart>
                   </ResponsiveContainer>
@@ -2858,7 +2858,7 @@ export default function QCPage() {
                     <Area type='monotone' dataKey='upperControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='UCL' />
                     <Area type='monotone' dataKey='lowerControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='LCL' />
                     <Area type='monotone' dataKey='mean' stroke='#64748b' strokeDasharray='3 3' fill='none' name='CL' />
-                    <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={{ r: 4, fill: ACCENT }} name='全院评分' />
+                    <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={{ r: 4, fill: ACCENT }} name={t('qcPage.hospitalAvgScore')} />
                     {monthlyQualityData.filter(d => d.deptAvg > d.upperControl || d.deptAvg < d.lowerControl).map((d, i) => (
                       <Line key={i} dataKey='deptAvg' data={[d]} stroke={DANGER} strokeWidth={0} dot={{ r: 6, fill: DANGER, stroke: WHITE, strokeWidth: 2 }} />
                     ))}
@@ -2891,8 +2891,8 @@ export default function QCPage() {
                   <Area type='monotone' dataKey='upperControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='UCL' />
                   <Area type='monotone' dataKey='mean' stroke='#64748b' strokeDasharray='3 3' fill='none' name='CL' />
                   <Area type='monotone' dataKey='lowerControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='LCL' />
-                  <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={false} name='全院评分' />
-                  <Line type='monotone' dataKey='indivAvg' stroke={SUCCESS} strokeWidth={2} dot={{ r: 4, fill: SUCCESS }} name='个人评分' />
+                  <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={false} name={t('qcPage.hospitalAvgScore')} />
+                  <Line type='monotone' dataKey='indivAvg' stroke={SUCCESS} strokeWidth={2} dot={{ r: 4, fill: SUCCESS }} name={t('qcPage.individualAvgScore')} />
                 </AreaChart>
               </ResponsiveContainer>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>

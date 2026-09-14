@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { message } from 'antd'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import { qcImageAiApi } from '../services/api/qcImageAiApi'
+import { t } from '../i18n/appI18n'
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
   TrendingUp, TrendingDown, BarChart3, Clock, Camera, Image, X, Check,
@@ -129,11 +130,11 @@ const getScoreColor = (score: number) => {
 
 // AI评分标签
 const getScoreLabel = (score: number) => {
-  if (score >= 90) return '优秀'
-  if (score >= 80) return '良好'
-  if (score >= 70) return '一般'
-  if (score >= 60) return '较差'
-  return '差'
+  if (score >= 90) return t('aiQcPage.scoreExcellent')
+  if (score >= 80) return t('aiQcPage.scoreGood')
+  if (score >= 70) return t('aiQcPage.scoreFair')
+  if (score >= 60) return t('aiQcPage.scorePoor')
+  return t('aiQcPage.scoreBad')
 }
 
 export default function AIQCPage() {
@@ -254,10 +255,10 @@ export default function AIQCPage() {
     const xs = (i) => pad + (i * (w - pad * 2)) / Math.max(1, trendData.length - 1)
     const ys = (v) => h - pad - ((v - min) / (max - min)) * (h - pad * 2)
     const series = [
-      { key: 'artifact', color: WARNING, label: '伪影' },
-      { key: 'exposure', color: PRIMARY, label: '曝光' },
-      { key: 'positioning', color: '#a855f7', label: '体位' },
-      { key: 'overall', color: SUCCESS, label: '总分' },
+      { key: 'artifact', color: WARNING, label: t('aiQcPage.artifact') },
+      { key: 'exposure', color: PRIMARY, label: t('aiQcPage.exposure') },
+      { key: 'positioning', color: '#a855f7', label: t('aiQcPage.positioning') },
+      { key: 'overall', color: SUCCESS, label: t('aiQcPage.overallScore') },
     ]
     return (
       <div style={{ padding: '0 20px 16px' }}>
@@ -288,7 +289,7 @@ export default function AIQCPage() {
               {s.label}
             </span>
           ))}
-          {trendLoading && <span style={{ fontSize: 12, color: GRAY }}>同步中…</span>}
+          {trendLoading && <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.syncing')}</span>}
         </div>
       </div>
     )
@@ -320,7 +321,7 @@ export default function AIQCPage() {
       })
       void loadAssessHistory(true)
     } else {
-      setAssessError('批量评估无返回，请检查检查号')
+      setAssessError(t('aiQcPage.batchNoReturn'))
     }
     setBatchAssessing(false)
   }
@@ -329,7 +330,7 @@ export default function AIQCPage() {
   const exportAssessCsv = () => {
     const rows = batchResults.length > 0 ? batchResults : dimAssessments
     if (rows.length === 0) {
-      setAssessError('暂无评估结果可导出，请先评估检查')
+      setAssessError(t('aiQcPage.noResultToExport'))
       return
     }
     const head = ['检查号', '模态', '部位', '时间', '伪影分', '伪影结论', '曝光分', '曝光结论', '体位分', '体位结论', '总分', '总评']
@@ -365,12 +366,12 @@ export default function AIQCPage() {
     try {
       const res = await qcImageAiApi.assess({ studyId })
       if (!res.success) {
-        setAssessError(res.error?.message ?? '三维度评估失败')
+        setAssessError(res.error?.message ?? t('aiQcPage.assessFailed'))
         return null
       }
       return res.data
     } catch (e) {
-      setAssessError((e as Error)?.message ?? '三维度评估失败')
+      setAssessError((e as Error)?.message ?? t('aiQcPage.assessFailed'))
       return null
     } finally {
       setAssessing(false)
@@ -386,10 +387,10 @@ export default function AIQCPage() {
         if (res.success && res.data) results.push(res.data)
       }
       setDimAssessments(results.length > 0 ? results : dimAssessments)
-      if (results.length === 0) setAssessError('三维度评估接口无返回，展示已有结果')
+      if (results.length === 0) setAssessError(t('aiQcPage.assessNoReturn'))
       else setAssessError('')
     } catch (e) {
-      setAssessError((e as Error)?.message ?? '三维度评估加载失败')
+      setAssessError((e as Error)?.message ?? t('aiQcPage.assessLoadFailed'))
     } finally {
       setAssessing(false)
     }
@@ -412,7 +413,7 @@ export default function AIQCPage() {
     try {
       const res = await aiPlatformApi.listQcResults()
       if (!res.success) {
-        setApiError(res.error?.message ?? 'AI QC 数据加载失败')
+        setApiError(res.error?.message ?? t('aiQcPage.dataLoadFailed'))
         return
       }
       const raw = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
@@ -422,10 +423,10 @@ export default function AIQCPage() {
         setMergedData(rows)
         setApiError('')
       } else if (!silent) {
-        setApiError('接口返回空数据，展示演示数据')
+        setApiError(t('aiQcPage.emptyFallbackDemo'))
       }
     } catch (e) {
-      setApiError((e as Error)?.message ?? 'AI QC 数据加载失败')
+      setApiError((e as Error)?.message ?? t('aiQcPage.dataLoadFailed'))
     } finally {
       setApiLoading(false)
     }
@@ -488,9 +489,9 @@ export default function AIQCPage() {
   // 统计卡片
   const statCards = [
     {
-      label: '今日完成',
+      label: t('aiQcPage.todayCompleted'),
       value: liveStats.todayComplete,
-      unit: '例',
+      unit: t('aiQcPage.cases'),
       icon: <CheckCircle size={22} />,
       bg: '#1e40af',
       color: PRIMARY,
@@ -498,7 +499,7 @@ export default function AIQCPage() {
       trendUp: true,
     },
     {
-      label: '合格率',
+      label: t('aiQcPage.passRate'),
       value: liveStats.qualifiedRate,
       unit: '%',
       icon: <ShieldCheck size={22} />,
@@ -508,9 +509,9 @@ export default function AIQCPage() {
       trendUp: true,
     },
     {
-      label: '问题发现',
+      label: t('aiQcPage.issuesFound'),
       value: liveStats.issuesFound,
-      unit: '例',
+      unit: t('aiQcPage.cases'),
       icon: <AlertTriangle size={22} />,
       bg: '#3d2a1a',
       color: WARNING,
@@ -518,7 +519,7 @@ export default function AIQCPage() {
       trendUp: true,
     },
     {
-      label: '技师反馈率',
+      label: t('aiQcPage.techFeedbackRate'),
       value: liveStats.feedbackRate,
       unit: '%',
       icon: <MessageSquare size={22} />,
@@ -589,12 +590,12 @@ export default function AIQCPage() {
       {confirmed ? (
         <>
           <CheckCircle size={16} color={SUCCESS} />
-          <span style={{ color: SUCCESS, fontSize: 12 }}>已确认</span>
+          <span style={{ color: SUCCESS, fontSize: 12 }}>{t('aiQcPage.confirmed')}</span>
         </>
       ) : (
         <>
           <Clock size={16} color={GRAY} />
-          <span style={{ color: GRAY, fontSize: 12 }}>待确认</span>
+          <span style={{ color: GRAY, fontSize: 12 }}>{t('aiQcPage.pendingConfirm')}</span>
         </>
       )}
     </div>
@@ -623,10 +624,10 @@ export default function AIQCPage() {
         <div style={{ fontSize: 18 }}>✨</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>
-            v1.0.4 AI 智能质控升级 · 一键自动初稿
+            {t('aiQcPage.bannerTitle')}
           </div>
           <div style={{ fontSize: 12, color: '#e0e7ff', marginTop: 2 }}>
-            6 大临床场景模板 · AI 模型 v2.3 · 历史相似病例匹配 · 应用到报告
+            {t('aiQcPage.bannerDesc')}
           </div>
         </div>
         <button
@@ -637,7 +638,7 @@ export default function AIQCPage() {
             display: 'flex', alignItems: 'center', gap: 4,
           }}
         >
-          ✨ 一键 AI 初稿
+          ✨ {t('aiQcPage.oneClickDraft')}
         </button>
       </div>
 
@@ -659,10 +660,10 @@ export default function AIQCPage() {
             </div>
             <div>
               <h1 style={{ fontSize: 20, fontWeight: 700, color: WHITE, margin: 0 }}>
-                AI智能质控
+                {t('aiQcPage.heading')}
               </h1>
               <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>
-                基于深度学习的影像质量智能分析与质控 {apiLoading ? '(同步中…)' : ''}
+                {t('aiQcPage.subtitle')} {apiLoading ? t('aiQcPage.syncing') : ''}
               </p>
             </div>
           </div>
@@ -683,7 +684,7 @@ export default function AIQCPage() {
               }}
             >
               <RefreshCw size={14} className={apiLoading ? 'spin-icon' : ''} />
-              同步 AI 平台数据
+              {t('aiQcPage.syncAiPlatform')}
             </button>
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
@@ -701,7 +702,7 @@ export default function AIQCPage() {
               }}
             >
               <RefreshCw size={14} style={{ animation: autoRefresh ? 'spin 1s linear infinite' : 'none' }} />
-              自动刷新
+              {t('aiQcPage.autoRefresh')}
             </button>
             <button
               onClick={() => { const csv = 'AI质控报表\n记录数,合格率,需重审数,采纳率\n' + mergedData.length + ',' + liveStats.qualifiedRate + '%,' + liveStats.issuesFound + ',' + liveStats.feedbackRate + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'AI质控报表.csv'; a.click(); URL.revokeObjectURL(url); }}
@@ -720,7 +721,7 @@ export default function AIQCPage() {
               }}
             >
               <Download size={14} />
-              导出报表
+              {t('aiQcPage.exportReport')}
             </button>
           </div>
         </div>
@@ -737,8 +738,8 @@ export default function AIQCPage() {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <span>{apiError}（继续展示演示数据）</span>
-            <button onClick={() => { setApiError(''); void loadApiQc() }} style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            <span>{apiError}{t('aiQcPage.continueDemo')}</span>
+            <button onClick={() => { setApiError(''); void loadApiQc() }} style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', fontSize: 12 }}>{t('aiQcPage.retry')}</button>
           </div>
         )}
       </div>
@@ -824,7 +825,7 @@ export default function AIQCPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Filter size={16} color={PRIMARY} />
-            <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>多维筛选</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>{t('aiQcPage.multiFilter')}</span>
           </div>
           <button
             onClick={() => {
@@ -845,7 +846,7 @@ export default function AIQCPage() {
               gap: 4,
             }}
           >
-            <RefreshCw size={12} /> 重置
+            <RefreshCw size={12} /> {t('aiQcPage.reset')}
           </button>
         </div>
 
@@ -860,7 +861,7 @@ export default function AIQCPage() {
             <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: GRAY }} />
             <input
               type="text"
-              placeholder="搜索患者姓名/报告ID/设备..."
+              placeholder={t('aiQcPage.searchPlaceholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{
@@ -892,7 +893,7 @@ export default function AIQCPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="全部">全部设备</option>
+            <option value="全部">{t('aiQcPage.allDevices')}</option>
             {DEVICE_TYPES.map(d => (
               <option key={d} value={d}>{d}</option>
             ))}
@@ -913,7 +914,7 @@ export default function AIQCPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="全部">全部结果</option>
+            <option value="全部">{t('aiQcPage.allResults')}</option>
             {QC_RESULTS.map(r => (
               <option key={r} value={r}>{r}</option>
             ))}
@@ -934,9 +935,9 @@ export default function AIQCPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="全部">全部技师</option>
-            {TECHNICIANS.map(t => (
-              <option key={t} value={t}>{t}</option>
+            <option value="全部">{t('aiQcPage.allTechnicians')}</option>
+            {TECHNICIANS.map(tech => (
+              <option key={tech} value={tech}>{tech}</option>
             ))}
           </select>
 
@@ -956,7 +957,7 @@ export default function AIQCPage() {
                 outline: 'none',
               }}
             />
-            <span style={{ color: GRAY }}>至</span>
+            <span style={{ color: GRAY }}>{t('aiQcPage.to')}</span>
             <input
               type="date"
               value={dateRange.end}
@@ -994,16 +995,16 @@ export default function AIQCPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Gauge size={16} color={PRIMARY} />
-            <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>AI 三维度自动质控</span>
-            <span style={{ fontSize: 12, color: GRAY }}>伪影 · 曝光 · 体位（POST /qc/image-ai/assess，确定性评估）</span>
-            {assessing && <span style={{ fontSize: 12, color: GRAY }}>评估中…</span>}
+            <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>{t('aiQcPage.autoQc3d')}</span>
+            <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.autoQc3dDesc')}</span>
+            {assessing && <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.assessing')}</span>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <input
               type="text"
               value={assessStudyId}
               onChange={e => setAssessStudyId(e.target.value)}
-              placeholder="输入检查号"
+              placeholder={t('aiQcPage.enterStudyId')}
               style={{
                 width: 150,
                 padding: '8px 12px',
@@ -1033,7 +1034,7 @@ export default function AIQCPage() {
                 gap: 6,
               }}
             >
-              <Scan size={14} /> 评估检查
+              <Scan size={14} /> {t('aiQcPage.assessStudy')}
             </button>
             <button
               onClick={() => void loadAssessments(SAMPLE_ASSESS_IDS)}
@@ -1051,7 +1052,7 @@ export default function AIQCPage() {
                 gap: 6,
               }}
             >
-              <RefreshCw size={14} /> 刷新示例
+              <RefreshCw size={14} /> {t('aiQcPage.refreshSamples')}
             </button>
           </div>
         </div>
@@ -1066,13 +1067,13 @@ export default function AIQCPage() {
           background: DARK_BG,
         }}>
           <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Target size={13} /> 通过阈值 (本地保存):
+            <Target size={13} /> {t('aiQcPage.passThreshold')}
           </span>
           {[
-            ['artifact', '伪影'],
-            ['exposure', '曝光'],
-            ['positioning', '体位'],
-            ['overall', '总分'],
+            ['artifact', t('aiQcPage.artifact')],
+            ['exposure', t('aiQcPage.exposure')],
+            ['positioning', t('aiQcPage.positioning')],
+            ['overall', t('aiQcPage.overallScore')],
           ].map(([key, label]) => (
             <label key={key} style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 5 }}>
               {label}
@@ -1100,7 +1101,7 @@ export default function AIQCPage() {
             type="text"
             value={batchIds}
             onChange={(e) => setBatchIds(e.target.value)}
-            placeholder="批量检查号(逗号分隔)"
+            placeholder={t('aiQcPage.batchPlaceholder')}
             style={{
               width: 200,
               padding: '7px 10px',
@@ -1130,7 +1131,7 @@ export default function AIQCPage() {
               gap: 5,
             }}
           >
-            <Zap size={13} /> 批量评估 {batchAssessing && '(进行中…)'}
+            <Zap size={13} /> {t('aiQcPage.batchAssess')} {batchAssessing && t('aiQcPage.inProgress')}
           </button>
           <button
             onClick={exportAssessCsv}
@@ -1148,7 +1149,7 @@ export default function AIQCPage() {
               gap: 5,
             }}
           >
-            <Download size={13} /> 导出 CSV
+            <Download size={13} /> {t('aiQcPage.exportCsv')}
           </button>
           <button
             onClick={() => { setShowTrend((v) => !v); if (!assessHistory.length) void loadAssessHistory() }}
@@ -1165,17 +1166,17 @@ export default function AIQCPage() {
               gap: 5,
             }}
           >
-            <TrendingUp size={13} /> 历史趋势
+            <TrendingUp size={13} /> {t('aiQcPage.historyTrend')}
           </button>
         </div>
         {showTrend && (
           <div style={{ borderBottom: `1px solid ${DARK_BORDER}` }}>
             <div style={{ padding: '12px 20px 4px', fontSize: 12, color: GRAY }}>
-              历史三维度均分趋势 (GET /qc/image-ai/assessments · 按日期聚合, 共 {assessHistory.length} 条记录)
+              {t('aiQcPage.historyTrendDesc', { count: assessHistory.length })}
             </div>
             {trendData.length > 0 ? renderTrendChart() : (
               <div style={{ padding: '24px', textAlign: 'center', color: GRAY, fontSize: 12 }}>
-                {trendLoading ? '趋势数据同步中…' : '暂无历史评估记录'}
+                {trendLoading ? t('aiQcPage.trendSyncing') : t('aiQcPage.noHistory')}
               </div>
             )}
           </div>
@@ -1183,17 +1184,17 @@ export default function AIQCPage() {
         {batchResults.length > 0 && (
           <div style={{ borderBottom: `1px solid ${DARK_BORDER}`, padding: '14px 20px', overflowX: 'auto' }}>
             <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', gap: 14, alignItems: 'center' }}>
-              <span>批量评估结果 ({batchResults.length} 条)</span>
-              {['通过', '告警', '失败'].map((v) => (
+              <span>{t('aiQcPage.batchResults', { count: batchResults.length })}</span>
+              {[['通过', 'aiQcPage.verdictPass'], ['告警', 'aiQcPage.verdictWarn'], ['失败', 'aiQcPage.verdictFail']].map(([v, k]) => (
                 <span key={v} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: verdictColor(v) }} /> {v}
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: verdictColor(v) }} /> {t(k)}
                 </span>
               ))}
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
               <thead>
                 <tr style={{ background: DARK_CARD }}>
-                  {['检查号', '模态', '部位', '伪影', '曝光', '体位', '总分', '总评'].map((h, i) => (
+                  {[t('aiQcPage.studyId'), t('aiQcPage.modality'), t('aiQcPage.bodyPart'), t('aiQcPage.artifact'), t('aiQcPage.exposure'), t('aiQcPage.positioning'), t('aiQcPage.overallScore'), t('aiQcPage.overallVerdict')].map((h, i) => (
                     <th key={i} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 11, color: GRAY, borderBottom: `1px solid ${DARK_BORDER}` }}>{h}</th>
                   ))}
                 </tr>
@@ -1236,7 +1237,7 @@ export default function AIQCPage() {
         {dimAssessments.length === 0 && !assessing ? (
           <div style={{ padding: 40, textAlign: 'center', color: GRAY }}>
             <Gauge size={36} style={{ opacity: 0.5 }} />
-            <p style={{ marginTop: 8 }}>暂无三维度评估结果，输入检查号点击「评估检查」</p>
+            <p style={{ marginTop: 8 }}>{t('aiQcPage.no3dResult')}</p>
           </div>
         ) : (
           <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -1256,12 +1257,12 @@ export default function AIQCPage() {
                   gap: 8,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>检查号 {a.studyId}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>{t('aiQcPage.studyId')} {a.studyId}</span>
                     <span style={{ fontSize: 12, color: GRAY }}>{a.modality} · {a.bodyPart}</span>
-                    {a.instanceId && <span style={{ fontSize: 12, color: GRAY }}>实例 {a.instanceId}</span>}
+                    {a.instanceId && <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.instance')} {a.instanceId}</span>}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 12, color: GRAY }}>总评分</span>
+                    <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.totalScore')}</span>
                     <span style={{
                       fontSize: 24,
                       fontWeight: 700,
@@ -1283,9 +1284,9 @@ export default function AIQCPage() {
                   gap: 12,
                 }}>
                   {[
-                    { key: 'artifact', label: '伪影评估', icon: <Wrench size={15} />, data: a.artifact },
-                    { key: 'exposure', label: '曝光评估', icon: <Zap size={15} />, data: a.exposure },
-                    { key: 'positioning', label: '体位评估', icon: <Target size={15} />, data: a.positioning },
+                    { key: 'artifact', label: t('aiQcPage.artifactAssess'), icon: <Wrench size={15} />, data: a.artifact },
+                    { key: 'exposure', label: t('aiQcPage.exposureAssess'), icon: <Zap size={15} />, data: a.exposure },
+                    { key: 'positioning', label: t('aiQcPage.positioningAssess'), icon: <Target size={15} />, data: a.positioning },
                   ].map((dim) => (
                     <div key={dim.key} style={{
                       background: DARK_CARD,
@@ -1355,7 +1356,7 @@ export default function AIQCPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Bot size={16} color={PRIMARY} />
-            <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>AI质控记录</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>{t('aiQcPage.qcRecords')}</span>
             <span style={{
               fontSize: 12,
               color: GRAY,
@@ -1363,21 +1364,21 @@ export default function AIQCPage() {
               padding: '2px 10px',
               borderRadius: 10,
             }}>
-              共 {filteredData.length} 条
+              {t('aiQcPage.totalCount', { count: filteredData.length })}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: SUCCESS }} />
-              <span style={{ fontSize: 12, color: GRAY }}>合格</span>
+              <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.qualified')}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: WARNING }} />
-              <span style={{ fontSize: 12, color: GRAY }}>警告</span>
+              <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.warning')}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: DANGER }} />
-              <span style={{ fontSize: 12, color: GRAY }}>不合格</span>
+              <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.unqualified')}</span>
             </div>
           </div>
         </div>
@@ -1386,7 +1387,7 @@ export default function AIQCPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: DARK_BG }}>
-                {['报告ID', '设备类型', '检查部位', 'AI评分', '质控结果', '技师', '确认状态', '时间', '操作'].map((h, i) => (
+                {[t('aiQcPage.reportId'), t('aiQcPage.deviceType'), t('aiQcPage.bodyPart'), t('aiQcPage.aiScore'), t('aiQcPage.qcResult'), t('aiQcPage.technician'), t('aiQcPage.confirmStatus'), t('aiQcPage.time'), t('aiQcPage.actions')].map((h, i) => (
                   <th
                     key={i}
                     style={{
@@ -1447,7 +1448,7 @@ export default function AIQCPage() {
                         gap: 4,
                       }}
                     >
-                      <Eye size={12} /> 详情
+                      <Eye size={12} /> {t('aiQcPage.detail')}
                     </button>
                   </td>
                 </tr>
@@ -1463,7 +1464,7 @@ export default function AIQCPage() {
             color: GRAY,
           }}>
             <Search size={40} style={{ marginBottom: 12, opacity: 0.5 }} />
-            <p>未找到匹配的质控记录</p>
+            <p>{t('aiQcPage.noMatching')}</p>
           </div>
         )}
 
@@ -1476,7 +1477,7 @@ export default function AIQCPage() {
           justifyContent: 'space-between',
         }}>
           <span style={{ fontSize: 13, color: GRAY }}>
-            显示 {filteredData.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filteredData.length)} / {filteredData.length} 条
+            {t('aiQcPage.showing', { start: filteredData.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1, end: Math.min(currentPage * PAGE_SIZE, filteredData.length), total: filteredData.length })}
           </span>
           <div style={{ display: 'flex', gap: 6 }}>
             <button
@@ -1493,7 +1494,7 @@ export default function AIQCPage() {
                 opacity: currentPage <= 1 ? 0.5 : 1,
               }}
             >
-              上一页
+              {t('aiQcPage.prevPage')}
             </button>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
@@ -1509,7 +1510,7 @@ export default function AIQCPage() {
                 opacity: currentPage >= totalPages ? 0.5 : 1,
               }}
             >
-              下一页
+              {t('aiQcPage.nextPage')}
             </button>
           </div>
         </div>
@@ -1551,7 +1552,7 @@ export default function AIQCPage() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Brain size={20} color={PRIMARY} />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: WHITE, margin: 0 }}>AI质控详情</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: WHITE, margin: 0 }}>{t('aiQcPage.detailTitle')}</h3>
               </div>
               <button
                 onClick={() => setShowDetail(false)}
@@ -1573,7 +1574,7 @@ export default function AIQCPage() {
                 borderRadius: 10,
                 padding: 16,
               }}>
-                <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>AI综合评分</div>
+                <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('aiQcPage.aiOverallScore')}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span style={{
                     fontSize: 26,
@@ -1593,12 +1594,12 @@ export default function AIQCPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[
-                  ['报告ID', selectedRecord.id],
-                  ['设备类型', selectedRecord.deviceType],
-                  ['检查部位', selectedRecord.bodyPart],
-                  ['患者姓名', selectedRecord.patientName],
-                  ['质控结果', selectedRecord.result],
-                  ['负责技师', selectedRecord.technician],
+                  [t('aiQcPage.reportId'), selectedRecord.id],
+                  [t('aiQcPage.deviceType'), selectedRecord.deviceType],
+                  [t('aiQcPage.bodyPart'), selectedRecord.bodyPart],
+                  [t('aiQcPage.patientName'), selectedRecord.patientName],
+                  [t('aiQcPage.qcResult'), selectedRecord.result],
+                  [t('aiQcPage.responsibleTech'), selectedRecord.technician],
                 ].map(([label, value]) => (
                   <div key={label} style={{
                     background: DARK_BG,
@@ -1619,7 +1620,7 @@ export default function AIQCPage() {
                   border: '1px solid #991b1b',
                 }}>
                   <div style={{ fontSize: 12, color: DANGER, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <AlertTriangle size={14} /> 发现问题
+                    <AlertTriangle size={14} /> {t('aiQcPage.issuesFoundLabel')}
                   </div>
                   <div style={{ fontSize: 13, color: WHITE }}>{selectedRecord.issues}</div>
                 </div>
@@ -1630,7 +1631,7 @@ export default function AIQCPage() {
                 borderRadius: 8,
                 padding: 12,
               }}>
-                <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>确认状态</div>
+                <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('aiQcPage.confirmStatus')}</div>
                 <ConfirmStatus confirmed={selectedRecord.confirmed} time={selectedRecord.confirmedTime} />
               </div>
             </div>
@@ -1649,7 +1650,7 @@ export default function AIQCPage() {
                 }}
                 onClick={() => setShowDetail(false)}
               >
-                关闭
+                {t('aiQcPage.close')}
               </button>
               <button
                 onClick={confirmQc}
@@ -1665,7 +1666,7 @@ export default function AIQCPage() {
                   cursor: 'pointer',
                 }}
               >
-                {selectedRecord.confirmed ? '更新确认' : '确认质控'}
+                {selectedRecord.confirmed ? t('aiQcPage.updateConfirm') : t('aiQcPage.confirmQc')}
               </button>
             </div>
           </div>

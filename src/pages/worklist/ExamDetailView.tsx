@@ -38,6 +38,7 @@ import { normalizeExamStatus } from "../../utils/statusMaps";
 import { examApi } from "../../services/api/examApi";
 import { worklistApi } from "../../services/api/worklistApi";
 import { RETAKE_REASON_OPTIONS } from "../../services/api/worklistApi";
+import { t } from "../../i18n/appI18n";
 import { Input, InputNumber, Modal, Radio, Select, message } from "antd";
 import type { ExamDto } from "../../types/dto";
 // [v3.0.6.11-100 Wave 1B] 设备维护提醒横幅 (设备信息存在时展示)
@@ -85,37 +86,37 @@ const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string }
 > = {
-  SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "已登记" },
-  ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "已报到" },
-  IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "检查中" },
+  SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "examDetail.statusScheduled" },
+  ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "examDetail.statusArrived" },
+  IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "examDetail.statusInProgress" },
   // [v3.0.6.11-95 Wave 1A P1] 暂停态 (backend PAUSED)
-  PAUSED: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停" },
-  COMPLETED: { bg: "#22c55e22", color: "#059669", label: "已完成" },
-  CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "已取消" },
+  PAUSED: { bg: "#f59e0b22", color: "#f59e0b", label: "examDetail.statusPaused" },
+  COMPLETED: { bg: "#22c55e22", color: "#059669", label: "examDetail.statusCompleted" },
+  CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "examDetail.statusCancelled" },
   // [v3.0.6.11-92 Wave1B P0] 影像质控回写状态 (backend worklist PATCH :id/state)
-  IMAGE_READY: { bg: "#10b98122", color: "#0f766e", label: "图像可用" },
-  QC_REJECT: { bg: "#ef444422", color: "#dc2626", label: "质控退回" },
-  QC_PASS: { bg: "#0ea5e922", color: "#0369a1", label: "待报告" },
-  PENDING_REPORT: { bg: "#0ea5e922", color: "#0369a1", label: "待报告" },
-  已登记: { bg: "#3b82f622", color: "#3b82f6", label: "已登记" },
-  待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "待检查" },
-  检查中: { bg: "#ec489922", color: "#db2777", label: "检查中" },
-  待报告: { bg: "#f59e0b22", color: "#ca8a04", label: "待报告" },
-  已报告: { bg: "#22c55e22", color: "#059669", label: "已报告" },
-  已发布: { bg: "#22c55e22", color: "#047857", label: "已发布" },
-  已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停" },
-  质控退回: { bg: "#ef444422", color: "#ef4444", label: "质控退回" },
-  图像可用: { bg: "#10b98122", color: "#0f766e", label: "图像可用" },
+  IMAGE_READY: { bg: "#10b98122", color: "#0f766e", label: "examDetail.statusImageReady" },
+  QC_REJECT: { bg: "#ef444422", color: "#dc2626", label: "examDetail.statusQcReject" },
+  QC_PASS: { bg: "#0ea5e922", color: "#0369a1", label: "examDetail.statusPendingReport" },
+  PENDING_REPORT: { bg: "#0ea5e922", color: "#0369a1", label: "examDetail.statusPendingReport" },
+  已登记: { bg: "#3b82f622", color: "#3b82f6", label: "examDetail.statusScheduled" },
+  待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "examDetail.statusPendingExam" },
+  检查中: { bg: "#ec489922", color: "#db2777", label: "examDetail.statusInProgress" },
+  待报告: { bg: "#f59e0b22", color: "#ca8a04", label: "examDetail.statusPendingReport" },
+  已报告: { bg: "#22c55e22", color: "#059669", label: "examDetail.statusReported" },
+  已发布: { bg: "#22c55e22", color: "#047857", label: "examDetail.statusPublished" },
+  已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "examDetail.statusPaused" },
+  质控退回: { bg: "#ef444422", color: "#ef4444", label: "examDetail.statusQcReject" },
+  图像可用: { bg: "#10b98122", color: "#0f766e", label: "examDetail.statusImageReady" },
 };
 
 const PRIORITY_CONFIG: Record<
   string,
   { bg: string; color: string; label: string }
 > = {
-  普通: { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: "普通" },
-  紧急: { bg: "#f59e0b22", color: "#f59e0b", label: "紧急" },
-  危重: { bg: "#ef444422", color: "#ef4444", label: "危重" },
-  会诊: { bg: "#8b5cf622", color: "#7c3aed", label: "会诊" },
+  普通: { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: "examDetail.priorityNormal" },
+  紧急: { bg: "#f59e0b22", color: "#f59e0b", label: "examDetail.priorityUrgent" },
+  危重: { bg: "#ef444422", color: "#ef4444", label: "examDetail.priorityCritical" },
+  会诊: { bg: "#8b5cf622", color: "#7c3aed", label: "examDetail.priorityConsult" },
 };
 
 const getDeviceById = (deviceId: string) =>
@@ -241,20 +242,20 @@ export function ExamDetailView({
     if (doseDlp.trim() !== "") fields.doseDlp = Number(doseDlp)
     if (doseCtdivol.trim() !== "") fields.doseCtdivol = Number(doseCtdivol)
     if (Object.keys(fields).length === 0) {
-      message.warning("请先输入剂量数值")
+      message.warning(t("examDetail.enterDoseValue"))
       return
     }
     setDoseSaving(true)
     try {
       const res = await worklistApi.patch(exam.id, fields)
       if (res.success) {
-        message.success("剂量记录已保存")
+        message.success(t("examDetail.doseSaved"))
         onStatusChanged?.()
       } else {
-        message.error(res.error?.message ?? "剂量保存失败")
+        message.error(res.error?.message ?? t("examDetail.doseSaveFailed"))
       }
     } catch {
-      message.error("剂量保存失败")
+      message.error(t("examDetail.doseSaveFailed"))
     } finally {
       setDoseSaving(false)
     }
@@ -272,20 +273,20 @@ export function ExamDetailView({
     const state = completeModal
     if (!state || !exam) return
     if (!state.quality) {
-      message.warning("请选择图像是否合格")
+      message.warning(t("examDetail.selectQuality"))
       return
     }
     if (state.quality === "ok") {
       if (state.dlp.trim() === "" && state.ctdivol.trim() === "") {
-        message.warning("图像合格时必须填写剂量记录（DLP/CTDIvol）")
+        message.warning(t("examDetail.doseRequiredWhenOk"))
         return
       }
       if (state.note.trim() === "") {
-        message.warning("技师备注不能为空")
+        message.warning(t("examDetail.noteRequired"))
         return
       }
     } else if (!state.retakeReason) {
-      message.warning("重拍必须选择原因")
+      message.warning(t("examDetail.retakeReasonRequired"))
       return
     }
     setCompleteBusy(true)
@@ -295,30 +296,30 @@ export function ExamDetailView({
         if (state.note.trim() !== "") await worklistApi.saveNotes(exam.id, state.note)
         const res = await worklistApi.complete(exam.id)
         if (!res.success) {
-          message.error(res.error?.message ?? "完成失败")
+          message.error(res.error?.message ?? t("examDetail.completeFailed"))
           return
         }
-        message.success("检查已完成，已自动进入报告待审列表")
+        message.success(t("examDetail.examCompleted"))
       } else {
         const qc = await worklistApi.updateState(exam.id, "QC_REJECT", state.note || "技师评定图像不合格")
         if (!qc.success) {
-          message.error(qc.error?.message ?? "质控退回失败")
+          message.error(qc.error?.message ?? t("examDetail.qcRejectFailed"))
           return
         }
         // [v3.0.6.11-104 Wave 3D] 重拍登记改为提交重拍申请 (审批通过后才能流转 IN_PROGRESS)
         const req = await worklistApi.requestRetake(exam.id, { reason: state.retakeReason, note: state.note || undefined })
         if (!req.success) {
-          message.error(req.error?.message ?? "重拍申请提交失败")
+          message.error(req.error?.message ?? t("examDetail.retakeRequestFailed"))
           return
         }
         setRetakeStatus("pending")
-        message.success("重拍申请已提交，等待审批通过后执行重拍")
+        message.success(t("examDetail.retakeRequested"))
       }
       setCompleteModal(null)
       onStatusChanged?.()
       onStatusSuccess?.()
     } catch {
-      message.error("操作失败")
+      message.error(t("examDetail.operationFailed"))
     } finally {
       setCompleteBusy(false)
     }
@@ -347,14 +348,19 @@ export function ExamDetailView({
                   : await worklistApi.cancel(exam.id, "详情抽屉取消")
       if (res.success) {
         if (action === "retake") setRetakeStatus("pending")
-        message.success(action === "pause" ? "检查已暂停" : action === "resume" ? "检查已继续" : action === "retake" ? "重拍申请已提交，等待审批" : "状态已更新")
+    const actionMessages: Record<string, string> = {
+      pause: t("examDetail.examPaused"),
+      resume: t("examDetail.examResumed"),
+      retake: t("examDetail.retakeRequestedPending"),
+    }
+        message.success(actionMessages[action] ?? t("examDetail.statusUpdated"))
         onStatusChanged?.()
         onStatusSuccess?.()
       } else {
-        message.error(res.error?.message ?? "操作失败")
+        message.error(res.error?.message ?? t("examDetail.operationFailed"))
       }
     } catch {
-      message.error("操作失败")
+      message.error(t("examDetail.operationFailed"))
     }
     setStatusBusy(null)
   }
@@ -389,7 +395,7 @@ export function ExamDetailView({
       })
       .catch(() => {
         if (cancelled) return
-        setHistoryError("历史检查加载失败")
+        setHistoryError(t("examDetail.historyLoadFailed"))
         setHistoryLoading(false)
       })
     return () => { cancelled = true }
@@ -409,8 +415,8 @@ export function ExamDetailView({
         }
         setOpsLog(Array.isArray(raw.ops) ? raw.ops.map(o => ({
           time: o.createdAt ? new Date(o.createdAt).toLocaleString("zh-CN", { hour12: false }) : "",
-          event: String(o.op ?? "状态变更"),
-          operator: o.actor?.fullName ?? "系统",
+          event: String(o.op ?? t("examDetail.statusChange")),
+          operator: o.actor?.fullName ?? t("examDetail.system"),
         })) : [])
         setOpsLoading(false)
       })
@@ -442,14 +448,14 @@ export function ExamDetailView({
           })) : [])
         } else {
           setTimelineEvents([])
-          setTimelineError(res.error?.message ?? "时间线加载失败")
+          setTimelineError(res.error?.message ?? t("examDetail.timelineLoadFailed"))
         }
         setTimelineLoading(false)
       })
       .catch(() => {
         if (cancelled) return
         setTimelineEvents([])
-        setTimelineError("时间线加载失败")
+        setTimelineError(t("examDetail.timelineLoadFailed"))
         setTimelineLoading(false)
       })
     return () => { cancelled = true }
@@ -476,7 +482,7 @@ export function ExamDetailView({
     if (!exam) return
     const trimmed = notesText.trim()
     if (!trimmed) {
-      message.warning("请先输入备注内容")
+      message.warning(t("examDetail.enterNote"))
       return
     }
     setNotesSaving(true)
@@ -487,12 +493,12 @@ export function ExamDetailView({
         setTechNotes(typeof saved === "string" ? saved : techNotes ? `${techNotes}\n${trimmed}` : trimmed)
         setNotesText("")
         onStatusChanged?.()
-        message.success("技师备注已保存")
+        message.success(t("examDetail.notesSaved"))
       } else {
-        message.error(res.error?.message ?? "备注保存失败")
+        message.error(res.error?.message ?? t("examDetail.notesSaveFailed"))
       }
     } catch {
-      message.error("备注保存失败")
+      message.error(t("examDetail.notesSaveFailed"))
     } finally {
       setNotesSaving(false)
     }
@@ -532,7 +538,7 @@ export function ExamDetailView({
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    message.success("检查条码已生成并下载（待接入院内条码打印）")
+    message.success(t("examDetail.barcodeGenerated"))
   }
 
   if (!exam) return null;
@@ -633,7 +639,7 @@ export function ExamDetailView({
                   fontWeight: 500,
                 }}
               >
-                {exam.gender} / {exam.age}岁
+                {exam.gender} / {exam.age}{t("examDetail.years")}
               </span>
               <span
                 style={{
@@ -666,7 +672,7 @@ export function ExamDetailView({
                   fontWeight: 600,
                 }}
               >
-                {pc.label}
+                {t(pc.label)}
               </span>
               <span
                 style={{
@@ -677,7 +683,7 @@ export function ExamDetailView({
                   fontWeight: 600,
                 }}
               >
-                {sc.label}
+                {t(sc.label)}
               </span>
             </div>
           </div>
@@ -709,24 +715,24 @@ export function ExamDetailView({
           background: "var(--bg-card)",
         }}
       >
-        <DrawerTab label="基本信息" tabKey="info" icon={<User size={12} />} />
+        <DrawerTab label={t("examDetail.tabInfo")} tabKey="info" icon={<User size={12} />} />
         <DrawerTab
-          label="影像信息"
+          label={t("examDetail.tabImages")}
           tabKey="images"
           icon={<Images size={12} />}
         />
         <DrawerTab
-          label="历史检查"
+          label={t("examDetail.tabHistory")}
           tabKey="history"
           icon={<History size={12} />}
         />
         <DrawerTab
-          label="操作日志"
+          label={t("examDetail.tabLog")}
           tabKey="log"
           icon={<Clipboard size={12} />}
         />
         <DrawerTab
-          label="时间线"
+          label={t("examDetail.tabTimeline")}
           tabKey="timeline"
           icon={<Clock size={12} />}
         />
@@ -748,7 +754,7 @@ export function ExamDetailView({
                 }}
               >
                 <UserCog size={14} />
-                患者信息
+                {t("examDetail.patientInfo")}
               </div>
               <div
                 style={{
@@ -761,15 +767,15 @@ export function ExamDetailView({
                 }}
               >
                 {[
-                  ["患者ID", exam.patientId],
-                  ["姓名", exam.patientName],
-                  ["性别", exam.gender],
-                  ["年龄", exam.age + "岁"],
-                  ["患者类型", exam.patientType],
+                  [t("examDetail.patientId"), exam.patientId],
+                  [t("examDetail.name"), exam.patientName],
+                  [t("examDetail.gender"), exam.gender],
+                  [t("examDetail.age"), exam.age + t("examDetail.years")],
+                  [t("examDetail.patientType"), exam.patientType],
                   // [v3.0.6.11-98 Wave3B P2] 患者扩展信息: 真实渲染 (无 → `--`)
-                  ["联系电话", exam.patientPhone || "--"],
-                  ["出生日期", exam.patientBirthDate || "--"],
-                  ["体重", exam.patientWeight || "--"],
+                  [t("examDetail.phone"), exam.patientPhone || "--"],
+                  [t("examDetail.birthDate"), exam.patientBirthDate || "--"],
+                  [t("examDetail.weight"), exam.patientWeight || "--"],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <div
@@ -808,24 +814,24 @@ export function ExamDetailView({
                 }}
               >
                 <Stethoscope size={14} />
-                检查信息
+                {t("examDetail.examInfo")}
               </div>
               <div
                 style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
               >
                 {[
-                  ["检查项目", exam.examItemName],
-                  ["检查设备", device?.name || "-"],
-                  ["检查室", room?.name || "-"],
-                  ["检查日期", exam.examDate],
-                  ["检查时间", exam.examTime || "-"],
-                  ["设备类型", exam.modality],
-                  ["检查部位", exam.bodyPart],
-                  ["申请医生", exam.referringDoctorName || getDoctorById(exam.referringDoctorId ?? "")?.name || "-"],
-                  ["报告医生", exam.radiologistName || getDoctorById(exam.radiologistId ?? "")?.name || "未分配"],
-                  ["临床诊断", exam.clinicalDiagnosis || "-"],
-                  ["病史摘要", exam.clinicalHistory || "-"],
-                  ["检查指征", exam.examIndications || "-"],
+                  [t("examDetail.examItem"), exam.examItemName],
+                  [t("examDetail.examDevice"), device?.name || "-"],
+                  [t("examDetail.examRoom"), room?.name || "-"],
+                  [t("examDetail.examDate"), exam.examDate],
+                  [t("examDetail.examTime"), exam.examTime || "-"],
+                  [t("examDetail.deviceType"), exam.modality],
+                  [t("examDetail.bodyPart"), exam.bodyPart],
+                  [t("examDetail.referringDoctor"), exam.referringDoctorName || getDoctorById(exam.referringDoctorId ?? "")?.name || "-"],
+                  [t("examDetail.radiologist"), exam.radiologistName || getDoctorById(exam.radiologistId ?? "")?.name || t("examDetail.unassigned")],
+                  [t("examDetail.clinicalDiagnosis"), exam.clinicalDiagnosis || "-"],
+                  [t("examDetail.clinicalHistory"), exam.clinicalHistory || "-"],
+                  [t("examDetail.examIndications"), exam.examIndications || "-"],
                 ].map(([label, value], idx, arr) => (
                   <div
                     key={label}
@@ -866,7 +872,7 @@ export function ExamDetailView({
                 }}
               >
                 <UserCog size={14} />
-                技师协作
+                {t("examDetail.techCollab")}
               </div>
               <div
                 style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
@@ -874,7 +880,7 @@ export function ExamDetailView({
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>主技师:</span>
+                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examDetail.primaryTech")}:</span>
                     {techAssignment.primary ? (
                       <span
                         style={{
@@ -886,11 +892,11 @@ export function ExamDetailView({
                         {techAssignment.primary.fullName}
                       </span>
                     ) : (
-                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>未分配</span>
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examDetail.unassigned")}</span>
                     )}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>备技师:</span>
+                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examDetail.backupTech")}:</span>
                     {techAssignment.backup ? (
                       <span
                         style={{
@@ -902,7 +908,7 @@ export function ExamDetailView({
                         {techAssignment.backup.fullName}
                       </span>
                     ) : (
-                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>未分配</span>
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examDetail.unassigned")}</span>
                     )}
                   </div>
                   <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
@@ -915,7 +921,7 @@ export function ExamDetailView({
                       }}
                       data-testid="tech-assign-btn"
                     >
-                      <UserCog size={12} /> 分配技师
+                      <UserCog size={12} /> {t("examDetail.assignTech")}
                     </button>
                     <button
                       onClick={() => { setTechEditorMode("handover"); setTechEditorOpen(true) }}
@@ -926,7 +932,7 @@ export function ExamDetailView({
                       }}
                       data-testid="tech-handover-btn"
                     >
-                      <ArrowLeftRight size={12} /> 交接班
+                      <ArrowLeftRight size={12} /> {t("examDetail.handover")}
                     </button>
                   </div>
                 </div>
@@ -947,7 +953,7 @@ export function ExamDetailView({
                 }}
               >
                 <Activity size={14} />
-                剂量记录
+                {t("examDetail.doseRecord")}
               </div>
               <div
                 style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
@@ -978,7 +984,7 @@ export function ExamDetailView({
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
-                    {exam.modality === "CT" ? "CT 检查完成前必须记录剂量 (完成确认弹窗强制校验)" : "非 CT 检查可留空"}
+                    {exam.modality === "CT" ? t("examDetail.ctDoseRequired") : t("examDetail.nonCtDoseOptional")}
                   </span>
                   <button
                     onClick={() => void handleSaveDose()}
@@ -990,7 +996,7 @@ export function ExamDetailView({
                     }}
                     data-testid="dose-save-btn"
                   >
-                    <Activity size={12} /> {doseSaving ? "保存中..." : "保存剂量"}
+                    <Activity size={12} /> {doseSaving ? t("examDetail.saving") : t("examDetail.saveDose")}
                   </button>
                 </div>
               </div>
@@ -1010,7 +1016,7 @@ export function ExamDetailView({
                 }}
               >
                 <StickyNote size={14} />
-                技师备注
+                {t("examDetail.techNotes")}
               </div>
               <div
                 style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
@@ -1036,13 +1042,13 @@ export function ExamDetailView({
                   </div>
                 ) : (
                   <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 10 }}>
-                    暂无技师备注
+                    {t("examDetail.noTechNotes")}
                   </div>
                 )}
                 <textarea
                   value={notesText}
                   onChange={(e) => setNotesText(e.target.value)}
-                  placeholder="记录扫描参数/患者配合情况等备注（追加带时间戳）"
+                  placeholder={t("examDetail.notesPlaceholder")}
                   style={{
                     width: "100%",
                     minHeight: 64,
@@ -1066,7 +1072,7 @@ export function ExamDetailView({
                     }}
                     data-testid="tech-notes-save-btn"
                   >
-                    <StickyNote size={12} /> {notesSaving ? "保存中..." : "保存备注"}
+                    <StickyNote size={12} /> {notesSaving ? t("examDetail.saving") : t("examDetail.saveNotes")}
                   </button>
                 </div>
               </div>
@@ -1088,7 +1094,7 @@ export function ExamDetailView({
               }}
             >
               <Images size={14} />
-              已采集图像
+              {t("examDetail.imagesAcquired")}
             </div>
             <div
               style={{
@@ -1116,7 +1122,7 @@ export function ExamDetailView({
                 {exam.imagesAcquired}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
-                幅图像
+                {t("examDetail.imageCount")}
               </div>
               <div
                 style={{
@@ -1129,7 +1135,7 @@ export function ExamDetailView({
                   border: "1px dashed var(--border-color)",
                 }}
               >
-                点击"查看图像"按钮打开图像查看器
+                {t("examDetail.viewImageHint")}
               </div>
             </div>
           </div>
@@ -1149,16 +1155,16 @@ export function ExamDetailView({
               }}
             >
               <History size={14} />
-              历史检查记录
+              {t("examDetail.historyRecords")}
               {!historyLoading && !historyError && (
                 <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 400 }}>
-                  (该患者共 {historyExams.length} 次历史检查)
+                  {t("examDetail.historyCount", { count: historyExams.length })}
                 </span>
               )}
             </div>
             {historyLoading ? (
               <div style={{ background: "var(--content-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
-                正在加载历史检查...
+                {t("examDetail.loadingHistory")}
               </div>
             ) : historyError ? (
               <div style={{ background: "var(--color-error-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "#dc2626", fontSize: 12 }}>
@@ -1209,7 +1215,7 @@ export function ExamDetailView({
                             fontWeight: 600,
                           }}
                         >
-                          {histSc.label}
+                          {t(histSc.label)}
                         </span>
                       </div>
                       <div
@@ -1242,7 +1248,7 @@ export function ExamDetailView({
                   size={32}
                   style={{ margin: "0 auto 12px", opacity: 0.4 }}
                 />
-                <div style={{ fontSize: 12 }}>暂无历史检查记录</div>
+                <div style={{ fontSize: 12 }}>{t("examDetail.noHistoryRecords")}</div>
               </div>
             )}
           </div>
@@ -1262,7 +1268,7 @@ export function ExamDetailView({
               }}
             >
               <ClipboardList size={14} />
-              操作日志
+              {t("examDetail.operationLog")}
             </div>
             <div style={{ position: "relative" }}>
               <div
@@ -1285,7 +1291,7 @@ export function ExamDetailView({
                     color: "var(--text-secondary)",
                   }}
                 >
-                  <div style={{ fontSize: 12 }}>正在加载操作日志...</div>
+                  <div style={{ fontSize: 12 }}>{t("examDetail.loadingLogs")}</div>
                 </div>
               ) : examLogs.length === 0 ? (
                 <div
@@ -1302,7 +1308,7 @@ export function ExamDetailView({
                     style={{ margin: "0 auto 12px", opacity: 0.4 }}
                   />
                   {/* [v3.0.6.11-98 Wave3B P2] 无 ops 数据空态 */}
-                  <div style={{ fontSize: 12 }}>暂无操作记录</div>
+                  <div style={{ fontSize: 12 }}>{t("examDetail.noLogs")}</div>
                 </div>
               ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -1390,7 +1396,7 @@ export function ExamDetailView({
               }}
             >
               <Clock size={14} />
-              检查时间线
+              {t("examDetail.examTimeline")}
               <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 400, color: "var(--text-secondary)" }}>
                 GET /worklist/timeline/:id
               </span>
@@ -1416,7 +1422,7 @@ export function ExamDetailView({
                     color: "var(--text-secondary)",
                   }}
                 >
-                  <div style={{ fontSize: 12 }}>正在加载时间线...</div>
+                  <div style={{ fontSize: 12 }}>{t("examDetail.loadingTimeline")}</div>
                 </div>
               ) : timelineError ? (
                 <div
@@ -1441,7 +1447,7 @@ export function ExamDetailView({
                   }}
                 >
                   <Clock size={32} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
-                  <div style={{ fontSize: 12 }}>暂无时间线事件</div>
+                  <div style={{ fontSize: 12 }}>{t("examDetail.noTimelineEvents")}</div>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -1511,7 +1517,7 @@ export function ExamDetailView({
                             </div>
                           )}
                           {ev.actor && (
-                            <div style={{ fontSize: 11, color: "#64748b" }}>操作人: {ev.actor}</div>
+                            <div style={{ fontSize: 11, color: "#64748b" }}>{t("examDetail.operator")}: {ev.actor}</div>
                           )}
                         </div>
                       </div>
@@ -1533,7 +1539,7 @@ export function ExamDetailView({
       >
         {/* [G005 Wave1A W9] 状态流转: worklistApi (POST /worklist/:id/checkin|start|complete|cancel) */}
         <div style={{ fontSize: 12, fontWeight: 600, color: "#1e40af", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-          <ArrowLeftRight size={12} /> 状态流转
+          <ArrowLeftRight size={12} /> {t("examDetail.statusFlow")}
         </div>
         <div
           style={{
@@ -1561,7 +1567,7 @@ export function ExamDetailView({
             }}
           >
             <UserCheck size={12} />
-            签到
+            {t("examDetail.checkIn")}
           </button>
           <button
             onClick={() => void handleStatusAction("start")}
@@ -1582,7 +1588,7 @@ export function ExamDetailView({
             }}
           >
             <Play size={12} />
-            开始
+            {t("examDetail.start")}
           </button>
           <button
             onClick={() => void handleStatusAction("complete")}
@@ -1603,7 +1609,7 @@ export function ExamDetailView({
             }}
           >
             <CheckCircle size={12} />
-            完成
+            {t("examDetail.complete")}
           </button>
           <button
             onClick={() => void handleStatusAction("cancel")}
@@ -1624,7 +1630,7 @@ export function ExamDetailView({
             }}
           >
             <XCircle size={12} />
-            取消
+            {t("examDetail.cancel")}
           </button>
           {/* [v3.0.6.11-95 Wave 1A P1] 暂停 (IN_PROGRESS → PAUSED) */}
           <button
@@ -1646,7 +1652,7 @@ export function ExamDetailView({
             }}
           >
             <Pause size={12} />
-            暂停
+            {t("examDetail.pause")}
           </button>
           {/* [v3.0.6.11-95 Wave 1A P1] 继续 (PAUSED → IN_PROGRESS) */}
           <button
@@ -1668,14 +1674,14 @@ export function ExamDetailView({
             }}
           >
             <Play size={12} />
-            继续
+            {t("examDetail.resume")}
           </button>
         </div>
         {/* [v3.0.6.11-104 Wave 3D] QC_REJECT → 重拍申请/审批 (未审批不得流转 IN_PROGRESS) */}
         {normalizeExamStatus(exam.status) === "QC_REJECT" && (
           retakeStatus === "pending" ? (
             <div style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "#f59e0b18", border: "1px solid #f59e0b40", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#d97706", textAlign: "center" }}>
-              重拍申请已提交，等待审批
+              {t("examDetail.retakeRequestPending")}
             </div>
           ) : retakeStatus === "approved" ? (
             <button
@@ -1683,16 +1689,16 @@ export function ExamDetailView({
                 setStatusBusy("retake")
                 try {
                   const res = await worklistApi.updateState(exam.id, "IN_PROGRESS", "重拍采集")
-                  if (res.success) { message.success("已进入重拍采集"); onStatusChanged?.(); onStatusSuccess?.() }
-                  else message.error(res.error?.message ?? "重拍采集失败")
-                } catch { message.error("重拍采集失败") }
+                  if (res.success) { message.success(t("examDetail.enteredRetake")); onStatusChanged?.(); onStatusSuccess?.() }
+                  else message.error(res.error?.message ?? t("examDetail.retakeCollectFailed"))
+                } catch { message.error(t("examDetail.retakeCollectFailed")) }
                 setStatusBusy(null)
               })()}
               disabled={statusBusy !== null}
               style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "#16a34a", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: statusBusy !== null ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
             >
               <RefreshCw size={12} />
-              执行重拍采集
+              {t("examDetail.executeRetake")}
             </button>
           ) : (
             <button
@@ -1716,7 +1722,7 @@ export function ExamDetailView({
               }}
             >
               <RefreshCw size={12} />
-              {retakeStatus === "rejected" ? "重新提交重拍申请" : "提交重拍申请"}
+              {retakeStatus === "rejected" ? t("examDetail.resubmitRetake") : t("examDetail.submitRetake")}
             </button>
           )
         )}
@@ -1750,7 +1756,7 @@ export function ExamDetailView({
           }}
         >
           <Edit3 size={12} />
-          修改信息
+          {t("examDetail.editInfo")}
         </button>
         <button
           onClick={() => onAssignDevice?.(exam)}
@@ -1770,7 +1776,7 @@ export function ExamDetailView({
           }}
         >
           <UserCheck size={12} />
-          分配设备
+          {t("examDetail.assignDevice")}
         </button>
         <button
           onClick={() => onAssignDoctor?.(exam)}
@@ -1790,7 +1796,7 @@ export function ExamDetailView({
           }}
         >
           <UserCheck size={12} />
-          分配医生
+          {t("examDetail.assignDoctor")}
         </button>
         <button
           onClick={() => onViewRequisition?.(exam)}
@@ -1810,7 +1816,7 @@ export function ExamDetailView({
           }}
         >
           <FileText size={12} />
-          申请单
+          {t("examDetail.requisition")}
         </button>
         <button
           onClick={() => onWriteReport?.(exam)}
@@ -1830,7 +1836,7 @@ export function ExamDetailView({
           }}
         >
           <FileText size={12} />
-          {normalizeExamStatus(exam.status) === "COMPLETED" ? "书写报告" : "查看报告"}
+          {normalizeExamStatus(exam.status) === "COMPLETED" ? t("examDetail.writeReport") : t("examDetail.viewReport")}
         </button>
         <button
           onClick={() => onStartExam?.(exam)}
@@ -1850,7 +1856,7 @@ export function ExamDetailView({
           }}
         >
           <ArrowLeftRight size={12} />
-          开始检查
+          {t("examDetail.startExam")}
         </button>
         <button
           onClick={() => onCancelExam?.(exam)}
@@ -1870,7 +1876,7 @@ export function ExamDetailView({
           }}
         >
           <XCircle size={12} />
-          取消检查
+          {t("examDetail.cancelExam")}
         </button>
         <button
           onClick={handlePrintBarcode}
@@ -1890,7 +1896,7 @@ export function ExamDetailView({
           }}
         >
           <Printer size={12} />
-          打印条码
+          {t("examDetail.printBarcode")}
         </button>
         {/* [v3.0.6.11-99 Wave3B] 检查联动: 检查详情 → 创建随访计划 (跳转 /follow-up?examId=..) */}
         <button
@@ -1914,17 +1920,17 @@ export function ExamDetailView({
           }}
         >
           <CalendarPlus size={12} />
-          创建随访计划
+          {t("examDetail.createFollowUp")}
         </button>
       </div>
 
       {/* [v3.0.6.11-103 Wave 11] 完成检查确认: 强制检查项 (图像是否合格/剂量已记录/技师备注) */}
       <Modal
         open={completeModal !== null}
-        title="完成检查确认"
+        title={t("examDetail.completeConfirmTitle")}
         onCancel={() => setCompleteModal(null)}
         onOk={() => void executeComplete()}
-        okText="完成"
+        okText={t("examDetail.complete")}
         okButtonProps={{ disabled: completeBusy }}
         confirmLoading={completeBusy}
         width={520}
@@ -1933,25 +1939,25 @@ export function ExamDetailView({
         {completeModal && (
           <div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
-              完成前请确认以下强制检查项
+              {t("examDetail.completeChecklist")}
             </div>
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 6 }}>
-                <CheckCircle size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> 图像是否合格
+                <CheckCircle size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.imageQualified")}
               </div>
               <Radio.Group
                 value={completeModal.quality}
                 onChange={(e) => setCompleteModal(s => s ? { ...s, quality: e.target.value } : s)}
                 options={[
-                  { value: "ok", label: "合格" },
-                  { value: "retake", label: "重拍" },
+                  { value: "ok", label: t("examDetail.qualified") },
+                  { value: "retake", label: t("examDetail.retake") },
                 ]}
               />
             </div>
             {completeModal.quality === "ok" && (
               <>
                 <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 8 }}>
-                  <Activity size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> 剂量记录
+                  <Activity size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.doseRecord")}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
                   <div>
@@ -1975,9 +1981,9 @@ export function ExamDetailView({
             )}
             {completeModal.quality === "retake" && (
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>重拍原因</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>{t("examDetail.retakeReason")}</div>
                 <Select
-                  style={{ width: "100%" }} placeholder="选择重拍原因" value={completeModal.retakeReason || undefined}
+                  style={{ width: "100%" }} placeholder={t("examDetail.selectRetakeReason")} value={completeModal.retakeReason || undefined}
                   onChange={(v) => setCompleteModal(s => s ? { ...s, retakeReason: v } : s)}
                   options={RETAKE_REASON_OPTIONS}
                 />
@@ -1985,13 +1991,13 @@ export function ExamDetailView({
             )}
             <div>
               <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
-                <StickyNote size={11} style={{ verticalAlign: -2, marginRight: 4 }} /> 技师备注 *
+                <StickyNote size={11} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.techNotes")} *
               </div>
               <Input.TextArea
                 rows={2}
                 value={completeModal.note}
                 onChange={(e) => setCompleteModal(s => s ? { ...s, note: e.target.value } : s)}
-                placeholder="记录扫描参数/图像情况等备注（追加带时间戳）"
+                placeholder={t("examDetail.notesPlaceholderShort")}
                 maxLength={500}
               />
             </div>

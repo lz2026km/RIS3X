@@ -12,6 +12,7 @@ import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
 // [v3.0.6.8-28] 主数据池 + 生成器
 import { DEVICE_MASTER } from '../data/master'
 import { DAILY_KPI_PRE } from '../data/_generators'
+import { t } from '../i18n/appI18n'
 
 // ============================================================
 // 样式常量
@@ -560,10 +561,10 @@ const HeatmapChart: React.FC = () => {
           <p style={{ margin: 0, color: C.textDark, fontWeight: 600, fontSize: 13 }}>{tooltip.data.deviceName}</p>
           <p style={{ margin: '4px 0 0', color: C.textLight, fontSize: 12 }}>{tooltip.data.date}</p>
           <p style={{ margin: '6px 0 0', color: C.primary, fontSize: 14, fontWeight: 600 }}>
-            使用率: {tooltip.data.utilization}%
+            {t('equipEfficiency.usage')}: {tooltip.data.utilization}%
           </p>
           <p style={{ margin: '4px 0 0', color: C.textMid, fontSize: 12 }}>
-            检查数量: {tooltip.data.examCount} 例
+            {t('equipEfficiency.examCount')}: {tooltip.data.examCount} {t('equipEfficiency.cases')}
           </p>
         </div>
       )}
@@ -629,7 +630,7 @@ const BookingRateChart: React.FC = () => {
           fill={C.danger}
           fontSize={9}
         >
-          70%警戒线
+          {t('equipEfficiency.warningLine')}
         </text>
 
         {/* 柱状图 */}
@@ -677,7 +678,7 @@ const BookingRateChart: React.FC = () => {
                 fontSize={9}
                 textAnchor="middle"
               >
-                {item.fullDays}/{item.totalDays}天
+                {item.fullDays}/{item.totalDays}{t('equipEfficiency.days')}
               </text>
             </g>
           )
@@ -693,7 +694,7 @@ const BookingRateChart: React.FC = () => {
         }}
       >
         <h4 style={{ margin: '0 0 12px', color: C.textDark, fontSize: 16, fontWeight: 600 }}>
-          每日满员次数统计 (30天)
+          {t('equipEfficiency.dailyFullStats')}
         </h4>
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
           {sortedData.map(item => (
@@ -702,7 +703,7 @@ const BookingRateChart: React.FC = () => {
               <p style={{ margin: '4px 0 0', color: C.primary, fontSize: 28, fontWeight: 700 }}>
                 {item.fullDays}
               </p>
-              <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>次满员</p>
+              <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>{t('equipEfficiency.timesFull')}</p>
             </div>
           ))}
         </div>
@@ -718,10 +719,10 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
   const total = FAILURE_STATS.normal + FAILURE_STATS.minor + FAILURE_STATS.major + FAILURE_STATS.scrapped
 
   const segments = [
-    { label: '正常', value: FAILURE_STATS.normal, color: C.success },
-    { label: '小故障', value: FAILURE_STATS.minor, color: C.warning },
-    { label: '大修', value: FAILURE_STATS.major, color: C.danger },
-    { label: '报废', value: FAILURE_STATS.scrapped, color: C.gray },
+    { label: t('equipEfficiency.normal'), value: FAILURE_STATS.normal, color: C.success },
+    { label: t('equipEfficiency.minorFault'), value: FAILURE_STATS.minor, color: C.warning },
+    { label: t('equipEfficiency.majorRepair'), value: FAILURE_STATS.major, color: C.danger },
+    { label: t('equipEfficiency.scrapped'), value: FAILURE_STATS.scrapped, color: C.gray },
   ]
 
   return (
@@ -767,7 +768,7 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
             {total}
           </text>
           <text x={80} y={94} fill={C.textLight} fontSize={11} textAnchor="middle">
-            台设备
+            {t('equipEfficiency.units')}
           </text>
         </svg>
 
@@ -797,7 +798,7 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ color: C.textDark, fontSize: 15, fontWeight: 600 }}>
-                  {segment.value} 台
+                  {segment.value} {t('equipEfficiency.units')}
                 </span>
                 <span style={{ color: C.textLight, fontSize: 12, minWidth: 40, textAlign: 'right' }}>
                   ({Math.round((segment.value / total) * 100)}%)
@@ -812,17 +813,17 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
       <div>
         <h4 style={{ margin: '0 0 16px', color: C.textDark, fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
           <AlertTriangle size={16} color={C.warning} />
-          故障维修记录
+          {t('equipEfficiency.failureRecords')}
         </h4>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>日期</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>故障类型</th>
-                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>维修费用</th>
-                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>维修时长</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.device')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.date')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.faultType')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.repairCost')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.repairDuration')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1012,7 +1013,7 @@ export default function EquipmentEfficiencyPage() {
   // 设备负荷排行: oeeApi.list × statsApi.top-devices 检查量
   const LOAD_RANKING = useMemo(() => {
     if (!oeeDevices.length) return STATIC_LOAD_RANKING
-    const counts = new Map(topDevices.map((t) => [String(t.deviceId), Number(t.count) || 0]))
+    const counts = new Map(topDevices.map((td) => [String(td.deviceId), Number(td.count) || 0]))
     return [...oeeDevices]
       .map((d, idx) => ({
         rank: idx + 1,
@@ -1061,10 +1062,10 @@ export default function EquipmentEfficiencyPage() {
   }
 
   const tabs = [
-    { id: 'trend', label: '使用率趋势', icon: TrendingUp },
-    { id: 'heatmap', label: '使用率热力图', icon: Grid3x3 },
-    { id: 'booking', label: '预约满员率', icon: Calendar },
-    { id: 'failure', label: '故障率统计', icon: AlertTriangle },
+    { id: 'trend', label: t('equipEfficiency.tabTrend'), icon: TrendingUp },
+    { id: 'heatmap', label: t('equipEfficiency.tabHeatmap'), icon: Grid3x3 },
+    { id: 'booking', label: t('equipEfficiency.tabBooking'), icon: Calendar },
+    { id: 'failure', label: t('equipEfficiency.tabFailure'), icon: AlertTriangle },
   ] as const
 
   return (
@@ -1092,20 +1093,20 @@ export default function EquipmentEfficiencyPage() {
             }}
           >
             <Activity size={28} color={C.primary} />
-            设备效率分析
+            {t('equipEfficiency.title')}
           </h1>
           <p style={{ color: C.textLight, fontSize: 14 }}>
-            实时监控设备运行状态与效率指标，对标英飞达/锐科行业标准
+            {t('equipEfficiency.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          {loading && <span style={{ fontSize: 12, color: C.textLight }}>加载中…</span>}
+          {loading && <span style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.loading')}</span>}
           <span style={{
             padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
             background: isLive ? '#22c55e20' : '#f59e0b20',
             color: isLive ? C.success : C.warning,
           }}>
-            {isLive ? 'oeeApi / biApi 实时' : '演示数据 (回退)'}
+            {isLive ? t('equipEfficiency.live') : t('equipEfficiency.demoFallback')}
           </span>
           <button
             onClick={() => void load()}
@@ -1115,7 +1116,7 @@ export default function EquipmentEfficiencyPage() {
               display: 'flex', alignItems: 'center', gap: 6,
             }}
           >
-            <RefreshCw size={13} />刷新
+            <RefreshCw size={13} />{t('equipEfficiency.refresh')}
           </button>
         </div>
       </div>
@@ -1183,7 +1184,7 @@ export default function EquipmentEfficiencyPage() {
             {/* 使用率 */}
             <div style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 12, color: C.textLight }}>使用率</span>
+                <span style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.usage')}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{device.utilization}%</span>
               </div>
               <div
@@ -1277,7 +1278,7 @@ export default function EquipmentEfficiencyPage() {
             {/* 使用率 */}
             <div style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 12, color: C.textLight }}>使用率</span>
+                <span style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.usage')}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{device.utilization}%</span>
               </div>
               <div
@@ -1349,7 +1350,7 @@ export default function EquipmentEfficiencyPage() {
             <Timer size={24} color={C.primary} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>平均OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.avgOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.avgExamTime}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
@@ -1382,7 +1383,7 @@ export default function EquipmentEfficiencyPage() {
             <Zap size={24} color={C.success} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>最高OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.maxOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.dailyMax}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
@@ -1415,7 +1416,7 @@ export default function EquipmentEfficiencyPage() {
             <TrendingUp size={24} color={C.warning} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>最低OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.minOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.bedTurnover}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
@@ -1448,10 +1449,10 @@ export default function EquipmentEfficiencyPage() {
             <Clock size={24} color={C.info} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>监控设备数 {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.monitoredDevices')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
             <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.standbyHours}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>台</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>{t('equipEfficiency.unitsShort')}</span>
             </p>
           </div>
         </div>
@@ -1526,9 +1527,9 @@ export default function EquipmentEfficiencyPage() {
                 }}
               >
                 <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备使用率趋势</h3>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.utilizationTrend')}</h3>
                   <p style={{ fontSize: 12, color: C.textLight }}>
-                    近{selectedPeriod === '7d' ? '7' : selectedPeriod === '14d' ? '14' : '30'}天各设备使用率变化 · biApi.device-oee {isLive && <span style={{ color: C.success }}>实时</span>}
+                    {t('equipEfficiency.trendDescPrefix')}{selectedPeriod === '7d' ? '7' : selectedPeriod === '14d' ? '14' : '30'}{t('equipEfficiency.trendDescSuffix')} {isLive && <span style={{ color: C.success }}>{t('equipEfficiency.realtime')}</span>}
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -1567,8 +1568,8 @@ export default function EquipmentEfficiencyPage() {
               }}
             >
               <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>检查量时段分析</h3>
-                <p style={{ fontSize: 12, color: C.textLight }}>白班/夜班/周末分类统计 (演示数据)</p>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.timeSegment')}</h3>
+                <p style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.timeSegmentDesc')}</p>
               </div>
               <TimeSegmentChart data={TIME_SEGMENT_DATA} />
 
@@ -1587,7 +1588,7 @@ export default function EquipmentEfficiencyPage() {
                   <div key={item.period} style={{ textAlign: 'center' }}>
                     <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{item.period}</p>
                     <p style={{ fontSize: 18, fontWeight: 600, color: C.primary }}>{item.total}</p>
-                    <p style={{ fontSize: 12, color: C.textLight }}>例</p>
+                    <p style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.cases')}</p>
                   </div>
                 ))}
               </div>
@@ -1612,9 +1613,9 @@ export default function EquipmentEfficiencyPage() {
               }}
             >
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备负荷排行榜</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.loadRanking')}</h3>
                 <p style={{ fontSize: 12, color: C.textLight }}>
-                  综合评分基于 OEE/使用率/检查量等指标 · oeeApi.list + statsApi.top-devices {isLive && <span style={{ color: C.success }}>实时</span>}
+                  {t('equipEfficiency.loadRankingDesc')} {isLive && <span style={{ color: C.success }}>{t('equipEfficiency.realtime')}</span>}
                 </p>
               </div>
               <button
@@ -1633,7 +1634,7 @@ export default function EquipmentEfficiencyPage() {
                 }}
               >
                 <Download size={14} />
-                导出报表
+                {t('equipEfficiency.exportReport')}
               </button>
             </div>
 
@@ -1647,13 +1648,13 @@ export default function EquipmentEfficiencyPage() {
               >
                 <thead>
                   <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>排名</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备编号</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备名称</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>总检查量</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>平均使用率</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>平均等待时间</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'center', color: C.textLight, fontWeight: 500 }}>综合评分</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.rank')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.deviceId')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.deviceName')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.totalExams')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.avgUtilization')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.avgWaitTime')}</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'center', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.overallScore')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1768,8 +1769,8 @@ export default function EquipmentEfficiencyPage() {
                 color: C.textLight,
               }}
             >
-              <span>统计周期：近{periodDays}天{isLive ? ' · oeeApi 实时' : ' · 演示数据'}</span>
-              <span>数据更新时间：{new Date().toLocaleString('zh-CN')}</span>
+              <span>{t('equipEfficiency.statPeriod')}{periodDays}{t('equipEfficiency.days')}{isLive ? ` · ${t('equipEfficiency.oeeApiRealtime')}` : ` · ${t('equipEfficiency.demoData')}`}</span>
+              <span>{t('equipEfficiency.dataUpdated')}{new Date().toLocaleString('zh-CN')}</span>
             </div>
           </div>
         </>
@@ -1785,8 +1786,8 @@ export default function EquipmentEfficiencyPage() {
           }}
         >
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备使用率热力图</h3>
-            <p style={{ fontSize: 12, color: C.textLight }}>最近30天各设备使用率分布 (演示数据 — 确定性随机生成)</p>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.heatmapTitle')}</h3>
+            <p style={{ fontSize: 12, color: C.textLight }}>{t('equipEfficiency.heatmapDesc')}</p>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <HeatmapChart />
@@ -1804,9 +1805,9 @@ export default function EquipmentEfficiencyPage() {
           }}
         >
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>预约满员率排名</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.bookingTitle')}</h3>
             <p style={{ fontSize: 12, color: C.textLight }}>
-              满员定义：当天预约机时 ≥95% | 标红低于70%的设备 (演示数据)
+              {t('equipEfficiency.bookingDesc')}
             </p>
           </div>
           <BookingRateChart />
@@ -1823,9 +1824,9 @@ export default function EquipmentEfficiencyPage() {
           }}
         >
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备故障率统计</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>{t('equipEfficiency.failureTitle')}</h3>
             <p style={{ fontSize: 12, color: C.textLight }}>
-              故障类型：硬件故障/软件故障/定期保养/紧急维修 · 故障记录来自 deviceMgmtApi.faults {isLive && <span style={{ color: C.success }}>实时</span>}
+              {t('equipEfficiency.failureDesc')} {isLive && <span style={{ color: C.success }}>{t('equipEfficiency.realtime')}</span>}
             </p>
           </div>
           <FailureStatsChart records={FAILURE_RECORDS} />

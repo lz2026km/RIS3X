@@ -136,38 +136,38 @@ export const DicomSrPage: React.FC = () => {
   // TID 模板结构树 (DICOM SR 标准 TID 1500 / TID 2000)
   const TID_TREE: Record<string, Array<{ code: string; label: string; children?: Array<{ code: string; label: string }> }>> = {
     tid1500: [
-      { code: 'TID 1500', label: '测量报告 (Measurement Report)', children: [
-        { code: '121111', label: '患者特征' },
-        { code: '111028', label: '检查协议' },
-        { code: '111029', label: '影像测量组' },
-        { code: '121139', label: '测量上下文' },
-        { code: '121038', label: '结论' },
+      { code: 'TID 1500', label: t('dicomSrPage.tid1500Tree'), children: [
+        { code: '121111', label: t('dicomSrPage.patientCharacteristics') },
+        { code: '111028', label: t('dicomSrPage.examProtocol') },
+        { code: '111029', label: t('dicomSrPage.imageMeasurementGroup') },
+        { code: '121139', label: t('dicomSrPage.measurementContext') },
+        { code: '121038', label: t('dicomSrPage.conclusion') },
       ] },
-      { code: 'TID 1410', label: '平面影像测量 (Image Region)', children: [
-        { code: '121206', label: '测量组' },
-        { code: '121207', label: '目标' },
-        { code: '121208', label: '影像区域' },
+      { code: 'TID 1410', label: t('dicomSrPage.tid1410Tree'), children: [
+        { code: '121206', label: t('dicomSrPage.measurementGroupLabel') },
+        { code: '121207', label: t('dicomSrPage.target') },
+        { code: '121208', label: t('dicomSrPage.imageRegion') },
       ] },
-      { code: 'TID 1501', label: '测量组 (Measurement Group)', children: [
-        { code: '121206', label: '测量值' },
-        { code: '121207', label: '测量方法' },
-        { code: '121208', label: '测量方向' },
+      { code: 'TID 1501', label: t('dicomSrPage.tid1501Tree'), children: [
+        { code: '121206', label: t('dicomSrPage.measurementValue') },
+        { code: '121207', label: t('dicomSrPage.measurementMethod') },
+        { code: '121208', label: t('dicomSrPage.measurementDirection') },
       ] },
     ],
     tid2000: [
-      { code: 'TID 2000', label: 'CAD 文档 (CAD Document)', children: [
-        { code: '111031', label: '患者特征' },
-        { code: '121119', label: 'CAD 图像库' },
-        { code: '121120', label: 'CAD 结果' },
+      { code: 'TID 2000', label: t('dicomSrPage.tid2000Tree'), children: [
+        { code: '111031', label: t('dicomSrPage.patientCharacteristics') },
+        { code: '121119', label: t('dicomSrPage.cadImageLibrary') },
+        { code: '121120', label: t('dicomSrPage.cadResults') },
       ] },
-      { code: 'TID 2001', label: 'CAD 图像库 (Image Library)', children: [
-        { code: '121134', label: '参考图像' },
-        { code: '121136', label: '对比图像' },
+      { code: 'TID 2001', label: t('dicomSrPage.tid2001Tree'), children: [
+        { code: '121134', label: t('dicomSrPage.referenceImage') },
+        { code: '121136', label: t('dicomSrPage.comparisonImage') },
       ] },
-      { code: 'TID 2002', label: 'CAD 结果 (CAD Results)', children: [
-        { code: '121116', label: '发现' },
-        { code: '121124', label: '影像位置' },
-        { code: '121125', label: '描述' },
+      { code: 'TID 2002', label: t('dicomSrPage.tid2002Tree'), children: [
+        { code: '121116', label: t('dicomSrPage.findingsLabel') },
+        { code: '121124', label: t('dicomSrPage.imageLocation') },
+        { code: '121125', label: t('dicomSrPage.descriptionLabel') },
       ] },
     ],
   }
@@ -181,11 +181,11 @@ export const DicomSrPage: React.FC = () => {
         setStatsSource('real')
       } else {
         setStatsSource('demo')
-        setStatsError('SR 文档列表接口不可用 (GET /dicom-sr)，展示演示统计')
+        setStatsError(t('dicomSrPage.statsError'))
       }
     }).catch(() => {
       setStatsSource('demo')
-      setStatsError('SR 文档列表接口不可用 (GET /dicom-sr)，展示演示统计')
+      setStatsError(t('dicomSrPage.statsError'))
     }).finally(() => setStatsLoading(false))
   }
 
@@ -239,7 +239,7 @@ export const DicomSrPage: React.FC = () => {
   // 报告 → SR 关联查询 (GET /dicom-sr/by-report/:reportId)
   const handleLinkLookup = async () => {
     if (!linkReportId.trim()) {
-      message.warning('请输入报告 ID')
+      message.warning(t('dicomSrPage.enterReportId'))
       return
     }
     setLinking(true)
@@ -285,7 +285,7 @@ export const DicomSrPage: React.FC = () => {
       }, ...h].slice(0, 10))
       message.success(t('dicomSr.generateSuccess') || 'SR 生成成功')
     } else {
-      message.error(res.error?.message || 'SR 生成失败')
+      message.error(res.error?.message || t('dicomSrPage.generateFail'))
     }
   }
 
@@ -312,7 +312,7 @@ export const DicomSrPage: React.FC = () => {
   // [G005 Wave4B] G-01 DICOM PDF 封装
   const handleEncapsulate = async () => {
     if (!pdfReportId.trim()) {
-      message.warning('请输入报告 ID 或检查 ID')
+      message.warning(t('dicomSrPage.enterReportOrStudyId'))
       return
     }
     setEncapsulating(true)
@@ -331,9 +331,9 @@ export const DicomSrPage: React.FC = () => {
         size: res.data?.size ?? 0,
         generatedAt: res.data?.generatedAt ?? new Date().toISOString(),
       }, ...h].slice(0, 10))
-      message.success('PDF 封装成功')
+      message.success(t('dicomSrPage.encapSuccess'))
     } else {
-      message.error(res.error?.message || 'PDF 封装失败')
+      message.error(res.error?.message || t('dicomSrPage.encapFail'))
     }
   }
 
@@ -356,9 +356,9 @@ export const DicomSrPage: React.FC = () => {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      message.success('封装 PDF 已下载')
+      message.success(t('dicomSrPage.encapDownloaded'))
     } catch {
-      message.warning('PDF 内容为文本流 (报告兜底), 无有效 PDF 二进制')
+      message.warning(t('dicomSrPage.pdfTextStream'))
     }
   }
 
@@ -368,7 +368,7 @@ export const DicomSrPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
     <PageHeader
       icon={<FileText size={20} color="#2563eb" />}
-      title="DICOM SR 管理平台"
+      title={t('dicomSrPage.title')}
       actions={<Tag color="cyan">TID 1500 / 2000</Tag>}
     />
 
@@ -383,8 +383,8 @@ export const DicomSrPage: React.FC = () => {
                 options={templates.length > 0
                   ? templates.map(t => ({ label: t.labelEn, value: t.id }))
                   : [
-                      { label: 'TID 1500 - 测量报告', value: 'tid1500' },
-                      { label: 'TID 2000 - CAD 文档 SR', value: 'tid2000' },
+                      { label: t('dicomSrPage.tid1500Label'), value: 'tid1500' },
+                      { label: t('dicomSrPage.tid2000Label'), value: 'tid2000' },
                     ]
                 }
                 loading={loadingTemplates}
@@ -469,15 +469,15 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Descriptions size="small" column={2} style={{ marginBottom: 12 }}>
               <Descriptions.Item label="ID">{srDoc.id}</Descriptions.Item>
-              <Descriptions.Item label="报告 ID">{srDoc.reportId}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.reportId')}>{srDoc.reportId}</Descriptions.Item>
               <Descriptions.Item label="TID">{srDoc.tid}</Descriptions.Item>
-              <Descriptions.Item label="SOP 实例 UID">
+              <Descriptions.Item label={t('dicomSrPage.sopInstanceUid')}>
                 <Text copyable style={{ fontSize: 12 }}>{srDoc.sopInstanceUID}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="状态">
-                <Tag color={srDoc.status === 'draft' ? 'orange' : 'green'}>{srDoc.status === 'draft' ? '草稿' : srDoc.status === 'finalized' ? '已定稿' : srDoc.status}</Tag>
+              <Descriptions.Item label={t('dicomSrPage.status')}>
+                <Tag color={srDoc.status === 'draft' ? 'orange' : 'green'}>{srDoc.status === 'draft' ? t('dicomSrPage.draft') : srDoc.status === 'finalized' ? t('dicomSrPage.finalized') : srDoc.status}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="已生成">{new Date(srDoc.generatedAt).toLocaleString()}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.generated')}>{new Date(srDoc.generatedAt).toLocaleString()}</Descriptions.Item>
             </Descriptions>
             <pre style={{
               background: '#1e1e1e',
@@ -502,14 +502,14 @@ export const DicomSrPage: React.FC = () => {
       {/* [v3.0.6.11-99 Wave10B] 本会话生成记录 (SR + PDF) */}
       {(genHistory.length > 0 || pdfHistory.length > 0) && (
         <Card
-          title={<span><FileText size={14} /> 本会话生成记录</span>}
+          title={<span><FileText size={14} /> {t('dicomSrPage.sessionHistory')}</span>}
           size="small"
           style={{ marginBottom: 16 }}
         >
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
-                SR 文档 ({genHistory.length})
+                {t('dicomSrPage.srDocuments')} ({genHistory.length})
               </div>
               {genHistory.map(h => (
                 <div key={h.id} style={{
@@ -518,10 +518,10 @@ export const DicomSrPage: React.FC = () => {
                 }}>
                   <Tag color="purple" style={{ fontSize: 10, margin: 0 }}>{h.tid}</Tag>
                   <span style={{ color: '#334155', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    报告 {h.reportId}
+                    {t('dicomSrPage.report')} {h.reportId}
                   </span>
                   <Tag color={h.status === 'draft' ? 'orange' : 'green'} style={{ fontSize: 10, margin: 0 }}>
-                    {h.status === 'draft' ? '草稿' : h.status === 'finalized' ? '已定稿' : h.status}
+                    {h.status === 'draft' ? t('dicomSrPage.draft') : h.status === 'finalized' ? t('dicomSrPage.finalized') : h.status}
                   </Tag>
                   <span style={{ fontSize: 11, color: '#94a3b8' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
                 </div>
@@ -529,7 +529,7 @@ export const DicomSrPage: React.FC = () => {
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
-                PDF 封装 ({pdfHistory.length})
+                {t('dicomSrPage.pdfEncapsulation')} ({pdfHistory.length})
               </div>
               {pdfHistory.map(h => (
                 <div key={h.id} style={{
@@ -538,7 +538,7 @@ export const DicomSrPage: React.FC = () => {
                 }}>
                   <Tag color="geekblue" style={{ fontSize: 10, margin: 0 }}>PDF</Tag>
                   <span style={{ color: '#334155', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    报告 {h.reportId}
+                    {t('dicomSrPage.report')} {h.reportId}
                   </span>
                   <span style={{ fontSize: 11, color: '#94a3b8' }}>{h.size} B</span>
                   <span style={{ fontSize: 11, color: '#94a3b8' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
@@ -554,7 +554,7 @@ export const DicomSrPage: React.FC = () => {
         title={
           <Space>
             <FilePlus2 size={14} />
-            <span>PDF 封装 (G-01)</span>
+            <span>{t('dicomSrPage.pdfEncapsulation')} (G-01)</span>
             <Tag color="purple">1.2.840.10008.5.1.4.1.1.104.1</Tag>
           </Space>
         }
@@ -562,36 +562,36 @@ export const DicomSrPage: React.FC = () => {
         extra={
           pdfDoc && (
             <Button size="small" icon={<Download size={12} />} onClick={downloadPdf}>
-              下载封装 PDF
+              {t('dicomSrPage.downloadPdf')}
             </Button>
           )
         }
       >
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <div>
-            <Text strong>报告 ID / 检查 ID:</Text>
+            <Text strong>{t('dicomSrPage.reportOrStudyId')}:</Text>
             <Input
               style={{ width: 320, marginTop: 4 }}
-              placeholder="输入报告 ID 或检查 ID (studyId)..."
+              placeholder={t('dicomSrPage.reportOrStudyIdPlaceholder')}
               value={pdfReportId}
               onChange={(e) => setPdfReportId(e.target.value)}
             />
           </div>
           <div>
-            <Text strong>PDF URL (可选):</Text>
+            <Text strong>PDF URL ({t('dicomSrPage.optional')}):</Text>
             <Input
               style={{ width: 480, marginTop: 4 }}
-              placeholder="https://.../report.pdf — 提供后按引用封装"
+              placeholder={t('dicomSrPage.pdfUrlPlaceholder')}
               value={pdfUrl}
               onChange={(e) => setPdfUrl(e.target.value)}
             />
           </div>
           <div>
-            <Text strong>PDF Base64 (可选):</Text>
+            <Text strong>PDF Base64 ({t('dicomSrPage.optional')}):</Text>
             <TextArea
               style={{ marginTop: 4 }}
               rows={2}
-              placeholder="粘贴 PDF 的 base64 内容 — 不填则由报告内容生成文本流兜底"
+              placeholder={t('dicomSrPage.pdfBase64Placeholder')}
               value={pdfBase64}
               onChange={(e) => setPdfBase64(e.target.value)}
             />
@@ -602,26 +602,26 @@ export const DicomSrPage: React.FC = () => {
             onClick={() => void handleEncapsulate()}
             loading={encapsulating}
           >
-            封装 PDF
+            {t('dicomSrPage.encapsulatePdf')}
           </Button>
           {pdfDoc && (
             <Descriptions size="small" column={2} style={{ marginTop: 8 }}>
               <Descriptions.Item label="ID">{pdfDoc.id}</Descriptions.Item>
               <Descriptions.Item label="SOP Class UID">{pdfDoc.sopClassUid}</Descriptions.Item>
-              <Descriptions.Item label="报告 ID">{pdfDoc.reportId}</Descriptions.Item>
-              <Descriptions.Item label="SOP 实例 UID">
+              <Descriptions.Item label={t('dicomSrPage.reportId')}>{pdfDoc.reportId}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.sopInstanceUid')}>
                 <Text copyable style={{ fontSize: 12 }}>{pdfDoc.sopInstanceUid}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Study UID">
                 <Text copyable style={{ fontSize: 12 }}>{pdfDoc.studyInstanceUid}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="大小">{pdfDoc.size} 字节</Descriptions.Item>
-              <Descriptions.Item label="来源">
+              <Descriptions.Item label={t('dicomSrPage.size')}>{pdfDoc.size} {t('dicomSrPage.bytes')}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.source')}>
                 <Tag color={pdfDoc.generatedFrom === 'input' ? 'green' : pdfDoc.generatedFrom === 'url' ? 'blue' : 'orange'}>
-                  {pdfDoc.generatedFrom === 'input' ? 'Base64 输入' : pdfDoc.generatedFrom === 'url' ? 'URL 引用' : '报告文本流兜底'}
+                  {pdfDoc.generatedFrom === 'input' ? t('dicomSrPage.sourceBase64') : pdfDoc.generatedFrom === 'url' ? t('dicomSrPage.sourceUrl') : t('dicomSrPage.sourceFallback')}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="生成时间">{new Date(pdfDoc.generatedAt).toLocaleString()}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.generatedAt')}>{new Date(pdfDoc.generatedAt).toLocaleString()}</Descriptions.Item>
             </Descriptions>
           )}
 
@@ -646,14 +646,14 @@ export const DicomSrPage: React.FC = () => {
             <Descriptions size="small" column={2} style={{ marginTop: 8 }}>
               <Descriptions.Item label="ID">{pdfLookupResult.id}</Descriptions.Item>
               <Descriptions.Item label="SOP Class UID">{pdfLookupResult.sopClassUid}</Descriptions.Item>
-              <Descriptions.Item label="报告 ID">{pdfLookupResult.reportId}</Descriptions.Item>
-              <Descriptions.Item label="SOP 实例 UID">
+              <Descriptions.Item label={t('dicomSrPage.reportId')}>{pdfLookupResult.reportId}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.sopInstanceUid')}>
                 <Text copyable style={{ fontSize: 12 }}>{pdfLookupResult.sopInstanceUid}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Study UID">
                 <Text copyable style={{ fontSize: 12 }}>{pdfLookupResult.studyInstanceUid}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="大小">{pdfLookupResult.size} 字节</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.size')}>{pdfLookupResult.size} {t('dicomSrPage.bytes')}</Descriptions.Item>
             </Descriptions>
           )}
           {pdfLookupState === 'none' && (
@@ -682,24 +682,24 @@ export const DicomSrPage: React.FC = () => {
           border: `1px solid ${statsSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
         }}>
           <Database size={12} />
-          SR 统计数据源: {statsSource === 'real' ? '真实 (GET /dicom-sr)' : '演示回退'}
+          SR {t('dicomSrPage.statsSource')}: {statsSource === 'real' ? t('dicomSrPage.sourceReal') : t('dicomSrPage.sourceDemo')}
         </span>
-        {statsLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>同步中…</span>}
-        <Button size="small" icon={<RefreshCcw size={12} />} onClick={loadSrStats}>刷新</Button>
+        {statsLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomSrPage.syncing')}</span>}
+        <Button size="small" icon={<RefreshCcw size={12} />} onClick={loadSrStats}>{t('dicomSrPage.refresh')}</Button>
         {statsError && <span style={{ fontSize: 11, color: '#d97706' }}>{statsError}</span>}
       </div>
 
       {/* 1. SR 统计 (按模板类型/模态/状态) */}
       <Card
-        title={<span><BarChart3 size={14} /> SR 文档统计</span>}
+        title={<span><BarChart3 size={14} /> {t('dicomSrPage.srDocStats')}</span>}
         size="small"
         style={{ marginBottom: 16 }}
-        extra={<Tag color="blue">共 {srStats.total} 份</Tag>}
+        extra={<Tag color="blue">{t('dicomSrPage.totalPrefix')} {srStats.total} {t('dicomSrPage.copies')}</Tag>}
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
           {/* 按模板类型 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>按模板类型 (TID)</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byTemplateType')} (TID)</div>
             {srStats.byTid.map((entry: [string, number]) => {
               const [tid, count] = entry
               const cnt = Number(count ?? 0)
@@ -719,7 +719,7 @@ export const DicomSrPage: React.FC = () => {
           </div>
           {/* 按模态 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>按模态分布</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byModality')}</div>
             {srStats.byModality.map((entry: [string, number]) => {
               const [mod, count] = entry
               const cnt = Number(count ?? 0)
@@ -740,19 +740,19 @@ export const DicomSrPage: React.FC = () => {
           </div>
           {/* 按状态 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>按状态</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byStatus')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-warning-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: '#d97706' }}>{srStats.draft}</div>
-                <div style={{ fontSize: 11, color: '#92400e' }}>草稿</div>
+                <div style={{ fontSize: 11, color: '#92400e' }}>{t('dicomSrPage.draft')}</div>
               </div>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: '#1e40af' }}>{srStats.finalized}</div>
-                <div style={{ fontSize: 11, color: '#1e40af' }}>已定稿</div>
+                <div style={{ fontSize: 11, color: '#1e40af' }}>{t('dicomSrPage.finalized')}</div>
               </div>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-success-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: '#16a34a' }}>{srStats.pushed}</div>
-                <div style={{ fontSize: 11, color: '#065f46' }}>已推送 (ORU)</div>
+                <div style={{ fontSize: 11, color: '#065f46' }}>{t('dicomSrPage.pushedOru')}</div>
               </div>
             </div>
             <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8' }}>
@@ -770,15 +770,15 @@ export const DicomSrPage: React.FC = () => {
               pagination={false}
               scroll={{ x: 'max-content' }}
               columns={[
-                { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 110, render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
-                { title: '模态', dataIndex: 'modality', key: 'modality', width: 70 },
+                { title: t('dicomSrPage.patient'), dataIndex: 'patientName', key: 'patientName', width: 110, render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+                { title: t('dicomSrPage.modality'), dataIndex: 'modality', key: 'modality', width: 70 },
                 { title: 'TID', dataIndex: 'tid', key: 'tid', width: 90, render: (v: string, r: SrDocument) => <Tag color="purple">{r.templateId ?? v}</Tag> },
-                { title: '报告 ID', dataIndex: 'reportId', key: 'reportId', width: 130, ellipsis: true },
+                { title: t('dicomSrPage.reportId'), dataIndex: 'reportId', key: 'reportId', width: 130, ellipsis: true },
                 {
-                  title: '状态', dataIndex: 'status', key: 'status', width: 90,
-                  render: (v: string) => <Tag color={v === 'pushed' ? 'green' : v === 'finalized' ? 'blue' : 'orange'}>{v === 'pushed' ? '已推送' : v === 'finalized' ? '已定稿' : '草稿'}</Tag>,
+                  title: t('dicomSrPage.status'), dataIndex: 'status', key: 'status', width: 90,
+                  render: (v: string) => <Tag color={v === 'pushed' ? 'green' : v === 'finalized' ? 'blue' : 'orange'}>{v === 'pushed' ? t('dicomSrPage.pushed') : v === 'finalized' ? t('dicomSrPage.finalized') : t('dicomSrPage.draft')}</Tag>,
                 },
-                { title: '生成时间', dataIndex: 'createdAt', key: 'createdAt', width: 150, render: (v: string) => String(v || '').slice(0, 19).replace('T', ' ') },
+                { title: t('dicomSrPage.generatedAt'), dataIndex: 'createdAt', key: 'createdAt', width: 150, render: (v: string) => String(v || '').slice(0, 19).replace('T', ' ') },
               ]}
             />
           </div>
@@ -787,17 +787,17 @@ export const DicomSrPage: React.FC = () => {
 
       {/* 2. SR 模板预览卡 (TID 结构树) */}
       <Card
-        title={<span><FolderTree size={14} /> SR 模板结构树预览</span>}
+        title={<span><FolderTree size={14} /> {t('dicomSrPage.srTemplateTree')}</span>}
         size="small"
         style={{ marginBottom: 16 }}
-        extra={<Tag color="cyan">TID 1500 / 2000 标准结构</Tag>}
+        extra={<Tag color="cyan">{t('dicomSrPage.tidStandardStructure')}</Tag>}
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {(['tid1500', 'tid2000'] as const).map(tidKey => (
             <div key={tidKey} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GitBranch size={13} />
-                {tidKey === 'tid1500' ? 'TID 1500 - 测量报告' : 'TID 2000 - CAD 文档 SR'}
+                {tidKey === 'tid1500' ? t('dicomSrPage.tid1500Label') : t('dicomSrPage.tid2000Label')}
                 {templates.find(t => t.id === tidKey) && (
                   <Tag color="blue" style={{ fontSize: 10 }}>{templates.find(t => t.id === tidKey)?.labelEn}</Tag>
                 )}
@@ -831,13 +831,13 @@ export const DicomSrPage: React.FC = () => {
           ))}
         </div>
         <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
-          TID = Template Information Definition (DICOM PS3.16)。SR 文档按 TID 模板组织 Content Item 树，包含概念名 (Concept Name) 与数值/编码/引用关系，用于结构化传递测量值与 CAD 发现。
+          {t('dicomSrPage.tidExplanation')}
         </div>
       </Card>
 
       {/* 3. SR 与报告关联显示 */}
       <Card
-        title={<span><Link2 size={14} /> SR 与报告关联</span>}
+        title={<span><Link2 size={14} /> {t('dicomSrPage.srReportLink')}</span>}
         size="small"
         style={{ marginBottom: 16 }}
         extra={<Tag color="geekblue">GET /dicom-sr/by-report/:reportId</Tag>}
@@ -846,13 +846,13 @@ export const DicomSrPage: React.FC = () => {
           <Space>
             <Input
               style={{ width: 300 }}
-              placeholder="输入报告 ID 查询关联 SR 文档…"
+              placeholder={t('dicomSrPage.linkSearchPlaceholder')}
               value={linkReportId}
               onChange={e => setLinkReportId(e.target.value)}
               onPressEnter={() => void handleLinkLookup()}
             />
             <Button type="primary" icon={<Link2 size={14} />} onClick={() => void handleLinkLookup()} loading={linking}>
-              查询关联
+              {t('dicomSrPage.queryLink')}
             </Button>
           </Space>
           {linkResult === 'ok' && linkedDoc && (
@@ -861,19 +861,19 @@ export const DicomSrPage: React.FC = () => {
               background: 'var(--color-success-bg)',
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#065f46', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Badge status="success" /> 已找到关联 SR 文档
+                <Badge status="success" /> {t('dicomSrPage.linkedFound')}
               </div>
               <Descriptions size="small" column={2}>
                 <Descriptions.Item label="SR ID">{linkedDoc.id}</Descriptions.Item>
-                <Descriptions.Item label="报告 ID">{linkedDoc.reportId}</Descriptions.Item>
+                <Descriptions.Item label={t('dicomSrPage.reportId')}>{linkedDoc.reportId}</Descriptions.Item>
                 <Descriptions.Item label="TID">
                   <Tag color="purple">{linkedDoc.templateId ?? linkedDoc.tid}</Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="患者">{linkedDoc.patientName} ({linkedDoc.patientId})</Descriptions.Item>
-                <Descriptions.Item label="模态">{linkedDoc.modality}</Descriptions.Item>
-                <Descriptions.Item label="状态">
+                <Descriptions.Item label={t('dicomSrPage.patient')}>{linkedDoc.patientName} ({linkedDoc.patientId})</Descriptions.Item>
+                <Descriptions.Item label={t('dicomSrPage.modality')}>{linkedDoc.modality}</Descriptions.Item>
+                <Descriptions.Item label={t('dicomSrPage.status')}>
                   <Tag color={linkedDoc.status === 'pushed' ? 'green' : linkedDoc.status === 'finalized' ? 'blue' : 'orange'}>
-                    {linkedDoc.status === 'pushed' ? '已推送' : linkedDoc.status === 'finalized' ? '已定稿' : '草稿'}
+                    {linkedDoc.status === 'pushed' ? t('dicomSrPage.pushed') : linkedDoc.status === 'finalized' ? t('dicomSrPage.finalized') : t('dicomSrPage.draft')}
                   </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Study UID">
@@ -885,7 +885,7 @@ export const DicomSrPage: React.FC = () => {
               </Descriptions>
               {linkedDoc.hl7ControlId && (
                 <div style={{ marginTop: 8, fontSize: 12, color: '#065f46' }}>
-                  ORU 回传: <span style={{ fontFamily: 'monospace' }}>{linkedDoc.hl7ControlId}</span>
+                  ORU {t('dicomSrPage.callback')}: <span style={{ fontFamily: 'monospace' }}>{linkedDoc.hl7ControlId}</span>
                   {linkedDoc.pushedAt && ` @ ${String(linkedDoc.pushedAt).slice(0, 19).replace('T', ' ')}`}
                 </div>
               )}
@@ -893,16 +893,16 @@ export const DicomSrPage: React.FC = () => {
           )}
           {linkResult === 'none' && (
             <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
-              未找到该报告关联的 SR 文档。可通过上方「生成 SR」创建。
+              {t('dicomSrPage.linkNotFound')}
             </div>
           )}
           {linkResult === 'err' && (
             <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-error-bg)', border: '1px solid #fecaca', fontSize: 12, color: '#b91c1c' }}>
-              关联查询失败：后端接口不可用或网络错误。
+              {t('dicomSrPage.linkQueryFailed')}
             </div>
           )}
           <div style={{ fontSize: 11, color: '#94a3b8' }}>
-            提示：SR 与报告通过 reportId 关联；报告发布 / 定稿后 SR 可推送 ORU^R01 至临床系统，闭环影像结构化结果传递。
+            {t('dicomSrPage.linkHint')}
           </div>
         </Space>
       </Card>
@@ -916,7 +916,7 @@ export const DicomSrPage: React.FC = () => {
           <Space>
             <Library size={14} />
             <span>{t('dicomSr.mtLib') || '测量模板库 (TID 1500/2000)'}</span>
-            <Tag color="cyan" style={{ fontSize: 10 }}>20 模板 seed</Tag>
+            <Tag color="cyan" style={{ fontSize: 10 }}>20 {t('dicomSrPage.templateSeed')}</Tag>
           </Space>
         }
         size="small"
@@ -973,18 +973,18 @@ export const DicomSrPage: React.FC = () => {
             scroll={{ x: 'max-content' }}
             columns={[
               { title: 'ID', dataIndex: 'id', key: 'id', width: 200, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
-              { title: '模板名称', dataIndex: 'templateName', key: 'templateName', width: 220 },
+              { title: t('dicomSrPage.templateName'), dataIndex: 'templateName', key: 'templateName', width: 220 },
               { title: 'TID', dataIndex: 'templateId', key: 'templateId', width: 80, render: (v: string) => <Tag color="purple">{v}</Tag> },
-              { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
-              { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', width: 80 },
-              { title: '分类', dataIndex: 'category', key: 'category', width: 100 },
-              { title: '测量项', dataIndex: 'measurements', key: 'measurements', width: 120, render: (v: MeasurementTemplate['measurements']) => `${v.length} 项` },
+              { title: t('dicomSrPage.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
+              { title: t('dicomSrPage.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', width: 80 },
+              { title: t('dicomSrPage.category'), dataIndex: 'category', key: 'category', width: 100 },
+              { title: t('dicomSrPage.measurementsTitle'), dataIndex: 'measurements', key: 'measurements', width: 120, render: (v: MeasurementTemplate['measurements']) => `${v.length} 项` },
               {
                 title: t('dicomSr.mtView') || '查看',
                 key: 'action',
                 width: 90,
                 render: (_: unknown, r: MeasurementTemplate) => (
-                  <Button size="small" icon={<Eye size={12} />} onClick={() => void openMtDetail(r.id)}>详情</Button>
+                  <Button size="small" icon={<Eye size={12} />} onClick={() => void openMtDetail(r.id)}>{t('dicomSrPage.detail')}</Button>
                 ),
               },
             ]}
@@ -999,7 +999,7 @@ export const DicomSrPage: React.FC = () => {
         title={mtDetail ? mtDetail.templateName : (t('dicomSr.mtDetail') || '模板详情')}
         open={mtDetailOpen}
         onCancel={() => setMtDetailOpen(false)}
-        footer={<Button onClick={() => setMtDetailOpen(false)}>关闭</Button>}
+        footer={<Button onClick={() => setMtDetailOpen(false)}>{t('dicomSrPage.close')}</Button>}
         width={640}
       >
         {mtDetailLoading ? (
@@ -1011,9 +1011,9 @@ export const DicomSrPage: React.FC = () => {
             <Descriptions size="small" column={2} bordered style={{ marginBottom: 12 }}>
               <Descriptions.Item label="ID" span={2}><code style={{ fontSize: 11 }}>{mtDetail.id}</code></Descriptions.Item>
               <Descriptions.Item label="TID"><Tag color="purple">{mtDetail.templateId}</Tag></Descriptions.Item>
-              <Descriptions.Item label="模态"><Tag color="blue">{mtDetail.modality}</Tag></Descriptions.Item>
-              <Descriptions.Item label="部位">{mtDetail.bodyPart}</Descriptions.Item>
-              <Descriptions.Item label="分类">{mtDetail.category}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.modality')}><Tag color="blue">{mtDetail.modality}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.bodyPart')}>{mtDetail.bodyPart}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSrPage.category')}>{mtDetail.category}</Descriptions.Item>
               <Descriptions.Item label={t('dicomSr.mtPurpose') || '用途'} span={2}>{mtDetail.purpose}</Descriptions.Item>
             </Descriptions>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
@@ -1025,10 +1025,10 @@ export const DicomSrPage: React.FC = () => {
               rowKey={(r) => `${r.code}-${r.meaning}`}
               pagination={false}
               columns={[
-                { title: '编码', dataIndex: 'code', key: 'code', width: 90, render: (v: string) => <code style={{ fontSize: 10 }}>{v}</code> },
-                { title: '方案', dataIndex: 'scheme', key: 'scheme', width: 60 },
-                { title: '测量项', dataIndex: 'meaning', key: 'meaning', width: 160 },
-                { title: '单位', dataIndex: 'unit', key: 'unit', width: 60 },
+                { title: t('dicomSrPage.code'), dataIndex: 'code', key: 'code', width: 90, render: (v: string) => <code style={{ fontSize: 10 }}>{v}</code> },
+                { title: t('dicomSrPage.scheme'), dataIndex: 'scheme', key: 'scheme', width: 60 },
+                { title: t('dicomSrPage.measurementsTitle'), dataIndex: 'meaning', key: 'meaning', width: 160 },
+                { title: t('dicomSrPage.unit'), dataIndex: 'unit', key: 'unit', width: 60 },
                 {
                   title: t('dicomSr.mtNormalRange') || '正常范围',
                   key: 'normalRange',
@@ -1038,7 +1038,7 @@ export const DicomSrPage: React.FC = () => {
                       ? `${r.normalRange.min ?? '−∞'} ~ ${r.normalRange.max ?? '+∞'}`
                       : '-'),
                 },
-                { title: '说明', dataIndex: 'description', key: 'description' },
+                { title: t('dicomSrPage.description'), dataIndex: 'description', key: 'description' },
               ]}
             />
             <div style={{ marginTop: 10 }}>
@@ -1049,7 +1049,7 @@ export const DicomSrPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dicomSrPage.noData')} />
         )}
       </Modal>
     </div>
