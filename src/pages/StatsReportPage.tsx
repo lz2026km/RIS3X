@@ -7,6 +7,7 @@ import { statsApi } from '../services/api/statsApi'
 import { analyticsStatsApi, type ForecastPointDto, type UtilizationDto, type AccuracyDto } from '../services/api/analyticsApi'
 import { biApi } from '../services/api/biApi'
 import { DEVICE_MASTER } from '../data/master'
+import { t } from '../i18n/appI18n'
 import {
   // 统计报表相关图标
   FileSpreadsheet, Download, Calendar, Filter, RefreshCw, Search,
@@ -479,7 +480,7 @@ export default function StatsReportPage() {
     setLoading(true)
     setApiError('')
     try {
-      const [t, w, oee, top] = await Promise.allSettled([
+      const [trendRes, w, oee, top] = await Promise.allSettled([
         statsApi.getTrend(days),
         statsApi.getWorkload(),
         biApi.getDeviceOee(14),
@@ -505,7 +506,7 @@ export default function StatsReportPage() {
         }
       }).catch(() => { /* 周报不可用不阻断 */ })
       const ok = (r: any) => r.status === 'fulfilled' && r.value.success === true && r.value.data != null
-      const trend = ok(t) && Array.isArray(t.value.data) ? t.value.data : []
+      const trend = ok(trendRes) && Array.isArray(trendRes.value.data) ? trendRes.value.data : []
       const workload = ok(w) && Array.isArray(w.value.data) ? w.value.data : []
       const oeeEnv = ok(oee) ? oee.value.data : null
       const oeeDevices = Array.isArray(oeeEnv?.data?.devices) ? oeeEnv.data.devices : []
@@ -589,7 +590,7 @@ export default function StatsReportPage() {
         setDataSource('live')
       } else {
         setDataSource('fallback')
-        setApiError('statsApi 实时数据不可用, 已回退演示数据')
+        setApiError(t('statsReport.apiUnavailable'))
       }
     } catch (e) {
       setApiError((e instanceof Error ? e.message : '统计加载失败') + ' — 已回退演示数据')
@@ -726,11 +727,11 @@ export default function StatsReportPage() {
         setCsvNote(`已通过 /stats/export.csv 导出 (${(blob.size / 1024).toFixed(1)} KB)`)
       } else {
         exportToCSV(getFilteredData())
-        setCsvNote('导出接口不可用, 已回退当前筛选数据本地 CSV')
+        setCsvNote(t('statsReport.exportUnavailable'))
       }
     } catch {
       exportToCSV(getFilteredData())
-      setCsvNote('导出接口请求失败, 已回退当前筛选数据本地 CSV')
+      setCsvNote(t('statsReport.exportRequestFailed'))
     } finally {
       setExportingCsv(false)
     }
@@ -799,11 +800,11 @@ export default function StatsReportPage() {
   const getHeaders = () => {
     switch (activeTab) {
       case 'device':
-        return ['设备ID', '设备名称', '设备类型', '检查总数', '已完成报告', '待写报告', '危急病例', '平均报告时间(分钟)', '设备利用率(%)']
+        return [t('statsReport.thDeviceId'), t('statsReport.thDeviceName'), t('statsReport.thDeviceType'), t('statsReport.thTotalExams'), t('statsReport.thCompletedReports'), t('statsReport.thPendingReports'), t('statsReport.thCriticalCases'), t('statsReport.thAvgReportTime'), t('statsReport.thUtilization')]
       case 'doctor':
-        return ['医生ID', '医生姓名', '科室', '职称', '报告总数', '已完成', '待写', '危急病例', '平均报告时间(分钟)', '准确率(%)']
+        return [t('statsReport.thDoctorId'), t('statsReport.thDoctorName'), t('statsReport.thDepartment'), t('statsReport.thTitle'), t('statsReport.thTotalReports'), t('statsReport.thCompleted'), t('statsReport.thPending'), t('statsReport.thCriticalCases'), t('statsReport.thAvgReportTime'), t('statsReport.thAccuracy')]
       case 'date':
-        return ['日期', '星期', '检查总数', '已完成报告', '待写报告', '危急病例', '收入(元)']
+        return [t('statsReport.thDate'), t('statsReport.thWeekday'), t('statsReport.thTotalExams'), t('statsReport.thCompletedReports'), t('statsReport.thPendingReports'), t('statsReport.thCriticalCases'), t('statsReport.thRevenue')]
       default:
         return []
     }
@@ -858,27 +859,27 @@ export default function StatsReportPage() {
 
       if (activeTab === 'device') {
         return [
-          { label: '设备总数', value: liveDeviceRows.length, icon: <Monitor size={18} />, color: COLORS.primary },
-          { label: '检查总量', value: trendTotal.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
-          { label: '完成报告', value: trendReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
-          { label: '平均利用率', value: devUtil.toFixed(1) + '%', icon: <Gauge size={18} />, color: COLORS.warning },
-          { label: '危急病例', value: trendCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
+          { label: t('statsReport.totalDevices'), value: liveDeviceRows.length, icon: <Monitor size={18} />, color: COLORS.primary },
+          { label: t('statsReport.totalExams'), value: trendTotal.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
+          { label: t('statsReport.completedReports'), value: trendReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
+          { label: t('statsReport.avgUtilization'), value: devUtil.toFixed(1) + '%', icon: <Gauge size={18} />, color: COLORS.warning },
+          { label: t('statsReport.criticalCases'), value: trendCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
         ]
       } else if (activeTab === 'doctor') {
         return [
-          { label: '医生总数', value: liveDoctorRows.length, icon: <User size={18} />, color: COLORS.primary },
-          { label: '报告总量', value: docReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.secondary },
-          { label: '完成报告', value: docReports.toLocaleString(), icon: <CheckCircle size={18} />, color: COLORS.success },
-          { label: '平均评分', value: docAccuracy.toFixed(1), icon: <Activity size={18} />, color: COLORS.warning },
-          { label: '待写报告', value: docPending, icon: <Clock size={18} />, color: COLORS.danger },
+          { label: t('statsReport.totalDoctors'), value: liveDoctorRows.length, icon: <User size={18} />, color: COLORS.primary },
+          { label: t('statsReport.totalReports'), value: docReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.secondary },
+          { label: t('statsReport.completedReports'), value: docReports.toLocaleString(), icon: <CheckCircle size={18} />, color: COLORS.success },
+          { label: t('statsReport.avgScore'), value: docAccuracy.toFixed(1), icon: <Activity size={18} />, color: COLORS.warning },
+          { label: t('statsReport.pendingReports'), value: docPending, icon: <Clock size={18} />, color: COLORS.danger },
         ]
       } else {
         return [
-          { label: '统计天数', value: liveDateRows.length, icon: <Calendar size={18} />, color: COLORS.primary },
-          { label: '检查总量', value: trendTotal.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
-          { label: '完成报告', value: trendReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
-          { label: '收入(估算)', value: (trendRevenue / 10000).toFixed(1) + '万', icon: <BarChart3 size={18} />, color: COLORS.warning },
-          { label: '危急病例', value: trendCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
+          { label: t('statsReport.totalDays'), value: liveDateRows.length, icon: <Calendar size={18} />, color: COLORS.primary },
+          { label: t('statsReport.totalExams'), value: trendTotal.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
+          { label: t('statsReport.completedReports'), value: trendReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
+          { label: t('statsReport.estimatedRevenue'), value: (trendRevenue / 10000).toFixed(1) + t('statsReport.unitWan'), icon: <BarChart3 size={18} />, color: COLORS.warning },
+          { label: t('statsReport.criticalCases'), value: trendCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
         ]
       }
     }
@@ -892,11 +893,11 @@ export default function StatsReportPage() {
       const criticalCases = data.reduce((sum, d: any) => sum + d.criticalCases, 0)
       
       return [
-        { label: '设备总数', value: data.length, icon: <Monitor size={18} />, color: COLORS.primary },
-        { label: '检查总量', value: totalExams.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
-        { label: '完成报告', value: totalReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
-        { label: '平均利用率', value: avgUtilization.toFixed(1) + '%', icon: <Gauge size={18} />, color: COLORS.warning },
-        { label: '危急病例', value: criticalCases, icon: <AlertTriangle size={18} />, color: COLORS.danger },
+        { label: t('statsReport.totalDevices'), value: data.length, icon: <Monitor size={18} />, color: COLORS.primary },
+        { label: t('statsReport.totalExams'), value: totalExams.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
+        { label: t('statsReport.completedReports'), value: totalReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
+        { label: t('statsReport.avgUtilization'), value: avgUtilization.toFixed(1) + '%', icon: <Gauge size={18} />, color: COLORS.warning },
+        { label: t('statsReport.criticalCases'), value: criticalCases, icon: <AlertTriangle size={18} />, color: COLORS.danger },
       ]
     } else if (activeTab === 'doctor') {
       const totalReports = data.reduce((sum, d: any) => sum + d.totalReports, 0)
@@ -904,11 +905,11 @@ export default function StatsReportPage() {
       const avgAccuracy = data.reduce((sum, d: any) => sum + d.accuracy, 0) / data.length
       
       return [
-        { label: '医生总数', value: data.length, icon: <User size={18} />, color: COLORS.primary },
-        { label: '报告总量', value: totalReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.secondary },
-        { label: '完成报告', value: completedReports.toLocaleString(), icon: <CheckCircle size={18} />, color: COLORS.success },
-        { label: '平均准确率', value: avgAccuracy.toFixed(1) + '%', icon: <Activity size={18} />, color: COLORS.warning },
-        { label: '待写报告', value: data.reduce((sum: number, d: any) => sum + d.pendingReports, 0), icon: <Clock size={18} />, color: COLORS.danger },
+        { label: t('statsReport.totalDoctors'), value: data.length, icon: <User size={18} />, color: COLORS.primary },
+        { label: t('statsReport.totalReports'), value: totalReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.secondary },
+        { label: t('statsReport.completedReports'), value: completedReports.toLocaleString(), icon: <CheckCircle size={18} />, color: COLORS.success },
+        { label: t('statsReport.avgAccuracy'), value: avgAccuracy.toFixed(1) + '%', icon: <Activity size={18} />, color: COLORS.warning },
+        { label: t('statsReport.pendingReports'), value: data.reduce((sum: number, d: any) => sum + d.pendingReports, 0), icon: <Clock size={18} />, color: COLORS.danger },
       ]
     } else {
       const totalExams = data.reduce((sum, d: any) => sum + d.totalExams, 0)
@@ -917,11 +918,11 @@ export default function StatsReportPage() {
       const totalCritical = data.reduce((sum, d: any) => sum + d.criticalCases, 0)
       
       return [
-        { label: '统计天数', value: data.length, icon: <Calendar size={18} />, color: COLORS.primary },
-        { label: '检查总量', value: totalExams.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
-        { label: '完成报告', value: totalReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
-        { label: '收入总计', value: (totalRevenue / 10000).toFixed(1) + '万', icon: <BarChart3 size={18} />, color: COLORS.warning },
-        { label: '危急病例', value: totalCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
+        { label: t('statsReport.totalDays'), value: data.length, icon: <Calendar size={18} />, color: COLORS.primary },
+        { label: t('statsReport.totalExams'), value: totalExams.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
+        { label: t('statsReport.completedReports'), value: totalReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
+        { label: t('statsReport.totalRevenue'), value: (totalRevenue / 10000).toFixed(1) + t('statsReport.unitWan'), icon: <BarChart3 size={18} />, color: COLORS.warning },
+        { label: t('statsReport.criticalCases'), value: totalCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
       ]
     }
   }
@@ -967,7 +968,7 @@ export default function StatsReportPage() {
               <AlertTriangle size={12} /> {item.criticalCases}
             </span>
           </td>
-          <td style={styles.td}>{item.avgReportTime > 0 ? item.avgReportTime + '分钟' : '—'}</td>
+          <td style={styles.td}>{item.avgReportTime > 0 ? item.avgReportTime + t('statsReport.minutes') : '—'}</td>
           <td style={styles.td}>
             {item.utilizationRate > 0 ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1026,7 +1027,7 @@ export default function StatsReportPage() {
               <AlertTriangle size={12} /> {item.criticalCases}
             </span>
           </td>
-          <td style={styles.td}>{item.avgReportTime > 0 ? item.avgReportTime + '分钟' : '—'}</td>
+          <td style={styles.td}>{item.avgReportTime > 0 ? item.avgReportTime + t('statsReport.minutes') : '—'}</td>
           <td style={styles.td}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '80px', height: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -1089,9 +1090,9 @@ export default function StatsReportPage() {
         <div>
           <div style={styles.headerTitle}>
             <FileSpreadsheet size={24} />
-            数据统计报表
+            {t('statsReport.pageTitle')}
           </div>
-          <div style={styles.headerSubtitle}>多维度统计报表 · 灵活查询 · 数据导出</div>
+          <div style={styles.headerSubtitle}>{t('statsReport.pageSubtitle')}</div>
         </div>
         <div style={styles.headerActions}>
           <button 
@@ -1101,7 +1102,7 @@ export default function StatsReportPage() {
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'}
           >
             <Download size={16} />
-            导出报表
+            {t('statsReport.exportReport')}
           </button>
         </div>
       </div>
@@ -1114,7 +1115,7 @@ export default function StatsReportPage() {
           color: isLive ? COLORS.success : COLORS.warning,
         }}>
           <Database size={13} />
-          {loading ? '统计加载中…' : isLive ? 'statsApi / biApi 实时数据' : '演示数据 (回退)'}
+          {loading ? t('statsReport.loadingStats') : isLive ? t('statsReport.liveData') : t('statsReport.fallbackData')}
         </span>
         {apiError && (
           <span style={{ fontSize: 12, color: COLORS.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1130,7 +1131,7 @@ export default function StatsReportPage() {
           }}
         >
           <RefreshCw size={13} />
-          刷新
+          {t('statsReport.refresh')}
         </button>
       </div>
 
@@ -1153,26 +1154,26 @@ export default function StatsReportPage() {
         <div style={{ ...styles.tableCard, marginBottom: 16 }}>
           <div style={styles.tableHeader}>
             <div style={styles.tableTitle}>
-              <TrendingUp size={18} /> 周报 (近7天)
-              <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>实时</span>
+              <TrendingUp size={18} /> {t('statsReport.weeklyTitle')}
+              <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}> {t('statsReport.realtime')}</span>
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, padding: '0 0 12px' }}>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{weekly.totalExams}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>检查总数</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.totalExamsShort')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.success }}>{weekly.totalReports}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>报告总数</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.totalReportsShort')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.danger }}>{weekly.totalCritical}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>危急值</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.criticalValues')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.secondary }}>{weekly.avgExamsPerDay}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>日均检查</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.avgDailyExams')}</div>
             </div>
           </div>
           {weekly.daily.length > 0 && (
@@ -1199,8 +1200,8 @@ export default function StatsReportPage() {
         <div style={{ ...styles.tableCard, marginBottom: 16 }}>
           <div style={styles.tableHeader}>
             <div style={styles.tableTitle}>
-              <Radio size={18} /> 模态分布 (Top {topModalities.length})
-              {topModalitiesLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>实时</span>}
+              <Radio size={18} /> {t('statsReport.modalityDistributionPrefix')}{topModalities.length})
+              {topModalitiesLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}> {t('statsReport.realtime')}</span>}
             </div>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '14px 16px' }}>
@@ -1218,7 +1219,7 @@ export default function StatsReportPage() {
                   <div style={{ height: 8, background: 'rgba(148,163,184,0.25)', borderRadius: 4, marginTop: 8, overflow: 'hidden' }}>
                     <div style={{ width: `${(count / max) * 100}%`, height: '100%', background: color, borderRadius: 4 }} />
                   </div>
-                  <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 6 }}>{((count / max) * 100).toFixed(0)}% (相对最高)</div>
+                  <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 6 }}>{((count / max) * 100).toFixed(0)}% {t('statsReport.relativeHighest')}</div>
                 </div>
               )
             })}
@@ -1233,10 +1234,10 @@ export default function StatsReportPage() {
           <div style={styles.tableCard}>
             <div style={styles.tableHeader}>
               <div style={styles.tableTitle}>
-                <TrendingUp size={18} /> 检查量预测趋势
-                {analyticsLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>预测</span>}
+                <TrendingUp size={18} /> {t('statsReport.forecastTrend')}
+                {analyticsLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>{t('statsReport.forecast')}</span>}
               </div>
-              <span style={{ fontSize: 12, color: COLORS.textMuted }}>近14天实际 + 14天外推</span>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('statsReport.forecastNote')}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, padding: '14px 16px', minHeight: 110 }}>
               {forecast.length > 0 && (() => {
@@ -1270,8 +1271,8 @@ export default function StatsReportPage() {
             <div style={styles.tableCard}>
               <div style={styles.tableHeader}>
                 <div style={styles.tableTitle}>
-                  <Gauge size={18} /> 设备利用率
-                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>利用率</span>
+                  <Gauge size={18} /> {t('statsReport.deviceUtilization')}
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>{t('statsReport.utilization')}</span>
                 </div>
               </div>
               <div style={{ padding: 16 }}>
@@ -1282,8 +1283,8 @@ export default function StatsReportPage() {
                   <div style={{ width: `${Math.min((utilization.current ?? 0), (utilization.max ?? 100)) / ((utilization.max ?? 100) || 1) * 100}%`, height: '100%', background: COLORS.primaryLight, borderRadius: 5 }} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>
-                  <span>目标 {utilization.target ?? 0}%</span>
-                  <span>上限 {utilization.max ?? 0}%</span>
+                  <span>{t('statsReport.targetPrefix')}{utilization.target ?? 0}%</span>
+                  <span>{t('statsReport.upperLimitPrefix')}{utilization.max ?? 0}%</span>
                 </div>
               </div>
             </div>
@@ -1294,8 +1295,8 @@ export default function StatsReportPage() {
             <div style={styles.tableCard}>
               <div style={styles.tableHeader}>
                 <div style={styles.tableTitle}>
-                  <Activity size={18} /> 报告准确率
-                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>准确率</span>
+                  <Activity size={18} /> {t('statsReport.reportAccuracy')}
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>{t('statsReport.accuracy')}</span>
                 </div>
               </div>
               <div style={{ padding: 16 }}>
@@ -1304,11 +1305,11 @@ export default function StatsReportPage() {
                   {accuracy.previous != null && (
                     <>
                       {(accuracy.previous ?? 0) <= accuracy.value ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
-                      较上期 {accuracy.previous.toFixed(1)}% ({(accuracy.value - accuracy.previous).toFixed(1)}pp)
+                      {t('statsReport.vsPreviousPrefix')}{accuracy.previous.toFixed(1)}% ({(accuracy.value - accuracy.previous).toFixed(1)}pp)
                     </>
                   )}
                 </div>
-                <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>质控评分合格率 (A/B 级占比)</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>{t('statsReport.qcPassRate')}</div>
               </div>
             </div>
           )}
@@ -1325,7 +1326,7 @@ export default function StatsReportPage() {
             onMouseLeave={(e) => activeTab !== 'device' && (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <Monitor size={16} />
-            按设备统计
+            {t('statsReport.tabDevice')}
           </button>
           <button 
             style={{ ...styles.tab, ...(activeTab === 'doctor' ? styles.tabActive : {}) }}
@@ -1334,7 +1335,7 @@ export default function StatsReportPage() {
             onMouseLeave={(e) => activeTab !== 'doctor' && (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <User size={16} />
-            按医生统计
+            {t('statsReport.tabDoctor')}
           </button>
           <button 
             style={{ ...styles.tab, ...(activeTab === 'date' ? styles.tabActive : {}) }}
@@ -1343,7 +1344,7 @@ export default function StatsReportPage() {
             onMouseLeave={(e) => activeTab !== 'date' && (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <Calendar size={16} />
-            按日期统计
+            {t('statsReport.tabDate')}
           </button>
         </div>
 
@@ -1354,7 +1355,7 @@ export default function StatsReportPage() {
               <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: COLORS.textMuted }} />
               <input 
                 type="text" 
-                placeholder="搜索关键字..." 
+                placeholder={t('statsReport.searchPlaceholder')} 
                 style={{ ...styles.searchInput, paddingLeft: '34px' }}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -1367,7 +1368,7 @@ export default function StatsReportPage() {
                 value={modalityFilter}
                 onChange={(e) => setModalityFilter(e.target.value)}
               >
-                <option value="all">全部设备类型</option>
+                <option value="all">{t('statsReport.allModalities')}</option>
                 <option value="CT">CT</option>
                 <option value="MR">MR</option>
                 <option value="DR">DR</option>
@@ -1383,9 +1384,9 @@ export default function StatsReportPage() {
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
               >
-                <option value="7d">最近7天</option>
-                <option value="30d">最近30天</option>
-                <option value="90d">最近90天</option>
+                <option value="7d">{t('statsReport.last7d')}</option>
+                <option value="30d">{t('statsReport.last30d')}</option>
+                <option value="90d">{t('statsReport.last90d')}</option>
               </select>
             )}
             
@@ -1394,13 +1395,13 @@ export default function StatsReportPage() {
               onClick={() => { setSearchText(''); setModalityFilter('all'); setDateRange('7d'); }}
             >
               <RefreshCw size={14} />
-              重置
+              {t('statsReport.reset')}
             </button>
           </div>
           
           <div style={styles.toolbarRight}>
             <span style={{ fontSize: '13px', color: COLORS.textMuted }}>
-              共 {filteredData.length} 条数据
+              {t('statsReport.totalDataPrefix')}{filteredData.length} {t('statsReport.totalDataSuffix')}
               {selectedRows.length > 0 && ` · 已选择 ${selectedRows.length} 条`}
             </span>
 
@@ -1411,7 +1412,7 @@ export default function StatsReportPage() {
               disabled={exportingCsv}
             >
               <Download size={14} />
-              {exportingCsv ? '导出中…' : '导出 CSV'}
+              {exportingCsv ? t('statsReport.exportingCsv') : t('statsReport.exportCsv')}
             </button>
 
             <button 
@@ -1419,7 +1420,7 @@ export default function StatsReportPage() {
               onClick={() => setShowExportModal(true)}
             >
               <Download size={14} />
-              导出
+              {t('statsReport.export')}
             </button>
           </div>
           {csvNote && (
@@ -1434,12 +1435,12 @@ export default function StatsReportPage() {
         <div style={styles.tableCard}>
           <div style={styles.tableHeader}>
             <div style={styles.tableTitle}>
-              {activeTab === 'device' && <><Monitor size={18} /> 设备统计报表</>}
-              {activeTab === 'doctor' && <><User size={18} /> 医生工作量报表</>}
-              {activeTab === 'date' && <><Calendar size={18} /> 日期统计报表</>}
+              {activeTab === 'device' && <><Monitor size={18} /> {t('statsReport.deviceReport')}</>}
+              {activeTab === 'doctor' && <><User size={18} /> {t('statsReport.doctorReport')}</>}
+              {activeTab === 'date' && <><Calendar size={18} /> {t('statsReport.dateReport')}</>}
               {isLive && (
                 <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>
-                  实时
+                  {t('statsReport.realtime')}
                 </span>
               )}
             </div>
@@ -1485,7 +1486,7 @@ export default function StatsReportPage() {
                 }}
               >
                 <Printer size={14} />
-                打印
+                {t('statsReport.print')}
               </button>
             </div>
           </div>
@@ -1502,40 +1503,40 @@ export default function StatsReportPage() {
                 </th>
                 {activeTab === 'device' && (
                   <>
-                    <th style={styles.th}>设备ID</th>
-                    <th style={styles.th}>设备名称</th>
-                    <th style={styles.th}>设备类型</th>
-                    <th style={styles.th}>检查总数</th>
-                    <th style={styles.th}>已完成报告</th>
-                    <th style={styles.th}>待写报告</th>
-                    <th style={styles.th}>危急病例</th>
-                    <th style={styles.th}>平均报告时间</th>
-                    <th style={styles.th}>设备利用率</th>
+                    <th style={styles.th}>{t('statsReport.thDeviceId')}</th>
+                    <th style={styles.th}>{t('statsReport.thDeviceName')}</th>
+                    <th style={styles.th}>{t('statsReport.thDeviceType')}</th>
+                    <th style={styles.th}>{t('statsReport.thTotalExams')}</th>
+                    <th style={styles.th}>{t('statsReport.thCompletedReports')}</th>
+                    <th style={styles.th}>{t('statsReport.thPendingReports')}</th>
+                    <th style={styles.th}>{t('statsReport.thCriticalCases')}</th>
+                    <th style={styles.th}>{t('statsReport.thAvgReportTime')}</th>
+                    <th style={styles.th}>{t('statsReport.thUtilization')}</th>
                   </>
                 )}
                 {activeTab === 'doctor' && (
                   <>
-                    <th style={styles.th}>医生ID</th>
-                    <th style={styles.th}>医生姓名</th>
-                    <th style={styles.th}>科室</th>
-                    <th style={styles.th}>职称</th>
-                    <th style={styles.th}>报告总数</th>
-                    <th style={styles.th}>已完成</th>
-                    <th style={styles.th}>待写</th>
-                    <th style={styles.th}>危急病例</th>
-                    <th style={styles.th}>平均报告时间</th>
-                    <th style={styles.th}>准确率</th>
+                    <th style={styles.th}>{t('statsReport.thDoctorId')}</th>
+                    <th style={styles.th}>{t('statsReport.thDoctorName')}</th>
+                    <th style={styles.th}>{t('statsReport.thDepartment')}</th>
+                    <th style={styles.th}>{t('statsReport.thTitle')}</th>
+                    <th style={styles.th}>{t('statsReport.thTotalReports')}</th>
+                    <th style={styles.th}>{t('statsReport.thCompleted')}</th>
+                    <th style={styles.th}>{t('statsReport.thPending')}</th>
+                    <th style={styles.th}>{t('statsReport.thCriticalCases')}</th>
+                    <th style={styles.th}>{t('statsReport.thAvgReportTime')}</th>
+                    <th style={styles.th}>{t('statsReport.thAccuracy')}</th>
                   </>
                 )}
                 {activeTab === 'date' && (
                   <>
-                    <th style={styles.th}>日期</th>
-                    <th style={styles.th}>星期</th>
-                    <th style={styles.th}>检查总数</th>
-                    <th style={styles.th}>已完成报告</th>
-                    <th style={styles.th}>待写报告</th>
-                    <th style={styles.th}>危急病例</th>
-                    <th style={styles.th}>收入*</th>
+                    <th style={styles.th}>{t('statsReport.thDate')}</th>
+                    <th style={styles.th}>{t('statsReport.thWeekday')}</th>
+                    <th style={styles.th}>{t('statsReport.thTotalExams')}</th>
+                    <th style={styles.th}>{t('statsReport.thCompletedReports')}</th>
+                    <th style={styles.th}>{t('statsReport.thPendingReports')}</th>
+                    <th style={styles.th}>{t('statsReport.thCriticalCases')}</th>
+                    <th style={styles.th}>{t('statsReport.thRevenue')}</th>
                   </>
                 )}
               </tr>
@@ -1547,14 +1548,14 @@ export default function StatsReportPage() {
 
           {isLive && (
             <div style={{ padding: '8px 16px', fontSize: 12, color: COLORS.textMuted, borderTop: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
-              * 收入按 400元/例 估算; 报告/危急数值来自 statsApi 趋势聚合; 设备利用率由 DEVICE_MASTER 停机率推导 + biApi OEE 补充; 设备检查量为 stats.topDevices 近30天聚合
+              {t('statsReport.liveNote')}
             </div>
           )}
           
           {/* 分页 */}
           <div style={styles.pagination}>
             <div style={styles.paginationInfo}>
-              显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredData.length)} 条，共 {filteredData.length} 条
+              {t('statsReport.showingPrefix')}{((currentPage - 1) * pageSize) + 1}{t('statsReport.showingMid')}{Math.min(currentPage * pageSize, filteredData.length)}{t('statsReport.showingSuffix')}{filteredData.length}{t('statsReport.showingEnd')}
             </div>
             <div style={styles.paginationButtons}>
               <button 
@@ -1562,14 +1563,14 @@ export default function StatsReportPage() {
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(1)}
               >
-                首页
+                {t('statsReport.firstPage')}
               </button>
               <button 
                 style={{ ...styles.pageButton, ...(currentPage === 1 ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               >
-                上一页
+                {t('statsReport.prevPage')}
               </button>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum
@@ -1597,14 +1598,14 @@ export default function StatsReportPage() {
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               >
-                下一页
+                {t('statsReport.nextPage')}
               </button>
               <button 
                 style={{ ...styles.pageButton, ...(currentPage === totalPages ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(totalPages)}
               >
-                末页
+                {t('statsReport.lastPage')}
               </button>
             </div>
           </div>
@@ -1618,7 +1619,7 @@ export default function StatsReportPage() {
             <div style={styles.modalHeader}>
               <div style={styles.modalTitle}>
                 <Download size={18} />
-                导出报表
+                {t('statsReport.exportReport')}
               </div>
               <button style={styles.modalClose} onClick={() => setShowExportModal(false)}>
                 <X size={18} />
@@ -1626,7 +1627,7 @@ export default function StatsReportPage() {
             </div>
             <div style={styles.modalBody}>
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>导出范围</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>{t('statsReport.exportScope')}</label>
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <input 
@@ -1636,7 +1637,7 @@ export default function StatsReportPage() {
                       checked={exportType === 'current'}
                       onChange={() => setExportType('current')}
                     />
-                    当前筛选数据 ({filteredData.length} 条)
+                    {t('statsReport.currentFilteredPrefix')}{filteredData.length}{t('statsReport.currentFilteredSuffix')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <input 
@@ -1646,13 +1647,13 @@ export default function StatsReportPage() {
                       checked={exportType === 'all'}
                       onChange={() => setExportType('all')}
                     />
-                    全部数据 ({getTableData().length} 条)
+                    {t('statsReport.allDataPrefix')}{getTableData().length}{t('statsReport.currentFilteredSuffix')}
                   </label>
                 </div>
               </div>
               
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>导出格式</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>{t('statsReport.exportFormat')}</label>
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <input 
@@ -1662,7 +1663,7 @@ export default function StatsReportPage() {
                       checked={exportFormat === 'csv'}
                       onChange={() => setExportFormat('csv')}
                     />
-                    CSV 格式
+                    {t('statsReport.fmtCsv')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <input 
@@ -1672,7 +1673,7 @@ export default function StatsReportPage() {
                       checked={exportFormat === 'excel'}
                       onChange={() => setExportFormat('excel')}
                     />
-                    Excel 格式
+                    {t('statsReport.fmtExcel')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <input 
@@ -1682,7 +1683,7 @@ export default function StatsReportPage() {
                       checked={exportFormat === 'print'}
                       onChange={() => setExportFormat('print')}
                     />
-                    打印预览
+                    {t('statsReport.fmtPrint')}
                   </label>
                 </div>
               </div>
@@ -1694,13 +1695,13 @@ export default function StatsReportPage() {
                 border: '1px solid var(--border-color)'
               }}>
                 <div style={{ fontSize: '13px', color: COLORS.textMuted, marginBottom: '8px' }}>
-                  导出预览
+                  {t('statsReport.exportPreview')}
                 </div>
                 <div style={{ fontSize: '14px' }}>
-                  <div><strong>报表类型：</strong>{activeTab === 'device' ? '按设备统计' : activeTab === 'doctor' ? '按医生统计' : '按日期统计'}</div>
-                  <div><strong>数据范围：</strong>{exportType === 'current' ? '当前筛选数据' : '全部数据'}</div>
-                  <div><strong>数据条数：</strong>{exportType === 'current' ? filteredData.length : getTableData().length} 条</div>
-                  <div><strong>导出格式：</strong>{exportFormat === 'csv' ? 'CSV (逗号分隔)' : exportFormat === 'excel' ? 'Excel (.xlsx)' : '打印预览'}</div>
+                  <div><strong>{t('statsReport.reportType')}</strong>{activeTab === 'device' ? t('statsReport.tabDevice') : activeTab === 'doctor' ? t('statsReport.tabDoctor') : t('statsReport.tabDate')}</div>
+                  <div><strong>{t('statsReport.dataScope')}</strong>{exportType === 'current' ? t('statsReport.currentFiltered') : t('statsReport.allData')}</div>
+                  <div><strong>{t('statsReport.dataCount')}</strong>{exportType === 'current' ? filteredData.length : getTableData().length}{t('statsReport.showingEnd')}</div>
+                  <div><strong>{t('statsReport.exportFormatLabel')}</strong>{exportFormat === 'csv' ? t('statsReport.csvComma') : exportFormat === 'excel' ? 'Excel (.xlsx)' : t('statsReport.fmtPrint')}</div>
                 </div>
               </div>
               
@@ -1709,14 +1710,14 @@ export default function StatsReportPage() {
                   style={{ ...styles.button, ...styles.buttonOutline }}
                   onClick={() => setShowExportModal(false)}
                 >
-                  取消
+                  {t('statsReport.cancel')}
                 </button>
                 <button 
                   style={{ ...styles.button, ...styles.buttonPrimary }}
                   onClick={handleExport}
                 >
                   <Download size={14} />
-                  确认导出
+                  {t('statsReport.confirmExport')}
                 </button>
               </div>
             </div>

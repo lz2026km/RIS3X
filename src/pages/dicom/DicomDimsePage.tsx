@@ -3,34 +3,35 @@ import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, S
 import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus, Lock, Clock3, FileKey, Save, ListOrdered, Pause, Play, RotateCcw, Ban } from 'lucide-react'
 import { dicomDimseApi, type DicomTlsConfig, type MppsRecord, type TransferRecord, type TransferStats } from '../../services/api/dicomApi'
 import { usePagination } from '../../hooks/usePagination'
+import { t } from '../../i18n/appI18n'
 
-const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功' };
+const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: t('dicomDimse.statusSuccess') };
 
 const MPPS_STATUS_LABEL: Record<string, string> = {
-  IN_PROGRESS: '进行中',
-  COMPLETED: '已完成',
-  DISCONTINUED: '已终止',
+  IN_PROGRESS: t('dicomDimse.statusInProgress'),
+  COMPLETED: t('dicomDimse.statusCompleted'),
+  DISCONTINUED: t('dicomDimse.statusDiscontinued'),
 }
 
 const ECHO_COLUMNS: any[] = [
-  { title: '应用实体名', dataIndex: 'aeTitle', key: 'aeTitle' },
-  { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
-  { title: '端口', dataIndex: 'port', key: 'port' },
-  { title: '设备', dataIndex: 'modality', key: 'modality' },
-  { title: '连通性', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
+  { title: t('dicomDimse.colAeTitle'), dataIndex: 'aeTitle', key: 'aeTitle' },
+  { title: t('dicomDimse.colIp'), dataIndex: 'ip', key: 'ip' },
+  { title: t('dicomDimse.colPort'), dataIndex: 'port', key: 'port' },
+  { title: t('dicomDimse.colModality'), dataIndex: 'modality', key: 'modality' },
+  { title: t('dicomDimse.colConnectivity'), dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
   // [G005 v3.0.6.11-90 Wave 4B (G-10)] 在线状态列 (轮询 C-ECHO 结果): 在线/离线/未知
   {
-    title: '在线状态',
+    title: t('dicomDimse.colOnlineStatus'),
     dataIndex: 'status',
     key: 'online',
     render: (v: string | null) => v === 'SUCCESS'
-      ? <Tag color="green" icon={<CheckCircle size={14} />}>在线</Tag>
+      ? <Tag color="green" icon={<CheckCircle size={14} />}>{t('dicomDimse.online')}</Tag>
       : v === 'FAIL'
-        ? <Tag color="red" icon={<XCircle size={14} />}>离线</Tag>
-        : <Tag color="default">未知</Tag>,
+        ? <Tag color="red" icon={<XCircle size={14} />}>{t('dicomDimse.offline')}</Tag>
+        : <Tag color="default">{t('dicomDimse.unknown')}</Tag>,
   },
   {
-    title: '上次检测',
+    title: t('dicomDimse.colLastChecked'),
     dataIndex: 'lastCheckedAt',
     key: 'lastCheckedAt',
     render: (v: string | null) => v ? new Date(v).toLocaleTimeString() : '-',
@@ -38,26 +39,26 @@ const ECHO_COLUMNS: any[] = [
 ]
 
 const MWL_COLUMNS = [
-  { title: '患者姓名', dataIndex: 'patientName', key: 'patientName' },
-  { title: '患者 ID', dataIndex: 'patientId', key: 'patientId' },
-  { title: '检查号', dataIndex: 'accessionNumber', key: 'accessionNumber' },
-  { title: '设备', dataIndex: 'modality', key: 'modality' },
-  { title: '检查日期', dataIndex: 'studyDate', key: 'studyDate' },
-  { title: '状态', dataIndex: 'status', key: 'status' },
+  { title: t('dicomDimse.colPatientName'), dataIndex: 'patientName', key: 'patientName' },
+  { title: t('dicomDimse.colPatientId'), dataIndex: 'patientId', key: 'patientId' },
+  { title: t('dicomDimse.colAccession'), dataIndex: 'accessionNumber', key: 'accessionNumber' },
+  { title: t('dicomDimse.colModality'), dataIndex: 'modality', key: 'modality' },
+  { title: t('dicomDimse.colStudyDate'), dataIndex: 'studyDate', key: 'studyDate' },
+  { title: t('dicomDimse.colStatus'), dataIndex: 'status', key: 'status' },
 ]
 
 const C_STORE_COLUMNS = [
-  { title: 'SOP 实例 UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
-  { title: '存储路径', dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
-  { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
+  { title: t('dicomDimse.colSopUid'), dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
+  { title: t('dicomDimse.colStoragePath'), dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
+  { title: t('dicomDimse.colSize'), dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
+  { title: t('dicomDimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ]
 
 const C_MOVE_COLUMNS = [
-  { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
-  { title: '目标 AE', dataIndex: 'destAe', key: 'destAe' },
-  { title: '传输数', dataIndex: 'transferredCount', key: 'transferredCount' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
+  { title: t('dicomDimse.colStudyUid'), dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
+  { title: t('dicomDimse.colDestAe'), dataIndex: 'destAe', key: 'destAe' },
+  { title: t('dicomDimse.colTransferred'), dataIndex: 'transferredCount', key: 'transferredCount' },
+  { title: t('dicomDimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ]
 
 // [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度列
@@ -67,23 +68,23 @@ const MPPS_STATUS_COLOR: Record<string, string> = {
   DISCONTINUED: 'error',
 }
 const MPPS_COLUMNS = [
-  { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
-  { title: '患者', dataIndex: 'patientName', key: 'patientName', render: (v?: string) => v || '-' },
-  { title: '设备', dataIndex: 'modality', key: 'modality', render: (v?: string) => v || '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={MPPS_STATUS_COLOR[v] ?? 'default'}>{MPPS_STATUS_LABEL[v] ?? v}</Tag> },
-  { title: '开始时间', dataIndex: 'startedAt', key: 'startedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
-  { title: '完成时间', dataIndex: 'completedAt', key: 'completedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
-  { title: '步骤数', dataIndex: 'performedSteps', key: 'performedSteps', render: (v?: unknown[]) => Array.isArray(v) ? v.length : 0 },
-  { title: '来源', dataIndex: 'source', key: 'source', render: (v?: string) => <Tag color={v === 'exam' ? 'blue' : 'default'}>{v === 'exam' ? '检查派生' : 'MPPS'}</Tag> },
+  { title: t('dicomDimse.colStudyUid'), dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
+  { title: t('dicomDimse.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v?: string) => v || '-' },
+  { title: t('dicomDimse.colModality'), dataIndex: 'modality', key: 'modality', render: (v?: string) => v || '-' },
+  { title: t('dicomDimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={MPPS_STATUS_COLOR[v] ?? 'default'}>{MPPS_STATUS_LABEL[v] ?? v}</Tag> },
+  { title: t('dicomDimse.colStartedAt'), dataIndex: 'startedAt', key: 'startedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
+  { title: t('dicomDimse.colCompletedAt'), dataIndex: 'completedAt', key: 'completedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
+  { title: t('dicomDimse.colSteps'), dataIndex: 'performedSteps', key: 'performedSteps', render: (v?: unknown[]) => Array.isArray(v) ? v.length : 0 },
+  { title: t('dicomDimse.colSource'), dataIndex: 'source', key: 'source', render: (v?: string) => <Tag color={v === 'exam' ? 'blue' : 'default'}>{v === 'exam' ? t('dicomDimse.sourceExam') : t('dicomDimse.sourceMpps')}</Tag> },
 ]
 
 const TLS_NODE_COLUMNS = [
-  { title: '应用实体名', dataIndex: 'aeTitle', key: 'aeTitle' },
-  { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
-  { title: '端口', dataIndex: 'port', key: 'port' },
-  { title: '设备', dataIndex: 'modality', key: 'modality' },
-  { title: 'TLS', key: 'tls', render: (_: unknown, r: any) => <Tag color={r._tlsEnabled ? 'green' : 'default'}>{r._tlsEnabled ? '已启用' : '未启用'}</Tag> },
-  { title: '操作', key: 'action', render: (_: unknown, r: any) => (
+  { title: t('dicomDimse.colAeTitle'), dataIndex: 'aeTitle', key: 'aeTitle' },
+  { title: t('dicomDimse.colIp'), dataIndex: 'ip', key: 'ip' },
+  { title: t('dicomDimse.colPort'), dataIndex: 'port', key: 'port' },
+  { title: t('dicomDimse.colModality'), dataIndex: 'modality', key: 'modality' },
+  { title: t('dicomDimse.colTls'), key: 'tls', render: (_: unknown, r: any) => <Tag color={r._tlsEnabled ? 'green' : 'default'}>{r._tlsEnabled ? t('dicomDimse.tlsEnabled') : t('dicomDimse.tlsDisabled')}</Tag> },
+  { title: t('dicomDimse.colAction'), key: 'action', render: (_: unknown, r: any) => (
     <Switch
       size="small"
       checked={r._tlsEnabled}
@@ -95,16 +96,16 @@ const TLS_NODE_COLUMNS = [
 
 // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] 传输队列状态/标签映射
 const TRANSFER_STATUS_META: Record<string, { color: string; label: string }> = {
-  queued: { color: 'default', label: '排队中' },
-  sending: { color: 'processing', label: '发送中' },
-  paused: { color: 'warning', label: '已暂停' },
-  failed: { color: 'error', label: '失败' },
-  completed: { color: 'success', label: '已完成' },
-  canceled: { color: 'default', label: '已取消' },
+  queued: { color: 'default', label: t('dicomDimse.transferQueued') },
+  sending: { color: 'processing', label: t('dicomDimse.transferSending') },
+  paused: { color: 'warning', label: t('dicomDimse.transferPaused') },
+  failed: { color: 'error', label: t('dicomDimse.transferFailed') },
+  completed: { color: 'success', label: t('dicomDimse.transferCompleted') },
+  canceled: { color: 'default', label: t('dicomDimse.transferCanceled') },
 }
 
 const TRANSFER_PRIORITY_COLOR: Record<string, string> = { HIGH: 'red', NORMAL: 'blue', LOW: 'default' }
-const TRANSFER_PRIORITY_LABEL: Record<string, string> = { HIGH: '高', NORMAL: '普通', LOW: '低' }
+const TRANSFER_PRIORITY_LABEL: Record<string, string> = { HIGH: t('dicomDimse.priorityHigh'), NORMAL: t('dicomDimse.priorityNormal'), LOW: t('dicomDimse.priorityLow') }
 
 interface DimseDevice {
   aeTitle: string
@@ -245,8 +246,8 @@ export const DicomDimsePage: React.FC = () => {
     setTlsNodes(prev => prev.map(d => d.aeTitle === device.aeTitle
       ? { ...d, _tlsEnabled: res.success ? !!res.data?.tlsEnabled : checked, _tlsSaving: false }
       : d))
-    if (!res.success) message.error(res.error?.message ?? '节点 TLS 更新失败')
-    else message.success(`节点 ${device.aeTitle} TLS ${res.data?.tlsEnabled ? '已启用' : '已关闭'}`)
+    if (!res.success) message.error(res.error?.message ?? t('dicomDimse.nodeTlsUpdateFailed'))
+    else message.success(t('dicomDimse.nodeTlsMsg', { ae: device.aeTitle, state: res.data?.tlsEnabled ? t('dicomDimse.tlsEnabled') : t('dicomDimse.nodeTlsDisabled') }))
   }, [])
 
   // 节点级 TLS 行: 设备列表同步 + 远程开关状态加载
@@ -287,9 +288,9 @@ export const DicomDimsePage: React.FC = () => {
     })
     if (res.success) {
       setTlsConfig(res.data ?? tlsConfig)
-      message.success('TLS 配置已保存')
+      message.success(t('dicomDimse.tlsSaved'))
     } else {
-      message.error(res.error?.message ?? 'TLS 配置保存失败')
+      message.error(res.error?.message ?? t('dicomDimse.tlsSaveFailed'))
     }
     setTlsSaving(false)
   }
@@ -298,11 +299,11 @@ export const DicomDimsePage: React.FC = () => {
     setMppsSending(true)
     const res = await dicomDimseApi.sendMpps({ studyUid: values.studyUid, status: values.status })
     if (res.success) {
-      message.success(`MPPS 已更新: ${MPPS_STATUS_LABEL[values.status] ?? values.status}`)
+      message.success(t('dicomDimse.mppsUpdated', { status: MPPS_STATUS_LABEL[values.status] ?? values.status }))
       mppsForm.resetFields()
       void loadMpps()
     } else {
-      message.error(res.error?.message ?? 'MPPS 发送失败')
+      message.error(res.error?.message ?? t('dicomDimse.mppsSendFailed'))
     }
     setMppsSending(false)
   }
@@ -317,10 +318,10 @@ export const DicomDimsePage: React.FC = () => {
     }[action]
     const res = await apiCall(id)
     if (res.success) {
-      message.success(`传输任务 ${id} 已${action === 'retry' ? '重试' : action === 'pause' ? '暂停' : action === 'resume' ? '恢复' : '取消'}`)
+      message.success(t('dicomDimse.transferActionDone', { id, action: action === 'retry' ? t('dicomDimse.actionRetry') : action === 'pause' ? t('dicomDimse.actionPause') : action === 'resume' ? t('dicomDimse.actionResume') : t('dicomDimse.actionCancel') }))
       void loadTransfers()
     } else {
-      message.error(res.error?.message ?? '操作失败')
+      message.error(res.error?.message ?? t('dicomDimse.opFailed'))
     }
   }
 
@@ -337,12 +338,12 @@ export const DicomDimsePage: React.FC = () => {
         accessionNumber: values.accessionNumber || undefined,
       })
       if (res.success) {
-        message.success(`传输任务已入队: ${res.data.id} → ${values.targetAe}`)
+        message.success(t('dicomDimse.transferEnqueued', { id: res.data.id, ae: values.targetAe }))
         setTransferModal(false)
         transferForm.resetFields()
         void loadTransfers()
       } else {
-        message.error(res.error?.message ?? '入队失败')
+        message.error(res.error?.message ?? t('dicomDimse.enqueueFailed'))
       }
     } catch { /* 校验失败忽略 */ }
     setTransferSubmitting(false)
@@ -376,7 +377,7 @@ export const DicomDimsePage: React.FC = () => {
     if (res.success && items !== undefined && items !== null) {
       setMwlResults(Array.isArray(items) ? items : [])
     } else {
-      message.error(res.error?.message || 'MWL 查询失败')
+      message.error(res.error?.message || t('dicomDimse.mwlQueryFailed'))
     }
     setMwlLoading(false)
   }
@@ -426,11 +427,11 @@ export const DicomDimsePage: React.FC = () => {
         setStoreResults(prev => [...prev, { fileName: item.name, status: 'SUCCESS', sizeBytes: item.size }])
         return true
       }
-      setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'fail', error: res.error?.message ?? 'C-STORE 失败' } : i))
+      setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'fail', error: res.error?.message ?? t('dicomDimse.cstoreFailed') } : i))
       setStoreResults(prev => [...prev, { fileName: item.name, status: 'FAIL', sizeBytes: item.size }])
       return false
     } catch {
-      setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'fail', error: 'C-STORE 网络错误' } : i))
+      setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'fail', error: t('dicomDimse.cstoreNetworkError') } : i))
       setStoreResults(prev => [...prev, { fileName: item.name, status: 'FAIL', sizeBytes: item.size }])
       return false
     }
@@ -447,7 +448,7 @@ export const DicomDimsePage: React.FC = () => {
       if (success) ok += 1
     }
     setStoreBatchRunning(false)
-    message.success(`上传完成: 成功 ${ok} 帧，失败 ${pending.length - ok} 帧`)
+    message.success(t('dicomDimse.uploadComplete', { ok, fail: pending.length - ok }))
   }
 
   const storeOverallPercent = storeItems.length === 0
@@ -466,10 +467,10 @@ export const DicomDimsePage: React.FC = () => {
       // [G005 P1] 双形状兼容: 后端 numberOfCompletedSubOperations / MSW transferredCount
       const payload = (res.data as { data?: unknown })?.data ?? res.data
       setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: (payload as any)?.numberOfCompletedSubOperations ?? (payload as any)?.transferredCount ?? 0, status: 'SUCCESS' }])
-      message.success('C-MOVE 转发完成')
+      message.success(t('dicomDimse.cmoveCompleted'))
     } else {
       setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: 0, status: 'FAIL' }])
-      message.error('C-MOVE 失败')
+      message.error(t('dicomDimse.cmoveFailed'))
     }
     setMoveLoading(false)
   }
@@ -480,7 +481,7 @@ export const DicomDimsePage: React.FC = () => {
       setDevices(prev => [...prev, { ...values, pingMs: null, status: null, lastCheckedAt: null, _echoing: false }])
       setDeviceModal(false)
       deviceForm.resetFields()
-      message.success('设备已添加')
+      message.success(t('dicomDimse.deviceAdded'))
     } catch { /* ignore */ }
   }
 
@@ -489,13 +490,13 @@ export const DicomDimsePage: React.FC = () => {
       key: 'echo',
       label: <Space><Send />C-ECHO</Space>,
       children: (
-        <Card size="small" title="DICOM 设备列表" extra={
+        <Card size="small" title={t('dicomDimse.deviceListTitle')} extra={
           <Space>
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>自动轮询 30s</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomDimse.autoPoll')}</span>
             <Switch size="small" checked={autoPoll} onChange={setAutoPoll} />
-            <Button icon={<RefreshCw size={14} />} loading={pollRunning} onClick={() => void pollDevices()}>刷新状态</Button>
-            <Button icon={<Plus size={14} />} onClick={() => setDeviceModal(true)}>添加设备</Button>
-            <Button icon={<RefreshCw size={14} />} onClick={() => setDevices(INITIAL_DEVICES)}>重置</Button>
+            <Button icon={<RefreshCw size={14} />} loading={pollRunning} onClick={() => void pollDevices()}>{t('dicomDimse.refreshStatus')}</Button>
+            <Button icon={<Plus size={14} />} onClick={() => setDeviceModal(true)}>{t('dicomDimse.addDevice')}</Button>
+            <Button icon={<RefreshCw size={14} />} onClick={() => setDevices(INITIAL_DEVICES)}>{t('dicomDimse.reset')}</Button>
           </Space>
         }>
           <Table scroll={{ x: 'max-content' }}
@@ -505,10 +506,10 @@ export const DicomDimsePage: React.FC = () => {
             columns={[
               ...ECHO_COLUMNS,
               {
-                title: '操作',
+                title: t('dicomDimse.colAction'),
                 key: 'action',
                 render: (_: any, record: DimseDevice) => (
-                  <Button type="primary" size="small" icon={<Send />} loading={record._echoing} onClick={() => handleEcho(record)}>ECHO 测试</Button>
+                  <Button type="primary" size="small" icon={<Send />} loading={record._echoing} onClick={() => handleEcho(record)}>{t('dicomDimse.echoTest')}</Button>
                 ),
               },
             ]}
@@ -523,21 +524,21 @@ export const DicomDimsePage: React.FC = () => {
         <>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Form form={mwlForm} layout="inline" onFinish={handleMwlQuery}>
-              <Form.Item name="patientName" label="名称"><Input placeholder="患者姓名" allowClear /></Form.Item>
-              <Form.Item name="patientId" label="编号"><Input placeholder="患者 ID" allowClear /></Form.Item>
-              <Form.Item name="accessionNumber" label="检查号"><Input placeholder="检查号" allowClear /></Form.Item>
-              <Form.Item name="modality" label="设备">
-                <Select allowClear placeholder="全部" style={{ width: 100 }}>
+              <Form.Item name="patientName" label={t('dicomDimse.labelName')}><Input placeholder={t('dicomDimse.phPatientName')} allowClear /></Form.Item>
+              <Form.Item name="patientId" label={t('dicomDimse.labelId')}><Input placeholder={t('dicomDimse.phPatientId')} allowClear /></Form.Item>
+              <Form.Item name="accessionNumber" label={t('dicomDimse.labelAccession')}><Input placeholder={t('dicomDimse.phAccession')} allowClear /></Form.Item>
+              <Form.Item name="modality" label={t('dicomDimse.labelModality')}>
+                <Select allowClear placeholder={t('dicomDimse.phAll')} style={{ width: 100 }}>
                   <Select.Option value="CT">CT</Select.Option>
                   <Select.Option value="MR">MR</Select.Option>
                   <Select.Option value="XA">XA</Select.Option>
                   <Select.Option value="US">US</Select.Option>
                 </Select>
               </Form.Item>
-              <Form.Item><Button type="primary" htmlType="submit" icon={<Search />} loading={mwlLoading}>查询</Button></Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<Search />} loading={mwlLoading}>{t('dicomDimse.query')}</Button></Form.Item>
             </Form>
           </Card>
-          <Card size="small" title="工作列表条目">
+          <Card size="small" title={t('dicomDimse.worklistTitle')}>
             <Table scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
           </Card>
         </>
@@ -547,14 +548,14 @@ export const DicomDimsePage: React.FC = () => {
       key: 'cstore',
       label: <Space><UploadIcon />C-STORE</Space>,
       children: (
-        <Card size="small" title="DICOM 文件上传"
+        <Card size="small" title={t('dicomDimse.fileUploadTitle')}
           extra={
             <Space>
-              <Button icon={<Upload />} type="primary" onClick={() => setStoreModal(true)}>选择 .dcm 文件（多帧）</Button>
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>支持多文件选择 · 逐帧进度 · 失败重试</span>
+              <Button icon={<Upload />} type="primary" onClick={() => setStoreModal(true)}>{t('dicomDimse.selectDcmFiles')}</Button>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomDimse.fileSelectHint')}</span>
             </Space>
           }>
-          <Alert title="支持 DICOM .dcm 文件上传，系统将逐帧解析并存储至 PACS；多文件按顺序逐帧上传并实时显示每帧进度" type="info" showIcon style={{ marginBottom: 12 }} />
+          <Alert title={t('dicomDimse.fileUploadAlert')} type="info" showIcon style={{ marginBottom: 12 }} />
           <Table scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
@@ -566,22 +567,22 @@ export const DicomDimsePage: React.FC = () => {
         <>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Form form={moveForm} layout="inline" onFinish={handleMove}>
-              <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
-                <Input placeholder="1.2.840.xxxxx" style={{ width: 320 }} />
+              <Form.Item name="studyUid" label={t('dicomDimse.labelStudyUid')} rules={[{ required: true, message: t('dicomDimse.requiredStudyUid') }]}>
+                <Input placeholder={t('dicomDimse.phStudyUid')} style={{ width: 320 }} />
               </Form.Item>
-              <Form.Item name="destAe" label="目标 AE" rules={[{ required: true }]}>
+              <Form.Item name="destAe" label={t('dicomDimse.labelDestAe')} rules={[{ required: true }]}>
                 <Input placeholder="DEST_AE" />
               </Form.Item>
-              <Form.Item name="destHost" label="主机">
+              <Form.Item name="destHost" label={t('dicomDimse.labelHost')}>
                 <Input placeholder="192.168.1.200" />
               </Form.Item>
-              <Form.Item name="destPort" label="端口">
+              <Form.Item name="destPort" label={t('dicomDimse.labelPort')}>
                 <InputNumber placeholder="11112" min={1} max={65535} />
               </Form.Item>
-              <Form.Item><Button type="primary" htmlType="submit" icon={<ArrowRight />} loading={moveLoading}>转发</Button></Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<ArrowRight />} loading={moveLoading}>{t('dicomDimse.forward')}</Button></Form.Item>
             </Form>
           </Card>
-          <Card size="small" title="C-MOVE 转存记录">
+          <Card size="small" title={t('dicomDimse.cmoveRecords')}>
             <Table scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
           </Card>
         </>
@@ -589,46 +590,46 @@ export const DicomDimsePage: React.FC = () => {
     },
     {
       key: 'tls',
-      label: <Space><Lock />TLS 安全</Space>,
+      label: <Space><Lock />{t('dicomDimse.tabTls')}</Space>,
       children: (
         <>
           <Card
             size="small"
-            title="全局 TLS 配置 (内存 + 环境 seed 回退)"
-            extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={tlsSaving} onClick={() => void handleSaveTls()}>保存配置</Button>}
+            title={t('dicomDimse.tlsGlobalConfig')}
+            extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={tlsSaving} onClick={() => void handleSaveTls()}>{t('dicomDimse.saveConfig')}</Button>}
             style={{ marginBottom: 16 }}
           >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 16px' }}>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>启用 DICOM TLS</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.enableDicomTls')}</div>
                 <Switch checked={tlsConfig.enabled} onChange={(v) => setTlsConfig(prev => ({ ...prev, enabled: v }))} />
-                <span style={{ marginLeft: 8, color: '#64748b', fontSize: 12 }}>对标 HL7 MLLP TLS 模式, 证书缺失时仅保存配置</span>
+                <span style={{ marginLeft: 8, color: '#64748b', fontSize: 12 }}>{t('dicomDimse.tlsHint')}</span>
               </div>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>TLS 端口</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.tlsPort')}</div>
                 <InputNumber min={1} max={65535} value={tlsConfig.port} onChange={(v) => setTlsConfig(prev => ({ ...prev, port: v ?? 2762 }))} />
               </div>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>校验证书链</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.verifyCert')}</div>
                 <Switch checked={tlsConfig.verifyPeer} onChange={(v) => setTlsConfig(prev => ({ ...prev, verifyPeer: v }))} />
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 8 }}>
               <div>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}><FileKey size={12} style={{ verticalAlign: -2 }} /> 服务器证书 (PEM)</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}><FileKey size={12} style={{ verticalAlign: -2 }} /> {t('dicomDimse.serverCert')}</div>
                 <Upload accept=".pem,.crt,.cer" showUploadList={false} beforeUpload={(file) => { readFileText(file).then(setTlsCertFile); return false }}>
-                  <Button size="small" icon={<UploadIcon size={12} />}>{tlsCertFile ? '已选择证书文件' : '选择证书文件'}</Button>
+                  <Button size="small" icon={<UploadIcon size={12} />}>{tlsCertFile ? t('dicomDimse.certSelected') : t('dicomDimse.selectCert')}</Button>
                 </Upload>
               </div>
               <div>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>CA 证书 (PEM)</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dicomDimse.caCert')}</div>
                 <Upload accept=".pem,.crt,.cer" showUploadList={false} beforeUpload={(file) => { readFileText(file).then(setTlsCaCertFile); return false }}>
-                  <Button size="small" icon={<UploadIcon size={12} />}>{tlsCaCertFile ? '已选择 CA 文件' : '选择 CA 文件'}</Button>
+                  <Button size="small" icon={<UploadIcon size={12} />}>{tlsCaCertFile ? t('dicomDimse.caSelected') : t('dicomDimse.selectCa')}</Button>
                 </Upload>
               </div>
             </div>
           </Card>
-          <Card size="small" title="节点级 TLS 开关 (AE 节点)">
+          <Card size="small" title={t('dicomDimse.tlsNodeTitle')}>
             <Table scroll={{ x: 'max-content' }} rowKey="aeTitle" dataSource={tlsNodes} columns={TLS_NODE_COLUMNS} loading={tlsLoading} pagination={false} size="small" />
           </Card>
         </>
@@ -636,30 +637,30 @@ export const DicomDimsePage: React.FC = () => {
     },
     {
       key: 'mpps',
-      label: <Space><Clock3 />MPPS 进度</Space>,
+      label: <Space><Clock3 />{t('dicomDimse.mppsProgressTitle')}</Space>,
       children: (
         <>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Form form={mppsForm} layout="inline" onFinish={handleMppsSend}>
-              <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
-                <Input placeholder="1.2.840.xxxxx 或 Exam ID" style={{ width: 320 }} />
+              <Form.Item name="studyUid" label={t('dicomDimse.labelStudyUid')} rules={[{ required: true, message: t('dicomDimse.requiredStudyUid') }]}>
+                <Input placeholder={t('dicomDimse.phStudyUidOrExam')} style={{ width: 320 }} />
               </Form.Item>
-              <Form.Item name="status" label="状态" rules={[{ required: true }]} initialValue="IN_PROGRESS">
+              <Form.Item name="status" label={t('dicomDimse.labelStatus')} rules={[{ required: true }]} initialValue="IN_PROGRESS">
                 <Select style={{ width: 160 }}>
-                  <Select.Option value="IN_PROGRESS">进行中</Select.Option>
-                  <Select.Option value="COMPLETED">已完成</Select.Option>
-                  <Select.Option value="DISCONTINUED">已终止</Select.Option>
+                  <Select.Option value="IN_PROGRESS">{t('dicomDimse.statusInProgress')}</Select.Option>
+                  <Select.Option value="COMPLETED">{t('dicomDimse.statusCompleted')}</Select.Option>
+                  <Select.Option value="DISCONTINUED">{t('dicomDimse.statusDiscontinued')}</Select.Option>
                 </Select>
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" icon={<Clock3 size={14} />} loading={mppsSending}>发送 MPPS</Button>
+                <Button type="primary" htmlType="submit" icon={<Clock3 size={14} />} loading={mppsSending}>{t('dicomDimse.sendMpps')}</Button>
               </Form.Item>
               <Form.Item>
-                <Button icon={<RefreshCw size={14} />} onClick={() => void loadMpps()} loading={mppsLoading}>刷新</Button>
+                <Button icon={<RefreshCw size={14} />} onClick={() => void loadMpps()} loading={mppsLoading}>{t('dicomDimse.refresh')}</Button>
               </Form.Item>
             </Form>
           </Card>
-          <Card size="small" title="检查进度 (N-CREATE/N-SET)">
+          <Card size="small" title={t('dicomDimse.mppsProgressTitle2')}>
             <Table scroll={{ x: 'max-content' }} dataSource={mppsPagination.pageData} rowKey="studyUid" columns={MPPS_COLUMNS} loading={mppsLoading} pagination={mppsPagination.pagination} />
           </Card>
         </>
@@ -667,25 +668,25 @@ export const DicomDimsePage: React.FC = () => {
     },
     {
       key: 'transfers',
-      label: <Space><ListOrdered />传输队列</Space>,
+      label: <Space><ListOrdered />{t('dicomDimse.tabTransfers')}</Space>,
       children: (
         <>
           <Row gutter={16} style={{ marginBottom: 16 }}>
             {[
-              { title: '队列总数', value: transferStats?.total ?? 0, color: '#1e40af' },
-              { title: '活跃任务', value: transferStats?.activeCount ?? 0, color: '#0891b2' },
-              { title: '发送中', value: transferStats?.sending ?? 0, color: '#2563eb' },
-              { title: '失败', value: transferStats?.failed ?? 0, color: '#dc2626' },
-              { title: '已完成', value: transferStats?.completed ?? 0, color: '#059669' },
-              { title: '成功率', value: transferStats?.successRate != null ? `${transferStats.successRate}%` : '-', color: '#7c3aed' },
+              { title: t('dicomDimse.statTotal'), value: transferStats?.total ?? 0, color: '#1e40af' },
+              { title: t('dicomDimse.statActive'), value: transferStats?.activeCount ?? 0, color: '#0891b2' },
+              { title: t('dicomDimse.statSending'), value: transferStats?.sending ?? 0, color: '#2563eb' },
+              { title: t('dicomDimse.statFailed'), value: transferStats?.failed ?? 0, color: '#dc2626' },
+              { title: t('dicomDimse.statCompleted'), value: transferStats?.completed ?? 0, color: '#059669' },
+              { title: t('dicomDimse.statSuccessRate'), value: transferStats?.successRate != null ? `${transferStats.successRate}%` : '-', color: '#7c3aed' },
             ].map(s => (
               <Col span={4} key={s.title}><Card size="small"><Statistic title={s.title} value={s.value} valueStyle={{ color: s.color, fontSize: 18 }} /></Card></Col>
             ))}
           </Row>
-          <Card size="small" title="DICOM C-STORE 发送队列 (内存 + seed 回退)" extra={
+          <Card size="small" title={t('dicomDimse.transferQueueTitle')} extra={
             <Space>
-              <Button size="small" icon={<RefreshCw size={14} />} onClick={() => void loadTransfers()} loading={transferLoading}>刷新</Button>
-              <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setTransferModal(true)}>新建传输</Button>
+              <Button size="small" icon={<RefreshCw size={14} />} onClick={() => void loadTransfers()} loading={transferLoading}>{t('dicomDimse.refresh')}</Button>
+              <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setTransferModal(true)}>{t('dicomDimse.newTransfer')}</Button>
             </Space>
           }>
             <Table scroll={{ x: 'max-content' }}
@@ -694,31 +695,31 @@ export const DicomDimsePage: React.FC = () => {
               loading={transferLoading}
               pagination={transferPagination.pagination}
               columns={[
-                { title: '任务 ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
-                { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? '种子数据' : '队列'}</Tag></Space> },
+                { title: t('dicomDimse.colTaskId'), dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+                { title: t('dicomDimse.colStudyUid'), dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? t('dicomDimse.sourceSeed') : t('dicomDimse.sourceQueue')}</Tag></Space> },
                 // [v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 关联检查列
-                { title: '关联检查', key: 'exam', width: 150, render: (_: unknown, r: TransferRecord) => r.examId ? <Tag color="geekblue">{r.examId}{r.accessionNumber ? ` · ${r.accessionNumber}` : ''}</Tag> : <span style={{ color: '#94a3b8', fontSize: 12 }}>-</span> },
-                { title: '目标 AE', dataIndex: 'targetAe', key: 'targetAe', width: 150, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
-                { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{TRANSFER_PRIORITY_LABEL[v] ?? v}</Tag> },
-                { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => { const meta = TRANSFER_STATUS_META[v] ?? { color: 'default', label: v }; return <Tag color={meta.color}>{meta.label}</Tag> } },
-                { title: '进度', key: 'progress', width: 180, render: (_: unknown, r: TransferRecord) => (
+                { title: t('dicomDimse.colRelatedExam'), key: 'exam', width: 150, render: (_: unknown, r: TransferRecord) => r.examId ? <Tag color="geekblue">{r.examId}{r.accessionNumber ? ` · ${r.accessionNumber}` : ''}</Tag> : <span style={{ color: '#94a3b8', fontSize: 12 }}>-</span> },
+                { title: t('dicomDimse.colDestAe'), dataIndex: 'targetAe', key: 'targetAe', width: 150, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+                { title: t('dicomDimse.colPriority'), dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{TRANSFER_PRIORITY_LABEL[v] ?? v}</Tag> },
+                { title: t('dicomDimse.colStatus'), dataIndex: 'status', key: 'status', width: 90, render: (v: string) => { const meta = TRANSFER_STATUS_META[v] ?? { color: 'default', label: v }; return <Tag color={meta.color}>{meta.label}</Tag> } },
+                { title: t('dicomDimse.colProgress'), key: 'progress', width: 180, render: (_: unknown, r: TransferRecord) => (
                   <Progress percent={r.progress} size="small" status={r.status === 'failed' ? 'exception' : r.status === 'completed' ? 'success' : r.status === 'paused' ? 'normal' : 'active'} format={(p) => `${r.completedInstances}/${r.totalInstances} (${p ?? 0}%)`} />
                 ) },
-                { title: '更新时间', dataIndex: 'updatedAt', key: 'updatedAt', width: 170, render: (v: string) => new Date(v).toLocaleString() },
-                { title: '错误', dataIndex: 'error', key: 'error', ellipsis: true, render: (v?: string) => v ? <span style={{ color: '#dc2626', fontSize: 12 }}>{v}</span> : '-' },
-                { title: '操作', key: 'action', width: 230, render: (_: unknown, r: TransferRecord) => (
+                { title: t('dicomDimse.colUpdatedAt'), dataIndex: 'updatedAt', key: 'updatedAt', width: 170, render: (v: string) => new Date(v).toLocaleString() },
+                { title: t('dicomDimse.colError'), dataIndex: 'error', key: 'error', ellipsis: true, render: (v?: string) => v ? <span style={{ color: '#dc2626', fontSize: 12 }}>{v}</span> : '-' },
+                { title: t('dicomDimse.colAction'), key: 'action', width: 230, render: (_: unknown, r: TransferRecord) => (
                   <Space size={4} wrap>
                     {['failed', 'paused', 'canceled'].includes(r.status) && (
-                      <Button size="small" icon={<RotateCcw size={12} />} onClick={() => void runTransferAction(r.id, 'retry')}>重试</Button>
+                      <Button size="small" icon={<RotateCcw size={12} />} onClick={() => void runTransferAction(r.id, 'retry')}>{t('dicomDimse.actionRetry')}</Button>
                     )}
                     {['sending', 'queued'].includes(r.status) && (
-                      <Button size="small" icon={<Pause size={12} />} onClick={() => void runTransferAction(r.id, 'pause')}>暂停</Button>
+                      <Button size="small" icon={<Pause size={12} />} onClick={() => void runTransferAction(r.id, 'pause')}>{t('dicomDimse.actionPause')}</Button>
                     )}
                     {r.status === 'paused' && (
-                      <Button size="small" icon={<Play size={12} />} onClick={() => void runTransferAction(r.id, 'resume')}>恢复</Button>
+                      <Button size="small" icon={<Play size={12} />} onClick={() => void runTransferAction(r.id, 'resume')}>{t('dicomDimse.actionResume')}</Button>
                     )}
                     {r.status !== 'completed' && r.status !== 'canceled' && (
-                      <Button size="small" danger icon={<Ban size={12} />} onClick={() => void runTransferAction(r.id, 'cancel')}>取消</Button>
+                      <Button size="small" danger icon={<Ban size={12} />} onClick={() => void runTransferAction(r.id, 'cancel')}>{t('dicomDimse.actionCancel')}</Button>
                     )}
                   </Space>
                 ) },
@@ -734,28 +735,28 @@ export const DicomDimsePage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Radio size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dicomDimse.pageTitle')}</span>
         <Tag color="blue">v3.0</Tag>
         {/* [v3.0.6.11-88 Round10] C-STORE 本地文件上传为演示行为 (后端 /dicom-dimse/store 为 JSON 协议) */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        <Tag color="orange">{t('dicomDimse.demoBadge')}</Tag>
       </Space>
-      <Alert title="DIMSE (DICOM Message Service Element) 设备集成管理，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 服务；v3.0.6.11-86 新增 TLS 安全 (G-03) 与 MPPS 检查进度 (G-05)" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title={t('dicomDimse.pageAlert')} type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
 
-      <Modal title="添加 DICOM 设备" open={deviceModal} onCancel={() => setDeviceModal(false)} onOk={handleAddDevice}>
+      <Modal title={t('dicomDimse.addDeviceTitle')} open={deviceModal} onCancel={() => setDeviceModal(false)} onOk={handleAddDevice}>
         <Form form={deviceForm} layout="vertical" size="small">
-          <Form.Item name="aeTitle" label="应用实体名" rules={[{ required: true }]}>
-            <Input placeholder="例如: CT_SCANNER_03" />
+          <Form.Item name="aeTitle" label={t('dicomDimse.labelAeTitle')} rules={[{ required: true }]}>
+            <Input placeholder={t('dicomDimse.phAeTitle')} />
           </Form.Item>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0 8px' }}>
-            <Form.Item name="ip" label="IP 地址" rules={[{ required: true }]}>
+            <Form.Item name="ip" label={t('dicomDimse.colIp')} rules={[{ required: true }]}>
               <Input placeholder="192.168.1.105" />
             </Form.Item>
-            <Form.Item name="port" label="端口" rules={[{ required: true }]}>
+            <Form.Item name="port" label={t('dicomDimse.labelPort')} rules={[{ required: true }]}>
               <InputNumber placeholder="11112" min={1} max={65535} style={{ width: '100%' }} />
             </Form.Item>
-            <Form.Item name="modality" label="设备" rules={[{ required: true }]}>
-              <Select placeholder="选择">
+            <Form.Item name="modality" label={t('dicomDimse.colModality')} rules={[{ required: true }]}>
+              <Select placeholder={t('dicomDimse.phSelect')}>
                 <Select.Option value="CT">CT</Select.Option>
                 <Select.Option value="MR">MR</Select.Option>
                 <Select.Option value="XA">XA</Select.Option>
@@ -769,15 +770,15 @@ export const DicomDimsePage: React.FC = () => {
 
       {/* [v3.0.6.11-96 Wave 3A P2] C-STORE 多帧上传 Modal: 文件列表 + 逐帧进度 + 失败重试 */}
       <Modal
-        title="C-STORE 多帧上传"
+        title={t('dicomDimse.storeUploadTitle')}
         open={storeModal}
         onCancel={() => { if (!storeBatchRunning) setStoreModal(false) }}
         footer={
           <Space>
-            <Button onClick={() => { if (!storeBatchRunning) setStoreModal(false) }} disabled={storeBatchRunning}>关闭</Button>
-            <Button onClick={() => onSelectStoreFiles(storeFileInputRef.current?.files ?? null)} disabled={storeBatchRunning} icon={<Plus size={14} />}>选择文件</Button>
+            <Button onClick={() => { if (!storeBatchRunning) setStoreModal(false) }} disabled={storeBatchRunning}>{t('dicomDimse.close')}</Button>
+            <Button onClick={() => onSelectStoreFiles(storeFileInputRef.current?.files ?? null)} disabled={storeBatchRunning} icon={<Plus size={14} />}>{t('dicomDimse.selectFiles')}</Button>
             <Button type="primary" onClick={() => void handleBatchStore()} loading={storeBatchRunning} disabled={!storeItems.some(i => i.status === 'pending' || i.status === 'fail')}>
-              {storeItems.some(i => i.status === 'fail') ? '重试失败 / 继续上传' : '开始上传'}
+              {storeItems.some(i => i.status === 'fail') ? t('dicomDimse.retryContinue') : t('dicomDimse.startUpload')}
             </Button>
           </Space>
         }
@@ -793,13 +794,13 @@ export const DicomDimsePage: React.FC = () => {
         />
         {storeItems.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8', fontSize: 13 }}>
-            点击"选择文件"添加多个 .dcm 文件（多帧），将按顺序逐帧上传
+            {t('dicomDimse.storeEmptyHint')}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 420, overflowY: 'auto' }}>
             {storeItems.map(item => {
               const tagColor = item.status === 'success' ? 'green' : item.status === 'fail' ? 'red' : item.status === 'uploading' ? 'processing' : 'default'
-              const tagLabel = item.status === 'success' ? '完成' : item.status === 'fail' ? '失败' : item.status === 'uploading' ? '上传中' : '待上传'
+              const tagLabel = item.status === 'success' ? t('dicomDimse.statusDone') : item.status === 'fail' ? t('dicomDimse.statusFail') : item.status === 'uploading' ? t('dicomDimse.statusUploading') : t('dicomDimse.statusPending')
               return (
                 <div key={item.uid} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -808,7 +809,7 @@ export const DicomDimsePage: React.FC = () => {
                     <Tag color={tagColor}>{tagLabel}</Tag>
                     {item.status === 'fail' && (
                       <Button size="small" icon={<RotateCcw size={12} />} disabled={storeBatchRunning}
-                        onClick={() => void uploadOneStoreItem(item)}>重试</Button>
+                        onClick={() => void uploadOneStoreItem(item)}>{t('dicomDimse.retry')}</Button>
                     )}
                   </div>
                   <Progress percent={item.progress} size="small"
@@ -820,37 +821,37 @@ export const DicomDimsePage: React.FC = () => {
               )
             })}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', marginTop: 4 }}>
-              <span>总进度 {storeItems.filter(i => i.status === 'success').length}/{storeItems.length} 帧完成</span>
+              <span>{t('dicomDimse.totalProgress', { done: storeItems.filter(i => i.status === 'success').length, total: storeItems.length })}</span>
               <span style={{ fontWeight: 700, color: '#1e40af' }}>{storeOverallPercent}%</span>
             </div>
           </div>
         )}
       </Modal>
 
-      <Modal title="新建 DICOM C-STORE 传输" open={transferModal} onCancel={() => setTransferModal(false)} onOk={() => void handleEnqueueTransfer()} confirmLoading={transferSubmitting}>
+      <Modal title={t('dicomDimse.newTransferTitle')} open={transferModal} onCancel={() => setTransferModal(false)} onOk={() => void handleEnqueueTransfer()} confirmLoading={transferSubmitting}>
         <Form form={transferForm} layout="vertical" size="small">
-          <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
-            <Input placeholder="1.2.840.xxxxx" />
+          <Form.Item name="studyUid" label={t('dicomDimse.labelStudyUid')} rules={[{ required: true, message: t('dicomDimse.requiredStudyUid') }]}>
+            <Input placeholder={t('dicomDimse.phStudyUid')} />
           </Form.Item>
-          <Form.Item name="targetAe" label="目标 AE" rules={[{ required: true, message: '请选择目标 AE' }]}>
-            <Select placeholder="选择目标 AE Title">
+          <Form.Item name="targetAe" label={t('dicomDimse.labelDestAe')} rules={[{ required: true, message: t('dicomDimse.requiredTargetAe') }]}>
+            <Select placeholder={t('dicomDimse.phTargetAe')}>
               {devices.map(d => <Select.Option key={d.aeTitle} value={d.aeTitle}>{d.aeTitle} ({d.modality})</Select.Option>)}
-              <Select.Option value="PACS_ARCHIVE">PACS_ARCHIVE (归档)</Select.Option>
+              <Select.Option value="PACS_ARCHIVE">{t('dicomDimse.archive')}</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name="priority" label="优先级" initialValue="NORMAL">
+          <Form.Item name="priority" label={t('dicomDimse.colPriority')} initialValue="NORMAL">
             <Select>
-              <Select.Option value="HIGH">高</Select.Option>
-              <Select.Option value="NORMAL">普通</Select.Option>
-              <Select.Option value="LOW">低</Select.Option>
+              <Select.Option value="HIGH">{t('dicomDimse.priorityHigh')}</Select.Option>
+              <Select.Option value="NORMAL">{t('dicomDimse.priorityNormal')}</Select.Option>
+              <Select.Option value="LOW">{t('dicomDimse.priorityLow')}</Select.Option>
             </Select>
           </Form.Item>
           {/* [v3.0.6.11-96 Wave 2B (D)] 可选关联检查 (examId 留空时后端从 studyUid 反查) */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 8px' }}>
-            <Form.Item name="examId" label="关联检查 (可选)">
-              <Input placeholder="Exam ID, 留空自动反查" />
+            <Form.Item name="examId" label={t('dicomDimse.labelRelatedExam')}>
+              <Input placeholder={t('dicomDimse.phExamId')} />
             </Form.Item>
-            <Form.Item name="accessionNumber" label="检查号 (可选)">
+            <Form.Item name="accessionNumber" label={t('dicomDimse.labelAccessionOptional')}>
               <Input placeholder="Accession Number" />
             </Form.Item>
           </div>

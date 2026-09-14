@@ -214,10 +214,10 @@ export default function TemplateManagementPage() {
         setTemplates(templates.map(t => t.id === tpl.id ? { ...t, status: 'pending' } as TemplateRecord : t))
         showToast(`「${tpl.name}」已提交审批`)
       } else {
-        showToast(res.error?.message ?? '提交审批失败')
+        showToast(res.error?.message ?? t9('templateMgmt.submitFailed'))
       }
     } catch {
-      showToast('提交审批失败: 网络错误')
+      showToast(t9('templateMgmt.submitFailedNetwork'))
     }
   }
 
@@ -228,17 +228,17 @@ export default function TemplateManagementPage() {
         setTemplates(templates.map(t => t.id === tpl.id ? { ...t, status: 'approved' } as TemplateRecord : t))
         showToast(`「${tpl.name}」已批准`)
       } else {
-        showToast(res.error?.message ?? '批准失败')
+        showToast(res.error?.message ?? t9('templateMgmt.approveFailed'))
       }
     } catch {
-      showToast('批准失败: 网络错误')
+      showToast(t9('templateMgmt.approveFailedNetwork'))
     }
   }
 
   const handleRejectConfirm = async () => {
     if (!rejectTarget) return
     if (!rejectReason.trim()) {
-      setValidationError('请填写驳回原因')
+      setValidationError(t9('templateMgmt.rejectReasonRequired'))
       setTimeout(() => setValidationError(null), 3000)
       return
     }
@@ -251,10 +251,10 @@ export default function TemplateManagementPage() {
         setRejectTarget(null)
         setRejectReason('')
       } else {
-        showToast(res.error?.message ?? '驳回失败')
+        showToast(res.error?.message ?? t9('templateMgmt.rejectFailed'))
       }
     } catch {
-      showToast('驳回失败: 网络错误')
+      showToast(t9('templateMgmt.rejectFailedNetwork'))
     }
     setActionBusy(false)
   }
@@ -282,7 +282,7 @@ export default function TemplateManagementPage() {
       URL.revokeObjectURL(url)
       showToast(`已导出 ${exportData.length} 条模板 (JSON)`)
     } catch {
-      showToast('批量导出失败: 请检查模板数据')
+      showToast(t9('templateMgmt.exportFailed'))
     }
     setExporting(false)
   }
@@ -296,10 +296,10 @@ export default function TemplateManagementPage() {
       try {
         parsed = JSON.parse(text)
       } catch {
-        throw new Error('文件不是合法 JSON')
+        throw new Error(t9('templateMgmt.invalidJson'))
       }
       const items: any[] = Array.isArray(parsed) ? parsed : Array.isArray(parsed.templates) ? parsed.templates : []
-      if (items.length === 0) throw new Error('未解析到模板数据（请确认文件为 JSON 数组）')
+      if (items.length === 0) throw new Error(t9('templateMgmt.noTemplateData'))
       let ok = 0
       let failed = 0
       const firstError: string[] = []
@@ -388,7 +388,7 @@ export default function TemplateManagementPage() {
 
   const handleSave = async () => {
     if (!formData.code || !formData.name || !formData.content) {
-      setValidationError('请填写必填项（模板代码、名称、内容）')
+      setValidationError(t9('templateMgmt.requiredFields'))
       setTimeout(() => setValidationError(null), 3000)
       return
     }
@@ -417,7 +417,7 @@ export default function TemplateManagementPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (confirm('确定要删除该模板吗？')) {
+    if (confirm(t9('templateMgmt.confirmDelete'))) {
       await templatesApi.delete(id)
       setTemplates(templates.filter(tpl => tpl.id !== id))
     }
@@ -425,7 +425,7 @@ export default function TemplateManagementPage() {
 
   const handleCopy = (content: string) => {
     navigator.clipboard.writeText(content)
-    showToast('已复制到剪贴板')
+    showToast(t9('templateMgmt.copied'))
   }
 
   const handleAddTag = () => {
@@ -489,28 +489,28 @@ export default function TemplateManagementPage() {
       <div style={{ display: activeTab === 'version' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <History size={20} color={C.primary} />
-          <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>版本管理</span>
-          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（版本）</span>
+          <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.versionMgmt')}</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t9('templateMgmt.demoDataVersion')}</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
           </select>
           {draftVersion && (
             <button onClick={handleSubmitReview} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.success, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-              <Shield size={14} /> 提交审核
+              <Shield size={14} /> {t9('templateMgmt.submitReview')}
             </button>
           )}
         </div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           {publishedVersion && (
             <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.success}` }}>
-              <div style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>生产版本</div>
+              <div style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>{t9('templateMgmt.productionVersion')}</div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{publishedVersion.version}</div>
               <div style={{ fontSize: 12, color: C.textMid }}>{publishedVersion.changedAt} · {publishedVersion.changedBy}</div>
             </div>
           )}
           {draftVersion && (
             <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.warning}` }}>
-              <div style={{ fontSize: 12, color: C.warning, fontWeight: 600 }}>草稿版本</div>
+              <div style={{ fontSize: 12, color: C.warning, fontWeight: 600 }}>{t9('templateMgmt.draftVersion')}</div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{draftVersion.version}</div>
               <div style={{ fontSize: 12, color: C.textMid }}>{draftVersion.changedAt} · {draftVersion.changedBy}</div>
             </div>
@@ -519,12 +519,12 @@ export default function TemplateManagementPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ background: C.bgLight }}>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>版本</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>状态</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>修改人</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>修改时间</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>变更说明</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>操作</th>
+              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verVersion')}</th>
+              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verStatus')}</th>
+              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verChangedBy')}</th>
+              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verChangedAt')}</th>
+              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verChangelog')}</th>
+              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verActions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -537,7 +537,7 @@ export default function TemplateManagementPage() {
                     background: v.status === 'published' ? C.successLight : v.status === 'draft' ? C.warningLight : v.status === 'review' ? C.infoLight : C.bgLight,
                     color: v.status === 'published' ? C.success : v.status === 'draft' ? C.warning : v.status === 'review' ? C.info : C.textLight,
                   }}>
-                    {v.status === 'published' ? '已发布' : v.status === 'draft' ? '草稿' : v.status === 'review' ? '审核中' : '已归档'}
+                    {v.status === 'published' ? t9('templateMgmt.verPublished') : v.status === 'draft' ? t9('templateMgmt.verDraft') : v.status === 'review' ? t9('templateMgmt.verReviewing') : t9('templateMgmt.verArchived')}
                   </span>
                 </td>
                 <td style={{ padding: '10px 14px', color: C.textMid }}>{v.changedBy}</td>
@@ -546,11 +546,11 @@ export default function TemplateManagementPage() {
                 <td style={{ padding: '10px 14px' }}>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={() => setDiffView(diffView === v.id ? null : v.id)} style={{ padding: '4px 8px', background: C.bgLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
-                      <Eye size={14} /> {diffView === v.id ? '收起' : '对比'}
+                      <Eye size={14} /> {diffView === v.id ? t9('templateMgmt.collapse') : t9('templateMgmt.compare')}
                     </button>
                     {v.status === 'published' && (
                       <button onClick={() => void handleRollback(v)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <RotateCcw size={14} /> 回滚
+                        <RotateCcw size={14} /> {t9('templateMgmt.rollback')}
                       </button>
                     )}
                   </div>
@@ -561,9 +561,9 @@ export default function TemplateManagementPage() {
         </table>
         {diffView && (
           <div style={{ marginTop: 12, background: C.bgLight, borderRadius: 8, padding: 12, border: `1px solid ${C.borderLight}` }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 8 }}>版本差异</div>
-            <div style={{ fontSize: 12, color: C.success, background: C.successLight, padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
-            <div style={{ fontSize: 12, color: C.danger, background: C.dangerLight, padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 8 }}>{t9('templateMgmt.versionDiff')}</div>
+            <div style={{ fontSize: 12, color: C.success, background: C.successLight, padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>{t9('templateMgmt.diffAdded')}</div>
+            <div style={{ fontSize: 12, color: C.danger, background: C.dangerLight, padding: '6px 10px', borderRadius: 4 }}>{t9('templateMgmt.diffRemoved')}</div>
           </div>
         )}
       </div>
@@ -581,13 +581,13 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <TrendingUp size={18} color={C.accent} />
-                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>使用趋势（近12个月）</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.usageTrend')}</span>
               </div>
               <div style={{ height: 180, display: 'flex', alignItems: 'flex-end', gap: 6, padding: '0 8px' }}>
                 {usageTrend.map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                     <div style={{ width: '100%', height: `${(v / 200) * 160}px`, background: `hsl(${220 + i * 5}, 70%, ${50 + i * 2}%)`, borderRadius: '3px 3px 0 0', minHeight: 4 }} />
-                    <span style={{ fontSize: 8, color: C.textLight }}>{i + 1}月</span>
+                    <span style={{ fontSize: 8, color: C.textLight }}>{i + 1}{t9('templateMgmt.monthSuffix')}</span>
                   </div>
                 ))}
               </div>
@@ -596,7 +596,7 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <BarChart2 size={18} color={C.primary} />
-                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>最常用模板 TOP 5</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.top5')}</span>
               </div>
               {sortedByUsage.slice(0, 5).map((t, i) => (
                 <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${C.borderLight}` }}>
@@ -615,24 +615,24 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <BarChart2 size={18} color={C.primary} />
-                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>概览</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.overview')}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div style={{ background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{templates.length}</div>
-                  <div style={{ fontSize: 12, color: C.textMid }}>模板总数</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.totalTemplates')}</div>
                 </div>
                 <div style={{ background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{totalUsage}</div>
-                  <div style={{ fontSize: 12, color: C.textMid }}>总使用次数</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.totalUsage')}</div>
                 </div>
                 <div style={{ background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{Math.round(totalUsage / templates.length)}</div>
-                  <div style={{ fontSize: 12, color: C.textMid }}>平均使用</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.avgUsage')}</div>
                 </div>
                 <div style={{ background: C.infoLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: C.info }}>{templates.filter(t => t.status === 'active').length}</div>
-                  <div style={{ fontSize: 12, color: C.textMid }}>活跃模板</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.activeTemplates')}</div>
                 </div>
               </div>
             </div>
@@ -640,7 +640,7 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <Star size={18} color={C.warning} />
-                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>用户满意度</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.satisfaction')}</span>
               </div>
               <div style={{ textAlign: 'center', padding: '10px 0' }}>
                 <div style={{ fontSize: 26, fontWeight: 700, color: C.warning }}>4.5</div>
@@ -648,7 +648,7 @@ export default function TemplateManagementPage() {
                 <div style={{ display: 'flex', gap: 2, justifyContent: 'center', margin: '6px 0' }}>
                   {[1, 2, 3, 4, 5].map(s => <span key={s} style={{ color: s <= 4 ? C.warning : C.border, fontSize: 18 }}>★</span>)}
                 </div>
-                <div style={{ fontSize: 12, color: C.textMid }}>基于 128 份用户评价</div>
+                <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.basedOnReviews')}</div>
               </div>
             </div>
           </div>
@@ -685,36 +685,36 @@ export default function TemplateManagementPage() {
       <div style={{ display: activeTab === 'share' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <Share2 size={20} color={C.accent} />
-          <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>分享与协作</span>
-          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（分享）</span>
+          <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.shareCollab')}</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t9('templateMgmt.demoDataShare')}</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
-            <option value="全部">全部模板</option>
+            <option value="全部">{t9('templateMgmt.allTemplates')}</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
-          <button onClick={() => setShowShareModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={14} /> 新建分享</button>
+          <button onClick={() => setShowShareModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={14} /> {t9('templateMgmt.newShare')}</button>
         </div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           <div style={{ flex: 1, background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{entries.length}</div>
-            <div style={{ fontSize: 12, color: C.textMid }}>分享总数</div>
+            <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.shareTotal')}</div>
           </div>
           <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{new Set(entries.map(e => e.sharedWith)).size}</div>
-            <div style={{ fontSize: 12, color: C.textMid }}>协作科室/用户</div>
+            <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.collabDeptUser')}</div>
           </div>
           <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{entries.filter(e => e.permission === 'admin').length}</div>
-            <div style={{ fontSize: 12, color: C.textMid }}>管理员权限</div>
+            <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.adminPerm')}</div>
           </div>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead><tr style={{ background: C.bgLight }}>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>模板</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>共享给</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>权限</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>分享人</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>时间</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>部门</th>
+            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shTemplate')}</th>
+            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shSharedWith')}</th>
+            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shPermission')}</th>
+            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shSharedBy')}</th>
+            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shTime')}</th>
+            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shDept')}</th>
           </tr></thead>
           <tbody>
             {filteredEntries.map((e, i) => (
@@ -728,7 +728,7 @@ export default function TemplateManagementPage() {
                     color: e.permission === 'admin' ? C.danger : e.permission === 'edit' ? C.warning : C.info,
                   }}>
                     {e.permission === 'admin' ? <Shield size={10} /> : e.permission === 'edit' ? <Edit2 size={10} /> : <Eye size={10} />}
-                    {e.permission === 'admin' ? '管理' : e.permission === 'edit' ? '编辑' : '查看'}
+                    {e.permission === 'admin' ? t9('templateMgmt.permManage') : e.permission === 'edit' ? t9('templateMgmt.permEdit') : t9('templateMgmt.permView')}
                   </span>
                 </td>
                 <td style={{ padding: '10px 14px', color: C.textMid }}>{e.sharedBy}</td>
@@ -740,37 +740,37 @@ export default function TemplateManagementPage() {
         </table>
         <div style={{ marginTop: 16, padding: '12px 14px', background: C.infoLight, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Globe size={16} color={C.info} />
-          <span style={{ fontSize: 12, color: C.textDark }}>支持跨部门共享 · 权限控制（查看/编辑/管理） · 共享请求流程</span>
+          <span style={{ fontSize: 12, color: C.textDark }}>{t9('templateMgmt.shareFooter')}</span>
         </div>
         {showShareModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowShareModal(false)}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${C.borderLight}` }}>
-                <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={16} color={C.primary} /> 新建分享</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={16} color={C.primary} /> {t9('templateMgmt.newShare')}</div>
                 <button onClick={() => setShowShareModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, padding: 4 }}>×</button>
               </div>
               <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>模板</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shTemplate')}</label>
                   <select value={shareForm.templateId} onChange={e => setShareForm({ ...shareForm, templateId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)' }}>
                     {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>共享给（科室/用户）</label>
-                  <input value={shareForm.sharedWith} onChange={e => setShareForm({ ...shareForm, sharedWith: e.target.value })} placeholder="如: 神经内科 / 王医生" style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shareToLabel')}</label>
+                  <input value={shareForm.sharedWith} onChange={e => setShareForm({ ...shareForm, sharedWith: e.target.value })} placeholder={t9('templateMgmt.shareToPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>权限</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shPermission')}</label>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    {([['view', '查看'], ['edit', '编辑'], ['admin', '管理']] as const).map(([v, l]) => (
+                    {([['view', t9('templateMgmt.permView')], ['edit', t9('templateMgmt.permEdit')], ['admin', t9('templateMgmt.permManage')]] as const).map(([v, l]) => (
                       <button key={v} onClick={() => setShareForm({ ...shareForm, permission: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${shareForm.permission === v ? C.primary : C.border}`, background: shareForm.permission === v ? C.primaryLighter : 'var(--bg-card)', color: shareForm.permission === v ? C.primary : C.textMid }}>{l}</button>
                     ))}
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                  <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer' }}>取消</button>
-                  <button onClick={handleCreateShare} disabled={!shareForm.sharedWith.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: shareForm.sharedWith.trim() ? C.primary : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: shareForm.sharedWith.trim() ? 'pointer' : 'not-allowed' }}>确认分享</button>
+                  <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer' }}>{t9('templateMgmt.cancel')}</button>
+                  <button onClick={handleCreateShare} disabled={!shareForm.sharedWith.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: shareForm.sharedWith.trim() ? C.primary : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: shareForm.sharedWith.trim() ? 'pointer' : 'not-allowed' }}>{t9('templateMgmt.confirmShare')}</button>
                 </div>
               </div>
             </div>
@@ -785,38 +785,38 @@ export default function TemplateManagementPage() {
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <ClipboardList size={28} style={{ color: C.primary }} />
-          <h1 style={styles.title}>检查模板管理</h1>
+          <h1 style={styles.title}>{t9('templateMgmt.title')}</h1>
         </div>
-        <button style={styles.addBtn} onClick={handleAdd}><Plus size={18} /><span>新增模板</span></button>
+        <button style={styles.addBtn} onClick={handleAdd}><Plus size={18} /><span>{t9('templateMgmt.addTemplate')}</span></button>
         {/* [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 */}
         <input ref={importFileRef} type="file" accept=".json,.txt,application/json,text/plain" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleImportTemplates(f) }} />
         <button onClick={() => importFileRef.current?.click()} disabled={importing} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: importing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: importing ? 0.6 : 1 }}>
-          <Upload size={16} /><span>{importing ? '导入中...' : '批量导入'}</span>
+          <Upload size={16} /><span>{importing ? t9('templateMgmt.importing') : t9('templateMgmt.batchImport')}</span>
         </button>
         <button onClick={() => void handleExportTemplates()} disabled={exporting} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#7c3aed', border: '1px solid #7c3aed', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: exporting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: exporting ? 0.6 : 1 }}>
-          <Download size={16} /><span>{exporting ? '导出中...' : '批量导出'}</span>
+          <Download size={16} /><span>{exporting ? t9('templateMgmt.exporting') : t9('templateMgmt.batchExport')}</span>
         </button>
         <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
-          <Wand2 size={16} /><span>可视化设计器 (R2)</span>
+          <Wand2 size={16} /><span>{t9('templateMgmt.visualDesigner')}</span>
         </button>
         <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#1e40af', border: '1px solid #3b82f6', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-          <GitBranch size={16} /><span>继承/克隆</span>
+          <GitBranch size={16} /><span>{t9('templateMgmt.inheritClone')}</span>
         </button>
         <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-          <FolderTree size={16} /><span>分类树</span>
+          <FolderTree size={16} /><span>{t9('templateMgmt.categoryTree')}</span>
         </button>
       </div>
 
       <div style={styles.toolbar}>
         <div style={styles.searchBox}>
           <Search size={18} style={{ color: C.textLight }} />
-          <input type="text" placeholder="搜索模板名称、编码、内容..." value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} style={styles.searchInput} />
+          <input type="text" placeholder={t9('templateMgmt.searchPlaceholder')} value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} style={styles.searchInput} />
         </div>
         <div style={styles.filters}>
           <div style={styles.filterGroup}>
             <Filter size={16} style={{ color: C.textMid }} />
             <select value={filterModality} onChange={(e) => { setFilterModality(e.target.value); setCurrentPage(1); }} style={styles.select}>
-              <option value="all">全部设备</option>
+              <option value="all">{t9('templateMgmt.allModalities')}</option>
               <option value="CT">CT</option>
               <option value="MRI">MRI</option>
               <option value="X线">X线</option>
@@ -824,13 +824,13 @@ export default function TemplateManagementPage() {
           </div>
           <div style={styles.filterGroup}>
             <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }} style={styles.select}>
-              <option value="all">全部状态</option>
-              <option value="draft">草稿</option>
-              <option value="pending">待审批</option>
-              <option value="approved">已批准</option>
-              <option value="rejected">已驳回</option>
-              <option value="active">启用(旧)</option>
-              <option value="inactive">停用(旧)</option>
+              <option value="all">{t9('templateMgmt.allStatus')}</option>
+              <option value="draft">{t9('templateMgmt.statusDraft')}</option>
+              <option value="pending">{t9('templateMgmt.statusPending')}</option>
+              <option value="approved">{t9('templateMgmt.statusApproved')}</option>
+              <option value="rejected">{t9('templateMgmt.statusRejected')}</option>
+              <option value="active">{t9('templateMgmt.statusActiveOld')}</option>
+              <option value="inactive">{t9('templateMgmt.statusInactiveOld')}</option>
             </select>
           </div>
           {/* [v3.0.6.11-98 Wave2A P1] 待审批筛选 Tab */}
@@ -843,23 +843,23 @@ export default function TemplateManagementPage() {
               color: filterStatus === 'pending' ? C.warning : C.warning,
             }}
           >
-            <Shield size={14} /> 待审批
+            <Shield size={14} /> {t9('templateMgmt.pendingApproval')}
             {filterStatus === 'pending' && <span style={{ background: C.warning, color: '#fff', borderRadius: 10, fontSize: 10, padding: '0 6px' }}>{templates.filter(t => t.status === 'pending').length}</span>}
           </button>
           {/* [v3.0.6.11-98 Wave2A P1] 我的模板筛选 (医生个人模板库) */}
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: C.textDark, cursor: 'pointer' }}>
             <input type="checkbox" checked={myOnly} onChange={(e) => setMyOnly(e.target.checked)} style={{ width: 15, height: 15, accentColor: C.primary, cursor: 'pointer' }} />
-            <Users size={14} color={C.accent} /> 我的模板
+            <Users size={14} color={C.accent} /> {t9('templateMgmt.myTemplates')}
           </label>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {renderTab('manage', '模板管理', <ClipboardList size={14} />)}
-        {renderTab('version', '版本管理', <History size={14} />)}
-        {renderTab('analytics', '使用分析', <TrendingUp size={14} />)}
-        {renderTab('share', '分享协作', <Share2 size={14} />)}
-        {renderTab('pending', '待审模板', <Clock3 size={14} />)}
+        {renderTab('manage', t9('templateMgmt.tabManage'), <ClipboardList size={14} />)}
+        {renderTab('version', t9('templateMgmt.tabVersion'), <History size={14} />)}
+        {renderTab('analytics', t9('templateMgmt.tabAnalytics'), <TrendingUp size={14} />)}
+        {renderTab('share', t9('templateMgmt.tabShare'), <Share2 size={14} />)}
+        {renderTab('pending', t9('templateMgmt.tabPending'), <Clock3 size={14} />)}
         {/* [v3.0.6.11-104 Wave 5C] 模板中心收敛: 标签走 t() */}
         {renderTab('reportTemplates', t9('nav.reportTemplates'), <FileText size={14} />)}
         {renderTab('emrTemplates', t9('nav.emrTemplates'), <FileEdit size={14} />)}
@@ -868,23 +868,23 @@ export default function TemplateManagementPage() {
       {activeTab === 'manage' && (
         <>
           <div style={styles.statsBar}>
-            <div style={styles.statItem}><ListOrdered size={16} style={{ color: C.primary }} /><span style={styles.statLabel}>模板总数</span><span style={styles.statValue}>{templates.length}</span></div>
-            <div style={styles.statItem}><Scan size={16} style={{ color: C.accent }} /><span style={styles.statLabel}>CT模板</span><span style={styles.statValue}>{templates.filter(t => t.modality === 'CT').length}</span></div>
-            <div style={styles.statItem}><Activity size={16} style={{ color: C.success }} /><span style={styles.statLabel}>MRI模板</span><span style={styles.statValue}>{templates.filter(t => t.modality === 'MRI').length}</span></div>
-            <div style={styles.statItem}><ImageIcon size={16} style={{ color: C.warning }} /><span style={styles.statLabel}>X线模板</span><span style={styles.statValue}>{templates.filter(t => t.modality === 'X线').length}</span></div>
+            <div style={styles.statItem}><ListOrdered size={16} style={{ color: C.primary }} /><span style={styles.statLabel}>{t9('templateMgmt.totalTemplates')}</span><span style={styles.statValue}>{templates.length}</span></div>
+            <div style={styles.statItem}><Scan size={16} style={{ color: C.accent }} /><span style={styles.statLabel}>{t9('templateMgmt.statCT')}</span><span style={styles.statValue}>{templates.filter(t => t.modality === 'CT').length}</span></div>
+            <div style={styles.statItem}><Activity size={16} style={{ color: C.success }} /><span style={styles.statLabel}>{t9('templateMgmt.statMRI')}</span><span style={styles.statValue}>{templates.filter(t => t.modality === 'MRI').length}</span></div>
+            <div style={styles.statItem}><ImageIcon size={16} style={{ color: C.warning }} /><span style={styles.statLabel}>{t9('templateMgmt.statXray')}</span><span style={styles.statValue}>{templates.filter(t => t.modality === 'X线').length}</span></div>
           </div>
 
           <div style={styles.tableWrapper}>
             <table style={styles.table}>
               <thead><tr style={styles.theadTr}>
-                <th style={{ ...styles.th, ...styles.thCode }}>模板编码</th>
-                <th style={{ ...styles.th, ...styles.thName }}>模板名称</th>
-                <th style={{ ...styles.th, ...styles.thModality }}>检查类型</th>
-                <th style={{ ...styles.th, ...styles.thCategory }}>分类</th>
-                <th style={{ ...styles.th, ...styles.thTags }}>标签</th>
-                <th style={{ ...styles.th, ...styles.thUsage }}>使用次数</th>
-                <th style={{ ...styles.th, ...styles.thStatus }}>状态</th>
-                <th style={{ ...styles.th, ...styles.thActions }}>操作</th>
+                <th style={{ ...styles.th, ...styles.thCode }}>{t9('templateMgmt.thCode')}</th>
+                <th style={{ ...styles.th, ...styles.thName }}>{t9('templateMgmt.thName')}</th>
+                <th style={{ ...styles.th, ...styles.thModality }}>{t9('templateMgmt.thModality')}</th>
+                <th style={{ ...styles.th, ...styles.thCategory }}>{t9('templateMgmt.thCategory')}</th>
+                <th style={{ ...styles.th, ...styles.thTags }}>{t9('templateMgmt.thTags')}</th>
+                <th style={{ ...styles.th, ...styles.thUsage }}>{t9('templateMgmt.thUsage')}</th>
+                <th style={{ ...styles.th, ...styles.thStatus }}>{t9('templateMgmt.thStatus')}</th>
+                <th style={{ ...styles.th, ...styles.thActions }}>{t9('templateMgmt.thActions')}</th>
               </tr></thead>
               <tbody>
                 {paginatedTemplates.map((tpl, idx) => (
@@ -905,37 +905,37 @@ export default function TemplateManagementPage() {
                     <td style={styles.td}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         <div style={styles.actionsCell}>
-                          <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title="预览"><Eye size={16} /></button>
-                          <button style={styles.actionBtn} onClick={() => handleEdit(tpl)} title="编辑"><Edit2 size={16} /></button>
-                          <button style={{ ...styles.actionBtn, ...styles.actionBtnDanger }} onClick={() => handleDelete(tpl.id)} title="删除"><Trash2 size={16} /></button>
+                          <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title={t9('templateMgmt.actionPreview')}><Eye size={16} /></button>
+                          <button style={styles.actionBtn} onClick={() => handleEdit(tpl)} title={t9('templateMgmt.actionEdit')}><Edit2 size={16} /></button>
+                          <button style={{ ...styles.actionBtn, ...styles.actionBtnDanger }} onClick={() => handleDelete(tpl.id)} title={t9('templateMgmt.actionDelete')}><Trash2 size={16} /></button>
                         </div>
                         {/* [v3.0.6.11-98 Wave2A P1] 模板审批流操作 */}
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                           {(tpl.status === 'draft' || tpl.status === 'rejected') && (
                             <button onClick={() => void handleSubmitApproval(tpl)}
                               style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#f59e0b20', color: '#d97706', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                              <Send size={11} /> 提交审批
+                              <Send size={11} /> {t9('templateMgmt.submitApproval')}
                             </button>
                           )}
                           {tpl.status === 'pending' && !canApprove && (
                             <span style={{ fontSize: 11, color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
-                              <Clock3 size={11} /> 待审批中
+                              <Clock3 size={11} /> {t9('templateMgmt.pendingReview')}
                             </span>
                           )}
                           {tpl.status === 'pending' && canApprove && (
                             <>
                               <button onClick={() => void handleApprove(tpl)}
                                 style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#22c55e20', color: '#059669', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                                <ShieldCheck size={11} /> 批准
+                                <ShieldCheck size={11} /> {t9('templateMgmt.approve')}
                               </button>
                               <button onClick={() => { setRejectTarget(tpl); setRejectReason(''); }}
                                 style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#ef444420', color: '#dc2626', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                                <XCircle size={11} /> 驳回
+                                <XCircle size={11} /> {t9('templateMgmt.reject')}
                               </button>
                             </>
                           )}
                           {tpl.status === 'rejected' && tpl.rejectedReason && (
-                            <span style={{ fontSize: 11, color: '#dc2626' }} title={tpl.rejectedReason}>驳回: {String(tpl.rejectedReason).slice(0, 8)}…</span>
+                            <span style={{ fontSize: 11, color: '#dc2626' }} title={tpl.rejectedReason}>{t9('templateMgmt.rejectedPrefix')}{String(tpl.rejectedReason).slice(0, 8)}…</span>
                           )}
                         </div>
                       </div>
@@ -943,7 +943,7 @@ export default function TemplateManagementPage() {
                   </tr>
                 ))}
                 {paginatedTemplates.length === 0 && (
-                  <tr><td colSpan={8} style={styles.emptyCell}><ClipboardList size={48} style={{ color: C.textLight }} /><p style={styles.emptyText}>未找到匹配的模板</p></td></tr>
+                  <tr><td colSpan={8} style={styles.emptyCell}><ClipboardList size={48} style={{ color: C.textLight }} /><p style={styles.emptyText}>{t9('templateMgmt.empty')}</p></td></tr>
                 )}
               </tbody>
             </table>
@@ -951,9 +951,9 @@ export default function TemplateManagementPage() {
 
           {totalPages > 1 && (
             <div style={styles.pagination}>
-              <button style={{ ...styles.pageBtn, ...(currentPage === 1 ? styles.pageBtnDisabled : {}) }} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>上一页</button>
-              <div style={styles.pageInfo}>第 <span style={styles.pageCurrent}>{currentPage}</span> / {totalPages} 页 <span style={styles.pageDivider}>|</span> 共 {filteredTemplates.length} 条</div>
-              <button style={{ ...styles.pageBtn, ...(currentPage === totalPages ? styles.pageBtnDisabled : {}) }} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>下一页</button>
+              <button style={{ ...styles.pageBtn, ...(currentPage === 1 ? styles.pageBtnDisabled : {}) }} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>{t9('templateMgmt.prevPage')}</button>
+              <div style={styles.pageInfo}>{t9('templateMgmt.pagePrefix')}<span style={styles.pageCurrent}>{currentPage}</span>{t9('templateMgmt.pageMid')}{totalPages}{t9('templateMgmt.pageSuffix')}<span style={styles.pageDivider}>|</span>{t9('templateMgmt.pageTotalPrefix')}{filteredTemplates.length}{t9('templateMgmt.pageTotalSuffix')}</div>
+              <button style={{ ...styles.pageBtn, ...(currentPage === totalPages ? styles.pageBtnDisabled : {}) }} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>{t9('templateMgmt.nextPage')}</button>
             </div>
           )}
         </>
@@ -987,39 +987,39 @@ export default function TemplateManagementPage() {
         <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}><FileEdit size={22} style={{ color: C.primary }} /><h2>{modalMode === 'add' ? '新增模板' : '编辑模板'}</h2></div>
+              <div style={styles.modalTitle}><FileEdit size={22} style={{ color: C.primary }} /><h2>{modalMode === 'add' ? t9('templateMgmt.modalAdd') : t9('templateMgmt.modalEdit')}</h2></div>
               <button style={styles.modalClose} onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div style={styles.modalBody}>
               <div style={styles.formRow}>
-                <div style={styles.formGroup}><label style={styles.label}><Tag size={14} /> 模板编码 <span style={styles.required}>*</span></label><input type="text" value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value })} style={styles.input} placeholder="如：CT-BRAIN-001" /></div>
-                <div style={styles.formGroup}><label style={styles.label}><FileText size={14} /> 模板名称 <span style={styles.required}>*</span></label><input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} style={styles.input} placeholder="如：颅脑CT平扫模板" /></div>
+                <div style={styles.formGroup}><label style={styles.label}><Tag size={14} /> {t9('templateMgmt.labelCode')} <span style={styles.required}>*</span></label><input type="text" value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value })} style={styles.input} placeholder={t9('templateMgmt.codePlaceholder')} /></div>
+                <div style={styles.formGroup}><label style={styles.label}><FileText size={14} /> {t9('templateMgmt.labelName')} <span style={styles.required}>*</span></label><input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} style={styles.input} placeholder={t9('templateMgmt.namePlaceholder')} /></div>
               </div>
               <div style={styles.formRow}>
-                <div style={styles.formGroup}><label style={styles.label}><Scan size={14} /> 检查类型</label><select value={formData.modality} onChange={e => setFormData({ ...formData, modality: e.target.value as any })} style={styles.select}><option value="CT">CT</option><option value="MRI">MRI</option><option value="X线">X线</option></select></div>
-                <div style={styles.formGroup}><label style={styles.label}><ListOrdered size={14} /> 版本号</label><input type="text" value={formData.version} onChange={e => setFormData({ ...formData, version: e.target.value })} style={styles.input} placeholder="如：v1.0" /></div>
+                <div style={styles.formGroup}><label style={styles.label}><Scan size={14} /> {t9('templateMgmt.labelModality')}</label><select value={formData.modality} onChange={e => setFormData({ ...formData, modality: e.target.value as any })} style={styles.select}><option value="CT">CT</option><option value="MRI">MRI</option><option value="X线">X线</option></select></div>
+                <div style={styles.formGroup}><label style={styles.label}><ListOrdered size={14} /> {t9('templateMgmt.labelVersion')}</label><input type="text" value={formData.version} onChange={e => setFormData({ ...formData, version: e.target.value })} style={styles.input} placeholder={t9('templateMgmt.versionPlaceholder')} /></div>
               </div>
               <div style={styles.formRow}>
-                <div style={styles.formGroup}><label style={styles.label}>一级分类</label><input type="text" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={styles.input} placeholder="如：颅脑、胸部、腹部" /></div>
-                <div style={styles.formGroup}><label style={styles.label}>二级分类</label><input type="text" value={formData.subCategory} onChange={e => setFormData({ ...formData, subCategory: e.target.value })} style={styles.input} placeholder="如：平扫、增强、CTA" /></div>
+                <div style={styles.formGroup}><label style={styles.label}>{t9('templateMgmt.labelCategory1')}</label><input type="text" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={styles.input} placeholder={t9('templateMgmt.category1Placeholder')} /></div>
+                <div style={styles.formGroup}><label style={styles.label}>{t9('templateMgmt.labelCategory2')}</label><input type="text" value={formData.subCategory} onChange={e => setFormData({ ...formData, subCategory: e.target.value })} style={styles.input} placeholder={t9('templateMgmt.category2Placeholder')} /></div>
               </div>
-              <div style={styles.formGroup}><label style={styles.label}><Stethoscope size={14} /> 模板内容 <span style={styles.required}>*</span></label><textarea value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })} style={styles.textarea} placeholder="输入报告模板内容..." rows={10} /></div>
+              <div style={styles.formGroup}><label style={styles.label}><Stethoscope size={14} /> {t9('templateMgmt.labelContent')} <span style={styles.required}>*</span></label><textarea value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })} style={styles.textarea} placeholder={t9('templateMgmt.contentPlaceholder')} rows={10} /></div>
               <div style={styles.formGroup}>
-                <label style={styles.label}><Tag size={14} /> 标签</label>
-                <div style={styles.tagInput}><input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())} style={styles.tagInputField} placeholder="输入标签后按回车添加" /><button style={styles.tagAddBtn} onClick={handleAddTag}>添加</button></div>
+                <label style={styles.label}><Tag size={14} /> {t9('templateMgmt.labelTags')}</label>
+                <div style={styles.tagInput}><input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())} style={styles.tagInputField} placeholder={t9('templateMgmt.tagInputPlaceholder')} /><button style={styles.tagAddBtn} onClick={handleAddTag}>{t9('templateMgmt.add')}</button></div>
                 <div style={styles.tagsList}>{formData.tags?.map(tag => <span key={tag} style={styles.tagItem}>{tag}<button style={styles.tagRemove} onClick={() => handleRemoveTag(tag)}>×</button></span>)}</div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.label}>状态</label>
+                <label style={styles.label}>{t9('templateMgmt.labelStatus')}</label>
                 <div style={styles.radioGroup}>
-                  <label style={styles.radioLabel}><input type="radio" checked={formData.status === 'active'} onChange={() => setFormData({ ...formData, status: 'active' })} /><span style={styles.radioText}>启用</span></label>
-                  <label style={styles.radioLabel}><input type="radio" checked={formData.status === 'inactive'} onChange={() => setFormData({ ...formData, status: 'inactive' })} /><span style={styles.radioText}>停用</span></label>
+                  <label style={styles.radioLabel}><input type="radio" checked={formData.status === 'active'} onChange={() => setFormData({ ...formData, status: 'active' })} /><span style={styles.radioText}>{t9('templateMgmt.enabled')}</span></label>
+                  <label style={styles.radioLabel}><input type="radio" checked={formData.status === 'inactive'} onChange={() => setFormData({ ...formData, status: 'inactive' })} /><span style={styles.radioText}>{t9('templateMgmt.disabled')}</span></label>
                 </div>
               </div>
             </div>
             <div style={styles.modalFooter}>
-              <button style={styles.cancelBtn} onClick={() => setShowModal(false)}>取消</button>
-              <button style={styles.saveBtn} onClick={handleSave}><Save size={16} /> 保存</button>
+              <button style={styles.cancelBtn} onClick={() => setShowModal(false)}>{t9('templateMgmt.cancel')}</button>
+              <button style={styles.saveBtn} onClick={handleSave}><Save size={16} /> {t9('templateMgmt.save')}</button>
             </div>
           </div>
         </div>
@@ -1029,21 +1029,21 @@ export default function TemplateManagementPage() {
         <div style={styles.modalOverlay} onClick={() => setShowPreview(false)}>
           <div style={styles.previewModal} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}><Eye size={22} style={{ color: C.primary }} /><h2>模板预览</h2></div>
+              <div style={styles.modalTitle}><Eye size={22} style={{ color: C.primary }} /><h2>{t9('templateMgmt.preview')}</h2></div>
               <button style={styles.modalClose} onClick={() => setShowPreview(false)}><X size={20} /></button>
             </div>
             <div style={styles.previewMeta}>
-              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>编码：</span><code style={styles.code}>{previewTemplate.code}</code></div>
-              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>名称：</span><span>{previewTemplate.name}</span></div>
-              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>类型：</span><span>{previewTemplate.modality}</span></div>
-              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>版本：</span><span>{previewTemplate.version}</span></div>
-              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>分类：</span><span>{previewTemplate.category} / {previewTemplate.subCategory}</span></div>
-              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>作者：</span><span>{previewTemplate.author}</span></div>
-              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>使用次数：</span><span>{previewTemplate.usageCount}</span></div>
+              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaCode')}</span><code style={styles.code}>{previewTemplate.code}</code></div>
+              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaName')}</span><span>{previewTemplate.name}</span></div>
+              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaModality')}</span><span>{previewTemplate.modality}</span></div>
+              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaVersion')}</span><span>{previewTemplate.version}</span></div>
+              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaCategory')}</span><span>{previewTemplate.category} / {previewTemplate.subCategory}</span></div>
+              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaAuthor')}</span><span>{previewTemplate.author}</span></div>
+              <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaUsage')}</span><span>{previewTemplate.usageCount}</span></div>
             </div>
             <div style={styles.previewContent}><pre style={styles.previewText}>{previewTemplate.content}</pre></div>
             <div style={styles.previewTags}>{previewTemplate.tags.map(tag => <span key={tag} style={styles.tag}>{tag}</span>)}</div>
-            <div style={styles.modalFooter}><button style={styles.copyBtn} onClick={() => handleCopy(previewTemplate.content)}><Copy size={16} /> 复制内容</button><button style={styles.cancelBtn} onClick={() => setShowPreview(false)}>关闭</button></div>
+            <div style={styles.modalFooter}><button style={styles.copyBtn} onClick={() => handleCopy(previewTemplate.content)}><Copy size={16} /> {t9('templateMgmt.copyContent')}</button><button style={styles.cancelBtn} onClick={() => setShowPreview(false)}>{t9('templateMgmt.close')}</button></div>
           </div>
         </div>
       )}
@@ -1056,29 +1056,29 @@ export default function TemplateManagementPage() {
         <div style={styles.modalOverlay} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}>
           <div style={{ width: 460, background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}><XCircle size={20} style={{ color: C.danger }} /><h2 style={{ fontSize: 16 }}>驳回模板审批</h2></div>
+              <div style={styles.modalTitle}><XCircle size={20} style={{ color: C.danger }} /><h2 style={{ fontSize: 16 }}>{t9('templateMgmt.rejectTitle')}</h2></div>
               <button style={styles.modalClose} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}><X size={20} /></button>
             </div>
             <div style={{ padding: '20px 24px' }}>
               <div style={{ fontSize: 13, color: C.textDark, marginBottom: 6 }}>
-                驳回「<b>{rejectTarget.name}</b>」并退回创建人修改, 请填写驳回原因:
+                {t9('templateMgmt.rejectPromptPrefix')}<b>{rejectTarget.name}</b>{t9('templateMgmt.rejectPromptSuffix')}
               </div>
               <textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 rows={4}
-                placeholder="例: 影像所见描述不规范, 请补充增强时相"
+                placeholder={t9('templateMgmt.rejectReasonPlaceholder')}
                 style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
               />
             </div>
             <div style={styles.modalFooter}>
-              <button style={styles.cancelBtn} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}>取消</button>
+              <button style={styles.cancelBtn} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}>{t9('templateMgmt.cancel')}</button>
               <button
                 onClick={() => void handleRejectConfirm()}
                 disabled={actionBusy}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: C.danger, color: '#fff', border: 'none', borderRadius: 6, fontSize: 14, cursor: actionBusy ? 'not-allowed' : 'pointer', opacity: actionBusy ? 0.6 : 1 }}
               >
-                <XCircle size={15} /> {actionBusy ? '处理中…' : '确认驳回'}
+                <XCircle size={15} /> {actionBusy ? t9('templateMgmt.processing') : t9('templateMgmt.confirmReject')}
               </button>
             </div>
           </div>

@@ -606,9 +606,9 @@ function ExamVolumeTab() {
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} label={{ value: t("statsPage.growthRatePct"), angle: 90, position: 'insideRight', fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name="检查量" radius={[4, 4, 0, 0]} opacity={0.7} />
-              <Line yAxisId="right" type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} name="危急值数" />
-              <Line yAxisId="right" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name="报告数" />
+              <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name={t("statsPage.chart.examCount")} radius={[4, 4, 0, 0]} opacity={0.7} />
+              <Line yAxisId="right" type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.criticalCount")} />
+              <Line yAxisId="right" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.reportCount")} />
             </ComposedChart>
           </ChartContainer>
         </ChartCard>
@@ -676,7 +676,7 @@ function ExamVolumeTab() {
               <XAxis type="number" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis dataKey="part" type="category" tick={{ fontSize: 12, fill: C.textMuted }} width={60} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="count" fill="#3b82f6" name="检查量" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="count" fill="#3b82f6" name={t("statsPage.chart.examCount")} radius={[0, 4, 4, 0]}>
                 {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', 'MG', 'GI'][i % 6]]} />)}
               </Bar>
             </StatBarChart>
@@ -691,7 +691,7 @@ function ExamVolumeTab() {
               <XAxis dataKey="slot" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="exams" name="检查量" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="exams" name={t("statsPage.chart.examCount")} radius={[4, 4, 0, 0]}>
                 {timeSlotData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i % RAD_COLORS.length]} />)}
               </Bar>
             </StatBarChart>
@@ -789,8 +789,8 @@ function WorkloadTab() {
                 <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                 <Legend iconSize={10} verticalAlign="bottom" align="center" />
-                <Bar dataKey="written" fill="#3b82f6" name="书写报告数" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="reviewed" fill="#8b5cf6" name="审核报告数" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="written" fill="#3b82f6" name={t("statsPage.chart.writtenReports")} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="reviewed" fill="#8b5cf6" name={t("statsPage.chart.reviewedReports")} radius={[4, 4, 0, 0]} />
               </StatBarChart>
             </ChartContainer>
           </div>
@@ -931,7 +931,7 @@ function RevenueTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, maxRevenue * 1.2]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => [`¥${(value / 10000).toFixed(1)}万`, t("statsPage.revenue")]} />
-              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name="收入" />
+              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name={t("statsPage.chart.revenue")} />
             </AreaChart>
           </ChartContainer>
         </ChartCard>
@@ -1140,7 +1140,7 @@ function QualityControlTab() {
               <XAxis dataKey="times" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="count" name="报告数" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="count" name={t("statsPage.chart.reportCount")} radius={[4, 4, 0, 0]}>
                 {modificationData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i]} />)}
               </Bar>
             </StatBarChart>
@@ -1155,7 +1155,7 @@ function QualityControlTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 10]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name="危急值数" />
+              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.criticalCount")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -1181,7 +1181,7 @@ function QualityControlTab() {
             <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
             <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[93, 100]} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-            <Line type="monotone" dataKey="score" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="质控评分" />
+            <Line type="monotone" dataKey="score" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.qcScore")} />
           </LineChart>
         </ChartContainer>
       </ChartCard>
@@ -1296,7 +1296,7 @@ function DeviceEfficiencyTab() {
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                  <Bar dataKey="utilization" name="利用率%" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="utilization" name={t("statsPage.chart.utilizationPct")} radius={[4, 4, 0, 0]}>
                     {deviceEfficiencyData.map((entry, i) => (
                       <Cell key={i} fill={entry.utilization >= 80 ? C.success : entry.utilization >= 60 ? C.warning : C.danger} />
                     ))}
@@ -1381,7 +1381,7 @@ function DeviceEfficiencyTab() {
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                 <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[80, 100]} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                <Bar dataKey="startupRate" name="开机率%" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="startupRate" name={t("statsPage.chart.startupRatePct")} radius={[4, 4, 0, 0]}>
                   {deviceStartupData.map((entry, i) => (
                     <Cell key={i} fill={entry.startupRate >= 95 ? C.success : entry.startupRate >= 90 ? C.warning : C.danger} />
                   ))}
@@ -1439,7 +1439,7 @@ function DeviceEfficiencyTab() {
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                  <Bar dataKey="avgTime" name="平均时间(min)" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="avgTime" name={t("statsPage.chart.avgTimeMin")} radius={[4, 4, 0, 0]}>
                     {examCompletionTimeData.map((entry, i) => (
                       <Cell key={i} fill={entry.avgTime <= 15 ? C.success : entry.avgTime <= 30 ? C.warning : C.danger} />
                     ))}
@@ -1456,8 +1456,8 @@ function DeviceEfficiencyTab() {
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Legend iconSize={10} verticalAlign="bottom" align="center" />
-                  <Bar dataKey="minTime" name="最短时间" fill="#059669" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="maxTime" name="最长时间" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="minTime" name={t("statsPage.chart.minTime")} fill="#059669" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="maxTime" name={t("statsPage.chart.maxTime")} fill="#dc2626" radius={[4, 4, 0, 0]} />
                 </StatBarChart>
               </ChartContainer>
             </ChartCard>
@@ -1513,7 +1513,7 @@ function DeviceEfficiencyTab() {
                   <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                  <Bar dataKey="avgWait" name="平均等待(天)" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="avgWait" name={t("statsPage.chart.avgWaitDays")} radius={[4, 4, 0, 0]}>
                     {appointmentWaitData.map((entry, i) => (
                       <Cell key={i} fill={entry.avgWait <= 2 ? C.success : entry.avgWait <= 4 ? C.warning : C.danger} />
                     ))}
@@ -1698,8 +1698,8 @@ function PatientAnalysisTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Bar dataKey="male" name="男性" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="female" name="女性" fill="#ec4899" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="male" name={t("statsPage.chart.male")} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="female" name={t("statsPage.chart.female")} fill="#ec4899" radius={[4, 4, 0, 0]} />
             </StatBarChart>
           </ChartContainer>
         </ChartCard>
@@ -1715,7 +1715,7 @@ function PatientAnalysisTab() {
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="rate" name="阳性率%" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="rate" name={t("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
                 ))}
@@ -1732,7 +1732,7 @@ function PatientAnalysisTab() {
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name="阳性率%" />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.positiveRatePct")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -1823,8 +1823,8 @@ function PositiveRateTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name="阳性率%" />
-              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name="危急值数" />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name={t("statsPage.chart.positiveRatePct")} />
+              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name={t("statsPage.chart.criticalCount")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -1911,7 +1911,7 @@ function PositiveRateTab() {
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="rate" name="阳性率%" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="rate" name={t("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
                 ))}
@@ -1927,7 +1927,7 @@ function PositiveRateTab() {
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name="阳性率%" />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.positiveRatePct")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -2013,9 +2013,9 @@ function BusinessAnalysisTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name="收入" />
-              <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name="成本" />
-              <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name="利润" />
+              <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name={t("statsPage.chart.revenue")} />
+              <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name={t("statsPage.chart.cost")} />
+              <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.profit")} />
             </AreaChart>
           </ChartContainer>
         </ChartCard>
@@ -2063,8 +2063,8 @@ function BusinessAnalysisTab() {
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => `¥${(value / 10000).toFixed(1)}万`} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name="人均收入" />
-              <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="人均利润" />
+              <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.perCapitaRevenue")} />
+              <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.perCapitaProfit")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -2756,11 +2756,11 @@ export default function StatisticsPage() {
           },
           {
             title: t("statsPage.csvMonthlyFinance"),
-            rows: [[t("statsPage.month"), t("statsPage.revenue"), '成本', '利润'], ...monthlyProfitData.map((d) => [d.month, d.revenue, d.cost, d.profit])],
+            rows: [[t("statsPage.month"), t("statsPage.revenue"), t("statsPage.chart.cost"), t("statsPage.chart.profit")], ...monthlyProfitData.map((d) => [d.month, d.revenue, d.cost, d.profit])],
           },
           {
             title: t("statsPage.csvPerCapitaTrend"),
-            rows: [[t("statsPage.month"), '人均收入', '人均利润'], ...perCapitaTrend.map((d) => [d.month, d.revenue / 10000, d.profit / 10000])],
+            rows: [[t("statsPage.month"), t("statsPage.chart.perCapitaRevenue"), t("statsPage.chart.perCapitaProfit")], ...perCapitaTrend.map((d) => [d.month, d.revenue / 10000, d.profit / 10000])],
           },
           {
             title: t("statsPage.deptProfit"),

@@ -85,11 +85,11 @@ const STATUS_CONFIG: Record<
   string,
   { color: string; bg: string; label: string }
 > = {
-  待检查: { color: "#3b82f6", bg: "#3b82f622", label: "待检查" },
-  检查中: { color: "#f59e0b", bg: "#f59e0b22", label: "检查中" },
-  已报告: { color: "#16a34a", bg: "#22c55e22", label: "已报告" },
-  已发布: { color: "#7c3aed", bg: "#8b5cf622", label: "已发布" },
-  待报告: { color: "#0891b2", bg: "#06b6d422", label: "待报告" },
+  待检查: { color: "#3b82f6", bg: "#3b82f622", label: t("examPage.statusPending") },
+  检查中: { color: "#f59e0b", bg: "#f59e0b22", label: t("examPage.statusInProgress") },
+  已报告: { color: "#16a34a", bg: "#22c55e22", label: t("examPage.statusReported") },
+  已发布: { color: "#7c3aed", bg: "#8b5cf622", label: t("examPage.statusPublished") },
+  待报告: { color: "#0891b2", bg: "#06b6d422", label: t("examPage.statusPendingReport") },
   已登记: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusRegistered") },
   已预约: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusScheduled") },
   // [audit-fix-2026-07-02] 报告状态 (mock backend 错误写入 exam.status)
@@ -97,7 +97,7 @@ const STATUS_CONFIG: Record<
   submitted: { color: "var(--color-success-bg)", bg: "#059669", label: t("examPage.statusSubmitted") },
   reviewed: { color: "var(--color-success-bg)", bg: "#047857", label: t("examPage.statusReviewed") },
   cosigned: { color: "var(--color-info-bg)", bg: "#2563eb", label: t("examPage.statusCosigned") },
-  published: { color: "var(--color-success-bg)", bg: "#047857", label: "已发布" },
+  published: { color: "var(--color-success-bg)", bg: "#047857", label: t("examPage.statusPublished") },
   rejected: { color: "var(--color-error-bg)", bg: "#dc2626", label: t("examPage.statusRejected") },
   revised: { color: "var(--color-warning-bg)", bg: "#f59e0b", label: t("examPage.statusRevised") },
 };
@@ -211,14 +211,14 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
     },
     {
       key: "inProgress",
-      label: "检查中",
+      label: t("examPage.statusInProgress"),
       color: "#3b82f6",
       bgColor: "var(--color-info-bg)",
     },
-    { key: "imaging", label: "图像采集", color: "#eab308", bgColor: "var(--color-warning-bg)" },
+    { key: "imaging", label: t("examPage.stageImageCapture"), color: "#eab308", bgColor: "var(--color-warning-bg)" },
     {
       key: "reporting",
-      label: "报告书写",
+      label: t("examPage.stageReportWriting"),
       color: "#f97316",
       bgColor: "var(--color-warning-bg)",
     },
@@ -228,7 +228,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
       color: "#22c55e",
       bgColor: "var(--color-success-bg)",
     },
-    { key: "published", label: "已发布", color: "#22c55e", bgColor: "var(--color-success-bg)" },
+    { key: "published", label: t("examPage.statusPublished"), color: "#22c55e", bgColor: "var(--color-success-bg)" },
   ];
   const statusMap: Record<string, number> = {
     已预约: 0,
@@ -1359,9 +1359,9 @@ export default function ExamPage() {
           cursor: "pointer",
         }}
       >
-        {PATIENT_TYPE_LIST.map((t) => (
-          <option key={t} value={t}>
-            {t === "全部" ? "全部患者" : t}
+        {PATIENT_TYPE_LIST.map((pt) => (
+          <option key={pt} value={pt}>
+            {pt === "全部" ? t("examPage.allPatients") : pt}
           </option>
         ))}
       </select>
@@ -1910,7 +1910,7 @@ export default function ExamPage() {
                   fontWeight: 600,
                 }}
               >
-                {execution.completed ? "已完成" : t("examPage.inProgress")}
+                {execution.completed ? t("examPage.completed") : t("examPage.inProgress")}
               </div>
             </div>
 
@@ -2172,14 +2172,14 @@ export default function ExamPage() {
             bg: PRIMARY_BG,
           },
           {
-            label: "急诊→住院",
+            label: t("examPage.transferEmergencyToInpatient"),
             value: transferRecords.filter(
               (r) => r.transferReason === "急诊→住院",
             ).length,
             color: "#ef4444", bg: "#ef444422",
           },
           {
-            label: "住院→转科",
+            label: t("examPage.transferInpatientToDepartment"),
             value: transferRecords.filter(
               (r) => r.transferReason === "住院→转科",
             ).length,
@@ -2882,25 +2882,25 @@ export default function ExamPage() {
           color: "#fff",
         },
         {
-          label: "待检查",
+          label: t("examPage.statusPending"),
           value: stats.pending,
           icon: Clock,
           color: "#60a5fa",
         },
         {
-          label: "检查中",
+          label: t("examPage.statusInProgress"),
           value: stats.inProgress,
           icon: Activity,
           color: "#fbbf24",
         },
         {
-          label: "已完成",
+          label: t("examPage.completed"),
           value: stats.completed,
           icon: CheckCircle,
           color: "#4ade80",
         },
         {
-          label: "危重",
+          label: t("examPage.priorityCritical"),
           value: stats.critical,
           icon: AlertCircle,
           color: "#f87171",

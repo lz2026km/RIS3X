@@ -573,7 +573,7 @@ const CancerScreenPage = () => {
         setQueue(queueRes.data)
         synced = true
       } else {
-        setQueueError('筛查队列加载失败')
+        setQueueError(t('cancerScreen.errQueueLoad'))
       }
       setLastSync(new Date())
       showToast(synced ? t('cancerScreen.syncSuccess', { time: new Date().toLocaleTimeString('zh-CN') }) : t('cancerScreen.syncPartial'), synced ? 'success' : 'error')

@@ -844,7 +844,7 @@ const MODALITY_COLORS: Record<string, string> = {
 // 主组件
 // ============================================================
 export default function FindingLibraryPage() {
-  const { t } = useTranslation('v3report')
+  const { t: tv3 } = useTranslation('v3report')
   const BODY_PARTS = useMemo(() => [
     t('findingLib.filterAll'),
     t('findingLib.filterHead'),
@@ -1245,7 +1245,7 @@ export default function FindingLibraryPage() {
                 transition: 'all 0.15s',
               }}
             >
-              {isCopied ? <><Check size={12} /> {t('findingCopied')}</> : <><Zap size={12} /> {t('findingInsertReport')}</>}
+              {isCopied ? <><Check size={12} /> {tv3('findingCopied')}</> : <><Zap size={12} /> {tv3('findingInsertReport')}</>}
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); openDetail(finding) }}
@@ -1343,7 +1343,7 @@ export default function FindingLibraryPage() {
                 }}
               >
                 {isFav ? <Star size={14} fill="#f59e0b" color="#f59e0b" /> : <StarOff size={14} />}
-                {isFav ? t('favored') : t('favorite')}
+                {isFav ? tv3('favored') : tv3('favorite')}
               </button>
               <button
                 onClick={() => setShowDetailModal(false)}
@@ -1388,7 +1388,7 @@ export default function FindingLibraryPage() {
                   {!['头部', '胸部', '腹部', '脊柱', '四肢', '血管'].includes(selectedFinding.bodyPart) && <ImageIcon size={64} color="#60a5fa" />}
                 </div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
-                  {t('findingPlaceholderImage')}
+                  {tv3('findingPlaceholderImage')}
                 </div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>
                   {selectedFinding.findingName} · {selectedFinding.bodyPart}
@@ -1426,7 +1426,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
-                {t('findingDetailDescription')}
+                {tv3('findingDetailDescription')}
               </div>
               <div style={{
                 padding: '12px 14px',
@@ -1445,7 +1445,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Activity size={14} color={COLORS.primaryBlue} />
-                {t('findingTypicalFor')}
+                {tv3('findingTypicalFor')}
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {selectedFinding.typicalIn.map((d, i) => (
@@ -1468,7 +1468,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Scan size={14} color={COLORS.primaryBlue} />
-                {t('findingExamTips')}
+                {tv3('findingExamTips')}
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {selectedFinding.modality.map(m => (
@@ -1491,7 +1491,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Tag size={14} color={COLORS.primaryBlue} />
-                {t('findingDetailTags')}
+                {tv3('findingDetailTags')}
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {selectedFinding.tags.map((t, i) => (
@@ -1512,7 +1512,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
-                {t('findingInsertableText')}
+                {tv3('findingInsertableText')}
               </div>
               <div style={{
                 padding: 14,
@@ -1524,7 +1524,7 @@ export default function FindingLibraryPage() {
                 border: `1px solid ${COLORS.border}`,
                 position: 'relative',
               }}>
-                <div style={{ color: COLORS.textMuted, fontSize: 12, marginBottom: 6 }}>{t('findingClickToCopy')}</div>
+                <div style={{ color: COLORS.textMuted, fontSize: 12, marginBottom: 6 }}>{tv3('findingClickToCopy')}</div>
                 {selectedFinding.insertText}
               </div>
             </div>
@@ -1545,7 +1545,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.info, marginBottom: 2 }}>
                   {selectedFinding.usageCount}
                 </div>
-                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingUsageCount')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingUsageCount')}</div>
               </div>
               <div style={{
                 padding: 14,
@@ -1556,7 +1556,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success, marginBottom: 2 }}>
                   {selectedFinding.modality.length}
                 </div>
-                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingApplicableModalities')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingApplicableModalities')}</div>
               </div>
               <div style={{
                 padding: 14,
@@ -1567,7 +1567,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning, marginBottom: 2 }}>
                   {selectedFinding.typicalIn.length}
                 </div>
-                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingTypicalDiseases')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingTypicalDiseases')}</div>
               </div>
             </div>
 
@@ -1596,9 +1596,9 @@ export default function FindingLibraryPage() {
               }}
             >
               {isCopied ? (
-                <><Check size={18} /> {t('findingCopiedToClipboard')}</>
+                <><Check size={18} /> {tv3('findingCopiedToClipboard')}</>
               ) : (
-                <><Zap size={18} /> {t('findingInsertToReport')}</>
+                <><Zap size={18} /> {tv3('findingInsertToReport')}</>
               )}
             </button>
           </div>
@@ -1621,8 +1621,8 @@ export default function FindingLibraryPage() {
           fontSize: 12,
         }}>
           <StarOff size={32} color={COLORS.textLight} style={{ marginBottom: 8 }} />
-          <div>{t('findingNoFavorites')}</div>
-          <div style={{ fontSize: 12, marginTop: 4 }}>{t('findingFavoritesHint')}</div>
+          <div>{tv3('findingNoFavorites')}</div>
+          <div style={{ fontSize: 12, marginTop: 4 }}>{tv3('findingFavoritesHint')}</div>
         </div>
       )
     }
@@ -1630,7 +1630,7 @@ export default function FindingLibraryPage() {
       <div style={{ padding: '12px 14px' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Star size={13} fill="#f59e0b" color="#f59e0b" />
-          {t('findingMyFavorites')} ({favFindings.length})
+          {tv3('findingMyFavorites')} ({favFindings.length})
         </div>
         {favFindings.slice(0, 5).map(f => (
           <div
@@ -1652,13 +1652,13 @@ export default function FindingLibraryPage() {
               {f.findingName}
             </div>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>
-              {f.bodyPart} · {t('findingUsage', { count: f.usageCount })}
+              {f.bodyPart} · {tv3('findingUsage', { count: f.usageCount })}
             </div>
           </div>
         ))}
         {favFindings.length > 5 && (
           <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center', marginTop: 4 }}>
-            {t('findingMore', { count: favFindings.length - 5 })}
+            {tv3('findingMore', { count: favFindings.length - 5 })}
           </div>
         )}
       </div>
@@ -1701,8 +1701,8 @@ export default function FindingLibraryPage() {
               <BookOpen size={16} color="#fff" />
             </div>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{t('findingLibraryTitle')}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCount', { count: findings.length })}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{tv3('findingLibraryTitle')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingCount', { count: findings.length })}</div>
               {/* [v3.0.6.11-98 Wave2B (报告 P1)] 数据源徽标: api=服务端征象库 / fallback=内置知识库回退 */}
               {findingsLoading ? (
                 <span style={{
@@ -1754,11 +1754,11 @@ export default function FindingLibraryPage() {
           <div style={{ padding: 12, borderBottom: `1px solid ${COLORS.border}`, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div style={{ padding: '10px 12px', background: COLORS.infoBg, borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.info }}>{filteredFindings.length}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCurrentDisplay')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingCurrentDisplay')}</div>
             </div>
             <div style={{ padding: '10px 12px', background: 'var(--color-warning-bg)', borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{favorites.size}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingMyFavorites')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingMyFavorites')}</div>
             </div>
           </div>
 
@@ -1768,7 +1768,7 @@ export default function FindingLibraryPage() {
               <Search size={14} color={COLORS.textLight} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
               <input
                 type="text"
-                placeholder={t('findingSearchPlaceholder')}
+                placeholder={tv3('findingSearchPlaceholder')}
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 style={{
@@ -1825,14 +1825,14 @@ export default function FindingLibraryPage() {
               }}
             >
               <Star size={14} fill={showFavoritesOnly ? '#f59e0b' : 'none'} />
-              {showFavoritesOnly ? t('findingShowAll') : t('findingFavoritesOnly')}
+              {showFavoritesOnly ? tv3('findingShowAll') : tv3('findingFavoritesOnly')}
             </button>
           </div>
 
           {/* 筛选：按部位 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-               {t('findingFilterByBodyPart')}
+               {tv3('findingFilterByBodyPart')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {BODY_PARTS.map(bp => {
@@ -1870,7 +1870,7 @@ export default function FindingLibraryPage() {
           {/* 筛选：按检查类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-               {t('findingFilterByModality')}
+               {tv3('findingFilterByModality')}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {MODALITY_LIST.map(m => {
@@ -1901,7 +1901,7 @@ export default function FindingLibraryPage() {
           {/* 筛选：按疾病类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-               {t('findingFilterByDiseaseType')}
+               {tv3('findingFilterByDiseaseType')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {DISEASE_TYPES.map(dt => {
@@ -1934,7 +1934,7 @@ export default function FindingLibraryPage() {
           {/* 收藏列表 */}
           <div style={{ flex: 1, overflow: 'auto' }}>
             <div style={{ padding: '10px 14px 6px', fontSize: 12, fontWeight: 700, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-               {t('findingFavoritesList')}
+               {tv3('findingFavoritesList')}
             </div>
             {renderFavoritesPanel()}
           </div>
@@ -1943,7 +1943,7 @@ export default function FindingLibraryPage() {
           <div style={{ padding: '10px 14px', borderTop: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
               <TrendingUp size={10} />
-              {t('findingMostUsed')}: {stats.topUsed[0]?.findingName || '-'}
+              {tv3('findingMostUsed')}: {stats.topUsed[0]?.findingName || '-'}
             </div>
           </div>
         </div>
@@ -1978,11 +1978,11 @@ export default function FindingLibraryPage() {
               }}
             >
               {showLeftPanel ? <ChevronDown size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronRight size={14} />}
-              {t('findingFilter')}
+              {tv3('findingFilter')}
             </button>
             <div style={{ fontSize: 13, color: COLORS.textMuted }}>
-              {t('findingResultCount', { count: filteredFindings.length })}
-              {showFavoritesOnly && <span style={{ color: '#f59e0b' }}> · {t('findingFavoritesOnlyLabel')}</span>}
+              {tv3('findingResultCount', { count: filteredFindings.length })}
+              {showFavoritesOnly && <span style={{ color: '#f59e0b' }}> · {tv3('findingFavoritesOnlyLabel')}</span>}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2002,7 +2002,7 @@ export default function FindingLibraryPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  {t('findingColumnCount', { count: c })}
+                  {tv3('findingColumnCount', { count: c })}
                 </button>
               ))}
             </div>
@@ -2022,7 +2022,7 @@ export default function FindingLibraryPage() {
               }}
             >
               <RefreshCw size={12} />
-              {t('findingReset')}
+              {tv3('findingReset')}
             </button>
           </div>
         </div>
@@ -2043,8 +2043,8 @@ export default function FindingLibraryPage() {
               color: COLORS.textMuted,
             }}>
               <Search size={48} color={COLORS.textLight} />
-              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 16 }}>{t('findingNoResults')}</div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>{t('findingNoResultsHint')}</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 16 }}>{tv3('findingNoResults')}</div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>{tv3('findingNoResultsHint')}</div>
             </div>
           ) : (
             <div style={{

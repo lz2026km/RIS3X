@@ -5,6 +5,7 @@ import { ProColumn } from '../components/data/ProTable'
 import { generateMockReportData } from '../data/mockReportData'
 import { reportDefinitions } from '../data/reportDefinitions'
 import { ReportDefinition } from '../data/reportDefinitions'
+import { t } from '../i18n/appI18n'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { datareportApi } from '../services/api/datareportApi'
 import { olapApi, analyticsStatsApi } from '../services/api/analyticsApi'
@@ -76,11 +77,11 @@ const categoryIcons: Record<string, React.ReactNode> = {
 }
 
 const granularityOptions = [
-  { label: '日', value: 'daily' },
-  { label: '周', value: 'weekly' },
-  { label: '月', value: 'monthly' },
-  { label: '季', value: 'quarterly' },
-  { label: '年', value: 'yearly' },
+  { label: t('dataReportCenter.periodDay'), value: 'daily' },
+  { label: t('dataReportCenter.periodWeek'), value: 'weekly' },
+  { label: t('dataReportCenter.periodMonth'), value: 'monthly' },
+  { label: t('dataReportCenter.periodQuarter'), value: 'quarterly' },
+  { label: t('dataReportCenter.periodYear'), value: 'yearly' },
 ]
 
 function buildTreeData(defs: ReportDefinition[]) {
@@ -102,22 +103,22 @@ function buildTreeData(defs: ReportDefinition[]) {
 // ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-4)] 自定义报表生成器 (简化版) ═══════════
 
 const CUSTOM_FIELDS: Array<{ key: string; label: string; measure: string; olap: boolean }> = [
-  { key: 'exam_count', label: '检查量', measure: 'exam_count', olap: true },
-  { key: 'report_count', label: '报告量', measure: 'report_count', olap: true },
-  { key: 'exam_revenue', label: '收入', measure: 'exam_revenue', olap: true },
-  { key: 'workload', label: '工作量', measure: 'device_daily_exams', olap: true },
-  { key: 'device_usage_rate', label: '设备利用率', measure: 'device_usage_rate', olap: true },
-  { key: 'report_timely_rate', label: '及时率', measure: 'report_timely_rate', olap: true },
-  { key: 'positive_rate', label: '准确率', measure: 'positive_rate', olap: true },
+  { key: 'exam_count', label: t('dataReportCenter.fieldExamCount'), measure: 'exam_count', olap: true },
+  { key: 'report_count', label: t('dataReportCenter.fieldReportCount'), measure: 'report_count', olap: true },
+  { key: 'exam_revenue', label: t('dataReportCenter.fieldRevenue'), measure: 'exam_revenue', olap: true },
+  { key: 'workload', label: t('dataReportCenter.fieldWorkload'), measure: 'device_daily_exams', olap: true },
+  { key: 'device_usage_rate', label: t('dataReportCenter.fieldDeviceUsageRate'), measure: 'device_usage_rate', olap: true },
+  { key: 'report_timely_rate', label: t('dataReportCenter.fieldTimelyRate'), measure: 'report_timely_rate', olap: true },
+  { key: 'positive_rate', label: t('dataReportCenter.fieldAccuracy'), measure: 'positive_rate', olap: true },
 ]
 
 const CUSTOM_PERIODS = [
-  { label: '日', value: 'daily' },
-  { label: '周', value: 'weekly' },
-  { label: '月', value: 'monthly' },
+  { label: t('dataReportCenter.periodDay'), value: 'daily' },
+  { label: t('dataReportCenter.periodWeek'), value: 'weekly' },
+  { label: t('dataReportCenter.periodMonth'), value: 'monthly' },
 ]
 
-const PERIOD_LABELS: Record<string, string> = { daily: '日', weekly: '周', monthly: '月' }
+const PERIOD_LABELS: Record<string, string> = { daily: t('dataReportCenter.periodDay'), weekly: t('dataReportCenter.periodWeek'), monthly: t('dataReportCenter.periodMonth') }
 
 const DEF_STORAGE_KEY = 'g005-custom-report-defs'
 
@@ -155,7 +156,7 @@ async function fetchFieldSnapshot(fieldKey: string): Promise<{ value: number; so
       case 'exam_revenue': {
         const r = await statsApi.getDaily()
         const count = Number(r.data?.examCount ?? 0)
-        return { value: Math.round(count * 1250), source: 'statsApi.daily·估算' }
+        return { value: Math.round(count * 1250), source: t('dataReportCenter.srcEstimated') }
       }
       case 'workload': {
         const r = await statsApi.getWorkload()
@@ -181,7 +182,7 @@ async function fetchFieldSnapshot(fieldKey: string): Promise<{ value: number; so
         return { value: 0, source: 'unknown' }
     }
   } catch {
-    return { value: 0, source: '回退失败' }
+    return { value: 0, source: t('dataReportCenter.srcFallbackFailed') }
   }
 }
 
@@ -239,7 +240,7 @@ function CustomReportBuilder() {
           return out
         })
         setRows(mapped)
-        setSourceLabel(`OLAP ${PERIOD_LABELS[period] ?? period}聚合`)
+        setSourceLabel(t('dataReportCenter.srcOlapAgg', { period: PERIOD_LABELS[period] ?? period }))
         return
       }
     } catch {
@@ -247,13 +248,13 @@ function CustomReportBuilder() {
     }
     // 失败回退: 单行快照 (statsApi/biApi/analyticsStatsApi)
     const snapshots = await Promise.all(selectedFields.map((f) => fetchFieldSnapshot(f.key)))
-    const row: Record<string, unknown> = { period: `${startDate} ~ ${endDate} (快照)` }
+    const row: Record<string, unknown> = { period: t('dataReportCenter.snapshotRange', { start: startDate, end: endDate }) }
     selectedFields.forEach((f, i) => {
       row[f.label] = snapshots[i]!.value
     })
     setRows([row])
     setUsingFallback(true)
-    setSourceLabel(`快照回退（估算数据）`)
+    setSourceLabel(t('dataReportCenter.srcFallbackSnapshot'))
     setLoading(false)
   }, [selectedFields, dateRange, period])
 
@@ -262,7 +263,7 @@ function CustomReportBuilder() {
   }, [loadData])
 
   const handleExportCsv = useCallback(() => {
-    if (!rows.length) { message.warning('暂无预览数据'); return }
+    if (!rows.length) { message.warning(t('dataReportCenter.noPreviewData')); return }
     const keys = Object.keys(rows[0]!)
     const header = keys.join(',')
     const body = rows.map((row) => keys.map((k) => String(row[k] ?? '')).join(',')).join('\n')
@@ -273,11 +274,11 @@ function CustomReportBuilder() {
     a.download = `custom-report-${dayjs().format('YYYYMMDD-HHmmss')}.csv`
     a.click()
     URL.revokeObjectURL(url)
-    message.success('CSV 导出成功')
+    message.success(t('dataReportCenter.csvExportSuccess'))
   }, [rows])
 
   const handleSaveDef = useCallback(() => {
-    if (!defName.trim()) { message.warning('请输入报表名称'); return }
+    if (!defName.trim()) { message.warning(t('dataReportCenter.enterReportName')); return }
     const def: CustomReportDef = {
       id: `cr-${Date.now()}`,
       name: defName.trim(),
@@ -290,31 +291,31 @@ function CustomReportBuilder() {
     localStorage.setItem(DEF_STORAGE_KEY, JSON.stringify(next))
     setSavedDefs(next)
     setDefName('')
-    message.success(`报表定义「${def.name}」已保存`)
+    message.success(t('dataReportCenter.defSaved', { name: def.name }))
   }, [defName, fields, period, dateRange, savedDefs])
 
   const handleLoadDef = useCallback((def: CustomReportDef) => {
     setFields(def.fields)
     setPeriod(def.period)
     if (def.start && def.end) setDateRange([dayjs(def.start), dayjs(def.end)])
-    message.success(`已加载定义「${def.name}」`)
+    message.success(t('dataReportCenter.defLoaded', { name: def.name }))
   }, [])
 
   const handleDeleteDef = useCallback((id: string) => {
     const next = savedDefs.filter((d) => d.id !== id)
     localStorage.setItem(DEF_STORAGE_KEY, JSON.stringify(next))
     setSavedDefs(next)
-    message.success('报表定义已删除')
+    message.success(t('dataReportCenter.defDeleted'))
   }, [savedDefs])
 
   // [v3.0.6.11-99] Wave 5B-C: 订阅推送 — 报表生成后创建「报表已生成」通知 (按 recipients)
   const [pushing, setPushing] = useState(false)
   const handlePushReport = useCallback(async () => {
     const def = savedDefs[0] ?? null
-    if (!def) { message.warning('请先保存一条报表定义'); return }
+    if (!def) { message.warning(t('dataReportCenter.saveOneDefFirst')); return }
     setPushing(true)
     try {
-      const summary = `指标: ${def.fields.join(', ')} · 周期: ${PERIOD_LABELS[def.period] ?? def.period} · 区间: ${def.start} ~ ${def.end}`
+      const summary = t('dataReportCenter.pushSummary', { fields: def.fields.join(', '), period: PERIOD_LABELS[def.period] ?? def.period, start: def.start, end: def.end })
       const res = await notificationsApi.reportGenerated({
         reportId: def.id,
         reportName: def.name,
@@ -323,7 +324,7 @@ function CustomReportBuilder() {
         link: '/data-report-center',
       })
       if (!res.success) {
-        message.warning(res.error?.message ?? '推送接口不可用')
+        message.warning(res.error?.message ?? t('dataReportCenter.pushUnavailable'))
         return
       }
       setPushedIds((prev) => {
@@ -331,9 +332,9 @@ function CustomReportBuilder() {
         try { localStorage.setItem('g005-report-pushed', JSON.stringify(Array.from(next))) } catch { /* ignore */ }
         return next
       })
-      message.success(`报表「${def.name}」已推送订阅通知`)
+      message.success(t('dataReportCenter.pushSuccess', { name: def.name }))
     } catch {
-      message.error('推送失败')
+      message.error(t('dataReportCenter.pushFailed'))
     } finally {
       setPushing(false)
     }
@@ -351,12 +352,12 @@ function CustomReportBuilder() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Card
         size="small"
-        title={<Space><SlidersHorizontal size={14} />报表定义配置<Text type="secondary" style={{ fontSize: 12 }}>字段 · 周期 · 日期区间</Text></Space>}
+        title={<Space><SlidersHorizontal size={14} />{t('dataReportCenter.defConfig')}<Text type="secondary" style={{ fontSize: 12 }}>{t('dataReportCenter.defConfigHint')}</Text></Space>}
         style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <Text strong style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>指标字段 (多选)</Text>
+            <Text strong style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>{t('dataReportCenter.metricFields')}</Text>
             <Checkbox.Group
               value={fields}
               onChange={(vals) => setFields(vals as string[])}
@@ -365,30 +366,30 @@ function CustomReportBuilder() {
           </div>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <Space>
-              <Text strong style={{ fontSize: 12 }}>周期</Text>
+              <Text strong style={{ fontSize: 12 }}>{t('dataReportCenter.period')}</Text>
               <Select value={period} onChange={setPeriod} size="small" style={{ width: 80 }} options={CUSTOM_PERIODS} />
             </Space>
             <Space>
-              <Text strong style={{ fontSize: 12 }}>日期区间</Text>
+              <Text strong style={{ fontSize: 12 }}>{t('dataReportCenter.dateRange')}</Text>
               <DatePicker.RangePicker value={dateRange} onChange={(d) => { if (d?.[0] && d?.[1]) setDateRange([d[0], d[1]]) }} size="small" />
             </Space>
             <Space>
-              <Text strong style={{ fontSize: 12 }}>报表名称</Text>
-              <Input size="small" value={defName} onChange={(e) => setDefName(e.target.value)} placeholder="如: 月度检查收入分析" style={{ width: 180 }} />
-              <Button size="small" icon={<Save size={12} />} onClick={handleSaveDef}>保存定义</Button>
+              <Text strong style={{ fontSize: 12 }}>{t('dataReportCenter.reportName')}</Text>
+              <Input size="small" value={defName} onChange={(e) => setDefName(e.target.value)} placeholder={t('dataReportCenter.reportNamePlaceholder')} style={{ width: 180 }} />
+              <Button size="small" icon={<Save size={12} />} onClick={handleSaveDef}>{t('dataReportCenter.saveDef')}</Button>
               {/* [v3.0.6.11-99] Wave 5B-C: 报表订阅推送 (POST /notifications/report-generated) */}
-              <Button size="small" type="primary" icon={<Send size={12} />} loading={pushing} onClick={() => void handlePushReport()}>推送通知</Button>
+              <Button size="small" type="primary" icon={<Send size={12} />} loading={pushing} onClick={() => void handlePushReport()}>{t('dataReportCenter.pushNotify')}</Button>
             </Space>
           </div>
           {savedDefs.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <Text strong style={{ fontSize: 12 }}>已保存定义:</Text>
+              <Text strong style={{ fontSize: 12 }}>{t('dataReportCenter.savedDefs')}</Text>
               {savedDefs.map((d) => (
                 <Tag key={d.id} color="blue" style={{ cursor: 'pointer' }} onClick={() => handleLoadDef(d)}>
                   {d.name}
                   {/* 报表历史「已推送」状态 */}
                   {pushedIds.has(d.id) && (
-                    <span style={{ marginLeft: 6, color: '#059669', fontWeight: 700 }}>· 已推送</span>
+                    <span style={{ marginLeft: 6, color: '#059669', fontWeight: 700 }}>{t('dataReportCenter.pushed')}</span>
                   )}
                   <Trash2 size={10} style={{ marginLeft: 4, verticalAlign: -1 }} onClick={(e) => { e.stopPropagation(); handleDeleteDef(d.id) }} />
                 </Tag>
@@ -398,19 +399,19 @@ function CustomReportBuilder() {
           <Alert
             type={usingFallback ? 'warning' : 'success'}
             showIcon
-            message={sourceLabel ?? (selectedFields.length ? '加载中...' : '请至少选择一个指标字段')}
-            description={usingFallback ? 'OLAP 接口不可用, 已回退到统计/BI 快照 (单行估算数据)' : '数据来源: OLAP 聚合接口'}
+            message={sourceLabel ?? (selectedFields.length ? t('dataReportCenter.loading') : t('dataReportCenter.selectAtLeastOneField'))}
+            description={usingFallback ? t('dataReportCenter.olapUnavailableDesc') : t('dataReportCenter.dataSourceOlapDesc')}
           />
         </div>
       </Card>
 
       <Card
         size="small"
-        title={<Space><BarChart3 size={14} />预览 <Tag style={{ fontSize: 10 }}>{rows.length} 行</Tag></Space>}
+        title={<Space><BarChart3 size={14} />{t('dataReportCenter.preview')} <Tag style={{ fontSize: 10 }}>{t('dataReportCenter.rowsCount', { count: rows.length })}</Tag></Space>}
         extra={
           <Space size={4}>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>刷新</Button>
-            <Button size="small" type="primary" icon={<Download size={12} />} onClick={handleExportCsv} disabled={!rows.length}>导出 CSV</Button>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>{t('dataReportCenter.refresh')}</Button>
+            <Button size="small" type="primary" icon={<Download size={12} />} onClick={handleExportCsv} disabled={!rows.length}>{t('dataReportCenter.exportCsv')}</Button>
           </Space>
         }
         style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
@@ -436,7 +437,7 @@ function CustomReportBuilder() {
             />
           </>
         ) : (
-          <Empty image={<Inbox size={40} style={{ opacity: 0.4 }} />} description="选择字段后自动生成预览" />
+          <Empty image={<Inbox size={40} style={{ opacity: 0.4 }} />} description={t('dataReportCenter.emptyPreview')} />
         )}
       </Card>
     </div>
@@ -449,47 +450,47 @@ const PAGE_SIZE = 20
 // 列表: 名称/类别/周期/数据源/定时/状态 · 新建/编辑 Modal (字段目录多选) · 行操作
 // 运行→结果表格 / 历史 Drawer / 定时设置 Modal (联动推送) / 导出 CSV / 「定时报表」筛选 Tab / 数据源徽标
 
-const PERIOD_LABELS_FULL: Record<string, string> = { daily: '日', weekly: '周', monthly: '月', quarterly: '季', yearly: '年' }
+const PERIOD_LABELS_FULL: Record<string, string> = { daily: t('dataReportCenter.periodDay'), weekly: t('dataReportCenter.periodWeek'), monthly: t('dataReportCenter.periodMonth'), quarterly: t('dataReportCenter.periodQuarter'), yearly: t('dataReportCenter.periodYear') }
 
 const DS_BADGES: Record<string, { color: string; label: string }> = {
   olap: { color: 'blue', label: 'OLAP' },
   stats: { color: 'green', label: 'STATS' },
   bi: { color: 'purple', label: 'BI' },
-  mixed: { color: 'orange', label: '混合' },
+  mixed: { color: 'orange', label: t('dataReportCenter.mixed') },
 }
 
 const STATUS_TAGS: Record<string, { color: string; label: string }> = {
-  idle: { color: 'default', label: '未执行' },
-  running: { color: 'processing', label: '执行中' },
-  ready: { color: 'success', label: '就绪' },
-  failed: { color: 'error', label: '失败' },
+  idle: { color: 'default', label: t('dataReportCenter.statusIdle') },
+  running: { color: 'processing', label: t('dataReportCenter.statusRunning') },
+  ready: { color: 'success', label: t('dataReportCenter.statusReady') },
+  failed: { color: 'error', label: t('dataReportCenter.statusFailed') },
 }
 
 const SCHEDULE_OPTIONS = [
-  { label: '每日 08:00', value: 'daily: 08:00' },
-  { label: '每周一 08:00', value: 'weekly: 周一 08:00' },
-  { label: '每月1日 09:00', value: 'monthly: 每月1日 09:00' },
-  { label: '每季度首日 09:00', value: 'quarterly: 季度首日 09:00' },
-  { label: '每年1月1日 09:00', value: 'yearly: 1月1日 09:00' },
+  { label: t('dataReportCenter.scheduleDaily'), value: 'daily: 08:00' },
+  { label: t('dataReportCenter.scheduleWeekly'), value: 'weekly: 周一 08:00' },
+  { label: t('dataReportCenter.scheduleMonthly'), value: 'monthly: 每月1日 09:00' },
+  { label: t('dataReportCenter.scheduleQuarterly'), value: 'quarterly: 季度首日 09:00' },
+  { label: t('dataReportCenter.scheduleYearly'), value: 'yearly: 1月1日 09:00' },
 ]
 
 const DATA_SOURCE_OPTIONS = [
-  { label: 'OLAP 聚合', value: 'olap' },
-  { label: '统计快照 (stats)', value: 'stats' },
-  { label: 'BI 指标 (bi)', value: 'bi' },
-  { label: '混合', value: 'mixed' },
+  { label: t('dataReportCenter.dsOlap'), value: 'olap' },
+  { label: t('dataReportCenter.dsStats'), value: 'stats' },
+  { label: t('dataReportCenter.dsBi'), value: 'bi' },
+  { label: t('dataReportCenter.mixed'), value: 'mixed' },
 ]
 
 function groupCatalog(catalog: CustomReportField[]) {
   const groups: Array<{ label: string; source: string; options: Array<{ label: string; value: string }> }> = []
   for (const source of ['olap', 'stats', 'bi']) {
-    const kindLabel = source === 'olap' ? 'OLAP 指标' : source === 'stats' ? '统计快照 (stats)' : 'BI 指标 (bi)'
+    const kindLabel = source === 'olap' ? t('dataReportCenter.kindOlap') : source === 'stats' ? t('dataReportCenter.dsStats') : t('dataReportCenter.dsBi')
     const items = catalog.filter((f) => f.source === source)
     if (items.length === 0) continue
     const measures = items.filter((f) => f.kind !== 'dimension').map((f) => ({ label: `${f.name}${f.unit ? ` (${f.unit})` : ''}`, value: f.id }))
-    const dims = items.filter((f) => f.kind === 'dimension').map((f) => ({ label: `${f.name} (维度)`, value: f.id }))
-    if (measures.length > 0) groups.push({ label: `${kindLabel} · 指标`, source, options: measures })
-    if (dims.length > 0) groups.push({ label: `${kindLabel} · 维度`, source, options: dims })
+    const dims = items.filter((f) => f.kind === 'dimension').map((f) => ({ label: `${f.name} (${t('dataReportCenter.dimension')})`, value: f.id }))
+    if (measures.length > 0) groups.push({ label: `${kindLabel} · ${t('dataReportCenter.metrics')}`, source, options: measures })
+    if (dims.length > 0) groups.push({ label: `${kindLabel} · ${t('dataReportCenter.dimension')}`, source, options: dims })
   }
   return groups
 }
@@ -565,8 +566,8 @@ function CustomReportCenter() {
   }
 
   const handleSave = async () => {
-    if (!form.name.trim()) { message.warning('请输入报表名称'); return }
-    if (form.fields.length === 0) { message.warning('请至少选择一个字段'); return }
+    if (!form.name.trim()) { message.warning(t('dataReportCenter.enterReportName')); return }
+    if (form.fields.length === 0) { message.warning(t('dataReportCenter.selectAtLeastOneField')); return }
     setSaving(true)
     try {
       const payload = {
@@ -581,14 +582,14 @@ function CustomReportCenter() {
         ? await customReportApi.update(editing.id, payload)
         : await customReportApi.create(payload)
       if (!res.success) {
-        message.warning(res.error?.message ?? '保存失败')
+        message.warning(res.error?.message ?? t('dataReportCenter.saveFailed'))
         return
       }
-      message.success(editing ? `报表「${form.name}」已更新` : `报表「${form.name}」已创建`)
+      message.success(editing ? t('dataReportCenter.reportUpdated', { name: form.name }) : t('dataReportCenter.reportCreated', { name: form.name }))
       setModalOpen(false)
       void loadAll()
     } catch {
-      message.error('保存失败')
+      message.error(t('dataReportCenter.saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -596,18 +597,18 @@ function CustomReportCenter() {
 
   const handleDelete = (def: ApiReportDef) => {
     Modal.confirm({
-      title: `删除报表「${def.name}」?`,
-      content: '删除后定义、结果快照与执行历史将一并清除, 该操作不可恢复。',
-      okText: '删除',
+      title: t('dataReportCenter.deleteConfirmTitle', { name: def.name }),
+      content: t('dataReportCenter.deleteConfirmContent'),
+      okText: t('dataReportCenter.delete'),
       okButtonProps: { danger: true },
-      cancelText: '取消',
+      cancelText: t('dataReportCenter.cancel'),
       onOk: async () => {
         const res = await customReportApi.remove(def.id)
         if (res.success) {
-          message.success('报表定义已删除')
+          message.success(t('dataReportCenter.defDeleted'))
           void loadAll()
         } else {
-          message.warning(res.error?.message ?? '删除失败')
+          message.warning(res.error?.message ?? t('dataReportCenter.deleteFailed'))
         }
       },
     })
@@ -618,14 +619,14 @@ function CustomReportCenter() {
     try {
       const res = await customReportApi.run(def.id)
       if (!res.success || !res.data) {
-        message.warning(res.error?.message ?? '执行失败')
+        message.warning(res.error?.message ?? t('dataReportCenter.runFailed'))
         return
       }
       setResult(res.data)
       setResultDef(def)
       void loadAll()
     } catch {
-      message.error('执行失败')
+      message.error(t('dataReportCenter.runFailed'))
     } finally {
       setRunningId(null)
     }
@@ -639,7 +640,7 @@ function CustomReportCenter() {
     if (res.success && res.data) {
       setResult(res.data)
     } else {
-      message.warning(res.error?.message ?? '暂无结果, 请先运行')
+      message.warning(res.error?.message ?? t('dataReportCenter.noResultRunFirst'))
     }
     setResultLoading(false)
   }
@@ -661,20 +662,20 @@ function CustomReportCenter() {
 
   const handleSaveSchedule = async () => {
     if (!scheduleDef) return
-    if (!scheduleText.trim()) { message.warning('请选择定时规则'); return }
-    if (recipients.length === 0) { message.warning('请至少选择一位订阅人'); return }
+    if (!scheduleText.trim()) { message.warning(t('dataReportCenter.selectScheduleRule')); return }
+    if (recipients.length === 0) { message.warning(t('dataReportCenter.selectAtLeastOneRecipient')); return }
     setSaving(true)
     try {
       const res = await customReportApi.setSchedule(scheduleDef.id, { schedule: scheduleText, recipients })
       if (!res.success) {
-        message.warning(res.error?.message ?? '定时设置失败')
+        message.warning(res.error?.message ?? t('dataReportCenter.scheduleFailed'))
         return
       }
-      message.success(`报表「${scheduleDef.name}」定时已保存, 订阅通知已推送`)
+      message.success(t('dataReportCenter.scheduleSaved', { name: scheduleDef.name }))
       setScheduleDef(null)
       void loadAll()
     } catch {
-      message.error('定时设置失败')
+      message.error(t('dataReportCenter.scheduleFailed'))
     } finally {
       setSaving(false)
     }
@@ -684,7 +685,7 @@ function CustomReportCenter() {
     try {
       const res = await customReportApi.exportCsv(def.id)
       if (!res.success || !res.data) {
-        message.warning(res.error?.message ?? '暂无结果可导出, 请先运行')
+        message.warning(res.error?.message ?? t('dataReportCenter.noResultExport'))
         return
       }
       const blob = res.data as unknown as Blob
@@ -694,9 +695,9 @@ function CustomReportCenter() {
       a.download = `custom-report-${def.id}-${dayjs().format('YYYYMMDD-HHmmss')}.csv`
       a.click()
       URL.revokeObjectURL(url)
-      message.success('CSV 导出成功')
+      message.success(t('dataReportCenter.csvExportSuccess'))
     } catch {
-      message.error('导出失败')
+      message.error(t('dataReportCenter.exportFailed'))
     }
   }
 
@@ -706,7 +707,7 @@ function CustomReportCenter() {
     {
       key: 'name',
       dataIndex: 'name',
-      title: '名称',
+      title: t('dataReportCenter.colName'),
       width: 200,
       searchable: true,
       render: (val: unknown, record: ApiReportDef) => (
@@ -718,38 +719,38 @@ function CustomReportCenter() {
         </Space>
       ),
     },
-    { key: 'category', dataIndex: 'category', title: '类别', width: 100 },
+    { key: 'category', dataIndex: 'category', title: t('dataReportCenter.colCategory'), width: 100 },
     {
       key: 'period',
       dataIndex: 'period',
-      title: '周期',
+      title: t('dataReportCenter.colPeriod'),
       width: 70,
       render: (val: unknown) => PERIOD_LABELS_FULL[String(val)] ?? String(val ?? '-'),
     },
     {
       key: 'fields',
       dataIndex: 'fields',
-      title: '字段',
+      title: t('dataReportCenter.colFields'),
       width: 220,
       render: (val: unknown) => {
         const list = val as string[]
         if (!Array.isArray(list) || list.length === 0) return '-'
         const names = list.slice(0, 3).map((f) => catalog.find((c) => c.id === f)?.name ?? f)
-        const rest = list.length > 3 ? ` 等${list.length}个` : ''
+        const rest = list.length > 3 ? t('dataReportCenter.andMoreFields', { count: list.length }) : ''
         return <span style={{ fontSize: 12 }}>{names.join('、')}{rest}</span>
       },
     },
     {
       key: 'schedule',
       dataIndex: 'schedule',
-      title: '定时',
+      title: t('dataReportCenter.colSchedule'),
       width: 140,
-      render: (val: unknown) => (val ? <Tag color="gold" icon={<Clock size={10} />}>{String(val)}</Tag> : <Text type="secondary" style={{ fontSize: 12 }}>未设置</Text>),
+      render: (val: unknown) => (val ? <Tag color="gold" icon={<Clock size={10} />}>{String(val)}</Tag> : <Text type="secondary" style={{ fontSize: 12 }}>{t('dataReportCenter.notSet')}</Text>),
     },
     {
       key: 'status',
       dataIndex: 'status',
-      title: '状态',
+      title: t('dataReportCenter.colStatus'),
       width: 80,
       render: (val: unknown) => {
         const s = STATUS_TAGS[String(val)] ?? STATUS_TAGS.idle!
@@ -759,24 +760,24 @@ function CustomReportCenter() {
     {
       key: 'lastRunAt',
       dataIndex: 'lastRunAt',
-      title: '最近运行',
+      title: t('dataReportCenter.colLastRun'),
       width: 150,
       render: (val: unknown) => (val ? dayjs(String(val)).format('MM-DD HH:mm') : <Text type="secondary">-</Text>),
     },
     {
       key: 'actions',
-      title: '操作',
+      title: t('dataReportCenter.colActions'),
       width: 300,
       fixed: 'right',
       render: (_val: unknown, record: ApiReportDef) => (
         <Space size={2} wrap>
-          <Button size="small" type="primary" icon={<Play size={12} />} loading={runningId === record.id} onClick={() => void handleRun(record)}>运行</Button>
-          <Button size="small" icon={<Table2 size={12} />} onClick={() => void openResult(record)}>结果</Button>
-          <Button size="small" icon={<History size={12} />} onClick={() => void openHistory(record)}>历史</Button>
-          <Button size="small" icon={<Clock size={12} />} onClick={() => openSchedule(record)}>定时</Button>
-          <Button size="small" icon={<FileDown size={12} />} onClick={() => void handleExport(record)}>导出</Button>
-          <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(record)}>编辑</Button>
-          <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => void handleDelete(record)}>删除</Button>
+          <Button size="small" type="primary" icon={<Play size={12} />} loading={runningId === record.id} onClick={() => void handleRun(record)}>{t('dataReportCenter.run')}</Button>
+          <Button size="small" icon={<Table2 size={12} />} onClick={() => void openResult(record)}>{t('dataReportCenter.result')}</Button>
+          <Button size="small" icon={<History size={12} />} onClick={() => void openHistory(record)}>{t('dataReportCenter.history')}</Button>
+          <Button size="small" icon={<Clock size={12} />} onClick={() => openSchedule(record)}>{t('dataReportCenter.schedule')}</Button>
+          <Button size="small" icon={<FileDown size={12} />} onClick={() => void handleExport(record)}>{t('dataReportCenter.export')}</Button>
+          <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(record)}>{t('dataReportCenter.edit')}</Button>
+          <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => void handleDelete(record)}>{t('dataReportCenter.delete')}</Button>
         </Space>
       ),
     },
@@ -811,12 +812,12 @@ function CustomReportCenter() {
               activeKey={filterTab}
               onChange={(k) => setFilterTab(k as 'all' | 'scheduled')}
               items={[
-                { key: 'all', label: `全部 (${defs.length})` },
-                { key: 'scheduled', label: `定时报表 (${defs.filter((d) => d.schedule).length})` },
+                { key: 'all', label: t('dataReportCenter.tabAll', { count: defs.length }) },
+                { key: 'scheduled', label: t('dataReportCenter.tabScheduled', { count: defs.filter((d) => d.schedule).length }) },
               ]}
               style={{ margin: 0 }}
             />
-            <Button size="small" type="primary" icon={<Plus size={12} />} onClick={openCreate}>新建报表</Button>
+            <Button size="small" type="primary" icon={<Plus size={12} />} onClick={openCreate}>{t('dataReportCenter.newReport')}</Button>
           </Space>
         }
       >
@@ -834,7 +835,7 @@ function CustomReportCenter() {
 
       {/* 结果 Drawer */}
       <Drawer
-        title={resultDef ? `运行结果: ${resultDef.name}` : '运行结果'}
+        title={resultDef ? t('dataReportCenter.resultTitleNamed', { name: resultDef.name }) : t('dataReportCenter.resultTitle')}
         width={760}
         open={!!resultDef}
         onClose={() => setResultDef(null)}
@@ -846,8 +847,8 @@ function CustomReportCenter() {
             <Alert
               type="success"
               showIcon
-              message={`数据源: ${result.source} · ${result.rows.length} 行 · ${dayjs(result.generatedAt).format('YYYY-MM-DD HH:mm:ss')}`}
-              description={`周期: ${PERIOD_LABELS_FULL[result.summary.period as string] ?? result.summary.period ?? '-'} · 数据源类型: ${result.summary.dataSource ?? '-'} · 执行ID: ${result.id}`}
+              message={t('dataReportCenter.resultSource', { source: result.source, count: result.rows.length, time: dayjs(result.generatedAt).format('YYYY-MM-DD HH:mm:ss') })}
+              description={t('dataReportCenter.resultMeta', { period: PERIOD_LABELS_FULL[result.summary.period as string] ?? result.summary.period ?? '-', dsType: result.summary.dataSource ?? '-', id: result.id })}
             />
             <ProTable<Record<string, unknown>>
               columns={resultColumns}
@@ -860,13 +861,13 @@ function CustomReportCenter() {
             />
           </div>
         ) : (
-          <Empty description="暂无结果, 请先点击「运行」" />
+          <Empty description={t('dataReportCenter.emptyResult')} />
         )}
       </Drawer>
 
       {/* 历史 Drawer */}
       <Drawer
-        title={historyDef ? `执行历史: ${historyDef.name}` : '执行历史'}
+        title={historyDef ? t('dataReportCenter.historyTitleNamed', { name: historyDef.name }) : t('dataReportCenter.historyTitle')}
         width={620}
         open={!!historyDef}
         onClose={() => setHistoryDef(null)}
@@ -876,21 +877,21 @@ function CustomReportCenter() {
             {
               key: 'ranAt',
               dataIndex: 'ranAt',
-              title: '执行时间',
+              title: t('dataReportCenter.colRanAt'),
               width: 160,
               render: (val: unknown) => dayjs(String(val)).format('YYYY-MM-DD HH:mm:ss'),
             },
             {
               key: 'status',
               dataIndex: 'status',
-              title: '状态',
+              title: t('dataReportCenter.colStatus'),
               width: 90,
               render: (val: unknown) => (
-                <Tag color={String(val) === 'success' ? 'success' : 'error'}>{String(val) === 'success' ? '成功' : '失败'}</Tag>
+                <Tag color={String(val) === 'success' ? 'success' : 'error'}>{String(val) === 'success' ? t('dataReportCenter.success') : t('dataReportCenter.failed')}</Tag>
               ),
             },
-            { key: 'rowCount', dataIndex: 'rowCount', title: '行数', width: 70 },
-            { key: 'message', dataIndex: 'message', title: '说明', width: 200 },
+            { key: 'rowCount', dataIndex: 'rowCount', title: t('dataReportCenter.colRowCount'), width: 70 },
+            { key: 'message', dataIndex: 'message', title: t('dataReportCenter.colMessage'), width: 200 },
           ]}
           dataSource={history}
           rowKey="id"
@@ -904,26 +905,26 @@ function CustomReportCenter() {
 
       {/* 新建/编辑 Modal */}
       <Modal
-        title={editing ? `编辑报表: ${editing.name}` : '新建自定义报表'}
+        title={editing ? t('dataReportCenter.editReportTitle', { name: editing.name }) : t('dataReportCenter.newReportTitle')}
         open={modalOpen}
         onOk={() => void handleSave()}
         onCancel={() => setModalOpen(false)}
-        okText={editing ? '保存' : '创建'}
-        cancelText="取消"
+        okText={editing ? t('dataReportCenter.save') : t('dataReportCenter.create')}
+        cancelText={t('dataReportCenter.cancel')}
         confirmLoading={saving}
         width={680}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
           <Space>
-            <Text strong style={{ width: 70, display: 'inline-block' }}>报表名称</Text>
-            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="如: 月度检查收入分析" style={{ width: 300 }} />
+            <Text strong style={{ width: 70, display: 'inline-block' }}>{t('dataReportCenter.reportName')}</Text>
+            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t('dataReportCenter.reportNamePlaceholder')} style={{ width: 300 }} />
           </Space>
           <Space>
-            <Text strong style={{ width: 70, display: 'inline-block' }}>类别</Text>
-            <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="如: 日常统计" style={{ width: 180 }} />
+            <Text strong style={{ width: 70, display: 'inline-block' }}>{t('dataReportCenter.colCategory')}</Text>
+            <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder={t('dataReportCenter.categoryPlaceholder')} style={{ width: 180 }} />
           </Space>
           <Space>
-            <Text strong style={{ width: 70, display: 'inline-block' }}>数据源</Text>
+            <Text strong style={{ width: 70, display: 'inline-block' }}>{t('dataReportCenter.dataSource')}</Text>
             <Radio.Group
               value={form.dataSource}
               onChange={(e) => setForm({ ...form, dataSource: e.target.value })}
@@ -931,7 +932,7 @@ function CustomReportCenter() {
             />
           </Space>
           <Space>
-            <Text strong style={{ width: 70, display: 'inline-block' }}>周期</Text>
+            <Text strong style={{ width: 70, display: 'inline-block' }}>{t('dataReportCenter.period')}</Text>
             <Select
               value={form.period}
               onChange={(v) => setForm({ ...form, period: v })}
@@ -940,43 +941,43 @@ function CustomReportCenter() {
             />
           </Space>
           <div>
-            <Text strong style={{ display: 'block', marginBottom: 6 }}>指标字段 (多选, 来自字段目录)</Text>
+            <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('dataReportCenter.metricFieldsCatalog')}</Text>
             <Select
               mode="multiple"
               value={form.fields}
               onChange={(vals) => setForm({ ...form, fields: vals })}
               style={{ width: '100%' }}
-              placeholder="选择字段"
+              placeholder={t('dataReportCenter.selectField')}
               maxTagCount={6}
               optionFilterProp="label"
               options={fieldGroups.map((g) => ({ label: g.label, options: g.options }))}
             />
             <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
-              数据源将决定执行方式: OLAP 字段按周期聚合, stats/bi 字段为快照值
+              {t('dataReportCenter.dataSourceHint')}
             </Text>
           </div>
           <div>
-            <Text strong style={{ display: 'block', marginBottom: 6 }}>说明</Text>
-            <Input.TextArea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} placeholder="报表用途说明 (可选)" />
+            <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('dataReportCenter.description')}</Text>
+            <Input.TextArea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} placeholder={t('dataReportCenter.descriptionPlaceholder')} />
           </div>
         </div>
       </Modal>
 
       {/* 定时设置 Modal */}
       <Modal
-        title={scheduleDef ? `定时设置: ${scheduleDef.name}` : '定时设置'}
+        title={scheduleDef ? t('dataReportCenter.scheduleTitleNamed', { name: scheduleDef.name }) : t('dataReportCenter.scheduleTitle')}
         open={!!scheduleDef}
         onOk={() => void handleSaveSchedule()}
         onCancel={() => setScheduleDef(null)}
-        okText="保存并推送通知"
-        cancelText="取消"
+        okText={t('dataReportCenter.saveAndPush')}
+        cancelText={t('dataReportCenter.cancel')}
         confirmLoading={saving}
         width={520}
       >
         {scheduleDef && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
             <div>
-              <Text strong style={{ display: 'block', marginBottom: 6 }}>定时规则</Text>
+              <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('dataReportCenter.scheduleRule')}</Text>
               <Select
                 value={scheduleText}
                 onChange={setScheduleText}
@@ -986,18 +987,18 @@ function CustomReportCenter() {
                 allowClear={false}
               />
               <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
-                保存后将自动推送「报表已生成」通知给订阅人 (POST /notifications/report-generated)
+                {t('dataReportCenter.scheduleHint')}
               </Text>
             </div>
             <div>
-              <Text strong style={{ display: 'block', marginBottom: 6 }}>订阅人 (推送通知对象)</Text>
+              <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('dataReportCenter.recipients')}</Text>
               <Select
                 mode="tags"
                 value={recipients}
                 onChange={setRecipients}
                 style={{ width: '100%' }}
-                placeholder="输入用户ID后回车, 默认 current"
-                options={[{ label: '当前用户 (current)', value: 'current' }, { label: '科主任 (D002)', value: 'D002' }, { label: '质控组长 (D003)', value: 'D003' }]}
+                placeholder={t('dataReportCenter.recipientsPlaceholder')}
+                options={[{ label: t('dataReportCenter.recipientCurrent'), value: 'current' }, { label: t('dataReportCenter.recipientDirector'), value: 'D002' }, { label: t('dataReportCenter.recipientQcLead'), value: 'D003' }]}
               />
             </div>
           </div>
@@ -1013,8 +1014,8 @@ function CustomReportCenterRoot() {
     <Tabs
       defaultActiveKey="defs"
       items={[
-        { key: 'defs', label: '报表定义管理', children: <CustomReportCenter /> },
-        { key: 'builder', label: '简易生成器', children: <CustomReportBuilder /> },
+        { key: 'defs', label: t('dataReportCenter.tabDefs'), children: <CustomReportCenter /> },
+        { key: 'builder', label: t('dataReportCenter.tabBuilder'), children: <CustomReportBuilder /> },
       ]}
     />
   )
@@ -1119,7 +1120,7 @@ export default function DataReportCenterPage() {
     await invalidateApiCacheByPrefix('/data-report')
     await Promise.all([loadOlap(), loadApiSnapshot()])
     setLoading(false)
-    message.success('数据已重新拉取')
+    message.success(t('dataReportCenter.dataRefetched'))
   }, [loadOlap, loadApiSnapshot])
 
   const chartData = useMemo(() => {
@@ -1193,12 +1194,12 @@ export default function DataReportCenterPage() {
     a.download = `${currentReport?.id || 'report'}-${dayjs().format('YYYYMMDD')}.csv`
     a.click()
     URL.revokeObjectURL(url)
-    message.success('CSV导出成功')
+    message.success(t('dataReportCenter.csvExportSuccess'))
   }, [chartData, currentReport])
 
   const handleExportPng = useCallback(() => {
     const svg = document.querySelector('.report-chart-area svg')
-    if (!svg) { message.warning('未找到图表'); return }
+    if (!svg) { message.warning(t('dataReportCenter.chartNotFound')); return }
     const clone = svg.cloneNode(true) as SVGSVGElement
     const serializer = new XMLSerializer()
     const svgStr = serializer.serializeToString(clone)
@@ -1220,7 +1221,7 @@ export default function DataReportCenterPage() {
         a.download = `${currentReport?.id || 'chart'}-${dayjs().format('YYYYMMDD')}.png`
         a.click()
         URL.revokeObjectURL(url)
-        message.success('PNG导出成功')
+        message.success(t('dataReportCenter.pngExportSuccess'))
       })
     }
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)))
@@ -1258,19 +1259,19 @@ export default function DataReportCenterPage() {
         <Space size={12}>
           <Database size={22} color="#fff" />
           <Title level={5} style={{ color: '#fff', margin: 0, fontSize: 16 }}>
-            数据报表中心
+            {t('dataReportCenter.pageTitle')}
           </Title>
           <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
-            {reportDefinitions.length}种报表 · 三甲医院RIS系统
+            {t('dataReportCenter.pageSubtitle', { count: reportDefinitions.length })}
           </Text>
           {apiSnapshot && (
             <Tag color="green" style={{ fontSize: 11, margin: 0 }}>
-              数据上报接口: {apiSnapshot.reports} 条报表 · {apiSnapshot.trends} 条月度趋势
+              {t('dataReportCenter.apiSnapshot', { reports: apiSnapshot.reports, trends: apiSnapshot.trends })}
             </Tag>
           )}
           {usingFallback && (
             <Tag color="orange" style={{ fontSize: 11, margin: 0 }}>
-              演示数据（OLAP 接口回退）
+              {t('dataReportCenter.demoFallback')}
             </Tag>
           )}
         </Space>
@@ -1280,8 +1281,8 @@ export default function DataReportCenterPage() {
             onChange={setViewMode}
             size="small"
             options={[
-              { label: '标准报表', value: 'standard' },
-              { label: '自定义报表', value: 'custom' },
+              { label: t('dataReportCenter.viewStandard'), value: 'standard' },
+              { label: t('dataReportCenter.viewCustom'), value: 'custom' },
             ]}
             style={{ width: 120, background: 'rgba(255,255,255,0.15)', borderRadius: 6 }}
           />
@@ -1300,7 +1301,7 @@ export default function DataReportCenterPage() {
             options={granularityOptions}
             style={{ width: 80 }}
           />
-          <Tooltip title="刷新数据">
+          <Tooltip title={t('dataReportCenter.refreshData')}>
             <Button
               size="small"
               icon={<RefreshCw size={14} />}
@@ -1309,7 +1310,7 @@ export default function DataReportCenterPage() {
               style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)' }}
             />
           </Tooltip>
-          <Tooltip title={fullscreen ? '退出全屏' : '全屏模式'}>
+          <Tooltip title={fullscreen ? t('dataReportCenter.exitFullscreen') : t('dataReportCenter.fullscreen')}>
             <Button
               size="small"
               icon={fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -1332,7 +1333,7 @@ export default function DataReportCenterPage() {
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
             <Input
               prefix={<Search size={14} style={{ color: 'var(--text-secondary)' }} />}
-              placeholder="搜索报表名称..."
+              placeholder={t('dataReportCenter.searchReportPlaceholder')}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               size="small"
@@ -1342,7 +1343,7 @@ export default function DataReportCenterPage() {
           {favoriteDefs.length > 0 && (
             <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
               <Text strong style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Star size={12} /> 收藏报表 ({favoriteDefs.length})
+                <Star size={12} /> {t('dataReportCenter.favoriteReports', { count: favoriteDefs.length })}
               </Text>
               <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {favoriteDefs.slice(0, 5).map((r) => (
@@ -1392,7 +1393,7 @@ export default function DataReportCenterPage() {
                           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {child.title}
                           </span>
-                          <Tooltip title={favorites.has(child.key as string) ? '取消收藏' : '收藏'}>
+                          <Tooltip title={favorites.has(child.key as string) ? t('dataReportCenter.unfavorite') : t('dataReportCenter.favorite')}>
                             <span
                               onClick={(e) => { e.stopPropagation(); toggleFavorite(child.key as string) }}
                               style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}
@@ -1426,7 +1427,7 @@ export default function DataReportCenterPage() {
                       {currentReport.name}
                     </Title>
                     <Tag color="blue">{currentReport.category}</Tag>
-                    <Tooltip title={favorites.has(currentReport.id) ? '取消收藏' : '收藏'}>
+                    <Tooltip title={favorites.has(currentReport.id) ? t('dataReportCenter.unfavorite') : t('dataReportCenter.favorite')}>
                       <span
                         onClick={() => toggleFavorite(currentReport.id)}
                         style={{ cursor: 'pointer', display: 'flex' }}
@@ -1475,14 +1476,14 @@ export default function DataReportCenterPage() {
                         size="small"
                         checked={showInsight}
                         onChange={setShowInsight}
-                        checkedChildren="开"
-                        unCheckedChildren="关"
+                        checkedChildren={t('dataReportCenter.on')}
+                        unCheckedChildren={t('dataReportCenter.off')}
                       />
                     }
                     title={
                       <Space size={6}>
                         <Lightbulb size={14} color="#f59e0b" />
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>AI 智能洞察</span>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{t('dataReportCenter.aiInsight')}</span>
                       </Space>
                     }
                     style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
@@ -1490,12 +1491,12 @@ export default function DataReportCenterPage() {
                     {showInsight ? (
                       <div style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)', padding: '4px 0' }}>
                         {insightText || (
-                          <Text type="secondary">暂无数据，无法生成洞察分析。</Text>
+                          <Text type="secondary">{t('dataReportCenter.noInsightData')}</Text>
                         )}
                       </div>
                     ) : (
                       <Text type="secondary" style={{ fontSize: 13 }}>
-                        AI洞察已关闭，可点击开关开启。
+                        {t('dataReportCenter.aiInsightOff')}
                       </Text>
                     )}
                   </Card>
@@ -1504,8 +1505,8 @@ export default function DataReportCenterPage() {
                     title={
                       <Space size={6}>
                         <Table2 size={14} />
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>数据明细</span>
-                        <Tag style={{ fontSize: 10 }}>{chartData.length} 行</Tag>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{t('dataReportCenter.dataDetail')}</span>
+                        <Tag style={{ fontSize: 10 }}>{t('dataReportCenter.rowsCount', { count: chartData.length })}</Tag>
                       </Space>
                     }
                     style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
@@ -1530,7 +1531,7 @@ export default function DataReportCenterPage() {
             </div>
           ) : (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请从左侧选择报表" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dataReportCenter.selectReportFromLeft')} />
             </div>
           )}
         </Content>

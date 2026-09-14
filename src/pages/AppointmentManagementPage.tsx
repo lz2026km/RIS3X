@@ -11,6 +11,7 @@ import {
   AlertCircle, Check, ArrowRightLeft, BarChart3, CalendarCheck
 } from 'lucide-react'
 import { formatDateObj } from '../utils/date';
+import { t } from '../i18n/appI18n';
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -207,11 +208,11 @@ export default function AppointmentManagementPage() {
         setDataSource('real')
         setListError(null)
       } else {
-        setListError('预约服务暂不可用，当前展示演示数据')
+        setListError(t('apptMgmt.serviceUnavailable'))
         setDataSource('demo')
       }
     } catch {
-      setListError('预约服务暂不可用，当前展示演示数据')
+      setListError(t('apptMgmt.serviceUnavailable'))
       setDataSource('demo')
     } finally {
       setListLoading(false)
@@ -777,7 +778,7 @@ export default function AppointmentManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <div style={styles.headerTitle}>
             <CalendarClock size={28} />
-            影像预约管理
+            {t('apptMgmt.title')}
           </div>
           {/* [G005 Wave4A P1] 数据源徽标 */}
           <span style={{
@@ -791,12 +792,12 @@ export default function AppointmentManagementPage() {
               width: 8, height: 8, borderRadius: '50%',
               background: dataSource === 'real' ? '#34d399' : '#fbbf24',
             }} />
-            {dataSource === 'real' ? '真实数据' : '演示数据'}
+            {dataSource === 'real' ? t('apptMgmt.realData') : t('apptMgmt.demoData')}
           </span>
-          {listLoading && <span style={{ fontSize: 12, opacity: 0.85 }}>加载中...</span>}
+          {listLoading && <span style={{ fontSize: 12, opacity: 0.85 }}>{t('apptMgmt.loading')}</span>}
         </div>
         <div style={styles.headerSubtitle}>
-          患者影像检查预约管理 · 预约列表 · 改约/取消 · 冲突检测 · 预约统计
+          {t('apptMgmt.subtitle')}
           {listError && <span style={{ marginLeft: 12, opacity: 0.9 }}>({listError})</span>}
         </div>
       </div>
@@ -807,54 +808,54 @@ export default function AppointmentManagementPage() {
           <div style={styles.statCard}>
             <div style={styles.statLabel}>
               <CalendarClock size={16} color={COLORS.primary} />
-              今日预约
+              {t('apptMgmt.todayAppointments')}
             </div>
             <div style={styles.statValue}>{statistics.todayTotal}</div>
-            <div style={{ ...styles.statChange, color: COLORS.primary }}>本周 {statistics.weekTotal} 例</div>
+            <div style={{ ...styles.statChange, color: COLORS.primary }}>{t('apptMgmt.thisWeekCases', { count: statistics.weekTotal })}</div>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statLabel}>
               <Clock size={16} color={COLORS.warning} />
-              待确认
+              {t('apptMgmt.pending')}
             </div>
             <div style={styles.statValue}>{statistics.pending}</div>
-            <div style={{ ...styles.statChange, color: COLORS.warning }}>待处理</div>
+            <div style={{ ...styles.statChange, color: COLORS.warning }}>{t('apptMgmt.toProcess')}</div>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statLabel}>
               <CheckCircle size={16} color={COLORS.success} />
-              已确认
+              {t('apptMgmt.confirmed')}
             </div>
             <div style={{...styles.statValue, color: COLORS.success}}>{statistics.confirmed}</div>
-            <div style={{ ...styles.statChange, color: COLORS.success }}>已确认</div>
+            <div style={{ ...styles.statChange, color: COLORS.success }}>{t('apptMgmt.confirmed')}</div>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statLabel}>
               <AlertTriangle size={16} color={COLORS.danger} />
-              冲突检测
+              {t('apptMgmt.conflictDetection')}
             </div>
             <div style={{...styles.statValue, color: statistics.conflictCount > 0 ? COLORS.danger : COLORS.success}}>
               {statistics.conflictCount}
             </div>
             <div style={{ ...styles.statChange, color: COLORS.textSecondary }}>
-              {statistics.conflictCount > 0 ? '存在冲突' : '无冲突'}
+              {statistics.conflictCount > 0 ? t('apptMgmt.hasConflict') : t('apptMgmt.noConflict')}
             </div>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statLabel}>
               <BarChart3 size={16} color={COLORS.info} />
-              本周总计
+              {t('apptMgmt.weekTotal')}
             </div>
             <div style={styles.statValue}>{statistics.weekTotal}</div>
-            <div style={{ ...styles.statChange, color: COLORS.textSecondary }}>全部状态</div>
+            <div style={{ ...styles.statChange, color: COLORS.textSecondary }}>{t('apptMgmt.allStatus')}</div>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statLabel}>
               <CheckCircle size={16} color={COLORS.success} />
-              已完成
+              {t('apptMgmt.completed')}
             </div>
             <div style={styles.statValue}>{statistics.completed}</div>
-            <div style={{ ...styles.statChange, color: COLORS.textSecondary }}>累计完成</div>
+            <div style={{ ...styles.statChange, color: COLORS.textSecondary }}>{t('apptMgmt.cumulativeCompleted')}</div>
           </div>
         </div>
 
@@ -865,7 +866,7 @@ export default function AppointmentManagementPage() {
               <Search size={18} color={COLORS.textSecondary} />
               <input
                 type="text"
-                placeholder="搜索患者姓名/预约ID/电话/检查项目..."
+                placeholder={t('apptMgmt.searchPlaceholder')}
                 style={styles.searchInput}
                 value={searchKeyword}
                 onChange={e => setSearchKeyword(e.target.value)}
@@ -878,12 +879,12 @@ export default function AppointmentManagementPage() {
               {MODALITY_OPTIONS.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
             <select style={styles.select} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-              <option value="all">全部状态</option>
-              <option value="pending">待确认</option>
-              <option value="confirmed">已确认</option>
-              <option value="checked-in">已到检</option>
-              <option value="completed">已完成</option>
-              <option value="cancelled">已取消</option>
+              <option value="all">{t('apptMgmt.allStatus')}</option>
+              <option value="pending">{t('apptMgmt.pending')}</option>
+              <option value="confirmed">{t('apptMgmt.confirmed')}</option>
+              <option value="checked-in">{t('apptMgmt.checkedIn')}</option>
+              <option value="completed">{t('apptMgmt.completed')}</option>
+              <option value="cancelled">{t('apptMgmt.cancelled')}</option>
             </select>
             <input
               type="date"
@@ -896,7 +897,7 @@ export default function AppointmentManagementPage() {
                 style={{ ...styles.actionBtn('secondary'), display: 'flex', alignItems: 'center', gap: '4px' }}
                 onClick={() => { setFilterModality('全部'); setFilterStatus('all'); setFilterDate('') }}
               >
-                <X size={14} /> 清空筛选
+                <X size={14} /> {t('apptMgmt.clearFilter')}
               </button>
             )}
           </div>
@@ -906,17 +907,17 @@ export default function AppointmentManagementPage() {
                 style={styles.viewBtn(viewMode === 'list')}
                 onClick={() => setViewMode('list')}
               >
-                <ListOrdered size={16} /> 列表
+                <ListOrdered size={16} /> {t('apptMgmt.list')}
               </button>
               <button
                 style={styles.viewBtn(viewMode === 'calendar')}
                 onClick={() => setViewMode('calendar')}
               >
-                <CalendarDays size={16} /> 日历
+                <CalendarDays size={16} /> {t('apptMgmt.calendar')}
               </button>
             </div>
             <button onClick={() => setShowCreateModal(true)} style={{ ...styles.actionBtn('primary'), display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Plus size={16} /> 新建预约
+              <Plus size={16} /> {t('apptMgmt.newAppointment')}
             </button>
           </div>
         </div>
@@ -925,19 +926,19 @@ export default function AppointmentManagementPage() {
         {viewMode === 'list' && (
           <div style={styles.table}>
             <div style={styles.tableHeader}>
-              <div>预约ID</div>
-              <div>患者信息</div>
-              <div>检查项目</div>
-              <div>检查部位</div>
-              <div>预约时间</div>
-              <div>状态</div>
-              <div>优先级</div>
-              <div>操作</div>
+              <div>{t('apptMgmt.colId')}</div>
+              <div>{t('apptMgmt.colPatient')}</div>
+              <div>{t('apptMgmt.colExamItem')}</div>
+              <div>{t('apptMgmt.colBodyPart')}</div>
+              <div>{t('apptMgmt.colTime')}</div>
+              <div>{t('apptMgmt.colStatus')}</div>
+              <div>{t('apptMgmt.colPriority')}</div>
+              <div>{t('apptMgmt.colActions')}</div>
             </div>
             {filteredAppointments.length === 0 ? (
               <div style={{ padding: '40px', textAlign: 'center', color: COLORS.textSecondary }}>
                 <CalendarClock size={48} style={{ marginBottom: '12px', opacity: 0.5 }} />
-                <div>暂无预约数据</div>
+                <div>{t('apptMgmt.emptyAppointments')}</div>
               </div>
             ) : (
               filteredAppointments.map((apt, idx) => {
@@ -959,7 +960,7 @@ export default function AppointmentManagementPage() {
                     <div style={{ fontWeight: '500', color: COLORS.primary }}>{apt.id}</div>
                     <div>
                       <div style={{ fontWeight: '500' }}>{apt.patientName}</div>
-                      <div style={{ fontSize: '12px', color: COLORS.textSecondary }}>{apt.gender}/{apt.age}岁</div>
+                      <div style={{ fontSize: '12px', color: COLORS.textSecondary }}>{apt.gender}/{apt.age}{t('apptMgmt.ageSuffix')}</div>
                     </div>
                     <div>
                       <div>{apt.examItemName}</div>
@@ -986,7 +987,7 @@ export default function AppointmentManagementPage() {
                       <button
                         style={styles.actionBtn('secondary')}
                         onClick={() => { setSelectedAppointment(apt); setShowDetailModal(true) }}
-                        title="查看详情"
+                        title={t('apptMgmt.viewDetail')}
                       >
                         <CalendarCheck size={14} />
                       </button>
@@ -995,14 +996,14 @@ export default function AppointmentManagementPage() {
                           <button
                             style={styles.actionBtn('primary')}
                             onClick={() => openRescheduleModal(apt)}
-                            title="改约"
+                            title={t('apptMgmt.reschedule')}
                           >
                             <ArrowRightLeft size={14} />
                           </button>
                           <button
                             style={styles.actionBtn('danger')}
                             onClick={() => { setSelectedAppointment(apt); setShowCancelModal(true) }}
-                            title="取消预约"
+                            title={t('apptMgmt.cancelAppointment')}
                           >
                             <XCircle size={14} />
                           </button>
@@ -1028,18 +1029,17 @@ export default function AppointmentManagementPage() {
                   setCurrentWeekStart(newStart)
                 }}
               >
-                <ChevronLeft size={16} /> 上周
+                <ChevronLeft size={16} /> {t('apptMgmt.prevWeek')}
               </button>
               <div style={{ fontSize: '16px', fontWeight: '600' }}>
-                {currentWeekStart.getMonth() + 1}月 {currentWeekStart.getDate()}日 - {' '}
-                {weekDates[6].getMonth() + 1}月 {weekDates[6].getDate()}日
+                {t('apptMgmt.weekRange', { m1: currentWeekStart.getMonth() + 1, d1: currentWeekStart.getDate(), m2: weekDates[6].getMonth() + 1, d2: weekDates[6].getDate() })}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   style={{ ...styles.actionBtn('secondary'), display: 'flex', alignItems: 'center', gap: '4px' }}
                   onClick={() => setCurrentWeekStart(new Date())}
                 >
-                  今天
+                  {t('apptMgmt.today')}
                 </button>
                 <button
                   style={{ ...styles.actionBtn('secondary'), display: 'flex', alignItems: 'center', gap: '4px' }}
@@ -1049,12 +1049,12 @@ export default function AppointmentManagementPage() {
                     setCurrentWeekStart(newStart)
                   }}
                 >
-                  下周 <ChevronRight size={16} />
+                  {t('apptMgmt.nextWeek')} <ChevronRight size={16} />
                 </button>
               </div>
             </div>
             <div style={styles.calendarGrid}>
-              {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map(day => (
+              {[t('apptMgmt.weekdayMon'), t('apptMgmt.weekdayTue'), t('apptMgmt.weekdayWed'), t('apptMgmt.weekdayThu'), t('apptMgmt.weekdayFri'), t('apptMgmt.weekdaySat'), t('apptMgmt.weekdaySun')].map(day => (
                 <div key={day} style={styles.calendarDayHeader}>{day}</div>
               ))}
               {weekDates.map((date, idx) => {
@@ -1098,7 +1098,7 @@ export default function AppointmentManagementPage() {
                     ))}
                     {dayAppts.length > 3 && (
                       <div style={{ fontSize: '11px', color: COLORS.textSecondary, textAlign: 'center' }}>
-                        +{dayAppts.length - 3} 更多
+                        {t('apptMgmt.more', { count: dayAppts.length - 3 })}
                       </div>
                     )}
                   </div>
@@ -1114,7 +1114,7 @@ export default function AppointmentManagementPage() {
         <div style={styles.modal} onClick={() => setShowDetailModal(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}>预约详情</div>
+              <div style={styles.modalTitle}>{t('apptMgmt.detailTitle')}</div>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowDetailModal(false)} />
             </div>
 
@@ -1123,7 +1123,7 @@ export default function AppointmentManagementPage() {
               <div style={styles.conflictAlert}>
                 <AlertTriangle size={20} color={COLORS.danger} />
                 <div>
-                  <div style={{ fontWeight: '600', color: COLORS.danger, marginBottom: '4px' }}>存在冲突</div>
+                  <div style={{ fontWeight: '600', color: COLORS.danger, marginBottom: '4px' }}>{t('apptMgmt.hasConflict')}</div>
                   {checkConflicts(selectedAppointment).map((c, i) => (
                     <div key={i} style={{ fontSize: '13px', color: COLORS.text }}>{c.message}</div>
                   ))}
@@ -1133,13 +1133,13 @@ export default function AppointmentManagementPage() {
 
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>预约ID</label>
+                <label style={styles.formLabel}>{t('apptMgmt.colId')}</label>
                 <div style={{ padding: '10px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', fontWeight: '500', color: COLORS.primary }}>
                   {selectedAppointment.id}
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>状态</label>
+                <label style={styles.formLabel}>{t('apptMgmt.colStatus')}</label>
                 <div style={{ padding: '10px', backgroundColor: STATUS_CONFIG[selectedAppointment.status]?.bg }}>
                   <span style={styles.badge(
                     STATUS_CONFIG[selectedAppointment.status]?.bg,
@@ -1153,30 +1153,30 @@ export default function AppointmentManagementPage() {
 
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>患者姓名</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelPatientName')}</label>
                 <div style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <User size={16} color={COLORS.textSecondary} />
                   {selectedAppointment.patientName}
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>患者信息</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelPatientInfo')}</label>
                 <div style={{ padding: '10px', fontSize: '13px', color: COLORS.textSecondary }}>
-                  {selectedAppointment.gender} / {selectedAppointment.age}岁 / {selectedAppointment.idCard}
+                  {selectedAppointment.gender} / {selectedAppointment.age}{t('apptMgmt.ageSuffix')} / {selectedAppointment.idCard}
                 </div>
               </div>
             </div>
 
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>联系电话</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelPhone')}</label>
                 <div style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Phone size={16} color={COLORS.textSecondary} />
                   {selectedAppointment.phone}
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>优先级</label>
+                <label style={styles.formLabel}>{t('apptMgmt.colPriority')}</label>
                 <div style={{ padding: '10px' }}>
                   <span style={{ display: 'flex', alignItems: 'center' }}>
                     <span style={styles.priorityDot(PRIORITY_CONFIG[selectedAppointment.priority]?.color)} />
@@ -1188,14 +1188,14 @@ export default function AppointmentManagementPage() {
 
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>检查项目</label>
+                <label style={styles.formLabel}>{t('apptMgmt.colExamItem')}</label>
                 <div style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Scan size={16} color={COLORS.textSecondary} />
                   {selectedAppointment.examItemName}
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>检查部位</label>
+                <label style={styles.formLabel}>{t('apptMgmt.colBodyPart')}</label>
                 <div style={{ padding: '10px' }}>
                   {selectedAppointment.bodyPart}（{selectedAppointment.modality}）
                 </div>
@@ -1204,25 +1204,25 @@ export default function AppointmentManagementPage() {
 
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>预约日期</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelApptDate')}</label>
                 <div style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <CalendarClock size={16} color={COLORS.textSecondary} />
                   {formatDateCht(selectedAppointment.examDate)}
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>预约时间</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelApptTime')}</label>
                 <div style={{ padding: '10px' }}>{selectedAppointment.examTime}</div>
               </div>
             </div>
 
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>检查设备</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelDevice')}</label>
                 <div style={{ padding: '10px', fontSize: '13px' }}>{selectedAppointment.deviceName}</div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>检查地点</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelLocation')}</label>
                 <div style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <MapPin size={16} color={COLORS.textSecondary} />
                   {selectedAppointment.roomName}
@@ -1231,7 +1231,7 @@ export default function AppointmentManagementPage() {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.formLabel}>临床诊断</label>
+              <label style={styles.formLabel}>{t('apptMgmt.labelClinicalDiagnosis')}</label>
               <div style={{ padding: '10px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', fontSize: '13px' }}>
                 {selectedAppointment.clinicalDiagnosis}
               </div>
@@ -1239,7 +1239,7 @@ export default function AppointmentManagementPage() {
 
             {selectedAppointment.notes && (
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>备注</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelNotes')}</label>
                 <div style={{ padding: '10px', backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', fontSize: '13px' }}>
                   {selectedAppointment.notes}
                 </div>
@@ -1248,12 +1248,12 @@ export default function AppointmentManagementPage() {
 
             {selectedAppointment.cancelReason && (
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>取消原因</label>
+                <label style={styles.formLabel}>{t('apptMgmt.labelCancelReason')}</label>
                 <div style={{ padding: '10px', backgroundColor: 'var(--color-error-bg)', borderRadius: '8px', fontSize: '13px', color: COLORS.danger }}>
-                  {selectedAppointment.cancelReason === 'patient' ? '患者主动取消' :
-                   selectedAppointment.cancelReason === 'device' ? '设备故障' :
-                   selectedAppointment.cancelReason === 'doctor' ? '医生取消' :
-                   selectedAppointment.cancelReason === 'reschedule' ? '改期' : '其他'}
+                  {selectedAppointment.cancelReason === 'patient' ? t('apptMgmt.cancelReason.patient') :
+                   selectedAppointment.cancelReason === 'device' ? t('apptMgmt.cancelReason.device') :
+                   selectedAppointment.cancelReason === 'doctor' ? t('apptMgmt.cancelReason.doctor') :
+                   selectedAppointment.cancelReason === 'reschedule' ? t('apptMgmt.cancelReason.reschedule') : t('apptMgmt.cancelReason.other')}
                 </div>
               </div>
             )}
@@ -1265,13 +1265,13 @@ export default function AppointmentManagementPage() {
                     style={styles.actionBtn('secondary')}
                     onClick={() => { setShowDetailModal(false); openRescheduleModal(selectedAppointment) }}
                   >
-                    <ArrowRightLeft size={14} /> 改约
+                    <ArrowRightLeft size={14} /> {t('apptMgmt.reschedule')}
                   </button>
                   <button
                     style={styles.actionBtn('danger')}
                     onClick={() => { setShowDetailModal(false); setShowCancelModal(true) }}
                   >
-                    <XCircle size={14} /> 取消预约
+                    <XCircle size={14} /> {t('apptMgmt.cancelAppointment')}
                   </button>
                 </>
               )}
@@ -1279,7 +1279,7 @@ export default function AppointmentManagementPage() {
                 style={styles.actionBtn('secondary')}
                 onClick={() => setShowDetailModal(false)}
               >
-                关闭
+                {t('apptMgmt.close')}
               </button>
             </div>
           </div>
@@ -1291,12 +1291,12 @@ export default function AppointmentManagementPage() {
         <div style={styles.modal} onClick={() => setShowRescheduleModal(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}>改约预约</div>
+              <div style={styles.modalTitle}>{t('apptMgmt.rescheduleTitle')}</div>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowRescheduleModal(false)} />
             </div>
 
             <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: COLORS.primaryLight, borderRadius: '8px' }}>
-              <div style={{ fontSize: '13px', color: COLORS.textSecondary }}>当前预约</div>
+              <div style={{ fontSize: '13px', color: COLORS.textSecondary }}>{t('apptMgmt.currentAppointment')}</div>
               <div style={{ fontWeight: '500', marginTop: '4px' }}>
                 {selectedAppointment.patientName} - {selectedAppointment.examItemName}
               </div>
@@ -1306,7 +1306,7 @@ export default function AppointmentManagementPage() {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.formLabel}>新预约日期 *</label>
+              <label style={styles.formLabel}>{t('apptMgmt.newDate')}</label>
               <input
                 type="date"
                 style={styles.formInput}
@@ -1316,13 +1316,13 @@ export default function AppointmentManagementPage() {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.formLabel}>新预约时间 *</label>
+              <label style={styles.formLabel}>{t('apptMgmt.newTime')}</label>
               <select
                 style={styles.formInput}
                 value={rescheduleData.examTime}
                 onChange={e => setRescheduleData({ ...rescheduleData, examTime: e.target.value })}
               >
-                <option value="">请选择时间</option>
+                <option value="">{t('apptMgmt.selectTime')}</option>
                 {timeSlots.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
@@ -1332,7 +1332,7 @@ export default function AppointmentManagementPage() {
               <div style={styles.conflictAlert}>
                 <AlertTriangle size={20} color={COLORS.warning} />
                 <div style={{ fontSize: '13px' }}>
-                  改约后将检测与现有预约的冲突，请确认新时间段的可用性。
+                  {t('apptMgmt.rescheduleHint')}
                 </div>
               </div>
             )}
@@ -1342,14 +1342,14 @@ export default function AppointmentManagementPage() {
                 style={styles.actionBtn('secondary')}
                 onClick={() => setShowRescheduleModal(false)}
               >
-                取消
+                {t('apptMgmt.cancel')}
               </button>
               <button
                 style={styles.actionBtn('primary')}
                 onClick={() => void handleReschedule()}
                 disabled={!rescheduleData.examDate || !rescheduleData.examTime}
               >
-                <Check size={14} /> 确认改约
+                <Check size={14} /> {t('apptMgmt.confirmReschedule')}
               </button>
             </div>
           </div>
@@ -1361,17 +1361,17 @@ export default function AppointmentManagementPage() {
         <div style={styles.modal} onClick={() => setShowConflictModal(false)}>
           <div style={{ ...styles.modalContent, maxWidth: 480 }} onClick={e => e.stopPropagation()}>
             <div style={{ ...styles.modalHeader, backgroundColor: COLORS.warning }}>
-              <div style={styles.modalTitle}>预约冲突</div>
+              <div style={styles.modalTitle}>{t('apptMgmt.conflictTitle')}</div>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowConflictModal(false)} />
             </div>
             <div style={{ padding: '16px' }}>
               <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', border: `1px solid ${COLORS.warning}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <AlertTriangle size={18} color={COLORS.warning} />
-                  <span style={{ fontWeight: 600, color: COLORS.warning }}>检测到 {conflictDetails.length} 个冲突</span>
+                  <span style={{ fontWeight: 600, color: COLORS.warning }}>{t('apptMgmt.conflictsFound', { count: conflictDetails.length })}</span>
                 </div>
                 <div style={{ fontSize: 13, color: COLORS.textDark }}>
-                  改约后的时间与现有预约存在冲突，请选择其他时间段。
+                  {t('apptMgmt.conflictHint')}
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1379,7 +1379,7 @@ export default function AppointmentManagementPage() {
                   <div key={index} style={{ padding: '10px 12px', backgroundColor: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13 }}>
                     <div style={{ fontWeight: 500, marginBottom: 4 }}>{conflict.message}</div>
                     {conflict.relatedAppointmentId && (
-                      <div style={{ fontSize: 12, color: COLORS.textMuted }}>相关预约ID: {conflict.relatedAppointmentId}</div>
+                      <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('apptMgmt.relatedApptId', { id: conflict.relatedAppointmentId })}</div>
                     )}
                   </div>
                 ))}
@@ -1390,7 +1390,7 @@ export default function AppointmentManagementPage() {
                 style={{ ...styles.actionBtn('primary') }}
                 onClick={() => setShowConflictModal(false)}
               >
-                知道了
+                {t('apptMgmt.gotIt')}
               </button>
             </div>
           </div>
@@ -1402,7 +1402,7 @@ export default function AppointmentManagementPage() {
         <div style={styles.modal} onClick={() => setShowCancelModal(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}>取消预约</div>
+              <div style={styles.modalTitle}>{t('apptMgmt.cancelTitle')}</div>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowCancelModal(false)} />
             </div>
 
@@ -1416,18 +1416,18 @@ export default function AppointmentManagementPage() {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.formLabel}>取消原因 *</label>
+              <label style={styles.formLabel}>{t('apptMgmt.cancelReasonLabel')}</label>
               <select
                 style={styles.formInput}
                 value={cancelReason}
                 onChange={e => setCancelReason(e.target.value)}
               >
-                <option value="">请选择取消原因</option>
-                <option value="patient">患者主动取消</option>
-                <option value="device">设备故障</option>
-                <option value="doctor">医生取消</option>
-                <option value="reschedule">改期</option>
-                <option value="other">其他</option>
+                <option value="">{t('apptMgmt.selectCancelReason')}</option>
+                <option value="patient">{t('apptMgmt.cancelReason.patient')}</option>
+                <option value="device">{t('apptMgmt.cancelReason.device')}</option>
+                <option value="doctor">{t('apptMgmt.cancelReason.doctor')}</option>
+                <option value="reschedule">{t('apptMgmt.cancelReason.reschedule')}</option>
+                <option value="other">{t('apptMgmt.cancelReason.other')}</option>
               </select>
             </div>
 
@@ -1436,14 +1436,14 @@ export default function AppointmentManagementPage() {
                 style={styles.actionBtn('secondary')}
                 onClick={() => setShowCancelModal(false)}
               >
-                返回
+                {t('apptMgmt.back')}
               </button>
               <button
                 style={styles.actionBtn('danger')}
                 onClick={() => void handleCancel()}
                 disabled={!cancelReason}
               >
-                <XCircle size={14} /> 确认取消
+                <XCircle size={14} /> {t('apptMgmt.confirmCancel')}
               </button>
             </div>
           </div>
@@ -1455,56 +1455,56 @@ export default function AppointmentManagementPage() {
         <div style={styles.modal} onClick={() => setShowCreateModal(false)}>
           <div style={{ ...styles.modalContent, maxWidth: 520 }} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}>新建预约</div>
+              <div style={styles.modalTitle}>{t('apptMgmt.createTitle')}</div>
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowCreateModal(false)} />
             </div>
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>患者姓名 *</label>
-                <input style={styles.formInput} value={createForm.patientName} onChange={e => setCreateForm({ ...createForm, patientName: e.target.value })} placeholder="请输入患者姓名" />
+                <label style={styles.formLabel}>{t('apptMgmt.patientNameLabel')}</label>
+                <input style={styles.formInput} value={createForm.patientName} onChange={e => setCreateForm({ ...createForm, patientName: e.target.value })} placeholder={t('apptMgmt.patientNamePlaceholder')} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>患者ID</label>
-                  <input style={styles.formInput} value={createForm.patientId} onChange={e => setCreateForm({ ...createForm, patientId: e.target.value })} placeholder="如: P001" />
+                  <label style={styles.formLabel}>{t('apptMgmt.patientIdLabel')}</label>
+                  <input style={styles.formInput} value={createForm.patientId} onChange={e => setCreateForm({ ...createForm, patientId: e.target.value })} placeholder={t('apptMgmt.patientIdPlaceholder')} />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>联系电话</label>
-                  <input style={styles.formInput} value={createForm.phone} onChange={e => setCreateForm({ ...createForm, phone: e.target.value })} placeholder="选填" />
+                  <label style={styles.formLabel}>{t('apptMgmt.labelPhone')}</label>
+                  <input style={styles.formInput} value={createForm.phone} onChange={e => setCreateForm({ ...createForm, phone: e.target.value })} placeholder={t('apptMgmt.optional')} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>检查项目 *</label>
-                  <input style={styles.formInput} value={createForm.examItemName} onChange={e => setCreateForm({ ...createForm, examItemName: e.target.value })} placeholder="如: 胸部CT平扫" />
+                  <label style={styles.formLabel}>{t('apptMgmt.examItemLabel')}</label>
+                  <input style={styles.formInput} value={createForm.examItemName} onChange={e => setCreateForm({ ...createForm, examItemName: e.target.value })} placeholder={t('apptMgmt.examItemPlaceholder')} />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>设备类型</label>
+                  <label style={styles.formLabel}>{t('apptMgmt.modalityLabel')}</label>
                   <select style={styles.formInput} value={createForm.modality} onChange={e => setCreateForm({ ...createForm, modality: e.target.value })}>
                     {['CT', 'MR', 'DR', 'DSA', 'MG', 'GI', '超声', 'PET-CT'].map(m => <option key={m} value={m}>{m}</option>)}
                   </select>
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>检查部位</label>
-                <input style={styles.formInput} value={createForm.bodyPart} onChange={e => setCreateForm({ ...createForm, bodyPart: e.target.value })} placeholder="选填" />
+                <label style={styles.formLabel}>{t('apptMgmt.colBodyPart')}</label>
+                <input style={styles.formInput} value={createForm.bodyPart} onChange={e => setCreateForm({ ...createForm, bodyPart: e.target.value })} placeholder={t('apptMgmt.optional')} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>预约日期 *</label>
+                  <label style={styles.formLabel}>{t('apptMgmt.dateLabel')}</label>
                   <input type="date" style={styles.formInput} value={createForm.examDate} onChange={e => setCreateForm({ ...createForm, examDate: e.target.value })} />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.formLabel}>预约时间 *</label>
+                  <label style={styles.formLabel}>{t('apptMgmt.timeLabel')}</label>
                   <select style={styles.formInput} value={createForm.examTime} onChange={e => setCreateForm({ ...createForm, examTime: e.target.value })}>
                     {timeSlots.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>优先级</label>
+                <label style={styles.formLabel}>{t('apptMgmt.colPriority')}</label>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {([['normal', '普通'], ['urgent', '紧急'], ['critical', '危重']] as const).map(([v, l]) => (
+                  {([['normal', t('apptMgmt.priority.normal')], ['urgent', t('apptMgmt.priority.urgent')], ['critical', t('apptMgmt.priority.critical')]] as const).map(([v, l]) => (
                     <button key={v} onClick={() => setCreateForm({ ...createForm, priority: v })}
                       style={{
                         flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
@@ -1516,13 +1516,13 @@ export default function AppointmentManagementPage() {
                 </div>
               </div>
               <div style={styles.formGroup}>
-                <label style={styles.formLabel}>临床诊断</label>
-                <input style={styles.formInput} value={createForm.clinicalDiagnosis} onChange={e => setCreateForm({ ...createForm, clinicalDiagnosis: e.target.value })} placeholder="选填" />
+                <label style={styles.formLabel}>{t('apptMgmt.labelClinicalDiagnosis')}</label>
+                <input style={styles.formInput} value={createForm.clinicalDiagnosis} onChange={e => setCreateForm({ ...createForm, clinicalDiagnosis: e.target.value })} placeholder={t('apptMgmt.optional')} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                <button style={styles.actionBtn('secondary')} onClick={() => setShowCreateModal(false)}>取消</button>
+                <button style={styles.actionBtn('secondary')} onClick={() => setShowCreateModal(false)}>{t('apptMgmt.cancel')}</button>
                 <button style={styles.actionBtn('primary')} onClick={() => void handleCreateAppointment()} disabled={!createForm.patientName.trim() || !createForm.examItemName.trim() || creating}>
-                  {creating ? '创建中...' : <><Plus size={14} /> 确认创建</>}
+                  {creating ? t('apptMgmt.creating') : <><Plus size={14} /> {t('apptMgmt.confirmCreate')}</>}
                 </button>
               </div>
             </div>

@@ -259,7 +259,7 @@ const DEVICE_EFFICIENCY: DeviceEfficiencyData[] = initialModalityDevices.map((_d
     avgExamTime: d.modality === 'CT' ? 18 : d.modality === 'MR' ? 35 : d.modality === 'DR' ? 6 : 45,
     maxExamTime: d.modality === 'CT' ? 35 : d.modality === 'MR' ? 70 : d.modality === 'DR' ? 12 : 90,
     minExamTime: d.modality === 'CT' ? 8 : d.modality === 'MR' ? 15 : d.modality === 'DR' ? 3 : 20,
-    totalRuntime: (age * 365 * 8).toLocaleString() + ' 小时',
+    totalRuntime: (age * 365 * 8).toLocaleString() + ' ' + t('devicePage.usageHours'),
     faultCount: Math.floor(Math.random() * 4),
     maintCount: Math.floor(Math.random() * 6) + 1,
   } as DeviceEfficiencyData
@@ -692,7 +692,7 @@ export default function DevicePage() {
     deviceId: p.deviceId,
     deviceName: p.deviceName || p.deviceId,
     planDate: (p.maintenanceDate ?? '').slice(0, 10),
-    type: p.type ?? '定期保养',
+    type: p.type ?? t('devicePage.maintPeriodic'),
     content: p.content ?? '',
     estimatedCost: p.estimatedCost ?? 0,
     assignee: p.assignee ?? '',
@@ -714,11 +714,11 @@ export default function DevicePage() {
             deviceId: p.deviceId,
             deviceName: p.deviceName || p.deviceId,
             date: (p.completedAt ?? p.maintenanceDate ?? '').slice(0, 10),
-            type: p.type ?? '定期保养',
-            engineer: p.assignee ?? p.performedBy ?? '系统记录',
+            type: p.type ?? t('devicePage.maintPeriodic'),
+            engineer: p.assignee ?? p.performedBy ?? t('devicePage.systemRecord'),
             cost: Number(p.actualCost ?? p.estimatedCost ?? 0) || 0,
             content: p.content ?? p.summary ?? '',
-            result: p.result ?? '已完成',
+            result: p.result ?? t('devicePage.completed'),
             nextDate: (p.nextMaintenanceDate ?? '').slice(0, 10) || '-',
           })))
         }
@@ -882,9 +882,9 @@ export default function DevicePage() {
         id: res.data.id,
         name: res.data.name,
         modality: res.data.modality,
-        manufacturer: (res.data.manufacturer ?? deviceForm.model) || '新增厂商',
+        manufacturer: (res.data.manufacturer ?? deviceForm.model) || t('devicePage.newManufacturer'),
         model: deviceForm.model || '—',
-        location: (res.data.room ?? deviceForm.dept) || '放射科',
+        location: (res.data.room ?? deviceForm.dept) || t('devicePage.radiologyDept'),
         status: '空闲',
         seriesCount: 0,
         acquisitionStation: '',
@@ -898,7 +898,7 @@ export default function DevicePage() {
         avgExamTime: 20,
         maxExamTime: 40,
         minExamTime: 5,
-        totalRuntime: '0 小时',
+        totalRuntime: `0 ${t('devicePage.usageHours')}`,
         faultCount: 0,
         maintCount: 0,
       }
@@ -1235,7 +1235,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
-                ¥{(MAINTENANCE_RECORDS.reduce((s, r) => s + r.cost, 0) / 10000).toFixed(1)}万
+                ¥{(MAINTENANCE_RECORDS.reduce((s, r) => s + r.cost, 0) / 10000).toFixed(1)}{t('devicePage.unitWan')}
               </div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.totalMaintCost')}</div>
             </div>
@@ -1506,7 +1506,7 @@ export default function DevicePage() {
               <TrendingUp size={20} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}亿</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}{t('devicePage.unitYi')}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.halfYearRevenue')}</div>
             </div>
           </div>
@@ -1528,7 +1528,7 @@ export default function DevicePage() {
               <AlertCircle size={20} color={C.danger} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{totalFaultCount}次</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{totalFaultCount}{t('devicePage.unitTimes')}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.faultTimes')}</div>
             </div>
           </div>
@@ -1539,7 +1539,7 @@ export default function DevicePage() {
               <DollarSign size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}万</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}{t('devicePage.unitWan')}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.downtimeLoss')}</div>
             </div>
           </div>
@@ -1654,13 +1654,13 @@ export default function DevicePage() {
                 return (
                   <tr key={i} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
                     <td style={{ padding: '8px 8px', fontWeight: 600, color: C.textDark }}>{d.deviceName}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.purchaseCost / 10000).toFixed(0)}万</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.success }}>¥{(d.annualRevenue / 10000).toFixed(0)}万</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.warning }}>¥{(d.annualMaintCost / 10000).toFixed(0)}万</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.annualOtherCost / 10000).toFixed(0)}万</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', fontWeight: 700, color: annualProfit > 0 ? C.success : C.danger }}>¥{(annualProfit / 10000).toFixed(0)}万</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.purchaseCost / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.success }}>¥{(d.annualRevenue / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.warning }}>¥{(d.annualMaintCost / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.annualOtherCost / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', fontWeight: 700, color: annualProfit > 0 ? C.success : C.danger }}>¥{(annualProfit / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
                     <td style={{ padding: '8px 8px', textAlign: 'center', color: C.textMid }}>{d.depreciationMethod === 'straight' ? t('devicePage.deprStraight') : t('devicePage.deprAccelerated')}</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(annualDepr / 10000).toFixed(0)}万</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(annualDepr / 10000).toFixed(0)}{t('devicePage.unitWan')}</td>
                     <td style={{ padding: '8px 8px', textAlign: 'center' }}>
                       <span style={{
                         padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
@@ -1862,7 +1862,7 @@ export default function DevicePage() {
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.status')}</label>
-                <input value="空闲 (新增默认)" disabled style={{
+                <input value={t('devicePage.idleDefault')} disabled style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textLight, outline: 'none', boxSizing: 'border-box', background: 'var(--bg-primary)'
                 }} />

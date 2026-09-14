@@ -538,7 +538,7 @@ export default function AIOrchestrationPage() {
 
   const handleEncapsulateSr = async (studyId: string, findings: unknown[], summary?: string) => {
     if (!studyId || findings.length === 0) {
-      message.warning('请先选择包含 AI 检出结果的检查');
+      message.warning(t('aiOrch.selectExamWithFindings'));
       return;
     }
     setEncapsulating(studyId);
@@ -556,7 +556,7 @@ export default function AIOrchestrationPage() {
         };
       }).filter((f) => f.label);
       if (payloadFindings.length === 0) {
-        message.warning('未找到有效的 AI 检出条目');
+        message.warning(t('aiOrch.noValidFindings'));
         return;
       }
       const res = await srDocumentApi.fromAi({
@@ -570,7 +570,7 @@ export default function AIOrchestrationPage() {
         message.success(`AI 结果已封装为 DICOM SR：${res.data.sopInstanceUid}`);
         navigate('/dicom/sr-manager');
       } else {
-        message.error(res.error?.message ?? '封装失败');
+        message.error(res.error?.message ?? t('aiOrch.encapsulateFailed'));
       }
     } catch (err) {
       if (err instanceof Error) message.error(err.message);
@@ -603,7 +603,7 @@ export default function AIOrchestrationPage() {
         orchForm.resetFields();
         void fetchOrchestrations();
       } else {
-        message.error(res.error?.message ?? '创建失败');
+        message.error(res.error?.message ?? t('aiOrch.createFailed'));
       }
     } catch (err) {
       if (err instanceof Error) message.error(err.message);
@@ -615,7 +615,7 @@ export default function AIOrchestrationPage() {
   // ===== 表格列 =====
   const integrationColumns: TableProps<AiWorkflowIntegration>['columns'] = [
     {
-      title: '集成名称', dataIndex: 'name', key: 'name',
+      title: t('aiOrch.colName'), dataIndex: 'name', key: 'name',
       render: (v: string) => (
         <Space>
           <GitBranch size={15} style={{ color: '#0ea5e9' }} />
@@ -624,7 +624,7 @@ export default function AIOrchestrationPage() {
       ),
     },
     {
-      title: 'AI 模型', dataIndex: 'model', key: 'model',
+      title: t('aiOrch.colModel'), dataIndex: 'model', key: 'model',
       render: (_v: unknown, r) => r.model ? (
         <Space size={4}>
           <Tag color="geekblue">{r.model.name} v{r.model.version}</Tag>
@@ -633,9 +633,9 @@ export default function AIOrchestrationPage() {
       ) : <Tag>{r.modelId}</Tag>,
     },
     {
-      title: '触发条件', dataIndex: 'triggerConditions', key: 'triggerConditions',
+      title: t('aiOrch.colTriggerConditions'), dataIndex: 'triggerConditions', key: 'triggerConditions',
       render: (v: Record<string, unknown>) => {
-        if (!v || Object.keys(v).length === 0) return <Tag>无条件</Tag>;
+        if (!v || Object.keys(v).length === 0) return <Tag>{t('aiOrch.unconditional')}</Tag>;
         const parts: string[] = [];
         if (v.trigger) parts.push(String(v.trigger));
         if (v.modality) parts.push(`模态=${v.modality}`);
@@ -644,28 +644,28 @@ export default function AIOrchestrationPage() {
       },
     },
     {
-      title: '目标工作流', dataIndex: 'targetWorkflow', key: 'targetWorkflow',
+      title: t('aiOrch.colTargetWorkflow'), dataIndex: 'targetWorkflow', key: 'targetWorkflow',
       render: (v: string) => <Tag color="cyan">{v}</Tag>,
     },
     {
-      title: '状态', dataIndex: 'status', key: 'status',
+      title: t('aiOrch.colStatus'), dataIndex: 'status', key: 'status',
       render: (v: string) => v === 'ACTIVE'
-        ? <Tag color="success" icon={<CheckCircle size={12} />}>启用</Tag>
-        : <Tag color="default">停用</Tag>,
+        ? <Tag color="success" icon={<CheckCircle size={12} />}>{t('aiOrch.enabled')}</Tag>
+        : <Tag color="default">{t('aiOrch.disabled')}</Tag>,
     },
     {
-      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
+      title: t('aiOrch.colCreatedAt'), dataIndex: 'createdAt', key: 'createdAt',
       render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{v.replace('T', ' ').slice(0, 16)}</span>,
     },
   ];
 
   const jobColumns: TableProps<AiJob>['columns'] = [
     {
-      title: '任务ID', dataIndex: 'id', key: 'id',
+      title: t('aiOrch.colJobId'), dataIndex: 'id', key: 'id',
       render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span>,
     },
     {
-      title: 'AI 模型', dataIndex: 'model', key: 'model',
+      title: t('aiOrch.colModel'), dataIndex: 'model', key: 'model',
       render: (_v: unknown, r) => r.model ? (
         <Space direction="vertical" size={0}>
           <span style={{ fontWeight: 600 }}>{r.model.name}</span>
@@ -674,22 +674,22 @@ export default function AIOrchestrationPage() {
       ) : <Tag>{r.modelId}</Tag>,
     },
     {
-      title: '检查', dataIndex: 'examId', key: 'examId',
+      title: t('aiOrch.colExam'), dataIndex: 'examId', key: 'examId',
       render: (v: string | null) => v ? <Tag color="default">{v}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>,
     },
     {
-      title: '触发', dataIndex: 'trigger', key: 'trigger',
+      title: t('aiOrch.colTrigger'), dataIndex: 'trigger', key: 'trigger',
       render: (v: string) => <Tag color="purple" style={{ fontSize: 11 }}>{TRIGGER_LABEL[v] ?? v}</Tag>,
     },
     {
-      title: '状态', dataIndex: 'status', key: 'status',
+      title: t('aiOrch.colStatus'), dataIndex: 'status', key: 'status',
       render: (v: string) => {
         const meta = JOB_STATUS_META[v] ?? JOB_STATUS_META.QUEUED!;
         return <Tag icon={meta.icon} color={meta.color}>{meta.label}</Tag>;
       },
     },
     {
-      title: '耗时', key: 'duration',
+      title: t('aiOrch.colDuration'), key: 'duration',
       render: (_v: unknown, r) => {
         if (!r.startedAt) return <span style={{ color: 'var(--text-secondary)' }}>--</span>;
         const end = r.completedAt ? Date.parse(r.completedAt) : Date.now();
@@ -698,29 +698,29 @@ export default function AIOrchestrationPage() {
       },
     },
     {
-      title: '结果', dataIndex: 'result', key: 'result',
+      title: t('aiOrch.colResult'), dataIndex: 'result', key: 'result',
       render: (_v: unknown, r) => {
-        if (r.status === 'FAILED') return <span style={{ color: '#ef4444', fontSize: 12 }}>{r.error ?? '推理失败'}</span>;
+        if (r.status === 'FAILED') return <span style={{ color: '#ef4444', fontSize: 12 }}>{r.error ?? t('aiOrch.inferenceFailed')}</span>;
         if (r.status !== 'COMPLETED') return <span style={{ color: 'var(--text-secondary)' }}>--</span>;
         const findings = r.result?.findings?.length ?? 0;
         const priority = r.result?.structured?.priority;
         return (
           <Space size={4}>
             <Tag color={priority === 'HIGH' ? 'red' : 'green'} style={{ fontSize: 11 }}>
-              {findings} 处异常
+              {t('aiOrch.abnormalCount', { count: findings })}
             </Tag>
-            {priority === 'HIGH' && <Tag color="volcano" style={{ fontSize: 11 }}>高优先级</Tag>}
+            {priority === 'HIGH' && <Tag color="volcano" style={{ fontSize: 11 }}>{t('aiOrch.highPriority')}</Tag>}
           </Space>
         );
       },
     },
     {
-      title: '操作', key: 'action',
+      title: t('aiOrch.colAction'), key: 'action',
       render: (_v: unknown, r) => (
         <Space>
-          <Button type="link" size="small" icon={<Eye size={13} />} onClick={() => openJobDrawer(r)}>详情</Button>
+          <Button type="link" size="small" icon={<Eye size={13} />} onClick={() => openJobDrawer(r)}>{t('aiOrch.detail')}</Button>
           {r.status === 'COMPLETED' && r.result?.findings?.length ? (
-            <Button type="link" size="small" icon={<ScanSearch size={13} />} onClick={() => openJobDrawer(r)}>二次检出查看</Button>
+            <Button type="link" size="small" icon={<ScanSearch size={13} />} onClick={() => openJobDrawer(r)}>{t('aiOrch.reviewView')}</Button>
           ) : null}
         </Space>
       ),
@@ -730,41 +730,41 @@ export default function AIOrchestrationPage() {
   // ===== [W1-D] 结构化报告表格列 =====
   const srColumns: TableProps<AiPlatformRecord>['columns'] = [
     {
-      title: '记录ID', dataIndex: 'id', key: 'id',
+      title: t('aiOrch.colRecordId'), dataIndex: 'id', key: 'id',
       render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span>,
     },
     {
-      title: '检查', key: 'studyId',
+      title: t('aiOrch.colExam'), key: 'studyId',
       render: (_v: unknown, r) => {
         const sid = detailOf(r, 'studyId');
         return sid ? <Tag color="default">{String(sid)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
-      title: '模板', key: 'templateId',
+      title: t('aiOrch.colTemplate'), key: 'templateId',
       render: (_v: unknown, r) => {
         const tid = detailOf(r, 'templateId');
         return tid ? <Tag color="geekblue" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(tid)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
-      title: '发现条目', key: 'findings',
+      title: t('aiOrch.colFindings'), key: 'findings',
       render: (_v: unknown, r) => {
         const findings = detailOf(r, 'findings');
         const count = Array.isArray(findings) ? findings.length : 0;
-        return count > 0 ? <Tag color="green">{count} 条</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
+        return count > 0 ? <Tag color="green">{t('aiOrch.entriesCount', { count })}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
-      title: '动作', dataIndex: 'action', key: 'action',
+      title: t('aiOrch.colAction'), dataIndex: 'action', key: 'action',
       render: (v: string) => <Tag color="purple" style={{ fontSize: 11 }}>{v ?? 'GENERATE'}</Tag>,
     },
     {
-      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
+      title: t('aiOrch.colCreatedAt'), dataIndex: 'createdAt', key: 'createdAt',
       render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{fmtTime(v)}</span>,
     },
     {
-      title: '操作', key: 'actionView',
+      title: t('aiOrch.colAction'), key: 'actionView',
       render: (_v: unknown, r) => {
         const studyId = String(detailOf(r, 'studyId') ?? '');
         const findings = detailOf(r, 'findings');
@@ -780,15 +780,15 @@ export default function AIOrchestrationPage() {
                   content: (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>检查号：</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('aiOrch.labelExamId')}</span>
                         <span>{studyId || '--'}</span>
                       </div>
                       <div>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>模板：</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('aiOrch.labelTemplate')}</span>
                         <span>{String(detailOf(r, 'templateId') ?? '--')}</span>
                       </div>
                       <div>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>发现内容：</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('aiOrch.labelFindingContent')}</span>
                         <div style={{ marginTop: 4, whiteSpace: 'pre-wrap', lineHeight: '22px' }}>
                           {fmtList(list)}
                         </div>
@@ -798,7 +798,7 @@ export default function AIOrchestrationPage() {
                 });
               }}
             >
-              详情
+              {t('aiOrch.detail')}
             </Button>
             {/* [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 */}
             <Button
@@ -807,7 +807,7 @@ export default function AIOrchestrationPage() {
               loading={encapsulating === r.id}
               onClick={() => void handleEncapsulateSr(studyId, list, undefined)}
             >
-              封装为 DICOM SR
+              {t('aiOrch.encapsulateSr')}
             </Button>
           </Space>
         );
@@ -817,34 +817,34 @@ export default function AIOrchestrationPage() {
 
   // ===== [W1-D] 融合工作区表格列 =====
   const FUSION_STATUS_META: Record<string, { color: string; label: string }> = {
-    COMPLETED: { color: 'success', label: '已完成' },
-    RUNNING: { color: 'processing', label: '融合中' },
-    QUEUED: { color: 'default', label: '排队中' },
-    FAILED: { color: 'error', label: '失败' },
+    COMPLETED: { color: 'success', label: t('aiOrch.fusionCompleted') },
+    RUNNING: { color: 'processing', label: t('aiOrch.fusionRunning') },
+    QUEUED: { color: 'default', label: t('aiOrch.fusionQueued') },
+    FAILED: { color: 'error', label: t('aiOrch.fusionFailed') },
   };
 
   const fusionColumns: TableProps<AiPlatformRecord>['columns'] = [
     {
-      title: '任务ID', dataIndex: 'id', key: 'id',
+      title: t('aiOrch.colJobId'), dataIndex: 'id', key: 'id',
       render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span>,
     },
     {
-      title: '主序列', key: 'primarySeries',
+      title: t('aiOrch.colPrimarySeries'), key: 'primarySeries',
       render: (_v: unknown, r) => <Tag color="cyan" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(detailOf(r, 'primarySeries') ?? '--')}</Tag>,
     },
     {
-      title: '副序列', key: 'secondarySeries',
+      title: t('aiOrch.colSecondarySeries'), key: 'secondarySeries',
       render: (_v: unknown, r) => <Tag color="default" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(detailOf(r, 'secondarySeries') ?? '--')}</Tag>,
     },
     {
-      title: '融合类型', key: 'type',
+      title: t('aiOrch.colFusionType'), key: 'type',
       render: (_v: unknown, r) => {
-        const t = detailOf(r, 'type');
-        return t ? <Tag color="geekblue">{String(t)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
+        const typeVal = detailOf(r, 'type');
+        return typeVal ? <Tag color="geekblue">{String(typeVal)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
-      title: '状态', key: 'status',
+      title: t('aiOrch.colStatus'), key: 'status',
       render: (_v: unknown, r) => {
         const st = String(detailOf(r, 'status') ?? 'QUEUED');
         const meta = FUSION_STATUS_META[st] ?? FUSION_STATUS_META.QUEUED!;
@@ -852,14 +852,14 @@ export default function AIOrchestrationPage() {
       },
     },
     {
-      title: '结果路径', key: 'resultPath',
+      title: t('aiOrch.colResultPath'), key: 'resultPath',
       render: (_v: unknown, r) => {
         const p = detailOf(r, 'resultPath');
         return p ? <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#0ea5e9' }}>{String(p)}</span> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
-      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
+      title: t('aiOrch.colCreatedAt'), dataIndex: 'createdAt', key: 'createdAt',
       render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{fmtTime(v)}</span>,
     },
   ];
@@ -867,11 +867,11 @@ export default function AIOrchestrationPage() {
   // ===== [W1-D] AI 编排表格列 =====
   const orchestrationColumns: TableProps<AiPlatformRecord>['columns'] = [
     {
-      title: '编排ID', dataIndex: 'id', key: 'id',
+      title: t('aiOrch.colOrchId'), dataIndex: 'id', key: 'id',
       render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span>,
     },
     {
-      title: '编排名称', key: 'workflowName',
+      title: t('aiOrch.colOrchName'), key: 'workflowName',
       render: (_v: unknown, r) => (
         <Space>
           <Workflow size={14} style={{ color: '#8b5cf6' }} />
@@ -880,22 +880,22 @@ export default function AIOrchestrationPage() {
       ),
     },
     {
-      title: '触发', key: 'trigger',
+      title: t('aiOrch.colTrigger'), key: 'trigger',
       render: (_v: unknown, r) => {
-        const t = detailOf(r, 'trigger');
-        return t ? <Tag color="purple" style={{ fontSize: 11 }}>{TRIGGER_LABEL[String(t)] ?? String(t)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
+        const trigVal = detailOf(r, 'trigger');
+        return trigVal ? <Tag color="purple" style={{ fontSize: 11 }}>{TRIGGER_LABEL[String(trigVal)] ?? String(trigVal)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
-      title: '步骤数', key: 'steps',
+      title: t('aiOrch.colSteps'), key: 'steps',
       render: (_v: unknown, r) => {
         const steps = detailOf(r, 'steps');
         const count = Array.isArray(steps) ? steps.length : 0;
-        return count > 0 ? <Tag color="blue">{count} 步</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
+        return count > 0 ? <Tag color="blue">{t('aiOrch.stepsCount', { count })}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
-      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
+      title: t('aiOrch.colCreatedAt'), dataIndex: 'createdAt', key: 'createdAt',
       render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{fmtTime(v)}</span>,
     },
   ];
@@ -922,7 +922,7 @@ export default function AIOrchestrationPage() {
                     <div style={{ fontWeight: 700 }}>{m.name}</div>
                     <Space size={4}>
                       <Tag style={{ fontSize: 11 }}>v{m.version}</Tag>
-                      <Tag color="blue" style={{ fontSize: 11 }}>{m.category ?? '通用'}</Tag>
+                      <Tag color="blue" style={{ fontSize: 11 }}>{m.category ?? t('aiOrch.categoryGeneral')}</Tag>
                     </Space>
                   </div>
                 </Space>
@@ -932,12 +932,12 @@ export default function AIOrchestrationPage() {
               <div style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                   {m.status === 'FAILED' ? <WifiOff size={12} /> : <Wifi size={12} />}
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.endpoint ?? '未配置端点'}</span>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.endpoint ?? t('aiOrch.endpointNotConfigured')}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <Tooltip title={`${m.vendor ?? '未知厂商'}`}>
+                  <Tooltip title={`${m.vendor ?? t('aiOrch.unknownVendor')}`}>
                     <span style={{ background: `${color}22`, color, padding: '2px 8px', borderRadius: 6, fontWeight: 600, fontSize: 11 }}>
-                      {m.vendor ?? '未知厂商'}
+                      {m.vendor ?? t('aiOrch.unknownVendor')}
                     </span>
                   </Tooltip>
                 </div>
@@ -945,21 +945,21 @@ export default function AIOrchestrationPage() {
 
               <Row gutter={8} style={{ textAlign: 'center' }}>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>推理次数</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{t('aiOrch.inferenceCount')}</div>
                   <div style={{ fontSize: 18, fontWeight: 600 }}>{m.deploymentCount}</div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>工作流集成</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{t('aiOrch.workflowIntegrations')}</div>
                   <div style={{ fontSize: 18, fontWeight: 600 }}>{m.integrationCount}</div>
                 </Col>
               </Row>
 
               <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <Button size="small" icon={<FlaskConical size={13} />} onClick={() => void handleTest(m.id)}>测试</Button>
+                <Button size="small" icon={<FlaskConical size={13} />} onClick={() => void handleTest(m.id)}>{t('aiOrch.test')}</Button>
                 {m.status !== 'DEPLOYED' ? (
-                  <Button size="small" type="primary" icon={<Play size={13} />} onClick={() => void handleDeploy(m.id)}>部署</Button>
+                  <Button size="small" type="primary" icon={<Play size={13} />} onClick={() => void handleDeploy(m.id)}>{t('aiOrch.deploy')}</Button>
                 ) : (
-                  <Button size="small" danger icon={<Square size={13} />} onClick={() => handleUndeploy(m.id, m.name)}>下线</Button>
+                  <Button size="small" danger icon={<Square size={13} />} onClick={() => handleUndeploy(m.id, m.name)}>{t('aiOrch.undeploy')}</Button>
                 )}
               </div>
             </Card>
@@ -984,21 +984,21 @@ export default function AIOrchestrationPage() {
               <Cpu size={22} color="#fff" />
             </div>
           }
-          title="AI 编排平台"
-          subtitle="模型注册 → 部署 → 工作流集成 → 推理任务 → 二次检出"
+          title={t('aiOrch.pageTitle')}
+          subtitle={t('aiOrch.pageSubtitle')}
           actions={
             <Space size={12}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>{models.filter((m) => m.status === 'DEPLOYED').length}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已部署模型</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('aiOrch.deployedModels')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#0ea5e9' }}>{integrations.filter((i) => i.status === 'ACTIVE').length}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>活跃集成</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('aiOrch.activeIntegrations')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#8b5cf6' }}>{completedJobs.length}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>完成任务</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('aiOrch.completedTasks')}</div>
               </div>
             </Space>
           }
@@ -1012,41 +1012,41 @@ export default function AIOrchestrationPage() {
           items={[
             {
               key: 'market',
-              label: <Space><Boxes size={15} />模型市场</Space>,
+              label: <Space><Boxes size={15} />{t('aiOrch.tabModelMarket')}</Space>,
               children: (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={models.length} color="#8b5cf6" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>已注册模型</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.registeredModels')}</span>
                       </Badge>
                       {modelsLoading && <Spin size="small" />}
                     </Space>
                     <Button type="primary" icon={<Plus size={15} />} onClick={() => setRegisterOpen(true)}>
-                      注册模型
+                      {t('aiOrch.registerModel')}
                     </Button>
                   </div>
                   {models.length === 0 && !modelsLoading ? (
-                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无模型，点击右上角注册" />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.emptyModels')} />
                   ) : renderModelCards()}
                 </div>
               ),
             },
             {
               key: 'integration',
-              label: <Space><GitBranch size={15} />工作流集成</Space>,
+              label: <Space><GitBranch size={15} />{t('aiOrch.tabIntegrations')}</Space>,
               children: (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={integrations.length} color="#0ea5e9" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>AI → 工作流集成</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.integrationTitle')}</span>
                       </Badge>
                       {integrationsLoading && <Spin size="small" />}
                     </Space>
                     <Space>
-                      <Button icon={<Zap size={14} />} onClick={() => setEventOpen(true)}>模拟事件触发</Button>
-                      <Button type="primary" icon={<Plus size={15} />} onClick={() => setIntegrationOpen(true)}>新建集成</Button>
+                      <Button icon={<Zap size={14} />} onClick={() => setEventOpen(true)}>{t('aiOrch.simulateEvent')}</Button>
+                      <Button type="primary" icon={<Plus size={15} />} onClick={() => setIntegrationOpen(true)}>{t('aiOrch.newIntegration')}</Button>
                     </Space>
                   </div>
                   <Table
@@ -1054,19 +1054,19 @@ export default function AIOrchestrationPage() {
                     columns={integrationColumns}
                     rowKey="id"
                     loading={integrationsLoading}
-                    pagination={{ current: integrationPage, pageSize: 8, total: integrations.length, onChange: setIntegrationPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无集成，点击右上角新建" /> }}
+                    pagination={{ current: integrationPage, pageSize: 8, total: integrations.length, onChange: setIntegrationPage, showSizeChanger: false, showTotal: (total) => t('aiOrch.paginationTotal', { count: total }) }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.emptyIntegrations')} /> }}
                   scroll={{ x: 'max-content' }}
                   />
                   <div style={{ marginTop: 20 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                       <Space>
-                        <span style={{ fontWeight: 600 }}><Workflow size={14} style={{ marginRight: 6, color: '#8b5cf6' }} />AI 编排流水线</span>
+                        <span style={{ fontWeight: 600 }}><Workflow size={14} style={{ marginRight: 6, color: '#8b5cf6' }} />{t('aiOrch.orchPipeline')}</span>
                         {orchLoading && <Spin size="small" />}
                         {orchError && <span style={{ color: '#ef4444', fontSize: 12 }}>{orchError}</span>}
                       </Space>
                       <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setOrchOpen(true)}>
-                        新建编排
+                        {t('aiOrch.newOrch')}
                       </Button>
                     </div>
                     <Table
@@ -1074,9 +1074,9 @@ export default function AIOrchestrationPage() {
                       columns={orchestrationColumns}
                       rowKey="id"
                       loading={orchLoading}
-                      pagination={{ current: orchPage, pageSize: 8, total: orchestrations.length, onChange: setOrchPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
+                      pagination={{ current: orchPage, pageSize: 8, total: orchestrations.length, onChange: setOrchPage, showSizeChanger: false, showTotal: (total) => t('aiOrch.paginationTotal', { count: total }) }}
                       size="small"
-                      locale={{ emptyText: <EmptyState description="暂无编排流水线" /> }}
+                      locale={{ emptyText: <EmptyState description={t('aiOrch.emptyOrch')} /> }}
                     scroll={{ x: 'max-content' }}
                     />
                   </div>
@@ -1085,18 +1085,18 @@ export default function AIOrchestrationPage() {
             },
             {
               key: 'jobs',
-              label: <Space><ListChecks size={15} />推理任务</Space>,
+              label: <Space><ListChecks size={15} />{t('aiOrch.tabJobs')}</Space>,
               children: (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={jobs.length} color="#10b981" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>推理任务（每 4s 自动刷新）</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.jobsAutoRefresh')}</span>
                       </Badge>
                       {jobsLoading && <Spin size="small" />}
                     </Space>
                     <Button type="primary" icon={<Play size={14} />} onClick={() => setTriggerOpen(true)}>
-                      触发推理
+                      {t('aiOrch.triggerInference')}
                     </Button>
                   </div>
                   <Table
@@ -1104,8 +1104,8 @@ export default function AIOrchestrationPage() {
                     columns={jobColumns}
                     rowKey="id"
                     loading={jobsLoading}
-                    pagination={{ current: jobPage, pageSize: 10, total: jobs.length, onChange: setJobPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无推理任务" /> }}
+                    pagination={{ current: jobPage, pageSize: 10, total: jobs.length, onChange: setJobPage, showSizeChanger: false, showTotal: (total) => t('aiOrch.paginationTotal', { count: total }) }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.emptyJobs')} /> }}
                   scroll={{ x: 'max-content' }}
                   />
                 </div>
@@ -1113,19 +1113,19 @@ export default function AIOrchestrationPage() {
             },
             {
               key: 'sr',
-              label: <Space><FileText size={15} />结构化报告</Space>,
+              label: <Space><FileText size={15} />{t('aiOrch.tabSr')}</Space>,
               children: (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={srReports.length} color="#8b5cf6" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>结构化报告（由检查生成）</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.srGenerated')}</span>
                       </Badge>
                       {srLoading && <Spin size="small" />}
                       {srError && <span style={{ color: '#ef4444', fontSize: 12 }}>{srError}</span>}
                     </Space>
                     <Button type="primary" icon={<Plus size={15} />} onClick={() => setSrOpen(true)}>
-                      生成结构化报告
+                      {t('aiOrch.generateSr')}
                     </Button>
                   </div>
                   <Table
@@ -1133,8 +1133,8 @@ export default function AIOrchestrationPage() {
                     columns={srColumns}
                     rowKey="id"
                     loading={srLoading}
-                    pagination={{ current: srPage, pageSize: 8, total: srReports.length, onChange: setSrPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无结构化报告，点击右上角生成" /> }}
+                    pagination={{ current: srPage, pageSize: 8, total: srReports.length, onChange: setSrPage, showSizeChanger: false, showTotal: (total) => t('aiOrch.paginationTotal', { count: total }) }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.emptySr')} /> }}
                   scroll={{ x: 'max-content' }}
                   />
                 </div>
@@ -1142,26 +1142,26 @@ export default function AIOrchestrationPage() {
             },
             {
               key: 'fusion',
-              label: <Space><Layers size={15} />融合工作区</Space>,
+              label: <Space><Layers size={15} />{t('aiOrch.tabFusion')}</Space>,
               children: (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={fusionJobs.length} color="#0ea5e9" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>多模态融合任务（FusionJob）</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.fusionTasks')}</span>
                       </Badge>
                       {fusionLoading && <Spin size="small" />}
                       {fusionError && <span style={{ color: '#ef4444', fontSize: 12 }}>{fusionError}</span>}
                     </Space>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>支持 PET/CT、MR/PET、CT/CTA 等序列融合</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('aiOrch.fusionSupport')}</span>
                   </div>
                   <Table
                     dataSource={fusionJobs}
                     columns={fusionColumns}
                     rowKey="id"
                     loading={fusionLoading}
-                    pagination={{ current: fusionPage, pageSize: 8, total: fusionJobs.length, onChange: setFusionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无融合任务" /> }}
+                    pagination={{ current: fusionPage, pageSize: 8, total: fusionJobs.length, onChange: setFusionPage, showSizeChanger: false, showTotal: (total) => t('aiOrch.paginationTotal', { count: total }) }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.emptyFusion')} /> }}
                   scroll={{ x: 'max-content' }}
                   />
                 </div>
@@ -1169,13 +1169,13 @@ export default function AIOrchestrationPage() {
             },
             {
               key: 'assist',
-              label: <Space><Sparkles size={15} />AI 辅助</Space>,
+              label: <Space><Sparkles size={15} />{t('aiOrch.tabAssist')}</Space>,
               children: (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={assistItems.length} color="#10b981" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>报告书写辅助建议模板</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.assistTemplates')}</span>
                       </Badge>
                       {assistLoading && <Spin size="small" />}
                       {assistError && <span style={{ color: '#ef4444', fontSize: 12 }}>{assistError}</span>}
@@ -1184,11 +1184,11 @@ export default function AIOrchestrationPage() {
                       const all = assistItems.map((a) => String(detailOf(a, 'suggestion') ?? '')).filter(Boolean).join('\n\n');
                       if (all) copyAssistText(all);
                     }}>
-                      复制全部建议
+                      {t('aiOrch.copyAllSuggestions')}
                     </Button>
                   </div>
                   {assistItems.length === 0 && !assistLoading ? (
-                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无 AI 辅助建议" />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.emptyAssist')} />
                   ) : (
                     <Row gutter={[16, 16]}>
                       {assistItems.map((a) => {
@@ -1199,7 +1199,7 @@ export default function AIOrchestrationPage() {
                         const applicable = String(detailOf(a, 'applicableTo') ?? '');
                         const levelColor: Record<string, string> = { CRITICAL: 'red', WARN: 'orange', INFO: 'blue' };
                         const categoryLabel: Record<string, string> = {
-                          quality: '报告质量', diagnosis: '鉴别诊断', followup: '随访建议', critical: '危急值', general: '通用',
+                          quality: t('aiOrch.assistCatQuality'), diagnosis: t('aiOrch.assistCatDiagnosis'), followup: t('aiOrch.assistCatFollowup'), critical: t('aiOrch.assistCatCritical'), general: t('aiOrch.assistCatGeneral'),
                         };
                         return (
                           <Col xs={24} md={12} xl={8} key={a.id}>
@@ -1230,7 +1230,7 @@ export default function AIOrchestrationPage() {
                                 style={{ alignSelf: 'flex-end' }}
                                 onClick={() => copyAssistText(suggestion)}
                               >
-                                复制建议
+                                {t('aiOrch.copySuggestion')}
                               </Button>
                             </Card>
                           </Col>
@@ -1247,92 +1247,92 @@ export default function AIOrchestrationPage() {
 
       {/* ===== 注册模型 Modal ===== */}
       <Modal
-        title={<Space><Plus size={16} /> 注册 AI 模型</Space>}
+        title={<Space><Plus size={16} /> {t('aiOrch.modalRegisterTitle')}</Space>}
         open={registerOpen}
         onOk={() => void handleRegister()}
         onCancel={() => { setRegisterOpen(false); registerForm.resetFields(); }}
-        okText="注册"
-        cancelText="取消"
+        okText={t('aiOrch.okRegister')}
+        cancelText={t('aiOrch.cancel')}
         width={520}
       >
         <Form form={registerForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="name" label="模型名称" rules={[{ required: true, message: '请输入模型名称' }]}>
-            <Input placeholder="如：肺结节检测" />
+          <Form.Item name="name" label={t('aiOrch.fldModelName')} rules={[{ required: true, message: t('aiOrch.msgModelName') }]}>
+            <Input placeholder={t('aiOrch.phModelName')} />
           </Form.Item>
           <Row gutter={12}>
             <Col span={8}>
-              <Form.Item name="version" label="版本" rules={[{ required: true, message: '请输入版本号' }]}>
-                <Input placeholder="如：2.3.1" />
+              <Form.Item name="version" label={t('aiOrch.fldVersion')} rules={[{ required: true, message: t('aiOrch.msgVersion') }]}>
+                <Input placeholder={t('aiOrch.phVersion')} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="category" label="类别">
+              <Form.Item name="category" label={t('aiOrch.fldCategory')}>
                 <Select
-                  placeholder="选择类别"
+                  placeholder={t('aiOrch.phSelectCategory')}
                   allowClear
                   options={['检测', '分割', '分类', '筛查', '定量分析', 'NLP'].map((c) => ({ label: c, value: c }))}
                 />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="vendor" label="厂商" rules={[{ required: true, message: '请输入厂商' }]}>
-                <Input placeholder="如：DeepHealth" />
+              <Form.Item name="vendor" label={t('aiOrch.fldVendor')} rules={[{ required: true, message: t('aiOrch.msgVendor') }]}>
+                <Input placeholder={t('aiOrch.phVendor')} />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="endpoint" label="推理端点 URL" rules={[{ required: true, type: 'url', message: '请输入合法 URL' }]}>
+          <Form.Item name="endpoint" label={t('aiOrch.fldEndpoint')} rules={[{ required: true, type: 'url', message: t('aiOrch.msgEndpoint') }]}>
             <Input placeholder="https://ai.example.com/model/v1" />
           </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input.TextArea rows={2} placeholder="模型能力简介（可选）" />
+          <Form.Item name="description" label={t('aiOrch.fldDescription')}>
+            <Input.TextArea rows={2} placeholder={t('aiOrch.phDescription')} />
           </Form.Item>
         </Form>
       </Modal>
 
       {/* ===== 新建集成 Modal ===== */}
       <Modal
-        title={<Space><GitBranch size={16} /> 新建 AI → 工作流集成</Space>}
+        title={<Space><GitBranch size={16} /> {t('aiOrch.modalIntegrationTitle')}</Space>}
         open={integrationOpen}
         onOk={() => void handleCreateIntegration()}
         onCancel={() => { setIntegrationOpen(false); integrationForm.resetFields(); }}
-        okText="创建"
-        cancelText="取消"
+        okText={t('aiOrch.okCreate')}
+        cancelText={t('aiOrch.cancel')}
         width={560}
       >
         <Form form={integrationForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="modelId" label="AI 模型" rules={[{ required: true, message: '请选择模型' }]}>
+          <Form.Item name="modelId" label={t('aiOrch.fldAiModel')} rules={[{ required: true, message: t('aiOrch.msgSelectModel') }]}>
             <Select
-              placeholder="选择已注册模型"
+              placeholder={t('aiOrch.phSelectRegisteredModel')}
               options={models.map((m) => ({
                 label: `${m.name} v${m.version} (${m.status === 'DEPLOYED' ? '已部署' : m.status})`,
                 value: m.id,
               }))}
             />
           </Form.Item>
-          <Form.Item name="name" label="集成名称" rules={[{ required: true, message: '请输入集成名称' }]}>
-            <Input placeholder="如：胸部CT结节检测自动工作流" />
+          <Form.Item name="name" label={t('aiOrch.fldIntegrationName')} rules={[{ required: true, message: t('aiOrch.msgIntegrationName') }]}>
+            <Input placeholder={t('aiOrch.phIntegrationName')} />
           </Form.Item>
-          <Form.Item name="trigger" label="触发条件" initialValue="ON_STUDY_COMPLETE">
+          <Form.Item name="trigger" label={t('aiOrch.fldTriggerCondition')} initialValue="ON_STUDY_COMPLETE">
             <Select options={TRIGGER_OPTIONS} />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="modality" label="设备模态（可选，匹配条件）">
-                <Select allowClear placeholder="不限" options={MODALITY_OPTIONS} />
+              <Form.Item name="modality" label={t('aiOrch.fldModalityOptional')}>
+                <Select allowClear placeholder={t('aiOrch.phAny')} options={MODALITY_OPTIONS} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="bodyPart" label="检查部位（可选，匹配条件）">
-                <Input placeholder="如：CHEST" />
+              <Form.Item name="bodyPart" label={t('aiOrch.fldBodyPartOptional')}>
+                <Input placeholder={t('aiOrch.phBodyPart')} />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="targetWorkflow" label="目标工作流" rules={[{ required: true, message: '请选择目标工作流' }]}>
+          <Form.Item name="targetWorkflow" label={t('aiOrch.fldTargetWorkflow')} rules={[{ required: true, message: t('aiOrch.msgTargetWorkflow') }]}>
             <Select
               showSearch
               mode="tags"
               maxCount={1}
-              placeholder="选择或输入工作流标识"
+              placeholder={t('aiOrch.phWorkflowId')}
               options={WORKFLOW_OPTIONS}
             />
           </Form.Item>
@@ -1341,28 +1341,28 @@ export default function AIOrchestrationPage() {
 
       {/* ===== 触发推理 Modal ===== */}
       <Modal
-        title={<Space><Play size={16} /> 触发 AI 推理</Space>}
+        title={<Space><Play size={16} /> {t('aiOrch.modalTriggerTitle')}</Space>}
         open={triggerOpen}
         onOk={() => void handleTriggerJob()}
         onCancel={() => { setTriggerOpen(false); triggerForm.resetFields(); }}
-        okText="触发"
-        cancelText="取消"
+        okText={t('aiOrch.okTrigger')}
+        cancelText={t('aiOrch.cancel')}
         width={480}
       >
         <Form form={triggerForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="modelId" label="AI 模型（仅已部署）" rules={[{ required: true, message: '请选择模型' }]}>
+          <Form.Item name="modelId" label={t('aiOrch.fldAiModelDeployed')} rules={[{ required: true, message: t('aiOrch.msgSelectModel') }]}>
             <Select
-              placeholder={deployedModels.length ? '选择已部署模型' : '暂无可部署模型'}
+              placeholder={deployedModels.length ? t('aiOrch.phSelectDeployedModel') : t('aiOrch.phNoDeployableModel')}
               options={deployedModels.map((m) => ({
                 label: `${m.name} v${m.version}`,
                 value: m.id,
               }))}
             />
           </Form.Item>
-          <Form.Item name="examId" label="检查号" rules={[{ required: true, message: '请输入检查号' }]}>
-            <Input placeholder="如：EX-5123" />
+          <Form.Item name="examId" label={t('aiOrch.fldExamId')} rules={[{ required: true, message: t('aiOrch.msgExamId') }]}>
+            <Input placeholder={t('aiOrch.phExamId')} />
           </Form.Item>
-          <Form.Item name="trigger" label="触发方式" initialValue="MANUAL">
+          <Form.Item name="trigger" label={t('aiOrch.fldTriggerType')} initialValue="MANUAL">
             <Select options={TRIGGER_OPTIONS} />
           </Form.Item>
         </Form>
@@ -1370,86 +1370,86 @@ export default function AIOrchestrationPage() {
 
       {/* ===== 模拟事件触发 Modal ===== */}
       <Modal
-        title={<Space><Zap size={16} /> 模拟工作流事件（按条件匹配）</Space>}
+        title={<Space><Zap size={16} /> {t('aiOrch.modalEventTitle')}</Space>}
         open={eventOpen}
         onOk={() => void handleTriggerEvent()}
         onCancel={() => { setEventOpen(false); eventForm.resetFields(); }}
-        okText="触发事件"
-        cancelText="取消"
+        okText={t('aiOrch.okTriggerEvent')}
+        cancelText={t('aiOrch.cancel')}
         width={480}
       >
         <Form form={eventForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="trigger" label="事件类型" rules={[{ required: true, message: '请选择事件类型' }]} initialValue="ON_STUDY_COMPLETE">
+          <Form.Item name="trigger" label={t('aiOrch.fldEventType')} rules={[{ required: true, message: t('aiOrch.msgEventType') }]} initialValue="ON_STUDY_COMPLETE">
             <Select options={TRIGGER_OPTIONS} />
           </Form.Item>
-          <Form.Item name="examId" label="检查号" rules={[{ required: true, message: '请输入检查号' }]}>
-            <Input placeholder="如：EX-5123" />
+          <Form.Item name="examId" label={t('aiOrch.fldExamId')} rules={[{ required: true, message: t('aiOrch.msgExamId') }]}>
+            <Input placeholder={t('aiOrch.phExamId')} />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="modality" label="设备模态（匹配条件）">
-                <Select allowClear placeholder="不限" options={MODALITY_OPTIONS} />
+              <Form.Item name="modality" label={t('aiOrch.fldModalityMatch')}>
+                <Select allowClear placeholder={t('aiOrch.phAny')} options={MODALITY_OPTIONS} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="bodyPart" label="检查部位（匹配条件）">
-                <Input placeholder="如：CHEST" />
+              <Form.Item name="bodyPart" label={t('aiOrch.fldBodyPartMatch')}>
+                <Input placeholder={t('aiOrch.phBodyPart')} />
               </Form.Item>
             </Col>
           </Row>
           <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
-            系统将根据集成触发条件自动匹配并创建对应推理任务（队列模拟）
+            {t('aiOrch.eventHint')}
           </div>
         </Form>
       </Modal>
 
       {/* ===== [W1-D] 生成结构化报告 Modal ===== */}
       <Modal
-        title={<Space><FileText size={16} /> 生成结构化报告</Space>}
+        title={<Space><FileText size={16} /> {t('aiOrch.modalSrTitle')}</Space>}
         open={srOpen}
         onOk={() => void handleGenerateSr()}
         onCancel={() => { setSrOpen(false); srForm.resetFields(); }}
-        okText="生成"
+        okText={t('aiOrch.okGenerate')}
         confirmLoading={srSubmitting}
-        cancelText="取消"
+        cancelText={t('aiOrch.cancel')}
         width={520}
       >
         <Form form={srForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="studyId" label="检查号" rules={[{ required: true, message: '请输入检查号' }]}>
-            <Input placeholder="如：EX-5001" />
+          <Form.Item name="studyId" label={t('aiOrch.fldExamId')} rules={[{ required: true, message: t('aiOrch.msgExamId') }]}>
+            <Input placeholder={t('aiOrch.phExamId5001')} />
           </Form.Item>
-          <Form.Item name="templateId" label="报告模板" rules={[{ required: true, message: '请选择模板' }]}>
+          <Form.Item name="templateId" label={t('aiOrch.fldReportTemplate')} rules={[{ required: true, message: t('aiOrch.msgSelectTemplate') }]}>
             <Select
               showSearch
-              placeholder="选择结构化报告模板"
+              placeholder={t('aiOrch.phSelectSrTemplate')}
               options={[
-                { label: '胸部 CT 平扫结构化模板 (TPL-CHEST-CT)', value: 'TPL-CHEST-CT' },
-                { label: 'DR 骨折结构化模板 (TPL-DR-FRACTURE)', value: 'TPL-DR-FRACTURE' },
-                { label: '头颅 MR 结构化模板 (TPL-BRAIN-MR)', value: 'TPL-BRAIN-MR' },
-                { label: '钼靶筛查结构化模板 (TPL-MG-SCREEN)', value: 'TPL-MG-SCREEN' },
+                { label: t('aiOrch.tplChestCt'), value: 'TPL-CHEST-CT' },
+                { label: t('aiOrch.tplDrFracture'), value: 'TPL-DR-FRACTURE' },
+                { label: t('aiOrch.tplBrainMr'), value: 'TPL-BRAIN-MR' },
+                { label: t('aiOrch.tplMgScreen'), value: 'TPL-MG-SCREEN' },
               ]}
             />
           </Form.Item>
-          <Form.Item name="findings" label="发现条目（可多选，AI 将据此生成结构化内容）">
+          <Form.Item name="findings" label={t('aiOrch.fldFindingsMulti')}>
             <Select
               mode="tags"
               open={false}
-              placeholder="输入发现内容后回车，如：右肺上叶磨玻璃结节"
+              placeholder={t('aiOrch.phFindingsInput')}
               tokenSeparators={[',', '；']}
             />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="modality" label="模态（附加上下文）">
-                <Select allowClear placeholder="可选" options={MODALITY_OPTIONS} />
+              <Form.Item name="modality" label={t('aiOrch.fldModalityContext')}>
+                <Select allowClear placeholder={t('aiOrch.phOptional')} options={MODALITY_OPTIONS} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="priority" label="优先级（附加上下文）">
-                <Select allowClear placeholder="可选" options={[
-                  { label: '常规', value: 'NORMAL' },
-                  { label: '高优先级', value: 'HIGH' },
-                  { label: '危急', value: 'CRITICAL' },
+              <Form.Item name="priority" label={t('aiOrch.fldPriorityContext')}>
+                <Select allowClear placeholder={t('aiOrch.phOptional')} options={[
+                  { label: t('aiOrch.priorityNormal'), value: 'NORMAL' },
+                  { label: t('aiOrch.priorityHigh'), value: 'HIGH' },
+                  { label: t('aiOrch.priorityCritical'), value: 'CRITICAL' },
                 ]} />
               </Form.Item>
             </Col>
@@ -1459,57 +1459,57 @@ export default function AIOrchestrationPage() {
 
       {/* ===== [W1-D] 新建 AI 编排 Modal ===== */}
       <Modal
-        title={<Space><Workflow size={16} /> 新建 AI 编排流水线</Space>}
+        title={<Space><Workflow size={16} /> {t('aiOrch.modalOrchTitle')}</Space>}
         open={orchOpen}
         onOk={() => void handleCreateOrchestration()}
         onCancel={() => { setOrchOpen(false); orchForm.resetFields(); }}
-        okText="创建"
+        okText={t('aiOrch.okCreate')}
         confirmLoading={orchSubmitting}
-        cancelText="取消"
+        cancelText={t('aiOrch.cancel')}
         width={560}
       >
         <Form form={orchForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="workflowName" label="编排名称" rules={[{ required: true, message: '请输入编排名称' }]}>
-            <Input placeholder="如：胸部CT结节智能闭环" />
+          <Form.Item name="workflowName" label={t('aiOrch.fldOrchName')} rules={[{ required: true, message: t('aiOrch.msgOrchName') }]}>
+            <Input placeholder={t('aiOrch.phOrchName')} />
           </Form.Item>
-          <Form.Item name="trigger" label="触发方式" initialValue="ON_STUDY_COMPLETE">
+          <Form.Item name="trigger" label={t('aiOrch.fldTriggerType')} initialValue="ON_STUDY_COMPLETE">
             <Select options={TRIGGER_OPTIONS} />
           </Form.Item>
-          <Form.Item label="执行步骤" required>
+          <Form.Item label={t('aiOrch.fldExecSteps')} required>
             <Form.List name="steps" initialValue={[{ action: 'ai_detection', target: 'MOD-001' }, { action: 'report_draft', target: 'TPL-CHEST-CT' }]}>
               {(fields, { add, remove }) => (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {fields.map(({ key, name, ...restField }) => (
                     <Space key={key} align="baseline" style={{ display: 'flex' }}>
                       <span style={{ width: 20, color: 'var(--text-secondary)', fontSize: 12 }}>{name + 1}</span>
-                      <Form.Item {...restField} name={[name, 'action']} rules={[{ required: true, message: '请输入动作' }]} style={{ marginBottom: 0, width: 180 }}>
-                        <Input placeholder="如：ai_detection" />
+                      <Form.Item {...restField} name={[name, 'action']} rules={[{ required: true, message: t('aiOrch.msgStepAction') }]} style={{ marginBottom: 0, width: 180 }}>
+                        <Input placeholder={t('aiOrch.phStepAction')} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'target']} style={{ marginBottom: 0, width: 200 }}>
-                        <Input placeholder="目标（模型/模板，可选）" />
+                        <Input placeholder={t('aiOrch.phStepTarget')} />
                       </Form.Item>
                       <Button type="text" danger size="small" icon={<XCircle size={13} />} onClick={() => remove(name)} />
                     </Space>
                   ))}
                   <Button type="dashed" size="small" icon={<Plus size={13} />} onClick={() => add({ action: '', target: '' })}>
-                    添加步骤
+                    {t('aiOrch.addStep')}
                   </Button>
                 </div>
               )}
             </Form.List>
           </Form.Item>
           <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
-            步骤动作示例：ai_detection（AI 检测）、report_draft（报告起草）、human_review（医生复核）、critical_escalation（危急值升级）
+            {t('aiOrch.stepExamples')}
           </div>
         </Form>
       </Modal>
 
       {/* ===== 测试结果 Popover ===== */}
       <Modal
-        title={<Space><FlaskConical size={16} /> 模型连通性测试</Space>}
+        title={<Space><FlaskConical size={16} /> {t('aiOrch.testTitle')}</Space>}
         open={!!testResult}
         onCancel={() => setTestResult(null)}
-        footer={<Button onClick={() => setTestResult(null)}>关闭</Button>}
+        footer={<Button onClick={() => setTestResult(null)}>{t('aiOrch.close')}</Button>}
         width={440}
       >
         {testResult && (
@@ -1521,18 +1521,18 @@ export default function AIOrchestrationPage() {
               {testResult.reachable ? <CheckCircle size={28} color="#52c41a" /> : <XCircle size={28} color="#ff4d4f" />}
               <div>
                 <div style={{ fontWeight: 600, color: testResult.reachable ? '#389e0d' : '#cf1322' }}>
-                  {testResult.reachable ? '连通正常' : '连接异常'}
+                  {testResult.reachable ? t('aiOrch.reachable') : t('aiOrch.unreachable')}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{testResult.message}</div>
               </div>
             </div>
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="延迟">{testResult.latencyMs}ms</Descriptions.Item>
-              <Descriptions.Item label="超时上限">{testResult.timeoutMs}ms</Descriptions.Item>
-              <Descriptions.Item label="端点" span={2}>
+              <Descriptions.Item label={t('aiOrch.labelLatency')}>{testResult.latencyMs}ms</Descriptions.Item>
+              <Descriptions.Item label={t('aiOrch.labelTimeout')}>{testResult.timeoutMs}ms</Descriptions.Item>
+              <Descriptions.Item label={t('aiOrch.labelEndpoint')} span={2}>
                 <span style={{ wordBreak: 'break-all' }}>{testResult.endpoint ?? '--'}</span>
               </Descriptions.Item>
-              <Descriptions.Item label="测试时间" span={2}>{testResult.testedAt.replace('T', ' ').slice(0, 19)}</Descriptions.Item>
+              <Descriptions.Item label={t('aiOrch.labelTestedAt')} span={2}>{testResult.testedAt.replace('T', ' ').slice(0, 19)}</Descriptions.Item>
             </Descriptions>
           </div>
         )}
@@ -1540,20 +1540,20 @@ export default function AIOrchestrationPage() {
 
       {/* ===== 任务详情 Drawer + 二次检出查看器 ===== */}
       <Drawer
-        title={<Space><Box size={17} /> 推理任务详情 - {drawerJob?.id}</Space>}
+        title={<Space><Box size={17} /> {t('aiOrch.drawerTitle')} - {drawerJob?.id}</Space>}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         size="large"
         extra={
           drawerJob?.status === 'COMPLETED' && drawerFindings.length > 0 ? (
-            <Tag color="volcano" icon={<ScanSearch size={13} />}>二次检出</Tag>
+            <Tag color="volcano" icon={<ScanSearch size={13} />}>{t('aiOrch.reviewBadge')}</Tag>
           ) : null
         }
       >
         {drawerJob && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="模型" span={2}>
+              <Descriptions.Item label={t('aiOrch.labelModel')} span={2}>
                 {drawerJob.model ? (
                   <Space size={4}>
                     <span style={{ fontWeight: 600 }}>{drawerJob.model.name}</span>
@@ -1562,25 +1562,25 @@ export default function AIOrchestrationPage() {
                   </Space>
                 ) : drawerJob.modelId}
               </Descriptions.Item>
-              <Descriptions.Item label="检查号">{drawerJob.examId ?? '--'}</Descriptions.Item>
-              <Descriptions.Item label="触发方式">
+              <Descriptions.Item label={t('aiOrch.labelExamNo')}>{drawerJob.examId ?? '--'}</Descriptions.Item>
+              <Descriptions.Item label={t('aiOrch.labelTriggerType')}>
                 <Tag color="purple" style={{ fontSize: 11 }}>{drawerJob.trigger}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label={t('aiOrch.labelStatus')}>
                 <Tag icon={JOB_STATUS_META[drawerJob.status]?.icon} color={JOB_STATUS_META[drawerJob.status]?.color}>
                   {JOB_STATUS_META[drawerJob.status]?.label ?? drawerJob.status}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="耗时">
+              <Descriptions.Item label={t('aiOrch.labelDuration')}>
                 {drawerJob.startedAt
                   ? formatDuration((drawerJob.completedAt ? Date.parse(drawerJob.completedAt) : Date.now()) - Date.parse(drawerJob.startedAt))
                   : '--'}
               </Descriptions.Item>
-              <Descriptions.Item label="创建时间" span={2}>
+              <Descriptions.Item label={t('aiOrch.labelCreatedAt')} span={2}>
                 {drawerJob.createdAt.replace('T', ' ').slice(0, 19)}
               </Descriptions.Item>
               {drawerJob.error && (
-                <Descriptions.Item label="错误信息" span={2}>
+                <Descriptions.Item label={t('aiOrch.labelError')} span={2}>
                   <span style={{ color: '#ef4444' }}>{drawerJob.error}</span>
                 </Descriptions.Item>
               )}
@@ -1589,7 +1589,7 @@ export default function AIOrchestrationPage() {
             {drawerJob.status === 'RUNNING' && (
               <div style={{ padding: 16, borderRadius: 8, background: 'var(--color-info-bg)', textAlign: 'center' }}>
                 <Spin />
-                <div style={{ marginTop: 8, color: '#597ef7', fontSize: 13 }}>模型推理执行中，结果生成后自动展示异常区域...</div>
+                <div style={{ marginTop: 8, color: '#597ef7', fontSize: 13 }}>{t('aiOrch.runningHint')}</div>
               </div>
             )}
 
@@ -1597,10 +1597,10 @@ export default function AIOrchestrationPage() {
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontWeight: 700, fontSize: 15 }}>
-                    <Space><ScanSearch size={16} color="#8b5cf6" /> AI 二次检出结果</Space>
+                    <Space><ScanSearch size={16} color="#8b5cf6" /> {t('aiOrch.reviewResultTitle')}</Space>
                   </div>
                   <Space>
-                    {drawerJob.result.structured?.priority === 'HIGH' && <Tag color="volcano">高优先级</Tag>}
+                    {drawerJob.result.structured?.priority === 'HIGH' && <Tag color="volcano">{t('aiOrch.highPriority')}</Tag>}
                     <Tag color="green">{drawerJob.result.summary}</Tag>
                     {/* [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 */}
                     {drawerFindings.length > 0 && (
@@ -1611,7 +1611,7 @@ export default function AIOrchestrationPage() {
                         loading={encapsulating === drawerJob.examId}
                         onClick={() => void handleEncapsulateSr(drawerJob.examId ?? '', drawerFindings, drawerJob.result?.summary ?? undefined)}
                       >
-                        封装为 DICOM SR
+                        {t('aiOrch.encapsulateSr')}
                       </Button>
                     )}
                   </Space>
@@ -1624,7 +1624,7 @@ export default function AIOrchestrationPage() {
                       activeIndex={activeFinding}
                       onSelect={setActiveFinding}
                     />
-                    <div style={{ fontWeight: 600, marginBottom: 4 }}>异常区域列表（点击可在查看器中高亮）</div>
+                    <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('aiOrch.abnormalListTitle')}</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {drawerFindings.map((f, i) => {
                         const active = i === activeFinding;
@@ -1646,7 +1646,7 @@ export default function AIOrchestrationPage() {
                               }} />
                               <span style={{ fontWeight: active ? 700 : 500 }}>{f.label}</span>
                               <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
-                                坐标 ({Math.round(f.x * 100)}, {Math.round(f.y * 100)})
+                                {t('aiOrch.coordinates', { x: Math.round(f.x * 100), y: Math.round(f.y * 100) })}
                               </span>
                             </Space>
                             <Tag color={f.confidence >= 0.9 ? 'red' : 'orange'} style={{ fontSize: 11 }}>
@@ -1657,17 +1657,17 @@ export default function AIOrchestrationPage() {
                       })}
                     </div>
                     <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
-                      提示：点击异常区域列表项，查看器内对应坐标框将高亮显示，便于二次核对。
+                      {t('aiOrch.abnormalListHint')}
                     </div>
                   </>
                 ) : (
-                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="本次推理未检出异常区域" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.noAbnormal')} />
                 )}
               </>
             )}
 
             {drawerJob.status === 'QUEUED' && (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="任务排队中，稍后自动开始推理..." />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiOrch.queuedHint')} />
             )}
           </div>
         )}

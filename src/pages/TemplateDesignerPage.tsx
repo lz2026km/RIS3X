@@ -24,6 +24,7 @@ import {
   type TemplateBlock,
   type TemplateStructure,
 } from "../services/api/templatesApi";
+import { t } from "../i18n/appI18n";
 
 // ============================================================
 // 字段类型配置
@@ -48,114 +49,114 @@ interface FieldTypeMeta {
 const FIELD_TYPE_META: FieldTypeMeta[] = [
   {
     type: "text",
-    label: "文本",
+    label: t("templateDesigner.field.text"),
     icon: Type,
     color: "#3b82f6",
-    description: "单行文本描述",
+    description: t("templateDesigner.field.textDesc"),
     category: "basic",
   },
   {
     type: "number",
-    label: "数值",
+    label: t("templateDesigner.field.number"),
     icon: Hash,
     color: "#0891b2",
-    description: "数字（带单位）",
+    description: t("templateDesigner.field.numberDesc"),
     category: "basic",
   },
   {
     type: "date",
-    label: "日期",
+    label: t("templateDesigner.field.date"),
     icon: Calendar,
     color: "#7c3aed",
-    description: "日期选择",
+    description: t("templateDesigner.field.dateDesc"),
     category: "basic",
   },
   {
     type: "boolean",
-    label: "布尔",
+    label: t("templateDesigner.field.boolean"),
     icon: ToggleLeft,
     color: "#10b981",
-    description: "是/否开关",
+    description: t("templateDesigner.field.booleanDesc"),
     category: "basic",
   },
   {
     type: "enum",
-    label: "单选",
+    label: t("templateDesigner.field.enum"),
     icon: ListChecks,
     color: "#f59e0b",
-    description: "从多个选项单选",
+    description: t("templateDesigner.field.enumDesc"),
     category: "select",
   },
   {
     type: "multi-enum",
-    label: "多选",
+    label: t("templateDesigner.field.multiEnum"),
     icon: ListOrdered,
     color: "#f97316",
-    description: "从多个选项多选",
+    description: t("templateDesigner.field.multiEnumDesc"),
     category: "select",
   },
   {
     type: "scale",
-    label: "评分",
+    label: t("templateDesigner.field.scale"),
     icon: Sliders,
     color: "#a855f7",
-    description: "0-5 评分量表",
+    description: t("templateDesigner.field.scaleDesc"),
     category: "select",
   },
   {
     type: "length",
-    label: "长度测量",
+    label: t("templateDesigner.field.length"),
     icon: Calculator,
     color: "#dc2626",
-    description: "RECIST 长度",
+    description: t("templateDesigner.field.lengthDesc"),
     category: "measure",
   },
   {
     type: "area",
-    label: "面积测量",
+    label: t("templateDesigner.field.area"),
     icon: Calculator,
     color: "#dc2626",
-    description: "面积 (mm²)",
+    description: t("templateDesigner.field.areaDesc"),
     category: "measure",
   },
   {
     type: "volume",
-    label: "体积测量",
+    label: t("templateDesigner.field.volume"),
     icon: Calculator,
     color: "#dc2626",
-    description: "体积 (cm³)",
+    description: t("templateDesigner.field.volumeDesc"),
     category: "measure",
   },
   {
     type: "image",
-    label: "图像引用",
+    label: t("templateDesigner.field.image"),
     icon: ImageIcon,
     color: "#0ea5e9",
-    description: "序列/图像",
+    description: t("templateDesigner.field.imageDesc"),
     category: "special",
   },
   {
     type: "annotation",
-    label: "标注",
+    label: t("templateDesigner.field.annotation"),
     icon: Tag,
     color: "#0ea5e9",
-    description: "箭头/文字/测量",
+    description: t("templateDesigner.field.annotationDesc"),
     category: "special",
   },
   {
     type: "formula",
-    label: "公式",
+    label: t("templateDesigner.field.formula"),
     icon: Code,
     color: "#6366f1",
-    description: "联动计算",
+    description: t("templateDesigner.field.formulaDesc"),
     category: "special",
   },
   {
     type: "snippet",
-    label: "短语",
+    label: t("templateDesigner.field.snippet"),
     icon: FileText,
     color: "var(--text-secondary)",
-    description: "报告整段",
+    description: t("templateDesigner.field.snippetDesc"),
     category: "special",
   },
 ];
@@ -167,24 +168,24 @@ const FIELD_LIBRARY_GROUPS: Array<{
 }> = [
   {
     key: "basic",
-    label: "基础字段",
+    label: t("templateDesigner.group.basic"),
     types: ["text", "number", "date", "boolean"],
   },
-  { key: "select", label: "选择字段", types: ["enum", "multi-enum", "scale"] },
-  { key: "measure", label: "测量字段", types: ["length", "area", "volume"] },
+  { key: "select", label: t("templateDesigner.group.select"), types: ["enum", "multi-enum", "scale"] },
+  { key: "measure", label: t("templateDesigner.group.measure"), types: ["length", "area", "volume"] },
   {
     key: "special",
-    label: "特殊字段",
+    label: t("templateDesigner.group.special"),
     types: ["image", "annotation", "formula", "snippet"],
   },
 ];
 
 const PRESET_SECTIONS = [
-  { id: "sec-findings", name: "检查所见", order: 1, color: "#1e40af" },
-  { id: "sec-impression", name: "诊断意见", order: 2, color: "#7c3aed" },
-  { id: "sec-rec", name: "建议", order: 3, color: "#0891b2" },
-  { id: "sec-comp", name: "对比", order: 4, color: "#f59e0b" },
-  { id: "sec-tech", name: "检查技术", order: 5, color: "var(--text-secondary)" },
+  { id: "sec-findings", name: t("templateDesigner.section.findings"), order: 1, color: "#1e40af" },
+  { id: "sec-impression", name: t("templateDesigner.section.impression"), order: 2, color: "#7c3aed" },
+  { id: "sec-rec", name: t("templateDesigner.section.recommendation"), order: 3, color: "#0891b2" },
+  { id: "sec-comp", name: t("templateDesigner.section.comparison"), order: 4, color: "#f59e0b" },
+  { id: "sec-tech", name: t("templateDesigner.section.technique"), order: 5, color: "var(--text-secondary)" },
 ];
 
 const PRESET_CATEGORIES = [
@@ -210,33 +211,33 @@ const STRUCTURED_FIELD_PRESETS: Array<{
   desc: string;
   color: string;
 }> = [
-  { fieldKey: "RECIST", label: "RECIST 1.1 靶病灶", desc: "最长径测量 (mm)", color: "#dc2626" },
-  { fieldKey: "lungRads", label: "Lung-RADS", desc: "肺结节分类 1-4X", color: "#0891b2" },
-  { fieldKey: "biRads", label: "BI-RADS", desc: "乳腺分类 0-6", color: "#7c3aed" },
-  { fieldKey: "piRads", label: "PI-RADS", desc: "前列腺 1-5", color: "#f59e0b" },
-  { fieldKey: "liRads", label: "LI-RADS", desc: "肝脏 1-5/M", color: "#10b981" },
-  { fieldKey: "tiRads", label: "TI-RADS", desc: "甲状腺 1-5", color: "#f97316" },
-  { fieldKey: "cadRads", label: "CAD-RADS", desc: "冠脉 0-5", color: "#dc2626" },
-  { fieldKey: "lesionSize", label: "病灶大小", desc: "多病灶测量汇总", color: "#6366f1" },
-  { fieldKey: "lymphNodes", label: "淋巴结", desc: "区域淋巴结描述", color: "#0ea5e9" },
-  { fieldKey: "effusion", label: "胸腔积液", desc: "少量/中量/大量", color: "#0ea5e9" },
+  { fieldKey: "RECIST", label: t("templateDesigner.structured.recist"), desc: t("templateDesigner.structured.recistDesc"), color: "#dc2626" },
+  { fieldKey: "lungRads", label: "Lung-RADS", desc: t("templateDesigner.structured.lungRadsDesc"), color: "#0891b2" },
+  { fieldKey: "biRads", label: "BI-RADS", desc: t("templateDesigner.structured.biRadsDesc"), color: "#7c3aed" },
+  { fieldKey: "piRads", label: "PI-RADS", desc: t("templateDesigner.structured.piRadsDesc"), color: "#f59e0b" },
+  { fieldKey: "liRads", label: "LI-RADS", desc: t("templateDesigner.structured.liRadsDesc"), color: "#10b981" },
+  { fieldKey: "tiRads", label: "TI-RADS", desc: t("templateDesigner.structured.tiRadsDesc"), color: "#f97316" },
+  { fieldKey: "cadRads", label: "CAD-RADS", desc: t("templateDesigner.structured.cadRadsDesc"), color: "#dc2626" },
+  { fieldKey: "lesionSize", label: t("templateDesigner.structured.lesionSize"), desc: t("templateDesigner.structured.lesionSizeDesc"), color: "#6366f1" },
+  { fieldKey: "lymphNodes", label: t("templateDesigner.structured.lymphNodes"), desc: t("templateDesigner.structured.lymphNodesDesc"), color: "#0ea5e9" },
+  { fieldKey: "effusion", label: t("templateDesigner.structured.effusion"), desc: t("templateDesigner.structured.effusionDesc"), color: "#0ea5e9" },
 ];
 
 // 可视化模式段落预设 (所见/印象/结论 等)
 const VISUAL_SECTION_PRESETS = [
-  { name: "检查所见", color: "#1e40af" },
-  { name: "诊断意见", color: "#7c3aed" },
-  { name: "建议", color: "#0891b2" },
-  { name: "结论", color: "#f59e0b" },
-  { name: "对比", color: "#475569" },
+  { name: t("templateDesigner.section.findings"), color: "#1e40af" },
+  { name: t("templateDesigner.section.impression"), color: "#7c3aed" },
+  { name: t("templateDesigner.section.recommendation"), color: "#0891b2" },
+  { name: t("templateDesigner.section.conclusion"), color: "#f59e0b" },
+  { name: t("templateDesigner.section.comparison"), color: "#475569" },
 ];
 
 const defaultVisualBlocks = (): TemplateStructure => [
-  { type: "text", content: "检查所见:" },
+  { type: "text", content: t("templateDesigner.defaultFindings") },
   { type: "text", content: "" },
-  { type: "text", content: "诊断意见:" },
+  { type: "text", content: t("templateDesigner.defaultImpression") },
   { type: "text", content: "" },
-  { type: "text", content: "建议:" },
+  { type: "text", content: t("templateDesigner.defaultRecommendation") },
   { type: "text", content: "" },
 ];
 
@@ -251,16 +252,16 @@ interface IheRRMapping {
 }
 
 const IHE_RR_TEMPLATES = [
-  { id: "SR-TID-1500", name: "TID 1500 - 报告正文" },
-  { id: "SR-TID-1501", name: "TID 1501 - 测量群组" },
-  { id: "SR-TID-1502", name: "TID 1502 - 成像观察" },
-  { id: "SR-TID-1503", name: "TID 1503 - 图像库" },
-  { id: "SR-TID-1504", name: "TID 1504 - 报告标题" },
-  { id: "SR-TID-1400", name: "TID 1400 - CAD 观察" },
-  { id: "SR-MR-RR-001", name: "IHE RR - 放射科报告" },
-  { id: "SR-MR-RR-002", name: "IHE RR - CT 检查报告" },
-  { id: "SR-MR-RR-003", name: "IHE RR - MR 检查报告" },
-  { id: "SR-MR-RR-004", name: "IHE RR - X线检查报告" },
+  { id: "SR-TID-1500", name: t("templateDesigner.sr.tid1500") },
+  { id: "SR-TID-1501", name: t("templateDesigner.sr.tid1501") },
+  { id: "SR-TID-1502", name: t("templateDesigner.sr.tid1502") },
+  { id: "SR-TID-1503", name: t("templateDesigner.sr.tid1503") },
+  { id: "SR-TID-1504", name: t("templateDesigner.sr.tid1504") },
+  { id: "SR-TID-1400", name: t("templateDesigner.sr.tid1400") },
+  { id: "SR-MR-RR-001", name: t("templateDesigner.sr.rr001") },
+  { id: "SR-MR-RR-002", name: t("templateDesigner.sr.rr002") },
+  { id: "SR-MR-RR-003", name: t("templateDesigner.sr.rr003") },
+  { id: "SR-MR-RR-004", name: t("templateDesigner.sr.rr004") },
 ];
 
 // ---------- 条件规则 ----------
@@ -285,18 +286,18 @@ export default function TemplateDesignerPage() {
   >("properties");
 
   const initialTemplate = id
-    ? STRUCTURED_FIELD_TEMPLATES.find((t) => t.id === id) ||
+    ? STRUCTURED_FIELD_TEMPLATES.find((tpl) => tpl.id === id) ||
       STRUCTURED_FIELD_TEMPLATES[0]
     : null;
 
   const [meta, setMeta] = useState({
-    name: initialTemplate?.name || "新模板",
+    name: initialTemplate?.name || t("templateDesigner.newTemplate"),
     code: initialTemplate?.id || "tpl-custom-001",
     modality: initialTemplate?.modality || "CT",
-    bodyPart: initialTemplate?.bodyPart || "胸部",
+    bodyPart: initialTemplate?.bodyPart || t("templateDesigner.defaultBodyPart"),
     version: initialTemplate?.version || "v1.0",
     description: initialTemplate?.description || "",
-    author: "当前医生",
+    author: t("templateDesigner.currentDoctor"),
     scope: "department" as "default" | "department" | "personal",
     minAge: 0,
     maxAge: 120,
@@ -335,8 +336,8 @@ export default function TemplateDesignerPage() {
       return result;
     }
     return [
-      { id: "sec-0", name: "检查所见", order: 0, color: "#1e40af", fields: [] },
-      { id: "sec-1", name: "诊断意见", order: 1, color: "#7c3aed", fields: [] },
+      { id: "sec-0", name: t("templateDesigner.section.findings"), order: 0, color: "#1e40af", fields: [] },
+      { id: "sec-1", name: t("templateDesigner.section.impression"), order: 1, color: "#7c3aed", fields: [] },
     ];
   });
 
@@ -426,16 +427,16 @@ export default function TemplateDesignerPage() {
           setVisualApiId(targetId);
           message.success(`可视化模板已保存 (${targetId}, ${meta.templateType})`);
         } else {
-          message.error(res.error?.message || "保存失败");
+          message.error(res.error?.message || t("templateDesigner.saveFailed"));
         }
       } else {
         const res = await templatesApi.create({
-          name: meta.name || "可视化报告模板",
+          name: meta.name || t("templateDesigner.visualTemplate"),
           category: meta.modality || "CT",
           modality: meta.modality,
-          bodyPart: meta.bodyPart || "通用",
+          bodyPart: meta.bodyPart || t("templateDesigner.general"),
           templateType: meta.templateType,
-          body: content || "待编辑",
+          body: content || t("templateDesigner.toEdit"),
           structure: visualBlocks,
           createdById: "u-current",
         });
@@ -443,7 +444,7 @@ export default function TemplateDesignerPage() {
           setVisualApiId(res.data.id);
           message.success(`已创建模板 ${res.data.id}, 段落结构已保存 (${meta.templateType})`);
         } else {
-          message.error(res.error?.message || "创建失败");
+          message.error(res.error?.message || t("templateDesigner.createFailed"));
         }
       }
     } catch (e: any) {
@@ -470,7 +471,7 @@ export default function TemplateDesignerPage() {
     sectionId: string,
     type: TemplateFieldDefinition["dataType"] | string,
   ) => {
-    const typeMeta = FIELD_TYPE_META.find((t) => t.type === type);
+    const typeMeta = FIELD_TYPE_META.find((ftMeta) => ftMeta.type === type);
     if (!typeMeta) return;
     let storedType: TemplateFieldDefinition["dataType"] = "text";
     if (
@@ -492,7 +493,7 @@ export default function TemplateDesignerPage() {
       id: `f-${Date.now()}`,
       fieldKey: `field_${Date.now()}`,
       fieldLabel: typeMeta.label,
-      fieldGroup: sections.find((s) => s.id === sectionId)?.name || "检查所见",
+      fieldGroup: sections.find((s) => s.id === sectionId)?.name || t("templateDesigner.section.findings"),
       dataType: storedType,
       required: false,
       order: sections.find((s) => s.id === sectionId)?.fields.length || 0,
@@ -556,7 +557,7 @@ export default function TemplateDesignerPage() {
 
   const removeSection = (sectionId: string) => {
     if (sections.length <= 1) {
-      message.warning("至少需要保留 1 个章节");
+      message.warning(t("templateDesigner.needOneSection"));
       return;
     }
     setSections((prev) => prev.filter((s) => s.id !== sectionId));
@@ -586,7 +587,7 @@ export default function TemplateDesignerPage() {
   // ---------- 条件规则操作 ----------
   const addConditionalRule = () => {
     if (allFields.length < 2) {
-      message.warning("至少需要 2 个字段才能创建条件规则");
+      message.warning(t("templateDesigner.needTwoFields"));
       return;
     }
     const newRule: ConditionalRule = {
@@ -708,7 +709,7 @@ export default function TemplateDesignerPage() {
                 gap: 6,
               }}
             >
-              <Sparkles size={14} color="#7c3aed" /> 模板设计器 v1.0.2 (R2)
+              <Sparkles size={14} color="#7c3aed" /> {t("templateDesigner.headerTitle")}
               <span
                 style={{
                   fontSize: 12,
@@ -738,12 +739,12 @@ export default function TemplateDesignerPage() {
                 {meta.modality} / {meta.bodyPart}
               </span>
               <span>·</span>
-              <span>{totalFields} 字段</span>
+              <span>{totalFields} {t("templateDesigner.fieldsUnit")}</span>
               <span>·</span>
               <span
                 style={{ color: requiredFields > 0 ? "#dc2626" : "#64748b" }}
               >
-                {requiredFields} 必填
+                {requiredFields} {t("templateDesigner.requiredUnit")}
               </span>
             </div>
           </div>
@@ -765,7 +766,7 @@ export default function TemplateDesignerPage() {
             }}
           >
             <Layers size={12} />{" "}
-            {designerMode === "visual" ? "可视化" : "字段设计"}
+            {designerMode === "visual" ? t("templateDesigner.visualMode") : t("templateDesigner.fieldsMode")}
           </button>
           <button
             onClick={() => setPreviewMode(!previewMode)}
@@ -782,13 +783,13 @@ export default function TemplateDesignerPage() {
               gap: 4,
             }}
           >
-            <Eye size={12} /> {previewMode ? "编辑" : "预览"}
+            <Eye size={12} /> {previewMode ? t("templateDesigner.edit") : t("templateDesigner.preview")}
           </button>
           <button
             onClick={async () => {
               const sourceId = id ?? initialTemplate?.id ?? meta.code;
               if (!sourceId) {
-                message.warning("当前模板未关联 ID，无法克隆");
+                message.warning(t("templateDesigner.noIdClone"));
                 return;
               }
               try {
@@ -800,7 +801,7 @@ export default function TemplateDesignerPage() {
                   message.success(`已克隆为新模板 ${newId}`);
                   navigate(`/template-designer/${newId}`);
                 } else {
-                  message.error(res.error?.message || "克隆失败");
+                  message.error(res.error?.message || t("templateDesigner.cloneFailed"));
                 }
               } catch (e: any) {
                 message.error("克隆失败: " + (e?.message || String(e)));
@@ -819,7 +820,7 @@ export default function TemplateDesignerPage() {
               gap: 4,
             }}
           >
-            <Copy size={12} /> 克隆
+            <Copy size={12} /> {t("templateDesigner.clone")}
           </button>
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
@@ -831,7 +832,7 @@ export default function TemplateDesignerPage() {
               color: "var(--text-secondary)",
               cursor: "pointer",
             }}
-            title={isFullscreen ? "退出全屏" : "全屏"}
+            title={isFullscreen ? t("templateDesigner.exitFullscreen") : t("templateDesigner.fullscreen")}
           >
             {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
           </button>
@@ -870,7 +871,7 @@ export default function TemplateDesignerPage() {
                 if (res.success) {
                   message.success(`模板 ${meta.name} 已保存 (${targetId})`);
                 } else {
-                  message.error(res.error?.message || "保存失败");
+                  message.error(res.error?.message || t("templateDesigner.saveFailed"));
                 }
               } catch (e: any) {
                 message.error("保存失败: " + (e?.message || String(e)));
@@ -890,7 +891,7 @@ export default function TemplateDesignerPage() {
               gap: 4,
             }}
           >
-            <Save size={12} /> 保存模板
+            <Save size={12} /> {t("templateDesigner.saveTemplate")}
           </button>
         </div>
       </div>
@@ -909,7 +910,7 @@ export default function TemplateDesignerPage() {
             flexShrink: 0,
           }}
         >
-          <MetaField label="名称">
+          <MetaField label={t("templateDesigner.meta.name")}>
             <input
               type="text"
               value={meta.name}
@@ -917,7 +918,7 @@ export default function TemplateDesignerPage() {
               style={inputStyle}
             />
           </MetaField>
-          <MetaField label="编码">
+          <MetaField label={t("templateDesigner.meta.code")}>
             <input
               type="text"
               value={meta.code}
@@ -925,7 +926,7 @@ export default function TemplateDesignerPage() {
               style={{ ...inputStyle, width: 140 }}
             />
           </MetaField>
-          <MetaField label="设备">
+          <MetaField label={t("templateDesigner.meta.modality")}>
             <select
               value={meta.modality}
               onChange={(e) => setMeta({ ...meta, modality: e.target.value })}
@@ -938,7 +939,7 @@ export default function TemplateDesignerPage() {
               ))}
             </select>
           </MetaField>
-          <MetaField label="部位">
+          <MetaField label={t("templateDesigner.meta.bodyPart")}>
             <input
               type="text"
               value={meta.bodyPart}
@@ -947,18 +948,18 @@ export default function TemplateDesignerPage() {
             />
           </MetaField>
           {/* [v3.0.6.11-100 Wave2C P2] 模板类型: 全文/段落/短语 (保存时写入, 模板库分类 Tab 展示) */}
-          <MetaField label="模板类型">
+          <MetaField label={t("templateDesigner.meta.templateType")}>
             <select
               value={meta.templateType}
               onChange={(e) => setMeta({ ...meta, templateType: e.target.value as typeof meta.templateType })}
               style={selectStyle}
             >
-              <option value="FULL">全文模板</option>
-              <option value="SECTION">段落模板</option>
-              <option value="PHRASE">短语模板</option>
+              <option value="FULL">{t("templateDesigner.templateTypeFull")}</option>
+              <option value="SECTION">{t("templateDesigner.templateTypeSection")}</option>
+              <option value="PHRASE">{t("templateDesigner.templateTypePhrase")}</option>
             </select>
           </MetaField>
-          <MetaField label="范围">
+          <MetaField label={t("templateDesigner.meta.scope")}>
             <select
               value={meta.scope}
               onChange={(e) =>
@@ -966,12 +967,12 @@ export default function TemplateDesignerPage() {
               }
               style={selectStyle}
             >
-              <option value="default">全院</option>
-              <option value="department">科室</option>
-              <option value="personal">个人</option>
+              <option value="default">{t("templateDesigner.scopeDefault")}</option>
+              <option value="department">{t("templateDesigner.scopeDepartment")}</option>
+              <option value="personal">{t("templateDesigner.scopePersonal")}</option>
             </select>
           </MetaField>
-          <MetaField label="性别">
+          <MetaField label={t("templateDesigner.meta.gender")}>
             <select
               value={meta.gender}
               onChange={(e) =>
@@ -982,12 +983,12 @@ export default function TemplateDesignerPage() {
               }
               style={selectStyle}
             >
-              <option value="all">不限</option>
-              <option value="male">男</option>
-              <option value="female">女</option>
+              <option value="all">{t("templateDesigner.genderAll")}</option>
+              <option value="male">{t("templateDesigner.genderMale")}</option>
+              <option value="female">{t("templateDesigner.genderFemale")}</option>
             </select>
           </MetaField>
-          <MetaField label="年龄">
+          <MetaField label={t("templateDesigner.meta.age")}>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <input
                 type="number"
@@ -1048,12 +1049,12 @@ export default function TemplateDesignerPage() {
                 gap: 6,
               }}
             >
-              <FileSpreadsheet size={13} /> 字段库
+              <FileSpreadsheet size={13} /> {t("templateDesigner.fieldLibrary")}
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: 8 }}>
               {FIELD_LIBRARY_GROUPS.map((group) => {
-                const groupTypes = FIELD_TYPE_META.filter((t) =>
-                  group.types.includes(t.type),
+                const groupTypes = FIELD_TYPE_META.filter((ftMeta) =>
+                  group.types.includes(ftMeta.type),
                 );
                 return (
                   <div key={group.key} style={{ marginBottom: 12 }}>
@@ -1145,9 +1146,9 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                 }}
               >
                 <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                  💡 拖拽提示
+                  💡 {t("templateDesigner.dragTipTitle")}
                 </div>
-                <div>将左侧字段拖拽到中间画布的章节中，即可添加到模板。</div>
+                <div>{t("templateDesigner.dragTipBody")}</div>
               </div>
             </div>
           </div>
@@ -1206,7 +1207,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                         {section.name}
                       </span>
                       <AppText size="xs" color="secondary" as="span">
-                        ({section.fields.length} 字段)
+                        ({section.fields.length} {t("templateDesigner.fieldsUnit")})
                       </AppText>
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
@@ -1242,12 +1243,12 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                           border: "1px dashed var(--border-color)",
                         }}
                       >
-                        📦 拖拽字段到此处添加
+                        📦 {t("templateDesigner.dropHere")}
                       </div>
                     ) : (
                       section.fields.map((field) => {
                         const typeMeta = FIELD_TYPE_META.find(
-                          (t) => t.type === field.dataType,
+                          (ftMeta) => ftMeta.type === field.dataType,
                         );
                         const isSelected = selectedFieldId === field.id;
                         const hasCondition = conditionalRules.find(
@@ -1352,7 +1353,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                       borderRadius: 3,
                                     }}
                                   >
-                                    条件
+                                    {t("templateDesigner.conditionalTag")}
                                   </span>
                                 )}
                                 {hasMapping && (
@@ -1419,7 +1420,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   gap: 6,
                 }}
               >
-                <Plus size={14} /> 添加章节
+                <Plus size={14} /> {t("templateDesigner.addSection")}
               </button>
             </>
           )}
@@ -1448,17 +1449,17 @@ e.currentTarget.style.background = "var(--bg-card)";
               {[
                 {
                   key: "properties",
-                  label: "属性",
+                  label: t("templateDesigner.tab.properties"),
                   icon: <Settings size={12} />,
                 },
                 {
                   key: "conditional",
-                  label: "条件",
+                  label: t("templateDesigner.tab.conditional"),
                   icon: <GitMerge size={12} />,
                 },
                 {
                   key: "sr-mapping",
-                  label: "SR映射",
+                  label: t("templateDesigner.tab.srMapping"),
                   icon: <Activity size={12} />,
                 },
               ].map((tab) => (
@@ -1513,7 +1514,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                           margin: "0 auto 8px",
                         }}
                       />
-                      点击画布中的字段或章节，编辑其属性
+                      {t("templateDesigner.clickToEdit")}
                     </div>
                   )}
                   {selectedField && (
@@ -1557,7 +1558,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                         color: "#1e40af",
                       }}
                     >
-                      条件逻辑
+                      {t("templateDesigner.conditionalLogic")}
                     </span>
                     <button
                       onClick={addConditionalRule}
@@ -1576,7 +1577,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                         cursor: "pointer",
                       }}
                     >
-                      <Plus size={10} /> 新增规则
+                      <Plus size={10} /> {t("templateDesigner.addRule")}
                     </button>
                   </div>
                   {conditionalRules.length === 0 ? (
@@ -1598,9 +1599,9 @@ e.currentTarget.style.background = "var(--bg-card)";
                           margin: "0 auto 8px",
                         }}
                       />
-                      暂无条件规则
+                      {t("templateDesigner.noConditionalRules")}
                       <br />
-                      点击「新增规则」创建
+                      {t("templateDesigner.clickAddRule")}
                     </div>
                   ) : (
                     conditionalRules.map((rule) => (
@@ -1629,7 +1630,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                               color: "#92400e",
                             }}
                           >
-                            条件规则
+                            {t("templateDesigner.conditionalRule")}
                           </span>
                           <button
                             onClick={() => removeConditionalRule(rule.id)}
@@ -1660,7 +1661,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                             }}
                           >
                             <AppText size="xs" color="secondary" as="span">
-                              如果
+                              {t("templateDesigner.if")}
                             </AppText>
                             <select
                               value={rule.fieldId}
@@ -1708,10 +1709,10 @@ e.currentTarget.style.background = "var(--bg-card)";
                                 flex: 1,
                               }}
                             >
-                              <option value="equals">等于</option>
-                              <option value="not-equals">不等于</option>
-                              <option value="greater-than">大于</option>
-                              <option value="less-than">小于</option>
+                              <option value="equals">{t("templateDesigner.op.equals")}</option>
+                              <option value="not-equals">{t("templateDesigner.op.notEquals")}</option>
+                              <option value="greater-than">{t("templateDesigner.op.greaterThan")}</option>
+                              <option value="less-than">{t("templateDesigner.op.lessThan")}</option>
                             </select>
                             <input
                               type="text"
@@ -1721,7 +1722,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                   value: e.target.value,
                                 })
                               }
-                              placeholder="值"
+                              placeholder={t("templateDesigner.valuePlaceholder")}
                               style={{
                                 padding: "2px 4px",
                                 border: "1px solid var(--border-color)",
@@ -1740,7 +1741,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                             }}
                           >
                             <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>
-                              则
+                              {t("templateDesigner.then")}
                             </span>
                             <select
                               value={rule.action}
@@ -1757,9 +1758,9 @@ e.currentTarget.style.background = "var(--bg-card)";
                                 fontSize: 12,
                               }}
                             >
-                              <option value="show">显示</option>
-                              <option value="hide">隐藏</option>
-                              <option value="require">必填</option>
+                              <option value="show">{t("templateDesigner.action.show")}</option>
+                              <option value="hide">{t("templateDesigner.action.hide")}</option>
+                              <option value="require">{t("templateDesigner.action.require")}</option>
                             </select>
                             <select
                               value={rule.targetFieldId}
@@ -1797,7 +1798,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                       lineHeight: 1.4,
                     }}
                   >
-                    条件逻辑说明：当条件字段的值满足条件时，对目标字段执行显示/隐藏/必填操作。
+                    {t("templateDesigner.conditionalNote")}
                   </div>
                 </div>
               )}
@@ -1820,7 +1821,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                         color: "#1e40af",
                       }}
                     >
-                      IHE RR 结构化报告映射
+                      {t("templateDesigner.srMappingTitle")}
                     </span>
                   </div>
                   <div
@@ -1833,7 +1834,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                     }}
                   >
                     <StatCard
-                      title="合规度"
+                      title={t("templateDesigner.complianceScore")}
                       value={complianceScore}
                       suffix="%"
                       color={
@@ -1858,7 +1859,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                         display: "block",
                       }}
                     >
-                      IHE RR 模板选择
+                      {t("templateDesigner.srTemplateSelect")}
                     </label>
                     <select
                       value={selectedSrTemplate}
@@ -1873,9 +1874,9 @@ e.currentTarget.style.background = "var(--bg-card)";
                         background: "var(--bg-card)",
                       }}
                     >
-                      {IHE_RR_TEMPLATES.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name} ({t.id})
+                      {IHE_RR_TEMPLATES.map((sr) => (
+                        <option key={sr.id} value={sr.id}>
+                          {sr.name} ({sr.id})
                         </option>
                       ))}
                     </select>
@@ -1899,7 +1900,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                               borderBottom: "1px solid var(--border-color)",
                             }}
                           >
-                            字段
+                            {t("templateDesigner.colField")}
                           </th>
                           <th
                             style={{
@@ -1910,7 +1911,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                               borderBottom: "1px solid var(--border-color)",
                             }}
                           >
-                            SR模板
+                            {t("templateDesigner.colSrTemplate")}
                           </th>
                           <th
                             style={{
@@ -1921,7 +1922,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                               borderBottom: "1px solid var(--border-color)",
                             }}
                           >
-                            状态
+                            {t("templateDesigner.colStatus")}
                           </th>
                           <th
                             style={{
@@ -1932,7 +1933,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                               borderBottom: "1px solid var(--border-color)",
                             }}
                           >
-                            操作
+                            {t("templateDesigner.colActions")}
                           </th>
                         </tr>
                       </thead>
@@ -1978,10 +1979,10 @@ e.currentTarget.style.background = "var(--bg-card)";
                                       width: "100%",
                                     }}
                                   >
-                                    <option value="">未映射</option>
-                                    {IHE_RR_TEMPLATES.map((t) => (
-                                      <option key={t.id} value={t.id}>
-                                        {t.id}
+                                    <option value="">{t("templateDesigner.unmapped")}</option>
+                                    {IHE_RR_TEMPLATES.map((sr) => (
+                                      <option key={sr.id} value={sr.id}>
+                                        {sr.id}
                                       </option>
                                     ))}
                                   </select>
@@ -2009,8 +2010,8 @@ e.currentTarget.style.background = "var(--bg-card)";
                                     }}
                                   >
                                     {mapping.complianceStatus === "compliant"
-                                      ? "合规"
-                                      : "部分"}
+                                      ? t("templateDesigner.compliant")
+                                      : t("templateDesigner.partial")}
                                   </span>
                                 ) : (
                                   <span
@@ -2055,7 +2056,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                         fontSize: 12,
                       }}
                     >
-                      请先添加字段
+                      {t("templateDesigner.addFieldFirst")}
                     </div>
                   )}
                   <div
@@ -2066,8 +2067,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                       lineHeight: 1.4,
                     }}
                   >
-                    将模板字段映射到 DICOM SR 模板 ID，确保符合 IHE RR
-                    规范要求。
+                    {t("templateDesigner.srMappingNote")}
                   </div>
                 </div>
               )}
@@ -2108,7 +2108,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                     if (res.success) {
                       message.success(`已应用字段属性到模板 ${meta.name}`);
                     } else {
-                      message.error(res.error?.message || "应用失败");
+                      message.error(res.error?.message || t("templateDesigner.applyFailed"));
                     }
                   } catch (e: any) {
                     message.error("应用失败: " + (e?.message || String(e)));
@@ -2129,11 +2129,11 @@ e.currentTarget.style.background = "var(--bg-card)";
                   gap: 4,
                 }}
               >
-                <Check size={11} /> 应用属性
+                <Check size={11} /> {t("templateDesigner.applyProps")}
               </button>
               <button
                 onClick={() => {
-                  if (confirm("确认删除当前选中的字段？"))
+                  if (confirm(t("templateDesigner.confirmDeleteField")))
                     removeField(selectedFieldId!);
                 }}
                 disabled={!selectedField}
@@ -2153,7 +2153,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   gap: 4,
                 }}
               >
-                <Trash2 size={11} /> 删除字段
+                <Trash2 size={11} /> {t("templateDesigner.deleteField")}
               </button>
             </div>
           </div>
@@ -2210,9 +2210,9 @@ const FieldPropertyPanel: React.FC<{
         gap: 6,
       }}
     >
-      <Info size={12} /> 字段属性
+      <Info size={12} /> {t("templateDesigner.fieldProps")}
     </div>
-    <PropRow label="显示标签">
+    <PropRow label={t("templateDesigner.prop.displayLabel")}>
       <input
         type="text"
         value={field.fieldLabel}
@@ -2220,7 +2220,7 @@ const FieldPropertyPanel: React.FC<{
         style={{ ...inputStyle, width: "100%" }}
       />
     </PropRow>
-    <PropRow label="字段键名">
+    <PropRow label={t("templateDesigner.prop.fieldKey")}>
       <input
         type="text"
         value={field.fieldKey}
@@ -2230,7 +2230,7 @@ const FieldPropertyPanel: React.FC<{
         style={{ ...inputStyle, width: "100%", fontFamily: "monospace" }}
       />
     </PropRow>
-    <PropRow label="数据类型">
+    <PropRow label={t("templateDesigner.prop.dataType")}>
       <select
         value={field.dataType}
         onChange={(e) =>
@@ -2247,7 +2247,7 @@ const FieldPropertyPanel: React.FC<{
         ))}
       </select>
     </PropRow>
-    <PropRow label="所在章节">
+    <PropRow label={t("templateDesigner.prop.section")}>
       <input
         type="text"
         value={field.fieldGroup}
@@ -2255,16 +2255,16 @@ const FieldPropertyPanel: React.FC<{
         style={{ ...inputStyle, width: "100%" }}
       />
     </PropRow>
-    <PropRow label="单位">
+    <PropRow label={t("templateDesigner.prop.unit")}>
       <input
         type="text"
         value={field.unit || ""}
         onChange={(e) => onChange({ unit: e.target.value })}
-        placeholder="如 mm、HU、℃"
+        placeholder={t("templateDesigner.unitPlaceholder")}
         style={{ ...inputStyle, width: "100%" }}
       />
     </PropRow>
-    <PropRow label="必填">
+    <PropRow label={t("templateDesigner.prop.required")}>
       <label
         style={{
           display: "flex",
@@ -2279,12 +2279,12 @@ const FieldPropertyPanel: React.FC<{
           checked={field.required}
           onChange={(e) => onChange({ required: e.target.checked })}
         />{" "}
-        是否必填
+        {t("templateDesigner.isRequired")}
       </label>
     </PropRow>
     {field.dataType === "number" && (
       <>
-        <PropRow label="最小值">
+        <PropRow label={t("templateDesigner.prop.min")}>
           <input
             type="number"
             value={field.validation?.min ?? ""}
@@ -2299,7 +2299,7 @@ const FieldPropertyPanel: React.FC<{
             style={{ ...inputStyle, width: "100%" }}
           />
         </PropRow>
-        <PropRow label="最大值">
+        <PropRow label={t("templateDesigner.prop.max")}>
           <input
             type="number"
             value={field.validation?.max ?? ""}
@@ -2316,7 +2316,7 @@ const FieldPropertyPanel: React.FC<{
         </PropRow>
       </>
     )}
-    <PropRow label="占位提示">
+    <PropRow label={t("templateDesigner.prop.placeholder")}>
       <input
         type="text"
         value={field.placeholder || ""}
@@ -2324,13 +2324,13 @@ const FieldPropertyPanel: React.FC<{
         style={{ ...inputStyle, width: "100%" }}
       />
     </PropRow>
-    <PropRow label="关联分类">
+    <PropRow label={t("templateDesigner.prop.category")}>
       <select
         value={field.category || ""}
         onChange={(e) => onChange({ category: e.target.value || undefined })}
         style={{ ...selectStyle, width: "100%" }}
       >
-        <option value="">无</option>
+        <option value="">{t("templateDesigner.none")}</option>
         {PRESET_CATEGORIES.map((c) => (
           <option key={c} value={c}>
             {c}
@@ -2338,16 +2338,16 @@ const FieldPropertyPanel: React.FC<{
         ))}
       </select>
     </PropRow>
-    <PropRow label="依赖字段">
+    <PropRow label={t("templateDesigner.prop.dependsOn")}>
       <input
         type="text"
         value={field.dependsOn || ""}
         onChange={(e) => onChange({ dependsOn: e.target.value || undefined })}
-        placeholder="如 has_lesion"
+        placeholder={t("templateDesigner.dependsOnPlaceholder")}
         style={{ ...inputStyle, width: "100%", fontFamily: "monospace" }}
       />
     </PropRow>
-    <PropRow label="描述说明">
+    <PropRow label={t("templateDesigner.prop.description")}>
       <textarea
         value={field.description || ""}
         onChange={(e) => onChange({ description: e.target.value })}
@@ -2363,7 +2363,7 @@ const FieldPropertyPanel: React.FC<{
     {(field.dataType === "enum" ||
       field.dataType === "multi-enum" ||
       field.dataType === "scale") && (
-      <PropRow label="选项 (label:value)">
+      <PropRow label={t("templateDesigner.prop.options")}>
         <textarea
           value={(field.options || [])
             .map((o) => `${o.label}:${o.value}`)
@@ -2379,7 +2379,7 @@ const FieldPropertyPanel: React.FC<{
             onChange({ options: opts });
           }}
           rows={5}
-          placeholder="是:yes&#10;否:no"
+          placeholder={t("templateDesigner.optionsPlaceholder")}
           style={{
             ...inputStyle,
             width: "100%",
@@ -2408,9 +2408,9 @@ const SectionPropertyPanel: React.FC<{
         gap: 6,
       }}
     >
-      <Info size={12} /> 章节属性
+      <Info size={12} /> {t("templateDesigner.sectionProps")}
     </div>
-    <PropRow label="章节名称">
+    <PropRow label={t("templateDesigner.prop.sectionName")}>
       <input
         type="text"
         value={section.name}
@@ -2418,7 +2418,7 @@ const SectionPropertyPanel: React.FC<{
         style={{ ...inputStyle, width: "100%" }}
       />
     </PropRow>
-    <PropRow label="主题色">
+    <PropRow label={t("templateDesigner.prop.themeColor")}>
       <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
         {[
           "#1e40af",
@@ -2445,7 +2445,7 @@ const SectionPropertyPanel: React.FC<{
         ))}
       </div>
     </PropRow>
-    <PropRow label="排序">
+    <PropRow label={t("templateDesigner.prop.order")}>
       <input
         type="number"
         value={section.order}
@@ -2522,7 +2522,7 @@ const PreviewCanvas: React.FC<{
           {section.name}{" "}
           {section.fields.length > 0 && (
             <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-              ({section.fields.length} 项)
+              ({section.fields.length} {t("templateDesigner.itemsUnit")})
             </span>
           )}
         </h3>
@@ -2611,7 +2611,7 @@ const VisualDesignerBody: React.FC<{
             gap: 6,
           }}
         >
-          <Braces size={13} /> 变量面板 (点击插入)
+          <Braces size={13} /> {t("templateDesigner.variablePanel")}
         </div>
         <div style={{ padding: 8, borderBottom: "1px solid var(--border-color)" }}>
           {TEMPLATE_VARIABLES.map((v) => (
@@ -2623,7 +2623,7 @@ const VisualDesignerBody: React.FC<{
                   selectedIdx,
                 )
               }
-              title={v.auto ? "自动填充" : "手动填写"}
+              title={v.auto ? t("templateDesigner.autoFill") : t("templateDesigner.manualFill")}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -2659,7 +2659,7 @@ const VisualDesignerBody: React.FC<{
             gap: 6,
           }}
         >
-          <Layers size={13} /> 结构化字段 (RECIST / RADS)
+          <Layers size={13} /> {t("templateDesigner.structuredFields")}
         </div>
         <div style={{ padding: 8 }}>
           {STRUCTURED_FIELD_PRESETS.map((f) => (
@@ -2730,18 +2730,18 @@ const VisualDesignerBody: React.FC<{
           }}
         >
           <AppText size="xs" weight={700} as="span" style={{ color: "#1e40af" }}>
-            段落块画布 ({blocks.length})
+            {t("templateDesigner.blockCanvas")} ({blocks.length})
           </AppText>
           <AppText size="xs" color="secondary" as="span">
-            点击变量/字段 → 插入到选中块之后
+            {t("templateDesigner.insertHint")}
           </AppText>
           <AppText size="xs" color="secondary" as="span" style={{ marginLeft: "auto" }}>
-            {varCount} 个变量占位符
+            {varCount} {t("templateDesigner.variablePlaceholders")}
           </AppText>
         </div>
         {loading && (
           <AppText size="xs" color="secondary" as="div" style={{ padding: 20 }}>
-            正在加载已保存的结构化内容...
+            {t("templateDesigner.loadingStructured")}
           </AppText>
         )}
         {blocks.map((block, idx) => {
@@ -2777,7 +2777,7 @@ const VisualDesignerBody: React.FC<{
                       fontWeight: 600,
                     }}
                   >
-                    文本
+                    {t("templateDesigner.blockText")}
                   </span>
                 )}
                 {block.type === "variable" && (
@@ -2791,7 +2791,7 @@ const VisualDesignerBody: React.FC<{
                       fontWeight: 600,
                     }}
                   >
-                    变量 {block.variable && `· ${block.variable}`}
+                    {t("templateDesigner.blockVariable")} {block.variable && `· ${block.variable}`}
                   </span>
                 )}
                 {block.type === "field" && (
@@ -2805,7 +2805,7 @@ const VisualDesignerBody: React.FC<{
                       fontWeight: 600,
                     }}
                   >
-                    字段 {block.fieldKey && `· ${block.fieldKey}`}
+                    {t("templateDesigner.blockField")} {block.fieldKey && `· ${block.fieldKey}`}
                   </span>
                 )}
                 {block.type === "structured" && (
@@ -2819,7 +2819,7 @@ const VisualDesignerBody: React.FC<{
                       fontWeight: 600,
                     }}
                   >
-                    结构化标记
+                    {t("templateDesigner.blockStructured")}
                   </span>
                 )}
                 <span style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
@@ -2829,7 +2829,7 @@ const VisualDesignerBody: React.FC<{
                       onMoveBlock(idx, -1);
                     }}
                     disabled={idx === 0}
-                    title="上移"
+                    title={t("templateDesigner.moveUp")}
                     style={blockBtnStyle}
                   >
                     <ArrowUp size={11} />
@@ -2840,7 +2840,7 @@ const VisualDesignerBody: React.FC<{
                       onMoveBlock(idx, 1);
                     }}
                     disabled={idx === blocks.length - 1}
-                    title="下移"
+                    title={t("templateDesigner.moveDown")}
                     style={blockBtnStyle}
                   >
                     <ArrowDown size={11} />
@@ -2850,7 +2850,7 @@ const VisualDesignerBody: React.FC<{
                       e.stopPropagation();
                       onRemoveBlock(idx);
                     }}
-                    title="删除"
+                    title={t("templateDesigner.deleteBlock")}
                     style={{ ...blockBtnStyle, color: "#dc2626" }}
                   >
                     <Trash2 size={11} />
@@ -2863,7 +2863,7 @@ const VisualDesignerBody: React.FC<{
                   onChange={(e) => onChangeBlockContent(idx, e.target.value)}
                   onFocus={() => onSelect(idx)}
                   rows={block.content.includes("\n") ? 3 : 2}
-                  placeholder="输入段落文本, 支持 {{变量}} 占位符..."
+                  placeholder={t("templateDesigner.paragraphPlaceholder")}
                   style={{
                     width: "100%",
                     border: "1px solid var(--border-color)",
@@ -2911,7 +2911,7 @@ const VisualDesignerBody: React.FC<{
               gap: 4,
             }}
           >
-            <Plus size={12} /> 添加段落
+            <Plus size={12} /> {t("templateDesigner.addParagraph")}
           </button>
           {VISUAL_SECTION_PRESETS.map((s) => (
             <button
@@ -2958,7 +2958,7 @@ const VisualDesignerBody: React.FC<{
             gap: 6,
           }}
         >
-          <Eye size={13} /> 实时预览 {"{{变量}} 高亮"}
+          <Eye size={13} /> {t("templateDesigner.livePreview")} {"{{变量}} 高亮"}
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
           {content ? (
@@ -3002,9 +3002,9 @@ const VisualDesignerBody: React.FC<{
               }}
             >
               <Eye size={28} style={{ color: "#cbd5e1", display: "block", margin: "0 auto 8px" }} />
-              段落内容将在此实时渲染
+              {t("templateDesigner.previewEmpty1")}
               <br />
-              保存时同步写入 content 纯文本与 structure JSON
+              {t("templateDesigner.previewEmpty2")}
             </div>
           )}
         </div>

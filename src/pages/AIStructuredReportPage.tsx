@@ -1468,7 +1468,7 @@ const AIStructuredReportPage: React.FC = () => {
                     value={formData.finding.imageCount}
                     onChange={handleInputChange}
                     style={styles.input}
-                    placeholder="如：24"
+                    placeholder={t("aiStructured.placeholderImageCount")}
                   />
                 </div>
               </div>

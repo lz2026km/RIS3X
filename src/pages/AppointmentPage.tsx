@@ -46,6 +46,7 @@ import AppointmentForm from "./AppointmentForm";
 import AppointmentManagementPage from "./AppointmentManagementPage";
 import { formatDateObj } from '../utils/date';
 import { ActionButton } from "../components/common/ActionButton";
+import { t } from '../i18n/appI18n';
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -245,57 +246,57 @@ const STATUS_CONFIG: Record<
   { label: string; bg: string; color: string; border: string }
 > = {
   pending: {
-    label: "待确认",
+    label: t("apptPage.status.pending"),
     bg: "#f59e0b22",
     color: "#ca8a04",
     border: "#fef08a",
   },
   confirmed: {
-    label: "已确认",
+    label: t("apptPage.status.confirmed"),
     bg: "#22c55e22",
     color: "#059669",
     border: "#6ee7b7",
   },
   "checked-in": {
-    label: "已到检",
+    label: t("apptPage.status.checkedIn"),
     bg: "#3b82f622", color: "#3b82f6",
     border: "#93c5fd",
   },
   checkedIn: {
-    label: "已到检",
+    label: t("apptPage.status.checkedIn"),
     bg: "#3b82f622", color: "#3b82f6",
     border: "#93c5fd",
   },
   cancelled: {
-    label: "已取消",
+    label: t("apptPage.status.cancelled"),
     bg: "var(--bg-deep)", color: "var(--text-secondary)",
     border: "var(--border-color)",
   },
   "no-show": {
-    label: "违约",
+    label: t("apptPage.status.noShow"),
     bg: "#ef444422", color: "#ef4444",
     border: "#fca5a5",
   },
-  noShow: { label: "违约", bg: "#ef444422", color: "#ef4444", border: "#fca5a5" },
+  noShow: { label: t("apptPage.status.noShow"), bg: "#ef444422", color: "#ef4444", border: "#fca5a5" },
   completed: {
-    label: "已完成",
+    label: t("apptPage.status.completed"),
     bg: "#8b5cf622",
     color: "#7c3aed",
     border: "#c4b5fd",
   },
   "in-progress": {
-    label: "进行中",
+    label: t("apptPage.status.inProgress"),
     bg: "#f59e0b22", color: "#f59e0b",
     border: "#fcd34d",
   },
   rescheduled: {
-    label: "已改期",
+    label: t("apptPage.status.rescheduled"),
     bg: "#ec489922",
     color: "#be185d",
     border: "#f9a8d4",
   },
   default: {
-    label: "未知",
+    label: t("apptPage.status.unknown"),
     bg: "var(--bg-deep)", color: "var(--text-secondary)",
     border: "var(--border-color)",
   },
@@ -307,31 +308,31 @@ const PRIORITY_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  critical: { label: "危重", bg: "#ef444422", color: "#ef4444" },
-  urgent: { label: "紧急", bg: "#f59e0b22", color: "#f59e0b" },
-  normal: { label: "普通", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
-  default: { label: "普通", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  critical: { label: t("apptPage.priority.critical"), bg: "#ef444422", color: "#ef4444" },
+  urgent: { label: t("apptPage.priority.urgent"), bg: "#f59e0b22", color: "#f59e0b" },
+  normal: { label: t("apptPage.priority.normal"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  default: { label: t("apptPage.priority.normal"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
 const getPriorityConfig = (priority: string) =>
   PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.default!;
 
 const CANCEL_REASONS = [
-  { value: "patient", label: "患者主动取消" },
-  { value: "device", label: "设备故障" },
-  { value: "doctor", label: "医生取消" },
-  { value: "reschedule", label: "改期" },
-  { value: "other", label: "其他" },
+  { value: "patient", label: t("apptPage.cancelReason.patient") },
+  { value: "device", label: t("apptPage.cancelReason.device") },
+  { value: "doctor", label: t("apptPage.cancelReason.doctor") },
+  { value: "reschedule", label: t("apptPage.cancelReason.reschedule") },
+  { value: "other", label: t("apptPage.cancelReason.other") },
 ];
 
 const REMINDER_STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  已发送: { label: "已发送", bg: "#3b82f622", color: "#1d4ed8" },
-  已确认: { label: "已确认", bg: "#22c55e22", color: "#059669" },
-  已改期: { label: "已改期", bg: "#f59e0b22", color: "#f59e0b" },
-  已取消: { label: "已取消", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
-  default: { label: "未知", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  已发送: { label: t("apptPage.reminderStatus.sent"), bg: "#3b82f622", color: "#1d4ed8" },
+  已确认: { label: t("apptPage.reminderStatus.confirmed"), bg: "#22c55e22", color: "#059669" },
+  已改期: { label: t("apptPage.reminderStatus.rescheduled"), bg: "#f59e0b22", color: "#f59e0b" },
+  已取消: { label: t("apptPage.reminderStatus.cancelled"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  default: { label: t("apptPage.reminderStatus.unknown"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
 const getReminderStatusConfig = (status: string) =>
   REMINDER_STATUS_CONFIG[status] || REMINDER_STATUS_CONFIG.default!;
@@ -340,10 +341,10 @@ const RESCHEDULE_REASON_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  patient: { label: "患者主动", bg: "#3b82f622", color: "#1d4ed8" },
-  doctor: { label: "医生调整", bg: "#f59e0b22", color: "#f59e0b" },
-  device: { label: "设备故障", bg: "#ef444422", color: "#ef4444" },
-  default: { label: "其他", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  patient: { label: t("apptPage.rescheduleReason.patient"), bg: "#3b82f622", color: "#1d4ed8" },
+  doctor: { label: t("apptPage.rescheduleReason.doctor"), bg: "#f59e0b22", color: "#f59e0b" },
+  device: { label: t("apptPage.rescheduleReason.device"), bg: "#ef444422", color: "#ef4444" },
+  default: { label: t("apptPage.rescheduleReason.other"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
 const getRescheduleReasonConfig = (reason: string) =>
   RESCHEDULE_REASON_CONFIG[reason] || RESCHEDULE_REASON_CONFIG.default!;
@@ -445,7 +446,7 @@ export default function AppointmentPage() {
           setLoadError(null);
         } else {
           setAppointments([]);
-          setLoadError(aptRes.error?.message || "加载预约数据失败");
+          setLoadError(aptRes.error?.message || t("apptPage.loadFailed"));
         }
         if (rulesRes.success && Array.isArray(rulesRes.data)) {
           setRules(rulesRes.data as unknown as AppointmentRules[]);
@@ -456,7 +457,7 @@ export default function AppointmentPage() {
           } catch { /* ignore */ }
         }
       } catch {
-        if (!cancelled) setLoadError("加载预约数据失败");
+        if (!cancelled) setLoadError(t("apptPage.loadFailed"));
       }
       if (!cancelled) setLoading(false);
     })();
@@ -532,15 +533,15 @@ export default function AppointmentPage() {
       const failures = [wlRes, remRes, rsRes, cxRes].filter((r) => !r.success);
       if (failures.length > 0) {
         setTabError(
-          `辅助数据加载失败: ${failures
-            .map((f) => f.error?.message || "未知错误")
+          `${t("apptPage.auxLoadFailed")}: ${failures
+            .map((f) => f.error?.message || t("apptPage.unknownError"))
             .join("；")}`,
         );
       }
     })().catch((e: unknown) => {
       if (!cancelled)
         setTabError(
-          `辅助数据加载失败: ${(e as Error)?.message || String(e)}`,
+          `${t("apptPage.auxLoadFailed")}: ${(e as Error)?.message || String(e)}`,
         );
     });
     return () => { cancelled = true; };
@@ -581,7 +582,7 @@ export default function AppointmentPage() {
         userId: `patient-${w.id}`,
         type: "APPOINTMENT",
         severity: "INFO",
-        title: "候诊通知：有空位可安排",
+        title: t("apptPage.waitlistNotifyTitle"),
         content: `${w.patientName} 的 ${w.examItemName}（${w.modality}），期望 ${w.preferredDate} ${w.preferredTime}，现已有空位，请及时来院。`,
         targetId: w.id,
       });
@@ -589,15 +590,15 @@ export default function AppointmentPage() {
         prev.map((x) => (x.id === w.id ? { ...x, notified: true } : x)),
       );
       if (res.success) {
-        message.success(`已发送候诊通知给 ${w.patientName}`);
+        message.success(`${t("apptPage.notifySent")} ${w.patientName}`);
       } else {
-        message.warning("通知服务暂不可用，已本地标记（待补发）");
+        message.warning(t("apptPage.notifyUnavailable"));
       }
     } catch {
       setWaitlist((prev) =>
         prev.map((x) => (x.id === w.id ? { ...x, notified: true } : x)),
       );
-      message.warning("通知服务暂不可用，已本地标记（待补发）");
+      message.warning(t("apptPage.notifyUnavailable"));
     } finally {
       setWaitlistNotifyLoading(null);
     }
@@ -616,7 +617,7 @@ export default function AppointmentPage() {
         String(a.addedAt).localeCompare(String(b.addedAt)),
     );
     setWaitlist(sorted);
-    message.success("候补名单已按优先级/登记时间排序");
+    message.success(t("apptPage.waitlistSorted"));
   };
 
   // 冲突检测
@@ -881,22 +882,22 @@ export default function AppointmentPage() {
 
   const submitAppointment = async (force: boolean) => {
     const errs: Record<string, string> = {};
-    if (!formData.patientName.trim()) errs.patientName = "请输入患者姓名";
+    if (!formData.patientName.trim()) errs.patientName = t("apptPage.errPatientName");
     if (
       formData.idCard &&
       formData.idCard.length > 0 &&
       formData.idCard.length !== 18
     ) {
-      errs.idCard = "身份证号需 18 位";
+      errs.idCard = t("apptPage.errIdCard");
     }
     if (formData.phone && !/^1[3-9]\d{9}$/.test(formData.phone)) {
-      errs.phone = "手机号格式不正确 (11位, 1[3-9] 开头)";
+      errs.phone = t("apptPage.errPhone");
     }
-    if (!formData.examItemId) errs.examItemId = "请选择检查项目";
-    if (!formData.deviceId) errs.deviceId = "请选择检查设备";
+    if (!formData.examItemId) errs.examItemId = t("apptPage.errExamItem");
+    if (!formData.deviceId) errs.deviceId = t("apptPage.errDevice");
     setFormErrors(errs);
     if (Object.keys(errs).length > 0) {
-      setValidationError("请检查必填字段 (红色边框)");
+      setValidationError(t("apptPage.errRequired"));
       return;
     }
     setValidationError("");
@@ -916,12 +917,12 @@ export default function AppointmentPage() {
     }
     const payload = buildCreatePayload();
     if (!payload) {
-      setValidationError("预约时间无效");
+      setValidationError(t("apptPage.errInvalidTime"));
       return;
     }
     const res = await appointmentApi.create(payload);
     if (!res.success) {
-      setValidationError(res.error?.message || "创建预约失败，请重试");
+      setValidationError(res.error?.message || t("apptPage.createFailed"));
       return;
     }
     // 以服务端返回为准: 联动 Exam 已创建, 失效工作列表缓存
@@ -937,7 +938,7 @@ export default function AppointmentPage() {
   // 取消预约
   const handleCancelAppointment = async () => {
     if (!selectedAppointment || !cancelReason) {
-      setCancelReasonError("请选择取消原因");
+      setCancelReasonError(t("apptPage.errCancelReason"));
       return;
     }
     // orderMachine: approved/scheduled/confirmed → cancelled via CANCEL (with reason)
@@ -947,7 +948,7 @@ export default function AppointmentPage() {
       by: "system",
     });
     if (!validateOrderStatus(newState)) {
-      setCancelReasonError("当前状态不允许取消");
+      setCancelReasonError(t("apptPage.errCancelNotAllowed"));
       return;
     }
     await appointmentApi.cancel(selectedAppointment.id);
@@ -993,7 +994,7 @@ const borderGray = "var(--border-color)";
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      {loading && <LoadingBanner message="正在从 API 加载预约数据..." />}
+      {loading && <LoadingBanner message={t("apptPage.loadingData")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {tabError && <ErrorBanner message={tabError} />}
 
@@ -1001,9 +1002,9 @@ const borderGray = "var(--border-color)";
       {patientPreset && (
         <div style={{ background: 'var(--color-info-bg)', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#1e40af' }}>
           <CalendarPlus size={16} />
-          <span>已从患者详情进入: <b>{patientPreset.patientName || patientPreset.patientId}</b>（{patientPreset.patientId}），预约表单已自动填充，直接选择检查项目即可提交。</span>
+          <span>{t("apptPage.presetPrefix")}<b>{patientPreset.patientName || patientPreset.patientId}</b>（{patientPreset.patientId}）{t("apptPage.presetSuffix")}</span>
           <button onClick={() => setPatientPreset(null)} style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: '#1e40af', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-            关闭
+            {t("apptPage.close")}
           </button>
         </div>
       )}
@@ -1029,8 +1030,8 @@ const borderGray = "var(--border-color)";
           <PageHeader
             variant="flex"
             icon={<CalendarClock size={22} style={{ color: "#d97706" }} />}
-            title="检查预约管理"
-            subtitle="预约排程 · 设备分配 · 时间段管理 · 冲突检测 · 预约提醒"
+            title={t("apptPage.title")}
+            subtitle={t("apptPage.subtitle")}
             style={{ marginBottom: 0 }}
           />
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -1052,7 +1053,7 @@ const borderGray = "var(--border-color)";
                 gap: 5,
               }}
             >
-              <Upload size={13} /> 批量导入
+              <Upload size={13} /> {t("apptPage.batchImport")}
             </button>
             <button
               onClick={() => {
@@ -1073,7 +1074,7 @@ const borderGray = "var(--border-color)";
                 gap: 5,
               }}
             >
-              <Settings size={13} /> 预约规则
+              <Settings size={13} /> {t("apptPage.rules")}
             </button>
             {/* [v3.0.6.11-103 Wave 10] 重复页合并: 预约管理视图 (嵌入 AppointmentManagementPage) */}
             <button
@@ -1096,7 +1097,7 @@ const borderGray = "var(--border-color)";
                 gap: 5,
               }}
             >
-              <BarChart3 size={13} /> 预约管理
+              <BarChart3 size={13} /> {t("apptPage.management")}
             </button>
             <ActionButton
               action={showForm ? "cancel" : "create"}
@@ -1110,7 +1111,7 @@ const borderGray = "var(--border-color)";
                 boxShadow: "0 2px 4px rgba(217,119,6,0.3)",
               }}
             >
-              {showForm ? "取消新建" : "新建预约"}
+              {showForm ? t("apptPage.cancelNew") : t("apptPage.newAppointment")}
             </ActionButton>
           </div>
         </div>
@@ -1133,37 +1134,37 @@ const borderGray = "var(--border-color)";
           }}
         >
           <StatCard
-            title="今日预约"
+            title={t("apptPage.todayAppointments")}
             value={todayStats.total}
             icon={<CalendarClock size={20} />}
             color="primary"
           />
           <StatCard
-            title="待确认"
+            title={t("apptPage.pendingConfirm")}
             value={todayStats.pending}
             icon={<Clock size={20} />}
             color="warning"
           />
           <StatCard
-            title="已确认"
+            title={t("apptPage.confirmed")}
             value={todayStats.confirmed}
             icon={<CheckCircle size={20} />}
             color="success"
           />
           <StatCard
-            title="违约"
+            title={t("apptPage.noShow")}
             value={todayStats.noShow}
             icon={<XCircle size={20} />}
             color="error"
           />
           <StatCard
-            title="平均等待"
+            title={t("apptPage.avgWait")}
             value={todayStats.avgWaitTime}
             icon={<Clock size={20} />}
             color="info"
           />
           <StatCard
-            title="使用率"
+            title={t("apptPage.utilization")}
             value={todayStats.utilizationRate}
             suffix="%"
             icon={<BarChart3 size={20} />}
@@ -1197,11 +1198,11 @@ const borderGray = "var(--border-color)";
               filteredAppointments={filteredAppointments}
               filteredListAppointments={filteredListAppointments}
               statsData={[
-                { label: "今日预约", value: appointments.filter(a => a.examDate === formatDateObj(new Date())).length, color: primaryBlue, bg: lightBlue },
-                { label: "已到检", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#22c55e22" },
-                { label: "待确认", value: appointments.filter(a => a.status === "pending").length, color: "#f59e0b", bg: "#f59e0b22" },
-                { label: "违约", value: appointments.filter(a => a.status === "no-show").length, color: "#ef4444", bg: "#ef444422" },
-                { label: "今日已约", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#8b5cf622" },
+                { label: t("apptPage.todayAppointments"), value: appointments.filter(a => a.examDate === formatDateObj(new Date())).length, color: primaryBlue, bg: lightBlue },
+                { label: t("apptPage.status.checkedIn"), value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#22c55e22" },
+                { label: t("apptPage.pendingConfirm"), value: appointments.filter(a => a.status === "pending").length, color: "#f59e0b", bg: "#f59e0b22" },
+                { label: t("apptPage.noShow"), value: appointments.filter(a => a.status === "no-show").length, color: "#ef4444", bg: "#ef444422" },
+                { label: t("apptPage.todayBooked"), value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#8b5cf622" },
               ]}
             />
             {viewMode === "reminders" && (
@@ -1227,9 +1228,9 @@ const borderGray = "var(--border-color)";
                 >
                   {(
                     [
-                      ["reminders", "提醒记录"],
-                      ["reschedules", "改期记录"],
-                      ["cancellations", "取消记录"],
+                      ["reminders", t("apptPage.reminderRecords")],
+                      ["reschedules", t("apptPage.rescheduleRecords")],
+                      ["cancellations", t("apptPage.cancellationRecords")],
                     ] as const
                   ).map(([key, label]) => (
                     <button
@@ -1255,7 +1256,7 @@ const borderGray = "var(--border-color)";
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
                       <thead>
                         <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
-                          {["患者", "电话", "检查项目", "检查时间", "提醒时间", "渠道", "状态", "响应时间"].map((h) => (
+                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colExamTime"), t("apptPage.colReminderTime"), t("apptPage.colChannel"), t("apptPage.colStatus"), t("apptPage.colResponseTime")].map((h) => (
                             <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
                           ))}
                         </tr>
@@ -1277,7 +1278,7 @@ const borderGray = "var(--border-color)";
                         ))}
                         {filteredReminderRecords.length === 0 && (
                           <tr>
-                            <td colSpan={8} style={{ padding: 24, textAlign: "center", color: textGray }}>暂无提醒记录</td>
+                            <td colSpan={8} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noReminders")}</td>
                           </tr>
                         )}
                       </tbody>
@@ -1289,7 +1290,7 @@ const borderGray = "var(--border-color)";
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
                       <thead>
                         <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
-                          {["患者", "电话", "检查项目", "原时间", "新时间", "原因", "操作时间"].map((h) => (
+                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colOriginalTime"), t("apptPage.colNewTime"), t("apptPage.colReason"), t("apptPage.colOperateTime")].map((h) => (
                             <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
                           ))}
                         </tr>
@@ -1310,7 +1311,7 @@ const borderGray = "var(--border-color)";
                         ))}
                         {rescheduleRecords.length === 0 && (
                           <tr>
-                            <td colSpan={7} style={{ padding: 24, textAlign: "center", color: textGray }}>暂无改期记录</td>
+                            <td colSpan={7} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noReschedules")}</td>
                           </tr>
                         )}
                       </tbody>
@@ -1322,7 +1323,7 @@ const borderGray = "var(--border-color)";
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
                       <thead>
                         <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
-                          {["患者", "电话", "检查项目", "取消时间", "原因", "是否改约"].map((h) => (
+                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colCancelTime"), t("apptPage.colReason"), t("apptPage.colRebooked")].map((h) => (
                             <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
                           ))}
                         </tr>
@@ -1342,7 +1343,7 @@ const borderGray = "var(--border-color)";
                         ))}
                         {cancellationRecords.length === 0 && (
                           <tr>
-                            <td colSpan={6} style={{ padding: 24, textAlign: "center", color: textGray }}>暂无取消记录</td>
+                            <td colSpan={6} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noCancellations")}</td>
                           </tr>
                         )}
                       </tbody>
@@ -1400,7 +1401,7 @@ const borderGray = "var(--border-color)";
                       fontWeight: 700,
                     }}
                   >
-                    <Settings size={15} /> 预约规则设置
+                    <Settings size={15} /> {t("apptPage.rulesTitle")}
                   </div>
                   <button
                     onClick={() => setShowRules(false)}
@@ -1441,12 +1442,12 @@ const borderGray = "var(--border-color)";
                       size={12}
                       style={{ display: "inline", marginRight: 4 }}
                     />
-                    预约规则针对每台设备独立设置。修改后即时生效。
+                    {t("apptPage.rulesNote")}
                   </div>
                   {/* 搜索 */}
                   <div style={{ display: "flex", gap: 8 }}>
                     <input
-                      placeholder="搜索设备…"
+                      placeholder={t("apptPage.searchDevice")}
                       onChange={() => {}}
                       style={{
                         flex: 1,
@@ -1525,7 +1526,7 @@ const borderGray = "var(--border-color)";
                               style={{ cursor: "pointer" }}
                             />
                             <AppText size="xs" as="span" style={{ color: rule.enabled ? "#059669" : "#94a3b8" }}>
-                              {rule.enabled ? "启用" : "停用"}
+                              {rule.enabled ? t("apptPage.enabled") : t("apptPage.disabled")}
                             </AppText>
                           </label>
                         </div>
@@ -1545,7 +1546,7 @@ const borderGray = "var(--border-color)";
                                 marginBottom: 2,
                               }}
                             >
-                              每天最大预约量
+                              {t("apptPage.maxDaily")}
                             </label>
                             <input
                               type="number"
@@ -1586,7 +1587,7 @@ const borderGray = "var(--border-color)";
                                 marginBottom: 2,
                               }}
                             >
-                              每时段最大检查数
+                              {t("apptPage.maxPerSlot")}
                             </label>
                             <input
                               type="number"
@@ -1627,7 +1628,7 @@ const borderGray = "var(--border-color)";
                                 marginBottom: 2,
                               }}
                             >
-                              最早提前天数
+                              {t("apptPage.minAdvance")}
                             </label>
                             <input
                               type="number"
@@ -1668,7 +1669,7 @@ const borderGray = "var(--border-color)";
                                 marginBottom: 2,
                               }}
                             >
-                              最晚提前天数
+                              {t("apptPage.maxAdvance")}
                             </label>
                             <input
                               type="number"
@@ -1709,7 +1710,7 @@ const borderGray = "var(--border-color)";
                                 marginBottom: 2,
                               }}
                             >
-                              违约扣款 (元/次)
+                              {t("apptPage.noShowPenalty")}
                             </label>
                             <input
                               type="number"
@@ -1751,7 +1752,7 @@ const borderGray = "var(--border-color)";
                       try {
                         localStorage.setItem("g005_appointment_rules", JSON.stringify(rules));
                       } catch { /* ignore */ }
-                      message.success("预约规则已保存（本地持久化，后端暂无规则保存端点）");
+                      message.success(t("apptPage.rulesSaved"));
                       setShowRules(false);
                     }}
                     style={{
@@ -1769,7 +1770,7 @@ const borderGray = "var(--border-color)";
                       gap: 6,
                     }}
                   >
-                    <Save size={13} /> 保存规则
+                    <Save size={13} /> {t("apptPage.saveRules")}
                   </button>
                 </div>
               </div>
@@ -1805,7 +1806,7 @@ const borderGray = "var(--border-color)";
                       fontWeight: 700,
                     }}
                   >
-                    <Upload size={15} /> 批量导入预约
+                    <Upload size={15} /> {t("apptPage.batchImportTitle")}
                   </div>
                   <button
                     onClick={() => setShowBatchImport(false)}
@@ -1856,10 +1857,10 @@ const borderGray = "var(--border-color)";
                         marginBottom: 4,
                       }}
                     >
-                      点击上传Excel文件
+                      {t("apptPage.clickUpload")}
                     </div>
                     <AppText size="xs" color="secondary" as="div">
-                      支持 .csv / .json 格式（.xlsx 请先另存为 CSV），每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话
+                      {t("apptPage.uploadHint")}
                     </AppText>
                     <button
                       style={{
@@ -1883,7 +1884,7 @@ const borderGray = "var(--border-color)";
                             .files?.[0];
                           if (!file) return;
                           if (/\.(xlsx|xls)$/i.test(file.name)) {
-                            message.warning("暂不支持 .xlsx 二进制解析，请将 Excel 导出为 CSV 或 JSON 格式后再导入（表头: 姓名/设备/日期/时段 等）");
+                            message.warning(t("apptPage.importXlsxWarn"));
                             return;
                           }
                           let rows: Record<string, unknown>[] = [];
@@ -1900,11 +1901,11 @@ const borderGray = "var(--border-color)";
                               rows = parseCsv(text);
                             }
                           } catch {
-                            message.error("文件解析失败，请检查 CSV/JSON 格式");
+                            message.error(t("apptPage.parseFailed"));
                             return;
                           }
                           if (rows.length === 0) {
-                            message.warning("文件中没有可导入的数据行");
+                            message.warning(t("apptPage.noImportRows"));
                             return;
                           }
                           let ok = 0;
@@ -1912,17 +1913,17 @@ const borderGray = "var(--border-color)";
                           const errors: string[] = [];
                           for (const row of rows) {
                             const payload = rowToAppointment(row);
-                            if (!payload) { fail++; errors.push("缺少必填字段(姓名/设备/日期/时段)"); continue; }
+                            if (!payload) { fail++; errors.push(t("apptPage.missingFields")); continue; }
                             try {
                               const res = await appointmentApi.create(payload);
                               if (res.success) ok++;
-                              else { fail++; errors.push(res.error?.message ?? "创建失败"); }
+                              else { fail++; errors.push(res.error?.message ?? t("apptPage.createFailed2")); }
                             } catch {
                               fail++;
-                              errors.push("接口异常");
+                              errors.push(t("apptPage.apiError"));
                             }
                           }
-                          message.success(`导入完成: 成功 ${ok} 条, 失败 ${fail} 条`);
+                          message.success(t("apptPage.importDone", { ok, fail }));
                           if (fail > 0) {
                             message.warning(errors.slice(0, 3).join("；") + (errors.length > 3 ? ` 等 ${errors.length} 条错误` : ""));
                           }
@@ -1938,7 +1939,7 @@ const borderGray = "var(--border-color)";
                         input.click();
                       }}
                     >
-                      选择文件
+                      {t("apptPage.selectFile")}
                     </button>
                   </div>
                   <div
@@ -1958,18 +1959,18 @@ const borderGray = "var(--border-color)";
                         marginBottom: 6,
                       }}
                     >
-                      导入说明
+                      {t("apptPage.importGuide")}
                     </div>
                     <AppText size="xs" color="secondary" as="div" style={{ lineHeight: 1.8 }}>
-                      1. 请先下载模板文件，按格式填写预约信息
+                      {t("apptPage.importStep1")}
                       <br />
-                      2. 姓名、设备、日期、时段为必填项
+                      {t("apptPage.importStep2")}
                       <br />
-                      3. 检查项目需与系统现有项目匹配
+                      {t("apptPage.importStep3")}
                       <br />
-                      4. 导入前请确保设备在该时段有可用名额
+                      {t("apptPage.importStep4")}
                       <br />
-                      5. 重复预约将自动跳过并记录在错误日志中
+                      {t("apptPage.importStep5")}
                     </AppText>
                   </div>
                   <div
@@ -1999,7 +2000,7 @@ const borderGray = "var(--border-color)";
                           evt?.currentTarget) as HTMLButtonElement;
                         btn.disabled = true;
                         const orig = btn.innerHTML;
-                        btn.innerHTML = "⏳ 生成中...";
+                        btn.innerHTML = t("apptPage.generating");
                         await new Promise((r) => setTimeout(r, 1500));
                         const template =
                           "姓名,性别,年龄,检查项目,设备,日期,时段,电话\n张三,男,45,CT增强,CT-1,2026-05-10,上午,13800001234";
@@ -2009,17 +2010,17 @@ const borderGray = "var(--border-color)";
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement("a");
                         a.href = url;
-                        a.download = "预约导入模板.csv";
+                        a.download = t("apptPage.templateFilename");
                         a.click();
                         URL.revokeObjectURL(url);
-                        btn.innerHTML = "✅ 已下载";
+                        btn.innerHTML = t("apptPage.downloaded");
                         setTimeout(() => {
                           btn.innerHTML = orig;
                           btn.disabled = false;
                         }, 2000);
                       }}
                     >
-                      <Download size={12} /> 下载模板
+                      <Download size={12} /> {t("apptPage.downloadTemplate")}
                     </button>
                     <button
                       onClick={() => setShowBatchImport(false)}
@@ -2037,7 +2038,7 @@ const borderGray = "var(--border-color)";
                         gap: 4,
                       }}
                     >
-                      <Check size={12} /> 开始导入
+                      <Check size={12} /> {t("apptPage.startImport")}
                     </button>
                   </div>
                 </div>
@@ -2074,7 +2075,7 @@ const borderGray = "var(--border-color)";
                       gap: 6,
                     }}
                   >
-                    <User size={15} /> 等候名单 ({waitlist.length})
+                    <User size={15} /> {t("apptPage.waitlist")} ({waitlist.length})
                   </div>
                   <button
                     onClick={() => setShowWaitlist(false)}
@@ -2138,17 +2139,17 @@ const borderGray = "var(--border-color)";
                           }}
                         >
                           {w.priority === "critical"
-                            ? "危重"
+                            ? t("apptPage.priority.critical")
                             : w.priority === "urgent"
-                              ? "紧急"
-                              : "普通"}
+                              ? t("apptPage.priority.urgent")
+                              : t("apptPage.priority.normal")}
                         </span>
                       </div>
                       <AppText size="xs" color="secondary" as="div">
                         {w.examItemName} · {w.modality}
                       </AppText>
                       <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 4 }}>
-                        期望: {w.preferredDate} {w.preferredTime}
+                        {t("apptPage.expect")} {w.preferredDate} {w.preferredTime}
                       </AppText>
                       <div style={{ display: "flex", gap: 4 }}>
                         <button
@@ -2178,7 +2179,7 @@ const borderGray = "var(--border-color)";
                           ) : (
                             <Bell size={10} />
                           )}{" "}
-                          通知
+                          {t("apptPage.notify")}
                         </button>
                         <button
                           onClick={handleWaitlistAutoSort}
@@ -2193,7 +2194,7 @@ const borderGray = "var(--border-color)";
                             cursor: "pointer",
                           }}
                         >
-                          自动分配
+                          {t("apptPage.autoAssign")}
                         </button>
                       </div>
                     </div>
@@ -2206,7 +2207,7 @@ const borderGray = "var(--border-color)";
                       marginTop: 6,
                     }}
                   >
-                    当有空闲时段时，系统将自动通知等候患者
+                    {t("apptPage.waitlistHint")}
                   </div>
                 </div>
               </div>
@@ -2239,7 +2240,7 @@ const borderGray = "var(--border-color)";
                       gap: 6,
                     }}
                   >
-                    <CalendarClock size={15} /> 今日概览
+                    <CalendarClock size={15} /> {t("apptPage.overview")}
                   </div>
                 </div>
                 <div style={{ padding: 12 }}>
@@ -2252,7 +2253,7 @@ const borderGray = "var(--border-color)";
                       marginBottom: 8,
                     }}
                   >
-                    各设备今日预约
+                    {t("apptPage.deviceToday")}
                   </div>
                   {filteredDevices.map((device) => {
                     const stats = getDeviceDayStats(new Date(), device.id);
@@ -2278,7 +2279,7 @@ const borderGray = "var(--border-color)";
                           </span>
                           <span style={{ fontSize: 12, color: textGray }}>
                             {stats.total} / {rule?.maxDailyAppointments || 60}{" "}
-                            人次
+                            {t("apptPage.personTimes")}
                           </span>
                         </div>
                         <div
@@ -2310,7 +2311,7 @@ const borderGray = "var(--border-color)";
                   {/* 快捷操作 */}
                   <div style={{ marginTop: 16 }}>
                     <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 8 }}>
-                      快捷操作
+                      {t("apptPage.quickActions")}
                     </AppText>
                     <div
                       style={{
@@ -2321,19 +2322,19 @@ const borderGray = "var(--border-color)";
                     >
                       {[
                         {
-                          label: "新建预约",
+                          label: t("apptPage.newAppointment"),
                           icon: Plus,
                           action: () => setShowForm(true),
                           color: "#f59e0b", bg: "#f59e0b22",
                         },
                         {
-                          label: "批量导入",
+                          label: t("apptPage.batchImport"),
                           icon: Upload,
                           action: () => setShowBatchImport(true),
                           color: "#3b82f6", bg: "#3b82f622",
                         },
                         {
-                          label: "预约规则",
+                          label: t("apptPage.rules"),
                           icon: Settings,
                           action: () => {
                             setShowRules(true);
@@ -2343,14 +2344,14 @@ const borderGray = "var(--border-color)";
                           bg: lightBlue,
                         },
                         {
-                          label: "导出数据",
+                          label: t("apptPage.exportData"),
                           icon: Download,
                           action: async () => {
                             const btn =
                               document.activeElement as HTMLButtonElement;
                             btn.disabled = true;
                             const orig = btn.innerHTML;
-                            btn.innerHTML = "⏳ 导出中...";
+                            btn.innerHTML = t("apptPage.exporting");
                             await new Promise((r) => setTimeout(r, 1500));
                             localStorage.setItem(
                               "g005_appointment_export",
@@ -2358,7 +2359,7 @@ const borderGray = "var(--border-color)";
                                 timestamp: new Date().toISOString(),
                               }),
                             );
-                            btn.innerHTML = "✅ 导出成功";
+                            btn.innerHTML = t("apptPage.exportSuccess");
                             setTimeout(() => {
                               btn.innerHTML = orig;
                               btn.disabled = false;
@@ -2450,7 +2451,7 @@ const borderGray = "var(--border-color)";
                   gap: 6,
                 }}
               >
-                <Eye size={15} /> 预约详情
+                <Eye size={15} /> {t("apptPage.detailTitle")}
               </div>
               <button
                 onClick={() => setShowDetailModal(false)}
@@ -2536,10 +2537,10 @@ const borderGray = "var(--border-color)";
                   }}
                 >
                   <span>
-                    {selectedAppointment.gender} / {selectedAppointment.age}岁
+                    {selectedAppointment.gender} / {selectedAppointment.age}{t("apptPage.ageSuffix")}
                   </span>
                   <span>ID: {selectedAppointment.patientId}</span>
-                  <span>预约号: {selectedAppointment.id}</span>
+                  <span>{t("apptPage.apptNo")}{selectedAppointment.id}</span>
                 </div>
               </div>
 
@@ -2556,7 +2557,7 @@ const borderGray = "var(--border-color)";
                     gap: 4,
                   }}
                 >
-                  <Scan size={13} /> 检查信息
+                  <Scan size={13} /> {t("apptPage.examInfo")}
                 </div>
                 <div
                   style={{
@@ -2567,15 +2568,15 @@ const borderGray = "var(--border-color)";
                   }}
                 >
                   {[
-                    ["检查项目", selectedAppointment.examItemName],
-                    ["设备类型", selectedAppointment.modality],
-                    ["检查部位", selectedAppointment.bodyPart],
-                    ["设备", selectedAppointment.deviceName?.split("（")[0]],
-                    ["预约日期", selectedAppointment.examDate],
-                    ["预约时间", selectedAppointment.examTime],
-                    ["检查室", selectedAppointment.roomName],
+                    [t("apptPage.labelExamItem"), selectedAppointment.examItemName],
+                    [t("apptPage.labelModality"), selectedAppointment.modality],
+                    [t("apptPage.labelBodyPart"), selectedAppointment.bodyPart],
+                    [t("apptPage.labelDevice"), selectedAppointment.deviceName?.split("（")[0]],
+                    [t("apptPage.labelApptDate"), selectedAppointment.examDate],
+                    [t("apptPage.labelApptTime"), selectedAppointment.examTime],
+                    [t("apptPage.labelRoom"), selectedAppointment.roomName],
                     [
-                      "申请医生",
+                      t("apptPage.labelReferringDoctor"),
                       selectedAppointment.referringDoctorName || "-",
                     ],
                   ].map(([label, value]) => (
@@ -2609,7 +2610,7 @@ const borderGray = "var(--border-color)";
               {selectedAppointment.clinicalDiagnosis && (
                 <div style={{ marginBottom: 14 }}>
                   <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                    <AlertCircle size={13} /> 临床诊断
+                    <AlertCircle size={13} /> {t("apptPage.clinicalDiagnosis")}
                   </AppText>
                   <div
                     style={{
@@ -2640,7 +2641,7 @@ const borderGray = "var(--border-color)";
                       gap: 4,
                     }}
                   >
-                    <Bell size={13} /> 备注
+                    <Bell size={13} /> {t("apptPage.notes")}
                   </div>
                   <div
                     style={{
@@ -2672,7 +2673,7 @@ const borderGray = "var(--border-color)";
                         gap: 4,
                       }}
                     >
-                      <XCircle size={13} /> 取消原因
+                      <XCircle size={13} /> {t("apptPage.cancelReasonLabel")}
                     </div>
                     <div
                       style={{
@@ -2704,11 +2705,11 @@ const borderGray = "var(--border-color)";
                     gap: 4,
                   }}
                 >
-                  <Clock size={13} /> 记录时间
+                  <Clock size={13} /> {t("apptPage.recordTime")}
                 </div>
                 <div style={{ fontSize: 12, color: textGray }}>
-                  <div>创建: {selectedAppointment.createdAt}</div>
-                  <div>更新: {selectedAppointment.updatedAt}</div>
+                  <div>{t("apptPage.createdAt")}{selectedAppointment.createdAt}</div>
+                  <div>{t("apptPage.updatedAt")}{selectedAppointment.updatedAt}</div>
                 </div>
               </div>
 
@@ -2744,7 +2745,7 @@ const borderGray = "var(--border-color)";
                         gap: 4,
                       }}
                     >
-                      <XCircle size={13} /> 取消预约
+                      <XCircle size={13} /> {t("apptPage.cancelAppointment")}
                     </button>
                     <button
                       onClick={() => {
@@ -2786,7 +2787,7 @@ const borderGray = "var(--border-color)";
                         gap: 4,
                       }}
                     >
-                      <Edit2 size={13} /> 修改预约
+                      <Edit2 size={13} /> {t("apptPage.editAppointment")}
                     </button>
                   </div>
                 )}
@@ -2838,12 +2839,12 @@ const borderGray = "var(--border-color)";
                 fontWeight: 800,
               }}
             >
-              <XCircle size={16} /> 取消预约
+              <XCircle size={16} /> {t("apptPage.cancelTitle")}
             </div>
             <div style={{ padding: 18 }}>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 12, color: textGray, marginBottom: 4 }}>
-                  预约信息
+                  {t("apptPage.apptInfo")}
                 </div>
                 <div
                   style={{
@@ -2871,7 +2872,7 @@ const borderGray = "var(--border-color)";
               </div>
               <div style={{ marginBottom: 14 }}>
                 <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 8 }}>
-                  取消原因 *
+                  {t("apptPage.cancelReasonRequired")}
                 </AppText>
                 {cancelReasonError && (
                   <AppText size="xs" color="error" as="div" style={{ marginBottom: 8 }}>
@@ -2929,7 +2930,7 @@ const borderGray = "var(--border-color)";
                     cursor: "pointer",
                   }}
                 >
-                  返回
+                  {t("apptPage.back")}
                 </button>
                 <button
                   onClick={handleCancelAppointment}
@@ -2946,7 +2947,7 @@ const borderGray = "var(--border-color)";
                     cursor: cancelReason ? "pointer" : "not-allowed",
                   }}
                 >
-                  确认取消
+                  {t("apptPage.confirmCancel")}
                 </button>
               </div>
             </div>
@@ -2993,7 +2994,7 @@ const borderGray = "var(--border-color)";
                 fontWeight: 800,
               }}
             >
-              <AlertTriangle size={16} /> 时间冲突检测
+              <AlertTriangle size={16} /> {t("apptPage.conflictTitle")}
             </div>
             <div style={{ padding: 18 }}>
               <div style={{ marginBottom: 14 }}>
@@ -3025,7 +3026,7 @@ const borderGray = "var(--border-color)";
                         {c.examItemName} · {c.examDate} {c.examTime}
                       </AppText>
                       <AppText size="xs" as="div" style={{ color: "#7f1d1d" }}>
-                        设备: {c.deviceName?.split("（")[0]} | 状态:{" "}
+                        {t("apptPage.deviceLabel")}{c.deviceName?.split("（")[0]} | {t("apptPage.statusLabel")}{" "}
                         {STATUS_CONFIG[c.status]?.label}
                       </AppText>
                     </div>
@@ -3033,7 +3034,7 @@ const borderGray = "var(--border-color)";
                 </div>
               </div>
               <AppText size="xs" color="warning" as="div" style={{ padding: "10px 12px", background: "var(--color-warning-bg)", borderRadius: 6, border: "1px solid var(--color-warning-border)", marginBottom: 14 }}>
-                检测到该时段存在冲突预约。建议选择其他时段或设备。
+                {t("apptPage.conflictHint")}
               </AppText>
               <div style={{ display: "flex", gap: 8 }}>
                 <button
@@ -3054,7 +3055,7 @@ const borderGray = "var(--border-color)";
                     cursor: "pointer",
                   }}
                 >
-                  返回修改
+                  {t("apptPage.backToEdit")}
                 </button>
                 <button
                   onClick={() => {
@@ -3074,7 +3075,7 @@ const borderGray = "var(--border-color)";
                     cursor: "pointer",
                   }}
                 >
-                  强制预约（忽略冲突）
+                  {t("apptPage.forceBook")}
                 </button>
               </div>
             </div>
