@@ -481,6 +481,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.rqi2024",
         roles: ["主任", "管理员", "医生"],
       },
+      // [G005 v3.0.6.11-105 Wave 3] 放射影像质控指标国家上报中心
+      {
+        path: "/qc/rqi-report-center",
+        icon: <Upload size={18} />,
+        labelKey: "nav.rqiReportCenter",
+        roles: ["主任", "管理员", "医生"],
+      },
       // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
       {
         path: "/qc/analytics",

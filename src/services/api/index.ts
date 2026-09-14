@@ -202,6 +202,30 @@ export type {
   RqiExtendedParams,
 } from "./rqi2024Api";
 
+// [G005 v3.0.6.11-105 Wave 3] 放射影像质控指标国家上报中心
+export {
+  rqiReportCenterApi,
+  REPORT_BATCH_STATUSES,
+  REPORT_PERIODS,
+} from "./rqiReportCenterApi";
+export type {
+  ReportBatchStatus,
+  ReportPeriod,
+  ReportExportFormat,
+  RqiReportSource,
+  RqiReportIndicatorEntry,
+  RqiReportBatch,
+  CreateReportBatchInput,
+  ListReportBatchFilter,
+  ReportBatchListResult,
+  AcceptReportBatchInput,
+  RejectReportBatchInput,
+  ReportExportResult,
+  ReportHistoryItem,
+  ReportHistoryResult,
+  ReportStatsResult,
+} from "./rqiReportCenterApi";
+
 export { regionalApi } from "./regionalApi";
 export type {
   RegionalImagingDto,
