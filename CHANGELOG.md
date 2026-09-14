@@ -1,3 +1,58 @@
+## v3.0.6.11-104 (2026-09-14) — 全项目审查整改：7 维度 15 波（后端契约对齐 + 961 端点全量前端 UI 补齐 + 放射临床流程闭环 + 冗余页面合并 + 全站翻译 + UI 统一）
+
+> **目标**: 全项目审查（后端模块/功能/参数、后端有前端无、放射业务流程、冗余页面、翻译遗漏、页面优化、UI 高质量优化）
+> **范围**: 15 波多 agent 并行实施（后端 299 suites/3282 tests 全过，前端 tsc 817、vite build 成功、click-all 384 路由 0 失败）
+
+### Wave 1: 后端契约与参数审查
+- **7 处前后端 REST 契约对齐**：device-mgmt 根 CRUD→/devices、dictionary 分类域路径、dicom-web study 级、workflow SLA DELETE（补后端）、templates PUT→PATCH、eye pacs 单复数、dental ai-findings PATCH（补后端）
+- **3 个后端状态机门禁**：`APPOINTMENT_TRANSITIONS`/`CRITICAL_TRANSITIONS`/`FOLLOWUP_TRANSITIONS`（非法流转 400，对齐前端 XState）；AppointmentState 补 `REGISTERED` 枚举对齐
+- **参数校验**：6 处未校验 `@Body()` 补 zod + ZodValidationPipe；新建 `common/dto/pagination.dto.ts`（PaginationQuerySchema/ListQuerySchema/resolvePagination）；10 端点补分页、6 端点补筛选
+- **flaky 修复**：lesion-tracking/tech-v2/eye/teach/custom-report 的 `Date.now()` 同毫秒 ID 冲突 → 自增序号；device-schedule/tech-ops 时间敏感 spec 改为固定参考时间
+
+### Wave 2: 后端有前端无 → 补齐 UI（~40 端点）
+- **设备管理看板**：overview/usage-trend/by-room/maintenance-calendar/equipment-lifecycle → DeviceMgmtDashboard 组件
+- **剂量 DRL 报表**：rdsr drl/drls/stats/patients/alerts → RdsrPage 新 Tab（患者累积剂量/超阈值告警）
+- **检查/患者统计**：exams overview/by-modality/daily-trend/timeline/notes + patients overview/age-distribution/summary/visit-history
+- **随访闭环**：reminder-queue（催办队列）/from-report（报告转随访）
+- **AI 质控回读**：qc/image-ai result/result-v2
+- **运维看板**：OEE/Occupancy/Finance/HL7/Criticals overview+trend + AI 病例库 + 待审模板 + 质量复评 + 通知偏好 + 排队优先级
+
+### Wave 3: 放射业务流程闭环（P0 临床安全）
+- **检查前核对 Time-Out**：Patient 增 allergyHistory/pregnancyStatus/isolationFlag + Exam 增 timeoutVerified/By/At/Checklist；核对清单端点 + verify 端点 + `start` 门禁（未核对 400 TIMEOUT_NOT_VERIFIED）+ 前端核对弹窗
+- **对比剂安全**：contrast-safety 模块（过敏试验 CRUD + 注射前核查[同意书/过敏/eGFR<30/妊娠 四项阻断] + 留观计时/记录/离院门禁）
+- **知情同意落库**：patientId/examId 绑定 + 儿童/孕妇类型 + 见证人 + `verify` 端点（供增强检查/注射前校验）
+- **临床反馈闭环**：clinical-feedback 模块（异议/补充/更正提交→回应→关闭 状态机）
+- **接入 4 份零引用临床资料**：contrastProtocols/surgeryChecklists/workflowTemplates/patientEducationMaterials
+- **重拍审批流**：retake-request/approve + 审批门禁 + 按审批人下钻统计
+- **随访结构化结果**：result/outcome 字段 + 录入端点
+- **eGFR 校验前置**：<30 阻断 / 30-59 警告 / ≥60 正常
+
+### Wave 4-5: 冗余页面合并
+- **9 组别名 redirect**：ReportWrite/Materials/CoSign/PatientPortal/Audit/UserManagement/DicomSr/DicomViewer/Home
+- **死代码清理**：删除 report-v2 孤儿三件套（764 行）
+- **12 个 sidebar section 去重合并** + 移除 9 个菜单别名
+- **业务级合并**：报告书写收敛（v3-report-hub/report-v2-workbench→write-report）；质控收敛（AIQC/科室质量→QCPage Tab，rules/watermark→/qc/*）；危急值 7→3（4 页内嵌 Tab）；看板收敛（department-dashboard/ops-dashboard/command-center）；SNOMED 三页合一；模板中心；审核枢纽（review-check/dual-read→review-center）
+
+### Wave 6-12: 全站翻译（i18n）
+- **report/v3 组件群 40 个**：FinalCheckList/CosignSchedule/QualityDimensionCard/CriticalValueAlerter/AIDraftPanel(V2)/ReportQcV2Panel/DefectLibrary/CriticalEscalation(V2)/MultiChannelSender/模板库/导出中心 等
+- **~370 个页面 t() 化**：覆盖报告/危急值/质控/设备/口腔/眼科/集成/移动/财务/安全/专科等全谱
+- **appI18n 键**：7037 → 26855 键，zh/en 完全对称（0 不对称、0 重复）
+- **i18n 修复**：导航栏 nav.volumeStudio/techRotation/aiEnhanced 补全；重复键去重（radpath.title/deptDash.*）
+
+### Wave 13: UI 高质量优化
+- **DataTable 推广**：原生 `<table>` → DataTable（斑马纹/固定表头/空态/加载态/排序/分页）
+- **ActionButton 推广**：原生 `<button>` 操作类 → ActionButton（10 类标准动作 + 图标 + variant）
+- **Select 统一**：原生 `<select>` → antd Select
+- **三态补齐**：loading（StateView/Skeleton）/empty（EmptyState）/error（含重试）
+- **颜色令牌**：硬编码 hex → ThemeTokens（`var(--color-*-500, #fallback)`），142 处
+
+### 验证结果
+- 后端：tsc 0 错误、jest **299 suites / 3282 tests 全部通过**（+14 suites +136 tests）
+- 前端：tsc **817**（较 -103 基线 843 净减 26）、vite build 成功（PWA precache）
+- 全量交互回归：click-all 384 路由 + 基线全过（0 失败）
+
+---
+
 ## v3.0.6.11-103 (2026-08-16) — 大规模升级（99999 升级点）：后端 961 端点全量前端 UI 补齐（consultations/critical/worklist/followup/cosign/report/dicom-sr/compress/measurement/眼科/口腔/运维/系统管理 ~400 端点）+UI 专业美化（放射主题 70+ token/33 放射图标/仪表盘组件 8/表格 DataTable 统一/按钮表单模态规范）+整改（24 薄页专业级改造+5 组重复页合并 redirect）+流程贯通（技师工作台端到端 7 态/报告工作台端到端 7 态/检查与报告状态机门禁/危急值 5 步流程/随访自动触发）+翻译严查（高频 20 页 t() 化 ~4000 键/i18n 6191 键对称）+PACS 对标新增（结构化报告 V3/语音听写 V2/SNOMED+ICD 自动编码/教学病例库/科研导出中心/设备调度甘特图 V2）+全量交互回归 381 路由 0 失败
 
 > **目标**: 99999 升级点——后端有前端无全补齐 + 空表/简单页整改 + 重复页面合并 + 放射专业 UI 美化 + 技师/报告工作站流程贯通 + 翻译严查 + PACS 对标新增

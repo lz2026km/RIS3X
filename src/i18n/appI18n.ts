@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-103 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-104 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -2499,7 +2499,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-103 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-104 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -2563,7 +2563,7 @@ export const translations: Translations = {
     "nav.dicomBrowserPro": "DICOM 专业版",
     "nav.dicomFusion": "PET-CT/MR 融合",
     "nav.fusionV2": "多模态融合 V2",
-    // [G005 v3.0.6.11-103 Wave 2A] 影像对比
+    // [G005 v3.0.6.11-104 Wave 2A] 影像对比
     "nav.imagingCompare": "影像对比",
     "imagingCompare.title": "影像对比",
     "imagingCompare.subtitle": "多时点 / 同患者多序列 / 多模态并排对比",
@@ -2620,7 +2620,7 @@ export const translations: Translations = {
     "imagingCompare.diffHint": "差异指标由确定性像素派生, 与视口渲染一致",
     "imagingCompare.hint": "左键拖拽调节窗宽窗位 · Shift 拖拽平移 · 滚轮翻页 · Ctrl+滚轮缩放 · 点击视口激活",
     "nav.dicomVolume": "3D 体绘制",
-    "nav.wsiViewer": "病理切片 WSI", // [v3.0.6.11-103 Wave 2B] 全切片图像浏览与标注
+    "nav.wsiViewer": "病理切片 WSI", // [v3.0.6.11-104 Wave 2B] 全切片图像浏览与标注
     "nav.filmPrint": "胶片打印",
     "nav.aiAssist": "AI辅助诊断",
     "nav.v3AIAssist": "V3 AI辅助诊断",
@@ -2731,7 +2731,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-103]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-104]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -2860,18 +2860,18 @@ export const translations: Translations = {
     "nav.deviceOps": "设备运维",
     "nav.hrOperations": "人事运营",
     "nav.opsDashboard": "运营看板",
-    // [v3.0.6.11-103] Wave6A 科室 KPI 墙屏
+    // [v3.0.6.11-104] Wave6A 科室 KPI 墙屏
     "nav.kpiWall": "科室 KPI 大屏",
-    // [v3.0.6.11-103 Wave 6B (tech-schedule)] 技师排班
+    // [v3.0.6.11-104 Wave 6B (tech-schedule)] 技师排班
     "nav.techSchedule": "技师排班",
-    // [v3.0.6.11-103 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
+    // [v3.0.6.11-104 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
     "nav.techOps": "技师调度优化 V2",
-    // [v3.0.6.11-103 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
+    // [v3.0.6.11-104 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
     "nav.techOverview": "预约分布与值班大屏",
-    // [v3.0.6.11-103 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
+    // [v3.0.6.11-104 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
     "nav.roomStatusBoard": "检查间看板",
     "nav.retakeAnalytics": "重拍分析",
-    // [v3.0.6.11-103 Wave 1A] 技师 KPI 看板
+    // [v3.0.6.11-104 Wave 1A] 技师 KPI 看板
     "nav.techKpi": "技师 KPI 看板",
     "nav.vesselAnalysis": "血管分析工作台",
     "nav.cdsManagement": "CDS管理",
@@ -2919,7 +2919,7 @@ export const translations: Translations = {
     "nav.multiSiteDashboard": "多站点看板",
     "nav.vnaDashboard": "VNA看板",
     "nav.reviewCenter": "综合审核中心",
-    // [v3.0.6.11-103 Wave 2A] 审核组: 委员会会诊
+    // [v3.0.6.11-104 Wave 2A] 审核组: 委员会会诊
     "nav.committeeRoom": "委员会会诊室",
     "nav.qualityControlV3": "质控管理",
     "nav.workflowV3": "工作流 V3",
@@ -2933,7 +2933,7 @@ export const translations: Translations = {
     "nav.aiRadsScoring": "AI 阅片助手 V3",
     "nav.aiDraft": "AI 报告草稿",
     "nav.teachLecture": "教学讲座",
-    // [G005 v3.0.6.11-103 Wave 18] PACS 对标新增 (第二批)
+    // [G005 v3.0.6.11-104 Wave 18] PACS 对标新增 (第二批)
     "nav.teachingCaseLibrary": "教学病例库",
     "nav.researchExportCenter": "科研数据导出中心",
     "nav.deviceGantt": "设备调度甘特图",
@@ -2947,9 +2947,9 @@ export const translations: Translations = {
     "nav.qcDashboard": "质控总看板",
     "nav.qcImage": "影像质控",
     "nav.qcImageAi": "影像 AI 自动质控",
-    // [G005 Wave 3A v3.0.6.11-103] PDCA 质控闭环
+    // [G005 Wave 3A v3.0.6.11-104] PDCA 质控闭环
     "nav.qcPdca": "PDCA 质控闭环",
-    // [G005 Wave 8B v3.0.6.11-103] 报告质控闭环与趋势分析
+    // [G005 Wave 8B v3.0.6.11-104] 报告质控闭环与趋势分析
     "nav.qcAnalytics": "质控闭环与趋势分析",
     "nav.qcRadiologistAnnual": "医生年度档案",
     "nav.cosign": "双签工作流",
@@ -2958,7 +2958,7 @@ export const translations: Translations = {
     "nav.dicomSr": "DICOM 结构化报告",
     "nav.radiomics": "影像组学分析",
     "nav.dicom4d": "4D 动态影像",
-    // [G005 v3.0.6.11-103 Wave 1B (G-07/G-10)] 4D 真实帧源 + DL 降噪升级文案
+    // [G005 v3.0.6.11-104 Wave 1B (G-07/G-10)] 4D 真实帧源 + DL 降噪升级文案
     "dicom4d.synthetic": "合成帧 (数据缺失回退)",
     "dicom4d.realSource": "真实帧源 · phase 派生",
     "dicom4d.phaseCurve": "相位曲线 (帧序 → 时相)",
@@ -4454,7 +4454,7 @@ export const translations: Translations = {
     "asr.submitToReport": "提交到报告",
     "asr.submitted": "已提交到报告",
     "asr.reset": "重置",
-    // [v3.0.6.11-103 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
+    // [v3.0.6.11-104 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
     "nav.structuredReportV3": "结构化报告 V3",
     "nav.asrDictation": "语音听写工作台 V2",
     "nav.autoCoding": "SNOMED/ICD 自动编码",
@@ -4766,7 +4766,7 @@ export const translations: Translations = {
     "nav.vr": "VR 体绘制",
     "nav.workflow": "工作流",
     "nav.wadoRs": "WADO-RS 检索",
-    // [v3.0.6.11-103 Wave 9] 聚合 i18n 键 (通用状态/操作/表头/提示)
+    // [v3.0.6.11-104 Wave 9] 聚合 i18n 键 (通用状态/操作/表头/提示)
     "common.status.pending": "待处理",
     "common.status.processing": "处理中",
     "common.status.inProgress": "进行中",
@@ -4819,7 +4819,7 @@ export const translations: Translations = {
     "common.api.seed": "种子派生",
     "common.api.database": "database",
     "common.api.demoSeed": "demo (seed)",
-    // [v3.0.6.11-103 Wave 4A] 技师工作站 V2: 双检间轮转 (TechRotationPage)
+    // [v3.0.6.11-104 Wave 4A] 技师工作站 V2: 双检间轮转 (TechRotationPage)
     "techRotation.title": "技师工作站 V2 · 双检间轮转",
     "techRotation.wave": "Wave 4A",
     "techRotation.apiLive": "tech-v2 API 实时",
@@ -4892,7 +4892,7 @@ export const translations: Translations = {
     "techRotation.shift.NIGHT": "夜班",
     "techRotation.shift.WEEKEND": "周末班",
     "techRotation.shift.BACKUP": "备班",
-    // [v3.0.6.11-103 Wave 4B] 技师工作站 V2: 设备利用率 + 紧急插入 + 跨机房优化 (TechOpsPage)
+    // [v3.0.6.11-104 Wave 4B] 技师工作站 V2: 设备利用率 + 紧急插入 + 跨机房优化 (TechOpsPage)
     "techOps.title": "技师工作站 V2 · 调度优化",
     "techOps.subtitle": "利用率历史 · 紧急插入 · 跨机房排程优化",
     "techOps.refreshData": "刷新数据",
@@ -5011,7 +5011,7 @@ export const translations: Translations = {
     "techOps.thPlan": "方案",
     "techOps.useSpare": "启用备用设备",
     "techOps.keepUnchanged": "保持不变",
-    "techOps.footnote": "G005 v3.0.6.11-103 Wave 4B · tech-ops 孤儿模块 (DB 不可用自动回退确定性种子) · 后端: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
+    "techOps.footnote": "G005 v3.0.6.11-104 Wave 4B · tech-ops 孤儿模块 (DB 不可用自动回退确定性种子) · 后端: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
     "techOps.selectModality": "请选择模态",
     "techOps.insertFailed": "插入失败: {{msg}}",
     "techOps.unknownError": "未知错误",
@@ -5020,7 +5020,7 @@ export const translations: Translations = {
     "techOps.priority.STAT": "危重",
     "techOps.priority.URGENT": "紧急",
     "techOps.priority.ROUTINE": "普通",
-    // [v3.0.6.11-103 Wave 5] 技师工作站 V2 收尾: 预约分布 + 值班大屏 (TechOverviewPage)
+    // [v3.0.6.11-104 Wave 5] 技师工作站 V2 收尾: 预约分布 + 值班大屏 (TechOverviewPage)
     "techOverview.title": "技师工作站 V2 · 预约分布与值班大屏",
     "techOverview.apiLive": "tech-overview API 实时",
     "techOverview.demoData": "演示数据",
@@ -5097,7 +5097,7 @@ export const translations: Translations = {
     "techOverview.event.EMERGENCY": "急诊插入",
     "techOverview.event.STATE_CHANGE": "状态变更",
     "techOverview.event.MAINTENANCE": "维护",
-    // [v3.0.6.11-103 Wave 6A] 报告质控规则引擎 (ReportRulesPage)
+    // [v3.0.6.11-104 Wave 6A] 报告质控规则引擎 (ReportRulesPage)
     "reportRules.title": "报告质控规则引擎",
     "reportRules.subtitle": "F11 · 18+ 内置放射专业规则 · 自定义规则 · 规则集按检查类型绑定",
     "reportRules.newRule": "新建自定义规则",
@@ -5202,7 +5202,7 @@ export const translations: Translations = {
     "reportRules.field.impression": "影像印象",
     "reportRules.field.conclusion": "报告结论",
     "reportRules.field.recommendations": "随访建议",
-    // [v3.0.6.11-103 Wave 6A] 报告水印签章 V2 (ReportWatermarkPage)
+    // [v3.0.6.11-104 Wave 6A] 报告水印签章 V2 (ReportWatermarkPage)
     "reportWatermark.title": "报告水印签章 V2",
     "reportWatermark.subtitle": "F8 · 文字水印参数化 · 医院 LOGO 图像水印 · 防篡改校验码 · 电子签名审批流",
     "reportWatermark.applySign": "发起签名申请",
@@ -5284,14 +5284,14 @@ export const translations: Translations = {
     "reportWatermark.cancelled": "已撤销",
     "reportWatermark.cancelFailed": "撤销失败",
     "reportWatermark.detailLoadFailed": "记录加载失败",
-    // [v3.0.6.11-103 Wave 7C] 报告 V2 三面板 (ReportV2Page)
+    // [v3.0.6.11-104 Wave 7C] 报告 V2 三面板 (ReportV2Page)
     "reportV2.title": "报告 V2",
     "reportV2.wave": "Wave 7C",
     "reportV2.subtitle": "定稿前 AI 复查 · 委员会会诊 · 科室互评",
     "reportV2.tabSecondRead": "AI 二次检出 V2 (F14)",
     "reportV2.tabConsultation": "委员会会诊 V2 (F6)",
     "reportV2.tabPeerReview": "报告互评 (F9)",
-    // [v3.0.6.11-103 Wave 8B] 质控闭环与趋势分析 (QcAnalyticsPage)
+    // [v3.0.6.11-104 Wave 8B] 质控闭环与趋势分析 (QcAnalyticsPage)
     "qcAnalytics.title": "质控闭环与趋势分析",
     "qcAnalytics.subtitle": "缺陷 → 整改 → 复查 → 关闭 PDCA 闭环 · 缺陷率周/月趋势 · 帕累托分析 · 科室排名",
     "qcAnalytics.refresh": "刷新",
@@ -5425,7 +5425,7 @@ export const translations: Translations = {
     "qcAnalytics.source.manual": "人工",
     "qcAnalytics.periodMonth": "月度",
     "qcAnalytics.periodWeek": "周度",
-    // [v3.0.6.11-103 Wave 2C] 影像分割深化 (SegmentationPage)
+    // [v3.0.6.11-104 Wave 2C] 影像分割深化 (SegmentationPage)
     "segmentationV2.title": "影像分割深化",
     "segmentationV2.tagAlgos": "5 算法 · 多器官/病灶",
     "segmentationV2.tagOtsu": "Otsu 自动阈值",
@@ -5552,7 +5552,7 @@ export const translations: Translations = {
     "segmentationV2.plane.axial": "轴位",
     "segmentationV2.plane.sagittal": "矢状位",
     "segmentationV2.plane.coronal": "冠状位",
-    // [v3.0.6.11-103 Wave 1A-3A] DICOM 压缩工作台 (DicomCompressPage)
+    // [v3.0.6.11-104 Wave 1A-3A] DICOM 压缩工作台 (DicomCompressPage)
     "compressV2.title": "DICOM 压缩工作台",
     "compressV2.subtitle": "JPEG2000 真编解码 (OpenJPEG WASM) + RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码",
     "compressV2.sourceFile": "源文件",
@@ -31036,7 +31036,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-103 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-104 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -31100,7 +31100,7 @@ export const translations: Translations = {
     "nav.dicomBrowserPro": "DICOM Professional",
     "nav.dicomFusion": "PET-CT/MR Fusion",
     "nav.fusionV2": "Multi-Modal Fusion V2",
-    // [G005 v3.0.6.11-103 Wave 2A] Imaging Compare
+    // [G005 v3.0.6.11-104 Wave 2A] Imaging Compare
     "nav.imagingCompare": "Imaging Compare",
     "imagingCompare.title": "Imaging Compare",
     "imagingCompare.subtitle": "Multi-timepoint / multi-series / multi-modality side-by-side",
@@ -31157,7 +31157,7 @@ export const translations: Translations = {
     "imagingCompare.diffHint": "Metrics derived from deterministic pixels, consistent with viewport",
     "imagingCompare.hint": "Drag to adjust WW/WL · Shift+drag to pan · Wheel to flip frame · Ctrl+wheel to zoom · Click viewport to activate",
     "nav.dicomVolume": "3D Volume Rendering",
-    "nav.wsiViewer": "Pathology WSI Viewer", // [v3.0.6.11-103 Wave 2B] whole-slide image browsing & annotation
+    "nav.wsiViewer": "Pathology WSI Viewer", // [v3.0.6.11-104 Wave 2B] whole-slide image browsing & annotation
     "nav.filmPrint": "Film Print",
     "nav.aiAssist": "AI Assisted Diagnosis",
     "nav.v3AIAssist": "V3 AI Assisted Diagnosis",
@@ -31268,7 +31268,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-103]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-104]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",
@@ -31397,18 +31397,18 @@ export const translations: Translations = {
     "nav.deviceOps": "Device Operations",
     "nav.hrOperations": "HR Operations",
     "nav.opsDashboard": "Operations Dashboard",
-    // [v3.0.6.11-103] Wave6A Department KPI wall + Vessel analysis
+    // [v3.0.6.11-104] Wave6A Department KPI wall + Vessel analysis
     "nav.kpiWall": "Department KPI Wall",
-    // [v3.0.6.11-103 Wave 6B (tech-schedule)] Tech scheduling
+    // [v3.0.6.11-104 Wave 6B (tech-schedule)] Tech scheduling
     "nav.techSchedule": "Tech Scheduling",
-    // [v3.0.6.11-103 Wave 4B (tech-ops)] Tech Ops V2
+    // [v3.0.6.11-104 Wave 4B (tech-ops)] Tech Ops V2
     "nav.techOps": "Tech Ops V2",
-    // [v3.0.6.11-103 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard
+    // [v3.0.6.11-104 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard
     "nav.techOverview": "Appointment & Duty Overview",
-    // [v3.0.6.11-103 Wave 1B] Tech workstation: room status board + retake analytics
+    // [v3.0.6.11-104 Wave 1B] Tech workstation: room status board + retake analytics
     "nav.roomStatusBoard": "Exam Room Status Board",
     "nav.retakeAnalytics": "Retake Analytics",
-    // [v3.0.6.11-103 Wave 1A] Technician KPI dashboard
+    // [v3.0.6.11-104 Wave 1A] Technician KPI dashboard
     "nav.techKpi": "Technician KPI Dashboard",
     "nav.vesselAnalysis": "Vessel Analysis Workbench",
     "nav.cdsManagement": "CDS Management",
@@ -31456,7 +31456,7 @@ export const translations: Translations = {
     "nav.financialReports": "Financial Reports",
     "nav.vnaDashboard": "VNA Dashboard",
     "nav.reviewCenter": "Review Center",
-    // [v3.0.6.11-103 Wave 2A] 审核组: 委员会会诊
+    // [v3.0.6.11-104 Wave 2A] 审核组: 委员会会诊
     "nav.committeeRoom": "Committee Room",
     "nav.qualityControlV3": "Quality Control",
     "nav.workflowV3": "Workflow V3",
@@ -31470,7 +31470,7 @@ export const translations: Translations = {
     "nav.aiRadsScoring": "AI RADS Scoring V3",
     "nav.aiDraft": "AI Report Draft",
     "nav.teachLecture": "Teaching Lecture",
-    // [G005 v3.0.6.11-103 Wave 18] PACS benchmark additions (batch 2)
+    // [G005 v3.0.6.11-104 Wave 18] PACS benchmark additions (batch 2)
     "nav.teachingCaseLibrary": "Teaching Case Library",
     "nav.researchExportCenter": "Research Export Center",
     "nav.deviceGantt": "Device Schedule Gantt",
@@ -31485,9 +31485,9 @@ export const translations: Translations = {
     "nav.qcDashboard": "QC Dashboard",
     "nav.qcImage": "Image QC",
     "nav.qcImageAi": "AI Image QC",
-    // [G005 Wave 3A v3.0.6.11-103] PDCA 质控闭环
+    // [G005 Wave 3A v3.0.6.11-104] PDCA 质控闭环
     "nav.qcPdca": "PDCA QC Loop",
-    // [G005 Wave 8B v3.0.6.11-103] 报告质控闭环与趋势分析
+    // [G005 Wave 8B v3.0.6.11-104] 报告质控闭环与趋势分析
     "nav.qcAnalytics": "QC Loop & Trend Analytics",
     "nav.qcRadiologistAnnual": "Radiologist Annual QC",
     "nav.cosign": "CoSign Workflow",
@@ -31511,7 +31511,7 @@ export const translations: Translations = {
     "nav.dicomSr": "DICOM Structured Report",
     "nav.radiomics": "Radiomics",
     "nav.dicom4d": "4D Dynamic",
-    // [G005 v3.0.6.11-103 Wave 1B (G-07/G-10)] 4D real frame source + DL denoise upgrade copy
+    // [G005 v3.0.6.11-104 Wave 1B (G-07/G-10)] 4D real frame source + DL denoise upgrade copy
     "dicom4d.synthetic": "Synthetic frames (data missing fallback)",
     "dicom4d.realSource": "Real frame source · phase-derived",
     "dicom4d.phaseCurve": "Phase curve (frame → phase)",
@@ -33009,7 +33009,7 @@ export const translations: Translations = {
     "asr.submitToReport": "Submit to Report",
     "asr.submitted": "Submitted to Report",
     "asr.reset": "Reset",
-    // [v3.0.6.11-103 Wave 17] PACS Benchmark Batch 1: Structured Report V3 / Dictation V2 / Auto Coding
+    // [v3.0.6.11-104 Wave 17] PACS Benchmark Batch 1: Structured Report V3 / Dictation V2 / Auto Coding
     "nav.structuredReportV3": "Structured Report V3",
     "nav.asrDictation": "Dictation Workbench V2",
     "nav.autoCoding": "SNOMED/ICD Auto Coding",
@@ -33323,7 +33323,7 @@ export const translations: Translations = {
     "nav.vr": "VR Volume Rendering",
     "nav.workflow": "Workflow",
     "nav.wadoRs": "WADO-RS Retrieval",
-    // [v3.0.6.11-103 Wave 9] Aggregate i18n keys (common status/actions/table headers)
+    // [v3.0.6.11-104 Wave 9] Aggregate i18n keys (common status/actions/table headers)
     "common.status.pending": "Pending",
     "common.status.processing": "Processing",
     "common.status.inProgress": "In Progress",
@@ -33376,7 +33376,7 @@ export const translations: Translations = {
     "common.api.seed": "Seed derived",
     "common.api.database": "database",
     "common.api.demoSeed": "demo (seed)",
-    // [v3.0.6.11-103 Wave 4A] Tech workstation V2: dual-room rotation (TechRotationPage)
+    // [v3.0.6.11-104 Wave 4A] Tech workstation V2: dual-room rotation (TechRotationPage)
     "techRotation.title": "Tech Workstation V2 · Dual-Room Rotation",
     "techRotation.wave": "Wave 4A",
     "techRotation.apiLive": "tech-v2 API live",
@@ -33449,7 +33449,7 @@ export const translations: Translations = {
     "techRotation.shift.NIGHT": "Night",
     "techRotation.shift.WEEKEND": "Weekend",
     "techRotation.shift.BACKUP": "Backup",
-    // [v3.0.6.11-103 Wave 4B] Tech workstation V2: utilization + emergency insert + cross-room optimization (TechOpsPage)
+    // [v3.0.6.11-104 Wave 4B] Tech workstation V2: utilization + emergency insert + cross-room optimization (TechOpsPage)
     "techOps.title": "Tech Workstation V2 · Scheduling Optimization",
     "techOps.subtitle": "Utilization history · Emergency insert · Cross-room scheduling",
     "techOps.refreshData": "Refresh data",
@@ -33568,7 +33568,7 @@ export const translations: Translations = {
     "techOps.thPlan": "Plan",
     "techOps.useSpare": "Use spare device",
     "techOps.keepUnchanged": "Unchanged",
-    "techOps.footnote": "G005 v3.0.6.11-103 Wave 4B · tech-ops module (falls back to deterministic seed when DB is unavailable) · API: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
+    "techOps.footnote": "G005 v3.0.6.11-104 Wave 4B · tech-ops module (falls back to deterministic seed when DB is unavailable) · API: GET /tech-ops/utilization, POST /tech-ops/emergency/insert, POST /tech-ops/optimize",
     "techOps.selectModality": "Please select a modality",
     "techOps.insertFailed": "Insert failed: {{msg}}",
     "techOps.unknownError": "Unknown error",
@@ -33577,7 +33577,7 @@ export const translations: Translations = {
     "techOps.priority.STAT": "Critical",
     "techOps.priority.URGENT": "Urgent",
     "techOps.priority.ROUTINE": "Routine",
-    // [v3.0.6.11-103 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard (TechOverviewPage)
+    // [v3.0.6.11-104 Wave 5] Tech workstation V2 wrap-up: appointment distribution + duty dashboard (TechOverviewPage)
     "techOverview.title": "Tech Workstation V2 · Appointment Distribution & Duty Dashboard",
     "techOverview.apiLive": "tech-overview API live",
     "techOverview.demoData": "Demo data",
@@ -33654,7 +33654,7 @@ export const translations: Translations = {
     "techOverview.event.EMERGENCY": "Emergency Insert",
     "techOverview.event.STATE_CHANGE": "State Change",
     "techOverview.event.MAINTENANCE": "Maintenance",
-    // [v3.0.6.11-103 Wave 6A] Report QC rules engine (ReportRulesPage)
+    // [v3.0.6.11-104 Wave 6A] Report QC rules engine (ReportRulesPage)
     "reportRules.title": "Report QC Rules Engine",
     "reportRules.subtitle": "F11 · 18+ built-in radiology rules · custom rules · rulesets bound by exam type",
     "reportRules.newRule": "New Custom Rule",
@@ -33759,7 +33759,7 @@ export const translations: Translations = {
     "reportRules.field.impression": "Impression",
     "reportRules.field.conclusion": "Conclusion",
     "reportRules.field.recommendations": "Recommendations",
-    // [v3.0.6.11-103 Wave 6A] Report watermark & e-signature V2 (ReportWatermarkPage)
+    // [v3.0.6.11-104 Wave 6A] Report watermark & e-signature V2 (ReportWatermarkPage)
     "reportWatermark.title": "Report Watermark & Signature V2",
     "reportWatermark.subtitle": "F8 · Parametric text watermark · hospital LOGO image watermark · tamper-proof code · e-signature approval flow",
     "reportWatermark.applySign": "Request Signature",
@@ -33841,14 +33841,14 @@ export const translations: Translations = {
     "reportWatermark.cancelled": "Cancelled",
     "reportWatermark.cancelFailed": "Cancel failed",
     "reportWatermark.detailLoadFailed": "Failed to load record",
-    // [v3.0.6.11-103 Wave 7C] Report V2 three-panel page (ReportV2Page)
+    // [v3.0.6.11-104 Wave 7C] Report V2 three-panel page (ReportV2Page)
     "reportV2.title": "Report V2",
     "reportV2.wave": "Wave 7C",
     "reportV2.subtitle": "Pre-final AI review · Committee consultation · Peer review",
     "reportV2.tabSecondRead": "AI Second Read V2 (F14)",
     "reportV2.tabConsultation": "Committee Consultation V2 (F6)",
     "reportV2.tabPeerReview": "Peer Review (F9)",
-    // [v3.0.6.11-103 Wave 8B] QC loop & trend analytics (QcAnalyticsPage)
+    // [v3.0.6.11-104 Wave 8B] QC loop & trend analytics (QcAnalyticsPage)
     "qcAnalytics.title": "QC Loop & Trend Analytics",
     "qcAnalytics.subtitle": "Defect → fix → recheck → close PDCA loop · weekly/monthly defect-rate trend · Pareto analysis · department ranking",
     "qcAnalytics.refresh": "Refresh",
@@ -33982,7 +33982,7 @@ export const translations: Translations = {
     "qcAnalytics.source.manual": "Manual",
     "qcAnalytics.periodMonth": "Monthly",
     "qcAnalytics.periodWeek": "Weekly",
-    // [v3.0.6.11-103 Wave 2C] Segmentation deep-dive (SegmentationPage)
+    // [v3.0.6.11-104 Wave 2C] Segmentation deep-dive (SegmentationPage)
     "segmentationV2.title": "Segmentation Workbench",
     "segmentationV2.tagAlgos": "5 algorithms · multi-organ/lesion",
     "segmentationV2.tagOtsu": "Otsu auto threshold",
@@ -34109,7 +34109,7 @@ export const translations: Translations = {
     "segmentationV2.plane.axial": "Axial",
     "segmentationV2.plane.sagittal": "Sagittal",
     "segmentationV2.plane.coronal": "Coronal",
-    // [v3.0.6.11-103 Wave 1A-3A] DICOM compression workbench (DicomCompressPage)
+    // [v3.0.6.11-104 Wave 1A-3A] DICOM compression workbench (DicomCompressPage)
     "compressV2.title": "DICOM Compression Workbench",
     "compressV2.subtitle": "JPEG2000 real codec (OpenJPEG WASM) + RLE + LOCO-I prediction + Golomb-Rice entropy coding",
     "compressV2.sourceFile": "Source File",
