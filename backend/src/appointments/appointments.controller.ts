@@ -9,8 +9,9 @@ import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { AppointmentsService, CreateAppointmentDto, UpdateAppointmentDto } from './appointments.service'
 
+// [v3.0.6.11-104 Wave 1B] 枚举对齐 Prisma AppointmentState: 补齐漏掉的 REGISTERED
 const AppointmentStateEnum = z.enum([
-  'SCHEDULED', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW',
+  'SCHEDULED', 'CONFIRMED', 'REGISTERED', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW',
 ])
 
 const CreateSchema = z.object({

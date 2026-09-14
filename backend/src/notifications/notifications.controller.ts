@@ -62,6 +62,14 @@ const UpdateSubscriptionSchema = z.object({
   types: z.array(z.enum(['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM'])),
 })
 
+// [v3.0.6.11-104 Wave 1C] 历史列表分页 + 类型筛选 (limit 兼容既有调用, 上限 200)
+export const HistoryQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(200).default(50),
+  limit: z.coerce.number().int().min(1).max(200).optional(),
+  type: z.string().max(40).optional(),
+})
+
 @ApiTags('notifications')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
@@ -106,8 +114,10 @@ export class NotificationsController {
   }
 
   @Get('history/:userId')
-  history(@Param('userId') userId: string, @Query('limit') limit?: string) {
-    return this.service.getHistory(userId, Number(limit ?? 50))
+  history(@Param('userId') userId: string, @Query(new ZodValidationPipe(HistoryQuerySchema)) query: z.infer<typeof HistoryQuerySchema>) {
+    const pageSize = query.limit ?? query.pageSize
+    const skip = (query.page - 1) * pageSize
+    return this.service.getHistory(userId, pageSize, skip, query.type)
   }
 
   @Get('stats/:userId')

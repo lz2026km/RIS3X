@@ -419,6 +419,7 @@ export class LesionTrackingService {
     site: string
     type?: LesionType
     initialSizeMm?: number
+    initialDate?: string
     modality?: string
     studyId?: string
     // [v3.0.6.11-100 Wave 6A (D-4)] 来源标注 (manual/ai/from-report) + 来源报告
@@ -443,7 +444,7 @@ export class LesionTrackingService {
         {
           id: newId('m'),
           studyId: dto.studyId ?? '',
-          date: now,
+          date: dto.initialDate ?? now,
           sizeMm: Math.max(0, dto.initialSizeMm ?? 0),
         },
       ],

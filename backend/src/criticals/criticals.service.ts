@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import type { CriticalState } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { createNoopGateway, NotificationsGateway } from '../notifications/notifications.gateway'
 import { currentTenantId } from '../common/tenant/tenant-utils'
@@ -62,6 +63,24 @@ const SEVERITY_LABEL: Record<string, string> = {
   URGENT: '危急',
   HIGH: '高危',
   LOW: '警告',
+}
+
+// [v3.0.6.11-104 Wave 1B] 危急值状态机合法流转表 (5 步闭环门禁, 对齐 Prisma CriticalState 10 态):
+//   主链: FOUND→NOTIFIED/VOICE_CALLED→ACKNOWLEDGED→RECEIPTED→RESOLVING→RESOLVED→CLOSED_LOOP
+//   侧链: 任意态可 ESCALATED (升级); ESCALATED→ACKNOWLEDGED/CANCELLED; 部分态可 CANCELLED
+//   终态: CLOSED_LOOP (闭环) / CANCELLED 不可再流转。
+//   对照前端 src/machines/criticalValueMachine.ts 的 5 步闭环 + escalate/cancel 侧链。
+export const CRITICAL_TRANSITIONS: Record<CriticalState, CriticalState[]> = {
+  FOUND: ['NOTIFIED', 'ESCALATED', 'CANCELLED'],
+  NOTIFIED: ['VOICE_CALLED', 'ACKNOWLEDGED', 'ESCALATED', 'CANCELLED'],
+  VOICE_CALLED: ['ACKNOWLEDGED', 'ESCALATED', 'CANCELLED'],
+  ACKNOWLEDGED: ['RECEIPTED', 'RESOLVING', 'ESCALATED'],
+  RECEIPTED: ['RESOLVING', 'ESCALATED'],
+  RESOLVING: ['RESOLVED', 'ESCALATED'],
+  RESOLVED: ['CLOSED_LOOP', 'CANCELLED'],
+  CLOSED_LOOP: [],
+  ESCALATED: ['ACKNOWLEDGED', 'CANCELLED'],
+  CANCELLED: [],
 }
 
 @Injectable()
@@ -211,9 +230,27 @@ export class CriticalsService {
     })
   }
 
+  /**
+   * [v3.0.6.11-104 Wave 1B] 危急值状态机门禁: 校验 from → to 是否在 CRITICAL_TRANSITIONS 合法流转表内。
+   * 同态幂等放行; 非法跳转抛 400 并给出当前态可去向列表。
+   */
+  private assertCriticalTransition(from: string, to: string, id: string): void {
+    if (from === to) return
+    const allowed = (CRITICAL_TRANSITIONS as Record<string, CriticalState[]>)[from] ?? []
+    if (!allowed.includes(to as CriticalState)) {
+      throw new BadRequestException(
+        `INVALID_TRANSITION: CriticalValue ${id} ${from} → ${to} 不允许 (非法跳转; 合法流转: ${from} → ${allowed.length > 0 ? allowed.join('/') : '无 (终态)'})`,
+      )
+    }
+  }
+
   async update(id: string, dto: { description?: string; severity?: string; state?: string; notifiedTo?: string; ackedBy?: string; resolvedBy?: string; closedBy?: string }) {
     const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
+    // [v3.0.6.11-104 Wave 1B] 流程质量门禁: state 变更走合法流转表, 非法跳转 (如 FOUND→RESOLVED 跳过通知/确认) 拒绝
+    if (dto.state !== undefined) {
+      this.assertCriticalTransition(String(existing.state), dto.state, id)
+    }
     const data: any = { ...dto }
     if (dto.ackedBy) data.ackedAt = new Date()
     if (dto.resolvedBy) data.resolvedAt = new Date()

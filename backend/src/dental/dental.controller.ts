@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query, HttpCode } from '@nestjs/common'
+﻿import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, HttpCode } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { DentalService } from './dental.service'
@@ -6,6 +6,7 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import {
   AddInventoryItemSchema,
   CreateAiFindingSchema,
+  UpdateAiFindingSchema,
   CreateDentalAppointmentSchema,
   CreateDentalInvoiceSchema,
   CreateDentalStudySchema,
@@ -22,6 +23,7 @@ const LooseBodySchema = z.object({}).passthrough()
 type CreateDentalStudyDto = z.infer<typeof CreateDentalStudySchema>
 type UpdateDentalStudyDto = z.infer<typeof UpdateDentalStudySchema>
 type CreateAiFindingDto = z.infer<typeof CreateAiFindingSchema>
+type UpdateAiFindingDto = z.infer<typeof UpdateAiFindingSchema>
 type CreateImplantDto = z.infer<typeof CreateImplantSchema>
 type UpdateImplantDto = z.infer<typeof UpdateImplantSchema>
 type CreateDentalAppointmentDto = z.infer<typeof CreateDentalAppointmentSchema>
@@ -57,6 +59,10 @@ export class DentalController {
 
   @Post('ai-findings')
   createAiFinding(@Body(new ZodValidationPipe(CreateAiFindingSchema)) body: CreateAiFindingDto) { return this.svc.createAiFinding(body) }
+
+  // [v3.0.6.11-104 Wave 1A] 前端 dentalApi.updateAiFinding 走 PATCH /dental/ai-findings/:id (原后端缺失)
+  @Patch('ai-findings/:id')
+  updateAiFinding(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateAiFindingSchema)) body: UpdateAiFindingDto) { return this.svc.updateAiFinding(id, body) }
 
   @Get('implants')
   listImplants() { return this.svc.listImplants() }

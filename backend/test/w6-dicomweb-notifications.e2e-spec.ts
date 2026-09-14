@@ -134,7 +134,7 @@ describe('NotificationsModule', () => {
   })
 
   it('history returns array', async () => {
-    const r = await ctrl.history('U1', '10')
+    const r = await ctrl.history('U1', { page: 1, pageSize: 10 })
     expect(Array.isArray(r)).toBe(true)
   })
 

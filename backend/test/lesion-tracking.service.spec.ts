@@ -103,7 +103,7 @@ describe('LesionTrackingService', () => {
 
   // ── 测量 ─────────────────────────────────────────────────────────────────
   it('addMeasurement: 追加测量并按尺寸变化重算状态 (缩小)', async () => {
-    const created = await svc.create({ patientId: 'P000009', name: 'N', site: 'S', type: '肺结节', initialSizeMm: 20 })
+    const created = await svc.create({ patientId: 'P000009', name: 'N', site: 'S', type: '肺结节', initialSizeMm: 20, initialDate: '2026-08-01' })
     const after = await svc.addMeasurement(created.id, { studyId: 'STU-X', sizeMm: 12, date: '2026-09-01', response: 'PR' })
     expect(after.measurements).toHaveLength(2)
     expect(after.currentStatus).toBe('缩小')
@@ -118,7 +118,7 @@ describe('LesionTrackingService', () => {
 
   // ── 趋势 ─────────────────────────────────────────────────────────────────
   it('trend: 输出时间线 + 基线对比 + 整体响应', async () => {
-    const created = await svc.create({ patientId: 'P000009', name: 'N', site: 'S', type: '肺结节', initialSizeMm: 10 })
+    const created = await svc.create({ patientId: 'P000009', name: 'N', site: 'S', type: '肺结节', initialSizeMm: 10, initialDate: '2026-08-01' })
     await svc.addMeasurement(created.id, { studyId: 'STU-2', sizeMm: 14, date: '2026-09-01' })
     const t = await svc.trend(created.id)
     expect(t.timeline).toHaveLength(2)

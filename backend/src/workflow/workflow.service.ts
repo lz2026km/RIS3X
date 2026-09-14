@@ -56,6 +56,12 @@ export class WorkflowService {
     return this.prisma.slaPolicy.update({ where: { id }, data: body as any })
   }
 
+  // [v3.0.6.11-104 Wave 1A] 补 DELETE /workflow/sla-policies/:id (前后端契约对齐)
+  async deleteSlaPolicy(id: string) {
+    await this.prisma.slaPolicy.delete({ where: { id } })
+    return { deleted: true }
+  }
+
   async listRoutingRules() {
     const items = await this.prisma.routingRule.findMany({ orderBy: { createdAt: 'desc' } })
     return { items, total: items.length }

@@ -246,10 +246,13 @@ export class PatientService {
     }
   }
 
-  async list(params: { skip?: number; take?: number; name?: string; phone?: string }) {
+  // [v3.0.6.11-104 Wave 1C] 补齐 gender/type 筛选 (可选, 未传保持原行为)
+  async list(params: { skip?: number; take?: number; name?: string; phone?: string; gender?: string; type?: string }) {
     const where: any = { deletedAt: null, tenantId: currentTenantId() }
     if (params.name) where.name = { contains: params.name }
     if (params.phone) where.phone = { contains: params.phone }
+    if (params.gender) where.gender = params.gender
+    if (params.type) where.type = params.type
     const [items, total] = await Promise.all([
       this.prisma.patient.findMany({
         where,

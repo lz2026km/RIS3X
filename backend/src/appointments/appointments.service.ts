@@ -3,7 +3,7 @@
  * - create: 完整字段落库 + 同事务创建 Exam (工作列表可见)
  * - 补 5 个子资源: rules / waitlist / reminders / reschedules / cancellations
  */
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { currentTenantId } from '../common/tenant/tenant-utils'
 import type { Appointment, AppointmentPriority, AppointmentState, Gender } from '@prisma/client'
@@ -43,6 +43,22 @@ const PRIORITY_MAP: Record<string, AppointmentPriority> = {
   normal: 'ROUTINE',
   urgent: 'URGENT',
   critical: 'STAT',
+}
+
+// [v3.0.6.11-104 Wave 1B] 预约状态机合法流转表 (流程质量门禁, 对齐 Prisma AppointmentState 8 态):
+//   主链: SCHEDULED→CONFIRMED→REGISTERED→CHECKED_IN→IN_PROGRESS→COMPLETED
+//   侧链: 取消/失约 (SCHEDULED/CONFIRMED/REGISTERED/CHECKED_IN/IN_PROGRESS→CANCELLED, ...→NO_SHOW)
+//   终态: COMPLETED / CANCELLED / NO_SHOW 不可再流转。
+//   对照前端 src/machines/orderMachine.ts 的线性推进 + 取消/退回侧链。
+export const APPOINTMENT_TRANSITIONS: Record<AppointmentState, AppointmentState[]> = {
+  SCHEDULED: ['CONFIRMED', 'REGISTERED', 'CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
+  CONFIRMED: ['REGISTERED', 'CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
+  REGISTERED: ['CHECKED_IN', 'CANCELLED', 'NO_SHOW'],
+  CHECKED_IN: ['IN_PROGRESS', 'CANCELLED', 'NO_SHOW'],
+  IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
+  COMPLETED: [],
+  CANCELLED: [],
+  NO_SHOW: [],
 }
 
 // ===== 内存 seed: 提醒 / 改期 / 取消记录 (轻量实现, 后续可落表) =====
@@ -318,10 +334,28 @@ export class AppointmentsService {
     })
   }
 
+  /**
+   * [v3.0.6.11-104 Wave 1B] 预约状态机门禁: 校验 from → to 是否在 APPOINTMENT_TRANSITIONS 合法流转表内。
+   * 同态幂等放行 (PATCH 重复提交不报错); 非法跳转抛 400 并给出当前态可去向列表。
+   */
+  private assertAppointmentTransition(from: AppointmentState, to: AppointmentState, id: string): void {
+    if (from === to) return
+    const allowed = APPOINTMENT_TRANSITIONS[from] ?? []
+    if (!allowed.includes(to)) {
+      throw new BadRequestException(
+        `INVALID_TRANSITION: Appointment ${id} ${from} → ${to} 不允许 (非法跳转; 合法流转: ${from} → ${allowed.length > 0 ? allowed.join('/') : '无 (终态)'})`,
+      )
+    }
+  }
+
   async update(id: string, dto: UpdateAppointmentDto): Promise<Appointment> {
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.appointment.findUnique({ where: { id } })
       if (!current) throw new NotFoundException(`Appointment ${id} not found`)
+      // [v3.0.6.11-104 Wave 1B] 流程质量门禁: state 变更走合法流转表, 非法跳转 (如 SCHEDULED→COMPLETED) 拒绝
+      if (dto.state !== undefined) {
+        this.assertAppointmentTransition(current.state, dto.state, id)
+      }
       if (dto.deviceId || dto.startAt || dto.endAt) {
         const deviceId = dto.deviceId ?? current.deviceId
         const startAt = dto.startAt ? new Date(dto.startAt) : current.scheduledAt

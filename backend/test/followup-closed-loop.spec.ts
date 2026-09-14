@@ -21,7 +21,8 @@ describe('FollowUpClosedLoop (Wave3B)', () => {
     templateId: null,
     planDate: new Date('2026-08-10T00:00:00Z'),
     intervalDays: 30,
-    nextDate: new Date('2026-09-09T00:00:00Z'),
+    // [v3.0.6.11-104 Wave 1B] 动态未来日期: 避免固定日期过期后 deriveStatus 误判 OVERDUE (时间炸弹)
+    nextDate: new Date(Date.now() + 30 * 86400000),
     status: 'PENDING',
     note: '',
     reminderEnabled: true,

@@ -85,14 +85,15 @@ export class NotificationsService {
   /**
    * GET /notifications/history/:userId — 获取历史
    */
-  async getHistory(userId: string, limit = 50) {
+  async getHistory(userId: string, limit = 50, skip = 0, type?: string) {
     const model = (this.prisma as any).notification
     if (!model?.findMany) return []
-    return model.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    })
+    const where: Record<string, unknown> = { userId }
+    if (type) where.type = type
+    const query: Record<string, unknown> = { where, orderBy: { createdAt: 'desc' }, take: limit }
+    // 仅在显式分页时附加 skip, 保持默认调用的查询形态不变 (向后兼容)
+    if (skip) query.skip = skip
+    return model.findMany(query)
   }
 
   /**

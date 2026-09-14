@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { PatientService, type CreatePatientDto, type UpdatePatientDto } from './patient.service'
+import { ListQuerySchema, resolvePagination } from '../../common/dto/pagination.dto'
 
 const CreatePatientSchema = z.object({
   name: z.string().min(1).max(64),
@@ -43,6 +44,14 @@ const ImportPatientsSchema = z.union([
   z.array(ImportPatientRowSchema).min(1),
   z.object({ items: z.array(ImportPatientRowSchema).min(1) }),
 ])
+
+// [v3.0.6.11-104 Wave 1C] 患者列表查询校验 (统一分页 + name/phone/gender/type 筛选)
+export const PatientListQuerySchema = ListQuerySchema.extend({
+  name: z.string().max(64).optional(),
+  phone: z.string().max(32).optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  type: z.enum(['OUTPATIENT', 'INPATIENT', 'EMERGENCY', 'PHYSICAL']).optional(),
+})
 
 @ApiTags('patients')
 @ApiBearerAuth()

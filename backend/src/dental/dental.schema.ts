@@ -69,6 +69,14 @@ export const CreateAiFindingSchema = z.object({
   toothNumber: z.string().optional(),
 })
 
+// [v3.0.6.11-104 Wave 1A] AI 发现复核/确认 (PATCH /dental/ai-findings/:id)
+export const UpdateAiFindingSchema = z.object({
+  status: z.enum(['confirmed', 'rejected', 'pending']),
+  reviewedBy: z.string().optional(),
+  reviewedAt: z.string().optional(),
+  note: z.string().optional(),
+})
+
 export const CreateImplantSchema = z.object({
   patientId: z.string().min(1),
   implantType: z.string().min(1),

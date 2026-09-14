@@ -1,7 +1,19 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { z } from 'zod'
 import { Roles } from '../../common/decorators/roles.decorator'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { BiService, CreateWallTemplateDto } from './bi.service'
+
+// [v3.0.6.11-104 Wave 1C] 大屏模板写入校验 (此前 @Body() 未走 zod)
+export const CreateWallTemplateSchema = z.object({
+  name: z.string().min(1).max(200),
+  layout: z.enum(['overview', 'equipment', 'quality', 'finance', 'mixed']),
+  config: z.record(z.unknown()).optional(),
+  active: z.boolean().optional(),
+})
+
+export const UpdateWallTemplateSchema = CreateWallTemplateSchema.partial()
 
 @ApiTags('bi')
 @ApiBearerAuth()
@@ -63,13 +75,13 @@ export class BiController {
 
   @Post('wall-templates')
   @ApiOperation({ summary: '创建大屏模板' })
-  createWallTemplate(@Body() body: CreateWallTemplateDto) {
+  createWallTemplate(@Body(new ZodValidationPipe(CreateWallTemplateSchema)) body: CreateWallTemplateDto) {
     return this.service.createWallTemplate(body)
   }
 
   @Patch('wall-templates/:id')
   @ApiOperation({ summary: '更新大屏模板' })
-  updateWallTemplate(@Param('id') id: string, @Body() body: Partial<CreateWallTemplateDto>) {
+  updateWallTemplate(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateWallTemplateSchema)) body: Partial<CreateWallTemplateDto>) {
     const template = this.service.updateWallTemplate(id, body)
     if (!template) throw new NotFoundException(`模板不存在: ${id}`)
     return template

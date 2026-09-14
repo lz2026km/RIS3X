@@ -7,11 +7,13 @@ import {
   ApplyTemplateSchema,
   CancelFollowUpSchema,
   CreateFollowUpPlanSchema,
+  CreateFollowUpTemplateSchema,
   FromExamFollowUpSchema,
   FromReportFollowUpSchema,
   ListFollowUpQuerySchema,
   MissFollowUpSchema,
   UpdateFollowUpPlanSchema,
+  UpdateFollowUpTemplateSchema,
 } from './followup.schema'
 import type { z } from 'zod'
 
@@ -122,12 +124,12 @@ export class FollowUpTemplateController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() body: { name: string; category?: string; intervals?: number[]; items?: string[]; active?: boolean }) {
+  create(@Body(new ZodValidationPipe(CreateFollowUpTemplateSchema)) body: z.infer<typeof CreateFollowUpTemplateSchema>) {
     return this.svc.createTemplate(body)
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: Partial<{ name: string; category?: string; intervals?: number[]; items?: string[]; active?: boolean }>) {
+  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateFollowUpTemplateSchema)) body: z.infer<typeof UpdateFollowUpTemplateSchema>) {
     return this.svc.updateTemplate(id, body)
   }
 

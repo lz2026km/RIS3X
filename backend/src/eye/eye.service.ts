@@ -80,6 +80,8 @@ const SEED_EYE_REFERRALS = [
 // [G005 Wave1A P1] RIS 手术/转诊可变内存 store (EyeRisPage 排程/取消/接受转诊)
 const eyeSurgeryRecords: any[] = [...SEED_EYE_SURGERIES]
 const eyeReferralRecords: any[] = [...SEED_EYE_REFERRALS]
+// [v3.0.6.11-104] 单调递增序号, 避免同一毫秒创建的记录 ID 冲突
+let eyeSeq = 0
 
 // [G005 Wave4A P1] IOL 计算记录 seed + 内存 store (IolCalculatorPage 提交到病历)
 const SEED_IOL_CALCULATIONS = [
@@ -398,7 +400,7 @@ export class EyeService {
 
   async saveIolCalculation(data: Record<string, unknown>) {
     const record = {
-      id: `IOL-CALC-${Date.now()}`,
+      id: `IOL-CALC-${Date.now()}-${++eyeSeq}`,
       ...data,
       createdAt: new Date().toISOString(),
     }
@@ -855,7 +857,7 @@ export class EyeService {
 
   async createRisSurgery(body: Record<string, unknown>) {
     const item = {
-      id: `SURG-${Date.now()}`,
+      id: `SURG-${Date.now()}-${++eyeSeq}`,
       patientId: (body.patientId as string) ?? `PEYE-${Math.floor(Math.random() * 900) + 100}`,
       patientName: (body.patientName as string) ?? '未命名患者',
       procedure: (body.type as string) ?? (body.procedure as string) ?? '眼科手术',

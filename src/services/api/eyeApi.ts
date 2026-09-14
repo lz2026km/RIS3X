@@ -395,11 +395,16 @@ export const eyeApi = {
   detectPixelArtifact: (data: any) => api.post<any>(`${EYE_API}/pixel/detect-artifact`, data),
 
   // ===== [G005 Wave1B] PACS 测量 (RealDicomViewerPage, MSW eyeHandlers 对齐) =====
-  savePacsMeasurement: (data: any) => api.post<any>(`${EYE_API}/pacs/measurement`, data),
+  // [v3.0.6.11-104 Wave 1A] 路径对齐后端: /eye/pacs/measurement (单数) → /eye/pacs/measurements (复数)
+  //   后端 eye.controller.ts 仅 @Get('pacs/measurements') (见 getMeasurements); 单数路径不存在 (404)。
+  // MOCK-ONLY: 后端未实现以下测量写端点 (eye.controller 无 POST/DELETE/export-sr), 目前仅 MSW eyeHandlers 兜底。
+  savePacsMeasurement: (data: any) => api.post<any>(`${EYE_API}/pacs/measurements`, data),
+  // MOCK-ONLY: 后端未实现
   deletePacsMeasurement: (id: string) =>
-    api.delete<any>(`${EYE_API}/pacs/measurement/${encodeURIComponent(id)}`),
+    api.delete<any>(`${EYE_API}/pacs/measurements/${encodeURIComponent(id)}`),
+  // MOCK-ONLY: 后端未实现
   exportPacsMeasurementSr: (data: any) =>
-    api.post<any>(`${EYE_API}/pacs/measurement/export-sr`, data),
+    api.post<any>(`${EYE_API}/pacs/measurements/export-sr`, data),
 
   // ===== Optometry 视光中心闭环 (后端 /eye/optometry/*, MSW 仅 dev 兜底) =====
   // [G005 Wave1A 17] OptometryClosedLoopPage / TeleConsultPage 裸 fetch → eyeApi 封装

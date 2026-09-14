@@ -299,35 +299,38 @@ export const deviceMgmtApi = {
   getContrastQuality: () =>
     api.get<ContrastQuality[]>('/device-mgmt/contrast/quality'),
 
-  //  Device CRUD (device.controller) 
+  // [v3.0.6.11-104 Wave 1A] Device CRUD 路径对齐:
+  //   原 /device-mgmt、/device-mgmt/:id、/device-mgmt/:id/stats 后端不存在 (404)。
+  //   完整 CRUD (POST/PATCH/DELETE + stats) 由 backend/src/modules/device/device.controller.ts
+  //   @Controller('devices') 提供 (devicemgmt.controller 仅在 /device-mgmt/devices* 有 GET/PUT)。
   list: (params?: { skip?: number; take?: number; modality?: string; state?: string }) => {
     const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : ''
-    return api.get<DeviceMgmtItem[]>(`/device-mgmt${query}`)
+    return api.get<DeviceMgmtItem[]>(`/devices${query}`)
   },
 
   getById: (id: string) =>
-    api.get<DeviceMgmtItem>(`/device-mgmt/${id}`),
+    api.get<DeviceMgmtItem>(`/devices/${id}`),
 
   create: async (dto: CreateDeviceMgmtDto) => {
-    const res = await api.post<DeviceMgmtItem>('/device-mgmt', dto)
-    await invalidateApiCacheByPrefix('/device-mgmt')
+    const res = await api.post<DeviceMgmtItem>('/devices', dto)
+    await invalidateApiCacheByPrefix('/devices')
     return res
   },
 
   patch: async (id: string, dto: UpdateDeviceMgmtDto) => {
-    const res = await api.patch<DeviceMgmtItem>(`/device-mgmt/${id}`, dto)
-    await invalidateApiCacheByPrefix('/device-mgmt')
+    const res = await api.patch<DeviceMgmtItem>(`/devices/${id}`, dto)
+    await invalidateApiCacheByPrefix('/devices')
     return res
   },
 
   remove: async (id: string) => {
-    const res = await api.delete<null>(`/device-mgmt/${id}`)
-    await invalidateApiCacheByPrefix('/device-mgmt')
+    const res = await api.delete<null>(`/devices/${id}`)
+    await invalidateApiCacheByPrefix('/devices')
     return res
   },
 
   getStats: (id: string) =>
-    api.get<any>(`/device-mgmt/${id}/stats`),
+    api.get<any>(`/devices/${id}/stats`),
 
   //  [W4-B] 保养计划 CRUD + 到期提醒
   listMaintenancePlans: (params?: { deviceId?: string; status?: string }) => {

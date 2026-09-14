@@ -14,6 +14,20 @@ type UpdateDto = z.infer<typeof UpdateFollowUpPlanSchema>
 // [v3.0.6.11-99 Wave3B] 终态 (不可再流转)
 const TERMINAL_STATUS = new Set(['COMPLETED', 'MISSED', 'CANCELLED'])
 
+// [v3.0.6.11-104 Wave 1B] 随访状态机合法流转表 (随访闭环门禁):
+//   主链: PENDING→REMINDED→IN_PROGRESS→COMPLETED
+//   侧链: 任意活跃态→MISSED (失访) / CANCELLED (取消); OVERDUE 为派生态 (存储仍为 PENDING)
+//   终态: COMPLETED / MISSED / CANCELLED 不可再流转 (保留终态不可变)。
+export const FOLLOWUP_TRANSITIONS: Record<string, string[]> = {
+  PENDING: ['REMINDED', 'IN_PROGRESS', 'COMPLETED', 'MISSED', 'CANCELLED'],
+  REMINDED: ['IN_PROGRESS', 'COMPLETED', 'MISSED', 'CANCELLED'],
+  IN_PROGRESS: ['COMPLETED', 'MISSED', 'CANCELLED'],
+  OVERDUE: ['REMINDED', 'IN_PROGRESS', 'COMPLETED', 'MISSED', 'CANCELLED'],
+  COMPLETED: [],
+  MISSED: [],
+  CANCELLED: [],
+}
+
 function toDate(value: string | Date): Date {
   return value instanceof Date ? value : new Date(value)
 }
@@ -102,7 +116,7 @@ export class FollowUpService {
     }
   }
 
-  async list(query: { status?: string; date?: string; patientId?: string; search?: string }) {
+  async list(query: { status?: string; date?: string; patientId?: string; search?: string; page?: number; pageSize?: number }) {
     const tenantId = currentTenantId()
     const where: Prisma.FollowUpPlanWhereInput = { tenantId }
     if (query.status) where.status = query.status
@@ -119,8 +133,12 @@ export class FollowUpService {
         { patientId: { contains: query.search, mode: 'insensitive' } },
       ]
     }
+    // [v3.0.6.11-104 Wave 1C] 可选分页 (未传 page/pageSize 时保持原行为)
+    const paginate = query.page !== undefined || query.pageSize !== undefined
+    const take = paginate ? Math.min(query.pageSize ?? 20, 200) : undefined
+    const skip = paginate ? ((query.page ?? 1) - 1) * (take as number) : undefined
     const [items, total] = await Promise.all([
-      this.prisma.followUpPlan.findMany({ where, orderBy: [{ status: 'asc' }, { nextDate: 'asc' }] }),
+      this.prisma.followUpPlan.findMany({ where, orderBy: [{ status: 'asc' }, { nextDate: 'asc' }], skip, take }),
       this.prisma.followUpPlan.count({ where }),
     ])
     return { items: items.map((p) => this.toDto(p as any)), total }
@@ -160,7 +178,11 @@ export class FollowUpService {
     if (dto.templateId !== undefined) data.templateId = dto.templateId
     if (dto.planDate !== undefined) data.planDate = toDate(dto.planDate)
     if (dto.intervalDays !== undefined) data.intervalDays = dto.intervalDays
-    if (dto.status !== undefined) data.status = dto.status
+    if (dto.status !== undefined) {
+      // [v3.0.6.11-104 Wave 1B] 流程质量门禁: status 变更走合法流转表, 非法跳转/终态变更拒绝
+      this.assertFollowupTransition(existing.status, dto.status, id)
+      data.status = dto.status
+    }
     if (dto.note !== undefined) data.note = dto.note
     if (dto.reminderEnabled !== undefined) data.reminderEnabled = dto.reminderEnabled
     // 同步 nextDate = planDate + intervalDays
@@ -188,8 +210,23 @@ export class FollowUpService {
     return existing as any
   }
 
+  /**
+   * [v3.0.6.11-104 Wave 1B] 随访状态机门禁: 校验 from → to 是否在 FOLLOWUP_TRANSITIONS 合法流转表内。
+   * 同态幂等放行; 非法跳转/终态变更抛 400 并给出当前态可去向列表。
+   */
+  private assertFollowupTransition(from: string, to: string, id: string): void {
+    if (from === to) return
+    const allowed = FOLLOWUP_TRANSITIONS[from] ?? []
+    if (!allowed.includes(to)) {
+      throw new BadRequestException(
+        `INVALID_TRANSITION: FollowUpPlan ${id} ${from} → ${to} 不允许 (非法跳转; 合法流转: ${from} → ${allowed.length > 0 ? allowed.join('/') : '无 (终态)'})`,
+      )
+    }
+  }
+
   async complete(id: string) {
-    await this.mustBeActive(id)
+    const existing = await this.mustBeActive(id)
+    this.assertFollowupTransition(existing.status, 'COMPLETED', id)
     const plan = await this.prisma.followUpPlan.update({
       where: { id },
       data: { status: 'COMPLETED', completedAt: new Date() },
@@ -201,7 +238,8 @@ export class FollowUpService {
 
   /** POST /followups/:id/remind — 触发提醒: 创建 notification + 标记已提醒 */
   async remind(id: string, userId: string) {
-    await this.mustBeActive(id)
+    const existing = await this.mustBeActive(id)
+    this.assertFollowupTransition(existing.status, 'REMINDED', id)
     const plan = await this.prisma.followUpPlan.update({
       where: { id },
       data: { status: 'REMINDED', remindedAt: new Date() },
@@ -212,7 +250,8 @@ export class FollowUpService {
 
   /** POST /followups/:id/miss — 标记失访 { reason } */
   async miss(id: string, reason: string) {
-    await this.mustBeActive(id)
+    const existing = await this.mustBeActive(id)
+    this.assertFollowupTransition(existing.status, 'MISSED', id)
     const plan = await this.prisma.followUpPlan.update({
       where: { id },
       data: { status: 'MISSED', missedAt: new Date(), reason: reason || null },
@@ -222,7 +261,8 @@ export class FollowUpService {
 
   /** POST /followups/:id/cancel — 取消 { reason } */
   async cancel(id: string, reason: string) {
-    await this.mustBeActive(id)
+    const existing = await this.mustBeActive(id)
+    this.assertFollowupTransition(existing.status, 'CANCELLED', id)
     const plan = await this.prisma.followUpPlan.update({
       where: { id },
       data: { status: 'CANCELLED', cancelledAt: new Date(), reason: reason || null },
@@ -232,7 +272,8 @@ export class FollowUpService {
 
   /** POST /followups/:id/in-progress — 开始随访 */
   async inProgress(id: string) {
-    await this.mustBeActive(id)
+    const existing = await this.mustBeActive(id)
+    this.assertFollowupTransition(existing.status, 'IN_PROGRESS', id)
     const plan = await this.prisma.followUpPlan.update({
       where: { id },
       data: { status: 'IN_PROGRESS' },

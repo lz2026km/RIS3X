@@ -18,8 +18,8 @@ export class QcExtService {
     return { data: data ? [data] : [] }
   }
 
-  async listQcImages() {
-    const data = await this.prisma.dicomInstance.findMany({ orderBy: { createdAt: 'desc' } })
+  async listQcImages(pagination: { skip?: number; take?: number } = {}) {
+    const data = await this.prisma.dicomInstance.findMany({ orderBy: { createdAt: 'desc' }, skip: pagination.skip, take: pagination.take })
     return { data }
   }
 
@@ -36,8 +36,8 @@ export class QcExtService {
     return { data: [data] }
   }
 
-  async listRadiologistAnnual() {
-    const data = await this.prisma.auditLog.findMany({ where: { resource: 'radiologist-annual' }, orderBy: { createdAt: 'desc' } })
+  async listRadiologistAnnual(pagination: { skip?: number; take?: number } = {}) {
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'radiologist-annual' }, orderBy: { createdAt: 'desc' }, skip: pagination.skip, take: pagination.take })
     return { data }
   }
 
@@ -46,8 +46,8 @@ export class QcExtService {
     return { data: data ? [data] : [] }
   }
 
-  async listQcDefects() {
-    const data = await this.prisma.auditLog.findMany({ where: { resource: 'qc-defect' }, orderBy: { createdAt: 'desc' } })
+  async listQcDefects(pagination: { skip?: number; take?: number } = {}) {
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'qc-defect' }, orderBy: { createdAt: 'desc' }, skip: pagination.skip, take: pagination.take })
     return { data }
   }
 
@@ -62,8 +62,8 @@ export class QcExtService {
     return { data: { total, byGrade } }
   }
 
-  async listQcScores() {
-    const data = await this.prisma.reportQualityScore.findMany({ orderBy: { evaluatedAt: 'desc' } })
+  async listQcScores(pagination: { skip?: number; take?: number } = {}) {
+    const data = await this.prisma.reportQualityScore.findMany({ orderBy: { evaluatedAt: 'desc' }, skip: pagination.skip, take: pagination.take })
     return { data }
   }
 }

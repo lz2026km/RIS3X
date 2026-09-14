@@ -879,9 +879,18 @@ export class TechV2Service {
   executeAssignment(assignmentId: string, dto: { note?: string } = {}): RotationExecutionRecord {
     const existing = this.executions.find((e) => e.assignmentId === assignmentId)
     if (existing) return existing
-    const plan = [...this.plans].sort((a, b) => b.startDate.localeCompare(a.startDate))[0]
-    const assignment = plan?.assignments.find((a) => a.id === assignmentId)
-    if (!assignment) throw new NotFoundException(`轮转排班 ${assignmentId} 不存在`)
+    // 跨所有计划查找该排班 (executeAssignment 不应只限定最新计划)
+    let assignment: RotationAssignment | undefined
+    let plan: RotationPlan | undefined
+    for (const p of [...this.plans].sort((a, b) => b.startDate.localeCompare(a.startDate))) {
+      const found = p.assignments.find((a) => a.id === assignmentId)
+      if (found) {
+        assignment = found
+        plan = p
+        break
+      }
+    }
+    if (!assignment || !plan) throw new NotFoundException(`轮转排班 ${assignmentId} 不存在`)
     const record: RotationExecutionRecord = {
       id: `EX-${fnv1a(`${assignmentId}`).toString(16).toUpperCase()}`,
       planId: assignment.planId,

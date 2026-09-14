@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { ExamService, type CreateExamDto, type UpdateExamDto, type MergeExamsDto, type SplitExamDto } from './exam.service'
+import { ListQuerySchema, resolvePagination } from '../../common/dto/pagination.dto'
 
 const CreateExamSchema = z.object({
   patientId: z.string().min(1),
@@ -46,6 +47,13 @@ const SplitExamSchema = z.object({
   reportIds: z.array(z.string().min(1)).min(1),
 })
 
+// [v3.0.6.11-104 Wave 1C] 检查列表查询校验 (统一分页 + patientId/modality/state/日期筛选)
+export const ExamListQuerySchema = ListQuerySchema.extend({
+  patientId: z.string().max(64).optional(),
+  modality: z.string().max(32).optional(),
+  state: z.string().max(48).optional(),
+})
+
 // [v3.0.6.11-95 Wave1B] GET /exams 放开 TECHINICIAN/DOCTOR/NURSE (技师/医生工作站主数据源);
 // 写操作 (create/update/delete/import/merge/split) 方法级保留 ADMIN/DIRECTOR
 const READ_ROLES = ['ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN', 'NURSE']
@@ -59,19 +67,16 @@ export class ExamController {
   constructor(private readonly service: ExamService) {}
 
   @Get()
-  list(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-    @Query('patientId') patientId?: string,
-    @Query('modality') modality?: string,
-    @Query('state') state?: string,
-    @Query('dateFrom') dateFrom?: string,
-    @Query('dateTo') dateTo?: string,
-  ) {
+  list(@Query(new ZodValidationPipe(ExamListQuerySchema)) query: z.infer<typeof ExamListQuerySchema>) {
+    const { skip, take } = resolvePagination(query)
     return this.service.list({
-      skip: Number(skip ?? 0),
-      take: take === undefined || take === '' ? undefined : Number(take),
-      patientId, modality, state, dateFrom, dateTo,
+      skip,
+      take,
+      patientId: query.patientId,
+      modality: query.modality,
+      state: query.state,
+      dateFrom: query.dateFrom,
+      dateTo: query.dateTo,
     })
   }
 

@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing'
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { FollowUpService } from './followup.service'
 import { PrismaService } from '../../prisma/prisma.service'
 
@@ -230,6 +230,41 @@ describe('FollowUpService', () => {
           }),
         }),
       )
+    })
+  })
+
+  // [v3.0.6.11-104 Wave 1B] 随访状态机门禁: 非法流转 400 / 合法流转 200 / 终态不可变
+  describe('状态机门禁 (FOLLOWUP_TRANSITIONS)', () => {
+    beforeEach(() => jest.clearAllMocks())
+
+    it('合法流转: PENDING → REMINDED 通过 (update)', async () => {
+      const future = { ...row, planDate: new Date(), nextDate: new Date(Date.now() + 30 * 86400000) }
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue(future)
+      mockPrisma.followUpPlan.update.mockImplementation(({ data }: any) => Promise.resolve({ ...future, ...data }))
+      const res = await svc.update('f1', { status: 'REMINDED' })
+      expect(res.status).toBe('REMINDED')
+      expect(mockPrisma.followUpPlan.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ status: 'REMINDED' }) }),
+      )
+    })
+
+    it('非法跳转: MISSED(终态) → PENDING 抛 400 INVALID_TRANSITION', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue({ ...row, status: 'MISSED' })
+      mockPrisma.followUpPlan.update.mockResolvedValue(row)
+      await expect(svc.update('f1', { status: 'PENDING' })).rejects.toBeInstanceOf(BadRequestException)
+      await expect(svc.update('f1', { status: 'PENDING' })).rejects.toThrow('INVALID_TRANSITION')
+    })
+
+    it('终态不可变: complete 对 COMPLETED 计划抛 400', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue({ ...row, status: 'COMPLETED' })
+      await expect(svc.complete('f1')).rejects.toBeInstanceOf(BadRequestException)
+    })
+
+    it('合法流转: PENDING → COMPLETED 通过 (complete)', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue(row)
+      mockPrisma.followUpPlan.update.mockResolvedValue({ ...row, status: 'COMPLETED', completedAt: new Date() })
+      const res = await svc.complete('f1')
+      expect(res.status).toBe('COMPLETED')
     })
   })
 })

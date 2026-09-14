@@ -67,6 +67,9 @@ const UseSchema = z.object({ usedBy: z.string().optional() })
 
 const CopySchema = z.object({ copiedBy: z.string().optional() })
 
+// [v3.0.6.11-104 Wave 1C] 收藏切换 body 校验 (此前 @Body() 未走 zod)
+export const FavoriteSchema = z.object({ userId: z.string().max(64).optional() })
+
 @ApiTags('template-library-v2')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
@@ -150,7 +153,7 @@ export class TemplateLibraryV2Controller {
   @Post('templates/:id/favorite')
   @HttpCode(200)
   @ApiOperation({ summary: '收藏切换' })
-  toggleFavorite(@Param('id') id: string, @Body() body: { userId?: string }) {
+  toggleFavorite(@Param('id') id: string, @Body(new ZodValidationPipe(FavoriteSchema)) body: z.infer<typeof FavoriteSchema>) {
     return this.service.toggleFavorite(id, body?.userId)
   }
 

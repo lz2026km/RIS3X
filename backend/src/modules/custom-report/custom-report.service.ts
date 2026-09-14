@@ -326,6 +326,8 @@ export class CustomReportService {
   private defs: CustomReportDef[] = SEED_DEFS.map((d) => ({ ...d, fields: [...d.fields], recipients: [...d.recipients] }))
   private results = new Map<string, ReportRunResult>()
   private history: RunHistoryEntry[] = []
+  // [v3.0.6.11-104] 单调递增序号, 避免同一毫秒创建的 ID 冲突
+  private seq = 0
 
   constructor(
     private readonly olap: OlapService,
@@ -351,7 +353,7 @@ export class CustomReportService {
     this.validateDef(dto)
     const now = new Date().toISOString()
     const def: CustomReportDef = {
-      id: `cr-${Date.now()}`,
+      id: `cr-${Date.now()}-${++this.seq}`,
       name: dto.name.trim(),
       category: dto.category?.trim() || DEFAULT_CATEGORY,
       description: dto.description?.trim() ?? '',
@@ -412,7 +414,7 @@ export class CustomReportService {
     const def = this.requireDef(id)
     def.status = 'running'
     def.lastRunAt = new Date().toISOString()
-    const runId = `run-${Date.now()}`
+    const runId = `run-${Date.now()}-${++this.seq}`
     try {
       const { rows, source } = await this.collectRows(def)
       this.applySort(def, rows)

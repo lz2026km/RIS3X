@@ -76,7 +76,7 @@ describe('CriticalsService', () => {
       const update = jest.fn().mockResolvedValue({ id: 'cv-1', state: 'CLOSED_LOOP' })
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH' }),
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'RESOLVED' }),
           update,
         },
       })
@@ -95,7 +95,7 @@ describe('CriticalsService', () => {
       const update = jest.fn().mockResolvedValue({})
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH' }),
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'RESOLVING' }),
           update,
         },
       })
@@ -116,6 +116,57 @@ describe('CriticalsService', () => {
       })
       const service = new CriticalsService(prisma, makeSystemConfig())
       await expect(service.update('nope', { state: 'CLOSED_LOOP' })).rejects.toBeInstanceOf(NotFoundException)
+    })
+
+    // [v3.0.6.11-104 Wave 1B] 状态机门禁: 非法流转 400 / 合法流转 200
+    it('合法流转: FOUND → NOTIFIED 通过', async () => {
+      const update = jest.fn().mockResolvedValue({ id: 'cv-1', state: 'NOTIFIED' })
+      const prisma = makePrisma({
+        criticalValue: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'FOUND' }),
+          update,
+        },
+      })
+      const service = new CriticalsService(prisma, makeSystemConfig())
+      const res = await service.update('cv-1', { state: 'NOTIFIED' })
+      expect(res.state).toBe('NOTIFIED')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'NOTIFIED' }) }))
+    })
+
+    it('非法跳转: FOUND → RESOLVED 抛 400 INVALID_TRANSITION', async () => {
+      const prisma = makePrisma({
+        criticalValue: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'FOUND' }),
+          update: jest.fn(),
+        },
+      })
+      const service = new CriticalsService(prisma, makeSystemConfig())
+      await expect(service.update('cv-1', { state: 'RESOLVED' })).rejects.toBeInstanceOf(BadRequestException)
+      await expect(service.update('cv-1', { state: 'RESOLVED' })).rejects.toThrow('INVALID_TRANSITION')
+    })
+
+    it('终态不可变: CLOSED_LOOP → RESOLVED 抛 400', async () => {
+      const prisma = makePrisma({
+        criticalValue: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'CLOSED_LOOP' }),
+          update: jest.fn(),
+        },
+      })
+      const service = new CriticalsService(prisma, makeSystemConfig())
+      await expect(service.update('cv-1', { state: 'RESOLVED' })).rejects.toThrow('INVALID_TRANSITION')
+    })
+
+    it('同态幂等放行: FOUND → FOUND 不报错', async () => {
+      const update = jest.fn().mockResolvedValue({ id: 'cv-1', state: 'FOUND' })
+      const prisma = makePrisma({
+        criticalValue: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'FOUND' }),
+          update,
+        },
+      })
+      const service = new CriticalsService(prisma, makeSystemConfig())
+      await service.update('cv-1', { state: 'FOUND' })
+      expect(update).toHaveBeenCalled()
     })
   })
 

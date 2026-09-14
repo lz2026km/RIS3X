@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { DeviceService, type CreateDeviceDto, type UpdateDeviceDto } from './device.service'
 import { DeviceScheduleService } from './device-schedule.service'
+import { ListQuerySchema, resolvePagination } from '../../common/dto/pagination.dto'
 
 const CreateDeviceSchema = z.object({
   code: z.string().min(1).max(32),
@@ -49,6 +50,12 @@ const UpdateBlockSchema = z.object({
   type: z.enum(['EXAM', 'MAINTENANCE']).optional(),
 })
 
+// [v3.0.6.11-104 Wave 1C] 设备列表查询校验 (统一分页 + modality/state 筛选)
+export const DeviceListQuerySchema = ListQuerySchema.extend({
+  modality: z.string().max(32).optional(),
+  state: z.enum(['IDLE', 'IN_USE', 'MAINTENANCE', 'BROKEN', 'OFFLINE']).optional(),
+})
+
 @ApiTags('devices')
 @ApiBearerAuth()
 // [v3.0.6.11-100 Wave 1B] 技师工作站维护提醒接入 → 开放 TECHNICIAN
@@ -61,17 +68,13 @@ export class DeviceController {
   ) {}
 
   @Get()
-  list(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-    @Query('modality') modality?: string,
-    @Query('state') state?: string,
-  ) {
+  list(@Query(new ZodValidationPipe(DeviceListQuerySchema)) query: z.infer<typeof DeviceListQuerySchema>) {
+    const { skip, take } = resolvePagination(query, 50)
     return this.service.list({
-      skip: Number(skip ?? 0),
-      take: Number(take ?? 50),
-      modality,
-      state,
+      skip,
+      take,
+      modality: query.modality,
+      state: query.state,
     })
   }
 

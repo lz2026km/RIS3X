@@ -28,12 +28,26 @@ export const CreateFollowUpPlanSchema = z.object({
 
 export const UpdateFollowUpPlanSchema = CreateFollowUpPlanSchema.partial()
 
+// [v3.0.6.11-104 Wave 1C] 列表补齐分页参数 (page/pageSize, 上限 200)
 export const ListFollowUpQuerySchema = z.object({
   status: FollowUpStatusEnum.optional(),
   date: z.string().optional(),
   patientId: z.string().optional(),
   search: z.string().optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  pageSize: z.coerce.number().int().min(1).max(200).optional(),
 })
+
+// [v3.0.6.11-104 Wave 1C] 随访模板写入校验 (此前 @Body() 未走 zod)
+export const CreateFollowUpTemplateSchema = z.object({
+  name: z.string().min(1).max(128),
+  category: z.string().max(64).optional(),
+  intervals: z.array(z.number().int().positive()).max(50).optional(),
+  items: z.array(z.string().max(200)).max(100).optional(),
+  active: z.boolean().optional(),
+})
+
+export const UpdateFollowUpTemplateSchema = CreateFollowUpTemplateSchema.partial()
 
 // [v3.0.6.11-99 Wave3B] 失访/取消: 必填原因
 export const MissFollowUpSchema = z.object({

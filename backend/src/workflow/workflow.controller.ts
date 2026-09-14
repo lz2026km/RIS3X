@@ -86,6 +86,10 @@ export class WorkflowController {
   @Put('sla-policies/:id')
   updateSlaPolicy(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateSlaSchema)) body: Record<string, unknown>) { return this.svc.updateSlaPolicy(id, body) }
 
+  // [v3.0.6.11-104 Wave 1A] 前端 DELETE /workflow/sla-policies/:id 契约对齐 (原后端缺失)
+  @Delete('sla-policies/:id')
+  deleteSlaPolicy(@Param('id') id: string) { return this.svc.deleteSlaPolicy(id) }
+
   @Get('routing-rules')
   listRoutingRules() { return this.svc.listRoutingRules() }
 

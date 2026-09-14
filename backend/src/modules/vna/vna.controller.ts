@@ -11,7 +11,8 @@ import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { VnaService } from './vna.service'
 
-const CreateObjectSchema = z.object({
+// [v3.0.6.11-104 Wave 1C] 导出以便校验测试; 由 ZodValidationPipe 统一校验 (此前内联 parse)
+export const CreateObjectSchema = z.object({
   patientId: z.string().max(64).optional(),
   studyUid: z.string().max(128).optional(),
   objectType: z.enum(['document', 'image']).optional(),
@@ -64,9 +65,9 @@ export class VnaController {
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 100 * 1024 * 1024 } }))
   async createObject(
     @UploadedFile() file: UploadedFileShape | undefined,
-    @Body() body: Record<string, unknown>,
+    @Body(new ZodValidationPipe(CreateObjectSchema)) body: z.infer<typeof CreateObjectSchema>,
   ) {
-    const parsed = CreateObjectSchema.parse(body)
+    const parsed = body
     if (file) {
       return this.service.createObject({
         patientId: parsed.patientId,

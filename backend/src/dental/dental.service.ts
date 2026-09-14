@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { CreateDentalStudySchema, UpdateDentalStudySchema, CreateAiFindingSchema, CreateImplantSchema, UpdateImplantSchema, CreateDentalAppointmentSchema, UpdateDentalAppointmentSchema, CreateDentalInvoiceSchema, AddInventoryItemSchema, UpdateInventoryItemSchema } from './dental.schema'
+import { CreateDentalStudySchema, UpdateDentalStudySchema, CreateAiFindingSchema, UpdateAiFindingSchema, CreateImplantSchema, UpdateImplantSchema, CreateDentalAppointmentSchema, UpdateDentalAppointmentSchema, CreateDentalInvoiceSchema, AddInventoryItemSchema, UpdateInventoryItemSchema } from './dental.schema'
 import { z } from 'zod'
+
+// [v3.0.6.11-104 Wave 1A] AI 发现复核状态 (orphan 模式): DentalAiFinding 表无 status 列,
+// 复核结果落内存 overlay, 由 listAiFindings 合并返回, 不改动 Prisma schema/迁移。
+const AI_FINDING_REVIEWS = new Map<string, { status: string; reviewedBy: string; reviewedAt: string; note: string }>()
 
 type CreateDentalStudyDto = z.infer<typeof CreateDentalStudySchema>
 type UpdateDentalStudyDto = z.infer<typeof UpdateDentalStudySchema>
 type CreateAiFindingDto = z.infer<typeof CreateAiFindingSchema>
+type UpdateAiFindingDto = z.infer<typeof UpdateAiFindingSchema>
 type CreateImplantDto = z.infer<typeof CreateImplantSchema>
 type UpdateImplantDto = z.infer<typeof UpdateImplantSchema>
 type CreateDentalAppointmentDto = z.infer<typeof CreateDentalAppointmentSchema>
@@ -64,12 +69,29 @@ export class DentalService {
 
   async listAiFindings() {
     const data = await this.prisma.dentalAiFinding.findMany({ orderBy: { createdAt: 'desc' } })
-    return { data }
+    // [v3.0.6.11-104 Wave 1A] 合并内存复核状态 (orphan overlay)
+    const items = data.map((d) => ({ ...d, ...(AI_FINDING_REVIEWS.get(d.id) ?? {}) }))
+    return { data: items }
   }
 
   async createAiFinding(body: CreateAiFindingDto) {
     const data = await this.prisma.dentalAiFinding.create({ data: body as any })
     return { data: [data] }
+  }
+
+  /**
+   * [v3.0.6.11-104 Wave 1A] PATCH /dental/ai-findings/:id — AI 发现复核/确认/驳回。
+   * orphan 模式: 后端表无 status/reviewedBy 列, 复核结果落内存 overlay (listAiFindings 合并返回)。
+   */
+  async updateAiFinding(id: string, body: UpdateAiFindingDto) {
+    const review = {
+      status: body.status,
+      reviewedBy: body.reviewedBy ?? '',
+      reviewedAt: body.reviewedAt ?? new Date().toISOString(),
+      note: body.note ?? '',
+    }
+    AI_FINDING_REVIEWS.set(id, review)
+    return { success: true, data: { id, ...review } }
   }
 
   async listImplants() {

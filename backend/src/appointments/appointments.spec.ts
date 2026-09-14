@@ -1,4 +1,4 @@
-import { ConflictException } from '@nestjs/common'
+import { BadRequestException, ConflictException } from '@nestjs/common'
 import { AppointmentsService, CreateAppointmentDto } from './appointments.service'
 import { tenantStorage } from '../common/interceptors/tenant-context.interceptor'
 
@@ -22,6 +22,7 @@ const makePrisma = () => {
 
   const tx = {
     appointment: {
+      findUnique: async ({ where }: any) => appointments.get(where.id) ?? null,
       findFirst: async ({ where }: any) => {
         for (const a of appointments.values()) {
           if (where?.deviceId && a.deviceId !== where.deviceId) continue
@@ -36,6 +37,13 @@ const makePrisma = () => {
         const a: AnyRow = { ...data, id: nextId(), version: 0, createdAt: new Date() }
         appointments.set(a.id, a)
         return a
+      },
+      update: async ({ where, data }: any) => {
+        const a = appointments.get(where.id)
+        if (!a) throw { code: 'P2025' }
+        const updated = { ...a, ...data }
+        appointments.set(a.id, updated)
+        return updated
       },
     },
     patient: {
@@ -261,5 +269,59 @@ describe('AppointmentsService (P0 预约→检查联动)', () => {
     })
     const cancelled = await service.cancel('a-1')
     expect(cancelled.state).toBe('CANCELLED')
+  })
+
+  // [v3.0.6.11-104 Wave 1B] 预约状态机门禁: 非法流转 400 / 合法流转 200
+  describe('状态机门禁 (APPOINTMENT_TRANSITIONS)', () => {
+    const seedAppointment = (appointments: Map<string, AnyRow>, state: string) =>
+      appointments.set('a-1', {
+        id: 'a-1',
+        patientName: '张三',
+        modality: 'CT',
+        state,
+        tenantId: 'default',
+        scheduledAt: new Date(),
+        version: 0,
+      })
+
+    it('合法流转: SCHEDULED → CONFIRMED 通过并落库', async () => {
+      const { prisma, appointments } = makePrisma()
+      const service = new AppointmentsService(prisma)
+      seedAppointment(appointments, 'SCHEDULED')
+      const updated = await service.update('a-1', { state: 'CONFIRMED' })
+      expect(updated.state).toBe('CONFIRMED')
+    })
+
+    it('合法流转: REGISTERED → CHECKED_IN 通过 (补齐枚举后可用)', async () => {
+      const { prisma, appointments } = makePrisma()
+      const service = new AppointmentsService(prisma)
+      seedAppointment(appointments, 'REGISTERED')
+      const updated = await service.update('a-1', { state: 'CHECKED_IN' })
+      expect(updated.state).toBe('CHECKED_IN')
+    })
+
+    it('非法跳转: SCHEDULED → COMPLETED 抛 400 且含当前态合法去向', async () => {
+      const { prisma, appointments } = makePrisma()
+      const service = new AppointmentsService(prisma)
+      seedAppointment(appointments, 'SCHEDULED')
+      await expect(service.update('a-1', { state: 'COMPLETED' })).rejects.toBeInstanceOf(BadRequestException)
+      await expect(service.update('a-1', { state: 'COMPLETED' })).rejects.toThrow('INVALID_TRANSITION')
+      await expect(service.update('a-1', { state: 'COMPLETED' })).rejects.toThrow('CONFIRMED')
+    })
+
+    it('终态不可变: COMPLETED → IN_PROGRESS 抛 400', async () => {
+      const { prisma, appointments } = makePrisma()
+      const service = new AppointmentsService(prisma)
+      seedAppointment(appointments, 'COMPLETED')
+      await expect(service.update('a-1', { state: 'IN_PROGRESS' })).rejects.toThrow('INVALID_TRANSITION')
+    })
+
+    it('同态幂等放行: SCHEDULED → SCHEDULED 不报错', async () => {
+      const { prisma, appointments } = makePrisma()
+      const service = new AppointmentsService(prisma)
+      seedAppointment(appointments, 'SCHEDULED')
+      const updated = await service.update('a-1', { state: 'SCHEDULED' })
+      expect(updated.state).toBe('SCHEDULED')
+    })
   })
 })

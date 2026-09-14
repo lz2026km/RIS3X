@@ -127,19 +127,41 @@ export const dicomWebApi = {
 
   // ══════════════════════════════════════════════════════════════════════════
   // WADO-RS 完整实现
+  // [v3.0.6.11-104 Wave 1A] 后端 dicom-web.controller.ts 真实端点仅:
+  //   GET  studies / studies/:study/series / studies/:study/instances
+  //   GET  studies/:study/series/:series/instances/:sop
+  //   GET  studies/:study/series/:series/instances/:sop/metadata
+  //   POST studies/:study (STOW)
+  // 无 study 级 / series 级 retrieve, 故下列方法仅实例级可对齐。
   // ══════════════════════════════════════════════════════════════════════════
 
+  // MOCK-ONLY: 后端未实现 study 级 WADO-RS retrieve (GET /studies/:uid); 如需请走后端实例级 retrieve
   wadoRsRetrieveStudy: (studyUID: string) =>
     api.get<ArrayBuffer>(`/dicom-web/studies/${encodeURIComponent(studyUID)}`),
 
+  // MOCK-ONLY: 后端未实现 series 级 WADO-RS retrieve (GET /studies/:study/series/:series); 仅 GET /studies/:study/series 列表
   wadoRsRetrieveSeries: (studyUID: string, seriesUID: string) =>
     api.get<ArrayBuffer>(`/dicom-web/studies/${encodeURIComponent(studyUID)}/series/${encodeURIComponent(seriesUID)}`),
 
   wadoRsRetrieveInstance: (studyUID: string, seriesUID: string, instanceUID: string) =>
     api.get<ArrayBuffer>(`/dicom-web/studies/${encodeURIComponent(studyUID)}/series/${encodeURIComponent(seriesUID)}/instances/${encodeURIComponent(instanceUID)}`),
 
-  wadoRsMetadata: (studyUID: string) =>
-    api.get<Record<string, unknown>[]>(`/dicom-web/studies/${encodeURIComponent(studyUID)}/metadata`),
+  // [v3.0.6.11-104 Wave 1A] 后端无 study 级 metadata (GET /studies/:uid/metadata);
+  // 用实例级替代: 先列 study 实例, 再逐个取 .../instances/:sop/metadata 并合并。
+  wadoRsMetadata: async (studyUID: string) => {
+    const instRes = await dicomWebApi.searchInstances(studyUID)
+    const instances = instRes.data ?? []
+    const results = await Promise.all(
+      instances.map((i) =>
+        dicomWebApi.retrieveMetadata(i.studyInstanceUID, i.seriesInstanceUID, i.sopInstanceUID),
+      ),
+    )
+    return {
+      success: instRes.success,
+      data: results.flatMap((r) => (r.data ? [r.data] : [])),
+      error: instRes.error,
+    }
+  },
 
   // ══════════════════════════════════════════════════════════════════════════
   // STOW-RS (multipart/related)

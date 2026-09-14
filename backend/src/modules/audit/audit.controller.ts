@@ -1,8 +1,28 @@
 ﻿import { Controller, Get, Post, Param, Query, Req, Res } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { z } from 'zod'
 import { AuditService } from './audit.service'
 import { Response } from 'express'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+import { ListQuerySchema } from '../../common/dto/pagination.dto'
+
+// [v3.0.6.11-104 Wave 1C] 审计列表查询校验 (分页上限 200 + 筛选)
+export const AuditListQuerySchema = ListQuerySchema.extend({
+  userId: z.string().max(64).optional(),
+  action: z.string().max(128).optional(),
+  resource: z.string().max(128).optional(),
+  startDate: z.string().max(40).optional(),
+  endDate: z.string().max(40).optional(),
+})
+
+export const AuditExportQuerySchema = AuditListQuerySchema.omit({
+  page: true,
+  pageSize: true,
+  skip: true,
+  take: true,
+  keyword: true,
+})
 
 @ApiTags('audit')
 @Controller('audit')
@@ -13,10 +33,10 @@ export class AuditController {
 
   @Get()
   @ApiOperation({ summary: '瀹¤鏃ュ織鍒楄〃' })
-  list(@Query() query: { page?: string; pageSize?: string; userId?: string; action?: string; resource?: string; startDate?: string; endDate?: string }) {
+  list(@Query(new ZodValidationPipe(AuditListQuerySchema)) query: z.infer<typeof AuditListQuerySchema>) {
     return this.audit.list({
-      page: query.page ? parseInt(query.page) : undefined,
-      pageSize: query.pageSize ? parseInt(query.pageSize) : undefined,
+      page: query.page,
+      pageSize: query.pageSize,
       userId: query.userId,
       action: query.action,
       resource: query.resource,
@@ -41,7 +61,7 @@ export class AuditController {
   @Get('export')
   @ApiOperation({ summary: '瀹¤鏃ュ織 CSV 瀵煎嚭' })
   async export(
-    @Query() query: { userId?: string; action?: string; resource?: string; startDate?: string; endDate?: string },
+    @Query(new ZodValidationPipe(AuditExportQuerySchema)) query: z.infer<typeof AuditExportQuerySchema>,
     @Res() res: Response,
   ) {
     const csv = await this.audit.exportCsv({

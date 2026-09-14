@@ -127,6 +127,8 @@ const memComments: TeachingComment[] = []
 const memWrongBook: WrongBookItem[] = []
 const memExams: ExamPaper[] = []
 let examSeq = 0
+// [v3.0.6.11-104] 单调递增序号, 避免同一毫秒创建的病例/评论 ID 冲突
+let caseSeq = 0
 
 function deterministicHash(seed: string): number {
   let h = 2166136261
@@ -198,7 +200,7 @@ export class TeachingCaseService {
 
   async create(dto: CreateTeachingCaseDto, userId?: string): Promise<TeachingCase> {
     const resolved = await this.resolveFromExam(dto)
-    const id = `TCL-${Date.now().toString(36).toUpperCase()}`
+    const id = `TCL-${Date.now().toString(36).toUpperCase()}-${++caseSeq}`
     const record: TeachingCase = {
       id,
       title: dto.title || `${resolved.modality} ${resolved.bodyPart} 教学病例`,
@@ -320,7 +322,7 @@ export class TeachingCaseService {
     if (!c) throw new NotFoundException(`Teaching case ${caseId} not found`)
     if (!content.trim()) throw new BadRequestException('评论内容不能为空')
     const record: TeachingComment = {
-      id: `TCM-${Date.now().toString(36).toUpperCase()}`,
+      id: `TCM-${Date.now().toString(36).toUpperCase()}-${++caseSeq}`,
       caseId,
       user: user ?? '当前用户',
       content: content.trim(),
