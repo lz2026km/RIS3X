@@ -474,6 +474,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.qcPdca",
         roles: ["主任", "管理员"],
       },
+      // [G005 v3.0.6.11-105 Wave 2B] 放射影像质控国标指标 (2024 版)
+      {
+        path: "/qc/rqi-2024",
+        icon: <Gauge size={18} />,
+        labelKey: "nav.rqi2024",
+        roles: ["主任", "管理员", "医生"],
+      },
       // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
       {
         path: "/qc/analytics",

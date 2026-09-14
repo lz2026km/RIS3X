@@ -42,6 +42,8 @@ import RadiologyQCDashboardPage from './qc/RadiologyQCDashboardPage'
 // [v3.0.6.11-104 Wave 5A] 质控收敛: AIQCPage(AI 智能质控) + DepartmentQualityPage(科室质量) 嵌入为 QCPage 新 Tab
 import AIQCPage from './AIQCPage'
 import DepartmentQualityPage from './quality/DepartmentQualityPage'
+// [v3.0.6.11-105 Wave 2C] 国标指标(2024) Tab: 内嵌 W2B RqiIndicatorPage (深链 /qc?tab=rqi2024)
+import RqiIndicatorPage from './qc/RqiIndicatorPage'
 
 const PRIMARY = '#1e40af'
 
@@ -81,6 +83,8 @@ const TABS = [
   // [v3.0.6.11-104 Wave 5A] 质控收敛: 吸收 AIQCPage / DepartmentQualityPage (旧路由 /ai-qc /quality/department redirect → /qc?tab=...)
   { key: 'ai', label: t("qcPage.aiQc"), icon: <Zap size={15} /> },
   { key: 'deptQuality', label: t("qcPage.deptQuality"), icon: <Building2 size={15} /> },
+  // [v3.0.6.11-105 Wave 2C] 国标指标(2024) 7 指标; 深链 /qc?tab=rqi2024
+  { key: 'rqi2024', label: t("qcPage.rqi2024"), icon: <Target size={15} /> },
 ]
 
 // [v3.0.6.8-28] 报告质控数据 - 来源: EXAM_REPORT_PRE (600 报告) + DOCTOR_MASTER + QUALITY_SCORE_PRE
@@ -3079,6 +3083,13 @@ export default function QCPage() {
       {activeTab === 'deptQuality' && (
         <div data-testid="qc-embedded-dept-quality" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
           <DepartmentQualityPage />
+        </div>
+      )}
+
+      {/* [v3.0.6.11-105 Wave 2C] 国标指标(2024): 嵌入 W2B RqiIndicatorPage; 深链 /qc?tab=rqi2024 */}
+      {activeTab === 'rqi2024' && (
+        <div data-testid="qc-embedded-rqi-2024" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+          <RqiIndicatorPage />
         </div>
       )}
 

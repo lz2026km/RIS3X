@@ -13,6 +13,8 @@ import type {
   ContrastAllergyResult,
 } from '../../services/api/contrastSafetyApi'
 import { t } from '../../i18n/appI18n'
+// [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-ICME-05 对比剂外渗发生率
+import { RqiIndicatorLink } from '../../components/qc/RqiIndicatorLink'
 // [v3.0.6.11-104 Wave 3D] 临床资料接入: eGFR 30-59 警告 + 注射前安全核查 + 介入操作核查 (独立子组件, 避开 Wave 3B 区块)
 import ContrastDataSections from './ContrastDataSections'
 
@@ -326,6 +328,11 @@ export default function ContrastInjectionWorkstationPage() {
             <List size={14} />{t('contrastWs.injectionHistory')}
           </button>
         </div>
+      </div>
+
+      {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-ICME-05 对比剂外渗发生率 (深色主题) */}
+      <div style={{ padding: '16px 24px 0' }}>
+        <RqiIndicatorLink code="RQI-ICME-05" tone="dark" />
       </div>
 
       <div style={{ padding: '20px 24px', display: 'grid', gridTemplateColumns: showHistory ? '1fr 1fr' : '1fr', gap: 20 }}>

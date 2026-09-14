@@ -169,6 +169,39 @@ export type {
   QcScoreDto,
 } from "./qcextApi";
 
+// [G005 v3.0.6.11-105 Wave 2B] 放射影像质控国标指标 (2024 版)
+export { rqi2024Api, RQI_INDICATOR_CODES } from "./rqi2024Api";
+export type {
+  RqiIndicatorCode,
+  RqiIndicatorStatus,
+  RqiIndicatorUnit,
+  RqiIndicatorDirection,
+  RqiGranularity,
+  RqiItemKind,
+  RqiSource,
+  RqiExportFormat,
+  RqiCategoryKey,
+  RqiWindowParams,
+  RqiDimensionResult,
+  RqiIndicator,
+  RqiIndicatorsResult,
+  RqiDetailItem,
+  RqiDetailResult,
+  RqiTrendPoint,
+  RqiTrendResult,
+  RqiMomItem,
+  RqiDashboardResult,
+  RqiIndicatorConfig,
+  RqiIndicatorConfigInput,
+  RqiConfigResult,
+  RqiExportInput,
+  RqiExportResult,
+  RqiQualityIndicator,
+  RqiQualityCategoryStat,
+  RqiExtendedResult,
+  RqiExtendedParams,
+} from "./rqi2024Api";
+
 export { regionalApi } from "./regionalApi";
 export type {
   RegionalImagingDto,

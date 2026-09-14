@@ -198,6 +198,8 @@ import { ClinicalFeedbackModule } from "./modules/clinical-feedback/clinical-fee
 import { ContrastSafetyModule } from "./modules/contrast-safety/contrast-safety.module";
 // [v3.0.6.11-105 Wave 1A] 放射影像专业质控指标 (2024 年版) (rqi-2024): 7 条国标指标采集与计算 (孤儿模块, 无 DB 可启动)
 import { Rqi2024Module } from "./modules/rqi-2024/rqi-2024.module";
+// [v3.0.6.11-105 Wave 2A] 放射影像质控指标国家上报中心 (rqi-report-center): 周期上报→提交→回执闭环 (孤儿模块, 无 DB 可启动)
+import { RqiReportCenterModule } from "./modules/rqi-report-center/rqi-report-center.module";
 
 @Module({
   imports: [
@@ -408,6 +410,8 @@ import { Rqi2024Module } from "./modules/rqi-2024/rqi-2024.module";
     ClinicalFeedbackModule,
     // [v3.0.6.11-105 Wave 1A] 放射影像专业质控指标 (2024 年版) (rqi-2024): 7 条国标指标
     Rqi2024Module,
+    // [v3.0.6.11-105 Wave 2A] 放射影像质控指标国家上报中心 (rqi-report-center): 周期上报→提交→回执闭环
+    RqiReportCenterModule,
   ],
   controllers: [HealthController],
   providers: [

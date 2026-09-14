@@ -15,6 +15,8 @@ import { notificationsApi } from '../services/api';
 import { biApi } from '../services/api/biApi';
 import { statsApi } from '../services/api/statsApi';
 import { t } from '../i18n/appI18n';
+// [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RRC-02 急诊报告 2h 完成率
+import { RqiIndicatorLink } from '../components/qc/RqiIndicatorLink';
 
 // ============================================================
 // 主组件
@@ -194,6 +196,9 @@ export default function ReportTimelinessPage() {
           )}
         </div>
       </div>
+
+      {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RRC-02 急诊报告 2h 完成率 */}
+      <RqiIndicatorLink code="RQI-RRC-02" />
 
       {/* 大数字 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>

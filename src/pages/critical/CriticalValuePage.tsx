@@ -6,6 +6,8 @@ import {
 } from "lucide-react"
 import { message } from "antd"
 import { t } from "../../i18n/appI18n"
+// [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCV-04 危急值 10min 通报完成率
+import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink"
 import { useCriticalStore } from "../../store"
 import { realtime, type RealtimePayload } from "../../services/realtime"
 import { LoadingBanner, ErrorBanner } from "../../components/feedback"
@@ -411,6 +413,9 @@ export default function CriticalValuePage() {
         </div>
         <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>{t("criticalValuePage.subtitle")}</p>
       </div>
+
+      {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCV-04 危急值 10min 通报完成率 */}
+      <RqiIndicatorLink code="RQI-RCV-04" />
 
       {/* [G005 v3.0.6.11-104 Wave 5B] 多入口收敛: Tab 枢纽导航 (照 QCPage 内嵌模式) */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 6, marginBottom: 16, display: 'flex', gap: 4, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>

@@ -219,6 +219,7 @@
   "ruleConfig": "CDS Rule Config",
   "qcImageAi": "AI Image QC",
   "qcPdca": "PDCA QC Loop",
+  "rqi2024": "National RQI (2024)",
   "qcAnalytics": "QC Loop & Trend Analytics",
   "teachLecture": "Teaching Lecture",
   "roomOccupancy": "Room Occupancy",

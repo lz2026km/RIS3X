@@ -7,6 +7,8 @@ import { Shield, CheckCircle, XCircle, Download, RefreshCw, Target, BarChart3, A
 import { mammoQcApi, type MammoQcOverview, type MammoQcRecord, type MammoQcTest, type MammoQcStandard, type MammoQcStats, type BreastQcRule, type BreastQcImageInput, type BreastQcEvaluateResult } from '../../services/api/mammoQcApi'
 import { Card, Tabs, message } from 'antd'
 import { t } from '../../i18n/appI18n'
+// [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCR-07 BI-RADS 分类率
+import { RqiIndicatorLink } from '../../components/qc/RqiIndicatorLink'
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
@@ -179,6 +181,9 @@ const QualityManagementPage = () => {
           <button style={s.btnPrimary} onClick={handleExportReport}><Download size={14} /> {t('mammoQc.exportReport')}</button>
         </div>
       </div>
+
+      {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCR-07 BI-RADS 分类率 */}
+      <RqiIndicatorLink code="RQI-RCR-07" />
 
       {error && (
         <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, fontSize: 13, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -332,6 +332,8 @@ const RadiologistAnnualQCPage = lazy(
 const QcImageAiPage = lazy(() => import("../pages/qc/QcImageAiPage"));
 // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
 const QcPdcaPage = lazy(() => import("../pages/qc/QcPdcaPage"));
+// [G005 v3.0.6.11-105 Wave 2B] 放射影像质控国标指标 (2024 版)
+const RqiIndicatorPage = lazy(() => import("../pages/qc/RqiIndicatorPage"));
 // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
 const QcAnalyticsPage = lazy(() => import("../pages/qc/QcAnalyticsPage"));
 // [G005 v3.0.6.11-101 Wave 6A] 报告 V2: 质控规则引擎 (F11) + 水印签章 V2 (F8)
@@ -1458,6 +1460,8 @@ export const routes: RouteObject[] = [
   wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
   // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
   wrapped("/qc/pdca", React.createElement(QcPdcaPage)),
+  // [G005 v3.0.6.11-105 Wave 2B] 放射影像质控国标指标 (2024 版)
+  wrapped("/qc/rqi-2024", React.createElement(RqiIndicatorPage)),
   // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
   wrapped("/qc/analytics", React.createElement(QcAnalyticsPage)),
   // [G005 v3.0.6.11-101 Wave 6A] 报告 V2: 质控规则引擎 + 水印签章 V2

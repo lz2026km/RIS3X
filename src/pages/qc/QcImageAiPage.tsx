@@ -4,6 +4,8 @@ import { StatCard, StatCardGrid } from "../../components/common/StatCard"
 import { qcImageAiApi } from "../../services/api/qcImageAiApi"
 import { QcImageAiScoreV2Result, QcImageAiScoreV1Result, QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
 import { t as tr } from "../../i18n/appI18n"
+// [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-IIA-01 图像伪影率
+import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink"
 import { Button, Input, Select, Space, Alert, Spin } from 'antd'
 import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, Zap, Target, Eye, Sparkles, RefreshCw, Search } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -196,6 +198,8 @@ export default function QcImageAiPage() {
         actions={<Button size="small" icon={<RefreshCw size={12} />} loading={loadingStats} onClick={() => void loadStats(modality, dateFrom, dateTo)}>刷新统计</Button>} />
 
       <div style={{ padding: 24 }}>
+        {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-IIA-01 图像伪影率 */}
+        <RqiIndicatorLink code="RQI-IIA-01" />
         <div style={{ marginBottom: 16, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           {MODALITY_OPTIONS.map(m => (
             <button key={m} onClick={() => setModality(m)} style={{ padding: "6px 14px", background: modality === m ? "#1e40af" : "var(--bg-card)", color: modality === m ? "#fff" : "#475569", border: "1px solid " + (modality === m ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
