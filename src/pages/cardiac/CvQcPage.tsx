@@ -6,7 +6,7 @@ import { qcextApi } from '../../services/api/qcextApi'
 import { t } from '../../i18n/appI18n'
 
 type QcMetric = {
-  label: string
+  labelKey: string
   current: number
   target: number
   status: 'pass' | 'warning' | 'fail'
@@ -14,6 +14,7 @@ type QcMetric = {
 
 type ModalityQc = {
   modality: string
+  modalityKey?: string
   metrics: QcMetric[]
 }
 
@@ -21,56 +22,57 @@ const MODALITY_QC: ModalityQc[] = [
   {
     modality: 'CCTA',
     metrics: [
-      { label: '图像质量评分', current: 4.2, target: 4.0, status: 'pass' },
-      { label: '运动评分', current: 1.8, target: 2.0, status: 'pass' },
-      { label: '对比噪声比', current: 8.5, target: 6.0, status: 'pass' },
-      { label: '诊断置信度%', current: 92, target: 90, status: 'pass' },
-      { label: 'ACR 合规率%', current: 95, target: 95, status: 'pass' },
-      { label: 'CAD-RADS 记录率%', current: 88, target: 95, status: 'warning' },
-      { label: '周转时间(分钟)', current: 45, target: 60, status: 'pass' },
+      { labelKey: 'cvQc.metric.imageQuality', current: 4.2, target: 4.0, status: 'pass' },
+      { labelKey: 'cvQc.metric.motion', current: 1.8, target: 2.0, status: 'pass' },
+      { labelKey: 'cvQc.metric.cnr', current: 8.5, target: 6.0, status: 'pass' },
+      { labelKey: 'cvQc.metric.diagConfidence', current: 92, target: 90, status: 'pass' },
+      { labelKey: 'cvQc.metric.acrCompliance', current: 95, target: 95, status: 'pass' },
+      { labelKey: 'cvQc.metric.cadRadsRecord', current: 88, target: 95, status: 'warning' },
+      { labelKey: 'cvQc.metric.turnaroundMin', current: 45, target: 60, status: 'pass' },
     ],
   },
   {
     modality: 'CMR',
     metrics: [
-      { label: '图像质量评分', current: 4.0, target: 4.0, status: 'pass' },
-      { label: 'LGE 记录率%', current: 85, target: 95, status: 'warning' },
-      { label: 'T1/T2 定量完成率', current: 78, target: 90, status: 'warning' },
-      { label: '应变分析%', current: 65, target: 80, status: 'fail' },
-      { label: 'LVEF 准确度', current: 90, target: 95, status: 'warning' },
-      { label: '周转时间(分钟)', current: 90, target: 90, status: 'pass' },
+      { labelKey: 'cvQc.metric.imageQuality', current: 4.0, target: 4.0, status: 'pass' },
+      { labelKey: 'cvQc.metric.lgeRecord', current: 85, target: 95, status: 'warning' },
+      { labelKey: 'cvQc.metric.t1t2Rate', current: 78, target: 90, status: 'warning' },
+      { labelKey: 'cvQc.metric.strainAnalysis', current: 65, target: 80, status: 'fail' },
+      { labelKey: 'cvQc.metric.lvefAccuracy', current: 90, target: 95, status: 'warning' },
+      { labelKey: 'cvQc.metric.turnaroundMin', current: 90, target: 90, status: 'pass' },
     ],
   },
   {
     modality: 'Echocardiography',
     metrics: [
-      { label: '图像质量评分', current: 3.8, target: 4.0, status: 'warning' },
-      { label: 'LVEF 记录率%', current: 96, target: 95, status: 'pass' },
-      { label: '舒张功能分级%', current: 82, target: 95, status: 'fail' },
-      { label: '瓣膜病变完整率%', current: 90, target: 90, status: 'pass' },
-      { label: 'GLS 应变性能%', current: 55, target: 80, status: 'fail' },
-      { label: '报告时效(小时)', current: 4, target: 6, status: 'pass' },
+      { labelKey: 'cvQc.metric.imageQuality', current: 3.8, target: 4.0, status: 'warning' },
+      { labelKey: 'cvQc.metric.lvefRecord', current: 96, target: 95, status: 'pass' },
+      { labelKey: 'cvQc.metric.diastolicGrade', current: 82, target: 95, status: 'fail' },
+      { labelKey: 'cvQc.metric.valveCompleteness', current: 90, target: 90, status: 'pass' },
+      { labelKey: 'cvQc.metric.glsStrain', current: 55, target: 80, status: 'fail' },
+      { labelKey: 'cvQc.metric.reportTimeliness', current: 4, target: 6, status: 'pass' },
     ],
   },
   {
     modality: '导管室 (Cath Lab)',
+    modalityKey: 'cvQc.modality.cathLab',
     metrics: [
-      { label: '对比剂用量<100mL 率%', current: 72, target: 80, status: 'warning' },
-      { label: '辐射剂量跟踪率%', current: 98, target: 100, status: 'pass' },
-      { label: 'FFR/IVUS 使用率%', current: 65, target: 70, status: 'warning' },
-      { label: '并发症率%', current: 2.1, target: 3.0, status: 'pass' },
-      { label: '门球时间(分钟)', current: 68, target: 90, status: 'pass' },
-      { label: '血流动力学数据完整率%', current: 85, target: 95, status: 'warning' },
+      { labelKey: 'cvQc.metric.contrastUnder100', current: 72, target: 80, status: 'warning' },
+      { labelKey: 'cvQc.metric.radiationTracking', current: 98, target: 100, status: 'pass' },
+      { labelKey: 'cvQc.metric.ffrIvusUsage', current: 65, target: 70, status: 'warning' },
+      { labelKey: 'cvQc.metric.complicationRate', current: 2.1, target: 3.0, status: 'pass' },
+      { labelKey: 'cvQc.metric.doorBalloon', current: 68, target: 90, status: 'pass' },
+      { labelKey: 'cvQc.metric.hemodynamicsCompleteness', current: 85, target: 95, status: 'warning' },
     ],
   },
   {
     modality: 'Vascular',
     metrics: [
-      { label: '颈动脉狭窄分级%', current: 94, target: 95, status: 'pass' },
-      { label: 'ABI 测量记录率%', current: 80, target: 90, status: 'warning' },
-      { label: '主动脉直径测量准确度', current: 4.1, target: 4.0, status: 'pass' },
-      { label: '内漏分类率%', current: 88, target: 95, status: 'warning' },
-      { label: '报告生成时间(小时)', current: 12, target: 24, status: 'pass' },
+      { labelKey: 'cvQc.metric.carotidStenosis', current: 94, target: 95, status: 'pass' },
+      { labelKey: 'cvQc.metric.abiRecord', current: 80, target: 90, status: 'warning' },
+      { labelKey: 'cvQc.metric.aorticDiameter', current: 4.1, target: 4.0, status: 'pass' },
+      { labelKey: 'cvQc.metric.endoleak', current: 88, target: 95, status: 'warning' },
+      { labelKey: 'cvQc.metric.reportGenTime', current: 12, target: 24, status: 'pass' },
     ],
   },
 ]
@@ -127,7 +129,7 @@ export default function CvQcPage() {
       const rows = MODALITY_QC.map(m => m.metrics.map(metric => `
         <tr>
           <td>${m.modality}</td>
-          <td>${metric.label}</td>
+          <td>${t(metric.labelKey)}</td>
           <td style="text-align:center">${metric.current}</td>
           <td style="text-align:center">${metric.target}</td>
           <td style="text-align:center"><span style="color:${metric.status === 'pass' ? '#16a34a' : metric.status === 'warning' ? '#d97706' : '#dc2626'};font-weight:600">${metric.status === 'pass' ? '通过' : metric.status === 'warning' ? '警告' : '失败'}</span></td>
@@ -176,7 +178,7 @@ export default function CvQcPage() {
         </div>
         {MODALITY_QC.map((m, i) => (
           <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid #1e40af' : '1px solid var(--border-color)', cursor: 'pointer' }}>
-            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{m.modality}</div>
+            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{m.modalityKey ? t(m.modalityKey) : m.modality}</div>
             <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 4 }}>{Math.round(m.metrics.filter(x => x.status !== 'fail').length / m.metrics.length * 100)}%</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{m.metrics.filter(x => x.status === 'pass').length} {t('cvQc.statusPass')}, {m.metrics.filter(x => x.status === 'fail').length} {t('cvQc.statusFail')}</div>
           </div>
@@ -185,7 +187,7 @@ export default function CvQcPage() {
 
       <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>
-          {MODALITY_QC[activeModality]?.modality ?? ''} — {t('cvQc.detailMetrics')}
+          {MODALITY_QC[activeModality]?.modalityKey ? t(MODALITY_QC[activeModality].modalityKey!) : (MODALITY_QC[activeModality]?.modality ?? '')} — {t('cvQc.detailMetrics')}
           <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 8 }}>{t('cvQc.demoDataLabel')}</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
@@ -202,9 +204,9 @@ export default function CvQcPage() {
               const s = STATUS_CONFIG[m.status]
               const Icon = s.icon
               return (
-                <tr key={m.label} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <tr key={m.labelKey} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ClipboardCheck size={16} color="#64748b" /> {m.label}
+                    <ClipboardCheck size={16} color="#64748b" /> {t(m.labelKey)}
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'center', fontWeight: 600 }}>{m.current}</td>
                   <td style={{ padding: '10px 16px', textAlign: 'center', color: '#64748b' }}>{m.target}</td>

@@ -6,6 +6,7 @@ import { currentApiMode } from '@/services/api/client';
 import { authApi } from '@/services/api/authApi';
 import { normalizeRole } from '@/services/auth/roleUtils';
 import type { UserRole } from '@/types';
+import { t } from '../i18n/appI18n';
 import {
   Radio,
   ScanLine,
@@ -26,18 +27,18 @@ const HOSPITAL_NAME =
   '汉东省人民医院';
 
 const DEMO_USERS: { label: string; role: UserRole; name: string }[] = [
-  { label: '管理员 (admin)', role: '管理员', name: '系统管理员' },
-  { label: '科主任 (director)', role: '主任', name: '张主任' },
-  { label: '医生 (doctor)', role: '医生', name: '李医生' },
-  { label: '技师 (technician)', role: '技师', name: '王技师' },
-  { label: '护士 (nurse)', role: '护士', name: '赵护士' },
+  { label: t('login.role.admin'), role: '管理员', name: '系统管理员' },
+  { label: t('login.role.director'), role: '主任', name: '张主任' },
+  { label: t('login.role.doctor'), role: '医生', name: '李医生' },
+  { label: t('login.role.technician'), role: '技师', name: '王技师' },
+  { label: t('login.role.nurse'), role: '护士', name: '赵护士' },
 ];
 
 const BRAND_FEATURES: { icon: LucideIcon; title: string; desc: string }[] = [
-  { icon: ScanLine, title: '影像诊断', desc: 'CT / MR / DR 多模态影像调阅与结构化报告' },
-  { icon: BrainCircuit, title: 'AI 智能辅助', desc: '病灶智能提示与报告质控双重引擎' },
-  { icon: ShieldCheck, title: '质控管理', desc: '危急值预警与审核流转全流程闭环' },
-  { icon: Activity, title: '设备监测', desc: '设备状态实时监控与检查排程优化' },
+  { icon: ScanLine, title: t('login.feat.diagnosis.title'), desc: t('login.feat.diagnosis.desc') },
+  { icon: BrainCircuit, title: t('login.feat.ai.title'), desc: t('login.feat.ai.desc') },
+  { icon: ShieldCheck, title: t('login.feat.qc.title'), desc: t('login.feat.qc.desc') },
+  { icon: Activity, title: t('login.feat.device.title'), desc: t('login.feat.device.desc') },
 ];
 
 const inputStyle: React.CSSProperties = {
@@ -132,7 +133,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
-      setError('请输入用户名和密码');
+      setError(t('login.enterCredentials'));
       return;
     }
     setSubmitting(true);
@@ -167,13 +168,13 @@ export default function LoginPage() {
         return;
       }
       if (currentApiMode() === 'real') {
-        setError(response.error?.message ?? '登录失败');
+        setError(response.error?.message ?? t('login.loginFailed'));
         setSubmitting(false);
         return;
       }
     } catch (err) {
       if (currentApiMode() === 'real') {
-        setError(err instanceof Error ? err.message : '登录失败');
+        setError(err instanceof Error ? err.message : t('login.loginFailed'));
         setSubmitting(false);
         return;
       }
@@ -233,13 +234,13 @@ export default function LoginPage() {
             <Radio size={40} color="currentColor" />
           </div>
           <h1 style={{ margin: '24px 0 8px', fontSize: 30, fontWeight: 800, letterSpacing: '1px', color: '#fff' }}>
-            G005 放射信息系统
+            {t('login.systemName')}
           </h1>
           <p style={{ margin: 0, fontSize: 17, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>
-            大型专业医学影像 · 诊断报告 · 智能辅助
+            {t('login.tagline')}
           </p>
           <p style={{ margin: '10px 0 32px', fontSize: 13, lineHeight: 1.8, maxWidth: 480, color: 'rgba(255,255,255,0.66)' }}>
-            面向大型医院的放射科信息管理平台，覆盖影像检查、诊断报告、AI 智能辅助与质量管理全流程。
+            {t('login.description')}
           </p>
           <div
             className="anim-stagger"
@@ -275,7 +276,7 @@ export default function LoginPage() {
       >
         <form
           onSubmit={handleLogin}
-          aria-label="登录表单"
+          aria-label={t('login.formAria')}
           className="anim-fade-in-up"
           style={{
             width: 'min(400px, 100%)',
@@ -291,22 +292,22 @@ export default function LoginPage() {
               <Radio size={22} color="currentColor" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>欢迎登录</h1>
+              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>{t('login.welcome')}</h1>
               <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-secondary)' }}>
-                G005 放射信息系统 · {HOSPITAL_NAME}
+                {t('login.systemName')} · {HOSPITAL_NAME}
               </p>
             </div>
           </div>
 
           {user && (
             <div role="status" style={{ margin: '16px 0 4px', padding: '10px 12px', background: 'var(--color-info-bg)', border: '1px solid var(--color-info-border)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
-              当前已登录：<strong style={{ color: 'var(--text-primary)' }}>{user.name}</strong>（{user.role}）
+              {t('login.loggedInPrefix')}<strong style={{ color: 'var(--text-primary)' }}>{user.name}</strong>{t('login.loggedInSuffix', { role: user.role })}
             </div>
           )}
 
           {/* WCAG 2.1 AA: 颜色对比度 ≥ 4.5:1（正文）/ 3:1（大文本）。边框使用 var(--border-color)（深色模式 #334155，对比度 4.7:1） */}
           <label htmlFor="login-role" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, marginTop: 20 }}>
-            演示角色
+            {t('login.demoRole')}
           </label>
           <div style={{ position: 'relative' }}>
             <KeyRound size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
@@ -322,7 +323,7 @@ export default function LoginPage() {
             </select>
           </div>
 
-          <label htmlFor="login-username" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>用户名</label>
+          <label htmlFor="login-username" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('login.username')}</label>
           <div style={{ position: 'relative' }}>
             <User size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
             <input
@@ -334,7 +335,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <label htmlFor="login-password" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>密码</label>
+          <label htmlFor="login-password" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('login.password')}</label>
           <div style={{ position: 'relative' }}>
             <Lock size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
             <input
@@ -374,20 +375,20 @@ export default function LoginPage() {
             }}
           >
             {_submitting && <Loader2 size={16} className="anim-spin" />}
-            {_submitting ? '登录中…' : '登录系统'}
+            {_submitting ? t('login.loggingIn') : t('login.signIn')}
           </button>
 
           <div style={{ marginTop: 18, padding: '12px 14px', background: 'var(--color-pending-bg)', border: '1px solid var(--color-pending-border)', borderRadius: 10, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
             <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Sparkles size={14} />
-              演示环境
+              {t('login.demoEnv')}
             </div>
-            任意用户名与密码均可登录，选择角色后将以对应身份进入系统；生产环境将对接统一身份认证服务。
+            {t('login.demoHint')}
           </div>
         </form>
 
         <footer style={{ position: 'absolute', bottom: 20, left: 0, right: 0, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>
-          © {new Date().getFullYear()} {HOSPITAL_NAME} · 放射科信息管理系统 · 仅供院内使用
+          © {new Date().getFullYear()} {HOSPITAL_NAME} · {t('login.footerSuffix')}
         </footer>
       </section>
     </main>

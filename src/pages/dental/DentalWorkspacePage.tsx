@@ -10,14 +10,15 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi, type DentalStudy } from '../../services/api/dentalApi';
+import { t } from '../../i18n/appI18n';
 
 const QUICK_LINKS = [
-  { key: 'studies', title: '影像管理', desc: 'CBCT / 全景 / 根尖 / 口扫', icon: Layers, color: '#2563eb', href: '/dental/studies' },
-  { key: 'viewer', title: '影像阅片', desc: '2D/3D 浏览 · MPR', icon: ScanLine, color: '#10b981', href: '/dental/viewer' },
-  { key: 'schedule', title: '排班预约', desc: '椅位排班 · PSR', icon: Calendar, color: '#f59e0b', href: '/dental/schedule' },
-  { key: 'ai', title: 'AI 辅助', desc: '龋齿检测 · ONNX', icon: Microscope, color: '#8b5cf6', href: '/dental/ai' },
-  { key: 'treatment', title: '治疗中心', desc: '治疗计划 · 随访', icon: Stethoscope, color: '#06b6d4', href: '/dental/treatment' },
-  { key: 'implant', title: '种植规划', desc: '3D 种植 · 导板', icon: Activity, color: '#ec4899', href: '/dental/implant-3d' },
+  { key: 'studies', titleKey: 'dental.quick.studies.title', descKey: 'dental.quick.studies.desc', icon: Layers, color: '#2563eb', href: '/dental/studies' },
+  { key: 'viewer', titleKey: 'dental.quick.viewer.title', descKey: 'dental.quick.viewer.desc', icon: ScanLine, color: '#10b981', href: '/dental/viewer' },
+  { key: 'schedule', titleKey: 'dental.quick.schedule.title', descKey: 'dental.quick.schedule.desc', icon: Calendar, color: '#f59e0b', href: '/dental/schedule' },
+  { key: 'ai', titleKey: 'dental.quick.ai.title', descKey: 'dental.quick.ai.desc', icon: Microscope, color: '#8b5cf6', href: '/dental/ai' },
+  { key: 'treatment', titleKey: 'dental.quick.treatment.title', descKey: 'dental.quick.treatment.desc', icon: Stethoscope, color: '#06b6d4', href: '/dental/treatment' },
+  { key: 'implant', titleKey: 'dental.quick.implant.title', descKey: 'dental.quick.implant.desc', icon: Activity, color: '#ec4899', href: '/dental/implant-3d' },
 ];
 
 export const DentalWorkspacePage: React.FC = () => {
@@ -49,7 +50,7 @@ export const DentalWorkspacePage: React.FC = () => {
         setError(statsRes.value.error?.message ?? '');
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败');
+      setError((e as Error)?.message ?? t('dental.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -67,20 +68,20 @@ export const DentalWorkspacePage: React.FC = () => {
   return (
     <DentalPageLayout
       header={{
-        title: '口腔工作台',
+        title: t('dental.workspace.title'),
         version: 'v3.0.6.11-54',
         extra: (
-          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('dental.action.refresh')}</Button>
         ),
       }}
       alert={error ? { message: error, type: 'error' } : undefined}
     >
       <Spin spinning={loading}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={6}><Card hoverable><Statistic title="今日患者" value={stats?.todayPatients ?? 0} prefix={<Calendar size={14} />} /></Card></Col>
-          <Col span={6}><Card hoverable><Statistic title="本周患者" value={stats?.thisWeek ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-          <Col span={6}><Card hoverable><Statistic title="今日收入" prefix="¥" value={stats?.revenueToday ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col span={6}><Card hoverable><Statistic title="待处理预约" value={appointments.length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.todayPatients')} value={stats?.todayPatients ?? 0} prefix={<Calendar size={14} />} /></Card></Col>
+          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.weekPatients')} value={stats?.thisWeek ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.todayRevenue')} prefix="¥" value={stats?.revenueToday ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.pendingAppointments')} value={appointments.length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
         </Row>
 
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
@@ -90,8 +91,8 @@ export const DentalWorkspacePage: React.FC = () => {
                 <Space>
                   <q.icon color={q.color} size={18} />
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{q.title}</div>
-                    <Typography.Text type="secondary" style={{ fontSize: 11 }}>{q.desc}</Typography.Text>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>{t(q.titleKey)}</div>
+                    <Typography.Text type="secondary" style={{ fontSize: 11 }}>{t(q.descKey)}</Typography.Text>
                   </div>
                   <ArrowRight size={12} style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }} />
                 </Space>
@@ -102,10 +103,10 @@ export const DentalWorkspacePage: React.FC = () => {
 
         <Row gutter={16}>
           <Col span={12}>
-            <Card size="small" title={<Space><Calendar size={14} />今日预约</Space>}
-              extra={<a onClick={() => navigate('/dental/schedule')} style={{ fontSize: 12 }}>排班管理 <ArrowRight size={12} /></a>}>
+            <Card size="small" title={<Space><Calendar size={14} />{t('dental.card.todayAppointments')}</Space>}
+              extra={<a onClick={() => navigate('/dental/schedule')} style={{ fontSize: 12 }}>{t('dental.link.scheduleMgmt')} <ArrowRight size={12} /></a>}>
               {appointments.length === 0 ? (
-                <EmptyState description="暂无待处理预约" />
+                <EmptyState description={t('dental.empty.noAppointments')} />
               ) : (
                 <div>
                   {appointments.map((a) => (
@@ -122,10 +123,10 @@ export const DentalWorkspacePage: React.FC = () => {
             </Card>
           </Col>
           <Col span={12}>
-            <Card size="small" title={<Space><ScanLine size={14} />最近检查</Space>}
-              extra={<a onClick={() => navigate('/dental/studies')} style={{ fontSize: 12 }}>全部 <ArrowRight size={12} /></a>}>
+            <Card size="small" title={<Space><ScanLine size={14} />{t('dental.card.recentStudies')}</Space>}
+              extra={<a onClick={() => navigate('/dental/studies')} style={{ fontSize: 12 }}>{t('dental.link.all')} <ArrowRight size={12} /></a>}>
               {recentStudies.length === 0 ? (
-                <EmptyState description="暂无检查记录" />
+                <EmptyState description={t('dental.empty.noStudies')} />
               ) : (
                 <div>
                   {recentStudies.map((s) => (

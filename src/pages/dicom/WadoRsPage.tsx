@@ -20,6 +20,7 @@ import {
 } from "antd";
 import { Globe, Search, Download, RefreshCw, Loader2 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
+import { t } from "../../i18n/appI18n";
 
 const { Text } = Typography;
 
@@ -42,11 +43,11 @@ const WadoRsPage: React.FC = () => {
       if (res.success) {
         setStudies(res.data ?? []);
       } else {
-        setError(res.error?.message ?? "加载失败");
+        setError(res.error?.message ?? t("wadoRs.loadFailed"));
         setStudies([]);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t("wadoRs.loadFailed"));
       setStudies([]);
     } finally {
       setLoading(false);
@@ -73,12 +74,12 @@ const WadoRsPage: React.FC = () => {
           next.add(study.studyInstanceUid);
           return next;
         });
-        message.success(`已检索到检查 ${res.data.patientName} 的 ${res.data.seriesCount} 组序列`);
+        message.success(t("wadoRs.retrieved", { patient: res.data.patientName, count: res.data.seriesCount }));
       } else {
-        message.warning(res.error?.message ?? "检索失败");
+        message.warning(res.error?.message ?? t("wadoRs.retrieveFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? "检索失败");
+      message.error((e as Error)?.message ?? t("wadoRs.retrieveFailed"));
     } finally {
       setRetrieving(null);
     }
@@ -102,9 +103,9 @@ const WadoRsPage: React.FC = () => {
       a.click();
       a.remove();
       URL.revokeObjectURL(a.href);
-      message.success(`已下载序列 ${series.seriesNumber} (${instances.length} 实例)`);
+      message.success(t("wadoRs.seriesDownloaded", { num: series.seriesNumber, count: instances.length }));
     } catch {
-      message.error('下载失败');
+      message.error(t('wadoRs.downloadFailed'));
     }
   };
 
@@ -117,7 +118,7 @@ const WadoRsPage: React.FC = () => {
 
   const columns = [
     {
-      title: "检查 UID",
+      title: t("wadoRs.colStudyUid"),
       dataIndex: "studyInstanceUid",
       key: "uid",
       render: (v: string) => (
@@ -126,19 +127,19 @@ const WadoRsPage: React.FC = () => {
         </Text>
       ),
     },
-    { title: "患者", dataIndex: "patientName", key: "patientName" },
-    { title: "日期", dataIndex: "studyDate", key: "studyDate" },
-    { title: "描述", dataIndex: "studyDescription", key: "desc" },
+    { title: t("wadoRs.colPatient"), dataIndex: "patientName", key: "patientName" },
+    { title: t("wadoRs.colDate"), dataIndex: "studyDate", key: "studyDate" },
+    { title: t("wadoRs.colDescription"), dataIndex: "studyDescription", key: "desc" },
     {
-      title: "模态",
+      title: t("wadoRs.colModality"),
       dataIndex: "modality",
       key: "modality",
       render: (v: string) => <Tag>{v}</Tag>,
     },
-    { title: "序列", dataIndex: "seriesCount", key: "series" },
-    { title: "实例", dataIndex: "instanceCount", key: "instances" },
+    { title: t("wadoRs.colSeries"), dataIndex: "seriesCount", key: "series" },
+    { title: t("wadoRs.colInstances"), dataIndex: "instanceCount", key: "instances" },
     {
-      title: "操作",
+      title: t("wadoRs.colAction"),
       key: "action",
       render: (_: unknown, record: WadoRsStudy) => (
         <Space>
@@ -148,7 +149,7 @@ const WadoRsPage: React.FC = () => {
             loading={retrieving === record.studyInstanceUid}
             onClick={() => void handleRetrieve(record)}
           >
-            {downloaded.has(record.studyInstanceUid) ? "已检索" : "Retrieve"}
+            {downloaded.has(record.studyInstanceUid) ? t("wadoRs.retrievedFlag") : "Retrieve"}
           </Button>
         </Space>
       ),
@@ -159,26 +160,26 @@ const WadoRsPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>WADO-RS 检索</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("wadoRs.title")}</span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
           onClick={() => void load()}
           loading={loading}
         >
-          刷新
+          {t("wadoRs.refresh")}
         </Button>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="检查总数" value={studies.length} />
+            <Statistic title={t("wadoRs.totalStudies")} value={studies.length} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="实例总数"
+              title={t("wadoRs.totalInstances")}
               value={studies.reduce((s, r) => s + r.instanceCount, 0)}
             />
           </Card>
@@ -188,7 +189,7 @@ const WadoRsPage: React.FC = () => {
         <Space>
           <Input
             prefix={<Search size={14} />}
-            placeholder="搜索患者名/检查 UID"
+            placeholder={t("wadoRs.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ width: 400 }}
@@ -202,7 +203,7 @@ const WadoRsPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-              重试
+              {t("wadoRs.retry")}
             </Button>
           }
         />
@@ -221,7 +222,7 @@ const WadoRsPage: React.FC = () => {
       </Card>
 
       <Modal
-        title={`检索结果 - ${retrieveResult?.patientName ?? ''}`}
+        title={t("wadoRs.resultTitle", { patient: retrieveResult?.patientName ?? '' })}
         open={!!retrieveResult}
         onCancel={() => setRetrieveResult(null)}
         footer={null}
@@ -232,23 +233,23 @@ const WadoRsPage: React.FC = () => {
             <>
               <Space direction="vertical" style={{ width: '100%', marginBottom: 12 }}>
                 <Tag color="blue">Study: {retrieveResult.studyInstanceUid.slice(0, 20)}...</Tag>
-                <span>患者 {retrieveResult.patientName} · 模态 {retrieveResult.modality} · {retrieveResult.seriesCount} 组序列 · {retrieveResult.instanceCount} 实例</span>
+                <span>{t("wadoRs.resultSummary", { patient: retrieveResult.patientName, modality: retrieveResult.modality, series: retrieveResult.seriesCount, instances: retrieveResult.instanceCount })}</span>
               </Space>
               <List
                 size="small"
                 dataSource={seriesList}
-                locale={{ emptyText: '暂无序列数据（后端未返回）' }}
+                locale={{ emptyText: t('wadoRs.noSeries') }}
                 renderItem={(s) => (
                   <List.Item
                     actions={[
                       <Button key="dl" size="small" icon={<Download size={12} />} onClick={() => void handleDownloadSeries(retrieveResult.studyInstanceUid, s)}>
-                        下载
+                        {t("wadoRs.download")}
                       </Button>,
                     ]}
                   >
                     <List.Item.Meta
                       title={<Space><Tag>#{s.seriesNumber}</Tag>{s.seriesDescription || s.modality}</Space>}
-                      description={`实例数: ${s.instanceCount} · 部位: ${s.bodyPart || '-'}`}
+                      description={t("wadoRs.seriesMeta", { count: s.instanceCount, bodyPart: s.bodyPart || '-' })}
                     />
                   </List.Item>
                 )}

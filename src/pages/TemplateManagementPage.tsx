@@ -112,13 +112,13 @@ const formatDate = (date: Date) => {
 const usageTrend = [120, 135, 142, 138, 150, 155, 160, 175, 180, 185, 190, 200]
 
 // [v3.0.6.11-98 Wave2A P1] 模板审批状态展示 (草稿/待审批/已批准/已驳回, 兼容旧 启用/停用)
-const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  draft: { label: '草稿', color: '#94a3b8', bg: '#94a3b81f' },
-  pending: { label: '待审批', color: '#d97706', bg: '#f59e0b20' },
-  approved: { label: '已批准', color: '#059669', bg: '#22c55e20' },
-  rejected: { label: '已驳回', color: '#dc2626', bg: '#ef444420' },
-  active: { label: '启用', color: '#059669', bg: '#22c55e20' },
-  inactive: { label: '停用', color: '#94a3b8', bg: '#94a3b81f' },
+const STATUS_META: Record<string, { labelKey: string; color: string; bg: string }> = {
+  draft: { labelKey: 'templateMgmt.statusDraft', color: '#94a3b8', bg: '#94a3b81f' },
+  pending: { labelKey: 'templateMgmt.statusPending', color: '#d97706', bg: '#f59e0b20' },
+  approved: { labelKey: 'templateMgmt.statusApproved', color: '#059669', bg: '#22c55e20' },
+  rejected: { labelKey: 'templateMgmt.statusRejected', color: '#dc2626', bg: '#ef444420' },
+  active: { labelKey: 'templateMgmt.statusActive', color: '#059669', bg: '#22c55e20' },
+  inactive: { labelKey: 'templateMgmt.statusInactive', color: '#94a3b8', bg: '#94a3b81f' },
 }
 
 
@@ -898,8 +898,8 @@ export default function TemplateManagementPage() {
                     <td style={styles.td}>
                       {/* [v3.0.6.11-98 Wave2A P1] 审批状态 Tag (草稿/待审批/已批准/已驳回) */}
                       {(() => {
-                        const m = STATUS_META[tpl.status] ?? { label: tpl.status, color: C.textLight, bg: C.bgLight };
-                        return <span style={{ ...styles.statusBadge, backgroundColor: m.bg, color: m.color }}>{m.label}</span>;
+                        const m = STATUS_META[tpl.status] ?? { labelKey: tpl.status, color: C.textLight, bg: C.bgLight };
+                        return <span style={{ ...styles.statusBadge, backgroundColor: m.bg, color: m.color }}>{t9(m.labelKey)}</span>;
                       })()}
                     </td>
                     <td style={styles.td}>

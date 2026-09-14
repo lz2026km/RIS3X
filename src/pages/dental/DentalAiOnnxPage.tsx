@@ -6,6 +6,7 @@ import { Brain, Scan } from 'lucide-react';
 import { Upload } from 'lucide-react';
 import { Upload as AntdUpload } from 'antd';
 import { loadImageToTensor, INPUT_SIZE } from '@/services/ai/onnxPreprocess';
+import { t } from '../../i18n/appI18n';
 import type { InferenceSession, Tensor } from 'onnxruntime-web';
 
 interface DentalDetection {
@@ -55,14 +56,14 @@ export const DentalAiOnnxPage: React.FC = () => {
         const modelData = await response.arrayBuffer();
         sess = await ort.InferenceSession.create(modelData);
       } catch {
-        message.warning('YOLOv8n-dental.onnx 未找到, 已切换至离线推理模式');
+        message.warning(t('dentalAiOnnx.modelNotFound'));
         // Real fallback: instantiate a minimal InferenceSession-like via ort
         // but if no model available, mark as null and use offline branch
         sess = null as unknown as InferenceSession;
       }
       setSession(sess);
       setModelStatus('ready');
-      message.success('ONNX Runtime Web 初始化成功');
+      message.success(t('dentalAiOnnx.initSuccess'));
     } catch (e) {
       const err = e as Error;
       setModelStatus('error');
@@ -109,9 +110,9 @@ export const DentalAiOnnxPage: React.FC = () => {
   };
 
   const runInference = async () => {
-    if (modelStatus !== 'ready') { message.warning('请先加载模型'); return; }
+    if (modelStatus !== 'ready') { message.warning(t('dentalAiOnnx.loadModelFirst')); return; }
     const file = fileRef.current;
-    if (!file) { message.warning('请先上传根尖片/咬合翼片'); return; }
+    if (!file) { message.warning(t('dentalAiOnnx.uploadFirst')); return; }
     setLoading(true);
     try {
       const tensor = await loadImageToTensor(file);
@@ -129,7 +130,7 @@ export const DentalAiOnnxPage: React.FC = () => {
         framework: 'ONNX Runtime Web',
         isRealInference: isRealSession,
       });
-      message.success('推理完成');
+      message.success(t('dentalAiOnnx.inferenceDone'));
     } catch (e) {
       const err = e as Error;
       message.error('推理失败: ' + err.message);
@@ -140,35 +141,35 @@ export const DentalAiOnnxPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Brain size={20} color="#722ed1" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 AI ONNX 推理引擎</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalAiOnnx.title')}</span>
         <Tag color="cyan">v3.0.6.8-81</Tag>
         <Tag color={modelStatus === 'ready' ? 'green' : 'default'}>ONNX Runtime Web</Tag>
       </Space>
       <Row gutter={16}>
         <Col span={8}>
-          <Card title="模型管理" size="small">
-            {modelStatus === 'idle' && <Button type="primary" block icon={<Brain size={14} />} loading={loading} onClick={loadModel}>初始化 ONNX Runtime Web</Button>}
+          <Card title={t('dentalAiOnnx.modelMgmt')} size="small">
+            {modelStatus === 'idle' && <Button type="primary" block icon={<Brain size={14} />} loading={loading} onClick={loadModel}>{t('dentalAiOnnx.init')}</Button>}
             {modelStatus === 'loading' && <Spin />}
-            {modelStatus === 'ready' && <Alert type="success" title="ONNX Runtime Web 已就绪" description={session ? 'YOLOv8n-dental 模型 (真实推理)' : 'YOLOv8n-dental 模型 (模拟模式)'} showIcon />}
-            {modelStatus === 'error' && <Alert type="error" title="初始化失败" description="浏览器不支持 WebGL 或 ONNX Runtime" showIcon />}
+            {modelStatus === 'ready' && <Alert type="success" title={t('dentalAiOnnx.ready')} description={session ? t('dentalAiOnnx.realModel') : t('dentalAiOnnx.simModel')} showIcon />}
+            {modelStatus === 'error' && <Alert type="error" title={t('dentalAiOnnx.initFailed')} description={t('dentalAiOnnx.browserUnsupported')} showIcon />}
             {modelStatus === 'ready' && (
               <>
                 <AntdUpload accept="image/*" showUploadList={false} beforeUpload={(f) => { handleFileChange(f); return false; }}>
-                  <Button block icon={<Upload size={14} />} style={{ marginTop: 12 }}>上传根尖片/咬合翼片</Button>
+                  <Button block icon={<Upload size={14} />} style={{ marginTop: 12 }}>{t('dentalAiOnnx.uploadRadiograph')}</Button>
                 </AntdUpload>
                 {imagePreview && <div style={{ marginTop: 8 }}><img src={imagePreview} alt="preview" loading="lazy" decoding="async" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 4 }} /></div>}
                 <Button type="primary" block icon={<Scan size={14} />} onClick={runInference} loading={loading} style={{ marginTop: 12 }}>
-                  运行推理
+                  {t('dentalAiOnnx.runInference')}
                 </Button>
               </>
             )}
           </Card>
         </Col>
         <Col span={16}>
-          <Card title={result ? `推理结果 (${result.isRealInference ? '真实推理' : '模拟推理'})` : '结果'} size="small">
+          <Card title={result ? t('dentalAiOnnx.resultTitle', { mode: result.isRealInference ? t('dentalAiOnnx.realInference') : t('dentalAiOnnx.simulatedInference') }) : t('dentalAiOnnx.result')} size="small">
             {result ? (
               <div>
-                <Alert type="success" title={`检测到 ${result.detections.length} 个病灶`} description={`框架: ${result.framework} | 模型: ${result.model}`} style={{ marginBottom: 12 }} showIcon />
+                <Alert type="success" title={t('dentalAiOnnx.detected', { count: result.detections.length })} description={t('dentalAiOnnx.frameworkModel', { framework: result.framework, model: result.model })} style={{ marginBottom: 12 }} showIcon />
                 <List dataSource={result.detections} renderItem={(d: DentalDetection) => (
                   <List.Item>
                     <Space>
@@ -182,7 +183,7 @@ export const DentalAiOnnxPage: React.FC = () => {
             ) : (
               <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-secondary)' }}>
                 <Scan size={48} />
-                <div style={{ marginTop: 12 }}>左侧上传图片并运行推理</div>
+                <div style={{ marginTop: 12 }}>{t('dentalAiOnnx.uploadPrompt')}</div>
               </div>
             )}
           </Card>

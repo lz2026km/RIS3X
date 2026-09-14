@@ -31,49 +31,50 @@ import {
 import { AppModal } from "../components/common/AppModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { reportQualityApi } from "../services/api";
+import { t } from "../i18n/appI18n";
 
 // ============================================================
 // 分类配置
 // ============================================================
 const CATEGORY_CONFIG: Record<
   DefectCategory,
-  { label: string; color: string; bg: string; icon: any }
+  { labelKey: string; color: string; bg: string; icon: any }
 > = {
   description: {
-    label: "描述问题",
+    labelKey: "reportDefect.cat.description",
     color: "#3b82f6",
     bg: "#3b82f622",
     icon: FileText,
   },
   terminology: {
-    label: "术语问题",
+    labelKey: "reportDefect.cat.terminology",
     color: "#7c3aed",
     bg: "#8b5cf622",
     icon: BookOpen,
   },
-  format: { label: "格式问题", color: "#0891b2", bg: "#06b6d422", icon: Hash },
+  format: { labelKey: "reportDefect.cat.format", color: "#0891b2", bg: "#06b6d422", icon: Hash },
   logic: {
-    label: "逻辑问题",
+    labelKey: "reportDefect.cat.logic",
     color: "#ef4444", bg: "#ef444422",
     icon: AlertOctagon,
   },
   critical: {
-    label: "危急值",
+    labelKey: "reportDefect.cat.critical",
     color: "#7f1d1d",
     bg: "#ef444422",
     icon: AlertCircle,
   },
   completeness: {
-    label: "完整性",
+    labelKey: "reportDefect.cat.completeness",
     color: "#f59e0b", bg: "#f59e0b22",
     icon: ListChecks,
   },
 };
 
 const SEVERITY_CONFIG = {
-  minor: { label: "轻微", color: "#3b82f6", bg: "#3b82f622" },
-  major: { label: "重要", color: "#f59e0b", bg: "#f59e0b22" },
-  critical: { label: "严重", color: "#ef4444", bg: "#ef444422" },
+  minor: { labelKey: "reportDefect.sev.minor", color: "#3b82f6", bg: "#3b82f622" },
+  major: { labelKey: "reportDefect.sev.major", color: "#f59e0b", bg: "#f59e0b22" },
+  critical: { labelKey: "reportDefect.sev.critical", color: "#ef4444", bg: "#ef444422" },
 };
 
 // ============================================================
@@ -109,11 +110,11 @@ export default function ReportDefectLibraryPage() {
 
   useEffect(() => {
     if (!toast.show) return;
-    const t = setTimeout(
+    const timer = setTimeout(
       () => setToast((t0) => ({ ...t0, show: false })),
       2400,
     );
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [toast.show]);
 
   useEffect(() => {
@@ -126,7 +127,7 @@ export default function ReportDefectLibraryPage() {
           return {
             id: entry.id,
             code: (detail.code as string) || `DEF-${i + 1}`,
-            name: (detail.name as string) || '未知缺陷',
+            name: (detail.name as string) || t('reportDefect.unknown'),
             category: (detail.category as DefectCategory) || 'description',
             severity: (detail.severity as DefectItem['severity']) || 'minor',
             description: (detail.description as string) || '',
@@ -257,11 +258,11 @@ export default function ReportDefectLibraryPage() {
       if (filterSeverity !== "all" && d.severity !== filterSeverity)
         return false;
       if (search) {
-        const t = search.toLowerCase();
+        const q = search.toLowerCase();
         if (
-          !d.name.toLowerCase().includes(t) &&
-          !d.code.toLowerCase().includes(t) &&
-          !d.description.toLowerCase().includes(t)
+          !d.name.toLowerCase().includes(q) &&
+          !d.code.toLowerCase().includes(q) &&
+          !d.description.toLowerCase().includes(q)
         )
           return false;
       }
@@ -302,7 +303,7 @@ export default function ReportDefectLibraryPage() {
               gap: 8,
             }}
           >
-            <AlertOctagon size={20} color="#dc2626" /> 报告缺陷分类字典
+            <AlertOctagon size={20} color="#dc2626" /> {t('reportDefect.title')}
             <span
               style={{
                 fontSize: 12,
@@ -317,8 +318,7 @@ export default function ReportDefectLibraryPage() {
             </span>
           </h1>
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
-            {defectList.length} 类缺陷 · 6 大分类 · 累计触发{" "}
-            {apiKpi.totalEvaluated} 次评分
+            {t('reportDefect.summary', { count: defectList.length, evaluated: apiKpi.totalEvaluated })}
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -338,7 +338,7 @@ export default function ReportDefectLibraryPage() {
               gap: 4,
             }}
           >
-            <Plus size={12} /> 新增缺陷
+            <Plus size={12} /> {t('reportDefect.addDefect')}
           </button>
         </div>
       </div>
@@ -394,7 +394,7 @@ export default function ReportDefectLibraryPage() {
                 <div
                   style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
-                  {conf.label}
+                  {t(conf.labelKey)}
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
@@ -404,7 +404,7 @@ export default function ReportDefectLibraryPage() {
                   {stat.count}
                 </span>
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  类 / {stat.totalCount} 次触发
+                  {t('reportDefect.categoryStat', { count: stat.totalCount })}
                 </span>
               </div>
             </div>
@@ -433,7 +433,7 @@ export default function ReportDefectLibraryPage() {
             gap: 6,
           }}
         >
-          <TrendingUp size={13} /> Top 5 最高频缺陷（累计触发）
+          <TrendingUp size={13} /> {t('reportDefect.top5')}
         </div>
         <div
           style={{
@@ -455,7 +455,7 @@ export default function ReportDefectLibraryPage() {
                 }}
               >
                 <div style={{ fontSize: 12, color: "#92400e", fontWeight: 700 }}>
-                  第 {i + 1} 名
+                  {t('reportDefect.rank', { n: i + 1 })}
                 </div>
                 <div
                   style={{
@@ -491,7 +491,7 @@ export default function ReportDefectLibraryPage() {
                       display: "inline-block",
                     }}
                   >
-                    {SEVERITY_CONFIG[defect.severity].label}
+                    {t(SEVERITY_CONFIG[defect.severity].labelKey)}
                   </span>
                 )}
               </div>
@@ -537,7 +537,7 @@ export default function ReportDefectLibraryPage() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="搜索缺陷..."
+                  placeholder={t('reportDefect.searchPlaceholder')}
                   style={{
                     width: "100%",
                     padding: "5px 8px 5px 26px",
@@ -553,17 +553,17 @@ export default function ReportDefectLibraryPage() {
                 onChange={(e) => setFilterSeverity(e.target.value)}
                 style={selectStyle}
               >
-                <option value="all">全部</option>
-                <option value="critical">严重</option>
-                <option value="major">重要</option>
-                <option value="minor">轻微</option>
+                <option value="all">{t('reportDefect.all')}</option>
+                <option value="critical">{t('reportDefect.sev.critical')}</option>
+                <option value="major">{t('reportDefect.sev.major')}</option>
+                <option value="minor">{t('reportDefect.sev.minor')}</option>
               </select>
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               <strong style={{ color: "#1e40af" }}>
                 {filteredDefects.length}
               </strong>{" "}
-              / {defects.length} 项
+              {t('reportDefect.ofItems', { count: defects.length })}
             </div>
           </div>
           <div style={{ maxHeight: 540, overflowY: "auto" }}>
@@ -604,7 +604,7 @@ export default function ReportDefectLibraryPage() {
                         fontWeight: 600,
                       }}
                     >
-                      {cConf.label}
+                      {t(cConf.labelKey)}
                     </span>
                     <span
                       style={{
@@ -616,7 +616,7 @@ export default function ReportDefectLibraryPage() {
                         fontWeight: 700,
                       }}
                     >
-                      {sConf.label}
+                      {t(sConf.labelKey)}
                     </span>
                     <span
                       style={{
@@ -685,11 +685,11 @@ export default function ReportDefectLibraryPage() {
                   {selectedDefect.name}
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  编码：{selectedDefect.code}
+                  {t('reportDefect.codeLabel')}{selectedDefect.code}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>触发次数</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t('reportDefect.triggerCount')}</div>
                 <div
                   style={{ fontSize: 24, fontWeight: 700, color: "#dc2626" }}
                 >
@@ -710,7 +710,7 @@ export default function ReportDefectLibraryPage() {
                   fontWeight: 600,
                 }}
               >
-                {CATEGORY_CONFIG[selectedDefect.category].label}
+                {t(CATEGORY_CONFIG[selectedDefect.category].labelKey)}
               </span>
               <span
                 style={{
@@ -722,7 +722,7 @@ export default function ReportDefectLibraryPage() {
                   fontWeight: 600,
                 }}
               >
-                严重度：{SEVERITY_CONFIG[selectedDefect.severity].label}
+                {t('reportDefect.severityLabel')}{t(SEVERITY_CONFIG[selectedDefect.severity].labelKey)}
               </span>
             </div>
 
@@ -743,7 +743,7 @@ export default function ReportDefectLibraryPage() {
                   marginBottom: 4,
                 }}
               >
-                📋 缺陷描述
+                {t('reportDefect.description')}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-primary)", lineHeight: 1.6 }}>
                 {selectedDefect.description}
@@ -763,7 +763,7 @@ export default function ReportDefectLibraryPage() {
                   gap: 4,
                 }}
               >
-                <MessageSquare size={12} /> 典型示例
+                <MessageSquare size={12} /> {t('reportDefect.examples')}
               </div>
               {selectedDefect.examples.map((ex, i) => (
                 <div
@@ -803,7 +803,7 @@ export default function ReportDefectLibraryPage() {
                   gap: 4,
                 }}
               >
-                <Lightbulb size={12} /> 解决方案
+                <Lightbulb size={12} /> {t('reportDefect.solution')}
               </div>
               <div style={{ fontSize: 12, color: "#065f46", lineHeight: 1.6 }}>
                 {selectedDefect.solution}
@@ -835,7 +835,7 @@ export default function ReportDefectLibraryPage() {
                   gap: 4,
                 }}
               >
-                <Edit2 size={11} /> 编辑
+                <Edit2 size={11} /> {t('reportDefect.edit')}
               </button>
               <button
                 onClick={() => {
@@ -855,7 +855,7 @@ export default function ReportDefectLibraryPage() {
                   gap: 4,
                 }}
               >
-                <Eye size={11} /> 触发记录
+                <Eye size={11} /> {t('reportDefect.triggers')}
               </button>
               <button
                 type="button"
@@ -875,7 +875,7 @@ export default function ReportDefectLibraryPage() {
                   marginLeft: "auto",
                 }}
               >
-                <Trash2 size={14} /> 删除
+                <Trash2 size={14} /> {t('reportDefect.delete')}
               </button>
             </div>
           </div>
@@ -886,7 +886,7 @@ export default function ReportDefectLibraryPage() {
       <AppModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title="新增缺陷"
+        title={t('reportDefect.addTitle')}
         icon={<Plus size={18} />}
         iconBg="var(--color-info-bg)"
         iconColor="#1e40af"
@@ -906,7 +906,7 @@ export default function ReportDefectLibraryPage() {
                 cursor: "pointer",
               }}
             >
-              取消
+              {t('reportDefect.cancel')}
             </button>
             <button
               onClick={handleSaveNew}
@@ -924,7 +924,7 @@ export default function ReportDefectLibraryPage() {
                 gap: 6,
               }}
             >
-              <Save size={12} /> 保存
+              <Save size={12} /> {t('reportDefect.save')}
             </button>
           </>
         }
@@ -940,7 +940,7 @@ export default function ReportDefectLibraryPage() {
       <AppModal
         open={showEditModal}
         onClose={() => setShowEditModal(false)}
-        title="编辑缺陷"
+        title={t('reportDefect.editTitle')}
         icon={<Edit2 size={18} />}
         iconBg="var(--color-warning-bg)"
         iconColor="#b45309"
@@ -960,7 +960,7 @@ export default function ReportDefectLibraryPage() {
                 cursor: "pointer",
               }}
             >
-              取消
+              {t('reportDefect.cancel')}
             </button>
             <button
               onClick={handleSaveEdit}
@@ -978,7 +978,7 @@ export default function ReportDefectLibraryPage() {
                 gap: 6,
               }}
             >
-              <Save size={12} /> 保存修改
+              <Save size={12} /> {t('reportDefect.saveEdit')}
             </button>
           </>
         }
@@ -994,7 +994,7 @@ export default function ReportDefectLibraryPage() {
       <AppModal
         open={showTriggersModal}
         onClose={() => setShowTriggersModal(false)}
-        title="触发记录"
+        title={t('reportDefect.triggers')}
         icon={<Activity size={18} />}
         iconBg="var(--color-success-bg)"
         iconColor="#15803d"
@@ -1015,7 +1015,7 @@ export default function ReportDefectLibraryPage() {
                 {selectedDefect.name}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                编码 {selectedDefect.code} · 累计触发 {selectedDefect.count} 次
+                {t('reportDefect.codeInline', { code: selectedDefect.code, count: selectedDefect.count })}
               </div>
             </div>
             {selectedDefect.count > 0 ? (
@@ -1039,7 +1039,7 @@ export default function ReportDefectLibraryPage() {
                           justifyContent: "space-between",
                         }}
                       >
-                        <span>触发记录 #{i + 1}</span>
+                        <span>{t('reportDefect.triggerRecord', { n: i + 1 })}</span>
                         <span
                           style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}
                         >
@@ -1048,7 +1048,7 @@ export default function ReportDefectLibraryPage() {
                         </span>
                       </div>
                       <div style={{ color: "var(--text-secondary)", marginTop: 4 }}>
-                        操作人：审核医生 · 报告 ID：RPT-{1000 + i}
+                        {t('reportDefect.operatorInfo', { id: 1000 + i })}
                       </div>
                     </div>
                   ),
@@ -1063,7 +1063,7 @@ export default function ReportDefectLibraryPage() {
                   fontSize: 12,
                 }}
               >
-                暂无触发记录
+                {t('reportDefect.noTriggers')}
               </div>
             )}
           </div>
@@ -1073,9 +1073,9 @@ export default function ReportDefectLibraryPage() {
       {/* 删除确认 Modal */}
       <ConfirmDialog
         open={!!confirmDelete}
-        title="删除缺陷"
+        title={t('reportDefect.deleteTitle')}
         message={`确定删除缺陷 "${confirmDelete?.name}" 吗?该操作不可撤销。`}
-        confirmText="删除"
+        confirmText={t('reportDefect.delete')}
         variant="danger"
         onCancel={() => setConfirmDelete(null)}
         onConfirm={performDelete}
@@ -1152,25 +1152,25 @@ function DefectFormFields({
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div>
           <label htmlFor={`${idPrefix}code`} style={labelStyle}>
-            编码 *
+            {t('reportDefect.field.code')}
           </label>
           <input
             id={`${idPrefix}code`}
             value={formState.code}
             onChange={(e) => set("code", e.target.value)}
-            placeholder="例如 D-LIQ-002"
+            placeholder={t('reportDefect.field.codePlaceholder')}
             style={inputStyle}
           />
         </div>
         <div>
           <label htmlFor={`${idPrefix}name`} style={labelStyle}>
-            名称 *
+            {t('reportDefect.field.name')}
           </label>
           <input
             id={`${idPrefix}name`}
             value={formState.name}
             onChange={(e) => set("name", e.target.value)}
-            placeholder="缺陷名称"
+            placeholder={t('reportDefect.field.namePlaceholder')}
             style={inputStyle}
           />
         </div>
@@ -1178,7 +1178,7 @@ function DefectFormFields({
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div>
           <label htmlFor={`${idPrefix}category`} style={labelStyle}>
-            分类
+            {t('reportDefect.field.category')}
           </label>
           <select
             id={`${idPrefix}category`}
@@ -1188,14 +1188,14 @@ function DefectFormFields({
           >
             {Object.entries(CATEGORY_CONFIG).map(([k, v]) => (
               <option key={k} value={k}>
-                {v.label}
+                {t(v.labelKey)}
               </option>
             ))}
           </select>
         </div>
         <div>
           <label htmlFor={`${idPrefix}severity`} style={labelStyle}>
-            严重度
+            {t('reportDefect.field.severity')}
           </label>
           <select
             id={`${idPrefix}severity`}
@@ -1207,7 +1207,7 @@ function DefectFormFields({
           >
             {Object.entries(SEVERITY_CONFIG).map(([k, v]) => (
               <option key={k} value={k}>
-                {v.label}
+                {t(v.labelKey)}
               </option>
             ))}
           </select>
@@ -1215,27 +1215,27 @@ function DefectFormFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}description`} style={labelStyle}>
-          缺陷描述
+          {t('reportDefect.field.description')}
         </label>
         <textarea
           id={`${idPrefix}description`}
           value={formState.description}
           onChange={(e) => set("description", e.target.value)}
           rows={3}
-          placeholder="缺陷描述..."
+          placeholder={t('reportDefect.field.descriptionPlaceholder')}
           style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
         />
       </div>
       <div>
         <label htmlFor={`${idPrefix}solution`} style={labelStyle}>
-          解决方案
+          {t('reportDefect.field.solution')}
         </label>
         <textarea
           id={`${idPrefix}solution`}
           value={formState.solution}
           onChange={(e) => set("solution", e.target.value)}
           rows={2}
-          placeholder="解决方案..."
+          placeholder={t('reportDefect.field.solutionPlaceholder')}
           style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
         />
       </div>

@@ -1778,23 +1778,23 @@ export default function ReportWritePage() {
 
   // [v3.0.6.11-95 Wave3B P1] 模板库: 点击插入光标处 (复用 externalInsert 通道)
   // [v3.0.6.11-98 Wave1B P0-2] 模板变量自动填充: 插入前先解析 {{patientName}} 等占位符
-  const insertTemplateAtCursor = useCallback((t: any) => {
-    const content = t?.content || t?.body || '';
+  const insertTemplateAtCursor = useCallback((tpl: any) => {
+    const content = tpl?.content || tpl?.body || '';
     if (!content) {
-      message.info('该模板为结构化模板(无自由文本),请使用下方结构化字段表单填写');
+      message.info(t('reportWrite.structuredTemplateHint'));
       return;
     }
     const { resolved, unresolved } = describeTemplateVariables(content, context);
     const finalText = resolveTemplateVariables(content, context);
     setVoiceInsert({ text: finalText, ts: Date.now() });
-    recordTemplateRecent(t.id);
+    recordTemplateRecent(tpl.id);
     if (resolved.length > 0 || unresolved.length > 0) {
       message.info(
         `变量自动填充: ${resolved.length > 0 ? `已填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样可手动修改` : ''}`,
         4,
       );
     }
-    message.success(`已插入模板「${t?.name ?? t.id}」到光标处`);
+    message.success(`已插入模板「${tpl?.name ?? tpl.id}」到光标处`);
   }, [recordTemplateRecent, context]);
 
   // [v3.0.6.11-95 Wave3B P1] 模板库: 收藏星标
@@ -1954,9 +1954,9 @@ export default function ReportWritePage() {
 
   // [v3.0.6.11-95 Wave2B P1] 草稿超时提醒: 打开超过 24h 未更新的草稿显示提示条
   const staleHours = useMemo(() => {
-    const t = context.document.lastEditedAt ?? context.document.updatedAt ?? '';
-    if (!t) return 0;
-    const ts = new Date(t).getTime();
+    const lastEdited = context.document.lastEditedAt ?? context.document.updatedAt ?? '';
+    if (!lastEdited) return 0;
+    const ts = new Date(lastEdited).getTime();
     if (Number.isNaN(ts)) return 0;
     return (Date.now() - ts) / 3600000;
   }, [context.document.lastEditedAt, context.document.updatedAt]);
@@ -3278,13 +3278,13 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                   <div className="text-[11px] text-slate-400">{t("reportWrite.noRecommendations")}</div>
                 ) : (
                   <div className="space-y-1">
-                    {recommended.map((t: any) => (
-                      <div key={`rec-${t.id}`} className="p-1.5 border border-purple-200 bg-white rounded text-xs cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center gap-1.5"
-                        onClick={() => onInsert(t)}>
-                        <Tag color="purple" className="m-0 text-[10px] shrink-0">推荐</Tag>
-                        <span className="text-slate-700 truncate flex-1">{t.name}</span>
-                        <Tag color={recMatchLevel(t) === 0 ? 'volcano' : 'cyan'} className="m-0 text-[10px] shrink-0">{recMatchLevel(t) === 0 ? '精准匹配' : recMatchLevel(t) === 1 ? '模态匹配' : '部位匹配'}</Tag>
-                        <Button size="small" type="text" className="p-0 h-auto text-[10px] shrink-0" onClick={(e) => { e.stopPropagation(); onReplace(t.id); }}>替换</Button>
+                    {recommended.map((tpl: any) => (
+                      <div key={`rec-${tpl.id}`} className="p-1.5 border border-purple-200 bg-white rounded text-xs cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center gap-1.5"
+                        onClick={() => onInsert(tpl)}>
+                        <Tag color="purple" className="m-0 text-[10px] shrink-0">{t("reportWrite.tagRecommended")}</Tag>
+                        <span className="text-slate-700 truncate flex-1">{tpl.name}</span>
+                        <Tag color={recMatchLevel(tpl) === 0 ? 'volcano' : 'cyan'} className="m-0 text-[10px] shrink-0">{recMatchLevel(tpl) === 0 ? t("reportWrite.matchExact") : recMatchLevel(tpl) === 1 ? t("reportWrite.matchModality") : t("reportWrite.matchBodyPart")}</Tag>
+                        <Button size="small" type="text" className="p-0 h-auto text-[10px] shrink-0" onClick={(e) => { e.stopPropagation(); onReplace(tpl.id); }}>{t("reportWrite.replace")}</Button>
                       </div>
                     ))}
                   </div>
@@ -3298,45 +3298,45 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
               <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
                 {filteredTemplates.length === 0 ? (
                   <EmptyState type="noresult" description={t("reportWrite.noMatchingTemplate")} style={{ padding: '16px 8px' }} />
-                ) : filteredTemplates.map((t: any) => {
-                  const isFav = favIdsSet.has(t.id);
-                  const isRecent = recentIdsSet.has(t.id);
+                ) : filteredTemplates.map((tpl: any) => {
+                  const isFav = favIdsSet.has(tpl.id);
+                  const isRecent = recentIdsSet.has(tpl.id);
                   return (
-                    <div key={t.id} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
+                    <div key={tpl.id} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
                       onClick={() => {
                         // [v3.0.6.11-100 Wave2C P2] 全文模板: 按插入方式 (追加光标处 / 覆盖全文); 其余点击插入光标处
-                        if ((t?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace') onReplace(t.id);
-                        else onInsert(t);
+                        if ((tpl?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace') onReplace(tpl.id);
+                        else onInsert(tpl);
                       }}>
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-slate-800 truncate flex items-center gap-1">
                           {isFav && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
-                          {isRecent && !isFav && <Tag color="green" className="m-0 text-[10px]">最近</Tag>}
+                          {isRecent && !isFav && <Tag color="green" className="m-0 text-[10px]">{t("reportWrite.tagRecent")}</Tag>}
                           {/* [v3.0.6.11-98 Wave2A P1] 个人模板 Tag */}
-                          {isMine(t) && <Tag color="cyan" className="m-0 text-[10px]">个人</Tag>}
+                          {isMine(tpl) && <Tag color="cyan" className="m-0 text-[10px]">{t("reportWrite.tagMine")}</Tag>}
                           {/* [v3.0.6.11-100 Wave2C P2] 全文模板 Tag (区别于段落模板) */}
-                          {(t?.templateType ?? 'SECTION') === 'FULL' && <Tag color="purple" className="m-0 text-[10px]">全文</Tag>}
-                          {(t?.templateType ?? 'SECTION') === 'PHRASE' && <Tag color="magenta" className="m-0 text-[10px]">短语</Tag>}
-                          {t.name}
+                          {(tpl?.templateType ?? 'SECTION') === 'FULL' && <Tag color="purple" className="m-0 text-[10px]">{t("reportWrite.tagFull")}</Tag>}
+                          {(tpl?.templateType ?? 'SECTION') === 'PHRASE' && <Tag color="magenta" className="m-0 text-[10px]">{t("reportWrite.tagPhrase")}</Tag>}
+                          {tpl.name}
                         </span>
                         <span className="flex items-center gap-1 shrink-0">
                           <Button size="small" type="text" className="p-0 h-auto w-5" icon={<Star className={`w-3 h-3 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />}
-                            onClick={(e) => { e.stopPropagation(); onToggleFav(t.id); }} title={isFav ? '取消收藏' : '收藏常用模板'} />
-                          <Button size="small" type="text" className="p-0 h-auto text-[10px]" onClick={(e) => { e.stopPropagation(); onReplace(t.id); }} title="全文替换编辑器内容">替换</Button>
+                            onClick={(e) => { e.stopPropagation(); onToggleFav(tpl.id); }} title={isFav ? t("reportWrite.unfav") : t("reportWrite.fav")} />
+                          <Button size="small" type="text" className="p-0 h-auto text-[10px]" onClick={(e) => { e.stopPropagation(); onReplace(tpl.id); }} title={t("reportWrite.replaceAllTitle")}>{t("reportWrite.replace")}</Button>
                           {/* [v3.0.6.11-103 Wave 2A] 后端应用模板: POST /reports/:id/templates-apply (合并到报告字段) */}
                           {onApplyBackend && (
-                            <Button size="small" type="text" className="p-0 h-auto text-[10px] text-purple-600" onClick={(e) => { e.stopPropagation(); onApplyBackend(t.id, (t?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace' ? 'overwrite' : 'append'); }} title="后端合并模板到报告 (append=追加 / overwrite=覆盖)">后端应用</Button>
+                            <Button size="small" type="text" className="p-0 h-auto text-[10px] text-purple-600" onClick={(e) => { e.stopPropagation(); onApplyBackend(tpl.id, (tpl?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace' ? 'overwrite' : 'append'); }} title={t("reportWrite.applyBackendTitle")}>{t("reportWrite.applyBackend")}</Button>
                           )}
                         </span>
                       </div>
-                      <div className="text-slate-400 text-[11px] mt-0.5 truncate">{String(t.body ?? '').slice(0, 60) || '(结构化模板)'}</div>
+                      <div className="text-slate-400 text-[11px] mt-0.5 truncate">{String(tpl.body ?? '').slice(0, 60) || t("reportWrite.structuredTemplate")}</div>
                       {/* [v3.0.6.11-98 Wave1B P0-2] 变量说明 tooltip */}
                       {(() => {
-                        const vars = collectTemplateVariables(t?.body ?? t?.content ?? '');
+                        const vars = collectTemplateVariables(tpl?.body ?? tpl?.content ?? '');
                         return vars.length > 0
                           ? (
                             <Tooltip title={variablesTooltipTitle(vars)}>
-                              <Tag color="purple" className="m-0 text-[10px] cursor-help mt-1">变量 ×{vars.length} (插入时自动填充)</Tag>
+                              <Tag color="purple" className="m-0 text-[10px] cursor-help mt-1">{t("reportWrite.varsBadge", { count: vars.length })}</Tag>
                             </Tooltip>
                           )
                           : null;

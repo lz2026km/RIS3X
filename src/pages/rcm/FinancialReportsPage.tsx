@@ -5,18 +5,18 @@ import { financeApi } from '../../services/api/financeApi'
 import { statsApi } from '../../services/api/statsApi'
 import { t } from '../../i18n/appI18n'
 
-interface PLRow { item: string; amount: number; type: 'revenue' | 'cost' | 'expense' }
+interface PLRow { itemKey: string; amount: number; type: 'revenue' | 'cost' | 'expense' }
 
 const PL_DATA: PLRow[] = [
-  { item: '检查收入', amount: 620000, type: 'revenue' },
-  { item: '药品加成', amount: 72000, type: 'revenue' },
-  { item: '其他收入', amount: 37000, type: 'revenue' },
-  { item: '耗材成本', amount: -182000, type: 'cost' },
-  { item: '人力成本', amount: -140000, type: 'cost' },
-  { item: '设备折旧', amount: -63000, type: 'cost' },
-  { item: '管理费用', amount: -85000, type: 'expense' },
-  { item: '运营费用', amount: -62000, type: 'expense' },
-  { item: '营销费用', amount: -38000, type: 'expense' },
+  { itemKey: 'financeReport.item.examRevenue', amount: 620000, type: 'revenue' },
+  { itemKey: 'financeReport.item.drugMarkup', amount: 72000, type: 'revenue' },
+  { itemKey: 'financeReport.item.otherRevenue', amount: 37000, type: 'revenue' },
+  { itemKey: 'financeReport.item.materialCost', amount: -182000, type: 'cost' },
+  { itemKey: 'financeReport.item.laborCost', amount: -140000, type: 'cost' },
+  { itemKey: 'financeReport.item.depreciation', amount: -63000, type: 'cost' },
+  { itemKey: 'financeReport.item.adminExpense', amount: -85000, type: 'expense' },
+  { itemKey: 'financeReport.item.operatingExpense', amount: -62000, type: 'expense' },
+  { itemKey: 'financeReport.item.marketingExpense', amount: -38000, type: 'expense' },
 ]
 
 const MONTHLY_PL = [
@@ -27,12 +27,12 @@ const MONTHLY_PL = [
 ]
 
 const KPI_DATA = [
-  { label: '次均收入', value: '¥162.3', change: 5.2, trend: 'up' as const },
-  { label: '成本收入比', value: '55.2%', change: -2.3, trend: 'down' as const },
-  { label: '利润率', value: '21.8%', change: 3.5, trend: 'up' as const },
-  { label: '人均创收', value: '¥143,500', change: 8.1, trend: 'up' as const },
-  { label: '单设备产值', value: '¥287,000', change: -1.2, trend: 'down' as const },
-  { label: '应收账款周转', value: '38天', change: -5, trend: 'up' as const },
+  { labelKey: 'financeReport.kpi.avgRevenue', value: '¥162.3', change: 5.2, trend: 'up' as const },
+  { labelKey: 'financeReport.kpi.costRatio', value: '55.2%', change: -2.3, trend: 'down' as const },
+  { labelKey: 'financeReport.kpi.profitRate', value: '21.8%', change: 3.5, trend: 'up' as const },
+  { labelKey: 'financeReport.kpi.revenuePerStaff', value: '¥143,500', change: 8.1, trend: 'up' as const },
+  { labelKey: 'financeReport.kpi.revenuePerDevice', value: '¥287,000', change: -1.2, trend: 'down' as const },
+  { labelKey: 'financeReport.kpi.receivableTurnover', value: '38天', change: -5, trend: 'up' as const },
 ]
 
 export default function FinancialReportsPage() {
@@ -85,11 +85,11 @@ export default function FinancialReportsPage() {
 
       if (revenue > 0 || costTotal > 0) {
         const rows: PLRow[] = []
-        if (revenue > 0) rows.push({ item: '检查收入', amount: Math.round(revenue), type: 'revenue' })
+        if (revenue > 0) rows.push({ itemKey: 'financeReport.item.examRevenue', amount: Math.round(revenue), type: 'revenue' })
         if (costTotal > 0) {
-          rows.push({ item: '耗材成本', amount: -Math.round(costTotal * 0.55), type: 'cost' })
-          rows.push({ item: '人力成本', amount: -Math.round(costTotal * 0.3), type: 'cost' })
-          rows.push({ item: '设备折旧', amount: -Math.round(costTotal * 0.15), type: 'cost' })
+          rows.push({ itemKey: 'financeReport.item.materialCost', amount: -Math.round(costTotal * 0.55), type: 'cost' })
+          rows.push({ itemKey: 'financeReport.item.laborCost', amount: -Math.round(costTotal * 0.3), type: 'cost' })
+          rows.push({ itemKey: 'financeReport.item.depreciation', amount: -Math.round(costTotal * 0.15), type: 'cost' })
         }
         if (rows.length > 0) setPlData(rows)
 
@@ -105,12 +105,12 @@ export default function FinancialReportsPage() {
         const avgRevenue = exams > 0 && revenue > 0 ? revenue / exams : 0
         const fb = (i: number) => KPI_DATA[i]?.value ?? ''
         setKpiData([
-          { label: '次均收入', value: avgRevenue > 0 ? `¥${avgRevenue.toFixed(1)}` : fb(0), change: 5.2, trend: 'up' as const },
-          { label: '成本收入比', value: revenue > 0 ? `${(costTotal / revenue * 100).toFixed(1)}%` : fb(1), change: -2.3, trend: 'down' as const },
-          { label: '利润率', value: revenue > 0 ? `${profitRate.toFixed(1)}%` : fb(2), change: 3.5, trend: 'up' as const },
-          { label: '人均创收', value: fb(3), change: 8.1, trend: 'up' as const },
-          { label: '单设备产值', value: fb(4), change: -1.2, trend: 'down' as const },
-          { label: '应收账款周转', value: fb(5), change: -5, trend: 'up' as const },
+          { labelKey: 'financeReport.kpi.avgRevenue', value: avgRevenue > 0 ? `¥${avgRevenue.toFixed(1)}` : fb(0), change: 5.2, trend: 'up' as const },
+          { labelKey: 'financeReport.kpi.costRatio', value: revenue > 0 ? `${(costTotal / revenue * 100).toFixed(1)}%` : fb(1), change: -2.3, trend: 'down' as const },
+          { labelKey: 'financeReport.kpi.profitRate', value: revenue > 0 ? `${profitRate.toFixed(1)}%` : fb(2), change: 3.5, trend: 'up' as const },
+          { labelKey: 'financeReport.kpi.revenuePerStaff', value: fb(3), change: 8.1, trend: 'up' as const },
+          { labelKey: 'financeReport.kpi.revenuePerDevice', value: fb(4), change: -1.2, trend: 'down' as const },
+          { labelKey: 'financeReport.kpi.receivableTurnover', value: fb(5), change: -5, trend: 'up' as const },
         ])
         const rep = repR.status === 'fulfilled' && repR.value.success ? (repR.value.data as any) : null
         if (rep?.period) setPeriodLabel(rep.period)
@@ -147,7 +147,7 @@ export default function FinancialReportsPage() {
     lines.push('')
     lines.push('科目,金额(元)')
     for (const r of plData) {
-      lines.push([r.item, r.amount].map(esc).join(','))
+      lines.push([t(r.itemKey), r.amount].map(esc).join(','))
     }
     lines.push(['净利润', netIncome].map(esc).join(','))
     lines.push('')
@@ -179,7 +179,7 @@ export default function FinancialReportsPage() {
         <p>期间: ${periodLabel} | 生成时间: ${new Date().toLocaleString()}</p>
         <table>
           <tr><th>项目</th><th>金额(元)</th></tr>
-          ${plData.map(r => `<tr style="color: ${r.amount >= 0 ? '#333' : '#dc2626'}"><td>${r.item}</td><td style="text-align:right">¥${Math.abs(r.amount).toLocaleString()}</td></tr>`).join('')}
+          ${plData.map(r => `<tr style="color: ${r.amount >= 0 ? '#333' : '#dc2626'}"><td>${t(r.itemKey)}</td><td style="text-align:right">¥${Math.abs(r.amount).toLocaleString()}</td></tr>`).join('')}
           <tr class="total"><td>净利润</td><td style="text-align:right">¥${netIncome.toLocaleString()}</td></tr>
         </table>
       </body></html>
@@ -226,7 +226,7 @@ export default function FinancialReportsPage() {
               {plData.map((r, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #21262d', fontSize: 13 }}>
                   <span style={{ color: r.type === 'revenue' ? '#22c55e' : r.type === 'cost' ? '#ef4444' : '#f59e0b' }}>
-                    {r.type === 'revenue' ? '📈' : r.type === 'cost' ? '📉' : '📊'} {r.item}
+                    {r.type === 'revenue' ? '📈' : r.type === 'cost' ? '📉' : '📊'} {t(r.itemKey)}
                   </span>
                   <span style={{ fontWeight: 600, color: r.amount >= 0 ? '#f0f6fc' : '#ef4444' }}>
                     {r.amount >= 0 ? '+' : ''}¥{r.amount.toLocaleString()}
@@ -281,9 +281,9 @@ export default function FinancialReportsPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
               {kpiData.map(kpi => (
-                <div key={kpi.label} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+                <div key={kpi.labelKey} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontSize: 13, color: '#8b949e' }}>{kpi.label}</span>
+                    <span style={{ fontSize: 13, color: '#8b949e' }}>{t(kpi.labelKey)}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: kpi.trend === 'up' ? '#22c55e' : '#ef4444' }}>
                       {kpi.trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                       {kpi.change >= 0 ? '+' : ''}{kpi.change.toFixed(1)}%
@@ -298,16 +298,16 @@ export default function FinancialReportsPage() {
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('financeReport.kpiExplain')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {[
-                  { title: '次均收入', desc: '每项检查平均收入金额，反映定价水平和服务结构' },
-                  { title: '成本收入比', desc: '总成本/总收入，越低说明成本控制越好' },
-                  { title: '利润率', desc: '净利润/总收入，反映整体盈利水平' },
-                  { title: '人均创收', desc: '总收入/在职人数，衡量人力资源产出效率' },
-                  { title: '单设备产值', desc: '总收入/在用设备数，评估设备利用效率' },
-                  { title: '应收账款周转', desc: '平均回款天数，反映资金回收效率' },
+                  { titleKey: 'financeReport.kpi.avgRevenue', descKey: 'financeReport.kpiExplain.avgRevenue' },
+                  { titleKey: 'financeReport.kpi.costRatio', descKey: 'financeReport.kpiExplain.costRatio' },
+                  { titleKey: 'financeReport.kpi.profitRate', descKey: 'financeReport.kpiExplain.profitRate' },
+                  { titleKey: 'financeReport.kpi.revenuePerStaff', descKey: 'financeReport.kpiExplain.revenuePerStaff' },
+                  { titleKey: 'financeReport.kpi.revenuePerDevice', descKey: 'financeReport.kpiExplain.revenuePerDevice' },
+                  { titleKey: 'financeReport.kpi.receivableTurnover', descKey: 'financeReport.kpiExplain.receivableTurnover' },
                 ].map(m => (
-                  <div key={m.title} style={{ padding: 12, background: '#0d1117', borderRadius: 6 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{m.title}</div>
-                    <div style={{ fontSize: 12, color: '#8b949e' }}>{m.desc}</div>
+                  <div key={m.titleKey} style={{ padding: 12, background: '#0d1117', borderRadius: 6 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t(m.titleKey)}</div>
+                    <div style={{ fontSize: 12, color: '#8b949e' }}>{t(m.descKey)}</div>
                   </div>
                 ))}
               </div>

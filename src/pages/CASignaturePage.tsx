@@ -20,15 +20,15 @@ type CertificateStatus = 'valid' | 'expiring' | 'expired' | 'revoked';
 type SignatureAlgorithm = 'RSA-SHA256' | 'SM2-SM3';
 
 const STATUS_CONFIG: Record<CertificateStatus, { label: string; color: string; bg: string; icon: any }> = {
-  valid:    { label: '有效', color: '#10b981', bg: '#22c55e22', icon: CheckCircle2 },
-  expiring: { label: '即将过期', color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
-  expired:  { label: '已过期', color: '#ef4444', bg: '#ef444422', icon: XCircle },
-  revoked:  { label: '已吊销', color: '#7f1d1d', bg: '#ef444422', icon: XCircle },
+  valid:    { label: t('caSignature.statusCfg.valid'), color: '#10b981', bg: '#22c55e22', icon: CheckCircle2 },
+  expiring: { label: t('caSignature.statusCfg.expiring'), color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
+  expired:  { label: t('caSignature.statusCfg.expired'), color: '#ef4444', bg: '#ef444422', icon: XCircle },
+  revoked:  { label: t('caSignature.statusCfg.revoked'), color: '#7f1d1d', bg: '#ef444422', icon: XCircle },
 };
 
 const ALGO_CONFIG: Record<SignatureAlgorithm, { label: string; color: string; bg: string; description: string }> = {
-  'RSA-SHA256': { label: 'RSA-SHA256', color: '#3b82f6', bg: '#3b82f622', description: '国际通用，2048 位密钥' },
-  'SM2-SM3':    { label: '国密 SM2-SM3', color: '#ef4444', bg: '#ef444422', description: '中国国密标准，符合等保' },
+  'RSA-SHA256': { label: 'RSA-SHA256', color: '#3b82f6', bg: '#3b82f622', description: t('caSignature.algo.rsaDesc') },
+  'SM2-SM3':    { label: t('caSignature.gmSmFull'), color: '#ef4444', bg: '#ef444422', description: t('caSignature.algo.sm2Desc') },
 };
 
 export default function CASignaturePage() {
@@ -188,15 +188,15 @@ export default function CASignaturePage() {
         certificateData,
         expiresAt: uploadForm.validTo ? `${uploadForm.validTo}T00:00:00+08:00` : undefined,
         holderName: uploadForm.holderName,
-        holderTitle: uploadForm.holderTitle || '医生',
+        holderTitle: uploadForm.holderTitle || t('caSignature.defaultHolderTitle'),
         holderIdNumber: uploadForm.holderIdNumber,
         algorithm: uploadForm.algorithm,
-        issuer: uploadForm.issuer || 'CFCA 中国金融认证中心',
+        issuer: uploadForm.issuer || t('caSignature.defaultIssuer'),
         validTo: uploadForm.validTo || undefined,
         fileName: uploadFile.name,
       });
       if (res.success) {
-        message.success(`证书 ${uploadForm.holderName} 上传成功`);
+        message.success(t('caSignature.uploadSuccess', { name: uploadForm.holderName }));
         setShowUploadModal(false);
         setUploadForm({ holderName: '', holderTitle: '', holderIdNumber: '', algorithm: 'RSA-SHA256', issuer: '', validTo: '' });
         setUploadFile(null);
@@ -222,7 +222,7 @@ export default function CASignaturePage() {
     try {
       const res = await caApi.revokeCertificate(selectedCert.id);
       if (res.success) {
-        message.success(`证书 ${selectedCert.holderName} 已吊销`);
+        message.success(t('caSignature.certRevokedMsg', { name: selectedCert.holderName }));
         setShowRevokeModal(false);
         setRevokeReason('');
         await refreshCertificates();
@@ -486,7 +486,7 @@ export default function CASignaturePage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                         }}
                       >
-                        <Stamp size={12} /> {isSigning ? `签名中 ${signingProgress}%` : t('caSignature.signNow')}
+                        <Stamp size={12} /> {isSigning ? t('caSignature.signing', { percent: signingProgress }) : t('caSignature.signNow')}
                       </button>
                     </PermissionGate>
                     <PermissionGate permission="report.sign">
@@ -517,7 +517,7 @@ export default function CASignaturePage() {
                             ...((await caApi.getCaConfig()).data ?? {} as any),
                           });
                           if (res.success) {
-                            message.success(`已为 ${selectedCert.holderName} 提交续期申请 (证书 ${selectedCert.certId})`);
+                            message.success(t('caSignature.renewSubmitted', { name: selectedCert.holderName, certId: selectedCert.certId }));
                           } else {
                             message.error(res.error?.message || t('caSignature.renewFailed'));
                           }
@@ -565,9 +565,9 @@ export default function CASignaturePage() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {[
-                      { name: '根 CA', desc: '国家根证书', color: '#dc2626' },
-                      { name: '中间 CA', desc: 'CFCA / GMCA', color: '#f59e0b' },
-                      { name: '用户证书', desc: selectedCert.holderName, color: '#10b981' },
+                      { name: t('caSignature.chain.rootName'), desc: t('caSignature.chain.rootDesc'), color: '#dc2626' },
+                      { name: t('caSignature.chain.midName'), desc: 'CFCA / GMCA', color: '#f59e0b' },
+                      { name: t('caSignature.chain.userName'), desc: selectedCert.holderName, color: '#10b981' },
                     ].map((c, i) => (
                       <React.Fragment key={i}>
                         <div style={{

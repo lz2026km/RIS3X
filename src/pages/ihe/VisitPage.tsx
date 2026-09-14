@@ -6,18 +6,18 @@ import type { VisitState } from '../../services/api/integrationApi';
 import { t } from '../../i18n/appI18n';
 
 const STATE_TAGS: Record<string, { color: string; label: string }> = {
-  registered: { color: 'default', label: '已登记' },
-  admitted: { color: 'blue', label: '已入院' },
-  inProgress: { color: 'processing', label: '进行中' },
-  completed: { color: 'green', label: '已完成' },
-  discharged: { color: 'red', label: '已出院' },
+  registered: { color: 'default', label: t('iheVisit.state.registered') },
+  admitted: { color: 'blue', label: t('iheVisit.state.admitted') },
+  inProgress: { color: 'processing', label: t('iheVisit.state.inProgress') },
+  completed: { color: 'green', label: t('iheVisit.state.completed') },
+  discharged: { color: 'red', label: t('iheVisit.state.discharged') },
 };
 
 const ADT_TRANSITIONS: Record<string, { label: string; msgType: string }> = {
-  'registered→admitted': { label: '入院 (A01)', msgType: 'A01' },
-  'admitted→inProgress': { label: '开始检查 (A08)', msgType: 'A08' },
-  'inProgress→completed': { label: '完成检查 (A08)', msgType: 'A08' },
-  'completed→discharged': { label: '出院 (A03)', msgType: 'A03' },
+  'registered→admitted': { label: t('iheVisit.transition.admitted'), msgType: 'A01' },
+  'admitted→inProgress': { label: t('iheVisit.transition.inProgress'), msgType: 'A08' },
+  'inProgress→completed': { label: t('iheVisit.transition.completed'), msgType: 'A08' },
+  'completed→discharged': { label: t('iheVisit.transition.discharged'), msgType: 'A03' },
 };
 
 export const VisitPage: React.FC = () => {
@@ -63,9 +63,9 @@ export const VisitPage: React.FC = () => {
       classCode: visit.classCode,
     });
     if (res.success) {
-      message.success(`${cfg.label} 消息已发送`);
+      message.success(t('iheVisit.msgSent', { label: cfg.label }));
     } else {
-      message.warning(`${cfg.label} 消息发送失败，请检查 IHE 连接`);
+      message.warning(t('iheVisit.msgFailed', { label: cfg.label }));
     }
     handleSearch();
     setAdtTriggering(false);
@@ -102,7 +102,7 @@ export const VisitPage: React.FC = () => {
               <Descriptions.Item label={t('iheVisit.colLocation')}>{visit.assignedLocation}</Descriptions.Item>
             </Descriptions>
 
-            <Divider orientation="left" style={{ fontSize: 13 }}>{t('iheVisit.badges')}</Divider>
+            <Divider titlePlacement="left" style={{ fontSize: 13 }}>{t('iheVisit.badges')}</Divider>
             <Space wrap>
               {Object.entries(STATE_TAGS).map(([k, v]) => (
                 <Tag key={k} color={k === currentState ? v.color : 'default'}
@@ -112,7 +112,7 @@ export const VisitPage: React.FC = () => {
               ))}
             </Space>
 
-            <Divider orientation="left" style={{ fontSize: 13 }}>{t('iheVisit.timestamps')}</Divider>
+            <Divider titlePlacement="left" style={{ fontSize: 13 }}>{t('iheVisit.timestamps')}</Divider>
             <Descriptions column={2} size="small">
               <Descriptions.Item label={t('iheVisit.admitTime')}>{visit.admitDateTime ?? '-'}</Descriptions.Item>
               <Descriptions.Item label={t('iheVisit.startTime')}>{visit.inProgressAt ?? '-'}</Descriptions.Item>

@@ -3,6 +3,7 @@ import { Card, Row, Col, Tag, Space, Statistic, Spin } from "antd";
 import { Map } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 const TopographyPage: React.FC = () => {
   const [study, setStudy] = useState<any>(null);
@@ -23,8 +24,8 @@ const TopographyPage: React.FC = () => {
     return () => { cancelled = true; };
   }, []);
 
-  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
-  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>无角膜地形图数据</div>;
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('topography.loading')} /></div>;
+  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>{t('topography.noData')}</div>;
   return (
     <div
       style={{
@@ -40,16 +41,20 @@ const TopographyPage: React.FC = () => {
             title={
               <Space>
                 <Map size={16} />
-                <span>角膜地形图</span>
+                <span>{t('topography.title')}</span>
                 <EyeLateralityBadge eyeSide="OD" />
                 <Tag color="cyan">Medmont E300</Tag>
-                <Tag color="gold">演示数据 · 示例影像数据</Tag>
+                <Tag color="gold">{t('topography.demoData')}</Tag>
               </Space>
             }
           >
             <Row gutter={12}>
-              {["轴向图", "切向图", "厚度图"].map((name, i) => (
-                <Col span={8} key={i}>
+              {[
+                { key: 'axial', label: t('topography.axialMap'), value: "SimK 43.1@178°/44.6@88°" },
+                { key: 'tangential', label: t('topography.tangentialMap'), value: t('topography.sriInline', { value: "0.48" }) },
+                { key: 'thickness', label: t('topography.thicknessMap'), value: t('topography.thinnestInline', { value: "524μm" }) },
+              ].map((m) => (
+                <Col span={8} key={m.key}>
                   <div
                     style={{
                       background: "linear-gradient(135deg, #1e40af, #0f172a)",
@@ -63,32 +68,28 @@ const TopographyPage: React.FC = () => {
                     }}
                   >
                     <Map size={32} />
-                    <span style={{ fontSize: 12, marginTop: 4 }}>{name}</span>
+                    <span style={{ fontSize: 12, marginTop: 4 }}>{m.label}</span>
                     <div
                       style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}
                     >
-                      {name === "轴向图"
-                        ? "SimK 43.1@178°/44.6@88°"
-                        : name === "切向图"
-                          ? "不规则指数 SRI 0.48"
-                          : "最薄点 524μm"}
+                      {m.value}
                     </div>
                   </div>
                 </Col>
               ))}
             </Row>
           </Card>
-          <Card size="small" title="角膜参数" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('topography.cornealParams')} style={{ marginTop: 8 }}>
             <Row gutter={16}>
               {[
                 { title: "SimK1", value: "43.1", suffix: "D @178°" },
                 { title: "SimK2", value: "44.6", suffix: "D @88°" },
-                { title: "散光", value: "1.5", suffix: "D" },
-                { title: "平均 K", value: "43.85", suffix: "D" },
-                { title: "最薄点", value: "524", suffix: "μm" },
+                { title: t('topography.astigmatism'), value: "1.5", suffix: "D" },
+                { title: t('topography.avgK'), value: "43.85", suffix: "D" },
+                { title: t('topography.thinnest'), value: "524", suffix: "μm" },
                 { title: "SAI", value: "0.32" },
                 { title: "SRI", value: "0.48" },
-                { title: "预期视力", value: "20/20" },
+                { title: t('topography.expectedVa'), value: "20/20" },
               ].map((s) => (
                 <Col span={6} key={s.title}>
                   <Statistic
@@ -103,7 +104,7 @@ const TopographyPage: React.FC = () => {
           </Card>
           <Card
             size="small"
-            title="圆锥角膜筛查 (BAD)"
+            title={t('topography.keratoconusScreening')}
             style={{ marginTop: 8 }}
           >
             <Row gutter={16}>
@@ -112,22 +113,22 @@ const TopographyPage: React.FC = () => {
                   title: "BAD D",
                   value: "0.82",
                   color: "#22c55e",
-                  note: "正常(<1.6)",
+                  note: t('topography.normalLt'),
                 },
                 {
                   title: "BAD D_Δ",
                   value: "0.64",
                   color: "#22c55e",
-                  note: "正常",
+                  note: t('topography.normal'),
                 },
                 {
-                  title: "前表面高度",
+                  title: t('topography.anteriorElevation'),
                   value: "+0.008",
                   color: "#22c55e",
                   note: "mm",
                 },
                 {
-                  title: "后表面高度",
+                  title: t('topography.posteriorElevation'),
                   value: "+0.014",
                   color: "#22c55e",
                   note: "mm",
@@ -146,23 +147,23 @@ const TopographyPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="患者信息">
+          <Card size="small" title={t('topography.patientInfo')}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
-              患者: <strong>{study?.patientName}</strong>
+              {t('topography.patient')}: <strong>{study?.patientName}</strong>
               <br />
-              眼别: <EyeLateralityBadge eyeSide="OD" size="small" />
+              {t('topography.eyeSide')}: <EyeLateralityBadge eyeSide="OD" size="small" />
               <br />
-              诊断: <Tag>屈光不正</Tag>
+              {t('topography.diagnosis')}: <Tag>{t('topography.refractiveError')}</Tag>
               <br />
-              角膜状态: <Tag color="green">正常</Tag>
+              {t('topography.cornealStatus')}: <Tag color="green">{t('topography.normal')}</Tag>
             </div>
           </Card>
-          <Card size="small" title="解读" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('topography.interpretation')} style={{ marginTop: 8 }}>
             <div style={{ fontSize: 12, lineHeight: 1.8, color: "var(--text-secondary)" }}>
-              • 角膜形态对称,规则散光
-              <br />• SimK 差 1.5D 规则散光
-              <br />• 最薄点位于中央偏颞
-              <br />• BAD 筛查: 圆锥角膜阴性
+              • {t('topography.interp1')}
+              <br />• {t('topography.interp2')}
+              <br />• {t('topography.interp3')}
+              <br />• {t('topography.interp4')}
             </div>
           </Card>
         </Col>

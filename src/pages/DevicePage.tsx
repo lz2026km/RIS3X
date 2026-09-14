@@ -1759,11 +1759,11 @@ export default function DevicePage() {
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none'
                 }}>
-                  <option>定期保养</option>
-                  <option>季度保养</option>
-                  <option>半年保养</option>
-                  <option>年度保养</option>
-                  <option>故障维修</option>
+                  <option value="定期保养">{t('devicePage.maintPeriodic')}</option>
+                  <option value="季度保养">{t('devicePage.maintType.quarterly')}</option>
+                  <option value="半年保养">{t('devicePage.maintType.halfYear')}</option>
+                  <option value="年度保养">{t('devicePage.maintType.annual')}</option>
+                  <option value="故障维修">{t('devicePage.maintType.repair')}</option>
                 </select>
               </div>
               <div>

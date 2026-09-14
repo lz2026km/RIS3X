@@ -10,6 +10,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { t as appT } from '../i18n/appI18n'
 import {
   Card, Table, Space, Tag, Button, Modal, Form, Input, Select, message, Badge,
   Descriptions, Alert, Row, Col, Statistic, Empty,
@@ -283,22 +284,22 @@ export default function ClinicalFeedbackPage() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="reportId" label={t('feedback.reportId', '报告ID')} rules={[{ required: true, message: t('feedback.reportRequired', '请填写报告ID') }]}>
-                <Input placeholder="如: RPT-2026-0001" />
+                <Input placeholder={appT('feedback.ph.reportId')} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="examId" label={t('feedback.examId', '检查号')}>
-                <Input placeholder="如: EX-2026-0001" />
+                <Input placeholder={appT('feedback.ph.examId')} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="patientId" label={t('feedback.patientId', '患者ID')}>
-                <Input placeholder="如: P-0001" />
+                <Input placeholder={appT('feedback.ph.patientId')} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="patientName" label={t('feedback.patientName', '患者姓名')}>
-                <Input placeholder="如: 张三" />
+                <Input placeholder={appT('feedback.ph.patientName')} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -308,17 +309,17 @@ export default function ClinicalFeedbackPage() {
             </Col>
             <Col span={12}>
               <Form.Item name="submittedBy" label={t('feedback.submittedBy', '提交人')} rules={[{ required: true, message: t('feedback.submittedByRequired', '请填写提交人') }]}>
-                <Input placeholder="如: 周临床" />
+                <Input placeholder={appT('feedback.ph.submittedBy')} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="department" label={t('feedback.department', '科室')} rules={[{ required: true, message: t('feedback.departmentRequired', '请填写科室') }]}>
-                <Input placeholder="如: 呼吸内科" />
+                <Input placeholder={appT('feedback.ph.department')} />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item name="content" label={t('feedback.content', '反馈内容')} rules={[{ required: true, message: t('feedback.contentRequired', '请填写反馈内容') }]}>
-            <Input.TextArea rows={4} placeholder="请描述对报告的异议/补充/更正内容" />
+            <Input.TextArea rows={4} placeholder={appT('feedback.ph.content')} />
           </Form.Item>
         </Form>
       </Modal>
@@ -338,36 +339,36 @@ export default function ClinicalFeedbackPage() {
           {actionTarget?.mode === 'respond' && (
             <>
               <Form.Item name="content" label={t('feedback.response', '放射科回应')} rules={[{ required: true, message: t('feedback.contentRequired', '请填写反馈内容') }]}>
-                <Input.TextArea rows={3} placeholder="请填写回应内容" />
+                <Input.TextArea rows={3} placeholder={appT('feedback.ph.responseContent')} />
               </Form.Item>
               <Form.Item name="responder" label={t('feedback.responder', '处理人')} rules={[{ required: true, message: t('feedback.responderRequired', '请填写处理人') }]}>
-                <Input placeholder="如: 王放射" />
+                <Input placeholder={appT('feedback.ph.responder')} />
               </Form.Item>
               <Form.Item name="department" label={t('feedback.department', '科室')}>
-                <Input placeholder="放射科" />
+                <Input placeholder={appT('feedback.ph.radiology')} />
               </Form.Item>
             </>
           )}
           {actionTarget?.mode === 'resolve' && (
             <>
               <Form.Item name="content" label={t('feedback.resolveContent', '关闭说明')}>
-                <Input.TextArea rows={3} placeholder="请填写关闭说明" />
+                <Input.TextArea rows={3} placeholder={appT('feedback.ph.resolveContent')} />
               </Form.Item>
               <Form.Item name="amendId" label={t('feedback.amendId', '报告修订ID (amendId, 可选)')}>
-                <Input placeholder="如: AMEND-2026-0001" />
+                <Input placeholder={appT('feedback.ph.amendId')} />
               </Form.Item>
               <Form.Item name="resolver" label={t('feedback.resolver', '处理人')} rules={[{ required: true, message: t('feedback.responderRequired', '请填写处理人') }]}>
-                <Input placeholder="如: 王放射" />
+                <Input placeholder={appT('feedback.ph.responder')} />
               </Form.Item>
             </>
           )}
           {actionTarget?.mode === 'reject' && (
             <>
               <Form.Item name="reason" label={t('feedback.rejectReason', '驳回原因')} rules={[{ required: true, message: t('feedback.contentRequired', '请填写反馈内容') }]}>
-                <Input.TextArea rows={3} placeholder="请填写驳回原因" />
+                <Input.TextArea rows={3} placeholder={appT('feedback.ph.rejectReason')} />
               </Form.Item>
               <Form.Item name="resolver" label={t('feedback.resolver', '处理人')} rules={[{ required: true, message: t('feedback.responderRequired', '请填写处理人') }]}>
-                <Input placeholder="如: 王放射" />
+                <Input placeholder={appT('feedback.ph.responder')} />
               </Form.Item>
             </>
           )}

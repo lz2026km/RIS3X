@@ -4,13 +4,14 @@ import { Card, Space, Tag, Table, Descriptions, Steps, Divider, message } from '
 import { Activity, Clock, ArrowRight, GitBranch } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { VisitState } from '../../services/api/integrationApi';
+import { t } from '../../i18n/appI18n';
 
 const STATE_STEPS = [
-  { key: 'registered', title: '已登记', color: 'default' },
-  { key: 'admitted', title: '已入院', color: 'blue' },
-  { key: 'inProgress', title: '进行中', color: 'processing' },
-  { key: 'completed', title: '已完成', color: 'green' },
-  { key: 'discharged', title: '已出院', color: 'red' },
+  { key: 'registered', titleKey: 'visitDetail.state.registered', color: 'default' },
+  { key: 'admitted', titleKey: 'visitDetail.state.admitted', color: 'blue' },
+  { key: 'inProgress', titleKey: 'visitDetail.state.inProgress', color: 'processing' },
+  { key: 'completed', titleKey: 'visitDetail.state.completed', color: 'green' },
+  { key: 'discharged', titleKey: 'visitDetail.state.discharged', color: 'red' },
 ];
 
 const STATE_MAP: Record<string, number> = {
@@ -43,7 +44,7 @@ export const VisitDetailPage: React.FC = () => {
           { id: '3', messageType: 'A08', timestamp: '2026-07-12 09:30:00', content: 'MSH|^~\\&|...' },
         ],
       });
-      message.warning('无法加载就诊数据，已使用演示数据');
+      message.warning(t('visitDetail.loadFailedDemo'));
     }
   };
 
@@ -53,7 +54,7 @@ export const VisitDetailPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>就诊生命周期</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('visitDetail.title')}</span>
         <Tag color="cyan">v3.0.6.0</Tag>
         <Tag color="blue">{patientId}</Tag>
         <Tag color="purple">{visitNumber}</Tag>
@@ -61,12 +62,12 @@ export const VisitDetailPage: React.FC = () => {
 
       {visit && (
         <Space orientation="vertical" style={{ width: '100%' }} size={16}>
-          <Card size="small" title={<Space><Activity size={14} />5 态状态机</Space>}>
+          <Card size="small" title={<Space><Activity size={14} />{t('visitDetail.stateMachine')}</Space>}>
             <Steps current={currentIdx} size="small"
               items={STATE_STEPS.map((s, i) => ({
-                title: s.title,
+                title: t(s.titleKey),
                 status: i < currentIdx ? 'finish' : i === currentIdx ? 'process' : 'wait',
-                description: i === currentIdx ? '(当前)' : undefined,
+                description: i === currentIdx ? t('visitDetail.current') : undefined,
               }))}
             />
             <Divider />
@@ -75,7 +76,7 @@ export const VisitDetailPage: React.FC = () => {
                 <React.Fragment key={s.key}>
                   <Tag color={i <= currentIdx ? s.color : 'default'}
                     style={{ padding: '4px 12px', fontWeight: i <= currentIdx ? 600 : 400, opacity: i <= currentIdx ? 1 : 0.4 }}>
-                    {s.title}
+                    {t(s.titleKey)}
                   </Tag>
                   {i < STATE_STEPS.length - 1 && <ArrowRight size={14} style={{ color: '#d9d9d9', alignSelf: 'center' }} />}
                 </React.Fragment>
@@ -83,22 +84,22 @@ export const VisitDetailPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card size="small" title={<span><Clock size={14} style={{ marginRight: 4 }} />时间戳</span>}>
+          <Card size="small" title={<span><Clock size={14} style={{ marginRight: 4 }} />{t('visitDetail.timestamps')}</span>}>
             <Descriptions column={2} size="small" bordered>
-                <Descriptions.Item label="入院 (Admit)">{visit?.admitDateTime ?? '-'}</Descriptions.Item>
-                <Descriptions.Item label="开始 (In Progress)">{visit?.inProgressAt ?? '-'}</Descriptions.Item>
-                <Descriptions.Item label="完成 (Completed)">{visit?.completedAt ?? '-'}</Descriptions.Item>
-                <Descriptions.Item label="出院 (Discharge)">{visit?.dischargeDateTime ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('visitDetail.admit')}>{visit?.admitDateTime ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('visitDetail.inProgress')}>{visit?.inProgressAt ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('visitDetail.completed')}>{visit?.completedAt ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('visitDetail.discharge')}>{visit?.dischargeDateTime ?? '-'}</Descriptions.Item>
               </Descriptions>
           </Card>
 
-          <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 4 }} />触发的 ADT 消息</span>}>
+          <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 4 }} />{t('visitDetail.adtMessages')}</span>}>
             <Table dataSource={visit.adtMessages} rowKey="id" pagination={false} scroll={{ x: 'max-content' }}
               columns={[
-                { title: '编号', dataIndex: 'id', width: 60 },
-                { title: '消息类型', dataIndex: 'messageType', render: (t: string) => <Tag color="blue">ADT^{t}</Tag> },
-                { title: '时间戳', dataIndex: 'timestamp' },
-                { title: '内容', dataIndex: 'content', render: (c: string) => (
+                { title: t('visitDetail.col.id'), dataIndex: 'id', width: 60 },
+                { title: t('visitDetail.col.messageType'), dataIndex: 'messageType', render: (mt: string) => <Tag color="blue">ADT^{mt}</Tag> },
+                { title: t('visitDetail.col.timestamp'), dataIndex: 'timestamp' },
+                { title: t('visitDetail.col.content'), dataIndex: 'content', render: (c: string) => (
                   <span style={{ fontFamily: 'monospace', fontSize: 11, background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 3 }}>
                     {c.slice(0, 50)}{c.length > 50 ? '...' : ''}
                   </span>

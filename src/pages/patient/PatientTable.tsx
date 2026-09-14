@@ -8,6 +8,7 @@ import type { Patient } from "../../types";
 import type { RadiologyExam } from "../../types";
 import type { DuplicateMatch, ToastInfo } from "./types";
 import { getPatientExams } from "./utils";
+import { t } from "../../i18n/appI18n";
 
 interface PaginationProps {
   currentPage: number;
@@ -51,9 +52,9 @@ function Pagination({
       >
         {onPageSizeChange && (
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span>每页</span>
+            <span>{t("patientTable.pagination.perPage")}</span>
             <select
-              aria-label="每页条数"
+              aria-label={t("patientTable.pagination.perPageAria")}
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
               style={{
@@ -68,21 +69,21 @@ function Pagination({
             >
               {[10, 20, 50, 100].map((s) => (
                 <option key={s} value={s}>
-                  {s} 条
+                  {t("patientTable.pagination.rows", { count: s })}
                 </option>
               ))}
             </select>
           </div>
         )}
         <span>
-          显示 {startItem}-{endItem} 条，共 {totalItems} 条记录
+          {t("patientTable.pagination.summary", { start: startItem, end: endItem, total: totalItems })}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          aria-label="上一页"
+          aria-label={t("patientTable.pagination.prev")}
           style={{
             width: 32,
             height: 32,
@@ -132,7 +133,7 @@ function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          aria-label="下一页"
+          aria-label={t("patientTable.pagination.next")}
           style={{
             width: 32,
             height: 32,
@@ -252,7 +253,7 @@ export function PatientTable({
   // [v3.0.6.11-103 Wave 6] 统一列配置 (DataTable), 复用原自定义表格单元格渲染
   const columns: TableColumnsType<Patient> = [
     {
-      title: "患者ID",
+      title: t("patientTable.col.id"),
       dataIndex: "id",
       key: "id",
       width: 110,
@@ -263,7 +264,7 @@ export function PatientTable({
       ),
     },
     {
-      title: "姓名",
+      title: t("patientTable.col.name"),
       dataIndex: "name",
       key: "name",
       width: 130,
@@ -294,7 +295,7 @@ export function PatientTable({
       },
     },
     {
-      title: "性别",
+      title: t("patientTable.col.gender"),
       dataIndex: "gender",
       key: "gender",
       width: 70,
@@ -315,17 +316,17 @@ export function PatientTable({
       ),
     },
     {
-      title: "年龄",
+      title: t("patientTable.col.age"),
       dataIndex: "age",
       key: "age",
       width: 70,
       align: "right",
       render: (value) => (
-        <span style={{ color: "#334155", fontWeight: 500 }}>{String(value)}岁</span>
+        <span style={{ color: "#334155", fontWeight: 500 }}>{String(value)}{t("patientTable.ageSuffix")}</span>
       ),
     },
     {
-      title: "身份证",
+      title: t("patientTable.col.idCard"),
       dataIndex: "idCard",
       key: "idCard",
       width: 180,
@@ -336,14 +337,14 @@ export function PatientTable({
       ),
     },
     {
-      title: "联系电话",
+      title: t("patientTable.col.phone"),
       dataIndex: "phone",
       key: "phone",
       width: 130,
       render: (value) => <span style={{ color: "#334155" }}>{String(value)}</span>,
     },
     {
-      title: "患者类型",
+      title: t("patientTable.col.patientType"),
       dataIndex: "patientType",
       key: "patientType",
       width: 90,
@@ -364,7 +365,7 @@ export function PatientTable({
       ),
     },
     {
-      title: "建档日期",
+      title: t("patientTable.col.registrationDate"),
       dataIndex: "registrationDate",
       key: "registrationDate",
       width: 110,
@@ -373,7 +374,7 @@ export function PatientTable({
       ),
     },
     {
-      title: "检查次数",
+      title: t("patientTable.col.examCount"),
       dataIndex: "totalExamCount",
       key: "totalExamCount",
       width: 90,
@@ -385,7 +386,7 @@ export function PatientTable({
       ),
     },
     {
-      title: "最近检查",
+      title: t("patientTable.col.lastExam"),
       dataIndex: "lastExamDate",
       key: "lastExamDate",
       width: 110,
@@ -394,7 +395,7 @@ export function PatientTable({
       ),
     },
     {
-      title: "操作",
+      title: t("patientTable.col.actions"),
       dataIndex: "id",
       key: "actions",
       width: 300,
@@ -423,7 +424,7 @@ export function PatientTable({
             }}
           >
             <Eye size={14} />
-            查看
+            {t("patientTable.action.view")}
           </button>
           <button
             onClick={(e) => {
@@ -446,7 +447,7 @@ export function PatientTable({
             }}
           >
             <Edit2 size={14} />
-            编辑
+            {t("patientTable.action.edit")}
           </button>
           <button
             onClick={(e) => {
@@ -468,7 +469,7 @@ export function PatientTable({
             }}
           >
             <PlusCircle size={14} />
-            检查
+            {t("patientTable.action.exam")}
           </button>
           <button
             onClick={(e) => {
@@ -490,14 +491,14 @@ export function PatientTable({
             }}
           >
             <FileText size={14} />
-            报告
+            {t("patientTable.action.report")}
           </button>
           {onDeletePatient && (
             <Popconfirm
-              title="删除该患者?"
+              title={t("patientTable.deleteConfirmTitle")}
               description={`确定删除患者 "${p.name}" 吗？关联数据将一并处理。`}
-              okText="删除"
-              cancelText="取消"
+              okText={t("patientTable.action.delete")}
+              cancelText={t("patientTable.cancel")}
               okButtonProps={{ danger: true }}
               onConfirm={() => onDeletePatient(p)}
             >
@@ -521,7 +522,7 @@ export function PatientTable({
                 }}
               >
                 <Trash2 size={14} />
-                删除
+                {t("patientTable.action.delete")}
               </button>
             </Popconfirm>
           )}
@@ -548,10 +549,10 @@ export function PatientTable({
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <GitFork size={18} color="#d97706" />
             <span style={{ fontSize: 13, fontWeight: 600, color: "#92400e" }}>
-              检测到 {visibleDuplicates.length} 组重复患者记录
+              {t("patientTable.duplicates.detected", { count: visibleDuplicates.length })}
             </span>
             <span style={{ fontSize: 12, color: "#78716c" }}>
-              建议合并或核实
+              {t("patientTable.duplicates.advice")}
             </span>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -567,14 +568,14 @@ export function PatientTable({
                   color: "#92400e",
                 }}
               >
-                {d.patients?.[0]?.name ?? ''} ~ {d.patients?.[1]?.name ?? ''} ({d.score}分)
+                {d.patients?.[0]?.name ?? ''} ~ {d.patients?.[1]?.name ?? ''} ({d.score}{t("patientTable.duplicates.scoreSuffix")})
               </span>
             ))}
             {visibleDuplicates.length > 3 && (
               <span
                 style={{ fontSize: 12, color: "#78716c", alignSelf: "center" }}
               >
-                等{visibleDuplicates.length}组
+                {t("patientTable.duplicates.andMore", { count: visibleDuplicates.length })}
               </span>
             )}
             <button
@@ -589,7 +590,7 @@ export function PatientTable({
                 color: "#64748b",
               }}
             >
-              <X size={14} /> 忽略
+              <X size={14} /> {t("patientTable.duplicates.ignore")}
             </button>
           </div>
         </div>
@@ -619,11 +620,11 @@ export function PatientTable({
             }}
           >
             <CheckSquare size={16} color="#4ade80" />
-            已选{" "}
+            {t("patientTable.selected")}{" "}
             <span style={{ fontSize: 18, fontWeight: 800 }}>
               {selectedPatientIds.size}
             </span>{" "}
-            项
+            {t("patientTable.selectedSuffix")}
           </span>
           <div
             style={{
@@ -648,7 +649,7 @@ export function PatientTable({
             }}
           >
             <Download size={14} />
-            批量导出
+            {t("patientTable.bulkExport")}
           </button>
           <button
             onClick={handleBulkPrint}
@@ -666,7 +667,7 @@ export function PatientTable({
             }}
           >
             <Printer size={14} />
-            打印标签
+            {t("patientTable.bulkPrint")}
           </button>
           <button
             onClick={() => onSelectionChange(new Set())}
@@ -685,7 +686,7 @@ export function PatientTable({
             }}
           >
             <X size={14} />
-            清除
+            {t("patientTable.clear")}
           </button>
         </div>
       )}
@@ -726,8 +727,8 @@ export function PatientTable({
               }}
             >
               <Search size={32} color="#cbd5e1" aria-hidden />
-              <div style={{ fontSize: 13 }}>未找到匹配的患者记录</div>
-              <div style={{ fontSize: 12 }}>暂无数据</div>
+              <div style={{ fontSize: 13 }}>{t("patientTable.empty.noMatch")}</div>
+              <div style={{ fontSize: 12 }}>{t("patientTable.empty.noData")}</div>
             </div>
           }
         />
@@ -784,7 +785,7 @@ export function PatientTable({
                   {selectedPatient.name}
                 </div>
                 <div style={{ fontSize: 12, color: "#64748b" }}>
-                  {selectedPatient.gender} · {selectedPatient.age}岁 ·{" "}
+                  {selectedPatient.gender} · {selectedPatient.age}{t("patientTable.ageSuffix")} ·{" "}
                   {selectedPatient.patientType}
                 </div>
               </div>
@@ -815,48 +816,48 @@ export function PatientTable({
           >
             {[
               {
-                label: "患者ID",
+                labelKey: "patientTable.col.id",
                 value: selectedPatient.id,
                 icon: <User size={14} />,
               },
               {
-                label: "联系电话",
+                labelKey: "patientTable.col.phone",
                 value: selectedPatient.phone,
                 icon: <Phone size={14} />,
               },
               {
-                label: "身份证号",
+                labelKey: "patientTable.info.idCard",
                 value: selectedPatient.idCard,
                 icon: <CreditCard size={14} />,
               },
               {
-                label: "建档日期",
+                labelKey: "patientTable.col.registrationDate",
                 value: selectedPatient.registrationDate,
                 icon: <Calendar size={14} />,
               },
               {
-                label: "家庭住址",
+                labelKey: "patientTable.info.address",
                 value: selectedPatient.address,
                 icon: <MapPin size={14} />,
               },
               {
-                label: "联系人",
+                labelKey: "patientTable.info.contact",
                 value: `${selectedPatient.emergencyContact} (${selectedPatient.emergencyPhone})`,
                 icon: <Contact size={14} />,
               },
               {
-                label: "医保类型",
+                labelKey: "patientTable.info.insuranceType",
                 value: selectedPatient.insuranceType || "-",
                 icon: <Shield size={14} />,
               },
               {
-                label: "累计检查",
+                labelKey: "patientTable.info.totalExams",
                 value: `${selectedPatient.totalExamCount || 0} 次`,
                 icon: <Activity size={14} />,
               },
             ].map((item) => (
               <div
-                key={item.label}
+                key={item.labelKey}
                 style={{ padding: 12, background: "var(--bg-primary)", borderRadius: 8 }}
               >
                 <div
@@ -869,7 +870,7 @@ export function PatientTable({
                 >
                   <span style={{ color: "#94a3b8" }}>{item.icon}</span>
                   <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                    {item.label}
+                    {t(item.labelKey)}
                   </span>
                 </div>
                 <div
@@ -898,7 +899,7 @@ export function PatientTable({
                 <span
                   style={{ fontSize: 12, color: "#991b1b", fontWeight: 600 }}
                 >
-                  过敏史：
+                  {t("patientTable.allergyHistory")}
                 </span>
                 <span style={{ fontSize: 12, color: "#991b1b" }}>
                   {selectedPatient.allergyHistory}
@@ -914,7 +915,7 @@ export function PatientTable({
                 marginBottom: 8,
               }}
             >
-              既往史
+              {t("patientTable.pastHistory")}
             </div>
             <div
               style={{
@@ -925,7 +926,7 @@ export function PatientTable({
                 borderRadius: 8,
               }}
             >
-              {selectedPatient.medicalHistory || "无"}
+              {selectedPatient.medicalHistory || t("patientTable.none")}
             </div>
           </div>
         </div>

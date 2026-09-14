@@ -1,6 +1,7 @@
 
 import { X, CheckCircle, AlertTriangle, RefreshCw, Printer } from 'lucide-react'
 import { PRIMARY, GRAY, DANGER, SUCCESS, WHITE, BG } from './reportUtils'
+import { t } from '../../i18n/appI18n'
 
 export interface ReviewResultModalProps {
   show: boolean
@@ -19,22 +20,22 @@ export function ReviewResultModal({ show, reportId, result, suggestion, onClose 
       <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 420, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>审核结果</h2>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t('reportResult.reviewResult')}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <CheckCircle size={32} color={isApproved ? SUCCESS : DANGER} />
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: isApproved ? SUCCESS : DANGER }}>{isApproved ? '审核通过' : '已退回'}</div>
-            <div style={{ fontSize: 12, color: GRAY }}>报告ID: {reportId}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: isApproved ? SUCCESS : DANGER }}>{isApproved ? t('reportResult.approved') : t('reportResult.returned')}</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{t('reportResult.reportId')}: {reportId}</div>
           </div>
         </div>
         <div style={{ background: BG, borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>审核意见</div>
+          <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>{t('reportResult.reviewComment')}</div>
           <div style={{ fontSize: 13, color: '#334155' }}>{suggestion}</div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>关闭</button>
+          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('common.action.close')}</button>
         </div>
       </div>
     </div>
@@ -65,7 +66,7 @@ export function BatchResultModal({ show, title, message, type, onClose }: BatchR
           <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5 }}>{message}</div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>关闭</button>
+          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('common.action.close')}</button>
         </div>
       </div>
     </div>
@@ -93,8 +94,8 @@ export function PrintModal({ show, title, message, onClose, onPrint }: PrintModa
         </div>
         <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, marginBottom: 16 }}>{message}</div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-          <button onClick={onPrint} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Printer size={13} />打印</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('common.action.cancel')}</button>
+          <button onClick={onPrint} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Printer size={13} />{t('reportResult.print')}</button>
         </div>
       </div>
     </div>
@@ -117,8 +118,8 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
   const isReview = action === 'review'
   const isSign = action === 'sign'
   const isArchive = action === 'archive'
-  const TITLE = isDelete ? '批量删除' : isPublish ? '批量发布' : isReview ? '批量审核' : isSign ? '批量签署' : isArchive ? '批量归档' : '批量操作'
-  const VERB = isDelete ? '删除' : isPublish ? '发布' : isReview ? '审核' : isSign ? '签署' : isArchive ? '归档' : '执行'
+  const TITLE = isDelete ? t('reportResult.bulkDelete') : isPublish ? t('reportResult.bulkPublish') : isReview ? t('reportResult.bulkReview') : isSign ? t('reportResult.bulkSign') : isArchive ? t('reportResult.bulkArchive') : t('reportResult.bulkAction')
+  const VERB = isDelete ? t('reportResult.verbDelete') : isPublish ? t('reportResult.verbPublish') : isReview ? t('reportResult.verbReview') : isSign ? t('reportResult.verbSign') : isArchive ? t('reportResult.verbArchive') : t('reportResult.verbExecute')
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
       onClick={onClose}>
@@ -131,46 +132,46 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
               {TITLE}
             </h2>
             <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>
-              {VERB} {count} 份报告
+              {VERB} {t('reportResult.bulkCount', { count })}
             </div>
           </div>
         </div>
         {isDelete && (
           <div style={{ background: '#fff5f5', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #fed7d7' }}>
-            <div style={{ fontSize: 12, color: DANGER, fontWeight: 600, marginBottom: 4 }}>⚠ 危险操作</div>
-            <div style={{ fontSize: 12, color: '#7f1d1d' }}>此操作不可撤销。已发布的报告将无法恢复。</div>
+            <div style={{ fontSize: 12, color: DANGER, fontWeight: 600, marginBottom: 4 }}>{t('reportResult.dangerTitle')}</div>
+            <div style={{ fontSize: 12, color: '#7f1d1d' }}>{t('reportResult.dangerDesc')}</div>
           </div>
         )}
         {isPublish && (
           <div style={{ background: '#f0fdf4', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #bbf7d0' }}>
-            <div style={{ fontSize: 12, color: SUCCESS, fontWeight: 600, marginBottom: 4 }}>确认发布</div>
-            <div style={{ fontSize: 12, color: '#14532d' }}>将选中报告中状态为"已审核"的报告发布为正式报告。</div>
+            <div style={{ fontSize: 12, color: SUCCESS, fontWeight: 600, marginBottom: 4 }}>{t('reportResult.confirmPublish')}</div>
+            <div style={{ fontSize: 12, color: '#14532d' }}>{t('reportResult.confirmPublishDesc')}</div>
           </div>
         )}
         {isReview && (
           <div style={{ background: '#eff6ff', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #bfdbfe' }}>
-            <div style={{ fontSize: 12, color: '#1d4ed8', fontWeight: 600, marginBottom: 4 }}>确认审核</div>
-            <div style={{ fontSize: 12, color: '#1e3a8a' }}>将选中报告中状态为"待审核"的报告逐条提交初审,审核通过后进入签发环节。</div>
+            <div style={{ fontSize: 12, color: '#1d4ed8', fontWeight: 600, marginBottom: 4 }}>{t('reportResult.confirmReview')}</div>
+            <div style={{ fontSize: 12, color: '#1e3a8a' }}>{t('reportResult.confirmReviewDesc')}</div>
           </div>
         )}
         {isSign && (
           <div style={{ background: '#f5f3ff', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #ddd6fe' }}>
-            <div style={{ fontSize: 12, color: '#6d28d9', fontWeight: 600, marginBottom: 4 }}>确认签署</div>
-            <div style={{ fontSize: 12, color: '#4c1d95' }}>将选中报告中状态为"已审核"的报告批量电子签署(→ 已签发)。</div>
+            <div style={{ fontSize: 12, color: '#6d28d9', fontWeight: 600, marginBottom: 4 }}>{t('reportResult.confirmSign')}</div>
+            <div style={{ fontSize: 12, color: '#4c1d95' }}>{t('reportResult.confirmSignDesc')}</div>
           </div>
         )}
         {/* [G005 Wave 8] 报告冷归档: 批量归档确认 */}
         {isArchive && (
           <div style={{ background: '#f8fafc', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #cbd5e1' }}>
-            <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>确认冷归档</div>
-            <div style={{ fontSize: 12, color: '#334155' }}>将选中报告中状态为"已发布"的报告归档至长期存储层 (ARCHIVED + 归档任务记录), 非发布态自动跳过。</div>
+            <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>{t('reportResult.confirmArchive')}</div>
+            <div style={{ fontSize: 12, color: '#334155' }}>{t('reportResult.confirmArchiveDesc')}</div>
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('common.action.cancel')}</button>
           <button onClick={onConfirm} disabled={loading}
             style={{ padding: '8px 20px', border: 'none', background: isDelete ? DANGER : SUCCESS, color: WHITE, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 5, opacity: loading ? 0.6 : 1 }}>
-            {loading ? <><RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> 处理中...</> : <>确认{VERB}</>}
+            {loading ? <><RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> {t('reportResult.processing')}</> : <>{t('reportResult.confirmVerb', { verb: VERB })}</>}
           </button>
         </div>
       </div>

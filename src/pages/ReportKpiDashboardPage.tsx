@@ -14,6 +14,7 @@ import type { KpiSnapshot } from '../types/analytics';
 import {
   KpiCard, KpiCardGrid, DashboardCard, ProgressRing, TrendChart, SkeletonKpi,
 } from '../components/dashboard';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 主组件
@@ -33,12 +34,12 @@ export default function ReportKpiDashboardPage() {
   }, [period]);
 
   const val = (id: string) => snapshot?.values.find(v => v.kpiId === id);
-  const periodLabel = period === 'today' ? '今日' : period === 'month' ? '本月' : '本年';
+  const periodLabel = period === 'today' ? t('reportKpi.periodToday') : period === 'month' ? t('reportKpi.periodMonth') : t('reportKpi.periodYear');
 
   const trendProps = (id: string): { value: number | string; direction?: 'up' | 'down' } | undefined => {
-    const t = val(id)?.trend;
-    if (!t || t === 'flat') return { value: val(id)?.mom ?? 0 };
-    return { value: val(id)?.mom ?? 0, direction: t === 'up' ? 'up' : 'down' };
+    const tr = val(id)?.trend;
+    if (!tr || tr === 'flat') return { value: val(id)?.mom ?? 0 };
+    return { value: val(id)?.mom ?? 0, direction: tr === 'up' ? 'up' : 'down' };
   };
 
   if (!snapshot || snapshot.values.length === 0) {
@@ -79,13 +80,13 @@ export default function ReportKpiDashboardPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <BarChart3 size={20} color="#1e40af" /> 报告 KPI 大盘
+            <BarChart3 size={20} color="#1e40af" /> {t('reportKpi.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             {/* [G005 Wave2B P2] KpiEngine 本地合成指标 → 演示数据徽标 */}
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据 · 本地合成指标</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t('reportKpi.demoBadge')}</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            15 大核心指标 · 设备利用率 · 24h/7d 趋势 · 无纸化 / 区块链
+            {t('reportKpi.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
@@ -100,7 +101,7 @@ export default function ReportKpiDashboardPage() {
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >
-              {p === 'today' ? '今日' : p === 'month' ? '本月' : '本年'}
+              {p === 'today' ? t('reportKpi.periodToday') : p === 'month' ? t('reportKpi.periodMonth') : t('reportKpi.periodYear')}
             </button>
           ))}
         </div>
@@ -108,30 +109,30 @@ export default function ReportKpiDashboardPage() {
 
       {/* 核心 KPI 4 大 (v3.0.6.11-103 Wave 6: KpiCard) */}
       <KpiCardGrid minWidth={260} gap={10} style={{ marginBottom: 12 }}>
-        <KpiCard title="报告数" value={val('kpi-001')?.value ?? 0} suffix="份" icon={<FileText size={20} />} color="primary" trend={trendProps('kpi-001')} />
-        <KpiCard title="平均签发" value={val('kpi-010')?.value ?? 0} suffix="分钟" icon={<Clock size={20} />} color="info" trend={{ value: val('kpi-010')?.mom ?? 0, direction: val('kpi-010')?.trend === 'up' ? 'down' : val('kpi-010')?.trend === 'down' ? 'up' : undefined, goodWhenDown: true }} />
-        <KpiCard title="甲级率" value={val('kpi-020')?.value ?? 0} suffix="%" icon={<Target size={20} />} color="success" trend={trendProps('kpi-020')} />
-        <KpiCard title="AI 采纳" value={val('kpi-050')?.value ?? 0} suffix="%" icon={<Sparkles size={20} />} color="warning" trend={trendProps('kpi-050')} />
+        <KpiCard title={t('reportKpi.reportCount')} value={val('kpi-001')?.value ?? 0} suffix={t('reportKpi.unitReports')} icon={<FileText size={20} />} color="primary" trend={trendProps('kpi-001')} />
+        <KpiCard title={t('reportKpi.avgSign')} value={val('kpi-010')?.value ?? 0} suffix={t('reportKpi.unitMinutes')} icon={<Clock size={20} />} color="info" trend={{ value: val('kpi-010')?.mom ?? 0, direction: val('kpi-010')?.trend === 'up' ? 'down' : val('kpi-010')?.trend === 'down' ? 'up' : undefined, goodWhenDown: true }} />
+        <KpiCard title={t('reportKpi.gradeARate')} value={val('kpi-020')?.value ?? 0} suffix="%" icon={<Target size={20} />} color="success" trend={trendProps('kpi-020')} />
+        <KpiCard title={t('reportKpi.aiAdoption')} value={val('kpi-050')?.value ?? 0} suffix="%" icon={<Sparkles size={20} />} color="warning" trend={trendProps('kpi-050')} />
       </KpiCardGrid>
 
       {/* 质量 + 时效 + 危急值 + CA + 区块链 */}
       <KpiCardGrid minWidth={200} gap={8} style={{ marginBottom: 12 }}>
-        <KpiCard title="已签发" value={val('kpi-001')?.value ?? 0} icon={<CheckCircle2 size={18} />} color="success" size="sm" />
-        <KpiCard title="待报告数" value={val('kpi-004')?.value ?? 0} icon={<Clock size={18} />} color="warning" size="sm" />
-        <KpiCard title="危急值及时率" value={`${val('kpi-030')?.value ?? 0}%`} icon={<Zap size={18} />} color="info" size="sm" />
-        <KpiCard title="平均质量分" value={val('kpi-021')?.value ?? 0} icon={<Award size={18} />} color="primary" size="sm" />
-        <KpiCard title="区块链存证" value={val('kpi-080')?.value ?? 0} icon={<Server size={18} />} color="warning" size="sm" />
+        <KpiCard title={t('reportKpi.signed')} value={val('kpi-001')?.value ?? 0} icon={<CheckCircle2 size={18} />} color="success" size="sm" />
+        <KpiCard title={t('reportKpi.pendingReports')} value={val('kpi-004')?.value ?? 0} icon={<Clock size={18} />} color="warning" size="sm" />
+        <KpiCard title={t('reportKpi.criticalTimelyRate')} value={`${val('kpi-030')?.value ?? 0}%`} icon={<Zap size={18} />} color="info" size="sm" />
+        <KpiCard title={t('reportKpi.avgQualityScore')} value={val('kpi-021')?.value ?? 0} icon={<Award size={18} />} color="primary" size="sm" />
+        <KpiCard title={t('reportKpi.blockchainProof')} value={val('kpi-080')?.value ?? 0} icon={<Server size={18} />} color="warning" size="sm" />
       </KpiCardGrid>
 
       {/* 设备利用率 + 24h 分布 (v3.0.6.11-103 Wave 6: DashboardCard / ProgressRing / TrendChart) */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         <DashboardCard
-          title="设备利用率"
+          title={t('reportKpi.deviceUtilization')}
           icon={<Cpu size={14} />}
           extra={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{periodLabel}</span>}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 4 }}>
-            <ProgressRing percent={avgDeviceRate} size={72} strokeWidth={8} subLabel="平均" />
+            <ProgressRing percent={avgDeviceRate} size={72} strokeWidth={8} subLabel={t('reportKpi.avg')} />
             <div style={{ flex: 1, display: 'grid', gap: 10 }}>
               {devices.map((dev, i) => {
                 const rate = deviceRates[i] ?? 60;
@@ -140,7 +141,7 @@ export default function ReportKpiDashboardPage() {
                   <div key={dev}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                       <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{dev}</span>
-                      <span><strong style={{ color: rate > 85 ? '#10b981' : rate > 75 ? '#f59e0b' : '#94a3b8' }}>{rate}%</strong> <span style={{ color: 'var(--text-secondary)' }}>· {count} 份</span></span>
+                      <span><strong style={{ color: rate > 85 ? '#10b981' : rate > 75 ? '#f59e0b' : '#94a3b8' }}>{rate}%</strong> <span style={{ color: 'var(--text-secondary)' }}>· {count} {t('reportKpi.unitReports')}</span></span>
                     </div>
                     <div style={{ height: 14, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{ width: `${rate}%`, height: '100%', background: rate > 85 ? 'linear-gradient(90deg, #10b981, #059669)' : rate > 75 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #94a3b8, #64748b)' }} />
@@ -153,15 +154,15 @@ export default function ReportKpiDashboardPage() {
         </DashboardCard>
 
         <DashboardCard
-          title="24 小时报告分布"
+          title={t('reportKpi.hourlyDistribution')}
           icon={<Activity size={14} />}
-          extra={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>今日</span>}
+          extra={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportKpi.periodToday')}</span>}
         >
           <TrendChart
             type="bar"
             data={hourData}
             xKey="hour"
-            series={[{ key: 'count', name: '报告数', color: '#3b82f6' }]}
+            series={[{ key: 'count', name: t('reportKpi.reportCount'), color: '#3b82f6' }]}
             height={120}
             showLegend={false}
           />
@@ -173,17 +174,17 @@ export default function ReportKpiDashboardPage() {
 
       {/* 7 天趋势 + 检查类型分布 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-        <DashboardCard title="近 7 天报告趋势" icon={<TrendingUp size={14} />}>
+        <DashboardCard title={t('reportKpi.trend7d')} icon={<TrendingUp size={14} />}>
           <TrendChart
             type="bar"
             data={weekData}
             xKey="day"
-            series={[{ key: 'count', name: '报告数', color: '#3b82f6' }]}
+            series={[{ key: 'count', name: t('reportKpi.reportCount'), color: '#3b82f6' }]}
             height={150}
           />
         </DashboardCard>
 
-        <DashboardCard title="检查类型分布" icon={<FileText size={14} />}>
+        <DashboardCard title={t('reportKpi.examTypeDistribution')} icon={<FileText size={14} />}>
           {(['CT', 'MR', 'DR', 'US', 'MG', 'DSA'] as const).map(mod => {
             const count = modalityTotals[mod] ?? 0;
             const pct = ((count / modalityTotal) * 100).toFixed(1);
@@ -204,9 +205,9 @@ export default function ReportKpiDashboardPage() {
 
       {/* 绿色 IT + 区块链 + 推送 (v3.0.6.11-103 Wave 6: KpiCard) */}
       <KpiCardGrid minWidth={220} gap={8}>
-        <KpiCard title="无纸化率" value={`${val('kpi-082')?.value ?? 92}%`} sub="节省纸张" icon={<Leaf size={20} />} color="success" />
-        <KpiCard title="电子胶片率" value={`${val('kpi-081')?.value ?? 86}%`} sub="减少胶片浪费" icon={<Cloud size={20} />} color="info" />
-        <KpiCard title="碳减排" value={`${(val('kpi-082')?.value ?? 92) * 0.013} t`} sub="本月累计" icon={<Gauge size={20} />} color="success" />
+        <KpiCard title={t('reportKpi.paperlessRate')} value={`${val('kpi-082')?.value ?? 92}%`} sub={t('reportKpi.savePaper')} icon={<Leaf size={20} />} color="success" />
+        <KpiCard title={t('reportKpi.filmFreeRate')} value={`${val('kpi-081')?.value ?? 86}%`} sub={t('reportKpi.reduceFilmWaste')} icon={<Cloud size={20} />} color="info" />
+        <KpiCard title={t('reportKpi.carbonReduction')} value={`${(val('kpi-082')?.value ?? 92) * 0.013} t`} sub={t('reportKpi.monthCumulative')} icon={<Gauge size={20} />} color="success" />
       </KpiCardGrid>
     </div>
   );

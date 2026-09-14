@@ -109,7 +109,7 @@ export default function CriticalValuePage() {
         setCriticalValues(values as unknown as CriticalValue[])
         setLoadError(null)
       } else {
-        setLoadError(error ?? "暂无数据")
+        setLoadError(error ?? t("common.empty.noData"))
       }
       setLoading(false)
       // [W2-4] 患者详情"危急值"跳转: /critical-value?cvId=xxx 自动打开该危急值详情
@@ -150,7 +150,7 @@ export default function CriticalValuePage() {
     realtime.connect()
     const offNotify = realtime.subscribe("notify", (payload: RealtimePayload) => {
       if (payload?.type !== "CRITICAL") return
-      const title = typeof payload.title === "string" ? payload.title : "危急值事件"
+      const title = typeof payload.title === "string" ? payload.title : t("criticalValuePage.criticalEvent")
       const content = typeof payload.content === "string" ? payload.content : ""
       message.warning({ content: `${title}${content ? "：" + content : ""}`, duration: 6 })
       void useCriticalStore.getState().load()
@@ -210,7 +210,7 @@ export default function CriticalValuePage() {
       if (history?.success && Array.isArray(history.data)) {
         setHistoryEvents((history.data as Array<Record<string, unknown>>).map((h) => ({
           time: String(h.at ?? h.time ?? h.createdAt ?? ''),
-          event: String(h.action ?? h.type ?? h.event ?? '操作'),
+          event: String(h.action ?? h.type ?? h.event ?? t('criticalValuePage.operation')),
           user: String(h.by ?? h.user ?? h.operator ?? ''),
           detail: [h.note, h.message, h.detail].find((x) => typeof x === 'string' && x) as string | undefined,
         })))
@@ -231,7 +231,7 @@ export default function CriticalValuePage() {
     if (voiceCallCV) {
       await useCriticalStore.getState().voiceCall(voiceCallCV.id, voiceCallPhone)
       log("voice_call", voiceCallCV.id, { phone: voiceCallPhone })
-      showToast("电话通知已记录")
+      showToast(t("criticalValuePage.phoneRecorded"))
     }
     setShowVoiceCallModal(false); setVoiceCallCV(null); setVoiceCallPhone("")
   }
@@ -239,7 +239,7 @@ export default function CriticalValuePage() {
   const handleAcknowledge = async (cv: CriticalValue) => {
     await useCriticalStore.getState().acknowledge(cv.id)
     log("acknowledge", cv.id)
-    showToast("临床已确认接收")
+    showToast(t("criticalValuePage.clinicalAck"))
   }
 
   const handleClinicalReceipt = (cv: CriticalValue) => {
@@ -250,7 +250,7 @@ export default function CriticalValuePage() {
     if (receiptCV && receiptDoctor) {
       await useCriticalStore.getState().clinicalReceipt(receiptCV.id, { confirmedBy: receiptDoctor, comment: receiptComment })
       log("clinical_receipt", receiptCV.id, { confirmedBy: receiptDoctor })
-      showToast("临床回执已记录")
+      showToast(t("criticalValuePage.receiptRecorded"))
     }
     setShowReceiptModal(false); setReceiptCV(null); setReceiptDoctor(""); setReceiptComment("")
   }
@@ -263,26 +263,26 @@ export default function CriticalValuePage() {
     if (notifyCV) {
       await useCriticalStore.getState().notify(notifyCV.id, notifyMethod as NotificationMethod)
       log("notify", notifyCV.id, { method: notifyMethod })
-      showToast("已发送通知")
+      showToast(t("criticalValuePage.notifySent"))
     }
     setShowNotifyModal(false); setNotifyCV(null)
   }
 
   // [W2-A] 升级: 输入升级对象 + 原因 → POST /criticals/escalate
   const handleEscalate = (cv: CriticalValue) => {
-    setEscalateCV(cv); setEscalateTo(""); setEscalateDept(""); setEscalateReason("通知超时未响应"); setShowEscalateModal(true)
+    setEscalateCV(cv); setEscalateTo(""); setEscalateDept(""); setEscalateReason(t("criticalValuePage.escalateTimeout")); setShowEscalateModal(true)
   }
 
   const handleConfirmEscalate = async () => {
     if (escalateCV) {
-      const res = await criticalApi.escalate(escalateCV.id, escalateTo, escalateReason || "人工升级")
+      const res = await criticalApi.escalate(escalateCV.id, escalateTo, escalateReason || t("criticalValuePage.manualEscalate"))
       log("escalate", escalateCV.id, { to: escalateTo, reason: escalateReason })
       if (res.success) {
-        showToast("升级通知已发送")
+        showToast(t("criticalValuePage.escalateSent"))
         setSelectedCV((prev) => (prev && prev.id === escalateCV.id ? { ...prev, status: "escalated", escalatedTo: escalateTo } : prev))
         void useCriticalStore.getState().load()
       } else {
-        showToast(res.error?.message ?? "升级失败", "error")
+        showToast(res.error?.message ?? t("criticalValuePage.escalateFailed"), "error")
       }
     }
     setShowEscalateModal(false); setEscalateCV(null); setEscalateTo(""); setEscalateDept(""); setEscalateReason("")
@@ -293,11 +293,11 @@ export default function CriticalValuePage() {
     const res = await criticalApi.closeLoop(cv.id, "current-user")
     log("close_loop", cv.id)
     if (res.success) {
-      showToast("危急值已闭环")
+      showToast(t("criticalValuePage.closedLoop"))
       setSelectedCV((prev) => (prev && prev.id === cv.id ? { ...prev, status: "closed_loop" } : prev))
       void useCriticalStore.getState().load()
     } else {
-      showToast(res.error?.message ?? "闭环失败", "error")
+      showToast(res.error?.message ?? t("criticalValuePage.closeFailed"), "error")
     }
   }
 
@@ -306,12 +306,12 @@ export default function CriticalValuePage() {
     const res = await criticalApi.delete(cv.id)
     log("delete", cv.id)
     if (res.success) {
-      showToast("危急值已删除")
+      showToast(t("criticalValuePage.deleted"))
       setSelectedIds((prev) => { const n = new Set(prev); n.delete(cv.id); return n })
       setSelectedCV((prev) => (prev && prev.id === cv.id ? null : prev))
       void useCriticalStore.getState().load()
     } else {
-      showToast(res.error?.message ?? "删除失败", "error")
+      showToast(res.error?.message ?? t("criticalValuePage.deleteFailed"), "error")
     }
   }
 
@@ -326,12 +326,12 @@ export default function CriticalValuePage() {
     if (processCV) {
       const currentUserId = "current-user-id"
       if (!canApprove(currentUserId, processCV.reportedBy ?? '')) {
-        message.error('禁止自审：不能处理自己报告的危急值')
+        message.error(t('criticalValuePage.selfApproveForbidden'))
         setShowProcessModal(false); setProcessCV(null); return
       }
       await useCriticalStore.getState().resolve(processCV.id)
       log("resolve", processCV.id)
-      showToast("已处理")
+      showToast(t("criticalValuePage.processed"))
     }
     setShowProcessModal(false); setProcessCV(null)
   }
@@ -344,7 +344,7 @@ export default function CriticalValuePage() {
     setCriticalValues((prev) => prev.map((cv) => cv.id === transferCV.id ? { ...cv, transferredToFollowUp: true, followUpId, followUpDate } : cv))
     const newFollowUpRecord: FollowUpRecord = {
       id: followUpId, time: new Date().toISOString().replace("T", " ").substring(0, 16),
-      type: "系统通知", result: "已回复", operator: "系统",
+      type: t("criticalValuePage.followUpType") as FollowUpRecord["type"], result: t("criticalValuePage.followUpResult") as FollowUpRecord["result"], operator: t("criticalValuePage.followUpOperator"),
       content: `危急值 ${transferCV.id} 已转随访，计划随访日期：${followUpDate}`,
       relatedCVId: transferCV.id, followUpDate,
     }
@@ -373,8 +373,8 @@ export default function CriticalValuePage() {
     SHORTCUTS.REFRESH(() => { setSelectedIds(new Set()) }),
   ])
   useNavigationShortcuts([
-    { sequence: ['g', 'c'], action: () => { window.location.href = '/critical-value' }, description: '导航到危急值' },
-    { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: '导航到报告' },
+    { sequence: ['g', 'c'], action: () => { window.location.href = '/critical-value' }, description: t('criticalValuePage.navCritical') },
+    { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: t('criticalValuePage.navReport') },
   ])
 
   const handleBatchAction = (action: string) => {
@@ -386,30 +386,30 @@ export default function CriticalValuePage() {
 
   return (
     <div data-testid="critical-value-page" style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
-      {loading && <LoadingBanner message="正在从 API 加载危急值数据..." />}
+      {loading && <LoadingBanner message={t("criticalValuePage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{'@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }'}</style>
 
       <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 100%)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, color: '#fff' }}>
         <div style={{ fontSize: 18 }}>🚨</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, fontWeight: 700 }}>v1.0.5 危急值子系统升级 · 18 条规则 + 10分钟通报率 + 8 大分类评估</div>
-          <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>国家卫健委 2024 版危急值目录 · BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/骨龄/心脏 CTA</div>
+          <div style={{ fontSize: 12, fontWeight: 700 }}>{t("criticalValuePage.bannerTitle")}</div>
+          <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>{t("criticalValuePage.bannerDesc")}</div>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={() => navigate('/critical-value-rule')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>规则配置</button>
-          <button onClick={() => setActiveTab('stats')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>统计大屏</button>
-          <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>8 大分类评估</button>
+          <button onClick={() => navigate('/critical-value-rule')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("criticalValuePage.ruleConfig")}</button>
+          <button onClick={() => setActiveTab('stats')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("criticalValuePage.statsBoard")}</button>
+          <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("criticalValuePage.assessment8")}</button>
         </div>
       </div>
 
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: 0 }}>危急值管理</h1>
-          <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>v4.0 转随访+5节点闭环</span>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: 0 }}>{t("criticalValuePage.title")}</h1>
+          <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>{t("criticalValuePage.versionBadge")}</span>
         </div>
-        <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>危急值发现 · 即时预警 · 双环闭环 · 转随访管理 · 5节点追踪 · 全生命周期管理</p>
+        <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>{t("criticalValuePage.subtitle")}</p>
       </div>
 
       {/* [G005 v3.0.6.11-104 Wave 5B] 多入口收敛: Tab 枢纽导航 (照 QCPage 内嵌模式) */}
@@ -445,8 +445,8 @@ export default function CriticalValuePage() {
         onAction={handleBatchAction}
         onClear={() => setSelectedIds(new Set())}
         actions={[
-          { key: 'acknowledge', label: '批量确认', icon: <CheckSquare size={14} />, confirm: '确认批量确认?' },
-          { key: 'resolve', label: '批量处理', icon: <CheckCircle size={14} />, confirm: '确认批量处理?' },
+          { key: 'acknowledge', label: t('criticalValuePage.batchAck'), icon: <CheckSquare size={14} />, confirm: t('criticalValuePage.batchAckConfirm') },
+          { key: 'resolve', label: t('criticalValuePage.batchProcess'), icon: <CheckCircle size={14} />, confirm: t('criticalValuePage.batchProcessConfirm') },
         ]}
       />
 

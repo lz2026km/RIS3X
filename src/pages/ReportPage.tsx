@@ -30,6 +30,7 @@ import { PermissionGate } from "../components/common/PermissionGate";
 import { useRBAC } from "../hooks/useRBAC";
 import { useAuth } from "../hooks/useAuth";
 import { canApprove } from "../services/auth/rbacService";
+import { t } from "../i18n/appI18n";
 import MfaVerifyModal from "../components/security/MfaVerifyModal";
 import ReportHeader from './report/ReportHeader';
 import ReportTableView from './report/ReportTableView';
@@ -70,10 +71,10 @@ interface ReportFilterPreset {
 }
 
 const QUEUE_DEFS = [
-  { key: 'todo', label: '我的待办', color: '#1e40af' },
-  { key: 'pendingReview', label: '待审核', color: '#7c3aed' },
-  { key: 'critical', label: '危急值', color: '#dc2626' },
-  { key: 'mine', label: '仅我的报告', color: '#059669' },
+  { key: 'todo', labelKey: 'reportPage.queue.todo', color: '#1e40af' },
+  { key: 'pendingReview', labelKey: 'reportPage.queue.pendingReview', color: '#7c3aed' },
+  { key: 'critical', labelKey: 'reportPage.queue.critical', color: '#dc2626' },
+  { key: 'mine', labelKey: 'reportPage.queue.mine', color: '#059669' },
 ] as const
 
 export default function ReportPage() {
@@ -95,7 +96,7 @@ export default function ReportPage() {
       if (cancelled) return;
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setAllReports(res.data as RadiologyReport[]); setLoadError(null);
-      } else { setAllReports([]); setLoadError("API 不可用,暂无数据"); }
+      } else { setAllReports([]); setLoadError(t("reportPage.apiUnavailable")); }
       setLoading(false);
       // [W2-4] 患者详情"查看报告"跳转: /reports?reportId=xxx 自动打开详情抽屉
       //   列表分页(20)可能不含目标报告, 优先按 ID 精确拉取
@@ -245,7 +246,7 @@ export default function ReportPage() {
 
   // [W2-3] 导出真实化: 后端入队 → 轮询状态 → 下载 (不再 setTimeout 假完成)
   const runRealExport = async (list: RadiologyReport[], title: string) => {
-    if (list.length === 0) { showToast("没有可导出的报告", "error"); return; }
+    if (list.length === 0) { showToast(t("reportPage.noExportable"), "error"); return; }
     if (exporting) return;
     setExporting(true);
     setExportModal({ show: true, title, message: `后端入队中 (${list.length} 份)...`, complete: false });
@@ -307,7 +308,7 @@ export default function ReportPage() {
       } else {
         showToast(`修订失败:${res.error?.message ?? '未知错误'}`, 'error');
       }
-    } catch { showToast('修订失败:网络错误', 'error'); }
+    } catch { showToast(t('reportPage.reviseNetError'), 'error'); }
   };
 
   // [W2-3] 补发: transition → PUBLISHED 重新发布
@@ -320,7 +321,7 @@ export default function ReportPage() {
       } else {
         showToast(`补发失败:${res.error?.message ?? '未知错误'}`, 'error');
       }
-    } catch { showToast('补发失败:网络错误', 'error'); }
+    } catch { showToast(t('reportPage.republishNetError'), 'error'); }
   };
 
   // [W2-3] 发布审批流: exportApprovalApi.request → 跳转导出审批中心
@@ -332,12 +333,12 @@ export default function ReportPage() {
         reason: `报告导出审批申请: ${r.reportId} (${r.patientName} · ${r.examItemName})`,
       });
       if (res.success) {
-        showToast('审批申请已提交,即将跳转导出审批中心', 'success');
+        showToast(t('reportPage.approvalSubmitted'), 'success');
         navigate('/export/approval');
       } else {
         showToast(`审批申请失败:${res.error?.message ?? '未知错误'}`, 'error');
       }
-    } catch { showToast('审批申请失败:网络错误', 'error'); }
+    } catch { showToast(t('reportPage.approvalNetError'), 'error'); }
   };
 
   // [W2-3] 分发管理: 跳转推送中心并携带 reportId
@@ -359,7 +360,7 @@ export default function ReportPage() {
       }
     } catch {
       setCriticalModal(m => ({ ...m, submitting: false }));
-      showToast('转入失败:网络错误', 'error');
+      showToast(t('reportPage.criticalTransferNetError'), 'error');
     }
   };
 
@@ -402,7 +403,7 @@ export default function ReportPage() {
         showToast(`删除失败:${res.error?.message ?? '未知错误'}`, 'error');
       }
     } catch {
-      showToast('删除失败:网络错误', 'error');
+      showToast(t('reportPage.deleteNetError'), 'error');
     } finally {
       setDeletingIds(prev => {
         const next = new Set(prev);
@@ -417,7 +418,7 @@ export default function ReportPage() {
 
   // [v3.0.6.11-95 Wave3B P1] 患者画像入口: /patients/:id/360 (Patient360Page 按 :id 参数拉取患者全景)
   const handleOpen360 = (r: RadiologyReport) => {
-    if (!r.patientId) { showToast('该报告缺少患者信息,无法打开患者画像', 'error'); return; }
+    if (!r.patientId) { showToast(t('reportPage.missingPatient'), 'error'); return; }
     navigate(`/patients/${encodeURIComponent(r.patientId)}/360`);
   };
 
@@ -445,13 +446,13 @@ export default function ReportPage() {
           const pid = created[0]?.patientId ?? r.patientId;
           navigate(`/dicom/lesion-tracking?patientId=${encodeURIComponent(pid ?? '')}`);
         } else {
-          showToast('报告中未检出可追踪病灶关键词 (肺结节/肝占位/淋巴结等)', 'info');
+          showToast(t('reportPage.noTrackableLesion'), 'info');
         }
       } else {
-        showToast(res.error?.message ?? '病灶创建失败', 'error');
+        showToast(res.error?.message ?? t('reportPage.lesionCreateFailed'), 'error');
       }
     } catch {
-      showToast('病灶创建失败: 网络异常', 'error');
+      showToast(t('reportPage.lesionCreateNetError'), 'error');
     }
   };
 
@@ -486,7 +487,7 @@ export default function ReportPage() {
       });
       showToast(`报告 ${r.reportId} 已保存至离线包`, 'success');
     } catch {
-      showToast('离线保存失败: IndexedDB 不可用', 'error');
+      showToast(t('reportPage.offlineSaveFailed'), 'error');
     }
   };
 
@@ -526,7 +527,7 @@ export default function ReportPage() {
       if (result === "approved") {
         const report = allReports.find(r => r.id === reportId);
         if (report && !canApprove(user?.id ?? '', report.reportDoctorId ?? '')) {
-          message.error('禁止自审：不能审核自己的报告');
+          message.error(t('reportPage.selfReviewForbidden'));
           return;
         }
         await useReportStore.getState().review(reportId, 'initial', user?.id ?? '', user?.name ?? '', suggestion, 0);
@@ -537,7 +538,7 @@ export default function ReportPage() {
         setReviewResultModal({ show: true, reportId, result: "已退回", suggestion: suggestion || "(无)" });
       }
     } catch {
-      message.error('审核提交失败:网络异常,请稍后重试');
+      message.error(t('reportPage.reviewSubmitNetError'));
     }
   };
 
@@ -551,14 +552,14 @@ export default function ReportPage() {
       setReviewResultModal({ show: true, reportId, result: "已审核", suggestion: "(MFA已验证)" });
     } catch {
       setReviewReport(null);
-      message.error('MFA 签署失败:网络异常,请稍后重试');
+      message.error(t('reportPage.mfaSignNetError'));
     }
   };
 
   return (
     <PageContainer background="slate" maxWidth="wide" padding={0} testId="report-page">
-      {accessDenied && <div style={{ padding: 24, margin: 24, background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>🔒 资源级访问被拒绝：当前用户无权读取报告资源，请联系管理员。</div>}
-      {loading && <LoadingBanner message="正在从 API 加载报告数据..." />}
+      {accessDenied && <div style={{ padding: 24, margin: 24, background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>{t("reportPage.accessDenied")}</div>}
+      {loading && <LoadingBanner message={t("reportPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } } @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }`}</style>
 
@@ -566,17 +567,17 @@ export default function ReportPage() {
 
       <div className="no-print" style={{ maxWidth: 1440, margin: "0 auto", padding: "20px 24px" }}>
         <div className="report-stats" style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 14 }}>
-          <StatCard label="今日报告数" value={stats.todayTotal} icon={<FileText size={20} />} color={ACCENT} sub={`本周共 ${stats.thisWeekTotal} 份`} />
-          <StatCard label="待审核报告" value={stats.pendingReview} icon={<Clock size={20} />} color={PURPLE} sub={`占总数 ${stats.pendingReview > 0 ? Math.round((stats.pendingReview / allReports.length) * 100) : 0}%`} />
-          <StatCard label="危急值报告" value={stats.criticalCount} icon={<Zap size={20} />} color={DANGER} sub={`含阳性 ${filteredStats.critical} 例`} />
-          <StatCard label="阳性结果" value={stats.positiveCount} icon={<AlertTriangle size={20} />} color={WARNING} sub={`阳性率 ${allReports.length > 0 ? Math.round((stats.positiveCount / allReports.length) * 100) : 0}%`} />
-          <StatCard label="平均周转" value={stats.avgTurnaround} icon={<Clock size={20} />} color="#0891b2" sub="小时 (创建→发布)" />
-          <StatCard label="本周总量" value={stats.thisWeekTotal} icon={<BarChart3 size={20} />} color="#7c3aed" sub="本周报告总数" />
+          <StatCard label={t("reportPage.stat.todayReports")} value={stats.todayTotal} icon={<FileText size={20} />} color={ACCENT} sub={`本周共 ${stats.thisWeekTotal} 份`} />
+          <StatCard label={t("reportPage.stat.pendingReview")} value={stats.pendingReview} icon={<Clock size={20} />} color={PURPLE} sub={`占总数 ${stats.pendingReview > 0 ? Math.round((stats.pendingReview / allReports.length) * 100) : 0}%`} />
+          <StatCard label={t("reportPage.stat.criticalReports")} value={stats.criticalCount} icon={<Zap size={20} />} color={DANGER} sub={`含阳性 ${filteredStats.critical} 例`} />
+          <StatCard label={t("reportPage.stat.positive")} value={stats.positiveCount} icon={<AlertTriangle size={20} />} color={WARNING} sub={`阳性率 ${allReports.length > 0 ? Math.round((stats.positiveCount / allReports.length) * 100) : 0}%`} />
+          <StatCard label={t("reportPage.stat.avgTurnaround")} value={stats.avgTurnaround} icon={<Clock size={20} />} color="#0891b2" sub={t("reportPage.stat.hoursTip")} />
+          <StatCard label={t("reportPage.stat.weekTotal")} value={stats.thisWeekTotal} icon={<BarChart3 size={20} />} color="#7c3aed" sub={t("reportPage.stat.weekTotalTip")} />
         </div>
         {/* [v3.0.6.11-103 Wave 2A] 报告统计报表入口: overview / by-doctor / daily-trend */}
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
           <button onClick={() => setStatsModalOpen(true)} style={{ padding: "5px 14px", borderRadius: 8, border: "1px solid #1e40af", background: "var(--bg-card)", color: "#1e40af", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.15s" }} data-testid="report-stats-open">
-            <BarChart3 size={13} /> 统计报表
+            <BarChart3 size={13} /> {t("reportPage.statsReport")}
           </button>
         </div>
 
@@ -584,19 +585,19 @@ export default function ReportPage() {
 
         {/* [v3.0.6.11-95 Wave2B P1] 快捷队列 + 筛选预置持久化 */}
         <div className="report-queues" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10, background: WHITE, borderRadius: 10, padding: "10px 14px", border: "1px solid var(--border-color)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-          <span style={{ fontSize: 12, color: GRAY, fontWeight: 700, marginRight: 4 }}>快捷队列:</span>
+          <span style={{ fontSize: 12, color: GRAY, fontWeight: 700, marginRight: 4 }}>{t("reportPage.quickQueue")}</span>
           {QUEUE_DEFS.map(q => (
             <button key={q.key} onClick={() => toggleQueue(q.key)} style={{
               padding: "4px 10px", borderRadius: 6, border: `1px solid ${quickQueue === q.key ? q.color : "var(--border-color)"}`,
               background: quickQueue === q.key ? `${q.color}18` : WHITE, color: quickQueue === q.key ? q.color : GRAY,
               fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
-            }}>{quickQueue === q.key ? "✓ " : ""}{q.label}</button>
+            }}>{quickQueue === q.key ? "✓ " : ""}{t(q.labelKey)}</button>
           ))}
           <span style={{ width: 1, height: 18, background: "var(--border-color)", margin: "0 6px" }} />
           <button onClick={() => setShowSavePreset(true)} style={{
             padding: "4px 10px", borderRadius: 6, border: "1px solid var(--border-color)", background: WHITE,
             color: ACCENT, fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
-          }}><Save size={12} /> 保存当前筛选</button>
+          }}><Save size={12} /> {t("reportPage.saveFilter")}</button>
           {filterPresets.map(p => (
             <Tag key={p.name} color="geekblue" closable style={{ cursor: "pointer", margin: 0 }}
               onClick={(e) => { e.stopPropagation(); applyPreset(p); }}
@@ -604,7 +605,7 @@ export default function ReportPage() {
               title={`加载预置「${p.name}」(点击加载, 关闭删除)`}
             >{p.name}</Tag>
           ))}
-          {activeQueue && <Tag color="blue" closable onClose={() => setQuickQueue(null)}>当前队列: {activeQueue.label}</Tag>}
+          {activeQueue && <Tag color="blue" closable onClose={() => setQuickQueue(null)}>{t("reportPage.currentQueue")}: {t(activeQueue.labelKey)}</Tag>}
         </div>
 
         <div className="report-filters"><ReportHeader search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} modalityFilter={modalityFilter} setModalityFilter={setModalityFilter} reportDoctorFilter={reportDoctorFilter} setReportDoctorFilter={setReportDoctorFilter} auditorFilter={auditorFilter} setAuditorFilter={setAuditorFilter} dateFrom={dateFrom} setDateFrom={setDateFrom} dateTo={dateTo} setDateTo={setDateTo} criticalOnly={criticalOnly} setCriticalOnly={setCriticalOnly} positiveOnly={positiveOnly} setPositiveOnly={setPositiveOnly} onReset={handleReset} onExport={handleExport} onPrint={handlePrint} /></div>
@@ -650,9 +651,9 @@ export default function ReportPage() {
       <ReportStatsModal open={statsModalOpen} onClose={() => setStatsModalOpen(false)} />
 
       {/* [v3.0.6.11-95 Wave2B P1] 保存当前筛选为快捷预置 */}
-      <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: '#1e40af' }} />保存当前筛选为快捷预置</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText="保存" cancelText="取消" width={400} destroyOnHidden>
-        <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder="预置名称, 如: 本周胸片待办 / 危急值跟进" allowClear style={{ marginTop: 8 }} />
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>保存后可在上方 Tag 列表点击加载, 关闭小叉可删除; 数据存于本地浏览器。</div>
+      <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: '#1e40af' }} />{t("reportPage.savePresetTitle")}</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText={t("reportPage.save")} cancelText={t("reportPage.cancel")} width={400} destroyOnHidden>
+        <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder={t("reportPage.presetNamePlaceholder")} allowClear style={{ marginTop: 8 }} />
+        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t("reportPage.presetHelp")}</div>
       </Modal>
       <ReportExportModal show={exportModal.show} title={exportModal.title} message={exportModal.message} complete={exportModal.complete} onClose={() => setExportModal(e => ({ ...e, show: false }))} />
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />

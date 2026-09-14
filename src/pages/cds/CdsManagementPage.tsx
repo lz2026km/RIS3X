@@ -2,14 +2,15 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { Sliders, ToggleLeft, ToggleRight, Plus, Edit3, Search, Eye, ChevronDown, ChevronRight, Shield, Pill, FlaskConical, Route, BrainCircuit, X, Save } from 'lucide-react';
 import type { CdsRuleSummary, CdsAuditEntry } from "../../services/cds";
 import { cdsApi } from "../../services/api/cdsApi";
+import { t } from "../../i18n/appI18n";
 
 type RuleTab = "appropriateness" | "pathway" | "contrast" | "drug";
 
-const TAB_CONFIG: { key: RuleTab; label: string; icon: typeof Shield }[] = [
-  { key: "appropriateness", label: "适宜性规则", icon: BrainCircuit },
-  { key: "pathway", label: "临床路径", icon: Route },
-  { key: "contrast", label: "造影剂协议", icon: FlaskConical },
-  { key: "drug", label: "药物交互", icon: Pill },
+const TAB_CONFIG: { key: RuleTab; labelKey: string; icon: typeof Shield }[] = [
+  { key: "appropriateness", labelKey: "cdsMgmt.tab.appropriateness", icon: BrainCircuit },
+  { key: "pathway", labelKey: "cdsMgmt.tab.pathway", icon: Route },
+  { key: "contrast", labelKey: "cdsMgmt.tab.contrast", icon: FlaskConical },
+  { key: "drug", labelKey: "cdsMgmt.tab.drug", icon: Pill },
 ];
 
 const INITIAL_FORM = { name: "", description: "", version: "1.0" };
@@ -22,10 +23,10 @@ const TYPE_COLORS: Record<CdsRuleSummary["type"], string> = {
 };
 
 const TYPE_LABELS: Record<CdsRuleSummary["type"], string> = {
-  appropriateness: "适宜性",
-  pathway: "路径",
-  contrast: "造影剂",
-  drug: "药物",
+  appropriateness: "cdsMgmt.type.appropriateness",
+  pathway: "cdsMgmt.type.pathway",
+  contrast: "cdsMgmt.type.contrast",
+  drug: "cdsMgmt.type.drug",
 };
 
 export default function CdsManagementPage() {
@@ -55,8 +56,8 @@ export default function CdsManagementPage() {
 
   useEffect(() => {
     if (!toast.show) return;
-    const t = setTimeout(() => setToast((t0) => ({ ...t0, show: false })), 2000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setToast((t0) => ({ ...t0, show: false })), 2000);
+    return () => clearTimeout(timer);
   }, [toast.show]);
 
   const fetchData = useCallback(async () => {
@@ -74,7 +75,7 @@ export default function CdsManagementPage() {
 
   const handleCreateRule = async () => {
     if (!newRuleForm.name.trim()) {
-      showToast("规则名称不能为空", "error");
+      showToast(t("cdsMgmt.nameRequired"), "error");
       return;
     }
     const res = await cdsApi.createCdsRule({
@@ -91,7 +92,7 @@ export default function CdsManagementPage() {
       showToast(`规则「${newRuleForm.name.trim()}」已创建`, "success");
       fetchData();
     } else {
-      showToast(res.error?.message || "创建失败", "error");
+      showToast(res.error?.message || t("cdsMgmt.createFailed"), "error");
     }
   };
 
@@ -117,7 +118,7 @@ export default function CdsManagementPage() {
   const saveEditRule = async () => {
     if (!editRule) return;
     if (!editForm.name.trim()) {
-      showToast("规则名称不能为空", "error");
+      showToast(t("cdsMgmt.nameRequired"), "error");
       return;
     }
     setEditSaving(true);
@@ -173,7 +174,7 @@ export default function CdsManagementPage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Sliders size={24} />
-          <span style={{ fontSize: 20, fontWeight: 600 }}>CDS 规则管理</span>
+          <span style={{ fontSize: 20, fontWeight: 600 }}>{t("cdsMgmt.title")}</span>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button
@@ -194,7 +195,7 @@ export default function CdsManagementPage() {
             }}
           >
             <Eye size={14} />
-            审计日志
+            {t("cdsMgmt.auditLog")}
           </button>
           <button
             onClick={() => setShowNewRuleModal(true)}
@@ -212,7 +213,7 @@ export default function CdsManagementPage() {
             }}
           >
             <Plus size={14} />
-            新建规则
+            {t("cdsMgmt.newRule")}
           </button>
         </div>
       </div>
@@ -235,7 +236,7 @@ export default function CdsManagementPage() {
               color: "#f0f6fc",
             }}
           >
-            审计日志
+            {t("cdsMgmt.auditLog")}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {audit.map((entry) => (
@@ -259,7 +260,7 @@ export default function CdsManagementPage() {
                     color: TYPE_COLORS[entry.ruleType],
                   }}
                 >
-                  {TYPE_LABELS[entry.ruleType]}
+                  {t(TYPE_LABELS[entry.ruleType])}
                 </span>
                 <span style={{ fontSize: 13, flex: 1 }}>{entry.details}</span>
                 <span style={{ fontSize: 12, color: "#6e7681" }}>
@@ -296,7 +297,7 @@ export default function CdsManagementPage() {
                 }}
               >
                 <Icon size={14} />
-                {tab.label}
+                {t(tab.labelKey)}
               </button>
             );
           })}
@@ -323,7 +324,7 @@ export default function CdsManagementPage() {
               />
               <input
                 type="text"
-                placeholder="搜索规则名称/ID..."
+                placeholder={t("cdsMgmt.searchPlaceholder")}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 style={{
@@ -358,11 +359,11 @@ export default function CdsManagementPage() {
               ) : (
                 <ToggleLeft size={14} />
               )}
-              显示已停用
+              {t("cdsMgmt.showInactive")}
             </button>
           </div>
           <span style={{ fontSize: 13, color: "#6e7681" }}>
-            共 {filteredRules.length} 条
+            {t("cdsMgmt.total", { count: filteredRules.length })}
           </span>
         </div>
 
@@ -388,11 +389,11 @@ export default function CdsManagementPage() {
             }}
           >
             <span></span>
-            <span>规则名称</span>
-            <span>版本</span>
-            <span>状态</span>
-            <span>使用次数</span>
-            <span>更新日期</span>
+            <span>{t("cdsMgmt.col.name")}</span>
+            <span>{t("cdsMgmt.col.version")}</span>
+            <span>{t("cdsMgmt.col.status")}</span>
+            <span>{t("cdsMgmt.col.usage")}</span>
+            <span>{t("cdsMgmt.col.updated")}</span>
           </div>
           {filteredRules.map((rule, idx) => (
             <div key={rule.id}>
@@ -445,12 +446,12 @@ export default function CdsManagementPage() {
                   {rule.isActive ? (
                     <>
                       <ToggleRight size={12} style={{ color: "#22c55e" }} />
-                      <span style={{ color: "#22c55e" }}>启用</span>
+                      <span style={{ color: "#22c55e" }}>{t("cdsMgmt.enabled")}</span>
                     </>
                   ) : (
                     <>
                       <ToggleLeft size={12} style={{ color: "#ef4444" }} />
-                      <span style={{ color: "#ef4444" }}>停用</span>
+                      <span style={{ color: "#ef4444" }}>{t("cdsMgmt.disabled")}</span>
                     </>
                   )}
                 </span>
@@ -487,7 +488,7 @@ export default function CdsManagementPage() {
                     }}
                   >
                     <Edit3 size={12} />
-                    编辑
+                    {t("cdsMgmt.edit")}
                   </button>
                   <button
                     onClick={() => void toggleRule(rule)}
@@ -509,7 +510,7 @@ export default function CdsManagementPage() {
                     ) : (
                       <ToggleRight size={12} />
                     )}
-                    {rule.isActive ? "停用" : "启用"}
+                    {rule.isActive ? t("cdsMgmt.disabled") : t("cdsMgmt.enabled")}
                   </button>
                 </div>
               )}
@@ -560,8 +561,8 @@ export default function CdsManagementPage() {
                   gap: 8,
                 }}
               >
-                <Shield size={18} style={{ color: "#3b82f6" }} /> 新建{" "}
-                {TAB_CONFIG.find((t) => t.key === activeTab)?.label}
+                <Shield size={18} style={{ color: "#3b82f6" }} /> {t("cdsMgmt.newRulePrefix")}{" "}
+                {t(TAB_CONFIG.find((tab) => tab.key === activeTab)?.labelKey ?? "")}
               </div>
               <button
                 onClick={() => setShowNewRuleModal(false)}
@@ -585,14 +586,14 @@ export default function CdsManagementPage() {
                     marginBottom: 4,
                   }}
                 >
-                  规则名称 *
+                  {t("cdsMgmt.ruleNameLabel")}
                 </label>
                 <input
                   value={newRuleForm.name}
                   onChange={(e) =>
                     setNewRuleForm((f) => ({ ...f, name: e.target.value }))
                   }
-                  placeholder="输入规则名称"
+                  placeholder={t("cdsMgmt.ruleNamePlaceholder")}
                   style={{
                     width: "100%",
                     padding: "8px 12px",
@@ -615,7 +616,7 @@ export default function CdsManagementPage() {
                     marginBottom: 4,
                   }}
                 >
-                  版本号
+                  {t("cdsMgmt.versionLabel")}
                 </label>
                 <input
                   value={newRuleForm.version}
@@ -645,7 +646,7 @@ export default function CdsManagementPage() {
                     marginBottom: 4,
                   }}
                 >
-                  描述
+                  {t("cdsMgmt.descLabel")}
                 </label>
                 <textarea
                   value={newRuleForm.description}
@@ -656,7 +657,7 @@ export default function CdsManagementPage() {
                     }))
                   }
                   rows={3}
-                  placeholder="规则描述(可选)"
+                  placeholder={t("cdsMgmt.descPlaceholder")}
                   style={{
                     width: "100%",
                     padding: "8px 12px",
@@ -693,7 +694,7 @@ export default function CdsManagementPage() {
                   fontSize: 13,
                 }}
               >
-                取消
+                {t("cdsMgmt.cancel")}
               </button>
               <button
                 onClick={handleCreateRule}
@@ -710,7 +711,7 @@ export default function CdsManagementPage() {
                   gap: 6,
                 }}
               >
-                <Save size={14} /> 创建规则
+                <Save size={14} /> {t("cdsMgmt.createRule")}
               </button>
             </div>
           </div>
@@ -760,7 +761,7 @@ export default function CdsManagementPage() {
                   gap: 8,
                 }}
               >
-                <Edit3 size={18} style={{ color: "#3b82f6" }} /> 编辑规则 · {editRule.id}
+                <Edit3 size={18} style={{ color: "#3b82f6" }} /> {t("cdsMgmt.editRuleTitle")} · {editRule.id}
               </div>
               <button
                 onClick={() => setEditRule(null)}
@@ -776,11 +777,11 @@ export default function CdsManagementPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>规则名称 *</label>
+                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>{t("cdsMgmt.ruleNameLabel")}</label>
                 <input
                   value={editForm.name}
                   onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="输入规则名称"
+                  placeholder={t("cdsMgmt.ruleNamePlaceholder")}
                   style={{
                     width: "100%", padding: "8px 12px", borderRadius: 6,
                     border: "1px solid #30363d", background: "#0d1117",
@@ -789,7 +790,7 @@ export default function CdsManagementPage() {
                 />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>版本号</label>
+                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>{t("cdsMgmt.versionLabel")}</label>
                 <input
                   value={editForm.version}
                   onChange={(e) => setEditForm((f) => ({ ...f, version: e.target.value }))}
@@ -802,7 +803,7 @@ export default function CdsManagementPage() {
                 />
               </div>
               <div style={{ fontSize: 12, padding: "8px 12px", borderRadius: 8, background: "#f59e0b22", color: "#d29922", border: "1px solid #d2992240" }}>
-                当前启用状态：{editRule.isActive ? "已启用" : "已停用"}（可在列表中使用启停按钮切换）。cdsApi 暂无规则更新端点，保存为本地更新（标注: 待后端 PUT /cds/rules/:id）。
+                {t("cdsMgmt.currentStatusPrefix")}{editRule.isActive ? t("cdsMgmt.enabledStatus") : t("cdsMgmt.disabledStatus")}{t("cdsMgmt.editNote")}
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
@@ -813,7 +814,7 @@ export default function CdsManagementPage() {
                   background: "transparent", color: "#8b949e", cursor: "pointer", fontSize: 13,
                 }}
               >
-                取消
+                {t("cdsMgmt.cancel")}
               </button>
               <button
                 onClick={() => void saveEditRule()}
@@ -824,7 +825,7 @@ export default function CdsManagementPage() {
                   fontSize: 13, display: "flex", alignItems: "center", gap: 6,
                 }}
               >
-                <Save size={14} /> {editSaving ? "保存中..." : "保存修改"}
+                <Save size={14} /> {editSaving ? t("cdsMgmt.saving") : t("cdsMgmt.saveChanges")}
               </button>
             </div>
           </div>

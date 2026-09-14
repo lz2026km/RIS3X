@@ -8,6 +8,7 @@ import { message, Popconfirm } from 'antd'
 import { FileText, Trash2, ArrowLeft, WifiOff, CheckCircle, RefreshCw } from 'lucide-react'
 import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { offlineStorage, type OfflineReport } from '../services/pwa/offlineStorage'
+import { t } from '../i18n/appI18n'
 
 const PRIMARY = '#1e40af'
 
@@ -18,8 +19,8 @@ function formatDateTime(ts?: number): string {
 }
 
 const STATE_LABELS: Record<string, string> = {
-  PUBLISHED: '已发布', SIGNED: '已签发', REVIEWED: '已审核', SUBMITTED: '审核中',
-  INITIAL_REVIEW: '初审中', FINAL_REVIEW: '终审中', AMENDED: '已修订',
+  PUBLISHED: t('offlineReports.state.published'), SIGNED: t('offlineReports.state.signed'), REVIEWED: t('offlineReports.state.reviewed'), SUBMITTED: t('offlineReports.state.submitted'),
+  INITIAL_REVIEW: t('offlineReports.state.initialReview'), FINAL_REVIEW: t('offlineReports.state.finalReview'), AMENDED: t('offlineReports.state.amended'),
 }
 
 export default function OfflineReportsPage() {
@@ -34,7 +35,7 @@ export default function OfflineReportsPage() {
       setItems(await offlineStorage.listReports())
     } catch {
       setItems([])
-      message.error('离线包读取失败: IndexedDB 不可用')
+      message.error(t('offlineReports.readFailed'))
     } finally {
       setLoading(false)
     }
@@ -49,9 +50,9 @@ export default function OfflineReportsPage() {
       await offlineStorage.removeReport(r.id)
       setItems(prev => prev.filter(x => x.id !== r.id))
       if (preview?.id === r.id) setPreview(null)
-      message.success('离线副本已删除')
+      message.success(t('offlineReports.deleted'))
     } catch {
-      message.error('删除失败: IndexedDB 不可用')
+      message.error(t('offlineReports.deleteFailed'))
     }
   }
 
@@ -60,9 +61,9 @@ export default function OfflineReportsPage() {
       for (const r of items) await offlineStorage.removeReport(r.id)
       setItems([])
       setPreview(null)
-      message.success('离线包已清空')
+      message.success(t('offlineReports.cleared'))
     } catch {
-      message.error('清空失败: IndexedDB 不可用')
+      message.error(t('offlineReports.clearFailed'))
     }
   }
 
@@ -72,23 +73,23 @@ export default function OfflineReportsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <FileText size={20} />
           <div>
-            <div style={{ fontSize: 17, fontWeight: 700 }}>离线报告包</div>
-            <div style={{ fontSize: 12, opacity: 0.8 }}>已保存 {items.length} 份 · 断网可离线浏览</div>
+            <div style={{ fontSize: 17, fontWeight: 700 }}>{t('offlineReports.title')}</div>
+            <div style={{ fontSize: 12, opacity: 0.8 }}>{t('offlineReports.savedCount', { count: items.length })}</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => void load()} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <RefreshCw size={13} /> 刷新
+            <RefreshCw size={13} /> {t('offlineReports.refresh')}
           </button>
           {items.length > 0 && (
-            <Popconfirm title="清空全部离线副本？" okText="清空" cancelText="取消" okButtonProps={{ danger: true }} onConfirm={() => void handleClearAll()}>
+            <Popconfirm title={t('offlineReports.clearConfirm')} okText={t('offlineReports.clear')} cancelText={t('offlineReports.cancel')} okButtonProps={{ danger: true }} onConfirm={() => void handleClearAll()}>
               <button style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.5)', background: 'transparent', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Trash2 size={13} /> 清空
+                <Trash2 size={13} /> {t('offlineReports.clear')}
               </button>
             </Popconfirm>
           )}
           <button onClick={() => navigate('/reports')} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: THEME_TOKENS.bgCard, color: PRIMARY, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <ArrowLeft size={13} /> 返回报告列表
+            <ArrowLeft size={13} /> {t('offlineReports.backToList')}
           </button>
         </div>
       </div>
@@ -97,43 +98,43 @@ export default function OfflineReportsPage() {
         <div style={{ marginBottom: 16, padding: '10px 14px', borderRadius: 8, background: 'var(--color-info-bg)', border: '1px solid var(--color-info-border)', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
           <WifiOff size={14} style={{ color: 'var(--color-info)', flexShrink: 0, marginTop: 2 }} />
           <div style={{ fontSize: 12, color: 'var(--color-info)', lineHeight: 1.6 }}>
-            离线副本由「报告列表 → 行操作 离线保存」生成，存储于本机浏览器 IndexedDB。
-            断网时可在本页浏览已保存报告；在线时报告详情页也会标注「离线副本」存在。
+            {t('offlineReports.desc1')}
+            {t('offlineReports.desc2')}
           </div>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>加载中...</div>
+          <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>{t('offlineReports.loading')}</div>
         ) : items.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
             <FileText size={36} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.4 }} />
-            <div style={{ fontSize: 14, color: '#64748b', marginBottom: 6 }}>暂无离线报告</div>
-            <div style={{ fontSize: 12, color: '#94a3b8' }}>前往「报告列表」点击行内 保存 图标即可生成离线副本</div>
+            <div style={{ fontSize: 14, color: '#64748b', marginBottom: 6 }}>{t('offlineReports.empty')}</div>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('offlineReports.emptyHint')}</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
             {items.map(r => (
               <div key={r.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, border: '1px solid var(--border-color)', borderLeft: '4px solid #0891b2' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName || '未知患者'}</div>
-                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: '1px solid #fcd34d' }}>离线副本</span>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName || t('offlineReports.unknownPatient')}</div>
+                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: '1px solid #fcd34d' }}>{t('offlineReports.offlineCopy')}</span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
                   {r.modality ? `${r.modality}${r.bodyPart ? ` · ${r.bodyPart}` : ''}` : '-'} · {r.reportNo || r.id}
                 </div>
                 {r.state && (
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
-                    状态: {STATE_LABELS[r.state] ?? r.state}
+                    {t('offlineReports.statusLabel')} {STATE_LABELS[r.state] ?? r.state}
                   </div>
                 )}
-                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>保存于 {formatDateTime(r.savedAt ?? r.updatedAt)}</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>{t('offlineReports.savedAt', { time: formatDateTime(r.savedAt ?? r.updatedAt) })}</div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button onClick={() => setPreview(r)} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                    <CheckCircle size={12} /> 离线浏览
+                    <CheckCircle size={12} /> {t('offlineReports.browse')}
                   </button>
-                  <Popconfirm title="删除该离线副本？" okText="删除" cancelText="取消" okButtonProps={{ danger: true }} onConfirm={() => void handleDelete(r)}>
+                  <Popconfirm title={t('offlineReports.deleteConfirm')} okText={t('offlineReports.delete')} cancelText={t('offlineReports.cancel')} okButtonProps={{ danger: true }} onConfirm={() => void handleDelete(r)}>
                     <button style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #fecaca', background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Trash2 size={12} /> 删除
+                      <Trash2 size={12} /> {t('offlineReports.delete')}
                     </button>
                   </Popconfirm>
                 </div>
@@ -149,12 +150,12 @@ export default function OfflineReportsPage() {
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: 12, width: '100%', maxWidth: 780, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <WifiOff size={14} /> 离线副本 — {preview.patientName || preview.id}
-                <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)' }}>离线浏览</span>
+                <WifiOff size={14} /> {t('offlineReports.offlineCopyDash', { name: preview.patientName || preview.id })}
+                <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)' }}>{t('offlineReports.browse')}</span>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => { setPreview(null); navigate('/reports') }} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, cursor: 'pointer' }}>在线查看该报告</button>
-                <button onClick={() => setPreview(null)} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, cursor: 'pointer' }}>关闭</button>
+                <button onClick={() => { setPreview(null); navigate('/reports') }} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, cursor: 'pointer' }}>{t('offlineReports.viewOnline')}</button>
+                <button onClick={() => setPreview(null)} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, cursor: 'pointer' }}>{t('offlineReports.close')}</button>
               </div>
             </div>
             <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
@@ -162,7 +163,7 @@ export default function OfflineReportsPage() {
                 <div dangerouslySetInnerHTML={{ __html: preview.htmlContent }} />
               ) : (
                 <div style={{ whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.8, color: 'var(--text-secondary)' }}>
-                  {preview.reportText || '(空报告)'}
+                  {preview.reportText || t('offlineReports.emptyReport')}
                 </div>
               )}
             </div>

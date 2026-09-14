@@ -39,11 +39,11 @@ import {
 import { t } from '../../i18n/appI18n'
 
 const PHASE_META: Record<string, { label: string; color: string; next: string }> = {
-  plan: { label: '计划', color: 'blue', next: '执行' },
-  do: { label: '执行', color: 'gold', next: '检查' },
-  check: { label: '检查', color: 'purple', next: '处理' },
-  act: { label: '处理', color: 'cyan', next: '已完成' },
-  completed: { label: '已完成', color: 'green', next: '' },
+  plan: { label: t('qcPdca.phase.plan'), color: 'blue', next: t('qcPdca.phase.do') },
+  do: { label: t('qcPdca.phase.do'), color: 'gold', next: t('qcPdca.phase.check') },
+  check: { label: t('qcPdca.phase.check'), color: 'purple', next: t('qcPdca.phase.act') },
+  act: { label: t('qcPdca.phase.act'), color: 'cyan', next: t('qcPdca.phase.completed') },
+  completed: { label: t('qcPdca.phase.completed'), color: 'green', next: '' },
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -51,6 +51,13 @@ const CATEGORY_COLORS: Record<string, string> = {
   图像质控: 'geekblue',
   流程质控: 'orange',
   服务质控: 'cyan',
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  报告质控: t('qcPdca.category.report'),
+  图像质控: t('qcPdca.category.image'),
+  流程质控: t('qcPdca.category.process'),
+  服务质控: t('qcPdca.category.service'),
 }
 
 const CATEGORY_OPTIONS = ['报告质控', '图像质控', '流程质控', '服务质控']
@@ -67,9 +74,9 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  open: '待处理',
-  in_progress: '整改中',
-  resolved: '已闭环',
+  open: t('qcPdca.status.open'),
+  in_progress: t('qcPdca.status.inProgress'),
+  resolved: t('qcPdca.status.resolved'),
 }
 
 const fmtDate = (s?: string) => (s ? s.slice(0, 10) : '-')
@@ -179,7 +186,7 @@ export default function QcPdcaPage() {
         message.success(t('qcPdca.cycleCreated'))
         if (pendingDefectId) {
           const linkRes = await qcPdcaApi.linkDefect(res.data.id, { defectId: pendingDefectId }).catch(() => ({ success: false as const }))
-          if (linkRes.success) message.success(`已自动关联缺陷 ${pendingDefectId}`)
+          if (linkRes.success) message.success(t('qcPdca.autoLinkedDefect', { id: pendingDefectId }))
         }
       }
       setCreateOpen(false)
@@ -197,7 +204,7 @@ export default function QcPdcaPage() {
       message.error(res.error?.message ?? t('qcPdca.advanceFailed'))
       return
     }
-    message.success(`已推进至「${PHASE_META[res.data.phase]?.label ?? res.data.phase}」`)
+    message.success(t('qcPdca.advancedTo', { phase: PHASE_META[res.data.phase]?.label ?? res.data.phase }))
     void load()
   }
 
@@ -364,7 +371,7 @@ export default function QcPdcaPage() {
           {r.phase !== 'completed' ? (
             <Popconfirm
               title={t('qcPdca.advancePhase')}
-              description={`确认推进至「${PHASE_META[r.phase]?.next ?? ''}」?`}
+              description={t('qcPdca.confirmAdvanceTo', { phase: PHASE_META[r.phase]?.next ?? '' })}
               onConfirm={() => void handleAdvance(r)}
               okText={t('qcPdca.advance')}
               cancelText={t('qcPdca.cancel')}
@@ -438,7 +445,7 @@ export default function QcPdcaPage() {
           loading={loading}
           columns={columns}
           dataSource={cycles}
-          pagination={{ pageSize: 8, showTotal: (total) => `共 ${total} 个周期` }}
+          pagination={{ pageSize: 8, showTotal: (total) => t('qcPdca.totalCycles', { total }) }}
           scroll={{ x: 1080 }}
           locale={{ emptyText: <Empty description={t('qcPdca.emptyCycles')} /> }}
           size="middle"
@@ -461,7 +468,7 @@ export default function QcPdcaPage() {
             <Input placeholder={t('qcPdca.placeholderTitle')} maxLength={60} />
           </Form.Item>
           <Form.Item name="category" label={t('qcPdca.formCategory')} rules={[{ required: true }]}>
-            <Select options={CATEGORY_OPTIONS.map((c) => ({ value: c, label: c }))} />
+                <Select options={CATEGORY_OPTIONS.map((c) => ({ value: c, label: CATEGORY_LABELS[c] ?? c }))} />
           </Form.Item>
           <Form.Item name="description" label={t('qcPdca.formDescription')}>
             <Input.TextArea rows={2} placeholder={t('qcPdca.placeholderDescription')} maxLength={200} />
@@ -499,7 +506,7 @@ export default function QcPdcaPage() {
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
               <Space size={8} wrap>
-                <Tag color={CATEGORY_COLORS[detail.category]}>{detail.category}</Tag>
+                <Tag color={CATEGORY_COLORS[detail.category]}>{CATEGORY_LABELS[detail.category] ?? detail.category}</Tag>
                 <Tag color={PHASE_META[detail.phase]?.color}>{PHASE_META[detail.phase]?.label}</Tag>
                 <Tag color={detail.status === '已完成' ? 'green' : 'blue'}>{detail.status}</Tag>
               </Space>
@@ -540,7 +547,7 @@ export default function QcPdcaPage() {
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 13 }}>{p.content}</div>
                           <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 2 }}>
-                            {fmtDate(p.createdAt)}{p.updatedAt !== p.createdAt ? ` · 更新 ${fmtDate(p.updatedAt)}` : ''}
+                            {fmtDate(p.createdAt)}{p.updatedAt !== p.createdAt ? ` · ${t('qcPdca.updatedAt', { date: fmtDate(p.updatedAt) })}` : ''}
                           </div>
                         </div>
                         <Button
@@ -587,7 +594,7 @@ export default function QcPdcaPage() {
                 <Space direction="vertical" size={6} style={{ width: '100%' }}>
                   {defects.map((d) => (
                     <div key={d.id} style={{ display: 'flex', gap: 8, alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12 }}>
-                      <Tag color={CATEGORY_COLORS[d.defectType] ?? 'default'} style={{ flexShrink: 0 }}>{d.defectType}</Tag>
+                      <Tag color={CATEGORY_COLORS[d.defectType] ?? 'default'} style={{ flexShrink: 0 }}>{CATEGORY_LABELS[d.defectType] ?? d.defectType}</Tag>
                       <span style={{ flex: 1, color: '#475569' }}>{d.description}</span>
                       <Tag color={STATUS_COLORS[d.status] ?? 'default'}>{STATUS_LABELS[d.status] ?? d.status}</Tag>
                       <span style={{ color: '#94a3b8' }}>{d.reportedBy}</span>

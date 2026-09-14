@@ -4,18 +4,19 @@ import { Box, RotateCcw, SendToBack } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { volumeApi } from '../../services/api/volumeApi'
 import { setupRealVolume, decodeRgbaBase64, drawImageDataCentered } from './volumeReal'
+import { t } from '../../i18n/appI18n'
 
 const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
 
 type PresetType = 'default' | 'bone' | 'softTissue' | 'vessel' | 'lung'
 
-const PRESETS: Record<PresetType, { ww: number; wl: number; opacity: number; label: string }> = {
-  default: { ww: 400, wl: 40, opacity: 0.8, label: '默认' },
-  bone: { ww: 2500, wl: 480, opacity: 0.9, label: '骨窗' },
-  softTissue: { ww: 400, wl: 40, opacity: 0.7, label: '软组织' },
-  vessel: { ww: 600, wl: 300, opacity: 0.85, label: '血管' },
-  lung: { ww: 1500, wl: -600, opacity: 0.6, label: '肺窗' },
+const PRESETS: Record<PresetType, { ww: number; wl: number; opacity: number; labelKey: string }> = {
+  default: { ww: 400, wl: 40, opacity: 0.8, labelKey: 'vr.preset.default' },
+  bone: { ww: 2500, wl: 480, opacity: 0.9, labelKey: 'vr.preset.bone' },
+  softTissue: { ww: 400, wl: 40, opacity: 0.7, labelKey: 'vr.preset.softTissue' },
+  vessel: { ww: 600, wl: 300, opacity: 0.85, labelKey: 'vr.preset.vessel' },
+  lung: { ww: 1500, wl: -600, opacity: 0.6, labelKey: 'vr.preset.lung' },
 }
 
 function generateVolumeSlice(z: number, size: number, preset: PresetType): ImageData {
@@ -90,7 +91,7 @@ const VrPage: React.FC = () => {
     ctx.clearRect(0, 0, w, h)
     ctx.font = '13px ui-monospace, monospace'
     ctx.fillStyle = 'rgba(148,163,184,0.9)'
-    ctx.fillText('渲染 VR...', 8, 18)
+    ctx.fillText(t('vr.rendering'), 8, 18)
 
     const myId = ++renderTickRef.current
     if (pendingRef.current !== null) window.clearTimeout(pendingRef.current)
@@ -150,7 +151,7 @@ const VrPage: React.FC = () => {
     ctx.font = '13px ui-monospace, monospace'
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 200, 20)
     ctx.fillStyle = '#facc15'
-    ctx.fillText(`VR | ${PRESETS[preset].label} | Opacity:${Math.round(opacity * 100)}%`, 8, 18)
+    ctx.fillText(`VR | ${t(PRESETS[preset].labelKey)} | Opacity:${Math.round(opacity * 100)}%`, 8, 18)
   }, [mode, preset, opacity, rotation, sliceZ])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -181,7 +182,7 @@ const VrPage: React.FC = () => {
   const handleSendToReport = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas || mode === 'loading') {
-      message.warning('3D 画面尚未渲染, 请稍候再试')
+      message.warning(t('vr.notRendered'))
       return
     }
     let dataUrl = ''
@@ -189,7 +190,7 @@ const VrPage: React.FC = () => {
       dataUrl = canvas.toDataURL('image/png')
     } catch { /* 画布不可用 */ }
     if (!dataUrl || dataUrl === 'data:,') {
-      message.error('3D 截帧失败, 请重试')
+      message.error(t('vr.captureFailed'))
       return
     }
     try {
@@ -204,10 +205,10 @@ const VrPage: React.FC = () => {
         kind: 'vr',
       }))
     } catch {
-      message.error('截图缓存写入失败, 请重试')
+      message.error(t('vr.cacheFailed'))
       return
     }
-    message.success('VR 3D 截图已缓存, 正在跳转报告书写页自动插入')
+    message.success(t('vr.cacheSuccess'))
     navigate('/reports/v3-write')
   }, [canvasRef, mode, jobId, navigate])
 
@@ -222,30 +223,30 @@ const VrPage: React.FC = () => {
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Box size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>VR 体绘制</span>
-        <Tag color="cyan">容积渲染</Tag>
-        {mode === 'real' && <Tag color="green">真实DICOM</Tag>}
-        {mode === 'synthetic' && <Tag>合成数据</Tag>}
-        {realError && <Tag color="red">后端 VR 失败,已回退</Tag>}
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('vr.title')}</span>
+        <Tag color="cyan">{t('vr.tag.volumeRendering')}</Tag>
+        {mode === 'real' && <Tag color="green">{t('vr.tag.realDicom')}</Tag>}
+        {mode === 'synthetic' && <Tag>{t('vr.tag.synthetic')}</Tag>}
+        {realError && <Tag color="red">{t('vr.tag.fallback')}</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>预设:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('vr.label.preset')}</span>
         {(Object.keys(PRESETS) as PresetType[]).map(p => (
           <button key={p} style={preset === p ? activeBtnStyle : btnStyle} onClick={() => handlePresetChange(p)}>
-            {PRESETS[p].label}
+            {t(PRESETS[p].labelKey)}
           </button>
         ))}
         <div style={{ width: 1, height: 20, background: '#334155' }} />
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>不透明度:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('vr.label.opacity')}</span>
         <Slider min={0} max={1} step={0.01} value={opacity} onChange={setOpacity} style={{ width: 120 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{Math.round(opacity * 100)}%</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>层位:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('vr.label.slice')}</span>
         <Slider min={0} max={127} value={sliceZ} onChange={setSliceZ} style={{ width: 120 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{sliceZ}</span>
         <button style={btnStyle} onClick={() => { setRotation({ x: 0, y: 0, z: 0 }); setOpacity(0.8); setPreset('default'); setSliceZ(64) }}>
-          <RotateCcw size={12} /> 重置
+          <RotateCcw size={12} /> {t('vr.action.reset')}
         </button>
         {/* [v3.0.6.11-100 Wave 6B (D-2)] 3D → 报告: 画布截帧同通道发送 (报告书写页自动插入图注) */}
         <button
@@ -253,7 +254,7 @@ const VrPage: React.FC = () => {
           onClick={handleSendToReport}
           data-testid="vr-send-to-report"
         >
-          <SendToBack size={12} /> 发送到报告
+          <SendToBack size={12} /> {t('vr.action.sendToReport')}
         </button>
       </div>
       <div

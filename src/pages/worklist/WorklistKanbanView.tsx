@@ -4,28 +4,29 @@ import { initialModalityDevices } from '../../data/initialData'
 import type { RadiologyExam } from '../../types'
 import { smartWorklistEngine } from '../../services/worklist/SmartWorklistEngine'
 import type { PriorityScore as AIPriorityScore } from '../../types/workflow'
+import { t } from '../../i18n/appI18n'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  'SCHEDULED': { bg: '#3b82f622', color: '#3b82f6', label: '已登记' },
-  'ARRIVED': { bg: '#8b5cf622', color: '#7c3aed', label: '已报到' },
-  'IN_PROGRESS': { bg: '#ec489922', color: '#db2777', label: '检查中' },
-  'COMPLETED': { bg: '#22c55e22', color: '#059669', label: '已完成' },
-  'CANCELLED': { bg: '#ef444422', color: '#ef4444', label: '已取消' },
-  '已登记': { bg: '#3b82f622', color: '#3b82f6', label: '已登记' },
-  '待检查': { bg: '#8b5cf622', color: '#7c3aed', label: '待检查' },
-  '检查中': { bg: '#ec489922', color: '#db2777', label: '检查中' },
-  '待报告': { bg: '#f59e0b22', color: '#ca8a04', label: '待报告' },
-  '已报告': { bg: '#22c55e22', color: '#059669', label: '已报告' },
-  '已发布': { bg: '#22c55e22', color: '#047857', label: '已发布' },
-  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: '已暂停' },
-  '质控退回': { bg: '#ef444422', color: '#ef4444', label: '质控退回' },
+  'SCHEDULED': { bg: '#3b82f622', color: '#3b82f6', label: t('worklistStatus.scheduled') },
+  'ARRIVED': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistStatus.arrived') },
+  'IN_PROGRESS': { bg: '#ec489922', color: '#db2777', label: t('worklistStatus.inProgress') },
+  'COMPLETED': { bg: '#22c55e22', color: '#059669', label: t('worklistStatus.completed') },
+  'CANCELLED': { bg: '#ef444422', color: '#ef4444', label: t('worklistStatus.cancelled') },
+  '已登记': { bg: '#3b82f622', color: '#3b82f6', label: t('worklistStatus.scheduled') },
+  '待检查': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistStatus.pending') },
+  '检查中': { bg: '#ec489922', color: '#db2777', label: t('worklistStatus.inProgress') },
+  '待报告': { bg: '#f59e0b22', color: '#ca8a04', label: t('worklistStatus.pendingReport') },
+  '已报告': { bg: '#22c55e22', color: '#059669', label: t('worklistStatus.reported') },
+  '已发布': { bg: '#22c55e22', color: '#047857', label: t('worklistStatus.published') },
+  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: t('worklistStatus.paused') },
+  '质控退回': { bg: '#ef444422', color: '#ef4444', label: t('worklistStatus.qcReturned') },
 }
 
 const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  '普通': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '普通' },
-  '紧急': { bg: '#f59e0b22', color: '#f59e0b', label: '紧急' },
-  '危重': { bg: '#ef444422', color: '#ef4444', label: '危重' },
-  '会诊': { bg: '#8b5cf622', color: '#7c3aed', label: '会诊' },
+  '普通': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('worklistPriority.normal') },
+  '紧急': { bg: '#f59e0b22', color: '#f59e0b', label: t('worklistPriority.urgent') },
+  '危重': { bg: '#ef444422', color: '#ef4444', label: t('worklistPriority.critical') },
+  '会诊': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistPriority.consult') },
 }
 
 const KANBAN_COLUMNS = ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
@@ -178,7 +179,7 @@ const KanbanCard = React.memo(function KanbanCard({
           const smartLevel = smart ? smart.level : null
           const smartColor = smartLevel === 'critical' ? '#dc2626' : smartLevel === 'urgent' ? '#d97706' : smartLevel === 'normal' ? '#475569' : '#059669'
           const smartBg = smartLevel === 'critical' ? 'var(--color-error-bg)' : smartLevel === 'urgent' ? 'var(--color-warning-bg)' : smartLevel === 'normal' ? 'var(--bg-deep)' : 'var(--color-success-bg)'
-          const smartLabel = smartLevel === 'critical' ? '危重' : smartLevel === 'urgent' ? '紧急' : smartLevel === 'normal' ? '普通' : '低'
+          const smartLabel = smartLevel === 'critical' ? t('worklistPriority.critical') : smartLevel === 'urgent' ? t('worklistPriority.urgent') : smartLevel === 'normal' ? t('worklistPriority.normal') : t('worklistPriority.low')
           return (
             <>
               <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, fontWeight: 600, color: sla.color }}>
@@ -325,12 +326,12 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
               ))}
               {columnExams.length > 20 && (
                 <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 11, padding: '8px 0' }}>
-                  还有 {columnExams.length - 20} 条未显示
+                  {t('worklistKanban.remaining', { count: columnExams.length - 20 })}
                 </div>
               )}
               {columnExams.length === 0 && (
                 <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 12, padding: '20px 0' }}>
-                  暂无记录
+                  {t('worklistKanban.noRecords')}
                 </div>
               )}
             </div>

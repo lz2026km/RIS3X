@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Card, Empty, Select, Spin, Tag } from 'antd'
 import { Activity, AlertTriangle, Heart, HeartPulse, RefreshCw, Stethoscope } from 'lucide-react'
 import { cardiacAiApi, type CardiacAiResult, type CardiacStenosis } from '../../services/api/cardiacAiApi'
+import { t } from '../../i18n/appI18n'
 
 // 演示回退数据 (仅当真实接口不可用时)
 const DEMO_RESULTS: CardiacAiResult[] = [
@@ -62,11 +63,11 @@ const SEVERITY_COLOR: Record<string, string> = {
 }
 
 const SEVERITY_LABEL: Record<string, string> = {
-  normal: '正常', mild: '轻度', moderate: '中度', severe: '重度', occluded: '闭塞',
+  normal: t('vesselAnalysis.severityNormal'), mild: t('vesselAnalysis.severityMild'), moderate: t('vesselAnalysis.severityModerate'), severe: t('vesselAnalysis.severitySevere'), occluded: t('vesselAnalysis.severityOccluded'),
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  reviewed: '已审核', auto: '自动', confirmed: '已确认',
+  reviewed: t('vesselAnalysis.statusReviewed'), auto: t('vesselAnalysis.statusAuto'), confirmed: t('vesselAnalysis.statusConfirmed'),
 }
 
 function maxSeverity(lesions: CardiacStenosis[]): { pct: number; color: string } {
@@ -136,7 +137,7 @@ const VesselAnalysisPage: React.FC = () => {
       setResults(DEMO_RESULTS)
       setDataSource('demo')
       setSelectedId(DEMO_RESULTS[0]?.id ?? '')
-      setError((e as Error)?.message ?? '加载失败')
+      setError((e as Error)?.message ?? t('vesselAnalysis.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -158,49 +159,49 @@ const VesselAnalysisPage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Heart size={22} color="#dc2626" /> 血管分析工作台
+            <Heart size={22} color="#dc2626" /> {t('vesselAnalysis.title')}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, fontWeight: 700,
               background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
               color: dataSource === 'real' ? '#16a34a' : '#1e40af',
               border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}` }}>
-              {dataSource === 'real' ? '真实接口数据' : '演示数据 (回退)'}
+              {dataSource === 'real' ? t('vesselAnalysis.realData') : t('vesselAnalysis.demoData')}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            冠脉分段图 (SVG 血管树) · 狭窄/钙化由分段数据派生
+            {t('vesselAnalysis.subtitle')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Select
             style={{ width: 240 }}
-            placeholder="选择病例"
+            placeholder={t('vesselAnalysis.selectCase')}
             value={selectedId}
             onChange={setSelectedId}
             options={results.map((r) => ({ value: r.id, label: `${r.patientName} · ${r.studyId}` }))}
           />
-          <Button icon={<RefreshCw size={14} />} loading={loading} onClick={() => void load()}>刷新</Button>
+          <Button icon={<RefreshCw size={14} />} loading={loading} onClick={() => void load()}>{t('common.action.refresh')}</Button>
         </div>
       </div>
 
       {error && (
         <Alert style={{ marginBottom: 16 }} type="warning" showIcon
-          title="真实接口不可用, 已回退演示数据"
+          title={t('vesselAnalysis.realUnavailable')}
           description={error}
-          action={<Button size="small" icon={<RefreshCw size={14} />} onClick={() => void load()}>重试</Button>}
+          action={<Button size="small" icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('vesselAnalysis.retry')}</Button>}
         />
       )}
 
       <Spin spinning={loading}>
         {!selected ? (
-          <Empty description="暂无血管分析病例" style={{ padding: 60 }} image={<HeartPulse size={48} style={{ opacity: 0.4 }} />} />
+          <Empty description={t('vesselAnalysis.noCases')} style={{ padding: 60 }} image={<HeartPulse size={48} style={{ opacity: 0.4 }} />} />
         ) : (
           <>
             {/* KPI 行 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
               {[
-                { label: '狭窄病灶数', value: String(lesions.length), color: '#ea580c', icon: AlertTriangle },
-                { label: '重度狭窄 (≥70%)', value: String(severeCount), color: '#dc2626', icon: AlertTriangle },
-                { label: '钙化积分 (派生)', value: String(calciumDerived), color: '#7c3aed', icon: Activity },
+                { label: t('vesselAnalysis.lesionCount'), value: String(lesions.length), color: '#ea580c', icon: AlertTriangle },
+                { label: t('vesselAnalysis.severeStenosis'), value: String(severeCount), color: '#dc2626', icon: AlertTriangle },
+                { label: t('vesselAnalysis.calciumScore'), value: String(calciumDerived), color: '#7c3aed', icon: Activity },
                 { label: 'CAD-RADS', value: selected.cadRads ?? 'N', color: '#0891b2', icon: Stethoscope },
               ].map((k) => {
                 const Icon = k.icon
@@ -220,7 +221,7 @@ const VesselAnalysisPage: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '5fr 7fr', gap: 16 }}>
               {/* 冠脉分段图: 简化 SVG 血管树 */}
-              <Card title="冠脉分段图 (LAD / LCX / RCA)" size="small" style={{ border: '1px solid var(--border-color)' }}>
+              <Card title={t('vesselAnalysis.coronarySegments')} size="small" style={{ border: '1px solid var(--border-color)' }}>
                 <svg viewBox="0 0 480 460" width="100%" style={{ background: 'var(--content-bg)', borderRadius: 10 }} data-testid="vessel-tree-svg">
                   {VESSEL_PATHS.map((v) => {
                     const vs = vessels[v.vessel] ?? []
@@ -233,14 +234,14 @@ const VesselAnalysisPage: React.FC = () => {
                           {v.vessel}
                         </text>
                         <text x={v.labelX} y={v.labelY + 18} fill={color} fontSize="13" fontWeight={700}>
-                          {vs.length > 0 ? `最重 ${pct}% (${vs.length} 处)` : '未见病变'}
+                          {vs.length > 0 ? `最重 ${pct}% (${vs.length} 处)` : t('vesselAnalysis.noLesion')}
                         </text>
                       </g>
                     )
                   })}
                   <circle cx={300} cy={90} r={34} fill="none" stroke="#64748b" strokeWidth={3} />
-                  <text x={300} y={95} textAnchor="middle" fill="#94a3b8" fontSize="13">主动脉</text>
-                  <text x={240} y={440} fill="#64748b" fontSize="12">简化示意: 颜色 = 该血管最重狭窄严重度</text>
+                  <text x={300} y={95} textAnchor="middle" fill="#94a3b8" fontSize="13">{t('vesselAnalysis.aorta')}</text>
+                  <text x={240} y={440} fill="#64748b" fontSize="12">{t('vesselAnalysis.legend')}</text>
                 </svg>
                 <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
                   {Object.entries(SEVERITY_COLOR).map(([sev, color]) => (
@@ -254,7 +255,7 @@ const VesselAnalysisPage: React.FC = () => {
               {/* 狭窄/钙化列表 (vessel.segments 派生) */}
               <Card title={`狭窄 / 钙化列表 (${lesions.length})`} size="small" style={{ border: '1px solid var(--border-color)' }}>
                 {lesions.length === 0 ? (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="该病例无狭窄/钙化病灶" />
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vesselAnalysis.noLesionCase')} />
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 420, overflow: 'auto' }}>
                     {lesions.map((l, i) => {
@@ -264,7 +265,7 @@ const VesselAnalysisPage: React.FC = () => {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{l.vessel} {l.segment}</span>
                             <Tag color="error" style={{ margin: 0 }}>{SEVERITY_LABEL[l.severity] ?? l.severity}</Tag>
-                            {l.calcified && <Tag color="purple" style={{ margin: 0 }}>钙化</Tag>}
+                            {l.calcified && <Tag color="purple" style={{ margin: 0 }}>{t('vesselAnalysis.calcified')}</Tag>}
                             <span style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: severityColor }}>{l.stenosisPercent}%</span>
                           </div>
                           <div style={{ marginTop: 6, height: 6, background: 'rgba(148,163,184,0.2)', borderRadius: 3 }}>
@@ -276,23 +277,23 @@ const VesselAnalysisPage: React.FC = () => {
                   </div>
                 )}
                 <div style={{ marginTop: 12, fontSize: 11, color: 'var(--text-secondary)' }}>
-                  钙化积分 = 钙化病灶数 × 100 (派生估算, 标注) · 数据源: {dataSource === 'real' ? '真实接口结果' : '演示回退'}
+                  {t('vesselAnalysis.calciumNote')} · {t('vesselAnalysis.dataSource')}: {dataSource === 'real' ? t('vesselAnalysis.realResult') : t('vesselAnalysis.demoFallback')}
                 </div>
               </Card>
             </div>
 
             {/* 病例总体评估 */}
-            <Card title="AI 总体评估" size="small" style={{ marginTop: 16, border: '1px solid var(--border-color)' }}>
+            <Card title={t('vesselAnalysis.overallAssessment')} size="small" style={{ marginTop: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 6 }}>
-                <strong>所见:</strong> {selected.overallAssessment || '--'}
+                <strong>{t('vesselAnalysis.findings')}</strong> {selected.overallAssessment || '--'}
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>
-                <strong>建议:</strong> {selected.recommendation || '--'}
+                <strong>{t('vesselAnalysis.recommendation')}</strong> {selected.recommendation || '--'}
               </div>
               <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                <Tag>模型 {selected.modelVersion}</Tag>
+                <Tag>{t('vesselAnalysis.model')} {selected.modelVersion}</Tag>
                 <Tag color="blue">EF {selected.ejectionFraction ?? '--'}%</Tag>
-                <Tag color="geekblue">状态 {STATUS_LABEL[selected.status] ?? selected.status}</Tag>
+                <Tag color="geekblue">{t('vesselAnalysis.status')} {STATUS_LABEL[selected.status] ?? selected.status}</Tag>
                 <Tag>{new Date(selected.createdAt ?? '').toLocaleDateString('zh-CN')}</Tag>
               </div>
             </Card>

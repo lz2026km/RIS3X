@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Space, Tag, Button, message, Spin, Slider, Tooltip, Empty, Alert, Descriptions, Badge } from 'antd';
 import { RotateCcw, ZoomIn, ZoomOut, Boxes, RefreshCw } from 'lucide-react';
 import { dentalApi } from '@/services/api/dentalApi';
+import { t } from '../../i18n/appI18n';
 
 interface ScanStudy {
   id: string;
@@ -53,11 +54,11 @@ export const Scan3DViewerPage: React.FC = () => {
           }
         }
       } else {
-        setError(res.error?.message ?? '扫描记录加载失败');
+        setError(res.error?.message ?? t('scan3d.loadFailed'));
       }
     } catch (e) {
       console.error('[Scan3D] loadScans:', e);
-      setError('扫描记录加载失败');
+      setError(t('scan3d.loadFailed'));
     } finally {
       setListLoading(false);
     }
@@ -159,7 +160,7 @@ export const Scan3DViewerPage: React.FC = () => {
         }
       };
     }).catch(() => {
-      if (!disposed) message.error('Three.js 加载失败');
+      if (!disposed) message.error(t('scan3d.threeFailed'));
       setLoading(false);
     });
 
@@ -184,7 +185,7 @@ export const Scan3DViewerPage: React.FC = () => {
       <div style={{ background: '#001529', color: '#fff', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Space wrap>
           <Boxes size={16} color="#7dd3fc" />
-          <span style={{ fontSize: 16, fontWeight: 600 }}>口扫 3D 查看器</span>
+          <span style={{ fontSize: 16, fontWeight: 600 }}>{t('scan3d.title')}</span>
           <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
           <Tag color="purple">Three.js WebGL</Tag>
           {study && (
@@ -196,20 +197,20 @@ export const Scan3DViewerPage: React.FC = () => {
         </Space>
         <Space>
           <Slider min={50} max={300} value={zoom} onChange={handleZoom} style={{ width: 100 }} />
-          <Tooltip title="放大"><Button size="small" icon={<ZoomIn size={14} />} onClick={() => handleZoom(Math.min(300, zoom + 25))} /></Tooltip>
-          <Tooltip title="缩小"><Button size="small" icon={<ZoomOut size={14} />} onClick={() => handleZoom(Math.max(50, zoom - 25))} /></Tooltip>
-          <Tooltip title="重置视角"><Button size="small" icon={<RotateCcw size={14} />} onClick={() => handleZoom(100)} /></Tooltip>
+          <Tooltip title={t('scan3d.zoomIn')}><Button size="small" icon={<ZoomIn size={14} />} onClick={() => handleZoom(Math.min(300, zoom + 25))} /></Tooltip>
+          <Tooltip title={t('scan3d.zoomOut')}><Button size="small" icon={<ZoomOut size={14} />} onClick={() => handleZoom(Math.max(50, zoom - 25))} /></Tooltip>
+          <Tooltip title={t('scan3d.resetView')}><Button size="small" icon={<RotateCcw size={14} />} onClick={() => handleZoom(100)} /></Tooltip>
         </Space>
       </div>
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <div style={{ width: 260, background: '#0f172a', padding: 12, overflow: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <span style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>扫描记录</span>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>{t('scan3d.scanRecords')}</span>
             <Button size="small" icon={<RefreshCw size={11} />} onClick={() => void loadScans()} />
           </div>
           {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 8, fontSize: 12 }} />}
           <Spin spinning={listLoading}>
-            {scans.length === 0 && !listLoading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span style={{ color: 'var(--text-secondary)' }}>暂无扫描记录</span>} />}
+            {scans.length === 0 && !listLoading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span style={{ color: 'var(--text-secondary)' }}>{t('scan3d.noRecords')}</span>} />}
             {scans.map(s => (
               <div
                 key={s.id}
@@ -243,25 +244,25 @@ export const Scan3DViewerPage: React.FC = () => {
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: 'var(--text-secondary)' }}>
               <div style={{ textAlign: 'center' }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 16 }}>3D 模型加载中...</div>
+                <div style={{ marginTop: 16 }}>{t('scan3d.modelLoading')}</div>
               </div>
             </div>
           )}
           {!study && !loading && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: 'var(--text-secondary)' }}>
-              请在左侧选择扫描记录
+              {t('scan3d.selectPrompt')}
             </div>
           )}
           {study && (
             <div style={{ position: 'absolute', left: 12, bottom: 12, width: 280, background: 'rgba(15,23,42,0.88)', border: '1px solid #1e293b', borderRadius: 8, padding: 12, color: '#e2e8f0' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>模型信息</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('scan3d.modelInfo')}</div>
               <Descriptions column={1} size="small" colon={false}>
-                <Descriptions.Item label="患者"><span style={{ fontSize: 12 }}>{study.patientName}</span></Descriptions.Item>
-                <Descriptions.Item label="扫描类型"><span style={{ fontSize: 12 }}>{study.scanType ?? study.modality}</span></Descriptions.Item>
-                <Descriptions.Item label="设备"><span style={{ fontSize: 12 }}>{study.deviceModel ?? '-'}</span></Descriptions.Item>
-                <Descriptions.Item label="格式"><span style={{ fontSize: 12 }}>{modelInfo?.format ?? 'STL'}</span></Descriptions.Item>
-                <Descriptions.Item label="三角面片"><span style={{ fontSize: 12 }}>{modelInfo?.triangleCount ? `${modelInfo.triangleCount.toLocaleString()}` : '-'}</span></Descriptions.Item>
-                <Descriptions.Item label="影像数"><span style={{ fontSize: 12 }}>{study.imageCount ?? '-'}</span></Descriptions.Item>
+                <Descriptions.Item label={t('scan3d.patient')}><span style={{ fontSize: 12 }}>{study.patientName}</span></Descriptions.Item>
+                <Descriptions.Item label={t('scan3d.scanType')}><span style={{ fontSize: 12 }}>{study.scanType ?? study.modality}</span></Descriptions.Item>
+                <Descriptions.Item label={t('scan3d.device')}><span style={{ fontSize: 12 }}>{study.deviceModel ?? '-'}</span></Descriptions.Item>
+                <Descriptions.Item label={t('scan3d.format')}><span style={{ fontSize: 12 }}>{modelInfo?.format ?? 'STL'}</span></Descriptions.Item>
+                <Descriptions.Item label={t('scan3d.triangleCount')}><span style={{ fontSize: 12 }}>{modelInfo?.triangleCount ? `${modelInfo.triangleCount.toLocaleString()}` : '-'}</span></Descriptions.Item>
+                <Descriptions.Item label={t('scan3d.imageCount')}><span style={{ fontSize: 12 }}>{study.imageCount ?? '-'}</span></Descriptions.Item>
               </Descriptions>
             </div>
           )}

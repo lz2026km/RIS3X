@@ -20,6 +20,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { t } from '../../i18n/appI18n';
 
 const { Text } = Typography;
 
@@ -66,7 +67,7 @@ export const CommandCenterPage: React.FC = () => {
         setError(dashRes.value.error?.message ?? '');
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败');
+      setError((e as Error)?.message ?? t('commandCenter.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -80,7 +81,7 @@ export const CommandCenterPage: React.FC = () => {
     const data = Array.isArray(daily) ? daily : [];
     if (timeRange === 'today') {
       const last = data[data.length - 1];
-      return [{ label: last?.date?.slice(5) ?? '今日', count: last?.examCount ?? dash?.today?.exams ?? 0 }];
+      return [{ label: last?.date?.slice(5) ?? t('commandCenter.today'), count: last?.examCount ?? dash?.today?.exams ?? 0 }];
     }
     const bucket = timeRange === 'week' ? 1 : 5;
     const result: { label: string; count: number }[] = [];
@@ -94,44 +95,44 @@ export const CommandCenterPage: React.FC = () => {
     return result;
   }, [daily, timeRange, dash]);
 
-  const maxTrend = Math.max(1, ...trend.map((t) => t.count));
+  const maxTrend = Math.max(1, ...trend.map((tr) => tr.count));
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <BarChart3 size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>全院运营指挥中心</span>
-        <Tag color="cyan">实时</Tag>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('commandCenter.title')}</span>
+        <Tag color="cyan">{t('commandCenter.realtime')}</Tag>
         <Space>
-          {['today', 'week', 'month'].map((t) =>
-            <Button key={t} type={timeRange === t ? 'primary' : 'default'} size="small" onClick={() => { setNotifPage(1); setTimeRange(t); }}>
-              {t === 'today' ? '今日' : t === 'week' ? '近 7 日' : '近 30 日'}
+          {['today', 'week', 'month'].map((tr) =>
+            <Button key={tr} type={timeRange === tr ? 'primary' : 'default'} size="small" onClick={() => { setNotifPage(1); setTimeRange(tr); }}>
+              {tr === 'today' ? t('commandCenter.today') : tr === 'week' ? t('commandCenter.last7') : t('commandCenter.last30')}
             </Button>)}
-          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load(notifPage)} loading={loading}>刷新</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load(notifPage)} loading={loading}>{t('common.action.refresh')}</Button>
         </Space>
       </Space>
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load(notifPage)}><RefreshCw size={14} /> 重试</Button>} />
+          action={<Button size="small" onClick={() => void load(notifPage)}><RefreshCw size={14} /> {t('commandCenter.retry')}</Button>} />
       )}
 
       <Spin spinning={loading && !dash}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={6}><Card size="small" title={<Space><Camera size={14} />今日检查量</Space>}>
+          <Col span={6}><Card size="small" title={<Space><Camera size={14} />{t('commandCenter.todayExams')}</Space>}>
             <Statistic value={dash?.today?.exams ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#2563eb' } }} />
-            <Text type="secondary" style={{ fontSize: 12 }}>报告 {dash?.today?.reports ?? 0} 份</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>{t('commandCenter.reportsCount', { count: dash?.today?.reports ?? 0 })}</Text>
           </Card></Col>
-          <Col span={6}><Card size="small" title={<Space><AlertTriangle size={14} />危急值</Space>}>
+          <Col span={6}><Card size="small" title={<Space><AlertTriangle size={14} />{t('commandCenter.criticalValues')}</Space>}>
             <Statistic value={dash?.alerts?.openCritical ?? dash?.totals?.criticalEvents ?? 0}
               prefix={<Bell size={14} />} styles={{ content: { color: '#ff4d4f' } }} />
-            <Text type="secondary" style={{ fontSize: 12 }}>未闭环危急事件</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>{t('commandCenter.unclosedCritical')}</Text>
           </Card></Col>
-          <Col span={6}><Card size="small" title={<Space><Users size={14} />在线医生</Space>}>
+          <Col span={6}><Card size="small" title={<Space><Users size={14} />{t('commandCenter.onlineDoctors')}</Space>}>
             <Statistic value={dash?.alerts?.doctorsActive ?? 0} prefix={<CheckCircle2 size={14} />} styles={{ content: { color: '#52c41a' } }} />
-            <Text type="secondary" style={{ fontSize: 12 }}>当前活跃医生</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>{t('commandCenter.activeDoctors')}</Text>
           </Card></Col>
-          <Col span={6}><Card size="small" title={<Space><Monitor size={14} />设备状态</Space>}>
+          <Col span={6}><Card size="small" title={<Space><Monitor size={14} />{t('commandCenter.deviceStatus')}</Space>}>
             <Statistic value={deviceStats?.inUse ?? 0} suffix={`/ ${deviceStats?.total ?? 0}`} styles={{ content: { color: '#52c41a' } }} />
             <div style={{ marginTop: 4 }}>
               <Progress percent={deviceStats?.total ? Math.round((deviceStats.inUse / deviceStats.total) * 100) : 0} size="small" strokeColor="#52c41a" />
@@ -140,9 +141,9 @@ export const CommandCenterPage: React.FC = () => {
         </Row>
 
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={12}><Card size="small" title={<Space><Bell size={14} />最近事件流</Space>}>
+          <Col span={12}><Card size="small" title={<Space><Bell size={14} />{t('commandCenter.recentEvents')}</Space>}>
             {notifications.length === 0 ? (
-              <Empty description="暂无事件" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('commandCenter.noEvents')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               <List
                 size="small"
@@ -161,18 +162,18 @@ export const CommandCenterPage: React.FC = () => {
               />
             )}
           </Card></Col>
-          <Col span={12}><Card size="small" title={<Space><TrendingUp size={14} />检查量趋势</Space>}>
+          <Col span={12}><Card size="small" title={<Space><TrendingUp size={14} />{t('commandCenter.examTrend')}</Space>}>
             <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 4, paddingTop: 16 }}>
               {trend.length === 0 ? (
-                <Empty description="暂无趋势数据" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ margin: 'auto' }} />
-              ) : trend.map((t, i) => (
+                <Empty description={t('commandCenter.noTrend')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ margin: 'auto' }} />
+              ) : trend.map((tr, i) => (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t.count}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{tr.count}</div>
                   <div style={{
-                    width: '70%', height: `${Math.max(6, (t.count / maxTrend) * 150)}px`,
+                    width: '70%', height: `${Math.max(6, (tr.count / maxTrend) * 150)}px`,
                     background: '#2563eb', borderRadius: '4px 4px 0 0', opacity: 0.6 + i * 0.03,
                   }} />
-                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{tr.label}</div>
                 </div>
               ))}
             </div>
@@ -180,10 +181,10 @@ export const CommandCenterPage: React.FC = () => {
         </Row>
 
         <Row gutter={16}>
-          <Col span={8}><Card size="small" title="放射科"><Statistic title="累计检查" value={dash?.totals?.exams ?? 0} /></Card></Col>
-          <Col span={8}><Card size="small" title="患者总数"><Statistic title="在册患者" value={dash?.totals?.patients ?? 0} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-          <Col span={8}><Card size="small" title="系统健康度">
-            <Statistic title="在线设备" value={deviceStats?.inUse ?? 0} suffix={`/ ${deviceStats?.total ?? 0}`} />
+          <Col span={8}><Card size="small" title={t('commandCenter.radiology')}><Statistic title={t('commandCenter.totalExams')} value={dash?.totals?.exams ?? 0} /></Card></Col>
+          <Col span={8}><Card size="small" title={t('commandCenter.totalPatients')}><Statistic title={t('commandCenter.registeredPatients')} value={dash?.totals?.patients ?? 0} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
+          <Col span={8}><Card size="small" title={t('commandCenter.systemHealth')}>
+            <Statistic title={t('commandCenter.onlineDevices')} value={deviceStats?.inUse ?? 0} suffix={`/ ${deviceStats?.total ?? 0}`} />
             <Progress percent={deviceStats?.total ? Math.round((deviceStats.inUse / deviceStats.total) * 100) : 0} size="small" strokeColor="#52c41a" />
           </Card></Col>
         </Row>

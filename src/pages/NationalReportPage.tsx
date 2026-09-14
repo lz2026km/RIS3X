@@ -669,12 +669,12 @@ const scheduledReports: ScheduledReportConfig[] = [
 // ============ 工具函数 ============
 const getStatusBadge = (status: string) => {
   const statusMap: Record<string, { bg: string; color: string; label: string }> = {
-    '待上报': { bg: '#f59e0b22', color: '#f59e0b', label: '待上报' },
-    '已上报': { bg: '#3b82f622', color: '#3b82f6', label: '已上报' },
-    '已确认': { bg: '#22c55e22', color: '#16a34a', label: '已确认' },
-    '已驳回': { bg: '#ef444422', color: '#ef4444', label: '已驳回' },
-    '待审核': { bg: '#f59e0b22', color: '#f59e0b', label: '待审核' },
-    '已通过': { bg: '#22c55e22', color: '#16a34a', label: '已通过' },
+    '待上报': { bg: '#f59e0b22', color: '#f59e0b', label: t('nationalReportPage.statusPendingSubmit') },
+    '已上报': { bg: '#3b82f622', color: '#3b82f6', label: t('nationalReportPage.statusSubmitted') },
+    '已确认': { bg: '#22c55e22', color: '#16a34a', label: t('nationalReportPage.statusConfirmed') },
+    '已驳回': { bg: '#ef444422', color: '#ef4444', label: t('nationalReportPage.statusRejected') },
+    '待审核': { bg: '#f59e0b22', color: '#f59e0b', label: t('nationalReportPage.statusPendingReview') },
+    '已通过': { bg: '#22c55e22', color: '#16a34a', label: t('nationalReportPage.statusPassed') },
   }
   const style = statusMap[status] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: status }
   return (
@@ -749,7 +749,7 @@ const FHIRReportPanel = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
           <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirVersion')}</span> <span style={{ fontSize: 12, fontWeight: 600 }}>R4 (4.0.1)</span></div>
           <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>IG:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>IHE-RAD-IG v3.0</span></div>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirValidation')}</span> <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}>符合IG规范</span></div>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirValidation')}</span> <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}>{t('nationalReportPage.igCompliant')}</span></div>
           <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirResourceCount')}</span> <span style={{ fontSize: 12, fontWeight: 600 }}>{mockFHIRBundle.entry.length}</span></div>
         </div>
       </div>
@@ -911,7 +911,7 @@ const PreSubmissionValidation = () => {
         <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
           <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
           <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
-            <strong>数据质量提示：</strong>{t('nationalReport.validateWarning', { count: validationChecks.filter(v => v.status !== 'pass').length })}
+            <strong>{t('nationalReportPage.qualityTip')}</strong>{t('nationalReport.validateWarning', { count: validationChecks.filter(v => v.status !== 'pass').length })}
           </div>
         </div>
       )}
@@ -1043,7 +1043,7 @@ const ScheduledReportsPanel = () => {
       format: planForm.format,
       recipients: recipients.length > 0 ? recipients : ['system@hospital.cn'],
       enabled: true,
-      lastRun: '尚未执行',
+      lastRun: t('nationalReportPage.notRunYet'),
       nextRun,
     }, ...prev])
     setShowCreateModal(false)
@@ -1127,7 +1127,7 @@ const ScheduledReportsPanel = () => {
       <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
         <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
         <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
-          <strong>自动重试：</strong>{t('nationalReport.autoRetry')}
+          <strong>{t('nationalReportPage.autoRetryLabel')}</strong>{t('nationalReport.autoRetry')}
         </div>
       </div>
 
@@ -1166,7 +1166,7 @@ const ScheduledReportsPanel = () => {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.recipientsLabel')}</label>
-                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder="如: a@h.cn, b@h.cn" style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder={t('nationalReportPage.recipientsPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>

@@ -9,6 +9,7 @@ import { Layers, Save, Play, List, History, GripVertical, Plus, CheckCircle2, X,
 import { Table, Button, Tag, message, Modal, Input, Select, Card, Statistic, Row, Col, Tabs, Tooltip, Badge, Popconfirm, Space, Switch, InputNumber } from 'antd';
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
+import { t as appT } from '../../i18n/appI18n';
 import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
 import { usePagination } from '../../hooks/usePagination';
 
@@ -122,7 +123,7 @@ function CanvasStep({
         </div>
       </div>
       <Space>
-        <Tooltip title="编辑">
+        <Tooltip title={appT("orchestratorPage.edit")}>
           <Button
             type="text"
             size="small"
@@ -130,7 +131,7 @@ function CanvasStep({
             onClick={onEdit}
           />
         </Tooltip>
-        <Popconfirm title="确认删除该流程？" onConfirm={onDelete}>
+        <Popconfirm title={appT("orchestratorPage.confirmDeleteFlow")} onConfirm={onDelete}>
           <Button type="text" size="small" danger icon={<Trash2 size={14} />} />
         </Popconfirm>
       </Space>
@@ -264,7 +265,7 @@ export default function OrchestratorPage() {
       }
       loadFlows();
     } catch {
-      message.error("保存失败");
+      message.error(appT("orchestratorPage.saveFailed"));
     }
     setSaving(false);
   };
@@ -276,17 +277,17 @@ export default function OrchestratorPage() {
       loadExecutions(1);
       loadSlaStats();
     } catch {
-      message.error("触发失败");
+      message.error(appT("orchestratorPage.triggerFailed"));
     }
   };
 
   const handleNextStep = async (executionId: string) => {
     try {
       await orchestratorApi.triggerNextStep(executionId);
-      message.success("已触发下一步");
+      message.success(appT("orchestratorPage.nextStepTriggered"));
       loadExecutions(execPage);
     } catch {
-      message.error("触发下一步失败");
+      message.error(appT("orchestratorPage.nextStepFailed"));
     }
   };
 
@@ -297,11 +298,11 @@ export default function OrchestratorPage() {
         rerunOf: execution.id,
         reason: `rerun after ${execution.status}`,
       });
-      message.success("已重新执行流程");
+      message.success(appT("orchestratorPage.flowRerun"));
       loadExecutions(execPage);
       loadSlaStats();
     } catch {
-      message.error("重新执行失败");
+      message.error(appT("orchestratorPage.rerunFailed"));
     }
   };
 
@@ -312,7 +313,7 @@ export default function OrchestratorPage() {
       setSlaModalVisible(false);
       loadSlaConfigs();
     } catch {
-      message.error("SLA 保存失败");
+      message.error(appT("orchestratorPage.slaSaveFailed"));
     }
   };
 
@@ -358,9 +359,9 @@ export default function OrchestratorPage() {
       width: 100,
       render: (_, r) =>
         r.slaBreached ? (
-          <Tag color="red">已超时</Tag>
+          <Tag color="red">{appT("orchestratorPage.slaBreached")}</Tag>
         ) : r.slaDeadline ? (
-          <Tag color="green">正常进行</Tag>
+          <Tag color="green">{appT("orchestratorPage.onTrack")}</Tag>
         ) : (
           "-"
         ),
@@ -373,7 +374,7 @@ export default function OrchestratorPage() {
       render: (d: string) => new Date(d).toLocaleString(),
     },
     {
-      title: "步骤",
+      title: appT("orchestratorPage.steps"),
       key: "steps",
       render: (_, r) => (
         <Space size={4} wrap>
@@ -391,7 +392,7 @@ export default function OrchestratorPage() {
       ),
     },
     {
-      title: "操作",
+      title: appT("orchestratorPage.actions"),
       key: "action",
       width: 130,
       render: (_, r) => {
@@ -404,7 +405,7 @@ export default function OrchestratorPage() {
         // 已完成/失败/超时:重新触发执行(等价于重新部署激活流程)
         return (
           <Button size="small" onClick={() => handleRerunFlow(r)}>
-            重新执行
+            {appT("orchestratorPage.rerun")}
           </Button>
         );
       },
@@ -643,7 +644,7 @@ export default function OrchestratorPage() {
             onChange={(e) =>
               setStepForm((p) => ({ ...p, assigneeRole: e.target.value }))
             }
-            placeholder="例如：医生,技师"
+            placeholder={appT("orchestratorPage.rolePlaceholder")}
           />
         </div>
         <Row gutter={12}>
@@ -753,7 +754,7 @@ export default function OrchestratorPage() {
             onChange={(e) =>
               setSlaForm((p) => ({ ...p, escalateRole: e.target.value }))
             }
-            placeholder="例如：主任"
+            placeholder={appT("orchestratorPage.escalateRolePlaceholder")}
           />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -896,7 +897,7 @@ export default function OrchestratorPage() {
                 onClick={() => handleTriggerFlow(flow.id)}
               />
             </Tooltip>,
-            <Tooltip title="查看">
+            <Tooltip title={appT("orchestratorPage.view")}>
               <Button
                 type="text"
                 icon={<List size={14} />}

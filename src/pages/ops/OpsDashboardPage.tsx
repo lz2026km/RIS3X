@@ -11,6 +11,7 @@ import {
 import { getOpsAnalyticsService } from '../../services/ops'
 import { Card } from 'antd'
 import { ChartContainer } from '../../components/charts'
+import { t } from '../../i18n/appI18n'
 
 const svc = getOpsAnalyticsService()
 
@@ -41,7 +42,7 @@ function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
       </div>
       {trend && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? '#22c55e' : '#ef4444' }}>
-          {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}较昨日
+          {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}{t('opsDashboard.vsYesterday')}
         </div>
       )}
     </Card>
@@ -93,7 +94,7 @@ export default function OpsDashboardPage() {
 
       if (wlData.length > 0) {
         setOperators(wlData.map((w: any) => ({
-          operatorName: w.doctorName ?? w.doctor ?? '未分配',
+          operatorName: w.doctorName ?? w.doctor ?? t('opsDashboard.unassigned'),
           examsCompleted: Number(w.examCount ?? 0),
           avgExamTimeMin: Math.round(Number(w.avgTime ?? 0)),
         })))
@@ -124,7 +125,7 @@ export default function OpsDashboardPage() {
   return (
     <div style={s.root}>
       <div style={s.header}>
-        <div style={s.headerTitle}><Activity size={24} /><span style={s.headerText}>运营指挥中心</span>
+        <div style={s.headerTitle}><Activity size={24} /><span style={s.headerText}>{t('opsDashboard.title')}</span>
           {/* [G005 Wave4A P1] 数据源徽标 */}
           <span style={{
             fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
@@ -132,56 +133,56 @@ export default function OpsDashboardPage() {
             color: dataMode === 'real' ? '#4ade80' : '#fbbf24',
             border: `1px solid ${dataMode === 'real' ? '#22c55e' : '#f59e0b'}`,
           }}>
-            {dataMode === 'real' ? '真实数据' : '演示数据'}
+            {dataMode === 'real' ? t('opsDashboard.realData') : t('opsDashboard.demoData')}
           </span>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <RefreshCw size={16} style={{ color: '#8b949e', cursor: 'pointer' }} onClick={() => void load()} title="刷新数据" />
-          <span style={{ fontSize: 12, color: '#8b949e' }}>自动刷新 60s</span>
+          <RefreshCw size={16} style={{ color: '#8b949e', cursor: 'pointer' }} onClick={() => void load()} title={t('opsDashboard.refreshTitle')} />
+          <span style={{ fontSize: 12, color: '#8b949e' }}>{t('opsDashboard.autoRefresh')}</span>
         </div>
       </div>
 
       <div style={s.content}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <KpiCard title="选定周期总检查" value={totalExams} icon={TrendingUp} trend="up" color="#3b82f6" />
-          <KpiCard title="平均设备利用率" value={avgUtil} unit="%" icon={Monitor} trend="up" color="#22c55e" />
-          <KpiCard title="平均周转时间(P50)" value={p50} unit="min" icon={Clock} color="#f59e0b" />
-          <KpiCard title="活跃技师" value={operators.length} icon={Users} color="#8b5cf6" />
+          <KpiCard title={t('opsDashboard.kpiTotalExams')} value={totalExams} icon={TrendingUp} trend="up" color="#3b82f6" />
+          <KpiCard title={t('opsDashboard.kpiAvgUtil')} value={avgUtil} unit="%" icon={Monitor} trend="up" color="#22c55e" />
+          <KpiCard title={t('opsDashboard.kpiTurnaround')} value={p50} unit="min" icon={Clock} color="#f59e0b" />
+          <KpiCard title={t('opsDashboard.kpiActiveTechs')} value={operators.length} icon={Users} color="#8b5cf6" />
         </div>
 
         <div style={s.grid2}>
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><TrendingUp size={16} color="#3b82f6" />检查工作量趋势</div>
+            <div style={s.panelTitle}><TrendingUp size={16} color="#3b82f6" />{t('opsDashboard.workloadTrend')}</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               {[7, 14, 30].map(d => (
                 <button key={d} onClick={() => setDays(d)}
                   style={{ padding: '4px 12px', borderRadius: 4, border: '1px solid #30363d', background: days === d ? '#1e40af' : 'transparent', color: '#f0f6fc', cursor: 'pointer', fontSize: 12 }}>
-                  {d}天
+                  {t('opsDashboard.days', { d })}
                 </button>
               ))}
             </div>
-            <ChartContainer height={240} state={workload.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无工作量数据">
+            <ChartContainer height={240} state={workload.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noWorkloadData')}>
               <LineChart data={workload}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => v.slice(5)} />
                 <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="exams" stroke="#3b82f6" strokeWidth={2} dot={false} name="本周期" />
-                <Line type="monotone" dataKey="previousExams" stroke="#6e7681" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="上一周期" />
+                <Line type="monotone" dataKey="exams" stroke="#3b82f6" strokeWidth={2} dot={false} name={t('opsDashboard.thisPeriod')} />
+                <Line type="monotone" dataKey="previousExams" stroke="#6e7681" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name={t('opsDashboard.prevPeriod')} />
               </LineChart>
             </ChartContainer>
           </Card>
 
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><Monitor size={16} color="#22c55e" />设备利用率</div>
-            <ChartContainer height={260} state={modUtil.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备利用率数据">
+            <div style={s.panelTitle}><Monitor size={16} color="#22c55e" />{t('opsDashboard.deviceUtilization')}</div>
+            <ChartContainer height={260} state={modUtil.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noDeviceUtilData')}>
               <BarChart data={modUtil}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} unit="%" />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}%`, '利用率']} />
-                <Bar dataKey="utilizationPercent" fill="#22c55e" radius={[4, 4, 0, 0]} name="利用率" />
+                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}%`, t('opsDashboard.utilization')]} />
+                <Bar dataKey="utilizationPercent" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('opsDashboard.utilization')} />
               </BarChart>
             </ChartContainer>
           </Card>
@@ -189,28 +190,28 @@ export default function OpsDashboardPage() {
 
         <div style={s.grid2}>
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><Clock size={16} color="#f59e0b" />高峰时段分析 (每小时检查量) <span style={{ fontSize: 11, color: '#6e7681' }}>(模拟)</span></div>
-            <ChartContainer height={220} state={peakData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无高峰时段数据">
+            <div style={s.panelTitle}><Clock size={16} color="#f59e0b" />{t('opsDashboard.peakTitle')} <span style={{ fontSize: 11, color: '#6e7681' }}>{t('opsDashboard.simulated')}</span></div>
+            <ChartContainer height={220} state={peakData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noPeakData')}>
               <BarChart data={peakData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
-                <Bar dataKey="examCount" fill="#f59e0b" radius={[4, 4, 0, 0]} name="检查量" />
+                <Bar dataKey="examCount" fill="#f59e0b" radius={[4, 4, 0, 0]} name={t('opsDashboard.examVolume')} />
               </BarChart>
             </ChartContainer>
           </Card>
 
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><Users size={16} color="#8b5cf6" />技师生产力排行</div>
+            <div style={s.panelTitle}><Users size={16} color="#8b5cf6" />{t('opsDashboard.techRanking')}</div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>#</th>
-                    <th style={{ textAlign: 'left', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>姓名</th>
-                    <th style={{ textAlign: 'right', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>检查数</th>
-                    <th style={{ textAlign: 'right', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>平均耗时</th>
+                    <th style={{ textAlign: 'left', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('opsDashboard.colName')}</th>
+                    <th style={{ textAlign: 'right', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('opsDashboard.colExamCount')}</th>
+                    <th style={{ textAlign: 'right', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('opsDashboard.colAvgTime')}</th>
                   </tr>
                 </thead>
                 <tbody>

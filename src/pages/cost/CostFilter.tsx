@@ -5,23 +5,24 @@ import {
 } from 'lucide-react'
 import type { TimeRange, TabType } from './index'
 import { PRIMARY } from './index'
+import { t } from '../../i18n/appI18n'
 
 const TABS_CONFIG: { key: TabType; label: string; icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
-  { key: 'overview', label: '综合概览', icon: BarChart3 },
-  { key: 'equipment', label: '设备成本', icon: Server },
-  { key: 'consumable', label: '耗材成本', icon: Film },
-  { key: 'labor', label: '人力成本', icon: Users },
-  { key: 'benefit', label: '效益分析', icon: TrendingUp },
-  { key: 'medicalConsumable', label: '卫材消耗', icon: Package },
-  { key: 'depreciation', label: '设备折旧', icon: Clock },
-  { key: 'profitMargin', label: '成本利润率', icon: Percent },
-  { key: 'departmentRanking', label: '科室收益排名', icon: Award },
-  { key: 'drg', label: 'DRG/DIP成本', icon: Hash },
-  { key: 'breakeven', label: '盈亏平衡', icon: BadgePercent },
-  { key: 'insurance', label: '保险分摊', icon: Landmark },
-  { key: 'budget', label: '预算执行', icon: ClipboardList },
-  { key: 'pl', label: '损益表', icon: FileSpreadsheet },
-  { key: 'claims', label: '理赔跟踪', icon: Gavel },
+  { key: 'overview', label: t('costFilter.tabOverview'), icon: BarChart3 },
+  { key: 'equipment', label: t('costFilter.tabEquipment'), icon: Server },
+  { key: 'consumable', label: t('costFilter.tabConsumable'), icon: Film },
+  { key: 'labor', label: t('costFilter.tabLabor'), icon: Users },
+  { key: 'benefit', label: t('costFilter.tabBenefit'), icon: TrendingUp },
+  { key: 'medicalConsumable', label: t('costFilter.tabMedicalConsumable'), icon: Package },
+  { key: 'depreciation', label: t('costFilter.tabDepreciation'), icon: Clock },
+  { key: 'profitMargin', label: t('costFilter.tabProfitMargin'), icon: Percent },
+  { key: 'departmentRanking', label: t('costFilter.tabDepartmentRanking'), icon: Award },
+  { key: 'drg', label: t('costFilter.tabDrg'), icon: Hash },
+  { key: 'breakeven', label: t('costFilter.tabBreakeven'), icon: BadgePercent },
+  { key: 'insurance', label: t('costFilter.tabInsurance'), icon: Landmark },
+  { key: 'budget', label: t('costFilter.tabBudget'), icon: ClipboardList },
+  { key: 'pl', label: t('costFilter.tabPl'), icon: FileSpreadsheet },
+  { key: 'claims', label: t('costFilter.tabClaims'), icon: Gavel },
 ]
 
 export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChange }: {
@@ -43,8 +44,8 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: '#f0f6fc', marginBottom: 4 }}>💰 成本效益分析</div>
-          <div style={{ fontSize: 13, color: '#6e7681' }}>放射科 CT/MRI/DSA 设备 · 耗材 · 人力成本综合分析</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#f0f6fc', marginBottom: 4 }}>{t('costFilter.title')}</div>
+          <div style={{ fontSize: 13, color: '#6e7681' }}>{t('costFilter.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {(['month', 'quarter', 'year'] as TimeRange[]).map(range => (
@@ -63,7 +64,7 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
                 transition: 'all 0.2s',
               }}
             >
-              {range === 'month' ? '月度' : range === 'quarter' ? '季度' : '年度'}
+              {range === 'month' ? t('costFilter.monthly') : range === 'quarter' ? t('costFilter.quarterly') : t('costFilter.yearly')}
             </button>
           ))}
         </div>

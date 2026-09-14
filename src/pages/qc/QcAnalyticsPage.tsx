@@ -45,10 +45,10 @@ import {
 import { t } from '../../i18n/appI18n'
 
 const LOOP_STATUS_META: Record<LoopStatus, { label: string; color: string }> = {
-  open: { label: '待整改', color: 'orange' },
-  rectifying: { label: '整改中', color: 'blue' },
-  rechecking: { label: '复查中', color: 'purple' },
-  closed: { label: '已关闭', color: 'green' },
+  open: { label: t('qcAnalytics.loopStatus.open'), color: 'orange' },
+  rectifying: { label: t('qcAnalytics.loopStatus.rectifying'), color: 'blue' },
+  rechecking: { label: t('qcAnalytics.loopStatus.rechecking'), color: 'purple' },
+  closed: { label: t('qcAnalytics.loopStatus.closed'), color: 'green' },
 }
 
 const loopStatusLabel = (s: LoopStatus) => t(`qcAnalytics.loopStatus.${s}`)

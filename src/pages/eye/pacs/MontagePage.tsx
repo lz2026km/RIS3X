@@ -6,6 +6,7 @@ import { Layout as LayoutIcon, Download } from 'lucide-react';
 import { Camera, Database, FileImage, FileSpreadsheet, ImageIcon, RefreshCw } from 'lucide-react'
 import React, { useState } from "react";
 import { useCallback, useEffect, useRef } from 'react'
+import { t } from '../../../i18n/appI18n'
 
 // 演示回退数据 (后端 /eye/studies 不可用时展示, 与 backend eye.service SEED_EYE_STUDIES 同形)
 const FALLBACK_STUDIES: EyeStudy[] = [
@@ -29,12 +30,12 @@ const MODALITY_COLORS: Record<string, string> = {
 
 const MODALITY_LABELS: Record<string, string> = {
   OCT: "OCT",
-  Fundus: "眼底彩照",
-  FA: "荧光造影",
+  Fundus: "montage.modality.fundus",
+  FA: "montage.modality.fa",
   ICG: "ICG",
-  SlitLamp: "裂隙灯",
-  VisualField: "视野",
-  Biometry: "生物测量",
+  SlitLamp: "montage.modality.slitLamp",
+  VisualField: "montage.modality.visualField",
+  Biometry: "montage.modality.biometry",
 };
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -131,7 +132,7 @@ const MontagePage: React.FC = () => {
     canvasRef.current = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      message.error("浏览器不支持 Canvas 导出");
+      message.error(t("montage.canvasUnsupported"));
       return;
     }
     ctx.fillStyle = "#0f172a";
@@ -154,7 +155,7 @@ const MontagePage: React.FC = () => {
       ctx.fillStyle = "#fff";
       ctx.font = "bold 28px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(MODALITY_LABELS[s.modality] ?? s.modality, x + tile / 2, y + tile / 2 - 18);
+      ctx.fillText(t(MODALITY_LABELS[s.modality] ?? s.modality), x + tile / 2, y + tile / 2 - 18);
       ctx.font = "20px sans-serif";
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.fillText(`${s.patientName} · ${s.eye}`, x + tile / 2, y + tile / 2 + 22);
@@ -177,9 +178,9 @@ const MontagePage: React.FC = () => {
     canvas.toBlob((blob) => {
       if (blob) {
         downloadBlob(blob, `eye-montage-${new Date().toISOString().slice(0, 10)}.png`);
-        message.success("PNG 拼图已导出");
+        message.success(t("montage.pngExported"));
       } else {
-        message.error("PNG 导出失败");
+        message.error(t("montage.pngFailed"));
       }
     }, "image/png");
   }, [gridItems, overlap, type]);
@@ -195,9 +196,9 @@ const MontagePage: React.FC = () => {
   };
 
   const sourceBadge = loading ? null : usingFallback ? (
-    <Tag color="orange" icon={<Database size={12} />}>演示回退 (MSW/本地)</Tag>
+    <Tag color="orange" icon={<Database size={12} />}>{t("montage.previewFallback")}</Tag>
   ) : (
-    <Tag color="green" icon={<Database size={12} />}>真实 API (/eye/studies)</Tag>
+    <Tag color="green" icon={<Database size={12} />}>{t("montage.previewApi")}</Tag>
   );
 
   return (
@@ -215,8 +216,8 @@ const MontagePage: React.FC = () => {
             title={
               <Space>
                 <LayoutIcon size={16} />
-                <span>影像拼图 (Montage)</span>
-                <Tag color="cyan">{type === "mosaic" ? "马赛克(4x4)" : type === "widefield" ? "超广角" : "全景"}</Tag>
+                <span>{t("montage.title")}</span>
+                <Tag color="cyan">{type === "mosaic" ? t("montage.type.mosaic") : type === "widefield" ? t("montage.type.widefield") : t("montage.type.panoramic")}</Tag>
                 {sourceBadge}
               </Space>
             }
@@ -227,22 +228,22 @@ const MontagePage: React.FC = () => {
                   onChange={setType}
                   style={{ width: 140 }}
                   options={[
-                    { value: "panoramic", label: "全景拼图" },
-                    { value: "mosaic", label: "马赛克(4x4)" },
-                    { value: "widefield", label: "超广角" },
+                    { value: "panoramic", label: t("montage.opt.panoramic") },
+                    { value: "mosaic", label: t("montage.opt.mosaic") },
+                    { value: "widefield", label: t("montage.opt.widefield") },
                   ]}
                 />
                 <Dropdown
                   menu={{
                     items: [
-                      { key: "csv", icon: <FileSpreadsheet size={14} />, label: "导出数据 CSV" },
-                      { key: "png", icon: <Camera size={14} />, label: "导出拼图 PNG" },
+                      { key: "csv", icon: <FileSpreadsheet size={14} />, label: t("montage.export.csv") },
+                      { key: "png", icon: <Camera size={14} />, label: t("montage.export.png") },
                     ],
                     onClick: ({ key }) => handleExport(key),
                   }}
                 >
                   <Button size="small" icon={<Download size={14} />} loading={exporting}>
-                    导出
+                    {t("montage.export")}
                   </Button>
                 </Dropdown>
               </Space>
@@ -250,7 +251,7 @@ const MontagePage: React.FC = () => {
           >
             {loading ? (
               <div style={{ height: 350, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Spin tip="加载眼科检查图集...">
+                <Spin tip={t("montage.loading")}>
                   <div style={{ height: 60 }} />
                 </Spin>
               </div>
@@ -259,7 +260,7 @@ const MontagePage: React.FC = () => {
                 type="error"
                 showIcon
                 message={error}
-                action={<Button size="small" onClick={() => void loadStudies()}><RefreshCw size={12} /> 重试</Button>}
+                action={<Button size="small" onClick={() => void loadStudies()}><RefreshCw size={12} /> {t("montage.retry")}</Button>}
               />
             ) : (
               <div
@@ -299,14 +300,14 @@ const MontagePage: React.FC = () => {
                           fontSize: 12,
                         }}
                       >
-                        图像 {n}
+                        {t("montage.imageN", { n })}
                       </div>
                     ))
                   ) : (
                     gridItems.map((s, i) => (
                       <div
                         key={s.id}
-                        title={`${s.patientName} · ${MODALITY_LABELS[s.modality] ?? s.modality} (${s.eye}) · ${formatDate(s.acquisitionDate)}`}
+                        title={`${s.patientName} · ${t(MODALITY_LABELS[s.modality] ?? s.modality)} (${s.eye}) · ${formatDate(s.acquisitionDate)}`}
                         style={{
                           background: MODALITY_COLORS[s.modality] ?? "#1e293b",
                           borderRadius: 4,
@@ -327,13 +328,13 @@ const MontagePage: React.FC = () => {
                         </span>
                         <FileImage size={18} opacity={0.75} />
                         <span style={{ fontWeight: 700 }}>
-                          {MODALITY_LABELS[s.modality] ?? s.modality} · {s.eye}
+                          {t(MODALITY_LABELS[s.modality] ?? s.modality)} · {s.eye}
                         </span>
                         <span style={{ opacity: 0.75, fontSize: 11 }}>{s.patientName}</span>
                         <span style={{ opacity: 0.6, fontSize: 10 }}>{formatDate(s.acquisitionDate)}</span>
                         {s.status === "reported" && (
                           <Tag color="green" style={{ position: "absolute", top: 4, right: 4, fontSize: 9, margin: 0 }}>
-                            已报告
+                            {t("montage.reported")}
                           </Tag>
                         )}
                       </div>
@@ -351,17 +352,17 @@ const MontagePage: React.FC = () => {
                     fontSize: 12,
                   }}
                 >
-                  {gridItems.length} 张图像拼合 • 重叠率 {overlap}% • 数据源:{" "}
-                  {usingFallback ? "演示回退" : `API /eye/studies (${currentApiMode()})`}
+                  {gridItems.length} {t("montage.summaryMerged")} • {t("montage.summaryOverlap")} {overlap}% • {t("montage.summarySource")}:{" "}
+                  {usingFallback ? t("montage.demoFallback") : `API /eye/studies (${currentApiMode()})`}
                 </div>
               </div>
             )}
           </Card>
-          <Card size="small" title="拼接参数" style={{ marginTop: 8 }}>
+          <Card size="small" title={t("montage.params")} style={{ marginTop: 8 }}>
             <Row gutter={16}>
               <Col span={8}>
                 <div style={{ fontSize: 12 }}>
-                  重叠率:{" "}
+                  {t("montage.overlapLabel")}{" "}
                   <Slider
                     min={10}
                     max={50}
@@ -373,13 +374,13 @@ const MontagePage: React.FC = () => {
                 </div>
               </Col>
               <Col span={6}>
-                <Tag>多波段融合</Tag>
+                <Tag>{t("montage.tag.multiband")}</Tag>
               </Col>
               <Col span={5}>
-                <Tag>自动裁剪: 是</Tag>
+                <Tag>{t("montage.tag.autoCrop")}</Tag>
               </Col>
               <Col span={5}>
-                <Tag>质量: 标准</Tag>
+                <Tag>{t("montage.tag.quality")}</Tag>
               </Col>
             </Row>
           </Card>
@@ -387,10 +388,10 @@ const MontagePage: React.FC = () => {
         <Col span={8}>
           <Card
             size="small"
-            title={`源图像列表 (${gridItems.length})`}
+            title={t("montage.sourceList", { count: gridItems.length })}
             extra={
               <Button size="small" type="link" icon={<RefreshCw size={12} />} onClick={() => void loadStudies()}>
-                刷新
+                {t("montage.refresh")}
               </Button>
             }
           >
@@ -404,7 +405,7 @@ const MontagePage: React.FC = () => {
               {gridItems.map((s) => (
                 <div
                   key={s.id}
-                  title={`${s.id} · ${s.deviceModel || "未知设备"}`}
+                  title={`${s.id} · ${s.deviceModel || t("montage.unknownDevice")}`}
                   style={{
                     background: MODALITY_COLORS[s.modality] ?? "#1e293b",
                     height: 60,
@@ -424,24 +425,24 @@ const MontagePage: React.FC = () => {
               ))}
               {gridItems.length === 0 && (
                 <div style={{ gridColumn: "1 / -1", color: "var(--text-secondary)", fontSize: 12, textAlign: "center", padding: 20 }}>
-                  暂无检查图集
+                  {t("montage.emptyStudies")}
                 </div>
               )}
             </div>
           </Card>
-          <Card size="small" title="拼接历史" style={{ marginTop: 8 }}>
+          <Card size="small" title={t("montage.history")} style={{ marginTop: 8 }}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
               {gridItems.length > 0 ? (
                 <>
                   {gridItems.slice(0, 3).map((s, i) => (
                     <span key={s.id}>
-                      • {formatDate(s.acquisitionDate)} 拼图 #{i + 1} ({MODALITY_LABELS[s.modality] ?? s.modality}) ✓
+                      • {formatDate(s.acquisitionDate)} {t("montage.montageShort")} #{i + 1} ({t(MODALITY_LABELS[s.modality] ?? s.modality)}) ✓
                       {i < 2 && <><br /></>}
                     </span>
                   ))}
                 </>
               ) : (
-                "暂无拼图历史"
+                t("montage.emptyHistory")
               )}
             </div>
           </Card>

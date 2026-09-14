@@ -33,39 +33,39 @@ import { dentalApi } from "../../services/api/dentalApi";
 import { t } from "../../i18n/appI18n";
 
 const DESIGN_TYPES = [
-  { value: "inlay", label: "嵌体 Inlay" },
-  { value: "onlay", label: "高嵌体 Onlay" },
-  { value: "crown", label: "全冠 Crown" },
-  { value: "veneer", label: "贴面 Veneer" },
-  { value: "abutment", label: "基台 Abutment" },
-  { value: "implant-crown", label: "种植冠 Implant Crown" },
+  { value: "inlay", label: t("dentalCad.designType.inlay") },
+  { value: "onlay", label: t("dentalCad.designType.onlay") },
+  { value: "crown", label: t("dentalCad.designType.crown") },
+  { value: "veneer", label: t("dentalCad.designType.veneer") },
+  { value: "abutment", label: t("dentalCad.designType.abutment") },
+  { value: "implant-crown", label: t("dentalCad.designType.implantCrown") },
 ];
 
 const TYPE_LABELS: Record<string, string> = {
-  inlay: "嵌体",
-  onlay: "高嵌体",
-  crown: "全冠",
-  veneer: "贴面",
-  abutment: "基台",
-  "implant-crown": "种植冠",
+  inlay: t("dentalCad.typeLabel.inlay"),
+  onlay: t("dentalCad.typeLabel.onlay"),
+  crown: t("dentalCad.typeLabel.crown"),
+  veneer: t("dentalCad.typeLabel.veneer"),
+  abutment: t("dentalCad.typeLabel.abutment"),
+  "implant-crown": t("dentalCad.typeLabel.implantCrown"),
 };
 
 const MATERIAL_LABELS: Record<string, string> = {
-  zirconia: "氧化锆",
-  "lithium-disilicate": "二硅酸锂",
-  composite: "复合树脂",
-  feldspathic: "长石瓷",
+  zirconia: t("dentalCad.material.zirconia"),
+  "lithium-disilicate": t("dentalCad.material.lithiumDisilicate"),
+  composite: t("dentalCad.material.composite"),
+  feldspathic: t("dentalCad.material.feldspathic"),
   pmma: "PMMA",
-  metal: "钴铬金属",
-  titanium: "纯钛",
+  metal: t("dentalCad.material.metal"),
+  titanium: t("dentalCad.material.titanium"),
   peek: "PEEK",
 };
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
-  designed: { color: "warning", label: "已设计" },
-  milling: { color: "blue", label: "铣削中" },
-  milled: { color: "processing", label: "已铣削" },
-  cemented: { color: "success", label: "已粘接" },
+  designed: { color: "warning", label: t("dentalCad.status.designed") },
+  milling: { color: "blue", label: t("dentalCad.status.milling") },
+  milled: { color: "processing", label: t("dentalCad.status.milled") },
+  cemented: { color: "success", label: t("dentalCad.status.cemented") },
 };
 
 export const DentalCadPage: React.FC = () => {
@@ -189,7 +189,7 @@ export const DentalCadPage: React.FC = () => {
     try {
       await dentalApi.submitMill(current.id, selMillUnit);
       await dentalApi.updateCadStatus(current.id, "milling");
-      message.success(`已提交至研磨机: ${selMillUnit}`);
+      message.success(t("dentalCad.submittedToMill", { unit: selMillUnit }));
       setMode("list");
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
@@ -448,7 +448,7 @@ export const DentalCadPage: React.FC = () => {
                       <div>
                         <Tag>{TYPE_LABELS[d.type] ?? d.type}</Tag>
                         <Tag color="blue">{MATERIAL_LABELS[d.material] ?? d.material}</Tag>
-                        <Tag>{d.colorShade ? `${d.colorShade} 色` : d.colorShade}</Tag>
+                        <Tag>{d.colorShade ? t("dentalCad.shadeUnit", { shade: d.colorShade }) : d.colorShade}</Tag>
                       </div>
                       <Badge
                         status={

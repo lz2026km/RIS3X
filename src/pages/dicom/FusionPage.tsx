@@ -563,9 +563,9 @@ export default function FusionPage() {
           <Move size={12} /> {t('fusion.crosshair')}
         </button>
 
-        <button style={btnStyle} onClick={handleZoomIn} aria-label="放大"><ZoomIn size={12} /></button>
-        <button style={btnStyle} onClick={handleZoomOut} aria-label="缩小"><ZoomOut size={12} /></button>
-        <button style={btnStyle} onClick={handleReset} aria-label="重置视图"><RotateCw size={12} /></button>
+        <button style={btnStyle} onClick={handleZoomIn} aria-label={t('fusionPage.zoomIn')}><ZoomIn size={12} /></button>
+        <button style={btnStyle} onClick={handleZoomOut} aria-label={t('fusionPage.zoomOut')}><ZoomOut size={12} /></button>
+        <button style={btnStyle} onClick={handleReset} aria-label={t('fusionPage.resetView')}><RotateCw size={12} /></button>
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', background: PANEL_BG, borderRadius: 6, padding: '6px 12px' }}>
@@ -579,7 +579,7 @@ export default function FusionPage() {
           step={0.01}
           value={fusionAlpha}
           onChange={e => setFusionAlpha(parseFloat(e.target.value))}
-          aria-label="融合透明度"
+          aria-label={t('fusionPage.fusionOpacity')}
           style={{ flex: 1, accentColor: BLUE, height: 4 }}
         />
         <span style={{ fontSize: 12, fontWeight: 600, color: '#facc15', minWidth: 44, textAlign: 'right' }}>
@@ -647,7 +647,7 @@ export default function FusionPage() {
             <input
               type="range" min={0} max={127} value={sliceIndex}
               onChange={e => setSliceIndex(parseInt(e.target.value))}
-              aria-label="切片索引"
+              aria-label={t('fusionPage.sliceIndex')}
               style={{ flex: 1, height: 3, accentColor: BLUE }}
             />
             <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 30, textAlign: 'right' }}>{sliceIndex}</span>
@@ -659,24 +659,24 @@ export default function FusionPage() {
         <div style={{ width: 292, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>SUV 定量</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{t('fusionPage.suvQuant')}</span>
               <span style={{ fontSize: 10, color: '#64748b' }}>PET-CT</span>
               <div style={{ flex: 1 }} />
               {suvLoading ? (
-                <span style={{ fontSize: 10, color: '#64748b' }}>加载中...</span>
+                <span style={{ fontSize: 10, color: '#64748b' }}>{t('common.loading')}</span>
               ) : !suvResult?.hasPet ? (
-                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#64748b22', color: '#94a3b8', border: '1px solid #64748b55' }}>无 PET 模态</span>
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#64748b22', color: '#94a3b8', border: '1px solid #64748b55' }}>{t('fusionPage.noPetModal')}</span>
               ) : suvResult.source === 'exam' && !suvFallback ? (
-                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#16a34a22', color: '#16a34a', border: '1px solid #16a34a55' }}>真实数据</span>
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#16a34a22', color: '#16a34a', border: '1px solid #16a34a55' }}>{t('fusionPage.realData')}</span>
               ) : (
-                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>演示回退</span>
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>{t('fusionPage.demoFallback')}</span>
               )}
             </div>
 
             {!suvLoading && (!suvResult || !suvResult.hasPet) ? (
               <div style={{ textAlign: 'center', padding: '28px 8px', color: '#475569', fontSize: 12 }}>
-                <p style={{ margin: 0, fontWeight: 600, color: '#64748b' }}>无 PET 数据</p>
-                <p style={{ margin: 0, marginTop: 4, fontSize: 11 }}>该检查无 PET 模态，无法进行 SUV 定量</p>
+                <p style={{ margin: 0, fontWeight: 600, color: '#64748b' }}>{t('fusionPage.noPetData')}</p>
+                <p style={{ margin: 0, marginTop: 4, fontSize: 11 }}>{t('fusionPage.noPetDesc')}</p>
               </div>
             ) : suvResult && suvResult.suv ? (
               <>
@@ -695,19 +695,19 @@ export default function FusionPage() {
 
                 <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.6, marginBottom: 10 }}>
                   {suvResult.suv.normalization.formula}
-                  <div>体重 {suvResult.suv.normalization.weightKg}kg · 注射剂量 {suvResult.suv.normalization.injectedDoseMbg}MBq · 注射至扫描 {suvResult.suv.normalization.injectionToScanMin}min</div>
+                  <div>{t('fusionPage.suvParams', { weight: suvResult.suv.normalization.weightKg, dose: suvResult.suv.normalization.injectedDoseMbg, scan: suvResult.suv.normalization.injectionToScanMin })}</div>
                   {/* [G005 Wave3A G-06] 换算参数来源标注: 真实接口回包即检查数据派生, 本地回退为默认值 */}
                   <div style={{ marginTop: 2, color: suvResult.source === 'exam' && !suvFallback ? '#16a34a' : '#ea580c' }}>
-                    换算参数来源: {suvResult.source === 'exam' && !suvFallback ? '检查数据 (Exam 派生)' : '默认值 (演示回退)'}
+                    {t('fusionPage.paramSource')} {suvResult.source === 'exam' && !suvFallback ? t('fusionPage.examDerived') : t('fusionPage.defaultFallback')}
                   </div>
                 </div>
 
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 6 }}>
-                  病灶列表 ({suvResult.lesions.length})<span style={{ fontWeight: 400 }}> — 点击叠加标记</span>
+                  {t('fusionPage.lesionList', { count: suvResult.lesions.length })}<span style={{ fontWeight: 400 }}>{t('fusionPage.clickOverlay')}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {suvResult.lesions.length === 0 && (
-                    <div style={{ fontSize: 11, color: '#475569' }}>未见明确代谢增高病灶</div>
+                    <div style={{ fontSize: 11, color: '#475569' }}>{t('fusionPage.noLesion')}</div>
                   )}
                   {suvResult.lesions.map(l => (
                     <button

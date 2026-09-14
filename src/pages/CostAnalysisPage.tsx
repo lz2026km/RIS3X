@@ -103,13 +103,13 @@ export default function CostAnalysisPage() {
             revenue: m.revenue,
             cost: Math.round(m.revenue * costPerRevenue),
           })),
-          source: '财务接口实时',
+          source: t('costAnalysis.sourceRealtime'),
         })
       } else {
         setLive(null)
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : '成本数据加载失败，已回退演示数据')
+      setError(e instanceof Error ? e.message : t('costAnalysis.loadFailed'))
       setLive(null)
     } finally {
       setLoading(false)
@@ -445,10 +445,10 @@ export default function CostAnalysisPage() {
               return (
                 <div key={type} style={{ marginBottom: 24 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 12px', background: `${typeColor}20`, borderRadius: 6, borderLeft: `3px solid ${typeColor}` }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: typeColor }}>{type}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: typeColor }}>{type === 'CT增强' ? t('costAnalysis.ctEnhanced') : type === 'MR增强' ? t('costAnalysis.mrEnhanced') : 'DSA'}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '40px 80px 1fr 80px 80px 100px 120px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
-                    <span>#</span><span>{t('costAnalysis.equipmentType')}</span><span>项目名称</span><span>单位</span><span>单价(元)</span><span>{t('costAnalysis.monthlyUsage')}</span><span>{t('costAnalysis.annualCostYuan')}</span>
+                    <span>#</span><span>{t('costAnalysis.equipmentType')}</span><span>{t('costAnalysis.itemName')}</span><span>{t('costAnalysis.unit')}</span><span>{t('costAnalysis.unitPriceYuan')}</span><span>{t('costAnalysis.monthlyUsage')}</span><span>{t('costAnalysis.annualCostYuan')}</span>
                   </div>
                   {items.map((item, idx) => (<MedicalConsumableRow key={item.id} item={item} index={idx} />))}
                 </div>
@@ -491,21 +491,21 @@ export default function CostAnalysisPage() {
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
               <div style={sectionTitleStyle}><Activity size={16} color="#3b82f6" />{t('costAnalysis.straightLineDepreciation')}</div>
               <div style={{ fontSize: 12, color: '#8b949e', lineHeight: 1.6 }}>
-                <p style={{ marginBottom: 8 }}>公式: (原价 - 残值) / 使用年限</p>
-                <p>特点: 每期折旧额相同，设备账面值均匀下降</p>
+                <p style={{ marginBottom: 8 }}>{t('costAnalysis.formulaStraightLine')}</p>
+                <p>{t('costAnalysis.featureStraightLine')}</p>
               </div>
               <div style={{ marginTop: 16, padding: 12, background: '#21262d', borderRadius: 6 }}>
-                <div style={{ fontSize: 12, color: '#f0f6fc' }}>年折旧总额: <span style={{ color: '#ef4444', fontWeight: 600 }}>{formatCurrency(depreciationStats.straightLineTotal)}</span></div>
+                <div style={{ fontSize: 12, color: '#f0f6fc' }}>{t('costAnalysis.annualDepreciationLabel')} <span style={{ color: '#ef4444', fontWeight: 600 }}>{formatCurrency(depreciationStats.straightLineTotal)}</span></div>
               </div>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
               <div style={sectionTitleStyle}><TrendingDown size={16} color="#8b5cf6" />{t('costAnalysis.doubleDecliningBalance')}</div>
               <div style={{ fontSize: 12, color: '#8b949e', lineHeight: 1.6 }}>
-                <p style={{ marginBottom: 8 }}>公式: 2 × (1/使用年限) × 账面价值</p>
-                <p>特点: 前期折旧高，后期转为直线法</p>
+                <p style={{ marginBottom: 8 }}>{t('costAnalysis.formulaDoubleDeclining')}</p>
+                <p>{t('costAnalysis.featureDoubleDeclining')}</p>
               </div>
               <div style={{ marginTop: 16, padding: 12, background: '#21262d', borderRadius: 6 }}>
-                <div style={{ fontSize: 12, color: '#f0f6fc' }}>年折旧总额: <span style={{ color: '#8b5cf6', fontWeight: 600 }}>{formatCurrency(depreciationStats.doubleDecliningTotal)}</span></div>
+                <div style={{ fontSize: 12, color: '#f0f6fc' }}>{t('costAnalysis.annualDepreciationLabel')} <span style={{ color: '#8b5cf6', fontWeight: 600 }}>{formatCurrency(depreciationStats.doubleDecliningTotal)}</span></div>
               </div>
             </div>
           </div>
@@ -542,11 +542,11 @@ export default function CostAnalysisPage() {
                   <div key={exam.id} style={{ background: '#161b22', borderRadius: 6, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 500 }}>{exam.examName}</div>
-                      <div style={{ fontSize: 12, color: '#8b949e' }}>{exam.modality} · {exam.monthlyCount}例/月</div>
+                      <div style={{ fontSize: 12, color: '#8b949e' }}>{exam.modality} · {exam.monthlyCount}{t('costAnalysis.casesPerMonth')}</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 14, color: '#ef4444', fontWeight: 600 }}>-¥{Math.abs(exam.monthlyProfit).toLocaleString()}</div>
-                      <div style={{ fontSize: 12, color: '#ef4444' }}>利润率: {exam.profitRate.toFixed(1)}%</div>
+                      <div style={{ fontSize: 12, color: '#ef4444' }}>{t('costAnalysis.profitRateLabel')}{exam.profitRate.toFixed(1)}%</div>
                     </div>
                   </div>
                 ))}
@@ -557,7 +557,7 @@ export default function CostAnalysisPage() {
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Percent size={16} color="#22c55e" />{t('costAnalysis.perExamCostProfitRate')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
-              <span>#</span><span>项目名称</span><span>{t('costAnalysis.equipmentType')}</span><span>月检查量</span><span>收入(元)</span><span>成本(元)</span><span>利润率</span><span>月利润(元)</span>
+              <span>#</span><span>{t('costAnalysis.itemName')}</span><span>{t('costAnalysis.equipmentType')}</span><span>{t('costAnalysis.monthlyExamVolume')}</span><span>{t('costAnalysis.revenueYuan')}</span><span>{t('costAnalysis.costYuan')}</span><span>{t('costAnalysis.profitRateCol')}</span><span>{t('costAnalysis.monthlyProfitYuan')}</span>
             </div>
             {EXAM_PROFIT_MARGIN_DATA.sort((a, b) => b.profitRate - a.profitRate).map((item, idx) => (<ProfitMarginRow key={item.id} item={item} index={idx} />))}
           </div>
@@ -597,7 +597,7 @@ export default function CostAnalysisPage() {
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Award size={16} color="#22c55e" />{t('costAnalysis.deptRevenueRankingDetail')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 80px 90px 90px 90px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
-              <span>{t('costAnalysis.rank')}</span><span>{t('costAnalysis.dept')}</span><span>{t('costAnalysis.equipmentType')}</span><span>{t('costAnalysis.examCount')}</span><span>月{t('costAnalysis.revenueWan')}</span><span>月{t('costAnalysis.costWan')}</span><span>月{t('costAnalysis.profitWan')}</span><span>{t('costAnalysis.perCapitaProfit')}</span><span>同比</span><span>环比</span>
+              <span>{t('costAnalysis.rank')}</span><span>{t('costAnalysis.dept')}</span><span>{t('costAnalysis.equipmentType')}</span><span>{t('costAnalysis.examCount')}</span><span>{t('costAnalysis.monthRevenueWan')}</span><span>{t('costAnalysis.monthCostWan')}</span><span>{t('costAnalysis.monthProfitWan')}</span><span>{t('costAnalysis.perCapitaProfit')}</span><span>{t('costAnalysis.yoy')}</span><span>{t('costAnalysis.mom')}</span>
             </div>
             {deptRevenueStats.sorted.map((item, idx) => (<DeptRevenueRow key={item.deptId} item={item} index={idx} />))}
           </div>
@@ -631,7 +631,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> {t('costAnalysis.hospitalCostVsNationalAvg')}</div>
-            <ChartContainer height={280} state={DRG_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无DRG对比数据">
+            <ChartContainer height={280} state={DRG_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t('costAnalysis.noDrgData')}>
               <ChartBar data={DRG_DATA.map(d => ({ name: d.code.slice(0, 7), 本院费用: d.cost / 10000, 全国平均: d.nationalAvgCost / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -650,12 +650,12 @@ export default function CostAnalysisPage() {
               <thead>
                 <tr style={{ background: '#21262d' }}>
                   <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>{t('costAnalysis.drgCode')}</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>名称</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>权重</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>{t('costAnalysis.name')}</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>{t('costAnalysis.weight')}</th>
                   <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>{t('costAnalysis.hospitalCost')}</th>
                   <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>{t('costAnalysis.nationalAverage')}</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>差额</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>级别</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>{t('costAnalysis.difference')}</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>{t('costAnalysis.level')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -697,7 +697,7 @@ export default function CostAnalysisPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('costAnalysis.revenuePerExam')}</span><span style={{ color: '#22c55e' }}>¥{d.revenuePerExam.toLocaleString()}</span></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('costAnalysis.breakEvenPoint')}</span><span style={{ color: '#f59e0b', fontWeight: 600 }}>{bep}例/月</span></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('costAnalysis.actualExamVolume')}</span><span style={{ color: actualExams > bep ? '#22c55e' : '#ef4444', fontWeight: 600 }}>{actualExams}例/月</span></div>
-                    <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: isProfitable ? '#22c55e20' : '#ef444420', textAlign: 'center', fontSize: 13, fontWeight: 600, color: isProfitable ? '#22c55e' : '#ef4444' }}>{isProfitable ? '✅ 盈利' : '⚠️ 亏损'}</div>
+                    <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: isProfitable ? '#22c55e20' : '#ef444420', textAlign: 'center', fontSize: 13, fontWeight: 600, color: isProfitable ? '#22c55e' : '#ef4444' }}>{isProfitable ? t('costAnalysis.profitable') : t('costAnalysis.loss')}</div>
                   </div>
                 </div>
               )
@@ -706,7 +706,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> {t('costAnalysis.monthlyRevenueCostTrend')}</div>
-            <ChartContainer height={280} state={BREAK_EVEN_DATA.monthlyTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无收支趋势数据">
+            <ChartContainer height={280} state={BREAK_EVEN_DATA.monthlyTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t('costAnalysis.noBreakEvenTrend')}>
               <ChartBar data={BREAK_EVEN_DATA.monthlyTrend.map(m => ({ month: m.month.slice(5), CT收入: m.ctRevenue / 10000, CT成本: m.ctCost / 10000, MR收入: m.mrRevenue / 10000, MR成本: m.mrCost / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -739,16 +739,16 @@ export default function CostAnalysisPage() {
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
               <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> {t('costAnalysis.payerTrendWan')}</div>
-              <ChartContainer height={220} state={INSURANCE_ALLOCATION.monthlyTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无支付方趋势数据">
+              <ChartContainer height={220} state={INSURANCE_ALLOCATION.monthlyTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t('costAnalysis.noPayerTrend')}>
                 <LineChart data={INSURANCE_ALLOCATION.monthlyTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: string) => v.slice(5)} />
                   <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} />
                   <Legend />
-                  <Line type="monotone" dataKey="medicalInsurance" name="医保" stroke="#3b82f6" strokeWidth={2} />
-                  <Line type="monotone" dataKey="commercial" name="商保" stroke="#059669" strokeWidth={2} />
-                  <Line type="monotone" dataKey="selfPay" name="自费" stroke="#d97706" strokeWidth={2} />
+                  <Line type="monotone" dataKey="medicalInsurance" name={t('costAnalysis.medicalInsurance')} stroke="#3b82f6" strokeWidth={2} />
+                  <Line type="monotone" dataKey="commercial" name={t('costAnalysis.commercialInsurance')} stroke="#059669" strokeWidth={2} />
+                  <Line type="monotone" dataKey="selfPay" name={t('costAnalysis.selfPay')} stroke="#d97706" strokeWidth={2} />
                 </LineChart>
               </ChartContainer>
             </div>
@@ -767,7 +767,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> {t('costAnalysis.monthlyBudgetVsActual')}</div>
-            <ChartContainer height={260} state={BUDGET_DATA.monthly.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无预算数据">
+            <ChartContainer height={260} state={BUDGET_DATA.monthly.length === 0 ? 'empty' : 'ready'} emptyDescription={t('costAnalysis.noBudgetData')}>
               <ChartBar data={BUDGET_DATA.monthly.map(m => ({ month: m.month.slice(5), 预算: m.budget / 10000, 实际: m.actual / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -809,7 +809,7 @@ export default function CostAnalysisPage() {
                   {BUDGET_DATA.monthly.filter(m => m.varianceRate > 5).map(m => (
                     <div key={m.month} style={{ padding: 8, background: '#ef444420', borderRadius: 6, fontSize: 12 }}>
                       <span style={{ color: '#f0f6fc' }}>{m.month}: </span>
-                      <span style={{ color: '#ef4444', fontWeight: 600 }}>超支{m.varianceRate.toFixed(1)}%</span>
+                      <span style={{ color: '#ef4444', fontWeight: 600 }}>{t('costAnalysis.overBudget')}{m.varianceRate.toFixed(1)}%</span>
                       <span style={{ color: '#8b949e', marginLeft: 8 }}>(+¥{m.variance.toLocaleString()})</span>
                     </div>
                   ))}
@@ -840,14 +840,14 @@ export default function CostAnalysisPage() {
                   </div>
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontSize: 14, fontWeight: 700, borderTop: '2px solid #30363d', marginTop: 4 }}>
-                  <span style={{ color: '#f0f6fc' }}>净利润</span>
+                  <span style={{ color: '#f0f6fc' }}>{t('costAnalysis.netProfit')}</span>
                   <span style={{ color: PL_DATA.currentMonth.netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{PL_DATA.currentMonth.netIncome.toLocaleString()}</span>
                 </div>
               </div>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
               <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> {t('costAnalysis.monthlyPLTrend')}</div>
-              <ChartContainer height={280} state={PL_DATA.monthly.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无损益趋势数据">
+              <ChartContainer height={280} state={PL_DATA.monthly.length === 0 ? 'empty' : 'ready'} emptyDescription={t('costAnalysis.noPlTrend')}>
                 <ChartBar data={PL_DATA.monthly.map(m => ({ month: m.month.slice(5), 收入: m.revenue / 10000, 成本: m.cost / 10000, 毛利: m.grossProfit / 10000, 净利: m.netIncome / 10000 }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -905,8 +905,8 @@ export default function CostAnalysisPage() {
                 </tbody>
               </table>
               <div style={{ padding: '12px 16px', borderTop: '1px solid #30363d', display: 'flex', gap: 8 }}>
-                <button onClick={handleExportClaims837} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Download size={14} /> 生成837理赔</button>
-                <button onClick={() => void loadFinance()} style={{ padding: '6px 14px', background: '#21262d', color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}><RefreshCw size={14} style={{ marginRight: 4 }} />刷新</button>
+                <button onClick={handleExportClaims837} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Download size={14} /> {t('costAnalysis.generate837')}</button>
+                <button onClick={() => void loadFinance()} style={{ padding: '6px 14px', background: '#21262d', color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}><RefreshCw size={14} style={{ marginRight: 4 }} />{t('costAnalysis.refresh')}</button>
               </div>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
@@ -915,11 +915,11 @@ export default function CostAnalysisPage() {
               <div style={{ marginTop: 16, padding: 12, background: '#21262d', borderRadius: 6 }}>
                 <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8 }}>{t('costAnalysis.appealProcess')}</div>
                 <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#f0f6fc' }}>
-                  <span style={{ padding: '4px 8px', background: '#3b82f620', borderRadius: 4, color: '#3b82f6' }}>1. 补充材料</span>
+                  <span style={{ padding: '4px 8px', background: '#3b82f620', borderRadius: 4, color: '#3b82f6' }}>{t('costAnalysis.appealStep1')}</span>
                   <ArrowRight size={14} style={{ color: '#8b949e', alignSelf: 'center' }} />
-                  <span style={{ padding: '4px 8px', background: '#f59e0b20', borderRadius: 4, color: '#f59e0b' }}>2. 提交申诉</span>
+                  <span style={{ padding: '4px 8px', background: '#f59e0b20', borderRadius: 4, color: '#f59e0b' }}>{t('costAnalysis.appealStep2')}</span>
                   <ArrowRight size={14} style={{ color: '#8b949e', alignSelf: 'center' }} />
-                  <span style={{ padding: '4px 8px', background: '#22c55e20', borderRadius: 4, color: '#22c55e' }}>3. 重新核定</span>
+                  <span style={{ padding: '4px 8px', background: '#22c55e20', borderRadius: 4, color: '#22c55e' }}>{t('costAnalysis.appealStep3')}</span>
                 </div>
               </div>
             </div>

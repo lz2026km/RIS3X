@@ -35,6 +35,13 @@ const NATIONAL_CRITICAL_ITEMS: Record<string, { code: string; name: string; icon
   ],
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  'CT/MR': 'CT/MR',
+  'DR/CR': 'DR/CR',
+  'DSA/介入': t('cvSection.category.dsa'),
+  超声: t('cvSection.category.us'),
+}
+
 const CriticalItemsDirectory = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>('CT/MR')
   const [showModal, setShowModal] = useState(false)
@@ -61,7 +68,7 @@ const CriticalItemsDirectory = () => {
               <div key={category} style={{ marginBottom: 8 }}>
                 <div onClick={() => setExpandedCategory(isExpanded ? null : category)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}>
                   <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
-                  <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{category}</span>
+                  <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{CATEGORY_LABELS[category] ?? category}</span>
                   <span style={{ fontSize: 12, color: '#64748b', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
                   <ChevronRight size={14} style={{ color: '#64748b', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </div>
@@ -111,7 +118,7 @@ const CriticalItemsDirectory = () => {
                   <div key={category} style={{ marginBottom: 20 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid ' + PRIMARY_COLOR }}>
                       <CategoryIcon size={16} style={{ color: PRIMARY_COLOR }} />
-                      <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY_COLOR }}>{category}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY_COLOR }}>{CATEGORY_LABELS[category] ?? category}</span>
                       <span style={{ fontSize: 12, color: '#fff', background: PRIMARY_COLOR, padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

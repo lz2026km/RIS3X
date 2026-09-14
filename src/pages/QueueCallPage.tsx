@@ -14,6 +14,7 @@ import {
 import { initialQueueCalls } from '../data/initialData'
 import { queueApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { t } from '../i18n/appI18n'
 
 // ============================================================
 // 类型定义
@@ -712,7 +713,7 @@ export default function QueueCallPage() {
         setLoadError(null)
       } else {
         setQueueCalls(initialQueueCalls)
-        setLoadError('API 不可用,使用本地数据')
+        setLoadError(t('queueCall.loadFailedLocal'))
       }
       setLoading(false)
     })()
@@ -806,13 +807,13 @@ export default function QueueCallPage() {
     if (res.success) {
       setQueueCalls(prev => prev.map(q => (q.id === item.id ? { ...q, priority } : q)))
     } else {
-      setLoadError(res.error?.message ?? '优先级调整失败')
+      setLoadError(res.error?.message ?? t('queueCall.priorityUpdateFailed'))
     }
   }
 
   return (
     <div data-testid="queue-call-page" style={styles.root}>
-      {loading && <LoadingBanner message="正在从 API 加载排队数据..." />}
+      {loading && <LoadingBanner message={t('queueCall.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部导航 */}
       <header style={styles.header}>
@@ -822,8 +823,8 @@ export default function QueueCallPage() {
               <Phone size={22} color="#fff" />
             </div>
             <div>
-              <div style={styles.headerTitle}>叫号管理</div>
-              <div style={styles.headerSubtitle}>G005 放射科RIS</div>
+              <div style={styles.headerTitle}>{t('queueCall.title')}</div>
+              <div style={styles.headerSubtitle}>{t('queueCall.subtitle')}</div>
             </div>
           </div>
         </div>
@@ -834,11 +835,11 @@ export default function QueueCallPage() {
           </div>
           <button style={styles.headerBtn} onClick={() => { setQueueCalls([...queueCalls]); }}>
             <RefreshCw size={14} />
-            刷新
+            {t('queueCall.refresh')}
           </button>
           <button style={styles.headerBtn} onClick={() => { setIsVoiceEnabled(!isVoiceEnabled); }}>
             <Volume2 size={14} />
-            语音
+            {t('queueCall.voice')}
           </button>
         </div>
       </header>
@@ -852,7 +853,7 @@ export default function QueueCallPage() {
             {currentCalled ? (
               <div style={styles.callBanner}>
                 <div style={styles.callBannerBg} />
-                <div style={styles.callLabel}>请 到 检 查 室</div>
+                <div style={styles.callLabel}>{t('queueCall.goToRoom')}</div>
                 <div style={styles.callNumber}>{currentCalled.queueNum}</div>
                 <div style={styles.callPatientName}>{currentCalled.patientName}</div>
                 <div style={styles.callInfo}>{currentCalled.examItemName} · {currentCalled.modality}</div>
@@ -865,8 +866,8 @@ export default function QueueCallPage() {
                   <div style={styles.callEmptyIcon}>
                     <VolumeX size={36} color="rgba(255,255,255,0.5)" />
                   </div>
-                  <div style={styles.callEmptyText}>暂无待检患者</div>
-                  <div style={styles.callEmptySubtext}>请从候诊队列中选择患者进行呼叫</div>
+                  <div style={styles.callEmptyText}>{t('queueCall.noWaiting')}</div>
+                  <div style={styles.callEmptySubtext}>{t('queueCall.selectHint')}</div>
                 </div>
               </div>
             )}
@@ -877,7 +878,7 @@ export default function QueueCallPage() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <Users size={18} />
-                候诊队列 ({filteredQueue.length})
+                {t('queueCall.queueTitle', { count: filteredQueue.length })}
               </div>
             </div>
             
@@ -885,7 +886,7 @@ export default function QueueCallPage() {
             <div style={styles.toolbar}>
               <input 
                 style={styles.searchInput}
-                placeholder="搜索患者姓名或队列号..."
+                placeholder={t('queueCall.searchPlaceholder')}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -894,7 +895,7 @@ export default function QueueCallPage() {
                 value={filterModality}
                 onChange={e => setFilterModality(e.target.value)}
               >
-                <option value="全部">全部类型</option>
+                <option value="全部">{t('queueCall.allTypes')}</option>
                 <option value="CT">CT</option>
                 <option value="MR">MR</option>
                 <option value="DR">DR</option>
@@ -906,7 +907,7 @@ export default function QueueCallPage() {
                 value={filterStatus}
                 onChange={e => setFilterStatus(e.target.value)}
               >
-                <option value="全部">全部状态</option>
+                <option value="全部">{t('queueCall.allStatus')}</option>
                 <option value="等待中">等待中</option>
                 <option value="已呼叫">已呼叫</option>
                 <option value="检查中">检查中</option>
@@ -937,7 +938,7 @@ export default function QueueCallPage() {
                       <select
                         value={item.priority}
                         onChange={(e) => void handleSetPriority(item, e.target.value as QueueCallItem['priority'])}
-                        title="调整优先级"
+                        title={t('queueCall.priorityTitle')}
                         style={{
                           fontSize: 12, borderRadius: 4, padding: '1px 4px',
                           border: '1px solid var(--border-color)',
@@ -954,7 +955,7 @@ export default function QueueCallPage() {
                     <div style={{ ...styles.statusBadge, ...getStatusStyle(item.status) }}>
                       {item.status}
                     </div>
-                    <div style={styles.queueWait}>等待 {item.waitMinutes}分钟</div>
+                    <div style={styles.queueWait}>{t('queueCall.waitMinutes', { n: item.waitMinutes })}</div>
                   </div>
                   <div style={styles.queueActions}>
                     {item.status === '等待中' && (
@@ -962,7 +963,7 @@ export default function QueueCallPage() {
                         style={styles.btnCall}
                         onClick={() => handleCall(item)}
                       >
-                        <Phone size={12} /> 呼叫
+                        <Phone size={12} /> {t('queueCall.call')}
                       </button>
                     )}
                     {item.status === '已呼叫' && (
@@ -971,7 +972,7 @@ export default function QueueCallPage() {
                           style={styles.btnRecall}
                           onClick={() => handleRecall(item)}
                         >
-                          <RefreshCw size={12} /> 重呼
+                          <RefreshCw size={12} /> {t('queueCall.recall')}
                         </button>
                         <button 
                           style={styles.btnComplete}
@@ -986,7 +987,7 @@ export default function QueueCallPage() {
                         style={styles.btnComplete}
                         onClick={() => handleComplete(item)}
                       >
-                        <CheckCircle size={12} /> 完成
+                        <CheckCircle size={12} /> {t('queueCall.complete')}
                       </button>
                     )}
                   </div>
@@ -994,7 +995,7 @@ export default function QueueCallPage() {
               ))}
               {filteredQueue.length === 0 && (
                 <div style={{ ...styles.callEmpty, padding: 32 }}>
-                  <div style={styles.callEmptyText}>暂无匹配的候诊患者</div>
+                  <div style={styles.callEmptyText}>{t('queueCall.noMatch')}</div>
                 </div>
               )}
             </div>
@@ -1008,9 +1009,9 @@ export default function QueueCallPage() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <Monitor size={18} />
-                检查室状态
+                {t('queueCall.roomStatus')}
               </div>
-              <span style={{ fontSize: 12, color: TEXT_MUTED }}>{examRooms.length} 个检查室 {roomsFromApi ? '· 实时' : '· 演示数据'}</span>
+              <span style={{ fontSize: 12, color: TEXT_MUTED }}>{t('queueCall.roomCount', { count: examRooms.length })} {roomsFromApi ? t('queueCall.realtime') : t('queueCall.demoData')}</span>
             </div>
             <div style={{ ...styles.cardBody, padding: 12 }}>
               <div style={styles.roomGrid}>
@@ -1041,11 +1042,11 @@ export default function QueueCallPage() {
                     <div style={styles.roomStats}>
                       <div style={styles.roomStat}>
                         <div style={styles.roomStatValue}>{room.completedToday}</div>
-                        <div style={styles.roomStatLabel}>今日完成</div>
+                        <div style={styles.roomStatLabel}>{t('queueCall.todayCompleted')}</div>
                       </div>
                       <div style={styles.roomStat}>
                         <div style={styles.roomStatValue}>{room.waitCount}</div>
-                        <div style={styles.roomStatLabel}>候诊人数</div>
+                        <div style={styles.roomStatLabel}>{t('queueCall.waitingCount')}</div>
                       </div>
                     </div>
                   </Card>
@@ -1056,29 +1057,29 @@ export default function QueueCallPage() {
                 <div style={{ marginTop: 12, padding: 12, background: 'var(--color-info-bg)', borderRadius: 10, border: `1px solid ${PRIMARY_LIGHT}40` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>
-                      {roomDetail?.roomName ?? selectedRoom} 房间明细
+                      {roomDetail?.roomName ?? selectedRoom} {t('queueCall.roomDetail')}
                     </span>
                     <button
                       style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 12, cursor: 'pointer' }}
                       onClick={() => setSelectedRoom(null)}
                     >
-                      关闭
+                      {t('queueCall.close')}
                     </button>
                   </div>
                   {roomDetailLoading ? (
-                    <div style={{ fontSize: 12, color: TEXT_MUTED }}>加载房间队列...</div>
+                    <div style={{ fontSize: 12, color: TEXT_MUTED }}>{t('queueCall.loadingRoomQueue')}</div>
                   ) : (
                     <>
                       {roomDetailStatus && (
                         <div style={{ display: 'flex', gap: 16, fontSize: 12, color: TEXT_MUTED, marginBottom: 8 }}>
-                          <span>状态: <b style={{ color: getRoomStatusStyle(roomDetailStatus.status) === styles.roomStatusBusy ? ACCENT_YELLOW : ACCENT_GREEN }}>{roomDetailStatus.status ?? '-'}</b></span>
-                          <span>当前患者: <b style={{ color: TEXT_DARK }}>{roomDetailStatus.currentPatient ?? '无'}</b></span>
-                          <span>候诊: <b style={{ color: TEXT_DARK }}>{roomDetailStatus.waitCount ?? 0}</b></span>
+                          <span>{t('queueCall.statusLabel')} <b style={{ color: getRoomStatusStyle(roomDetailStatus.status) === styles.roomStatusBusy ? ACCENT_YELLOW : ACCENT_GREEN }}>{roomDetailStatus.status ?? '-'}</b></span>
+                          <span>{t('queueCall.currentPatient')} <b style={{ color: TEXT_DARK }}>{roomDetailStatus.currentPatient ?? t('queueCall.none')}</b></span>
+                          <span>{t('queueCall.waitLabel')} <b style={{ color: TEXT_DARK }}>{roomDetailStatus.waitCount ?? 0}</b></span>
                         </div>
                       )}
                       <div style={{ maxHeight: 220, overflowY: 'auto' as const }}>
                         {(roomDetail?.queue ?? []).length === 0 ? (
-                          <div style={{ fontSize: 12, color: TEXT_MUTED }}>该房间暂无候诊队列</div>
+                          <div style={{ fontSize: 12, color: TEXT_MUTED }}>{t('queueCall.emptyRoomQueue')}</div>
                         ) : (roomDetail?.queue ?? []).map((q: any, idx: number) => (
                           <div key={q.id ?? idx} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-color)' }}>
                             <span style={{ fontSize: 13, fontWeight: 800, color: PRIMARY, width: 50 }}>{q.queueNum ?? '-'}</span>
@@ -1100,7 +1101,7 @@ export default function QueueCallPage() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <BarChart3 size={18} />
-                今日统计
+                {t('queueCall.todayStats')}
               </div>
             </div>
             <div style={styles.cardBody}>
@@ -1109,25 +1110,25 @@ export default function QueueCallPage() {
                   <div style={{ ...styles.statValue, color: ACCENT_ORANGE }}>
                     {stats.totalWaiting}
                   </div>
-                  <div style={styles.statLabel}>待检人数</div>
+                  <div style={styles.statLabel}>{t('queueCall.stat.waiting')}</div>
                 </Card>
                 <Card bordered={false} style={styles.statCard} styles={{ body: { padding: 0 } }}>
                   <div style={{ ...styles.statValue, color: PRIMARY_LIGHT }}>
                     {stats.totalCalled}
                   </div>
-                  <div style={styles.statLabel}>已呼叫</div>
+                  <div style={styles.statLabel}>{t('queueCall.stat.called')}</div>
                 </Card>
                 <Card bordered={false} style={styles.statCard} styles={{ body: { padding: 0 } }}>
                   <div style={{ ...styles.statValue, color: ACCENT_GREEN }}>
                     {stats.totalCompleted}
                   </div>
-                  <div style={styles.statLabel}>已完成</div>
+                  <div style={styles.statLabel}>{t('queueCall.stat.completed')}</div>
                 </Card>
                 <Card bordered={false} style={styles.statCard} styles={{ body: { padding: 0 } }}>
                   <div style={styles.statValue}>
                     {stats.avgWaitMinutes}
                   </div>
-                  <div style={styles.statLabel}>平均等待(分钟)</div>
+                  <div style={styles.statLabel}>{t('queueCall.stat.avgWait')}</div>
                 </Card>
               </div>
             </div>
@@ -1138,7 +1139,7 @@ export default function QueueCallPage() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <PieChart size={18} />
-                患者类型分布
+                {t('queueCall.typeDistribution')}
               </div>
             </div>
             <div style={styles.cardBody}>
@@ -1150,7 +1151,7 @@ export default function QueueCallPage() {
                   <div key={type} style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ ...styles.typeBadge, ...getTypeStyle(type) }}>{type}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}人</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
                     </div>
                     <div style={{ background: 'var(--border-color)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
                       <div style={{ 
@@ -1172,7 +1173,7 @@ export default function QueueCallPage() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <Activity size={18} />
-                优先级分布
+                {t('queueCall.priorityDistribution')}
               </div>
             </div>
             <div style={styles.cardBody}>
@@ -1185,7 +1186,7 @@ export default function QueueCallPage() {
                   <div key={priority} style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ ...styles.priorityBadge, ...getPriorityStyle(priority) }}>{priority}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}人</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
                     </div>
                     <div style={{ background: 'var(--border-color)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
                       <div style={{ 

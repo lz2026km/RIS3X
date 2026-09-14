@@ -17,6 +17,7 @@ import {
   ConsultationDetail, ReportDetail, RemoteWriting, CoSignDetail, StatCards, RightPanel, ModalContent,
 } from './regional'
 import { regionalApi } from '../services/api/regionalApi'
+import { t } from '../i18n/appI18n'
 
 type MainTab = 'consultation' | 'report' | 'critical' | 'remote' | 'cosign' | 'sharing' | 'sla' | 'regionalStats'
 
@@ -157,7 +158,7 @@ const RegionalReportPage: React.FC = () => {
 
   const handleSubmitConsultation = () => {
     if (!consultationForm.patientName.trim() || !consultationForm.examItem.trim() || !consultationForm.institution.trim()) {
-      showToast('请填写完整会诊申请信息', false); return
+      showToast(t('regionalPage.fillConsult'), false); return
     }
     consultationService.create(consultationForm)
     setShowModal(false)
@@ -169,13 +170,13 @@ const RegionalReportPage: React.FC = () => {
   }
 
   const handleSubmitOpinion = () => {
-    if (!opinionText.trim()) { showToast('请填写会诊意见见', false); return }
+    if (!opinionText.trim()) { showToast(t('regionalPage.fillOpinion'), false); return }
     consultationService.submitOpinion(selectedConsultation?.id || '', opinionText)
     setShowModal(false); setOpinionText('')
   }
 
   const handleReviewReport = (report: Report, result: '通过' | '驳回') => {
-    if (result === '驳回' && !reviewText.trim()) { showToast('请填写驳回原因', false); return }
+    if (result === '驳回' && !reviewText.trim()) { showToast(t('regionalPage.fillRejectReason'), false); return }
     reportService.review(report.reportId, result, reviewText)
     setShowModal(false); setReviewText('')
   }
@@ -189,16 +190,16 @@ const RegionalReportPage: React.FC = () => {
   }
 
   const handleSubmitRemoteReport = () => {
-    if (!remoteReportContent.trim()) { showToast('请填写报告内容', false); return }
+    if (!remoteReportContent.trim()) { showToast(t('regionalPage.fillReportContent'), false); return }
     teleradiologyService.submit({ reportContent: remoteReportContent })
     setRemoteTab('list'); setSelectedRemoteDiagnosis(null); setRemoteReportContent('')
   }
 
   const handleSync = () => { remoteSyncService.pull() }
   const handleRefreshStats = () => { statsService.refresh() }
-  const handleExport = () => { exportService.csv('危急值') }
-  const handlePrevPage = () => { showToast('已是第一页', false) }
-  const handleNextPage = () => { showToast('已是最后一页', false) }
+  const handleExport = () => { exportService.csv(t('regionalPage.criticalValueExport')) }
+  const handlePrevPage = () => { showToast(t('regionalPage.firstPage'), false) }
+  const handleNextPage = () => { showToast(t('regionalPage.lastPage'), false) }
 
   const handleBackFromConsultationDetail = () => { setSelectedConsultation(null); setConsultationTab('list') }
   const handleBackFromReportDetail = () => { setSelectedReport(null); setReportTab('list') }
@@ -206,14 +207,14 @@ const RegionalReportPage: React.FC = () => {
   const handleBackFromCoSignDetail = () => { setSelectedCoSign(null); setCosignTab('list') }
 
   const mainTabs = [
-    { key: 'consultation' as MainTab, label: '远程会诊', icon: <Video size={14} /> },
-    { key: 'report' as MainTab, label: '报告审核', icon: <ShieldCheck size={14} /> },
-    { key: 'critical' as MainTab, label: '危急值', icon: <ShieldAlert size={14} /> },
-    { key: 'remote' as MainTab, label: '远程诊断', icon: <Monitor size={14} /> },
-    { key: 'cosign' as MainTab, label: '联合签发', icon: <FileSignature size={14} /> },
-    { key: 'sharing' as MainTab, label: '报告分享', icon: <Share2 size={14} /> },
-    { key: 'sla' as MainTab, label: 'SLA监控', icon: <Timer size={14} /> },
-    { key: 'regionalStats' as MainTab, label: '区域统计', icon: <BarChart3 size={14} /> },
+    { key: 'consultation' as MainTab, label: t('regionalPage.tabConsultation'), icon: <Video size={14} /> },
+    { key: 'report' as MainTab, label: t('regionalPage.tabReport'), icon: <ShieldCheck size={14} /> },
+    { key: 'critical' as MainTab, label: t('regionalPage.tabCritical'), icon: <ShieldAlert size={14} /> },
+    { key: 'remote' as MainTab, label: t('regionalPage.tabRemote'), icon: <Monitor size={14} /> },
+    { key: 'cosign' as MainTab, label: t('regionalPage.tabCosign'), icon: <FileSignature size={14} /> },
+    { key: 'sharing' as MainTab, label: t('regionalPage.tabSharing'), icon: <Share2 size={14} /> },
+    { key: 'sla' as MainTab, label: t('regionalPage.tabSla'), icon: <Timer size={14} /> },
+    { key: 'regionalStats' as MainTab, label: t('regionalPage.tabRegionalStats'), icon: <BarChart3 size={14} /> },
   ]
 
   return (
@@ -221,12 +222,12 @@ const RegionalReportPage: React.FC = () => {
       {/* 顶部标题栏 */}
       <div style={styles.header}>
         <div>
-          <div style={styles.headerTitle}><Activity size={24} />区域影像报告管理</div>
-          <div style={styles.headerSubtitle}>远程会诊 | 报告审核 | 危急值通报 | 医联体远程诊断 | 跨机构联合签发</div>
+          <div style={styles.headerTitle}><Activity size={24} />{t('regionalPage.title')}</div>
+          <div style={styles.headerSubtitle}>{t('regionalPage.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ fontSize: '12px', opacity: 0.85 }}>{new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}</div>
-          <button style={{ ...styles.button, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }} onClick={() => setShowSettingsModal(true)}><Settings size={14} />设置</button>
+          <button style={{ ...styles.button, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }} onClick={() => setShowSettingsModal(true)}><Settings size={14} />{t('regionalPage.settings')}</button>
         </div>
       </div>
 
@@ -249,17 +250,17 @@ const RegionalReportPage: React.FC = () => {
 
         {activeMainTab === 'consultation' && (
           consultationTab === 'detail'
-            ? <ConsultationDetail selectedConsultation={selectedConsultation} opinionText={opinionText} onOpinionTextChange={setOpinionText} onBack={handleBackFromConsultationDetail} onOpenModal={(t) => { setModalType(t); setShowModal(true) }} onSubmitOpinion={handleSubmitOpinion} remoteReportContent='' onRemoteReportContentChange={() => {}} reviewText='' onReviewTextChange={() => {}} onSubmitRemoteReport={() => {}} />
+            ? <ConsultationDetail selectedConsultation={selectedConsultation} opinionText={opinionText} onOpinionTextChange={setOpinionText} onBack={handleBackFromConsultationDetail} onOpenModal={(mt) => { setModalType(mt); setShowModal(true) }} onSubmitOpinion={handleSubmitOpinion} remoteReportContent='' onRemoteReportContentChange={() => {}} reviewText='' onReviewTextChange={() => {}} onSubmitRemoteReport={() => {}} />
             : <ConsultationList consultations={getFilteredConsultations()} selectedConsultation={selectedConsultation} consultationTab={consultationTab} onSelect={handleSelectConsultation} onAccept={handleAcceptConsultation} onApply={handleApplyConsultation} onTabChange={(k) => setConsultationTab(k as 'list' | 'apply' | 'detail')} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} institutions={institutions.map(i => ({ id: i.id || '', name: i.institutionName || '', level: '三级' as const, type: '综合医院' as const, reportCount: i.examCount || 0, pendingCount: 0, icon: 'hospital' }))} />
         )}
         {activeMainTab === 'report' && (
           reportTab === 'detail'
-            ? <ReportDetail selectedReport={selectedReport} reviewText={reviewText} onReviewTextChange={setReviewText} onBack={handleBackFromReportDetail} onOpenModal={(t) => { setModalType(t); setShowModal(true) }} opinionText='' onOpinionTextChange={() => {}} remoteReportContent='' onRemoteReportContentChange={() => {}} onSubmitOpinion={() => {}} onSubmitRemoteReport={() => {}} selectedConsultation={null} selectedRemoteDiagnosis={null} selectedCoSign={null} />
+            ? <ReportDetail selectedReport={selectedReport} reviewText={reviewText} onReviewTextChange={setReviewText} onBack={handleBackFromReportDetail} onOpenModal={(mt) => { setModalType(mt); setShowModal(true) }} opinionText='' onOpinionTextChange={() => {}} remoteReportContent='' onRemoteReportContentChange={() => {}} onSubmitOpinion={() => {}} onSubmitRemoteReport={() => {}} selectedConsultation={null} selectedRemoteDiagnosis={null} selectedCoSign={null} />
             : <ReportList reports={getFilteredReports()} selectedReport={selectedReport} onSelect={handleSelectReport} onReview={(r) => { setSelectedReport(r); setModalType('review'); setShowModal(true) }} onOpenDetail={handleSelectReport} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} onOpenQualityFilter={() => { setModalType('quality-filter'); setShowModal(true) }} />
         )}
         {activeMainTab === 'critical' && (
           <div style={{ ...styles.middlePanel, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={styles.emptyState}><ShieldAlert size={48} style={{ marginBottom: '12px', opacity: 0.3 }} /><div>请在下方危急值通报记录区域进行操作</div></div>
+            <div style={styles.emptyState}><ShieldAlert size={48} style={{ marginBottom: '12px', opacity: 0.3 }} /><div>{t('regionalPage.criticalHint')}</div></div>
           </div>
         )}
         {activeMainTab === 'remote' && (
@@ -300,12 +301,12 @@ const RegionalReportPage: React.FC = () => {
       {showSettingsModal && (
         <div style={styles.modal} onClick={() => setShowSettingsModal(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <div style={styles.modalHeader}><span>系统设置</span><X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowSettingsModal(false)} /></div>
+            <div style={styles.modalHeader}><span>{t('regionalPage.systemSettings')}</span><X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowSettingsModal(false)} /></div>
             <div style={styles.modalBody}>
-              <div style={styles.formGroup}><label style={styles.formLabel}>机构名称</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder="请输入机构名称" value={settingsForm.institutionName} onChange={e => setSettingsForm({ ...settingsForm, institutionName: e.target.value })} /></div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>通知设置</label><div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyCritical} onChange={e => setSettingsForm({ ...settingsForm, notifyCritical: e.target.checked })} /> 接收危急值提醒</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyConsult} onChange={e => setSettingsForm({ ...settingsForm, notifyConsult: e.target.checked })} /> 接收会诊通知</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyAudit} onChange={e => setSettingsForm({ ...settingsForm, notifyAudit: e.target.checked })} /> 接收报告审核通知</label></div></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalPage.institutionName')}</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalPage.institutionNamePlaceholder')} value={settingsForm.institutionName} onChange={e => setSettingsForm({ ...settingsForm, institutionName: e.target.value })} /></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalPage.notificationSettings')}</label><div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyCritical} onChange={e => setSettingsForm({ ...settingsForm, notifyCritical: e.target.checked })} /> {t('regionalPage.notifyCritical')}</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyConsult} onChange={e => setSettingsForm({ ...settingsForm, notifyConsult: e.target.checked })} /> {t('regionalPage.notifyConsult')}</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyAudit} onChange={e => setSettingsForm({ ...settingsForm, notifyAudit: e.target.checked })} /> {t('regionalPage.notifyAudit')}</label></div></div>
             </div>
-            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowSettingsModal(false)}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleSaveSettings}>保存</button></div>
+            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowSettingsModal(false)}>{t('common.action.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleSaveSettings}>{t('common.action.save')}</button></div>
           </div>
         </div>
       )}

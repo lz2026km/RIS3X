@@ -1,4 +1,5 @@
 import { v3AiPlatformApi } from '../../services/api/v3Api'
+import { t } from '../../i18n/appI18n'
 import { Card, Table, Tag, Space, Typography, Button, message, Row, Col, Statistic, Empty, Badge } from 'antd'
 import { Cpu, RefreshCw, Settings } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
@@ -39,9 +40,9 @@ const AiProvidersPage: React.FC = () => {
           }))
         )
       } else {
-        message.error(res.error?.message || '获取提供商失败')
+        message.error(res.error?.message || t('aiProviders.fetchFailed'))
       }
-    } catch (err) { console.error('[AiProviders] fetchProviders failed:', err); message.error('获取提供商请求失败') } finally {
+    } catch (err) { console.error('[AiProviders] fetchProviders failed:', err); message.error(t('aiProviders.fetchRequestFailed')) } finally {
       setLoading(false)
     }
   }
@@ -51,32 +52,32 @@ const AiProvidersPage: React.FC = () => {
   }, [])
 
   const statusBadge = (status: string) => {
-    if (status === 'active') return <Badge status="success" text="活跃" />
-    if (status === 'inactive') return <Badge status="default" text="未激活" />
-    return <Badge status="error" text="异常" />
+    if (status === 'active') return <Badge status="success" text={t('aiProviders.active')} />
+    if (status === 'inactive') return <Badge status="default" text={t('aiProviders.inactive')} />
+    return <Badge status="error" text={t('aiProviders.error')} />
   }
 
   const columns = [
     {
-      title: '提供商',
+      title: t('aiProviders.colProvider'),
       dataIndex: 'name',
       key: 'name',
       render: (name: string) => <Text strong>{name}</Text>,
     },
     {
-      title: '类型',
+      title: t('aiProviders.colType'),
       dataIndex: 'type',
       key: 'type',
       render: (type: string) => <Tag color={type === '生产' ? 'green' : 'blue'}>{type}</Tag>,
     },
     {
-      title: '状态',
+      title: t('aiProviders.colStatus'),
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => statusBadge(status),
     },
     {
-      title: '延迟 (ms)',
+      title: t('aiProviders.colLatency'),
       dataIndex: 'latency',
       key: 'latency',
       render: (latency: number) => (
@@ -86,7 +87,7 @@ const AiProvidersPage: React.FC = () => {
       ),
     },
     {
-      title: '准确率',
+      title: t('aiProviders.colAccuracy'),
       dataIndex: 'accuracy',
       key: 'accuracy',
       render: (accuracy: number) => (
@@ -96,7 +97,7 @@ const AiProvidersPage: React.FC = () => {
       ),
     },
     {
-      title: '请求数',
+      title: t('aiProviders.colRequests'),
       dataIndex: 'requests',
       key: 'requests',
       render: (requests: number) => requests.toLocaleString(),
@@ -108,39 +109,39 @@ const AiProvidersPage: React.FC = () => {
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Cpu size={24} color="#7c3aed" />
-          <Title level={4} style={{ margin: 0 }}>AI 提供商管理</Title>
-          <Tag color="purple">配置中心</Tag>
+          <Title level={4} style={{ margin: 0 }}>{t('aiProviders.title')}</Title>
+          <Tag color="purple">{t('aiProviders.tagConfig')}</Tag>
         </Space>
-        <Text type="secondary">管理和监控 AI 服务提供商，查看运行状态和性能指标</Text>
+        <Text type="secondary">{t('aiProviders.subtitle')}</Text>
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总提供商数" value={providers?.providers.length ?? 0} styles={{ content: {  color: '#2563eb'  } }} />
+            <Statistic title={t('aiProviders.totalProviders')} value={providers?.providers.length ?? 0} styles={{ content: {  color: '#2563eb'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="活跃提供商" value={providers ? 1 : 0} styles={{ content: {  color: '#52c41a'  } }} />
+            <Statistic title={t('aiProviders.activeProviders')} value={providers ? 1 : 0} styles={{ content: {  color: '#52c41a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="当前提供商" value={providers?.active ?? '-'} />
+            <Statistic title={t('aiProviders.currentProvider')} value={providers?.active ?? '-'} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Button icon={<RefreshCw size={14} />} onClick={fetchProviders} loading={loading} block>
-              刷新状态
+              {t('aiProviders.refresh')}
             </Button>
           </Card>
         </Col>
       </Row>
 
       <Card
-        title={<Space><Settings size={14} color="#7c3aed" />提供商列表</Space>}
+        title={<Space><Settings size={14} color="#7c3aed" />{t('aiProviders.list')}</Space>}
       >
         <Table
           dataSource={providerDetails}
@@ -148,7 +149,7 @@ const AiProvidersPage: React.FC = () => {
           rowKey="id"
           loading={loading}
           pagination={false}
-          locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无提供商数据" /> }}
+          locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiProviders.empty')} /> }}
         scroll={{ x: 'max-content' }}
         />
       </Card>

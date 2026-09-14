@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Tag, Button, Form, Select, message, Alert, Input, Typography, List, Row, Col } from 'antd';
 import { Globe, Download, Activity, Loader2 } from 'lucide-react';
 import { fhirApi, type BulkExportJob } from '../../services/api/fhirApi';
+import { t } from '../../i18n/appI18n';
 
 const RESOURCE_TYPES = [
   { value: 'Patient', label: 'Patient' },
@@ -11,9 +12,9 @@ const RESOURCE_TYPES = [
 ];
 
 const JOB_STATUS_LABEL: Record<string, string> = {
-  completed: '已完成',
-  failed: '失败',
-  pending: '进行中',
+  completed: t('fhirExport.statusCompleted'),
+  failed: t('fhirExport.statusFailed'),
+  pending: t('fhirExport.statusPending'),
 };
 
 export const FhirBulkExportPage: React.FC = () => {
@@ -56,15 +57,15 @@ export const FhirBulkExportPage: React.FC = () => {
       if (res.success) {
         const jobId = res.data.jobId || `bulk-${Date.now()}`;
         setJob({ jobId, status: 'running' });
-        message.success(`导出任务已启动: ${jobId}`);
+        message.success(t('fhirExport.jobStarted', { jobId }));
         startPolling(jobId);
       } else {
-        message.error(res.error?.message || '启动导出失败');
+        message.error(res.error?.message || t('fhirExport.startFailed'));
       }
     } catch {
       const mockJobId = `bulk-export-${Date.now()}`;
       setJob({ jobId: mockJobId, status: 'running' });
-      message.info(`导出任务已在离线模式启动: ${mockJobId}`);
+      message.info(t('fhirExport.jobStartedOffline', { jobId: mockJobId }));
       startPolling(mockJobId);
     }
     setExporting(false);
@@ -88,10 +89,10 @@ export const FhirBulkExportPage: React.FC = () => {
             stopPolling();
             if (data.status === 'completed') {
               setJob({ jobId, status: 'completed', files: data.output || [], transactionTime: data.transactionTime });
-              message.success('导出完成');
+              message.success(t('fhirExport.completed'));
             } else {
-              setJob({ jobId, status: 'failed', error: data.error || '导出失败' });
-              message.error('导出失败');
+              setJob({ jobId, status: 'failed', error: data.error || t('fhirExport.failed') });
+              message.error(t('fhirExport.failed'));
             }
           }
         }
@@ -104,7 +105,7 @@ export const FhirBulkExportPage: React.FC = () => {
             { type: 'Observation', url: `/api/fhir/r4/export/${jobId}/Observation.ndjson` },
             { type: 'DiagnosticReport', url: `/api/fhir/r4/export/${jobId}/DiagnosticReport.ndjson` },
           ], transactionTime: new Date().toISOString() });
-          message.info('导出完成 (离线模式)');
+          message.info(t('fhirExport.completedOffline'));
         }
       }
       if (attempts >= maxAttempts) {
@@ -117,23 +118,23 @@ export const FhirBulkExportPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 批量导出</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirExport.pageTitle')}</span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Tag color="purple">R4 $export</Tag>
       </Space>
 
       <Row gutter={16}>
         <Col span={8}>
-          <Card size="small" title="导出参数">
+          <Card size="small" title={t('fhirExport.paramsTitle')}>
             <Form layout="vertical" size="small">
-              <Form.Item label="_since (起始日期)">
+              <Form.Item label={t('fhirExport.sinceLabel')}>
                 <Input type="date" value={since} onChange={e => setSince(e.target.value)} placeholder="YYYY-MM-DD" />
               </Form.Item>
-              <Form.Item label="_type (资源类型)">
-                <Select mode="multiple" value={types} onChange={setTypes} placeholder="选择资源类型" options={RESOURCE_TYPES} />
+              <Form.Item label={t('fhirExport.typeLabel')}>
+                <Select mode="multiple" value={types} onChange={setTypes} placeholder={t('fhirExport.selectTypePlaceholder')} options={RESOURCE_TYPES} />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" icon={<Download size={14} />} loading={exporting} onClick={startExport} block>启动导出</Button>
+                <Button type="primary" icon={<Download size={14} />} loading={exporting} onClick={startExport} block>{t('fhirExport.startExport')}</Button>
               </Form.Item>
             </Form>
           </Card>
@@ -143,9 +144,9 @@ export const FhirBulkExportPage: React.FC = () => {
             <Card size="small" title={
               <Space>
                 <Activity size={14} />
-                导出任务
+                {t('fhirExport.jobTitle')}
                 <Tag color={job.status === 'completed' ? 'green' : job.status === 'failed' ? 'red' : 'blue'}>{JOB_STATUS_LABEL[job.status] ?? job.status}</Tag>
-                {polling && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> 轮询中...</>}
+                {polling && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('fhirExport.polling')}</>}
               </Space>
             }>
               <div style={{ fontFamily: 'monospace', fontSize: 13, marginBottom: 8 }}>Job ID: {job.jobId}</div>
@@ -153,9 +154,9 @@ export const FhirBulkExportPage: React.FC = () => {
               {job.error && <Alert type="error" title={job.error} showIcon style={{ marginBottom: 8 }} />}
               {job.files && (
                 <>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>输出文件:</div>
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('fhirExport.outputFilesLabel')}</div>
                   <List size="small" dataSource={job.files} renderItem={(f) => (
-                    <List.Item actions={[<Button size="small" type="link" icon={<Download size={12} />} href={f.url} target="_blank">下载</Button>]}>
+                    <List.Item actions={[<Button size="small" type="link" icon={<Download size={12} />} href={f.url} target="_blank">{t('fhirExport.download')}</Button>]}>
                       <Tag color="blue">{f.type}</Tag>
                       <Typography.Text copyable style={{ fontSize: 12 }}>{f.url}</Typography.Text>
                     </List.Item>

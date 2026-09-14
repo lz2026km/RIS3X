@@ -4,6 +4,7 @@ import { Card, Row, Col, Form, InputNumber, Select, Button, Alert, Descriptions,
 import { ArrowLeft, Save, RotateCcw, CheckCircle2 } from 'lucide-react';
 import IolCalculator from '@/components/eye/IolCalculator';
 import type { IolInput } from '@/types/eye';
+import { t } from '../../../i18n/appI18n';
 
 const IolCalculatorPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -73,11 +74,11 @@ const IolCalculatorPage: React.FC = () => {
         cct: initialInput.cct,
         aConstant: initialInput.aConstant,
       });
-      if (!res.success) throw new Error('API 保存失败');
+      if (!res.success) throw new Error(t('iolCalc.apiSaveFailed'));
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 2500);
     } catch {
-      setSaveError('后端保存失败，计算结果已保留在本地（待接入 EMR 写回）');
+      setSaveError(t('iolCalc.saveFailedLocal'));
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 2500);
     } finally {
@@ -95,7 +96,7 @@ const IolCalculatorPage: React.FC = () => {
               onClick={() => window.history.back()}
               data-testid="iol-back"
             >
-              返回
+              {t('iolCalc.back')}
             </Button>
           </Space>
 
@@ -103,7 +104,7 @@ const IolCalculatorPage: React.FC = () => {
 
           <Card
             size="small"
-            title={<Space><Save size={14} />提交计算</Space>}
+            title={<Space><Save size={14} />{t('iolCalc.submitCalc')}</Space>}
             style={{ marginTop: 12 }}
           >
             <Form
@@ -112,7 +113,7 @@ const IolCalculatorPage: React.FC = () => {
                 void handleSaveToPatient({ formula: 'recommended', iolPower: Number(values.iolPower) || 0 }, values.surgeon);
               }}
             >
-              <Form.Item name="surgeon" label="术者" rules={[{ required: true, message: '请选择术者' }]}>
+              <Form.Item name="surgeon" label={t('iolCalc.surgeon')} rules={[{ required: true, message: t('iolCalc.selectSurgeon') }]}>
                 <Select
                   style={{ width: 160 }}
                   options={[
@@ -120,15 +121,15 @@ const IolCalculatorPage: React.FC = () => {
                     { value: 'dr-li', label: '李医生' },
                     { value: 'dr-chen', label: '陈医生' },
                   ]}
-                  placeholder="请选择"
+                  placeholder={t('common.placeholder.select')}
                 />
               </Form.Item>
-              <Form.Item name="iolPower" label="目标 IOL 度数" rules={[{ required: true }]}>
-                <InputNumber min={0} max={40} step={0.5} placeholder="如 21.0" style={{ width: 120 }} />
+              <Form.Item name="iolPower" label={t('iolCalc.targetIolPower')} rules={[{ required: true }]}>
+                <InputNumber min={0} max={40} step={0.5} placeholder={t('iolCalc.examplePower')} style={{ width: 120 }} />
               </Form.Item>
               <Form.Item>
                 <Button type="primary" htmlType="submit" icon={<CheckCircle2 size={14} />} loading={saving}>
-                  提交到病历
+                  {t('iolCalc.submitToRecord')}
                 </Button>
               </Form.Item>
             </Form>
@@ -144,11 +145,11 @@ const IolCalculatorPage: React.FC = () => {
         </Col>
 
         <Col xs={24} xl={8}>
-          <Card size="small" title="参数来源">
+          <Card size="small" title={t('iolCalc.paramSource')}>
             {hasAnyParam ? (
               <Descriptions column={1} size="small" bordered>
-                {eyeSide && <Descriptions.Item label="术眼">{eyeSide === 'OD' ? '右眼 (OD)' : eyeSide === 'OS' ? '左眼 (OS)' : eyeSide}</Descriptions.Item>}
-                {patientId && <Descriptions.Item label="患者 ID">{patientId}</Descriptions.Item>}
+                {eyeSide && <Descriptions.Item label={t('iolCalc.eyeSide')}>{eyeSide === 'OD' ? t('iolCalc.rightEye') : eyeSide === 'OS' ? t('iolCalc.leftEye') : eyeSide}</Descriptions.Item>}
+                {patientId && <Descriptions.Item label={t('iolCalc.patientId')}>{patientId}</Descriptions.Item>}
                 {initialInput.al != null && <Descriptions.Item label="AL">{initialInput.al} mm</Descriptions.Item>}
                 {initialInput.k1 != null && <Descriptions.Item label="K1">{initialInput.k1} D</Descriptions.Item>}
                 {initialInput.k2 != null && <Descriptions.Item label="K2">{initialInput.k2} D</Descriptions.Item>}
@@ -156,12 +157,12 @@ const IolCalculatorPage: React.FC = () => {
                 {initialInput.lt != null && <Descriptions.Item label="LT">{initialInput.lt} mm</Descriptions.Item>}
                 {initialInput.wtw != null && <Descriptions.Item label="WTW">{initialInput.wtw} mm</Descriptions.Item>}
                 {initialInput.cct != null && <Descriptions.Item label="CCT">{initialInput.cct} μm</Descriptions.Item>}
-                {initialInput.aConstant != null && <Descriptions.Item label="A 常数">{initialInput.aConstant}</Descriptions.Item>}
-                {initialInput.iolModel && <Descriptions.Item label="IOL 型号"><Tag color="blue">{initialInput.iolModel}</Tag></Descriptions.Item>}
-                {initialInput.gender && <Descriptions.Item label="性别">{initialInput.gender === 'male' ? '男' : '女'}</Descriptions.Item>}
+                {initialInput.aConstant != null && <Descriptions.Item label={t('iolCalc.aConstant')}>{initialInput.aConstant}</Descriptions.Item>}
+                {initialInput.iolModel && <Descriptions.Item label={t('iolCalc.iolModel')}><Tag color="blue">{initialInput.iolModel}</Tag></Descriptions.Item>}
+                {initialInput.gender && <Descriptions.Item label={t('iolCalc.gender')}>{initialInput.gender === 'male' ? t('iolCalc.male') : t('iolCalc.female')}</Descriptions.Item>}
               </Descriptions>
             ) : (
-              <Alert type="info" showIcon title="未指定 URL 参数,使用默认 8 公式测算" />
+              <Alert type="info" showIcon title={t('iolCalc.noUrlParams')} />
             )}
             <Button
               icon={<RotateCcw size={12} />}
@@ -169,15 +170,15 @@ const IolCalculatorPage: React.FC = () => {
               style={{ marginTop: 8 }}
               onClick={() => setResetKey(k => k + 1)}
             >
-              清空并重置
+              {t('iolCalc.reset')}
             </Button>
           </Card>
 
           {lastSummary && (
-            <Card size="small" title="最近提交" style={{ marginTop: 12 }}>
-              <Statistic title="IOL 度数" value={lastSummary.iolPower} suffix="D" />
+            <Card size="small" title={t('iolCalc.recentSubmit')} style={{ marginTop: 12 }}>
+              <Statistic title={t('iolCalc.iolPower')} value={lastSummary.iolPower} suffix="D" />
               <div style={{ marginTop: 4, color: 'var(--text-secondary)', fontSize: 12 }}>
-                {patientId ? `患者 ${patientId}` : '未绑定患者'} · {eyeSide || 'OD/OS'}
+                {patientId ? `患者 ${patientId}` : t('iolCalc.unboundPatient')} · {eyeSide || 'OD/OS'}
               </div>
             </Card>
           )}

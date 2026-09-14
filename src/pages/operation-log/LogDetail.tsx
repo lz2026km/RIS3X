@@ -2,6 +2,7 @@ import type { OperationLog } from './types'
 import { PRIMARY, ACCENT, SUCCESS, WARNING, DANGER, GRAY, WHITE, ACTION_COLORS } from './constants'
 import { formatDateTime } from './utils'
 import { History, X, Globe, MonitorSmartphone, Shield, AlertTriangle, AlertCircle } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 interface LogDetailProps {
   log: OperationLog | null
@@ -10,27 +11,27 @@ interface LogDetailProps {
 
 function renderDiff(log: OperationLog) {
   if (!log.beforeData && !log.afterData) {
-    return <div style={{ color: '#64748b', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>无数据对比</div>
+    return <div style={{ color: '#64748b', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>{t('logDetail.noDataCompare')}</div>
   }
 
   return (
     <div style={{ marginTop: 12 }}>
-      <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 13 }}>数据对比：</div>
+      <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 13 }}>{t('logDetail.dataCompare')}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ background: 'var(--color-error-bg)', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: DANGER, borderBottom: '1px solid #fecaca' }}>
-            修改前
+            {t('logDetail.beforeEdit')}
           </div>
           <pre style={{ margin: 0, padding: 12, fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: 'var(--color-error-bg)', color: '#991b1b', lineHeight: 1.6 }}>
-            {log.beforeData || '(空)'}
+            {log.beforeData || t('logDetail.emptyCell')}
           </pre>
         </div>
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ background: '#ecfdf5', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: SUCCESS, borderBottom: '1px solid #a7f3d0' }}>
-            修改后
+            {t('logDetail.afterEdit')}
           </div>
           <pre style={{ margin: 0, padding: 12, fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: '#ecfdf5', color: '#065f46', lineHeight: 1.6 }}>
-            {log.afterData || '(空)'}
+            {log.afterData || t('logDetail.emptyCell')}
           </pre>
         </div>
       </div>
@@ -57,7 +58,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <History size={20} color={WHITE} />
-            <span style={{ color: WHITE, fontSize: 16, fontWeight: 600 }}>操作日志详情</span>
+            <span style={{ color: WHITE, fontSize: 16, fontWeight: 600 }}>{t('logDetail.title')}</span>
           </div>
           <button onClick={onClose} style={{
             background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6,
@@ -70,15 +71,15 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
         <div style={{ padding: 20 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>日志ID</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.logId')}</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.id}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作时间</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opTime')}</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{formatDateTime(log.timestamp)}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作类型</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opType')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
                   background: `${ACTION_COLORS[log.action] || ACCENT}20`,
@@ -90,53 +91,53 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
               </div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作用户</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opUser')}</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userName}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>用户ID</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.userId')}</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userId}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作模块</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opModule')}</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.module}</div>
             </div>
           </div>
 
           <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
-            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>操作目标</div>
+            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>{t('logDetail.opTarget')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
               <div>
-                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>目标ID</div>
+                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.targetId')}</div>
                 <div style={{ color: PRIMARY, fontSize: 13 }}>{log.targetId}</div>
               </div>
               <div>
-                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>目标描述</div>
+                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.targetDesc')}</div>
                 <div style={{ color: PRIMARY, fontSize: 13 }}>{log.targetDesc}</div>
               </div>
             </div>
             {log.patientId && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>患者ID</div>
+                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.patientId')}</div>
                 <div style={{ color: PRIMARY, fontSize: 13 }}>{log.patientId}</div>
               </div>
             )}
           </div>
 
           <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
-            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>环境信息</div>
+            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>{t('logDetail.envInfo')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Globe size={14} color={GRAY} />
                 <div>
-                  <div style={{ color: GRAY, fontSize: 12 }}>IP地址</div>
+                  <div style={{ color: GRAY, fontSize: 12 }}>{t('logDetail.ipAddress')}</div>
                   <div style={{ color: PRIMARY, fontSize: 13 }}>{log.ipAddress}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <MonitorSmartphone size={14} color={GRAY} />
                 <div>
-                  <div style={{ color: GRAY, fontSize: 12 }}>设备</div>
+                  <div style={{ color: GRAY, fontSize: 12 }}>{t('logDetail.device')}</div>
                   <div style={{ color: PRIMARY, fontSize: 13 }}>{log.device}</div>
                 </div>
               </div>
@@ -152,13 +153,13 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
             }}>
               <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Shield size={16} />
-                HIPAA合规状态
+                {t('logDetail.hipaaStatus')}
                 <span style={{
                   padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                   background: log.complianceLevel === 'critical' ? `${DANGER}20` : log.complianceLevel === 'warning' ? `${WARNING}20` : `${SUCCESS}20`,
                   color: log.complianceLevel === 'critical' ? DANGER : log.complianceLevel === 'warning' ? WARNING : SUCCESS,
                 }}>
-                  {log.complianceLevel === 'critical' ? '违规' : log.complianceLevel === 'warning' ? '警告' : '合规'}
+                  {log.complianceLevel === 'critical' ? t('logDetail.violation') : log.complianceLevel === 'warning' ? t('logDetail.warning') : t('logDetail.compliant')}
                 </span>
               </div>
               {log.complianceAlerts && log.complianceAlerts.length > 0 ? (
@@ -175,7 +176,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
                   ))}
                 </div>
               ) : (
-                <div style={{ color: SUCCESS, fontSize: 12 }}>✓ 无违规行为</div>
+                <div style={{ color: SUCCESS, fontSize: 12 }}>{t('logDetail.noViolation')}</div>
               )}
             </div>
           )}
@@ -188,7 +189,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
             padding: '8px 20px', borderRadius: 6, border: '1px solid #e2e8f0',
             background: WHITE, color: GRAY, fontSize: 13, cursor: 'pointer',
           }}>
-            关闭
+            {t('common.action.close')}
           </button>
         </div>
       </div>

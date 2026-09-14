@@ -2260,21 +2260,21 @@ export default function PrintManagementPage() {
                 contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
               />
-              <Bar dataKey="filmCost" name="胶片成本" fill={C.primary} stackId="a" />
-              <Bar dataKey="paperCost" name="纸张成本" fill={C.accent} stackId="a" />
-              <Bar dataKey="inkCost" name="油墨成本" fill="#8b5cf6" stackId="a" />
+              <Bar dataKey="filmCost" name={t("printMgmt.filmCost")} fill={C.primary} stackId="a" />
+              <Bar dataKey="paperCost" name={t("printMgmt.paperCost")} fill={C.accent} stackId="a" />
+              <Bar dataKey="inkCost" name={t("printMgmt.inkCost")} fill="#8b5cf6" stackId="a" />
             </ReBarChart>
           </ChartContainer>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
           {[
-            { label: '胶片成本', color: C.primary },
-            { label: '纸张成本', color: C.accent },
-            { label: '油墨成本', color: '#8b5cf6' },
+            { labelKey: 'printMgmt.filmCost', color: C.primary },
+            { labelKey: 'printMgmt.paperCost', color: C.accent },
+            { labelKey: 'printMgmt.inkCost', color: '#8b5cf6' },
           ].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+            <div key={item.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
               <span style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
-              {item.label}
+              {t(item.labelKey)}
             </div>
           ))}
         </div>
@@ -2448,14 +2448,14 @@ export default function PrintManagementPage() {
               <Bar dataKey="ct" name="CT" fill="#7c3aed" stackId="a" />
               <Bar dataKey="mr" name="MR" fill="#2563eb" stackId="a" />
               <Bar dataKey="dr" name="DR" fill="#059669" stackId="a" />
-              <Bar dataKey="other" name="其他" fill="#d97706" stackId="a" />
+              <Bar dataKey="other" name={t("printMgmt.chart.other")} fill="#d97706" stackId="a" />
             </ReBarChart>
           </ChartContainer>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
-          {[{ label: 'CT', color: '#7c3aed' }, { label: 'MR', color: '#2563eb' }, { label: 'DR', color: '#059669' }, { label: '其他', color: '#d97706' }].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: item.color }} />{item.label}
+          {[{ labelKey: 'printMgmt.chart.ct', color: '#7c3aed' }, { labelKey: 'printMgmt.chart.mr', color: '#2563eb' }, { labelKey: 'printMgmt.chart.dr', color: '#059669' }, { labelKey: 'printMgmt.chart.other', color: '#d97706' }].map(item => (
+            <div key={item.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: item.color }} />{t(item.labelKey)}
             </div>
           ))}
         </div>
@@ -2842,7 +2842,7 @@ export default function PrintManagementPage() {
                 contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
               />
-              <Area type="monotone" dataKey="prints" name="打印张数" stroke={C.primary} fill={C.primaryLighter} />
+              <Area type="monotone" dataKey="prints" name={t("printMgmt.printSheets")} stroke={C.primary} fill={C.primaryLighter} />
             </AreaChart>
           </ChartContainer>
         </div>
@@ -2860,7 +2860,7 @@ export default function PrintManagementPage() {
                 contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
               />
-              <Bar dataKey="printCount" name="打印次数" fill={C.primary} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="printCount" name={t("printMgmt.printCount")} fill={C.primary} radius={[4, 4, 0, 0]} />
             </ReBarChart>
           </ChartContainer>
         </div>
@@ -2923,8 +2923,8 @@ export default function PrintManagementPage() {
                   name === 'avgTime' ? t("printMgmt.avgDuration") : t("printMgmt.completedCount")
                 ]}
               />
-              <Line type="monotone" dataKey="avgTime" name="平均耗时" stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="completed" name="完成数" stroke={C.success} strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="avgTime" name={t("printMgmt.avgDuration")} stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="completed" name={t("printMgmt.completedCount")} stroke={C.success} strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ChartContainer>
         </div>
@@ -2951,7 +2951,7 @@ export default function PrintManagementPage() {
               </Pie>
               <Tooltip
                 contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
-                formatter={(value: number) => [`${value} 次`, '打印次数']}
+                formatter={(value: number) => [`${value} 次`, t("printMgmt.printCount")]}
               />
             </RePieChart>
           </ChartContainer>
@@ -3528,7 +3528,7 @@ export default function PrintManagementPage() {
   const sections: Tab[] = [
     { id: 'printConfig', label: t("printMgmt.printConfig"), icon: <Settings size={14} /> },
     { id: 'reportPrint', label: t("printMgmt.imageTextReport"), icon: <FileText size={14} /> },
-    { id: 'filmPrint', label: '胶片打印', icon: <Film size={14} /> },
+    { id: 'filmPrint', label: t("printMgmt.filmPrint"), icon: <Film size={14} /> },
     { id: 'dicPrint', label: t("printMgmt.dicomPrintQueue"), icon: <Database size={14} /> },
     { id: 'printSCP', label: t("printMgmt.printScp"), icon: <Server size={14} /> },
     { id: 'costTracking', label: t("printMgmt.costTracking"), icon: <CreditCard size={14} /> },

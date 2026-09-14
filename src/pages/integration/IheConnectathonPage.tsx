@@ -28,6 +28,7 @@ import {
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { t } from "../../i18n/appI18n";
 
 export const IheConnectathonPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,13 +53,11 @@ export const IheConnectathonPage: React.FC = () => {
       !cfg.track.trim() ||
       !cfg.monitor.trim()
     ) {
-      messageWarn(
-        "请填写完整的会话配置信息（名称/地点/Track/Monitor 均为必填）",
-      );
+      messageWarn(t("iheConn.msg.fillConfig"));
       return;
     }
     if (selectedProfiles.length === 0) {
-      messageWarn("请至少选择一个 IHE Profile");
+      messageWarn(t("iheConn.msg.selectProfile"));
       return;
     }
     const s = startSession({
@@ -79,7 +78,7 @@ export const IheConnectathonPage: React.FC = () => {
 
   const handleLoadPresets = useCallback(() => {
     if (!session) {
-      messageWarn("请先开启会话");
+      messageWarn(t("iheConn.msg.startFirst"));
       return;
     }
     const cases: IheTestCase[] = [];
@@ -88,7 +87,7 @@ export const IheConnectathonPage: React.FC = () => {
     if (selectedProfiles.includes("PDQ")) cases.push(...presetPdqvTestCases());
     if (selectedProfiles.includes("ATNA")) cases.push(...presetAtnaTestCases());
     if (selectedProfiles.includes("PAM")) cases.push(...presetPamTestCases());
-    cases.forEach((tc) => addStep(tc, "准备测试环境"));
+    cases.forEach((tc) => addStep(tc, t("iheConn.step.prepare")));
     setSession({ ...session, testCases: cases });
   }, [session, selectedProfiles]);
 
@@ -103,7 +102,7 @@ export const IheConnectathonPage: React.FC = () => {
           status: passed
             ? ("pass" as IheTestStatus)
             : ("warning" as IheTestStatus),
-          message: passed ? "OK" : "响应时间略长(610ms)",
+          message: passed ? "OK" : t("iheConn.msg.slowResponse"),
           actual: "completed",
           expected: "completed",
         };
@@ -111,16 +110,16 @@ export const IheConnectathonPage: React.FC = () => {
       await runTestCase(tc, runner);
     }
     updated.passCount = updated.testCases.filter(
-      (t) => t.status === "pass",
+      (tc) => tc.status === "pass",
     ).length;
     updated.failCount = updated.testCases.filter(
-      (t) => t.status === "fail",
+      (tc) => tc.status === "fail",
     ).length;
     updated.warnCount = updated.testCases.filter(
-      (t) => t.status === "warning",
+      (tc) => tc.status === "warning",
     ).length;
     updated.skipCount = updated.testCases.filter(
-      (t) => t.status === "skip",
+      (tc) => tc.status === "skip",
     ).length;
     updated.totalCount = updated.testCases.length;
     setSession({ ...updated });
@@ -154,10 +153,10 @@ export const IheConnectathonPage: React.FC = () => {
             <Trophy className="w-5 h-5 text-yellow-600" />
             <div>
               <div className="text-base font-semibold">
-                IHE Connectathon 测试
+                {t("iheConn.title")}
               </div>
               <div className="text-xs text-slate-500">
-                XDS.b / PIX / PDQ / ATNA / PAM 测试执行框架
+                {t("iheConn.subtitle")}
               </div>
             </div>
           </Space>
@@ -165,13 +164,13 @@ export const IheConnectathonPage: React.FC = () => {
             <Tag color="yellow">Connectathon</Tag>
             <Tag color="red">IHE</Tag>
             {/* [G005 Wave2B P2] Math.random 本地模拟测试 → 模拟工具徽标 */}
-            <Tag color="orange">模拟工具 · 测试结果本地生成</Tag>
+            <Tag color="orange">{t("iheConn.mockBadge")}</Tag>
             <Button
               size="small"
               icon={<BookOpen className="w-3 h-3" />}
               onClick={() => navigate("/ihe/manager")}
             >
-              查看 Profile
+              {t("iheConn.viewProfile")}
             </Button>
           </Space>
         </div>
@@ -185,14 +184,14 @@ export const IheConnectathonPage: React.FC = () => {
             title={
               <Space>
                 <Server className="w-4 h-4" />
-                <span>会话配置</span>
+                <span>{t("iheConn.sessionConfig")}</span>
               </Space>
             }
           >
             <Space orientation="vertical" className="w-full">
               <div>
                 <div className="text-xs text-slate-500">
-                  <span style={{ color: "red" }}>*</span> 名称
+                  <span style={{ color: "red" }}>*</span> {t("iheConn.name")}
                 </div>
                 <Input
                   required
@@ -205,7 +204,7 @@ export const IheConnectathonPage: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs text-slate-500">
-                  <span style={{ color: "red" }}>*</span> 地点
+                  <span style={{ color: "red" }}>*</span> {t("iheConn.venue")}
                 </div>
                 <Input
                   required
@@ -218,7 +217,7 @@ export const IheConnectathonPage: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs text-slate-500">
-                  <span style={{ color: "red" }}>*</span> 测试项
+                  <span style={{ color: "red" }}>*</span> {t("iheConn.testItem")}
                 </div>
                 <Input
                   required
@@ -231,7 +230,7 @@ export const IheConnectathonPage: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs text-slate-500">
-                  <span style={{ color: "red" }}>*</span> 监控
+                  <span style={{ color: "red" }}>*</span> {t("iheConn.monitor")}
                 </div>
                 <Input
                   required
@@ -243,7 +242,7 @@ export const IheConnectathonPage: React.FC = () => {
                 />
               </div>
               <div>
-                <div className="text-xs text-slate-500">配置文件</div>
+                <div className="text-xs text-slate-500">{t("iheConn.profile")}</div>
                 <Select
                   mode="multiple"
                   value={selectedProfiles}
@@ -262,11 +261,11 @@ export const IheConnectathonPage: React.FC = () => {
                     icon={<Play className="w-3 h-3" />}
                     onClick={handleStart}
                   >
-                    开启会话
+                    {t("iheConn.startSession")}
                   </Button>
                 ) : (
                   <Button onClick={() => setSession(endSession())} danger>
-                    结束会话
+                    {t("iheConn.endSession")}
                   </Button>
                 )}
                 <Button
@@ -274,7 +273,7 @@ export const IheConnectathonPage: React.FC = () => {
                   onClick={handleLoadPresets}
                   disabled={!session}
                 >
-                  加载用例
+                  {t("iheConn.loadCases")}
                 </Button>
               </div>
               <div className="flex gap-2">
@@ -284,7 +283,7 @@ export const IheConnectathonPage: React.FC = () => {
                   onClick={handleRunAll}
                   disabled={!session || !session.testCases.length}
                 >
-                  全部执行
+                  {t("iheConn.runAll")}
                 </Button>
                 <Button
                   icon={<Download className="w-3 h-3" />}
@@ -309,7 +308,7 @@ export const IheConnectathonPage: React.FC = () => {
             <Col span={4}>
               <Card size="small">
                 <Statistic
-                  title="用例"
+                  title={t("iheConn.cases")}
                   value={session?.totalCount ?? 0}
                   prefix={
                     <FileText
@@ -324,7 +323,7 @@ export const IheConnectathonPage: React.FC = () => {
             <Col span={5}>
               <Card size="small">
                 <Statistic
-                  title="通过"
+                  title={t("iheConn.pass")}
                   value={session?.passCount ?? 0}
                   prefix={
                     <CheckCircle2
@@ -340,7 +339,7 @@ export const IheConnectathonPage: React.FC = () => {
             <Col span={5}>
               <Card size="small">
                 <Statistic
-                  title="警告"
+                  title={t("iheConn.warning")}
                   value={session?.warnCount ?? 0}
                   prefix={
                     <AlertCircle
@@ -355,7 +354,7 @@ export const IheConnectathonPage: React.FC = () => {
             <Col span={5}>
               <Card size="small">
                 <Statistic
-                  title="失败"
+                  title={t("iheConn.fail")}
                   value={session?.failCount ?? 0}
                   prefix={
                     <XCircle className="w-3 h-3" style={{ color: "#dc2626" }} />
@@ -367,7 +366,7 @@ export const IheConnectathonPage: React.FC = () => {
             <Col span={5}>
               <Card size="small">
                 <Statistic
-                  title="跳过"
+                  title={t("iheConn.skip")}
                   value={session?.skipCount ?? 0}
                   prefix={
                     <Clock className="w-3 h-3" style={{ color: "#64748b" }} />
@@ -384,7 +383,7 @@ export const IheConnectathonPage: React.FC = () => {
             title={
               <Space>
                 <Activity className="w-4 h-4" />
-                <span>通过率</span>
+                <span>{t("iheConn.passRate")}</span>
                 <Tag
                   color={
                     passRate >= 80 ? "green" : passRate >= 60 ? "orange" : "red"
@@ -420,31 +419,31 @@ export const IheConnectathonPage: React.FC = () => {
             title={
               <Space>
                 <FileText className="w-4 h-4" />
-                <span>测试用例</span>
+                <span>{t("iheConn.testCases")}</span>
               </Space>
             }
           >
             {!session || session.testCases.length === 0 ? (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击'加载用例'创建" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("iheConn.emptyClickLoad")} />
             ) : (
               <Table
                 size="small"
                 rowKey="id"
                 pagination={testCasePagination.pagination}
-                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
+                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("common.empty.noData")} /> }}
                 scroll={{ x: "max-content" }}
                 dataSource={testCasePagination.pageData}
                 columns={[
                   {
-                    title: "配置",
+                    title: t("iheConn.col.profile"),
                     dataIndex: "profile",
                     key: "profile",
                     render: (v) => <Tag color="red">{v}</Tag>,
                     width: 80,
                   },
-                  { title: "标题", dataIndex: "titleEn", key: "titleEn" },
+                  { title: t("iheConn.col.title"), dataIndex: "titleEn", key: "titleEn" },
                   {
-                    title: "参与者/角色",
+                    title: t("iheConn.col.actor"),
                     key: "actor",
                     render: (_, r) => (
                       <span className="text-xs">
@@ -454,14 +453,14 @@ export const IheConnectathonPage: React.FC = () => {
                     width: 180,
                   },
                   {
-                    title: "步骤",
+                    title: t("iheConn.col.steps"),
                     dataIndex: "steps",
                     key: "steps",
                     render: (s) => <Tag>{s.length}</Tag>,
                     width: 60,
                   },
                   {
-                    title: "状态",
+                    title: t("iheConn.col.status"),
                     dataIndex: "status",
                     key: "status",
                     render: (s) => (
@@ -472,7 +471,7 @@ export const IheConnectathonPage: React.FC = () => {
                     width: 90,
                   },
                   {
-                    title: "耗时",
+                    title: t("iheConn.col.duration"),
                     dataIndex: "durationMs",
                     key: "durationMs",
                     render: (v) => `${v}ms`,

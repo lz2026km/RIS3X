@@ -9,23 +9,24 @@ import {
   type AiPlatformDenoiseHistoryItem,
   type AiPlatformNoiseEstimate,
 } from '../../services/api/aiPlatformApi'
+import { t } from '../../i18n/appI18n'
 
 const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
 
 // [G005 v3.0.6.11-101 Wave 1B (G-10)] 可配置核: 经典算法 + DL 模型接口
 const KERNEL_LABELS: Record<DenoiseKernel, string> = {
-  median: '中值滤波',
-  gaussian: '高斯滤波',
-  bilateral: '双边滤波',
-  nlmeans: '非局部均值',
-  dl: 'DL 模型',
+  median: t('dlDenoisePage.kernelMedian'),
+  gaussian: t('dlDenoisePage.kernelGaussian'),
+  bilateral: t('dlDenoisePage.kernelBilateral'),
+  nlmeans: t('dlDenoisePage.kernelNlmeans'),
+  dl: t('dlDenoisePage.kernelDl'),
 }
 
 const PRESET_LABELS: Record<DenoisePreset, string> = {
-  light: '轻 (30)',
-  standard: '标准 (50)',
-  strong: '强力 (75)',
+  light: t('dlDenoisePage.presetLight'),
+  standard: t('dlDenoisePage.presetStandard'),
+  strong: t('dlDenoisePage.presetStrong'),
 }
 
 type ModelType = 'cnn' | 'unet' | 'gan' | 'transformer'
@@ -33,10 +34,10 @@ type ModelType = 'cnn' | 'unet' | 'gan' | 'transformer'
 type DataSource = 'preview' | 'real' | 'fallback'
 
 const MODELS: Record<ModelType, { label: string; psnr: number; ssim: number; speed: string }> = {
-  cnn: { label: 'CNN', psnr: 32.5, ssim: 0.89, speed: '快' },
-  unet: { label: 'U-Net', psnr: 35.2, ssim: 0.92, speed: '中' },
-  gan: { label: 'GAN', psnr: 36.8, ssim: 0.94, speed: '慢' },
-  transformer: { label: 'Transformer', psnr: 38.1, ssim: 0.96, speed: '慢' },
+  cnn: { label: 'CNN', psnr: 32.5, ssim: 0.89, speed: t('dlDenoisePage.speedFast') },
+  unet: { label: 'U-Net', psnr: 35.2, ssim: 0.92, speed: t('dlDenoisePage.speedMedium') },
+  gan: { label: 'GAN', psnr: 36.8, ssim: 0.94, speed: t('dlDenoisePage.speedSlow') },
+  transformer: { label: 'Transformer', psnr: 38.1, ssim: 0.96, speed: t('dlDenoisePage.speedSlow') },
 }
 
 function generateNoisySlice(noiseLevel: number, size: number): ImageData {
@@ -275,7 +276,7 @@ const DlDenoisePage: React.FC = () => {
           drawToCanvas(denoisedRef.current, medianFilterImageData(noisy))
         }
         setDataSource('fallback')
-        message.warning('降噪服务不可用，已回退本地演示')
+        message.warning(t('dlDenoisePage.fallbackUnavailable'))
       }
     } catch {
       setServerResult(null)
@@ -284,7 +285,7 @@ const DlDenoisePage: React.FC = () => {
         drawToCanvas(denoisedRef.current, medianFilterImageData(noisy))
       }
       setDataSource('fallback')
-      message.warning('降噪请求异常，已回退本地演示')
+      message.warning(t('dlDenoisePage.fallbackError'))
     } finally {
       setExecuting(false)
     }
@@ -305,7 +306,7 @@ const DlDenoisePage: React.FC = () => {
     aiPlatformApi.clearDenoiseHistory().then(res => {
       if (res.success) {
         setHistory([])
-        message.success('处理历史已清空')
+        message.success(t('dlDenoisePage.historyCleared'))
       }
     }).catch(() => undefined)
   }
@@ -328,27 +329,27 @@ const DlDenoisePage: React.FC = () => {
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <Sparkles size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>深度学习降噪</span>
-        <Tag color="cyan">深度学习降噪 · {activeKernelLabel}</Tag>
-        {dataSource === 'real' && <Tag color="green">真实后端 · {serverResult?.algorithm ?? '中值滤波'}{serverResult?.backend ? ` · ${serverResult.backend}` : ''}</Tag>}
-        {dataSource === 'fallback' && <Tag color="orange">演示回退 · 本地渲染</Tag>}
-        {dataSource === 'preview' && <Tag color="gold">本地预览 · 参数实时可调</Tag>}
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dlDenoisePage.title')}</span>
+        <Tag color="cyan">{t('dlDenoisePage.title')} · {activeKernelLabel}</Tag>
+        {dataSource === 'real' && <Tag color="green">{t('dlDenoisePage.realBackend')} · {serverResult?.algorithm ?? t('dlDenoisePage.kernelMedian')}{serverResult?.backend ? ` · ${serverResult.backend}` : ''}</Tag>}
+        {dataSource === 'fallback' && <Tag color="orange">{t('dlDenoisePage.fallbackRender')}</Tag>}
+        {dataSource === 'preview' && <Tag color="gold">{t('dlDenoisePage.localPreview')}</Tag>}
         <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
-          数据标注: 单帧 256×256 合成切片 · 噪声 {noiseLevel}% · {KERNEL_LABELS[kernel]} · {PRESET_LABELS[preset]}
+          {t('dlDenoisePage.dataNote')} {noiseLevel}% · {KERNEL_LABELS[kernel]} · {PRESET_LABELS[preset]}
           {localEstimate ? ` · 噪声 ${localEstimate.type}/σ=${localEstimate.sigma}` : ''}
           {serverResult ? ` · 服务端 PSNR ${serverResult.psnr}dB / SSIM ${serverResult.ssim}` : ` (PSNR ${currentModel.psnr}dB / SSIM ${currentModel.ssim})`}
         </span>
-        <Button size="small" type="primary" icon={<PlayCircle size={12} />} loading={executing} onClick={() => void handleExecute()}>执行降噪</Button>
-        <button onClick={handleSaveResult} style={btnStyle}><Save size={12} /> 保存结果</button>
+        <Button size="small" type="primary" icon={<PlayCircle size={12} />} loading={executing} onClick={() => void handleExecute()}>{t('dlDenoisePage.execute')}</Button>
+        <button onClick={handleSaveResult} style={btnStyle}><Save size={12} /> {t('dlDenoisePage.saveResult')}</button>
       </div>
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={6}><Card><Statistic title="PSNR (dB)" value={displayPsnr} prefix={<Zap size={16} />} /></Card></Col>
         <Col span={6}><Card><Statistic title="SSIM" value={displaySsim} prefix={<Sparkles size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="处理速度" value={displaySpeed} prefix={<RefreshCw size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="降噪率" value={`${serverResult ? Math.round((serverResult.noiseReduction ?? 0) * 100) : Math.round((1 - noiseLevel / 100) * 100)}%`} prefix={<Save size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dlDenoisePage.processSpeed')} value={displaySpeed} prefix={<RefreshCw size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title={t('dlDenoisePage.denoiseRate')} value={`${serverResult ? Math.round((serverResult.noiseReduction ?? 0) * 100) : Math.round((1 - noiseLevel / 100) * 100)}%`} prefix={<Save size={16} />} /></Card></Col>
       </Row>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>模型:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.model')}</span>
         {(Object.keys(MODELS) as ModelType[]).map(m => (
           <button key={m} style={model === m ? activeBtnStyle : btnStyle} onClick={() => setModel(m)}>
             {MODELS[m].label}
@@ -356,7 +357,7 @@ const DlDenoisePage: React.FC = () => {
         ))}
         <div style={{ width: 1, height: 20, background: '#334155' }} />
         {/* [G-10] 可配置核 */}
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>核:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.kernel')}</span>
         {(Object.keys(KERNEL_LABELS) as DenoiseKernel[]).map(k => (
           <button key={k} style={kernel === k ? activeBtnStyle : btnStyle} onClick={() => setKernel(k)}>
             {KERNEL_LABELS[k]}
@@ -364,7 +365,7 @@ const DlDenoisePage: React.FC = () => {
         ))}
         <div style={{ width: 1, height: 20, background: '#334155' }} />
         {/* [G-10] 3 档强度预设 */}
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>预设:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.preset')}</span>
         {(Object.keys(PRESET_LABELS) as DenoisePreset[]).map(p => (
           <button key={p} style={preset === p ? activeBtnStyle : btnStyle} onClick={() => setPreset(p)}>
             {PRESET_LABELS[p]}
@@ -372,17 +373,17 @@ const DlDenoisePage: React.FC = () => {
         ))}
         <div style={{ width: 1, height: 20, background: '#334155' }} />
         {/* [G-10] 噪声等级自动估计 */}
-        <button onClick={handleEstimateNoise} style={btnStyle} title="Laplacian-MAD 本地估计 + 后端校准">
-          <Contrast size={12} /> 噪声自动估计
+        <button onClick={handleEstimateNoise} style={btnStyle} title={t('dlDenoisePage.estimateHint')}>
+          <Contrast size={12} /> {t('dlDenoisePage.estimateNoise')}
         </button>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>噪声水平:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.noiseLevel')}</span>
         <Slider min={0} max={100} value={noiseLevel} onChange={setNoiseLevel} style={{ width: 160 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{noiseLevel}%</span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, height: 'calc(100vh - 260px)' }}>
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 1, fontSize: 12, color: '#facc15', background: 'rgba(0,0,0,0.7)', padding: '2px 8px', borderRadius: 4 }}>
-            原始 (含噪声) {localEstimate ? `· σ=${localEstimate.sigma}` : ''}
+            {t('dlDenoisePage.originalNoisy')} {localEstimate ? `· σ=${localEstimate.sigma}` : ''}
           </div>
           <div style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: '100%' }}>
             <canvas ref={noisyRef} style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }} />
@@ -396,7 +397,7 @@ const DlDenoisePage: React.FC = () => {
           onPointerMove={(e) => { if (e.buttons === 1) onCompareMove(e.clientX) }}
         >
           <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 2, fontSize: 12, color: '#52c41a', background: 'rgba(0,0,0,0.7)', padding: '2px 8px', borderRadius: 4 }}>
-            降噪后 ({activeKernelLabel}) — 拖拽对比
+            {t('dlDenoisePage.denoisedResult')} ({activeKernelLabel}) — {t('dlDenoisePage.dragCompare')}
           </div>
           <div style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: '100%' }}>
             <canvas ref={denoisedRef} style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }} />
@@ -424,12 +425,12 @@ const DlDenoisePage: React.FC = () => {
         size="small"
         title={
           <span style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <History size={12} /> 处理历史 ({history.length})
+            <History size={12} /> {t('dlDenoisePage.history')} ({history.length})
           </span>
         }
         extra={
           <button onClick={handleClearHistory} style={btnStyle} disabled={history.length === 0}>
-            <Trash2 size={12} /> 清空
+            <Trash2 size={12} /> {t('dlDenoisePage.clear')}
           </button>
         }
         style={{ background: '#0f172a', border: '1px solid #1e293b', marginTop: 10 }}
@@ -437,7 +438,7 @@ const DlDenoisePage: React.FC = () => {
         bodyStyle={{ padding: '8px 10px', maxHeight: 140, overflowY: 'auto' }}
       >
         {history.length === 0 ? (
-          <div style={{ fontSize: 11, color: '#475569' }}>暂无处理记录 — 执行降噪后生成</div>
+          <div style={{ fontSize: 11, color: '#475569' }}>{t('dlDenoisePage.historyEmpty')}</div>
         ) : (
           <List
             size="small"
@@ -448,7 +449,7 @@ const DlDenoisePage: React.FC = () => {
                   <span style={{ color: '#64748b', minWidth: 20 }}>{idx + 1}</span>
                   <Tag style={{ marginRight: 0 }}>{item.kernel ?? 'median'}</Tag>
                   <span>{item.source === 'msw' ? 'MSW' : item.source}</span>
-                  <span>强度 {item.strength ?? '-'}</span>
+                  <span>{t('dlDenoisePage.strength')} {item.strength ?? '-'}</span>
                   <span>PSNR {item.psnr}dB</span>
                   <span>SSIM {item.ssim}</span>
                   {item.noiseEstimate && <span style={{ color: '#facc15' }}>σ={item.noiseEstimate.sigma}</span>}

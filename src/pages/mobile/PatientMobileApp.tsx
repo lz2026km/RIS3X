@@ -5,6 +5,7 @@ import { wechatPay } from '../../services/wechatPay'
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto, type PortalImageStudyDto } from '../../services/api/patientPortalApi'
 import { reportApi } from '../../services/api/reportApi'
 import { Card } from 'antd'
+import { t } from '../../i18n/appI18n'
 
 // ===== Types =====
 export interface MobileUser {
@@ -109,9 +110,9 @@ export default function PatientMobileApp() {
         win.print()
         return
       }
-      alert('导出接口暂不可用，请稍后重试或联系客服')
+      alert(t('mobileApp.exportUnavailable'))
     } catch {
-      alert('报告导出失败，请稍后重试')
+      alert(t('mobileApp.exportFailed'))
     } finally {
       setDownloadingPdf(false)
     }
@@ -130,7 +131,7 @@ export default function PatientMobileApp() {
     }
   }
 
-  const [mobileUser, setMobileUser] = useState<MobileUser>({ id: 'P001', name: '加载中...', avatar: '👤', verified: false, phone: '' })
+  const [mobileUser, setMobileUser] = useState<MobileUser>({ id: 'P001', name: t('mobileApp.loading'), avatar: '👤', verified: false, phone: '' })
   const [mobileReports, setMobileReports] = useState<MobileReport[]>([])
   const [mobileNotifications, setMobileNotifications] = useState<MobileNotification[]>([])
 
@@ -149,7 +150,7 @@ export default function PatientMobileApp() {
             const p = data[0]
             setMobileUser({
               id: p.id || 'P001',
-              name: p.name || '未知',
+              name: p.name || t('mobileApp.unknown'),
               avatar: '👤',
               verified: true,
               phone: p.phone ? `${p.phone.slice(0, 3)}****${p.phone.slice(-4)}` : '***',
@@ -177,7 +178,7 @@ export default function PatientMobileApp() {
           if (Array.isArray(data)) {
             setMobileNotifications(data.map((n, i) => ({
               id: n.id || `N${i + 1}`,
-              title: n.label || n.key || '通知',
+              title: n.label || n.key || t('mobileApp.notification'),
               body: n.value || '',
               type: 'system' as const,
               read: false,
@@ -223,7 +224,7 @@ export default function PatientMobileApp() {
 
   const sendSmsCode = async () => {
     if (!/^1[3-9]\d{9}$/.test(phoneInput)) {
-      setLoginError('请输入正确的手机号')
+      setLoginError(t('mobileApp.invalidPhone'))
       return
     }
     setLoginError(null)
@@ -235,14 +236,14 @@ export default function PatientMobileApp() {
 
   const verifySmsCode = async () => {
     if (smsCode.length !== 6) {
-      setLoginError('验证码应为 6 位')
+      setLoginError(t('mobileApp.codeLength'))
       return
     }
     setLoginError(null)
     setLoginState('verifying')
     await new Promise(r => setTimeout(r, 500))
     if (smsCode === '000000') {
-      setLoginError('验证码错误,请重新获取')
+      setLoginError(t('mobileApp.codeError'))
       setLoginState('error')
       return
     }
@@ -265,7 +266,7 @@ export default function PatientMobileApp() {
       onSuccess: (res) => {
         setPayState('success')
         if (pushEnabled) {
-          pushService.sendLocalNotification({ title: '支付成功', body: `订单 ${orderNo} 已完成,交易号 ${res.transactionId}` })
+          pushService.sendLocalNotification({ title: t('mobileApp.paySuccess'), body: `订单 ${orderNo} 已完成,交易号 ${res.transactionId}` })
         }
       },
       onFail: (err) => {
@@ -275,7 +276,7 @@ export default function PatientMobileApp() {
     })
     if (!r.success) {
       setPayState('failed')
-      setPayError(r.error?.message || '微信下单失败')
+      setPayError(r.error?.message || t('mobileApp.payOrderFailed'))
     }
   }
 
@@ -286,7 +287,7 @@ export default function PatientMobileApp() {
     } else {
       const perm = await pushService.requestPermission()
       if (perm === 'granted') {
-        pushService.sendLocalNotification({ title: 'G005 RIS', body: '通知已开启' })
+        pushService.sendLocalNotification({ title: 'G005 RIS', body: t('mobileApp.notifyEnabled') })
         setPushEnabled(true)
       }
     }
@@ -296,22 +297,22 @@ export default function PatientMobileApp() {
     <>
       {/* Banner */}
       <Card bordered={false} style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }} styles={{ body: { padding: 0 } }}>
-        <div style={{ fontSize: 12, color: '#1e40af', fontWeight: 600 }}>欢迎回来</div>
+        <div style={{ fontSize: 12, color: '#1e40af', fontWeight: 600 }}>{t('mobileApp.welcomeBack')}</div>
         <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: '4px 0' }}>{mobileUser.name}</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>您有 {mobileReports.filter(r => r.status === 'ready').length} 份新报告可查看</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>{t('mobileApp.newReports', { count: mobileReports.filter(r => r.status === 'ready').length })}</div>
       </Card>
 
       {/* Quick Actions */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
         {[
-          { icon: '📋', label: '我的报告', tab: 'reports' as const },
-          { icon: '🖼️', label: '影像查看', tab: 'reports' as const },
-          { icon: '🔔', label: '消息中心', tab: 'notifications' as const },
+          { icon: '📋', labelKey: 'mobileApp.action.myReports', tab: 'reports' as const },
+          { icon: '🖼️', labelKey: 'mobileApp.action.viewImages', tab: 'reports' as const },
+          { icon: '🔔', labelKey: 'mobileApp.action.messageCenter', tab: 'notifications' as const },
         ].map(action => (
-          <div key={action.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid var(--border-color)', cursor: 'pointer' }}
+          <div key={action.labelKey} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid var(--border-color)', cursor: 'pointer' }}
             onClick={() => setActiveTab(action.tab)}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{action.icon}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{action.label}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{t(action.labelKey)}</div>
           </div>
         ))}
       </div>
@@ -319,8 +320,8 @@ export default function PatientMobileApp() {
       {/* Recent Reports */}
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={s.cardTitle}>最近报告</div>
-          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>查看全部 →</span>
+          <div style={s.cardTitle}>{t('mobileApp.recentReports')}</div>
+          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>{t('mobileApp.viewAll')}</span>
         </div>
         {mobileReports.slice(0, 2).map(r => (
           <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
@@ -329,7 +330,7 @@ export default function PatientMobileApp() {
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
             </div>
-            <span style={s.badge(r.status)}>{r.status === 'ready' ? '已出报告' : '待出具'}</span>
+            <span style={s.badge(r.status)}>{r.status === 'ready' ? t('mobileApp.status.ready') : t('mobileApp.status.pending')}</span>
           </div>
         ))}
       </Card>
@@ -337,8 +338,8 @@ export default function PatientMobileApp() {
       {/* Notifications Preview */}
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={s.cardTitle}>消息</div>
-          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>查看全部 →</span>
+          <div style={s.cardTitle}>{t('mobileApp.messages')}</div>
+          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>{t('mobileApp.viewAll')}</span>
         </div>
         {mobileNotifications.filter(n => !n.read).slice(0, 2).map(n => (
           <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
@@ -358,7 +359,7 @@ export default function PatientMobileApp() {
       {selectedReport ? (
         <div>
           <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: '#3b82f6', marginBottom: 12, padding: 0 }} onClick={() => setSelectedReport(null)}>
-            ← 返回列表
+            {t('mobileApp.backToList')}
           </button>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedReport.examType}</div>
           <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 12 }}>{selectedReport.examDate} · {selectedReport.doctorName}</div>
@@ -366,12 +367,12 @@ export default function PatientMobileApp() {
             检查描述：双肺野清晰，肺纹理走行自然。\n诊断意见：未见明显异常。
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => void handleDownloadPdf(selectedReport)} disabled={downloadingPdf} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: downloadingPdf ? '#93c5fd' : '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: downloadingPdf ? 'wait' : 'pointer' }}>{downloadingPdf ? '导出中...' : '📥 下载PDF'}</button>
-            <button onClick={() => void handleViewImages(selectedReport)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>🖼️ 查看影像</button>
+            <button onClick={() => void handleDownloadPdf(selectedReport)} disabled={downloadingPdf} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: downloadingPdf ? '#93c5fd' : '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: downloadingPdf ? 'wait' : 'pointer' }}>{downloadingPdf ? t('mobileApp.exporting') : t('mobileApp.downloadPdf')}</button>
+            <button onClick={() => void handleViewImages(selectedReport)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('mobileApp.viewImagesBtn')}</button>
           </div>
           <div style={{ marginTop: 12, padding: 10, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bae6fd' }}>
             <div style={{ fontSize: 12, color: '#0369a1', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <CreditCard size={12} /> 报告查阅费: ¥50.00
+              <CreditCard size={12} /> {t('mobileApp.reviewFee')}
             </div>
             <button
               onClick={() => handleWechatPay(selectedReport)}
@@ -388,16 +389,16 @@ export default function PatientMobileApp() {
                 cursor: payState === 'invoking' ? 'not-allowed' : 'pointer',
               }}
             >
-              {payState === 'idle' && '微信支付'}
-              {payState === 'invoking' && '正在唤起微信支付...'}
-              {payState === 'success' && payingReportId === selectedReport.id && '✓ 支付成功'}
-              {payState === 'failed' && (payError || '支付失败,重试')}
+              {payState === 'idle' && t('mobileApp.wechatPay')}
+              {payState === 'invoking' && t('mobileApp.invokingPay')}
+              {payState === 'success' && payingReportId === selectedReport.id && t('mobileApp.paySuccessMark')}
+              {payState === 'failed' && (payError || t('mobileApp.payRetry'))}
             </button>
           </div>
         </div>
       ) : (
         <>
-          <div style={s.cardTitle}>检查报告</div>
+          <div style={s.cardTitle}>{t('mobileApp.examReports')}</div>
           {mobileReports.map(r => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setSelectedReport(r)}>
               <div>
@@ -405,7 +406,7 @@ export default function PatientMobileApp() {
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={s.badge(r.status)}>{r.status === 'ready' ? '已出报告' : '待出具'}</span>
+                <span style={s.badge(r.status)}>{r.status === 'ready' ? t('mobileApp.status.ready') : t('mobileApp.status.pending')}</span>
                 <ChevronRight size={14} color="#94a3b8" />
               </div>
             </div>
@@ -417,7 +418,7 @@ export default function PatientMobileApp() {
 
   const renderNotifications = () => (
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-      <div style={s.cardTitle}>消息中心</div>
+      <div style={s.cardTitle}>{t('mobileApp.action.messageCenter')}</div>
       {mobileNotifications.map(n => (
         <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? 'var(--border-color)' : '#3b82f6', marginTop: 5, flexShrink: 0 }} />
@@ -442,27 +443,27 @@ export default function PatientMobileApp() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <span style={s.verifiedBadge}>已实名认证 ✓</span>
+          <span style={s.verifiedBadge}>{t('mobileApp.profile.verified')}</span>
         </div>
         <div style={{ marginTop: 12, fontSize: 12, color: loginState === 'success' ? '#059669' : '#94a3b8' }}>
-          登录状态: {loginState === 'success' ? '已通过短信验证' : '未登录 (可点此登录)'}
+          {t('mobileApp.loginStatus')} {loginState === 'success' ? t('mobileApp.smsVerified') : t('mobileApp.notLoggedIn')}
           {loginState !== 'success' && (
             <button onClick={() => setActiveTab('login')} style={{ marginLeft: 8, border: 'none', background: '#3b82f6', color: '#fff', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
-              去登录
+              {t('mobileApp.goLogin')}
             </button>
-           )}
+          )}
         </div>
       </Card>
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         {[
-          { icon: '🔒', label: '账户安全' },
-          { icon: '📱', label: '设备管理' },
-          { icon: '⚙️', label: '设置' },
-          { icon: 'ℹ️', label: '关于' },
+          { icon: '🔒', labelKey: 'mobileApp.profile.security' },
+          { icon: '📱', labelKey: 'mobileApp.profile.devices' },
+          { icon: '⚙️', labelKey: 'mobileApp.profile.settings' },
+          { icon: 'ℹ️', labelKey: 'mobileApp.profile.about' },
         ].map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--border-color)' : 'none', cursor: 'pointer' }}>
             <span style={{ marginRight: 10, fontSize: 16 }}>{item.icon}</span>
-            <span style={{ fontSize: 13, color: 'var(--text-secondary)', flex: 1 }}>{item.label}</span>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)', flex: 1 }}>{t(item.labelKey)}</span>
             <ChevronRight size={14} color="#94a3b8" />
           </div>
         ))}
@@ -473,17 +474,17 @@ export default function PatientMobileApp() {
   const renderLogin = () => (
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       <div style={{ ...s.cardTitle, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Smartphone size={16} color="#1e40af" /> 手机号快捷登录
+        <Smartphone size={16} color="#1e40af" /> {t('mobileApp.phoneLogin')}
       </div>
       <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
-        输入手机号获取短信验证码,验证通过后即可查看完整报告与缴费
+        {t('mobileApp.phoneLoginHint')}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8, marginBottom: 10 }}>
         <Phone size={14} color="#64748b" />
         <input
           value={phoneInput}
           onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 11))}
-          placeholder="请输入手机号"
+          placeholder={t('mobileApp.phonePlaceholder')}
           style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }}
           inputMode="numeric"
         />
@@ -493,7 +494,7 @@ export default function PatientMobileApp() {
         <input
           value={smsCode}
           onChange={e => setSmsCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          placeholder="6 位短信验证码"
+          placeholder={t('mobileApp.smsPlaceholder')}
           style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }}
           inputMode="numeric"
         />
@@ -511,7 +512,7 @@ export default function PatientMobileApp() {
             minWidth: 90,
           }}
         >
-          {smsCountdown > 0 ? `${smsCountdown}s 后重发` : '获取验证码'}
+          {smsCountdown > 0 ? `${smsCountdown}s 后重发` : t('mobileApp.getSmsCode')}
         </button>
       </div>
       {loginError && <div style={{ fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{loginError}</div>}
@@ -534,10 +535,10 @@ export default function PatientMobileApp() {
           gap: 6,
         }}
       >
-        <Lock size={14} /> {loginState === 'verifying' ? '验证中...' : '登录'}
+        <Lock size={14} /> {loginState === 'verifying' ? t('mobileApp.verifying') : t('mobileApp.login')}
       </button>
       <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
-        登录即表示同意《用户协议》和《隐私政策》
+        {t('mobileApp.agreement')}
       </div>
     </Card>
   )
@@ -556,18 +557,18 @@ export default function PatientMobileApp() {
             <div style={s.avatar}>👤</div>
             <div>
               <div style={s.userName}>{mobileUser.name}</div>
-              <span style={s.verifiedBadge}>✓ 已认证</span>
+              <span style={s.verifiedBadge}>{t('mobileApp.verified')}</span>
             </div>
           </div>
-          <span style={{ fontSize: 20, cursor: 'pointer' }} onClick={togglePush} title={pushEnabled ? '关闭推送通知' : '开启推送通知'}>
+          <span style={{ fontSize: 20, cursor: 'pointer' }} onClick={togglePush} title={pushEnabled ? t('mobileApp.disablePush') : t('mobileApp.enablePush')}>
             {pushEnabled ? <Bell size={20} /> : <BellOff size={20} />}
           </span>
         </div>
         {/* Tab Bar */}
         <div style={{ display: 'flex', marginTop: 8 }}>
-          {(['home', 'reports', 'notifications', 'profile', 'login'] as const).map(t => (
-            <div key={t} style={s.tab(activeTab === t)} onClick={() => setActiveTab(t)}>
-              {t === 'home' ? '首页' : t === 'reports' ? '报告' : t === 'notifications' ? '消息' : t === 'profile' ? '我的' : '登录'}
+          {(['home', 'reports', 'notifications', 'profile', 'login'] as const).map(tabKey => (
+            <div key={tabKey} style={s.tab(activeTab === tabKey)} onClick={() => setActiveTab(tabKey)}>
+              {tabKey === 'home' ? t('mobileApp.tab.home') : tabKey === 'reports' ? t('mobileApp.tab.reports') : tabKey === 'notifications' ? t('mobileApp.tab.notifications') : tabKey === 'profile' ? t('mobileApp.tab.profile') : t('mobileApp.tab.login')}
             </div>
           ))}
         </div>
@@ -583,15 +584,15 @@ export default function PatientMobileApp() {
       {/* Bottom Nav */}
       <div style={s.nav}>
         {[
-          { key: 'home' as const, icon: '🏠', label: '首页' },
-          { key: 'reports' as const, icon: '📋', label: '报告' },
-          { key: 'notifications' as const, icon: '🔔', label: '消息' },
-          { key: 'profile' as const, icon: '👤', label: '我的' },
-          { key: 'login' as const, icon: '🔑', label: '登录' },
+          { key: 'home' as const, icon: '🏠', labelKey: 'mobileApp.tab.home' },
+          { key: 'reports' as const, icon: '📋', labelKey: 'mobileApp.tab.reports' },
+          { key: 'notifications' as const, icon: '🔔', labelKey: 'mobileApp.tab.notifications' },
+          { key: 'profile' as const, icon: '👤', labelKey: 'mobileApp.tab.profile' },
+          { key: 'login' as const, icon: '🔑', labelKey: 'mobileApp.tab.login' },
         ].map(n => (
           <div key={n.key} style={s.navItem(activeTab === n.key)} onClick={() => setActiveTab(n.key)}>
             <div style={{ fontSize: 18 }}>{n.icon}</div>
-            <div>{n.label}</div>
+            <div>{t(n.labelKey)}</div>
           </div>
         ))}
       </div>
@@ -601,11 +602,11 @@ export default function PatientMobileApp() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={() => setImageViewer(null)}>
           <div style={{ maxWidth: 420, width: '92%', background: '#0f172a', borderRadius: 16, padding: 16 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{imageViewer.report.examType} 影像</span>
+              <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{imageViewer.report.examType} {t('mobileApp.imageSuffix')}</span>
               <button onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
             </div>
             {imageLoading ? (
-              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 13 }}>影像加载中...</div>
+              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 13 }}>{t('mobileApp.imageLoading')}</div>
             ) : (
               <>
                 <div style={{ height: 260, background: 'linear-gradient(135deg,#1e293b,#0f172a)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #334155' }}>
@@ -613,13 +614,13 @@ export default function PatientMobileApp() {
                     <div style={{ fontSize: 40, marginBottom: 8 }}>🩻</div>
                     <div style={{ fontSize: 13 }}>{imageViewer.report.examType} · {imageViewer.report.examDate}</div>
                     <div style={{ fontSize: 11, marginTop: 6, color: 'rgba(255,255,255,0.4)' }}>
-                      {imageViewer.study ? `序列 ${imageViewer.study.series?.length ?? 0} 组 · ${imageViewer.study.studyInstanceUid?.slice(0, 12) ?? ''}...` : 'DICOM 影像预览'}
+                      {imageViewer.study ? `序列 ${imageViewer.study.series?.length ?? 0} 组 · ${imageViewer.study.studyInstanceUid?.slice(0, 12) ?? ''}...` : t('mobileApp.dicomPreview')}
                     </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                  <button onClick={() => setImageViewer(null)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 12, cursor: 'pointer' }}>关闭</button>
-                  <button onClick={() => void document.documentElement.requestFullscreen?.().catch(() => {})} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, cursor: 'pointer' }}>全屏查看</button>
+                  <button onClick={() => setImageViewer(null)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 12, cursor: 'pointer' }}>{t('mobileApp.close')}</button>
+                  <button onClick={() => void document.documentElement.requestFullscreen?.().catch(() => {})} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, cursor: 'pointer' }}>{t('mobileApp.fullscreen')}</button>
                 </div>
               </>
             )}
