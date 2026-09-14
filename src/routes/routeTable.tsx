@@ -444,9 +444,7 @@ const SystemAdminPage = lazy(() => import("../pages/admin/SystemAdminPage"));
 const TreatmentPlanCenterPage = lazy(
   () => import("../pages/treatment/TreatmentPlanCenterPage"),
 );
-const PatientPortalPageV2 = lazy(
-  () => import("../pages/patient/PatientPortalPage"),
-);
+// [G005 v3.0.6.11-104 Wave 4A] PatientPortalPageV2 已随 /patient-unified 重定向移除 (与 PatientPortalPage 同模块)
 const CommandCenterPage = lazy(
   () => import("../pages/operations/CommandCenterPage"),
 );
@@ -1037,7 +1035,8 @@ export const routes: RouteObject[] = [
   { path: "/forbidden", element: React.createElement(ForbiddenPage) },
   // 受 RBAC 保护的业务路由
   wrapped("/", React.createElement(HomePage)),
-  wrapped("/workbench", React.createElement(HomePage)),
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /
+  wrapped("/workbench", React.createElement(Navigate, { to: "/", replace: true })),
   wrapped("/worklist", React.createElement(WorklistPage)), // [audit-fix-2026-07-02]
   wrapped("/patients", React.createElement(PatientPage)),
   wrapped("/patients/:id", React.createElement(PatientPage)),
@@ -1049,8 +1048,9 @@ export const routes: RouteObject[] = [
   // [v3.0.6.11-99 Wave7B] 离线报告包 (IndexedDB 快照浏览/管理; 断网可用)
   wrapped("/reports/offline", React.createElement(OfflineReportsPage)),
   wrapped("/write-report", React.createElement(ReportWritePage)),
-  wrapped("/report/write", React.createElement(ReportWritePage)), // [v3.0.6.11-92 Wave1B P0] 移动端医生工作台 /report/write 目标路由
-  wrapped("/reports/v3-write", React.createElement(ReportWritePage)),
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /write-report
+  wrapped("/report/write", React.createElement(Navigate, { to: "/write-report", replace: true })), // [v3.0.6.11-92 Wave1B P0] 移动端医生工作台 /report/write 目标路由
+  wrapped("/reports/v3-write", React.createElement(Navigate, { to: "/write-report", replace: true })),
   wrapped("/statistics", React.createElement(StatisticsPage)),
   wrapped("/critical-value", React.createElement(CriticalValuePage)),
   wrapped("/term-library", React.createElement(TermLibraryPage)),
@@ -1062,7 +1062,8 @@ export const routes: RouteObject[] = [
   wrapped("/queue-call", React.createElement(QueueCallPage)),
   wrapped("/dicom-viewer-classic", React.createElement(DicomViewerClassicPage)),
   wrapped("/dicom-viewer", React.createElement(DicomViewerProPage)),
-  wrapped("/dicom-viewer-pro", React.createElement(DicomViewerProPage)),
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /dicom-viewer
+  wrapped("/dicom-viewer-pro", React.createElement(Navigate, { to: "/dicom-viewer", replace: true })),
   wrapped("/typical-cases", React.createElement(TypicalCasesPage)),
   wrapped("/finding-library", React.createElement(FindingLibraryPage)),
   wrapped("/operation-log", React.createElement(OperationLogPage)),
@@ -1139,7 +1140,8 @@ export const routes: RouteObject[] = [
   wrapped("/user-management", React.createElement(UserManagementPage)),
   // [v3.0.6.11-79] W1-B 用户中心 (所有已登录角色)
   wrapped("/user/center", React.createElement(UserCenterPage)),
-  wrapped("/authority", React.createElement(UserManagementPage)), // [F16] 权限管理: 侧边栏 /authority 对齐
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /user-management
+  wrapped("/authority", React.createElement(Navigate, { to: "/user-management", replace: true })), // [F16] 权限管理: 侧边栏 /authority 对齐
   wrapped("/admin/config", React.createElement(ClinicalConfigCenter)),
   wrapped("/patient-portal", React.createElement(PatientPortalPage)),
   wrapped("/director-dashboard", React.createElement(DirectorDashboardPage)),
@@ -1333,7 +1335,8 @@ export const routes: RouteObject[] = [
   wrapped("/emr-templates", React.createElement(EmrTemplatesPage)), // [v3.0.6.8-63]
   wrapped("/system-admin", React.createElement(SystemAdminPage)), // [v3.0.6.8-64]
   wrapped("/treatment-plans", React.createElement(TreatmentPlanCenterPage)), // [v3.0.6.8-65]
-  wrapped("/patient-unified", React.createElement(PatientPortalPageV2)), // [v3.0.6.8-66]
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /patient-portal
+  wrapped("/patient-unified", React.createElement(Navigate, { to: "/patient-portal", replace: true })), // [v3.0.6.8-66]
   wrapped("/command-center", React.createElement(CommandCenterPage)), // [v3.0.6.8-67]
   wrapped("/dicom-share", React.createElement(DicomSharePage)), // [v3.0.6.8-68]
   wrapped("/operations/occupancy", React.createElement(RoomOccupancyPage)), // [v3.0.6.11-17]
@@ -1342,7 +1345,8 @@ export const routes: RouteObject[] = [
   wrapped("/clinical-pathways", React.createElement(ClinicalPathwayPage)), // [v3.0.6.8-70]
   wrapped("/audit-compliance", React.createElement(AuditCompliancePage)), // [v3.0.6.8-71]
   wrapped("/compliance-docs", React.createElement(ComplianceDocsPage)), // [v3.0.6.11-79 W1-C] 合规文档库
-  wrapped("/dicom-sr-manager", React.createElement(DicomSrPage)), // [v3.0.6.8-72]
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /dicom/sr-manager
+  wrapped("/dicom-sr-manager", React.createElement(Navigate, { to: "/dicom/sr-manager", replace: true })), // [v3.0.6.8-72]
   wrapped("/dicom/sr-manager", React.createElement(DicomSrPage)), // DICOM SR 结构化报告
   wrapped("/dicom/web", React.createElement(DicomWebPage)),
   wrapped("/terminology-server", React.createElement(TerminologyServerPage)), // [v3.0.6.8-73]
@@ -1423,8 +1427,9 @@ export const routes: RouteObject[] = [
   wrapped("/sign-amend", React.createElement(SignAmendPage)), // [v3.0.6.8-49] PR 5
   wrapped("/v3-report-hub", React.createElement(V3ReportHubPage)), // [v3.0.6.8-50] PR 6
   wrapped("/materials", React.createElement(MaterialsV2Page)), // [v3.0.6.8-51] PR 7
-  wrapped("/supplies", React.createElement(MaterialsV2Page)), // [F16] 耗材: 侧边栏 /supplies 对齐
-  wrapped("/radiology-materials", React.createElement(MaterialsV2Page)), // [F16] 放射耗材: 侧边栏 /radiology-materials 对齐
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /materials
+  wrapped("/supplies", React.createElement(Navigate, { to: "/materials", replace: true })), // [F16] 耗材: 侧边栏 /supplies 对齐
+  wrapped("/radiology-materials", React.createElement(Navigate, { to: "/materials", replace: true })), // [F16] 放射耗材: 侧边栏 /radiology-materials 对齐
   wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
@@ -1475,9 +1480,10 @@ export const routes: RouteObject[] = [
   wrapped("/teach/lecture", React.createElement(TeachLecturePage)),
   // [G005 v3.0.6.11-103 Wave 18] 教学病例库 (病例收藏/分类/分享评论/考试模式)
   wrapped("/teach/case-library", React.createElement(TeachingCaseLibraryPage)),
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /audit
   wrapped(
     "/system/audit",
-    React.createElement(lazy(() => import("../pages/AuditPage"))),
+    React.createElement(Navigate, { to: "/audit", replace: true }),
   ),
   wrapped(
     "/audit",
@@ -1539,9 +1545,10 @@ export const routes: RouteObject[] = [
       lazy(() => import("../pages/workflow/SmartRoutingPage")),
     ),
   ),
+  // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /cosign
   wrapped(
     "/cosign-review",
-    React.createElement(lazy(() => import("../pages/review/CoSignPage"))),
+    React.createElement(Navigate, { to: "/cosign", replace: true }),
   ),
   wrapped(
     "/radpath",

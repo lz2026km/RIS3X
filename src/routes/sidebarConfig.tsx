@@ -19,7 +19,6 @@ import {
   BookOpen,
   Shield,
   Bell,
-  Package,
   Pen,
   ShieldAlert,
   UserCheck,
@@ -60,7 +59,6 @@ import {
   Award,
   Wallet,
   FileSpreadsheet,
-  Edit3,
   GitBranch,
   Eye,
   Image,
@@ -195,6 +193,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.patient360",
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
+      {
+        path: "/treatment-plans",
+        icon: <ListChecks size={18} />,
+        labelKey: "nav.treatmentPlans",
+        roles: ["医生", "主任", "管理员"],
+      },
     ],
   },
   {
@@ -204,12 +208,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/write-report",
         icon: <PenLine size={18} />,
         labelKey: "nav.writeReport",
-        roles: ["医生", "主任", "管理员",],
-      },
-      {
-        path: "/reports/v3-write",
-        icon: <Edit3 size={18} />,
-        labelKey: "nav.writeReportV3",
         roles: ["医生", "主任", "管理员",],
       },
       {
@@ -439,6 +437,30 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.ruleConfig",
         roles: ["主任", "管理员"],
       },
+      {
+        path: "/report-workflow",
+        icon: <Workflow size={18} />,
+        labelKey: "nav.reportWorkflow",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/review-check",
+        icon: <BadgeCheck size={18} />,
+        labelKey: "nav.reviewCheck",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/sign-amend",
+        icon: <FileSignature size={18} />,
+        labelKey: "nav.signAmend",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/v3-report-hub",
+        icon: <LayoutGrid size={18} />,
+        labelKey: "nav.v3ReportHub",
+        roles: ["医生", "主任", "管理员"],
+      },
     ],
   },
   {
@@ -590,12 +612,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["管理员", "主任"],
       },
       {
-        path: "/cosign-review",
-        icon: <UserCheck size={18} />,
-        labelKey: "nav.cosignReview",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
         path: "/radpath",
         icon: <Map size={18} />,
         labelKey: "nav.radpathLinkage",
@@ -607,6 +623,18 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.criticalValue5Step",
         roles: ["医生", "主任", "管理员", "护士"],
       },
+      {
+        path: "/scheduling-center",
+        icon: <CalendarClock size={18} />,
+        labelKey: "nav.schedulingCenter",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
+        path: "/clinical-pathways",
+        icon: <Map size={18} />,
+        labelKey: "nav.clinicalPathways",
+        roles: ["医生", "主任", "管理员", "护士"],
+      },
     ],
   },
   {
@@ -616,12 +644,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dicom-viewer",
         icon: <PlayCircle size={18} />,
         labelKey: "nav.dicomBrowser",
-        roles: ["医生", "技师", "主任", "管理员",],
-      },
-      {
-        path: "/dicom-viewer-pro",
-        icon: <MonitorPlay size={18} />,
-        labelKey: "nav.dicomBrowserPro",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
@@ -822,6 +844,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.radiomicsFeatures",
         roles: ["医生", "主任", "管理员"],
       },
+      {
+        path: "/dicom-share",
+        icon: <Share2 size={18} />,
+        labelKey: "nav.dicomShare",
+        roles: ["医生", "主任", "技师", "管理员", "护士"],
+      },
     ],
   },
   {
@@ -925,6 +953,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/ai/dl-denoise",
         icon: <Sparkles size={18} />,
         labelKey: "nav.dlDenoise",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/ai-fusion-workspace",
+        icon: <Blend size={18} />,
+        labelKey: "nav.aiFusionWorkspace",
         roles: ["医生", "主任", "技师", "管理员"],
       },
     ],
@@ -1046,6 +1080,37 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <ShieldAlert size={18} />,
         labelKey: "nav.riskManagement",
         roles: ["主任", "管理员"],
+      },
+      {
+        path: "/research",
+        icon: <GraduationCap size={18} />,
+        labelKey: "nav.research",
+        roles: ["医生", "主任", "管理员"],
+      },
+      // [G005 v3.0.6.11-103 Wave 18] 科研数据导出中心 (数据集/字段/CSV·JSON·Excel)
+      {
+        path: "/research/export-center",
+        icon: <Download size={18} />,
+        labelKey: "nav.researchExportCenter",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/report-templates",
+        icon: <FileType2 size={18} />,
+        labelKey: "nav.reportTemplates",
+        roles: ["医生", "主任", "技师", "管理员", "护士"],
+      },
+      {
+        path: "/clinical-calculators",
+        icon: <Calculator size={18} />,
+        labelKey: "nav.clinicalCalculators",
+        roles: ["医生", "主任", "技师", "护士", "管理员"],
+      },
+      {
+        path: "/patient-safety",
+        icon: <HeartPulse size={18} />,
+        labelKey: "nav.patientSafety",
+        roles: ["主任", "管理员", "护士"],
       },
     ],
   },
@@ -1188,6 +1253,37 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.hl7Manager",
         roles: ["技师", "管理员"],
       },
+      {
+        path: "/regional-imaging",
+        icon: <Map size={18} />,
+        labelKey: "nav.regionalImaging",
+        roles: ["管理员"],
+      },
+      // [G005 Wave 4B] 区域医联体协同中心 (RegionalCollaborationPage)
+      {
+        path: "/regional/collaboration",
+        icon: <Network size={18} />,
+        labelKey: "nav.regionalCollaboration",
+        roles: ["管理员", "主任"],
+      },
+      {
+        path: "/integration/mllp-monitor",
+        icon: <RadioTower size={18} />,
+        labelKey: "nav.mllpMonitor",
+        roles: ["管理员", "技师"],
+      },
+      {
+        path: "/integration/mllp-config",
+        icon: <Cable size={18} />,
+        labelKey: "nav.mllpConfig",
+        roles: ["管理员"],
+      },
+      {
+        path: "/ihe-integration",
+        icon: <Network size={18} />,
+        labelKey: "nav.iheIntegration",
+        roles: ["主任", "管理员", "技师"],
+      },
     ],
   },
   {
@@ -1265,6 +1361,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Smartphone size={18} />,
         labelKey: "nav.mobileApproval",
         roles: ["主任", "管理员"],
+      },
+      {
+        path: "/consent-education",
+        icon: <FileCheck2 size={18} />,
+        labelKey: "nav.consentEducation",
+        roles: ["医生", "主任", "技师", "护士", "管理员"],
+      },
+      // [v3.0.6.11-104 Wave 3C] 临床反馈闭环: 异议/补充/更正 → 回应 → 关闭
+      {
+        path: "/clinical-feedback",
+        icon: <MessageSquare size={18} />,
+        labelKey: "nav.clinicalFeedback",
+        roles: ["医生", "主任", "技师", "护士", "管理员"],
       },
     ],
   },
@@ -1491,6 +1600,18 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Clock size={18} />,
         labelKey: "nav.tatDashboard",
         roles: ["主任", "管理员", "医生"],
+      },
+      {
+        path: "/director-dashboard",
+        icon: <Crown size={18} />,
+        labelKey: "nav.directorDashboard",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/command-center",
+        icon: <Monitor size={18} />,
+        labelKey: "nav.commandCenter",
+        roles: ["主任", "管理员"],
       },
     ],
   },
@@ -2026,97 +2147,36 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.mammoQuality",
         roles: ["主任", "管理员"],
       },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 区域协同
-  {
-    section: "nav.regionalCoordination",
-    items: [
       {
-        path: "/regional-imaging",
-        icon: <Map size={18} />,
-        labelKey: "nav.regionalImaging",
-        roles: ["管理员"],
-      },
-      // [G005 Wave 4B] 区域医联体协同中心 (RegionalCollaborationPage)
-      {
-        path: "/regional/collaboration",
-        icon: <Network size={18} />,
-        labelKey: "nav.regionalCollaboration",
-        roles: ["管理员", "主任"],
-      },
-      {
-        path: "/integration/mllp-monitor",
-        icon: <RadioTower size={18} />,
-        labelKey: "nav.mllpMonitor",
-        roles: ["管理员", "技师"],
-      },
-      {
-        path: "/integration/mllp-config",
-        icon: <Cable size={18} />,
-        labelKey: "nav.mllpConfig",
-        roles: ["管理员"],
-      },
-      {
-        path: "/ihe-integration",
-        icon: <Network size={18} />,
-        labelKey: "nav.iheIntegration",
-        roles: ["主任", "管理员", "技师"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 数据分析
-  {
-    section: "nav.dataAnalysis",
-    items: [
-      {
-        path: "/director-dashboard",
-        icon: <Crown size={18} />,
-        labelKey: "nav.directorDashboard",
-        roles: ["主任", "管理员"],
-      },
-      {
-        path: "/command-center",
-        icon: <Monitor size={18} />,
-        labelKey: "nav.commandCenter",
-        roles: ["主任", "管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 质控补充
-  {
-    section: "nav.qualityControl",
-    items: [
-      {
-        path: "/research",
-        icon: <GraduationCap size={18} />,
-        labelKey: "nav.research",
-        roles: ["医生", "主任", "管理员"],
-      },
-      // [G005 v3.0.6.11-103 Wave 18] 科研数据导出中心 (数据集/字段/CSV·JSON·Excel)
-      {
-        path: "/research/export-center",
-        icon: <Download size={18} />,
-        labelKey: "nav.researchExportCenter",
+        path: "/mammo/breast-specialty",
+        icon: React.createElement(Ribbon, { size: 18 }),
+        labelKey: "nav.breastSpecialty",
         roles: ["医生", "主任", "管理员"],
       },
       {
-        path: "/report-templates",
-        icon: <FileType2 size={18} />,
-        labelKey: "nav.reportTemplates",
-        roles: ["医生", "主任", "技师", "管理员", "护士"],
+        path: "/cardiac/cardiac-specialty",
+        icon: React.createElement(HeartPulse, { size: 18 }),
+        labelKey: "nav.cardiacSpecialty",
+        roles: ["医生", "主任", "管理员"],
+      },
+      // [v3.0.6.11-88] Wave6A 血管分析工作台 (心脏组)
+      {
+        path: "/cardiac/vessel-analysis",
+        icon: React.createElement(HeartPulse, { size: 18 }),
+        labelKey: "nav.vesselAnalysis",
+        roles: ["医生", "主任", "管理员"],
       },
       {
-        path: "/clinical-calculators",
-        icon: <Calculator size={18} />,
-        labelKey: "nav.clinicalCalculators",
-        roles: ["医生", "主任", "技师", "护士", "管理员"],
+        path: "/ortho-specialty",
+        icon: React.createElement(Bone, { size: 18 }),
+        labelKey: "nav.orthoSpecialty",
+        roles: ["医生", "主任", "管理员"],
       },
       {
-        path: "/patient-safety",
-        icon: <HeartPulse size={18} />,
-        labelKey: "nav.patientSafety",
-        roles: ["主任", "管理员", "护士"],
+        path: "/neuro-specialty",
+        icon: React.createElement(Brain, { size: 18 }),
+        labelKey: "nav.neuroSpecialty",
+        roles: ["医生", "主任", "管理员"],
       },
     ],
   },
@@ -2179,187 +2239,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.audit",
         roles: ["管理员"],
       },
-      {
-        path: "/authority",
-        icon: <KeyRound size={18} />,
-        labelKey: "nav.authority",
-        roles: ["管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 患者管理
-  {
-    section: "nav.patientManagement",
-    items: [
-      {
-        path: "/treatment-plans",
-        icon: <ListChecks size={18} />,
-        labelKey: "nav.treatmentPlans",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
-        path: "/patient-unified",
-        icon: <Users size={18} />,
-        labelKey: "nav.patientUnified",
-        roles: ["医生", "主任", "技师", "管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 影像打印
-  {
-    section: "nav.imagingPrint",
-    items: [
-      {
-        path: "/dicom-share",
-        icon: <Share2 size={18} />,
-        labelKey: "nav.dicomShare",
-        roles: ["医生", "主任", "技师", "管理员", "护士"],
-      },
-      {
-        path: "/dicom-sr-manager",
-        icon: <FileSignature size={18} />,
-        labelKey: "nav.dicomSrManager",
-        roles: ["医生", "主任", "技师", "管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 工作流
-  {
-    section: "nav.workflowV3",
-    items: [
-      {
-        path: "/scheduling-center",
-        icon: <CalendarClock size={18} />,
-        labelKey: "nav.schedulingCenter",
-        roles: ["主任", "管理员", "技师"],
-      },
-      {
-        path: "/clinical-pathways",
-        icon: <Map size={18} />,
-        labelKey: "nav.clinicalPathways",
-        roles: ["医生", "主任", "管理员", "护士"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: AI智能
-  {
-    section: "nav.aiIntelligence",
-    items: [
-      {
-        path: "/ai-fusion-workspace",
-        icon: <Blend size={18} />,
-        labelKey: "nav.aiFusionWorkspace",
-        roles: ["医生", "主任", "技师", "管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 患者服务
-  {
-    section: "nav.patientService",
-    items: [
-      {
-        path: "/consent-education",
-        icon: <FileCheck2 size={18} />,
-        labelKey: "nav.consentEducation",
-        roles: ["医生", "主任", "技师", "护士", "管理员"],
-      },
-      // [v3.0.6.11-104 Wave 3C] 临床反馈闭环: 异议/补充/更正 → 回应 → 关闭
-      {
-        path: "/clinical-feedback",
-        icon: <MessageSquare size={18} />,
-        labelKey: "nav.clinicalFeedback",
-        roles: ["医生", "主任", "技师", "护士", "管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 报告管理
-  {
-    section: "nav.reportManagement",
-    items: [
-      {
-        path: "/report-workflow",
-        icon: <Workflow size={18} />,
-        labelKey: "nav.reportWorkflow",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
-        path: "/review-check",
-        icon: <BadgeCheck size={18} />,
-        labelKey: "nav.reviewCheck",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
-        path: "/sign-amend",
-        icon: <FileSignature size={18} />,
-        labelKey: "nav.signAmend",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
-        path: "/v3-report-hub",
-        icon: <LayoutGrid size={18} />,
-        labelKey: "nav.v3ReportHub",
-        roles: ["医生", "主任", "管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-42] P2 质量提升新增: 设备物资
-  {
-    section: "nav.equipmentMaterials",
-    items: [
-      {
-        path: "/supplies",
-        icon: <Package size={18} />,
-        labelKey: "nav.supplies",
-        roles: ["技师", "管理员"],
-      },
-      {
-        path: "/radiology-materials",
-        icon: <Archive size={18} />,
-        labelKey: "nav.radiologyMaterials",
-        roles: ["技师", "管理员"],
-      },
-    ],
-  },
-  // [v3.0.6.11-40] A15 专科模块: 乳腺/心脏/骨科/神经
-  {
-    section: "nav.specialtyModules",
-    items: [
-      {
-        path: "/mammo/breast-specialty",
-        icon: React.createElement(Ribbon, { size: 18 }),
-        labelKey: "nav.breastSpecialty",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
-        path: "/cardiac/cardiac-specialty",
-        icon: React.createElement(HeartPulse, { size: 18 }),
-        labelKey: "nav.cardiacSpecialty",
-        roles: ["医生", "主任", "管理员"],
-      },
-      // [v3.0.6.11-88] Wave6A 血管分析工作台 (心脏组)
-      {
-        path: "/cardiac/vessel-analysis",
-        icon: React.createElement(HeartPulse, { size: 18 }),
-        labelKey: "nav.vesselAnalysis",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
-        path: "/ortho-specialty",
-        icon: React.createElement(Bone, { size: 18 }),
-        labelKey: "nav.orthoSpecialty",
-        roles: ["医生", "主任", "管理员"],
-      },
-      {
-        path: "/neuro-specialty",
-        icon: React.createElement(Brain, { size: 18 }),
-        labelKey: "nav.neuroSpecialty",
-        roles: ["医生", "主任", "管理员"],
-      },
-    ],
-  },
-  {
-    section: "nav.systemManage",
-    items: [
       // [v3.0.6.11-79] W1-B 用户中心 (个人资料/改密/安全/退出)
       {
         path: "/user/center",
@@ -2440,13 +2319,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.patientFinance",
         roles: ["管理员"],
       },
-      // [v3.0.6.11-21] 新增 v3.0.6.11-20 系统管理菜单
-      {
-        path: "/system/audit",
-        icon: <History size={18} />,
-        labelKey: "nav.systemAudit",
-        roles: ["管理员"],
-      },
       {
         path: "/system/backup",
         icon: <HardDrive size={18} />,
@@ -2480,6 +2352,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
     ],
   },
+  // [v3.0.6.11-42] P2 质量提升新增: 设备物资
   {
     section: "nav.equipmentMaterials",
     items: [
