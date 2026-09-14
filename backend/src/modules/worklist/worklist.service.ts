@@ -33,6 +33,94 @@ const QC_ALLOWED_FROM = ['COMPLETED', 'IN_PROGRESS', 'IMAGE_READY', 'QC_REJECT',
 // 重拍登记 (QC_REJECT → IN_PROGRESS) 允许的源态
 const RETAKE_ALLOWED_FROM = ['QC_REJECT']
 
+// [v3.0.6.11-104 Wave 3D] 重拍审批状态 (门禁: 未审批不得流转 QC_REJECT → IN_PROGRESS)
+export const RETAKE_STATUSES = ['pending', 'approved', 'rejected'] as const
+export type RetakeStatus = (typeof RETAKE_STATUSES)[number]
+
+// [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out) P0 临床安全闭环
+// 对照 JCI/WHO 手术安全核对: 患者身份双标识 / 检查部位 / 过敏史 / 妊娠状态 / 隔离标记 / 知情同意
+export const TIMEOUT_CHECKLIST_KEYS = ['identity', 'bodyPart', 'allergy', 'pregnancy', 'isolation', 'consent'] as const
+export type TimeoutChecklistKey = (typeof TIMEOUT_CHECKLIST_KEYS)[number]
+
+export interface TimeoutCheckItem {
+  key: TimeoutChecklistKey
+  required: boolean
+  passed: boolean
+  detail: string | null
+}
+
+export interface TimeoutChecklistResponse {
+  examId: string
+  verified: boolean
+  verifiedBy: string | null
+  verifiedAt: string | null
+  patient: {
+    id: string | null
+    name: string
+    gender: string
+    age: number | null
+    identityPrimary: string
+    identitySecondary: string | null
+    identitySecondaryType: 'idCard' | 'accession'
+    allergyHistory: string | null
+    pregnancyStatus: string
+    isolationFlag: boolean
+  }
+  exam: {
+    id: string
+    accessionNumber: string | null
+    modality: string
+    bodyPart: string | null
+  }
+  consent: {
+    required: boolean
+    status: 'signed' | 'pending' | 'not_required'
+  }
+  items: TimeoutCheckItem[]
+  checklist: Record<string, unknown> | null
+}
+
+export interface TimeoutVerifyDto {
+  verifiedBy: string
+  note?: string
+  checklist?: Partial<Record<TimeoutChecklistKey, boolean>>
+}
+
+// 患者 Time-Out 字段 select (新列未迁移时回退 base select, 见 loadTimeoutContext)
+const PATIENT_TIMEOUT_SELECT = {
+  id: true,
+  name: true,
+  gender: true,
+  birthDate: true,
+  idCard: true,
+  allergyHistory: true,
+  pregnancyStatus: true,
+  isolationFlag: true,
+} as const
+const PATIENT_BASE_SELECT = {
+  id: true,
+  name: true,
+  gender: true,
+  birthDate: true,
+  idCard: true,
+} as const
+// Exam base 字段 (避免 timeout 新列未迁移时 select * 失败)
+const EXAM_BASE_SELECT = {
+  id: true,
+  tenantId: true,
+  patientId: true,
+  accessionNumber: true,
+  modality: true,
+  bodyPart: true,
+  scheduledAt: true,
+  startedAt: true,
+  completedAt: true,
+  deviceId: true,
+  state: true,
+  priority: true,
+  createdAt: true,
+} as const
+
 // 中文优先级 → 后端规范枚举 (ROUTINE/URGENT/STAT)
 const PRIORITY_ALIASES: Record<string, string> = { 普通: 'ROUTINE', 紧急: 'URGENT', 危重: 'STAT', ROUTINE: 'ROUTINE', URGENT: 'URGENT', STAT: 'STAT' }
 const normalizePriority = (p?: string | null): string | undefined => (p !== undefined && p !== null ? PRIORITY_ALIASES[p] ?? undefined : undefined)
@@ -87,7 +175,9 @@ export class WorklistService {
       // [v3.0.6.11-100 Wave 1B] retakeReason/retakeReasons: 重拍原因内存回退 (统计维度)
       // [v3.0.6.11-100 Wave 1A] primaryTechnicianId/backupTechnicianId: 多技师协作主备技师内存回退
       // [v3.0.6.11-103 Wave 11] doseDlp/doseCtdivol: 剂量记录内存回退 (技师工作站完成检查强制项)
-      if (['techNotes', 'qcNotes', 'qualityRating', 'retakeCount', 'priority', 'pausedAt', 'retakeReason', 'retakeReasons', 'primaryTechnicianId', 'backupTechnicianId', 'doseDlp', 'doseCtdivol'].includes(k)) extras[k] = v
+      // [v3.0.6.11-104 Wave 3A] timeoutVerified/timeoutVerifiedBy/timeoutVerifiedAt/timeoutChecklist: 检查前核对内存回退
+      // [v3.0.6.11-104 Wave 3D] retakeStatus/retakeApprover/retakeApprovedAt/retakeRequestedBy/retakeRequestedAt/retakeRequestNote/retakeReviewNote: 重拍审批内存回退
+      if (['techNotes', 'qcNotes', 'qualityRating', 'retakeCount', 'priority', 'pausedAt', 'retakeReason', 'retakeReasons', 'primaryTechnicianId', 'backupTechnicianId', 'doseDlp', 'doseCtdivol', 'timeoutVerified', 'timeoutVerifiedBy', 'timeoutVerifiedAt', 'timeoutChecklist', 'retakeStatus', 'retakeApprover', 'retakeApprovedAt', 'retakeRequestedBy', 'retakeRequestedAt', 'retakeRequestNote', 'retakeReviewNote'].includes(k)) extras[k] = v
       else base[k] = v
     }
     try {
@@ -278,6 +368,13 @@ export class WorklistService {
     if (dto.state !== undefined) {
       // [v3.0.6.11-103 Wave 13] 流程质量门禁: PATCH state 走合法流转表, 非法跳转 (如 ARRIVED→COMPLETED 跳过 IN_PROGRESS) 拒绝
       this.assertExamTransition(exam.state, dto.state, id)
+      // [v3.0.6.11-104 Wave 3D] 重拍审批门禁: QC_REJECT → IN_PROGRESS 必须已审批通过
+      if (exam.state === 'QC_REJECT' && dto.state === 'IN_PROGRESS') this.assertRetakeApproved(exam as unknown as Record<string, unknown>, id)
+      if (dto.state === 'QC_REJECT') {
+        data.retakeStatus = null
+        data.retakeApprover = null
+        data.retakeApprovedAt = null
+      }
       data.state = dto.state
     }
     // [v3.0.6.11-95 Wave 1A P0-3] 批量改优先级落库 (PATCH /worklist/:id { priority }, 中文别名归一化 ROUTINE/URGENT/STAT)
@@ -405,6 +502,12 @@ export class WorklistService {
   async start(id: string) {
     const exam = await this.getExam(id)
     if (exam.state !== 'ARRIVED') throw new BadRequestException(`Exam ${id} is not in ARRIVED state`)
+    // [v3.0.6.11-104 Wave 3A P0] 检查前核对门禁: 未完成 Time-Out 不得开始检查 (临床安全闭环)
+    if (!(exam as { timeoutVerified?: boolean }).timeoutVerified) {
+      throw new BadRequestException(
+        `TIMEOUT_NOT_VERIFIED: Exam ${id} 检查前核对 (Time-Out) 未完成, 请先完成患者身份/部位/过敏史/妊娠/隔离核对`,
+      )
+    }
     const result = this.prisma.exam.update({
       where: { id },
       data: { state: 'IN_PROGRESS' },
@@ -427,6 +530,233 @@ export class WorklistService {
     if (created) this.notifyReportCreated(id)
     this.notifyWorklistChanged('complete', id)
     return result
+  }
+
+  // ============================================================
+  // [v3.0.6.11-104 Wave 3A P0] 检查前核对 (Time-Out) 临床安全闭环
+  //   GET  /worklist/:id/timeout-checklist  返回核对清单
+  //   POST /worklist/:id/timeout-verify     提交核对结果 (必填项全通过才置 timeoutVerified=true)
+  //   门禁: POST /worklist/:id/start 校验 timeoutVerified=true
+  // ============================================================
+
+  private ageOf(birthDate?: Date | string | null): number | null {
+    if (!birthDate) return null
+    const b = new Date(birthDate)
+    if (Number.isNaN(b.getTime())) return null
+    const now = new Date()
+    let age = now.getFullYear() - b.getFullYear()
+    const m = now.getMonth() - b.getMonth()
+    if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--
+    return age
+  }
+
+  /** 育龄女性判定: 女性且 12-55 岁 (年龄未知按育龄保守处理) → 妊娠状态必填 */
+  private isFertileFemale(patient: Record<string, unknown> | null | undefined): boolean {
+    if (!patient || patient.gender !== 'FEMALE') return false
+    const age = this.ageOf(patient.birthDate as Date | string | null | undefined)
+    if (age === null) return true
+    return age >= 12 && age <= 55
+  }
+
+  /** 知情同意是否为必填 (增强/造影类检查需签署; 文本来自部位/检查号/模态) */
+  private requiresConsent(exam: Record<string, unknown> | null | undefined): boolean {
+    const text = `${exam?.bodyPart ?? ''} ${exam?.accessionNumber ?? ''} ${exam?.modality ?? ''}`
+    return /增强|造影|对比剂|contrast/i.test(text)
+  }
+
+  /** 确定性 seed 回退 (DB 不可用/孤儿模式), 与前端工作列表形状对齐 */
+  private buildSeedTimeout(id: string): { exam: Record<string, unknown>; patient: Record<string, unknown> } {
+    const exam = {
+      id,
+      tenantId: currentTenantId(),
+      patientId: `P-${id}`,
+      accessionNumber: `ACC-${id}`,
+      modality: 'CT',
+      bodyPart: '胸部CT平扫',
+      state: 'ARRIVED',
+      timeoutVerified: false,
+    }
+    const patient = {
+      id: `P-${id}`,
+      name: '示例患者',
+      gender: 'MALE',
+      birthDate: new Date('1985-06-01'),
+      idCard: '110101198506010000',
+      allergyHistory: null,
+      pregnancyStatus: 'unknown',
+      isolationFlag: false,
+    }
+    return { exam, patient }
+  }
+
+  /**
+   * 读取 Time-Out 上下文: 优先 DB (新患者列), 逐级回退 (患者新列/base 列 → 无 exam 新列 → seed),
+   * 保证控制器无 DB 也可启动, 孤儿模式给出确定性清单。
+   */
+  private async loadTimeoutContext(id: string): Promise<{ exam: Record<string, unknown> | null; patient: Record<string, unknown> | null; fromDb: boolean }> {
+    const withPatient = (exam: Record<string, unknown> | null, patient: Record<string, unknown> | null) => ({
+      exam: exam ? this.mergeExtras(exam) : null,
+      patient,
+      fromDb: true,
+    })
+    // 1) 新患者列 (allergy/pregnancy/isolation) 可用
+    try {
+      const exam = await this.prisma.exam.findUnique({ where: { id }, include: { patient: { select: PATIENT_TIMEOUT_SELECT } } })
+      if (exam) return withPatient(exam as Record<string, unknown>, (exam as Record<string, unknown>).patient as Record<string, unknown>)
+    } catch (err) {
+      this.logger.warn(`[Worklist] timeout load (full) fallback: ${(err as Error)?.message}`)
+    }
+    // 2) 患者新列未迁移 → base 患者列
+    try {
+      const exam = await this.prisma.exam.findUnique({ where: { id }, include: { patient: { select: PATIENT_BASE_SELECT } } })
+      if (exam) return withPatient(exam as Record<string, unknown>, (exam as Record<string, unknown>).patient as Record<string, unknown>)
+    } catch (err) {
+      this.logger.warn(`[Worklist] timeout load (base patient) fallback: ${(err as Error)?.message}`)
+    }
+    // 3) exam 新列未迁移 → base exam select + 单独查患者
+    try {
+      const exam = await this.prisma.exam.findUnique({ where: { id }, select: EXAM_BASE_SELECT })
+      if (exam) {
+        let patient: Record<string, unknown> | null = null
+        try {
+          patient = (await this.prisma.patient.findUnique({ where: { id: (exam as Record<string, unknown>).patientId as string }, select: PATIENT_BASE_SELECT })) as Record<string, unknown> | null
+        } catch { /* 患者不可用不阻断 */ }
+        return withPatient(exam as Record<string, unknown>, patient)
+      }
+      return { exam: null, patient: null, fromDb: true }
+    } catch (err) {
+      this.logger.warn(`[Worklist] timeout load failed, seed fallback: ${(err as Error)?.message}`)
+    }
+    // 4) 无 DB 孤儿模式
+    const seed = this.buildSeedTimeout(id)
+    return { exam: seed.exam, patient: seed.patient, fromDb: false }
+  }
+
+  /** 组装核对清单 (患者身份双标识 / 部位 / 过敏 / 妊娠 / 隔离 / 同意) */
+  private buildTimeoutChecklist(
+    exam: Record<string, unknown> | null,
+    patient: Record<string, unknown> | null,
+    stored: Record<string, unknown> | null,
+  ): TimeoutChecklistResponse {
+    const fertile = this.isFertileFemale(patient)
+    const consentRequired = this.requiresConsent(exam)
+    const allergen = (patient?.allergyHistory as string | null) ?? null
+    const idCard = patient?.idCard ? String(patient.idCard) : null
+    const identitySecondary = idCard && idCard.length >= 4 ? idCard.slice(-4) : ((exam?.accessionNumber as string | null) ?? null)
+    const identitySecondaryType: 'idCard' | 'accession' = idCard && idCard.length >= 4 ? 'idCard' : 'accession'
+    const idCardMasked = idCard && idCard.length >= 4 ? `****${idCard.slice(-4)}` : null
+    const pregnancyStatus = (patient?.pregnancyStatus as string | null) ?? 'unknown'
+    const isolationFlag = Boolean(patient?.isolationFlag)
+    const storedStatus = (stored?.consentStatus as string | undefined) ?? undefined
+    const consentStatus: 'signed' | 'pending' | 'not_required' = !consentRequired
+      ? 'not_required'
+      : storedStatus === 'signed' ? 'signed' : 'pending'
+
+    const items: TimeoutCheckItem[] = [
+      {
+        key: 'identity',
+        required: true,
+        passed: false,
+        detail: `${(patient?.name as string | null) ?? ''} · ${idCardMasked ?? identitySecondary ?? '--'}`,
+      },
+      { key: 'bodyPart', required: true, passed: false, detail: (exam?.bodyPart as string | null) ?? null },
+      { key: 'allergy', required: true, passed: false, detail: allergen },
+      { key: 'pregnancy', required: fertile, passed: !fertile, detail: pregnancyStatus },
+      { key: 'isolation', required: true, passed: false, detail: isolationFlag ? 'isolated' : 'normal' },
+      { key: 'consent', required: consentRequired, passed: !consentRequired, detail: consentStatus },
+    ]
+
+    return {
+      examId: String(exam?.id ?? ''),
+      verified: Boolean((exam as { timeoutVerified?: boolean } | null)?.timeoutVerified),
+      verifiedBy: (exam?.timeoutVerifiedBy as string | null) ?? null,
+      verifiedAt: exam?.timeoutVerifiedAt ? new Date(exam.timeoutVerifiedAt as string | Date).toISOString() : null,
+      patient: {
+        id: (patient?.id as string | null) ?? null,
+        name: (patient?.name as string | null) ?? '未知患者',
+        gender: (patient?.gender as string | null) ?? 'UNKNOWN',
+        age: this.ageOf(patient?.birthDate as Date | string | null | undefined),
+        identityPrimary: (patient?.name as string | null) ?? '未知患者',
+        identitySecondary,
+        identitySecondaryType,
+        allergyHistory: allergen,
+        pregnancyStatus,
+        isolationFlag,
+      },
+      exam: {
+        id: String(exam?.id ?? ''),
+        accessionNumber: (exam?.accessionNumber as string | null) ?? null,
+        modality: (exam?.modality as string | null) ?? '--',
+        bodyPart: (exam?.bodyPart as string | null) ?? null,
+      },
+      consent: { required: consentRequired, status: consentStatus },
+      items,
+      checklist: (exam?.timeoutChecklist as Record<string, unknown> | null) ?? null,
+    }
+  }
+
+  /** GET /worklist/:id/timeout-checklist */
+  async getTimeoutChecklist(id: string): Promise<TimeoutChecklistResponse> {
+    const ctx = await this.loadTimeoutContext(id)
+    if (ctx.fromDb && !ctx.exam) throw new NotFoundException(`Exam ${id} not found`)
+    return this.buildTimeoutChecklist(ctx.exam, ctx.patient, this.examExtras.get(id) ?? null)
+  }
+
+  /**
+   * POST /worklist/:id/timeout-verify
+   * 提交核对结果: 所有必填项必须为 true, 否则 400 TIMEOUT_CHECKLIST_INCOMPLETE;
+   * 全部通过才置 timeoutVerified=true 并落库 (新列未迁移时内存回退)。
+   */
+  async verifyTimeout(id: string, dto: TimeoutVerifyDto) {
+    if (!dto?.verifiedBy || String(dto.verifiedBy).trim() === '') {
+      throw new BadRequestException('verifiedBy 核对人不能为空')
+    }
+    const ctx = await this.loadTimeoutContext(id)
+    if (ctx.fromDb && !ctx.exam) throw new NotFoundException(`Exam ${id} not found`)
+    const built = this.buildTimeoutChecklist(ctx.exam, ctx.patient, this.examExtras.get(id) ?? null)
+    const responses = dto.checklist ?? {}
+    const missing = built.items.filter((i) => i.required && responses[i.key] !== true).map((i) => i.key)
+    if (missing.length > 0) {
+      throw new BadRequestException(`TIMEOUT_CHECKLIST_INCOMPLETE: 未通过的必填核对项: ${missing.join(', ')}`)
+    }
+
+    const now = new Date()
+    const checklistRecord: Record<string, unknown> = {
+      verifiedBy: dto.verifiedBy,
+      verifiedAt: now.toISOString(),
+      note: dto.note ?? null,
+      responses: { ...responses },
+      snapshot: {
+        patientId: built.patient.id,
+        patientName: built.patient.name,
+        identitySecondary: built.patient.identitySecondary,
+        bodyPart: built.exam.bodyPart,
+        allergyHistory: built.patient.allergyHistory,
+        pregnancyStatus: built.patient.pregnancyStatus,
+        isolationFlag: built.patient.isolationFlag,
+        consentStatus: built.consent.status,
+      },
+    }
+    const data = {
+      timeoutVerified: true,
+      timeoutVerifiedBy: dto.verifiedBy,
+      timeoutVerifiedAt: now,
+      timeoutChecklist: checklistRecord,
+    }
+    if (ctx.fromDb) {
+      await this.updateExam(id, data)
+    } else {
+      this.examExtras.set(id, { ...(this.examExtras.get(id) ?? {}), ...data })
+    }
+    this.notifyWorklistChanged('timeout-verified', id)
+    return {
+      ok: true,
+      examId: id,
+      timeoutVerified: true,
+      timeoutVerifiedBy: dto.verifiedBy,
+      timeoutVerifiedAt: now.toISOString(),
+      checklist: checklistRecord,
+    }
   }
 
   /**
@@ -483,6 +813,19 @@ export class WorklistService {
     if (!allowed.includes(to)) {
       throw new BadRequestException(
         `INVALID_TRANSITION: Exam ${id} ${from} → ${to} 不允许 (非法跳转; 合法流转: ${from} → ${allowed.length > 0 ? allowed.join('/') : '无'})`,
+      )
+    }
+  }
+
+  /**
+   * [v3.0.6.11-104 Wave 3D] 重拍审批门禁: QC_REJECT → IN_PROGRESS 必须已通过审批 (retakeStatus='approved')。
+   * 未提交申请 / 待审批 / 已驳回 一律拒绝, 保证「未审批的重拍不得流转到 IN_PROGRESS」。
+   */
+  private assertRetakeApproved(exam: Record<string, unknown>, id: string): void {
+    const status = (exam as any).retakeStatus as string | undefined
+    if (status !== 'approved') {
+      throw new BadRequestException(
+        `RETAKE_NOT_APPROVED: Exam ${id} 重拍申请未通过审批 (retakeStatus=${status ?? 'none'}), 不允许流转到 IN_PROGRESS`,
       )
     }
   }
@@ -562,6 +905,8 @@ export class WorklistService {
       if (!RETAKE_ALLOWED_FROM.includes(exam.state)) {
         throw new BadRequestException(`Exam ${id} 当前状态 ${exam.state} 不允许重拍登记 (仅 ${RETAKE_ALLOWED_FROM.join('/')})`)
       }
+      // [v3.0.6.11-104 Wave 3D] 审批门禁: 未审批的重拍不得流转到 IN_PROGRESS
+      this.assertRetakeApproved(exam as unknown as Record<string, unknown>, id)
       const retakeCount = Number(exam.retakeCount ?? 0) + 1
       const appendNote = `重拍登记 第 ${retakeCount} 次${note ? `: ${note}` : ''}${opts?.retakeReason ? ` [${opts.retakeReason}]` : ''}`
       const qcNotes = [exam.qcNotes ?? '', appendNote].filter(Boolean).join('\n')
@@ -581,12 +926,72 @@ export class WorklistService {
     }
     const target: WorklistState = state === 'QC_PASS' ? 'PENDING_REPORT' : state
     const data: any = { state: target }
+    // [v3.0.6.11-104 Wave 3D] 再次退回质控 → 重置重拍审批状态 (需重新申请/审批)
+    if (target === 'QC_REJECT') {
+      data.retakeStatus = null
+      data.retakeApprover = null
+      data.retakeApprovedAt = null
+    }
     if (opts?.rating !== undefined) data.qualityRating = opts.rating
     if (opts?.techNote !== undefined) data.techNotes = opts.techNote
     const qcNote = opts?.qcNote ?? note
     if (qcNote !== undefined) data.qcNotes = qcNote
     const result = await this.updateExam(id, data, { patient: true, device: true })
     this.notifyWorklistChanged(`qc=${state}${qcNote ? `:${qcNote}` : ''}`, id)
+    return result
+  }
+
+  /**
+   * [v3.0.6.11-104 Wave 3D] POST /worklist/:id/retake-request — 提交重拍申请。
+   * 仅 QC_REJECT 且当前无待审批申请时可提交; 写入 retakeStatus='pending' + 原因/申请人/备注 (内存回退)。
+   */
+  async requestRetake(id: string, dto: { reason?: string; applicant?: string; note?: string }) {
+    const exam = await this.getExam(id)
+    if (exam.state !== 'QC_REJECT') {
+      throw new BadRequestException(`Exam ${id} 当前状态 ${exam.state} 不允许提交重拍申请 (仅 QC_REJECT)`)
+    }
+    const existing = (exam as any).retakeStatus as string | undefined
+    if (existing === 'pending') {
+      throw new BadRequestException(`RETAKE_DUPLICATE: Exam ${id} 已有待审批的重拍申请`)
+    }
+    const data: Record<string, unknown> = {
+      retakeStatus: 'pending',
+      retakeRequestedBy: dto.applicant ?? 'current-user',
+      retakeRequestedAt: new Date().toISOString(),
+      retakeRequestNote: dto.note ?? null,
+      retakeApprover: null,
+      retakeApprovedAt: null,
+      retakeReviewNote: null,
+    }
+    // [v3.0.6.11-100 Wave 1B] 重拍原因: 申请时落库 + 历史 retakeReasons[] (统计维度)
+    if (dto.reason) {
+      data.retakeReason = dto.reason
+      const prev = Array.isArray((exam as any).retakeReasons) ? (exam as any).retakeReasons as string[] : []
+      data.retakeReasons = [...prev, dto.reason]
+    }
+    const result = await this.updateExam(id, data, { patient: true, device: true })
+    this.notifyWorklistChanged(`retake-request:${dto.reason ?? 'other'}`, id)
+    return result
+  }
+
+  /**
+   * [v3.0.6.11-104 Wave 3D] POST /worklist/:id/retake-approve — 审批重拍申请 (通过/驳回)。
+   * 仅 pending 申请可审批; approved 后方可 QC_REJECT → IN_PROGRESS (assertRetakeApproved 门禁)。
+   */
+  async approveRetake(id: string, dto: { approved: boolean; approver?: string; opinion?: string }) {
+    const exam = await this.getExam(id)
+    const status = (exam as any).retakeStatus as string | undefined
+    if (status !== 'pending') {
+      throw new BadRequestException(`RETAKE_NOT_PENDING: Exam ${id} 当前无待审批的重拍申请 (retakeStatus=${status ?? 'none'})`)
+    }
+    const data: Record<string, unknown> = {
+      retakeStatus: dto.approved ? 'approved' : 'rejected',
+      retakeApprover: dto.approver ?? 'current-user',
+      retakeApprovedAt: new Date().toISOString(),
+      retakeReviewNote: dto.opinion ?? null,
+    }
+    const result = await this.updateExam(id, data, { patient: true, device: true })
+    this.notifyWorklistChanged(`retake-${dto.approved ? 'approved' : 'rejected'}`, id)
     return result
   }
 
@@ -1081,12 +1486,20 @@ export class WorklistService {
     other: '其他',
   }
 
+  // [v3.0.6.11-104 Wave 3D] 重拍审批状态标签 (统计下钻)
+  static readonly RETAKE_STATUS_LABELS: Record<string, string> = {
+    pending: '待审批',
+    approved: '已通过',
+    rejected: '已驳回',
+  }
+
   /**
-   * GET /worklist/retake-stats?from=&to=&dimension=tech|modality|reason — 重拍率统计 + 原因分类。
-   * 数据源: exam (retakeCount/retakeReason/retakeReasons 派生) + worklistOp (COMPLETE 归属技师);
+   * GET /worklist/retake-stats?from=&to=&dimension=tech|modality|reason|approver|status — 重拍率统计 + 原因分类。
+   * 数据源: exam (retakeCount/retakeReason/retakeReasons + retakeStatus/retakeApprover 派生) + worklistOp (COMPLETE 归属技师);
    * from/to 缺省 = 最近 30 天。无数据时确定性 seed 回退 (风格与 getTechnicianStats 一致)。
+   * [v3.0.6.11-104 Wave 3D] + approver/status 维度下钻, 并附 approvalSummary (待审批/已通过/已驳回)。
    */
-  async getRetakeStats(params: { from?: string; to?: string; dimension?: 'tech' | 'modality' | 'reason' }) {
+  async getRetakeStats(params: { from?: string; to?: string; dimension?: 'tech' | 'modality' | 'reason' | 'approver' | 'status' }) {
     const tenantId = currentTenantId()
     const to = params.to ? new Date(params.to) : new Date()
     const from = params.from ? new Date(params.from) : new Date(to.getTime() - 29 * 86400000)
@@ -1131,12 +1544,27 @@ export class WorklistService {
         .sort((a, b) => (a.date < b.date ? -1 : 1))
         .map((t) => ({ ...t, rate: t.completed > 0 ? Number(((t.retakes / t.completed) * 100).toFixed(1)) : 0 }))
 
+      // [v3.0.6.11-104 Wave 3D] 审批状态计数 (全域, 不受 dimension 影响)
+      const approvalSummary = { pending: 0, approved: 0, rejected: 0 }
+      for (const e of retakes) {
+        const st = String((e as any).retakeStatus ?? 'unknown')
+        if (st === 'pending' || st === 'approved' || st === 'rejected') approvalSummary[st] += 1
+      }
+
       const keyOf = (e: (typeof exams)[number]): { key: string; label: string } => {
         if (dimension === 'tech') {
           const t = techByExam.get(e.id) ?? { id: 'unassigned', name: '未归属' }
           return { key: t.id, label: t.name }
         }
         if (dimension === 'modality') return { key: e.modality ?? '其他', label: e.modality ?? '其他' }
+        if (dimension === 'approver') {
+          const approver = String((e as any).retakeApprover ?? '') || undefined
+          return { key: approver ?? 'unapproved', label: approver ?? '未审批' }
+        }
+        if (dimension === 'status') {
+          const st = String((e as any).retakeStatus ?? '') || undefined
+          return { key: st ?? 'unknown', label: st ? WorklistService.RETAKE_STATUS_LABELS[st] ?? st : '未提交申请' }
+        }
         const reason = String((e as any).retakeReason ?? '') || undefined
         const latest = (Array.isArray((e as any).retakeReasons) ? (e as any).retakeReasons as string[] : []).at(-1)
         const code = reason ?? latest
@@ -1164,7 +1592,7 @@ export class WorklistService {
       if (totalCompleted === 0 && exams.length === 0) {
         return this.seedRetakeStats(from, to, dimension)
       }
-      return { from: from.toISOString(), to: to.toISOString(), dimension, summary, trend, breakdown }
+      return { from: from.toISOString(), to: to.toISOString(), dimension, summary, trend, breakdown, approvalSummary }
     } catch (err) {
       this.logger.warn(`[Worklist] getRetakeStats failed, fallback seed: ${(err as Error)?.message}`)
       return this.seedRetakeStats(from, to, dimension)
@@ -1194,14 +1622,26 @@ export class WorklistService {
               DR: { key: 'DR', label: 'DR', completed: 12, retakes: 1 },
               US: { key: 'US', label: 'US', completed: 10, retakes: 0 },
             }
-          : {
-              motion_artifact: { key: 'motion_artifact', label: '运动伪影', completed: 18, retakes: 4 },
-              positioning: { key: 'positioning', label: '摆位不当', completed: 14, retakes: 2 },
-              wrong_protocol: { key: 'wrong_protocol', label: '扫描协议错误', completed: 10, retakes: 1 },
-              contrast_issue: { key: 'contrast_issue', label: '对比剂问题', completed: 8, retakes: 1 },
-              equipment: { key: 'equipment', label: '设备故障', completed: 6, retakes: 1 },
-              other: { key: 'other', label: '其他', completed: 5, retakes: 0 },
-            }
+          : dimension === 'approver'
+            ? {
+                'approver-seed-1': { key: 'approver-seed-1', label: '赵主任', completed: 12, retakes: 3 },
+                'approver-seed-2': { key: 'approver-seed-2', label: '钱技师', completed: 9, retakes: 2 },
+                unapproved: { key: 'unapproved', label: '未审批', completed: 5, retakes: 1 },
+              }
+            : dimension === 'status'
+              ? {
+                  approved: { key: 'approved', label: '已通过', completed: 16, retakes: 4 },
+                  rejected: { key: 'rejected', label: '已驳回', completed: 6, retakes: 1 },
+                  pending: { key: 'pending', label: '待审批', completed: 4, retakes: 1 },
+                }
+              : {
+                  motion_artifact: { key: 'motion_artifact', label: '运动伪影', completed: 18, retakes: 4 },
+                  positioning: { key: 'positioning', label: '摆位不当', completed: 14, retakes: 2 },
+                  wrong_protocol: { key: 'wrong_protocol', label: '扫描协议错误', completed: 10, retakes: 1 },
+                  contrast_issue: { key: 'contrast_issue', label: '对比剂问题', completed: 8, retakes: 1 },
+                  equipment: { key: 'equipment', label: '设备故障', completed: 6, retakes: 1 },
+                  other: { key: 'other', label: '其他', completed: 5, retakes: 0 },
+                }
     const breakdown = Object.values(base).map((b) => ({ ...b, rate: Number(((b.retakes / b.completed) * 100).toFixed(1)) }))
     const totalRetakes = breakdown.reduce((a, b) => a + b.retakes, 0)
     const totalCompleted = breakdown.reduce((a, b) => a + b.completed, 0)
@@ -1217,6 +1657,8 @@ export class WorklistService {
       },
       trend,
       breakdown,
+      // [v3.0.6.11-104 Wave 3D] 审批状态下钻 seed
+      approvalSummary: { pending: 1, approved: 4, rejected: 1 },
     }
   }
 

@@ -129,11 +129,27 @@ describe('WorklistService Wave1B (retake stats + retakeReason)', () => {
       expect(r.breakdown[0]!.key).toBe('motion_artifact')
       expect(r.trend.length).toBeGreaterThan(0)
     })
+
+    // [v3.0.6.11-104 Wave 3D] 按审批人/审批状态下钻 + approvalSummary
+    it('drills down by approver/status and returns approvalSummary', async () => {
+      mockPrisma.exam.findMany.mockResolvedValue([
+        mkExam({ id: 'E1', retakeCount: 1, retakeStatus: 'approved', retakeApprover: '赵主任' }),
+        mkExam({ id: 'E2', retakeCount: 1, retakeStatus: 'pending', retakeApprover: null }),
+        mkExam({ id: 'E3', retakeCount: 1, retakeStatus: 'rejected', retakeApprover: '钱技师' }),
+      ])
+      mockPrisma.worklistOp.findMany.mockResolvedValue([])
+      const byApprover = await svc.getRetakeStats({ dimension: 'approver' })
+      expect(byApprover.breakdown.find((b) => b.key === '赵主任')?.retakes).toBe(1)
+      expect(byApprover.breakdown.find((b) => b.key === 'unapproved')?.retakes).toBe(1)
+      expect(byApprover.approvalSummary).toEqual({ pending: 1, approved: 1, rejected: 1 })
+      const byStatus = await svc.getRetakeStats({ dimension: 'status' })
+      expect(byStatus.breakdown.find((b) => b.key === 'approved')?.label).toBe('已通过')
+    })
   })
 
   describe('updateQcState retakeReason', () => {
     it('stores retakeReason into extras on retake registration (QC_REJECT → IN_PROGRESS)', async () => {
-      const base = { id: 'E1', tenantId: 'default', patientId: 'P1', state: 'QC_REJECT', retakeCount: 0, qcNotes: null, patient: {} }
+      const base = { id: 'E1', tenantId: 'default', patientId: 'P1', state: 'QC_REJECT', retakeCount: 0, qcNotes: null, patient: {}, retakeStatus: 'approved' }
       // DB 未迁移新列 → 首次 update 失败 → 回退 base 更新成功 → extras 合并
       const update = jest.fn()
         .mockRejectedValueOnce(new Error('no column retake_reason'))
@@ -153,12 +169,12 @@ describe('WorklistService Wave1B (retake stats + retakeReason)', () => {
     })
 
     it('appends multiple retake reasons across registrations', async () => {
-      const base = { id: 'E1', tenantId: 'default', patientId: 'P1', state: 'QC_REJECT', retakeCount: 0, qcNotes: null, patient: {} }
+      const base = { id: 'E1', tenantId: 'default', patientId: 'P1', state: 'QC_REJECT', retakeCount: 0, qcNotes: null, patient: {}, retakeStatus: 'approved' }
       const findUnique = jest.fn()
         .mockResolvedValueOnce(base)
         .mockResolvedValueOnce({
           id: 'E1', tenantId: 'default', patientId: 'P1', state: 'QC_REJECT', retakeCount: 1,
-          qcNotes: '重拍登记 第 1 次', retakeReason: 'motion_artifact', retakeReasons: ['motion_artifact'], patient: {},
+          qcNotes: '重拍登记 第 1 次', retakeReason: 'motion_artifact', retakeReasons: ['motion_artifact'], patient: {}, retakeStatus: 'approved',
         })
       const update = jest.fn()
         .mockRejectedValueOnce(new Error('no column retake_reason'))

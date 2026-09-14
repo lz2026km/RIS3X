@@ -203,6 +203,9 @@ export function ExamDetailView({
   // [v3.0.6.11-95 Wave 1A P1] + pause/resume (暂停/继续), retake (QC_REJECT → 重拍登记)
   const [statusBusy, setStatusBusy] = useState<"checkin" | "start" | "complete" | "cancel" | "pause" | "resume" | "retake" | null>(null)
 
+  // [v3.0.6.11-104 Wave 3D] 重拍审批状态 (pending/approved/rejected)
+  const [retakeStatus, setRetakeStatus] = useState<string | null>(null)
+
   // [v3.0.6.11-103 Wave 11] 剂量记录 (DLP / CTDIvol) + 完成检查强制检查项
   const [doseDlp, setDoseDlp] = useState<string>("")
   const [doseCtdivol, setDoseCtdivol] = useState<string>("")
@@ -226,8 +229,9 @@ export function ExamDetailView({
         const raw = (res.data ?? {}) as unknown as Record<string, unknown>
         setDoseDlp(typeof raw.doseDlp === "number" ? String(raw.doseDlp) : "")
         setDoseCtdivol(typeof raw.doseCtdivol === "number" ? String(raw.doseCtdivol) : "")
+        setRetakeStatus(typeof raw.retakeStatus === "string" ? raw.retakeStatus : null)
       })
-      .catch(() => { if (!cancelled) { setDoseDlp(""); setDoseCtdivol("") } })
+      .catch(() => { if (!cancelled) { setDoseDlp(""); setDoseCtdivol(""); setRetakeStatus(null) } })
     return () => { cancelled = true }
   }, [exam?.id])
 
@@ -298,15 +302,17 @@ export function ExamDetailView({
       } else {
         const qc = await worklistApi.updateState(exam.id, "QC_REJECT", state.note || "技师评定图像不合格")
         if (!qc.success) {
-          message.error(qc.error?.message ?? "重拍登记失败")
+          message.error(qc.error?.message ?? "质控退回失败")
           return
         }
-        const rt = await worklistApi.updateState(exam.id, "IN_PROGRESS", state.note || undefined, { retakeReason: state.retakeReason })
-        if (!rt.success) {
-          message.error(rt.error?.message ?? "重拍登记失败")
+        // [v3.0.6.11-104 Wave 3D] 重拍登记改为提交重拍申请 (审批通过后才能流转 IN_PROGRESS)
+        const req = await worklistApi.requestRetake(exam.id, { reason: state.retakeReason, note: state.note || undefined })
+        if (!req.success) {
+          message.error(req.error?.message ?? "重拍申请提交失败")
           return
         }
-        message.success("重拍已登记，检查自动回到「检查中」，重拍计数 +1")
+        setRetakeStatus("pending")
+        message.success("重拍申请已提交，等待审批通过后执行重拍")
       }
       setCompleteModal(null)
       onStatusChanged?.()
@@ -337,10 +343,11 @@ export function ExamDetailView({
               : action === "resume"
                 ? await worklistApi.resumeExam(exam.id)
                 : action === "retake"
-                  ? await worklistApi.updateState(exam.id, "IN_PROGRESS", "重拍登记")
+                  ? await worklistApi.requestRetake(exam.id, { reason: "other", note: "详情抽屉提交重拍申请" })
                   : await worklistApi.cancel(exam.id, "详情抽屉取消")
       if (res.success) {
-        message.success(action === "pause" ? "检查已暂停" : action === "resume" ? "检查已继续" : action === "retake" ? "重拍已登记" : "状态已更新")
+        if (action === "retake") setRetakeStatus("pending")
+        message.success(action === "pause" ? "检查已暂停" : action === "resume" ? "检查已继续" : action === "retake" ? "重拍申请已提交，等待审批" : "状态已更新")
         onStatusChanged?.()
         onStatusSuccess?.()
       } else {
@@ -1664,31 +1671,54 @@ export function ExamDetailView({
             继续
           </button>
         </div>
-        {/* [v3.0.6.11-95 Wave 1A P1] QC_REJECT → 重拍登记 (状态回 IN_PROGRESS, 后端记录重拍次数) */}
+        {/* [v3.0.6.11-104 Wave 3D] QC_REJECT → 重拍申请/审批 (未审批不得流转 IN_PROGRESS) */}
         {normalizeExamStatus(exam.status) === "QC_REJECT" && (
-          <button
-            onClick={() => void handleStatusAction("retake")}
-            disabled={statusBusy !== null}
-            style={{
-              marginTop: 10,
-              width: "100%",
-              padding: "10px 16px",
-              background: "#dc2626",
-              border: "none",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#fff",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-            }}
-          >
-            <RefreshCw size={12} />
-            重新采集 / 重拍登记
-          </button>
+          retakeStatus === "pending" ? (
+            <div style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "#f59e0b18", border: "1px solid #f59e0b40", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#d97706", textAlign: "center" }}>
+              重拍申请已提交，等待审批
+            </div>
+          ) : retakeStatus === "approved" ? (
+            <button
+              onClick={() => void (async () => {
+                setStatusBusy("retake")
+                try {
+                  const res = await worklistApi.updateState(exam.id, "IN_PROGRESS", "重拍采集")
+                  if (res.success) { message.success("已进入重拍采集"); onStatusChanged?.(); onStatusSuccess?.() }
+                  else message.error(res.error?.message ?? "重拍采集失败")
+                } catch { message.error("重拍采集失败") }
+                setStatusBusy(null)
+              })()}
+              disabled={statusBusy !== null}
+              style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "#16a34a", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: statusBusy !== null ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+            >
+              <RefreshCw size={12} />
+              执行重拍采集
+            </button>
+          ) : (
+            <button
+              onClick={() => void handleStatusAction("retake")}
+              disabled={statusBusy !== null}
+              style={{
+                marginTop: 10,
+                width: "100%",
+                padding: "10px 16px",
+                background: "#dc2626",
+                border: "none",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#fff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+              }}
+            >
+              <RefreshCw size={12} />
+              {retakeStatus === "rejected" ? "重新提交重拍申请" : "提交重拍申请"}
+            </button>
+          )
         )}
       </div>
 

@@ -12,6 +12,7 @@ import {
   FromReportFollowUpSchema,
   ListFollowUpQuerySchema,
   MissFollowUpSchema,
+  RecordFollowUpResultSchema,
   UpdateFollowUpPlanSchema,
   UpdateFollowUpTemplateSchema,
 } from './followup.schema'
@@ -53,6 +54,12 @@ export class FollowUpController {
     return this.svc.stats()
   }
 
+  // [v3.0.6.11-104 Wave 3D] 单个随访计划 (含 result/outcome/resultRecordedAt)
+  @Get(':id')
+  getById(@Param('id') id: string) {
+    return this.svc.getById(id)
+  }
+
   @Get()
   list(@Query() query: ListQuery) {
     const parsed = ListFollowUpQuerySchema.safeParse(query)
@@ -91,6 +98,15 @@ export class FollowUpController {
   @Post(':id/in-progress')
   inProgress(@Param('id') id: string) {
     return this.svc.inProgress(id)
+  }
+
+  // [v3.0.6.11-104 Wave 3D] 录入随访结构化结果 { result, outcome? }
+  @Post(':id/result')
+  recordResult(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(RecordFollowUpResultSchema)) body: z.infer<typeof RecordFollowUpResultSchema>,
+  ) {
+    return this.svc.recordResult(id, body)
   }
 
   @Put(':id')

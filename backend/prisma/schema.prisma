@@ -197,6 +197,10 @@ model Patient {
   phone         String?
   type          PatientType   @default(OUTPATIENT)
   state         String        @default("registered")
+  // [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out) 患者安全字段
+  allergyHistory  String?     @map("allergy_history")   // 过敏史 (自由文本, 空=无已知过敏)
+  pregnancyStatus String?     @map("pregnancy_status")  // 妊娠状态: none/pregnant/unknown
+  isolationFlag   Boolean     @default(false) @map("isolation_flag") // 隔离标记
   deletedAt     DateTime?     @map("deleted_at")
   reports       Report[]
   exams         Exam[]
@@ -231,6 +235,11 @@ model Exam {
   qualityRating   String?   @map("quality_rating")
   retakeCount     Int       @default(0) @map("retake_count")
   pausedAt        DateTime? @map("paused_at")
+  // [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out) 门禁字段: 技师核对通过后方可开始检查
+  timeoutVerified   Boolean   @default(false) @map("timeout_verified")
+  timeoutVerifiedBy String?   @map("timeout_verified_by")
+  timeoutVerifiedAt DateTime? @map("timeout_verified_at")
+  timeoutChecklist  Json?     @map("timeout_checklist")
   version         Int       @default(0)
   patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Restrict)
   device          Device?   @relation(fields: [deviceId], references: [id])

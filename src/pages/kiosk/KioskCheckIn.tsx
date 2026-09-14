@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { message, Card } from 'antd'
 import { kioskApi, type KioskPatientDto, type KioskCheckInResultDto, type KioskTodayStatsDto, type KioskSetting, type KioskMessage } from '../../services/api/kioskApi'
 import { queueApi, type QueueCallDto } from '../../services/api/queueApi'
+// [v3.0.6.11-104 Wave 3D] 登记流程模板 (登记核对/妊娠询问)
+import WorkflowTemplatePanel from '../../components/common/WorkflowTemplatePanel'
 
 // ===== Types =====
 export interface KioskState {
@@ -161,6 +163,10 @@ const s = {
               <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.7 }}>
                 1️⃣ 输入身份证后4位 &nbsp;→&nbsp; 2️⃣ 核对患者信息 &nbsp;→&nbsp; 3️⃣ 获取排队号码 &nbsp;→&nbsp; 4️⃣ 前往等候区
               </div>
+            </div>
+            {/* [v3.0.6.11-104 Wave 3D] 登记流程模板 (登记核对/妊娠询问) */}
+            <div style={{ marginBottom: 20 }}>
+              <WorkflowTemplatePanel compact />
             </div>
             <input style={s.input} placeholder="后4位" maxLength={4} value={idInput}
               onChange={e => /^\d{0,4}$/.test(e.target.value) && setIdInput(e.target.value)}

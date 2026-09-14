@@ -2,6 +2,8 @@ import { Plus, X, Monitor, User, Stethoscope, Scan } from 'lucide-react'
 import { initialModalityDevices, initialExamItems, initialUsers } from '../data/initialData'
 import { FormField, FormSubmitBar } from '../components/common/FormField'
 import { t } from '../i18n/appI18n'
+// [v3.0.6.11-104 Wave 3D] 检查流程模板接入 (登记核对/妊娠询问等)
+import WorkflowTemplatePanel from '../components/common/WorkflowTemplatePanel'
 
 const primaryBlue = '#1e40af'
 const textGray = '#64748b'
@@ -136,6 +138,8 @@ export default function AppointmentForm(props: AppointmentFormProps) {
           <div style={{ fontSize: 12, color: textGray, marginBottom: 2 }}>{t('w8.appointmentForm.notes')}</div>
           <textarea placeholder={t('w8.appointmentForm.notesPlaceholder')} value={formData.notes || ''} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} style={{ width: '100%', padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, outline: 'none', color: primaryBlue, fontFamily: 'inherit', resize: 'vertical' }} />
         </div>
+        {/* [v3.0.6.11-104 Wave 3D] 检查流程模板 (登记核对/妊娠询问/摆位/质控) */}
+        <WorkflowTemplatePanel modality={formData.examType} compact />
         <FormSubmitBar
           onCancel={() => { setShowForm(false); setFormErrors({}); setValidationError('') }}
           onSubmit={handleSubmit}

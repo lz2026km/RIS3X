@@ -267,4 +267,44 @@ describe('FollowUpService', () => {
       expect(res.status).toBe('COMPLETED')
     })
   })
+
+  // [v3.0.6.11-104 Wave 3D] 随访结构化结果 (orphan overlay, 不改 schema)
+  describe('随访结构化结果 (result/outcome)', () => {
+    beforeEach(() => jest.clearAllMocks())
+
+    it('recordResult: 录入 improved 并回显 result/outcome/resultRecordedAt', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue(row)
+      const res = await svc.recordResult('f1', { result: 'improved', outcome: '病灶缩小' })
+      expect(res.result).toBe('improved')
+      expect(res.outcome).toBe('病灶缩小')
+      expect(res.resultRecordedAt).toBeTruthy()
+    })
+
+    it('recordResult: 计划不存在 → NotFoundException', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue(null)
+      await expect(svc.recordResult('nope', { result: 'stable' })).rejects.toBeInstanceOf(NotFoundException)
+    })
+
+    it('getById: 返回含 result 字段', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue(row)
+      await svc.recordResult('f1', { result: 'worsened', outcome: '进展' })
+      const res = await svc.getById('f1')
+      expect(res.result).toBe('worsened')
+      expect(res.outcome).toBe('进展')
+    })
+
+    it('getById: 计划不存在 → NotFoundException', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue(null)
+      await expect(svc.getById('nope')).rejects.toBeInstanceOf(NotFoundException)
+    })
+
+    it('list: 合并 result 覆盖层 (已完成计划回显结果)', async () => {
+      mockPrisma.followUpPlan.findUnique.mockResolvedValue(row)
+      await svc.recordResult('f1', { result: 'deceased' })
+      mockPrisma.followUpPlan.findMany.mockResolvedValue([row])
+      mockPrisma.followUpPlan.count.mockResolvedValue(1)
+      const res = await svc.list({})
+      expect(res.items[0].result).toBe('deceased')
+    })
+  })
 })

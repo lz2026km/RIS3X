@@ -2,7 +2,10 @@ import { patientPortalApi, type CreateEducationInput } from '../../services/api'
 import { getEducationService, type EducationMaterial, type PatientEducationRecord, type CommunicationTemplate } from '../../services/education/EducationService'
 import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber, Card } from 'antd'
 import { Inbox, Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+// [v3.0.6.11-104 Wave 3D] 结构化患者宣教资料库 (PATIENT_EDUCATION_MATERIALS)
+import { PATIENT_EDUCATION_MATERIALS } from '../../data/patientEducationMaterials'
+import { t } from '../../i18n/appI18n'
 
 // ===== Styles =====
 const s = {
@@ -50,6 +53,13 @@ export default function PatientEducationPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [playing, setPlaying] = useState(false)
   const [playerProgress, setPlayerProgress] = useState(0)
+  // [v3.0.6.11-104 Wave 3D] 结构化宣教资料 (PATIENT_EDUCATION_MATERIALS) 分类筛选 + 详情
+  const [eduCategory, setEduCategory] = useState<string>('')
+  const [eduDetail, setEduDetail] = useState<(typeof PATIENT_EDUCATION_MATERIALS)[number] | null>(null)
+  const eduFiltered = useMemo(
+    () => (eduCategory ? PATIENT_EDUCATION_MATERIALS.filter(m => m.category === eduCategory) : PATIENT_EDUCATION_MATERIALS),
+    [eduCategory],
+  )
   // [W5] 新建宣教资料
   const [createOpen, setCreateOpen] = useState(false)
   const [creating, setCreating] = useState(false)
@@ -204,6 +214,7 @@ export default function PatientEducationPage() {
 
       {/* Materials Tab */}
       {activeTab === 'materials' && (
+        <>
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>健康教育资料库</h3>
@@ -285,6 +296,39 @@ export default function PatientEducationPage() {
             </div>
           )}
         </Card>
+
+        {/* [v3.0.6.11-104 Wave 3D] 结构化患者宣教资料库 (关键要点/常见问题/注意事项/护理) */}
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>{t('w3d.edu.title')}</h3>
+            <select style={{ ...s.select, width: 200 }} value={eduCategory} onChange={e => setEduCategory(e.target.value)}>
+              <option value="">{t('w3d.edu.structured')} · 全部分类</option>
+              {[...new Set(PATIENT_EDUCATION_MATERIALS.map(m => m.category))].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+          <div style={s.grid2}>
+            {eduFiltered.map(m => (
+              <div key={m.code} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setEduDetail(m)}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{m.title}</span>
+                  <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 'auto' }}>{m.category}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                  {m.modality && <span style={s.badge('#fff', '#1e40af')}>{m.modality}</span>}
+                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.duration')}: {m.duration}</span>}
+                  {m.fasting && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.fasting')}: {m.fasting}</span>}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  {m.keyPoints.slice(0, 3).map((p, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{p}</li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+          {eduFiltered.length === 0 && <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无结构化宣教资料" />}
+        </Card>
+        </>
       )}
 
       {/* Records Tab */}
@@ -325,6 +369,57 @@ export default function PatientEducationPage() {
           ))}
         </Card>
       )}
+
+      {/* [v3.0.6.11-104 Wave 3D] 结构化宣教资料详情 */}
+      <Modal
+        title={eduDetail?.title}
+        open={!!eduDetail}
+        onCancel={() => setEduDetail(null)}
+        footer={null}
+        width={640}
+      >
+        {eduDetail && (
+          <div style={{ display: 'grid', gap: 14, paddingTop: 4 }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <span style={s.badge('#fff', '#1e40af')}>{eduDetail.category}</span>
+              {eduDetail.modality && <span style={s.badge('#0369a1', '#e0f2fe')}>{eduDetail.modality}</span>}
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>{eduDetail.targetAudience}</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.keyPoints')}</div>
+              <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.keyPoints.map((p, i) => <li key={i} style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p}</li>)}</ul>
+            </div>
+            {eduDetail.warnings.length > 0 && (
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 6 }}>{t('w3d.edu.warnings')}</div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.warnings.map((w, i) => <li key={i} style={{ fontSize: 13, color: '#dc2626' }}>{w}</li>)}</ul>
+              </div>
+            )}
+            {eduDetail.postCare && eduDetail.postCare.length > 0 && (
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.postCare')}</div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.postCare.map((w, i) => <li key={i} style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{w}</li>)}</ul>
+              </div>
+            )}
+            {eduDetail.medication && (
+              <div><span style={{ fontSize: 13, fontWeight: 700 }}>{t('w3d.edu.medication')}: </span><span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{eduDetail.medication}</span></div>
+            )}
+            {eduDetail.commonQuestions.length > 0 && (
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.faq')}</div>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  {eduDetail.commonQuestions.map((q, i) => (
+                    <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 10 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Q: {q.question}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>A: {q.answer}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
 
       {/* [W5] 新建宣教资料 */}
       <Modal

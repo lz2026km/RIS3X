@@ -834,3 +834,23 @@ export type {
   PeerDimensionMeta,
 } from "./reportPeerReviewApi";
 
+// [v3.0.6.11-104 Wave 3B] 对比剂安全闭环 (过敏试验 + 注射前核查 + 注射后留观)
+export { contrastSafetyApi } from "./contrastSafetyApi";
+export type {
+  ContrastAllergyResult,
+  ContrastAllergyTestRecord,
+  ContrastAllergyTestList,
+  RecordAllergyTestDto,
+  PreInjectionCheckDto,
+  PreInjectionCheckItem,
+  PreInjectionCheckResult,
+  ContrastInjectionDto,
+  ContrastInjectionResult,
+  ObservationRecordEntry,
+  ContrastObservation,
+  StartObservationDto,
+  AddObservationRecordDto,
+  DischargeObservationDto,
+} from "./contrastSafetyApi";
+
+

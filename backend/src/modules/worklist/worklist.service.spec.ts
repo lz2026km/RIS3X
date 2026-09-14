@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common'
-import { WorklistService } from './worklist.service'
+import { WorklistService, TIMEOUT_CHECKLIST_KEYS } from './worklist.service'
 
 const makePrisma = (overrides: Record<string, unknown> = {}) => {
   const prisma: Record<string, unknown> = {
@@ -122,8 +122,8 @@ describe('WorklistService', () => {
 
   // [v3.0.6.11-103 Wave 13] 流程质量门禁: PATCH state 非法跳转 400 / 合法流转 200 / 防跳转
   describe('state machine gate (PATCH state 非法跳转校验)', () => {
-    const makeService = (fromState: string, update = jest.fn().mockResolvedValue({ ...exam })) => {
-      const prisma = makePrisma({ exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: fromState }), update } })
+    const makeService = (fromState: string, update = jest.fn().mockResolvedValue({ ...exam }), extra: Record<string, unknown> = {}) => {
+      const prisma = makePrisma({ exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: fromState, ...extra }), update } })
       return { service: new WorklistService(prisma), update }
     }
 
@@ -165,7 +165,8 @@ describe('WorklistService', () => {
       expect(update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'IMAGE_READY' }) }))
       const { service: s2 } = makeService('IMAGE_READY')
       await s2.update('E1', { state: 'QC_REJECT' })
-      const { service: s3 } = makeService('QC_REJECT')
+      // [v3.0.6.11-104 Wave 3D] QC_REJECT → IN_PROGRESS 需审批通过
+      const { service: s3 } = makeService('QC_REJECT', undefined, { retakeStatus: 'approved' })
       await s3.update('E1', { state: 'IN_PROGRESS' })
       const { service: s4 } = makeService('QC_REJECT')
       await s4.update('E1', { state: 'PENDING_REPORT' })
@@ -668,11 +669,11 @@ describe('WorklistService', () => {
 
   // [v3.0.6.11-95 Wave 1A P1] QC_REJECT → 重拍登记 (IN_PROGRESS + retakeCount + 备注)
   describe('updateQcState retake (重拍登记)', () => {
-    it('QC_REJECT → IN_PROGRESS increments retakeCount and appends qcNotes', async () => {
+    it('QC_REJECT → IN_PROGRESS increments retakeCount and appends qcNotes (审批通过后)', async () => {
       const update = jest.fn().mockResolvedValue({ ...exam, state: 'IN_PROGRESS', retakeCount: 2, qcNotes: '重拍登记 第 1 次\n重拍登记 第 2 次: 伪影' })
       const prisma = makePrisma({
         exam: {
-          findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT', qcNotes: '重拍登记 第 1 次', retakeCount: 1 }),
+          findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT', qcNotes: '重拍登记 第 1 次', retakeCount: 1, retakeStatus: 'approved' }),
           update,
         },
       })
@@ -683,6 +684,14 @@ describe('WorklistService', () => {
       expect(update).toHaveBeenCalledWith(expect.objectContaining({
         data: expect.objectContaining({ state: 'IN_PROGRESS', retakeCount: 2, qcNotes: expect.stringContaining('重拍登记 第 2 次') }),
       }))
+    })
+
+    it('审批门禁: 未审批的 QC_REJECT → IN_PROGRESS 被拒绝', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT' }) },
+      })
+      const service = new WorklistService(prisma)
+      await expect(service.updateQcState('E1', 'IN_PROGRESS')).rejects.toThrow('RETAKE_NOT_APPROVED')
     })
 
     it('rejects retake from non-QC_REJECT state', async () => {
@@ -702,6 +711,138 @@ describe('WorklistService', () => {
       expect(update).toHaveBeenCalledWith(expect.objectContaining({
         data: expect.objectContaining({ state: 'QC_REJECT', qualityRating: '差', qcNotes: '伪影超标' }),
       }))
+    })
+  })
+
+  // [v3.0.6.11-104 Wave 3D] 重拍审批流: 申请 → 审批 → 门禁
+  describe('retake approval (重拍审批流)', () => {
+    it('requestRetake: QC_REJECT 提交申请 → retakeStatus=pending + 申请人/原因', async () => {
+      const update = jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT', retakeStatus: 'pending' })
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT' }), update },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.requestRetake('E1', { reason: 'motion_artifact', applicant: 'u-9', note: '呼吸运动' })
+      expect((res as any).retakeStatus).toBe('pending')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ retakeStatus: 'pending', retakeRequestedBy: 'u-9', retakeReason: 'motion_artifact' }),
+      }))
+    })
+
+    it('requestRetake: 非 QC_REJECT 状态拒绝', async () => {
+      const prisma = makePrisma({ exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'IMAGE_READY' }) } })
+      const service = new WorklistService(prisma)
+      await expect(service.requestRetake('E1', { note: 'x' })).rejects.toBeInstanceOf(BadRequestException)
+    })
+
+    it('requestRetake: 重复申请 (已有 pending) 拒绝', async () => {
+      const prisma = makePrisma({ exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT', retakeStatus: 'pending' }) } })
+      const service = new WorklistService(prisma)
+      await expect(service.requestRetake('E1', {})).rejects.toThrow('RETAKE_DUPLICATE')
+    })
+
+    it('approveRetake: pending → approved (记录审批人/时间/意见)', async () => {
+      const update = jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT', retakeStatus: 'approved' })
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT', retakeStatus: 'pending' }), update },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.approveRetake('E1', { approved: true, approver: 'u-1', opinion: '同意重拍' })
+      expect((res as any).retakeStatus).toBe('approved')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ retakeStatus: 'approved', retakeApprover: 'u-1', retakeReviewNote: '同意重拍' }),
+      }))
+    })
+
+    it('approveRetake: pending → rejected 后仍不可流转 IN_PROGRESS', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT', retakeStatus: 'rejected' }) },
+      })
+      const service = new WorklistService(prisma)
+      await expect(service.updateQcState('E1', 'IN_PROGRESS')).rejects.toThrow('RETAKE_NOT_APPROVED')
+    })
+
+    it('approveRetake: 无 pending 申请时审批拒绝', async () => {
+      const prisma = makePrisma({ exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT' }) } })
+      const service = new WorklistService(prisma)
+      await expect(service.approveRetake('E1', { approved: true })).rejects.toThrow('RETAKE_NOT_PENDING')
+    })
+  })
+
+  // [v3.0.6.11-104 Wave 3A P0] 检查前核对 (Time-Out) 临床安全闭环
+  describe('timeout (检查前核对)', () => {
+    const patient = {
+      id: 'P1', name: '张三', gender: 'FEMALE', birthDate: new Date('1990-01-01'),
+      idCard: '110101199001010010', allergyHistory: '青霉素过敏', pregnancyStatus: 'unknown', isolationFlag: false,
+    }
+
+    it('GET timeout-checklist 返回完整清单结构 (双标识/部位/过敏/妊娠/隔离/同意)', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'ARRIVED', bodyPart: '胸部', patient }) },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.getTimeoutChecklist('E1')
+      expect(res.items.map((i) => i.key)).toEqual([...TIMEOUT_CHECKLIST_KEYS])
+      expect(res.patient.identityPrimary).toBe('张三')
+      expect(res.patient.identitySecondary).toBe('0010')
+      expect(res.patient.identitySecondaryType).toBe('idCard')
+      expect(res.patient.allergyHistory).toBe('青霉素过敏')
+      // 育龄女性妊娠必填
+      expect(res.items.find((i) => i.key === 'pregnancy')?.required).toBe(true)
+      expect(res.items.find((i) => i.key === 'isolation')?.required).toBe(true)
+      // 平扫无需知情同意
+      expect(res.consent.status).toBe('not_required')
+      expect(res.items.find((i) => i.key === 'consent')?.required).toBe(false)
+      expect(res.verified).toBe(false)
+    })
+
+    it('无 DB (孤儿模式) 返回确定性 seed 清单, 不抛错', async () => {
+      const prisma = makePrisma()
+      const service = new WorklistService(prisma)
+      const res = await service.getTimeoutChecklist('E-SEED')
+      expect(res.examId).toBe('E-SEED')
+      expect(res.items).toHaveLength(TIMEOUT_CHECKLIST_KEYS.length)
+    })
+
+    it('未核对时 start 返回 400 TIMEOUT_NOT_VERIFIED', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'ARRIVED', patient, timeoutVerified: false }) },
+      })
+      const service = new WorklistService(prisma)
+      await expect(service.start('E1')).rejects.toThrow('TIMEOUT_NOT_VERIFIED')
+      await expect(service.start('E1')).rejects.toBeInstanceOf(BadRequestException)
+    })
+
+    it('核对项不全时 timeout-verify 返回 400 TIMEOUT_CHECKLIST_INCOMPLETE', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'ARRIVED', patient }) },
+      })
+      const service = new WorklistService(prisma)
+      await expect(service.verifyTimeout('E1', { verifiedBy: '王技师', checklist: { identity: true } }))
+        .rejects.toThrow('TIMEOUT_CHECKLIST_INCOMPLETE')
+    })
+
+    it('核对通过后 timeoutVerified=true, start 200 成功进入 IN_PROGRESS', async () => {
+      let current: Record<string, unknown> = { ...exam, state: 'ARRIVED', patient, timeoutVerified: false }
+      const update = jest.fn().mockImplementation(async ({ data }: { data: Record<string, unknown> }) => {
+        current = { ...current, ...data }
+        return current
+      })
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockImplementation(async () => current), update },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.verifyTimeout('E1', {
+        verifiedBy: '王技师',
+        checklist: { identity: true, bodyPart: true, allergy: true, pregnancy: true, isolation: true },
+      })
+      expect(res.timeoutVerified).toBe(true)
+      expect(res.timeoutVerifiedBy).toBe('王技师')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ timeoutVerified: true, timeoutVerifiedBy: '王技师' }),
+      }))
+      const started = await service.start('E1')
+      expect(started.state).toBe('IN_PROGRESS')
     })
   })
 })

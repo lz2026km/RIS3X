@@ -3,11 +3,11 @@
 // 顶部: 技师今日概览卡 (进行中/待检/已完成/重拍数)
 // 一键流转: 报到→开始→完成 (每步确认 + 可附注); 完成强制检查项; 重拍登记; 危急置顶
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Empty, Input, InputNumber, Modal, Radio, Select, Spin, Tag, message } from 'antd'
+import { Button, Checkbox, Empty, Input, InputNumber, Modal, Radio, Select, Spin, Tag, Tooltip, message } from 'antd'
 import {
   Activity, AlertTriangle, ArrowRightLeft, CheckCircle2, ClipboardList,
   DoorOpen, FileText, Flame, Gauge, ListOrdered, Play, RefreshCw,
-  Siren, StickyNote, UserCheck, Zap,
+  ShieldCheck, Siren, StickyNote, UserCheck, Zap,
 } from 'lucide-react'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -19,6 +19,8 @@ import {
   type WorklistItemDto,
   type WorklistOverviewDto,
   type WorklistTechnicianStatsDto,
+  type TimeoutChecklistDto,
+  type TimeoutChecklistKey,
   RETAKE_REASON_OPTIONS,
 } from '../../services/api/worklistApi'
 import { techOpsApi, type EmergencyRecord, type EmergencySuggestion, type ExamPriority } from '../../services/api/techOpsApi'
@@ -31,6 +33,8 @@ import { normalizeExamStatus, displayExamStatus } from '../../utils/statusMaps'
 import { useAuth } from '../../hooks/useAuth'
 import ExamRoomStatusBoard from './ExamRoomStatusBoard'
 import RetakeRateAnalyticsPage from './RetakeRateAnalyticsPage'
+// [v3.0.6.11-104 Wave 3D] 检查流程模板面板 (登记核对/妊娠询问/摆位/质控)
+import WorkflowTemplatePanel from '../../components/common/WorkflowTemplatePanel'
 
 // ============================================================
 // 工具
@@ -116,6 +120,23 @@ interface RetakeModalState {
   note: string
 }
 
+// [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out) 弹窗状态
+interface TimeoutModalState {
+  exam: WorklistItemDto
+  loading: boolean
+  data: TimeoutChecklistDto | null
+  checks: Partial<Record<TimeoutChecklistKey, boolean>>
+}
+
+const TIMEOUT_ITEM_LABEL: Record<TimeoutChecklistKey, string> = {
+  identity: 'techWorkbench.timeoutIdentity',
+  bodyPart: 'techWorkbench.timeoutBodyPart',
+  allergy: 'techWorkbench.timeoutAllergy',
+  pregnancy: 'techWorkbench.timeoutPregnancy',
+  isolation: 'techWorkbench.timeoutIsolation',
+  consent: 'techWorkbench.timeoutConsent',
+}
+
 export default function TechWorkbenchPage() {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<WorkbenchTab>('today')
@@ -193,6 +214,7 @@ export default function TechWorkbenchPage() {
   const [completeModal, setCompleteModal] = useState<CompleteModalState | null>(null)
   const [retakeModal, setRetakeModal] = useState<RetakeModalState | null>(null)
   const [handoverModal, setHandoverModal] = useState<{ exam: WorklistItemDto; toId: string; note: string } | null>(null)
+  const [timeoutModal, setTimeoutModal] = useState<TimeoutModalState | null>(null)
   const [techOptions, setTechOptions] = useState<Array<{ id: string; name: string }>>([])
 
   useEffect(() => {
@@ -212,6 +234,78 @@ export default function TechWorkbenchPage() {
     if (!trimmed) return
     await worklistApi.saveNotes(examId, trimmed)
   }
+
+  // [v3.0.6.11-104 Wave 3A] 检查前核对: 拉取清单 (无条件非必填项默认勾选)
+  const openTimeoutModal = useCallback(async (exam: WorklistItemDto) => {
+    setTimeoutModal({ exam, loading: true, data: null, checks: {} })
+    try {
+      const res = await worklistApi.getTimeoutChecklist(exam.id)
+      if (!mountedRef.current) return
+      if (res.success && res.data) {
+        const data = res.data
+        const checks: Partial<Record<TimeoutChecklistKey, boolean>> = {}
+        data.items.forEach((i) => { checks[i.key] = !i.required })
+        setTimeoutModal({ exam, loading: false, data, checks })
+      } else {
+        message.error(res.error?.message ?? t('techWorkbench.timeoutLoadFailed'))
+        setTimeoutModal(null)
+      }
+    } catch (err) {
+      if (!mountedRef.current) return
+      message.error(err instanceof Error ? err.message : t('techWorkbench.timeoutLoadFailed'))
+      setTimeoutModal(null)
+    }
+  }, [])
+
+  // [v3.0.6.11-104 Wave 3A] 提交核对 → 通过后自动进入开始确认
+  const executeTimeout = useCallback(async () => {
+    const state = timeoutModal
+    if (!state || !state.data) return
+    const missing = state.data.items.filter((i) => i.required && state.checks[i.key] !== true)
+    if (missing.length > 0) {
+      message.warning(t('techWorkbench.timeoutConfirmAll'))
+      return
+    }
+    setBusy(true)
+    try {
+      const res = await worklistApi.verifyTimeout(state.exam.id, {
+        verifiedBy: user?.name ?? user?.id ?? '当前用户',
+        checklist: state.checks,
+      })
+      if (!res.success) {
+        message.error(res.error?.message ?? t('techWorkbench.timeoutFailed'))
+        return
+      }
+      message.success(t('techWorkbench.timeoutSuccess'))
+      const verifiedExam = { ...state.exam, timeoutVerified: true }
+      setTimeoutModal(null)
+      await refresh()
+      setTransitionModal({ exam: verifiedExam, action: 'start', note: '' })
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : t('techWorkbench.timeoutFailed'))
+    } finally {
+      setBusy(false)
+    }
+  }, [timeoutModal, user, refresh])
+
+  const timeoutItemDetail = useCallback((state: TimeoutChecklistDto, key: TimeoutChecklistKey): string => {
+    switch (key) {
+      case 'identity':
+        return `${state.patient.name} · ${state.patient.identitySecondary ?? '--'}`
+      case 'bodyPart':
+        return state.exam.bodyPart ?? '--'
+      case 'allergy':
+        return state.patient.allergyHistory ?? t('techWorkbench.timeoutNoAllergy')
+      case 'pregnancy':
+        return t(`techWorkbench.timeoutPregnancy_${state.patient.pregnancyStatus}`)
+      case 'isolation':
+        return state.patient.isolationFlag ? t('techWorkbench.timeoutIsolationYes') : t('techWorkbench.timeoutIsolationNo')
+      case 'consent':
+        return t(`techWorkbench.timeoutConsent_${state.consent.status}`)
+      default:
+        return '--'
+    }
+  }, [])
 
   const executeTransition = async (state: TransitionModalState) => {
     setBusy(true)
@@ -318,7 +412,15 @@ export default function TechWorkbenchPage() {
   }
 
   const handleFlowAction = (action: FlowAction, exam: WorklistItemDto) => {
-    if (action === 'checkin' || action === 'start') {
+    if (action === 'start') {
+      // [v3.0.6.11-104 Wave 3A] 检查前核对门禁: 未核对先弹 Time-Out, 不允许直接开始
+      if (!exam.timeoutVerified) {
+        message.warning(t('techWorkbench.timeoutRequiredHint'))
+        void openTimeoutModal(exam)
+        return
+      }
+      setTransitionModal({ exam, action, note: '' })
+    } else if (action === 'checkin') {
       setTransitionModal({ exam, action, note: '' })
     } else if (action === 'complete') {
       setCompleteModal({ exam, quality: null, dlp: '', ctdivol: '', note: '', retakeReason: '' })
@@ -494,6 +596,9 @@ export default function TechWorkbenchPage() {
         </div>
       )}
 
+      {/* [v3.0.6.11-104 Wave 3D] 检查流程模板 (登记核对/妊娠询问/摆位/质控) */}
+      <WorkflowTemplatePanel style={{ marginBottom: 16 }} />
+
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px',
@@ -570,9 +675,24 @@ export default function TechWorkbenchPage() {
                             </Button>
                           )}
                           {normalized === 'ARRIVED' && (
-                            <Button size="small" type="primary" icon={<Play size={11} />} disabled={busy} onClick={() => handleFlowAction('start', exam)}>
-                              {t('techWorkbench.actionStart')}
-                            </Button>
+                            <>
+                              {exam.timeoutVerified ? (
+                                <Tag color="green" style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                                  <ShieldCheck size={11} />{t('techWorkbench.timeoutVerifiedTag')}
+                                </Tag>
+                              ) : (
+                                <Tooltip title={t('techWorkbench.timeoutRequiredHint')}>
+                                  <Button size="small" icon={<ShieldCheck size={11} />} disabled={busy} onClick={() => void openTimeoutModal(exam)}>
+                                    {t('techWorkbench.timeoutAction')}
+                                  </Button>
+                                </Tooltip>
+                              )}
+                              <Tooltip title={exam.timeoutVerified ? '' : t('techWorkbench.timeoutRequiredHint')}>
+                                <Button size="small" type="primary" icon={<Play size={11} />} disabled={busy || !exam.timeoutVerified} onClick={() => handleFlowAction('start', exam)}>
+                                  {t('techWorkbench.actionStart')}
+                                </Button>
+                              </Tooltip>
+                            </>
                           )}
                           {normalized === 'IN_PROGRESS' && (
                             <Button size="small" type="primary" style={{ background: '#059669' }} icon={<CheckCircle2 size={11} />} disabled={busy} onClick={() => handleFlowAction('complete', exam)}>
@@ -880,6 +1000,51 @@ export default function TechWorkbenchPage() {
             />
           </div>
         )}
+      </Modal>
+
+      {/* ================= [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out) ================= */}
+      <Modal
+        open={timeoutModal !== null}
+        title={<span><ShieldCheck size={14} style={{ verticalAlign: -2, marginRight: 6 }} />{t('techWorkbench.timeoutTitle')}</span>}
+        onCancel={() => setTimeoutModal(null)}
+        onOk={() => void executeTimeout()}
+        okText={t('techWorkbench.timeoutConfirm')}
+        confirmLoading={busy}
+        okButtonProps={{ disabled: busy || timeoutModal?.loading }}
+        width={580}
+        destroyOnClose
+      >
+        {timeoutModal?.loading ? (
+          <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
+        ) : timeoutModal?.data ? (
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('techWorkbench.timeoutDesc')}</div>
+            <div style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14, fontSize: 12.5,
+              background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px',
+            }}>
+              <div><b>{t('techWorkbench.timeoutIdentityName')}</b>: {timeoutModal.data.patient.name}</div>
+              <div><b>{t('techWorkbench.timeoutIdentitySecondary')}</b>: {timeoutModal.data.patient.identitySecondary ?? '--'}</div>
+              <div><b>{t('techWorkbench.timeoutBodyPart')}</b>: {timeoutModal.data.exam.bodyPart ?? '--'}</div>
+              <div><b>{t('techWorkbench.timeoutAllergy')}</b>: {timeoutModal.data.patient.allergyHistory ?? t('techWorkbench.timeoutNoAllergy')}</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {timeoutModal.data.items.map(item => (
+                <label key={item.key} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12.5, cursor: 'pointer' }}>
+                  <Checkbox
+                    checked={timeoutModal.checks[item.key] === true}
+                    onChange={e => setTimeoutModal(s => s ? { ...s, checks: { ...s.checks, [item.key]: e.target.checked } } : s)}
+                  />
+                  <span>
+                    <b>{t(TIMEOUT_ITEM_LABEL[item.key])}</b>
+                    {item.required && <span style={{ color: '#dc2626', marginLeft: 4 }}>*</span>}
+                    <span style={{ color: 'var(--text-secondary)', marginLeft: 8 }}>{timeoutItemDetail(timeoutModal.data!, item.key)}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </Modal>
 
       {/* ================= 完成检查确认 (强制检查项) ================= */}

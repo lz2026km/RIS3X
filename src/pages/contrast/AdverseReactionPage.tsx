@@ -6,6 +6,11 @@ import type { AdverseReaction, ReactionType, ReactionSeverity, ReactionOutcome }
 import { createAdverseEvent } from '../../services/api/safetyApi'
 // [W1-B] 列表优先 deviceMgmtApi.listAdverseReactions (GET /device-mgmt/contrast/adverse-reactions), 失败回退本地演示
 import { deviceMgmtApi } from '../../services/api/deviceMgmtApi'
+// [v3.0.6.11-104 Wave 3D] 过敏分级处置指引 (CONTRAST_ALLERGY_TREATMENT)
+import { CONTRAST_ALLERGY_TREATMENT } from '../../data/contrastProtocols'
+// [v3.0.6.11-104 Wave 3B] 不良反应与注射后留观联动 (记录后追加留观观察记录)
+import { contrastSafetyApi } from '../../services/api/contrastSafetyApi'
+import { t } from '../../i18n/appI18n'
 
 const svc = getAdverseReactionService()
 
@@ -24,9 +29,11 @@ export default function AdverseReactionPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  // [v3.0.6.11-104 Wave 3D] 过敏分级处置指引面板
+  const [showAllergyGuide, setShowAllergyGuide] = useState(false)
   const [stats, setStats] = useState<any>(null)
   const [editTarget, setEditTarget] = useState<AdverseReaction | null>(null)
-  const [form, setForm] = useState({ patientId: '', reactionType: 'allergic' as ReactionType, severity: 'mild' as ReactionSeverity, description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing' as ReactionOutcome })
+  const [form, setForm] = useState({ patientId: '', reactionType: 'allergic' as ReactionType, severity: 'mild' as ReactionSeverity, description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing' as ReactionOutcome, observationId: '' })
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -74,6 +81,7 @@ export default function AdverseReactionPage() {
       patientId: r.patientId, reactionType: r.reactionType, severity: r.severity,
       description: r.description, symptoms: r.symptoms.join('、'), contrastName: r.contrastName,
       action: r.action, medicationGiven: r.medicationGiven || '', outcome: r.outcome,
+      observationId: '',
     })
   }
 
@@ -120,6 +128,15 @@ export default function AdverseReactionPage() {
       setReactions(prev => editTarget
         ? prev.map(r => r.id === editTarget.id ? { ...r, ...payload } : r)
         : [saved, ...prev])
+      // [Wave 3B] 联动留观: 记录不良反应后追加留观观察记录 (留观ID 可选)
+      if (form.observationId.trim() && saved) {
+        void contrastSafetyApi.addObservationRecord(form.observationId.trim(), {
+          symptoms: form.description,
+          action: form.action || '不良反应记录',
+          recordedBy: 'current-user',
+          reactionId: saved.id,
+        }).then(() => { message.success(t('contrastSafety.observationLinked')) }).catch(() => { /* 留观关联失败不阻断记录 */ })
+      }
       void createAdverseEvent({
         eventType: 'contrast-reaction',
         severity: form.severity === 'severe' ? 'severe' : form.severity === 'moderate' ? 'moderate' : 'minor',
@@ -131,7 +148,7 @@ export default function AdverseReactionPage() {
       message.success(editTarget ? '记录已更新并上报安全事件' : '不良反应记录已提交')
       setShowForm(false)
       setEditTarget(null)
-      setForm({ patientId: '', reactionType: 'allergic', severity: 'mild', description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing' })
+      setForm({ patientId: '', reactionType: 'allergic', severity: 'mild', description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing', observationId: '' })
     } catch {
       message.error('提交失败，请稍后重试')
     } finally {
@@ -157,10 +174,14 @@ export default function AdverseReactionPage() {
           <AlertTriangle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>对比剂不良反应管理</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          {/* [v3.0.6.11-104 Wave 3D] 过敏分级处置指引 (CONTRAST_ALLERGY_TREATMENT) */}
+          <button onClick={() => setShowAllergyGuide(true)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: showAllergyGuide ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+            <AlertTriangle size={14} />{t('w3d.allergy.open')}
+          </button>
           <button onClick={() => void handleOpenStats()} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
             <PieChart size={14} />统计报表
           </button>
-          <button onClick={() => { setEditTarget(null); setForm({ patientId: '', reactionType: 'allergic', severity: 'mild', description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing' }); setShowForm(!showForm) }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: showForm ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <button onClick={() => { setEditTarget(null); setForm({ patientId: '', reactionType: 'allergic', severity: 'mild', description: '', symptoms: '', contrastName: '', action: '', medicationGiven: '', outcome: 'ongoing', observationId: '' }); setShowForm(!showForm) }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: showForm ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
             <Plus size={14} />{editTarget ? '编辑记录' : '记录不良反应'}
           </button>
         </div>
@@ -245,6 +266,7 @@ export default function AdverseReactionPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{editTarget ? `编辑记录 - ${editTarget.patientName}` : '记录不良反应'}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>患者ID *</label><input value={form.patientId} onChange={e => setForm({ ...form, patientId: e.target.value })} placeholder="必填" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastSafety.observationIdOptional')}</label><input value={form.observationId} onChange={e => setForm({ ...form, observationId: e.target.value })} placeholder="obs-0001" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>类型</label><select value={form.reactionType} onChange={e => setForm({ ...form, reactionType: e.target.value as ReactionType })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>严重程度</label><select value={form.severity} onChange={e => setForm({ ...form, severity: e.target.value as ReactionSeverity })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(SEV_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>症状</label><input value={form.symptoms} onChange={e => setForm({ ...form, symptoms: e.target.value })} placeholder="用顿号分隔" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }} /></div>
@@ -281,6 +303,43 @@ export default function AdverseReactionPage() {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{OUTCOME_OPTIONS.map(k => (
               <span key={k} style={{ padding: '4px 10px', borderRadius: 12, background: '#0d1117', border: '1px solid #30363d', fontSize: 12 }}>{OUTCOME_LABELS[k]}: {stats.byOutcome?.[k] ?? 0} 例</span>
             ))}</div>
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-104 Wave 3D] 过敏分级处置指引 (CONTRAST_ALLERGY_TREATMENT 4 级) */}
+      {showAllergyGuide && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAllergyGuide(false)}>
+          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 24, width: 720, maxHeight: '88vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>{t('w3d.allergy.title')}</div>
+              <button onClick={() => setShowAllergyGuide(false)} style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {CONTRAST_ALLERGY_TREATMENT.map(a => {
+                const color = a.grade === 1 ? '#22c55e' : a.grade === 2 ? '#f59e0b' : a.grade === 3 ? '#f97316' : '#ef4444'
+                return (
+                  <div key={a.grade} style={{ border: `1px solid ${color}40`, borderRadius: 8, padding: 14, background: '#0d1117' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 4, background: `${color}20`, color }}>{t('w3d.allergy.grade', { grade: a.grade })} · {a.name}</span>
+                      <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w3d.allergy.onset')}: {a.onset}</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 12 }}>
+                      <div>
+                        <div style={{ color: '#8b949e', fontWeight: 600, marginBottom: 4 }}>{t('w3d.allergy.symptoms')}</div>
+                        <ul style={{ margin: 0, paddingLeft: 16 }}>{a.symptoms.map((s, i) => <li key={i} style={{ color: '#c9d1d9' }}>{s}</li>)}</ul>
+                      </div>
+                      <div>
+                        <div style={{ color: '#8b949e', fontWeight: 600, marginBottom: 4 }}>{t('w3d.allergy.treatment')}</div>
+                        <ul style={{ margin: 0, paddingLeft: 16 }}>{a.treatment.map((s, i) => <li key={i} style={{ color: '#c9d1d9' }}>{s}</li>)}</ul>
+                      </div>
+                    </div>
+                    <div style={{ marginTop: 8, fontSize: 12 }}><span style={{ color: '#8b949e' }}>{t('w3d.allergy.medication')}: </span><span style={{ color: '#c9d1d9' }}>{a.medication}</span></div>
+                    <div style={{ marginTop: 4, fontSize: 12 }}><span style={{ color: '#8b949e' }}>{t('w3d.allergy.hospitalization')}: </span><span style={{ color }}>{a.hospitalization}</span></div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       )}

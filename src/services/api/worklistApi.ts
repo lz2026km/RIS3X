@@ -20,6 +20,19 @@ export interface WorklistItemDto {
   backupTechnicianId?: string | null
   primaryTechnician?: { id: string; fullName: string } | null
   backupTechnician?: { id: string; fullName: string } | null
+  // [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out): 未核对时禁止开始检查
+  timeoutVerified?: boolean
+  timeoutVerifiedBy?: string | null
+  timeoutVerifiedAt?: string | null
+  // [v3.0.6.11-104 Wave 3D] 重拍审批流: 状态/审批人/审批时间/申请人/原因/备注
+  retakeStatus?: 'pending' | 'approved' | 'rejected' | null
+  retakeApprover?: string | null
+  retakeApprovedAt?: string | null
+  retakeRequestedBy?: string | null
+  retakeRequestedAt?: string | null
+  retakeReason?: string | null
+  retakeRequestNote?: string | null
+  retakeReviewNote?: string | null
 }
 export interface WorklistQueryParams { page?: number; pageSize?: number; status?: string; modality?: string; patientId?: string; dateFrom?: string; dateTo?: string; search?: string }
 export interface WorklistStatsDto {
@@ -54,13 +67,16 @@ export interface RoomStatusItemDto {
 }
 
 // [v3.0.6.11-100 Wave 1B] 重拍统计
+export type RetakeDimension = 'tech' | 'modality' | 'reason' | 'approver' | 'status'
 export interface RetakeStatsDto {
   from: string
   to: string
-  dimension: 'tech' | 'modality' | 'reason'
+  dimension: RetakeDimension
   summary: { totalCompleted: number; totalRetakes: number; retakeRate: number; examRetakeCount: number }
   trend: Array<{ date: string; completed: number; retakes: number; rate: number }>
   breakdown: Array<{ key: string; label: string; completed: number; retakes: number; rate: number }>
+  // [v3.0.6.11-104 Wave 3D] 审批状态分布下钻
+  approvalSummary?: { pending: number; approved: number; rejected: number }
 }
 
 // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 DTO
@@ -160,6 +176,42 @@ async function invalidateWorklist(): Promise<void> {
   await invalidateApiCacheByPrefix('/worklist')
 }
 
+// [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out) DTO
+export type TimeoutChecklistKey = 'identity' | 'bodyPart' | 'allergy' | 'pregnancy' | 'isolation' | 'consent'
+export interface TimeoutCheckItemDto {
+  key: TimeoutChecklistKey
+  required: boolean
+  passed: boolean
+  detail: string | null
+}
+export interface TimeoutChecklistDto {
+  examId: string
+  verified: boolean
+  verifiedBy: string | null
+  verifiedAt: string | null
+  patient: {
+    id: string | null
+    name: string
+    gender: string
+    age: number | null
+    identityPrimary: string
+    identitySecondary: string | null
+    identitySecondaryType: 'idCard' | 'accession'
+    allergyHistory: string | null
+    pregnancyStatus: string
+    isolationFlag: boolean
+  }
+  exam: { id: string; accessionNumber: string | null; modality: string; bodyPart: string | null }
+  consent: { required: boolean; status: 'signed' | 'pending' | 'not_required' }
+  items: TimeoutCheckItemDto[]
+  checklist: Record<string, unknown> | null
+}
+export interface TimeoutVerifyDto {
+  verifiedBy: string
+  note?: string
+  checklist: Partial<Record<TimeoutChecklistKey, boolean>>
+}
+
 export const worklistApi = {
   list: (params?: WorklistQueryParams) => {
     const sp = new URLSearchParams()
@@ -237,11 +289,30 @@ export const worklistApi = {
   getRoomStatus: () => api.get<{ rooms: RoomStatusItemDto[]; updatedAt: string }>('/worklist/room-status'),
 
   // [v3.0.6.11-100 Wave 1B] 重拍率统计 + 原因分类
-  getRetakeStats: (params?: { from?: string; to?: string; dimension?: 'tech' | 'modality' | 'reason' }) => {
+  // [v3.0.6.11-104 Wave 3D] + approver|status 审批维度下钻
+  getRetakeStats: (params?: { from?: string; to?: string; dimension?: RetakeDimension }) => {
     const sp = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) sp.set(k, String(v)) }) }
     return api.get<RetakeStatsDto>(`/worklist/retake-stats?${sp.toString()}`)
   },
+
+  // [v3.0.6.11-104 Wave 3D] 重拍申请: POST /worklist/:id/retake-request { reason?, applicant?, note? }
+  requestRetake: async (id: string, dto?: { reason?: string; applicant?: string; note?: string }) => {
+    const res = await api.post(`/worklist/${id}/retake-request`, dto ?? {})
+    await invalidateWorklist()
+    return res
+  },
+
+  // [v3.0.6.11-104 Wave 3D] 重拍审批: POST /worklist/:id/retake-approve { approved, approver?, opinion? }
+  approveRetake: async (id: string, dto: { approved: boolean; approver?: string; opinion?: string }) => {
+    const res = await api.post(`/worklist/${id}/retake-approve`, dto)
+    await invalidateWorklist()
+    return res
+  },
+
+  // [v3.0.6.11-104 Wave 3D] 重拍审批队列 (QC_REJECT 状态, 由 worklist 列表派生)
+  listRetakeRequests: () =>
+    api.get<{ items: WorklistItemDto[]; total: number }>(`/worklist?${new URLSearchParams({ status: 'QC_REJECT', pageSize: '200' }).toString()}`),
 
   // [v3.0.6.11-95 Wave 1A P1] 暂停/继续: POST /worklist/:id/pause|resume (IN_PROGRESS → PAUSED → IN_PROGRESS)
   pauseExam: async (id: string, reason?: string) => {
@@ -298,6 +369,23 @@ export const worklistApi = {
       `/worklist/${id}/notes`,
       { note, latest: opts?.latest ?? false },
     )
+    await invalidateWorklist()
+    return res
+  },
+
+  // [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out) — GET /worklist/:id/timeout-checklist
+  getTimeoutChecklist: (id: string) => api.get<TimeoutChecklistDto>(`/worklist/${id}/timeout-checklist`),
+
+  // [v3.0.6.11-104 Wave 3A] 提交检查前核对 — POST /worklist/:id/timeout-verify (必填项全通过才放行开始)
+  verifyTimeout: async (id: string, dto: TimeoutVerifyDto) => {
+    const res = await api.post<{
+      ok: boolean
+      examId: string
+      timeoutVerified: boolean
+      timeoutVerifiedBy: string
+      timeoutVerifiedAt: string
+      checklist: Record<string, unknown>
+    }>(`/worklist/${id}/timeout-verify`, dto)
     await invalidateWorklist()
     return res
   },

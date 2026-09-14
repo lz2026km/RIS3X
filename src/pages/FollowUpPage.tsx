@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar, FileText } from 'lucide-react';
-import { followupApi, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue } from '../services/api/followupApi';
+import { followupApi, FOLLOWUP_RESULT_OPTIONS, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue, type FollowUpResult } from '../services/api/followupApi';
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
 import { worklistApi } from '../services/api/worklistApi';
@@ -23,6 +23,9 @@ interface FollowUpPatient {
   templateId?: string;
   examId?: string;
   reason?: string;
+  // [v3.0.6.11-104 Wave 3D] 结构化随访结果
+  result?: FollowUpResult;
+  outcome?: string;
 }
 
 // [v3.0.6.11-99 Wave3B] 状态机全枚举 → 页面中文状态 (计划/已提醒/进行中/已完成/已失访/已取消/逾期)
@@ -66,6 +69,10 @@ export default function FollowUpPage() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<FollowUpPatient | null>(null);
   const [showModal, setShowModal] = useState(false);
+  // [v3.0.6.11-104 Wave 3D] 随访完成前录入结构化结果
+  const [resultModal, setResultModal] = useState<{ id: string; name: string } | null>(null);
+  const [resultForm, setResultForm] = useState<{ result: FollowUpResult; outcome: string }>({ result: 'stable', outcome: '' });
+  const [resultBusy, setResultBusy] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   // [v3.0.6.11-99 Wave10B] 视图切换: list=列表 / calendar=日历 / grouped=按患者分组
@@ -513,12 +520,20 @@ export default function FollowUpPage() {
   const isTerminal = (status: string) => TERMINAL_STATUS.has(status);
 
   // [W4-B] 完成随访 → POST /followups/:id/complete
-  const handleComplete = async (id: string) => {
+  // [v3.0.6.11-104 Wave 3D] + 完成前录入结构化结果 POST /followups/:id/result
+  const handleComplete = async (id: string, result?: FollowUpResult, outcome?: string) => {
     try {
+      if (result) {
+        const rr = await followupApi.recordResult(id, { result, outcome: outcome?.trim() || undefined });
+        if (!rr.success) {
+          setLoadError(rr.error?.message ?? t('followUp.operationFailed'));
+          return;
+        }
+      }
       const res = await followupApi.complete(id);
       if (res.success) {
         setFollowUpList(list => list.map(item =>
-          item.id === id ? { ...item, status: '已完成' as const } : item
+          item.id === id ? { ...item, status: '已完成' as const, result, outcome } : item
         ));
       } else {
         setLoadError(res.error?.message ?? t('followUp.operationFailed'));
@@ -528,6 +543,25 @@ export default function FollowUpPage() {
     }
     setShowModal(false);
     setSelectedPatient(null);
+  };
+
+  // [v3.0.6.11-104 Wave 3D] 打开随访结果录入弹窗 (完成前录入结果)
+  const openResultModal = (id: string, name: string) => {
+    setResultForm({ result: 'stable', outcome: '' });
+    setResultModal({ id, name });
+  };
+
+  const confirmResult = async () => {
+    if (!resultModal) return;
+    setResultBusy(true);
+    try {
+      await handleComplete(resultModal.id, resultForm.result, resultForm.outcome);
+      setResultModal(null);
+      setShowModal(false);
+      setSelectedPatient(null);
+    } finally {
+      setResultBusy(false);
+    }
   };
 
   // [v3.0.6.11-99 Wave3B] 提醒 → POST /followups/:id/remind
@@ -1557,7 +1591,7 @@ export default function FollowUpPage() {
                   {!isTerminal(item.status) && (
                     <button
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4}}
-                      onClick={() => handleComplete(item.id)}
+                      onClick={() => openResultModal(item.id, item.patientName)}
                     >
                       <CheckCircle size={12} /> {t('followUp.complete')}
                     </button>
@@ -1680,7 +1714,7 @@ export default function FollowUpPage() {
                 value={selectedPatient.status}
                 onChange={async e => {
                   const v = e.target.value;
-                  if (v === '已完成') { await handleComplete(selectedPatient.id); return; }
+                  if (v === '已完成') { openResultModal(selectedPatient.id, selectedPatient.patientName); return; }
                   if (v === '进行中') { await handleStart(selectedPatient); return; }
                   if (v === '已失访') { await handleMiss(selectedPatient); return; }
                   if (v === '已取消') { await handleCancel(selectedPatient); return; }
@@ -1698,7 +1732,7 @@ export default function FollowUpPage() {
               <button style={cancelButtonStyle} onClick={() => setShowModal(false)}>{t('followUp.cancel')}</button>
               <button
                 style={buttonStyle}
-                onClick={() => handleComplete(selectedPatient.id)}
+                onClick={() => openResultModal(selectedPatient.id, selectedPatient.patientName)}
                 disabled={isTerminal(selectedPatient.status)}
               >
                 <CheckCircle size={14} /> {t('followUp.confirmComplete')}
@@ -2170,6 +2204,49 @@ export default function FollowUpPage() {
                 disabled={fromReportBusy}
               >
                 <Play size={14} /> {fromReportBusy ? t('followup.fromReport.busy') : t('followup.fromReport.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-104 Wave 3D] 随访完成前录入结构化结果 (下拉 + 描述) */}
+      {resultModal && (
+        <div style={modalOverlayStyle} onClick={() => setResultModal(null)}>
+          <div style={{ ...modalStyle, width: '460px' }} onClick={e => e.stopPropagation()}>
+            <h2 style={modalTitleStyle}>{t('w3d.followup.resultTitle')}</h2>
+            <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
+              {resultModal.name} · {t('w3d.followup.result')}
+            </p>
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>{t('w3d.followup.result')} *</label>
+              <select
+                value={resultForm.result}
+                onChange={e => setResultForm(f => ({ ...f, result: e.target.value as FollowUpResult }))}
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+              >
+                {FOLLOWUP_RESULT_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{t(`w3d.followup.result.${o.value}`)}</option>
+                ))}
+              </select>
+            </div>
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>{t('w3d.followup.outcome')}</label>
+              <textarea
+                value={resultForm.outcome}
+                onChange={e => setResultForm(f => ({ ...f, outcome: e.target.value }))}
+                placeholder={t('w3d.followup.outcomePlaceholder')}
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box', minHeight: '60px', fontFamily: 'inherit' }}
+              />
+            </div>
+            <div style={modalButtonContainer}>
+              <button style={cancelButtonStyle} onClick={() => setResultModal(null)}>{t('followUp.cancel')}</button>
+              <button
+                style={{ ...buttonStyle, backgroundColor: '#52c41a' }}
+                onClick={() => void confirmResult()}
+                disabled={resultBusy}
+              >
+                <CheckCircle size={14} /> {resultBusy ? '...' : t('w3d.followup.completeWithResult')}
               </button>
             </div>
           </div>

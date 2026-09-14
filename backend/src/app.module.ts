@@ -190,6 +190,10 @@ import { ReportCompareV2Module } from "./modules/report-compare-v2/report-compar
 import { ReportSearchV2Module } from "./modules/report-search-v2/report-search-v2.module";
 // [v3.0.6.11-101 Wave 8B] 报告质控闭环与趋势分析 (qc-analytics): 缺陷→整改→复查→关闭 + 帕累托/科室排名/驾驶舱 (孤儿模块, 无 DB 可启动)
 import { QcAnalyticsModule } from "./modules/qc-analytics/qc-analytics.module";
+// [v3.0.6.11-104 Wave 3C] 临床反馈闭环 (clinical-feedback): 异议/补充/更正 + 回应 + 关闭 (孤儿模块, 无 DB 可启动)
+import { ClinicalFeedbackModule } from "./modules/clinical-feedback/clinical-feedback.module";
+// [v3.0.6.11-104 Wave 3B] 对比剂安全闭环 (contrast-safety): 过敏试验 + 注射前核查 + 注射后留观 (孤儿模块, 无 DB 可启动)
+import { ContrastSafetyModule } from "./modules/contrast-safety/contrast-safety.module";
 
 @Module({
   imports: [
@@ -392,6 +396,10 @@ import { QcAnalyticsModule } from "./modules/qc-analytics/qc-analytics.module";
     ReportSearchV2Module,
     // [v3.0.6.11-101 Wave 8B] 报告质控闭环与趋势分析 (qc-analytics): 缺陷→整改→复查→关闭 + 帕累托/科室排名/驾驶舱 (孤儿模块)
     QcAnalyticsModule,
+    // [v3.0.6.11-104 Wave 3B] 对比剂安全闭环 (contrast-safety): 过敏试验 + 注射前核查 + 注射后留观
+    ContrastSafetyModule,
+    // [v3.0.6.11-104 Wave 3C] 临床反馈闭环 (clinical-feedback): 异议/补充/更正 + 回应 + 关闭
+    ClinicalFeedbackModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -6,6 +6,7 @@ import { getEducationService, type EducationMaterial } from '../../services/educ
 import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Statistic, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
 import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // [W3-C] 假按钮修复: 查看→详情Modal; PDF→真实文件下载; 发送患者→本地发送状态
 
@@ -14,7 +15,28 @@ const CATEGORY_COLORS: Record<string, string> = {
   Imaging: 'blue', Surgery: 'red', Dental: 'purple', Treatment: 'volcano', General: 'green',
 };
 
+// [v3.0.6.11-104 Wave 3C] 扩展同意书类型 (含儿童 / 孕妇)
+const CONSENT_TYPE_OPTIONS = [
+  { value: 'enhanced', labelKey: 'enhanced' },
+  { value: 'pediatric', labelKey: 'pediatric' },
+  { value: 'pregnancy', labelKey: 'pregnancy' },
+  { value: 'mri', labelKey: 'mri' },
+  { value: 'surgery', labelKey: 'surgery' },
+  { value: 'anesthesia', labelKey: 'anesthesia' },
+  { value: 'transfusion', labelKey: 'transfusion' },
+  { value: 'radiotherapy', labelKey: 'radiotherapy' },
+];
+
+const STATUS_COLOR: Record<string, string> = { signed: 'success', pending: 'processing', refused: 'error', expired: 'default' };
+
 export const ConsentEducationPage: React.FC = () => {
+  const { t } = useTranslation('v3consentFeedback');
+  const consentTypeLabel = (type: string) => t(`consent.types.${type}`, type);
+  const consentStatusLabel = (status: string) =>
+    status === 'signed' ? t('consent.statusSigned', '已签署')
+      : status === 'pending' ? t('consent.statusPending', '待签署')
+        : status === 'refused' ? t('consent.statusRefused', '已拒绝')
+          : t('consent.statusExpired', '已过期');
   const [consents, setConsents] = useState<ConsentRecord[]>([]);
   const [materials, setMaterials] = useState<EducationMaterialDto[]>([]);
   const [categories, setCategories] = useState<string[]>(CATEGORIES);
@@ -50,9 +72,9 @@ export const ConsentEducationPage: React.FC = () => {
     const content = [
       `知情同意书 ${r.id}`,
       `患者: ${r.patient}`,
-      `类型: ${r.type}`,
+      `类型: ${consentTypeLabel(r.type)}`,
       `操作: ${r.procedure}`,
-      `状态: ${r.status === 'signed' ? '已签署' : r.status === 'pending' ? '待签署' : '已拒绝'}`,
+      `状态: ${consentStatusLabel(r.status)}`,
       r.signedAt ? `签署时间: ${r.signedAt}` : '',
       `生成时间: ${new Date().toLocaleString('zh-CN', { hour12: false })}`,
       '',
@@ -107,8 +129,11 @@ export const ConsentEducationPage: React.FC = () => {
     const values = await consentForm.validateFields();
     const res = await consentEducationApi.createRecord({
       patient: values.patient,
+      patientId: values.patientId || undefined,
+      examId: values.examId || undefined,
       type: values.type,
       procedure: values.procedure,
+      witnessName: values.witnessName || undefined,
     });
     if (res.success) {
       setConsents((prev) => [...prev, res.data as ConsentRecord]);
@@ -122,9 +147,9 @@ export const ConsentEducationPage: React.FC = () => {
 
   const signConsent = async (record: ConsentRecord) => {
     // [v3.0.6.11-88 Round10] 签署走新路径 POST /records/:id/sign (后端 signConsent)
-    const res = await consentEducationApi.signRecord(record.id, 'Dr. System');
+    const res = await consentEducationApi.signRecord(record.id, { signer: 'Dr. System' });
     if (res.success) {
-      setConsents((prev) => prev.map((c) => c.id === record.id ? { ...c, status: 'signed', signedAt: new Date().toLocaleString('zh-CN', { hour12: false }), witness: 'Dr. System' } : c));
+      setConsents((prev) => prev.map((c) => c.id === record.id ? { ...c, status: 'signed' as const, signedAt: new Date().toLocaleString('zh-CN', { hour12: false }), witness: 'Dr. System', witnessName: c.witnessName ?? 'Dr. System' } : c));
       message.success('签署完成');
     } else {
       message.error(res.error?.message ?? '签署失败');
@@ -152,7 +177,7 @@ export const ConsentEducationPage: React.FC = () => {
   // [Wave 4B] 编辑同意记录: PATCH /records/:id (状态/见证人)
   const openEditConsent = (r: ConsentRecord) => {
     setEditingConsent(r);
-    consentEditForm.setFieldsValue({ status: r.status, witness: r.witness ?? '' });
+    consentEditForm.setFieldsValue({ status: r.status, witnessName: r.witnessName ?? r.witness ?? '' });
   };
 
   const submitEditConsent = async () => {
@@ -160,10 +185,10 @@ export const ConsentEducationPage: React.FC = () => {
     const values = await consentEditForm.validateFields();
     const res = await consentEducationApi.updateRecord(editingConsent.id, {
       status: values.status,
-      witness: values.witness || null,
+      witnessName: values.witnessName || null,
     });
     if (res.success) {
-      setConsents((prev) => prev.map((c) => c.id === editingConsent.id ? { ...c, status: values.status, witness: values.witness || null } : c));
+      setConsents((prev) => prev.map((c) => c.id === editingConsent.id ? { ...c, status: values.status, witnessName: values.witnessName || null } : c));
       message.success('同意记录已更新');
       setEditingConsent(null);
     } else {
@@ -265,14 +290,15 @@ export const ConsentEducationPage: React.FC = () => {
             rowKey="id"
             pagination={consentPagination}
             columns={[
-              { title: '患者', dataIndex: 'patient' },
-              { title: '类型', dataIndex: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
+              { title: '患者', dataIndex: 'patient', render: (p: string, r: ConsentRecord) => <Space direction="vertical" size={0}><b>{p}</b><span style={{ fontSize: 11, color: '#999' }}>{r.patientId ?? '—'}</span></Space> },
+              { title: t('consent.examId', '检查号 (关联检查)'), dataIndex: 'examId', width: 150, render: (e: string | null) => e || <span style={{ color: '#999' }}>—</span> },
+              { title: t('consent.type', '同意书类型'), dataIndex: 'type', render: (type: string) => <Tag color="blue">{consentTypeLabel(type)}</Tag> },
               { title: '操作', dataIndex: 'procedure', width: 200 },
               { title: '签署时间', dataIndex: 'signedAt', render: (s: string | null) => s || <span style={{ color: '#999' }}>—</span> },
-              { title: '见证人', dataIndex: 'witness', render: (w: string | null) => w || '—' },
+              { title: t('consent.witness', '见证人'), dataIndex: 'witnessName', render: (w: string | null) => w || '—' },
               {
                 title: '状态', dataIndex: 'status',
-                render: (s: string) => <Badge status={s === 'signed' ? 'success' : s === 'pending' ? 'processing' : 'error'} text={s === 'signed' ? '已签署' : s === 'pending' ? '待签署' : '已拒绝'} />,
+                render: (s: string) => <Badge status={(STATUS_COLOR[s] ?? 'default') as 'success' | 'processing' | 'error' | 'default'} text={consentStatusLabel(s)} />,
               },
               {
                 title: '操作',
@@ -332,27 +358,42 @@ export const ConsentEducationPage: React.FC = () => {
         />
       </Card>
 
-      <Modal title="新建知情同意" open={consentModal} onOk={() => void createConsent()} onCancel={() => setConsentModal(false)} okText="创建">
+      <Modal title={t('consent.newConsent', '新建同意书')} open={consentModal} onOk={() => void createConsent()} onCancel={() => setConsentModal(false)} okText="创建">
         <Form form={consentForm} layout="vertical">
           <Form.Item name="patient" label="患者姓名" rules={[{ required: true, message: '请输入患者姓名' }]}>
             <Input placeholder="请输入患者姓名" />
           </Form.Item>
-          <Form.Item name="type" label="同意书类型" rules={[{ required: true, message: '请选择类型' }]}>
-            <Select options={['CT 增强', 'MRI', '手术', '麻醉', '输血', '放射治疗'].map((t) => ({ value: t, label: t }))} />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="patientId" label={t('consent.patientId', '患者ID')} rules={[{ required: true, message: t('consent.patientIdRequired', '请输入患者ID') }]}>
+                <Input placeholder="如：P-0001" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="examId" label={t('consent.examId', '检查号 (关联检查)')}>
+                <Input placeholder="如：EX-0001" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="type" label={t('consent.type', '同意书类型')} rules={[{ required: true, message: '请选择类型' }]}>
+            <Select options={CONSENT_TYPE_OPTIONS.map((o) => ({ value: o.value, label: t(`consent.types.${o.labelKey}`, o.value) }))} />
           </Form.Item>
-          <Form.Item name="procedure" label="诊疗操作" rules={[{ required: true, message: '请输入操作内容' }]}>
-            <Input placeholder="如：胸部 CT 增强扫描" />
+          <Form.Item name="procedure" label={t('consent.procedure', '诊疗操作')} rules={[{ required: true, message: '请输入操作内容' }]}>
+            <Input placeholder={t('consent.procedurePlaceholder', '如：胸部 CT 增强扫描')} />
+          </Form.Item>
+          <Form.Item name="witnessName" label={t('consent.witness', '见证人')}>
+            <Input placeholder={t('consent.witnessPlaceholder', '如：王护士')} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title={`编辑同意记录 - ${editingConsent?.patient ?? ''}`} open={!!editingConsent} onOk={() => void submitEditConsent()} onCancel={() => setEditingConsent(null)} okText="保存">
+      <Modal title={`${t('consent.type', '同意书类型')} - ${editingConsent?.patient ?? ''}`} open={!!editingConsent} onOk={() => void submitEditConsent()} onCancel={() => setEditingConsent(null)} okText="保存">
         <Form form={consentEditForm} layout="vertical">
-          <Form.Item name="status" label="状态" rules={[{ required: true, message: '请选择状态' }]}>
-            <Select options={[{ value: 'pending', label: '待签署' }, { value: 'signed', label: '已签署' }, { value: 'refused', label: '已拒绝' }]} />
+          <Form.Item name="status" label={t('consent.status', '状态')} rules={[{ required: true, message: '请选择状态' }]}>
+            <Select options={[{ value: 'pending', label: t('consent.statusPending', '待签署') }, { value: 'signed', label: t('consent.statusSigned', '已签署') }, { value: 'refused', label: t('consent.statusRefused', '已拒绝') }, { value: 'expired', label: t('consent.statusExpired', '已过期') }]} />
           </Form.Item>
-          <Form.Item name="witness" label="见证人">
-            <Input placeholder="如：Dr. System" />
+          <Form.Item name="witnessName" label={t('consent.witness', '见证人')}>
+            <Input placeholder={t('consent.witnessPlaceholder', '如：王护士')} />
           </Form.Item>
         </Form>
       </Modal>
@@ -457,13 +498,15 @@ export const ConsentEducationPage: React.FC = () => {
           <>
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 12 }}>
               <Descriptions.Item label="患者" span={2}>{viewConsent.patient}</Descriptions.Item>
-              <Descriptions.Item label="类型"><Tag color="blue">{viewConsent.type}</Tag></Descriptions.Item>
-              <Descriptions.Item label="状态">
-                <Badge status={viewConsent.status === 'signed' ? 'success' : viewConsent.status === 'pending' ? 'processing' : 'error'} text={viewConsent.status === 'signed' ? '已签署' : viewConsent.status === 'pending' ? '待签署' : '已拒绝'} />
+              <Descriptions.Item label={t('consent.patientId', '患者ID')}>{viewConsent.patientId ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('consent.examId', '检查号 (关联检查)')}>{viewConsent.examId ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('consent.type', '同意书类型')}><Tag color="blue">{consentTypeLabel(viewConsent.type)}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('consent.status', '状态')}>
+                <Badge status={(STATUS_COLOR[viewConsent.status] ?? 'default') as 'success' | 'processing' | 'error' | 'default'} text={consentStatusLabel(viewConsent.status)} />
               </Descriptions.Item>
               <Descriptions.Item label="诊疗操作" span={2}>{viewConsent.procedure}</Descriptions.Item>
               <Descriptions.Item label="签署时间">{viewConsent.signedAt ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label="见证人">{viewConsent.witness ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t('consent.witness', '见证人')}>{viewConsent.witnessName ?? viewConsent.witness ?? '—'}</Descriptions.Item>
             </Descriptions>
             <Alert type="info" showIcon message="PDF 快照可通过列表中的「PDF」按钮生成并下载" />
           </>

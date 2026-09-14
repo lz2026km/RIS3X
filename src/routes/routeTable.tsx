@@ -652,6 +652,10 @@ const AutoCollectionPage = lazy(
 const EmergencyChannelPage = lazy(
   () => import("../pages/operations/EmergencyChannelPage"),
 );
+// [v3.0.6.11-104 Wave 3C] 临床反馈闭环
+const ClinicalFeedbackPage = lazy(
+  () => import("../pages/ClinicalFeedbackPage"),
+);
 const DeptDashboardPageV2 = lazy(
   () => import("../pages/department/DeptDashboardPage"),
 );
@@ -885,6 +889,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/ai-draft": ["医生", "主任", "管理员"],
   "/clinical-calculators": ["医生", "主任", "技师", "护士", "管理员"], // [v3.0.6.8-78]
   "/consent-education": ["医生", "主任", "技师", "护士", "管理员"], // [v3.0.6.8-79]
+  "/clinical-feedback": ["医生", "主任", "技师", "护士", "管理员"], // [v3.0.6.11-104 Wave 3C]
   "/patient-safety": ["主任", "管理员", "护士"], // [v3.0.6.8-80]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
@@ -1391,6 +1396,7 @@ export const routes: RouteObject[] = [
     React.createElement(ClinicalCalculatorHubPage),
   ), // [v3.0.6.8-78]
   wrapped("/consent-education", React.createElement(ConsentEducationPage)), // [v3.0.6.8-79]
+  wrapped("/clinical-feedback", React.createElement(ClinicalFeedbackPage)), // [v3.0.6.11-104 Wave 3C]
   wrapped("/patient-safety", React.createElement(PatientSafetyDashboardPage)), // [v3.0.6.8-80]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2

@@ -71,6 +71,15 @@ export const FromReportFollowUpSchema = z.object({
   reason: z.string().optional(),
 })
 
+// [v3.0.6.11-104 Wave 3D] 随访结构化结果 (随访完成时录入): 转归结果 + 描述
+export const FollowUpResultEnum = z.enum(['improved', 'stable', 'worsened', 'deceased', 'unknown'])
+export type FollowUpResult = z.infer<typeof FollowUpResultEnum>
+
+export const RecordFollowUpResultSchema = z.object({
+  result: FollowUpResultEnum,
+  outcome: z.string().max(1000).optional(),
+})
+
 // [v3.0.6.11-99 Wave3B] 模板应用到患者
 export const ApplyTemplateSchema = z.object({
   patientId: z.string().min(1),

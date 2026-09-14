@@ -34,7 +34,21 @@ export interface FollowUpPlan {
   completedAt: string | null
   createdAt: string
   updatedAt: string
+  // [v3.0.6.11-104 Wave 3D] 结构化随访结果 (orphan overlay: improved/stable/worsened/deceased/unknown)
+  result?: FollowUpResult
+  outcome?: string
+  resultRecordedAt?: string | null
 }
+
+// [v3.0.6.11-104 Wave 3D] 随访结构化结果枚举
+export type FollowUpResult = 'improved' | 'stable' | 'worsened' | 'deceased' | 'unknown'
+export const FOLLOWUP_RESULT_OPTIONS: Array<{ label: string; value: FollowUpResult }> = [
+  { label: '好转', value: 'improved' },
+  { label: '稳定', value: 'stable' },
+  { label: '恶化', value: 'worsened' },
+  { label: '死亡', value: 'deceased' },
+  { label: '未知', value: 'unknown' },
+]
 
 export interface CreateFollowUpPlanDto {
   patientId: string
@@ -120,6 +134,16 @@ export const followupApi = {
 
   complete: async (id: string) => {
     const res = await api.post<FollowUpPlan>(`${LIST_PREFIX}/${id}/complete`)
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
+
+  // [v3.0.6.11-104 Wave 3D] 单个随访计划 (含 result/outcome)
+  getById: (id: string) => api.get<FollowUpPlan>(`${LIST_PREFIX}/${id}`),
+
+  // [v3.0.6.11-104 Wave 3D] 录入随访结构化结果 { result, outcome? }
+  recordResult: async (id: string, dto: { result: FollowUpResult; outcome?: string }) => {
+    const res = await api.post<FollowUpPlan>(`${LIST_PREFIX}/${id}/result`, dto)
     await invalidateApiCacheByPrefix(LIST_PREFIX)
     return res
   },

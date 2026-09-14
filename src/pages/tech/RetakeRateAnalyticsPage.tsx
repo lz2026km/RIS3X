@@ -3,13 +3,14 @@
  * 数据源: GET /worklist/retake-stats?from&to&dimension (tech|modality|reason)
  * 视图: 趋势折线 (recharts) + 原因饼图 + 技师/模态热力图 + 维度切换
  */
-import { Alert, Button, Card, Col, Radio, Row, Space, Tag, Tooltip } from 'antd'
-import { BarChart3, Camera, Database, PieChart as PieIcon, RefreshCw, TrendingUp, Wrench } from 'lucide-react'
+import { Alert, Button, Card, Col, Input, Modal, Radio, Row, Space, Table, Tag, Tooltip, message } from 'antd'
+import { BarChart3, Camera, ClipboardCheck, Database, PieChart as PieIcon, RefreshCw, TrendingUp, Wrench } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip as ReTooltip, XAxis, YAxis,
 } from 'recharts'
-import { worklistApi, type RetakeStatsDto } from '../../services/api/worklistApi'
+import { worklistApi, type RetakeStatsDto, type WorklistItemDto, RETAKE_REASON_OPTIONS } from '../../services/api/worklistApi'
+import { t } from '../../i18n/appI18n'
 import { PageHeader } from '../../components/common/PageHeader'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { EmptyState } from '../../components/common/EmptyState'
@@ -28,7 +29,17 @@ const DIMENSION_OPTIONS = [
   { label: '原因分类', value: 'reason' },
   { label: '按技师', value: 'tech' },
   { label: '按模态', value: 'modality' },
+  // [v3.0.6.11-104 Wave 3D] 审批维度下钻
+  { label: '按审批人', value: 'approver' },
+  { label: '按审批状态', value: 'status' },
 ]
+
+// [v3.0.6.11-104 Wave 3D] 审批状态徽标
+const RETAKE_STATUS_META: Record<string, { label: string; color: string }> = {
+  pending: { label: '待审批', color: 'gold' },
+  approved: { label: '已通过', color: 'green' },
+  rejected: { label: '已驳回', color: 'red' },
+}
 const RANGE_OPTIONS = [
   { label: '近 7 天', value: 7 },
   { label: '近 30 天', value: 30 },
@@ -56,6 +67,55 @@ export default function RetakeRateAnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [source, setSource] = useState<'api' | 'demo'>('api')
+  // [v3.0.6.11-104 Wave 3D] 重拍审批队列 + 审批弹窗
+  const [queue, setQueue] = useState<WorklistItemDto[]>([])
+  const [queueLoading, setQueueLoading] = useState(false)
+  const [review, setReview] = useState<{ item: WorklistItemDto; action: 'approve' | 'reject' } | null>(null)
+  const [approver, setApprover] = useState('')
+  const [opinion, setOpinion] = useState('')
+  const [reviewBusy, setReviewBusy] = useState(false)
+
+  const loadQueue = useCallback(async () => {
+    setQueueLoading(true)
+    try {
+      const res = await worklistApi.listRetakeRequests()
+      if (res.success && res.data) {
+        setQueue((res.data.items ?? []).filter(i => i.retakeStatus === 'pending'))
+      } else {
+        setQueue([])
+      }
+    } catch {
+      setQueue([])
+    } finally {
+      setQueueLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadQueue() }, [loadQueue])
+
+  const submitReview = async () => {
+    if (!review) return
+    setReviewBusy(true)
+    try {
+      const res = await worklistApi.approveRetake(review.item.id, {
+        approved: review.action === 'approve',
+        approver: approver.trim() || undefined,
+        opinion: opinion.trim() || undefined,
+      })
+      if (res.success) {
+        message.success(review.action === 'approve' ? t('w3d.retake.approved') : t('w3d.retake.rejected'))
+        setReview(null)
+        setOpinion('')
+        await Promise.all([loadQueue(), load(dimension, rangeDays)])
+      } else {
+        message.error(res.error?.message ?? '审批失败')
+      }
+    } catch {
+      message.error('审批失败')
+    } finally {
+      setReviewBusy(false)
+    }
+  }
 
   const load = useCallback(async (dim: string, days: number) => {
     setLoading(true)
@@ -286,6 +346,54 @@ export default function RetakeRateAnalyticsPage() {
         </Col>
       </Row>
 
+      {/* [v3.0.6.11-104 Wave 3D] 重拍审批队列 (QC_REJECT 待审批) + 审批列 */}
+      <Card
+        size="small"
+        style={{ marginBottom: 16 }}
+        title={<Space><ClipboardCheck size={14} />{t('w3d.retake.queue')}<Tag color="gold">{queue.length}</Tag></Space>}
+        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadQueue()}>{t('w2d.refresh')}</Button>}
+      >
+        {stats?.approvalSummary && (
+          <Space style={{ marginBottom: 12 }} wrap>
+            <span style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>{t('w3d.retake.approvalSummary')}:</span>
+            <Tag color="gold">{t('w3d.retake.pending')} {stats.approvalSummary.pending}</Tag>
+            <Tag color="green">{t('w3d.retake.approvedStatus')} {stats.approvalSummary.approved}</Tag>
+            <Tag color="red">{t('w3d.retake.rejectedStatus')} {stats.approvalSummary.rejected}</Tag>
+          </Space>
+        )}
+        <Table
+          size="small"
+          rowKey="id"
+          loading={queueLoading}
+          dataSource={queue}
+          pagination={{ pageSize: 8, hideOnSinglePage: true }}
+          locale={{ emptyText: t('w3d.retake.queueEmpty') }}
+          columns={[
+            { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 120, render: (_: unknown, r: WorklistItemDto) => r.patientName ?? r.patient?.name ?? '--' },
+            { title: '检查', key: 'exam', width: 180, render: (_: unknown, r: WorklistItemDto) => `${r.modality ?? ''} · ${r.examName ?? r.bodyPart ?? ''}` },
+            { title: t('w3d.retake.reason'), dataIndex: 'retakeReason', key: 'retakeReason', width: 120, render: (v: string) => RETAKE_REASON_OPTIONS.find(o => o.value === v)?.label ?? (v || '--') },
+            { title: t('w3d.retake.applicant'), dataIndex: 'retakeRequestedBy', key: 'retakeRequestedBy', width: 110, render: (v: string) => v || '--' },
+            {
+              title: t('w3d.retake.status'), dataIndex: 'retakeStatus', key: 'retakeStatus', width: 100,
+              render: (v: string) => {
+                const meta = RETAKE_STATUS_META[v] ?? { label: t('w3d.retake.none'), color: 'default' }
+                return <Tag color={meta.color}>{meta.label}</Tag>
+              },
+            },
+            { title: t('w3d.retake.approver'), dataIndex: 'retakeApprover', key: 'retakeApprover', width: 110, render: (v: string) => v || '--' },
+            {
+              title: '操作', key: 'action', width: 150,
+              render: (_: unknown, r: WorklistItemDto) => (
+                <Space size={4}>
+                  <Button size="small" type="primary" onClick={() => { setReview({ item: r, action: 'approve' }); setOpinion('') }}>{t('w3d.retake.approve')}</Button>
+                  <Button size="small" danger onClick={() => { setReview({ item: r, action: 'reject' }); setOpinion('') }}>{t('w3d.retake.reject')}</Button>
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </Card>
+
       {/* 数据源徽标 */}
       <Card size="small">
         <Space>
@@ -297,6 +405,34 @@ export default function RetakeRateAnalyticsPage() {
           </span>
         </Space>
       </Card>
+
+      {/* [v3.0.6.11-104 Wave 3D] 重拍审批弹窗 (审批人/意见) */}
+      <Modal
+        open={review !== null}
+        title={review?.action === 'reject' ? t('w3d.retake.reject') : t('w3d.retake.approve')}
+        onCancel={() => setReview(null)}
+        onOk={() => void submitReview()}
+        confirmLoading={reviewBusy}
+        okText={review?.action === 'reject' ? t('w3d.retake.reject') : t('w3d.retake.approve')}
+        okButtonProps={{ danger: review?.action === 'reject' }}
+        cancelText={t('w2d.cancel')}
+      >
+        {review && (
+          <div style={{ display: 'grid', gap: 12, paddingTop: 4 }}>
+            <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>
+              {review.item.patientName ?? '--'} · {review.item.modality} · {RETAKE_REASON_OPTIONS.find(o => o.value === review.item.retakeReason)?.label ?? '--'}
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary, marginBottom: 4 }}>{t('w3d.retake.approver')}</div>
+              <Input value={approver} onChange={e => setApprover(e.target.value)} placeholder={t('w3d.retake.approver')} />
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary, marginBottom: 4 }}>{t('w3d.retake.opinion')}</div>
+              <Input.TextArea rows={3} value={opinion} onChange={e => setOpinion(e.target.value)} placeholder={t('w3d.retake.opinion')} />
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

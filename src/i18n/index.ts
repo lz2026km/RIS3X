@@ -109,6 +109,8 @@ export const NAMESPACES = [
   "v3teachCase",
   "v3researchExport",
   "v3deviceGantt",
+  // [v3.0.6.11-104 Wave 3C] 知情同意落库绑定 + 临床反馈闭环
+  "v3consentFeedback",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

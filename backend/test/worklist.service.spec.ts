@@ -20,7 +20,7 @@ describe('WorklistService', () => {
     svc = new WorklistService(mockPrisma)
   })
 
-  const exam = (state: string) => ({ id: 'e1', state, patient: {} })
+  const exam = (state: string, timeoutVerified = true) => ({ id: 'e1', state, timeoutVerified, patient: {} })
 
   it('checkIn transitions SCHEDULED exam to ARRIVED', async () => {
     mockPrisma.exam.findUnique.mockResolvedValue(exam('SCHEDULED'))
@@ -45,6 +45,12 @@ describe('WorklistService', () => {
   it('start rejects non-ARRIVED exam', async () => {
     mockPrisma.exam.findUnique.mockResolvedValue(exam('SCHEDULED'))
     await expect(svc.start('e1')).rejects.toThrow(BadRequestException)
+  })
+
+  // [v3.0.6.11-104 Wave 3A P0] 检查前核对门禁: 未完成 Time-Out 不允许开始检查
+  it('start rejects when pre-exam Time-Out not verified', async () => {
+    mockPrisma.exam.findUnique.mockResolvedValue(exam('ARRIVED', false))
+    await expect(svc.start('e1')).rejects.toThrow('TIMEOUT_NOT_VERIFIED')
   })
 
   it('complete transitions IN_PROGRESS exam to COMPLETED', async () => {

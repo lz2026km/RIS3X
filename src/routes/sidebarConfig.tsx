@@ -2263,6 +2263,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.consentEducation",
         roles: ["医生", "主任", "技师", "护士", "管理员"],
       },
+      // [v3.0.6.11-104 Wave 3C] 临床反馈闭环: 异议/补充/更正 → 回应 → 关闭
+      {
+        path: "/clinical-feedback",
+        icon: <MessageSquare size={18} />,
+        labelKey: "nav.clinicalFeedback",
+        roles: ["医生", "主任", "技师", "护士", "管理员"],
+      },
     ],
   },
   // [v3.0.6.11-42] P2 质量提升新增: 报告管理

@@ -57,6 +57,12 @@ function parseItems(value: unknown): string[] {
 export class FollowUpService {
   private readonly logger = new Logger(FollowUpService.name)
 
+  /**
+   * [v3.0.6.11-104 Wave 3D] 随访结构化结果内存回退 (orphan overlay, 不改 prisma schema)。
+   * FollowUpPlan 表无 result/outcome/resultRecordedAt 列时的内存覆盖层。
+   */
+  private readonly resultExtras = new Map<string, { result: string; outcome?: string; resultRecordedAt: string }>()
+
   constructor(
     private readonly prisma: PrismaService,
     // [v3.0.6.11-100 Wave2C P3] 触发模式配置 (auto=自动创建 / hint=仅提示, 默认 hint) — SystemStorageModule 为 @Global
@@ -93,6 +99,8 @@ export class FollowUpService {
     updatedAt: Date
   }) {
     const status = this.deriveStatus(plan)
+    // [v3.0.6.11-104 Wave 3D] 合并随访结果内存覆盖层 (result/outcome/resultRecordedAt)
+    const extra = this.resultExtras.get(plan.id)
     return {
       id: plan.id,
       patientId: plan.patientId,
@@ -111,9 +119,38 @@ export class FollowUpService {
       cancelledAt: plan.cancelledAt ? plan.cancelledAt.toISOString() : null,
       reason: plan.reason ?? undefined,
       completedAt: plan.completedAt ? plan.completedAt.toISOString() : null,
+      // [v3.0.6.11-104 Wave 3D] 结构化随访结果 (orphan overlay)
+      result: extra?.result,
+      outcome: extra?.outcome,
+      resultRecordedAt: extra?.resultRecordedAt ?? null,
       createdAt: plan.createdAt.toISOString(),
       updatedAt: plan.updatedAt.toISOString(),
     }
+  }
+
+  /**
+   * [v3.0.6.11-104 Wave 3D] GET /followups/:id — 单个随访计划 (含 result/outcome/resultRecordedAt)。
+   */
+  async getById(id: string) {
+    const plan = await this.prisma.followUpPlan.findUnique({ where: { id } })
+    if (!plan) throw new NotFoundException(`FollowUpPlan ${id} not found`)
+    return this.toDto(plan as any)
+  }
+
+  /**
+   * [v3.0.6.11-104 Wave 3D] POST /followups/:id/result — 录入随访结构化结果。
+   * result: improved/stable/worsened/deceased/unknown; outcome 为转归描述。
+   * 表无对应列, 结果写入内存覆盖层 (orphan overlay), 由 toDto/list/getById 回显。
+   */
+  async recordResult(id: string, dto: { result: string; outcome?: string }) {
+    const existing = await this.prisma.followUpPlan.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`FollowUpPlan ${id} not found`)
+    this.resultExtras.set(id, {
+      result: dto.result,
+      outcome: dto.outcome,
+      resultRecordedAt: new Date().toISOString(),
+    })
+    return this.toDto(existing as any)
   }
 
   async list(query: { status?: string; date?: string; patientId?: string; search?: string; page?: number; pageSize?: number }) {

@@ -22,6 +22,18 @@ const UpdateQcStateSchema = z.object({
   retakeReason: z.enum(RETAKE_REASON_CODES).optional(),
 })
 
+// [v3.0.6.11-104 Wave 3D] 重拍审批流: 申请 (原因分类/申请人/备注) + 审批 (通过/驳回 + 审批人/意见)
+const RetakeRequestBodySchema = z.object({
+  reason: z.enum(RETAKE_REASON_CODES).optional(),
+  applicant: z.string().max(64).optional(),
+  note: z.string().max(500).optional(),
+})
+const RetakeApproveBodySchema = z.object({
+  approved: z.boolean(),
+  approver: z.string().max(64).optional(),
+  opinion: z.string().max(500).optional(),
+})
+
 const ListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
   pageSize: z.coerce.number().int().min(1).max(200).optional(),
@@ -95,6 +107,22 @@ const HandoverBodySchema = z.object({
   note: z.string().max(500).optional(),
 })
 
+// [v3.0.6.11-104 Wave 3A] 检查前核对 (Time-Out): 核对人 + 各项 boolean (必填项由服务端按患者情况判定)
+const TimeoutVerifyBodySchema = z.object({
+  verifiedBy: z.string().min(1).max(64),
+  note: z.string().max(500).optional(),
+  checklist: z
+    .object({
+      identity: z.boolean().optional(),
+      bodyPart: z.boolean().optional(),
+      allergy: z.boolean().optional(),
+      pregnancy: z.boolean().optional(),
+      isolation: z.boolean().optional(),
+      consent: z.boolean().optional(),
+    })
+    .optional(),
+})
+
 @ApiTags('worklist')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
@@ -138,13 +166,17 @@ export class WorklistController {
   }
 
   // [v3.0.6.11-100 Wave 1B] 重拍率统计 + 原因分类 (dimension: tech|modality|reason)
+  // [v3.0.6.11-104 Wave 3D] + approver|status 审批维度下钻 (附 approvalSummary)
   @Get('retake-stats')
   retakeStats(
     @Query('from') from?: string,
     @Query('to') to?: string,
     @Query('dimension') dimension?: string,
   ) {
-    const dim = dimension === 'tech' || dimension === 'modality' ? dimension : 'reason'
+    const dim =
+      dimension === 'tech' || dimension === 'modality' || dimension === 'approver' || dimension === 'status'
+        ? dimension
+        : 'reason'
     return this.service.getRetakeStats({ from, to, dimension: dim })
   }
 
@@ -249,6 +281,24 @@ export class WorklistController {
     return this.service.checkIn(id)
   }
 
+  // [v3.0.6.11-104 Wave 3A P0] 检查前核对 (Time-Out) 清单 + 提交核对
+  @Get(':id/timeout-checklist')
+  getTimeoutChecklist(@Param('id') id: string) {
+    return this.service.getTimeoutChecklist(id)
+  }
+
+  @Post(':id/timeout-verify')
+  verifyTimeout(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(TimeoutVerifyBodySchema)) body: z.infer<typeof TimeoutVerifyBodySchema>,
+  ) {
+    return this.service.verifyTimeout(id, {
+      verifiedBy: body.verifiedBy,
+      note: body.note,
+      checklist: body.checklist,
+    })
+  }
+
   @Post(':id/start')
   start(@Param('id') id: string) {
     return this.service.start(id)
@@ -279,5 +329,23 @@ export class WorklistController {
   @Post(':id/notes')
   notes(@Param('id') id: string, @Body(new ZodValidationPipe(NoteBodySchema)) body: { note: string; latest?: boolean }) {
     return this.service.saveNotes(id, body.note, { latest: body.latest })
+  }
+
+  // [v3.0.6.11-104 Wave 3D] 重拍申请: POST /worklist/:id/retake-request { reason?, applicant?, note? }
+  @Post(':id/retake-request')
+  requestRetake(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(RetakeRequestBodySchema)) body: z.infer<typeof RetakeRequestBodySchema>,
+  ) {
+    return this.service.requestRetake(id, body)
+  }
+
+  // [v3.0.6.11-104 Wave 3D] 重拍审批: POST /worklist/:id/retake-approve { approved, approver?, opinion? }
+  @Post(':id/retake-approve')
+  approveRetake(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(RetakeApproveBodySchema)) body: z.infer<typeof RetakeApproveBodySchema>,
+  ) {
+    return this.service.approveRetake(id, body)
   }
 }
