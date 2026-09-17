@@ -1,3 +1,38 @@
+## v3.0.6.11-106 (2026-09-15) — 页面点击/加载问题专项修复（白屏/红字/原始键/连接失败/路由错误）
+
+> **目标**: 本地部署验证每个页面点击正常，修复点击错误、路由不正确、无法连接、白屏、红字等问题
+> **范围**: 全量 392 路由交互回归 + 22 关键路由深度验证（后端 308 suites/3402 tests 全过，前端 tsc 817、vite build 成功）
+
+### 修复内容
+1. **白屏/红字（JS 运行时异常）**
+   - `FindingLibraryPage` 的 `Cannot access 'BODY_PART_REVERSE' before initialization`（TDZ）：`BODY_PART_REVERSE`/`DISEASE_TYPE_REVERSE` 声明位置上移至 `stats`/`filteredFindings` 使用之前
+   - 教学病例库 `c.keyPoints.slice(...).map is not a function`：mock 数据 `keyPoints` 由字符串改为数组
+   - 科研导出中心 `Cannot read properties of undefined (reading 'JSON')`：mock 统计补 `byFormat: { CSV, JSON, EXCEL }`
+2. **原始键名显示（i18n 键丢失，2444 个）**
+   - 根因：多个翻译波次并发写入 `appI18n.ts` 导致键丢失（`regionalImaging.tabApplications` 等显示为按钮文字）
+   - 方案：**分命名空间字典 + 自动合并 + 人性化兜底**
+     - 新增 `src/i18n/namespaces/`（24 个文件，4574 条键），由 `appI18n.ts` 的 `import.meta.glob('./namespaces/*.ts')` 自动合并 —— 各命名空间独立文件，杜绝并发整文件覆写丢失
+     - `t()` 增缺失键**人性化兜底**（`cloudStorage.alertsTitle` → `Alerts Title`），彻底消除原始键名直显
+   - 覆盖命名空间：cloudStorage(291)/greenIt(231)/equipLifecycle(197)/opsCenter(178)/schedulePage(171)/deptPage(166)/dictionary(154)/regionalImaging(150)/followUp(137)/notification(130)/feedback(50)/statistics(44)/triage(22)/dicom4d(12)/selfService(10)/reportReview/techOps + 扁平键（典型病例99/教学病例59/运维甘特编排体数据156/科研剂量危急值AI质控等167）
+   - 全站缺失键静态扫描：**2444 → 0**
+3. **无法连接（API 500/404）**
+   - 补齐缺失 MSW handlers（新增 `rqi105Handlers.ts` + `miscMissingHandlers.ts`，~60 端点）：
+     - rqi-2024（7 条国标指标：indicators/detail/trend/dashboard/config/export）、rqi-report-center（批次/提交/回执/重报/导出/历史/统计）
+     - contrast 外渗（列表/记录/统计‰/处置）、pre-injection-check、allergy-test
+     - criticals 国标 13 类字典 + rqi-stats（10min 通报率）
+     - report-rules RWS（national-rws/evaluate-rws/rws-rate）、quality-indicators 40 条（extended/evaluate/standards）
+     - clinical-feedback、teaching-case（cases/categories/stats/wrong-book/exam/share/comments）、research export（datasets/fields/tasks/stats/content）、followups/reminder-queue、devices/schedule（甘特）
+   - **路由冲突修复**：`devices/:id` 通配 handler 拦截 `devices/schedule` → 新增 handlers 前置到数组最前
+4. **路由不正确**：确认 392 路由全部可达（含别名 redirect），无 404/跳转异常
+
+### 验证结果
+- **全量交互回归**：click-all **392 路由 0 失败**；**页面 JS 错误 0 / 控制台错误 0 / 交互错误 0 / 原始键 0**（修复前：1 / 1 / 6 / 1）
+- **22 关键路由深度验证**：0 问题（finding-library、regional-imaging、cloud-storage、green-it、equipment-lifecycle、operations-center、schedule、department、dictionary、follow-up、notification、typical-cases、teach/case-library、qc/rqi-2024、qc/rqi-report-center、research/export-center、ops/device-gantt、orchestrator、dicom/volume-studio、qc/image-ai、critical-value、teleconference）
+- 后端：tsc 0 错误、jest **308 suites / 3402 tests 全部通过**（+2 suites +36 tests）
+- 前端：tsc **817**（持平）、vite build 成功
+
+---
+
 ## v3.0.6.11-105 (2026-09-15) — 放射影像专业医疗质量控制指标（2024 年版）专项落地 —— 7 条国标指标引擎 + 国家上报中心 + 子功能联动
 
 > **目标**: 对标《放射影像专业医疗质量控制指标（2024 年版）》（国卫办医政函〔2024〕150 号 附件 4）7 条国标指标，落地计算引擎、上报闭环与子功能联动
