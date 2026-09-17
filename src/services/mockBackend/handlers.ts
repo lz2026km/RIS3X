@@ -104,6 +104,8 @@ import { findingLibraryHandlers } from './findingLibraryHandlers';
 import { reportAnnotationHandlers } from './reportAnnotationHandlers';
 // [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注 (GET/POST /reports/:id/image-annotations)
 import { imageAnnotationHandlers } from './imageAnnotationHandlers';
+import { rqi105Handlers } from './rqi105Handlers';
+import { miscMissingHandlers } from './miscMissingHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -5223,6 +5225,9 @@ const advancedHandlers: any[] = [
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
+  // [v3.0.6.11-106] 需在最前 (避免被 devices/:id、teach/:x 等通配handler拦截)
+  ...rqi105Handlers, // rqi-2024 / 上报中心 / 外渗 / 13类危急值 / RWS / 40条指标库 / 临床反馈 / devices/schedule
+  ...miscMissingHandlers, // 教学病例库 / 科研导出 / 随访催办队列
   ...shellBatch3Handlers, // [v3.0.6.11-60] Batch 3 壳页面 (需在 criticalValueHandlers 通配之前)
   ...smartWorklistHandlers, // [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
   ...autoCollectionHandlers, // [W3-A] 自动采集 (auto-collectionApi)
@@ -5413,6 +5418,8 @@ export const handlers = [
   ...reportAnnotationHandlers,
   // [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注
   ...imageAnnotationHandlers,
+  // [v3.0.6.11-106] 国标质控指标(rqi-2024)/国家上报中心/外渗/13类危急值/RWS/40条指标库/临床反馈/设备甘特
+  ...rqi105Handlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

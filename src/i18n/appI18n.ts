@@ -57527,6 +57527,24 @@ export const translations: Translations = {
 },
 };
 
+// [v3.0.6.11-106] 分命名空间字典自动合并 (src/i18n/namespaces/*.ts)
+// 目的: 新命名空间各自独立文件, 避免多人/多 agent 并发整文件覆写导致的键丢失。
+interface NamespaceModule {
+  default?: { zh?: Record<string, string>; en?: Record<string, string> }
+}
+const globFn = (import.meta as unknown as {
+  glob?: (pattern: string, options?: Record<string, unknown>) => Record<string, NamespaceModule>
+}).glob
+if (typeof globFn === 'function') {
+  const nsModules = globFn('./namespaces/*.ts', { eager: true })
+  for (const mod of Object.values(nsModules)) {
+    const dict = mod?.default
+    if (!dict) continue
+    if (dict.zh) Object.assign(translations['zh-CN'], dict.zh)
+    if (dict.en) Object.assign(translations['en-US'], dict.en)
+  }
+}
+
 let currentLocale: Locale = DEFAULT_LOCALE;
 const localeChangeHandlers: Array<(locale: Locale) => void> = [];
 
@@ -57547,9 +57565,20 @@ export const notifyLocaleChange = (locale: Locale): void => {
   localeChangeHandlers.forEach((h) => h(locale));
 };
 
+/** [v3.0.6.11-106] 缺失键人性化兜底: 'cloudStorage.alertsTitle' -> 'Alerts Title' (避免直接显示原始键名) */
+const humanizeKey = (key: string): string => {
+  const last = key.includes('.') ? key.slice(key.lastIndexOf('.') + 1) : key
+  const words = last
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .trim()
+  if (!words) return key
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
 export const t = (key: string, params?: Record<string, unknown>): string => {
   const dict = translations[currentLocale] ?? translations[DEFAULT_LOCALE];
-  let text = dict[key] ?? translations[DEFAULT_LOCALE][key] ?? key;
+  let text = dict[key] ?? translations[DEFAULT_LOCALE][key] ?? humanizeKey(key);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       text = text.replace(`{{${k}}}`, String(v));

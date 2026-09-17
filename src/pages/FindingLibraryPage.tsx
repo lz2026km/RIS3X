@@ -865,6 +865,25 @@ export default function FindingLibraryPage() {
     t('findingLib.filterVascularDisease'),
     t('findingLib.filterCongenital'),
   ], [t])
+  // i18n 标签 → 数据值 反向映射 (须先于 stats/filteredFindings 使用, 避免 TDZ)
+  const BODY_PART_REVERSE: Record<string, string> = useMemo(() => ({
+    [t('findingLib.filterHead')]: '头部',
+    [t('findingLib.filterNeck')]: '颈部',
+    [t('findingLib.filterChest')]: '胸部',
+    [t('findingLib.filterAbdomen')]: '腹部',
+    [t('findingLib.filterPelvis')]: '骨盆',
+    [t('findingLib.filterSpine')]: '脊柱',
+    [t('findingLib.filterExtremities')]: '四肢',
+    [t('findingLib.filterNervousSystem')]: '神经系统',
+    [t('findingLib.filterVascular')]: '血管',
+  }), [t])
+  const DISEASE_TYPE_REVERSE: Record<string, string> = useMemo(() => ({
+    [t('findingLib.filterTumor')]: '肿瘤',
+    [t('findingLib.filterInflammation')]: '炎症',
+    [t('findingLib.filterTrauma')]: '外伤',
+    [t('findingLib.filterVascularDisease')]: '血管病变',
+    [t('findingLib.filterCongenital')]: '先天畸形',
+  }), [t])
   // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库双源: api=后端 /finding-library, fallback=内置 200 条
   //   注意: 状态声明须先于下方 effects (避免 TDZ)
   const [searchText, setSearchText] = useState('')
@@ -983,24 +1002,6 @@ export default function FindingLibraryPage() {
   }), [findings])
 
   // ---------- 过滤 ----------
-  const BODY_PART_REVERSE: Record<string, string> = useMemo(() => ({
-    [t('findingLib.filterHead')]: '头部',
-    [t('findingLib.filterNeck')]: '颈部',
-    [t('findingLib.filterChest')]: '胸部',
-    [t('findingLib.filterAbdomen')]: '腹部',
-    [t('findingLib.filterPelvis')]: '骨盆',
-    [t('findingLib.filterSpine')]: '脊柱',
-    [t('findingLib.filterExtremities')]: '四肢',
-    [t('findingLib.filterNervousSystem')]: '神经系统',
-    [t('findingLib.filterVascular')]: '血管',
-  }), [t])
-  const DISEASE_TYPE_REVERSE: Record<string, string> = useMemo(() => ({
-    [t('findingLib.filterTumor')]: '肿瘤',
-    [t('findingLib.filterInflammation')]: '炎症',
-    [t('findingLib.filterTrauma')]: '外伤',
-    [t('findingLib.filterVascularDisease')]: '血管病变',
-    [t('findingLib.filterCongenital')]: '先天畸形',
-  }), [t])
   const filteredFindings = useMemo(() => {
     return findings.filter(f => {
       // 部位
