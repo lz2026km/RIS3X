@@ -154,6 +154,75 @@ export interface DischargeObservationDto {
   notes?: string
 }
 
+// ── [v3.0.6.11-105 Wave 1B] 对比剂外渗事件 (extravasation) ──
+export type ExtravasationSeverity = 'mild' | 'moderate' | 'severe'
+
+export interface ExtravasationEvent {
+  id: string
+  patientId: string
+  examId?: string
+  severity: ExtravasationSeverity
+  site: string
+  estimatedVolumeMl: number
+  management: string
+  recordedBy: string
+  occurredAt: string
+  status: 'open' | 'resolved'
+  handledBy?: string
+  handledAt?: string
+  followUp?: string
+  handleNote?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface RecordExtravasationDto {
+  patientId: string
+  examId?: string
+  severity: ExtravasationSeverity
+  site: string
+  estimatedVolumeMl: number
+  management: string
+  recordedBy: string
+  occurredAt?: string
+}
+
+export interface ExtravasationListFilter {
+  patientId?: string
+  severity?: ExtravasationSeverity
+  dateFrom?: string
+  dateTo?: string
+  page?: number
+  pageSize?: number
+}
+
+export interface ExtravasationListResult {
+  items: ExtravasationEvent[]
+  total: number
+  page: number
+  pageSize: number
+  source: 'memory' | 'seed'
+}
+
+export interface ExtravasationStats {
+  total: number
+  totalInjections: number
+  incidenceRatePerThousand: number
+  bySeverity: { severity: ExtravasationSeverity; count: number }[]
+  bySite: { site: string; count: number }[]
+  byMonth: { month: string; count: number }[]
+  openCount: number
+  resolvedCount: number
+  source: 'memory' | 'seed'
+}
+
+export interface HandleExtravasationDto {
+  management?: string
+  followUp?: string
+  handledBy?: string
+  note?: string
+}
+
 export const contrastSafetyApi = {
   recordAllergyTest: async (dto: RecordAllergyTestDto) => {
     const res = await api.post<ContrastAllergyTestRecord>('/contrast/allergy-test', dto)
@@ -196,6 +265,34 @@ export const contrastSafetyApi = {
   dischargeObservation: async (id: string, dto: DischargeObservationDto = {}) => {
     const res = await api.post<ContrastObservation>(`/contrast/observation/${encodeURIComponent(id)}/discharge`, dto)
     await invalidateApiCacheByPrefix('/contrast/observation')
+    return res
+  },
+
+  // ── [v3.0.6.11-105 Wave 1B] 对比剂外渗事件 ──
+  recordExtravasation: async (dto: RecordExtravasationDto) => {
+    const res = await api.post<ExtravasationEvent>('/contrast/extravasation', dto)
+    await invalidateApiCacheByPrefix('/contrast/extravasation')
+    return res
+  },
+
+  listExtravasations: (filter: ExtravasationListFilter = {}) => {
+    const params = new URLSearchParams()
+    if (filter.patientId) params.set('patientId', filter.patientId)
+    if (filter.severity) params.set('severity', filter.severity)
+    if (filter.dateFrom) params.set('dateFrom', filter.dateFrom)
+    if (filter.dateTo) params.set('dateTo', filter.dateTo)
+    if (filter.page) params.set('page', String(filter.page))
+    if (filter.pageSize) params.set('pageSize', String(filter.pageSize))
+    const qs = params.toString()
+    return api.get<ExtravasationListResult>(`/contrast/extravasation${qs ? `?${qs}` : ''}`)
+  },
+
+  getExtravasationStats: () =>
+    api.get<ExtravasationStats>('/contrast/extravasation/stats'),
+
+  handleExtravasation: async (id: string, dto: HandleExtravasationDto = {}) => {
+    const res = await api.post<ExtravasationEvent>(`/contrast/extravasation/${encodeURIComponent(id)}/handle`, dto)
+    await invalidateApiCacheByPrefix('/contrast/extravasation')
     return res
   },
 }

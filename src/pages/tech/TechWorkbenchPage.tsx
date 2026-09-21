@@ -364,18 +364,18 @@ export default function TechWorkbenchPage() {
         }
         message.success(t('techWorkbench.completedMsg'))
       } else {
-        // 重拍: 影像不合格 → QC_REJECT → 重拍登记 (IN_PROGRESS, retakeCount+1, 新检查任务)
+        // [W6] 重拍: 影像不合格 → QC_REJECT → 提交重拍申请 (审批通过后才可流转 IN_PROGRESS)
         const qc = await worklistApi.updateState(state.exam.id, 'QC_REJECT', state.note || '技师评定图像不合格')
         if (!qc.success) {
-          message.error(qc.error?.message ?? '重拍登记失败')
+          message.error(qc.error?.message ?? '重拍申请失败')
           return
         }
-        const rt = await worklistApi.updateState(state.exam.id, 'IN_PROGRESS', state.note || undefined, { retakeReason: state.retakeReason })
-        if (!rt.success) {
-          message.error(rt.error?.message ?? '重拍登记失败')
+        const req = await worklistApi.requestRetake(state.exam.id, { reason: state.retakeReason, note: state.note || undefined })
+        if (!req.success) {
+          message.error(req.error?.message ?? '重拍申请失败')
           return
         }
-        message.success(t('techWorkbench.retakeNote'))
+        message.success(t('w6Workflow.retake.requested'))
       }
       setCompleteModal(null)
       setSelectedExam(null)
@@ -390,17 +390,18 @@ export default function TechWorkbenchPage() {
   const executeRetake = async (state: RetakeModalState) => {
     setBusy(true)
     try {
-      const qc = await worklistApi.updateState(state.exam.id, 'QC_REJECT', state.note || '质控退回后重拍登记')
+      // [W6] QC_REJECT → 提交重拍申请 (未审批不得流转 IN_PROGRESS)
+      const qc = await worklistApi.updateState(state.exam.id, 'QC_REJECT', state.note || '质控退回后重拍申请')
       if (!qc.success) {
-        message.error(qc.error?.message ?? '重拍登记失败')
+        message.error(qc.error?.message ?? '重拍申请失败')
         return
       }
-      const rt = await worklistApi.updateState(state.exam.id, 'IN_PROGRESS', state.note || undefined, { retakeReason: state.reason })
-      if (!rt.success) {
-        message.error(rt.error?.message ?? '重拍登记失败')
+      const req = await worklistApi.requestRetake(state.exam.id, { reason: state.reason, note: state.note || undefined })
+      if (!req.success) {
+        message.error(req.error?.message ?? '重拍申请失败')
         return
       }
-      message.success(t('techWorkbench.retakeNote'))
+      message.success(t('w6Workflow.retake.requested'))
       setRetakeModal(null)
       setSelectedExam(null)
       await refresh()

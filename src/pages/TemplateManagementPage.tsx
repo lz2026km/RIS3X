@@ -451,11 +451,14 @@ export default function TemplateManagementPage() {
     </button>
   )
 
-  const renderVersionTab = () => {
-    const [selectedTemplateId, setSelectedTemplateId] = useState('tpl-001')
-    const [versions, setVersions] = useState<TemplateVersion[]>(mockVersions)
-    const [diffView, setDiffView] = useState<string | null>(null)
+  // [W1-107] renderVersionTab 内 Hook 提升至组件作用域, 避免规则违规
+  const [versionTemplateId, setVersionTemplateId] = useState('tpl-001')
+  const [versions, setVersions] = useState<TemplateVersion[]>(mockVersions)
+  const [diffView, setDiffView] = useState<string | null>(null)
 
+  const renderVersionTab = () => {
+    const selectedTemplateId = versionTemplateId
+    const setSelectedTemplateId = setVersionTemplateId
     const templateVersions = versions.filter(v => v.templateId === selectedTemplateId)
     const draftVersion = templateVersions.find(v => v.status === 'draft')
     const publishedVersion = templateVersions.find(v => v.status === 'published')
@@ -659,12 +662,17 @@ export default function TemplateManagementPage() {
     )
   }
 
-  const renderShareTab = () => {
-    const [entries, setEntries] = useState<ShareEntry[]>(mockShares)
-    const [selectedTemplateId, setSelectedTemplateId] = useState('全部')
-    const [showShareModal, setShowShareModal] = useState(false)
-    const [shareForm, setShareForm] = useState({ templateId: 'tpl-001', sharedWith: '', permission: 'view' as ShareEntry['permission'], department: '放射科' })
+  // [W1-107] renderShareTab 内 Hook 提升至组件作用域, 避免规则违规
+  const [shareEntries, setShareEntries] = useState<ShareEntry[]>(mockShares)
+  const [shareTemplateFilter, setShareTemplateFilter] = useState('全部')
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareForm, setShareForm] = useState({ templateId: 'tpl-001', sharedWith: '', permission: 'view' as ShareEntry['permission'], department: '放射科' })
 
+  const renderShareTab = () => {
+    const entries = shareEntries
+    const setEntries = setShareEntries
+    const selectedTemplateId = shareTemplateFilter
+    const setSelectedTemplateId = setShareTemplateFilter
     const filteredEntries = selectedTemplateId === '全部' ? entries : entries.filter(e => e.templateId === selectedTemplateId)
 
     const handleCreateShare = () => {

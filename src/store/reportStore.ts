@@ -252,8 +252,19 @@ export const useReportStore = create<ReportState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await reportApi.list({})
-      if (res.success && Array.isArray(res.data)) {
-        set({ reports: res.data as ReportDto[], loading: false, error: null })
+      if (res.success && res.data) {
+        // [W2-107] 兼容后端分页返回 { items, total } 与旧数组返回, 否则真实模式下列表为空
+        const payload = res.data as unknown
+        const items = Array.isArray(payload)
+          ? (payload as ReportDto[])
+          : (payload && typeof payload === 'object' && Array.isArray((payload as { items?: unknown }).items)
+            ? (payload as { items: ReportDto[] }).items
+            : null)
+        if (items) {
+          set({ reports: items, loading: false, error: null })
+        } else {
+          set({ loading: false, error: res.error?.message ?? '加载失败' })
+        }
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
       }

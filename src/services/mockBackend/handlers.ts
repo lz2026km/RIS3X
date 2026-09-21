@@ -53,6 +53,8 @@ import { asrHandlers, dictationHandlers } from './asrHandlers';import { qualityS
 // [Wave 6A v3.0.6.11-99] 语音工作站端点 (医学词库/会话/转写校正/纠正反馈/统计)
 import { voiceWorkstationHandlers } from './voiceWorkstationHandlers';
 import { doseHandlers } from './doseHandlers';
+// [W10-B] 本 wave 新页面真实 API 补齐 handlers (骨科等)
+import { w10MockFillHandlers } from './w10MockFillHandlers';
 import { reviewAssistHandlers } from './v3ReviewHandlers';
 // [v3.0.6.11-60] BI 仪表板 (报告时效/RVU/OEE/危急值SLA/趋势)
 import { biHandlers } from './biHandlers';
@@ -106,6 +108,10 @@ import { reportAnnotationHandlers } from './reportAnnotationHandlers';
 import { imageAnnotationHandlers } from './imageAnnotationHandlers';
 import { rqi105Handlers } from './rqi105Handlers';
 import { miscMissingHandlers } from './miscMissingHandlers';
+// [v3.0.6.11-106] W3 缺失端点 (临床反馈流转/对比剂留观注射/叫号扩展/通知趋势) — 前置注册
+import { w3MissingHandlers } from './w3MissingHandlers';
+// [G005 W5] 缺失端点补齐 (worklist/report/exam/patient/templates 等 45 簇) — 必须最前置注册
+import { w5MissingHandlers } from './w5MissingHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -393,6 +399,8 @@ export const reportHandlers = [
           REVIEWED: ['reviewed'],
           AMENDING: ['amended'],
           WITHDRAWN: ['withdrawn', 'cancelled'],
+          // [W6] 归档报告列表: 状态或 state 为 archived
+          ARCHIVED: ['archived'],
         };
         const matching = all.filter((r: any) =>
           (STATUS_TO_STATE[stateKey] ?? []).includes(String(r.status ?? r.state ?? '').toLowerCase()),
@@ -854,7 +862,7 @@ export const reportHandlers = [
   http.post(`${API_BASE}/reports/:id/transition`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
-    const body = (await request.json()) as { to?: string; actorId?: string; reason?: string };
+    const body = (await request.json()) as { to?: string; actorId?: string; reason?: string; qualityScore?: number };
     const before = get<any>('exams', id);
     if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
     const target = (body.to ?? 'SUBMITTED').toUpperCase() as string;
@@ -868,10 +876,49 @@ export const reportHandlers = [
       SUPPLEMENTED: 'amended', REDISTRIBUTING: 'published',
     };
     const nextStatus = STATE_TO_STATUS[target] ?? 'submitted';
+    // [W6] 报告状态机门禁: 与后端 REPORT_TRANSITIONS 对齐 (拒绝 REVIEWED → REVIEWED 等自环/跳级)
+    const REPORT_TRANSITIONS: Record<string, string[]> = {
+      PENDING_ASSIGNMENT: ['ASSIGNED', 'WRITING'],
+      ASSIGNED: ['WRITING', 'REDISTRIBUTING'],
+      WRITING: ['SUBMITTED', 'REJECTED'],
+      SUBMITTED: ['INITIAL_REVIEW', 'REJECTED', 'ESCALATED'],
+      INITIAL_REVIEW: ['FINAL_REVIEW', 'CO_SIGN_REVIEW', 'REJECTED', 'ESCALATED'],
+      FINAL_REVIEW: ['CO_SIGN_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
+      CO_SIGN_REVIEW: ['REVIEWED', 'REJECTED', 'ESCALATED'],
+      REVIEWED: ['SIGNING', 'SIGNED', 'REJECTED', 'ESCALATED'],
+      SIGNING: ['SIGNED', 'REJECTED'],
+      SIGNED: ['PUBLISHED', 'AMENDING', 'AMENDED', 'RECTIFYING', 'SUPPLEMENTING'],
+      PUBLISHED: ['AMENDING', 'AMENDED', 'SUPPLEMENTING', 'ARCHIVED', 'PUBLISHED'],
+      AMENDING: ['AMENDED', 'REJECTED'],
+      AMENDED: ['SIGNED', 'REJECTED'],
+      REJECTED: ['WRITING'],
+      WITHDRAWN: [],
+      ESCALATED: ['REVIEWED', 'REJECTED'],
+      ARCHIVED: [],
+      RECTIFYING: ['REVIEWED', 'REJECTED'],
+      SUPPLEMENTING: ['SUPPLEMENTED', 'REJECTED'],
+      SUPPLEMENTED: ['PUBLISHED', 'REJECTED'],
+      REDISTRIBUTING: ['ASSIGNED'],
+    };
+    const STATUS_TO_UPPER: Record<string, string> = {
+      draft: 'WRITING', pending: 'PENDING_ASSIGNMENT', submitted: 'SUBMITTED', inreview: 'INITIAL_REVIEW',
+      in_review: 'INITIAL_REVIEW', review: 'INITIAL_REVIEW', reviewed: 'REVIEWED', cosigned: 'CO_SIGN_REVIEW',
+      signed: 'SIGNED', published: 'PUBLISHED', final: 'PUBLISHED', amended: 'AMENDED',
+      rejected: 'REJECTED', withdrawn: 'WITHDRAWN', cancelled: 'WITHDRAWN', archived: 'ARCHIVED',
+    };
+    const fromState =
+      (REPORT_TRANSITIONS[String(before.state ?? '').toUpperCase()] ? String(before.state).toUpperCase() : undefined) ??
+      STATUS_TO_UPPER[String(before.status ?? '').toLowerCase()] ??
+      'PENDING_ASSIGNMENT';
+    if (!(REPORT_TRANSITIONS[fromState] ?? []).includes(target)) {
+      return HttpResponse.json({ success: false, error: { code: 'INVALID_TRANSITION', message: `INVALID_TRANSITION: ${fromState} → ${target} 不允许` } }, { status: 400 });
+    }
     const updated = update<any>('exams', id, {
       status: nextStatus,
       state: target,
       rejectReason: target === 'REJECTED' ? (body.reason ?? '') : undefined,
+      // [G005 contract] 发布时持久化 qualityScore (对齐后端 Report.qualityScore)
+      qualityScore: target === 'PUBLISHED' ? (body.qualityScore ?? before.qualityScore) : before.qualityScore,
       reportAt: new Date().toISOString(),
     });
     if (updated) {
@@ -1892,7 +1939,11 @@ export const worklistHandlers = [
     if (before && !canTransitionWorklist(before.status, 'IN_PROGRESS')) {
       return HttpResponse.json({ success: false, message: `Cannot start from ${before.status}` }, { status: 400 });
     }
-    const updated = update<any>('exams', id, { status: 'IN_PROGRESS', startAt: new Date().toISOString() });
+    // [W6] 检查前核对 (Time-Out) 门禁: 未核对不得开始 (对齐后端 TIMEOUT_NOT_VERIFIED)
+    if (before && before.timeoutVerified !== true) {
+      return HttpResponse.json({ success: false, error: { code: 'TIMEOUT_NOT_VERIFIED', message: `TIMEOUT_NOT_VERIFIED: Exam ${id} 检查前核对 (Time-Out) 未完成, 请先完成核对` } }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'IN_PROGRESS', state: 'IN_PROGRESS', startAt: new Date().toISOString() });
     if (updated) auditStatusChange('worklist', updated, before?.status || '', 'IN_PROGRESS');
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -1978,7 +2029,17 @@ export const worklistHandlers = [
     if (!canTransitionWorklist(before.status, target)) {
       return HttpResponse.json({ success: false, message: `Cannot qc-transition from ${before.status} to ${target}` }, { status: 400 });
     }
+    // [W6] 重拍审批门禁: QC_REJECT → IN_PROGRESS 必须已审批通过 (对齐后端 RETAKE_NOT_APPROVED)
+    if (state === 'IN_PROGRESS' && before.retakeStatus !== 'approved') {
+      return HttpResponse.json({ success: false, error: { code: 'RETAKE_NOT_APPROVED', message: `RETAKE_NOT_APPROVED: Exam ${id} 重拍申请未通过审批 (retakeStatus=${before.retakeStatus ?? 'none'}), 不允许流转到 IN_PROGRESS` } }, { status: 400 });
+    }
     const patch: Record<string, unknown> = { status: target, state: target, qcAt: new Date().toISOString() };
+    // [W6] 再次退回质控 → 重置重拍审批状态 (需重新申请/审批, 对齐后端)
+    if (target === 'QC_REJECT') {
+      patch.retakeStatus = null;
+      patch.retakeApprover = null;
+      patch.retakeApprovedAt = null;
+    }
     if (body.rating) patch.qualityRating = body.rating;
     if (body.techNote) patch.techNotes = body.techNote;
     if (body.qcNote) patch.qcNotes = body.qcNote;
@@ -3498,11 +3559,20 @@ export const queueHandlers = [
   // 队列统计
   
 
-  // 叫号
-  http.post(`${API_BASE}/queue/:id/call`, async ({ params }) => {
+  // 叫号 (对齐后端 POST /queue/:roomId/call, body { examId? | patientId? })
+  http.post(`${API_BASE}/queue/:roomId/call`, async ({ params, request }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'call', entityType: 'queue', entityId: params.id as string });
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'called', calledAt: new Date().toISOString() } });
+    const roomId = params.roomId as string;
+    const body = (await request.json().catch(() => ({}))) as { examId?: string; patientId?: string };
+    const roomExams = list<any>('exams').filter((e: any) => e.deviceId === roomId || e.room === roomId);
+    const target = body.examId
+      ? roomExams.find((e: any) => (e.examId ?? e.id) === body.examId)
+      : body.patientId
+        ? roomExams.find((e: any) => e.patientId === body.patientId)
+        : roomExams[0];
+    const entryId = target ? `q-${target.reportId ?? target.id}` : roomId;
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'call', entityType: 'queue', entityId: entryId });
+    return HttpResponse.json({ success: true, data: { id: entryId, roomId, patientId: target?.patientId, status: 'called', calledAt: new Date().toISOString() } });
   }),
 
   // 完成
@@ -5225,6 +5295,12 @@ const advancedHandlers: any[] = [
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
+  // [W10-B] 最先注册: 骨科影像分析等本 wave 新增端点 (避免被通配/参数路由拦截)
+  ...w10MockFillHandlers,
+  // [G005 W5] 最先注册: 静态缺失端点需先于既有参数/通配路由 (/worklist/:id、/exams/:id、/devices/:id 等)
+  ...w5MissingHandlers,
+  // [v3.0.6.11-106] W3: 最先注册 (queue/overview 需先于 queue/:roomId, notifications/overview 需先于通知通配)
+  ...w3MissingHandlers,
   // [v3.0.6.11-106] 需在最前 (避免被 devices/:id、teach/:x 等通配handler拦截)
   ...rqi105Handlers, // rqi-2024 / 上报中心 / 外渗 / 13类危急值 / RWS / 40条指标库 / 临床反馈 / devices/schedule
   ...miscMissingHandlers, // 教学病例库 / 科研导出 / 随访催办队列

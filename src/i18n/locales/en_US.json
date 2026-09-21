@@ -4860,7 +4860,9 @@
     "barcodeScan": "Barcode Check-In",
     "printTag": "Print Wristband"
   },
-  "benchmark": {},
+  "benchmark": {
+    "title": "Benchmark Analysis"
+  },
   "oee": {
     "title": "Equipment OEE Dashboard",
     "subtitle": "Overall Equipment Effectiveness",
@@ -4899,8 +4901,12 @@
     "recommendations": "Recommendations",
     "historyTrend": "Grading Trend"
   },
-  "dicomCompress": {},
-  "worklistSmart": {},
+  "dicomCompress": {
+    "title": "DICOM Compression"
+  },
+  "worklistSmart": {
+    "title": "Smart Worklist"
+  },
   "dicom4d": {
     "loadError": "Failed to load 4D series",
     "title": "4D Dynamic Imaging",

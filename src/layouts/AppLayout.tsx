@@ -534,6 +534,27 @@ export function AppLayout() {
     });
   };
 
+  // [W1-B] 铃铛未读数 (GET /notifications/unread/:userId, 后端限定 ADMIN/DIRECTOR), 点击跳转通知中心
+  // [W1-107] Hook 必须早于任何提前 return, 否则登录态切换时 "Rendered fewer hooks" 全站崩溃
+  const [unreadCount, setUnreadCount] = useState(0);
+  const canReadUnread = useMemo(() => {
+    const role = String(user?.role ?? "");
+    return role === "ADMIN" || role === "DIRECTOR" || role === "管理员" || role === "主任";
+  }, [user?.role]);
+  useEffect(() => {
+    const uid = user?.id;
+    if (!uid || !canReadUnread) return;
+    let cancelled = false;
+    const loadUnread = () => {
+      notificationsApi.getUnread(uid).then(res => {
+        if (!cancelled && res.success && res.data) setUnreadCount(Number(res.data.unread ?? 0));
+      }).catch(() => { /* 未读数不可用不阻断 */ });
+    };
+    loadUnread();
+    const iv = setInterval(loadUnread, 60000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [user?.id, canReadUnread]);
+
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -541,25 +562,6 @@ export function AppLayout() {
   const currentUser = user;
   const direction = getDirection(locale);
   const effectiveSidebarOpen = isNarrow ? false : sidebarOpen;
-
-  // [W1-B] 铃铛未读数 (GET /notifications/unread/:userId, 后端限定 ADMIN/DIRECTOR), 点击跳转通知中心
-  const [unreadCount, setUnreadCount] = useState(0);
-  const canReadUnread = useMemo(() => {
-    const role = String(currentUser?.role ?? "");
-    return role === "ADMIN" || role === "DIRECTOR" || role === "管理员" || role === "主任";
-  }, [currentUser?.role]);
-  useEffect(() => {
-    if (!currentUser?.id || !canReadUnread) return;
-    let cancelled = false;
-    const loadUnread = () => {
-      notificationsApi.getUnread(currentUser.id).then(res => {
-        if (!cancelled && res.success && res.data) setUnreadCount(Number(res.data.unread ?? 0));
-      }).catch(() => { /* 未读数不可用不阻断 */ });
-    };
-    loadUnread();
-    const iv = setInterval(loadUnread, 60000);
-    return () => { cancelled = true; clearInterval(iv); };
-  }, [currentUser?.id, canReadUnread]);
 
   const handleNavKey = (e: React.KeyboardEvent, path: string) => {
     if (e.key === "Enter" || e.key === " ") {

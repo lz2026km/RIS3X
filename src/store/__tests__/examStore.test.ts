@@ -53,9 +53,9 @@ describe('examStore', () => {
       expect(mockCancel).toHaveBeenCalledWith('ex-1');
     });
 
-    it('checkIn from registered succeeds', async () => {
+    it('checkIn from scheduled succeeds (ARRIVE 报到)', async () => {
       useExamStore.setState({
-        exams: [{ id: 'ex-1', status: '已登记', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
+        exams: [{ id: 'ex-1', status: '已排程', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
       });
       mockCheckIn.mockResolvedValue({ success: true });
       await useExamStore.getState().transition('ex-1', 'checkIn');
@@ -85,27 +85,27 @@ describe('examStore', () => {
   });
 
   describe('transition - invalid cases rejected by guards', () => {
-    it('ordered rejects cancel (must use REJECT_ORDER)', async () => {
+    it('completed rejects cancel (终态不可取消)', async () => {
       useExamStore.setState({
-        exams: [{ id: 'ex-1', status: '已申请', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
+        exams: [{ id: 'ex-1', status: '已完成', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
       });
       await useExamStore.getState().transition('ex-1', 'cancel');
       expect(useExamStore.getState().error).toContain('状态机拒绝');
       expect(mockCancel).not.toHaveBeenCalled();
     });
 
-    it('ordered rejects checkIn', async () => {
+    it('arrived rejects checkIn (已报到不可重复报到)', async () => {
       useExamStore.setState({
-        exams: [{ id: 'ex-1', status: '已申请', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
+        exams: [{ id: 'ex-1', status: '已报到', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
       });
       await useExamStore.getState().transition('ex-1', 'checkIn');
       expect(useExamStore.getState().error).toContain('状态机拒绝');
       expect(mockCheckIn).not.toHaveBeenCalled();
     });
 
-    it('registered rejects start (needs arrived first)', async () => {
+    it('scheduled rejects start (needs arrived first)', async () => {
       useExamStore.setState({
-        exams: [{ id: 'ex-1', status: '已登记', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
+        exams: [{ id: 'ex-1', status: '已排程', patientId: 'P001', modality: 'CT', bodyPart: '胸部', priority: '普通', patientName: '张三', scheduledAt: '2026-01-01', patientType: '门诊', gender: '男', age: 45, examId: 'ex-1' }],
       });
       await useExamStore.getState().transition('ex-1', 'start');
       expect(useExamStore.getState().error).toContain('状态机拒绝');

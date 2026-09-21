@@ -19,6 +19,7 @@ import {
 } from '../data/deliveryExportSignatureMock';
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
+import { LoadingBanner } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 
 // [G005 W2-B] reportApi 无 delivery 端点 → 由 reportApi.list 派生推送记录 + 页面标注
@@ -216,6 +217,7 @@ export default function ReportDeliveryPage() {
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+      {recordsLoading && <LoadingBanner message={t('w9.states.loading')} />}
       {fromReportId && (
         <div style={{
           marginBottom: 12, padding: '10px 14px', background: 'var(--color-success-bg)', border: '1px solid #bbf7d0',

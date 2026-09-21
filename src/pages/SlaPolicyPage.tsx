@@ -1,10 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Clock, Plus, Search, ToggleLeft, ToggleRight, Trash2, Edit3 } from 'lucide-react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, message, Popconfirm, Space, Spin } from 'antd';
+import { Clock, Search, ToggleLeft, ToggleRight, Trash2, Edit3 } from 'lucide-react';
+import { Button, Modal, Form, Input, InputNumber, Select, Tag, message, Popconfirm, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { workflowApi } from '../services/api/workflowApi';
 import type { SLAPolicyDto } from '../services/api/workflowApi';
 import { usePagination } from '../hooks/usePagination';
+import { DataTable } from '../components/common/DataTable';
+import { ActionButton } from '../components/common/ActionButton';
+import { ErrorBanner } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 
 const MODALITIES = ['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'PET-CT'];
@@ -17,6 +20,7 @@ const PRIORITIES = [
 export default function SlaPolicyPage() {
   const [policies, setPolicies] = useState<SLAPolicyDto[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<SLAPolicyDto | null>(null);
@@ -34,8 +38,13 @@ export default function SlaPolicyPage() {
       const res = await workflowApi.listSlaPolicies();
       if (res.success && Array.isArray(res.data)) {
         setPolicies(res.data as SLAPolicyDto[]);
+        setLoadError(null);
+      } else {
+        setLoadError(t('w9.states.error'));
       }
-    } catch { /* ignore */ } finally {
+    } catch {
+      setLoadError(t('w9.states.error'));
+    } finally {
       setLoading(false);
     }
   };
@@ -176,13 +185,10 @@ export default function SlaPolicyPage() {
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Input placeholder={t('sla.searchPlaceholder')} prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 300 }} allowClear />
-          <Button type="primary" icon={<Plus size={14} />} onClick={openAdd} disabled={loading}>{t('sla.addPolicy')}</Button>
+          <ActionButton action="create" onClick={openAdd} disabled={loading}>{t('sla.addPolicy')}</ActionButton>
         </div>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
-        ) : (
-          <Table columns={columns} dataSource={pagedPolicies} rowKey="id" pagination={policiesPagination} size="middle" scroll={{ x: 'max-content' }}/>
-        )}
+        {loadError && !loading && <ErrorBanner message={loadError} />}
+        <DataTable columns={columns} dataSource={pagedPolicies} rowKey="id" pagination={policiesPagination} loading={loading} emptyText={t('w9.states.empty')} scroll={{ x: 'max-content' }}/>
         <div style={{ marginTop: 16, textAlign: 'right' }}>
           <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>{t('sla.saveAll')}</Button>
         </div>

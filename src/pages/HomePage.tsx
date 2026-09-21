@@ -488,7 +488,9 @@ const HomePage: FC = () => {
       const rawCriticals = settled(cvRes)
       const reports: any[] = Array.isArray(rawReports) ? rawReports
         : Array.isArray((rawReports as any)?.items) ? (rawReports as any).items : []
-      const criticals: any[] = Array.isArray(rawCriticals) ? rawCriticals : []
+      const criticals: any[] = Array.isArray(rawCriticals)
+        ? rawCriticals
+        : Array.isArray((rawCriticals as any)?.items) ? (rawCriticals as any).items : []
       if (reports.length > 0 || criticals.length > 0) anyReal = true
 
       const pendingReports = reports

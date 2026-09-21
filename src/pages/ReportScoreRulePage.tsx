@@ -18,6 +18,8 @@ import {
   type ScoreGradeConfig,
 } from '../data/qualityScoreMock';
 import { reportQualityApi } from '../services/api';
+import { LoadingBanner, ErrorBanner } from '../components/feedback';
+import { t } from '../i18n/appI18n';
 import ReportReEvaluateSection from './ReportReEvaluateSection';
 import { message } from 'antd';
 
@@ -31,6 +33,8 @@ export default function ReportScoreRulePage() {
   const [grades] = useState<ScoreGradeConfig[]>(SCORE_GRADES);
   const [_saveMessage, setSaveMessage] = useState<string>('');
   const [kpi, setKpi] = useState(QUALITY_KPI);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // 当前选中维度
   const currentDim = dimensions.find(d => d.id === selectedDim);
@@ -44,27 +48,37 @@ export default function ReportScoreRulePage() {
   const totalWeight = dimensions.reduce((sum, d) => sum + d.weight, 0);
 
   useEffect(() => {
-    reportQualityApi.getRules().then(res => {
-      if (res.success && res.data?.dimensions?.length) {
-        const mapped: ScoreDimension[] = res.data.dimensions.map((d, i) => ({
-          id: `dim-${d.key}`,
-          name: d.label,
-          weight: d.weight,
-          description: `${d.label} (满分 ${d.max})`,
-          evaluationCriteria: [],
-          scoringRules: [{ score: d.max, condition: `${d.label} 达标` }],
-          color: ['#3b82f6', '#7c3aed', '#10b981', '#f59e0b', '#0891b2', '#dc2626', '#8b5cf6', '#06b6d4'][i % 8],
-          icon: '📊',
-        }))
-        setDimensions(mapped)
-      }
-    })
-    reportQualityApi.getStats().then(res => {
-      if (res.success && res.data) {
-        const stats = res.data
-        setKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
-      }
-    })
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+    Promise.allSettled([reportQualityApi.getRules(), reportQualityApi.getStats()])
+      .then(([rulesRes, statsRes]) => {
+        if (cancelled) return;
+        const rules = rulesRes.status === 'fulfilled' ? rulesRes.value : null;
+        const statsR = statsRes.status === 'fulfilled' ? statsRes.value : null;
+        if (rules?.success && rules.data?.dimensions?.length) {
+          const mapped: ScoreDimension[] = rules.data.dimensions.map((d, i) => ({
+            id: `dim-${d.key}`,
+            name: d.label,
+            weight: d.weight,
+            description: `${d.label} (满分 ${d.max})`,
+            evaluationCriteria: [],
+            scoringRules: [{ score: d.max, condition: `${d.label} 达标` }],
+            color: ['#3b82f6', '#7c3aed', '#10b981', '#f59e0b', '#0891b2', '#dc2626', '#8b5cf6', '#06b6d4'][i % 8],
+            icon: '📊',
+          }));
+          setDimensions(mapped);
+        }
+        if (statsR?.success && statsR.data) {
+          const stats = statsR.data;
+          setKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }));
+        }
+        const rulesFailed = rulesRes.status === 'rejected' || !rules?.success;
+        const statsFailed = statsRes.status === 'rejected' || !statsR?.success;
+        if (rulesFailed && statsFailed) setLoadError(t('w9.states.error'));
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [])
 
   const handleSave = async () => {
@@ -121,6 +135,9 @@ export default function ReportScoreRulePage() {
           </button>
         </div>
       </div>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* KPI 概览 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>

@@ -31,7 +31,7 @@ const PrioritySchema = z.object({
 
 @ApiTags('queue')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN', 'DOCTOR')
+@Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN', 'DOCTOR', 'NURSE')
 @Controller('queue')
 export class QueueController {
   constructor(private readonly service: QueueService) {}

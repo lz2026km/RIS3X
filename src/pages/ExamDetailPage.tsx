@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Eye, FileText, RefreshCw, MonitorPlay, History, MessageSquare, Send } from "lucide-react";
 import { message } from "antd";
 import { ExamDetailView, toRadiologyExamFromDto } from "./worklist/ExamDetailView";
+import TimeoutVerifyModal from "../components/worklist/TimeoutVerifyModal";
 import { examApi, type ExamTimelineDto } from "../services/api/examApi";
 import { DashboardCard } from "../components/dashboard/DashboardCard";
 import { EmptyState } from "../components/common/EmptyState";
@@ -19,7 +20,7 @@ const toExamFromWorklist = (dto: WorklistItemDto): RadiologyExam => {
   return {
     id: dto.id,
     patientId: dto.patientId,
-    patientName: dto.patientName,
+    patientName: dto.patientName ?? dto.patient?.name ?? "未知患者",
     gender: (dto.gender ?? dto.patient?.gender ?? "其他") as RadiologyExam["gender"],
     age: dto.age ?? 0,
     patientType: "门诊" as RadiologyExam["patientType"],
@@ -34,6 +35,9 @@ const toExamFromWorklist = (dto: WorklistItemDto): RadiologyExam => {
     status: normalizeExamStatus(dto.state ?? dto.status) as RadiologyExam["status"],
     imagesAcquired: 0,
     accessionNumber: dto.accessionNumber ?? dto.accessionNo ?? "",
+    // [W6] Time-Out 门禁状态透出
+    timeoutVerified: dto.timeoutVerified === undefined ? undefined : Boolean(dto.timeoutVerified),
+    retakeStatus: (dto.retakeStatus ?? null) as RadiologyExam["retakeStatus"],
     // [v3.0.6.11-98 Wave3B P2] worklist patient.birthDate 透出 (无 phone/weight → 页面 `--`)
     patientBirthDate: dto.patient?.birthDate ? String(dto.patient.birthDate).slice(0, 10) : undefined,
     createdTime: dto.createdAt ?? "",
@@ -62,6 +66,8 @@ export default function ExamDetailPage() {
   const [exam, setExam] = useState<RadiologyExam | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // [W6] 检查前核对 (Time-Out) 门禁
+  const [timeoutExam, setTimeoutExam] = useState<RadiologyExam | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -141,14 +147,37 @@ export default function ExamDetailPage() {
   };
 
   const handleStart = async (exam: RadiologyExam) => {
+    // [W6] 检查前核对 (Time-Out) 门禁: 未核对时先弹窗, 完成后才放行
+    if (exam.timeoutVerified === false) {
+      setTimeoutExam(exam);
+      return;
+    }
     const res = await worklistApi.start(exam.id);
     if (res.success) {
       message.success("检查已开始");
       void load();
+    } else if ((res.error?.message ?? "").includes("TIMEOUT_NOT_VERIFIED")) {
+      setTimeoutExam(exam);
     } else {
       message.error(res.error?.message ?? "开始检查失败");
     }
   };
+
+  // [W6] Time-Out 核对通过 → 以已核对状态开始检查
+  const handleTimeoutVerified = useCallback(() => {
+    const target = timeoutExam;
+    setTimeoutExam(null);
+    if (!target) return;
+    void (async () => {
+      const res = await worklistApi.start(target.id);
+      if (res.success) {
+        message.success("检查已开始");
+        void load();
+      } else {
+        message.error(res.error?.message ?? "开始检查失败");
+      }
+    })();
+  }, [timeoutExam, load]);
 
   const handleCancel = async (exam: RadiologyExam) => {
     const res = await worklistApi.cancel(exam.id, "独立详情页取消");
@@ -398,6 +427,14 @@ export default function ExamDetailPage() {
           </div>
         </div>
       )}
+
+      {/* [W6] 检查前核对 (Time-Out) 门禁弹窗 */}
+      <TimeoutVerifyModal
+        open={timeoutExam !== null}
+        examId={timeoutExam?.id ?? null}
+        onCancel={() => setTimeoutExam(null)}
+        onVerified={handleTimeoutVerified}
+      />
     </div>
   );
 }

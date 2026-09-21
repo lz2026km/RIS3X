@@ -28,6 +28,7 @@ import {
   type RadPathStats,
 } from "../../services/api/radpathApi";
 import { message } from "antd";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 
 const consistencyColor: Record<string, string> = {
@@ -45,6 +46,7 @@ const RadPathPage: React.FC = () => {
   const [records, setRecords] = useState<RadPathRecord[]>([]);
   const [stats, setStats] = useState<RadPathStats | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [selectedRecord, setSelectedRecord] = useState<RadPathRecord | null>(
     null,
@@ -60,9 +62,11 @@ const RadPathPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await radPathApi.getRecords();
-      if (res.success) setRecords(res.data);
+      if (res.success) { setRecords(res.data); setLoadError(null); }
+      else setLoadError(t('w9.states.error'));
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
+      setLoadError(t('w9.states.error'));
     } finally {
       setLoading(false);
     }
@@ -172,6 +176,7 @@ const RadPathPage: React.FC = () => {
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('radPath.title')}</h1>
         <Tag color="purple">{t('radPath.radPathTag')}</Tag>
       </div>
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card size="small">

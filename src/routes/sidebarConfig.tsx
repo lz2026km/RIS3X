@@ -216,6 +216,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.reportList",
         roles: ["医生", "主任", "管理员",],
       },
+      // [W6] 已归档报告列表 (只读)
+      {
+        path: "/reports/archived",
+        icon: <Archive size={18} />,
+        labelKey: "w6Workflow.archive.nav",
+        roles: ["医生", "主任", "管理员",],
+      },
       {
         path: "/critical-value",
         icon: <Siren size={18} />,
@@ -1201,7 +1208,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/ihe/visit",
         icon: <UserCheck size={18} />,
         labelKey: "nav.iheVisit",
-        roles: ["医生", "主任", "技师", "管理员"],
+        roles: ["主任", "技师", "管理员"],
       },
       // [audit-fix-2026-07-28] IHE/HL7 管理
       {

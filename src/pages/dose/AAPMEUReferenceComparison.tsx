@@ -1,4 +1,5 @@
 import { AlertTriangle } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -10,10 +11,44 @@ import {
 } from "recharts";
 import ChartContainer from "../../components/charts/ChartContainer";
 import { AAPM_EU_REFERENCES } from "./mockData";
+import { rdsrApi } from "../../services/api/rdsrApi";
 import type { AAPMReference } from "./types";
 
 export default function AAPMEUReferenceComparison() {
-  const chartData = AAPM_EU_REFERENCES.map((ref: AAPMReference) => ({
+  // [W10-B] AAPM/欧盟参考值为静态规范值; 本院平均值优先取 /rdsr/today 的
+  //         按部位平均 CTDIvol, 端点不可用/无数据时回退内置演示值。
+  const [refs, setRefs] = useState<AAPMReference[]>(AAPM_EU_REFERENCES);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await rdsrApi.getToday();
+        if (cancelled || !res.success || !res.data) return;
+        const dist = res.data.bodyPartDistribution ?? [];
+        if (dist.length === 0) return;
+        setRefs(
+          AAPM_EU_REFERENCES.map((r) => {
+            const hit = dist.find((d) => r.examType.includes(d.bodyPart));
+            if (!hit) return r;
+            const hospitalAvg = Number(hit.avgCtdiVol.toFixed(1));
+            const exceedRate =
+              r.aapmRef > 0 && hospitalAvg > r.aapmRef
+                ? +((hospitalAvg - r.aapmRef) / r.aapmRef).toFixed(2)
+                : 0;
+            return { ...r, hospitalAvg, exceedRate };
+          }),
+        );
+      } catch {
+        // 保留静态参考数据回退
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const chartData = refs.map((ref: AAPMReference) => ({
     name: ref.examType,
     aapm: ref.aapmRef,
     eu: ref.euRef,
@@ -30,7 +65,7 @@ export default function AAPMEUReferenceComparison() {
     label?: string;
   }) => {
     if (active && payload && payload.length) {
-      const ref = AAPM_EU_REFERENCES.find((r) => r.examType === label);
+      const ref = refs.find((r) => r.examType === label);
       return (
         <div
           style={{
@@ -240,7 +275,7 @@ export default function AAPMEUReferenceComparison() {
             </tr>
           </thead>
           <tbody>
-            {AAPM_EU_REFERENCES.map((ref, i) => {
+            {refs.map((ref, i) => {
               const isExceed = ref.exceedRate > 0;
               return (
                 <tr
@@ -313,7 +348,7 @@ export default function AAPMEUReferenceComparison() {
       </div>
 
       {/* 告警说明 */}
-      {AAPM_EU_REFERENCES.some((r) => r.exceedRate > 0.5) && (
+      {refs.some((r) => r.exceedRate > 0.5) && (
         <div
           style={{
             marginTop: 16,

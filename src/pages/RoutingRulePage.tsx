@@ -10,6 +10,7 @@ import type { RoutingRuleDto } from '../services/api/workflowApi';
 import { t } from '../i18n/appI18n';
 import { StatCard, StatCardGrid } from '../components/common/StatCard';
 import { ActionButton } from '../components/common/ActionButton';
+import { ErrorBanner } from '../components/feedback';
 
 const SAMPLE_FACTS = [
   { studyId: 'S-001', modality: 'CT', priority: 'critical', patientType: '急诊', age: 65, waitingMinutes: 5, criticalFinding: true },
@@ -47,6 +48,7 @@ function toDto(rule: RoutingRule): Partial<RoutingRuleDto> {
 export default function RoutingRulePage() {
   const [rules, setRules] = useState<RoutingRule[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const engine = useMemo(() => {
     const e = new RoutingEngine();
     rules.forEach((r) => e.addRule(r));
@@ -64,8 +66,13 @@ export default function RoutingRulePage() {
       const res = await workflowApi.listRoutingRules();
       if (res.success && Array.isArray(res.data)) {
         setRules((res.data as RoutingRuleDto[]).map(toRoutingRule));
+        setLoadError(null);
+      } else {
+        setLoadError(t('w9.states.error'));
       }
-    } catch { /* ignore */ } finally {
+    } catch {
+      setLoadError(t('w9.states.error'));
+    } finally {
       setLoading(false);
     }
   };
@@ -139,6 +146,11 @@ export default function RoutingRulePage() {
           </div>
         </div>
       </header>
+      {loadError && !loading && (
+        <div style={{ padding: '12px 24px 0' }}>
+          <ErrorBanner message={loadError} />
+        </div>
+      )}
       <div style={{ padding: '12px 24px 0' }}>
         <StatCardGrid minWidth={180} style={{ marginBottom: 12 }}>
           <StatCard title={t('w9.routing.statsTotal')} value={rules.length} color="primary" size="sm" />

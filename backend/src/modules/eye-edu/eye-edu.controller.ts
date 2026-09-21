@@ -54,7 +54,7 @@ const ExportSrSchema = z.object({
 
 @ApiTags('eye-edu')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('eye/edu')
 export class EyeEduController {
   constructor(private readonly svc: EyeEduService) {}

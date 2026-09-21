@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, Modal, Timeline, Table } from 'antd';
 import { Shield, FileSignature, Link2, Edit3, History, Plus, Lock, Stamp, Send } from 'lucide-react';
 import { signApi, amendApi } from '@/services/api/signAmendApi';
+import { LoadingBanner, ErrorBanner, AppEmpty } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -35,18 +36,28 @@ export const SignAmendPage: React.FC = () => {
   const [amendPage, setAmendPage] = useState(1);
 
   // 加载
+  const [certsLoading, setCertsLoading] = useState(true);
+  const [amendsLoading, setAmendsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const loadCerts = async () => {
+    setCertsLoading(true);
     try {
       const r = await signApi.listCertificates();
-      if (r.success) setCerts(r.data);
-    } catch (e: any) { message.error(e.message); }
+      if (r.success) { setCerts(r.data); setLoadError(null); }
+      else setLoadError(t('w9.states.error'));
+    } catch (e: any) { setLoadError(e?.message ?? t('w9.states.error')); }
+    finally { setCertsLoading(false); }
   };
 
   const loadAmends = async () => {
+    setAmendsLoading(true);
     try {
       const r = await amendApi.listAmendments();
-      if (r.success) setAmends(r.data);
-    } catch (e: any) { message.error(e.message); }
+      if (r.success) { setAmends(r.data); setLoadError(null); }
+      else setLoadError(t('w9.states.error'));
+    } catch (e: any) { setLoadError(e?.message ?? t('w9.states.error')); }
+    finally { setAmendsLoading(false); }
   };
 
   useEffect(() => { loadCerts(); loadAmends(); }, []);
@@ -152,6 +163,9 @@ export const SignAmendPage: React.FC = () => {
         <Tag color="green">{t('signAmend.scaleTag')}</Tag>
       </Space>
 
+      {certsLoading && amendsLoading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !certsLoading && !amendsLoading && <ErrorBanner message={loadError} />}
+
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title={t('signAmend.statValid')} value={certs.filter(c => c.status === 'valid').length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title={t('signAmend.statExpired')} value={certs.filter(c => c.status === 'expired').length} styles={{ content: {  color: '#faad14'  } }} /></Card></Col>
@@ -181,6 +195,8 @@ export const SignAmendPage: React.FC = () => {
               size="small"
               dataSource={filteredCerts}
               rowKey="id"
+              loading={certsLoading}
+              locale={{ emptyText: <AppEmpty variant="no-data" minHeight={120} /> }}
               pagination={{ current: certPage, pageSize: PAGE_SIZE, total: filteredCerts.length, onChange: setCertPage, showSizeChanger: false }}
               columns={[
                 { title: t('signAmend.colSerialNumber'), dataIndex: 'serialNumber' },
@@ -251,6 +267,8 @@ export const SignAmendPage: React.FC = () => {
               size="small"
               dataSource={filteredAmends}
               rowKey="id"
+              loading={amendsLoading}
+              locale={{ emptyText: <AppEmpty variant="no-data" minHeight={120} /> }}
               pagination={{ current: amendPage, pageSize: PAGE_SIZE, total: filteredAmends.length, onChange: setAmendPage, showSizeChanger: false }}
               columns={[
                 { title: t('signAmend.colNumber'), dataIndex: 'id' },

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Card, Space, Tag, Button, Table, Select, DatePicker, message,
+  Card, Space, Tag, Button, Select, DatePicker, message,
 } from "antd";
 import { Archive, Filter, RotateCcw, Search, ChevronDown, ChevronRight, AlertCircle, CheckCircle, Clock, Send } from "lucide-react";
 import { hl7Api } from "../../services/api/integrationApi";
 import { usePagination } from "../../hooks/usePagination";
+import { DataTable } from "../../components/common/DataTable";
+import { ErrorBanner } from "../../components/feedback";
 import dayjs from "dayjs";
 import { t } from "../../i18n/appI18n";
 
@@ -24,6 +26,7 @@ interface Hl7ArchiveRecord {
 export const Hl7ArchivePage: React.FC = () => {
   const [data, setData] = useState<Hl7ArchiveRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const { pageData, pagination } = usePagination(data, 10);
 
@@ -34,15 +37,21 @@ export const Hl7ArchivePage: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const res = await hl7Api.getArchive({
-      messageType: filterType,
-      direction: filterDirection,
-      ackStatus: filterAck,
-      from: dateRange?.[0]?.toISOString(),
-      to: dateRange?.[1]?.toISOString(),
-    });
-    if (res.success) setData(res.data);
-    setLoading(false);
+    try {
+      const res = await hl7Api.getArchive({
+        messageType: filterType,
+        direction: filterDirection,
+        ackStatus: filterAck,
+        from: dateRange?.[0]?.toISOString(),
+        to: dateRange?.[1]?.toISOString(),
+      });
+      if (res.success) { setData(res.data); setLoadError(null); }
+      else setLoadError(t("w9.states.error"));
+    } catch {
+      setLoadError(t("w9.states.error"));
+    } finally {
+      setLoading(false);
+    }
   }, [filterType, filterDirection, filterAck, dateRange]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -135,6 +144,8 @@ export const Hl7ArchivePage: React.FC = () => {
         </div>
       </Card>
 
+      {loadError && !loading && <ErrorBanner message={loadError} />}
+
       <Card size="small" className="shadow-sm" title={<Space><Filter className="w-4 h-4" /><span>{t("hl7Archive.filter")}</span></Space>}>
         <Space wrap>
           <Select
@@ -180,12 +191,12 @@ export const Hl7ArchivePage: React.FC = () => {
         </Space>
       </Card>
 
-      <Table
-        size="small"
+      <DataTable
         rowKey="id"
         loading={loading}
         dataSource={pageData}
         columns={columns}
+        emptyText={t("w9.states.empty")}
         scroll={{ x: "max-content" }}
         pagination={pagination}
         expandable={{

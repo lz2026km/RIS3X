@@ -8,24 +8,26 @@ import { examMachine, type ExamStateName } from '../machines/examMachine'
 import { createCrudStore } from './helpers'
 
 const EXAM_STATUS_TO_STATE: Record<string, ExamStateName> = {
-  '已申请': 'ordered',
+  '已申请': 'scheduled',
   '已排程': 'scheduled',
-  '已登记': 'registered',
+  '已登记': 'arrived',
   '已报到': 'arrived',
   '检查中': 'inProgress',
   '已暂停': 'paused',
   '已完成': 'completed',
   '图像可用': 'imageAvailable',
+  '质控通过': 'qcPass',
   '质控退回': 'qcReject',
   '待报告': 'pendingReport',
-  '已报告': 'reported',
-  '已发布': 'published',
-  '已归档': 'archived',
+  // 报告生命周期态 (已报告/已发布/已归档) 归 reportMachine; worklist 止于 pendingReport
+  '已报告': 'pendingReport',
+  '已发布': 'pendingReport',
+  '已归档': 'pendingReport',
   '已取消': 'cancelled',
 }
 
 function buildExamActor(exam: ExamDto) {
-  const initial = EXAM_STATUS_TO_STATE[exam.status] ?? 'ordered'
+  const initial = EXAM_STATUS_TO_STATE[exam.status] ?? 'scheduled'
   const actor = createActor(examMachine, {
     input: {
       examId: exam.id,
@@ -37,97 +39,44 @@ function buildExamActor(exam: ExamDto) {
   })
   actor.start()
   // 把 actor 推进到当前 store status,这样后续 send() 才会被状态机接受
+  const toArrived = () => actor.send({ type: 'ARRIVE', by: 'system' })
+  const toInProgress = () => {
+    toArrived()
+    actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
+  }
+  const toCompleted = () => {
+    toInProgress()
+    actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
+  }
+  const toImageAvailable = () => {
+    toCompleted()
+    actor.send({ type: 'IMAGES_READY', imageCount: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
+  }
+  const toQcPass = () => {
+    toImageAvailable()
+    actor.send({ type: 'QC_PASS', by: 'system' })
+  }
+  const toQcReject = () => {
+    toImageAvailable()
+    actor.send({ type: 'QC_REJECT', reason: 'replay', by: 'system' })
+  }
+  const toPendingReport = () => {
+    toQcPass()
+    actor.send({ type: 'AWAIT_REPORT', by: 'system' })
+  }
   const walk: Record<ExamStateName, () => void> = {
-    ordered: () => {},
-    scheduled: () => actor.send({ type: 'APPROVE_ORDER', by: 'system' }),
-    registered: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-    },
-    arrived: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-    },
-    inProgress: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-    },
+    scheduled: () => {},
+    arrived: toArrived,
+    inProgress: toInProgress,
     paused: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
+      toInProgress()
       actor.send({ type: 'PAUSE_EXAM', reason: 'replay', by: 'system' })
     },
-    completed: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-      actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-    },
-    imageAvailable: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-      actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'IMAGES_READY', imageCount: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-    },
-    qcReject: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-      actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: 0, by: 'system' })
-      actor.send({ type: 'IMAGES_READY', imageCount: 0, by: 'system' })
-      actor.send({ type: 'QC_REJECT', reason: 'replay', by: 'system' })
-    },
-    pendingReport: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-      actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'IMAGES_READY', imageCount: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'QC_PASS', by: 'system' })
-    },
-    reported: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-      actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'IMAGES_READY', imageCount: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'QC_PASS', by: 'system' })
-      actor.send({ type: 'MARK_REPORTED', by: 'system' })
-    },
-    published: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-      actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'IMAGES_READY', imageCount: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'QC_PASS', by: 'system' })
-      actor.send({ type: 'MARK_REPORTED', by: 'system' })
-      actor.send({ type: 'PUBLISH', by: 'system' })
-    },
-    archived: () => {
-      actor.send({ type: 'APPROVE_ORDER', by: 'system' })
-      actor.send({ type: 'REGISTER', roomId: (exam as unknown as { roomId?: string }).roomId ?? 'R-?', deviceId: (exam as unknown as { deviceId?: string }).deviceId ?? 'D-?', by: 'system' })
-      actor.send({ type: 'ARRIVE', by: 'system' })
-      actor.send({ type: 'START_EXAM', by: 'system', technologistId: (exam as unknown as { technicianId?: string }).technicianId ?? 'system' })
-      actor.send({ type: 'COMPLETE_EXAM', imagesAcquired: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'IMAGES_READY', imageCount: (exam as unknown as { imageCount?: number }).imageCount ?? 0, by: 'system' })
-      actor.send({ type: 'QC_PASS', by: 'system' })
-      actor.send({ type: 'MARK_REPORTED', by: 'system' })
-      actor.send({ type: 'PUBLISH', by: 'system' })
-      actor.send({ type: 'ARCHIVE', by: 'system' })
-    },
+    completed: toCompleted,
+    imageAvailable: toImageAvailable,
+    qcPass: toQcPass,
+    qcReject: toQcReject,
+    pendingReport: toPendingReport,
     cancelled: () => {
       actor.send({ type: 'CANCEL', reason: 'replay', by: 'system' })
     },

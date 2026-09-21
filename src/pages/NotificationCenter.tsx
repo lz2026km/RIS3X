@@ -210,11 +210,13 @@ interface NotificationDetailModalProps {
 }
 
 function NotificationDetailModal({ notification, onClose, onMarkRead }: NotificationDetailModalProps) {
+  // [W1-107] Hook 必须早于提前 return, 否则 notification 由 null 变为有值时 Hook 数量不一致导致崩溃
+  const [showJumpModal, setShowJumpModal] = useState(false)
+
   if (!notification) return null
 
   const typeConfig = NOTIFICATION_TYPES.find(t => t.key === notification.type) || NOTIFICATION_TYPES[0]!
   const priorityConfig = PRIORITY_CONFIG[notification.priority]
-    const [showJumpModal, setShowJumpModal] = useState(false)
 
   const handleRelatedAction = () => {
     if (notification.status === 'unread') {

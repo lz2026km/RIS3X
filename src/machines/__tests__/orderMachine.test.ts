@@ -1,6 +1,8 @@
 /**
- * G005 放射RIS系统 v3.0.3.31 - 检查申请/排程状态机测试
+ * G005 放射RIS系统 v3.0.3.31 - 检查申请/预约状态机测试
  * Phase T1-W2: 状态机单元测试
+ * [v3.0.6.11-107] 对齐 backend APPOINTMENT_TRANSITIONS (11 态, 主链
+ *   SCHEDULED→CONFIRMED→REGISTERED→CHECKED_IN→IN_PROGRESS→COMPLETED)
  */
 
 import { describe, it, expect } from 'vitest';
@@ -19,7 +21,29 @@ const INPUT = {
 const startActor = () =>
   createActor(orderMachine, { input: INPUT }).start();
 
-describe('orderMachine - 检查申请 6 态状态机', () => {
+const toScheduled = () => {
+  const actor = startActor();
+  actor.send({ type: 'APPROVE', by: 'D002' });
+  actor.send({ type: 'SCHEDULE', by: 'D001' });
+  return actor;
+};
+const toConfirmed = () => {
+  const actor = toScheduled();
+  actor.send({ type: 'CONFIRM', by: 'D001' });
+  return actor;
+};
+const toRegistered = () => {
+  const actor = toConfirmed();
+  actor.send({ type: 'REGISTER', by: 'D001' });
+  return actor;
+};
+const toCheckedIn = () => {
+  const actor = toRegistered();
+  actor.send({ type: 'CHECK_IN', by: 'P001' });
+  return actor;
+};
+
+describe('orderMachine - 检查申请/预约 11 态状态机', () => {
   it('初始为 submitted', () => {
     const actor = startActor();
     expect(actor.getSnapshot().value).toBe('submitted');
@@ -52,16 +76,52 @@ describe('orderMachine - 检查申请 6 态状态机', () => {
   });
 
   it('scheduled → confirmed (CONFIRM)', () => {
-    const actor = startActor();
-    actor.send({ type: 'APPROVE', by: 'D002' });
-    actor.send({ type: 'SCHEDULE', by: 'D001' });
+    const actor = toScheduled();
     actor.send({ type: 'CONFIRM', by: 'D001' });
     expect(actor.getSnapshot().value).toBe('confirmed');
   });
 
-  it('approved → cancelled (CANCEL) 记录原因', () => {
-    const actor = startActor();
-    actor.send({ type: 'APPROVE', by: 'D002' });
+  it('confirmed → registered (REGISTER) 后端序列: 确认 → 登记', () => {
+    const actor = toConfirmed();
+    actor.send({ type: 'REGISTER', by: 'D001' });
+    expect(actor.getSnapshot().value).toBe('registered');
+  });
+
+  it('registered → checkedIn (CHECK_IN) 后端新增态', () => {
+    const actor = toRegistered();
+    actor.send({ type: 'CHECK_IN', by: 'P001' });
+    expect(actor.getSnapshot().value).toBe('checkedIn');
+  });
+
+  it('checkedIn → inProgress (START)', () => {
+    const actor = toCheckedIn();
+    actor.send({ type: 'START', by: 'T001' });
+    expect(actor.getSnapshot().value).toBe('inProgress');
+  });
+
+  it('inProgress → completed (COMPLETE)', () => {
+    const actor = toCheckedIn();
+    actor.send({ type: 'START', by: 'T001' });
+    actor.send({ type: 'COMPLETE', by: 'T001' });
+    expect(actor.getSnapshot().value).toBe('completed');
+  });
+
+  it('scheduled → checkedIn (CHECK_IN) 后端允许跳登记', () => {
+    const actor = toScheduled();
+    actor.send({ type: 'CHECK_IN', by: 'P001' });
+    expect(actor.getSnapshot().value).toBe('checkedIn');
+  });
+
+  it('scheduled → noShow (NO_SHOW)', () => {
+    const actor = toScheduled();
+    actor.send({ type: 'NO_SHOW', reason: '患者未到', by: 'D001' });
+    const ctx = actor.getSnapshot().context;
+    expect(actor.getSnapshot().value).toBe('noShow');
+    expect(ctx.rejectionReason).toBe('患者未到');
+  });
+
+  it('confirmed → cancelled (CANCEL) 记录原因', () => {
+    const actor = toConfirmed();
     actor.send({ type: 'CANCEL', reason: '患者改约', by: 'D001' });
     const ctx = actor.getSnapshot().context;
     expect(actor.getSnapshot().value).toBe('cancelled');
@@ -69,19 +129,8 @@ describe('orderMachine - 检查申请 6 态状态机', () => {
   });
 
   it('scheduled → cancelled (CANCEL)', () => {
-    const actor = startActor();
-    actor.send({ type: 'APPROVE', by: 'D002' });
-    actor.send({ type: 'SCHEDULE', by: 'D001' });
+    const actor = toScheduled();
     actor.send({ type: 'CANCEL', reason: '设备故障', by: 'D001' });
-    expect(actor.getSnapshot().value).toBe('cancelled');
-  });
-
-  it('confirmed → cancelled (CANCEL)', () => {
-    const actor = startActor();
-    actor.send({ type: 'APPROVE', by: 'D002' });
-    actor.send({ type: 'SCHEDULE', by: 'D001' });
-    actor.send({ type: 'CONFIRM', by: 'D001' });
-    actor.send({ type: 'CANCEL', reason: '患者退出', by: 'D001' });
     expect(actor.getSnapshot().value).toBe('cancelled');
   });
 
@@ -91,12 +140,17 @@ describe('orderMachine - 检查申请 6 态状态机', () => {
     expect(actor.getSnapshot().value).toBe('submitted');
   });
 
-  it('状态标签完整（6 态）', () => {
+  it('状态标签完整（11 态）', () => {
     expect(ORDER_STATE_LABEL.submitted).toBe('已提交');
     expect(ORDER_STATE_LABEL.approved).toBe('已审批');
     expect(ORDER_STATE_LABEL.scheduled).toBe('已排程');
     expect(ORDER_STATE_LABEL.confirmed).toBe('已确认');
+    expect(ORDER_STATE_LABEL.registered).toBe('已登记');
+    expect(ORDER_STATE_LABEL.checkedIn).toBe('已报到');
+    expect(ORDER_STATE_LABEL.inProgress).toBe('检查中');
+    expect(ORDER_STATE_LABEL.completed).toBe('已完成');
     expect(ORDER_STATE_LABEL.cancelled).toBe('已取消');
     expect(ORDER_STATE_LABEL.rejected).toBe('已退回');
+    expect(ORDER_STATE_LABEL.noShow).toBe('已失约');
   });
 });

@@ -285,6 +285,10 @@ export interface RadiologyExam {
   patientPhone?: string;
   patientBirthDate?: string;
   patientWeight?: string;
+  // [W6] 检查前核对 (Time-Out): 未核对时开始检查将被后端拒绝 (TIMEOUT_NOT_VERIFIED)
+  timeoutVerified?: boolean;
+  // [W6] 重拍审批状态: pending/approved/rejected (QC_REJECT → IN_PROGRESS 门禁)
+  retakeStatus?: 'pending' | 'approved' | 'rejected' | null;
   createdTime: string;
   updatedTime: string;
 }

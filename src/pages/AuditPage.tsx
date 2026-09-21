@@ -7,6 +7,7 @@ import { PageHeader } from '../components/common/PageHeader'
 import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined, WarningOutlined, LineChartOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
 import { Search } from 'lucide-react'
 import { t } from '../i18n/appI18n'
+import { ErrorBanner } from '../components/feedback'
 
 export default function AuditPage() {
   const [logs, setLogs] = useState<AuditLogDto[]>([])
@@ -14,6 +15,7 @@ export default function AuditPage() {
   // [G005 Wave1A P0] 按操作类型分布 (后端 GET /audit/aggregation → byAction)
   const [byAction, setByAction] = useState<Record<string, number> | null>(null)
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [params, setParams] = useState<{ action?: string; resource?: string; userId?: string }>({})
@@ -36,7 +38,12 @@ export default function AuditPage() {
       if (res.success && res.data) {
         setLogs(res.data.items)
         setTotal(res.data.total)
+        setLoadError(null)
+      } else {
+        setLoadError(res.error?.message ?? t('w9.states.error'))
       }
+    } catch {
+      setLoadError(t('w9.states.error'))
     } finally {
       setLoading(false)
     }
@@ -132,6 +139,7 @@ export default function AuditPage() {
     <div style={{ padding: 24 }}>
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
+{loadError && !loading && <ErrorBanner message={loadError} />}
 <Row justify="space-between" align="middle">
 <PageHeader variant="flex" icon={<AuditOutlined />} title={t('auditPage.title')} style={{ marginBottom: 0 }} />
             <Space>

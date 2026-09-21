@@ -7,6 +7,7 @@ import { canApprove } from '../services/auth/rbacService';
 import { useAuth } from '../hooks/useAuth';
 import { workflowApi } from '../services/api/workflowApi';
 import type { WorkflowDefinitionDto, WorkflowStepDto, ListPayload } from '../services/api/workflowApi';
+import { LoadingBanner, ErrorBanner } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 
 // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
@@ -99,7 +100,8 @@ export default function WorkflowDesignerPage() {
   const [stepList, setStepList] = useState<WorkflowStepDto[]>([]);
   const [definitions, setDefinitions] = useState<WorkflowDefinitionDto[]>([]);
   const [currentDefId, setCurrentDefId] = useState<string | null>(null);
-  const [_loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const [showVersion, setShowVersion] = useState(false);
@@ -117,13 +119,16 @@ export default function WorkflowDesignerPage() {
       const list = toList<WorkflowDefinitionDto>(res.data)
       if (res.success) {
         setDefinitions(list)
+        setLoadError(null)
         if (list.length > 0) {
           const def = list[0]!
           setCurrentDefId(def.id)
           void loadCanvas(def)
         }
+      } else {
+        setLoadError(t('w9.states.error'))
       }
-    } catch { /* ignore */ } finally {
+    } catch { setLoadError(t('w9.states.error')) } finally {
       setLoading(false)
     }
   }
@@ -249,6 +254,8 @@ export default function WorkflowDesignerPage() {
           }}>{t('workflowDesigner.deploy')}</Button>
           <Button size="small" type="primary" loading={saving} icon={<Save size={14} />} onClick={handleSave}>{t('workflowDesigner.save')}</Button>
         </header>
+        {loading && <LoadingBanner message={t('w9.states.loading')} />}
+        {loadError && !loading && <ErrorBanner message={loadError} />}
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <aside style={{ width: 200, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 16, overflowY: 'auto' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('workflowDesigner.stepTypes')}</div>

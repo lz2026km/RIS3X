@@ -244,6 +244,13 @@ export function toExamDto(r: ExamReportRecord): ExamDto {
     qcNotes: (r as unknown as { qcNotes?: string }).qcNotes,
     qualityRating: (r as unknown as { qualityRating?: string }).qualityRating,
     retakeCount: Number((r as unknown as { retakeCount?: number }).retakeCount ?? 0),
+    // [W6] Time-Out 门禁 / 重拍审批状态透出 (前端 start/retake 门禁依赖)
+    timeoutVerified: Boolean((r as unknown as { timeoutVerified?: boolean }).timeoutVerified),
+    retakeStatus: (r as unknown as { retakeStatus?: string | null }).retakeStatus ?? null,
+    retakeReason: (r as unknown as { retakeReason?: string | null }).retakeReason ?? null,
+    retakeApprover: (r as unknown as { retakeApprover?: string | null }).retakeApprover ?? null,
+    retakeApprovedAt: (r as unknown as { retakeApprovedAt?: string | null }).retakeApprovedAt ?? null,
+    retakeRequestNote: (r as unknown as { retakeRequestNote?: string | null }).retakeRequestNote ?? null,
     examItem: r.examItem,
     examItemName: r.examItem, // 别名
     examItemCode: r.examItemCode,
@@ -283,6 +290,25 @@ export interface ReportDto {
   hasCriticalValue: boolean;
 }
 
+// [W6] 报告小写 status → 后端大写 ReportState (toReportDto.state 透出 / 前端幂等门禁)
+const REPORT_STATUS_TO_STATE: Record<string, string> = {
+  draft: 'WRITING',
+  pending: 'PENDING_ASSIGNMENT',
+  submitted: 'SUBMITTED',
+  inreview: 'INITIAL_REVIEW',
+  in_review: 'INITIAL_REVIEW',
+  reviewed: 'REVIEWED',
+  cosigned: 'CO_SIGN_REVIEW',
+  signed: 'SIGNED',
+  published: 'PUBLISHED',
+  final: 'PUBLISHED',
+  amended: 'AMENDED',
+  rejected: 'REJECTED',
+  withdrawn: 'WITHDRAWN',
+  cancelled: 'WITHDRAWN',
+  archived: 'ARCHIVED',
+}
+
 export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): ReportDto {
   return {
     id: r.reportId,
@@ -293,6 +319,8 @@ export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): Report
     modality: r.modality,
     bodyPart: r.bodyPart,
     status: mapReportStatus(r.status),
+    // [W6] 透出后端大写 state (transition 落库或由 status 归一化) — 前端幂等流转门禁依赖
+    state: (r as unknown as { state?: string }).state ?? REPORT_STATUS_TO_STATE[String(r.status ?? '').toLowerCase()] ?? undefined,
     findings: r.findings,
     // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化透出 (POST/PATCH 存于 exam 行, 随更新回读)
     htmlContent: (r as any).htmlContent ?? '',

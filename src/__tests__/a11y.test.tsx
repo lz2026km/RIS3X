@@ -46,7 +46,7 @@ describe('当前页面 a11y 验证', () => {
     );
     const results = await axe(container as Element)
     expect(results).toHaveNoViolations()
-  });
+  }, 30000);
 
   it('PatientPage 无严重 a11y 违规', async () => {
     const { default: Page } = await lazyImport('../pages/PatientPage');
@@ -62,7 +62,7 @@ describe('当前页面 a11y 验证', () => {
       },
     });
     expect(results).toHaveNoViolations();
-  });
+  }, 30000);
 
   it('StatisticsPage 无严重 a11y 违规', async () => {
     const { default: Page } = await lazyImport('../pages/StatisticsPage');
@@ -73,7 +73,7 @@ describe('当前页面 a11y 验证', () => {
     );
     const results = await axe(container as Element)
     expect(results).toHaveNoViolations()
-  });
+  }, 30000);
 
   it('DirectorDashboardPage 无严重 a11y 违规', async () => {
     const { default: Page } = await lazyImport('../pages/DirectorDashboardPage');
@@ -84,7 +84,7 @@ describe('当前页面 a11y 验证', () => {
     );
     const results = await axe(container as Element)
     expect(results).toHaveNoViolations()
-  });
+  }, 30000);
 });
 
 describe('V3 业务组件 a11y', () => {

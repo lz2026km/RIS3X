@@ -1,8 +1,9 @@
 // Ortho Specialty Page — 骨科影像分析 · 关节 · 脊柱 · 骨密度
 // [v3.0.6.11-82] W3-C: 后端无骨科端点, 全页标注「演示数据」
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Bone, Activity, AlertTriangle, Search, TrendingUp, Stethoscope, BarChart3, FileText, Scale, Plus } from 'lucide-react';
 import { t } from '../i18n/appI18n';
+import { orthoSpecialtyApi, type OrthoStudy } from '../services/api/orthoSpecialtyApi';
 
 const JOINT_LABELS: Record<string, string> = { shoulder: 'ortho.jointShoulder', elbow: 'ortho.jointElbow', wrist: 'ortho.jointWrist', hip: 'ortho.jointHip', knee: 'ortho.jointKnee', ankle: 'ortho.jointAnkle', cervical: 'ortho.jointCervical', lumbar: 'ortho.jointLumbar' };
 const KL_COLORS: Record<string, string> = { '0': '#16a34a', 'I': '#16a34a', 'II': '#ca8a04', 'III': '#ea580c', 'IV': '#dc2626' };
@@ -21,7 +22,22 @@ const OrthoSpecialtyPage = () => {
   const [tab, setTab] = useState<'joints' | 'spine' | 'bmd' | 'stats'>('joints');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newStudy, setNewStudy] = useState({ name: '', joint: 'knee' as keyof typeof JOINT_LABELS, modality: 'XR', klGrade: 'II' });
-  const [studies, setStudies] = useState(mockStudies);
+  const [studies, setStudies] = useState<OrthoStudy[]>(mockStudies);
+  // [W10-B] 优先拉取后端 /ortho-specialty/studies, 接口不可用/返回空时保留内置演示数据
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await orthoSpecialtyApi.listStudies();
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setStudies(res.data);
+        }
+      } catch {
+        // 保留 mockStudies 回退
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
   const filtered = useMemo(() => {
     let list = [...studies];
     if (search) list = list.filter(r => r.name.includes(search) || r.id.includes(search));

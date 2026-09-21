@@ -3934,7 +3934,7 @@ export default function InsuranceAuditPage() {
     setCreating(false);
     if (res.success) {
       setToastType("success");
-      setToastMessage(`已创建审核记录: ${res.data.id}`);
+      setToastMessage(t('insuranceAudit.recordCreatedToast', { id: res.data.id }));
       setShowCreateModal(false);
       // 同步刷新待审核列表
       const listRes = await insuranceApi.list();
@@ -4503,7 +4503,7 @@ export default function InsuranceAuditPage() {
                         return (
                           <button
                             key={page}
-                            aria-label={`第 ${page} 页`}
+                            aria-label={t('insuranceAudit.pageAria', { page })}
                             aria-current={
                               pendingPage === page ? "page" : undefined
                             }

@@ -3,6 +3,7 @@ import type { OperationLog } from './types'
 import { ACCENT, GRAY, WHITE, PRIMARY, ACTION_COLORS, ACTION_ICONS, SOURCE_COLORS, SOURCE_ICONS, PAGE_SIZES } from './constants'
 import { formatDate, formatTime } from './utils'
 import { Eye, ChevronRight, User, Monitor } from 'lucide-react'
+import { EmptyState } from '../../components/common/EmptyState'
 
 // ============================================================
 // TimelineView
@@ -211,6 +212,10 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
         <div>IP地址</div>
         <div style={{ textAlign: 'center' }}>操作</div>
       </div>
+
+      {logs.length === 0 && (
+        <EmptyState type="noresult" description="无匹配日志" style={{ padding: 40 }} testId="op-log-empty" />
+      )}
 
       {logs.map(log => (
         <div

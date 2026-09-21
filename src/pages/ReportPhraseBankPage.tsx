@@ -21,6 +21,7 @@ import { reportApi } from '../services/api/reportApi';
 import { useSearchParams } from 'react-router-dom';
 // [v3.0.6.11-98 Wave1B P0-2] 模板变量自动填充: 预览优先用真实报告上下文, 无上下文时显示原占位符 + 说明
 import { resolveTemplateVariables, describeTemplateVariables } from '../utils/templateVariables';
+import { LoadingBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 
 const CATEGORY_LABEL_TO_KEY: Record<string, PhraseCategory> = {
@@ -326,6 +327,7 @@ export default function ReportPhraseBankPage() {
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -399,6 +401,7 @@ export default function ReportPhraseBankPage() {
             </div>
           </div>
           <div style={{ maxHeight: 600, overflowY: 'auto' }}>
+            {filtered.length === 0 && <AppEmpty variant="no-results" minHeight={160} />}
             {filtered.map(p => {
               const cConf = PHRASE_CATEGORIES.find(c => c.key === p.category)!;
               const isSelected = selectedPhraseId === p.id;

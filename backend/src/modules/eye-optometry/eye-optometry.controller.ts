@@ -37,7 +37,7 @@ const LooseBodySchema = z.object({}).passthrough()
 
 @ApiTags('eye-optometry')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('eye/optometry')
 export class EyeOptometryController {
   constructor(private readonly svc: EyeOptometryService) {}

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
 import { backupApi, type BackupDto } from '../services/api/systemApi'
-import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Tooltip } from 'antd'
-import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
+import { Card, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Tooltip } from 'antd'
+import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
 import { usePagination } from '../hooks/usePagination'
 import { PageHeader } from '../components/common/PageHeader'
+import { DataTable } from '../components/common/DataTable'
+import { ActionButton } from '../components/common/ActionButton'
+import { ErrorBanner } from '../components/feedback'
 import { t } from '../i18n/appI18n'
 
 const BACKUP_TYPE_LABEL: Record<string, string> = { FULL: t('bk.type.full'), INCREMENTAL: t('bk.type.incremental') }
@@ -12,6 +15,7 @@ const BACKUP_STATUS_LABEL: Record<string, string> = { COMPLETED: t('bk.status.co
 export default function BackupPage() {
   const [list, setList] = useState<BackupDto[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [autoBackup, _setAutoBackup] = useState(true)
   const [schedule, _setSchedule] = useState('0 2 * * *')
@@ -20,9 +24,19 @@ export default function BackupPage() {
 
   const fetchList = async () => {
     setLoading(true)
-    const res = await backupApi.list()
-    if (res.success) setList(res.data)
-    setLoading(false)
+    try {
+      const res = await backupApi.list()
+      if (res.success) {
+        setList(res.data)
+        setLoadError(null)
+      } else {
+        setLoadError(t('w9.states.error'))
+      }
+    } catch {
+      setLoadError(t('w9.states.error'))
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { fetchList() }, [])
@@ -89,9 +103,11 @@ export default function BackupPage() {
                 ]}
               />
               <Button type="primary" icon={<CloudUploadOutlined />} loading={creating} disabled={!backupType} onClick={() => { if (backupType) handleCreate(backupType); }}>{t('bk.startBackup')}</Button>
-              <Button icon={<ReloadOutlined />} onClick={fetchList}>{t('bk.refresh')}</Button>
+              <ActionButton action="refresh" onClick={fetchList}>{t('bk.refresh')}</ActionButton>
             </Space>
           </Row>
+
+          {loadError && !loading && <ErrorBanner message={loadError} />}
 
           <Row gutter={16}>
             <Col span={6}>
@@ -121,7 +137,7 @@ export default function BackupPage() {
               key: 'list',
               label: <span><ClockCircleOutlined /> {t('bk.tabRecords')}</span>,
               children: (
-                <Table dataSource={pageData} columns={columns} rowKey="id" loading={loading} pagination={pagination} size="small" scroll={{ x: 'max-content' }}/>
+                <DataTable dataSource={pageData} columns={columns} rowKey="id" loading={loading} pagination={pagination} emptyText={t('w9.states.empty')} scroll={{ x: 'max-content' }} />
               ),
             },
             {

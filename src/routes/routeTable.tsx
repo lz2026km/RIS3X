@@ -14,6 +14,8 @@ const ExamPage = lazy(() => import("../pages/ExamPage"));
 // [v3.0.6.11-96 Wave 3A P1] 检查执行详情独立路由 (仅跳转可达, 侧边栏不加菜单)
 const ExamDetailPage = lazy(() => import("../pages/ExamDetailPage"));
 const ReportPage = lazy(() => import("../pages/ReportPage"));
+// [W6] 已归档报告列表 (只读, GET /reports?state=ARCHIVED)
+const ArchivedReportsPage = lazy(() => import("../pages/reports/ArchivedReportsPage"));
 const OfflineReportsPage = lazy(() => import("../pages/OfflineReportsPage")); // [v3.0.6.11-99 Wave7B] 离线报告包
 const ReportWritePage = lazy(() => import("../pages/ReportWritePage"));
 const WorklistPage = lazy(() => import("../pages/WorklistPage"));
@@ -797,7 +799,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/pacs/ffa": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs/compare": ["医生", "主任", "管理员"],
   "/eye/pacs/montage": ["医生", "技师", "管理员"],
-  "/eye/ris": ["医生", "技师", "护士", "管理员"],
+  "/eye/ris": ["医生", "技师", "主任", "管理员"],
   "/eye/emr": ["医生", "主任", "管理员"],
   "/eye/ai": ["医生", "主任", "管理员"],
   "/dental/chart": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-53]
@@ -830,10 +832,10 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/ceph": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-90] Phase 2: 头影测量
   "/dental/aligner": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-92] Phase 2: 隐形矫治
   "/dental/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-93] Phase 3: 体渲染
-  "/dental/patient-view": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-94] Phase 4: 360° 患者视图
-  "/dental/billing": ["医生", "主任", "管理员", "护士"], // [v3.0.6.8-95] Phase 4: 收费/划价/医保
+  "/dental/patient-view": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-94] Phase 4: 360° 患者视图
+  "/dental/billing": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-95] Phase 4: 收费/划价/医保
   "/export/approval": ["医生", "主任", "管理员"], // [W1-5] 导出审批中心
-  "/dental/schedule": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-96] Phase 4: 排班+PSR
+  "/dental/schedule": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-96] Phase 4: 排班+PSR
   "/dental/photo": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-98] Phase 5: 口内照片
   "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
@@ -887,9 +889,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/analytics/tat-dashboard": ["主任", "管理员", "医生"],
   "/admin/config": ["管理员"],
   "/ihe/pam": ["主任", "管理员", "技师"],
-  "/ihe/visit": ["医生", "主任", "技师", "管理员"],
+  "/ihe/visit": ["主任", "技师", "管理员"],
   "/ihe/visit-detail/:patientId/:visitNumber": [
-    "医生",
     "主任",
     "技师",
     "管理员",
@@ -1038,6 +1039,8 @@ export const routes: RouteObject[] = [
   // [v3.0.6.11-96 Wave 3A P1] 检查执行详情独立页 (行"详情"按钮 /exam/:id 跳转可达)
   wrapped("/exam/:id", React.createElement(ExamDetailPage)),
   wrapped("/reports", React.createElement(ReportPage)),
+  // [W6] 已归档报告列表 (只读)
+  wrapped("/reports/archived", React.createElement(ArchivedReportsPage)),
   // [v3.0.6.11-99 Wave7B] 离线报告包 (IndexedDB 快照浏览/管理; 断网可用)
   wrapped("/reports/offline", React.createElement(OfflineReportsPage)),
   wrapped("/write-report", React.createElement(ReportWritePage)),

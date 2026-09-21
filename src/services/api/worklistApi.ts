@@ -1,20 +1,35 @@
 import { api, invalidateApiCacheByPrefix } from './client'
 
 export interface WorklistItemDto {
-  id: string; accessionNo: string; patientName: string; patientId: string; patientSex?: string; patientAge?: string;
-  modality: string; examCode: string; examName: string; bodyPart?: string; status: string; priority?: string;
-  referringPhysician?: string; scheduledAt: string; createdAt: string; isUrgent?: boolean
-  // [v3.0.6.11-95 Wave1B] 后端 worklist 返回关联患者/设备/时间字段 (技师工作站数据质量)
+  id: string
+  // 后端 Exam 原生字段 (GET /worklist, GET /worklist/:id)
+  patientId: string
+  modality: string
+  accessionNumber?: string
+  bodyPart?: string
   state?: string
+  priority?: string
+  scheduledAt?: string
+  createdAt?: string
   startedAt?: string | null
   completedAt?: string | null
-  accessionNumber?: string
+  deviceId?: string | null
   gender?: string
   age?: number | null
   deviceName?: string
   deviceModel?: string
   patient?: { id: string; name: string; gender?: string; birthDate?: string | null } | null
   device?: { id: string; name: string; location?: string | null; modality?: string } | null
+  // 兼容 mock/派生字段 (旧 handler 形状; 后端不返回, 读取时以 state/patient 为准)
+  accessionNo?: string
+  patientName?: string
+  patientSex?: string
+  patientAge?: string
+  examCode?: string
+  examName?: string
+  status?: string
+  referringPhysician?: string
+  isUrgent?: boolean
   // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师 (GET /worklist/:id)
   primaryTechnicianId?: string | null
   backupTechnicianId?: string | null

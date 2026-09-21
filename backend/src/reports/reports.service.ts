@@ -412,7 +412,7 @@ export class ReportsService {
     return task
   }
 
-  async transition(id: string, to: ReportState, actorId: string, reason?: string) {
+  async transition(id: string, to: ReportState, actorId: string, reason?: string, qualityScore?: number) {
     // [v3.0.6.11-100 Wave2C P3] include patient → 随访触发取患者姓名
     const report = await this.prisma.report.findUnique({
       where: { id },
@@ -449,6 +449,8 @@ export class ReportsService {
         break
       case 'PUBLISHED':
         data.publishedAt = now
+        // [G005 contract] 发布时持久化质控评分 (前端 reportApi.publish 随 transition body 传入)
+        if (qualityScore !== undefined) data.qualityScore = qualityScore
         break
     }
     return this.prisma.$transaction(async (tx) => {

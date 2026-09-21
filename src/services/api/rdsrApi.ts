@@ -148,6 +148,24 @@ export interface DrlUpsertPayload {
   ageGroup?: 'adult' | 'child'
 }
 
+// [W10-B] 儿童剂量记录 (GET /rdsr/pediatric); 后端暂无该端点, 由 MSW 提供
+export interface PediatricDoseRecordDto {
+  id: string
+  patientId: string
+  patientName: string
+  age: number
+  ageGroup: string
+  gender: string
+  examDate: string
+  modality: string
+  examItem: string
+  doseValue: number
+  doseUnit: string
+  doseReductionFactor: number
+  alertLevel: 'normal' | 'warning' | 'critical'
+  device: string
+}
+
 const withQuery = (
   path: string,
   params?: Record<string, string | number | undefined>,
@@ -183,6 +201,9 @@ export const rdsrApi = {
     api.get<RdsrStats>(withQuery("/rdsr/stats", { dateFrom, dateTo, modality })),
 
   getToday: () => api.get<TodayDoseStats>("/rdsr/today"),
+
+  // [W10-B] 儿童剂量记录 (页面 PediatricDoseManagement)
+  getPediatric: () => api.get<PediatricDoseRecordDto[]>("/rdsr/pediatric"),
 
   searchPatients: (search?: string) =>
     api.get<PatientDoseSummary[]>(withQuery("/rdsr/patients", { search })),

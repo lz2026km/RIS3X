@@ -3,10 +3,12 @@ import dayjs, { type Dayjs } from 'dayjs'
 import { Card, Row, Col, Statistic, DatePicker, Spin, Space } from 'antd'
 import { Cpu, TrendingUp } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { aiDiagnosisApi } from '../../services/api/aiDiagnosisApi'
 
 const { RangePicker } = DatePicker
 
-// [W1-B] 演示页: 准确率仪表盘使用本地演示数据, 不依赖后端 (后端 /ai/score 语义不符)
+// [W10-B] AI 诊断准确率仪表盘: 优先调用 /ai-diagnosis/accuracy + /ai-diagnosis/trend,
+//         接口不可用或返回空时回退本地确定性演示数据。
 interface AccuracyData {
   sensitivity: number
   specificity: number
@@ -30,6 +32,18 @@ interface TrendPoint {
 
 function rand(min: number, max: number): number {
   return Math.round((Math.random() * (max - min) + min) * 100) / 100
+}
+
+function fallbackAccuracy(): AccuracyData {
+  return { sensitivity: rand(82, 97), specificity: rand(80, 95), ppv: rand(78, 94), npv: rand(82, 96), accuracy: rand(84, 96), totalCases: Math.round(Math.random() * 2000 + 500) }
+}
+
+function fallbackTrend(start: string): TrendPoint[] {
+  return Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(start)
+    d.setDate(d.getDate() + i)
+    return { date: d.toISOString().slice(0, 10), sensitivity: rand(78, 98), specificity: rand(76, 96), accuracy: rand(80, 97), totalCases: Math.round(Math.random() * 100 + 20) }
+  })
 }
 
 function AccuracyGauge({ label, value, color }: { label: string; value: number; color: string }) {
@@ -58,14 +72,33 @@ export default function BenchmarkAiDiagnosisPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      // [W1-B] 后端 /ai/score 仅接受 reportText/findings/conclusion (评分语义与准确率仪表盘不符),
-      //        本页为演示页, 使用本地演示数据, 不发网络请求 (避免 400/404)。
-      setAccuracy({ sensitivity: rand(82, 97), specificity: rand(80, 95), ppv: rand(78, 94), npv: rand(82, 96), accuracy: rand(84, 96), totalCases: Math.round(Math.random() * 2000 + 500) })
-      setTrend(Array.from({ length: 30 }, (_, i) => {
-        const d = new Date(dateRange[0])
-        d.setDate(d.getDate() + i)
-        return { date: d.toISOString().slice(0, 10), sensitivity: rand(78, 98), specificity: rand(76, 96), accuracy: rand(80, 97), totalCases: Math.round(Math.random() * 100 + 20) }
-      }))
+      const params = { startDate: dateRange[0], endDate: dateRange[1] }
+      const [accRes, trendRes] = await Promise.all([
+        aiDiagnosisApi.getAccuracy(params),
+        aiDiagnosisApi.getTrend(params),
+      ])
+      const acc = accRes.success && accRes.data ? accRes.data : null
+      if (acc && typeof acc.accuracy === 'number') {
+        setAccuracy({
+          sensitivity: acc.sensitivity,
+          specificity: acc.specificity,
+          ppv: acc.ppv,
+          npv: acc.npv,
+          accuracy: acc.accuracy,
+          totalCases: acc.totalCases,
+          aiPositive: acc.aiPositive,
+          aiNegative: acc.aiNegative,
+          physicianPositive: acc.physicianPositive,
+          physicianNegative: acc.physicianNegative,
+        })
+      } else {
+        setAccuracy(fallbackAccuracy())
+      }
+      const trendList = trendRes.success && Array.isArray(trendRes.data) ? trendRes.data : []
+      setTrend(trendList.length > 0 ? trendList : fallbackTrend(dateRange[0]))
+    } catch {
+      setAccuracy(fallbackAccuracy())
+      setTrend(fallbackTrend(dateRange[0]))
     } finally {
       setLoading(false)
     }

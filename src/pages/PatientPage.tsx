@@ -12,7 +12,7 @@ import { StatCard as CommonStatCard } from "../components/common/StatCard";
 import { DashboardCard } from "../components/dashboard/DashboardCard";
 import { TrendChart } from "../components/dashboard/TrendChart";
 import { AppText } from "../components/common/AppText";
-import { ErrorBanner } from "../components/feedback";
+import { ErrorBanner, LoadingBanner } from "../components/feedback";
 import { t } from '../i18n/appI18n';
 import { Search, User, Phone, AlertCircle, X, Eye, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
@@ -2033,6 +2033,7 @@ export default function PatientPage() {
           {t('patientPage.accessDenied')}
         </div>
       )}
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <div
         style={{

@@ -100,13 +100,14 @@ export const dentalApi = {
   // 影像对比 (1)
   compareStudies: (idA: string, idB: string) => api.get<any>(`${DENTAL_API}/compare/${idA}/${idB}`),
 
-  // 龋齿 on-image (1)
+  // 龋齿 on-image (1) — 后端真实端点 /dental/ai/caries-detection (无 /ai/caries-onimage)
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   detectCariesOnImage: (data: { imageBase64?: string; toothArea?: string }) => api.post<{
-    detections: Array<{ id: string; toothNo: string; surface: string; bbox: number[]; confidence: number; severity: string }>;
-    modelVersion: string;
+    detections: Array<{ toothNo: string; surface: string; bbox: number[]; confidence: number; severity: string }>;
+    analysisTimeMs?: number;
+    model: string;
     method: string;
-  }>(`${DENTAL_API}/ai/caries-onimage`, data),
+  }>(`${DENTAL_API}/ai/caries-detection`, data),
 
   // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM (15 方法)
   getCadMaterials: () => api.get<any[]>(`${DENTAL_API}/cad/materials`),

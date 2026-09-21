@@ -126,6 +126,100 @@ export interface RuleViolationRecord {
   evaluatedAt: string
 }
 
+// ── [v3.0.6.11-105 Wave 1C] 国标报告书写规范 (RQI-RWS-03) ──
+export type RwsErrorType =
+  | 'signature'
+  | 'conclusion_mismatch'
+  | 'organ_absent'
+  | 'position_error'
+  | 'unit_data_error'
+  | 'template_residue'
+  | 'patient_mismatch'
+
+export interface RwsReportInput {
+  reportId?: string
+  examType?: string
+  bodyPart?: string
+  patientName?: string
+  patientId?: string
+  orderPatientName?: string
+  orderPatientId?: string
+  clinicalHistory?: string
+  findings?: string
+  diagnosis?: string
+  impression?: string
+  conclusion?: string
+  recommendations?: string
+  signedBy?: string
+  radiologistSignature?: string
+  hasRadiologistSignature?: boolean
+  reportedBodyPart?: string
+  reportedSide?: string
+  examSide?: string
+}
+
+export interface RwsRuleMeta {
+  code: string
+  name: string
+  nameEn: string
+  condition: string
+  conditionLabel: string
+  conditionLabelEn: string
+  type: RwsErrorType
+  severity: RuleSeverity
+  description: string
+  descriptionEn: string
+  suggestion: string
+}
+
+export interface RwsRuleList {
+  source: 'national'
+  generatedAt: string
+  standard: string
+  target: number
+  rateFormula: string
+  ruleCount: number
+  data: RwsRuleMeta[]
+}
+
+export interface RwsFailure {
+  code: string
+  name: string
+  nameEn: string
+  severity: RuleSeverity
+  type: RwsErrorType
+  condition: string
+  suggestion: string
+  evidence: string
+}
+
+export interface RwsEvaluation {
+  source: 'national'
+  generatedAt: string
+  reportId?: string
+  compliant: boolean
+  failures: RwsFailure[]
+  numerator: number
+  denominator: number
+  rate: number
+  standard: string
+  target: number
+  rateExplanation: string
+}
+
+export interface RwsRateResult {
+  source: 'national'
+  generatedAt: string
+  standard: string
+  target: number
+  numerator: number
+  denominator: number
+  totalReports: number
+  rate: number
+  rateExplanation: string
+  results: Array<{ reportId?: string; compliant: boolean; failureCodes: string[] }>
+}
+
 export const RULE_TYPE_LABELS: Record<RuleType, string> = {
   missing_field: '必填字段缺失',
   terminology: '术语规范',
@@ -201,4 +295,14 @@ export const reportRulesApi = {
     api.get<RuleEnvelope<RuleViolationRecord[]>>(`/report-rules/history${reportId ? `?reportId=${encodeURIComponent(reportId)}` : ''}`),
 
   getStats: () => api.get<RuleEnvelope<RuleStats>>('/report-rules/stats'),
+
+  // [v3.0.6.11-105 Wave 1C] 国标报告书写规范 (RQI-RWS-03)
+  getNationalRwsRules: () =>
+    api.get<RwsRuleList>('/report-rules/national-rws'),
+
+  evaluateRws: (input: RwsReportInput) =>
+    api.post<RwsEvaluation>('/report-rules/evaluate-rws', input),
+
+  computeRwsRate: (reports: RwsReportInput[]) =>
+    api.post<RwsRateResult>('/report-rules/rws-rate', { reports }),
 }

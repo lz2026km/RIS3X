@@ -17,6 +17,38 @@ const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) 
 
 const countByStatus = (items: any[], statuses: string[]) => items.filter((i) => statuses.includes(i.status)).length;
 
+// [W6] 与后端 CRITICAL_TRANSITIONS 对齐的合法流转表 (PATCH /criticals/:id 门禁)
+const CRITICAL_TRANSITIONS: Record<string, string[]> = {
+  FOUND: ['NOTIFIED', 'ESCALATED', 'CANCELLED'],
+  NOTIFIED: ['VOICE_CALLED', 'ACKNOWLEDGED', 'ESCALATED', 'CANCELLED'],
+  VOICE_CALLED: ['ACKNOWLEDGED', 'ESCALATED', 'CANCELLED'],
+  ACKNOWLEDGED: ['RECEIPTED', 'RESOLVING', 'ESCALATED'],
+  RECEIPTED: ['RESOLVING', 'ESCALATED'],
+  RESOLVING: ['RESOLVED', 'ESCALATED'],
+  RESOLVED: ['CLOSED_LOOP', 'CANCELLED'],
+  CLOSED_LOOP: [],
+  ESCALATED: ['ACKNOWLEDGED', 'CANCELLED'],
+  CANCELLED: [],
+};
+
+const CRITICAL_STATE_TO_STATUS: Record<string, string> = {
+  FOUND: 'pending', NOTIFIED: 'notified', VOICE_CALLED: 'voice_called', ACKNOWLEDGED: 'acknowledged',
+  RECEIPTED: 'receipted', RESOLVING: 'resolving', RESOLVED: 'resolved', CLOSED_LOOP: 'closed_loop',
+  ESCALATED: 'escalated', CANCELLED: 'cancelled',
+};
+
+const CRITICAL_STATUS_TO_STATE: Record<string, string> = Object.fromEntries(
+  Object.entries(CRITICAL_STATE_TO_STATUS).map(([state, status]) => [status, state]),
+);
+
+/** 归一化危急值记录的后端大写状态 */
+function criticalStateOf(record: any): string {
+  const raw = String(record?.state ?? '').toUpperCase();
+  if (CRITICAL_TRANSITIONS[raw]) return raw;
+  const byStatus = CRITICAL_STATUS_TO_STATE[String(record?.status ?? '').toLowerCase()];
+  return byStatus ?? 'FOUND';
+}
+
 const VALUE5STEP_FALLBACK = [
   {
     id: 'CV5-001', patientName: '张明远', finding: '颅内出血', severity: '危急', currentStep: 1,
@@ -278,6 +310,11 @@ export const criticalExtHandlers = [
   http.post(`${API}/:criticalId/voice-call`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
+    const id = String(params.criticalId);
+    try {
+      const existing = list<any>('criticalEvents').find((i) => i.id === id);
+      if (existing) update('criticalEvents', id, { ...existing, state: 'VOICE_CALLED', status: 'voice_called', voiceCalledBy: body.calledBy, voiceCalledAt: new Date().toISOString() });
+    } catch { /* 集合未就绪忽略 */ }
     return HttpResponse.json({ success: true, data: { id: params.criticalId, voiceCalledBy: body.calledBy, voiceCalledAt: new Date().toISOString() }, meta: {} });
   }),
 
@@ -285,6 +322,11 @@ export const criticalExtHandlers = [
   http.post(`${API}/:criticalId/clinical-receipt`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
+    const id = String(params.criticalId);
+    try {
+      const existing = list<any>('criticalEvents').find((i) => i.id === id);
+      if (existing) update('criticalEvents', id, { ...existing, state: 'RECEIPTED', status: 'receipted', confirmedBy: body.confirmedBy, confirmedAt: body.confirmedAt || new Date().toISOString() });
+    } catch { /* 集合未就绪忽略 */ }
     return HttpResponse.json({ success: true, data: { id: params.criticalId, confirmedBy: body.confirmedBy, confirmedAt: body.confirmedAt || new Date().toISOString() }, meta: {} });
   }),
 
@@ -328,10 +370,11 @@ export const criticalExtHandlers = [
     let items: any[] = [];
     try { items = list<any>('criticalEvents'); } catch {}
     if (!items.length) {
+      // [v3.0.6.11-107] 补后端 CriticalState 大写 state (前端 normalizeCritical 以后端 state 为准)
       items = [
-        { id: 'CV001', patientName: '张明远', finding: '颅内出血', severity: 'critical', status: 'pending', modality: 'CT', deviceName: 'CT-01', triggeredAt: new Date().toISOString() },
-        { id: 'CV002', patientName: '李静', finding: '主动脉夹层', severity: 'urgent', status: 'notified', modality: 'CT', deviceName: 'CT-02', triggeredAt: new Date().toISOString(), notifiedAt: new Date().toISOString() },
-        { id: 'CV003', patientName: '王强', finding: '急性心肌梗死', severity: 'high', status: 'acknowledged', modality: 'MR', deviceName: 'MR-01', triggeredAt: new Date().toISOString(), notifiedAt: new Date().toISOString() },
+        { id: 'CV001', patientName: '张明远', finding: '颅内出血', severity: 'critical', state: 'FOUND', status: 'pending', modality: 'CT', deviceName: 'CT-01', triggeredAt: new Date().toISOString() },
+        { id: 'CV002', patientName: '李静', finding: '主动脉夹层', severity: 'urgent', state: 'NOTIFIED', status: 'notified', modality: 'CT', deviceName: 'CT-02', triggeredAt: new Date().toISOString(), notifiedAt: new Date().toISOString() },
+        { id: 'CV003', patientName: '王强', finding: '急性心肌梗死', severity: 'high', state: 'ACKNOWLEDGED', status: 'acknowledged', modality: 'MR', deviceName: 'MR-01', triggeredAt: new Date().toISOString(), notifiedAt: new Date().toISOString() },
       ];
     }
     const result = applyQuery(items, opts);
@@ -410,9 +453,31 @@ export const criticalExtHandlers = [
     const body = (await request.json()) as any;
     let items: any[] = [];
     try { items = list<any>('criticalEvents'); } catch {}
-    const existing = items.find((i) => i.id === params.id) ?? { id: params.id };
-    const updated = { ...existing, ...body };
-    try { update('criticalEvents', params.id as string, updated); } catch {}
+    const found = items.find((i) => i.id === params.id);
+    const existing = found ?? { id: params.id };
+    // [W6] 合法流转门禁: 非法直达 (ACKNOWLEDGED 前未 NOTIFIED / RESOLVED 前未 RESOLVING) 返回 400
+    const target = String(body.state ?? '').toUpperCase();
+    if (body.state && CRITICAL_TRANSITIONS[target]) {
+      const from = criticalStateOf(existing);
+      if (from !== target && !(CRITICAL_TRANSITIONS[from] ?? []).includes(target)) {
+        return HttpResponse.json({
+          success: false,
+          error: { code: 'INVALID_TRANSITION', message: `INVALID_TRANSITION: CriticalValue ${params.id} ${from} → ${target} 不允许` },
+        }, { status: 400 });
+      }
+    }
+    const patch: Record<string, unknown> = { ...body };
+    if (body.state) {
+      patch.state = target;
+      patch.status = CRITICAL_STATE_TO_STATUS[target] ?? existing.status;
+      if (target === 'CLOSED_LOOP') patch.closedAt = existing.closedAt ?? new Date().toISOString();
+    }
+    const updated = { ...existing, ...patch };
+    // [W6] 记录不存在时一并创建, 否则中间态 (NOTIFIED 等) 不落库导致后续步骤从 FOUND 重新判定
+    try {
+      if (found) update('criticalEvents', params.id as string, updated);
+      else create('criticalEvents', updated);
+    } catch { /* 集合未就绪 */ }
     return HttpResponse.json({ success: true, data: updated });
   }),
   http.delete(`${API}/:id`, async ({ params }) => {

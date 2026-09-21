@@ -67,7 +67,7 @@ describe('useBreakpoint - 响应式断点 hook', () => {
     expect(result.current).toBe('lg');
   });
 
-  it('resize 触发更新', () => {
+  it('resize 触发更新', async () => {
     const { result } = renderHook(() => useBreakpoint());
     expect(result.current).toBe('lg');
 
@@ -77,9 +77,10 @@ describe('useBreakpoint - 响应式断点 hook', () => {
     });
 
     // 防抖 100ms
-    setTimeout(() => {
-      expect(result.current).toBe('xs');
-    }, 150);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    });
+    expect(result.current).toBe('xs');
   });
 });
 

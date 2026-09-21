@@ -874,12 +874,13 @@ export default function TermLibraryPage() {
     </div>
   )
 
-  const renderCategoryTab = () => {
-    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(categoryTree.map(n => n.id)))
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-    const [showCategoryModal, setShowCategoryModal] = useState(false)
-    const [categoryForm, setCategoryForm] = useState<{ id?: string; name: string; parentId: string; color: string }>({ name: '', parentId: '', color: '#2563eb' })
+  // [W1-107] renderCategoryTab 内 Hook 提升至组件作用域, 避免规则违规 (Hook 顺序不稳定)
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(categoryTree.map(n => n.id)))
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [categoryForm, setCategoryForm] = useState<{ id?: string; name: string; parentId: string; color: string }>({ name: '', parentId: '', color: '#2563eb' })
 
+  const renderCategoryTab = () => {
     const CATEGORY_COLORS = ['#2563eb', '#7c3aed', '#0891b2', '#16a34a', '#ca8a04', '#dc2626', '#db2777']
 
     const addCategoryNode = (nodes: CategoryTreeNode[], parentId: string, node: CategoryTreeNode): CategoryTreeNode[] => {

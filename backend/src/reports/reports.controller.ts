@@ -212,12 +212,12 @@ export class ReportsController {
   @Post(':id/transition')
   transition(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(z.object({ to: ReportStateEnum, actorId: z.string().min(1).optional(), reason: z.string().optional() })))
-    body: { to: z.infer<typeof ReportStateEnum>; actorId?: string; reason?: string },
+    @Body(new ZodValidationPipe(z.object({ to: ReportStateEnum, actorId: z.string().min(1).optional(), reason: z.string().optional(), qualityScore: z.number().int().min(0).max(100).optional() })))
+    body: { to: z.infer<typeof ReportStateEnum>; actorId?: string; reason?: string; qualityScore?: number },
     @Req() req: Request,
   ) {
     const actorId = (req.user as { id?: string } | undefined)?.id ?? body.actorId ?? 'unknown'
-    return this.reports.transition(id, body.to as any, actorId, body.reason)
+    return this.reports.transition(id, body.to as any, actorId, body.reason, body.qualityScore)
   }
 
   @Post(':id/export')

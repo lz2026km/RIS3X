@@ -45,7 +45,7 @@ const CrossReferenceSchema = z.object({ localId: z.string().min(1), remoteDomain
 
 @ApiTags('ihe')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
+@Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN')
 @Controller('ihe')
 export class IheController {
   constructor(private readonly service: IheService) {}

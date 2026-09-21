@@ -34,7 +34,7 @@ type UpdateInventoryItemDto = z.infer<typeof UpdateInventoryItemSchema>
 
 @ApiTags('dental')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('dental')
 export class DentalController {
   constructor(private readonly svc: DentalService) {}

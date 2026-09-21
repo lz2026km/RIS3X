@@ -1,21 +1,42 @@
+import { useEffect, useState } from "react";
 import { Baby, Info, User, AlertTriangle } from "lucide-react";
 import { pediatricDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
+import { rdsrApi } from "../../services/api/rdsrApi";
 import type { PediatricDoseRecord } from "./types";
 
-// [W3-C] 儿科剂量: rdsrApi 无儿科专项端点, 标注「演示数据」
+// [W10-B] 儿科剂量: 优先取 /rdsr/pediatric, 端点不可用/返回空时回退内置演示数据。
 export default function PediatricDoseManagement() {
-  const totalPediatricExams = pediatricDoseRecords.length;
+  const [records, setRecords] = useState<PediatricDoseRecord[]>(pediatricDoseRecords);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await rdsrApi.getPediatric();
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setRecords(res.data);
+        }
+      } catch {
+        // 保留内置演示数据回退
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const totalPediatricExams = records.length;
   const ageGroups = {
-    "0-5岁": pediatricDoseRecords.filter((r: PediatricDoseRecord) => r.ageGroup === "0-5岁").length,
-    "5-10岁": pediatricDoseRecords.filter((r: PediatricDoseRecord) => r.ageGroup === "5-10岁").length,
-    "10-15岁": pediatricDoseRecords.filter((r: PediatricDoseRecord) => r.ageGroup === "10-15岁").length,
+    "0-5岁": records.filter((r: PediatricDoseRecord) => r.ageGroup === "0-5岁").length,
+    "5-10岁": records.filter((r: PediatricDoseRecord) => r.ageGroup === "5-10岁").length,
+    "10-15岁": records.filter((r: PediatricDoseRecord) => r.ageGroup === "10-15岁").length,
   };
   const avgReductionFactor =
-    pediatricDoseRecords.reduce(
-      (s: number, r: PediatricDoseRecord) => s + r.doseReductionFactor,
-      0,
-    ) / totalPediatricExams;
+    totalPediatricExams === 0
+      ? 0
+      : records.reduce(
+          (s: number, r: PediatricDoseRecord) => s + r.doseReductionFactor,
+          0,
+        ) / totalPediatricExams;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -54,7 +75,7 @@ export default function PediatricDoseManagement() {
 
       <ReductionFactorCards />
 
-      <RecordsTable records={pediatricDoseRecords} />
+      <RecordsTable records={records} />
 
       <div
         style={{

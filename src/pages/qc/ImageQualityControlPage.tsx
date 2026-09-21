@@ -83,9 +83,10 @@ export default function ImageQualityControlPage() {
     if (qcBusy) return
     setQcBusy(key)
     try {
-      const res = await worklistApi.updateState(r.studyId, 'IN_PROGRESS', '重拍登记', { retakeReason })
+      // [W6] 重拍登记门禁: QC_REJECT 后提交重拍申请, 审批通过前不得流转 IN_PROGRESS
+      const res = await worklistApi.requestRetake(r.studyId, { reason: retakeReason, note: '影像质控重拍申请' })
       if (res.success) {
-        message.success(t('imageQualityControl.retakeRegisteredMsg', { studyId: r.studyId }))
+        message.success(t('w6Workflow.retake.requested'))
         setResults(prev => prev.map(x => (x.id === r.id ? { ...x, status: 'pending' } : x)))
         setRetakeConfirmOpen(false)
         setRetakeTarget(null)

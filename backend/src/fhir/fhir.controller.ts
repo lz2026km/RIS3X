@@ -14,7 +14,7 @@ type CreateSubscriptionDto = z.infer<typeof CreateSubscriptionSchema>
 @ApiTags('fhir')
 @Controller('fhir/r4')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 export class FhirController {
   constructor(private readonly service: FhirService) {}
 
@@ -98,28 +98,33 @@ export class FhirController {
 
   // --- Subscription ---
   @Post('Subscription')
+  @Roles('ADMIN', 'DIRECTOR')
   @HttpCode(HttpStatus.CREATED)
   createSubscription(@Body(new ZodValidationPipe(CreateSubscriptionSchema)) body: CreateSubscriptionDto) {
     return this.service.createSubscription(body)
   }
 
   @Get('Subscription/:id')
+  @Roles('ADMIN', 'DIRECTOR')
   getSubscription(@Param('id') id: string) {
     return this.service.getSubscription(id)
   }
 
   @Get('Subscription')
+  @Roles('ADMIN', 'DIRECTOR')
   searchSubscription() {
     return this.service.searchSubscription()
   }
 
   @Delete('Subscription/:id')
+  @Roles('ADMIN', 'DIRECTOR')
   deleteSubscription(@Param('id') id: string) {
     return this.service.deleteSubscription(id)
   }
 
   // --- Bulk Data Export ---
   @Get('$export')
+  @Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN')
   async bulkExport(
     @Query('_outputFormat') _outputFormat?: string,
     @Query('_since') _since?: string,
@@ -134,6 +139,7 @@ export class FhirController {
   }
 
   @Get('$export-status/:jobId')
+  @Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN')
   async bulkExportStatus(@Param('jobId') jobId: string, @Res({ passthrough: true }) res: Response) {
     const result = await this.service.bulkExportStatus(jobId)
     res.setHeader('Content-Type', typeof result === 'string' ? 'application/fhir+ndjson' : 'application/json')

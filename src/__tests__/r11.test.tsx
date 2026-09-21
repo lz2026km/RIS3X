@@ -3,7 +3,7 @@
 // Phase R11: DeepSeek LLM client + prompts + UI
 // ============================================================
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DeepSeekClient, DeepSeekError, type Message, type StreamChunk } from '../services/deepseek';
 import {
@@ -19,6 +19,13 @@ import {
 } from '../services/deepseekPrompts';
 import { useDeepSeek } from '../hooks/useDeepSeek';
 import AiAssistantPanel from '../components/ai/AiAssistantPanel';
+
+// [W1-107] 本文件多处直接改写 globalThis.fetch; singleThread 模式下若不复原会泄漏到
+// 后续文件 (MSW setupServer 依赖原生 fetch), 导致 qualityScoring 等测试 "fetch 未拦截"。
+const __nativeFetch = globalThis.fetch;
+afterEach(() => {
+  globalThis.fetch = __nativeFetch;
+});
 
 const CTX: RadiologyContext = {
   modality: 'CT',

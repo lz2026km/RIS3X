@@ -13,7 +13,7 @@ import { message, Modal, Input, Tag } from "antd";
 import type { RadiologyReport } from "../types";
 import { PageContainer } from "../components/common/PageContainer";
 import { ActionButton } from "../components/common/ActionButton";
-import { LoadingBanner, ErrorBanner } from "../components/feedback";
+import { LoadingBanner, ErrorBanner, AppEmpty } from "../components/feedback";
 import { useNavigate } from "react-router-dom";
 import { StatusBadge, REPORT_STATUS_META, REPORT_STATUS_ORDER } from "../components/report";
 import { toEnState } from "../components/report/statusMeta";
@@ -624,7 +624,13 @@ export default function ReportPage() {
 
         <ReportToolbar viewMode={viewMode} setViewMode={setViewMode} avgQuality={avgQuality} criticalCount={criticalCount} selectedIds={selectedIds} filteredStats={filteredStats} filteredReports={filteredReports} allReports={allReports} setDetailReport={setDetailReport} setReviewReport={setReviewReport} setExportModal={setExportModal} setPrintModal={setPrintModal} setBulkActionModal={setBulkActionModal} showToast={showToast} setStatusFilter={setStatusFilter} onBulkExport={(list) => void runRealExport(list, "批量导出")} />
 
-        <div className="no-print">
+        {!loading && !loadError && filteredReports.length === 0 && (
+          <div className="no-print" style={{ background: WHITE, borderRadius: 10, border: "1px solid var(--border-color)" }}>
+            <AppEmpty variant="no-results" description={t("w9.states.noResults")} />
+          </div>
+        )}
+
+        <div className="no-print" style={{ display: !loading && !loadError && filteredReports.length === 0 ? "none" : undefined }}>
           {viewMode === "list" ? (
             <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={handleWriteReport} onOpen360={handleOpen360} onOfflineSave={handleOfflineSave} deletingIds={deletingIds} />
           ) : (

@@ -125,7 +125,7 @@ const TimeoutVerifyBodySchema = z.object({
 
 @ApiTags('worklist')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN', 'NURSE')
 @Controller('worklist')
 export class WorklistController {
   constructor(private readonly service: WorklistService) {}

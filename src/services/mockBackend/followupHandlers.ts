@@ -31,6 +31,10 @@ export interface MockFollowUpPlan {
   cancelledAt?: string | null
   reason?: string
   completedAt: string | null
+  // [v3.0.6.11-107] 结构化随访结果 (对齐后端 FollowUpService.toDto)
+  result?: string
+  outcome?: string
+  resultRecordedAt?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -67,7 +71,14 @@ const deriveStatus = (p: MockFollowUpPlan): MockFollowUpPlan['status'] => {
   return p.status
 }
 
-const withStatus = (p: MockFollowUpPlan): MockFollowUpPlan => ({ ...p, status: deriveStatus(p) })
+const withStatus = (p: MockFollowUpPlan): MockFollowUpPlan => ({
+  ...p,
+  status: deriveStatus(p),
+  // [v3.0.6.11-107] 后端 toDto 固定回显这三个字段 (无结果时为 null/undefined)
+  result: p.result ?? undefined,
+  outcome: p.outcome ?? undefined,
+  resultRecordedAt: p.resultRecordedAt ?? null,
+})
 
 const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) + min)
 

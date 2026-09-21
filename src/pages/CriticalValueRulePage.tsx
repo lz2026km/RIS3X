@@ -7,6 +7,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertOctagon, Settings, Edit2, Search, Phone, MessageSquare, Bell, Smartphone, Clock, Activity, BarChart3, Zap, CheckCircle2, CheckCircle } from 'lucide-react';
+import { LoadingBanner, AppEmpty } from "../components/feedback";
 import {
   CRITICAL_VALUE_RULES,
   CRITICAL_VALUE_KPI,
@@ -211,6 +212,7 @@ export default function CriticalValueRulePage() {
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: "0 auto" }}>
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {/* 顶部 */}
       <div
         style={{
@@ -385,6 +387,7 @@ export default function CriticalValueRulePage() {
             </div>
           </div>
           <div style={{ maxHeight: 600, overflowY: "auto" }}>
+            {filteredRules.length === 0 && <AppEmpty variant="no-results" minHeight={160} />}
             {filteredRules.map((r) => {
               const cConf = CATEGORY_CONFIG[r.category];
               const sConf = SEVERITY_CONFIG[r.severity];

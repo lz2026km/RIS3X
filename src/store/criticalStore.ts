@@ -113,10 +113,13 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await criticalApi.list()
-      // [G005 P0] 列表形状兼容: MSW 裸数组 / Nest {items,total}
-      const items = Array.isArray(res.data)
-        ? (res.data as CriticalValueDto[])
-        : ((res.data as { items?: CriticalValueDto[] } | null)?.items ?? [])
+      // [W2-107] 兼容两种返回: 归一化后的 { items, total } 与旧数组 (测试/旧 mock)
+      const payload = res.data as unknown
+      const items: CriticalValueDto[] = Array.isArray(payload)
+        ? (payload as CriticalValueDto[])
+        : (payload && typeof payload === 'object' && Array.isArray((payload as { items?: unknown }).items)
+          ? (payload as { items: CriticalValueDto[] }).items
+          : [])
       if (res.success) {
         const values = items
         // 清理不再出现的 actor

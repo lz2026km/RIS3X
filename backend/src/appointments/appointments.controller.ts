@@ -39,7 +39,7 @@ const UpdateSchema = z.object({
 
 @ApiTags('appointments')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN', 'NURSE')
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly service: AppointmentsService) {}

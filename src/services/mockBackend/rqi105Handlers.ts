@@ -78,12 +78,30 @@ function indicatorsPayload(period?: string) {
   }
 }
 
-// 批次内存
-interface Batch { id: string; period: string; periodLabel: string; status: string; indicatorCount: number; createdAt: string; createdBy: string; submittedAt?: string; receiptNo?: string; receiptAt?: string; remark?: string }
+// 批次内存 (字段对齐 backend RqiReportBatch / src/services/api/rqiReportCenterApi.ts)
+interface Batch {
+  id: string; period: string; periodLabel: string; granularity: 'month' | 'quarter' | 'year'
+  status: string; indicatorCount: number; createdAt: string; createdBy: string
+  submittedAt: string | null; receiptAt: string | null; receiptNo: string | null
+  indicators: ReturnType<typeof indicatorsPayload>['indicators']; fileName: string
+  contentHash: string; remark: string | null; rejectReason: string | null
+  dateFrom: string; dateTo: string; source: 'memory' | 'seed'
+}
+function seedBatch(d: { id: string; period: string; periodLabel: string; status: string; createdAt: string; createdBy: string; submittedAt?: string | null; receiptAt?: string | null; receiptNo?: string | null; remark?: string | null; rejectReason?: string | null }): Batch {
+  const inds = indicatorsPayload(d.period).indicators
+  return {
+    id: d.id, period: d.period, periodLabel: d.periodLabel, granularity: 'month',
+    status: d.status, indicatorCount: inds.length, createdAt: d.createdAt, createdBy: d.createdBy,
+    submittedAt: d.submittedAt ?? null, receiptAt: d.receiptAt ?? null, receiptNo: d.receiptNo ?? null,
+    indicators: inds, fileName: `rqi-report-center-${d.period}.csv`, contentHash: `seed-${d.period}`,
+    remark: d.remark ?? null, rejectReason: d.rejectReason ?? null,
+    dateFrom: `${d.period}-01`, dateTo: `${d.period}-28`, source: 'seed',
+  }
+}
 const batches: Batch[] = [
-  { id: 'RPT-2026-08', period: '2026-08', periodLabel: '2026年8月', status: 'ACCEPTED', indicatorCount: 7, createdAt: '2026-09-01T09:00:00Z', createdBy: '管理员', submittedAt: '2026-09-01T10:00:00Z', receiptNo: 'NHC-202608-0918', receiptAt: '2026-09-03T14:00:00Z', remark: '数据已受理' },
-  { id: 'RPT-2026-07', period: '2026-07', periodLabel: '2026年7月', status: 'REJECTED', indicatorCount: 7, createdAt: '2026-08-01T09:00:00Z', createdBy: '管理员', submittedAt: '2026-08-02T09:00:00Z', remark: '分母口径需复核' },
-  { id: 'RPT-2026-09', period: '2026-09', periodLabel: '2026年9月', status: 'DRAFT', indicatorCount: 7, createdAt: '2026-09-14T09:00:00Z', createdBy: '管理员' },
+  seedBatch({ id: 'RPT-2026-08', period: '2026-08', periodLabel: '2026年8月', status: 'ACCEPTED', createdAt: '2026-09-01T09:00:00Z', createdBy: '管理员', submittedAt: '2026-09-01T10:00:00Z', receiptNo: 'NHC-202608-0918', receiptAt: '2026-09-03T14:00:00Z', remark: '数据已受理' }),
+  seedBatch({ id: 'RPT-2026-07', period: '2026-07', periodLabel: '2026年7月', status: 'REJECTED', createdAt: '2026-08-01T09:00:00Z', createdBy: '管理员', submittedAt: '2026-08-02T09:00:00Z', remark: '分母口径需复核', rejectReason: '分母口径需复核' }),
+  seedBatch({ id: 'RPT-2026-09', period: '2026-09', periodLabel: '2026年9月', status: 'DRAFT', createdAt: '2026-09-14T09:00:00Z', createdBy: '管理员' }),
 ]
 let batchSeq = 0
 
@@ -328,38 +346,86 @@ export const rqi105Handlers = [
   // ── criticals 国标 13 类 + 10min ─────────────────────────
   http.get(`${API}/criticals/national-diagnoses`, async () => {
     await delay(80)
-    const names = ['急性肺栓塞', '急性主动脉夹层(DeBakey I·II型)/急性主动脉瘤破裂', '心包填塞', '大量液·血·气胸', '气管·支气管异物', '急性脑梗死', '急性脑出血', '急性硬膜外·硬膜下出血', '急性蛛网膜下腔出血', '脑疝', '消化道穿孔', '腹腔内脏器破裂出血', '绞窄性肠梗阻']
-    return HttpResponse.json({ items: names.map((n, i) => ({ code: `GW-${String(i + 1).padStart(2, '0')}`, name: n, isNational: true })) })
+    // 字段对齐 backend NationalDiagnosisResponse + src/services/api/criticalApi.ts NationalDiagnosesResult
+    const defs: Array<[string, string]> = [
+      ['急性肺栓塞', '胸部'],
+      ['急性主动脉夹层 (DeBakey I·II 型)/急性主动脉瘤破裂', '心血管'],
+      ['心包填塞', '心血管'],
+      ['大量液·血·气胸', '胸部'],
+      ['气管·支气管异物', '呼吸'],
+      ['急性脑梗死', '神经'],
+      ['急性脑出血', '神经'],
+      ['急性硬膜外·硬膜下出血', '神经'],
+      ['急性蛛网膜下腔出血', '神经'],
+      ['脑疝', '神经'],
+      ['消化道穿孔', '腹部'],
+      ['腹腔内脏器破裂出血', '腹部'],
+      ['绞窄性肠梗阻', '腹部'],
+    ]
+    const items = defs.map(([name, category], i) => ({ code: `GW-${String(i + 1).padStart(2, '0')}`, name, category, isNational: true }))
+    return HttpResponse.json({
+      items,
+      total: items.length,
+      nationalCount: items.length,
+      standard: '国卫办医政函〔2024〕150号 附件4',
+      generatedAt: new Date().toISOString(),
+    })
   }),
-  http.get(`${API}/criticals/rqi-stats`, async () => {
+  http.get(`${API}/criticals/rqi-stats`, async ({ request }) => {
     await delay(120)
-    const items = Array.from({ length: 30 }, (_, i) => ({
-      id: `CV-${String(i + 1).padStart(3, '0')}`,
+    // 字段对齐 backend CriticalRqiStats + src/services/api/criticalApi.ts CriticalRqiStatsDto
+    const url = new URL(request.url)
+    const months = Math.max(1, Number(url.searchParams.get('months') ?? 1))
+    const details = Array.from({ length: 30 }, (_, i) => ({
+      criticalId: `CV-${String(i + 1).padStart(3, '0')}`,
+      patientId: `P${String(i + 1).padStart(4, '0')}`,
       patientName: `患者${i + 1}`,
-      diagnosis: '急性脑出血',
+      diagnosisCode: 'GW-07',
+      diagnosisName: '急性脑出血',
       foundAt: '2026-09-10T08:00:00Z',
       notifiedAt: '2026-09-10T08:06:00Z',
-      diffMinutes: 6,
       notifiedBy: '张医师',
       receivedBy: '急诊科 王医生',
-      inTime: true,
+      receiveNote: '已接收并处理',
+      notifyMinutes: 6,
+      within10Min: true,
       signatureComplete: true,
     }))
-    const numerator = items.filter((x) => x.inTime && x.signatureComplete).length
-    return HttpResponse.json({ numerator, denominator: items.length, rate: Math.round((numerator / items.length) * 100 * 100) / 100, windowMinutes: 10, items, signatureCompleteRate: 100, source: 'seed' })
+    const within10MinCount = details.filter((x) => x.within10Min).length
+    return HttpResponse.json({
+      months,
+      windowStart: '2026-09-01T00:00:00.000Z',
+      standard: '国卫办医政函〔2024〕150号 附件4',
+      deadlineMin: 10,
+      source: 'seed',
+      nationalTotal: details.length,
+      within10MinCount,
+      overdueCount: details.length - within10MinCount,
+      completionRate: Math.round((within10MinCount / details.length) * 100 * 100) / 100,
+      details,
+      signatureIntegrity: {
+        total: details.length,
+        notifiedAtCount: details.length,
+        notifiedByCount: details.length,
+        receivedByCount: details.length,
+        receiveNoteCount: details.length,
+        completeCount: details.length,
+        completenessRate: 100,
+      },
+    })
   }),
 
   // ── clinical-feedback ────────────────────────────────────
   http.get(`${API}/clinical-feedback`, async () => {
     await delay(100)
     return HttpResponse.json({ items: [
-      { id: 'CF-001', reportId: 'RPT-0001', patientId: 'P001', type: 'dispute', content: '结论与临床不符，请复核', submittedBy: '王医生', department: '急诊科', status: 'SUBMITTED', createdAt: '2026-09-11T09:00:00Z' },
-      { id: 'CF-002', reportId: 'RPT-0002', patientId: 'P002', type: 'supplement', content: '补充既往手术史', submittedBy: '李医生', department: '外科', status: 'RESPONDED', createdAt: '2026-09-12T10:00:00Z', response: '已补充', respondedBy: '张医师' },
+      { id: 'CF-001', reportId: 'RPT-0001', patientId: 'P001', type: 'objection', content: '结论与临床不符，请复核', submittedBy: '王医生', department: '急诊科', status: 'SUBMITTED', createdAt: '2026-09-11T09:00:00Z', updatedAt: '2026-09-11T09:00:00Z' },
+      { id: 'CF-002', reportId: 'RPT-0002', patientId: 'P002', type: 'supplement', content: '补充既往手术史', submittedBy: '李医生', department: '外科', status: 'RESPONDED', createdAt: '2026-09-12T10:00:00Z', updatedAt: '2026-09-12T10:00:00Z', response: { content: '已补充', responder: '张医师', department: '放射科', respondedAt: '2026-09-12T10:30:00Z' } },
     ], total: 2 })
   }),
   http.get(`${API}/clinical-feedback/meta`, async () => {
     await delay(60)
-    return HttpResponse.json({ types: [{ value: 'dispute', label: '异议' }, { value: 'supplement', label: '补充' }, { value: 'correct', label: '更正' }], statuses: [{ value: 'SUBMITTED', label: '已提交' }, { value: 'RESPONDED', label: '已回应' }, { value: 'RESOLVED', label: '已关闭' }, { value: 'REJECTED', label: '已驳回' }] })
+    return HttpResponse.json({ types: [{ key: 'objection', label: '异议' }, { key: 'supplement', label: '补充' }, { key: 'correction', label: '更正' }], statuses: [{ key: 'SUBMITTED', label: '已提交' }, { key: 'RESPONDED', label: '已回应' }, { key: 'RESOLVED', label: '已关闭' }, { key: 'REJECTED', label: '已驳回' }], transitions: { SUBMITTED: ['RESPONDED', 'REJECTED'], RESPONDED: ['RESOLVED', 'REJECTED'], RESOLVED: [], REJECTED: [] } })
   }),
 
   // ── rqi-report-center (国家上报中心) ──────────────────────
@@ -368,20 +434,33 @@ export const rqi105Handlers = [
     const url = new URL(request.url)
     const status = url.searchParams.get('status')
     const list = status ? batches.filter((b) => b.status === status) : batches
-    return HttpResponse.json({ items: list, total: list.length, page: 1, pageSize: 20 })
+    return HttpResponse.json({ items: list, total: list.length, page: 1, pageSize: 20, source: 'memory' })
   }),
   http.post(`${API}/rqi-report-center/batches`, async ({ request }) => {
     await delay(160)
     const body = (await request.json().catch(() => ({}))) as { period?: string; createdBy?: string }
     const period = body?.period ?? currentPeriod()
+    const inds = indicatorsPayload(period).indicators
     const b: Batch = {
       id: `RPT-${period}`,
       period,
       periodLabel: period,
+      granularity: 'month',
       status: 'DRAFT',
-      indicatorCount: DEFS.length,
+      indicatorCount: inds.length,
       createdAt: new Date().toISOString(),
       createdBy: body?.createdBy ?? '管理员',
+      submittedAt: null,
+      receiptAt: null,
+      receiptNo: null,
+      indicators: inds,
+      fileName: `rqi-report-center-${period}.csv`,
+      contentHash: `seed-${period}`,
+      remark: null,
+      rejectReason: null,
+      dateFrom: `${period}-01`,
+      dateTo: `${period}-28`,
+      source: 'memory',
     }
     batches.unshift(b)
     batchSeq++
@@ -400,6 +479,8 @@ export const rqi105Handlers = [
     if (!(TRANS[b.status] ?? []).includes('SUBMITTED')) return HttpResponse.json({ message: `INVALID_TRANSITION: ${b.status} → SUBMITTED` }, { status: 400 })
     b.status = 'SUBMITTED'
     b.submittedAt = new Date().toISOString()
+    b.receiptAt = null
+    b.receiptNo = null
     return HttpResponse.json(b)
   }),
   http.post(`${API}/rqi-report-center/batches/:id/accept`, async ({ params, request }) => {
@@ -412,6 +493,7 @@ export const rqi105Handlers = [
     b.receiptNo = body?.receiptNo ?? `NHC-${Date.now()}`
     b.receiptAt = new Date().toISOString()
     if (body?.remark) b.remark = body.remark
+    b.rejectReason = null
     return HttpResponse.json(b)
   }),
   http.post(`${API}/rqi-report-center/batches/:id/reject`, async ({ params, request }) => {
@@ -421,7 +503,8 @@ export const rqi105Handlers = [
     if (!b) return HttpResponse.json({ message: 'batch not found' }, { status: 404 })
     if (!(TRANS[b.status] ?? []).includes('REJECTED')) return HttpResponse.json({ message: `INVALID_TRANSITION: ${b.status} → REJECTED` }, { status: 400 })
     b.status = 'REJECTED'
-    b.remark = body?.reason ?? '驳回'
+    b.rejectReason = body?.reason ?? '驳回'
+    b.remark = body?.reason ?? b.remark ?? '驳回'
     return HttpResponse.json(b)
   }),
   http.post(`${API}/rqi-report-center/batches/:id/reopen`, async ({ params }) => {
@@ -430,7 +513,10 @@ export const rqi105Handlers = [
     if (!b) return HttpResponse.json({ message: 'batch not found' }, { status: 404 })
     if (!(TRANS[b.status] ?? []).includes('DRAFT')) return HttpResponse.json({ message: `INVALID_TRANSITION: ${b.status} → DRAFT` }, { status: 400 })
     b.status = 'DRAFT'
-    b.submittedAt = undefined
+    b.submittedAt = null
+    b.receiptAt = null
+    b.receiptNo = null
+    b.rejectReason = null
     return HttpResponse.json(b)
   }),
   http.get(`${API}/rqi-report-center/batches/:id/export`, async ({ params, request }) => {
@@ -440,48 +526,91 @@ export const rqi105Handlers = [
     const b = batches.find((x) => x.id === String(params.id))
     const period = b?.period ?? currentPeriod()
     const payload = indicatorsPayload(period)
+    const contentHash = b?.contentHash ?? `seed-${period}`
     if (format === 'json') {
-      return HttpResponse.json({ format, filename: `RPT-${period}.json`, content: JSON.stringify(payload, null, 2) })
+      return HttpResponse.json({ format, filename: `RPT-${period}.json`, contentHash, content: JSON.stringify(payload, null, 2) })
     }
     const header = '指标编码,指标名称,分子,分母,比率,单位,目标,达标'
     const rows = payload.indicators.map((i) => `${i.code},${i.name},${i.numerator},${i.denominator},${i.rate},${i.unit},${i.target},${i.status}`)
-    return HttpResponse.json({ format, filename: `RPT-${period}.csv`, content: '\uFEFF' + [header, ...rows].join('\n') })
+    return HttpResponse.json({ format, filename: `RPT-${period}.csv`, contentHash, content: '\uFEFF' + [header, ...rows].join('\n') })
   }),
   http.get(`${API}/rqi-report-center/history`, async () => {
     await delay(120)
-    return HttpResponse.json({ items: batches.map((b) => ({ id: b.id, period: b.period, status: b.status, submittedAt: b.submittedAt, receiptNo: b.receiptNo, receiptAt: b.receiptAt, remark: b.remark })), total: batches.length })
+    return HttpResponse.json({
+      items: batches.map((b) => ({ id: b.id, period: b.period, periodLabel: b.periodLabel, granularity: b.granularity, status: b.status, createdAt: b.createdAt, createdBy: b.createdBy, submittedAt: b.submittedAt, receiptAt: b.receiptAt, receiptNo: b.receiptNo, remark: b.remark, rejectReason: b.rejectReason })),
+      total: batches.length, page: 1, pageSize: 20, source: 'memory',
+    })
   }),
   http.get(`${API}/rqi-report-center/stats`, async () => {
     await delay(100)
     const byStatus: Record<string, number> = { DRAFT: 0, SUBMITTED: 0, ACCEPTED: 0, REJECTED: 0 }
     for (const b of batches) byStatus[b.status] = (byStatus[b.status] ?? 0) + 1
-    return HttpResponse.json({ total: batches.length, byStatus, recentSubmittedAt: batches.find((b) => b.submittedAt)?.submittedAt ?? null, onTimeRate: 66.7 })
+    const submitted = batches.filter((b) => b.submittedAt).sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)))
+    const latest = submitted[0]
+    return HttpResponse.json({
+      total: batches.length,
+      draftCount: byStatus.DRAFT,
+      submittedCount: byStatus.SUBMITTED,
+      acceptedCount: byStatus.ACCEPTED,
+      rejectedCount: byStatus.REJECTED,
+      byStatus,
+      reportableCount: submitted.length,
+      onTimeCount: submitted.length,
+      onTimeRate: submitted.length > 0 ? 66.7 : 0,
+      latest: latest
+        ? { id: latest.id, period: latest.period, periodLabel: latest.periodLabel, granularity: latest.granularity, status: latest.status, createdAt: latest.createdAt, createdBy: latest.createdBy, submittedAt: latest.submittedAt, receiptAt: latest.receiptAt, receiptNo: latest.receiptNo, remark: latest.remark, rejectReason: latest.rejectReason }
+        : null,
+      source: 'memory',
+    })
   }),
 
   // ── devices/schedule (甘特) ──────────────────────────────
   http.get(`${API}/devices/schedule`, async () => {
     await delay(120)
-    const devices = ['dev-ct-01', 'dev-mr-01', 'dev-dr-01'].map((id, di) => ({
-      deviceId: id,
-      deviceName: id === 'dev-mr-01' ? 'MR-1 号机房' : id === 'dev-dr-01' ? 'DR-1 号机房' : 'CT-1 号机房',
-      blocks: Array.from({ length: 4 }, (_, k) => ({
-        id: `BLK-${di}-${k}`,
-        deviceId: id,
-        deviceName: '',
-        type: k % 3 === 0 ? 'EXAM' : k % 3 === 1 ? 'MAINTENANCE' : 'IDLE',
-        title: k % 3 === 0 ? `患者${k + 1} · 常规` : k % 3 === 1 ? '预防性维护' : '空闲',
-        start: `2026-09-${String(14 + Math.floor(k / 2)).padStart(2, '0')}T${String(9 + (k % 3) * 2).padStart(2, '0')}:00:00`,
-        end: `2026-09-${String(14 + Math.floor(k / 2)).padStart(2, '0')}T${String(10 + (k % 3) * 2).padStart(2, '0')}:00:00`,
-      })),
-      conflicts: [],
-      utilization: 62 + di * 8,
-    }))
+    // 字段对齐 backend DeviceWeekView + src/services/api/deviceScheduleApi.ts DeviceWeekViewDto
+    const meta: Record<string, { code: string; name: string; modality: string }> = {
+      'dev-ct-01': { code: 'CT-01', name: 'CT-1 号机房', modality: 'CT' },
+      'dev-mr-01': { code: 'MR-01', name: 'MR-1 号机房', modality: 'MR' },
+      'dev-dr-01': { code: 'DR-01', name: 'DR-1 号机房', modality: 'DR' },
+    }
+    const devices = ['dev-ct-01', 'dev-mr-01', 'dev-dr-01'].map((id, di) => {
+      const m = meta[id]!
+      const blocks = Array.from({ length: 4 }, (_, k) => {
+        const type = k % 3 === 0 ? 'EXAM' : k % 3 === 1 ? 'MAINTENANCE' : 'IDLE'
+        const day = `2026-09-${String(14 + Math.floor(k / 2)).padStart(2, '0')}`
+        const start = `${day}T${String(9 + (k % 3) * 2).padStart(2, '0')}:00:00`
+        const end = `${day}T${String(10 + (k % 3) * 2).padStart(2, '0')}:00:00`
+        return {
+          id: `BLK-${di}-${k}`,
+          deviceId: id,
+          deviceName: m.name,
+          type,
+          title: type === 'EXAM' ? `患者${k + 1} · 常规` : type === 'MAINTENANCE' ? '预防性维护' : '空闲',
+          start,
+          end,
+          ...(type === 'EXAM' ? { examNo: `ACC-${1000 + di * 10 + k}`, patientName: `患者${k + 1}`, priority: 'ROUTINE' } : {}),
+        }
+      })
+      return { deviceId: id, code: m.code, name: m.name, modality: m.modality, blocks, conflicts: [], utilization: 62 + di * 8 }
+    })
     const days = Array.from({ length: 7 }, (_, i) => ({ date: `2026-09-${String(14 + i).padStart(2, '0')}`, label: `周${'日一二三四五六'[i % 7]}` }))
     return HttpResponse.json({ weekStart: '2026-09-14', days, devices })
   }),
   http.get(`${API}/devices/schedule/stats`, async () => {
     await delay(100)
-    return HttpResponse.json({ totalBlocks: 12, examBlocks: 4, maintenanceBlocks: 4, idleBlocks: 4, idleHours: 12, utilizationByDevice: [{ deviceId: 'dev-ct-01', utilization: 62 }, { deviceId: 'dev-mr-01', utilization: 70 }, { deviceId: 'dev-dr-01', utilization: 78 }] })
+    return HttpResponse.json({
+      weekStart: '2026-09-14',
+      totalBlocks: 12,
+      examBlocks: 4,
+      maintenanceBlocks: 4,
+      conflicts: 0,
+      idleHours: 12,
+      utilizationByDevice: [
+        { deviceId: 'dev-ct-01', name: 'CT-1 号机房', utilization: 62, examCount: 2, maintenanceMinutes: 0 },
+        { deviceId: 'dev-mr-01', name: 'MR-1 号机房', utilization: 70, examCount: 1, maintenanceMinutes: 60 },
+        { deviceId: 'dev-dr-01', name: 'DR-1 号机房', utilization: 78, examCount: 1, maintenanceMinutes: 0 },
+      ],
+    })
   }),
   http.get(`${API}/devices/schedule/conflicts`, async () => {
     await delay(80)

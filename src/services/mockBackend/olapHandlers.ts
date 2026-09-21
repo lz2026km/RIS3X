@@ -264,6 +264,9 @@ export function aggregateFromCollections(
     consultation_count: Math.round(baselineExamCount * 0.04),
     ai_adoption_rate: 65.5,
     workload_avg: Math.round(baselineExamCount / 30),
+    // [W1-107] 补齐后加指标, 避免 fallback 回落 0 导致 baseline 断言失败
+    device_daily_exams: Math.max(1, Math.round(baselineExamCount / 30)),
+    report_timely_rate: 96.5,
   };
 
   const row: Record<string, unknown> = { date: period };

@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 import { StatusBadge } from '../StatusBadge';
-import { REPORT_STATUS_ORDER } from '../statusMeta';
+import { REPORT_STATUS_ORDER, REPORT_STATUS_META } from '../statusMeta';
 
 // Mock react-i18next 真实 hook(避免依赖 init)
 // 但直接用真实 i18n(已在 test/setup.ts 初始化)
@@ -64,7 +64,9 @@ describe('StatusBadge - 报告 14 态徽章', () => {
           <StatusBadge status={state} />
         </TestWrapper>
       );
-      expect(screen.getByText(state)).toBeInTheDocument();
+      // 组件渲染规范化后的中文标签 (部分态 label 与枚举名不同, 如 CoSign双签→双签)
+      const expectedLabel = REPORT_STATUS_META[state]?.label ?? state;
+      expect(screen.getByText(expectedLabel)).toBeInTheDocument();
       unmount();
     }
   });

@@ -209,23 +209,65 @@ describe('reportMachine - 报告 17 态状态机', () => {
       expect(actor.getSnapshot().value).toBe('writing');
     });
 
-    it('initialReview → reviewed (APPROVE_REVIEWED) 直接通过审核', () => {
+    it('initialReview → coSignReview (APPROVE_REVIEWED) 初审跳过终审直达双签', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
       actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'APPROVE_REVIEWED' });
+      // 后端 INITIAL_REVIEW→CO_SIGN_REVIEW (旧前端误指向 reviewed)
+      expect(actor.getSnapshot().value).toBe('coSignReview');
+    });
+
+    it('finalReview → reviewed (APPROVE_REVIEWED) 终审跳过双签', () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'APPROVE_INITIAL' });
       actor.send({ type: 'APPROVE_REVIEWED' });
       expect(actor.getSnapshot().value).toBe('reviewed');
     });
 
-    it('amended → signed (PUBLISH) 修订后重新签署', () => {
+    it('escalated → reviewed (RESOLVE_ESCALATION) 升级处理完成', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
       actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
-      actor.send({ type: 'APPROVE_REVIEWED' });
+      actor.send({ type: 'ESCALATE', reason: '审核争议' });
+      expect(actor.getSnapshot().value).toBe('escalated');
+      actor.send({ type: 'RESOLVE_ESCALATION' });
+      expect(actor.getSnapshot().value).toBe('reviewed');
+    });
+
+    it('escalated → rejected (REJECT) 升级后驳回', () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'ESCALATE', reason: '审核争议' });
+      actor.send({ type: 'REJECT', reason: '升级复核不通过' });
+      expect(actor.getSnapshot().value).toBe('rejected');
+    });
+
+    const toReviewed = () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'APPROVE_INITIAL' });
+      actor.send({ type: 'APPROVE_FINAL' });
+      actor.send({ type: 'COMPLETE_CO_SIGN', coSignerId: 'D003' });
+      return actor;
+    };
+
+    it('amended → signed (PUBLISH) 修订后重新签署', () => {
+      const actor = toReviewed();
       actor.send({ type: 'START_SIGN' });
       actor.send({ type: 'COMPLETE_SIGN', signedAt: '2026-06-06T10:00:00.000Z' });
       actor.send({ type: 'PUBLISH', qualityScore: 85 });
@@ -236,12 +278,7 @@ describe('reportMachine - 报告 17 态状态机', () => {
     });
 
     it('supplemented → rejected (REJECT) 补充后驳回', () => {
-      const actor = startActor();
-      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
-      actor.send({ type: 'START_WRITING' });
-      actor.send({ type: 'SUBMIT' });
-      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
-      actor.send({ type: 'APPROVE_REVIEWED' });
+      const actor = toReviewed();
       actor.send({ type: 'START_SIGN' });
       actor.send({ type: 'COMPLETE_SIGN', signedAt: '2026-06-06T10:00:00.000Z' });
       actor.send({ type: 'PUBLISH', qualityScore: 85 });

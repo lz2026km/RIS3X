@@ -224,6 +224,65 @@ export interface RqiExtendedParams {
   keyword?: string
 }
 
+// [v3.0.6.11-105 Wave 1C] 单条指标达标判定 + 质控标准 (quality-indicators 镜像)
+export interface RqiIndicatorEvaluation {
+  code: string
+  name: string
+  value: number
+  target: string
+  targetValue: number
+  unit: string
+  direction: 'higher' | 'lower'
+  passed: boolean
+  comparison: string
+}
+
+export interface RqiImageQualityLevel {
+  score: number
+  levelName: string
+  levelNameEn: string
+  description: string
+  acceptable: boolean
+}
+
+export interface RqiImageQualityDimension {
+  dimension: string
+  dimensionEn: string
+  weight: number
+  levels: RqiImageQualityLevel[]
+}
+
+export interface RqiReportQualityItem {
+  id: string
+  category: string
+  categoryEn: string
+  item: string
+  standard: string
+  checkpoints: string[]
+}
+
+export interface RqiWorkflowQcPoint {
+  id: string
+  stage: string
+  stageEn: string
+  item: string
+  standard: string
+  checkMethod: string
+  responsible: string
+  onFailure: string
+}
+
+export interface RqiQualityStandardsResult {
+  source: 'mirror'
+  generatedAt: string
+  imageDimensionCount: number
+  reportStandardCount: number
+  workflowPointCount: number
+  imageQualityDimensions: RqiImageQualityDimension[]
+  reportQualityStandards: RqiReportQualityItem[]
+  workflowQcPoints: RqiWorkflowQcPoint[]
+}
+
 // ================= 内部工具 =================
 
 function buildQuery(params: Record<string, string | number | undefined>): string {
@@ -274,6 +333,16 @@ export const rqi2024Api = {
     api.get<RqiExtendedResult>(
       `/quality-indicators/extended${buildQuery({ category: params.category, keyword: params.keyword })}`,
     ),
+
+  // [v3.0.6.11-105 Wave 1C] 单条指标 / 达标判定 / 质控标准
+  getExtendedIndicator: (code: string) =>
+    api.get<RqiQualityIndicator>(`/quality-indicators/extended/${encodeURIComponent(code)}`),
+
+  evaluateIndicator: (code: string, value: number) =>
+    api.get<RqiIndicatorEvaluation>(`/quality-indicators/evaluate${buildQuery({ code, value })}`),
+
+  getQualityStandards: () =>
+    api.get<RqiQualityStandardsResult>('/quality-indicators/standards'),
 }
 
 export default rqi2024Api

@@ -47,6 +47,8 @@ import DeviceMaintenanceBanner from "../../components/tech/DeviceMaintenanceBann
 import TechnicianAssignmentEditor from "../../components/worklist/TechnicianAssignmentEditor";
 // [v3.0.6.11-103 Wave 11] 技师工作站: 流程状态条 (7 态 + 一键流转)
 import FlowStatusBar from "../../components/tech/FlowStatusBar";
+// [W6] 检查前核对 (Time-Out) 门禁弹窗
+import TimeoutVerifyModal from "../../components/worklist/TimeoutVerifyModal";
 
 const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
 
@@ -77,6 +79,11 @@ export const toRadiologyExamFromDto = (dto: ExamDto & Record<string, unknown>): 
     status: normalizeExamStatus(String(dto.status ?? dto.state ?? 'SCHEDULED')) as RadiologyExam['status'],
     imagesAcquired: Number(dto.imageCount ?? 0),
     accessionNumber: String(dto.accessionNumber ?? ''),
+    // [W6] Time-Out 门禁状态透出 (后端 start 前必须完成核对)
+    timeoutVerified: (dto as { timeoutVerified?: boolean }).timeoutVerified === undefined
+      ? undefined
+      : Boolean((dto as { timeoutVerified?: boolean }).timeoutVerified),
+    retakeStatus: ((dto as { retakeStatus?: string | null }).retakeStatus ?? null) as RadiologyExam['retakeStatus'],
     createdTime: String(dto.scheduledAt ?? ''),
     updatedTime: String(dto.updatedAt ?? ''),
   }
@@ -207,6 +214,10 @@ export function ExamDetailView({
   // [v3.0.6.11-104 Wave 3D] 重拍审批状态 (pending/approved/rejected)
   const [retakeStatus, setRetakeStatus] = useState<string | null>(null)
 
+  // [W6] 检查前核对 (Time-Out) 门禁弹窗
+  const [timeoutOpen, setTimeoutOpen] = useState(false)
+  const forceTimeoutRef = useRef(false)
+
   // [v3.0.6.11-103 Wave 11] 剂量记录 (DLP / CTDIvol) + 完成检查强制检查项
   const [doseDlp, setDoseDlp] = useState<string>("")
   const [doseCtdivol, setDoseCtdivol] = useState<string>("")
@@ -332,6 +343,13 @@ export function ExamDetailView({
       setCompleteModal({ quality: null, dlp: doseDlp, ctdivol: doseCtdivol, note: "", retakeReason: "" })
       return
     }
+    // [W6] 检查前核对 (Time-Out) 门禁: 未核对时先弹核对弹窗, 不允许直接开始
+    if (action === "start" && exam.timeoutVerified === false && !forceTimeoutRef.current) {
+      message.warning(t("w6Workflow.timeout.requiredHint"))
+      setTimeoutOpen(true)
+      return
+    }
+    if (action === "start") forceTimeoutRef.current = false
     setStatusBusy(action)
     try {
       const res =
@@ -356,6 +374,9 @@ export function ExamDetailView({
         message.success(actionMessages[action] ?? t("examDetail.statusUpdated"))
         onStatusChanged?.()
         onStatusSuccess?.()
+      } else if (action === "start" && (res.error?.message ?? "").includes("TIMEOUT_NOT_VERIFIED")) {
+        message.warning(t("w6Workflow.timeout.requiredHint"))
+        setTimeoutOpen(true)
       } else {
         message.error(res.error?.message ?? t("examDetail.operationFailed"))
       }
@@ -2022,6 +2043,18 @@ export function ExamDetailView({
             })
             .catch(() => undefined)
           onStatusChanged?.()
+        }}
+      />
+
+      {/* [W6] 检查前核对 (Time-Out) 门禁弹窗 */}
+      <TimeoutVerifyModal
+        open={timeoutOpen}
+        examId={exam?.id ?? null}
+        onCancel={() => setTimeoutOpen(false)}
+        onVerified={() => {
+          setTimeoutOpen(false)
+          forceTimeoutRef.current = true
+          void handleStatusAction("start")
         }}
       />
     </div>

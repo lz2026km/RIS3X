@@ -23,6 +23,34 @@ async function transition(id: string, to: ReportState, reason?: string) {
   return res
 }
 
+/**
+ * [W6] 幂等流转: 目标态与当前态一致时直接返回成功, 不再调用 PATCH/POST,
+ * 避免后端拒绝自环 (如 REVIEWED → REVIEWED / INITIAL_REVIEW → INITIAL_REVIEW 400)。
+ */
+const REPORT_STATUS_TO_STATE: Record<string, string> = {
+  draft: 'WRITING', pending: 'PENDING_ASSIGNMENT', submitted: 'SUBMITTED', inreview: 'INITIAL_REVIEW',
+  in_review: 'INITIAL_REVIEW', review: 'INITIAL_REVIEW', reviewed: 'REVIEWED', cosigned: 'CO_SIGN_REVIEW',
+  signed: 'SIGNED', published: 'PUBLISHED', final: 'PUBLISHED', amended: 'AMENDED', rejected: 'REJECTED',
+  withdrawn: 'WITHDRAWN', cancelled: 'WITHDRAWN', archived: 'ARCHIVED',
+}
+function reportStateOf(dto?: ReportDto): string | undefined {
+  const state = String(dto?.state ?? '').toUpperCase()
+  if (state) return state
+  const byStatus = REPORT_STATUS_TO_STATE[String(dto?.status ?? '').toLowerCase()]
+  return byStatus
+}
+async function transitionIfChanged(id: string, to: ReportState, reason?: string) {
+  try {
+    const cur = await api.get<ReportDto>(`/reports/${id}`)
+    if (reportStateOf(cur.data) === to) {
+      return { success: true, data: cur.data } as Awaited<ReturnType<typeof transition>>
+    }
+  } catch {
+    // 读取失败时照常尝试流转, 由后端返回准确错误
+  }
+  return transition(id, to, reason)
+}
+
 // [G005 P1] 列表双形状: MSW 裸数组 / 后端 { items, total }
 export type ListPayload<T> = T[] | { items: T[]; total: number }
 
@@ -105,7 +133,8 @@ export const reportApi = {
       const submitted = await transition(id, 'SUBMITTED')
       if (!submitted.success) return submitted
     }
-    return transition(id, 'INITIAL_REVIEW')
+    // [W6] 已在 INITIAL_REVIEW 时跳过自环
+    return transitionIfChanged(id, 'INITIAL_REVIEW')
   },
 
   // [v3.0.6.11-95 Wave2A P0] 报告退回重写闭环: ASSIGNED/PENDING_ASSIGNMENT → WRITING (进入书写态)
@@ -118,22 +147,23 @@ export const reportApi = {
   //   初核通过 → FINAL_REVIEW, 终核通过 → CO_SIGN_REVIEW(需双签)/REVIEWED;
   //   无 type 时 (ReviewCheckPage/ReportReviewPage 通用调用) 按报告当前状态推导下一步
   review: async (id: string, data?: { type?: 'initial' | 'final'; doctorId?: string; doctorName?: string; suggestion?: string; score?: number; needsCosign?: boolean }) => {
-    if (data?.type === 'initial') return transition(id, 'FINAL_REVIEW')
-    if (data?.type === 'final') return transition(id, data.needsCosign ? 'CO_SIGN_REVIEW' : 'REVIEWED')
+    if (data?.type === 'initial') return transitionIfChanged(id, 'FINAL_REVIEW')
+    if (data?.type === 'final') return transitionIfChanged(id, data.needsCosign ? 'CO_SIGN_REVIEW' : 'REVIEWED')
     try {
       const cur = await api.get<ReportDto>(`/reports/${id}`)
       const state = cur.data?.state as ReportState | undefined
       if (state === 'INITIAL_REVIEW') return transition(id, 'FINAL_REVIEW')
       if (state === 'FINAL_REVIEW') return transition(id, 'CO_SIGN_REVIEW')
       if (state === 'CO_SIGN_REVIEW') return transition(id, 'REVIEWED')
-      return transition(id, 'REVIEWED')
+      // [W6] 已在 REVIEWED (或未知态) 时跳过自环
+      return transitionIfChanged(id, 'REVIEWED')
     } catch {
-      return transition(id, 'REVIEWED')
+      return transitionIfChanged(id, 'REVIEWED')
     }
   },
 
   // [v3.0.6.11-92 Wave1B P0] 双签通过 → REVIEWED (分步链 CO_SIGN_REVIEW → REVIEWED)
-  completeCosignReview: (id: string) => transition(id, 'REVIEWED'),
+  completeCosignReview: (id: string) => transitionIfChanged(id, 'REVIEWED'),
 
   // [v3.0.6.11-92 Wave1B P0] 报告特殊态入口: 补充/整改/跨院区重分配/升级
   supplement: (id: string, note?: string) => transition(id, 'SUPPLEMENTING', note),
@@ -153,11 +183,29 @@ export const reportApi = {
     return res
   },
 
-  sign: async (id: string) => transition(id, 'SIGNED'),
+  sign: async (id: string) => transitionIfChanged(id, 'SIGNED'),
 
   reject: async (id: string, reason: string) => transition(id, 'REJECTED', reason),
 
-  publish: async (id: string, _qualityScore?: number) => transition(id, 'PUBLISHED'),
+  // [G005 contract] 发布携带 qualityScore (后端 transition 接收并落库 Report.qualityScore)
+  publish: async (id: string, qualityScore?: number) => {
+    // [W6] 已发布时跳过 (避免 PUBLISHED → PUBLISHED 无意义重复调用)
+    try {
+      const cur = await api.get<ReportDto>(`/reports/${id}`)
+      if (reportStateOf(cur.data) === 'PUBLISHED') {
+        return { success: true, data: cur.data } as Awaited<ReturnType<typeof transition>>
+      }
+    } catch {
+      // 读取失败照常发布
+    }
+    const user = getCurrentUser()
+    const body: Record<string, unknown> = { to: 'PUBLISHED', actorId: user?.id ?? 'unknown' }
+    if (qualityScore !== undefined) body.qualityScore = qualityScore
+    const res = await api.post<ReportDto>(`/reports/${id}/transition`, body)
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 
   revise: async (id: string) => transition(id, 'AMENDING'),
 
@@ -171,7 +219,7 @@ export const reportApi = {
 
   // [v3.0.6.8-45] PR1: 双签 + 版本对比 + 审计轨迹
   cosign: async (id: string, _cosignerId: string) => {
-    const res = await transition(id, 'CO_SIGN_REVIEW')
+    const res = await transitionIfChanged(id, 'CO_SIGN_REVIEW')
     return res
   },
 
@@ -263,6 +311,14 @@ export const reportApi = {
     await invalidateApiCache(`/reports/${id}`)
     await invalidateApiCacheByPrefix('/reports')
     return res
+  },
+
+  // [W6] 已归档报告列表 (只读): GET /reports?state=ARCHIVED
+  //   复用后端 GET /reports 的 state 过滤 (ReportStateEnum 含 ARCHIVED), 免新增后端路由。
+  listArchived: (params?: { keyword?: string }) => {
+    const sp = new URLSearchParams({ state: 'ARCHIVED', take: '200' })
+    if (params?.keyword) sp.set('keyword', params.keyword)
+    return api.get<ListPayload<ReportDto>>(`/reports?${sp.toString()}`)
   },
 
   // [v3.0.6.11-103 Wave 2A] 报告总览: GET /reports/overview (各状态/今日完成/平均时效)

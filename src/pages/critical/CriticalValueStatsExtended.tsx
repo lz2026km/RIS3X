@@ -48,7 +48,7 @@ export function CriticalValueStatsExtended() {
     setOverview(ov.data ?? null);
     setTrend(tr.success ? (tr.data ?? null) : null);
     setDepartments(dept.success ? (dept.data?.items ?? []) : []);
-    setCriticals(list.success ? (list.data ?? []) : []);
+    setCriticals(list.success ? (list.data?.items ?? []) : []);
     setLoading(false);
   }, []);
 

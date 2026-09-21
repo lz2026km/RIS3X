@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Select } from 'antd'
 import { ActionButton } from '../components/common/ActionButton'
+import { AppEmpty } from '../components/feedback'
 import { statsApi } from '../services/api/statsApi'
 import { analyticsStatsApi, type ForecastPointDto, type UtilizationDto, type AccuracyDto } from '../services/api/analyticsApi'
 import { biApi } from '../services/api/biApi'
@@ -932,7 +933,17 @@ export default function StatsReportPage() {
   // 渲染表格内容
   const renderTableBody = () => {
     const data = getPaginatedData()
-    
+
+    if (data.length === 0) {
+      return (
+        <tr>
+          <td colSpan={12}>
+            <AppEmpty variant="no-results" minHeight={160} />
+          </td>
+        </tr>
+      )
+    }
+
     if (activeTab === 'device') {
       return data.map((item: any, index) => (
         <tr 

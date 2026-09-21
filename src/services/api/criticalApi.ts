@@ -1,4 +1,5 @@
 import { api } from './client'
+import type { ApiResponse } from './types'
 
 export type NotificationMethod = 'PHONE' | 'SMS' | 'SYSTEM' | 'EMAIL' | 'WECHAT' | 'DINGTALK'
 
@@ -44,8 +45,174 @@ export interface CriticalStatsDto {
   todayCount: number
 }
 
+// [v3.0.6.11-105 Wave 1B] 国标 13 类危急值诊断字典
+export interface NationalDiagnosisDto {
+  code: string
+  name: string
+  category: string
+  isNational: boolean
+}
+
+export interface NationalDiagnosesResult {
+  items: NationalDiagnosisDto[]
+  total: number
+  nationalCount: number
+  standard: string
+  generatedAt: string
+}
+
+export interface CriticalRqiDetailDto {
+  criticalId: string
+  patientId?: string
+  patientName?: string
+  diagnosisCode: string
+  diagnosisName: string
+  foundAt: string
+  notifiedAt?: string
+  notifiedBy?: string
+  receivedBy?: string
+  receiveNote?: string
+  notifyMinutes?: number
+  within10Min: boolean
+  signatureComplete: boolean
+}
+
+export interface CriticalRqiStatsDto {
+  months: number
+  windowStart: string
+  standard: string
+  deadlineMin: number
+  source: 'db' | 'seed'
+  nationalTotal: number
+  within10MinCount: number
+  overdueCount: number
+  completionRate: number
+  details: CriticalRqiDetailDto[]
+  signatureIntegrity: {
+    total: number
+    notifiedAtCount: number
+    notifiedByCount: number
+    receivedByCount: number
+    receiveNoteCount: number
+    completeCount: number
+    completenessRate: number
+  }
+}
+
+// [G005 contract] 后端 GET /criticals 返回 { items, total } (MSW 旧 handler 为裸数组);
+//   统一归一化为 { items, total }。
+export interface CriticalListPayload {
+  items: CriticalValueDto[]
+  total: number
+}
+
+// 后端 CriticalState (大写枚举) → 前端 lowercase status (状态机/页面兼容; MSW 旧数据已带 status)
+const CRITICAL_STATE_TO_STATUS: Record<string, string> = {
+  FOUND: 'pending',
+  NOTIFIED: 'notified',
+  VOICE_CALLED: 'voice_called',
+  ACKNOWLEDGED: 'acknowledged',
+  RECEIPTED: 'receipted',
+  RESOLVING: 'resolving',
+  RESOLVED: 'resolved',
+  CLOSED_LOOP: 'resolved',
+  ESCALATED: 'escalated',
+  CANCELLED: 'cancelled',
+}
+
+function normalizeCritical(dto: CriticalValueDto): CriticalValueDto {
+  const state = String(dto?.state ?? '').toUpperCase()
+  return {
+    ...dto,
+    status: dto?.status ?? CRITICAL_STATE_TO_STATUS[state] ?? (state ? state.toLowerCase() : 'pending'),
+  }
+}
+
+// [W6] 与后端 CRITICAL_TRANSITIONS 对齐的状态流转表 (backend/src/criticals/criticals.service.ts)
+const CRITICAL_TRANSITIONS: Record<string, string[]> = {
+  FOUND: ['NOTIFIED', 'ESCALATED', 'CANCELLED'],
+  NOTIFIED: ['VOICE_CALLED', 'ACKNOWLEDGED', 'ESCALATED', 'CANCELLED'],
+  VOICE_CALLED: ['ACKNOWLEDGED', 'ESCALATED', 'CANCELLED'],
+  ACKNOWLEDGED: ['RECEIPTED', 'RESOLVING', 'ESCALATED'],
+  RECEIPTED: ['RESOLVING', 'ESCALATED'],
+  RESOLVING: ['RESOLVED', 'ESCALATED'],
+  RESOLVED: ['CLOSED_LOOP', 'CANCELLED'],
+  CLOSED_LOOP: [],
+  ESCALATED: ['ACKNOWLEDGED', 'CANCELLED'],
+  CANCELLED: [],
+}
+
+const STATUS_TO_CRITICAL_STATE: Record<string, string> = {
+  pending: 'FOUND',
+  notified: 'NOTIFIED',
+  voice_called: 'VOICE_CALLED',
+  acknowledged: 'ACKNOWLEDGED',
+  receipted: 'RECEIPTED',
+  resolving: 'RESOLVING',
+  resolved: 'RESOLVED',
+  closed_loop: 'CLOSED_LOOP',
+  escalated: 'ESCALATED',
+  cancelled: 'CANCELLED',
+}
+
+/** 从 DTO 归一化出后端大写状态 (兼容旧 lowercase status) */
+function criticalStateOf(dto?: CriticalValueDto | null): string {
+  const raw = String(dto?.state ?? '').toUpperCase()
+  if (CRITICAL_TRANSITIONS[raw]) return raw
+  const byStatus = STATUS_TO_CRITICAL_STATE[String(dto?.status ?? '').toLowerCase()]
+  return byStatus ?? (raw || 'FOUND')
+}
+
+/** BFS 求 from → to 的最短合法状态链 (不含 from), 无解返回 null */
+function findCriticalPath(from: string, to: string): string[] | null {
+  if (from === to) return []
+  const queue: Array<{ state: string; path: string[] }> = [{ state: from, path: [] }]
+  const seen = new Set<string>([from])
+  while (queue.length > 0) {
+    const { state, path } = queue.shift()!
+    for (const next of CRITICAL_TRANSITIONS[state] ?? []) {
+      if (seen.has(next)) continue
+      const nextPath = [...path, next]
+      if (next === to) return nextPath
+      seen.add(next)
+      queue.push({ state: next, path: nextPath })
+    }
+  }
+  return null
+}
+
+/**
+ * [W6] 按后端合法流转表分步流转到目标态: 非法直达 (如 FOUND→RESOLVED) 会被后端 400,
+ * 因此先前置补齐中间态 (如 ACKNOWLEDGED→RESOLVING→RESOLVED) 再落目标态。
+ */
+async function applyCriticalTransition(
+  id: string,
+  target: string,
+  extra?: Record<string, unknown>,
+): Promise<ApiResponse<CriticalValueDto>> {
+  let current: string = 'FOUND'
+  try {
+    const cur = await api.get<CriticalValueDto>(`/criticals/${id}`)
+    current = criticalStateOf(cur.data)
+  } catch {
+    // 读取失败时直接提交目标态, 由后端给出准确错误
+    return api.patch<CriticalValueDto>(`/criticals/${id}`, { state: target, ...extra })
+  }
+  const path = findCriticalPath(current, target)
+  if (!path || path.length === 0) {
+    return api.patch<CriticalValueDto>(`/criticals/${id}`, { state: target, ...extra })
+  }
+  let last: ApiResponse<CriticalValueDto> | null = null
+  for (let i = 0; i < path.length; i++) {
+    if (last && !last.success) return last
+    const isLast = i === path.length - 1
+    last = await api.patch<CriticalValueDto>(`/criticals/${id}`, isLast ? { state: path[i], ...extra } : { state: path[i] })
+  }
+  return last ?? api.patch<CriticalValueDto>(`/criticals/${id}`, { state: target, ...extra })
+}
+
 export const criticalApi = {
-  list: (params?: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string; patientId?: string }) => {
+  list: async (params?: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string; patientId?: string }) => {
     const searchParams = new URLSearchParams()
     if (params) {
       if (params.skip !== undefined) searchParams.set('skip', String(params.skip))
@@ -57,7 +224,16 @@ export const criticalApi = {
       if (params.patientId) searchParams.set('patientId', params.patientId)
     }
     const qs = searchParams.toString()
-    return api.get<CriticalValueDto[]>(`/criticals${qs ? `?${qs}` : ''}`)
+    const res = await api.get<CriticalValueDto[] | { items?: CriticalValueDto[]; total?: number }>(`/criticals${qs ? `?${qs}` : ''}`)
+    const raw = res.data
+    const items = Array.isArray(raw) ? raw : (raw?.items ?? [])
+    return {
+      ...res,
+      data: {
+        items: items.map(normalizeCritical),
+        total: Array.isArray(raw) ? raw.length : (raw?.total ?? items.length),
+      },
+    }
   },
 
   getById: (id: string) =>
@@ -82,15 +258,16 @@ export const criticalApi = {
   clinicalReceipt: (id: string, data: { confirmedBy: string; signature?: string; comment?: string }) =>
     api.post<CriticalValueDto>(`/criticals/${id}/clinical-receipt`, data),
 
+  // [W6] 确认/处理/闭环走合法流转链 (不能 ACK 早于 NOTIFIED / RESOLVE 早于 ACKNOWLEDGED)
   acknowledge: (id: string) =>
-    api.patch<CriticalValueDto>(`/criticals/${id}`, { state: 'ACKNOWLEDGED' }),
+    applyCriticalTransition(id, 'ACKNOWLEDGED'),
 
   resolve: (id: string) =>
-    api.patch<CriticalValueDto>(`/criticals/${id}`, { state: 'RESOLVED' }),
+    applyCriticalTransition(id, 'RESOLVED'),
 
   // [G005-P0] 闭环统一走 PATCH /criticals/:id state=CLOSED_LOOP (原 POST /criticals/close-loop 后端无该端点)
   closeLoop: (id: string, closedBy?: string) =>
-    api.patch<CriticalValueDto>(`/criticals/${id}`, { state: 'CLOSED_LOOP', closedBy }),
+    applyCriticalTransition(id, 'CLOSED_LOOP', closedBy ? { closedBy } : undefined),
 
   notify: (id: string, method?: NotificationMethod, extra?: { patientName?: string; patientId?: string; category?: string; finding?: string; recipientName?: string; recipientDept?: string; recipientPhone?: string }) =>
     api.post<{ id: string; status?: string; count?: number }>('/criticals/notify', { criticalId: id, channels: method ? [method] : ['SYSTEM'], ...extra }),
@@ -110,4 +287,12 @@ export const criticalApi = {
 
   getStats: () =>
     api.get<CriticalStatsDto>('/criticals/stats'),
+
+  // [v3.0.6.11-105 Wave 1B] 国标 13 类危急值诊断字典
+  getNationalDiagnoses: () =>
+    api.get<NationalDiagnosesResult>('/criticals/national-diagnoses'),
+
+  // [v3.0.6.11-105 Wave 1B] 国标口径 RQI 统计 (10 分钟通报完成率 + 署名完整性)
+  getRqiStats: (months = 1) =>
+    api.get<CriticalRqiStatsDto>(`/criticals/rqi-stats?months=${months}`),
 }

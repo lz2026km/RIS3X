@@ -59,6 +59,7 @@ import { useOperationLog } from '../hooks/useOperationLog'
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from '../hooks/useKeyboardShortcuts'
 import { SmartSortPanel } from '../components/worklist/SmartSortPanel'
 import { SortCompareModal } from '../components/worklist/SortCompareModal'
+import TimeoutVerifyModal from '../components/worklist/TimeoutVerifyModal'
 
 // ============================================================
 // 类型定义
@@ -119,6 +120,9 @@ function toRadiologyExam(item: Record<string, unknown>): RadiologyExam {
     imagesAcquired: Number(item.imageCount ?? item.imagesAcquired ?? 0),
     accessionNumber: String(item.accessionNumber ?? ''),
     criticalFinding: Boolean(item.hasCriticalValue ?? item.criticalFinding ?? false),
+    // [W6] Time-Out 门禁 + 重拍审批状态透出
+    timeoutVerified: item.timeoutVerified === undefined ? undefined : Boolean(item.timeoutVerified),
+    retakeStatus: (item.retakeStatus ?? null) as RadiologyExam['retakeStatus'],
     createdTime: createdAt,
     updatedTime: String(item.updatedAt ?? item.updatedTime ?? ''),
   }
@@ -139,7 +143,7 @@ function extractExamItems(raw: unknown): unknown[] | null {
 // examMachine 集成辅助
 // ============================================================
 const EXAM_STATUS_TO_MACHINE: Record<string, string> = {
-  'SCHEDULED': 'registered',
+  'SCHEDULED': 'scheduled',
   'ARRIVED': 'arrived',
   'IN_PROGRESS': 'inProgress',
   'COMPLETED': 'completed',
@@ -147,7 +151,7 @@ const EXAM_STATUS_TO_MACHINE: Record<string, string> = {
 }
 
 function replayExamActorTo(exam: RadiologyExam, targetEvent: { type: string; reason?: string; by: string; imagesAcquired?: number; technologistId?: string }) {
-  const initial = EXAM_STATUS_TO_MACHINE[exam.status] ?? 'ordered'
+  const initial = EXAM_STATUS_TO_MACHINE[exam.status] ?? 'scheduled'
   const actor = createActor(examMachine, {
     input: {
       examId: exam.id,
@@ -471,6 +475,8 @@ export default function WorklistPage() {
   const [confirmModalConfig, setConfirmModalConfig] = useState<{ open: boolean; title: string; message: string; variant?: 'danger'; onConfirm: () => void } | null>(null)
   const [batchResultModalData, setBatchResultModalData] = useState<{ open: boolean; action: string; count: number; results: string[] } | null>(null)
   const [printPreviewModalData, setPrintPreviewModalData] = useState<{ open: boolean; examIds: string[] } | null>(null)
+  // [W6] 检查前核对 (Time-Out) 门禁: 未核对时弹窗, 完成后才放行开始检查
+  const [timeoutExam, setTimeoutExam] = useState<RadiologyExam | null>(null)
 
   const [checkIn, setCheckIn] = useState<CheckInState>(initialCheckIn)
 
@@ -1406,9 +1412,14 @@ export default function WorklistPage() {
   // ============================================================
   // 单条真实操作: 开始 / 取消 / 看板拖拽转移
   // ============================================================
-  const transitionExamTo = useCallback(async (exam: RadiologyExam, target: string) => {
+  const transitionExamTo = useCallback(async (exam: RadiologyExam, target: string, opts?: { skipTimeout?: boolean }) => {
     const from = normalizeExamStatus(exam.status)
     if (from === target) return
+    // [W6] 检查前核对 (Time-Out) 门禁: 后端要求 timeoutVerified=true 才能 start
+    if (target === 'IN_PROGRESS' && !opts?.skipTimeout && exam.timeoutVerified === false) {
+      setTimeoutExam(exam)
+      return
+    }
     let res: { success: boolean; error?: { message?: string } }
     try {
       if (target === 'ARRIVED') {
@@ -1425,6 +1436,9 @@ export default function WorklistPage() {
       if (res.success) {
         log(`status_${target.toLowerCase()}`, exam.id, { from })
         void refreshAfterMutation()
+      } else if (target === 'IN_PROGRESS' && (res.error?.message ?? '').includes('TIMEOUT_NOT_VERIFIED')) {
+        // [W6] 后端门禁兜底: 未核对时弹 Time-Out 弹窗
+        setTimeoutExam(exam)
       } else {
         setConfirmModalConfig({
           open: true,
@@ -1457,6 +1471,13 @@ export default function WorklistPage() {
       }
     })
   }, [transitionExamTo])
+
+  // [W6] Time-Out 核对通过 → 以已核对状态重新发起开始检查
+  const handleTimeoutVerified = useCallback(() => {
+    const target = timeoutExam
+    setTimeoutExam(null)
+    if (target) void transitionExamTo(target, 'IN_PROGRESS', { skipTimeout: true })
+  }, [timeoutExam, transitionExamTo])
 
   const handleCancelExam = useCallback((exam: RadiologyExam) => {
     setConfirmModalConfig({
@@ -2555,6 +2576,13 @@ export default function WorklistPage() {
           </Card>
         </div>
       )}
+
+      <TimeoutVerifyModal
+        open={timeoutExam !== null}
+        examId={timeoutExam?.id ?? null}
+        onCancel={() => setTimeoutExam(null)}
+        onVerified={handleTimeoutVerified}
+      />
 
       {batchResultModalData?.open && (
         <div

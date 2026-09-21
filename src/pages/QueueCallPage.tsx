@@ -775,7 +775,7 @@ export default function QueueCallPage() {
 
   // 叫号操作
   const handleCall = async (item: QueueCallItem) => {
-    await queueApi.call(item.id)
+    await queueApi.call(item.roomId, item.patientId ? { patientId: item.patientId } : undefined)
     setQueueCalls(prev => prev.map(q => 
       q.id === item.id 
         ? { ...q, status: '已呼叫' as const, calledCount: q.calledCount + 1, lastCalledTime: currentTime.toLocaleString('zh-CN') }

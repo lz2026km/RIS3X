@@ -4860,7 +4860,9 @@
     "barcodeScan": "扫码报到",
     "printTag": "打印条码腕带"
   },
-  "benchmark": {},
+  "benchmark": {
+    "title": "智能基准分析"
+  },
   "oee": {
     "title": "设备 OEE 看板",
     "subtitle": "设备综合效率",
@@ -4899,8 +4901,12 @@
     "recommendations": "处理建议",
     "historyTrend": "分级趋势"
   },
-  "dicomCompress": {},
-  "worklistSmart": {},
+  "dicomCompress": {
+    "title": "DICOM 压缩"
+  },
+  "worklistSmart": {
+    "title": "智能工作列表"
+  },
   "dicom4d": {
     "loadError": "4D 序列加载失败",
     "title": "4D 动态成像",

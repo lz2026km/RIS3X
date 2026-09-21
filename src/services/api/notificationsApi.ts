@@ -48,6 +48,31 @@ export interface CreateNotificationData {
   targetId?: string
 }
 
+// [v3.0.6.11-99 Wave 10D] 通知总览 / 近 N 日趋势
+export interface NotificationOverviewDto {
+  userId: string
+  total: number
+  unread: number
+  today: number
+  critical: number
+  lastWeek: number
+  lastWeekDeltaPercent: number
+  byType: Record<string, number>
+  bySeverity: Record<string, number>
+}
+
+export interface NotificationTrendPoint {
+  date: string
+  total: number
+  unread: number
+  critical: number
+}
+
+export interface NotificationTrendDto {
+  items: NotificationTrendPoint[]
+  total: number
+}
+
 export const notificationsApi = {
   getUnread: (userId: string) =>
     api.get<{ userId: string; unread: number }>(`/notifications/unread/${userId}`),
@@ -57,6 +82,18 @@ export const notificationsApi = {
 
   getStats: (userId: string) =>
     api.get<NotificationStatsDto>(`/notifications/stats/${userId}`),
+
+  // [v3.0.6.11-99 Wave 10D] 通知总览 (按类型/未读/今日) + 近 N 日趋势
+  getOverview: (userId?: string) =>
+    api.get<NotificationOverviewDto>(
+      `/notifications/overview${userId ? `?userId=${encodeURIComponent(userId)}` : ''}`,
+    ),
+
+  getDailyTrend: (days = 30, userId?: string) => {
+    const params = new URLSearchParams({ days: String(days) })
+    if (userId) params.set('userId', userId)
+    return api.get<NotificationTrendDto>(`/notifications/daily-trend?${params.toString()}`)
+  },
 
   markRead: (id: string) =>
     api.post<NotificationDto>(`/notifications/read/${id}`),

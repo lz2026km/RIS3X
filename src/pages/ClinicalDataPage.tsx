@@ -41,7 +41,7 @@ import {
 } from 'recharts'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
 import { patientApi, examApi } from '../services/api'
-import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback'
 import type { Patient } from '../types'
 import { t } from '../i18n/appI18n'
 
@@ -913,6 +913,7 @@ const Patient360View = () => {
           
           {/* 患者列表 */}
           <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+            {filteredPatients.length === 0 && <AppEmpty variant="no-results" minHeight={160} />}
             {filteredPatients.slice(0, 20).map(patient => {
               const pData = generatePatient360(patient.id)
               const isSelected = selectedPatient?.patientId === patient.id

@@ -1,3 +1,46 @@
+## v3.0.6.11-107 (2026-09-22) — 后端有前端无补齐 + 前后端契约/流程/状态机/权限对齐 + MSW 全量覆盖 + 全链路回归
+
+> **目标**: 审查软件，后端有的功能前端没有的补充完善修正，去除 BUG（版本 +0.0.1）
+> **范围**: 10 波并行（W1–W10），前端 47 文件/831 测试 0 失败，前端 tsc 815（较基线 -2），后端 tsc 0；vite build 成功
+
+### W1 — P0 BUG 修复
+- 新增 `src/utils/uniqueId.ts`（时间戳+单调自增+随机，修复同毫秒 ID 冲突）
+- 修复 5 处 rules-of-hooks 崩溃（Hook 早于提前 return）：`AppLayout.tsx`(登录态切换全站崩溃)、`NotificationCenter.tsx`、`SpecialAssessmentPages.tsx`、`TermLibraryPage.tsx`、`TemplateManagementPage.tsx`
+- 修复 6 项 vitest：`r11.test.tsx` 直接改写 `globalThis.fetch` 泄漏（改为 afterEach 复原）、a11y 重页超时（+30s）、`useBreakpoint` 未 await 防抖、`StatusBadge` 标签断言、`olapHandlers` 基线缺 `device_daily_exams`、i18n 空命名空间（benchmark/dicomCompress/worklistSmart）、`qualityScoringTop5` 改 node 环境
+
+### W2 — 前后端契约修复
+- queue 叫号改 `/:roomId/call` + body（原误传队列 id → 404）；criticals list 归一化 `{items,total}` + `state`→`status`；`reportStore.load`/`criticalStore.load` 兼容分页与数组；报告发布落库 `qualityScore`（后端 transition DTO + service）；clinical-feedback 枚举 `dispute→objection`/`correct→correction`；worklist DTO 字段与后端 `Exam` 对齐
+
+### W3 — 后端有前端无补齐
+- 新增前端 API + MSW：外渗 4、criticals national-diagnoses/rqi-stats、report-rules national-rws 3、quality-indicators extended/evaluate/standards 3、queue overview/room-status/daily-trend/waiting-stats 4、auth refresh、notifications overview/daily-trend、clinical-feedback 4 + contrast-safety 6 等（新增 `w3MissingHandlers.ts` 并前置）
+
+### W4 — 前端失效调用修复
+- `patientExamApi` 改指 `/patients`、`/patients/:id/exams`；`dentalApi.detectCariesOnImage` 改指 `/dental/ai/caries-detection`
+
+### W5 — MSW 全量补齐
+- 新增 `w5MissingHandlers.ts`（163 handlers / 45 簇，覆盖 152 条去重路径），前置注册
+
+### W6 — 流程断点 B1–B9
+- B1 Time-Out 门禁：新增 `TimeoutVerifyModal`，接入 Worklist/ExamDetail/ExamPage/移动端；B2 重拍审批流；B3 危急值流转表 BFS 合法路径；B5 报告 `REVIEWED` 自环防护；B8 新增归档列表页 `/reports/archived`
+
+### W7 — 状态机一致性
+- `examMachine` 对齐后端 10 态（新增 `qcPass`，移除前端专有态）；`reportMachine` ESCALATED 语义修正 + 补齐 11 处迁移；`orderMachine` 顺序修正 + 补 `CHECKED_IN`/`NO_SHOW`；MSW 种子形状（上报中心/甘特/随访/反馈/危急值）对齐后端 DTO
+
+### W8 — 权限逐项核对（逐项决策）
+- 开放后端临床专科角色：eye/dental/fhir 资源、appointments(+DOCTOR/TECHNICIAN/NURSE)、queue/worklist(+NURSE)、ihe(+TECHNICIAN)；收紧前端越权：`/ihe/visit*`、`/eye/ris`、`/dental/{billing,schedule,patient-view}`
+
+### W9 — 三态补齐 + 控件统一
+- 18 页补齐 loading/empty/error（ReportPage/PatientPage/AuditPage/BackupPage/SignAmendPage 等）；Backup/SlaPolicy/Hl7Archive 迁移 DataTable/ActionButton
+
+### W10 — i18n + mock 页真实化
+- `WsiViewerPage` ~79 键、`FindingLibraryPage` 19 键、`InsuranceAuditPage` 2 键（新增 namespaces `w10*.ts`）；`BenchmarkAiDiagnosisPage`/`OrthoSpecialtyPage`/`dose` 两个子视图接真实 API（空态回退 mock）
+
+### 版本/部署
+- 版本号 16 文件统一 `3.0.6.11-106` → `3.0.6.11-107`（无 BOM）：package.json、backend/package.json、index.html、appI18n.ts（app.version）、deploy/{helm,kubernetes,index.ts}、.env*、README、CHANGELOG
+- 验证：前端 tsc 815、vitest 47 文件/831 测试 0 失败、vite build 成功；后端 tsc 0、相关 spec 全过
+
+---
+
 ## v3.0.6.11-106 (2026-09-15) — 页面点击/加载问题专项修复（白屏/红字/原始键/连接失败/路由错误）
 
 > **目标**: 本地部署验证每个页面点击正常，修复点击错误、路由不正确、无法连接、白屏、红字等问题

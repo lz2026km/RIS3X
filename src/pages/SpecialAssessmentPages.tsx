@@ -33,11 +33,8 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
   const navigate = useNavigate();
   const assessment = SPECIAL_ASSESSMENTS.find(a => a.id === assessmentId);
 
-  if (!assessment) {
-    return <div style={{ padding: 40, textAlign: 'center' }}>评估系统不存在</div>;
-  }
-
   // 状态
+  // [W1-107] 所有 Hook 必须早于 "评估系统不存在" 的提前 return, 保证钩子数量稳定
   const [selectedGrade, setSelectedGrade] = useState<string>('');
   const [values, setValues] = useState<Record<string, any>>({});
   const [showHistory, setShowHistory] = useState(false);
@@ -46,9 +43,9 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
   const [historyLoading, setHistoryLoading] = useState(true);
   const [historySource, setHistorySource] = useState<'api' | 'demo'>('demo');
   const [historyRows, setHistoryRows] = useState<HistoryRow[]>([
-    { date: '2026-05-15', grade: assessment.grades[0]?.value || '', doctor: '张明远' },
-    { date: '2026-03-20', grade: assessment.grades[0]?.value || '', doctor: '李慧敏' },
-    { date: '2026-01-10', grade: assessment.grades[0]?.value || '', doctor: '王建华' },
+    { date: '2026-05-15', grade: assessment?.grades[0]?.value || '', doctor: '张明远' },
+    { date: '2026-03-20', grade: assessment?.grades[0]?.value || '', doctor: '李慧敏' },
+    { date: '2026-01-10', grade: assessment?.grades[0]?.value || '', doctor: '王建华' },
   ]);
 
   const loadHistory = useCallback(async () => {
@@ -70,6 +67,10 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
   }, []);
 
   useEffect(() => { void loadHistory(); }, [loadHistory]);
+
+  if (!assessment) {
+    return <div style={{ padding: 40, textAlign: 'center' }}>评估系统不存在</div>;
+  }
 
   // 计算结果
   const currentGrade = assessment.grades.find(g => g.value === selectedGrade);

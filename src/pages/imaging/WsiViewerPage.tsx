@@ -17,7 +17,7 @@ import {
   Circle as CircleIcon, Crosshair, Hexagon, Layers, Maximize, Minus, Move,
   Plus, RotateCcw, Square, Trash2,
 } from 'lucide-react'
-import { getCurrentLocale } from '../../i18n/appI18n'
+import { t } from '../../i18n/appI18n'
 import { currentApiMode } from '../../services/api/client'
 import {
   wsiApi,
@@ -33,184 +33,8 @@ import {
 const { Text } = Typography
 
 // ────────────────────────────────────────────────────────────────────────────
-// 轻量 i18n (页面级文案; nav.wsiViewer 已在 4 个 i18n 文件注册)
+// i18n: 文案键位于 src/i18n/namespaces/w10WsiViewer.ts (前缀 w10Wsi.)
 // ────────────────────────────────────────────────────────────────────────────
-
-const ZH: Record<string, unknown> = {
-  title: '病理切片 WSI 浏览与标注',
-  subtitle: '全切片图像金字塔浏览 · 矩形/圆形/多边形标注 · 病例信息',
-  slideList: '切片列表',
-  refresh: '刷新',
-  caseList: '病例列表',
-  caseFilterHint: '点击病例可按患者过滤切片 (GET /pathology/cases)',
-  clearFilter: '清除过滤',
-  filterActive: '过滤中:',
-  slideCount: '切片',
-  patient: '患者',
-  slideId: '切片 ID',
-  stain: '染色',
-  magnification: '放大倍数',
-  institution: '机构',
-  resolution: '分辨率',
-  slideInfo: '切片信息',
-  levels: '金字塔层数',
-  tileSize: '瓦片大小',
-  scannedAt: '扫描时间',
-  caseStatus: '病例状态',
-  caseInfo: '病例摘要',
-  specimen: '取材部位',
-  diagnosis: '诊断',
-  accession: '送检号',
-  overview: '缩略图导航',
-  levelLabel: '层级',
-  tools: '标注工具',
-  pan: '平移',
-  rect: '矩形',
-  circle: '圆形',
-  polygon: '多边形',
-  zoomIn: '放大',
-  zoomOut: '缩小',
-  fitView: '适应窗口',
-  resetView: '重置视图',
-  selectSlide: '选择切片...',
-  noSlide: '请从左侧选择病理切片',
-  noSlideHint: '在左侧列表选择切片后开始浏览与标注',
-  loading: '加载中...',
-  loadFailed: '加载失败, 已回退内置演示数据',
-  annotations: '标注列表',
-  addAnnotation: '添加标注',
-  annotateHint: '选择上方标注工具, 在图像上拖拽绘制',
-  annotateHintPoly: '点击添加顶点, 双击或点击「完成」结束',
-  edit: '编辑',
-  locate: '定位',
-  delete: '删除',
-  confirmDelete: '确认删除该标注?',
-  label: '标签',
-  labelPlaceholder: '如: 可疑浸润灶',
-  category: '分类',
-  confidence: '置信度',
-  color: '颜色',
-  cancel: '取消',
-  ok: '确定',
-  created: '标注已添加',
-  updated: '标注已更新',
-  deleted: '标注已删除',
-  apiFailed: '后端暂不可用, 已本地保存',
-  labelRequired: '请输入标注标签',
-  polygonFinish: '完成',
-  marker: '标记',
-  level0Space: '坐标空间 (level-0)',
-  zoomLevel: '缩放',
-  staleBackend: '后端未连接, 正在使用内置演示数据 (可切到 real 模式验证 /pathology/*)',
-  emptyAnnotations: '暂无标注',
-  status: {
-    pending: '待报告',
-    reviewed: '已复核',
-    reported: '已报告',
-  } as Record<string, string>,
-  categoryName: {
-    benign: '良性',
-    suspicious: '可疑',
-    malignant: '恶性',
-    necrosis: '坏死',
-    uncategorized: '未分类',
-  } as Record<string, string>,
-}
-
-const EN: Record<string, unknown> = {
-  title: 'Pathology WSI Viewer & Annotation',
-  subtitle: 'Pyramid slide browsing · Rect/Circle/Polygon annotation · Case info',
-  slideList: 'Slides',
-  refresh: 'Refresh',
-  caseList: 'Cases',
-  caseFilterHint: 'Click a case to filter slides by patient (GET /pathology/cases)',
-  clearFilter: 'Clear Filter',
-  filterActive: 'Filtering:',
-  slideCount: 'slides',
-  patient: 'Patient',
-  slideId: 'Slide ID',
-  stain: 'Stain',
-  magnification: 'Magnification',
-  institution: 'Institution',
-  resolution: 'Resolution',
-  slideInfo: 'Slide Info',
-  levels: 'Pyramid Levels',
-  tileSize: 'Tile Size',
-  scannedAt: 'Scanned At',
-  caseStatus: 'Case Status',
-  caseInfo: 'Case Summary',
-  specimen: 'Specimen',
-  diagnosis: 'Diagnosis',
-  accession: 'Accession',
-  overview: 'Overview',
-  levelLabel: 'Level',
-  tools: 'Annotation Tools',
-  pan: 'Pan',
-  rect: 'Rectangle',
-  circle: 'Circle',
-  polygon: 'Polygon',
-  zoomIn: 'Zoom In',
-  zoomOut: 'Zoom Out',
-  fitView: 'Fit View',
-  resetView: 'Reset View',
-  selectSlide: 'Select slide...',
-  noSlide: 'Select a pathology slide from the left',
-  noSlideHint: 'Pick a slide to start browsing and annotating',
-  loading: 'Loading...',
-  loadFailed: 'Load failed, fell back to built-in demo data',
-  annotations: 'Annotations',
-  addAnnotation: 'Add Annotation',
-  annotateHint: 'Pick a tool above, drag on the image to draw',
-  annotateHintPoly: 'Click to add vertices, double-click or press Finish',
-  edit: 'Edit',
-  locate: 'Locate',
-  delete: 'Delete',
-  confirmDelete: 'Delete this annotation?',
-  label: 'Label',
-  labelPlaceholder: 'e.g. suspicious infiltration',
-  category: 'Category',
-  confidence: 'Confidence',
-  color: 'Color',
-  cancel: 'Cancel',
-  ok: 'OK',
-  created: 'Annotation created',
-  updated: 'Annotation updated',
-  deleted: 'Annotation deleted',
-  apiFailed: 'Backend unavailable, saved locally',
-  labelRequired: 'Please enter a label',
-  polygonFinish: 'Finish',
-  marker: 'Mark',
-  level0Space: 'Coordinate space (level-0)',
-  zoomLevel: 'Zoom',
-  staleBackend: 'Backend offline — using built-in demo data (switch to real mode to hit /pathology/*)',
-  emptyAnnotations: 'No annotations yet',
-  status: {
-    pending: 'Pending',
-    reviewed: 'Reviewed',
-    reported: 'Reported',
-  } as Record<string, string>,
-  categoryName: {
-    benign: 'Benign',
-    suspicious: 'Suspicious',
-    malignant: 'Malignant',
-    necrosis: 'Necrosis',
-    uncategorized: 'Uncategorized',
-  } as Record<string, string>,
-}
-
-function S(key: string): string {
-  const dict = getCurrentLocale() === 'zh-CN' ? ZH : EN
-  const raw = dict[key]
-  if (typeof raw === 'string') return raw
-  const fallback = EN[key]
-  return typeof fallback === 'string' ? fallback : key
-}
-
-function SMap(key: string, sub: string): string {
-  const dict = getCurrentLocale() === 'zh-CN' ? ZH : EN
-  const map = dict[key] as Record<string, string> | undefined
-  return map?.[sub] ?? sub
-}
 
 // ────────────────────────────────────────────────────────────────────────────
 // 内置演示数据 (mock / 后端不可用回退; 与后端 seed 一致)
@@ -626,7 +450,7 @@ function OverviewCanvas({ detail, view, viewSize, onNavigate }: OverviewCanvasPr
         />
       )}
       <div style={{ marginTop: 4, fontSize: 12, color: '#8c8c8c', textAlign: 'center' }}>
-        {S('overview')} · {S('levelLabel')} L{detail.levels - 1}
+        {t('w10Wsi.overview')} · {t('w10Wsi.levelLabel')} L{detail.levels - 1}
       </div>
     </div>
   )
@@ -902,7 +726,7 @@ const WsiViewerPage: React.FC = () => {
         upsertLocal(res.data)
         setAnnotations((prev) => prev.filter((a) => a.id !== localId))
       } else {
-        message.warning(S('apiFailed'))
+        message.warning(t('w10Wsi.apiFailed'))
       }
     },
     [detail, isMock, upsertLocal],
@@ -916,7 +740,7 @@ const WsiViewerPage: React.FC = () => {
       if (isMock) return
       const res = await wsiApi.updateAnnotation(id, patch)
       if (res.success && res.data) upsertLocal(res.data)
-      else message.warning(S('apiFailed'))
+      else message.warning(t('w10Wsi.apiFailed'))
     },
     [isMock, upsertLocal],
   )
@@ -926,7 +750,7 @@ const WsiViewerPage: React.FC = () => {
       removeLocal(id)
       if (isMock) return
       const res = await wsiApi.deleteAnnotation(id)
-      if (!res.success) message.warning(S('apiFailed'))
+      if (!res.success) message.warning(t('w10Wsi.apiFailed'))
     },
     [isMock, removeLocal],
   )
@@ -1029,7 +853,7 @@ const WsiViewerPage: React.FC = () => {
     if (!pendingAnn && !editingAnn) return
     const label = annLabel.trim()
     if (!label) {
-      message.warning(S('labelRequired'))
+      message.warning(t('w10Wsi.labelRequired'))
       return
     }
     const dto: CreateAnnotationDto = {
@@ -1043,10 +867,10 @@ const WsiViewerPage: React.FC = () => {
     }
     if (editingAnn) {
       void updateAnnotation(editingAnn.id, dto)
-      message.success(S('updated'))
+      message.success(t('w10Wsi.updated'))
     } else {
       void createAnnotation(dto)
-      message.success(S('created'))
+      message.success(t('w10Wsi.created'))
     }
     setPendingAnn(null)
     setEditingAnn(null)
@@ -1227,14 +1051,14 @@ const WsiViewerPage: React.FC = () => {
               <Space wrap>
                 <Crosshair size={18} color="#722ed1" />
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700 }}>{S('title')}</div>
-                  <div style={{ fontSize: 12, color: '#8c8c8c' }}>{S('subtitle')}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700 }}>{t('w10Wsi.title')}</div>
+                  <div style={{ fontSize: 12, color: '#8c8c8c' }}>{t('w10Wsi.subtitle')}</div>
                 </div>
               </Space>
               <Space wrap>
                 <Select
                   style={{ width: 300 }}
-                  placeholder={S('selectSlide')}
+                  placeholder={t('w10Wsi.selectSlide')}
                   value={currentSlideId ?? undefined}
                   onChange={(v: string) => void selectSlide(v)}
                   options={slides.map((s) => ({
@@ -1243,7 +1067,7 @@ const WsiViewerPage: React.FC = () => {
                   }))}
                 />
                 <Button size="small" icon={<RotateCcw size={14} />} onClick={() => void loadSlides()}>
-                  {S('refresh')}
+                  {t('w10Wsi.refresh')}
                 </Button>
               </Space>
             </Space>
@@ -1257,12 +1081,12 @@ const WsiViewerPage: React.FC = () => {
               size="small"
               title={
                 <Space size={6}>
-                  <Text strong>{S('caseList')}</Text>
-                  {caseFilterPatientId && <Tag color="blue">{S('filterActive')} {caseFilterPatientId}</Tag>}
+                  <Text strong>{t('w10Wsi.caseList')}</Text>
+                  {caseFilterPatientId && <Tag color="blue">{t('w10Wsi.filterActive')} {caseFilterPatientId}</Tag>}
                 </Space>
               }
               extra={caseFilterPatientId ? (
-                <Button size="small" type="link" onClick={() => { setCaseFilterPatientId(undefined); setDetail(null) }}>{S('clearFilter')}</Button>
+                <Button size="small" type="link" onClick={() => { setCaseFilterPatientId(undefined); setDetail(null) }}>{t('w10Wsi.clearFilter')}</Button>
               ) : undefined}
               styles={{ body: { maxHeight: 200, overflow: 'auto', padding: 8 } }}
             >
@@ -1291,21 +1115,21 @@ const WsiViewerPage: React.FC = () => {
                         {c.patientName} <span style={{ color: '#8c8c8c', fontWeight: 400 }}>{c.patientId}</span>
                       </div>
                       <div style={{ fontSize: 11, color: '#8c8c8c' }}>
-                        {c.specimen} · {S('slideCount')} {c.slideCount}
+                        {c.specimen} · {t('w10Wsi.slideCount')} {c.slideCount}
                       </div>
                       <Tag color={c.status === 'reported' ? 'green' : c.status === 'reviewed' ? 'blue' : 'orange'} style={{ marginTop: 2 }}>
-                        {SMap('status', c.status)}
+                        {t('w10Wsi.status.' + c.status)}
                       </Tag>
                     </div>
                   ))}
                 </Space>
               ) : (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={S('noSlide')} />
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('w10Wsi.noSlide')} />
               )}
-              <div style={{ fontSize: 10, color: '#b0b7c3', marginTop: 6 }}>{S('caseFilterHint')}</div>
+              <div style={{ fontSize: 10, color: '#b0b7c3', marginTop: 6 }}>{t('w10Wsi.caseFilterHint')}</div>
             </Card>
 
-            <Card size="small" title={<Text strong>{S('slideList')}</Text>} styles={{ body: { maxHeight: 380, overflow: 'auto', padding: 8 } }}>
+            <Card size="small" title={<Text strong>{t('w10Wsi.slideList')}</Text>} styles={{ body: { maxHeight: 380, overflow: 'auto', padding: 8 } }}>
               {loading ? (
                 <div style={{ textAlign: 'center', padding: 16 }}>
                   <Spin size="small" />
@@ -1336,7 +1160,7 @@ const WsiViewerPage: React.FC = () => {
                         {s.stainLabel} · {s.magnification}x · {Math.round(s.width / 1000)}k×{Math.round(s.height / 1000)}k
                       </div>
                       <Tag color={s.caseStatus === 'reported' ? 'green' : s.caseStatus === 'reviewed' ? 'blue' : 'orange'} style={{ marginTop: 2 }}>
-                        {SMap('status', s.caseStatus)}
+                        {t('w10Wsi.status.' + s.caseStatus)}
                       </Tag>
                     </div>
                   ))}
@@ -1344,40 +1168,40 @@ const WsiViewerPage: React.FC = () => {
               )}
             </Card>
 
-            <Card size="small" title={<Text strong>{S('caseInfo')}</Text>}>
+            <Card size="small" title={<Text strong>{t('w10Wsi.caseInfo')}</Text>}>
               {detail ? (
                 <Descriptions column={1} size="small">
-                  <Descriptions.Item label={S('patient')}>{detail.patientName} ({detail.patientId})</Descriptions.Item>
-                  <Descriptions.Item label={S('specimen')}>{detail.case.specimen}</Descriptions.Item>
-                  <Descriptions.Item label={S('diagnosis')}>{detail.case.diagnosis}</Descriptions.Item>
-                  <Descriptions.Item label={S('accession')}>{detail.case.accessionNumber}</Descriptions.Item>
-                  <Descriptions.Item label={S('caseStatus')}>
+                  <Descriptions.Item label={t('w10Wsi.patient')}>{detail.patientName} ({detail.patientId})</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.specimen')}>{detail.case.specimen}</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.diagnosis')}>{detail.case.diagnosis}</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.accession')}>{detail.case.accessionNumber}</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.caseStatus')}>
                     <Tag color={detail.case.status === 'reported' ? 'green' : detail.case.status === 'reviewed' ? 'blue' : 'orange'}>
-                      {SMap('status', detail.case.status)}
+                      {t('w10Wsi.status.' + detail.case.status)}
                     </Tag>
                   </Descriptions.Item>
                 </Descriptions>
               ) : (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={S('noSlide')} />
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('w10Wsi.noSlide')} />
               )}
             </Card>
 
-            <Card size="small" title={<Text strong>{S('slideInfo')}</Text>}>
+            <Card size="small" title={<Text strong>{t('w10Wsi.slideInfo')}</Text>}>
               {detail ? (
                 <Descriptions column={1} size="small">
-                  <Descriptions.Item label={S('slideId')}>{detail.id}</Descriptions.Item>
-                  <Descriptions.Item label={S('stain')}>{detail.stainLabel} ({detail.stain})</Descriptions.Item>
-                  <Descriptions.Item label={S('magnification')}>{detail.magnification}x</Descriptions.Item>
-                  <Descriptions.Item label={S('resolution')}>
+                  <Descriptions.Item label={t('w10Wsi.slideId')}>{detail.id}</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.stain')}>{detail.stainLabel} ({detail.stain})</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.magnification')}>{detail.magnification}x</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.resolution')}>
                     {detail.width} × {detail.height}
                   </Descriptions.Item>
-                  <Descriptions.Item label={S('levels')}>{detail.levels} 层</Descriptions.Item>
-                  <Descriptions.Item label={S('tileSize')}>{detail.tileSize}px</Descriptions.Item>
-                  <Descriptions.Item label={S('institution')}>{detail.institution}</Descriptions.Item>
-                  <Descriptions.Item label={S('scannedAt')}>{detail.scannedAt.replace('T', ' ').slice(0, 16)}</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.levels')}>{detail.levels} {t('w10Wsi.levelsSuffix')}</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.tileSize')}>{detail.tileSize}px</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.institution')}>{detail.institution}</Descriptions.Item>
+                  <Descriptions.Item label={t('w10Wsi.scannedAt')}>{detail.scannedAt.replace('T', ' ').slice(0, 16)}</Descriptions.Item>
                 </Descriptions>
               ) : (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={S('noSlide')} />
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('w10Wsi.noSlide')} />
               )}
             </Card>
           </Space>
@@ -1387,16 +1211,16 @@ const WsiViewerPage: React.FC = () => {
           <Card size="small" styles={{ body: { padding: 8 } }}>
             <Space wrap style={{ width: '100%', justifyContent: 'space-between' }} align="center">
               <Space wrap>
-                <Text strong style={{ fontSize: 12 }}>{S('tools')}:</Text>
-                <ToolButton active={tool === 'pan'} icon={<Move size={14} />} label={S('pan')} onClick={() => setTool('pan')} />
-                <ToolButton active={tool === 'rect'} icon={<Square size={14} />} label={S('rect')} onClick={() => setTool('rect')} />
-                <ToolButton active={tool === 'circle'} icon={<CircleIcon size={14} />} label={S('circle')} onClick={() => setTool('circle')} />
-                <ToolButton active={tool === 'polygon'} icon={<Hexagon size={14} />} label={S('polygon')} onClick={() => setTool('polygon')} />
+                <Text strong style={{ fontSize: 12 }}>{t('w10Wsi.tools')}:</Text>
+                <ToolButton active={tool === 'pan'} icon={<Move size={14} />} label={t('w10Wsi.pan')} onClick={() => setTool('pan')} />
+                <ToolButton active={tool === 'rect'} icon={<Square size={14} />} label={t('w10Wsi.rect')} onClick={() => setTool('rect')} />
+                <ToolButton active={tool === 'circle'} icon={<CircleIcon size={14} />} label={t('w10Wsi.circle')} onClick={() => setTool('circle')} />
+                <ToolButton active={tool === 'polygon'} icon={<Hexagon size={14} />} label={t('w10Wsi.polygon')} onClick={() => setTool('polygon')} />
               </Space>
               <Space wrap>
-                <ToolButton icon={<Plus size={14} />} label={S('zoomIn')} onClick={() => zoomBy(1.4)} />
-                <ToolButton icon={<Minus size={14} />} label={S('zoomOut')} onClick={() => zoomBy(1 / 1.4)} />
-                <ToolButton icon={<Maximize size={14} />} label={S('fitView')} onClick={fitView} />
+                <ToolButton icon={<Plus size={14} />} label={t('w10Wsi.zoomIn')} onClick={() => zoomBy(1.4)} />
+                <ToolButton icon={<Minus size={14} />} label={t('w10Wsi.zoomOut')} onClick={() => zoomBy(1 / 1.4)} />
+                <ToolButton icon={<Maximize size={14} />} label={t('w10Wsi.fitView')} onClick={fitView} />
                 {detail && (
                   <Segmented
                     size="small"
@@ -1410,10 +1234,10 @@ const WsiViewerPage: React.FC = () => {
 
             {tool === 'polygon' && (
               <div style={{ marginTop: 6, fontSize: 12, color: '#8c8c8c' }}>
-                {S('annotateHintPoly')}
+                {t('w10Wsi.annotateHintPoly')}
                 {polyPoints.length >= 6 && (
                   <Button size="small" type="primary" style={{ marginLeft: 8 }} onClick={finishPolygon}>
-                    {S('polygonFinish')}
+                    {t('w10Wsi.polygonFinish')}
                   </Button>
                 )}
               </div>
@@ -1454,8 +1278,8 @@ const WsiViewerPage: React.FC = () => {
                   }}
                 >
                   <Crosshair size={40} opacity={0.5} />
-                  <div>{S('noSlide')}</div>
-                  <div style={{ fontSize: 12 }}>{S('noSlideHint')}</div>
+                  <div>{t('w10Wsi.noSlide')}</div>
+                  <div style={{ fontSize: 12 }}>{t('w10Wsi.noSlideHint')}</div>
                 </div>
               )}
               {detail && (
@@ -1517,7 +1341,7 @@ const WsiViewerPage: React.FC = () => {
                     fontSize: 12,
                   }}
                 >
-                  {S('zoomLevel')}: {Math.round(view.zoom * 100)}% · {S('level0Space')}
+                  {t('w10Wsi.zoomLevel')}: {Math.round(view.zoom * 100)}% · {t('w10Wsi.level0Space')}
                 </div>
               )}
             </div>
@@ -1533,25 +1357,25 @@ const WsiViewerPage: React.FC = () => {
         <Col xs={24} lg={6} xl={6}>
           <Space direction="vertical" style={{ width: '100%' }} size={12}>
             {backendOffline && (
-              <Alert type="warning" showIcon message={S('loadFailed')} description={S('staleBackend')} />
+              <Alert type="warning" showIcon message={t('w10Wsi.loadFailed')} description={t('w10Wsi.staleBackend')} />
             )}
             <Card
               size="small"
               title={
                 <Space>
-                  <Text strong>{S('annotations')}</Text>
+                  <Text strong>{t('w10Wsi.annotations')}</Text>
                   <Tag color="purple">{annotations.length}</Tag>
                 </Space>
               }
               extra={
                 <Button size="small" type="primary" icon={<Layers size={13} />} onClick={openCreateModal} disabled={!detail}>
-                  {S('addAnnotation')}
+                  {t('w10Wsi.addAnnotation')}
                 </Button>
               }
               styles={{ body: { maxHeight: 420, overflow: 'auto' } }}
             >
               {annotations.length === 0 ? (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={S('emptyAnnotations')} />
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('w10Wsi.emptyAnnotations')} />
               ) : (
                 <Space direction="vertical" style={{ width: '100%' }} size={6}>
                   {annotations.map((a) => (
@@ -1566,24 +1390,24 @@ const WsiViewerPage: React.FC = () => {
                           <Text strong style={{ fontSize: 12 }}>{a.label}</Text>
                         </Space>
                         <Space size={2}>
-                          <Tooltip title={S('locate')}>
+                          <Tooltip title={t('w10Wsi.locate')}>
                             <Button size="small" type="text" icon={<Crosshair size={13} />} onClick={() => locateAnnotation(a)} />
                           </Tooltip>
-                          <Tooltip title={S('edit')}>
+                          <Tooltip title={t('w10Wsi.edit')}>
                             <Button size="small" type="text" icon={<Square size={13} />} onClick={() => openEditModal(a)} />
                           </Tooltip>
-                          <Popconfirm title={S('confirmDelete')} onConfirm={() => void deleteAnnotation(a.id)}>
-                            <Tooltip title={S('delete')}>
+                          <Popconfirm title={t('w10Wsi.confirmDelete')} onConfirm={() => void deleteAnnotation(a.id)}>
+                            <Tooltip title={t('w10Wsi.delete')}>
                               <Button size="small" type="text" danger icon={<Trash2 size={13} />} />
                             </Tooltip>
                           </Popconfirm>
                         </Space>
                       </Space>
                       <div style={{ marginTop: 4, fontSize: 11, color: '#8c8c8c' }}>
-                        <Tag color={a.color} style={{ fontSize: 11 }}>{SMap('categoryName', a.category)}</Tag>
-                        {a.kind === 'rect' && `${S('rect')} ${Math.round(a.points[2]! - a.points[0]!)}×${Math.round(a.points[3]! - a.points[1]!)}px`}
-                        {a.kind === 'circle' && `${S('circle')} r=${Math.round(a.points[2] ?? 0)}px`}
-                        {a.kind === 'polygon' && `${S('polygon')} ${Math.floor(a.points.length / 2)}${S('marker')}`}
+                        <Tag color={a.color} style={{ fontSize: 11 }}>{t('w10Wsi.categoryName.' + a.category)}</Tag>
+                        {a.kind === 'rect' && `${t('w10Wsi.rect')} ${Math.round(a.points[2]! - a.points[0]!)}×${Math.round(a.points[3]! - a.points[1]!)}px`}
+                        {a.kind === 'circle' && `${t('w10Wsi.circle')} r=${Math.round(a.points[2] ?? 0)}px`}
+                        {a.kind === 'polygon' && `${t('w10Wsi.polygon')} ${Math.floor(a.points.length / 2)}${t('w10Wsi.marker')}`}
                         {a.confidence !== undefined && ` · ${Math.round(a.confidence * 100)}%`}
                       </div>
                     </div>
@@ -1591,12 +1415,12 @@ const WsiViewerPage: React.FC = () => {
                 </Space>
               )}
             </Card>
-            <Card size="small" title={<Text strong>{S('annotateHint')}</Text>}>
+            <Card size="small" title={<Text strong>{t('w10Wsi.annotateHint')}</Text>}>
               <div style={{ fontSize: 12, color: '#8c8c8c', lineHeight: 1.8 }}>
-                1. {S('pan')}: 拖拽平移 / 滚轮缩放 / 层级 L0-L{detail ? detail.levels - 1 : 5}<br />
-                2. {S('rect')} / {S('circle')}: 按下拖拽绘制<br />
-                3. {S('polygon')}: 点击添加顶点, 双击完成<br />
-                4. 保存后点击列表项可 {S('locate')}
+                1. {t('w10Wsi.pan')}: {t('w10Wsi.hintPan')}{detail ? detail.levels - 1 : 5}<br />
+                2. {t('w10Wsi.rect')} / {t('w10Wsi.circle')}: {t('w10Wsi.hintRect')}<br />
+                3. {t('w10Wsi.polygon')}: {t('w10Wsi.hintPoly')}<br />
+                4. {t('w10Wsi.hintLocate')} {t('w10Wsi.locate')}
               </div>
             </Card>
           </Space>
@@ -1606,27 +1430,27 @@ const WsiViewerPage: React.FC = () => {
       {/* 标注创建 / 编辑弹窗 */}
       <Modal
         open={pendingAnn !== null || editingAnn !== null}
-        title={editingAnn ? S('edit') : S('addAnnotation')}
+        title={editingAnn ? t('w10Wsi.edit') : t('w10Wsi.addAnnotation')}
         onCancel={() => {
           setPendingAnn(null)
           setEditingAnn(null)
         }}
         onOk={confirmAnnotationModal}
-        okText={S('ok')}
-        cancelText={S('cancel')}
+        okText={t('w10Wsi.ok')}
+        cancelText={t('w10Wsi.cancel')}
       >
         <Space direction="vertical" style={{ width: '100%' }} size={12}>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{S('label')}</div>
+            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{t('w10Wsi.label')}</div>
             <Input
               value={annLabel}
               onChange={(e) => setAnnLabel(e.target.value)}
-              placeholder={S('labelPlaceholder')}
+              placeholder={t('w10Wsi.labelPlaceholder')}
               maxLength={200}
             />
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{S('category')}</div>
+            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{t('w10Wsi.category')}</div>
             <Radio.Group
               value={annCategory}
               onChange={(e) => {
@@ -1637,13 +1461,13 @@ const WsiViewerPage: React.FC = () => {
             >
               {CATEGORIES.map((c) => (
                 <Radio.Button key={c.value} value={c.value}>
-                  <span style={{ color: c.color }}>●</span> {SMap('categoryName', c.value)}
+                  <span style={{ color: c.color }}>●</span> {t('w10Wsi.categoryName.' + c.value)}
                 </Radio.Button>
               ))}
             </Radio.Group>
           </div>
           <div>
-            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{S('color')}</div>
+            <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>{t('w10Wsi.color')}</div>
             <Radio.Group value={annColor} onChange={(e) => setAnnColor(e.target.value)}>
               {PALETTE.map((c) => (
                 <Radio.Button key={c} value={c}>
@@ -1654,7 +1478,7 @@ const WsiViewerPage: React.FC = () => {
           </div>
           <div>
             <div style={{ marginBottom: 4, fontSize: 12, color: '#595959' }}>
-              {S('confidence')}: {Math.round(annConfidence * 100)}%
+              {t('w10Wsi.confidence')}: {Math.round(annConfidence * 100)}%
             </div>
             <Slider min={0} max={1} step={0.01} value={annConfidence} onChange={(v) => setAnnConfidence(Number(v))} />
           </div>

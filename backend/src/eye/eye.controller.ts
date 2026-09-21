@@ -69,7 +69,7 @@ type OkLensDesignDto = z.infer<typeof OkLensDesignSchema>
 
 @ApiTags('eye')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('eye')
 export class EyeController {
   constructor(private readonly eye: EyeService) {}

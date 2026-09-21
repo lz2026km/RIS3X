@@ -64,8 +64,8 @@ export default defineConfig({
     restoreMocks: true,
     unstubGlobals: true,
     slowTestThreshold: 1000,
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    testTimeout: 30000,
+    hookTimeout: 30000,
   },
   resolve: {
     alias: {

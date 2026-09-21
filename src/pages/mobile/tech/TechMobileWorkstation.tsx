@@ -4,6 +4,7 @@ import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, AlertCir
 import { useNavigate } from 'react-router-dom'
 import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto, examApi, mobileApi, type TodaySummary, type WorklistItem, worklistApi, type WorklistItemDto } from '../../../services/api'
 import { t } from '../../../i18n/appI18n'
+import TimeoutVerifyModal from '../../../components/worklist/TimeoutVerifyModal'
 
 export interface TechExamItem {
   id: string
@@ -19,6 +20,8 @@ export interface TechExamItem {
   priority: 'routine' | 'urgent'
   scheduledTime: string
   accessionNumber?: string
+  // [W6] 检查前核对 (Time-Out) 门禁状态 (来自 /worklist)
+  timeoutVerified?: boolean
 }
 
 export interface DeviceStatus {
@@ -110,6 +113,7 @@ export default function TechMobileWorkstation() {
     priority: w.isUrgent || w.priority === 'urgent' || w.priority === 'critical' ? 'urgent' as const : 'routine' as const,
     scheduledTime: w.scheduledAt ? new Date(w.scheduledAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '',
     accessionNumber: w.accessionNumber ?? w.accessionNo,
+    timeoutVerified: w.timeoutVerified,
   }), [])
 
   // 后端 /mobile/worklist 项目 → 技师视角列表项 (离线兜底)
@@ -216,7 +220,9 @@ export default function TechMobileWorkstation() {
   // [Wave2A] 开始检查 → worklistApi.start (与桌面 Worklist 同源, 失效 /worklist 缓存)
   // [v3.0.6.11-100 Wave 5B] 失败回退 examApi.start (同端点兼容), 回退成功标注消息
   const [operatingId, setOperatingId] = useState<string | null>(null)
-  const handleStartExam = useCallback(async (id: string) => {
+  // [W6] 检查前核对 (Time-Out) 门禁
+  const [timeoutExamId, setTimeoutExamId] = useState<string | null>(null)
+  const doStartExam = useCallback(async (id: string) => {
     setOperatingId(id)
     let fellBack = false
     try {
@@ -234,6 +240,9 @@ export default function TechMobileWorkstation() {
       if (res && res.success) {
         setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'in-progress' as const } : item))
         message.success(fellBack ? `已开始检查 (examApi 兼容回退): ${id}` : `已开始检查: ${id}`)
+      } else if ((res?.error?.message ?? '').includes('TIMEOUT_NOT_VERIFIED')) {
+        message.warning(t('w6Workflow.timeout.requiredHint'))
+        setTimeoutExamId(id)
       } else {
         message.error(res?.error?.message ?? t('techMobile.startFailed'))
       }
@@ -243,6 +252,17 @@ export default function TechMobileWorkstation() {
       setOperatingId(null)
     }
   }, [])
+
+  // [W6] Time-Out 未核对 → 弹窗; 核对通过后再开始
+  const handleStartExam = useCallback((id: string) => {
+    const item = exams.find(e => e.id === id)
+    if (item && item.timeoutVerified === false) {
+      message.warning(t('w6Workflow.timeout.requiredHint'))
+      setTimeoutExamId(id)
+      return
+    }
+    void doStartExam(id)
+  }, [exams, doStartExam])
 
   // [v3.0.6.11-100 Wave 5B] 完成检查 → worklistApi.complete (与桌面同源); 失败回退 examApi.complete 并标注
   const handleCompleteExam = useCallback(async (id: string) => {
@@ -558,6 +578,18 @@ export default function TechMobileWorkstation() {
           </div>
         ))}
       </div>
+
+      {/* [W6] 检查前核对 (Time-Out) 门禁弹窗 */}
+      <TimeoutVerifyModal
+        open={timeoutExamId !== null}
+        examId={timeoutExamId}
+        onCancel={() => setTimeoutExamId(null)}
+        onVerified={() => {
+          const id = timeoutExamId
+          setTimeoutExamId(null)
+          if (id) void doStartExam(id)
+        }}
+      />
     </div>
   )
 }

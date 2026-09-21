@@ -1,7 +1,10 @@
 /**
  * [v3.0.6.12-B3] qualityScoringHandlers top-5 改造 smoke test
  *   覆盖: store 种子 + 5 个核心路由读写一致性
+ * [W1-107] 改用 node 环境: 与其他 MSW handler 测试一致, 避免 jsdom 下全局 fetch
+ *   拦截器在多文件串行执行时失效 (ECONNREFUSED localhost:5173)。
  */
+// @vitest-environment node
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { setupServer } from 'msw/node';
 import { qualityScoringHandlers } from '../mockBackend/qualityScoringHandlers';
@@ -9,10 +12,11 @@ import { initStore, list, get } from '../mockBackend/store';
 
 const API_BASE = 'http://localhost:5173/api/v1';
 const server = setupServer(...qualityScoringHandlers);
+// [W1-107] 在模块作用域启动拦截器, 避免 beforeAll 在重负载下超时导致 fetch 未被拦截
+server.listen({ onUnhandledRequest: 'warn' });
 
 beforeAll(async () => {
   await initStore();
-  server.listen({ onUnhandledRequest: 'warn' });
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());

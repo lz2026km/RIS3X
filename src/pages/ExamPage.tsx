@@ -56,6 +56,8 @@ import { useExamStore } from "../store/examStore";
 import type { RadiologyExam } from "../types";
 import { Modal, Form, Input, Select, Popconfirm, message } from "antd";
 import type { TableColumnsType } from "antd";
+// [W6] 检查前核对 (Time-Out) 门禁弹窗
+import TimeoutVerifyModal from "../components/worklist/TimeoutVerifyModal";
 // [v3.0.6.11-103 Wave 6] 表格统一: 自定义 table → DataTable (斑马纹/行高/列头/分页统一)
 import { DataTable } from "../components/common/DataTable";
 import { StatCard } from "../components/common/StatCard";
@@ -309,6 +311,9 @@ export default function ExamPage() {
     exam: null,
     action: null,
   });
+
+  // [W6] 检查前核对 (Time-Out) 门禁: 未核对时先弹窗
+  const [timeoutExamId, setTimeoutExamId] = useState<string | null>(null);
 
   // 操作备注
   const [actionNotes, setActionNotes] = useState("");
@@ -730,12 +735,32 @@ export default function ExamPage() {
           message.error(res.error?.message ?? t("examPage.qcSaveFailed"));
         }
       } else {
+        // [W6] 检查前核对 (Time-Out) 门禁: 未核对先弹核对弹窗, 不允许直接开始
+        const chk = await worklistApi.getTimeoutChecklist(modal.exam.id).catch(() => null);
+        if (chk?.success && chk.data && !chk.data.verified) {
+          message.warning(t('w6Workflow.timeout.requiredHint'));
+          setTimeoutExamId(modal.exam.id);
+          return;
+        }
         await useExamStore.getState().transition(modal.exam.id, "start");
       }
     } catch (e) {
       message.error((e as Error)?.message ?? t("examPage.opFailed"));
     } finally {
       closeModal();
+    }
+  };
+
+  // [W6] Time-Out 核对通过 → 继续开始检查
+  const handleTimeoutVerified = async () => {
+    const id = timeoutExamId;
+    setTimeoutExamId(null);
+    if (!id) return;
+    try {
+      await useExamStore.getState().transition(id, "start");
+      void reloadExams();
+    } catch (e) {
+      message.error((e as Error)?.message ?? t("examPage.opFailed"));
     }
   };
 
@@ -3702,6 +3727,14 @@ export default function ExamPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* [W6] 检查前核对 (Time-Out) 门禁弹窗 */}
+      <TimeoutVerifyModal
+        open={timeoutExamId !== null}
+        examId={timeoutExamId}
+        onCancel={() => setTimeoutExamId(null)}
+        onVerified={() => void handleTimeoutVerified()}
+      />
     </div>
   );
 }
