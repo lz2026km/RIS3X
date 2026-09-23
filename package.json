@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-110",
-  "description": "G005 Radiology RIS v3.0.6.11-110 - i18n namespace merge fix + translation restore",
+  "version": "3.0.6.11-111",
+  "description": "G005 Radiology RIS v3.0.6.11-111 - Collaboration page layout fix",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

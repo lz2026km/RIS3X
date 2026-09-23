@@ -1,3 +1,24 @@
+## v3.0.6.11-111 (2026-09-23) — 修复多人协同页 (/collaboration) 布局重叠
+
+> **目标**: 修复 /collaboration 页面布局不佳、元素重叠
+> **范围**: `src/pages/CollaborationPage.tsx` 布局重构；前端 tsc 200，vitest 47 文件/831 测试 0 失败，1280/1024 截图无重叠
+
+### 问题
+- 左栏被压窄 → 报告正文逐字换行、字段按钮（检查所见/诊断/意见）竖排重叠
+- "选区高亮"绝对定位（left:50,top:70）盖住正文
+- 光标浮层溢出编辑区压到评论栏
+- 根容器 `calc(100vh - 100px)` 与内容区高度不符 → 底部被裁
+- 顶部"在线 0 人"空态
+
+### 修复
+- 根容器改 `height:100%`；三栏行 `overflowX:auto + minHeight:0`；左栏 `flex:1 1 480px, minWidth:380`；卡片 `flex:1, minHeight:0`
+- 报告头加 `flexWrap`；字段按钮 `whiteSpace:nowrap, flexShrink:0`（横排不重叠）
+- 编辑区 `flex:1, minHeight:160, overflow:hidden`（裁剪溢出浮层）
+- 选区高亮改为右下角虚线小标签（不遮文字）
+- 中/右栏 `flex-basis 340/260`；在线用户无命中时回退显示全部（消除"在线 0 人"）
+
+---
+
 ## v3.0.6.11-110 (2026-09-23) — 修复全站命名空间翻译未合并（import.meta.glob）+ 翻译恢复
 
 > **目标**: 修复 /equipment-lifecycle、/triage/worklist、/follow-up、/reports/archived 等页面"没翻译"（显示英文碎片/原始键）

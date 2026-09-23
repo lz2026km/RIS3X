@@ -209,7 +209,9 @@ export default function CollaborationPage() {
 
   // 当前报告的在线用户
   const reportOnlineUsers = useMemo(() => {
-    return users.filter(u => u.currentPage?.includes(selectedReportId));
+    const matched = users.filter(u => u.currentPage?.includes(selectedReportId));
+    // 演示数据可能无 currentPage 命中, 回退显示全部用户, 避免"在线 0 人"空态
+    return matched.length > 0 ? matched : users;
   }, [users, selectedReportId]);
 
   // 光标位置自动更新
@@ -283,7 +285,7 @@ export default function CollaborationPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: 'var(--bg-card)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, background: 'var(--bg-card)' }}>
       {/* 顶部状态栏 */}
       <div style={{
         background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
@@ -364,18 +366,18 @@ export default function CollaborationPage() {
       </div>
 
       {/* 主体三栏 */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', overflowX: 'auto', overflowY: 'hidden', minHeight: 0 }}>
         {/* 左：协同报告内容 */}
-        <div style={{ flex: 1, padding: 12, overflowY: 'auto' }}>
+        <div style={{ flex: '1 1 480px', minWidth: 380, minHeight: 0, display: 'flex', flexDirection: 'column', padding: 12, overflowY: 'auto' }}>
           <div style={{
             background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
-            position: 'relative', minHeight: 600,
+            position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 8, columnGap: 8, marginBottom: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} /> {t('collab.reportBody')} <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{t('collab.demoTag')}</span>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 4, flexShrink: 0, flexWrap: 'wrap' }}>
                 {(['findings', 'diagnosis', 'impression'] as const).map(f => (
                   <button
                     key={f}
@@ -385,6 +387,7 @@ export default function CollaborationPage() {
                       background: activeField === f ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       color: activeField === f ? '#1e40af' : '#475569',
                       fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      whiteSpace: 'nowrap', flexShrink: 0,
                     }}
                   >
                     {f === 'findings' ? t('collab.field.findings') : f === 'diagnosis' ? t('collab.field.diagnosis') : t('collab.field.impression')}
@@ -395,9 +398,9 @@ export default function CollaborationPage() {
 
             {/* 协作编辑区 */}
             <div style={{
-              position: 'relative', padding: 16,
+              position: 'relative', padding: 16, flex: 1, minHeight: 160, overflow: 'hidden',
               background: 'var(--bg-card)', borderRadius: 6,
-              border: '1px solid var(--border-color)', minHeight: 200,
+              border: '1px solid var(--border-color)',
               fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)',
             }}>
               {MOCK_REPORT_CONTENT[activeField]}
@@ -425,10 +428,10 @@ export default function CollaborationPage() {
 
               {/* 选区高亮 */}
               <div style={{
-                position: 'absolute', left: 50, top: 70,
-                padding: '2px 4px', background: 'rgba(124, 58, 237, 0.2)',
-                border: '1px solid #7c3aed', borderRadius: 2,
-                fontSize: 13, color: 'var(--text-primary)',
+                position: 'absolute', right: 12, bottom: 12, maxWidth: '70%',
+                padding: '2px 8px', background: 'rgba(124, 58, 237, 0.12)',
+                border: '1px dashed #7c3aed', borderRadius: 4,
+                fontSize: 12, color: '#5b21b6',
                 pointerEvents: 'none',
               }}>
                 {t('collab.highlightText')}
@@ -455,8 +458,8 @@ export default function CollaborationPage() {
 
         {/* 中：评论 */}
         <div style={{
-          width: 360, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)',
-          display: 'flex', flexDirection: 'column', flexShrink: 0,
+          flex: '0 0 340px', minHeight: 0, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)',
+          display: 'flex', flexDirection: 'column',
         }}>
           <div style={{
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
@@ -656,7 +659,7 @@ export default function CollaborationPage() {
 
         {/* 右：活动日志 */}
         <div style={{
-          width: 300, background: 'var(--bg-card)', display: 'flex', flexDirection: 'column', flexShrink: 0,
+          flex: '0 0 260px', minHeight: 0, background: 'var(--bg-card)', display: 'flex', flexDirection: 'column',
         }}>
           <div style={{
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
