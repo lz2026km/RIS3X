@@ -14,7 +14,7 @@ export const MOCK_QUALITY_METRICS: QualityMetric[] = [
   { id: 'qm-010', category: 'clinical', name: '黄斑水肿检出率', value: 68, target: 75, unit: '%', trend: 'stable', period: '季度', department: '眼科' },
   { id: 'qm-011', category: 'clinical', name: '术后感染率', value: 0.12, target: 0.5, unit: '%', trend: 'down', period: '季度', department: '眼科' },
   { id: 'qm-012', category: 'clinical', name: '术后24h眼压复查率', value: 92, target: 95, unit: '%', trend: 'stable', period: '本月', department: '眼科' },
-  { id: 'qm-013', category: 'operational', name: '平均候诊时间', value: 22, target: 15, unit: 'min', trend: 'worsening', period: '本月', department: '眼科' },
+  { id: 'qm-013', category: 'operational', name: '平均候诊时间', value: 22, target: 15, unit: 'min', trend: 'up', period: '本月', department: '眼科' },
   { id: 'qm-014', category: 'operational', name: '设备开机率', value: 96, target: 98, unit: '%', trend: 'stable', period: '本月', department: '眼科' },
   { id: 'qm-015', category: 'operational', name: '预约到诊率', value: 82, target: 90, unit: '%', trend: 'up', period: '本月', department: '眼科' },
   { id: 'qm-016', category: 'operational', name: '当日加号满意度', value: 72, target: 85, unit: '%', trend: 'down', period: '本月', department: '眼科' },
@@ -90,7 +90,7 @@ export const MOCK_DECISION_RULES: DecisionSupportRule[] = [
 export const MOCK_CLINICAL_GUIDELINES: ClinicalGuideline[] = [
   { id: 'cg-001', title: '糖尿病视网膜病变临床指南(2025版)', organization: 'AAO', year: 2025, condition: '糖尿病视网膜病变', modality: ['fundus_photo','oct','ffa'], recommendations: ['每年1次DR筛查(1型/2型)','4-2-1规则判断重度NPDR','PRP指征:重度NPDR/PDR','抗VEGF为DME一线治疗'], evidenceLevel: 'Level I', strength: 'strong' },
   { id: 'cg-002', title: '原发性开角型青光眼PPP', organization: 'AAO', year: 2025, condition: '青光眼', modality: ['oct','visual_field','fundus_photo'], recommendations: ['目标眼压:早期<18mmHg,中晚期<15mmHg','OCT+视野每年1-2次','ISNT规则评估盘沿','SLT可作为初始/辅助治疗'], evidenceLevel: 'Level I', strength: 'strong' },
-  { id: 'cg-003', title: '年龄相关性黄斑变性(AMD)临床指南', organization: 'AAO', year: 2024, condition: '年龄相关性黄斑变性', modality: ['oct','ffa','oct_a','faf'], recommendations: ['AREDS2补充剂(干性)','抗VEGF(湿性,负荷3针)','OCT检查每4周(湿性)','Amsler方格日常自查'], evidenceLevel: 'Level I', strength: 'strong' },
+  { id: 'cg-003', title: '年龄相关性黄斑变性(AMD)临床指南', organization: 'AAO', year: 2024, condition: '年龄相关性黄斑变性', modality: ['oct','ffa','oct_a','fundus_autofluorescence'], recommendations: ['AREDS2补充剂(干性)','抗VEGF(湿性,负荷3针)','OCT检查每4周(湿性)','Amsler方格日常自查'], evidenceLevel: 'Level I', strength: 'strong' },
   { id: 'cg-004', title: '干眼综合征DEWS II报告', organization: 'TFOS', year: 2023, condition: '干眼', modality: ['tear_film','slit_lamp'], recommendations: ['阶梯治疗:人工泪液→抗炎→物理→手术','MGD热敷+按摩','睑板腺疏通','环境调整+营养'], evidenceLevel: 'Level I', strength: 'strong' },
   { id: 'cg-005', title: '圆锥角膜诊断与治疗指南', organization: 'ISRS/AAO', year: 2025, condition: '圆锥角膜', modality: ['topography','pentacam'], recommendations: ['CXL:Kmax>48D或BAD D>2.0','RGP/巩膜镜','角膜移植(晚期)','避免揉眼'], evidenceLevel: 'Level II', strength: 'moderate' },
   { id: 'cg-006', title: '早产儿视网膜病变(ROP)筛查指南', organization: 'AAO/AAP', year: 2023, condition: '早产儿视网膜病变', modality: ['fundus_photo'], recommendations: ['筛查:体重<2000g或胎龄<32周','首次筛查:出生4-6周','复查每1-2周','激光/抗VEGF治疗根据类型'], evidenceLevel: 'Level I', strength: 'strong' },
@@ -99,5 +99,5 @@ export const MOCK_CLINICAL_GUIDELINES: ClinicalGuideline[] = [
   { id: 'cg-009', title: '葡萄膜炎SUN分类标准', organization: 'SUN Working Group', year: 2021, condition: '葡萄膜炎', modality: ['slit_lamp','oct','ffa'], recommendations: ['解剖分类:前/中间/后/全','病因排查:HLA-B27/感染/全身病','阶梯治疗:激素→免疫抑制剂→生物制剂'], evidenceLevel: 'Level I', strength: 'strong' },
   { id: 'cg-010', title: '儿童弱视诊疗指南', organization: 'AAPOS/AAO', year: 2022, condition: '弱视', modality: ['fundus_photo','refraction'], recommendations: ['弱视筛查:3-8岁', '遮盖/阿托品惩罚治疗','光学矫正为先','11岁前治疗效果最佳'], evidenceLevel: 'Level II', strength: 'moderate' },
   { id: 'cg-011', title: '孔源性网脱诊疗指南', organization: 'RRD Study Group', year: 2022, condition: '视网膜脱离', modality: ['oct','fundus_photo'], recommendations: ['急性PVD+马蹄裂孔→急诊','AL>26mm高危', '紧急转诊眼底病科','手术治疗'], evidenceLevel: 'Level I', strength: 'strong' },
-  { id: 'cg-012', title: '卵泡抑素相关视网膜病变管理', organization: 'AAO', year: 2023, condition: '黄斑病变', modality: ['faf','oct'], recommendations: ['阿姆斯勒方格监测','戒烟','AREDS2补充剂','3月随访OCT'], evidenceLevel: 'Level II', strength: 'moderate' },
+  { id: 'cg-012', title: '卵泡抑素相关视网膜病变管理', organization: 'AAO', year: 2023, condition: '黄斑病变', modality: ['fundus_autofluorescence','oct'], recommendations: ['阿姆斯勒方格监测','戒烟','AREDS2补充剂','3月随访OCT'], evidenceLevel: 'Level II', strength: 'moderate' },
 ];

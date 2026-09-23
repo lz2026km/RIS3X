@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { Button } from 'antd'
 
 const containerStyle: CSSProperties = {
   position: 'sticky',
@@ -15,10 +16,21 @@ const containerStyle: CSSProperties = {
   gap: 8,
 }
 
-export function ErrorBanner({ message = 'API 不可用,使用本地数据' }: { message?: string }) {
+export interface ErrorBannerProps {
+  message?: string
+  onRetry?: () => void
+  retryLabel?: string
+}
+
+export function ErrorBanner({ message = 'API 不可用,使用本地数据', onRetry, retryLabel = '重试' }: ErrorBannerProps) {
   return (
     <div style={containerStyle} data-testid="api-error-banner" role="alert" aria-live="assertive">
       <span aria-hidden="true">⚠️</span> {message}
+      {onRetry && (
+        <Button size="small" type="link" onClick={onRetry} style={{ marginLeft: 'auto', padding: 0 }}>
+          {retryLabel}
+        </Button>
+      )}
     </div>
   )
 }

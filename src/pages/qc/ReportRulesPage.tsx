@@ -40,6 +40,7 @@ import {
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
+import { ErrorBanner } from '../../components/feedback'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { t } from '../../i18n/appI18n'
 import {
@@ -117,6 +118,7 @@ export default function ReportRulesPage() {
   const [stats, setStats] = useState<RuleStats | null>(null)
   const [source, setSource] = useState<'database' | 'demo' | 'offline'>('demo')
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // 评估工作台
   const [fields, setFields] = useState<ReportFields>({ ...DEMO_REPORT })
@@ -141,6 +143,7 @@ export default function ReportRulesPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     const [rulesRes, setsRes, statsRes] = await Promise.all([
       reportRulesApi.listRules(examType === 'ALL' ? undefined : examType).catch(() => null),
       reportRulesApi.listRulesets().catch(() => null),
@@ -152,6 +155,7 @@ export default function ReportRulesPage() {
     } else {
       setSource('offline')
       setRules([])
+      setLoadError(t('w9.states.error'))
       message.warning(t('reportRules.loadFailed'))
     }
     if (setsRes?.success && setsRes.data?.data) setRulesets(setsRes.data.data)
@@ -452,6 +456,8 @@ export default function ReportRulesPage() {
           </Space>
         }
       />
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
 
       <StatCardGrid gap={12}>
         {statsCards.map((s, i) => (

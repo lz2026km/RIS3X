@@ -10,7 +10,9 @@ import {
   ReferenceLine,
 } from "recharts";
 import ChartContainer from "../../components/charts/ChartContainer";
+import { ErrorBanner } from "../../components/feedback";
 import { rdsrApi, type CumulativeDose } from "../../services/api/rdsrApi";
+import { t } from "../../i18n/appI18n";
 import { cumulativeDoseData } from "./mockData";
 import type { CumulativeDosePoint } from "./types";
 
@@ -18,11 +20,14 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
   const [data, setData] = useState<CumulativeDosePoint[]>(cumulativeDoseData);
   const [patientInfo, setPatientInfo] = useState<{ name: string; id: string }>({ name: "张志刚", id: patientId });
   const [source, setSource] = useState<"api" | "demo">("demo");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   // [W2-C] 接 rdsrApi.getPatientCumulative 患者累计剂量, 失败时回退演示数据
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      setLoadError(null);
       try {
         const res = await rdsrApi.getPatientCumulative(patientId);
         if (!cancelled && res.success && res.data) {
@@ -37,15 +42,18 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             setData(points);
             setSource("api");
           }
+        } else if (!cancelled && !res.success) {
+          setLoadError(t('w9.states.error'));
         }
-      } catch { /* 回退演示数据 */ }
+      } catch { setLoadError(t('w9.states.error')); }
     })();
     return () => { cancelled = true; };
-  }, [patientId]);
+  }, [patientId, reloadTick]);
 
   const lastPoint = data[data.length - 1] as CumulativeDosePoint;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div
         style={{
           background: "var(--bg-card)",

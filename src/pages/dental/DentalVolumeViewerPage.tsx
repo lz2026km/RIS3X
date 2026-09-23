@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, Slider, Tabs, Badge, Progress, InputNumber } from 'antd';
 import { Eye, RotateCcw, Layers, Crosshair, Download, Box } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
+import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 export const DentalVolumeViewerPage: React.FC = () => {
@@ -22,11 +23,14 @@ export const DentalVolumeViewerPage: React.FC = () => {
   // [G005 W3-B] 体数据详情 + 牙弓曲线路径 (getVolumeStudy / getVolumeCurvePath)
   const [curvePath, setCurvePath] = useState<any>(null);
   const [curveLoading, setCurveLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
-    dentalApi.listVolumeStudies().then(d=>{if(d.success)setStudies(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
+    setLoadError(null);
+    dentalApi.listVolumeStudies().then(d=>{if(d.success)setStudies(d.data||[]); else setLoadError(t('w9.states.error'));}).catch((err) => { console.error('[F04]', err); setLoadError(t('w9.states.error')); });
     dentalApi.listVolumePresets().then(d=>{if(d.success)setPresets(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
-  }, []);
+  }, [reloadTick]);
 
   const handleSelect = (s: any) => {
     setCurrent(s);
@@ -121,6 +125,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
           <Tag color="green">{t('dvv.realBackend')}</Tag>
           <Tag>apply=POST</Tag>
         </Space>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}><Card size="small"><Statistic title={t('dvv.totalCbct')} value={studies.length} /></Card></Col>
           <Col span={4}><Card size="small"><Statistic title={t('dvv.presets')} value={presets.length} /></Card></Col>

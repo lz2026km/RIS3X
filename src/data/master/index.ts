@@ -29,10 +29,22 @@ export function getEntity(id: string):
   | { type: "device"; data: typeof DEVICE_MASTER[number] }
   | { type: "examItem"; data: typeof EXAM_ITEM_MASTER[number] }
   | null {
-  if (id.startsWith("D")) return { type: "doctor", data: DOCTOR_BY_ID[id] };
-  if (id.startsWith("P")) return { type: "patient", data: PATIENT_BY_ID[id] };
-  if (id.startsWith("DEV-")) return { type: "device", data: DEVICE_BY_ID[id] };
-  if (id.includes("-")) return { type: "examItem", data: EXAM_BY_CODE[id] };
+  if (id.startsWith("D")) {
+    const data = DOCTOR_BY_ID[id];
+    return data ? { type: "doctor", data } : null;
+  }
+  if (id.startsWith("P")) {
+    const data = PATIENT_BY_ID[id];
+    return data ? { type: "patient", data } : null;
+  }
+  if (id.startsWith("DEV-")) {
+    const data = DEVICE_BY_ID[id];
+    return data ? { type: "device", data } : null;
+  }
+  if (id.includes("-")) {
+    const data = EXAM_BY_CODE[id];
+    return data ? { type: "examItem", data } : null;
+  }
   return null;
 }
 

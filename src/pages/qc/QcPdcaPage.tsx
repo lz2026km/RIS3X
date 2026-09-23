@@ -26,6 +26,7 @@ import { Button, Tag, Space, Modal, Form, Input, Select, Drawer, Popconfirm, mes
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
+import { ErrorBanner } from "../../components/feedback"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
 import {
   qcPdcaApi,
@@ -89,6 +90,7 @@ export default function QcPdcaPage() {
   const [stats, setStats] = useState<PdcaStats | null>(null)
   const [source, setSource] = useState<'database' | 'demo' | 'offline'>('demo')
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // 新建/编辑
   const [createOpen, setCreateOpen] = useState(false)
@@ -117,6 +119,7 @@ export default function QcPdcaPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     const [cyclesRes, statsRes] = await Promise.all([
       qcPdcaApi.listCycles().catch(() => ({ success: false as const, data: null as unknown as { source: 'database' | 'demo'; generatedAt: string; data: PdcaCycle[] } })),
       qcPdcaApi.getStats().catch(() => ({ success: false as const, data: null as unknown as { source: 'database' | 'demo'; generatedAt: string; data: PdcaStats } })),
@@ -127,6 +130,7 @@ export default function QcPdcaPage() {
     } else {
       setCycles([])
       setSource('offline')
+      setLoadError(t('w9.states.error'))
       message.warning(t('qcPdca.cyclesLoadFailed'))
       const demo = demoFallbackCycles()
       setCycles(demo)
@@ -425,6 +429,8 @@ export default function QcPdcaPage() {
           </Space>
         }
       />
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
 
       <div style={{ padding: 24 }}>
         <StatCardGrid gap={12}>

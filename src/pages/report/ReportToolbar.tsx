@@ -291,13 +291,19 @@ export default function ReportToolbar({
                     complete: false,
                   });
                   setTimeout(() => {
-                    setExportModal((m) => ({
-                      ...m,
+                    setExportModal({
+                      show: true,
+                      title: "批量导出",
                       complete: true,
                       message: `已导出 ${selectedIds.size} 份报告 PDF`,
-                    }));
+                    });
                     setTimeout(
-                      () => setExportModal((m) => ({ ...m, show: false })),
+                      () => setExportModal({
+                        show: false,
+                        title: "批量导出",
+                        complete: true,
+                        message: `已导出 ${selectedIds.size} 份报告 PDF`,
+                      }),
                       2000,
                     );
                   }, 1500);

@@ -25,11 +25,12 @@ import {
   Lock,
   Activity,
 } from 'lucide-react'
-import { Button, Tag, Space, Modal, Form, Input, Select, Drawer, Popconfirm, message, Timeline, Empty, Table, Tabs, Radio, Progress, Tooltip as ATooltip } from 'antd'
+import { Button, Tag, Space, Modal, Form, Input, Drawer, Popconfirm, message, Timeline, Empty, Table, Tabs, Radio, Progress, Tooltip as ATooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, Legend, Cell, ReferenceLine } from 'recharts'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
+import { ErrorBanner } from "../../components/feedback"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
 import {
   qcAnalyticsApi,
@@ -85,6 +86,7 @@ export default function QcAnalyticsPage() {
   const [loopStats, setLoopStats] = useState<LoopStats | null>(null)
   const [source, setSource] = useState<'database' | 'demo' | 'offline'>('demo')
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [period, setPeriod] = useState<'week' | 'month'>('month')
 
   // 闭环操作
@@ -102,6 +104,7 @@ export default function QcAnalyticsPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     const [dashRes, trendRes, paretoRes, deptRes, defectRes, itemRes, statsRes] = await Promise.all([
       qcAnalyticsApi.getDashboard().catch(() => ({ success: false as const })),
       qcAnalyticsApi.getTrends(period).catch(() => ({ success: false as const })),
@@ -113,6 +116,7 @@ export default function QcAnalyticsPage() {
     ])
     if (!dashRes.success && !trendRes.success && !itemRes.success) {
       setSource('offline')
+      setLoadError(t('w9.states.error'))
       message.warning(t('qcAnalytics.serviceDown'))
       const demo = demoFallback()
       setDashboard(demo.dashboard)
@@ -351,6 +355,8 @@ export default function QcAnalyticsPage() {
           </Space>
         }
       />
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
 
       <div style={{ padding: 24 }}>
         <StatCardGrid gap={12}>
@@ -662,7 +668,7 @@ const demoFallback = () => {
       totalReports: 202, qcReports: 152, qcRate: 75.2, totalDefects: 258, defectRate: 127.7,
       timelyReports: 160, timelyRate: 79.2, avgResponseMinutes: 52.4, avgScore: 81.3,
       loopOpen: 4, loopClosed: 2, closureRate: 33.3,
-    },
+    } as DashboardData,
     trends: { source: 'demo', generatedAt: new Date().toISOString(), period: 'month', points } as AnalyticsTrends,
     pareto: [
       { code: 'terminology', label: '术语不规范', count: 62, cumulativeCount: 62, cumulativePercent: 24, isMain: true },

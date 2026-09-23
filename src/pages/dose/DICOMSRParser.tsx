@@ -3,6 +3,40 @@ import { FileText, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { dicomSRRecords } from "./mockData";
 import type { DICOMSRRecord } from "./types";
 import { rdsrApi, type RdsrResult } from "../../services/api/rdsrApi";
+import { t } from "../../i18n/appI18n";
+
+const pickNumber = (json: Record<string, unknown>, keys: string[]): number | undefined => {
+  for (const key of keys) {
+    const value = json[key];
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim() !== "" && !Number.isNaN(Number(value))) return Number(value);
+  }
+  return undefined;
+};
+
+// 本地兜底解析: 接口不可用时仅从 DICOM JSON 文件内读取 CTDIvol/DLP 等既有字段
+const localParse = (json: Record<string, unknown>): RdsrResult => {
+  const now = Date.now();
+  const examDate = typeof json.StudyDate === "string" && json.StudyDate !== ""
+    ? json.StudyDate
+    : new Date(now).toISOString().slice(0, 10);
+  return {
+    id: `local-${now}`,
+    studyInstanceUid: typeof json.StudyInstanceUID === "string" && json.StudyInstanceUID !== ""
+      ? json.StudyInstanceUID
+      : `1.2.840.local.${now}`,
+    modality: typeof json.Modality === "string" && json.Modality !== "" ? json.Modality : "CT",
+    bodyPart: typeof json.BodyPartExamined === "string" && json.BodyPartExamined !== "" ? json.BodyPartExamined : "胸部",
+    ctdivol: pickNumber(json, ["CTDIvol", "ctdivol"]) ?? 0,
+    dlp: pickNumber(json, ["DLP", "dlp", "TotalDose"]) ?? 0,
+    totalExposure: 0,
+    numberOfEvents: 0,
+    examDate,
+    alertLevel: "normal",
+    patientId: typeof json.PatientID === "string" ? json.PatientID : null,
+    patientName: typeof json.PatientName === "string" ? json.PatientName : "未知患者",
+  };
+};
 
 // [W3-C] 接 rdsrApi.parse (/rdsr/parse): 选择 DICOM JSON 文件 → 真实解析并追加结果; 表格基准数据仍为演示
 export default function DICOMSRParser() {
@@ -10,6 +44,7 @@ export default function DICOMSRParser() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [parsing, setParsing] = useState(false);
   const [parsed, setParsed] = useState<RdsrResult[]>([]);
+  const [localFallback, setLocalFallback] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const mapResult = (r: RdsrResult): DICOMSRRecord => ({
@@ -30,11 +65,12 @@ export default function DICOMSRParser() {
 
   const handleImportSR = async (file: File) => {
     setUploadError(null);
+    setLocalFallback(false);
+    let json: Record<string, unknown> = {};
     try {
       const text = await file.text();
-      let json: Record<string, unknown>;
       try {
-        json = JSON.parse(text);
+        json = JSON.parse(text) as Record<string, unknown>;
       } catch {
         setUploadError(`文件 ${file.name} 不是有效的 JSON (DICOM JSON 格式)`);
         return;
@@ -46,10 +82,17 @@ export default function DICOMSRParser() {
         setShowUploadSuccess(true);
         setTimeout(() => setShowUploadSuccess(false), 3000);
       } else {
-        setUploadError(res.error?.message ?? '解析失败');
+        // 接口不可用/返回失败时回退本地解析, 保留离线可用性
+        setParsed((prev) => [localParse(json), ...prev]);
+        setLocalFallback(true);
+        setShowUploadSuccess(true);
+        setTimeout(() => setShowUploadSuccess(false), 3000);
       }
-    } catch (e) {
-      setUploadError(e instanceof Error ? e.message : '解析失败');
+    } catch {
+      setParsed((prev) => [localParse(json), ...prev]);
+      setLocalFallback(true);
+      setShowUploadSuccess(true);
+      setTimeout(() => setShowUploadSuccess(false), 3000);
     } finally {
       setParsing(false);
     }
@@ -148,6 +191,24 @@ export default function DICOMSRParser() {
             }}
           >
             <AlertTriangle size={14} /> {uploadError}
+          </div>
+        )}
+        {localFallback && (
+          <div
+            style={{
+              padding: "10px 14px",
+              background: "#fef3c7",
+              border: "1px solid #fcd34d",
+              borderRadius: 8,
+              color: "#d97706",
+              fontSize: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 12,
+            }}
+          >
+            <AlertTriangle size={14} /> {t('w8Dose.dicomLocalParse')}
           </div>
         )}
         <div

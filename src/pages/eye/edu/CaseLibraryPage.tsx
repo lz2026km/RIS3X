@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 // [G005 Wave1A P0] /eye/edu/* 真实后端 (eye-edu 模块), MSW 仅 dev 兜底
 import { eyeApi } from "../../../services/api/eyeApi";
+import { ErrorBanner } from "../../../components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 const MODALITY_LABELS_DICT: Record<string, string> = {
@@ -97,6 +98,8 @@ export const CaseLibraryPage: React.FC = () => {
   const [newProject, setNewProject] = useState({ name: "", total: 100, completed: 0 });
   // [G005 Wave1A P0] 后端可用性标注: 失败时回退本地 + 展示标记
   const [backendDown, setBackendDown] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   const [newCase, setNewCase] = useState({
     patientName: "",
     patientId: "",
@@ -108,6 +111,7 @@ export const CaseLibraryPage: React.FC = () => {
   });
 
   const loadCases = async () => {
+    setLoadError(null);
     try {
       const res = await eyeApi.getEduCases({ pageSize: 20 });
       if (res.success && Array.isArray(res.data)) {
@@ -121,6 +125,7 @@ export const CaseLibraryPage: React.FC = () => {
       throw new Error("getEduCases 形状不符");
     } catch (e) {
       setBackendDown(true);
+      setLoadError(t("w9.states.error"));
       console.warn("[F03] 后端不可用, 回退本地:", (e as Error)?.message);
     }
   };
@@ -188,10 +193,11 @@ export const CaseLibraryPage: React.FC = () => {
         if (pres.success && Array.isArray(pres.data)) setProjects(pres.data);
       } catch (e) {
         setBackendDown(true);
+        setLoadError(t("w9.states.error"));
         console.warn("[F03] Error:", (e as Error)?.message);
       }
     })();
-  }, []);
+  }, [reloadTick]);
 
   // 详情
   const handleCaseDetail = async (caseId: string) => {
@@ -327,6 +333,8 @@ export const CaseLibraryPage: React.FC = () => {
           <Tag color="green">{t("eyeCaseLibrary.realBackend")}</Tag>
         )}
       </Space>
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
 
       <Tabs
         activeKey={activeTab}

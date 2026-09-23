@@ -13,7 +13,7 @@ import { AlertTriangle } from "lucide-react";
 import { staffDoseRecords } from "./mockData";
 import type { StaffDoseRecord } from "./types";
 import { rdsrApi } from "../../services/api/rdsrApi";
-import { LoadingBanner } from "../../components/feedback";
+import { LoadingBanner, ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
@@ -24,18 +24,23 @@ export default function StaffDoseMonitoring() {
   const [records, setRecords] = useState<StaffDoseRecord[]>(staffDoseRecords);
   const [loading, setLoading] = useState(true);
   const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoadError(null);
       try {
         const res = await rdsrApi.getStaffDose();
         if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
           setRecords(res.data as StaffDoseRecord[]);
           setDataSource("api");
+        } else if (!cancelled && !res.success) {
+          setLoadError(t("w9.states.error"));
         }
       } catch {
-        /* 保留演示数据回退 */
+        setLoadError(t("w9.states.error"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -43,7 +48,7 @@ export default function StaffDoseMonitoring() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadTick]);
 
   const first = records[0];
   if (!first) return null;
@@ -61,6 +66,7 @@ export default function StaffDoseMonitoring() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
       {dataSource === "demo" && (
       <div
         style={{

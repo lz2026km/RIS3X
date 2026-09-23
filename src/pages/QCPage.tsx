@@ -2837,10 +2837,10 @@ export default function QCPage() {
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                 {[
-                  { label: t("qcPage.currentMonthlyAvg"), value: monthlyQualityData[monthlyQualityData.length - 1].deptAvg, suffix: t("qcPage.scoreUnit"), color: ACCENT, bg: '#3b82f622' },
-                  { label: t("qcPage.ucl"), value: monthlyQualityData[0].upperControl, suffix: t("qcPage.scoreUnit"), color: SUCCESS, bg: '#22c55e22' },
-                  { label: t("qcPage.lcl"), value: monthlyQualityData[0].lowerControl, suffix: t("qcPage.scoreUnit"), color: WARNING, bg: '#f59e0b22' },
-                  { label: t("qcPage.cl"), value: monthlyQualityData[0].mean, suffix: t("qcPage.scoreUnit"), color: '#8b5cf6', bg: '#8b5cf622' },
+                  { label: t("qcPage.currentMonthlyAvg"), value: monthlyQualityData[monthlyQualityData.length - 1]!.deptAvg, suffix: t("qcPage.scoreUnit"), color: ACCENT, bg: '#3b82f622' },
+                  { label: t("qcPage.ucl"), value: monthlyQualityData[0]!.upperControl, suffix: t("qcPage.scoreUnit"), color: SUCCESS, bg: '#22c55e22' },
+                  { label: t("qcPage.lcl"), value: monthlyQualityData[0]!.lowerControl, suffix: t("qcPage.scoreUnit"), color: WARNING, bg: '#f59e0b22' },
+                  { label: t("qcPage.cl"), value: monthlyQualityData[0]!.mean, suffix: t("qcPage.scoreUnit"), color: '#8b5cf6', bg: '#8b5cf622' },
                 ].map(card => (
                   <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

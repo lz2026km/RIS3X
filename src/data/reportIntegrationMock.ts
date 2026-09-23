@@ -237,6 +237,7 @@ const buildDicomSrBase = (_id: string, studyUID: string, seriesUID: string, sopI
     { tag: '0040A730', vr: 'SQ', name: 'ContentSequence', nameEn: 'Content Sequence', value: [], length: 0 },
   ];
   const sr: DicomSrDocument = {
+    id: _id,
     sopClassUID: '1.2.840.10008.5.1.4.1.1.88.11',
     sopInstanceUID,
     studyInstanceUID: studyUID,
@@ -400,8 +401,8 @@ const buildXdsBase = (id: string, registryId: string, patientId: string, sourceI
     submissionSetType: 'new',
   };
   const associations: XdsAssociation[] = [
-    { id: `assoc-1-${id}`, entryUUID: `urn:uuid:assoc-1-${id}`, sourceObject: submissionSet.entryUUID, targetObject: docEntry.entryUUID, associationType: 'HASMEMBER', submissionSetStatus: 'approved', availabilityStatus: 'approved' },
-    { id: `assoc-2-${id}`, entryUUID: `urn:uuid:assoc-2-${id}`, sourceObject: folder.entryUUID, targetObject: docEntry.entryUUID, associationType: 'HASMEMBER', submissionSetStatus: 'approved', availabilityStatus: 'approved' },
+    { id: `assoc-1-${id}`, entryUUID: `urn:uuid:assoc-1-${id}`, sourceObject: submissionSet.entryUUID, targetObject: docEntry.entryUUID, associationType: 'HASMEMBER', submissionSetStatus: 'approved', availabilityStatus: 'approved', slots: [] },
+    { id: `assoc-2-${id}`, entryUUID: `urn:uuid:assoc-2-${id}`, sourceObject: folder.entryUUID, targetObject: docEntry.entryUUID, associationType: 'HASMEMBER', submissionSetStatus: 'approved', availabilityStatus: 'approved', slots: [] },
   ];
   return {
     id, registryId, patientId, sourceId,

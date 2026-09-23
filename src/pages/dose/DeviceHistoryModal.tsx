@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { rdsrApi } from "../../services/api/rdsrApi";
 import { t } from "../../i18n/appI18n";
+import { ErrorBanner } from "../../components/feedback";
 import ChartContainer from "../../components/charts/ChartContainer";
 
 interface HistoryPoint {
@@ -38,10 +39,13 @@ const MOCK_HISTORY: HistoryPoint[] = [
 export default function DeviceHistoryModal({ device, onClose }: Props) {
   const [history, setHistory] = useState<HistoryPoint[]>(MOCK_HISTORY);
   const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoadError(null);
       try {
         const res = await rdsrApi.getDeviceHistory(device);
         if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -54,15 +58,17 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
             })),
           );
           setDataSource("api");
+        } else if (!cancelled && !res.success) {
+          setLoadError(t('w9.states.error'));
         }
       } catch {
-        /* 保留本地演示回退 */
+        setLoadError(t('w9.states.error'));
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [device]);
+  }, [device, reloadTick]);
 
   const avgDlp = history.length
     ? Math.round(history.reduce((s, p) => s + p.DLP, 0) / history.length)
@@ -131,6 +137,8 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
             <XCircle size={18} color="#64748b" />
           </button>
         </div>
+
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
         <ChartContainer height={200} state={history.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <LineChart data={history}>

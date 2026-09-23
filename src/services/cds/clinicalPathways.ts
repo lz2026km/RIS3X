@@ -71,8 +71,8 @@ class MockPathwayService implements IPathwayService {
   async updatePathway(pathwayId: string, updates: Partial<ClinicalPathway>): Promise<ClinicalPathway | null> {
     const idx = MOCK_PATHWAYS.findIndex(p => p.id === pathwayId)
     if (idx === -1) return null
-    MOCK_PATHWAYS[idx] = { ...MOCK_PATHWAYS[idx], ...updates, updatedTime: new Date().toISOString() }
-    return MOCK_PATHWAYS[idx]
+    MOCK_PATHWAYS[idx] = { ...MOCK_PATHWAYS[idx]!, ...updates, updatedTime: new Date().toISOString() }
+    return MOCK_PATHWAYS[idx]!
   }
 
   async togglePathway(pathwayId: string, isActive: boolean): Promise<boolean> {
@@ -85,7 +85,7 @@ class MockPathwayService implements IPathwayService {
   async activatePathway(patientId: string, patientName: string, pathwayId: string, activatedBy: string): Promise<PathwayInstance> {
     const pw = MOCK_PATHWAYS.find(p => p.id === pathwayId)!
     const steps: PathwayInstanceStep[] = pw.steps.map(s => ({ stepId: s.id, status: 'pending' as const }))
-    steps[0].status = 'in_progress'; steps[0].startedAt = new Date().toISOString()
+    steps[0]!.status = 'in_progress'; steps[0]!.startedAt = new Date().toISOString()
     const instance: PathwayInstance = {
       id: `pi-${Date.now()}`, pathwayId, pathwayName: pw.name,
       patientId, patientName, activatedAt: new Date().toISOString(),
@@ -110,8 +110,8 @@ class MockPathwayService implements IPathwayService {
     step.performedBy = performedBy; step.notes = notes; step.resultSummary = resultSummary
     const nextIdx = inst.currentStepIndex + 1
     if (nextIdx < inst.steps.length) {
-      inst.steps[nextIdx].status = 'in_progress'
-      inst.steps[nextIdx].startedAt = new Date().toISOString()
+      inst.steps[nextIdx]!.status = 'in_progress'
+      inst.steps[nextIdx]!.startedAt = new Date().toISOString()
       inst.currentStepIndex = nextIdx
     } else {
       inst.status = 'completed'; inst.completedAt = new Date().toISOString()

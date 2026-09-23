@@ -11,6 +11,7 @@ import MfaVerifyModal from '../../components/security/MfaVerifyModal'
 import { useReportStore } from '../../store'
 import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWritable } from './reportUtils'
 import { reportApi } from '../../services/api'
+import { ErrorBanner } from '../../components/feedback'
 import { criticalApi, type CriticalValueDto } from '../../services/api/criticalApi'
 import type { AuditTrailEvent } from '../../components/report/StatusTimeline'
 import { getCurrentUser } from '../../utils/auth'
@@ -104,6 +105,8 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
   // [G005 Wave 8] 报告→危急值反向引用: 关联危急值列表 (级别/状态/时间)
   const [linkedCritical, setLinkedCritical] = useState<CriticalValueDto[]>([])
   const [criticalLoading, setCriticalLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
   // [G005 Wave 8] 报告冷归档策略 (轻量展示)
   const [archivePolicy, setArchivePolicy] = useState<{ enabled?: boolean; archiveAfterDays?: number; targetTier?: string; deleteSourceAfterDays?: number | null; archivedCount?: number } | null>(null)
   // [v3.0.6.11-103 Wave 2A] 冷归档策略编辑: PUT /reports/archive-policy
@@ -129,6 +132,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
     if (!report || tab !== 'timeline') return
     let cancelled = false
     setTimelineLoading(true)
+    setLoadError(null)
     void (async () => {
       try {
         const res = await reportApi.auditTrail(report.id)
@@ -136,14 +140,15 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         const d = res.data as unknown
         const list = Array.isArray(d) ? d : (d as { events?: unknown } | null)?.events
         setTimelineTrail(Array.isArray(list) ? (list as AuditTrailEvent[]) : null)
+        if (!res.success) setLoadError(t('w9.states.error'))
       } catch {
-        if (!cancelled) setTimelineTrail(null)
+        if (!cancelled) { setTimelineTrail(null); setLoadError(t('w9.states.error')) }
       } finally {
         if (!cancelled) setTimelineLoading(false)
       }
     })()
     return () => { cancelled = true }
-  }, [report, tab])
+  }, [report, tab, reloadTick])
 
   // [G005 Wave 8] 危急值 Tab: 按报告反查关联危急值 (后端 /criticals/for-report/:reportId)
   useEffect(() => {
@@ -158,13 +163,13 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         const items = Array.isArray(d) ? d : (d as { items?: CriticalValueDto[] } | null)?.items
         setLinkedCritical(Array.isArray(items) ? items : [])
       } catch {
-        if (!cancelled) setLinkedCritical([])
+        if (!cancelled) { setLinkedCritical([]); setLoadError(t('w9.states.error')) }
       } finally {
         if (!cancelled) setCriticalLoading(false)
       }
     })()
     return () => { cancelled = true }
-  }, [report, tab])
+  }, [report, tab, reloadTick])
 
   // [G005 Wave 8] 时间线 Tab 轻量展示归档策略 (失败静默)
   useEffect(() => {
@@ -344,6 +349,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+          {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
           {tab === 'timeline' && (
             <div>
               <div style={{ marginBottom: 16, padding: 12, background: 'var(--color-info-bg)', border: '1px solid var(--color-info-border)', borderRadius: 8 }}>

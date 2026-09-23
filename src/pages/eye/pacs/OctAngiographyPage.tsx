@@ -4,6 +4,7 @@ import { Activity, Target, Droplets, RefreshCw, Download } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
@@ -13,6 +14,7 @@ const OctAngiographyPage: React.FC = () => {
   const [measurements, setMeasurements] = useState<any[]>([]);
   const [aiDiag, setAiDiag] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
 
   const handleExport = () => {
@@ -30,6 +32,7 @@ const OctAngiographyPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const [studiesRes, measRes, aiRes] = await Promise.all([
           eyeApi.getStudies({ modality: 'oct_a' }),
@@ -45,14 +48,21 @@ const OctAngiographyPage: React.FC = () => {
           if (aiRes.success && Array.isArray(aiRes.data)) {
             setAiDiag(aiRes.data.filter((d: any) => d.studyId === s.id));
           }
+        } else if (!cancelled && !studiesRes.success) {
+          setLoadError(t('w9.states.error'));
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
   if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
-  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>无 OCT-A 检查数据</div>;
+  if (!study) return (
+    <div style={{ padding: 16, textAlign: 'center' }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
+      无 OCT-A 检查数据
+    </div>
+  );
   return (
     <div
       style={{

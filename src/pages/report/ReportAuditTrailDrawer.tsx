@@ -1,12 +1,14 @@
 // [G005 W2-C] 报告审计轨迹 Drawer
 // reportApi.auditTrail → 修订历史 (事件时间线) 展示
 import { reportApi } from '../../services/api'
+import { ErrorBanner } from '../../components/feedback'
 import type { RadiologyReport } from '../../types'
 import { PRIMARY, GRAY } from './reportUtils'
 import { Drawer, Empty, Spin, Tag } from 'antd'
 import { History, User, Clock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 
 export interface AuditTrailEvent {
   id?: string
@@ -45,6 +47,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
   const [events, setEvents] = useState<AuditTrailEvent[]>([])
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     setLoaded(false)
@@ -71,7 +74,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
         setLoaded(true)
       }
     })()
-  }, [report?.id])
+  }, [report?.id, reloadTick])
 
   return (
     <Drawer
@@ -86,7 +89,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
       }
     >
       <Spin spinning={!loaded}>
-        {failed && <div style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>{failed}</div>}
+        {failed && <ErrorBanner message={failed} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
         {loaded && events.length === 0 && !failed ? (
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无修订记录" />
         ) : (

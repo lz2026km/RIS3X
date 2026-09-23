@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-108",
-  "description": "G005 Radiology RIS v3.0.6.11-108 - Tables/Buttons + Backend Endpoint Parity + ID/Type Fixes",
+  "version": "3.0.6.11-109",
+  "description": "G005 Radiology RIS v3.0.6.11-109 - Error-State Coverage + Dose Fallback + Type Convergence",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

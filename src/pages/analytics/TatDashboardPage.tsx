@@ -50,8 +50,10 @@ interface DoctorTatRow {
 
 const MODALITIES = ["CT", "MR", "DR", "DSA", "MG"];
 
+type TatLevel = "excellent" | "normal" | "warning" | "critical";
+
 const TAT_LEVEL_CONFIG: Record<
-  string,
+  TatLevel,
   { color: string; bg: string; label: string }
 > = {
   excellent: { color: "#059669", bg: "#d1fae5", label: "优秀 (≤15min)" },
@@ -60,7 +62,7 @@ const TAT_LEVEL_CONFIG: Record<
   critical: { color: "#dc2626", bg: "#fee2e2", label: "超时 (>60min)" },
 };
 
-function tatLevel(minutes: number): string {
+function tatLevel(minutes: number): TatLevel {
   return minutes <= 15
     ? "excellent"
     : minutes <= 30

@@ -12,7 +12,7 @@ import { Info } from "lucide-react";
 import { pediatricProtocols } from "./mockData";
 import type { PediatricProtocol } from "./types";
 import { rdsrApi, type PediatricDoseRecordDto } from "../../services/api/rdsrApi";
-import { LoadingBanner } from "../../components/feedback";
+import { LoadingBanner, ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
@@ -67,10 +67,13 @@ export default function PediatricProtocolOptimization() {
   const [protocols, setProtocols] = useState<PediatricProtocol[]>(pediatricProtocols);
   const [loading, setLoading] = useState(true);
   const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoadError(null);
       try {
         const res = await rdsrApi.getPediatric();
         if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -79,9 +82,11 @@ export default function PediatricProtocolOptimization() {
             setProtocols(derived);
             setDataSource("api");
           }
+        } else if (!cancelled && !res.success) {
+          setLoadError(t("w9.states.error"));
         }
       } catch {
-        /* 保留演示数据回退 */
+        setLoadError(t("w9.states.error"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -89,7 +94,7 @@ export default function PediatricProtocolOptimization() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadTick]);
 
   const filteredProtocols = protocols.filter(
     (p: PediatricProtocol) => p.ageGroup === selectedAge,
@@ -98,6 +103,7 @@ export default function PediatricProtocolOptimization() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
       {dataSource === "demo" && (
       <div
         style={{

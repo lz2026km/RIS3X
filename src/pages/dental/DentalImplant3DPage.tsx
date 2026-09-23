@@ -35,6 +35,7 @@ import {
   Plus,
 } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 
 const STATUS_META: Record<string, { color: string; labelKey: string }> = {
@@ -80,15 +81,20 @@ export const DentalImplant3DPage: React.FC = () => {
   );
   const [ww, setWw] = useState(1500);
   const [wc, setWc] = useState(500);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
+    setLoadError(null);
     dentalApi
       .listImplantPlans3d()
       .then((r) => {
         if (Array.isArray(r)) setPlans(r);
+        else setLoadError(t("w9.states.error"));
       })
       .catch((err) => {
         console.error("[F04]", err);
+        setLoadError(t("w9.states.error"));
       });
     dentalApi
       .getImplantBrands()
@@ -119,7 +125,7 @@ export const DentalImplant3DPage: React.FC = () => {
       .catch((err) => {
         console.error("[F04]", err);
       });
-  }, []);
+  }, [reloadTick]);
 
   // [G005 Wave1B] 更新种植体登记: PUT /dental/implants/:id (updateImplant)
   const handleUpdateImplant = async () => {    const d = implantModal.data;
@@ -416,6 +422,7 @@ export const DentalImplant3DPage: React.FC = () => {
           <Tag color="cyan">v3.0.6.8-88</Tag>
           <Tag color="blue">{t('dentalImplant3d.benchmark')}</Tag>
         </Space>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">

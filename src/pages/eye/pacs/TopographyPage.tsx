@@ -3,11 +3,13 @@ import { Card, Row, Col, Tag, Space, Statistic, Spin, Button } from "antd";
 import { Map, RefreshCw, Download } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 const TopographyPage: React.FC = () => {
   const [study, setStudy] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
 
   const handleExport = () => {
@@ -25,19 +27,27 @@ const TopographyPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const res = await eyeApi.getStudies({ modality: 'topography' });
         if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
           setStudy(res.data[0]);
+        } else if (!cancelled && !res.success) {
+          setLoadError(t('w9.states.error'));
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
 
   if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('topography.loading')} /></div>;
-  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>{t('topography.noData')}</div>;
+  if (!study) return (
+    <div style={{ padding: 16, textAlign: 'center' }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
+      {t('topography.noData')}
+    </div>
+  );
   return (
     <div
       style={{

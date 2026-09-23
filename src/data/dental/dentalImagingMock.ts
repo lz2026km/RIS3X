@@ -100,19 +100,19 @@ export const MOCK_DENTAL_STUDIES: DentalStudyDto[] = (() => {
     let r = Math.random() * 100;
     let modality: DentalModality = 'Panoramic';
     for (let j = 0; j < modalities.length; j++) {
-      r -= modalityWeights[j];
+      r -= modalityWeights[j]!;
       if (r <= 0) {
-        modality = modalities[j];
+        modality = modalities[j]!;
         break;
       }
     }
 
     const region = pick(REGIONS);
     const quality = pick(QUALITIES);
-    const status = pick(STATUSES);
+    const status = pick(STATUSES) as DentalStudyDto['status'];
     const firstName = pick(FIRST_NAMES);
     const givenName = pick(GIVEN_NAMES);
-    const patientName = firstName + givenName;randInt(8, 82);
+    const patientName = firstName + givenName + randInt(8, 82);
     const patientId = 'P' + String(100000 + i);
 
     const acquisitionDate = randomDate(180);
@@ -164,9 +164,9 @@ export const MOCK_DENTAL_STUDIES: DentalStudyDto[] = (() => {
     // Measurements
     const measurements: DentalStudyDto['measurements'] = [];
     if (modality === 'CBCT' && Math.random() > 0.4) {
-      measurements.push({ id: 'm-1', type: 'distance', label: '36 至下牙槽神经管距离', value: randFloat(6, 15).toFixed(1), unit: 'mm' });
+      measurements.push({ id: 'm-1', type: 'distance', label: '36 至下牙槽神经管距离', value: parseFloat(randFloat(6, 15).toFixed(1)), unit: 'mm' });
       if (Math.random() > 0.5) {
-        measurements.push({ id: 'm-2', type: 'distance', label: '种植体可用骨高度', value: randFloat(8, 18).toFixed(1), unit: 'mm' });
+        measurements.push({ id: 'm-2', type: 'distance', label: '种植体可用骨高度', value: parseFloat(randFloat(8, 18).toFixed(1)), unit: 'mm' });
       }
     }
 

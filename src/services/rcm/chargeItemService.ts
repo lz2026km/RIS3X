@@ -67,15 +67,15 @@ export const chargeItemService = {
   update: async (id: string, data: Partial<ChargeItemDto>): Promise<ChargeItemDto | undefined> => {
     const idx = MOCK_ITEMS.findIndex(i => i.id === id)
     if (idx === -1) return undefined
-    return { ...MOCK_ITEMS[idx], ...data, updatedTime: new Date().toISOString() }
+    return { ...MOCK_ITEMS[idx]!, ...data, updatedTime: new Date().toISOString() }
   },
 
   toggleActive: async (id: string): Promise<ChargeItemDto | undefined> => {
     const idx = MOCK_ITEMS.findIndex(i => i.id === id)
     if (idx === -1) return undefined
-    MOCK_ITEMS[idx].isActive = !MOCK_ITEMS[idx].isActive
-    MOCK_ITEMS[idx].updatedTime = new Date().toISOString()
-    return { ...MOCK_ITEMS[idx] }
+    MOCK_ITEMS[idx]!.isActive = !MOCK_ITEMS[idx]!.isActive
+    MOCK_ITEMS[idx]!.updatedTime = new Date().toISOString()
+    return { ...MOCK_ITEMS[idx]! }
   },
 
   bulkUpdatePrice: async (dto: BulkPriceUpdateDto): Promise<number> => {

@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Space, Tag, Button, InputNumber, Spin, Progress } from 'antd';
 import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
+import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 const MODALITY_LABELS: Record<string, string> = { Axial: '轴向', Sagittal: '矢状', Coronal: '冠状' };
@@ -21,6 +22,8 @@ export const MprViewerPage: React.FC = () => {
   // [G005 W8-Dose] MPR 元数据: 优先 dentalApi.getMpr, 端点不可用/返回空时回退本地合成 (100 层)
   const [mprMeta, setMprMeta] = useState<{ sliceCount: number; resolution: string; format: string } | null>(null);
   const [mprSource, setMprSource] = useState<'api' | 'demo'>('demo');
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   // [G005 Wave2A P1] 演示重建: 本地状态流转 (重建进度 → 结果占位)
   const [rebuild, setRebuild] = useState<{ running: boolean; progress: number; done: boolean }>({ running: false, progress: 0, done: false });
   const rebuildTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -52,9 +55,11 @@ export const MprViewerPage: React.FC = () => {
   // Load study + MPR metadata
   useEffect(() => {
     if (!studyId) { setLoading(false); return; }
+    setLoadError(null);
     fetch(`/api/v1/dental/studies/${studyId}`).then(r=>r.json()).then(d => {
       if (d.success) setStudy(d.data);
-    }).catch((err) => { console.error('[F04]', err); }).finally(() => setLoading(false));
+      else setLoadError(t('w9.states.error'));
+    }).catch((err) => { console.error('[F04]', err); setLoadError(t('w9.states.error')); }).finally(() => setLoading(false));
     let cancelled = false;
     (async () => {
       try {
@@ -64,13 +69,15 @@ export const MprViewerPage: React.FC = () => {
           setMprMeta({ sliceCount: n, resolution: res.data.resolution, format: 'DICOM' });
           setTotalSlices({ Axial: n, Sagittal: n, Coronal: n });
           setMprSource('api');
+        } else if (!cancelled && !res.success) {
+          setLoadError(t('w9.states.error'));
         }
       } catch {
-        /* 保留本地合成回退 */
+        if (!cancelled) setLoadError(t('w9.states.error'));
       }
     })();
     return () => { cancelled = true; };
-  }, [studyId]);
+  }, [studyId, reloadTick]);
 
   // Generate simulated DICOM slice canvas
   const drawSlice = useCallback((canvas: HTMLCanvasElement | null, plane: string, sliceIdx: number) => {
@@ -133,6 +140,7 @@ export const MprViewerPage: React.FC = () => {
 
   return (
     <div style={{ padding: 0, background: '#000', minHeight: '100vh', color: '#fff' }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {/* Top Bar */}
       <div style={{ background: '#001529', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Space>

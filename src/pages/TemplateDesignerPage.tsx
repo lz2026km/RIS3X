@@ -329,7 +329,7 @@ export default function TemplateDesignerPage() {
           id: `sec-${idx}`,
           name: groupName,
           order: idx,
-          color: PRESET_SECTIONS[idx % PRESET_SECTIONS.length].color,
+          color: PRESET_SECTIONS[idx % PRESET_SECTIONS.length]!.color,
           fields,
         });
         idx++;
@@ -550,7 +550,7 @@ export default function TemplateDesignerPage() {
       id: uniqueId('sec'),
       name: `新章节 ${sections.length + 1}`,
       order: sections.length,
-      color: PRESET_SECTIONS[sections.length % PRESET_SECTIONS.length].color,
+      color: PRESET_SECTIONS[sections.length % PRESET_SECTIONS.length]!.color,
       fields: [],
     };
     setSections([...sections, newSection]);
@@ -596,7 +596,7 @@ export default function TemplateDesignerPage() {
       fieldId: allFields?.[0]?.id ?? '',
       operator: "equals",
       value: "",
-      targetFieldId: allFields[1].id,
+      targetFieldId: allFields?.[1]?.id ?? '',
       action: "show",
     };
     setConditionalRules([...conditionalRules, newRule]);
@@ -2374,7 +2374,7 @@ const FieldPropertyPanel: React.FC<{
               .split("\n")
               .filter((line) => line.includes(":"))
               .map((line) => {
-                const [label, value] = line.split(":");
+                const [label = "", value = ""] = line.split(":");
                 return { label: label.trim(), value: value.trim() };
               });
             onChange({ options: opts });

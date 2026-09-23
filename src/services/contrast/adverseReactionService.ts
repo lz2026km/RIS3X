@@ -78,8 +78,8 @@ class MockAdverseReactionService implements IAdverseReactionService {
   async updateReaction(id: string, updates: Partial<AdverseReaction>): Promise<AdverseReaction | null> {
     const idx = MOCK_REACTIONS.findIndex(r => r.id === id)
     if (idx === -1) return null
-    MOCK_REACTIONS[idx] = { ...MOCK_REACTIONS[idx], ...updates }
-    return MOCK_REACTIONS[idx]
+    MOCK_REACTIONS[idx] = { ...MOCK_REACTIONS[idx]!, ...updates }
+    return MOCK_REACTIONS[idx]!
   }
 
   async getReactionStats(startDate: string, endDate: string): Promise<ReactionStats> {
@@ -102,8 +102,8 @@ class MockAdverseReactionService implements IAdverseReactionService {
   async reportReaction(id: string): Promise<AdverseReaction> {
     const idx = MOCK_REACTIONS.findIndex(r => r.id === id)
     if (idx === -1) throw new Error('记录不存在')
-    MOCK_REACTIONS[idx].isReported = true
-    return MOCK_REACTIONS[idx]
+    MOCK_REACTIONS[idx]!.isReported = true
+    return MOCK_REACTIONS[idx]!
   }
 }
 

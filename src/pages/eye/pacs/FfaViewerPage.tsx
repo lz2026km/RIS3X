@@ -5,6 +5,7 @@ import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
@@ -14,6 +15,7 @@ const FfaViewerPage: React.FC = () => {
   const [aiDiag, setAiDiag] = useState<any[]>([]);
   const [criticalValues, setCriticalValues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
 
   const handleExport = () => {
@@ -31,6 +33,7 @@ const FfaViewerPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const [studiesRes, aiRes, cvRes] = await Promise.all([
           eyeApi.getStudies({ modality: 'ffa' }),
@@ -46,8 +49,10 @@ const FfaViewerPage: React.FC = () => {
           if (cvRes.success && Array.isArray(cvRes.data)) {
             setCriticalValues(cvRes.data.filter((c: any) => c.studyId === s.id));
           }
+        } else if (!cancelled && !studiesRes.success) {
+          setLoadError(t('w9.states.error'));
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -56,6 +61,7 @@ const FfaViewerPage: React.FC = () => {
   if (!study) {
     return (
       <div style={{ padding: 32, textAlign: "center" }}>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
         <Alert
           type="warning"
           showIcon

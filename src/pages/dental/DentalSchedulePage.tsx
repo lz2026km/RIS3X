@@ -2,6 +2,7 @@
 // 对标: 领健·牙医管家
 import dayjs from 'dayjs';
 import { dentalApi } from '@/services/api/dentalApi';
+import { ErrorBanner } from '@/components/feedback';
 import { t } from '@/i18n/appI18n';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented, Descriptions, Spin } from 'antd';
 import { Calendar, User, Armchair, Plus, CheckCircle2, Eye } from 'lucide-react';
@@ -51,6 +52,8 @@ export const DentalSchedulePage: React.FC = () => {
   // [G005 W3-B] 排班单条预约详情: GET /dental/schedule/appointments/:id (getScheduleAppointment)
   const [apptDetail, setApptDetail] = useState<any>(null);
   const [apptDetailLoading, setApptDetailLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   const handleShowApptDetail = async (id: string) => {
     setApptDetailLoading(true);
@@ -70,6 +73,7 @@ export const DentalSchedulePage: React.FC = () => {
   };
 
   const fetchData = async () => {
+    setLoadError(null);
     try {
       const [c, a, s, p, d] = await Promise.all([
         dentalApi.getScheduleChairs().catch((err) => { console.error('[F04]', err); return { success: false, data: [] }; }),
@@ -90,10 +94,11 @@ export const DentalSchedulePage: React.FC = () => {
       if (d.success && Array.isArray(d.data)) {
         setDentists(d.data.map((dt: any) => ({ value: dt.name || dt.id, label: dt.name || dt.id })));
       }
-    } catch (e) { console.error('[F04]', e); }
+      if (!c.success && !a.success && !s.success) setLoadError(t('w9.states.error'));
+    } catch (e) { console.error('[F04]', e); setLoadError(t('w9.states.error')); }
   };
 
-  useEffect(() => { fetchData(); }, [selectedDate]);
+  useEffect(() => { fetchData(); }, [selectedDate, reloadTick]);
 
   // [G005 Wave1B] 加载历史 PSR 记录 (切换患者时刷新; 患者未加载完成时跳过, 避免 /chart//psr 空路由)
   useEffect(() => {
@@ -160,6 +165,7 @@ export const DentalSchedulePage: React.FC = () => {
         <Tag color="cyan">v3.0.6.8-103</Tag>
         <Tag color="blue">{t('dentalSchedule.benchmarkTag')}</Tag>
       </Space>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statToday')} value={stats?.todayAppointments || 0} /></Card></Col>
         <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statCompleted')} value={stats?.completed || 0} styles={{ content: { color:'#52c41a' } }} /></Card></Col>

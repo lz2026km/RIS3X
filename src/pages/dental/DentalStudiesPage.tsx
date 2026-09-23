@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, List, Input, Badge, Modal, Form, DatePicker, Popconfirm, Table } from 'antd';
 import { Activity, Eye, RefreshCw, Plus, Edit3, Trash2, GitCompareArrows } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
+import { ErrorBanner } from '../../components/feedback';
 import { MODALITY_LABELS, MODALITY_COLORS } from '../../data/dental/constants';
 import { t } from '../../i18n/appI18n';
 
@@ -15,6 +16,7 @@ export const DentalStudiesPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);
   const [filter, setFilter] = useState({ modality: '', patientName: '' });
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   // [G005 Wave1A P1] 影像登记: dentalApi.createStudy / updateStudy / deleteStudy (后端真实)
   const [regOpen, setRegOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -51,13 +53,15 @@ export const DentalStudiesPage: React.FC = () => {
   const studyOptions = studies.map(s => ({ value: s.id, label: `${s.patientName} · ${s.modality} · ${s.id}` }));
   const load = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       // [W2-C] 接 dentalApi.getStudies 真实列表 (MSW dentalHandlers 演示数据)
       const params: any = { pageSize: '50' };
       if (filter.modality) params.modality = filter.modality;
       const r = await dentalApi.listStudies(params);
       if (r.success) setStudies(r.data ?? []);
-    } catch { message.error(t('dentalStudies.loadFailed')); }
+      else setLoadError(t('w9.states.error'));
+    } catch { setLoadError(t('w9.states.error')); message.error(t('dentalStudies.loadFailed')); }
     finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
@@ -152,6 +156,7 @@ export const DentalStudiesPage: React.FC = () => {
         <Tag color="cyan">v3.0.6.8-54</Tag>
         <Tag color="purple">{t('dentalStudies.benchmark')}</Tag>
       </Space>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title={t('dentalStudies.statAll')} value={stats.total} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="CBCT" value={stats.cbct} styles={{ content: {  color: '#722ed1'  } }} /></Card></Col>

@@ -2,7 +2,7 @@
  * G005 RIS v3.0.5.1 - MSW Handlers: R3.REVIEW.ASSIST (20 handlers)
  * [v3.0.6.12-B2] top-10 routes use store.
  */
-import { http, HttpResponse, delay } from 'msw';
+import { http, HttpResponse, delay, type HttpHandler } from 'msw';
 import { v4 as uuidv4 } from 'uuid';
 import { list, get, create } from './store';
 
@@ -11,14 +11,14 @@ const API_BASE = (() => {
 })();
 
 // Section 1: AI Hint
-const reviewAiHintHandlers = [
+const reviewAiHintHandlers: HttpHandler[] = [
   
   
   
 ];
 
 // Section 2: History
-const reviewHistoryHandlers = [
+const reviewHistoryHandlers: HttpHandler[] = [
   
   
   
@@ -26,7 +26,7 @@ const reviewHistoryHandlers = [
 ];
 
 // Section 3: Comments
-const reviewCommentHandlers = [
+const reviewCommentHandlers: HttpHandler[] = [
   
   
   

@@ -330,13 +330,13 @@ const HomePage: FC = () => {
         today: { exams, reports, pending: Math.max(0, exams - reports), critical: latest.criticalCount || 0 },
         week: { exams: 0, reports: 0, pending: 0 },
         month: { exams: 0, reports: 0, pending: 0, revenue: 0 },
-        byModality: {},
+        byModality: {} as Record<string, number>,
         avgReportTime: 0,
         criticalPending: 0,
         worklist: [],
       };
     }
-    return { today: { exams: 0, reports: 0, pending: 0, critical: 0 }, week: { exams: 0, reports: 0, pending: 0 }, month: { exams: 0, reports: 0, pending: 0, revenue: 0 }, byModality: {}, avgReportTime: 0, criticalPending: 0, worklist: [] };
+    return { today: { exams: 0, reports: 0, pending: 0, critical: 0 }, week: { exams: 0, reports: 0, pending: 0 }, month: { exams: 0, reports: 0, pending: 0, revenue: 0 }, byModality: {} as Record<string, number>, avgReportTime: 0, criticalPending: 0, worklist: [] };
   })
   const [workload] = useState(() => {
     const examsData = list<any>('exams');

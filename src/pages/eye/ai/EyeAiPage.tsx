@@ -13,7 +13,7 @@ import { Brain, Activity, AlertTriangle, CheckCircle, Clock, PlayCircle } from '
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import ChartContainer from "@/components/charts/ChartContainer";
 import { PageContainer, PageHeader } from "@/components/common";
-import { AppEmpty } from "@/components/feedback";
+import { AppEmpty, ErrorBanner } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePagination } from "@/hooks/usePagination";
 import { eyeApi } from "@/services/api/eyeApi";
@@ -64,6 +64,8 @@ const EyeAiPage: React.FC = () => {
   const [diseaseDistribution, setDiseaseDistribution] = useState<Array<{ condition: string; count: number }>>([]);
   const [distSource, setDistSource] = useState<'api' | 'demo'>('demo');
   const [_loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   // [G005 Wave1B] 推理执行 / ROC 指标 / 热图 / 待推理 (eyeApi.runInference / getRocCurve / getHeatmaps / listPendingInferences)
   const [heatmapCount, setHeatmapCount] = useState(0);
   const [pendingInferenceCount, setPendingInferenceCount] = useState(0);
@@ -74,6 +76,7 @@ const EyeAiPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const [modelsRes, diagRes, distRes, heatRes, pendingRes] = await Promise.all([
           eyeApi.listModels(),
@@ -98,12 +101,13 @@ const EyeAiPage: React.FC = () => {
               setDistSource('api');
             }
           }
+          if (!modelsRes.success && !diagRes.success) setLoadError(t('w9.states.error'));
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   const pendingDiag = aiDiagnoses.filter(
     (d) => d.reviewStatus === "pending",
@@ -218,6 +222,8 @@ const EyeAiPage: React.FC = () => {
           </>
         }
       />
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>

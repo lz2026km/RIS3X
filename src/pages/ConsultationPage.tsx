@@ -836,8 +836,8 @@ export default function ConsultationPage() {
                     <div style={{ fontSize: 13 }}>{t('consultation.noConsultations')}</div>
                   </div>
                 ) : filtered.map((c, idx) => {
-                  const sc = STATUS_CONFIG[c.status] || STATUS_CONFIG['待回复']
-                  const tc = TYPE_CONFIG[c.consultationType] || TYPE_CONFIG['疑难病例']
+                  const sc = STATUS_CONFIG[c.status] || STATUS_CONFIG['待回复']!
+                  const tc = TYPE_CONFIG[c.consultationType] || TYPE_CONFIG['疑难病例']!
                   const isSelected = selectedId === c.id
                   const hasVideo = !!consultationVideoMap[c.id]
                   return (
@@ -1863,7 +1863,7 @@ export default function ConsultationPage() {
                         key={s}
                         onClick={() => {
                           const updated = [...ratingModalData]
-                          updated[idx].score = s
+                          updated[idx]!.score = s
                           setRatingModalData(updated)
                         }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
@@ -1877,7 +1877,7 @@ export default function ConsultationPage() {
                     value={item.comment}
                     onChange={e => {
                       const updated = [...ratingModalData]
-                      updated[idx].comment = e.target.value
+                      updated[idx]!.comment = e.target.value
                       setRatingModalData(updated)
                     }}
                     placeholder={`${item.dimension}评语（选填）`}

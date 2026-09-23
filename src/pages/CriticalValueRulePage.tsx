@@ -24,7 +24,7 @@ import { t } from "../i18n/appI18n";
 // 类别配置
 // ============================================================
 const CATEGORY_CONFIG: Record<
-  string,
+  CriticalValueRule['category'],
   { label: string; color: string; bg: string }
 > = {
   neuro: { label: t("cvRule.cat.neuro"), color: "#7c3aed", bg: "#8b5cf622" },

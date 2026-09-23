@@ -45,6 +45,7 @@ import {
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
 import { eyeApi } from "../../../services/api/eyeApi";
+import { ErrorBanner } from "../../../components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 export const TeleConsultPage: React.FC = () => {
@@ -132,8 +133,11 @@ export const TeleConsultPage: React.FC = () => {
   const [detailConsultId, setDetailConsultId] = useState<string>("");
   const [consultDetail, setConsultDetail] = useState<any>(null);
   const [answerText, setAnswerText] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   useEffect(() => {
     (async () => {
+      setLoadError(null);
       try {
         const [sRes, cRes, stRes, stmRes] = await Promise.all([
           eyeApi.listTeleSessions(),
@@ -145,11 +149,13 @@ export const TeleConsultPage: React.FC = () => {
         if (cRes.success) setTeleConsults(cRes.data || []);
         if (stRes.success) setTeleStats(stRes.data);
         if (stmRes.success) setTeleStreams(stmRes.data || []);
+        if (!sRes.success && !cRes.success && !stRes.success && !stmRes.success) setLoadError(t("w9.states.error"));
       } catch (e) {
+        setLoadError(t("w9.states.error"));
         console.warn("[F03] tele list Error:", (e as Error)?.message);
       }
     })();
-  }, []);
+  }, [reloadTick]);
 
   // [v3.0.6.11-103 Wave 3A] 会话详情 / 结束会话
   const handleSessionDetail = async () => {
@@ -329,6 +335,8 @@ export const TeleConsultPage: React.FC = () => {
         {/* [G005 Wave10A] 失败时回退标注: 后端不可达时操作会以 message.error 提示并保留现场 */}
         <Tag>{t("eye.tele.tagFallback")}</Tag>
       </Space>
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
 
       <Tabs
         activeKey={activeTab}

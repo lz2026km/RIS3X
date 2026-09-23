@@ -139,6 +139,7 @@ export interface DicomSrDocument {
 export type FhirResourceType =
   | 'DiagnosticReport' | 'Patient' | 'Observation' | 'Practitioner'
   | 'Organization' | 'ServiceRequest' | 'ImagingStudy' | 'Media'
+  | 'Encounter'
   | 'Composition' | 'DocumentReference' | 'Bundle' | 'OperationOutcome';
 
 export interface FhirCoding {

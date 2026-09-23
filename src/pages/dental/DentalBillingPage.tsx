@@ -6,6 +6,7 @@ import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, T
 import { DollarSign, FileText, XCircle, Printer, Calculator, Plus } from 'lucide-react';
 import { wechatPay } from '../../services/wechatPay';
 import { dentalApi } from '../../services/api/dentalApi';
+import { ErrorBanner } from '../../components/feedback';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
 
@@ -29,6 +30,7 @@ export const DentalBillingPage: React.FC = () => {
   // [G005 2B] 受控分页: 费用项目目录 / 账单列表
   // [G005 Wave1A P0] 后端可用性标注: 失败时回退 MSW/dev 端点并展示标记
   const [backendDown, setBackendDown] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const { pageData: pagedCatalog, pagination: catalogPagination } = usePagination(catalog, 8);
   const { pageData: pagedInvoices, pagination: invoicesPagination } = usePagination(invoices, 10);
 
@@ -69,6 +71,7 @@ export const DentalBillingPage: React.FC = () => {
         throw new Error('listBillingInvoices 空/不可用');
       } catch {
         setBackendDown(true);
+        setLoadError(t('w9.states.error'));
       }
     }
   };
@@ -82,6 +85,7 @@ export const DentalBillingPage: React.FC = () => {
     } catch (err) {
       console.error('[F04]', err);
       setBackendDown(true);
+      setLoadError(t('w9.states.error'));
     }
   };
 
@@ -94,10 +98,12 @@ export const DentalBillingPage: React.FC = () => {
     } catch (err) {
       console.error('[F04]', err);
       setBackendDown(true);
+      setLoadError(t('w9.states.error'));
     }
   };
 
   useEffect(() => {
+    setLoadError(null);
     Promise.all([
       loadCatalog(),
       loadPayMethods(),
@@ -220,6 +226,7 @@ export const DentalBillingPage: React.FC = () => {
         )}
         <Button size="small" type="primary" icon={<DollarSign size={14} />} onClick={() => { invoiceForm.resetFields(); setInvoiceModal({ open: true, saving: false }); }}>{t('dentalBilling.createInvoice')}</Button>
       </Space>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => { void loadCatalog(); void loadPayMethods(); void loadInvoices(); }} retryLabel={t('w9.states.retry')} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.todayIncome')} prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.pendingPayment')} prefix="¥" value={totalPending} styles={{ content: { color:totalPending>0?'#faad14':'#52c41a' } }} /></Card></Col>

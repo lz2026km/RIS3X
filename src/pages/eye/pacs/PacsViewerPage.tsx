@@ -3,6 +3,8 @@ import { Tag, Button, Spin } from 'antd';
 import { Image, ArrowLeft, Download } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
+import { t } from "../../../i18n/appI18n";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -43,32 +45,44 @@ const PacsViewerPage: React.FC = () => {
   const studyId = params.get("studyId") || "";
   const [study, setStudy] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         if (studyId) {
           const res = await eyeApi.getStudy(studyId);
           if (!cancelled && res.success && res.data) {
             setStudy(res.data);
+          } else if (!cancelled && !res.success) {
+            setLoadError(t('w9.states.error'));
           }
         }
         if (!study) {
           const listRes = await eyeApi.getStudies();
           if (!cancelled && listRes.success && Array.isArray(listRes.data) && listRes.data.length > 0) {
             setStudy(listRes.data[0]);
+          } else if (!cancelled && !listRes.success) {
+            setLoadError(t('w9.states.error'));
           }
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [studyId]);
+  }, [studyId, reloadTick]);
 
   if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
-  if (!study) return <div style={{ padding: 16, textAlign: 'center', color: '#fff' }}>无检查数据</div>;
+  if (!study) return (
+    <div style={{ padding: 16, textAlign: 'center', color: '#fff' }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
+      无检查数据
+    </div>
+  );
 
   return (
     <div

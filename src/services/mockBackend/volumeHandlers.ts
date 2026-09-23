@@ -20,7 +20,7 @@ export const volumeHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items = SERIES;
-    if (opts?.modality) items = items.filter((s) => s.modality === opts.modality);
+    if (opts?.filters?.modality) items = items.filter((s) => s.modality === opts.filters!.modality);
     if (opts?.search) items = items.filter((s) => (s.patientName + s.patientId).toLowerCase().includes(String(opts.search).toLowerCase()));
     return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
   }),

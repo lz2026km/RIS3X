@@ -13,7 +13,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { reviewService } from '../../../../services/review/reviewService';
-import type { Reviewer, ReviewerAssignment, ReviewTask, ReviewStage } from '../../../types/R3/R3.REVIEW';
+import type { Reviewer, ReviewerAssignment as ReviewerAssignmentType, ReviewerStatus, ReviewTask, ReviewStage } from '../../../types/R3/R3.REVIEW';
 import { t } from '../../../../i18n/appI18n';
 
 const STAGE_META: Record<ReviewStage, { label: string; color: string }> = {
@@ -23,7 +23,7 @@ const STAGE_META: Record<ReviewStage, { label: string; color: string }> = {
   sign: { label: 'reportReview.stage.sign', color: 'pink' },
 };
 
-const STATUS_META: Record<string, { color: string; label: string }> = {
+const STATUS_META: Record<ReviewerStatus, { color: string; label: string }> = {
   online: { color: 'green', label: 'reportReview.assign.status.online' },
   away: { color: 'gold', label: 'reportReview.assign.status.away' },
   busy: { color: 'red', label: 'reportReview.assign.status.busy' },
@@ -34,7 +34,7 @@ type Strategy = 'manual' | 'auto-workload' | 'auto-shift' | 'round-robin';
 
 export interface ReviewerAssignmentProps {
   task: ReviewTask | null;
-  onAssigned?: (a: ReviewerAssignment) => void;
+  onAssigned?: (a: ReviewerAssignmentType) => void;
 }
 
 export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, onAssigned }) => {

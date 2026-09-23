@@ -9,6 +9,7 @@ import ReportDraftPanel from "@/components/eye/ReportDraftPanel";
 import { eyeApi } from "../../../services/api/eyeApi";
 import type { OphthalmologyReport, ReportTemplate, FindingLibraryItem, ReportAuditEntry } from '../../../types/eye';
 import { AppModal } from "@/components/common/AppModal";
+import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
@@ -628,12 +629,15 @@ const EyeReportWritePage: React.FC = () => {
   const [findingsLibrary, _setFindingsLibrary] = useState<FindingLibraryItem[]>([]);
   const [auditEntries, _setAuditEntries] = useState<ReportAuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   const [selectedReportId, setSelectedReportId] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const [reportsRes, templatesRes, _findingsRes] = await Promise.all([
           eyeApi.getReports(),
@@ -650,13 +654,14 @@ const EyeReportWritePage: React.FC = () => {
         if (templatesRes.success && Array.isArray(templatesRes.data)) {
           setTemplates(templatesRes.data as unknown as ReportTemplate[]);
         }
+        if (!reportsRes.success && !templatesRes.success) setLoadError(t('w9.states.error'));
       } catch {
-        if (!cancelled) message.error(t('eyeReport.loadFailed'));
+        if (!cancelled) { message.error(t('eyeReport.loadFailed')); setLoadError(t('w9.states.error')); }
       }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   const report = reports.find((r) => r.id === selectedReportId);
 
@@ -669,12 +674,18 @@ const EyeReportWritePage: React.FC = () => {
   }
 
   if (reports.length === 0) {
-    return <Alert title={t('eyeReport.noReports')} type="warning" showIcon style={{ margin: 24 }} />;
+    return (
+      <>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
+        <Alert title={t('eyeReport.noReports')} type="warning" showIcon style={{ margin: 24 }} />
+      </>
+    );
   }
 
   if (!report) return <Alert title={t('eyeReport.reportNotFound')} type="warning" showIcon style={{ margin: 24 }} />;
   return (
     <>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div
         style={{
           padding: 16,

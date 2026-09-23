@@ -64,7 +64,7 @@ describe('canTransitionReport', () => {
 describe('transitionReport', () => {
   it('returns updated report on valid transition', () => {
     const report = { id: 'rpt-1', status: 'draft' as const, content: 'test' };
-    const updated = transitionReport(report, 'submitted');
+    const updated = transitionReport(report, 'submitted') as typeof report & { updatedTime?: string; rejectReason?: string };
     expect(updated.status).toBe('submitted');
     expect(updated.content).toBe('test');
     expect(updated.updatedTime).toBeDefined();
@@ -72,7 +72,7 @@ describe('transitionReport', () => {
 
   it('includes rejectReason when transitioning to rejected', () => {
     const report = { id: 'rpt-1', status: 'submitted' as const };
-    const updated = transitionReport(report, 'rejected', '质量不足');
+    const updated = transitionReport(report, 'rejected', '质量不足') as typeof report & { rejectReason?: string };
     expect(updated.status).toBe('rejected');
     expect(updated.rejectReason).toBe('质量不足');
   });
@@ -298,7 +298,7 @@ describe('isMaintenanceOverdue', () => {
 
 describe('daysUntilMaintenance', () => {
   it('returns positive number for future date', () => {
-    const far = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+    const far = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]!;
     expect(daysUntilMaintenance(far)).toBeGreaterThan(0);
   });
 });
@@ -356,7 +356,7 @@ describe('recordWorkflowEvent / listWorkflowEvents', () => {
     expect(event.timestamp).toBeDefined();
     const events = listWorkflowEvents({ entityType: 'report', entityId: 'rpt-1' });
     expect(events).toHaveLength(1);
-    expect(events[0].action).toBe('SUBMIT');
+    expect(events[0]!.action).toBe('SUBMIT');
   });
 
   it('filters by entity type', () => {
@@ -364,6 +364,6 @@ describe('recordWorkflowEvent / listWorkflowEvents', () => {
     recordWorkflowEvent({ actorId: 'T001', actorName: '李四', action: 'START_EXAM', entityType: 'exam', entityId: 'ex-1' });
     const exams = listWorkflowEvents({ entityType: 'exam' });
     expect(exams).toHaveLength(1);
-    expect(exams[0].entityId).toBe('ex-1');
+    expect(exams[0]!.entityId).toBe('ex-1');
   });
 });

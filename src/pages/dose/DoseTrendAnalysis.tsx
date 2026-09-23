@@ -12,6 +12,8 @@ import { TrendingDown, TrendingUp as TrendingUpCircle } from "lucide-react";
 import { monthlyDoseTrend } from "./mockData";
 import type { MonthlyDoseTrend } from "./types";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import { ErrorBanner } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
 interface TooltipPayload {
@@ -22,13 +24,18 @@ interface TooltipPayload {
 export default function DoseTrendAnalysis() {
   const [trendData, setTrendData] = useState<MonthlyDoseTrend[]>(monthlyDoseTrend);
   const [source, setSource] = useState<'api' | 'demo'>('demo');
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      setLoadError(null);
       try {
         const res = await rdsrApi.getStats();
-        if (cancelled || !res.success || !res.data || !Array.isArray(res.data.trend) || res.data.trend.length === 0) return;
+        if (cancelled) return;
+        if (!res.success) { setLoadError(t('w9.states.error')); return; }
+        if (!res.data || !Array.isArray(res.data.trend) || res.data.trend.length === 0) return;
         const byMonth = new Map<string, { sum: number; count: number }>();
         for (const t of res.data.trend) {
           const m = String(t.date ?? '').slice(0, 7);
@@ -55,11 +62,11 @@ export default function DoseTrendAnalysis() {
           setSource('api');
         }
       } catch {
-        /* 回退演示数据 */
+        setLoadError(t('w9.states.error'));
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
   const CustomTooltip = ({
     active,
     payload,
@@ -118,6 +125,7 @@ export default function DoseTrendAnalysis() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {/* 月度剂量趋势折线图 */}
       <div
         style={{

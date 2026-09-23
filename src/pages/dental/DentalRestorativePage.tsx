@@ -15,11 +15,13 @@ import { DentalPageLayout, EmptyState, TreatmentActions } from "./DentalShared";
 import type { DentalTreatment } from "./DentalShared";
 // [v3.0.6.11-88 Round10] raw fetch → dentalApi.listTreatments/createTreatment (后端 /dental/treatments 真实存在)
 import { dentalApi } from "../../services/api/dentalApi";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 
 export const DentalRestorativePage: React.FC = () => {
   const [treats, setT] = useState<DentalTreatment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const PAGE_SIZE = 10;
@@ -27,15 +29,18 @@ export const DentalRestorativePage: React.FC = () => {
   const [form] = Form.useForm();
   const load = () => {
     setLoading(true);
+    setLoadError(null);
     dentalApi.listTreatments({ type: 'Restorative', page, pageSize: PAGE_SIZE })
       .then((d) => {
         if (d.success) {
           setT(d.data);
           setTotal((d.meta as { total?: number } | undefined)?.total ?? d.data?.length ?? 0);
+        } else {
+          setLoadError(t("w9.states.error"));
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { setLoadError(t("w9.states.error")); setLoading(false); });
   };
   useEffect(() => {
     load();
@@ -69,6 +74,7 @@ export const DentalRestorativePage: React.FC = () => {
         ),
       }}
     >
+      {loadError && <ErrorBanner message={loadError} onRetry={() => load()} retryLabel={t("w9.states.retry")} />}
       {loading ? (
         <div style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}>
           {t("dentalRestorative.loading")}

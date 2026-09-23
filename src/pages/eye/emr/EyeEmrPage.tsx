@@ -3,6 +3,7 @@ import { Card, Row, Col, Tag, Table, Tabs, Input, Descriptions, Alert, Space, Ba
 import { BookOpen, User } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
 import { PageContainer, PageHeader } from "@/components/common";
 import { usePagination } from "@/hooks/usePagination";
 import { t } from "../../../i18n/appI18n";
@@ -12,22 +13,27 @@ const EyeEmrPage: React.FC = () => {
   const [selected, setSelected] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const res = await eyeApi.getEmr();
         if (!cancelled && res.success && Array.isArray(res.data)) {
           setEmrList(res.data);
           if (res.data.length > 0) setSelected(res.data[0]);
+        } else if (!cancelled && !res.success) {
+          setLoadError(t('w9.states.error'));
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   const filtered = search
     ? emrList.filter(
@@ -53,6 +59,8 @@ const EyeEmrPage: React.FC = () => {
           />
         }
       />
+
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: 60 }}><Spin tip={t('eyeEmr.loading')} /></div>

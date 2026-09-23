@@ -8,6 +8,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { t } from '../../i18n/appI18n';
 import { StatCard, StatCardGrid } from '../../components/common/StatCard';
 import { ActionButton } from '../../components/common/ActionButton';
+import { ErrorBanner } from '../../components/feedback';
 
 // 确定性 seed 回退 (API 不可用时展示, 与 MSW 字段对齐)
 const SEED_INVENTORY: any[] = [
@@ -35,6 +36,7 @@ const UNIT_LABELS: Record<string, string> = { pcs: '件', tube: '支', set: '套
 export const DentalInventoryPage: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [fromSeed, setFromSeed] = useState(false);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -44,6 +46,7 @@ export const DentalInventoryPage: React.FC = () => {
 
   const loadInventory = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await dentalApi.listInventory();
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -52,11 +55,13 @@ export const DentalInventoryPage: React.FC = () => {
       } else {
         setItems(SEED_INVENTORY);
         setFromSeed(true);
+        if (!res.success) setLoadError(t('w9.states.error'));
       }
     } catch (err) {
       console.error('[F04]', err);
       setItems(SEED_INVENTORY);
       setFromSeed(true);
+      setLoadError(t('w9.states.error'));
     } finally {
       setLoading(false);
     }
@@ -178,6 +183,7 @@ export const DentalInventoryPage: React.FC = () => {
         ),
       }}
     >
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void loadInventory()} retryLabel={t('w9.states.retry')} />}
       <StatCardGrid style={{ marginBottom: 16 }}>
         <StatCard title={t('w9.common.statsStockTotal')} value={items.length} icon={<Package size={18} />} color="primary" />
         <StatCard title={t('w9.common.statsLowStock')} value={lowCount} icon={<AlertTriangle size={18} />} color="error" />

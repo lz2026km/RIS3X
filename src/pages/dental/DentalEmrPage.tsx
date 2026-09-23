@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Select, Row, Col, Statistic, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal, Form, Input, message } from 'antd';
 import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye, Plus } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
+import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 import { usePagination } from '../../hooks/usePagination';
 
@@ -23,6 +24,7 @@ export const DentalEmrPage: React.FC = () => {
   const [_busy, setBusy] = useState(false);
   // [v3.0.6.11-96 Wave2A P0] 数据源标注: 后端 overview 7 端点成功 → api, 失败回退演示数据 → mock
   const [emrSource, setEmrSource] = useState<'api' | 'mock'>('mock');
+  const [loadError, setLoadError] = useState<string | null>(null);
   // [G005 Wave1B] 影像 Tab: dentalApi.listPanoramic / listPeriapical (全景 + 根尖片)
   const [panoImages, setPanoImages] = useState<any[]>([]);
   const [periaImages, setPeriaImages] = useState<any[]>([]);
@@ -149,6 +151,7 @@ export const DentalEmrPage: React.FC = () => {
 
   const loadPatient = async (pid: string) => {
     setBusy(true);
+    setLoadError(null);
     setSelectedId(pid);
     // [v3.0.6.11-96 Wave2A P0] 7 裸 fetch → dentalApi 封装 (双信封兼容); 任一失败保留旧数据并标注演示回退
     const [ov, tr, ap, bl, rx, co, re] = await Promise.allSettled([
@@ -166,6 +169,7 @@ export const DentalEmrPage: React.FC = () => {
       setEmrSource('api');
     } else {
       setEmrSource('mock');
+      setLoadError(t('w9.states.error'));
     }
     if (Array.isArray(dataOf(tr))) setTreatments(dataOf(tr));
     if (Array.isArray(dataOf(ap))) setAppts(dataOf(ap));
@@ -180,6 +184,7 @@ export const DentalEmrPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void loadPatient(selectedId)} retryLabel={t('w9.states.retry')} />}
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalEmr.title')}</span>

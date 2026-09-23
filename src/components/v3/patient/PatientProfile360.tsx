@@ -45,6 +45,7 @@ export interface PatientReport {
   reportDate: string
   verified: boolean
   radsCategory?: string
+  reportState?: 'PENDING' | 'IN_REVIEW' | 'APPROVED'
 }
 
 export interface PatientTimelineEvent {

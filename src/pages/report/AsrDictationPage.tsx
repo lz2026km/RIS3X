@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { PageContainer } from '@components/common/PageContainer'
 import { PageHeader } from '@components/common/PageHeader'
+import { ErrorBanner } from '@components/feedback'
 import { asrApi, type DictationSession, type DictationHotword, type DictationHotwordCategory, type DictationSectionKey } from '@services/api/asrApi'
 import { reportApi } from '@services/api/reportApi'
 
@@ -52,6 +53,7 @@ export default function AsrDictationPage() {
   const [streaming, setStreaming] = useState(false)
   const [paused, setPaused] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [hotwords, setHotwords] = useState<DictationHotword[]>([])
   const [hotwordForm, setHotwordForm] = useState<{ term: string; category: DictationHotwordCategory; priority: number }>({ term: '', category: '影像', priority: 1 })
   const [editingHotwordId, setEditingHotwordId] = useState<string | null>(null)
@@ -64,8 +66,9 @@ export default function AsrDictationPage() {
   const loadHotwords = useCallback(async () => {
     try {
       setHotwords(await asrApi.listDictationHotwords())
+      setLoadError(null)
     } catch {
-      /* 热词库不可用 */
+      setLoadError(t('w9.states.error'))
     }
   }, [])
 
@@ -243,6 +246,7 @@ export default function AsrDictationPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Volume2 size={20} color="#3b82f6" />} title={t('w17.asr.title')} subtitle={t('w17.asr.subtitle')} />
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void loadHotwords()} retryLabel={t('w9.states.retry')} />}
       <div style={{ padding: 24 }}>
         {/* 听写控制台 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>

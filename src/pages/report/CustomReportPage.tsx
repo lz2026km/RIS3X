@@ -12,6 +12,7 @@ import dayjs from 'dayjs'
 import { t } from '../../i18n/appI18n'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
+import { ErrorBanner } from '../../components/feedback'
 import { ProTable, ProColumn } from '../../components/data/ProTable'
 import {
   FileSpreadsheet, Plus, Play, Table2, History, Clock, FileDown, Pencil, Trash2,
@@ -121,6 +122,7 @@ export default function CustomReportPage() {
   const [defs, setDefs] = useState<CustomReportDef[]>([])
   const [catalog, setCatalog] = useState<CustomReportField[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [filterTab, setFilterTab] = useState<'all' | 'scheduled'>('all')
   const [search, setSearch] = useState('')
 
@@ -145,12 +147,15 @@ export default function CustomReportPage() {
 
   const loadAll = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     const [d, c] = await Promise.allSettled([
       customReportApi.list(),
       customReportApi.getFieldsCatalog(),
     ])
     if (d.status === 'fulfilled' && d.value.success && Array.isArray(d.value.data)) setDefs(d.value.data)
     if (c.status === 'fulfilled' && c.value.success && Array.isArray(c.value.data)) setCatalog(c.value.data)
+    const ok = (r: PromiseSettledResult<{ success: boolean }>): boolean => r.status === 'fulfilled' && r.value.success
+    if (!ok(d) && !ok(c)) setLoadError(t('w9.states.error'))
     setLoading(false)
   }, [])
 
@@ -570,6 +575,7 @@ export default function CustomReportPage() {
         title={t('customReport.pageTitle')}
         subtitle={t('customReport.pageSubtitle')}
       />
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void loadAll()} retryLabel={t('w9.states.retry')} />}
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* 统计卡 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>

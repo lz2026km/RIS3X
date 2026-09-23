@@ -21,8 +21,8 @@ export const cardiacHandlers = [
     const opts = parseQuery(url);
     let items = [...analyses];
     if (opts?.search) items = items.filter((a) => (a.patientName + a.patientId).toLowerCase().includes(String(opts.search).toLowerCase()));
-    if (opts?.modality) items = items.filter((a) => a.modality === opts.modality);
-    if (opts?.status) items = items.filter((a) => a.status === opts.status);
+    if (opts?.filters?.modality) items = items.filter((a) => a.modality === opts.filters!.modality);
+    if (opts?.filters?.status) items = items.filter((a) => a.status === opts.filters!.status);
     return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
   }),
   http.get(`${API}/analyses/:id`, async ({ params }) => {

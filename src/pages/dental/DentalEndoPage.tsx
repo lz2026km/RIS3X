@@ -20,6 +20,7 @@ import { dentalApi } from "../../services/api/dentalApi";
 import { t } from "../../i18n/appI18n";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { ActionButton } from "../../components/common/ActionButton";
+import { ErrorBanner } from "../../components/feedback";
 
 const TYPE = "Endodontic";
 const PAGE_SIZE = 10;
@@ -58,6 +59,7 @@ function exportCsv(rows: DentalTreatment[]): void {
 export const DentalEndoPage: React.FC = () => {
   const [treats, setT] = useState<DentalTreatment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [fromSeed, setFromSeed] = useState(false);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("");
@@ -69,6 +71,7 @@ export const DentalEndoPage: React.FC = () => {
 
   const load = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const d = await dentalApi.listTreatments({ type: TYPE, page: 1, pageSize: 200 });
       if (d.success && Array.isArray(d.data) && d.data.length > 0) {
@@ -77,10 +80,12 @@ export const DentalEndoPage: React.FC = () => {
       } else {
         setT(SEED_TREATMENTS);
         setFromSeed(true);
+        if (!d.success) setLoadError(t("w9.states.error"));
       }
     } catch {
       setT(SEED_TREATMENTS);
       setFromSeed(true);
+      setLoadError(t("w9.states.error"));
     } finally {
       setLoading(false);
     }
@@ -189,6 +194,7 @@ export const DentalEndoPage: React.FC = () => {
         ),
       }}
     >
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t("w9.states.retry")} />}
       <StatCardGrid style={{ marginBottom: 16 }}>
         <StatCard title={t("w9.common.statsTotal")} value={treats.length} icon={<Stethoscope size={18} />} color="primary" />
         <StatCard title={t("w9.common.statsActive")} value={activeCount} icon={<Clock3 size={18} />} color="warning" />

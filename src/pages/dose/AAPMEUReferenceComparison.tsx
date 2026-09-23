@@ -10,21 +10,28 @@ import {
   Cell,
 } from "recharts";
 import ChartContainer from "../../components/charts/ChartContainer";
+import { ErrorBanner } from "../../components/feedback";
 import { AAPM_EU_REFERENCES } from "./mockData";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import { t } from "../../i18n/appI18n";
 import type { AAPMReference } from "./types";
 
 export default function AAPMEUReferenceComparison() {
   // [W10-B] AAPM/欧盟参考值为静态规范值; 本院平均值优先取 /rdsr/today 的
   //         按部位平均 CTDIvol, 端点不可用/无数据时回退内置演示值。
   const [refs, setRefs] = useState<AAPMReference[]>(AAPM_EU_REFERENCES);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoadError(null);
       try {
         const res = await rdsrApi.getToday();
-        if (cancelled || !res.success || !res.data) return;
+        if (cancelled) return;
+        if (!res.success) { setLoadError(t('w9.states.error')); return; }
+        if (!res.data) return;
         const dist = res.data.bodyPartDistribution ?? [];
         if (dist.length === 0) return;
         setRefs(
@@ -40,13 +47,13 @@ export default function AAPMEUReferenceComparison() {
           }),
         );
       } catch {
-        // 保留静态参考数据回退
+        setLoadError(t('w9.states.error'));
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadTick]);
 
   const chartData = refs.map((ref: AAPMReference) => ({
     name: ref.examType,
@@ -127,6 +134,7 @@ export default function AAPMEUReferenceComparison() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div
         style={{
           padding: "8px 12px",

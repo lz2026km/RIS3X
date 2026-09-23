@@ -40,6 +40,7 @@ import {
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
+import { ErrorBanner } from '../../components/feedback'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { t } from '../../i18n/appI18n'
 import {
@@ -99,6 +100,7 @@ export default function ReportWatermarkPage() {
   const [signs, setSigns] = useState<SignRequest[]>([])
   const [signStats, setSignStats] = useState<SignStats | null>(null)
   const [signLoading, setSignLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [applyOpen, setApplyOpen] = useState(false)
   const [applyForm] = Form.useForm()
   const [rejecting, setRejecting] = useState<SignRequest | null>(null)
@@ -111,8 +113,10 @@ export default function ReportWatermarkPage() {
     if (res?.success && res.data?.data) {
       setConfig(res.data.data)
       setSource(res.data.source)
+      setLoadError(null)
     } else {
       setSource('offline')
+      setLoadError(t('w9.states.error'))
     }
   }, [])
 
@@ -126,6 +130,7 @@ export default function ReportWatermarkPage() {
       setSigns(listRes.data.data)
       setSource(listRes.data.source)
     } else {
+      setLoadError(t('w9.states.error'))
       message.warning(t('reportWatermark.signRecordsLoadFailed'))
     }
     if (statsRes?.success && statsRes.data?.data) setSignStats(statsRes.data.data)
@@ -369,6 +374,8 @@ export default function ReportWatermarkPage() {
           </Space>
         }
       />
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => { void loadConfig(); void loadSigns(); }} retryLabel={t('w9.states.retry')} />}
 
       <Tabs
         defaultActiveKey="watermark"

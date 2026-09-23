@@ -20,6 +20,7 @@ import {
 } from "antd";
 import { CheckCircle2, Download, Eye, Layers, Save } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 
 const guideTypes = () => [
@@ -45,6 +46,8 @@ export const DentalGuidePage: React.FC = () => {
   });
   // [G005 Wave1A P1] 套筒配置: dentalApi.updateGuideSleeve (PUT /dental/guide/:id/sleeve)
   const [sleeveModal, setSleeveModal] = useState<{ open: boolean; guide: any; sleeveType: string; saving: boolean }>({ open: false, guide: null, sleeveType: "", saving: false });
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   const loadGuides = async () => {
     const list = await dentalApi.listSurgicalGuides();
@@ -52,13 +55,16 @@ export const DentalGuidePage: React.FC = () => {
   };
 
   useEffect(() => {
+    setLoadError(null);
     dentalApi
       .listSurgicalGuides()
       .then((r) => {
         if (Array.isArray(r)) setGuides(r);
+        else setLoadError(t("w9.states.error"));
       })
       .catch((err) => {
         console.error("[F04]", err);
+        setLoadError(t("w9.states.error"));
       });
     dentalApi
       .listImplantPlans3d()
@@ -84,7 +90,7 @@ export const DentalGuidePage: React.FC = () => {
       .catch((err) => {
         console.error("[F04]", err);
       });
-  }, []);
+  }, [reloadTick]);
 
   const handleBrandChange = (brand: string) => {
     dentalApi
@@ -163,6 +169,7 @@ export const DentalGuidePage: React.FC = () => {
         <Tag color="cyan">v3.0.6.8-89</Tag>
         <Tag color="purple">{t('dentalGuide.guideModuleTag')}</Tag>
       </Space>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}>
           <Card size="small">

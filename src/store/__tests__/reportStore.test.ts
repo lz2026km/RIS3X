@@ -62,7 +62,7 @@ describe('reportStore', () => {
       mockSubmit.mockResolvedValue({ success: true });
       await useReportStore.getState().submit('rpt-1');
       expect(useReportStore.getState().error).toBeNull();
-      expect(useReportStore.getState().reports[0].status).toBe('已提交');
+      expect(useReportStore.getState().reports[0]!.status).toBe('已提交');
     });
 
     it('rejects submit from pendingAssignment', async () => {
@@ -79,7 +79,7 @@ describe('reportStore', () => {
       mockSign.mockResolvedValue({ success: true });
       await useReportStore.getState().sign('rpt-1');
       expect(useReportStore.getState().error).toBeNull();
-      expect(useReportStore.getState().reports[0].status).toBe('已签发');
+      expect(useReportStore.getState().reports[0]!.status).toBe('已签发');
     });
 
     it('rejects sign from writing', async () => {
@@ -96,7 +96,7 @@ describe('reportStore', () => {
       mockPublish.mockResolvedValue({ success: true });
       await useReportStore.getState().publish('rpt-1', 85);
       expect(useReportStore.getState().error).toBeNull();
-      expect(useReportStore.getState().reports[0].status).toBe('已发布');
+      expect(useReportStore.getState().reports[0]!.status).toBe('已发布');
     });
 
     it('rejects publish with low qualityScore < 60 (guard)', async () => {
@@ -120,7 +120,7 @@ describe('reportStore', () => {
       mockReject.mockResolvedValue({ success: true });
       await useReportStore.getState().reject('rpt-1', '影像质量不足');
       expect(useReportStore.getState().error).toBeNull();
-      expect(useReportStore.getState().reports[0].status).toBe('已驳回');
+      expect(useReportStore.getState().reports[0]!.status).toBe('已驳回');
     });
 
     it('rejects reject from pendingAssignment', async () => {
@@ -137,7 +137,7 @@ describe('reportStore', () => {
       mockRevise.mockResolvedValue({ success: true });
       await useReportStore.getState().revise('rpt-1');
       expect(useReportStore.getState().error).toBeNull();
-      expect(useReportStore.getState().reports[0].status).toBe('修订中');
+      expect(useReportStore.getState().reports[0]!.status).toBe('修订中');
     });
 
     it('rejects revise from pendingAssignment', async () => {

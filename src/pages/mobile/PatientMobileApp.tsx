@@ -145,9 +145,9 @@ export default function PatientMobileApp() {
         ])
 
         if (userRes.status === 'fulfilled' && userRes.value.success) {
-          const data = userRes.value.data as PortalPatientDto[]
+          const data = userRes.value.data as unknown as PortalPatientDto[]
           if (Array.isArray(data) && data.length > 0) {
-            const p = data[0]
+            const p = data[0]!
             setMobileUser({
               id: p.id || 'P001',
               name: p.name || t('mobileApp.unknown'),
@@ -174,7 +174,7 @@ export default function PatientMobileApp() {
         }
 
         if (notifRes.status === 'fulfilled' && notifRes.value.success) {
-          const data = notifRes.value.data as any[]
+          const data = notifRes.value.data as unknown as any[]
           if (Array.isArray(data)) {
             setMobileNotifications(data.map((n, i) => ({
               id: n.id || `N${i + 1}`,

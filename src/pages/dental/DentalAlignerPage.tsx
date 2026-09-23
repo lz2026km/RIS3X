@@ -3,6 +3,7 @@
 // [G005 Wave1B] 5 处裸 fetch → dentalApi (后端 /dental/ortho/aligner-plans* 真实实现)
 import React, { useState, useEffect, useRef } from "react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import {
   Card,
@@ -48,17 +49,22 @@ export const DentalAlignerPage: React.FC = () => {
   const [mode, setMode] = useState<"list" | "detail">("list");
   const animationRef = useRef<number>(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
+    setLoadError(null);
     dentalApi
       .listAlignerPlans()
       .then((d) => {
         if (d.success) setPlans(d.data || []);
+        else setLoadError(t("w9.states.error"));
       })
       .catch((err) => {
         console.error("[F04]", err);
+        setLoadError(t("w9.states.error"));
       });
-  }, []);
+  }, [reloadTick]);
 
   const handleSelect = async (p: any) => {
     setCurrent(p);
@@ -259,6 +265,7 @@ export const DentalAlignerPage: React.FC = () => {
           {/* [G005 W3-B] 新建矫治计划: POST /dental/ortho/aligner-plans (createAlignerPlan) */}
           <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setCreateModal(true)}>{t("w3b.alignerCreate")}</Button>
         </Space>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">

@@ -16,7 +16,7 @@ const STAGE_META: Record<ReviewStage, { color: string; label: string; bg: string
   sign: { color: '#be185d', label: 'reportReview.stage.sign', bg: 'var(--color-pending-bg)' },
 };
 
-const STATUS_META: Record<string, { color: string; label: string; bg: string }> = {
+const STATUS_META: Record<ReviewTask['status'], { color: string; label: string; bg: string }> = {
   pending: { color: '#f59e0b', label: 'reportReview.status.pending', bg: 'var(--color-warning-bg)' },
   'in-progress': { color: '#0891b2', label: 'reportReview.status.inProgress', bg: 'var(--color-info-bg)' },
   completed: { color: '#10b981', label: 'reportReview.status.completed', bg: 'var(--color-success-bg)' },
@@ -26,7 +26,7 @@ const STATUS_META: Record<string, { color: string; label: string; bg: string }> 
   'cosign-required': { color: '#7c3aed', label: 'reportReview.status.cosignRequired', bg: 'var(--color-info-bg)' },
 };
 
-const PRIORITY_META: Record<string, { color: string; label: string; rank: number }> = {
+const PRIORITY_META: Record<ReviewTask['priority'], { color: string; label: string; rank: number }> = {
   stat: { color: 'red', label: 'reportReview.priority.stat', rank: 0 },
   critical: { color: 'volcano', label: 'reportReview.priority.critical', rank: 0 },
   urgent: { color: 'orange', label: 'reportReview.priority.urgent', rank: 1 },

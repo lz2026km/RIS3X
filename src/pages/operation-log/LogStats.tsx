@@ -433,9 +433,9 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
         if (!stats[log.action]) {
           stats[log.action] = { total: 0, count: 0, durations: [] }
         }
-        stats[log.action].total += log.duration
-        stats[log.action].count++
-        stats[log.action].durations.push(log.duration)
+        stats[log.action]!.total += log.duration
+        stats[log.action]!.count++
+        stats[log.action]!.durations.push(log.duration)
       }
     })
     return Object.entries(stats)
@@ -656,7 +656,7 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
 
   const hourStats = useMemo(() => {
     const counts: number[] = new Array(24).fill(0)
-    logs.forEach(log => { counts[new Date(log.timestamp).getHours()]++ })
+    logs.forEach(log => { counts[new Date(log.timestamp).getHours()]!++ })
     return counts.map((value, hour) => ({ hour: `${String(hour).padStart(2, '0')}:00`, value }))
   }, [logs])
 

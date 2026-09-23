@@ -139,9 +139,9 @@ interface CriticalValueRowProps {
 }
 
 const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step }: CriticalValueRowProps) => {
-  const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['pending']
-  const severityCfg = SEVERITY_CONFIG[cv.severity] || SEVERITY_CONFIG['高危']
-  const StatusIcon = statusCfg.icon || Bell
+  const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['pending']!
+  const severityCfg = SEVERITY_CONFIG[cv.severity] || SEVERITY_CONFIG['高危']!
+  const StatusIcon = Bell
 
   return (
     <div style={{

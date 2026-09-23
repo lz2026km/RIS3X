@@ -2,6 +2,7 @@
 // 报告全流程操? submit ?review ?sign ?publish + cosign + diff + auditTrail
 // 对标: Nuance PowerScribe 360 / 3M CodeAssist / 国内一?RIS
 import { reportApi } from "@/services/api/reportApi";
+import { ErrorBanner } from "@/components/feedback";
 import { REPORT_STATUS_MAP } from "@/utils/statusMaps";
 import {
   Card,
@@ -75,6 +76,7 @@ export const ReportWorkflowPage: React.FC = () => {
   // 报告列表
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [filter, setFilter] = useState({ status: "", keyword: "" });
 
   // 当前选中报告
@@ -94,10 +96,13 @@ export const ReportWorkflowPage: React.FC = () => {
   // 加载报告列表
   const loadReports = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const r = await reportApi.list({ pageSize: 50 });
       if (r.success) setReports(r.data);
+      else setLoadError(t('w9.states.error'));
     } catch (e: any) {
+      setLoadError(t('w9.states.error'));
       message.error(e.message);
     } finally {
       setLoading(false);
@@ -182,6 +187,8 @@ export const ReportWorkflowPage: React.FC = () => {
         <Tag color="purple">{t('reportWf.benchmark')}</Tag>
         <Tag color="green">{t('reportWf.endpointsTag')}</Tag>
       </Space>
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void loadReports()} retryLabel={t('w9.states.retry')} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         {Object.entries(stateStats).map(([s, n]) => (

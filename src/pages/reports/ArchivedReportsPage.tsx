@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Input, Space, Table, Tag, message } from 'antd'
 import { Archive, RotateCcw, Search } from 'lucide-react'
 import { reportApi, type ListPayload } from '../../services/api/reportApi'
+import { ErrorBanner } from '../../components/feedback'
 import type { ReportDto } from '../../types/dto'
 import { t } from '../../i18n/appI18n'
 
@@ -16,17 +17,21 @@ export default function ArchivedReportsPage() {
   const [data, setData] = useState<ReportDto[]>([])
   const [loading, setLoading] = useState(false)
   const [keyword, setKeyword] = useState('')
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const fetchData = useCallback(async (kw?: string) => {
     setLoading(true)
+    setLoadError(null)
     try {
       const res = await reportApi.listArchived(kw ? { keyword: kw } : undefined)
       if (res.success) {
         setData(unwrap(res.data))
       } else {
+        setLoadError(t('w9.states.error'))
         message.error(res.error?.message ?? t('w6Workflow.archive.loadFailed'))
       }
     } catch (e) {
+      setLoadError(t('w9.states.error'))
       message.error(e instanceof Error ? e.message : t('w6Workflow.archive.loadFailed'))
     } finally {
       setLoading(false)
@@ -88,6 +93,8 @@ export default function ArchivedReportsPage() {
           </Space>
         </div>
       </Card>
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => void fetchData(keyword)} retryLabel={t('w9.states.retry')} />}
 
       <Card size="small">
         <Table<ReportDto>

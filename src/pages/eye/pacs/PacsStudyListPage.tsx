@@ -4,6 +4,7 @@ import { Tag, Button, Space, Input, Table, Badge, Modal, Form, Select, message, 
 import { Image, Search, Eye, Plus, Trash2 } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
 import { PageContainer, PageHeader } from "@/components/common";
 import { usePagination } from "@/hooks/usePagination";
 import { t } from "../../../i18n/appI18n";
@@ -41,18 +42,22 @@ const PacsStudyListPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [studies, setStudies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const [createForm] = Form.useForm();
 
   const loadStudies = async () => {
+    setLoadError(null);
     try {
       const res = await eyeApi.getStudies();
       if (res.success && Array.isArray(res.data)) {
         setStudies(res.data);
+      } else if (!res.success) {
+        setLoadError(t('w9.states.error'));
       }
-    } catch { /* API may not be available */ }
+    } catch { setLoadError(t('w9.states.error')); }
   };
 
   useEffect(() => {
@@ -230,12 +235,15 @@ const PacsStudyListPage: React.FC = () => {
         }
       />
 
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => void loadStudies()} retryLabel={t('w9.states.retry')} />}
+
       <Table
         dataSource={studyPagination.pageData}
         columns={columns}
         rowKey="id"
         size="small"
         loading={loading}
+        locale={{ emptyText: t('w9.states.empty') }}
         pagination={studyPagination.pagination}
       scroll={{ x: 'max-content' }}
       />

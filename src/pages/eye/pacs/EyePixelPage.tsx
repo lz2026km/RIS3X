@@ -18,6 +18,7 @@ import {
   Database, RefreshCw, Grid3X3, Droplets, BarChart2,
 } from "lucide-react";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 const FRAME_COUNT = 30;
@@ -120,6 +121,8 @@ const EyePixelPage: React.FC = () => {
   const [studyId, setStudyId] = useState<string>("STU-DEMO-001");
   const [frameIdx, setFrameIdx] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   const [pixelInfo, setPixelInfo] = useState<any>(null);
   const [histogram, setHistogram] = useState<any>(null);
@@ -148,6 +151,7 @@ const EyePixelPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const res = await eyeApi.getStudies({});
         if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -159,18 +163,20 @@ const EyePixelPage: React.FC = () => {
           setStudies(FALLBACK_STUDIES);
           setStudyId(FALLBACK_STUDIES[0]!.id);
           setSource("demo");
+          if (!cancelled && !res.success) setLoadError(t('w9.states.error'));
         }
       } catch {
         if (!cancelled) {
           setStudies(FALLBACK_STUDIES);
           setStudyId(FALLBACK_STUDIES[0]!.id);
           setSource("demo");
+          setLoadError(t('w9.states.error'));
         }
       }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   // 实例元数据
   useEffect(() => {
@@ -376,6 +382,8 @@ const EyePixelPage: React.FC = () => {
           {t('eyePixel.instance')} {instanceId} · {pixelInfo ? `${pixelInfo.rows}×${pixelInfo.columns} ${pixelInfo.bitsAllocated}bit ${pixelInfo.modality}` : t('eyePixel.loadingMeta')}
         </span>
       </div>
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       {/* 数据源徽标 */}
       <div

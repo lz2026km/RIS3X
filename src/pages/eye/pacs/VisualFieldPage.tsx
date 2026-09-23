@@ -3,12 +3,14 @@ import { Card, Row, Col, Tag, Space, Statistic, Spin, Button } from "antd";
 import { Activity, Target, RefreshCw, Download } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 const VisualFieldPage: React.FC = () => {
   const [study, setStudy] = useState<any>(null);
   const [vf, setVf] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
 
   const handleExport = () => {
@@ -26,6 +28,7 @@ const VisualFieldPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const [studiesRes, vfRes] = await Promise.all([
           eyeApi.getStudies({ modality: 'visual_field' }),
@@ -38,15 +41,22 @@ const VisualFieldPage: React.FC = () => {
             const match = vfRes.data.find((v: any) => v.studyId === s.id);
             if (match) setVf(match);
           }
+        } else if (!cancelled && !studiesRes.success) {
+          setLoadError(t('w9.states.error'));
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
 
   if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('visualField.loading')} /></div>;
-  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>{t('visualField.noData')}</div>;
+  if (!study) return (
+    <div style={{ padding: 16, textAlign: 'center' }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
+      {t('visualField.noData')}
+    </div>
+  );
   return (
     <div
       style={{

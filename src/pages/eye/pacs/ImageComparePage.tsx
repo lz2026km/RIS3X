@@ -3,26 +3,33 @@ import { Card, Row, Col, Tag, Space, Select, Table, Button, message } from 'antd
 import { ArrowLeftRight, Eye, TrendingUp, TrendingDown, Trash2 } from "lucide-react";
 
 import { eyeApi } from "@/services/api/eyeApi";
+import { ErrorBanner } from "@/components/feedback";
+import { t } from "../../../i18n/appI18n";
 
 const ImageComparePage: React.FC = () => {
   const [pairIdx, setPairIdx] = useState(0);
   const [pairs, setPairs] = useState<any[]>([]);
   const [_loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const res = await eyeApi.getComparison([]);
         if (!cancelled && res.success && Array.isArray(res.data)) {
           setPairs(res.data);
+        } else if (!cancelled && !res.success) {
+          setLoadError(t('w9.states.error'));
         }
-      } catch { /* API may not be available */ }
+      } catch { setLoadError(t('w9.states.error')); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   const pair = pairs[pairIdx];
 
@@ -34,12 +41,14 @@ const ImageComparePage: React.FC = () => {
           background: "var(--bg-card)",
           minHeight: "calc(100vh - 56px)",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           color: "var(--text-secondary)",
           fontSize: 14,
         }}
       >
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
         暂无对比数据（影像对比服务不可用或未返回既往/当前检查）
       </div>
     );

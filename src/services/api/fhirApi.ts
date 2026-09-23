@@ -90,6 +90,7 @@ export interface BulkExportJob {
   jobId: string
   status: 'running' | 'completed' | 'failed'
   output?: { type: string; url: string }[]
+  files?: { type: string; url: string }[]
   error?: string
   transactionTime?: string
 }

@@ -61,7 +61,7 @@ const staticDevices = DEVICE_MASTER.slice(0, 8).map((d) => ({
 // ============================================================
 // [v3.0.6.8-28] 技师数据 - 来源: DOCTOR_MASTER 中 title=技师/主管技师/副主任技师
 // ============================================================
-const staticTechnicians = DOCTOR_MASTER.filter((d) => d.title === '技师' || d.title === '主管技师' || d.title === '副主任技师' || d.title === '技士')
+const staticTechnicians = DOCTOR_MASTER.filter((d) => d.title === '技师')
   .slice(0, 6)
   .map((d) => ({
     id: d.id,
@@ -897,7 +897,7 @@ const DirectorDashboardPage: React.FC = () => {
             <div style={styles.pieChartContainer}>
               {examRevenue.map((item, idx) => (
                 <div key={item.name} style={styles.pieItem}>
-                  <div style={styles.pieColor(colors[idx])} />
+                  <div style={styles.pieColor(colors[idx] ?? '#94a3b8')} />
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.name}</div>
                     <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>¥{(item.amount / 10000).toFixed(0)}{t('directorDash.wan')} ({item.percent}%)</div>

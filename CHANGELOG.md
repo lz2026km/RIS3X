@@ -1,3 +1,24 @@
+## v3.0.6.11-109 (2026-09-23) — 剩余页错误态覆盖 + dose 回退完善 + TS 类型收敛
+
+> **目标**: 完成 v3.0.6.11-108 遗留项（W7 Part C 剩余页 error UI / dose mock 子视图 / TS 长尾）
+> **范围**: C1–C3，前端 tsc **387 → 200**，vitest 47 文件/831 测试 0 失败，vite build 成功
+
+### C1 — 剩余页 error UI 覆盖（56 页）
+- `eye/**`(17) + `dose/*`(10) + `dental/*`(18) + `qc/*`(4) + `report/*`(5) + `reports/*`(2)：统一加 `ErrorBanner`+重试（含 `!res.success` 与 `catch` 双路径），保留既有 loading/empty
+- `src/components/feedback/ErrorBanner.tsx` 新增可选 `onRetry`/`retryLabel` props（无破坏性）
+
+### C2 — dose 子视图真实化收尾
+- 复核 `DRLManagement`/`DoseTrendAnalysis`/`CumulativeDoseTracker`/`DICOMSRParser` 均已接 `rdsrApi`
+- 补 `DICOMSRParser` 上传解析的本地回退（`/rdsr/parse` 失败时本地解析 CTDIvol/DLP/部位/检查日期）+ 提示；`DRLManagement` 补演示数据徽标
+
+### C3 — TS 错误长尾收敛
+- **387 → 200**（-48%），覆盖 ~90 文件；`noUncheckedIndexedAccess` 长尾（TS18048/TS2532）与 TS2322/2345 为主；`@ts-nocheck` 保持 0，未新增 `@ts-ignore`
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.11-108` → `3.0.6.11-109`（无 BOM）
+
+---
+
 ## v3.0.6.11-108 (2026-09-23) — 数据表格/按键补齐 + 后端端点补齐 + ID/类型修复 + 三态/i18n/mock 完善
 
 > **目标**: 审查软件，后端有的功能前端没有的补充完善修正，去除 BUG；补齐该有的数据表格、按键（版本 +0.0.0.1 → -108）

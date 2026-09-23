@@ -6,7 +6,7 @@ const NOW = Date.now();
 export const MOCK_STRABISMUS_EXAMS: StrabismusExam[] = [
   { id: 'st-001', patientId: 'p-1020', patientName: '刘佳琪', age: 6, eyeSide: 'OD', type: 'esotropia', pattern: 'constant', distanceDeviation: 25, nearDeviation: 30, acRatio: 5.2, stereoacuity: 200, worth4Dot: '4点/L', coverTest: 'CTT:OD注视时OS内斜25Δ', extraocularMovements: '双眼外转受限', cycloplegicRefraction: 'OD:+3.00DS, OS:+2.75DS', treatment: 'OD遮盖6h/day,等待手术', followUp: '3个月复查' },
   { id: 'st-002', patientId: 'p-1013', patientName: '赵文博', age: 8, eyeSide: 'OS', type: 'exotropia', pattern: 'intermittent', distanceDeviation: 18, nearDeviation: 22, acRatio: 4.0, stereoacuity: 100, worth4Dot: '4点/正常', coverTest: 'CTT:OS间歇性外斜18Δ', extraocularMovements: '正常', cycloplegicRefraction: 'OD:+1.50DS, OS:+1.75DS', treatment: '矫正远视,观察', followUp: '6个月复查' },
-  { id: 'st-003', patientId: 'p-1007', patientName: '孙莉', age: 12, eyeSide: 'OU', type: 'exotropia', pattern: 'intermittent', distanceDeviation: 14, nearDeviation: 10, acRatio: 3.8, stereoacuity: 60, worth4Dot: '4点/正常', extraocularMovements: '正常', cycloplegicRefraction: 'OD:+1.00DC×180, OS:+0.75DC×10', treatment: '训练融合功能', followUp: '1年复查' },
+  { id: 'st-003', patientId: 'p-1007', patientName: '孙莉', age: 12, eyeSide: 'OU', type: 'exotropia', pattern: 'intermittent', distanceDeviation: 14, nearDeviation: 10, acRatio: 3.8, stereoacuity: 60, worth4Dot: '4点/正常', coverTest: 'CTT:OU间歇性外斜14Δ', extraocularMovements: '正常', cycloplegicRefraction: 'OD:+1.00DC×180, OS:+0.75DC×10', treatment: '训练融合功能', followUp: '1年复查' },
 ];
 
 export const MOCK_NEURO_OPHTHALMIC_EXAMS: NeuroOphthalmicExam[] = [
@@ -34,10 +34,10 @@ export const MOCK_SURGICAL_INSTRUMENTS: SurgicalInstrument[] = [
   { id: 'si-001', name: '超声乳化手柄(Alcon Centurion)', category: 'phaco', manufacturer: 'Alcon', model: 'Centurion', serialNumber: 'PH-2025-001', purchaseDate: '2025-01-15', lastServiceDate: '2026-05-10', nextServiceDate: '2026-08-10', sterilizationCycles: 128, maxCycles: 500, status: 'sterile', location: '手术室3-柜A-1' },
   { id: 'si-002', name: '玻璃体切割头(Constellation 25G)', category: 'vitrectomy', manufacturer: 'Alcon', model: 'Constellation', serialNumber: 'VT-2024-015', purchaseDate: '2024-06-20', lastServiceDate: '2026-04-15', nextServiceDate: '2026-07-15', sterilizationCycles: 85, maxCycles: 300, status: 'in_use', location: '手术室3-柜B-2' },
   { id: 'si-003', name: '手术显微镜(Zeiss OPMI Lumera)', category: 'general', manufacturer: 'Zeiss', model: 'OPMI Lumera T', serialNumber: 'MI-2023-008', purchaseDate: '2023-09-01', lastServiceDate: '2026-03-20', nextServiceDate: '2026-09-20', sterilizationCycles: 0, maxCycles: 0, status: 'in_use', location: '手术室3' },
-  { id: 'si-004', name: '角膜地形图仪(Medmont E300)', category: 'refractive', manufacturer: 'Medmont', model: 'E300', serialNumber: 'TO-2025-003', purchaseDate: '2025-03-10', nextServiceDate: '2026-09-10', sterilizationCycles: 0, maxCycles: 0, status: 'in_use', location: '检查室-1' },
+  { id: 'si-004', name: '角膜地形图仪(Medmont E300)', category: 'refractive', manufacturer: 'Medmont', model: 'E300', serialNumber: 'TO-2025-003', purchaseDate: '2025-03-10', lastServiceDate: '2026-03-10', nextServiceDate: '2026-09-10', sterilizationCycles: 0, maxCycles: 0, status: 'in_use', location: '检查室-1' },
   { id: 'si-005', name: '眼压计(Goldmann AT 900)', category: 'general', manufacturer: 'Haag-Streit', model: 'AT 900', serialNumber: 'IP-2023-012', purchaseDate: '2023-12-01', lastServiceDate: '2026-02-28', nextServiceDate: '2026-08-28', sterilizationCycles: 0, maxCycles: 0, status: 'in_use', location: '检查室-2' },
   { id: 'si-006', name: '激光光凝机(Nidek GYC-1000)', category: 'glaucoma', manufacturer: 'Nidek', model: 'GYC-1000', serialNumber: 'LA-2024-005', purchaseDate: '2024-08-15', lastServiceDate: '2026-01-10', nextServiceDate: '2026-07-10', sterilizationCycles: 0, maxCycles: 0, status: 'needs_sterilization', location: '治疗室' },
-  { id: 'si-007', name: '裂隙灯显微镜(Topcon SL-D4)', category: 'general', manufacturer: 'Topcon', model: 'SL-D4', serialNumber: 'SL-2024-022', purchaseDate: '2024-04-01', nextServiceDate: '2026-10-01', sterilizationCycles: 0, maxCycles: 0, status: 'in_use', location: '门诊-3' },
+  { id: 'si-007', name: '裂隙灯显微镜(Topcon SL-D4)', category: 'general', manufacturer: 'Topcon', model: 'SL-D4', serialNumber: 'SL-2024-022', purchaseDate: '2024-04-01', lastServiceDate: '2026-04-01', nextServiceDate: '2026-10-01', sterilizationCycles: 0, maxCycles: 0, status: 'in_use', location: '门诊-3' },
   { id: 'si-008', name: '全自动视野计(Humphrey HFA3)', category: 'general', manufacturer: 'Zeiss', model: 'HFA3 740i', serialNumber: 'VF-2024-010', purchaseDate: '2024-07-01', lastServiceDate: '2026-05-05', nextServiceDate: '2026-11-05', sterilizationCycles: 0, maxCycles: 0, status: 'in_repair', location: '视功能室', notes: '固视监测异常-已报修' },
 ];
 
@@ -47,8 +47,8 @@ export const MOCK_STERILIZATION_RECORDS: SterilizationRecord[] = Array.from({ le
   instrumentName: i % 2 === 0 ? '超声乳化手柄' : '玻璃体切割头',
   cycleNumber: i + 1,
   method: i % 3 === 0 ? 'ethylene_oxide' : 'autoclave',
-  date: new Date(NOW - 86400000 * (60 - i * 3)).toISOString().split('T')[0],
-  operator: ['护士A','护士B','护士C'][i % 3],
+  date: new Date(NOW - 86400000 * (60 - i * 3)).toISOString().split('T')[0]!,
+  operator: ['护士A','护士B','护士C'][i % 3]!,
   temperature: i % 3 === 0 ? 55 : i % 2 === 0 ? 134 : 121,
   duration: i % 3 === 0 ? 360 : 15,
   biologicalIndicator: i % 5 !== 4,

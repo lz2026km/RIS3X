@@ -9,6 +9,7 @@ import type {
   CriticalValue,
 } from "../../../types/eye";
 import { PageContainer, PageHeader } from "@/components/common";
+import { ErrorBanner } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import {
   Card,
@@ -71,6 +72,8 @@ const EyeRisPage: React.FC = () => {
   const [referrals, setReferrals] = useState<EyeReferral[]>([]);
   const [criticalValues, _setCriticalValues] = useState<CriticalValue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   const [checkinLoadingId, setCheckinLoadingId] = useState<string | null>(null);
   const [callLoadingId, setCallLoadingId] = useState<string | null>(null);
   // [G005 Wave1B] 转诊接受 / 手术排程 (eyeApi.acceptReferral / scheduleSurgery / deleteSurgery)
@@ -193,6 +196,7 @@ const EyeRisPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const [aptRes, surgRes, fuRes, refRes, _cvRes] = await Promise.all([
           eyeApi.getAppointments(),
@@ -206,13 +210,14 @@ const EyeRisPage: React.FC = () => {
         if (surgRes.success && Array.isArray(surgRes.data)) setSurgeryAppointments(surgRes.data as unknown as SurgeryAppointment[]);
         if (fuRes.success && Array.isArray(fuRes.data)) setFollowUps(fuRes.data as unknown as FollowUpReminder[]);
         if (refRes.success && Array.isArray(refRes.data)) setReferrals(refRes.data as unknown as EyeReferral[]);
+        if (!aptRes.success && !surgRes.success && !fuRes.success && !refRes.success) setLoadError(t('w9.states.error'));
       } catch {
-        // APIs may not be available
+        setLoadError(t('w9.states.error'));
       }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   const today = new Date().toISOString().split("T")[0] ?? "";
   const todayApts = appointments.filter((a) => a.scheduledDate === today);
@@ -303,6 +308,8 @@ const EyeRisPage: React.FC = () => {
           </>
         }
       />
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       <CriticalValueAlert
         items={criticalValues.filter((c) => c.status !== "resolved")}

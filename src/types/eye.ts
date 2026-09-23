@@ -162,6 +162,7 @@ export type EyeModality =
   | "anterior_segment_photo"
   | "stereo_fundus"
   | "gonioscopy"
+  | "refraction"
   | "specular_microscopy";
 
 /** 检查状态 */

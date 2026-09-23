@@ -28,6 +28,7 @@ import { rdsrApi } from "../../services/api/rdsrApi";
 import { ChartContainer } from "../../components/charts";
 import { DataTable } from "../../components/common/DataTable";
 import { ActionButton } from "../../components/common/ActionButton";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import type {
   DrlEntry,
@@ -157,6 +158,8 @@ export default function DoseLiveMonitor() {
   const [statsError, setStatsError] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   const reloadToday = useCallback(async () => {
     const res = await rdsrApi.getToday();
@@ -203,23 +206,30 @@ export default function DoseLiveMonitor() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [todayRes, d, a, s] = await Promise.all([rdsrApi.getToday(), rdsrApi.getDrls(), rdsrApi.getAlerts(), rdsrApi.getStats()]);
-      if (!alive) return;
-      if (todayRes.success && todayRes.data) setToday(todayRes.data);
-      if (d.success && d.data) {
-        setDrls(d.data);
-        const init: Record<string, { ctdivolDrl: string; dlpDrl: string }> = {};
-        for (const entry of d.data) init[entry.bodyPart] = { ctdivolDrl: String(entry.ctdivolDrl), dlpDrl: String(entry.dlpDrl) };
-        setEditing(init);
+      setLoadError(null);
+      try {
+        const [todayRes, d, a, s] = await Promise.all([rdsrApi.getToday(), rdsrApi.getDrls(), rdsrApi.getAlerts(), rdsrApi.getStats()]);
+        if (!alive) return;
+        if (todayRes.success && todayRes.data) setToday(todayRes.data);
+        if (d.success && d.data) {
+          setDrls(d.data);
+          const init: Record<string, { ctdivolDrl: string; dlpDrl: string }> = {};
+          for (const entry of d.data) init[entry.bodyPart] = { ctdivolDrl: String(entry.ctdivolDrl), dlpDrl: String(entry.dlpDrl) };
+          setEditing(init);
+        }
+        if (a.success && a.data) setAlerts(a.data);
+        if (s.success && s.data) setStats(s.data);
+        if (!todayRes.success && !d.success && !a.success && !s.success) setLoadError(t('w9.states.error'));
+      } catch {
+        if (alive) setLoadError(t('w9.states.error'));
+      } finally {
+        if (alive) setLoading(false);
       }
-      if (a.success && a.data) setAlerts(a.data);
-      if (s.success && s.data) setStats(s.data);
-      setLoading(false);
     })();
     return () => {
       alive = false;
     };
-  }, []);
+  }, [reloadTick]);
 
   const handleRefresh = useCallback(() => {
     void reloadToday();
@@ -406,6 +416,7 @@ export default function DoseLiveMonitor() {
       <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af", display: "flex", alignItems: "center", gap: 8 }}>
         <Activity size={18} /> {t('doseLive.title')}
       </div>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <ActionButton action="refresh" size="compact" onClick={handleRefresh}>
           {t('doseLive.refresh')}

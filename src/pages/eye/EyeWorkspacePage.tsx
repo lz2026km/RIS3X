@@ -20,6 +20,7 @@ import { PageContainer, PageHeader } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { eyeApi } from '@/services/api/eyeApi';
+import { ErrorBanner } from '@/components/feedback';
 import { t } from '../../i18n/appI18n';
 
 const { Text } = Typography;
@@ -95,6 +96,8 @@ const EyeWorkspacePage: React.FC = () => {
   const [criticalCount, setCriticalCount] = useState<number>(0);
   const [quickLinkMeta, setQuickLinkMeta] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   // [G005 Wave1A P0] IOL 库存摘要: GET /eye/iol/inventory + low-stock + expiring
   const [iolSummary, setIolSummary] = useState<{ total: number; lowStock: number; expiring: number }>({ total: 0, lowStock: 0, expiring: 0 });
@@ -109,12 +112,12 @@ const EyeWorkspacePage: React.FC = () => {
       try {
         const res = await eyeApi.listIolCalculations({ limit: 10 });
         if (!cancelled && res.success && Array.isArray(res.data)) setIolRecords(res.data as any[]);
-      } catch { /* 静默 */ } finally {
+      } catch { setLoadError(t('w9.states.error')); } finally {
         if (!cancelled) setIolRecordsLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,10 +134,10 @@ const EyeWorkspacePage: React.FC = () => {
           lowStock: low.status === 'fulfilled' && Array.isArray(low.value.data) ? low.value.data.length : 0,
           expiring: exp.status === 'fulfilled' && Array.isArray(exp.value.data) ? exp.value.data.length : 0,
         });
-      } catch { /* 静默 */ }
+      } catch { setLoadError(t('w9.states.error')); }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   useEffect(() => {
     let cancelled = false;
@@ -167,12 +170,14 @@ const EyeWorkspacePage: React.FC = () => {
           ai: aiCount > 0 ? t('eyeWs.aiModelCount', { count: aiCount }) : t('eyeWs.smartPrescreen'),
           iol: t('eyeWs.iolFormulaDesc'),
         });
+        const allRejected = [todayApptRes, studyRes, draftsRes, aiModelsRes].every((r) => r.status === 'rejected');
+        if (allRejected) setLoadError(t('w9.states.error'));
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   const kpiValues = useMemo(() => ({
     appt: appointmentCount,
@@ -212,6 +217,8 @@ const EyeWorkspacePage: React.FC = () => {
           </button>
         }
       />
+
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       <Spin spinning={loading}>
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>

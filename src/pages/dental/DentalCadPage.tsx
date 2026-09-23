@@ -30,6 +30,7 @@ import {
   Palette,
 } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 
 const DESIGN_TYPES = [
@@ -89,8 +90,11 @@ export const DentalCadPage: React.FC = () => {
   // [G005 Wave1A P1] 铣削单元真实列表: dentalApi.getCadMillingUnits
   const [millingUnits, setMillingUnits] = useState<any[]>([]);
   const [selMillUnit, setSelMillUnit] = useState("sirona-mcxl");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
+    setLoadError(null);
     Promise.all([
       dentalApi.listCadDesigns().then((r) => {
         if (Array.isArray(r)) setDesigns(r);
@@ -109,8 +113,9 @@ export const DentalCadPage: React.FC = () => {
       }),
     ]).catch((err) => {
       console.error("[F04]", err);
+      setLoadError(t("w9.states.error"));
     });
-  }, []);
+  }, [reloadTick]);
 
   const handleCreate = async () => {
     setBusy(true);
@@ -310,6 +315,7 @@ export const DentalCadPage: React.FC = () => {
           <Tag color="blue">{t('dentalCad.tagSirona')}</Tag>
           <Tag color="purple">{t('dentalCad.tag3Shape')}</Tag>
         </Space>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">

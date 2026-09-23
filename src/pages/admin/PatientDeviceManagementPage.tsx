@@ -34,13 +34,13 @@ export const PatientDeviceManagementPage: React.FC = () => {
   const loadPatients = async () => {
     try {
       const r = await patientApi.list({ pageSize: 50 });
-      if (r.success) setPatients(r.data);
+      if (r.success) setPatients(Array.isArray(r.data) ? r.data : r.data?.items ?? []);
     } catch (e: any) { message.error(e.message); }
   };
   const loadDevices = async () => {
     try {
       const r = await deviceApi.list();
-      if (r.success) setDevices(r.data);
+      if (r.success) setDevices(r.data ?? []);
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -73,7 +73,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
 
   // 患者 CRUD
   const handlePatientSave = async () => {
-    if (!patientModal.data.name) return message.warning(t('patientDevice.nameRequired'));
+    if (!patientModal.data.name) { message.warning(t('patientDevice.nameRequired')); return; }
     try {
       let r;
       if (patientModal.type === 'create') r = await patientApi.create(patientModal.data);
@@ -85,7 +85,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
   // 设备维护
   const handleDeviceMaintain = async (id: string, reason: string) => {
     try {
-      const r = await deviceApi.triggerMaintenance(id, reason);
+      const r = await deviceApi.logMaintenance(id, { type: 'corrective', note: reason });
       if (r.success) { message.success(t('patientDevice.maintenanceSent')); loadDevices(); }
     } catch (e: any) { message.error(e.message); }
   };
@@ -268,8 +268,8 @@ export const PatientDeviceManagementPage: React.FC = () => {
                       onClick={async () => {
                         setSelectedDevice(d);
                         try {
-                          const hR = await deviceApi.getMaintenanceHistory(d.id);
-                          setDeviceHistory(hR.data || []);
+                          const hR = await deviceApi.getMaintenanceDue();
+                          setDeviceHistory(hR.data?.items ?? []);
                         } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
                       }}
                       style={{ cursor: 'pointer' }}
@@ -340,8 +340,8 @@ export const PatientDeviceManagementPage: React.FC = () => {
                   </Descriptions>
                   <Divider style={{ margin: '8px 0' }} />
                   <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('patientDevice.maintenanceHistory')} ({deviceHistory.length})</div>
-                  <Timeline size="small" items={deviceHistory.slice(0, 5).map((h: any) => ({
-                    children: <div>{h.date} - {h.type} - {h.notes}</div>,
+                  <Timeline items={deviceHistory.slice(0, 5).map((h: any) => ({
+                    children: <div>{h.lastMaintenance} - {h.name} - {h.remainingHours}h</div>,
                   }))} />
                 </Card>
               ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('patientDevice.selectDevice')} /></Card>}

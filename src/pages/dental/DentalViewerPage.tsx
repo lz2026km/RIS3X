@@ -2,6 +2,7 @@
 // [v3.0.6.8-81] 修复: 复用 shared constants
 import { MODALITY_LABELS } from '../../data/dental/constants';
 import { dentalApi } from '../../services/api/dentalApi';
+import { ErrorBanner } from '../../components/feedback';
 import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, Empty, Divider, InputNumber, Slider, Tooltip } from 'antd';
 import { ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Inbox, SearchX } from 'lucide-react'
@@ -15,6 +16,8 @@ export const DentalViewerPage: React.FC = () => {
   const modParam = search.get('modality') || 'Panoramic';
   const [study, setStudy] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   const [currentSlice, setCurrentSlice] = useState(0);
   const [ww, setWw] = useState(400); // window width
   const [wc, setWc] = useState(40); // window center
@@ -26,11 +29,17 @@ export const DentalViewerPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      try { const r = await fetch(`/api/v1/dental/studies/${studyId}`); const d = await r.json(); if (d.success) setStudy(d.data); }
-      catch { message.error(t("dViewer.loadFailed")); }
+      setLoadError(null);
+      try {
+        const r = await fetch(`/api/v1/dental/studies/${studyId}`);
+        const d = await r.json();
+        if (d.success) setStudy(d.data);
+        else setLoadError(t("w9.states.error"));
+      }
+      catch { setLoadError(t("w9.states.error")); message.error(t("dViewer.loadFailed")); }
       finally { setLoading(false); }
     })();
-  }, [studyId]);
+  }, [studyId, reloadTick]);
 
   const handleRunAi = async () => {
     setAiRunning(true);
@@ -52,7 +61,12 @@ export const DentalViewerPage: React.FC = () => {
   };
 
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
-  if (!study) return <div style={{ padding: 24 }}><Card><Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t("dViewer.notFound")} /></Card></div>;
+  if (!study) return (
+    <div style={{ padding: 24 }}>
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
+      <Card><Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t("dViewer.notFound")} /></Card>
+    </div>
+  );
 
   const modality = study.modality || modParam;
   const isCBCT = modality === 'CBCT';

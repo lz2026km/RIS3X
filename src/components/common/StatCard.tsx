@@ -25,7 +25,9 @@ export interface StatCardTrend {
 }
 
 export interface StatCardProps {
-  title: ReactNode;
+  title?: ReactNode;
+  /** 兼容旧字段 (等价 title) */
+  label?: ReactNode;
   value: ReactNode;
   /** 数值后缀 (如 % / 例 / 次) */
   suffix?: ReactNode;
@@ -38,8 +40,12 @@ export interface StatCardProps {
   iconBg?: string;
   /** 副标题 (小字) */
   sub?: ReactNode;
-  /** 趋势 { value, direction: up|down|flat } */
-  trend?: StatCardTrend;
+  /** 兼容旧字段 (等价 sub) */
+  subValue?: ReactNode;
+  /** 趋势 { value, direction: up|down|flat } 或旧写法 "up"|"down"|"flat" */
+  trend?: StatCardTrend | "up" | "down" | "flat";
+  /** 兼容旧字段: 配合字符串 trend 使用 */
+  trendValue?: number | string;
   /** 边框 (默认有) */
   bordered?: boolean;
   /** 变体 */
@@ -94,6 +100,7 @@ function withAlpha(hex: string, alpha: number): string {
 
 export function StatCard({
   title,
+  label,
   value,
   suffix,
   loading,
@@ -101,7 +108,9 @@ export function StatCard({
   color = "primary",
   iconBg,
   sub,
+  subValue,
   trend,
+  trendValue,
   bordered = true,
   variant = "default",
   onClick,
@@ -119,11 +128,16 @@ export function StatCard({
   const fgColor = preset ? preset.fg : color;
   const fallbackBg = preset ? preset.bg : `${color}1A`;
 
-  const isFlat = trend?.direction === "flat";
-  const isUp = trend?.direction !== "down" && trend?.direction !== "flat" && trend?.isUp !== false;
+  const resolvedTitle = title ?? label;
+  const resolvedSub = sub ?? subValue;
+  const trendCfg: StatCardTrend | undefined =
+    typeof trend === "string" ? { value: trendValue ?? 0, direction: trend } : trend;
+
+  const isFlat = trendCfg?.direction === "flat";
+  const isUp = trendCfg?.direction !== "down" && trendCfg?.direction !== "flat" && trendCfg?.isUp !== false;
   const trendColor = isFlat
     ? "var(--text-muted, #94a3b8)"
-    : trend && (trend.direction === "down" || trend.isUp === false)
+    : trendCfg && (trendCfg.direction === "down" || trendCfg.isUp === false)
       ? "var(--color-error-600, #dc2626)"
       : "var(--color-success-600, #059669)";
 
@@ -201,7 +215,7 @@ export function StatCard({
               fontWeight: 500,
             }}
           >
-            {title}
+            {resolvedTitle}
           </div>
           {loading ? (
             <div
@@ -236,7 +250,7 @@ export function StatCard({
               )}
             </div>
           )}
-          {sub && (
+          {resolvedSub && (
             <div
               style={{
                 fontSize: 12,
@@ -244,10 +258,10 @@ export function StatCard({
                 marginTop: 4,
               }}
             >
-              {sub}
+              {resolvedSub}
             </div>
           )}
-          {trend && (
+          {trendCfg && (
             <div
               style={{
                 display: "flex",
@@ -260,7 +274,7 @@ export function StatCard({
               }}
             >
               <span>{isFlat ? "→" : isUp ? "↑" : "↓"}</span>
-              <span>{Math.abs(Number(trend.value))}{typeof trend.value === "number" ? "%" : ""}</span>
+              <span>{Math.abs(Number(trendCfg.value))}{typeof trendCfg.value === "number" ? "%" : ""}</span>
             </div>
           )}
         </div>
@@ -292,6 +306,7 @@ export function StatCard({
 export function StatCardGrid({
   children,
   minWidth = 220,
+  columns,
   gap = 16,
   style,
   className,
@@ -299,6 +314,7 @@ export function StatCardGrid({
 }: {
   children: ReactNode;
   minWidth?: number;
+  columns?: number;
   gap?: number;
   style?: CSSProperties;
   className?: string;
@@ -310,7 +326,9 @@ export function StatCardGrid({
       className={className}
       style={{
         display: "grid",
-        gridTemplateColumns: `repeat(auto-fit, minmax(${minWidth}px, 1fr))`,
+        gridTemplateColumns: columns
+          ? `repeat(${columns}, minmax(0, 1fr))`
+          : `repeat(auto-fit, minmax(${minWidth}px, 1fr))`,
         gap,
         ...style,
       }}

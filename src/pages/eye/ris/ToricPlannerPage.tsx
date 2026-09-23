@@ -6,6 +6,7 @@ import { Calculator, Compass, TrendingUp } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useEffect } from 'react';
 import { eyeApi } from '../../../services/api/eyeApi';
+import { ErrorBanner } from '../../../components/feedback';
 import { t } from '../../../i18n/appI18n';
 
 interface IOLResult {
@@ -62,6 +63,8 @@ export const ToricPlannerPage: React.FC = () => {
   const [_aConstant, setAConstant] = useState<number | null>(null); // [v3.0.6.8-84] 自动加载
   const [results, setResults] = useState<IOLResult[]>([]);
   const [busy, setBusy] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   // Toric
   const [preOpK1, setPreOpK1] = useState(42.5);
@@ -81,21 +84,25 @@ export const ToricPlannerPage: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoadError(null);
       try {
         const res = await eyeApi.getIolConstant(iolModel);
         if (cancelled) return;
         if (res.success && res.data && res.data[formula]) {
           const c = res.data[formula];
           setAConstant(c.aConst ?? null);
+        } else if (!res.success) {
+          setAConstant(null);
+          setLoadError(t('w9.states.error'));
         } else {
           setAConstant(null);
         }
       } catch {
-        if (!cancelled) setAConstant(null);
+        if (!cancelled) { setAConstant(null); setLoadError(t('w9.states.error')); }
       }
     })();
     return () => { cancelled = true; };
-  }, [iolModel, formula]);
+  }, [iolModel, formula, reloadTick]);
 
   // 计算 IOL 度数
   const handleCalculateIOL = useCallback(async () => {
@@ -154,6 +161,8 @@ export const ToricPlannerPage: React.FC = () => {
         {/* [G005 Wave1B] /eye/iol/toric|predict|constant|calculate 后端真实实现, eyeApi 封装 */}
         <Tag color="green">{t('eyeToric.backendTag')}</Tag>
       </Space>
+
+      {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       <Tabs
         activeKey={activeTab}

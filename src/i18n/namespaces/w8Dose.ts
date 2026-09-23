@@ -13,6 +13,7 @@ export default {
     'w8Dose.doseTrackDemo': '演示数据：/rdsr/overview 不可用或返回空，趋势为本地模拟',
     'w8Dose.mprDemo': '演示数据：dentalApi MPR 端点不可用，重建参数为本地模拟',
     'w8Dose.benchmarkDemo': '演示数据：benchmarkApi 不可用或返回空，图表为本地模拟',
+    'w8Dose.dicomLocalParse': '接口不可用，已回退本地 DICOM 解析（仅读取文件内 CTDIvol/DLP 字段）',
   },
   en: {
     'w8Dose.demoBadge': 'Demo data',
@@ -26,5 +27,6 @@ export default {
     'w8Dose.doseTrackDemo': 'Demo data: /rdsr/overview unavailable or empty; trends are locally simulated',
     'w8Dose.mprDemo': 'Demo data: dentalApi MPR endpoint unavailable; reconstruction parameters are locally simulated',
     'w8Dose.benchmarkDemo': 'Demo data: benchmarkApi unavailable or empty; charts are locally simulated',
+    'w8Dose.dicomLocalParse': 'API unavailable; fell back to local DICOM parsing (reads CTDIvol/DLP from the file)',
   },
 }

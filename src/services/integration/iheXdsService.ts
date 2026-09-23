@@ -153,9 +153,9 @@ export async function getXdsRegistry(id: string): Promise<XdsRegistry | null> {
 export async function registerToXds(input: {
   reportId: string; patientId: string; patientName: string; modality: string; bodyPart: string;
   sourceId: string; title: string; titleEn: string; comments: string;
-  classCode: { code: string; display: string };
-  typeCode: { code: string; display: string };
-  formatCode: { code: string; display: string };
+  classCode: { code: string; display: string; scheme?: string };
+  typeCode: { code: string; display: string; scheme?: string };
+  formatCode: { code: string; display: string; scheme?: string };
 }): Promise<XdsRegistry> {
   await new Promise((r) => setTimeout(r, 800));
   const id = `xds-${input.reportId}-${Date.now()}`;
@@ -183,9 +183,9 @@ export async function registerToXds(input: {
       { identificationScheme: 'urn:uuid:58a6e8b0-2b5b-4251-b3f0-2a4c1a4f3b5d', value: `RP${id}`, name: '报告 ID', nameEn: 'Report ID' },
     ],
     slots: [],
-    formatCode: input.formatCode,
-    typeCode: input.typeCode,
-    classCode: input.classCode,
+    formatCode: { ...input.formatCode, scheme: input.formatCode.scheme ?? '1.2.840.10008.2.16.4' },
+    typeCode: { ...input.typeCode, scheme: input.typeCode.scheme ?? '2.16.840.1.113883.6.1' },
+    classCode: { ...input.classCode, scheme: input.classCode.scheme ?? '1.2.840.10008.2.16.4' },
     healthcareFacilityType: { code: 'HOSP', display: '医院', scheme: '2.16.840.1.113883.5.11' },
     practiceSetting: { code: '394802001', display: '放射学', scheme: '2.16.840.1.113883.6.96' },
     eventCodeList: [],
@@ -203,12 +203,12 @@ export async function registerToXds(input: {
     sourceId: input.sourceId,
     submissionTime: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
     title: input.title, titleEn: input.titleEn, comments: input.comments,
-    contentTypeCode: input.classCode,
+    contentTypeCode: { ...input.classCode, scheme: input.classCode.scheme ?? '1.2.840.10008.2.16.4' },
     author: [{ authorPerson: '陈医师^MD', authorInstitution: ['汉东省人民医院'], authorRole: '主治医师', authorSpecialty: '放射学' }],
     intendedRecipient: [], submissionSetType: 'new',
   };
   const associations: XdsAssociation[] = [
-    { id: `assoc-1-${id}`, entryUUID: `urn:uuid:assoc-1-${id}`, sourceObject: submissionSet.entryUUID, targetObject: docEntry.entryUUID, associationType: 'HASMEMBER', submissionSetStatus: 'approved', availabilityStatus: 'approved' },
+    { id: `assoc-1-${id}`, entryUUID: `urn:uuid:assoc-1-${id}`, sourceObject: submissionSet.entryUUID, targetObject: docEntry.entryUUID, associationType: 'HASMEMBER', submissionSetStatus: 'approved', availabilityStatus: 'approved', slots: [] },
   ];
   const registry: XdsRegistry = {
     id, registryId: `REG-${Date.now()}`,

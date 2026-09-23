@@ -6,6 +6,7 @@ import { criticalAlertApi } from "../../services/api/criticalAlertApi";
 import { drlRecords } from "./mockData";
 import type { DRLRecord } from "./types";
 import { usePagination } from "../../hooks/usePagination";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 
 interface CheckDraft {
@@ -24,8 +25,10 @@ const BODY_PART_KEYS: Record<string, string> = { "头部": "drl.bodyHead", "胸�
 export default function DRLManagement() {
   const [rows, setRows] = useState<DrlEntry[]>([]);
   const [rowsLoading, setRowsLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
   const [alerts, setAlerts] = useState<DoseAlert[]>([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [checkDrafts, setCheckDrafts] = useState<CheckDraft[]>([{ key: "d1", modality: "CT", bodyPart: "胸部" }]);
   const [checkResult, setCheckResult] = useState<DrlCheckResult[] | null>(null);
   const [checking, setChecking] = useState(false);
@@ -36,13 +39,17 @@ export default function DRLManagement() {
 
   const loadDrls = async () => {
     setRowsLoading(true);
+    setLoadError(null);
     try {
       const res = await rdsrApi.getDrls();
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setRows(res.data);
+        setDataSource("api");
         return;
       }
-    } catch { /* fallback below */ }
+      if (!res.success) setLoadError(t('w9.states.error'));
+    } catch { setLoadError(t('w9.states.error')); }
+    setDataSource("demo");
     const demoRows: DrlEntry[] = drlRecords.map((r: DRLRecord) => ({
       modality: r.modality,
       bodyPart: r.examType,
@@ -274,6 +281,12 @@ export default function DRLManagement() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loadError && !rowsLoading && <ErrorBanner message={loadError} onRetry={() => { void loadDrls(); void loadAlerts(); }} retryLabel={t('w9.states.retry')} />}
+      {dataSource === "demo" && !rowsLoading && (
+        <div style={{ padding: "8px 12px", background: "#fef3c7", color: "#d97706", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertTriangle size={14} /> {t('w8Dose.demoBadge')} · {t('w8Dose.sourceDemo')}
+        </div>
+      )}
       <style>{`.drl-row-critical td { background: #fef2f2 !important; } .drl-row-warning td { background: #fffbeb !important; }`}</style>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
         <div style={kpiBox}>

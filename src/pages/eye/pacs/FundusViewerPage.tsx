@@ -6,6 +6,7 @@ import MeasurementPanel from "@/components/eye/MeasurementPanel";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import { eyeApi } from "../../../services/api/eyeApi";
 import { eyePacsApi, type EyeStudyDto, type EyeMeasurementDto, type KeyImageDto, type LesionSegmentationDto, type AiDiagnosisDto } from "../../../services/api/eyePacsApi";
+import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
@@ -16,6 +17,8 @@ const FundusViewerPage: React.FC = () => {
   const [lesions, setLesions] = useState<LesionSegmentationDto[]>([]);
   const [keyImages, setKeyImages] = useState<KeyImageDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const viewerRef = useRef<HTMLDivElement>(null);
@@ -66,11 +69,12 @@ const FundusViewerPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const studiesRes = await eyePacsApi.getStudies({ modality: "fundus_photo", patientId: "p-1001" });
         if (cancelled) return;
         if (studiesRes.success && Array.isArray(studiesRes.data) && studiesRes.data.length > 0) {
-          const s = studiesRes.data[0];
+          const s = studiesRes.data[0]!;
           setStudy(s);
           const [measRes, aiRes, lesionRes, kiRes] = await Promise.all([
             eyePacsApi.getMeasurements(s.id),
@@ -83,14 +87,16 @@ const FundusViewerPage: React.FC = () => {
           if (aiRes.success && Array.isArray(aiRes.data)) setAiDiag(aiRes.data as unknown as AiDiagnosisDto[]);
           if (lesionRes.success && Array.isArray(lesionRes.data)) setLesions(lesionRes.data);
           if (kiRes.success && Array.isArray(kiRes.data)) setKeyImages(kiRes.data);
+        } else if (!studiesRes.success) {
+          setLoadError(t('w9.states.error'));
         }
       } catch {
-        // APIs may not be available
+        setLoadError(t('w9.states.error'));
       }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   if (loading) {
     return (
@@ -103,6 +109,7 @@ const FundusViewerPage: React.FC = () => {
   if (!study) {
     return (
       <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
         <Card><div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>{t('fundusViewer.noData')}</div></Card>
       </div>
     );

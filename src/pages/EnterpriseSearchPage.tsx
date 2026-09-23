@@ -198,7 +198,7 @@ export default function EnterpriseSearchPage() {
                 { key: 'all', label: `全部 ${total}` },
                 ...GROUP_ORDER
                   .filter(g => (grouped[g] || []).length > 0)
-                  .map(g => ({ key: g, label: `${TYPE_META[g].label} ${grouped[g].length}` })),
+                  .map(g => ({ key: g, label: `${TYPE_META[g]?.label ?? g} ${grouped[g]?.length ?? 0}` })),
               ]}
               style={{ marginBottom: 12 }}
             />
@@ -219,14 +219,14 @@ export default function EnterpriseSearchPage() {
                           ? <FileText size={14} color="#7c3aed" />
                           : <FileSearch size={14} color="#0891b2" />}
                     <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
-                      {TYPE_META[group].label}
+                      {TYPE_META[group]?.label ?? group}
                     </span>
-                    <Tag color={TYPE_META[group].color} style={{ marginLeft: 4 }}>
-                      {grouped[group].length}
+                    <Tag color={TYPE_META[group]?.color ?? 'default'} style={{ marginLeft: 4 }}>
+                      {grouped[group]?.length ?? 0}
                     </Tag>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {grouped[group].map(r => (
+                    {(grouped[group] ?? []).map(r => (
                       <div key={r.id} style={{ padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>{highlightText(r.title, query)}</strong>

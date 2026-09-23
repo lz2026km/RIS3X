@@ -2,6 +2,7 @@
 // 对标: Sidexis Ceph + Dolphin Imaging + Planmeca Romexis Ceph
 // [G005 Wave1B] 6 处裸 fetch → dentalApi (后端 /dental/ceph/* + /dental/ortho/arch-analysis 真实实现)
 import { dentalApi } from "../../services/api/dentalApi";
+import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import {
   Card,
@@ -56,8 +57,11 @@ export const DentalCephPage: React.FC = () => {
   const [archData, setArchData] = useState<any>(null);
   const [dragPoint, setDragPoint] = useState<string | null>(null);
   const cephCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
+    setLoadError(null);
     dentalApi
       .getCadMaterials() // just to init connection
       .catch((err) => {
@@ -67,13 +71,15 @@ export const DentalCephPage: React.FC = () => {
     dentalApi.getCadTemplates().catch((err) => {
       console.error("[F04]", err);
     }); // ignore
-  }, []);
+  }, [reloadTick]);
 
   const fetchStudies = async () => {
     try {
       const res = await dentalApi.listCephStudies();
       if (res.success) setStudies(res.data || []);
+      else setLoadError(t("w9.states.error"));
     } catch (e) {
+      setLoadError(t("w9.states.error"));
       console.warn("[F03] Error:", (e as Error)?.message);
     }
     try {
@@ -294,6 +300,7 @@ export const DentalCephPage: React.FC = () => {
           {/* [G005 W3-B] 新建头影检查: POST /dental/ceph/studies (createCephStudy) */}
           <Button size="small" type="primary" onClick={() => setCreateModal(true)}>{t("w3b.cephCreate")}</Button>
         </Space>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
             <Card size="small">

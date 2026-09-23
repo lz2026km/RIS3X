@@ -15,20 +15,21 @@ const DOCTORS = [
 
 export const MOCK_DOCTOR_SCHEDULES: DoctorSchedule[] = [];
 for (let d = 0; d < DOCTORS.length; d++) {
+  const doc = DOCTORS[d]!;
   for (let day = 0; day < 30; day++) {
     const date = new Date(NOW + 86400000 * day);
     const dow = date.getDay();
     if (dow === 0 || dow === 6) continue; // skip weekends
     const isMorning = day % 2 === 0;
     MOCK_DOCTOR_SCHEDULES.push({
-      id: `sch-${DOCTORS[d].id}-${date.toISOString().split('T')[0]}-${isMorning ? 'AM' : 'PM'}`,
-      doctorId: DOCTORS[d].id,
-      doctorName: DOCTORS[d].name,
-      date: date.toISOString().split('T')[0],
+      id: `sch-${doc.id}-${date.toISOString().split('T')[0]}-${isMorning ? 'AM' : 'PM'}`,
+      doctorId: doc.id,
+      doctorName: doc.name,
+      date: date.toISOString().split('T')[0]!,
       startTime: isMorning ? '08:00' : '13:00',
       endTime: isMorning ? '12:00' : '17:00',
       type: day % 7 === 3 ? 'surgery' : day % 10 === 0 ? 'teaching' : day % 15 === 7 ? 'consultation' : 'clinic',
-      location: DOCTORS[d].dept === '视光中心' ? '3F诊区' : '2F诊区',
+      location: doc.dept === '视光中心' ? '3F诊区' : '2F诊区',
       maxPatients: isMorning ? 20 : 15,
       bookedPatients: Math.round((isMorning ? 20 : 15) * (0.6 + Math.random() * 0.35)),
     });

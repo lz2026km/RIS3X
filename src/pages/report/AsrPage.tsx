@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Mic, Square, FileText, Send, CheckCircle, RefreshCw, Volume2, BookOpen, History, Search, Plus, Pencil, Trash2, Save, X, Database, ChevronRight } from 'lucide-react'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
+import { ErrorBanner } from "../../components/feedback"
 import { asrApi } from "../../services/api/asrApi"
 import { voiceWorkstationApi } from "../../services/api/voiceWorkstationApi"
 import type { LexiconEntry, WorkstationStats, SessionRecord } from "../../services/api/voiceWorkstationApi"
@@ -27,6 +28,7 @@ export default function AsrPage() {
   const [editing, setEditing] = useState("")
   const [confidence, setConfidence] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [engineInfo, setEngineInfo] = useState<{ engine: string; corrections: number } | null>(null)
   const [stats, setStats] = useState<WorkstationStats | null>(null)
@@ -42,11 +44,12 @@ export default function AsrPage() {
   const loadLexicon = useCallback(async () => {
     try {
       setLexicon(lexQuery.trim() ? await voiceWorkstationApi.searchLexicon(lexQuery.trim()) : await voiceWorkstationApi.listLexicon())
-    } catch { /* 词库加载失败 */ }
+      setLoadError(null)
+    } catch { setLoadError(t('w9.states.error')) }
   }, [lexQuery])
 
   const refreshStatsAndSessions = useCallback(async () => {
-    try { setStats(await voiceWorkstationApi.getStats()) } catch { /* 统计不可用 */ }
+    try { setStats(await voiceWorkstationApi.getStats()) } catch { setLoadError(t('w9.states.error')) }
     try { setSessions(await voiceWorkstationApi.listSessions()) } catch { /* 历史不可用 */ }
   }, [])
 
@@ -170,6 +173,7 @@ export default function AsrPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Volume2 size={20} color="#3b82f6" />} title={rt("title")} subtitle={rt("subtitle")} />
+      {loadError && <ErrorBanner message={loadError} onRetry={() => { void loadLexicon(); void refreshStatsAndSessions(); }} retryLabel={t('w9.states.retry')} />}
       <div style={{ padding: 24 }}>
         <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
           <div style={{ marginBottom: 16 }}>
