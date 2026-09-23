@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Card } from 'antd'
 // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化: 优先 GET /finding-library + /finding-library/search,
 //   失败回退内置 200 条硬编码并显示「内置知识库回退」徽标 (保留下方硬编码结构不动)
@@ -11,15 +10,11 @@ import { findingLibraryApi } from '../services/api/findingLibraryApi'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Search, Filter, X, ChevronDown, ChevronUp, BookOpen,
-  Image as ImageIcon, Star, StarOff, Copy, Check, Eye,
-  Scan, Brain, Heart, Bone, Activity, Wind,
-  Stethoscope, FileText, Tag, Plus, Download, Upload,
-  AlertTriangle, Share2, ThumbsUp, Clock, Calendar,
-  Bookmark, BookmarkCheck, TrendingUp, BarChart2, Settings,
-  LayoutGrid, List as ListIcon, Grid2X2, Columns,
-  RefreshCw, Edit3, ChevronRight, Info, Zap, Target,
-  Crosshair, Circle, AlertCircle, CheckCircle2, Loader2
+  Search, X, ChevronDown, BookOpen,
+  Image as ImageIcon, Star, StarOff, Check,
+  Scan, Brain, Bone, Activity,
+  FileText, Tag, TrendingUp,
+  RefreshCw, ChevronRight, Info, Zap,
 } from 'lucide-react'
 import { t } from '../i18n/appI18n';
 
@@ -789,9 +784,9 @@ const ALL_FINDINGS = generateFindings()
 // ============================================================
 // 常量配置
 // ============================================================
-const BODY_PART_KEYS = ['all', 'head', 'neck', 'chest', 'abdomen', 'pelvis', 'spine', 'extremities', 'nervousSystem', 'vascular'] as const
+export const BODY_PART_KEYS = ['all', 'head', 'neck', 'chest', 'abdomen', 'pelvis', 'spine', 'extremities', 'nervousSystem', 'vascular'] as const
 const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'XR', '超声', 'CTA', 'MRA', 'DSA', 'MG']
-const DISEASE_TYPE_KEYS = ['all', 'tumor', 'inflammation', 'trauma', 'vascularDisease', 'congenital'] as const
+export const DISEASE_TYPE_KEYS = ['all', 'tumor', 'inflammation', 'trauma', 'vascularDisease', 'congenital'] as const
 const BODY_PART_COLORS: Record<string, string> = {
   '头部': '#8b5cf6',
   '颈部': '#06b6d4',
@@ -1141,7 +1136,7 @@ export default function FindingLibraryPage() {
         {/* 内容区 */}
         <div style={{ padding: '12px 14px 14px' }}>
           {/* 标题行 */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 6, gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text, lineHeight: 1.3, marginBottom: 2 }}>
                 {finding.findingName}

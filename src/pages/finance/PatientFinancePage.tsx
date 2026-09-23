@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
 import { financeApi, type InvoiceDto, type ChargeItemDto } from '../../services/api/financeApi'
 import { Card } from 'antd'
+import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
 // [W1-B] 开票 Modal (POST /finance/invoices)
@@ -67,12 +68,28 @@ export default function PatientFinancePage() {
   const [invItemIds, setInvItemIds] = useState<string[]>([])
   const [invDiscount, setInvDiscount] = useState(0)
   const [invSaving, setInvSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
-    svc.getBills('P001').then(setBills)
-    svc.getInsuranceClaims('P001').then(setClaims)
+    let cancelled = false
+    ;(async () => {
+      setLoading(true)
+      try {
+        const [b, c] = await Promise.all([svc.getBills('P001'), svc.getInsuranceClaims('P001')])
+        if (cancelled) return
+        setBills(b)
+        setClaims(c)
+        setLoadError(null)
+      } catch {
+        if (!cancelled) setLoadError(t('w9.states.error'))
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
     financeApi.listInvoices().then(res => { if (res.success) setInvoices(res.data); }).catch((err) => { console.error('[F04]', err); })
     financeApi.listChargeItems().then(res => { if (res.success) setChargeItems(res.data ?? []) }).catch(() => { /* 收费项目不可用不阻断 */ })
+    return () => { cancelled = true }
   }, [])
 
   const handleCreateInvoice = async () => {
@@ -130,6 +147,9 @@ export default function PatientFinancePage() {
         <h2 style={s.title}>{t('patientFinance.title')}</h2>
         <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowInvoiceModal(true)}>{t('patientFinance.createInvoice')}</button>
       </div>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* Stats */}
       <div style={s.statGrid}>

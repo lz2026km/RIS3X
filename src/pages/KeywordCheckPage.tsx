@@ -344,7 +344,7 @@ export default function KeywordCheckPage() {
                     </div>
                   ) : (
                     filteredIssues.map(issue => {
-                      const sConf = SEVERITY_CONFIG[issue.severity];
+                      const sConf = SEVERITY_CONFIG[issue.severity]!;
                       const SIcon = sConf.icon;
                       return (
                         <div
@@ -395,8 +395,8 @@ export default function KeywordCheckPage() {
                   {selectedIssue ? (
                     <>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('kwc.issueDetail')}</div>
-                      <DetailRow label={t('kwc.severity')} value={SEVERITY_CONFIG[selectedIssue.severity].label} color={SEVERITY_CONFIG[selectedIssue.severity].color} />
-                      <DetailRow label={t('kwc.categoryLabel')} value={CATEGORY_LABELS[selectedIssue.category]} />
+                      <DetailRow label={t('kwc.severity')} value={SEVERITY_CONFIG[selectedIssue.severity]!.label} color={SEVERITY_CONFIG[selectedIssue.severity]!.color} />
+                      <DetailRow label={t('kwc.categoryLabel')} value={CATEGORY_LABELS[selectedIssue.category]!} />
                       <DetailRow label={t('kwc.ruleId')} value={selectedIssue.ruleId} />
                       <DetailRow label={t('kwc.position')} value={selectedIssue.position >= 0 ? t('kwc.charPosition', { pos: selectedIssue.position }) : t('kwc.fullText')} />
                       <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>

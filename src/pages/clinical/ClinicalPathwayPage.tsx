@@ -1,6 +1,6 @@
 // [v3.0.6.8-70] 临床路径管理
 // [v3.0.6.11-60] Batch 3: clinicalPathwayApi 真实数据 + 启用/暂停 + 步骤时间线
-import { clinicalPathwayApi, type ClinicalPathway, type PathwayPatient, type PathwayStats } from '../../services/api/clinicalPathwayApi';
+import { clinicalPathwayApi, type ClinicalPathway, type PathwayPatient, type PathwayStats, type PathwayDefinition } from '../../services/api/clinicalPathwayApi';
 import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Progress, Steps, Badge, Modal, Form, Input, message, Timeline, Spin, Alert, Empty } from 'antd';
 import { Popconfirm } from 'antd'
 import { Route, CheckCircle2, Clock, Users, Activity, Play, PauseCircle, RefreshCw, Plus, Eye } from 'lucide-react';
@@ -14,6 +14,9 @@ export const ClinicalPathwayPage: React.FC = () => {
   const [pathways, setPathways] = useState<ClinicalPathway[]>([]);
   const [patients, setPatients] = useState<PathwayPatient[]>([]);
   const [stats, setStats] = useState<PathwayStats | null>(null);
+  // [G005 W2] 路径定义 (步骤/入排标准): clinicalPathwayApi.listDefinitions
+  const [definitions, setDefinitions] = useState<PathwayDefinition[]>([]);
+  const [definition, setDefinition] = useState<PathwayDefinition | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [enrollModal, setEnrollModal] = useState(false);
@@ -27,15 +30,17 @@ export const ClinicalPathwayPage: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const [pwRes, ptRes, statsRes] = await Promise.all([
+      const [pwRes, ptRes, statsRes, defRes] = await Promise.all([
         clinicalPathwayApi.listPathways(),
         clinicalPathwayApi.listPatients(),
         clinicalPathwayApi.getStats(),
+        clinicalPathwayApi.listDefinitions(),
       ]);
       if (pwRes.success && Array.isArray(pwRes.data)) setPathways(pwRes.data);
       else setError(pwRes.error?.message ?? t('clinicalPathway.errLoadPathways'));
       if (ptRes.success && Array.isArray(ptRes.data)) setPatients(ptRes.data);
       if (statsRes.success && statsRes.data) setStats(statsRes.data as PathwayStats);
+      if (defRes.success && Array.isArray(defRes.data)) setDefinitions(defRes.data);
     } catch {
       setError(t('clinicalPathway.errLoadData'));
     } finally {
@@ -161,6 +166,34 @@ export const ClinicalPathwayPage: React.FC = () => {
         />
       </Card>
 
+      {/* [G005 W2] 路径定义 (步骤/入排标准): clinicalPathwayApi.listDefinitions */}
+      <Card
+        size="small"
+        title={`${t('w2Orphans.pathwayDefinitions')} (${t('w2Orphans.definitionCount', { count: definitions.length })})`}
+        style={{ marginBottom: 16 }}
+      >
+        <Table
+          dataSource={definitions}
+          rowKey="id"
+          pagination={false}
+          size="small"
+          columns={[
+            { title: t('clinicalPathway.colName'), dataIndex: 'name' },
+            { title: t('clinicalPathway.colDept'), dataIndex: 'dept', render: (d: string) => <Tag>{d}</Tag> },
+            { title: t('clinicalPathway.colStep'), dataIndex: 'steps', render: (s: PathwayDefinition['steps']) => <Tag color="blue">{t('w2Orphans.stepsCount', { count: s?.length ?? 0 })}</Tag> },
+            { title: t('w2Orphans.inclusion'), dataIndex: 'inclusion', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+            { title: t('w2Orphans.exclusion'), dataIndex: 'exclusion', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+            {
+              title: t('clinicalPathway.colAction'),
+              render: (_, r: PathwayDefinition) => (
+                <Button size="small" icon={<Eye size={12} />} onClick={() => setDefinition(r)}>{t('w2Orphans.viewSteps')}</Button>
+              ),
+            },
+          ]}
+          scroll={{ x: 'max-content' }}
+        />
+      </Card>
+
       <Card
         extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setEnrollModal(true)}>{t('clinicalPathway.enrollPatient')}</Button>}
         size="small"
@@ -248,6 +281,39 @@ export const ClinicalPathwayPage: React.FC = () => {
                 { color: 'green', children: `录入路径：${detail.enteredAt}` },
                 ...(detail.variance ? [{ color: 'red', children: `偏差：${detail.variance}` }] : []),
               ]}
+            />
+          </>
+        )}
+      </Modal>
+
+      {/* [G005 W2] 路径定义详情 (步骤/触发条件/关键节点) */}
+      <Modal
+        title={`${t('w2Orphans.definitionTitle')} - ${definition?.name ?? ''}`}
+        open={!!definition}
+        onCancel={() => setDefinition(null)}
+        footer={null}
+        width={760}
+      >
+        {definition && (
+          <>
+            <Space style={{ marginBottom: 12 }} wrap>
+              <Tag color="blue">{t('w2Orphans.inclusion')}: {definition.inclusion}</Tag>
+              <Tag color="red">{t('w2Orphans.exclusion')}: {definition.exclusion}</Tag>
+            </Space>
+            <Table
+              dataSource={definition.steps}
+              rowKey="index"
+              pagination={false}
+              size="small"
+              columns={[
+                { title: t('w2Orphans.stepIndex'), dataIndex: 'index', width: 60 },
+                { title: t('w2Orphans.stepName'), dataIndex: 'name' },
+                { title: t('w2Orphans.stepDept'), dataIndex: 'dept', width: 100 },
+                { title: t('w2Orphans.stepDuration'), dataIndex: 'durationDays', width: 90 },
+                { title: t('w2Orphans.stepTriggers'), dataIndex: 'triggers', render: (v?: string) => v || '-' },
+                { title: t('w2Orphans.stepCheckpoints'), dataIndex: 'keyCheckpoints', render: (v?: string[]) => (v && v.length ? v.join('; ') : '-') },
+              ]}
+              scroll={{ x: 'max-content' }}
             />
           </>
         )}

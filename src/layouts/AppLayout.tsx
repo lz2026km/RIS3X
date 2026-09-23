@@ -169,44 +169,6 @@ const s: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   nav: { flex: 1, overflowY: "auto", padding: "8px 0" },
-  sectionTitle: (open: boolean): React.CSSProperties => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    padding: open ? "10px 14px 4px" : 0,
-    marginLeft: open ? 8 : 0,
-    fontSize: 11,
-    fontWeight: 600,
-    letterSpacing: "0.02em",
-    color: "var(--text-sidebar, rgba(241,245,249,0.72))",
-    textTransform: "none",
-    opacity: open ? 0.9 : 0,
-    height: open ? "auto" : 0,
-    overflow: "hidden",
-    whiteSpace: "nowrap" as const,
-  }),
-  navItem: (active: boolean, open: boolean): React.CSSProperties => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    padding: open ? "9px 14px" : "9px 20px",
-    margin: "2px 8px",
-    borderRadius: 6,
-    cursor: "pointer",
-    color: "var(--text-sidebar, #ffffff)",
-    background: active
-      ? "var(--sidebar-item-active-bg, rgba(37, 99, 235, 0.22))"
-      : "transparent",
-    borderLeft: active
-      ? "4px solid var(--color-primary-600, #2563eb)"
-      : "4px solid transparent",
-    fontSize: 14,
-    fontWeight: active ? 700 : 500,
-    transition: "all 0.15s",
-    whiteSpace: "nowrap",
-    textDecoration: "none",
-    justifyContent: open ? "flex-start" : "center",
-  }),
   collapseBtn: {
     width: "100%",
     padding: 8,
@@ -295,17 +257,58 @@ const s: Record<string, React.CSSProperties> = {
     overflow: "hidden",
     whiteSpace: "nowrap" as const,
   },
-  breadcrumbItem: (current: boolean): React.CSSProperties => ({
-    color: current
-      ? "var(--text-header, #f1f5f9)"
-      : "var(--text-muted, #64748b)",
-    fontWeight: current ? 600 : 400,
-    cursor: current ? "default" : "pointer",
-    textDecoration: "none",
-    padding: "2px 4px",
-    borderRadius: 4,
-  }),
 };
+
+const sectionTitleStyle = (open: boolean): React.CSSProperties => ({
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  padding: open ? "10px 14px 4px" : 0,
+  marginLeft: open ? 8 : 0,
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.02em",
+  color: "var(--text-sidebar, rgba(241,245,249,0.72))",
+  textTransform: "none",
+  opacity: open ? 0.9 : 0,
+  height: open ? "auto" : 0,
+  overflow: "hidden",
+  whiteSpace: "nowrap" as const,
+});
+
+const navItemStyle = (active: boolean, open: boolean): React.CSSProperties => ({
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  padding: open ? "9px 14px" : "9px 20px",
+  margin: "2px 8px",
+  borderRadius: 6,
+  cursor: "pointer",
+  color: "var(--text-sidebar, #ffffff)",
+  background: active
+    ? "var(--sidebar-item-active-bg, rgba(37, 99, 235, 0.22))"
+    : "transparent",
+  borderLeft: active
+    ? "4px solid var(--color-primary-600, #2563eb)"
+    : "4px solid transparent",
+  fontSize: 14,
+  fontWeight: active ? 700 : 500,
+  transition: "all 0.15s",
+  whiteSpace: "nowrap",
+  textDecoration: "none",
+  justifyContent: open ? "flex-start" : "center",
+});
+
+const breadcrumbItemStyle = (current: boolean): React.CSSProperties => ({
+  color: current
+    ? "var(--text-header, #f1f5f9)"
+    : "var(--text-muted, #64748b)",
+  fontWeight: current ? 600 : 400,
+  cursor: current ? "default" : "pointer",
+  textDecoration: "none",
+  padding: "2px 4px",
+  borderRadius: 4,
+});
 
 // U1-B: Header 主题切换按钮 — 浅色/深色/高对比度 三态图标
 const THEME_META: Record<
@@ -350,7 +353,7 @@ function Breadcrumb({ pathname }: { pathname: string }) {
   if (isHome) {
     return (
       <nav aria-label="breadcrumb" style={s.breadcrumb}>
-        <span style={s.breadcrumbItem(true)}>{t("nav.homeOverview")}</span>
+        <span style={breadcrumbItemStyle(true)}>{t("nav.homeOverview")}</span>
       </nav>
     );
   }
@@ -378,7 +381,7 @@ function Breadcrumb({ pathname }: { pathname: string }) {
             />
           )}
           {c.current ? (
-            <span style={s.breadcrumbItem(true)} aria-current="page">
+            <span style={breadcrumbItemStyle(true)} aria-current="page">
               {c.label}
             </span>
           ) : (
@@ -398,7 +401,7 @@ function Breadcrumb({ pathname }: { pathname: string }) {
                   window.dispatchEvent(new PopStateEvent("popstate"));
                 }
               }}
-              style={s.breadcrumbItem(false)}
+              style={breadcrumbItemStyle(false)}
             >
               {c.label}
             </a>
@@ -445,7 +448,7 @@ const NavItem = React.memo(function NavItem({
         onNavigate(path);
       }}
       onKeyDown={(e) => onKeyNav(e, path)}
-      style={{ ...s.navItem(active, open) }}
+      style={{ ...navItemStyle(active, open) }}
       onMouseEnter={(e) => {
         if (!active)
           e.currentTarget.style.background =
@@ -628,7 +631,7 @@ export function AppLayout() {
             {filteredItems.map((section, idx) => (
               <div key={idx} style={{ marginBottom: 16 }}>
                 <div
-                  style={s.sectionTitle(effectiveSidebarOpen)}
+                  style={sectionTitleStyle(effectiveSidebarOpen)}
                   aria-hidden={!effectiveSidebarOpen}
                 >
                   <span
@@ -980,7 +983,7 @@ export function AppLayout() {
           <React.Suspense fallback={<Loading />}>
             <Routes>
               {routes.map((r) => (
-                <Route key={r.path} {...r} />
+                <Route key={r.path} path={r.path} element={r.element} />
               ))}
             </Routes>
           </React.Suspense>

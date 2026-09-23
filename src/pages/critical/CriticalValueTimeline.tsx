@@ -1,7 +1,7 @@
-import { AlertOctagon, PhoneIncoming, Activity, CheckCircle, AlertTriangle } from 'lucide-react'
+import { AlertOctagon, PhoneIncoming, Activity, CheckCircle, AlertTriangle, type LucideIcon } from 'lucide-react'
 import type { CriticalValue, ClosedLoopStage5 } from './types'
 
-const stageConfig: Record<string, { bg: string; color: string; borderColor: string; icon: React.ComponentType }> = {
+const stageConfig: Record<string, { bg: string; color: string; borderColor: string; icon: LucideIcon }> = {
   '发出': { bg: 'var(--color-error-bg)', color: '#dc2626', borderColor: '#dc2626', icon: AlertOctagon },
   '确认': { bg: 'var(--color-info-bg)', color: '#2563eb', borderColor: '#2563eb', icon: PhoneIncoming },
   '处理': { bg: 'var(--color-warning-bg)', color: '#d97706', borderColor: '#d97706', icon: Activity },
@@ -46,7 +46,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
       </div>
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, marginBottom: 16 }}>
         {stages.map((stage, idx) => {
-          const cfg = stageConfig[stage.key]
+          const cfg = stageConfig[stage.key]!
           const StageIcon = cfg.icon
           const isLast = idx === stages.length - 1
           return (
@@ -75,7 +75,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
               {!isLast && (
                 <div style={{
                   flex: '0 0 32px', height: 3,
-                  background: stages[idx + 1].done ? cfg.borderColor : 'var(--border-color)',
+                  background: stages[idx + 1]!.done ? cfg.borderColor : 'var(--border-color)',
                   marginTop: -20, transition: 'background 0.3s',
                 }} />
               )}
@@ -134,7 +134,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, marginBottom: 16 }}>
         {stages.map((stage, idx) => {
-          const cfg = stageColors[stage.key]
+          const cfg = stageColors[stage.key]!
           const isLast = idx === stages.length - 1
           const isDone = stage.done
           const isActive = stage.active
@@ -178,7 +178,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
                 )}
               </div>
               {!isLast && (
-                <div style={{ flex: '0 0 24px', height: 3, background: stages[idx + 1].done ? cfg.borderColor : 'var(--border-color)', marginTop: -20, transition: 'background 0.3s', marginLeft: -4, marginRight: -4 }} />
+                <div style={{ flex: '0 0 24px', height: 3, background: stages[idx + 1]!.done ? cfg.borderColor : 'var(--border-color)', marginTop: -20, transition: 'background 0.3s', marginLeft: -4, marginRight: -4 }} />
               )}
             </div>
           )
@@ -193,7 +193,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {currentStageIndex === 4 ? <CheckCircle size={16} style={{ color: '#059669' }} /> : currentStageIndex >= 0 ? <Activity size={16} style={{ color: '#2563eb' }} /> : <AlertTriangle size={16} style={{ color: '#dc2626' }} />}
           <span style={{ fontSize: 12, fontWeight: 600, color: currentStageIndex === 4 ? '#059669' : (currentStageIndex >= 0 ? '#2563eb' : '#dc2626') }}>
-            {currentStageIndex === 4 ? `已归档 - 随访编号：${cv.followUpId}` : currentStageIndex >= 0 ? `当前阶段：${stages[currentStageIndex].key}` : '未开始'}
+            {currentStageIndex === 4 ? `已归档 - 随访编号：${cv.followUpId}` : currentStageIndex >= 0 ? `当前阶段：${stages[currentStageIndex]!.key}` : '未开始'}
           </span>
         </div>
         <div style={{ fontSize: 12, color: '#94a3b8' }}>

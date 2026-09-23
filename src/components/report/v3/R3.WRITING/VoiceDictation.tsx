@@ -12,7 +12,7 @@ import {
   startVoiceDictation, pauseVoiceDictation, resumeVoiceDictation, stopVoiceDictation,
   getVoiceDictationHistory,
 } from '@services/writing/writingService';
-import type { VoiceDictationSession, VoiceDictationState, VoiceDictationLang } from '@types/R3/R3.WRITING';
+import type { VoiceDictationSession, VoiceDictationLang } from '@/types/R3/R3.WRITING';
 import { Card, Space, Button, Tag, Statistic, Select, Switch, message, Row, Col, Alert, Empty, List, Modal, Collapse, Table } from 'antd';
 import { TableProps } from 'antd'
 import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, BookOpen, User , Type, CheckCircle } from 'lucide-react';
@@ -310,7 +310,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           }
         }
         setInterimDisplay(interim);
-        setSession((s) => s ? { ...s, finalText: final, interimText: interim, segments: [...s.segments, { start: Date.now() - startTimeRef.current, end: Date.now() - startTimeRef.current, text: final, confidence: 0.9 }] } : s);
+        setSession((s: VoiceDictationSession | null) => s ? { ...s, finalText: final, interimText: interim, segments: [...s.segments, { start: Date.now() - startTimeRef.current, end: Date.now() - startTimeRef.current, text: final, confidence: 0.9 }] } : s);
         onTextChange?.(final);
       };
       recognition.onerror = (e: any) => {
@@ -345,7 +345,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       }
       const phrase = MOCK_PHRASES[i] ?? '';
       setInterimDisplay(phrase);
-      setSession((s) => s ? { ...s, finalText: s.finalText + phrase, interimText: phrase, segments: [...s.segments, { start: Date.now() - startTimeRef.current, end: Date.now() - startTimeRef.current, text: phrase, confidence: 0.85 + Math.random() * 0.1 }] } : s);
+      setSession((s: VoiceDictationSession | null) => s ? { ...s, finalText: s.finalText + phrase, interimText: phrase, segments: [...s.segments, { start: Date.now() - startTimeRef.current, end: Date.now() - startTimeRef.current, text: phrase, confidence: 0.85 + Math.random() * 0.1 }] } : s);
       onTextChange?.(initialSession.finalText + MOCK_PHRASES.slice(0, i + 1).join(''));
       i++;
     }, 1500);
@@ -404,7 +404,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
   }, [session, onInsert]);
 
   const clearAll = useCallback(() => {
-    setSession((s) => s ? { ...s, finalText: '', interimText: '', segments: [] } : s);
+    setSession((s: VoiceDictationSession | null) => s ? { ...s, finalText: '', interimText: '', segments: [] } : s);
     setInterimDisplay('');
     message.success(t('aiDraft.voice.cleared'));
   }, []);
@@ -450,7 +450,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
             <Volume2 className="w-4 h-4" style={{ color: state === 'listening' ? '#dc2626' : '#94a3b8' }} />
             <span className="font-semibold">{t('aiDraft.voice.title')}</span>
             <Tag color={state === 'listening' ? 'red' : state === 'paused' ? 'orange' : 'default'}>
-              {({ idle: t('aiDraft.voice.state.idle'), listening: t('aiDraft.voice.state.listening'), paused: t('aiDraft.voice.state.paused'), processing: t('aiDraft.voice.state.processing'), error: t('aiDraft.voice.state.error') } as const)[state as VoiceDictationState] ?? state}
+              {({ idle: t('aiDraft.voice.state.idle'), listening: t('aiDraft.voice.state.listening'), paused: t('aiDraft.voice.state.paused'), processing: t('aiDraft.voice.state.processing'), error: t('aiDraft.voice.state.error') } as Record<string, string>)[String(state)] ?? state}
             </Tag>
             {!isSupported && <Tag color="orange">{t('aiDraft.voice.mockMode')}</Tag>}
           </Space>
@@ -647,7 +647,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           <div className="border-t border-slate-200 pt-3 max-h-32 overflow-y-auto">
             <h5 className="text-xs font-semibold text-slate-600 mb-2">{t('aiDraft.voice.recognizedSegments', { count: session.segments.length })}</h5>
             <div className="space-y-1">
-              {session.segments.slice(-5).map((seg, i) => (
+              {session.segments.slice(-5).map((seg: { text: string; start: number; end: number; confidence: number }, i: number) => (
                 <div key={i} className="text-xs p-1 bg-white border border-slate-200 rounded">
                   <div className="text-slate-700">{seg.text}</div>
                   <div className="text-slate-400 text-[10px] mt-0.5">
@@ -698,7 +698,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         {history.length > 0 ? (
           <List
             dataSource={history}
-            renderItem={(item) => (
+            renderItem={(item: { text: string; createdAt: string }) => (
               <List.Item
                 actions={[<Button key="insert" size="small" type="primary" onClick={() => { onInsert?.(item.text); setShowHistory(false); }}>{t('aiDraft.voice.insert')}</Button>]}
               >

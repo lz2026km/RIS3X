@@ -310,6 +310,65 @@ export class DicomWebService {
   }
 
   /**
+   * [G005 W3-BackendParity] WADO-RS study 级元数据 (DICOM JSON, PS3.18)
+   * GET /dicom-web/studies/{study}
+   * 有 DB 时从实例派生 (patientName/modality/series 数), 无 DB 时返回最小 DICOM JSON 占位。
+   */
+  async getStudyMetadata(studyInstanceUid: string): Promise<Record<string, unknown>> {
+    let modality = 'CT'
+    let patientName = 'UNKNOWN^PATIENT'
+    let seriesCount = 0
+    const model = (this.prisma as any).dicomInstance
+    if (model?.findMany) {
+      try {
+        const rows: any[] = await model.findMany({ where: { studyInstanceUid } })
+        if (rows.length > 0) {
+          modality = rows[0]?.modality ?? modality
+          patientName = rows[0]?.patientName ?? patientName
+          seriesCount = new Set(rows.map((r) => r.seriesInstanceUid).filter(Boolean)).size
+        }
+      } catch {
+        // DB 不可用 → 占位
+      }
+    }
+    return {
+      '0020000D': { vr: 'UI', Value: [studyInstanceUid] },
+      '00100010': { vr: 'PN', Value: [{ Alphabetic: patientName }] },
+      '00080061': { vr: 'CS', Value: [modality] },
+      '00201206': { vr: 'IS', Value: [seriesCount || 1] },
+    }
+  }
+
+  /**
+   * [G005 W3-BackendParity] WADO-RS series 级元数据 (DICOM JSON)
+   * GET /dicom-web/studies/{study}/series/{series}
+   */
+  async getSeriesMetadata(studyInstanceUid: string, seriesInstanceUid: string): Promise<Record<string, unknown>> {
+    let modality = 'CT'
+    let seriesNumber = 1
+    let instances = 0
+    const model = (this.prisma as any).dicomInstance
+    if (model?.findMany) {
+      try {
+        const rows: any[] = await model.findMany({ where: { studyInstanceUid, seriesInstanceUid } })
+        if (rows.length > 0) {
+          modality = rows[0]?.modality ?? modality
+          seriesNumber = Number(rows[0]?.seriesNumber ?? 1) || 1
+          instances = rows.length
+        }
+      } catch {
+        // DB 不可用 → 占位
+      }
+    }
+    return {
+      '0020000E': { vr: 'UI', Value: [seriesInstanceUid] },
+      '00080060': { vr: 'CS', Value: [modality] },
+      '00201209': { vr: 'IS', Value: [seriesNumber] },
+      '00201208': { vr: 'IS', Value: [instances || 1] },
+    }
+  }
+
+  /**
    * Get Capabilities
    */
   getCapabilities() {

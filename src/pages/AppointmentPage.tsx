@@ -35,6 +35,7 @@ import { appointmentApi, type AppointmentDto } from "../services/api";
 import { notificationsApi } from "../services/api/notificationsApi";
 import { invalidateApiCacheByPrefix } from "../services/api/client";
 import { getCurrentUser } from "../utils/auth";
+import { uniqueId } from "../utils/uniqueId";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import {
   replayOrderEvent,
@@ -175,12 +176,12 @@ function rowToAppointment(row: Record<string, unknown>): Omit<AppointmentDto, "i
     initialModalityDevices.find((d) => deviceName.includes(String(d.modality)));
   return {
     patientName,
-    patientId: get("患者ID", "patientId", "idCard") || `P${Date.now().toString().slice(-6)}`,
+    patientId: get("患者ID", "patientId", "idCard") || uniqueId("P"),
     modality: (device?.modality ?? get("检查项目", "检查类型", "modality", "examItemName")) || "CT",
     bodyPart: get("部位", "bodyPart", "检查项目", "examItemName") || "",
     startAt: start.toISOString(),
     endAt: end.toISOString(),
-    deviceId: device?.id ?? `DEV-IMP-${Date.now().toString().slice(-4)}`,
+    deviceId: device?.id ?? uniqueId("DEV-IMP"),
     deviceName,
     room: device?.location ?? undefined,
     priority: "ROUTINE",

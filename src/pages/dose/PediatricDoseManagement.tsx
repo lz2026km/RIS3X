@@ -3,21 +3,31 @@ import { Baby, Info, User, AlertTriangle } from "lucide-react";
 import { pediatricDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import { LoadingBanner, ErrorBanner, AppEmpty } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 import type { PediatricDoseRecord } from "./types";
 
 // [W10-B] 儿科剂量: 优先取 /rdsr/pediatric, 端点不可用/返回空时回退内置演示数据。
 export default function PediatricDoseManagement() {
   const [records, setRecords] = useState<PediatricDoseRecord[]>(pediatricDoseRecords);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoading(true);
       try {
         const res = await rdsrApi.getPediatric();
         if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
           setRecords(res.data);
+          setLoadError(null);
+        } else if (!cancelled) {
+          setLoadError(t('w9.states.error'));
         }
       } catch {
-        // 保留内置演示数据回退
+        if (!cancelled) setLoadError(t('w9.states.error'));
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => {
@@ -40,6 +50,9 @@ export default function PediatricDoseManagement() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
+
       <div
         style={{
           padding: "8px 12px",
@@ -75,7 +88,11 @@ export default function PediatricDoseManagement() {
 
       <ReductionFactorCards />
 
-      <RecordsTable records={records} />
+      {!loading && records.length === 0 ? (
+        <AppEmpty variant="no-data" />
+      ) : (
+        <RecordsTable records={records} />
+      )}
 
       <div
         style={{

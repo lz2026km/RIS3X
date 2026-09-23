@@ -1,4 +1,3 @@
-// @ts-nocheck
 // G005 放射科RIS - 叫号管理页面
 // 检查室状态面板 + 叫号队列列表 + 呼叫/重呼/完成按钮 + 统计面板
 // 深蓝主色 #1e40af
@@ -6,10 +5,10 @@
 import { Card } from 'antd'
 import { useState, useEffect, useCallback } from 'react'
 import { 
-  Monitor, Clock, Users, Volume2, VolumeX, RefreshCw,
-  Phone, Activity, Wifi, WifiOff, Pause, Play,
-  CheckCircle, AlertCircle, ArrowRight, User, Settings,
-  Bell, ChevronRight, X, Plus, BarChart3, PieChart
+  Monitor, Users, Volume2, VolumeX, RefreshCw,
+  Phone, Activity,
+  CheckCircle, User,
+  BarChart3, PieChart
 } from 'lucide-react'
 import { initialQueueCalls } from '../data/initialData'
 import { queueApi } from '../services/api'
@@ -767,11 +766,6 @@ export default function QueueCallPage() {
     const matchesStatus = filterStatus === '全部' || q.status === filterStatus
     return matchesSearch && matchesModality && matchesStatus
   })
-
-  // 获取当前房间的队列
-  const getRoomQueue = (roomId: string) => {
-    return queueCalls.filter(q => q.roomId === roomId && q.status !== '已完成').length
-  }
 
   // 叫号操作
   const handleCall = async (item: QueueCallItem) => {

@@ -166,6 +166,93 @@ export interface PediatricDoseRecordDto {
   device: string
 }
 
+// [G005 W8-Dose] 工作人员个人剂量监测 (GET /rdsr/staff)
+export interface StaffDoseReadingDto {
+  month: string
+  dose: number
+}
+
+export interface StaffDoseRecordDto {
+  id: string
+  staffName: string
+  department: string
+  role: string
+  monthlyDose: number
+  annualDose: number
+  annualLimit: number
+  doseUnit: string
+  complianceRate: number
+  readings: StaffDoseReadingDto[]
+}
+
+// [G005 W8-Dose] 乳腺摄影 AGD 剂量 (GET /rdsr/breast)
+export interface BreastDoseRecordDto {
+  id: string
+  patientId: string
+  patientName: string
+  age: number
+  examDate: string
+  agd: number
+  doseUnit: string
+  referenceValue: number
+  alertLevel: 'normal' | 'warning' | 'critical'
+  recallStatus: 'none' | 'recalled' | 'completed'
+  device: string
+}
+
+// [G005 W8-Dose] 设备近 7 日剂量历史 (GET /rdsr/device/:id/history)
+export interface DeviceHistoryPointDto {
+  date: string
+  DLP: number
+  CTDIvol: number
+  DAP: number
+  examCount: number
+}
+
+// [G005 W8-Dose] 剂量总览 (GET /rdsr/overview)
+export interface DeviceDoseCardDto {
+  device: string
+  todayDLP: number
+  todayCTDI: number
+  todayDAP: number
+  alertCount: number
+  status: 'normal' | 'warning' | 'critical'
+  examCount: number
+  utilizationRate: number
+  avgCTDI: number
+  maxCTDI: number
+}
+
+export interface DoseHistoryPointDto {
+  date: string
+  CT: number
+  MR: number
+  DR: number
+  DSA: number
+  MG: number
+}
+
+export interface CtdivolTrendPointDto {
+  date: string
+  CT1: number
+  CT2: number
+  threshold: number
+}
+
+export interface DeviceDapPointDto {
+  device: string
+  DAP: number
+  threshold: number
+  avgDAP: number
+}
+
+export interface DoseOverviewDto {
+  deviceDose: DeviceDoseCardDto[]
+  doseHistory: DoseHistoryPointDto[]
+  ctdivolTrend: CtdivolTrendPointDto[]
+  deviceDap: DeviceDapPointDto[]
+}
+
 const withQuery = (
   path: string,
   params?: Record<string, string | number | undefined>,
@@ -204,6 +291,19 @@ export const rdsrApi = {
 
   // [W10-B] 儿童剂量记录 (页面 PediatricDoseManagement)
   getPediatric: () => api.get<PediatricDoseRecordDto[]>("/rdsr/pediatric"),
+
+  // [G005 W8-Dose] 工作人员个人剂量监测 (页面 StaffDoseMonitoring)
+  getStaffDose: () => api.get<StaffDoseRecordDto[]>("/rdsr/staff"),
+
+  // [G005 W8-Dose] 乳腺摄影 AGD 剂量 (页面 BreastDoseTracking)
+  getBreast: () => api.get<BreastDoseRecordDto[]>("/rdsr/breast"),
+
+  // [G005 W8-Dose] 设备近 7 日剂量历史 (页面 DeviceHistoryModal)
+  getDeviceHistory: (deviceId: string) =>
+    api.get<DeviceHistoryPointDto[]>(`/rdsr/device/${encodeURIComponent(deviceId)}/history`),
+
+  // [G005 W8-Dose] 剂量总览 (页面 DoseTrackPage overview)
+  getOverview: () => api.get<DoseOverviewDto>("/rdsr/overview"),
 
   searchPatients: (search?: string) =>
     api.get<PatientDoseSummary[]>(withQuery("/rdsr/patients", { search })),

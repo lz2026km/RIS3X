@@ -71,7 +71,7 @@ describe('ImageAiService', () => {
   it('stats aggregates legacy scores with filters', async () => {
     await svc.score(v1Dto)
     await svc.score({ ...v1Dto, instanceId: 'i9', operatorId: 'op9' })
-    const stats = await svc.stats({ dateFrom: '2020-01-01', dateTo: '2099-01-01' })
+    const stats = await svc.stats({ dateFrom: '2020-01-01', dateTo: new Date(Date.now() + 24 * 3600 * 1000).toISOString() })
     expect(stats.totalScores).toBe(2)
     expect(stats.avgArtifact).toBeGreaterThan(0)
     expect(stats.byOperator.op1).toBe(1)

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Card, Popconfirm, message } from 'antd'
 // NOTE: 未解决 - 替换此文件中所有硬编码中文文本为 i18n t() 调用 (约 2,207 字符)
 // ============================================================
@@ -9,12 +8,12 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Search, Filter, X, ChevronDown, ChevronUp,
-  Eye, Heart, MessageSquare, Clock, Calendar,
+  Eye, Heart, MessageSquare, Clock,
   Stethoscope, FileText, Tag, Plus, Upload,
   Download, AlertTriangle, Share2, ThumbsUp,
   Image as ImageIcon, Bookmark, BookmarkCheck,
   Activity, Scan, Monitor, BookOpen, List,
-  FilterX, Award, Settings, RefreshCw, Edit3, Trash2, FolderOpen, Star
+  FilterX, Award, RefreshCw, Edit3, Trash2, FolderOpen, Star
 } from 'lucide-react'
 import { TYPICAL_CASES_SEED as mockTypicalCases, type TypicalCase } from '../services/mockBackend/typicalCasesSeed'
 import { typicalCaseApi } from '../services/api/typicalCaseApi'
@@ -73,46 +72,6 @@ const getBodyPartColor = (bodyPart: string) => {
     '脊柱': '#f59e0b', '心脏': '#ef4444', '盆腔': '#ec4899',
   }
   return colors[bodyPart] || '#64748b'
-}
-
-const getModalityColor = (modality: string) => {
-  return MODALITY_COLORS[modality] || '#64748b'
-}
-
-const formatDate = (date: string) => {
-  if (!date) return '-'
-  return date
-}
-
-const formatDateFull = (date: string) => {
-  if (!date) return ''
-  const d = new Date(date)
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
-}
-
-const getAnnotationColor = (type: string) => {
-  const colors: Record<string, string> = {
-    stenosis: COLORS.danger,
-    mass: COLORS.warning,
-    emboli: '#ff6b6b',
-    edema: COLORS.purple,
-    hematoma: COLORS.danger,
-    herniation: COLORS.info,
-    calc: COLORS.warning,
-    cyst: COLORS.teal,
-    inflammation: COLORS.warning,
-    thrombus: COLORS.danger,
-  }
-  return colors[type] || COLORS.info
-}
-
-const getStatusConfig = (status: string) => {
-  const configs: Record<string, { bg: string; color: string }> = {
-    '已审核': { bg: COLORS.successBg, color: COLORS.success },
-    '待审核': { bg: COLORS.warningBg, color: COLORS.warning },
-    '编辑中': { bg: COLORS.infoBg, color: COLORS.info },
-  }
-  return configs[status] || { bg: COLORS.backgroundLight, color: COLORS.textMuted }
 }
 
 // ============================================================
@@ -283,7 +242,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete,
 // 子组件：病例详情抽屉
 // ============================================================
 interface CaseDetailDrawerProps { caseData: TypicalCase | null; visible: boolean; onClose: () => void; isAdmin?: boolean; favorited?: boolean; onToggleFavorite?: (id: string) => void; teachingTags?: string[]; onToggleTeachingTag?: (id: string, tag: string) => void }
-const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, onClose, isAdmin, favorited, onToggleFavorite, teachingTags, onToggleTeachingTag }) => {
+const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, onClose, favorited, onToggleFavorite, teachingTags, onToggleTeachingTag }) => {
   const { t } = useTranslation('v3report')
   const [activeTab, setActiveTab] = useState<'info' | 'images' | 'report' | 'discussion'>('info')
   const [likedDiscussions, setLikedDiscussions] = useState<Set<string>>(new Set())
@@ -324,8 +283,8 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                   onClick={() => {
                     if (navigator.share) {
                       navigator.share({
-                        title: `典型病例: ${c.patientName}`,
-                        text: `查看典型病例: ${c.patientName} - ${c.diagnosis}`,
+                        title: `典型病例: ${caseData.patientName}`,
+                        text: `查看典型病例: ${caseData.patientName} - ${caseData.diagnosis}`,
                         url: window.location.href
                       })
                     } else {
@@ -338,7 +297,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                       setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => document.body.removeChild(toast), 300); }, 2000);
                     }
                   }}
-                  style={{ ...styles.btn, ...styles.btnOutline }}>
+                  style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Share2 size={14} />
                 </button>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'rgba(255,255,255,0.2)', color: COLORS.white, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -695,7 +654,7 @@ export default function TypicalCasesPage() {
   const [detailVisible, setDetailVisible] = useState(false)
   const [addFormVisible, setAddFormVisible] = useState(false)
   const [editingCase, setEditingCase] = useState<TypicalCase | null>(null)
-  const [isAdmin, setIsAdmin] = useState(true)
+  const [isAdmin] = useState(true)
   // [G005 Wave4B] G-04 在线考试模式
   const [examModeVisible, setExamModeVisible] = useState(false)
 
@@ -869,7 +828,7 @@ export default function TypicalCasesPage() {
       findingsList: data.findings?.split('\n').filter(Boolean) || [], tags: data.tags || [],
       teaching: data.teaching || false, images: [{ thumbnail: 'default', description: t('defaultImage') }],
       annotations: [], discussions: [], likeCount: 0, viewCount: 0,
-      createdAt: new Date().toISOString().split('T')[0], createdBy: '当前用户',
+      createdAt: new Date().toISOString().split('T')[0] ?? '', createdBy: '当前用户',
       status: '编辑中', verified: false,
     }
     try {
@@ -981,7 +940,7 @@ export default function TypicalCasesPage() {
               const csvContent = [
                 [t('csvHeaderName'), t('csvHeaderAge'), t('csvHeaderGender'), t('csvHeaderDiagnosis'), t('csvHeaderExamType'), t('csvHeaderTypicalFeatures')].join(','),
                 ...filteredCases.map(c => [
-                  c.patientName, c.age, c.gender, c.diagnosis, c.examType, c.typicalFeatures
+                  c.patientName, c.age, c.gender, c.diagnosis, c.examType, c.findings
                 ].join(','))
               ].join('\n')
               const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' })

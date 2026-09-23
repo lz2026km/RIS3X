@@ -5,7 +5,7 @@
  */
 import { DELIVERY_RECEIPTS_MOCK as ALL_RECEIPTS } from '@data/reportDistributionMock';
 import { verifyReceiptSignature, listDeliveryReceipts } from '@services/distribution/distributionService';
-import type { DeliveryReceipt, DeliveryEvent, DeliveryStatus } from '@types/R3/R3.DIST';
+import type { DeliveryReceipt, DeliveryEvent, DeliveryStatus } from '@/types/R3/R3.DIST';
 import { DELIVERY_STATUS_COLORS as STATUS_COLORS } from '@utils/statusColors';
 import { Card, Space, Button, Tag, Empty, Row, Col, Statistic, Divider, Timeline, Modal, Select, Input, Alert } from 'antd';
 import { CheckCircle2, XCircle, Clock, Search, RefreshCw, Eye, Download, FileText, Activity, Shield, AlertCircle, Send } from 'lucide-react';

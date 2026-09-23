@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { BookOpen, Plus, Search, Eye, X, Save, RefreshCw } from 'lucide-react'
 import { cdsApi, type CdsGuidelineDto } from '../../services/api/cdsApi'
+import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
 
 const INITIAL_FORM = { name: '', category: '通用', version: '1.0', status: 'draft', description: '', source: '' }
@@ -126,6 +127,30 @@ export default function GuidelineLibraryPage() {
     return items
   }, [guidelines, searchText])
 
+  const guidelineColumns = [
+    {
+      title: t('guideline.colName'), key: 'name',
+      render: (_: unknown, g: CdsGuidelineDto) => (
+        <div>
+          <span>{g.name}</span>
+          <span style={{ fontSize: 12, color: '#6e7681', marginLeft: 8 }}>({g.id})</span>
+        </div>
+      ),
+    },
+    { title: t('guideline.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
+    { title: t('guideline.colVersion'), dataIndex: 'version', key: 'version', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>v{v}</span> },
+    { title: t('guideline.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ fontSize: 12, color: STATUS_COLORS[v] || '#8b949e' }}>{STATUS_LABELS[v] || v}</span> },
+    { title: t('guideline.colUpdatedAt'), dataIndex: 'updatedAt', key: 'updatedAt', render: (v: string) => <span style={{ fontSize: 12, color: '#6e7681' }}>{v ? new Date(v).toLocaleString('zh-CN') : '-'}</span> },
+    {
+      title: t('guideline.colActions'), key: 'actions',
+      render: (_: unknown, g: CdsGuidelineDto) => (
+        <button onClick={(e) => { e.stopPropagation(); handleOpenDetail(g.id) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Eye size={12} />{t('guideline.detail')}
+        </button>
+      ),
+    },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -165,35 +190,15 @@ export default function GuidelineLibraryPage() {
         )}
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 80px 140px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>{t('guideline.colName')}</span>
-            <span>{t('guideline.colCategory')}</span>
-            <span>{t('guideline.colVersion')}</span>
-            <span>{t('guideline.colStatus')}</span>
-            <span>{t('guideline.colUpdatedAt')}</span>
-            <span>{t('guideline.colActions')}</span>
-          </div>
-          {loading ? (
-            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('guideline.loadingList')}</div>
-          ) : filtered.length === 0 ? (
-            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('guideline.emptyList')}</div>
-          ) : (
-            filtered.map((g, idx) => (
-              <div key={g.id} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 80px 140px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22', cursor: 'pointer' }} onClick={() => handleOpenDetail(g.id)}>
-                <div>
-                  <span style={{ fontSize: 13 }}>{g.name}</span>
-                  <span style={{ fontSize: 12, color: '#6e7681', marginLeft: 8 }}>({g.id})</span>
-                </div>
-                <span style={{ fontSize: 12, color: '#8b949e' }}>{g.category}</span>
-                <span style={{ fontSize: 12, color: '#8b949e' }}>v{g.version}</span>
-                <span style={{ fontSize: 12, color: STATUS_COLORS[g.status] || '#8b949e' }}>{STATUS_LABELS[g.status] || g.status}</span>
-                <span style={{ fontSize: 12, color: '#6e7681' }}>{g.updatedAt ? new Date(g.updatedAt).toLocaleString('zh-CN') : '-'}</span>
-                <button onClick={(e) => { e.stopPropagation(); handleOpenDetail(g.id) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, justifySelf: 'start' }}>
-                  <Eye size={12} />{t('guideline.detail')}
-                </button>
-              </div>
-            ))
-          )}
+          <DataTable
+            dataSource={filtered}
+            rowKey="id"
+            columns={guidelineColumns}
+            loading={loading}
+            pagination={{ pageSize: 10, showSizeChanger: false }}
+            emptyText={t('guideline.emptyList')}
+            onRow={(record) => ({ onClick: () => handleOpenDetail(record.id), style: { cursor: 'pointer' } })}
+          />
         </div>
       </div>
 

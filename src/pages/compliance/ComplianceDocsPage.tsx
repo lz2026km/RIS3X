@@ -5,6 +5,7 @@ import { invalidateApiCacheByPrefix } from '../../services/api/client';
 import {
   complianceDocsApi,
   type ComplianceDocDto,
+  type ComplianceDocReport,
   type CreateComplianceDocInput,
 } from '../../services/api/complianceDocsApi';
 import {
@@ -44,6 +45,11 @@ export const ComplianceDocsPage: React.FC = () => {
   const [form] = Form.useForm();
 
   const [detail, setDetail] = useState<ComplianceDocDto | null>(null);
+
+  // [G005 W2] 合规文档报告 (GET /compliance-docs/report)
+  const [report, setReport] = useState<ComplianceDocReport | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const { pageData: docsPageData, pagination: docsPagination } = usePagination(docs, 10);
 
@@ -107,6 +113,21 @@ export const ComplianceDocsPage: React.FC = () => {
   const reloadAfterMutation = async () => {
     await invalidateApiCacheByPrefix('/compliance-docs');
     void load();
+  };
+
+  // [G005 W2] 生成合规报告 (complianceDocsApi.getReport)
+  const openReport = async () => {
+    setReportOpen(true);
+    setReportLoading(true);
+    try {
+      const res = await complianceDocsApi.getReport();
+      if (res.success && res.data) setReport(res.data);
+      else message.error(res.error?.message ?? t('w2Orphans.loadFailed'));
+    } catch {
+      message.error(t('w2Orphans.loadFailed'));
+    } finally {
+      setReportLoading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -262,6 +283,7 @@ export const ComplianceDocsPage: React.FC = () => {
           <Button icon={<Search size={14} />} onClick={() => setSearch(searchInput.trim())}>{t('complianceDocs.search')}</Button>
           <Button icon={<RefreshCw size={14} />} onClick={() => { setSearchInput(''); setSearch(''); setCategory(undefined); setStatus(undefined); }}>{t('complianceDocs.reset')}</Button>
           <Button type="primary" icon={<FilePlus2 size={14} />} onClick={openCreate}>{t('complianceDocs.newDoc')}</Button>
+          <Button icon={<FileText size={14} />} onClick={() => void openReport()}>{t('w2Orphans.generateReport')}</Button>
         </Space>
       </Card>
 
@@ -367,6 +389,44 @@ export const ComplianceDocsPage: React.FC = () => {
           </>
         )}
       </Drawer>
+
+      {/* [G005 W2] 合规报告 (GET /compliance-docs/report) */}
+      <Modal
+        title={t('w2Orphans.complianceReport')}
+        open={reportOpen}
+        onCancel={() => setReportOpen(false)}
+        footer={null}
+        width={640}
+      >
+        <Spin spinning={reportLoading}>
+          {report && (
+            <>
+              <Descriptions column={1} size="small" bordered>
+                <Descriptions.Item label={t('w2Orphans.generatedAt')}>{fmt(report.generatedAt)}</Descriptions.Item>
+                <Descriptions.Item label={t('w2Orphans.systemName')}>{report.systemName}</Descriptions.Item>
+                <Descriptions.Item label={t('w2Orphans.standard')}>{report.complianceStandard}</Descriptions.Item>
+              </Descriptions>
+              <Typography.Title level={5} style={{ marginTop: 16 }}>{t('w2Orphans.summary')}</Typography.Title>
+              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 13, lineHeight: 1.7 }}>
+                {JSON.stringify(report.summary, null, 2)}
+              </pre>
+              {report.checklist && report.checklist.length > 0 && (
+                <>
+                  <Typography.Title level={5} style={{ marginTop: 16 }}>{t('w2Orphans.checklist')}</Typography.Title>
+                  <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                    {report.checklist.map((c) => (
+                      <div key={c.item} style={{ fontSize: 13 }}>
+                        <Tag color={c.status === '通过' ? 'green' : 'red'}>{c.status}</Tag>
+                        {c.item} — {c.detail}
+                      </div>
+                    ))}
+                  </Space>
+                </>
+              )}
+            </>
+          )}
+        </Spin>
+      </Modal>
     </div>
   );
 };

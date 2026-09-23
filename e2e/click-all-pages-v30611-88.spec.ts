@@ -142,6 +142,7 @@ function readAllResults(): RouteResult[] {
       .map((f) => JSON.parse(fs.readFileSync(path.join(RESULTS_DIR, f), 'utf-8')));
   } catch { return []; }
 }
+void readAllResults;
 
 async function injectAdmin(page: Page): Promise<void> {
   await page.addInitScript((data) => {
@@ -232,7 +233,7 @@ async function runRouteTest(page: Page, route: string): Promise<RouteResult> {
     result.buttonsFound = buttonEls.length;
     for (let b = 0; b < Math.min(buttonEls.length, 10); b++) {
       if (result.navigatedAway) break;
-      const btn = buttonEls[b];
+      const btn = buttonEls[b]!;
       let text = '';
       try { text = (await btn.innerText()).trim(); } catch (_) { text = ''; }
       if (DANGEROUS_BTN.test(text)) continue;
@@ -263,7 +264,7 @@ async function runRouteTest(page: Page, route: string): Promise<RouteResult> {
     result.tabsFound = tabEls.length;
     for (let t = 0; t < Math.min(tabEls.length, 5); t++) {
       if (result.navigatedAway) break;
-      const tab = tabEls[t];
+      const tab = tabEls[t]!;
       let text = '';
       try { text = (await tab.innerText()).trim(); } catch (_) { text = ''; }
       if (DANGEROUS_TAB.test(text)) continue;
@@ -320,7 +321,7 @@ async function runRouteTest(page: Page, route: string): Promise<RouteResult> {
     if (selEls.length > 0 && !result.navigatedAway) {
       phase = 'SELECT';
       try {
-        await selEls[0].click({ timeout: 2000, force: true });
+        await selEls[0]!.click({ timeout: 2000, force: true });
         await page.waitForTimeout(500);
         const dropdownOpen = await page.evaluate(() => {
           const dd = document.querySelector('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
@@ -376,7 +377,7 @@ async function runRouteTest(page: Page, route: string): Promise<RouteResult> {
 test.describe.configure({ mode: 'parallel' });
 
 for (let i = 0; i < ROUTES.length; i++) {
-  const route = ROUTES[i];
+  const route = ROUTES[i]!;
   test(`[click-all:${String(i + 1).padStart(3, '0')}/${ROUTES.length}] ${route}`, async ({ page }) => {
     test.setTimeout(60000);
     const r = await runRouteTest(page, route);

@@ -1,18 +1,17 @@
-// @ts-nocheck
 import { Card } from 'antd'
 // G005 放射RIS系统 - 国家数据上报页面 v1.0.0
 // Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
 import { useState, useEffect } from 'react'
 import { t } from '../i18n/appI18n'
-import { datareportApi, type NationalReportDto, type DataReportDto, type ExamStatisticsDto, type ReportLogDto, type MonthlyTrendDto } from '../services/api/datareportApi'
+import { datareportApi } from '../services/api/datareportApi'
 import {
-  BarChart3, PieChart as PieChartIcon, Activity, TrendingUp, TrendingDown,
+  BarChart3, PieChart as PieChartIcon, Activity, TrendingUp,
   Upload, Download, FileText, CheckCircle, AlertTriangle, Clock, ShieldCheck,
-  Monitor, Scan, Radio, Image,
-  Calendar, Search, Filter, RefreshCw, ChevronRight, Plus, Edit3, Eye,
-  Settings, MoreVertical, X, Check, ArrowRight, Circle, FileSpreadsheet,
-  Building2, Database, Network, Server, Globe, AlertCircle, FileJson,
-  Fingerprint, Send, Zap, Repeat
+  Scan, Radio,
+  Calendar, Search, Filter, RefreshCw, ChevronRight, Plus, Eye,
+  X, Check, XCircle,
+  Building2, Database, Globe, AlertCircle, FileJson,
+  Fingerprint, Send, Repeat
 } from 'lucide-react'
 import {
   BarChart,
@@ -408,7 +407,7 @@ const styles = {
 // ============ 类型定义 ============
 interface ExamStatistics {
   id: string
-  modality: 'CT' | 'MRI' | 'DR' | 'MG' | 'DSA'
+  modality: string
   examType: string
   examCount: number
   positiveCount: number
@@ -428,7 +427,7 @@ interface DoseReport {
   avgCTDI: number
   alertCount: number
   highDoseCount: number
-  status: '待上报' | '已上报' | '已确认' | '已驳回'
+  status: string
   submitTime?: string
   confirmTime?: string
   confirmOrg?: string
@@ -443,19 +442,37 @@ interface QualityReport {
   qualifiedRate: number
   excellentRate: number
   avgScore: number
-  commonIssues: string[]
-  improvementMeasures: string[]
-  status: '待审核' | '已通过' | '已驳回'
+  commonIssues?: string[]
+  improvementMeasures?: string[]
+  status: string
 }
 
 interface ReportLog {
   id: string
-  reportType: 'exam' | 'dose' | 'quality'
+  reportType: string
   reportMonth: string
   submitTime: string
   status: string
   operator: string
   note?: string
+}
+
+interface CreateForm {
+  reportMonth: string
+  modality: string
+  totalExams: number | string
+  totalDLP: number | string
+  avgDLP: number | string
+  totalCTDI: number | string
+  avgCTDI: number | string
+  alertCount: number | string
+  highDoseCount: number | string
+  totalReports: number | string
+  qualifiedReports: number | string
+  excellentReports: number | string
+  qualifiedRate: number | string
+  excellentRate: number | string
+  avgScore: number | string
 }
 
 // ============ Phase 5b 类型定义 ============
@@ -464,7 +481,7 @@ interface FHIRDiagnosticReport {
   resourceType: string
   id: string
   status: string
-  category: { coding: { system: string; code: string; display: string }[] }
+  category: { coding: { system: string; code: string; display: string }[] }[]
   code: { coding: { system: string; code: string; display: string }[]; text: string }
   subject: { reference: string; display: string }
   effectiveDateTime: string
@@ -478,7 +495,7 @@ interface FHIRObservation {
   resourceType: string
   id: string
   status: string
-  category: { coding: { system: string; code: string; display: string }[] }
+  category: { coding: { system: string; code: string; display: string }[] }[]
   code: { coding: { system: string; code: string; display: string }[]; text: string }
   subject: { reference: string; display: string }
   effectiveDateTime: string
@@ -1184,7 +1201,7 @@ const ScheduledReportsPanel = () => {
 // ============ 主组件 ============
 export default function NationalReportPage() {
   const [activeTab, setActiveTab] = useState<'exam' | 'dose' | 'quality' | 'log' | 'fhir' | 'regulator' | 'validation' | 'audit' | 'schedule'>('exam')
-  const [selectedMonth, setSelectedMonth] = useState('2026-05')
+  const [selectedMonth] = useState('2026-05')
   const [searchKeyword, setSearchKeyword] = useState('')
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const [submitType, setSubmitType] = useState<'exam' | 'dose' | 'quality'>('exam')
@@ -1209,7 +1226,7 @@ export default function NationalReportPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [createType, setCreateType] = useState<'national' | 'data'>('national')
   const [creating, setCreating] = useState(false)
-  const [createForm, setCreateForm] = useState<any>({
+  const [createForm, setCreateForm] = useState<CreateForm>({
     reportMonth: new Date().toISOString().slice(0, 7),
     modality: 'CT',
     totalExams: 0,

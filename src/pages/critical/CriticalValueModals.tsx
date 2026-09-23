@@ -9,6 +9,7 @@ import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import type { NotificationMethod } from '../../services/api/criticalApi'
 import { criticalExtApi } from '../../services/api'
 import { TransferToFollowUpModal } from './CriticalValueFollowUp'
+import { LoadingBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
 // ---------- shared modal parts ----------
@@ -364,6 +365,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
   const [editingEsc, setEditingEsc] = useState<EscalationRule | null>(null)
   const [escForm, setEscForm] = useState({ level: 1, triggerCondition: '', escalateTo: '', escalateMethod: '系统通知', timeoutMinutes: 30 })
   const [savingSettings, setSavingSettings] = useState(false)
+  const [loadingRules, setLoadingRules] = useState(true)
   const [notifyChannels, setNotifyChannels] = useState<Record<string, boolean>>({ SYSTEM: true, SMS: true, PHONE: false, WECHAT: false, EMAIL: false })
 
   // [Wave2A] 保存设置: 升级规则 → criticalExtApi.createRule/updateRule 真实同步; 通知通道 → criticalExtApi.saveChannels
@@ -495,6 +497,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
   useEffect(() => {
     let cancelled = false
     void (async () => {
+      setLoadingRules(true)
       try {
         const res = await criticalExtApi.listRules()
         const ruleList = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
@@ -518,6 +521,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
           setEscalationRules(mapped)
         }
       } catch { /* API not available */ }
+      if (!cancelled) setLoadingRules(false)
     })()
     return () => { cancelled = true }
   }, [])
@@ -558,6 +562,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
         </div>
 
         <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+          {loadingRules && <LoadingBanner message={t('w9.states.loading')} />}
           {activeSection === 'range' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>

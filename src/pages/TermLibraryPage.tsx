@@ -12,6 +12,7 @@ import { VirtualTable } from '../components/common/VirtualTable'
 import { DataTable } from '../components/common/DataTable'
 import { ActionButton } from '../components/common/ActionButton'
 import { t as t9 } from '../i18n/appI18n'
+import { uniqueId } from '../utils/uniqueId'
 
 // ============ 类型定义 ============
 interface TermEntry {
@@ -529,8 +530,8 @@ export default function TermLibraryPage() {
     setExtractionRunning(true)
     setTimeout(() => {
       setExtractedTerms(prev => [...prev, ...[
-        { id: `ET-${Date.now()}`, term: '新提取-肺大疱', frequency: 45, source: 'CT报告分析', status: 'pending' as const, suggestedCategory: 'CT描述' },
-        { id: `ET-${Date.now() + 1}`, term: '新提取-骨质增生', frequency: 38, source: 'DR报告分析', status: 'pending' as const, suggestedCategory: 'DR描述' },
+        { id: uniqueId('ET'), term: '新提取-肺大疱', frequency: 45, source: 'CT报告分析', status: 'pending' as const, suggestedCategory: 'CT描述' },
+        { id: uniqueId('ET'), term: '新提取-骨质增生', frequency: 38, source: 'DR报告分析', status: 'pending' as const, suggestedCategory: 'DR描述' },
       ]])
       setExtractionRunning(false)
     }, 2000)
@@ -913,7 +914,7 @@ export default function TermLibraryPage() {
       if (editingId) {
         setCategoryTree(prev => updateCategoryNode(prev, editingId, categoryForm.name.trim()))
       } else {
-        const node: CategoryTreeNode = { id: `cat-${Date.now()}`, name: categoryForm.name.trim(), children: [], count: 0, color: categoryForm.color }
+        const node: CategoryTreeNode = { id: uniqueId('cat'), name: categoryForm.name.trim(), children: [], count: 0, color: categoryForm.color }
         setCategoryTree(prev => addCategoryNode(prev, categoryForm.parentId, node))
         setExpandedNodes(prev => new Set(prev).add(categoryForm.parentId))
       }

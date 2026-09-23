@@ -1,0 +1,14 @@
+{
+  "ruleConfigTitle": "CDS Rule Config Panel",
+  "ruleConfigSubtitle": "Rule Evaluation · Priority Management · Multi-Source Suggestions",
+  "evalParams": "Evaluation Parameters",
+  "examType": "Exam Type",
+  "modality": "Modality",
+  "age": "Age",
+  "gender": "Gender",
+  "clinicalInfo": "Clinical Info",
+  "evaluate": "Evaluate",
+  "evaluating": "Evaluating...",
+  "evalResults": "Evaluation Results",
+  "rulePriority": "Rule Priority"
+}

@@ -70,9 +70,17 @@ export const qcextApi = {
   getQcDashboard: () =>
     api.get<QcDashboardDto>('/qc-ext/dashboard'),
 
+  // [G005 W2] 单个质控仪表盘记录 (后端 GET /qc-ext/dashboard/:id)
+  getQcDashboardItem: (id: string) =>
+    api.get<QcDashboardDto>(`/qc-ext/dashboard/${encodeURIComponent(id)}`),
+
   // Image QC
   listQcImages: () =>
     api.get<QcImageDto[]>('/qc-ext/image'),
+
+  // [G005 W2] 单张影像质控详情 (后端 GET /qc-ext/image/:id)
+  getQcImage: (id: string) =>
+    api.get<QcImageDto>(`/qc-ext/image/${encodeURIComponent(id)}`),
 
   rateQcImage: async (id: string, data: { score: number; issues?: string[] }) => {
     const res = await api.post<QcImageDto>(`/qc-ext/image/${id}/rate`, data)

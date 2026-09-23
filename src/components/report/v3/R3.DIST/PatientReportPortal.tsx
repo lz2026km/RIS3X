@@ -5,7 +5,7 @@
  */
 import { PATIENT_PORTAL_LINKS_MOCK } from '@data/reportDistributionMock';
 import { createPatientLink, revokePatientLink, listPatientViews } from '@services/distribution/distributionService';
-import type { PatientPortalLink, PatientPortalStatus, PatientReportView, PatientPortalLang } from '@types/R3/R3.DIST';
+import type { PatientPortalLink, PatientPortalStatus, PatientReportView, PatientPortalLang } from '@/types/R3/R3.DIST';
 import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
 import { Globe, Eye, Plus, Link2, Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import React, { useState, useMemo, useCallback } from 'react';

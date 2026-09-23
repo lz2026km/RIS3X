@@ -27,7 +27,7 @@ export const getPatientExams = (patientId: string, exams: RadiologyExam[]) => {
 
 export const getPatientStats = (patientId: string, exams: RadiologyExam[]) => {
   const patientExams = getPatientExams(patientId, exams)
-  const completedExams = patientExams.filter(e => e.status === '已完成' || e.status === '待报告' || e.status === '检查中')
+  const completedExams = patientExams.filter(e => String(e.status) === '已完成' || e.status === '待报告' || e.status === '检查中')
   const positiveCount = completedExams.filter(e => e.criticalFinding === true || e.priority === '紧急' || e.priority === '危重').length
   const negativeCount = completedExams.length - positiveCount
   const firstExam = patientExams.length > 0 ? patientExams[patientExams.length - 1] : null
@@ -44,8 +44,8 @@ export const findDuplicatePatients = (patients: Patient[]): DuplicateMatch[] => 
   const duplicates: DuplicateMatch[] = []
   for (let i = 0; i < patients.length; i++) {
     for (let j = i + 1; j < patients.length; j++) {
-      const a = patients[i]
-      const b = patients[j]
+      const a = patients[i]!
+      const b = patients[j]!
       const matchedFields: string[] = []
       let score = 0
       if (a.name === b.name) { score += 40; matchedFields.push('姓名精确') }

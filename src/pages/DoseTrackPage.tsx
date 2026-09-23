@@ -23,7 +23,7 @@ import {
   DoseTrendChart,
   DoseAlertConfig,
 } from "./dose";
-import type { PatientDoseRecord, DoseAlert, CumulativeStats } from "./dose";
+import type { PatientDoseRecord, DoseAlert, CumulativeStats, DeviceDoseData } from "./dose";
 import { rdsrApi, type TodayDoseStats, type PatientDoseSummary, type DoseAlert as RdsrDoseAlert } from "../services/api/rdsrApi";
 import AAPMEUReferenceComparison from "./dose/AAPMEUReferenceComparison";
 import DoseTrendAnalysis from "./dose/DoseTrendAnalysis";
@@ -48,6 +48,7 @@ import {
   deviceDoseData,
 } from "./dose/mockData";
 import { exportDoseDataToCSV, exportDeviceDoseToCSV } from "./dose/utils";
+import { LoadingBanner } from "../components/feedback";
 import {
   LineChart, Line, BarChart as RBChart, Bar, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -89,10 +90,18 @@ export default function DoseTrackPage() {
   const [apiPatients, setApiPatients] = useState<PatientDoseSummary[]>([]);
   const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo');
   const [dataError, setDataError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  // [G005 W8-Dose] 总览图数据: 优先 /rdsr/overview, 端点不可用/返回空时回退 mock
+  const [doseHistory, setDoseHistory] = useState(doseHistoryData);
+  const [ctdivolTrend, setCtdivolTrend] = useState(ctdivolTrendData);
+  const [deviceDap, setDeviceDap] = useState(deviceDAPComparison);
+  const [deviceDose, setDeviceDose] = useState<DeviceDoseData[]>(deviceDoseData);
+  const [overviewSource, setOverviewSource] = useState<'api' | 'demo'>('demo');
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      setLoading(true);
       try {
         const [todayRes, patientsRes, alertsRes] = await Promise.all([
           rdsrApi.getToday(),
@@ -122,6 +131,22 @@ export default function DoseTrackPage() {
         }
       } catch (e) {
         if (!cancelled) setDataError(e instanceof Error ? e.message : t('doseTrack.apiUnavailable'));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+      try {
+        const ov = await rdsrApi.getOverview();
+        if (cancelled) return;
+        if (ov.success && ov.data) {
+          const d = ov.data;
+          if (Array.isArray(d.doseHistory) && d.doseHistory.length > 0) setDoseHistory(d.doseHistory);
+          if (Array.isArray(d.ctdivolTrend) && d.ctdivolTrend.length > 0) setCtdivolTrend(d.ctdivolTrend);
+          if (Array.isArray(d.deviceDap) && d.deviceDap.length > 0) setDeviceDap(d.deviceDap);
+          if (Array.isArray(d.deviceDose) && d.deviceDose.length > 0) setDeviceDose(d.deviceDose as DeviceDoseData[]);
+          setOverviewSource('api');
+        }
+      } catch {
+        /* 保留演示数据回退 */
       }
     })();
     return () => { cancelled = true; };
@@ -187,10 +212,10 @@ export default function DoseTrackPage() {
 
   const handleExportDeviceCSV = useCallback(() => {
     exportDeviceDoseToCSV(
-      deviceDoseData,
+      deviceDose,
       `device_dose_${new Date().toISOString().split("T")[0]}.csv`,
     );
-  }, []);
+  }, [deviceDose]);
 
   return (
     <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
@@ -199,17 +224,20 @@ export default function DoseTrackPage() {
         onExportDevice={handleExportDeviceCSV}
       />
 
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+
       <PrimaryStats stats={stats} />
 
       <SecondaryStats pendingAlerts={alerts.filter((a) => a.status === "pending").length} stats={stats} />
 
-      {dataSource === 'api' ? (
+      {dataSource === 'api' && overviewSource === 'api' ? (
         <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-success-bg)', color: '#16a34a', borderRadius: 8, fontSize: 12 }}>
           {t('doseTrack.dataSourceLine')} {today?.date ?? '-'}
         </div>
       ) : (
         <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 8, fontSize: 12 }}>
-          {dataError ? t('doseTrack.apiErrorPrefix', { error: dataError }) : ''}{t('doseTrack.demoDataNote')}
+          {dataError ? t('doseTrack.apiErrorPrefix', { error: dataError }) : ''}
+          {overviewSource === 'demo' ? t('w8Dose.doseTrackDemo') : t('doseTrack.demoDataNote')}
         </div>
       )}
 
@@ -227,10 +255,10 @@ export default function DoseTrackPage() {
 
       {view === "overview" && (
         <DoseTrendChart
-          doseHistoryData={doseHistoryData}
-          ctdivolTrendData={ctdivolTrendData}
-          deviceDAPComparison={deviceDAPComparison}
-          deviceDoseData={deviceDoseData}
+          doseHistoryData={doseHistory}
+          ctdivolTrendData={ctdivolTrend}
+          deviceDAPComparison={deviceDap}
+          deviceDoseData={deviceDose}
           onViewDeviceHistory={(device) => setDeviceHistoryDevice(device)}
         />
       )}
@@ -253,7 +281,7 @@ export default function DoseTrackPage() {
             gap: 16,
           }}
         >
-          {deviceDoseData.map((d) => (
+          {deviceDose.map((d) => (
             <DeviceDoseCard
               key={d.device}
               device={d}
@@ -316,6 +344,7 @@ export default function DoseTrackPage() {
           today={today}
           alerts={alerts}
           dataSource={dataSource}
+          deviceDose={deviceDose}
         />
       )}
 
@@ -660,11 +689,13 @@ function DoseAnalyticsSection({
   today,
   alerts,
   dataSource,
+  deviceDose,
 }: {
   apiPatients: PatientDoseSummary[];
   today: TodayDoseStats | null;
   alerts: DoseAlert[];
   dataSource: 'api' | 'demo';
+  deviceDose: DeviceDoseData[];
 }) {
   const [analyticsSource, setAnalyticsSource] = useState<'api' | 'demo'>(dataSource);
   const [statsTrend, setStatsTrend] = useState<Array<{ date: string; avgCtdiVol: number; avgDlp: number }>>([]);
@@ -985,7 +1016,7 @@ function DoseAnalyticsSection({
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.deviceLevelSubtitle')}</span>
         </div>
         {(() => {
-          const devices = deviceDoseData.slice(0, 6);
+          const devices = deviceDose.slice(0, 6);
           const maxDlp = Math.max(...devices.map((d: any) => Number(d.avgDlp ?? d.dose ?? 300)), 1);
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

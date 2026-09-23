@@ -168,8 +168,8 @@ const SUB_BY_TITLE: Record<DoctorTitle, Subspecialty[]> = {
   "主治医师": ["神经放射", "胸部放射", "腹部放射", "骨肌放射", "心血管放射", "乳腺放射", "介入放射", "核医学", "超声诊断", "儿放", "急诊放射", "CT", "MR", "普放"],
   "住院医师": ["CT", "MR", "普放", "超声诊断", "急诊放射"],
   "技师": ["CT", "MR", "普放", "乳腺放射"],
-  "护士": ["CT室", "MR室", "介入科"],
-  "护师": ["CT室", "MR室", "介入科"],
+  "护士": ["CT", "MR", "介入放射"],
+  "护师": ["CT", "MR", "介入放射"],
 };
 
 function nextSub(title: DoctorTitle, idx: number): Subspecialty {

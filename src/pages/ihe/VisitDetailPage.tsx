@@ -4,6 +4,7 @@ import { Card, Space, Tag, Table, Descriptions, Steps, Divider, message } from '
 import { Activity, Clock, ArrowRight, GitBranch } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { VisitState } from '../../services/api/integrationApi';
+import { LoadingBanner, ErrorBanner, AppEmpty } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 const STATE_STEPS = [
@@ -21,6 +22,8 @@ const STATE_MAP: Record<string, number> = {
 export const VisitDetailPage: React.FC = () => {
   const { patientId, visitNumber } = useParams<{ patientId: string; visitNumber: string }>();
   const [visit, setVisit] = useState<VisitState | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (patientId && visitNumber) loadVisit();
@@ -28,23 +31,32 @@ export const VisitDetailPage: React.FC = () => {
 
   const loadVisit = async () => {
     if (!patientId || !visitNumber) return;
-    const res = await iheApi.getVisitDetail(patientId, visitNumber);
-    if (res.success) {
-      setVisit(res.data);
-    } else {
-      setVisit({
-        patientId,
-        visitNumber,
-        status: 'inProgress',
-        classCode: 'AMB',
-        admitDateTime: '2026-07-12 08:00:00',
-        adtMessages: [
-          { id: '1', messageType: 'A01', timestamp: '2026-07-12 08:00:00', content: 'MSH|^~\\&|...' },
-          { id: '2', messageType: 'A08', timestamp: '2026-07-12 09:15:00', content: 'MSH|^~\\&|...' },
-          { id: '3', messageType: 'A08', timestamp: '2026-07-12 09:30:00', content: 'MSH|^~\\&|...' },
-        ],
-      });
-      message.warning(t('visitDetail.loadFailedDemo'));
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await iheApi.getVisitDetail(patientId, visitNumber);
+      if (res.success) {
+        setVisit(res.data);
+      } else {
+        setVisit({
+          patientId,
+          visitNumber,
+          status: 'inProgress',
+          classCode: 'AMB',
+          admitDateTime: '2026-07-12 08:00:00',
+          adtMessages: [
+            { id: '1', messageType: 'A01', timestamp: '2026-07-12 08:00:00', content: 'MSH|^~\\&|...' },
+            { id: '2', messageType: 'A08', timestamp: '2026-07-12 09:15:00', content: 'MSH|^~\\&|...' },
+            { id: '3', messageType: 'A08', timestamp: '2026-07-12 09:30:00', content: 'MSH|^~\\&|...' },
+          ],
+        });
+        setLoadError(t('w9.states.error'));
+        message.warning(t('visitDetail.loadFailedDemo'));
+      }
+    } catch {
+      setLoadError(t('w9.states.error'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,6 +71,10 @@ export const VisitDetailPage: React.FC = () => {
         <Tag color="blue">{patientId}</Tag>
         <Tag color="purple">{visitNumber}</Tag>
       </Space>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {!visit && !loading && !loadError && <AppEmpty variant="no-data" />}
 
       {visit && (
         <Space orientation="vertical" style={{ width: '100%' }} size={16}>

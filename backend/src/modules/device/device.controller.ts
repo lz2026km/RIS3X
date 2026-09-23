@@ -129,6 +129,14 @@ export class DeviceController {
     return this.schedule.suggestMove(id)
   }
 
+  // [G005 W3-BackendParity] 今日设备状态统计 (前端 deviceApi.getTodayStats)
+  // ⚠️ 必须在 GET /devices/:id 之前注册
+  @Get('stats/today')
+  @ApiOperation({ summary: '今日设备状态统计 (总数/使用中/空闲/维护中)' })
+  getTodayStats() {
+    return this.service.getTodayStats()
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.service.get(id)

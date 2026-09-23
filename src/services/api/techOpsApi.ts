@@ -231,6 +231,10 @@ export const techOpsApi = {
 
   records: () => api.get<EmergencyRecord[]>('/tech-ops/emergency/records'),
 
+  // [G005 W2] 单条急诊插入记录 (后端 GET /tech-ops/emergency/records/:id)
+  getRecord: (id: string) =>
+    api.get<EmergencyRecord>(`/tech-ops/emergency/records/${encodeURIComponent(id)}`),
+
   optimize: (data: { exams: OptimizeExam[]; devices: OptimizeDevice[] }) =>
     api.post<OptimizeResult>('/tech-ops/optimize', data),
 

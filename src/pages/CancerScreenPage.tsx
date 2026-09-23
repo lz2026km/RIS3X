@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ============================================================
 // G005 放射科早癌筛查平台
 // 放射科早癌筛查 - 肺癌LDCT/乳腺癌/消化道癌筛查管理
@@ -6,16 +5,16 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Spin, message as antdMessage, Select } from 'antd'
 import {
-  Users, AlertTriangle, Target, Heart, MapPin, TrendingUp,
+  AlertTriangle, Target, Heart, MapPin, TrendingUp,
   Plus, Search, Filter, Download, RefreshCw,
-  Activity, Shield, Clock, CheckCircle, XCircle, PauseCircle,
-  ArrowUp, ArrowDown, AlertCircle, Microscope, Calendar,
-  ChevronDown, ChevronRight, Edit, Trash2, Eye, ClipboardList,
-  Circle, FileSearch, UserCheck, Inbox, Wind, Scan, FileImage,
+  CheckCircle, ArrowUp, Microscope,
+  Edit, Eye, ClipboardList,
+  Circle, FileSearch, Inbox, Wind, Scan, FileImage,
   ListOrdered, Flag
 } from 'lucide-react'
 import { screeningApi, type ScreeningTrendDto } from '../services/api/screeningApi'
 import { t } from '../i18n/appI18n'
+import { uniqueId } from '../utils/uniqueId'
 
 // ---------- 统计数据 ----------
 const statsData = [
@@ -188,7 +187,7 @@ const CancerScreenPage = () => {
   const [showExportModal, setShowExportModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
-  const [lastSync, setLastSync] = useState<Date>(new Date())
+  const [, setLastSync] = useState<Date>(new Date())
   const [syncing, setSyncing] = useState(false)
   // [Wave2A] 任务筛选条件 (受控表单) + 新建/编辑任务表单
   const [filterForm, setFilterForm] = useState({ type: '全部', region: '全部地区', status: '全部' })
@@ -209,7 +208,6 @@ const CancerScreenPage = () => {
   const [queueStatusFilter, setQueueStatusFilter] = useState('全部')
   const [queueTypeFilter, setQueueTypeFilter] = useState('全部')
   const [queueKeyword, setQueueKeyword] = useState('')
-  const [queueTabOpen, setQueueTabOpen] = useState(false)
   // [G005 W3-B] 筛查月度趋势: GET /screening/trend (screeningApi.getTrend)
   const [trend, setTrend] = useState<ScreeningTrendDto[]>([])
   const [trendLoading, setTrendLoading] = useState(false)
@@ -334,8 +332,8 @@ const CancerScreenPage = () => {
   const regions = ['山东省', '河南省', '内蒙古', '青海省', '四川省', '广东省', '江苏省', '浙江省', '安徽省', '福建省', '江西省', '湖南省', '湖北省', '河北省', '山西省', '陕西省', '辽宁省', '吉林省']
 
   const [tasks, setTasks] = useState(() => Array.from({ length: 60 }, (_, i) => {
-    const status = taskStatuses[Math.floor(Math.random() * 4)]
-    const type = screenTypes[i % 4]
+    const status = taskStatuses[Math.floor(Math.random() * 4)]!
+    const type = screenTypes[i % 4]!
     const target = 150 + Math.floor(Math.random() * 600)
     const completed = status === '已完成' ? target : status === '已终止' ? Math.floor(target * Math.random() * 0.3) : Math.floor(target * (0.1 + Math.random() * 0.85))
     const year = i < 30 ? 2025 : 2026
@@ -343,8 +341,8 @@ const CancerScreenPage = () => {
     const day = 10 + (i % 18)
     return {
       id: i + 1,
-      name: `${regions[i % regions.length]}${type}早癌筛查`,
-      region: regions[i % regions.length],
+      name: `${regions[i % regions.length]!}${type}早癌筛查`,
+      region: regions[i % regions.length]!,
       target,
       completed,
       rate: Math.round((completed / target) * 100),
@@ -396,7 +394,6 @@ const CancerScreenPage = () => {
 
   // 早癌/高危结节检出数据
   const lesionTypes = ['肺结节(早期肺癌)', '乳腺结节(早期乳腺癌)', '胃早癌', '结直肠早癌', '癌前病变', '肺GGN', '乳腺钙化']
-  const radsList = ['Lung-RADS 2', 'Lung-RADS 3', 'Lung-RADS 4A', 'Lung-RADS 4B', 'BI-RADS 3', 'BI-RADS 4A', 'BI-RADS 4B', 'BI-RADS 5', '待定']
   const locations = ['右肺上叶', '右肺中叶', '右肺下叶', '左肺上叶', '左肺下叶', '左肺舌段', '右乳外上', '右乳内上', '左乳外上', '左乳内上', '胃窦', '胃体', '直肠', '乙状结肠']
   const treatments = ['定期随访', '穿刺活检', '手术切除', '微创消融', '放化疗', '待定']
   const treatmentColors: Record<string, { bg: string; text: string }> = {
@@ -420,7 +417,7 @@ const CancerScreenPage = () => {
     const year = i < 12 ? 2025 : 2026
     const month = 1 + (i % 11)
     const day = 5 + (i % 20)
-    const type = lesionTypes[i % lesionTypes.length]
+    const type = lesionTypes[i % lesionTypes.length]!
     const isLung = type.includes('肺')
     const isBreast = type.includes('乳腺')
     const rList = isLung ? ['Lung-RADS 2', 'Lung-RADS 3', 'Lung-RADS 4A', 'Lung-RADS 4B'] : isBreast ? ['BI-RADS 3', 'BI-RADS 4A', 'BI-RADS 4B', 'BI-RADS 5'] : ['待定']
@@ -432,9 +429,9 @@ const CancerScreenPage = () => {
       gender: i % 2 === 0 ? '男' : '女',
       lesionType: type,
       location: locations[i % locations.length],
-      rads: rList[Math.floor(Math.random() * rList.length)],
-      treatment: treatments[i % treatments.length],
-      followUp: followUpStatuses[Math.floor(Math.random() * 4)],
+      rads: rList[Math.floor(Math.random() * rList.length)]!,
+      treatment: treatments[i % treatments.length]!,
+      followUp: followUpStatuses[Math.floor(Math.random() * 4)]!,
     }
   }), [])
 
@@ -458,49 +455,6 @@ const CancerScreenPage = () => {
     { name: '辽宁', covered: '已覆盖', instCount: 25, screenCount: 2134, rate: 2.2 },
     { name: '吉林', covered: '未覆盖', instCount: 0, screenCount: 0, rate: 0 },
   ]
-
-  const screenStatuses = ['待审核', '已登记', '筛查中', '已完成', '异常']
-  const screeningPatients = useMemo(() => Array.from({ length: 60 }, (_, i) => {
-    const status = screenStatuses[Math.floor(Math.random() * 5)]
-    const type = screenTypes[i % 4]
-    const year = i < 30 ? 2025 : 2026
-    const month = 1 + (i % 11)
-    const day = 5 + (i % 20)
-    return {
-      id: i + 1,
-      date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
-      name: ['王秀兰', '李建国', '张桂英', '刘志明', '陈丽娟', '杨文华', '赵德福', '黄秀云', '周小刚', '吴翠花', '徐志远', '孙丽芳', '马金龙', '朱秀英', '胡金生', '郭彩霞', '林国强', '何春梅', '高建波', '罗素芳', '郑成文', '梁晓燕', '宋立功', '唐桂英', '许志鹏', '韩素芳', '邓小刚', '冯翠花', '曹德华', '彭丽华', '田秀英', '董建军', '蒋桂花', '熊国强', '韩秀英', '龚志鹏', '万翠花', '韦小刚', '郎丽芳', '戚秀英', '焦建军', '甄桂花', '令狐国强', '端木秀英', '上官志鹏', '欧阳翠花', '司马小刚', '公孙丽芳', '赫连秀英', '呼延建军', '闾丘桂花', '公冶国强', '子车秀英', '颛孙志鹏', '端星翠花', '谷梁小刚', '百里丽芳', '东郭秀英', '南门建军'][i % 60],
-      age: 30 + Math.floor(Math.random() * 50),
-      gender: i % 2 === 0 ? '男' : '女',
-      phone: `138${String(1000 + i).padStart(4, '0')}${String(100 + (i * 7) % 900).padStart(3, '0')}`,
-      type,
-      result: status === '已完成' ? (Math.random() > 0.6 ? '阳性' : '阴性') : status === '异常' ? '需进一步' : '-',
-      status,
-      institution: ['山东省立医院影像科', '河南省人民医院放射科', '内蒙古医学院附院影像科', '青海大学附院放射科', '华西医院放射科', '广东省人民医院影像科', '南京鼓楼医院放射科', '浙大一院影像科', '安医大一附院放射科', '福建协和医院影像科', '南昌大一附院放射科', '湘雅医院影像科', '武汉同济医院放射科', '河北医大一院影像科', '山西大医院放射科', '西京医院影像科', '中国医大一院放射科', '长春吉大一院影像科'][i % 18],
-    }
-  }), [])
-
-  const followUpModes = ['电话随访', '门诊随访', '住院随访', '在线随访']
-  const followUpResults = ['稳定', '好转', '恶化', '失访']
-  const followUps = useMemo(() => Array.from({ length: 40 }, (_, i) => {
-    const year = i < 20 ? 2025 : 2026
-    const month = 1 + (i % 11)
-    const day = 8 + (i % 18)
-    const result = followUpResults[Math.floor(Math.random() * 4)]
-    const type = screenTypes[i % 4]
-    return {
-      id: i + 1,
-      date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
-      nextDate: `${year + (month > 10 ? 1 : 0)}-${String((month + 2) % 12 || 12).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
-      patientName: patientNames[i % 20],
-      phone: `139${String(2000 + i).padStart(4, '0')}${String(200 + (i * 11) % 800).padStart(3, '0')}`,
-      mode: followUpModes[i % 4],
-      type,
-      result,
-      notes: result === '失访' ? '多次联系未果' : result === '稳定' ? '影像学稳定' : result === '好转' ? '病灶明显缩小' : '病情进展需密切观察',
-      doctor: `王${['敏', '娜', '霞', '琳', '燕', '芳', '娟', '玲', '婷', '颖'][i % 10]}医生`,
-    }
-  }), [])
 
   const monthlyData = [
     { month: '2025-01', screenings: 620, detections: 18, rate: 2.9 },
@@ -599,7 +553,7 @@ const CancerScreenPage = () => {
     setTaskCreating(true)
     try {
       const res = await screeningApi.create({
-        patientId: `TASK-${Date.now()}`,
+        patientId: uniqueId('TASK'),
         patientName: newTaskForm.name.trim(),
         age: 0,
         gender: '—',
@@ -698,7 +652,7 @@ const CancerScreenPage = () => {
     setSubmitting(true)
     try {
       const res = await screeningApi.create({
-        patientId: `ASSESS-${Date.now()}`,
+        patientId: uniqueId('ASSESS'),
         patientName: `评估-${currentRisk}`,
         age: Number(assessmentForm.age) || 0,
         gender: assessmentForm.gender,
@@ -1001,53 +955,10 @@ const CancerScreenPage = () => {
               <div style={{ marginTop: 8, padding: '12px 16px', background: 'var(--content-bg)', borderRadius: 10, border: '1px dashed var(--border-color)' }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('cancerScreen.monthlyTrend')}</div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
-                  {monthlyData.slice(-6).map((m, i) => {
+                  {monthlyData.slice(-6).map((m) => {
                     const maxS = Math.max(...monthlyData.slice(-6).map(x => x.screenings))
 
 // 月度筛查趋势数据
-const monthlyScreenData = [
-  { month: '2025-07', ldct: 245, breast: 189, gastroscopy: 128, colonoscopy: 156 },
-  { month: '2025-08', ldct: 268, breast: 205, gastroscopy: 142, colonoscopy: 168 },
-  { month: '2025-09', ldct: 285, breast: 218, gastroscopy: 155, colonoscopy: 178 },
-  { month: '2025-10', ldct: 302, breast: 225, gastroscopy: 162, colonoscopy: 185 },
-  { month: '2025-11', ldct: 318, breast: 238, gastroscopy: 175, colonoscopy: 192 },
-  { month: '2025-12', ldct: 335, breast: 252, gastroscopy: 188, colonoscopy: 205 },
-  { month: '2026-01', ldct: 328, breast: 248, gastroscopy: 182, colonoscopy: 198 },
-  { month: '2026-02', ldct: 312, breast: 235, gastroscopy: 172, colonoscopy: 188 },
-  { month: '2026-03', ldct: 356, breast: 268, gastroscopy: 195, colonoscopy: 215 },
-  { month: '2026-04', ldct: 378, breast: 285, gastroscopy: 208, colonoscopy: 228 },
-];
-
-// 各省市筛查覆盖率
-const regionalCoverage = [
-  { region: '东华区', ldct: 98.5, breast: 95.2, total: 12856 },
-  { region: '西城区', ldct: 92.8, breast: 88.5, total: 8642 },
-  { region: '南山区', ldct: 96.2, breast: 92.8, total: 10258 },
-  { region: '北湖区', ldct: 89.5, breast: 85.2, total: 7856 },
-  { region: '中州市', ldct: 94.8, breast: 91.5, total: 9342 },
-  { region: '滨海市', ldct: 87.2, breast: 82.5, total: 6825 },
-  { region: '山城区', ldct: 91.5, breast: 87.8, total: 7892 },
-  { region: '水乡区', ldct: 85.8, breast: 80.2, total: 5632 },
-];
-
-// 高危结节Lung-RADS分级统计
-const lungRadsStats = [
-  { grade: 'Lung-RADS 2', count: 856, percent: 68.5, color: '#3fb950' },
-  { grade: 'Lung-RADS 3', count: 245, percent: 19.6, color: '#f0b429' },
-  { grade: 'Lung-RADS 4A', count: 86, percent: 6.9, color: '#f97316' },
-  { grade: 'Lung-RADS 4B', count: 42, percent: 3.4, color: '#ef4444' },
-  { grade: 'Lung-RADS 4X', count: 21, percent: 1.7, color: '#dc2626' },
-];
-
-// 乳腺癌BI-RADS分级统计
-const biRadsStats = [
-  { grade: 'BI-RADS 1', count: 1256, percent: 72.3, color: '#3fb950' },
-  { grade: 'BI-RADS 2', count: 285, percent: 16.4, color: '#58a6ff' },
-  { grade: 'BI-RADS 3', count: 128, percent: 7.4, color: '#f0b429' },
-  { grade: 'BI-RADS 4A', count: 38, percent: 2.2, color: '#f97316' },
-  { grade: 'BI-RADS 4B', count: 18, percent: 1.0, color: '#ef4444' },
-  { grade: 'BI-RADS 5', count: 12, percent: 0.7, color: '#dc2626' },
-];
 
                     return (
                       <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>

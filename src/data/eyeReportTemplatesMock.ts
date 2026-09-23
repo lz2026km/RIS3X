@@ -1,9 +1,22 @@
 /** G005 眼科报告模板 Mock v3.0.6.8-22 — 20 模板 */
 import type { ReportTemplate } from "../types/eye";
 
+interface ReportTemplateV2 {
+  id: string;
+  name: string;
+  category: string;
+  modality: string[];
+  template: string;
+  defaultFields: string[];
+  isActive: boolean;
+  usageCount: number;
+  createdBy: string;
+  createdAt: string;
+}
+
 const NOW = Date.now();
 
-export const MOCK_REPORT_TEMPLATES: ReportTemplate[] = [
+export const MOCK_REPORT_TEMPLATES: (ReportTemplate | ReportTemplateV2)[] = [
   {
     id: "rt-001",
     name: "眼底彩照所见模板",

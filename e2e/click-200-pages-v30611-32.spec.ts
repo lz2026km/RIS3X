@@ -117,7 +117,7 @@ async function captureAndTest(page: Page, route: string, idx: number): Promise<P
     const buttonEls = await page.$$('button:visible:not([disabled])');
     result.buttonsFound = buttonEls.length;
     for (let b = 0; b < Math.min(buttonEls.length, 10); b++) {
-      const btn = buttonEls[b];
+      const btn = buttonEls[b]!;
       let text = '';
       try { text = (await btn.innerText()).trim(); } catch (_) { text = ''; }
       if (DANGEROUS_BTN.test(text)) { result.failedButtons.push(`SKIP-DANGEROUS: ${text}`); continue; }
@@ -143,7 +143,7 @@ async function captureAndTest(page: Page, route: string, idx: number): Promise<P
     const tabEls = await page.$$('.ant-tabs-tab:visible');
     result.tabsFound = tabEls.length;
     for (let t = 0; t < Math.min(tabEls.length, 5); t++) {
-      const tab = tabEls[t];
+      const tab = tabEls[t]!;
       let text = '';
       try { text = (await tab.innerText()).trim(); } catch (_) { text = ''; }
       if (DANGEROUS_TAB.test(text)) { result.failedButtons.push(`SKIP-DANGEROUS-TAB: ${text}`); continue; }
@@ -285,7 +285,7 @@ function renderMarkdown(s: any): string {
   lines.push('| # | 路由 | pass | body | 按钮 | Tab | 用时 | 原因 |');
   lines.push('|---|------|:----:|:----:|:----:|:---:|:----:|------|');
   for (const r of s.routes as PageResult[]) {
-    lines.push(`| ${r.index} | \`${r.route}\` | ${r.pass ? '✅' : '❌'} | ${r.bodyLen} | ${r.okButtons}/${r.buttonsFound} | ${r.tabsClicked}/${r.tabsFound} | ${r.loadMs}ms | ${r.passReason}${r.crashed ? ' 💥P0' : ''} |`);
+    lines.push(`| ${r.index} | \`${r.route}\` | ${r.pass ? '✅' : '❌'} | ${r.bodyLen} | ${r.buttonsOk}/${r.buttonsFound} | ${r.tabsClicked}/${r.tabsFound} | ${r.loadMs}ms | ${r.passReason}${r.crashed ? ' 💥P0' : ''} |`);
   }
   lines.push('');
 
@@ -354,7 +354,7 @@ test('200页×200交互测试 v3.0.6.11-32', async ({ page }) => {
   expect.soft(ROUTES.length, 'route count').toBeGreaterThan(0);
 
   for (let idx = 0; idx < ROUTES.length; idx++) {
-    const route = ROUTES[idx];
+    const route = ROUTES[idx]!;
     console.log(`  [${idx + 1}/${ROUTES.length}] ${route}`);
     const r = await captureAndTest(page, route, idx);
     appendResult(r);

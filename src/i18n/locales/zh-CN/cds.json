@@ -1,0 +1,14 @@
+{
+  "ruleConfigTitle": "CDS 规则配置面板",
+  "ruleConfigSubtitle": "规则评估 · 优先级管理 · 多源建议",
+  "evalParams": "评估参数",
+  "examType": "检查类型",
+  "modality": "设备",
+  "age": "年龄",
+  "gender": "性别",
+  "clinicalInfo": "临床信息",
+  "evaluate": "评估",
+  "evaluating": "评估中...",
+  "evalResults": "评估结果",
+  "rulePriority": "规则优先级"
+}

@@ -54,6 +54,18 @@ const BatchConfirmSchema = z.object({
   model: z.enum(['lung-cad', 'breast-cad', 'fracture-cad', 'cardiac-ai']).optional(),
 })
 
+// [G005 W3-BackendParity] 通用复核 DTO (兼容各模型特有字段)
+const GenericReviewSchema = z.object({
+  status: z.enum(['confirmed', 'rejected', 'amended']),
+  noduleId: z.string().optional(),
+  lesionId: z.string().optional(),
+  findingId: z.string().optional(),
+  amendedDiagnosis: z.string().optional(),
+  amendedBiRads: z.string().optional(),
+  amendedAssessment: z.string().optional(),
+  comment: z.string().optional(),
+}).passthrough()
+
 /**
  * AI 辅助诊断端点
  * 前端(real 模式)请求 `{VITE_API_BASE_URL}/ai-diagnosis/*`,配合 main.ts 全局前缀 /api
@@ -247,5 +259,36 @@ export class AiDiagnosisController {
   @ApiOperation({ summary: 'AI accuracy trend' })
   trend(@Query(new ZodValidationPipe(AccuracySchema)) body: AccuracyRequest) {
     return this.service.trend(body)
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // [G005 W3-BackendParity] 通用模型路由 (必须声明在上述所有显式子路由之后,
+  //   避免 :model 通配遮蔽 lung-cad/breast-cad/fracture-cad/cardiac-ai 显式端点)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  @Get(':model/results')
+  @ApiOperation({ summary: '通用模型结果列表 (model: lung-cad|breast-cad|fracture-cad|cardiac-ai)' })
+  listResultsByModel(
+    @Param('model') model: string,
+    @Query('status') status?: string,
+    @Query('modality') modality?: string,
+  ) {
+    return this.service.listResultsByModel(model, { status, modality })
+  }
+
+  @Get(':model/results/:id')
+  @ApiOperation({ summary: '通用模型结果详情' })
+  getResultByModel(@Param('model') model: string, @Param('id') id: string) {
+    return this.service.getResultByModel(model, id)
+  }
+
+  @Post(':model/results/:id/review')
+  @ApiOperation({ summary: '通用模型结果复核' })
+  reviewResultByModel(
+    @Param('model') model: string,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(GenericReviewSchema)) body: Record<string, unknown>,
+  ) {
+    return this.service.reviewResultByModel(model, id, body)
   }
 }

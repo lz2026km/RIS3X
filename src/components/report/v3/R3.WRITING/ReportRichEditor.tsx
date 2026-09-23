@@ -9,7 +9,7 @@ import { sanitizeHtml } from '../../../../utils/sanitization';
 import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save, Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Heading1, Heading2, Heading3, Subscript, Superscript, Hash, BookOpen, CheckCheck, Star, Minus, Layers, Sparkles, Mic, MicOff, Wifi, WifiOff } from 'lucide-react';
 import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
 import { saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
-import type { RichEditorDocument } from '@types/R3/R3.WRITING';
+import type { RichEditorDocument } from '@/types/R3/R3.WRITING';
 import { useCollaborativeYjs } from '@hooks/useCollaborativeYjs';
 
 interface Props {

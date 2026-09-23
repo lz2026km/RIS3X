@@ -17,6 +17,7 @@ import {
   ConsultationDetail, ReportDetail, RemoteWriting, CoSignDetail, StatCards, RightPanel, ModalContent,
 } from './regional'
 import { regionalApi } from '../services/api/regionalApi'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { t } from '../i18n/appI18n'
 
 type MainTab = 'consultation' | 'report' | 'critical' | 'remote' | 'cosign' | 'sharing' | 'sla' | 'regionalStats'
@@ -64,9 +65,12 @@ const RegionalReportPage: React.FC = () => {
   const [criticalValues, setCriticalValues] = useState<CriticalValueReport[]>([])
   const [remoteDiagnoses, setRemoteDiagnoses] = useState<RemoteDiagnosis[]>([])
   const [coSignRecords, setCoSignRecords] = useState<CoSignRecord[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
         const [instRes, consRes, repRes, cvRes, rdRes, csRes] = await Promise.allSettled([
           regionalApi.listRegionalInstitutions(),
@@ -97,8 +101,13 @@ const RegionalReportPage: React.FC = () => {
         if (csRes.status === 'fulfilled' && csRes.value.success && Array.isArray(csRes.value.data)) {
           setCoSignRecords(csRes.value.data as CoSignRecord[])
         }
+        const anyRejected = [instRes, consRes, repRes, cvRes, rdRes, csRes].some((r) => r.status === 'rejected')
+        setLoadError(anyRejected ? t('w9.states.error') : null)
       } catch {
         // Fallback: keep empty state
+        setLoadError(t('w9.states.error'))
+      } finally {
+        setLoading(false)
       }
     }
     fetchData()
@@ -230,6 +239,9 @@ const RegionalReportPage: React.FC = () => {
           <button style={{ ...styles.button, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }} onClick={() => setShowSettingsModal(true)}><Settings size={14} />{t('regionalPage.settings')}</button>
         </div>
       </div>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       <StatCards filteredStats={getFilteredStats()} />
 

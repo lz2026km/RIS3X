@@ -1,14 +1,14 @@
-// @ts-nocheck
 // @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 AppointmentPage "预约管理" 视图 (src/pages/AppointmentPage.tsx), 文件保留, 旧路由 /appointment-management 已 redirect → /appointments。功能未删除, 请勿单独继续扩展本页。
 // 影像预约管理系统 - 患者影像检查预约管理
 // 功能：预约列表、改约/取消、冲突检测、预约统计
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { replayOrderEvent } from '../utils/orderStateAdapter'
+import { uniqueId } from '../utils/uniqueId'
 import {
-  CalendarClock, ListOrdered, AlertTriangle, Search, Filter, RefreshCw,
-  Plus, Edit2, XCircle, CheckCircle, Clock, X, ChevronLeft, ChevronRight,
-  CalendarDays, User, Phone, CreditCard, Scan, MapPin, Bell,
-  AlertCircle, Check, ArrowRightLeft, BarChart3, CalendarCheck
+  CalendarClock, ListOrdered, AlertTriangle, Search,
+  Plus, XCircle, CheckCircle, Clock, X, ChevronLeft, ChevronRight,
+  CalendarDays, User, Phone, Scan, MapPin,
+  Check, ArrowRightLeft, BarChart3, CalendarCheck
 } from 'lucide-react'
 import { formatDateObj } from '../utils/date';
 import { t } from '../i18n/appI18n';
@@ -74,7 +74,7 @@ const formatDateCht = (dateStr: string): string => {
 const getNameInitials = (name: string): string => {
   if (!name) return ''
   const parts = name.split(/[\s·]/)
-  if (parts.length >= 2) return parts[0][0] + parts[1][0]
+  if (parts.length >= 2) return (parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')
   return name.slice(0, 2)
 }
 
@@ -241,10 +241,10 @@ export default function AppointmentManagementPage() {
     if (!createForm.patientName.trim() || !createForm.examItemName.trim()) return
     setCreating(true)
     try {
-      const { createAppointment } = await import('../services/api/appointmentApi')
-      const res = await createAppointment({
+      const { appointmentApi } = await import('../services/api/appointmentApi')
+      const res = await appointmentApi.create({
         patientName: createForm.patientName.trim(),
-        patientId: createForm.patientId || `P${Date.now().toString().slice(-6)}`,
+        patientId: createForm.patientId || uniqueId('P'),
         modality: createForm.modality,
         bodyPart: createForm.bodyPart || createForm.examItemName.trim(),
         startAt: `${createForm.examDate}T${createForm.examTime}:00`,
@@ -261,7 +261,7 @@ export default function AppointmentManagementPage() {
         const deviceName = createForm.deviceName || `${createForm.modality}设备`
         const newApt: Appointment = {
           id: `IMG-${String(appointments.length + 1).padStart(3, '0')}`,
-          patientId: createForm.patientId || `P${Date.now().toString().slice(-6)}`,
+          patientId: createForm.patientId || uniqueId('P'),
           patientName: createForm.patientName.trim(),
           patientInitials: getNameInitials(createForm.patientName.trim()),
           gender: '未知', age: 0, idCard: '', phone: createForm.phone || '',
@@ -543,14 +543,14 @@ export default function AppointmentManagementPage() {
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: '20px',
-      flexWrap: 'wrap',
+      flexWrap: 'wrap' as const,
       gap: '12px',
     },
     toolbarLeft: {
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
-      flexWrap: 'wrap',
+      flexWrap: 'wrap' as const,
     },
     toolbarRight: {
       display: 'flex',
@@ -630,7 +630,7 @@ export default function AppointmentManagementPage() {
       fontSize: '14px',
       transition: 'background-color 0.15s',
     },
-    badge: (bg: string, color: string) => ({
+    badge: (bg: string | undefined, color: string | undefined) => ({
       display: 'inline-flex',
       alignItems: 'center',
       padding: '4px 10px',
@@ -640,7 +640,7 @@ export default function AppointmentManagementPage() {
       backgroundColor: bg,
       color: color,
     }),
-    priorityDot: (color: string) => ({
+    priorityDot: (color: string | undefined) => ({
       width: '8px',
       height: '8px',
       borderRadius: '50%',
@@ -942,8 +942,8 @@ export default function AppointmentManagementPage() {
               </div>
             ) : (
               filteredAppointments.map((apt, idx) => {
-                const statusCfg = STATUS_CONFIG[apt.status] || STATUS_CONFIG.pending
-                const priorityCfg = PRIORITY_CONFIG[apt.priority] || PRIORITY_CONFIG.normal
+                const statusCfg = STATUS_CONFIG[apt.status] ?? STATUS_CONFIG.pending!
+                const priorityCfg = PRIORITY_CONFIG[apt.priority] ?? PRIORITY_CONFIG.normal!
                 const conflicts = checkConflicts(apt)
                 const hasConflict = conflicts.length > 0
 
@@ -1032,7 +1032,7 @@ export default function AppointmentManagementPage() {
                 <ChevronLeft size={16} /> {t('apptMgmt.prevWeek')}
               </button>
               <div style={{ fontSize: '16px', fontWeight: '600' }}>
-                {t('apptMgmt.weekRange', { m1: currentWeekStart.getMonth() + 1, d1: currentWeekStart.getDate(), m2: weekDates[6].getMonth() + 1, d2: weekDates[6].getDate() })}
+                {t('apptMgmt.weekRange', { m1: currentWeekStart.getMonth() + 1, d1: currentWeekStart.getDate(), m2: weekDates[6]!.getMonth() + 1, d2: weekDates[6]!.getDate() })}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
@@ -1370,7 +1370,7 @@ export default function AppointmentManagementPage() {
                   <AlertTriangle size={18} color={COLORS.warning} />
                   <span style={{ fontWeight: 600, color: COLORS.warning }}>{t('apptMgmt.conflictsFound', { count: conflictDetails.length })}</span>
                 </div>
-                <div style={{ fontSize: 13, color: COLORS.textDark }}>
+                <div style={{ fontSize: 13, color: (COLORS as Record<string, string | undefined>).textDark }}>
                   {t('apptMgmt.conflictHint')}
                 </div>
               </div>
@@ -1379,7 +1379,7 @@ export default function AppointmentManagementPage() {
                   <div key={index} style={{ padding: '10px 12px', backgroundColor: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13 }}>
                     <div style={{ fontWeight: 500, marginBottom: 4 }}>{conflict.message}</div>
                     {conflict.relatedAppointmentId && (
-                      <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('apptMgmt.relatedApptId', { id: conflict.relatedAppointmentId })}</div>
+                      <div style={{ fontSize: 12, color: (COLORS as Record<string, string | undefined>).textMuted }}>{t('apptMgmt.relatedApptId', { id: conflict.relatedAppointmentId })}</div>
                     )}
                   </div>
                 ))}

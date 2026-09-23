@@ -64,6 +64,17 @@ export class DicomWebController {
     return this.service.searchInstances(study, series)
   }
 
+  // [G005 W3-BackendParity] WADO-RS study / series 级元数据 (DICOM JSON)
+  @Get('studies/:study/series/:series')
+  async seriesMetadata(@Param('study') study: string, @Param('series') series: string) {
+    return this.service.getSeriesMetadata(study, series)
+  }
+
+  @Get('studies/:study')
+  async studyMetadata(@Param('study') study: string) {
+    return this.service.getStudyMetadata(study)
+  }
+
   @Get('studies/:study/series/:series/instances/:sop')
   async retrieve(@Param('sop') sop: string, @Res({ passthrough: true }) res: Response) {
     const r = await this.service.retrieveInstance(sop)

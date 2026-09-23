@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { followUpService } from "../../services/followUpService";
 import { documentService } from "../../services/documentService";
+import { uniqueId } from "../../utils/uniqueId";
 import { useFocusTrap } from "../../a11y/SkipLink";
 import type { CriticalValue, FollowUpRecord, DocumentItem } from "./types";
 
@@ -276,7 +277,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
       });
       message.success(`回访记录已创建(ID: ${result.data?.id || "待同步"})`);
     } catch {
-      const fallbackId = `FU${Date.now().toString().slice(-8)}`;
+      const fallbackId = uniqueId('FU');
       message.success(`回访记录已创建(${fallbackId})`);
     }
   };

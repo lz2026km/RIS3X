@@ -36,6 +36,7 @@ import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
 import { usePagination } from "../../../hooks/usePagination";
 import { eyeApi } from "../../../services/api/eyeApi";
+import { LoadingBanner, ErrorBanner } from "../../../components/feedback";
 import { t } from "../../../i18n/appI18n";
 
 export const OptometryClosedLoopPage: React.FC = () => {
@@ -66,6 +67,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
 
   // 统计
   const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // 加载统计
   useEffect(() => {
@@ -73,8 +76,12 @@ export const OptometryClosedLoopPage: React.FC = () => {
       try {
         const res = await eyeApi.getOptometryStats();
         if (res.success) setStats(res.data);
+        else setLoadError(t('w9.states.error'));
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
+        setLoadError(t('w9.states.error'));
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
@@ -264,6 +271,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
         {/* [G005 Wave1B] /eye/optometry/* 后端真实 (eye-optometry 模块), eyeApi 封装 */}
         <Tag color="green">{t("eye.optometry.realBackend")}</Tag>
       </Space>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {stats && (
         <Row gutter={16} style={{ marginBottom: 16 }}>

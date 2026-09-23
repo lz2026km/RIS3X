@@ -1,0 +1,16 @@
+{
+  "title": "NLP Report Correction",
+  "subtitle": "Spell Check · Terminology Normalization",
+  "spellCheck": "Spell Check",
+  "terminology": "Terminology",
+  "inputText": "Input Report Text",
+  "inputPlaceholder": "Paste report text here...",
+  "check": "Check",
+  "checking": "Checking...",
+  "suggestions": "Suggestions",
+  "highlightedText": "Highlighted Text",
+  "replaceAll": "Replace All",
+  "replace": "Replace",
+  "noIssues": "No spelling issues found",
+  "termNormalization": "Terminology Suggestions"
+}

@@ -63,7 +63,7 @@ function normalizeStatus(status: string): string {
   return STATUS_MAP[status.toLowerCase()] || status
 }
 
-function toExamView(exam: ExamDto, report?: { findings?: string; diagnosis?: string; impression?: string; doctorId?: string; id?: string }): ExamView {
+function toExamView(exam: ExamDto, report?: { findings?: string; diagnosis?: string; impression?: string; doctorId?: string; id?: string; reportId?: string }): ExamView {
   return {
     id: exam.id || exam.examId,
     examDate: exam.scheduledAt || '',
@@ -109,7 +109,7 @@ export default function Patient360Page() {
         }
         const rawExams = examRes.success && Array.isArray(examRes.data) ? examRes.data as ExamDto[] : []
         const rawReports = reportRes.success && Array.isArray(reportRes.data) ? reportRes.data as any[] : []
-        const reportByExam = new Map<string, any>()
+        const reportByExam = new globalThis.Map<string, any>()
         for (const r of rawReports) {
           if (r.examId) reportByExam.set(r.examId, r)
           if (r.id) reportByExam.set(r.id, r)

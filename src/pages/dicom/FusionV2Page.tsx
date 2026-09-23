@@ -71,7 +71,7 @@ function applyWWL(data: number[][], ww: number, wl: number): ImageData {
   let i = 0
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      let v = ((data[y][x] - min) / range) * 255
+      let v = ((data[y]![x]! - min) / range) * 255
       v = Math.max(0, Math.min(255, Math.round(v)))
       imgData.data[i++] = v
       imgData.data[i++] = v
@@ -97,9 +97,9 @@ function applyFusionColor(fusionData: number[][], primaryData: number[][], alpha
   let i = 0
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const primaryVal = ((primaryData[y][x] - min) / range) * 255
+      const primaryVal = ((primaryData[y]![x]! - min) / range) * 255
       const primaryClamped = Math.max(0, Math.min(255, Math.round(primaryVal)))
-      const norm = fusionData[y][x] / fusionMax
+      const norm = fusionData[y]![x]! / fusionMax
       let r: number, g: number, b: number
       if (fusionColor === 'hot') {
         r = Math.round(255 * norm)
@@ -156,24 +156,24 @@ function drawRoiOverlay(ctx: CanvasRenderingContext2D, annotations: RoiAnnotatio
     ctx.lineWidth = 2 / scale
     ctx.setLineDash([])
     if (ann.tool === 'rectangle' && ann.points.length >= 2) {
-      const x1 = offsetX + ann.points?.[0]?.x * scale
-      const y1 = offsetY + ann.points?.[0]?.y * scale
-      const x2 = offsetX + ann.points?.[1]?.x * scale
-      const y2 = offsetY + ann.points?.[1]?.y * scale
+      const x1 = offsetX + ann.points[0]!.x * scale
+      const y1 = offsetY + ann.points[0]!.y * scale
+      const x2 = offsetX + ann.points[1]!.x * scale
+      const y2 = offsetY + ann.points[1]!.y * scale
       ctx.strokeRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1))
     } else if (ann.tool === 'ellipse' && ann.points.length >= 2) {
-      const cx = offsetX + ((ann.points?.[0]?.x + ann.points?.[1]?.x) / 2) * scale
-      const cy = offsetY + ((ann.points?.[0]?.y + ann.points?.[1]?.y) / 2) * scale
-      const rx = Math.abs(ann.points?.[1]?.x - ann.points?.[0]?.x) * scale / 2
-      const ry = Math.abs(ann.points?.[1]?.y - ann.points?.[0]?.y) * scale / 2
+      const cx = offsetX + ((ann.points[0]!.x + ann.points[1]!.x) / 2) * scale
+      const cy = offsetY + ((ann.points[0]!.y + ann.points[1]!.y) / 2) * scale
+      const rx = Math.abs(ann.points[1]!.x - ann.points[0]!.x) * scale / 2
+      const ry = Math.abs(ann.points[1]!.y - ann.points[0]!.y) * scale / 2
       ctx.beginPath()
       ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2)
       ctx.stroke()
     } else if (ann.tool === 'freehand' && ann.points.length > 2) {
       ctx.beginPath()
-      ctx.moveTo(offsetX + ann.points?.[0]?.x * scale, offsetY + ann.points?.[0]?.y * scale)
+      ctx.moveTo(offsetX + ann.points[0]!.x * scale, offsetY + ann.points[0]!.y * scale)
       for (let i = 1; i < ann.points.length; i++) {
-        ctx.lineTo(offsetX + ann.points[i].x * scale, offsetY + ann.points[i].y * scale)
+        ctx.lineTo(offsetX + ann.points[i]!.x * scale, offsetY + ann.points[i]!.y * scale)
       }
       ctx.closePath()
       ctx.stroke()
@@ -282,7 +282,7 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
         id: `roi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         tool: roiTool,
         points: [...drawPointsRef.current],
-        color: ROI_COLORS[roiAnnotations.length % ROI_COLORS.length],
+        color: ROI_COLORS[roiAnnotations.length % ROI_COLORS.length]!,
       })
     }
     drawPointsRef.current = []
@@ -326,7 +326,7 @@ const LayoutGrid: React.FC<{
   renderViewport: (plane: ViewPlane, idx: number) => React.ReactNode
 }> = ({ layout, planes, renderViewport }) => {
   if (layout === '1x1') {
-    return <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>{renderViewport(planes[0], 0)}</div>
+    return <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>{renderViewport(planes[0]!, 0)}</div>
   }
   if (layout === '1x3') {
     return (
@@ -707,7 +707,7 @@ export default function FusionV2Page() {
           {/* 配准结果 */}
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10, border: '1px solid #334155' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 8 }}>
-              {t('fusion.registerResult', '配准结果')}
+              {t('fusion.registerResult')}
             </div>
             {!registration ? (
               <div style={{ fontSize: 11, color: '#64748b' }}>尚未配准，点击工具栏"配准"按钮执行融合配准</div>

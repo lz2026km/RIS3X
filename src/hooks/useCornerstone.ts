@@ -5,6 +5,15 @@
 // ============================================================
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { uniqueId } from "../utils/uniqueId";
+
+let dicomUidSeq = 0;
+/** 生成仅含数字与点的唯一 DICOM UID 后缀 (Date.now + 自增 + 随机数字), 满足 ^[0-9.]{1,64}$ */
+function dicomUidSuffix(): string {
+  dicomUidSeq = (dicomUidSeq + 1) % 1_000_000;
+  const rand = Math.floor(Math.random() * 1_000_000).toString().padStart(6, "0");
+  return `${Date.now()}${dicomUidSeq.toString().padStart(6, "0")}${rand}`;
+}
 
 // Module type shims for Cornerstone3D dynamic imports
 interface CsModule {
@@ -298,7 +307,7 @@ function createMockViewport(element: HTMLElement) {
     setActiveTool: (_tool: string) => {
       /* mock */
     },
-    addAnnotation: (data: any) => ({ ...data, id: `ANN${Date.now()}` }),
+    addAnnotation: (data: any) => ({ ...data, id: uniqueId('ANN') }),
     getAnnotations: () => [],
     destroy: () => {
       /* mock */
@@ -445,7 +454,7 @@ export function exportMeasurementsToDicomSR(measurements: any[]): {
   sopInstanceUID: string;
   contentSequence: any[];
 } {
-  const sopInstanceUID = `1.2.826.0.1.3680043.8.498.${Date.now()}`;
+  const sopInstanceUID = `1.2.826.0.1.3680043.8.498.${dicomUidSuffix()}`;
   const contentSequence = measurements.map((m, idx) => ({
     relationshipType: "CONTAINS",
     referencedContentItemIdentifier: idx + 1,

@@ -4,6 +4,7 @@ import { Send, Activity, History, Wifi, Server } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { PamMessagesResponse } from '../../services/api/integrationApi';
 import { usePagination } from '../../hooks/usePagination';
+import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 const MSG_TYPES = ['A01', 'A03', 'A04', 'A05', 'A08', 'A11', 'A13'];
@@ -20,6 +21,7 @@ export const PamPage: React.FC = () => {
   const { pageData: msgPageData, pagination: msgPagination } = usePagination(messages, 10);
   const [listenerStatus, setListenerStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (tab === 'audit') loadMessages();
@@ -27,17 +29,26 @@ export const PamPage: React.FC = () => {
   }, [tab]);
 
   const loadMessages = async () => {
-    const res = await iheApi.pamMessages();
-    if (res.success) setMessages(res.data.entries);
-    else setMessages([]);
+    try {
+      const res = await iheApi.pamMessages();
+      if (res.success) { setMessages(res.data.entries); setLoadError(null); }
+      else setMessages([]);
+    } catch {
+      setLoadError(t('w9.states.error'));
+    }
   };
 
   const loadStatus = async () => {
-    const res = await iheApi.pamMessages({ limit: 1 });
-    setListenerStatus(res.success
-      ? { running: true, port: 2575, uptime: '72h', connections: res.data.entries.length }
-      : { running: false, port: 2575, uptime: '-', connections: 0 },
-    );
+    try {
+      const res = await iheApi.pamMessages({ limit: 1 });
+      setListenerStatus(res.success
+        ? { running: true, port: 2575, uptime: '72h', connections: res.data.entries.length }
+        : { running: false, port: 2575, uptime: '-', connections: 0 },
+      );
+      if (res.success) setLoadError(null);
+    } catch {
+      setLoadError(t('w9.states.error'));
+    }
   };
 
   const handleSend = useCallback(async () => {
@@ -70,6 +81,8 @@ export const PamPage: React.FC = () => {
         <Tag color="cyan">v3.0.6.0</Tag>
         <Tag color="blue">PAM</Tag>
       </Space>
+
+      {loadError && <ErrorBanner message={loadError} />}
 
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[

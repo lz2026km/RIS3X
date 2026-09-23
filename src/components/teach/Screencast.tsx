@@ -11,7 +11,7 @@ export type ScreencastHandle = {
   getState: () => RecorderState
 }
 
-type MouseEvent = { x: number; y: number; type: 'move' | 'click' | 'dblclick'; ts: number }
+type MouseTrailEvent = { x: number; y: number; type: 'move' | 'click' | 'dblclick'; ts: number }
 
 export default function Screencast({ handleRef, onStateChange }: {
   handleRef?: React.MutableRefObject<ScreencastHandle | undefined>
@@ -25,7 +25,7 @@ export default function Screencast({ handleRef, onStateChange }: {
   const micStreamRef = useRef<MediaStream | null>(null)
   const mixedStreamRef = useRef<MediaStream | null>(null)
   const chunksRef = useRef<Blob[]>([])
-  const mouseEventsRef = useRef<MouseEvent[]>([])
+  const mouseEventsRef = useRef<MouseTrailEvent[]>([])
   const animFrameRef = useRef<number>(0)
   const [state, setState] = useState<RecorderState>('idle')
   const [elapsed, setElapsed] = useState(0)
@@ -41,8 +41,8 @@ export default function Screencast({ handleRef, onStateChange }: {
     onStateChange?.(s)
   }, [onStateChange])
 
-  const captureMouse = useCallback((e: MouseEvent) => {
-    mouseEventsRef.current.push({ x: e.clientX, y: e.clientY, type: e.type as MouseEvent['type'], ts: Date.now() })
+  const captureMouse = useCallback((e: globalThis.MouseEvent) => {
+    mouseEventsRef.current.push({ x: e.clientX, y: e.clientY, type: e.type as MouseTrailEvent['type'], ts: Date.now() })
   }, [])
 
   const drawMouseTrail = useCallback(() => {

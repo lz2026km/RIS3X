@@ -1,4 +1,3 @@
-// @ts-nocheck
 // G005 放射RIS系统 - 数据统计报表页 v1.0.0
 // 功能：多维度统计表格（按设备/按医生/按日期），报表导出功能
 // [W3-B] 已接入 statsApi / biApi 真实统计 (loading/error + 演示数据回退)
@@ -6,21 +5,19 @@ import { useState, useEffect, useCallback } from 'react'
 import { Select } from 'antd'
 import { ActionButton } from '../components/common/ActionButton'
 import { AppEmpty } from '../components/feedback'
-import { statsApi } from '../services/api/statsApi'
+import { statsApi, type WeeklyStatsDto } from '../services/api/statsApi'
 import { analyticsStatsApi, type ForecastPointDto, type UtilizationDto, type AccuracyDto } from '../services/api/analyticsApi'
 import { biApi } from '../services/api/biApi'
 import { DEVICE_MASTER } from '../data/master'
 import { t } from '../i18n/appI18n'
 import {
   // 统计报表相关图标
-  FileSpreadsheet, Download, Calendar, Filter, RefreshCw, Search,
-  Monitor, User, BarChart3, TrendingUp, Clock, CheckCircle,
-  AlertTriangle, Camera, Radio, Activity, Users, FileText,
-  ChevronDown, ChevronUp, Eye, Printer, Table, Database,
+  FileSpreadsheet, Download, Calendar, Search,
+  Monitor, User, BarChart3, TrendingUp, TrendingDown, Clock, CheckCircle,
+  AlertTriangle, Radio, Activity, FileText,
+  Database,
   // 设备相关图标
-  Scan, Wrench, Gauge, Percent,
-  // 通用图标
-  X, Check, ArrowRight, Plus, Edit3, MoreVertical, Building2
+  Scan, Gauge,
 } from 'lucide-react'
 
 // ============ 样式常量 ============
@@ -321,14 +318,14 @@ const styles = {
   },
   table: {
     width: '100%',
-    borderCollapse: 'collapse',
+    borderCollapse: 'collapse' as const,
   },
   tableHead: {
     backgroundColor: 'var(--bg-card)',
   },
   th: {
     padding: '12px 16px',
-    textAlign: 'left',
+    textAlign: 'left' as const,
     fontSize: '13px',
     fontWeight: 600,
     color: COLORS.textMuted,
@@ -499,16 +496,18 @@ export default function StatsReportPage() {
       // [W1-B] 周报: GET /stats/weekly (独立请求, 失败不阻断主流程)
       statsApi.getWeekly().then(res => {
         if (res.success && res.data) {
+          const wd = res.data as WeeklyStatsDto & { totalReports?: number; totalCritical?: number; avgExamsPerDay?: number }
           setWeekly({
-            totalExams: Number(res.data.totalExams ?? 0),
-            totalReports: Number(res.data.totalReports ?? 0),
-            totalCritical: Number(res.data.totalCritical ?? 0),
-            avgExamsPerDay: Number(res.data.avgExamsPerDay ?? 0),
-            daily: Array.isArray(res.data.daily) ? res.data.daily : [],
+            totalExams: Number(wd.totalExams ?? 0),
+            totalReports: Number(wd.totalReports ?? 0),
+            totalCritical: Number(wd.totalCritical ?? 0),
+            avgExamsPerDay: Number(wd.avgExamsPerDay ?? 0),
+            daily: Array.isArray(wd.daily) ? wd.daily : [],
           })
         }
       }).catch(() => { /* 周报不可用不阻断 */ })
-      const ok = (r: any) => r.status === 'fulfilled' && r.value.success === true && r.value.data != null
+      const ok = <T,>(r: PromiseSettledResult<{ success: boolean; data: T | null }>): r is PromiseFulfilledResult<{ success: boolean; data: T | null }> =>
+        r.status === 'fulfilled' && r.value.success === true && r.value.data != null
       const trend = ok(trendRes) && Array.isArray(trendRes.value.data) ? trendRes.value.data : []
       const workload = ok(w) && Array.isArray(w.value.data) ? w.value.data : []
       const oeeEnv = ok(oee) ? oee.value.data : null
@@ -516,8 +515,8 @@ export default function StatsReportPage() {
       const topDevices = ok(top) && Array.isArray(top.value.data) ? top.value.data : []
 
       // 设备维度: stats.topDevices(检查量) × DEVICE_MASTER(名称/利用率) + biApi.device-oee(补充设备)
-      const masterById = new Map(DEVICE_MASTER.map((m: any) => [m.id, m]))
-      const oeeByKey = new Map(oeeDevices.map((o: any) => [o.deviceId, o]))
+      const masterById = new Map<string, Record<string, any>>(DEVICE_MASTER.map((m: any) => [m.id as string, m] as [string, Record<string, any>]))
+      const oeeByKey = new Map<string, Record<string, any>>(oeeDevices.map((o: any) => [o.deviceId as string, o] as [string, Record<string, any>]))
       const devices = topDevices.map((t2: any) => {
         const master = masterById.get(t2.deviceId)
         const oee = oeeByKey.get(t2.deviceId)
@@ -837,17 +836,6 @@ export default function StatsReportPage() {
     )
   }
 
-  // 渲染趋势指示
-  const renderTrend = (value: number, type: 'up' | 'down' | 'neutral') => {
-    const color = type === 'up' ? COLORS.success : type === 'down' ? COLORS.danger : COLORS.textMuted
-    return (
-      <span style={{ ...styles.statTrend, color }}>
-        {type === 'up' ? <TrendingUp size={14} /> : type === 'down' ? <TrendingDown size={14} /> : null}
-        {value > 0 ? Math.abs(value).toFixed(1) : 0}%
-      </span>
-    )
-  }
-
   // 统计卡片数据 ([W3-B] 实时优先, 演示数据回退)
   const getSummaryStats = () => {
     if (isLive) {
@@ -1086,7 +1074,7 @@ export default function StatsReportPage() {
               <AlertTriangle size={12} /> {item.criticalCases}
             </span>
           </td>
-          <td style={styles.td, { fontWeight: 600, color: COLORS.success }}>¥{item.revenue.toLocaleString()}</td>
+          <td style={{ ...styles.td, fontWeight: 600, color: COLORS.success }}>¥{item.revenue.toLocaleString()}</td>
         </tr>
       ))
     }

@@ -17,6 +17,7 @@ import {
 } from "../data/structuredFieldTemplates";
 import { v3WritingApi } from "../services/api/v3Api";
 import { api } from "../services/api/client";
+import { uniqueId } from "../utils/uniqueId";
 // [v3.0.6.11-99 Wave2B P1] 可视化设计器: 变量面板 (templateVariables) + 结构化内容保存 (templatesApi)
 import { TEMPLATE_VARIABLES } from "../utils/templateVariables";
 import {
@@ -490,8 +491,8 @@ export default function TemplateDesignerPage() {
       storedType = "number";
     }
     const newField: TemplateFieldDefinition = {
-      id: `f-${Date.now()}`,
-      fieldKey: `field_${Date.now()}`,
+      id: uniqueId('f'),
+      fieldKey: uniqueId('field'),
       fieldLabel: typeMeta.label,
       fieldGroup: sections.find((s) => s.id === sectionId)?.name || t("templateDesigner.section.findings"),
       dataType: storedType,
@@ -546,7 +547,7 @@ export default function TemplateDesignerPage() {
 
   const addSection = () => {
     const newSection = {
-      id: `sec-${Date.now()}`,
+      id: uniqueId('sec'),
       name: `新章节 ${sections.length + 1}`,
       order: sections.length,
       color: PRESET_SECTIONS[sections.length % PRESET_SECTIONS.length].color,
@@ -591,7 +592,7 @@ export default function TemplateDesignerPage() {
       return;
     }
     const newRule: ConditionalRule = {
-      id: `rule-${Date.now()}`,
+      id: uniqueId('rule'),
       fieldId: allFields?.[0]?.id ?? '',
       operator: "equals",
       value: "",
@@ -797,7 +798,7 @@ export default function TemplateDesignerPage() {
                   `/writing/templates/${sourceId}/clone`,
                 );
                 if (res.success) {
-                  const newId = res.data?.id ?? `tpl-clone-${Date.now()}`;
+                  const newId = res.data?.id ?? uniqueId('tpl-clone');
                   message.success(`已克隆为新模板 ${newId}`);
                   navigate(`/template-designer/${newId}`);
                 } else {

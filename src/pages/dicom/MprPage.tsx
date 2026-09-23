@@ -2,6 +2,8 @@
 import { Slider, Tag, Spin } from 'antd'
 import { Layers, RotateCcw } from 'lucide-react'
 import { volumeApi } from '../../services/api/volumeApi'
+import { ErrorBanner } from '../../components/feedback'
+import { t } from '../../i18n/appI18n'
 import {
   setupRealVolume,
   decodeInt16Base64,
@@ -130,6 +132,7 @@ const MprPage: React.FC = () => {
   const [ww, setWw] = useState(400)
   const [wl, setWl] = useState(40)
   const [showCrosshair, setShowCrosshair] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -140,6 +143,11 @@ const MprPage: React.FC = () => {
       setDims(setup.dims)
       if (setup.series) {
         setSeriesInfo(`${setup.series.modality} #${setup.series.instanceCount} 层 ${setup.series.rows}x${setup.series.columns}`)
+      }
+    }).catch(() => {
+      if (!cancelled) {
+        setLoadError(t('w9.states.error'))
+        setMode('synthetic')
       }
     })
     return () => {
@@ -167,6 +175,7 @@ const MprPage: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+      {loadError && <ErrorBanner message={loadError} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>MPR 多平面重建</span>

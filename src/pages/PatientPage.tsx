@@ -324,6 +324,7 @@ export default function PatientPage() {
       );
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [toast.show]);
 
   const [search, setSearch] = useState("");
@@ -481,7 +482,7 @@ export default function PatientPage() {
         setPatients(list as Patient[]);
         setLoadError(null);
       } else {
-        setPatients(initialPatients);
+        setPatients(initialPatients as unknown as Patient[]);
         setLoadError(t('patientPage.apiUnavailable'));
       }
       setLoading(false);
@@ -553,7 +554,7 @@ export default function PatientPage() {
     void (async () => {
       const res = await patientApi.getById(routePatientId);
       if (cancelled || !res.success || !res.data) return;
-      const d = res.data as Record<string, unknown>;
+      const d = res.data as unknown as Record<string, unknown>;
       const pType = String(d.patientType ?? d.type ?? "门诊");
       setSelectedPatient({
         id: String(d.id ?? d.patientId ?? routePatientId),
@@ -721,11 +722,11 @@ export default function PatientPage() {
       { label: "65+", value: 0, color: "#ef4444" },
     ];
     patients.forEach((p) => {
-      if (p.age <= 18) ageGroups[0].value++;
-      else if (p.age <= 35) ageGroups[1].value++;
-      else if (p.age <= 50) ageGroups[2].value++;
-      else if (p.age <= 65) ageGroups[3].value++;
-      else ageGroups[4].value++;
+      if (p.age <= 18) ageGroups[0]!.value++;
+      else if (p.age <= 35) ageGroups[1]!.value++;
+      else if (p.age <= 50) ageGroups[2]!.value++;
+      else if (p.age <= 65) ageGroups[3]!.value++;
+      else ageGroups[4]!.value++;
     });
 
     const typeDistribution = [
@@ -755,8 +756,8 @@ export default function PatientPage() {
       .forEach((key, i) => {
         examFrequency.push({
           label: `${key}次`,
-          value: freqMap[parseInt(key)],
-          color: colors[i % colors.length],
+          value: freqMap[parseInt(key)]!,
+          color: colors[i % colors.length]!,
         });
       });
 
@@ -2318,7 +2319,7 @@ export default function PatientPage() {
             patientType: data.patientType as Patient["patientType"],
             allergyHistory: data.allergyHistory,
             medicalHistory: data.medicalHistory,
-            registrationDate: new Date().toISOString().split("T")[0],
+            registrationDate: new Date().toISOString().split("T")[0]!,
             totalExamCount: 0,
             insuranceType: data.insuranceType,
             bedNumber: data.bedNumber,

@@ -23,6 +23,9 @@ type UpdateInventoryItemDto = z.infer<typeof UpdateInventoryItemSchema>
 export class DentalService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // [v3.0.6.11-104] 单调递增序号, 避免同一毫秒创建的记录 ID 冲突
+  private dentSeq = 0
+
   private async withSeed<T>(loader: () => Promise<unknown[]>, seed: T[]): Promise<T[]> {
     try {
       const rows = await loader()
@@ -319,7 +322,7 @@ export class DentalService {
   }
 
   async createTreatment(body: Record<string, unknown>) {
-    const item: any = { id: `T-${Date.now()}`, ...body, createdAt: new Date().toISOString() }
+    const item: any = { id: `T-${Date.now()}-${++this.dentSeq}`, ...body, createdAt: new Date().toISOString() }
     DENTAL_TREATMENTS_STORE.unshift(item)
     return { success: true, data: item }
   }
@@ -374,7 +377,7 @@ export class DentalService {
 
   async createScheduleAppointment(body: Record<string, unknown>) {
     const item = {
-      id: `APT-${Date.now()}`,
+      id: `APT-${Date.now()}-${++this.dentSeq}`,
       time: (body.time as string) ?? '09:00',
       patientId: body.patientId as string,
       patientName: body.patientName as string,
@@ -556,7 +559,7 @@ export class DentalService {
   }
 
   async createPsrRecord(patientId: string, body: Record<string, unknown>) {
-    const item = { id: `PSR-${Date.now()}`, patientId, ...body, createdAt: new Date().toISOString() }
+    const item = { id: `PSR-${Date.now()}-${++this.dentSeq}`, patientId, ...body, createdAt: new Date().toISOString() }
     SEED_PSR_RECORDS.unshift(item as any)
     return { success: true, data: item }
   }
@@ -617,7 +620,7 @@ export class DentalService {
 
   async createReferral(body: Record<string, unknown>) {
     const item = {
-      id: `REF-${Date.now()}`,
+      id: `REF-${Date.now()}-${++this.dentSeq}`,
       patientId: (body.patientId as string) ?? 'P100001',
       patient: (body.patient as string) ?? '张伟',
       source: (body.source as string) ?? '口腔科',
@@ -647,7 +650,7 @@ export class DentalService {
 
   async createTeleSession(body: Record<string, unknown>) {
     const session = {
-      id: `TEL-${Date.now()}`,
+      id: `TEL-${Date.now()}-${++this.dentSeq}`,
       title: (body.title as string) ?? '口腔远程会诊',
       patientId: (body.patientId as string) ?? 'P100001',
       patientName: (body.patientName as string) ?? '张伟',
@@ -689,7 +692,7 @@ export class DentalService {
 
   async createCadDesign(body: Record<string, unknown>) {
     const item: any = {
-      id: `CAD-${Date.now()}`,
+      id: `CAD-${Date.now()}-${++this.dentSeq}`,
       ...body,
       marginLine: Array.from({ length: 12 }, (_, i) => [200 + Math.sin(i / 12 * Math.PI * 2) * 30, 200 + Math.cos(i / 12 * Math.PI * 2) * 30]),
       occlusalAnatomy: 'anatomic', thickness: 1.5, cementGap: 30, contactStrength: 'normal',
@@ -784,7 +787,7 @@ export class DentalService {
 
   async createImplantPlan3d(body: Record<string, unknown>) {
     const item: any = {
-      id: `IMP3D-${Date.now()}`,
+      id: `IMP3D-${Date.now()}-${++this.dentSeq}`,
       ...body,
       entryPoint: { x: 150, y: 120, z: 80 },
       apexPoint: { x: 148, y: 109, z: 30 },
@@ -873,7 +876,7 @@ export class DentalService {
   }
 
   async createSurgicalGuide(body: Record<string, unknown>) {
-    const item: any = { id: `GUIDE-${Date.now()}`, ...body, status: 'designing', createdAt: new Date().toISOString() }
+    const item: any = { id: `GUIDE-${Date.now()}-${++this.dentSeq}`, ...body, status: 'designing', createdAt: new Date().toISOString() }
     SEED_SURGICAL_GUIDES.unshift(item)
     return { success: true, data: item }
   }
@@ -1009,7 +1012,7 @@ export class DentalService {
   // POST /dental/ortho/plans — 创建正畸计划 (写入治疗 store)
   createOrthoPlan(body: Record<string, unknown>) {
     const item: any = {
-      id: `T-${Date.now()}`,
+      id: `T-${Date.now()}-${++this.dentSeq}`,
       patientId: (body.patientId as string) ?? 'PDNT-005',
       patientName: (body.patientName as string) ?? '',
       type: 'Orthodontic',
@@ -1070,7 +1073,7 @@ export class DentalService {
   // POST /dental/ortho/aligner-plans — 创建方案
   createAlignerPlan(body: Record<string, unknown>) {
     const item: any = {
-      id: `ALIGN-${Date.now()}`,
+      id: `ALIGN-${Date.now()}-${++this.dentSeq}`,
       patientId: (body.patientId as string) ?? 'P100004',
       patientName: (body.patientName as string) ?? '未命名患者',
       diagnosis: (body.diagnosis as string) ?? '错颌畸形',
@@ -1162,7 +1165,7 @@ export class DentalService {
     if (!p) return { success: false, error: { code: 'NOT_FOUND', message: `AlignerPlan ${id} not found` } }
     const order = {
       planId: id,
-      orderId: `ORD-${Date.now()}`,
+      orderId: `ORD-${Date.now()}-${++this.dentSeq}`,
       lab: body.lab ?? p.lab ?? 'AlignTech',
       quantity: Number(body.quantity ?? 6),
       shippingMethod: body.shippingMethod ?? 'express',
@@ -1222,7 +1225,7 @@ export class DentalService {
   // POST /dental/ceph/studies — 创建检查
   createCephStudy(body: Record<string, unknown>) {
     const item: any = {
-      id: `CEPH-${Date.now()}`,
+      id: `CEPH-${Date.now()}-${++this.dentSeq}`,
       patientId: (body.patientId as string) ?? 'P100004',
       patientName: (body.patientName as string) ?? '未命名患者',
       age: Number(body.age ?? 12),

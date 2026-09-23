@@ -1,13 +1,13 @@
 import React from 'react'
 import {
   BarChart3, Server, Film, Users, TrendingUp, Package, Clock, Percent, Award,
-  Hash, BadgePercent, Landmark, ClipboardList, FileSpreadsheet, Gavel,
+  Hash, BadgePercent, Landmark, ClipboardList, FileSpreadsheet, Gavel, type LucideIcon,
 } from 'lucide-react'
 import type { TimeRange, TabType } from './index'
 import { PRIMARY } from './index'
 import { t } from '../../i18n/appI18n'
 
-const TABS_CONFIG: { key: TabType; label: string; icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
+const TABS_CONFIG: { key: TabType; label: string; icon: LucideIcon }[] = [
   { key: 'overview', label: t('costFilter.tabOverview'), icon: BarChart3 },
   { key: 'equipment', label: t('costFilter.tabEquipment'), icon: Server },
   { key: 'consumable', label: t('costFilter.tabConsumable'), icon: Film },

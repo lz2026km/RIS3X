@@ -24,6 +24,8 @@ import {
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi';
 import { criticalStatsApi, type NotificationCompletionStats } from '../services/api/criticalStatsApi';
 import CriticalValueStatsExtended from './critical/CriticalValueStatsExtended';
+import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 状态配置
@@ -47,10 +49,13 @@ export default function CriticalValueStatsPage() {
   // [G005-P0] 顶部 KPI 接后端 /criticals/stats + /criticals/stats/notification (代替恒 0)
   const [liveStats, setLiveStats] = useState<CriticalStatsDto | null>(null);
   const [liveNotif, setLiveNotif] = useState<NotificationCompletionStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      setLoading(true);
       try {
         const [statsRes, notifRes] = await Promise.all([
           criticalApi.getStats(),
@@ -59,8 +64,12 @@ export default function CriticalValueStatsPage() {
         if (cancelled) return;
         if (statsRes.success && statsRes.data) setLiveStats(statsRes.data);
         if (notifRes.success && notifRes.data) setLiveNotif(notifRes.data);
+        setLoadError(null);
       } catch {
         // 后端不可用时回退 mock
+        if (!cancelled) setLoadError(t('w9.states.error'));
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true };
@@ -101,6 +110,9 @@ export default function CriticalValueStatsPage() {
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
+
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -267,6 +279,7 @@ export default function CriticalValueStatsPage() {
           <Activity size={13} /> 最近危急值事件（{events.length} 条）
         </div>
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+          {recentEvents.length === 0 && <AppEmpty variant="no-data" minHeight={160} />}
           {recentEvents.map(e => {
             const sConf = STATUS_CONFIG[e.status];
             const SIcon = sConf.icon;

@@ -50,18 +50,18 @@ export interface PatientMergeToolProps {
   if (a.length === 0 || b.length === 0) return 0
   // Levenshtein 简化
   const dp: number[][] = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0))
-  for (let i = 0; i <= a.length; i++) dp[i][0] = i
-  for (let j = 0; j <= b.length; j++) dp[0][j] = j
+  for (let i = 0; i <= a.length; i++) dp[i]![0] = i
+  for (let j = 0; j <= b.length; j++) dp[0]![j] = j
   for (let i = 1; i <= a.length; i++) {
     for (let j = 1; j <= b.length; j++) {
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      dp[i]![j] = Math.min(
+        dp[i - 1]![j]! + 1,
+        dp[i]![j - 1]! + 1,
+        dp[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1)
       )
     }
   }
-  const dist = dp[a.length][b.length]
+  const dist = dp[a.length]![b.length]!
   return Math.max(0, 100 - Math.floor((dist / Math.max(a.length, b.length)) * 100))
 };
 

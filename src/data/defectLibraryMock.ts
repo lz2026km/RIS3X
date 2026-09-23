@@ -28,12 +28,12 @@ export const DEFECT_CATEGORIES: DefectCategory[] = [
 ];
 
 export const DEFECT_DETAILS: DefectDetail[] = QUALITY_DEFECTS.map((d: QualityDefect) => ({
-  id: d.id, code: d.code, name: d.name, nameEn: d.nameEn, category: d.category, severity: d.severity,
+  id: d.id, code: d.code, name: d.name, nameEn: d.nameEn ?? '', category: d.category, severity: d.severity,
   description: d.description, descriptionEn: d.descriptionEn, examples: d.examples, solution: d.solution, solutionEn: d.solutionEn,
   references: d.references ?? [], count: d.count, isActive: d.isActive, customDefect: d.customDefect,
-  level: d.level, parentCode: d.parentCode, tags: d.tags, triggerPattern: d.triggerPattern, exampleFix: d.exampleFix,
+  level: d.level, parentCode: d.parentId, tags: d.tags, triggerPattern: d.triggerPattern, exampleFix: d.exampleFix,
   createdBy: d.createdBy ?? 'system', createdAt: d.createdAt ?? isoDaysAgo(180), updatedAt: d.updatedAt ?? isoDaysAgo(30),
-  sla: d.sla, trainingRequired: d.trainingRequired, trainingMaterialUrl: d.trainingMaterialUrl, pdcaStage: undefined,
+  sla: d.sla ?? 24, trainingRequired: d.trainingRequired ?? false, trainingMaterialUrl: undefined, pdcaStage: undefined,
 }));
 
 export const DEFECT_TREE: DefectTreeNode[] = DEFECT_CATEGORIES.map((cat) => ({
@@ -126,7 +126,7 @@ export const CASE_LIBRARY_FULL = [
   {
     id: 'case-gen-001',
     title: '肝硬化合并肝癌典型病例',
-    patientName: PATIENT_MASTER[0].name,
+    patientName: PATIENT_MASTER[0]!.name,
     diagnosis: '肝硬化合并肝细胞癌',
     modality: 'CT' as const,
     bodyPart: '腹部',
@@ -138,13 +138,13 @@ export const CASE_LIBRARY_FULL = [
     ],
     preventionMeasures: ['定期复查 AFP + 影像', '对高危人群每 6 月筛查'],
     outcome: '术后随访 1 年, 无复发',
-    createdBy: DOCTOR_MASTER[0].name,
+    createdBy: DOCTOR_MASTER[0]!.name,
     createdAt: '2026-05-15T10:00:00Z',
   },
   {
     id: 'case-gen-002',
     title: '急性脑梗死 DWI 高信号典型',
-    patientName: PATIENT_MASTER[1].name,
+    patientName: PATIENT_MASTER[1]!.name,
     diagnosis: '急性脑梗死 (右侧大脑中动脉供血区)',
     modality: 'MR' as const,
     bodyPart: '头部',
@@ -156,13 +156,13 @@ export const CASE_LIBRARY_FULL = [
     ],
     preventionMeasures: ['识别 DWI/FLAIR 不匹配', '溶栓时间窗评估'],
     outcome: '急诊溶栓, 预后良好',
-    createdBy: DOCTOR_MASTER[1].name,
+    createdBy: DOCTOR_MASTER[1]!.name,
     createdAt: '2026-05-20T14:00:00Z',
   },
   {
     id: 'case-gen-003',
     title: '肺栓塞 CTA 典型表现',
-    patientName: PATIENT_MASTER[2].name,
+    patientName: PATIENT_MASTER[2]!.name,
     diagnosis: '双侧肺动脉栓塞',
     modality: 'CT' as const,
     bodyPart: '胸部',
@@ -174,13 +174,13 @@ export const CASE_LIBRARY_FULL = [
     ],
     preventionMeasures: ['高危患者预防抗凝', 'D-二聚体筛查'],
     outcome: '溶栓后好转',
-    createdBy: DOCTOR_MASTER[2].name,
+    createdBy: DOCTOR_MASTER[2]!.name,
     createdAt: '2026-04-10T09:00:00Z',
   },
   {
     id: 'case-gen-004',
     title: '主动脉夹层 Stanford A 型',
-    patientName: PATIENT_MASTER[3].name,
+    patientName: PATIENT_MASTER[3]!.name,
     diagnosis: '主动脉夹层 (Stanford A)',
     modality: 'CT' as const,
     bodyPart: '胸部',
@@ -192,13 +192,13 @@ export const CASE_LIBRARY_FULL = [
     ],
     preventionMeasures: ['高血压控制', '马凡综合征筛查'],
     outcome: '急诊手术, 成功',
-    createdBy: DOCTOR_MASTER[3].name,
+    createdBy: DOCTOR_MASTER[3]!.name,
     createdAt: '2026-03-25T16:00:00Z',
   },
   {
     id: 'case-gen-005',
     title: '乳腺癌 BI-RADS 5 类',
-    patientName: PATIENT_MASTER[4].name,
+    patientName: PATIENT_MASTER[4]!.name,
     diagnosis: '右侧乳腺癌 (BI-RADS 5)',
     modality: 'MG' as const,
     bodyPart: '乳腺',
@@ -210,7 +210,7 @@ export const CASE_LIBRARY_FULL = [
     ],
     preventionMeasures: ['40+ 妇女年度筛查', '高危人群 MRI 补充'],
     outcome: '改良根治术, 化疗中',
-    createdBy: DOCTOR_MASTER[4].name,
+    createdBy: DOCTOR_MASTER[4]!.name,
     createdAt: '2026-04-30T11:00:00Z',
   },
 ];

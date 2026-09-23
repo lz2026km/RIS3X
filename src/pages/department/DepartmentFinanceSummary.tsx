@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { useState } from "react";
-import { BarChart3, TrendingUp, TrendingDown, Minus, Eye, Award } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   LineChart, Line, Legend,

@@ -1,16 +1,14 @@
-// @ts-nocheck
 import { Card, Select } from 'antd'
 // G005 放射科RIS系统 - 统计分析页面 v2.0.0
 // 完整重写：6大标签页，800+行，inline样式，recharts图表
 import { useTranslation } from 'react-i18next'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   BarChart3, TrendingUp, TrendingDown, Calendar, Download, Activity,
-  PieChart as PieChartIcon, DollarSign, Users, Clock, CheckCircle,
-  AlertTriangle, ShieldCheck, Scan, Monitor, Wrench, Thermometer,
-  Zap, Award, Target, Radio, Image as ImageIcon, UserCheck,
-  Filter, RefreshCw, ChevronRight, Star, AlertCircle, Edit3,
-  Timer, Percent, LineChart as LineChartIcon
+  DollarSign, Users, Clock,
+  AlertTriangle, ShieldCheck, Monitor, Wrench,
+  Zap, Award, Target, UserCheck,
+  Filter, RefreshCw, Edit3, Percent
 } from 'lucide-react'
 import {
   LineChart, Line, BarChart as StatBarChart, Bar, PieChart as StatPieChart, Pie, Cell,
@@ -21,16 +19,14 @@ import {
 // [v3.0.6.8-28] 主数据池 + 生成器 (替换硬编码, 三甲级真实数据)
 import {
   PATIENT_MASTER, DEVICE_MASTER, EXAM_ITEM_MASTER,
-  DOCTOR_MASTER, DOCTORS_BY_TITLE,
-  PATIENTS_BY_MODALITY, EXAMS_BY_MODALITY,
 } from '../data/master'
 import {
   DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE,
-  DAILY_KPI_PRE, getEntity,
+  DAILY_KPI_PRE,
 } from '../data/_generators'
 import { statsApi, biApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
-import { ChartEmpty, ChartSkeleton, ChartError, ChartContainer } from '../components/charts'
+import { ChartEmpty, ChartContainer } from '../components/charts'
 import { PageContainer } from '../components/common/PageContainer'
 import { PageHeader } from '../components/common/PageHeader'
 import { StickyActionBar } from '../components/common/StickyActionBar'
@@ -43,9 +39,6 @@ import { t } from '../i18n/appI18n';
 const DAY_NAMES = [t("statsPage.sunday"), t("statsPage.monday"), t("statsPage.tuesday"), t("statsPage.wednesday"), t("statsPage.thursday"), t("statsPage.friday"), t("statsPage.saturday")];
 function dayNameFromISO(iso: string): string {
   return DAY_NAMES[new Date(iso).getDay()]!;
-}
-function fmtYuanShort(n: number): number {
-  return Math.round(n / 1000);
 }
 
 // ============================================================
@@ -255,7 +248,7 @@ function getPositiveRateData() {
   EXAM_REPORT_PRE.forEach((r) => {
     if (!counts[r.modality]) counts[r.modality] = { total: 0, pos: 0 };
     counts[r.modality]!.total++;
-    if (r.positive) counts[r.modality]!.pos++;
+    if (r.hasCriticalValue) counts[r.modality]!.pos++;
   });
   return Object.entries(counts).map(([modality, c]) => ({
     modality, rate: Math.round((c.pos / c.total) * 1000) / 10,
@@ -485,7 +478,7 @@ function StatCard({ label, value, subValue, icon, color, bg, trend }: {
 // ============================================================
 // 通用图表卡片包装
 // ============================================================
-function ChartCard({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
+function ChartCard({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode; color?: string }) {
   return (
     <Card bordered={false} style={{
       background: C.white, borderRadius: 12, padding: 20,
@@ -672,7 +665,7 @@ function ExamVolumeTab() {
               <YAxis dataKey="part" type="category" tick={{ fontSize: 12, fill: C.textMuted }} width={60} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Bar dataKey="count" fill="#3b82f6" name={t("statsPage.chart.examCount")} radius={[0, 4, 4, 0]}>
-                {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', 'MG', 'GI'][i % 6]]} />)}
+                {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', 'MG', 'GI'][i % 6] ?? 'CT']} />)}
               </Bar>
             </StatBarChart>
           </ChartContainer>
@@ -758,7 +751,7 @@ function WorkloadTab() {
               </tr>
             </thead>
             <tbody>
-              {doctorWorkloadData.filter(d => doctorFilter === '全部' || d.name === doctorFilter).map((d, i) => (
+              {doctorWorkloadData.filter(d => doctorFilter === '全部' || d.name === doctorFilter).map((d) => (
                 <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
                   <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
                   <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.written}</td>
@@ -843,9 +836,8 @@ function WorkloadTab() {
 // ============================================================
 // 标签页3：收入统计
 // ============================================================
-function RevenueTab() {
+function RevenueTab({ onExport }: { onExport?: () => void }) {
   const { t } = useTranslation('v3stats')
-  const [timeRange, setTimeRange] = useState('week')
   const [chartView, setChartView] = useState('7days')
 
   const timeRanges = [
@@ -877,7 +869,7 @@ function RevenueTab() {
           <Calendar size={14} color={C.textMuted} />
           <TabButton tabs={timeRanges} active={chartView} onChange={setChartView} />
         </div>
-        <button onClick={handleExportReport} style={{
+        <button onClick={() => onExport?.()} style={{
           padding: '6px 14px', background: C.white, color: C.textMuted,
           border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
@@ -1187,7 +1179,6 @@ function DeviceEfficiencyTab() {
   const [deviceFilter, setDeviceFilter] = useState('全部')
   const [deviceView, setDeviceView] = useState('utilization')
 
-  const tableHeaders = [t("statsPage.deviceName"), t("statsPage.deviceType"), t("statsPage.examVolume"), t("statsPage.avgDuration"), t("statsPage.utilizationRate"), t("statsPage.faultCount"), t("statsPage.maintenanceStatus")]
   const extendedHeaders = [t("statsPage.deviceName"), t("statsPage.completedToday"), t("statsPage.avgTime"), t("statsPage.shortest"), t("statsPage.longest"), t("statsPage.overdueCount"), t("statsPage.status")]
 
   const utilizationAvg = Math.round(deviceEfficiencyData.reduce((sum, d) => sum + d.utilization, 0) / deviceEfficiencyData.length)
@@ -1537,7 +1528,7 @@ function DeviceEfficiencyTab() {
               {heatmapData.map(row => (
                 <>
                   <div key={`label-${row.hour}`} style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4 }}>{row.hour}</div>
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => {
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => {
                     const val = row[d as keyof typeof row] as number
                     const intensity = Math.min(val / 50, 1)
                     return (
@@ -1581,7 +1572,6 @@ function DeviceEfficiencyTab() {
 // ============================================================
 function PatientAnalysisTab() {
   const { t } = useTranslation('v3stats')
-  const [timeRange, setTimeRange] = useState('week')
 
   const patientStats = {
     total: 568,
@@ -1852,7 +1842,7 @@ function PositiveRateTab() {
         {/* 复查率统计 */}
         <ChartCard title={t("statsPage.retakeByType")}>
           <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-            {reexaminationData.map((item, i) => (
+            {reexaminationData.map((item) => (
               <div key={item.type} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.type}</span>
@@ -1921,7 +1911,7 @@ function PositiveRateTab() {
 // ============================================================
 // 标签页：经营分析（收入、成本、效益、人均产出）
 // ============================================================
-function BusinessAnalysisTab() {
+function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => void }) {
   const { t } = useTranslation('v3stats')
   const [timeRange, setTimeRange] = useState('month')
 
@@ -1950,7 +1940,7 @@ function BusinessAnalysisTab() {
             ))}
           </div>
         </div>
-        <button onClick={handleExportBusinessReport} style={{
+        <button onClick={() => onExportBusiness?.()} style={{
           padding: '6px 14px', background: C.white, color: C.textMuted,
           border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
@@ -2916,7 +2906,7 @@ export default function StatisticsPage() {
           }}>
             <RefreshCw size={13} /> {t('statistics.refresh')}
           </button>
-          <button onClick={handleExportReport} style={{
+        <button onClick={handleExportReport} style={{
             padding: '7px 14px', background: C.primary, color: C.white,
             border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
@@ -2951,8 +2941,8 @@ export default function StatisticsPage() {
         {activeTab === 'examVolume' && <ExamVolumeTab />}
         {activeTab === 'positiveRate' && <PositiveRateTab />}
         {activeTab === 'workload' && <WorkloadTab />}
-        {activeTab === 'business' && <BusinessAnalysisTab />}
-        {activeTab === 'revenue' && <RevenueTab />}
+        {activeTab === 'business' && <BusinessAnalysisTab onExportBusiness={handleExportBusinessReport} />}
+        {activeTab === 'revenue' && <RevenueTab onExport={handleExportReport} />}
         {activeTab === 'quality' && <QualityControlTab />}
         {activeTab === 'device' && <DeviceEfficiencyTab />}
         {activeTab === 'patient' && <PatientAnalysisTab />}

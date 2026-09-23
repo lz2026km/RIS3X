@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { XCircle } from "lucide-react";
 import {
   LineChart,
@@ -7,6 +8,8 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
+import { rdsrApi } from "../../services/api/rdsrApi";
+import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
 interface HistoryPoint {
@@ -31,7 +34,44 @@ const MOCK_HISTORY: HistoryPoint[] = [
   { date: "05-01", DLP: 850, CTDI: 22.5, examCount: 28 },
 ];
 
+// [G005 W8-Dose] 设备历史: 优先取 /rdsr/device/:id/history, 端点不可用/返回空时回退本地演示。
 export default function DeviceHistoryModal({ device, onClose }: Props) {
+  const [history, setHistory] = useState<HistoryPoint[]>(MOCK_HISTORY);
+  const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await rdsrApi.getDeviceHistory(device);
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setHistory(
+            res.data.map((p) => ({
+              date: p.date,
+              DLP: p.DLP,
+              CTDI: p.CTDIvol,
+              examCount: p.examCount,
+            })),
+          );
+          setDataSource("api");
+        }
+      } catch {
+        /* 保留本地演示回退 */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [device]);
+
+  const avgDlp = history.length
+    ? Math.round(history.reduce((s, p) => s + p.DLP, 0) / history.length)
+    : 0;
+  const avgCtdi = history.length
+    ? (history.reduce((s, p) => s + p.CTDI, 0) / history.length).toFixed(1)
+    : "0.0";
+  const totalExams = history.reduce((s, p) => s + p.examCount, 0);
+
   return (
     <div
       style={{
@@ -70,7 +110,9 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}>
               {device} 历史趋势
-              <span style={{ marginLeft: 8, fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>演示数据（模拟 7 日历史）</span>
+              {dataSource === "demo" && (
+                <span style={{ marginLeft: 8, fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
+              )}
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
               近7日剂量趋势分析
@@ -90,8 +132,8 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
           </button>
         </div>
 
-        <ChartContainer height={200} state={MOCK_HISTORY.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
-          <LineChart data={MOCK_HISTORY}>
+        <ChartContainer height={200} state={history.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
+          <LineChart data={history}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -121,9 +163,9 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
             gap: 12,
           }}
         >
-          <ModalStat label="7日平均DLP" value="840" />
-          <ModalStat label="7日平均CTDI" value="22.6" />
-          <ModalStat label="总检查量" value="177" />
+          <ModalStat label="7日平均DLP" value={String(avgDlp)} />
+          <ModalStat label="7日平均CTDI" value={avgCtdi} />
+          <ModalStat label="总检查量" value={String(totalExams)} />
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@
 import { http, HttpResponse, delay } from "msw";
 import { get } from "./store";
 import type { SrDocument, SrContentTree, SrConceptName, SrContentItem, SrSection } from "../api/srReportApi";
+import { uniqueId } from "../../utils/uniqueId";
 
 const API_BASE = (() => {
   try {
@@ -115,7 +116,7 @@ const buildContentTree = (
     templateLabel: t.labelEn,
     context: {
       patient: { name: report.patientName, id: report.patientId, birthDate: "19850115", sex: "M" },
-      study: { uid: studyUID, date, time, description: "常规检查", accessionNumber: `ACC-${Date.now().toString().slice(-6)}`, modality: report.modality },
+      study: { uid: studyUID, date, time, description: "常规检查", accessionNumber: uniqueId('ACC'), modality: report.modality },
       report: { id: report.id, authorId: "D101", authorName: "Dr. Wang", findings, impression, conclusion: impression, recommendations: "", reportDate: date },
     },
     sections,

@@ -1,8 +1,9 @@
 ﻿// [W1-5] 收费项目管理 — 接入 financeApi (list/create/update/delete charge-items CRUD)
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { Modal, Input, Select, message, Spin } from 'antd'
+import { Modal, Input, Select, message } from 'antd'
 import { Search, Plus, Edit3, ToggleLeft, ToggleRight, DollarSign, X, Check, List, Trash2, RefreshCw } from 'lucide-react'
 import { financeApi, type ChargeItemDto } from '../../services/api/financeApi'
+import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
 
 const CATEGORY_OPTIONS = ['检查', '增强', '造影', '介入', '放射治疗', '其他']
@@ -157,6 +158,46 @@ export default function ChargeItemPage() {
     }
   }
 
+  const chargeColumns = [
+    { title: t('chargeItem.colId'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontSize: 12, color: '#6e7681', fontFamily: 'monospace' }}>{v}</span> },
+    {
+      title: t('chargeItem.colName'), key: 'name',
+      render: (_: unknown, item: ChargeItemDto) => (
+        <div>
+          <span>{item.name}</span>
+          {item.description && <div style={{ fontSize: 12, color: '#6e7681' }}>{item.description}</div>}
+        </div>
+      ),
+    },
+    {
+      title: t('chargeItem.colCategory'), dataIndex: 'category', key: 'category',
+      render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${CATEGORY_COLORS[v] ?? '#6b7280'}20`, color: CATEGORY_COLORS[v] ?? '#6b7280' }}>{v ?? '检查'}</span>,
+    },
+    {
+      title: t('chargeItem.colInsurance'), dataIndex: 'insuranceEligible', key: 'insuranceEligible',
+      render: (v: boolean) => <span style={{ fontSize: 12, color: v ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }}>{v ? t('chargeItem.reimbursable') : t('chargeItem.selfPay')}</span>,
+    },
+    {
+      title: t('chargeItem.colStatus'), dataIndex: 'active', key: 'active',
+      render: (v: boolean) => (
+        <span style={{ fontSize: 12, color: v ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', display: 'flex', alignItems: 'center', gap: 4 }}>
+          {v ? <Check size={12} /> : <X size={12} />}{v ? t('chargeItem.enabled') : t('chargeItem.disabled')}
+        </span>
+      ),
+    },
+    { title: t('chargeItem.colPrice'), dataIndex: 'unitPrice', key: 'unitPrice', align: 'right' as const, render: (v: number) => <strong style={{ color: 'var(--color-success-500, #22c55e)' }}>¥{(v ?? 0).toLocaleString()}</strong> },
+    {
+      title: t('chargeItem.colActions'), key: 'actions',
+      render: (_: unknown, item: ChargeItemDto) => (
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button type="button" onClick={() => openEdit(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />{t('chargeItem.edit')}</button>
+          <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: item.active ? 'var(--color-warning-500, #f59e0b)' : 'var(--color-success-500, #22c55e)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? t('chargeItem.disabled') : t('chargeItem.enabled')}</button>
+          <button type="button" onClick={() => handleDelete(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-400, #f87171)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Trash2 size={12} />{t('chargeItem.delete')}</button>
+        </div>
+      ),
+    },
+  ]
+
   const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
 
   return (
@@ -199,45 +240,7 @@ export default function ChargeItemPage() {
         )}
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 100px 110px 80px 140px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>{t('chargeItem.colId')}</span>
-            <span>{t('chargeItem.colName')}</span>
-            <span>{t('chargeItem.colCategory')}</span>
-            <span>{t('chargeItem.colInsurance')}</span>
-            <span>{t('chargeItem.colStatus')}</span>
-            <span style={{ textAlign: 'right' }}>{t('chargeItem.colPrice')}</span>
-            <span>{t('chargeItem.colActions')}</span>
-          </div>
-
-          {loading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
-              <Spin size="large" />
-              <div style={{ marginTop: 12, fontSize: 13 }}>{t('chargeItem.loading')}</div>
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('chargeItem.empty')}</div>
-          ) : (
-            filteredItems.map((item, idx) => (
-              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 100px 110px 80px 140px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
-                <span style={{ fontSize: 12, color: '#6e7681', fontFamily: 'monospace' }}>{item.id}</span>
-                <div>
-                  <span style={{ fontSize: 13 }}>{item.name}</span>
-                  {item.description && <div style={{ fontSize: 12, color: '#6e7681' }}>{item.description}</div>}
-                </div>
-                <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: `${CATEGORY_COLORS[item.category] ?? '#6b7280'}20`, color: CATEGORY_COLORS[item.category] ?? '#6b7280', textAlign: 'center', width: 'fit-content' }}>{item.category ?? '检查'}</span>
-                <span style={{ fontSize: 12, color: item.insuranceEligible ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }}>{item.insuranceEligible ? t('chargeItem.reimbursable') : t('chargeItem.selfPay')}</span>
-                <span style={{ fontSize: 12, color: item.active ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  {item.active ? <Check size={12} /> : <X size={12} />}{item.active ? t('chargeItem.enabled') : t('chargeItem.disabled')}
-                </span>
-                <span style={{ fontSize: 14, fontWeight: 600, textAlign: 'right', color: 'var(--color-success-500, #22c55e)' }}>¥{(item.unitPrice ?? 0).toLocaleString()}</span>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button type="button" onClick={() => openEdit(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />{t('chargeItem.edit')}</button>
-                  <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: item.active ? 'var(--color-warning-500, #f59e0b)' : 'var(--color-success-500, #22c55e)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? t('chargeItem.disabled') : t('chargeItem.enabled')}</button>
-                  <button type="button" onClick={() => handleDelete(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-400, #f87171)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Trash2 size={12} />{t('chargeItem.delete')}</button>
-                </div>
-              </div>
-            ))
-          )}
+          <DataTable dataSource={filteredItems} rowKey="id" columns={chargeColumns} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('chargeItem.empty')} />
         </div>
       </div>
 

@@ -771,8 +771,9 @@ describe('WorklistService', () => {
 
   // [v3.0.6.11-104 Wave 3A P0] 检查前核对 (Time-Out) 临床安全闭环
   describe('timeout (检查前核对)', () => {
+    // 育龄女性: 出生日期相对当前年份 (30 岁), 避免随真实时间流逝越过育龄上限 (55 岁) 而脆断
     const patient = {
-      id: 'P1', name: '张三', gender: 'FEMALE', birthDate: new Date('1990-01-01'),
+      id: 'P1', name: '张三', gender: 'FEMALE', birthDate: new Date(new Date().getFullYear() - 30, 0, 1),
       idCard: '110101199001010010', allergyHistory: '青霉素过敏', pregnancyStatus: 'unknown', isolationFlag: false,
     }
 

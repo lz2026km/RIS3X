@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Bell, CheckCircle2, RefreshCw, Info } from 'lucide-react'
 import { cdsApi, type CdsAlertDto } from '../../services/api/cdsApi'
+import { DataTable } from '../../components/common/DataTable'
 
 const SEVERITY_COLORS: Record<string, string> = {
   critical: '#ef4444',
@@ -90,6 +91,39 @@ export default function AlertCenterPage() {
 
   const pendingCount = alerts.filter((a) => a.status === 'pending').length
 
+  const alertColumns = [
+    {
+      title: '严重度', key: 'severity', width: 90,
+      render: (_: unknown, alert: CdsAlertDto) => {
+        const color = SEVERITY_COLORS[alert.severity?.toLowerCase()] || '#8b949e'
+        return (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block' }} />
+            <span style={{ fontSize: 12, color }}>{SEVERITY_LABELS[alert.severity?.toLowerCase()] || alert.severity}</span>
+          </span>
+        )
+      },
+    },
+    { title: '患者', dataIndex: 'patientName', key: 'patientName', render: (v: string) => v || '未知患者' },
+    { title: '类型', dataIndex: 'type', key: 'type', render: (v: string) => v || '通用告警' },
+    { title: '消息', dataIndex: 'message', key: 'message', render: (v: string) => v || '-' },
+    { title: '时间', dataIndex: 'time', key: 'time', render: (v: string) => v ? new Date(v).toLocaleString('zh-CN') : '-' },
+    {
+      title: '状态', dataIndex: 'status', key: 'status', width: 90,
+      render: (v: string) => <span style={{ color: v === 'pending' ? '#f59e0b' : '#22c55e' }}>{v === 'pending' ? '待确认' : '已确认'}</span>,
+    },
+    {
+      title: '操作', key: 'actions', width: 120,
+      render: (_: unknown, alert: CdsAlertDto) => alert.status === 'pending' ? (
+        <button onClick={() => handleAcknowledge(alert)} disabled={acknowledgingId === alert.id} style={{ padding: '7px 14px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <CheckCircle2 size={14} />{acknowledgingId === alert.id ? '确认中...' : '确认'}
+        </button>
+      ) : (
+        <span style={{ fontSize: 12, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={13} />已处理</span>
+      ),
+    },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -122,46 +156,8 @@ export default function AlertCenterPage() {
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {loading ? (
-            <div style={{ padding: '48px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>加载告警列表...</div>
-          ) : filtered.length === 0 ? (
-            <div style={{ padding: '48px 16px', textAlign: 'center', color: '#6e7681', fontSize: 13 }}>暂无告警</div>
-          ) : (
-            filtered.map((alert) => {
-              const severityColor = SEVERITY_COLORS[alert.severity?.toLowerCase()] || '#8b949e'
-              const pending = alert.status === 'pending'
-              return (
-                <div key={alert.id} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: severityColor, flexShrink: 0 }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{alert.patientName || '未知患者'}</span>
-                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: `${severityColor}20`, color: severityColor }}>{SEVERITY_LABELS[alert.severity?.toLowerCase()] || alert.severity}</span>
-                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: '#21262d', color: '#8b949e' }}>{alert.type || '通用告警'}</span>
-                      <span style={{ fontSize: 12, color: '#6e7681' }}>{alert.id}</span>
-                    </div>
-                    <div style={{ fontSize: 13, color: '#c9d1d9' }}>{alert.message || '-'}</div>
-                    <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>
-                      {alert.time ? new Date(alert.time).toLocaleString('zh-CN') : '-'}
-                      {pending ? ' · 待确认' : ' · 已确认'}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                    {pending ? (
-                      <button onClick={() => handleAcknowledge(alert)} disabled={acknowledgingId === alert.id} style={{ padding: '7px 14px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <CheckCircle2 size={14} />{acknowledgingId === alert.id ? '确认中...' : '确认'}
-                      </button>
-                    ) : (
-                      <span style={{ fontSize: 12, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <CheckCircle2 size={13} />已处理
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )
-            })
-          )}
+        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+          <DataTable dataSource={filtered} rowKey="id" columns={alertColumns} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText="暂无告警" />
         </div>
 
         <div style={{ marginTop: 20, padding: '12px 16px', background: '#161b22', border: '1px solid #30363d', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#8b949e' }}>

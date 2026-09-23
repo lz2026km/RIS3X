@@ -1,9 +1,20 @@
 /** G005 眼科分级量表 Mock v3.0.6.8-23a — 11 套 */
 import type { GradingScaleDefinition } from "../types/eye";
 
+interface GradingScaleDefinitionV2 {
+  id: string;
+  name: string;
+  abbreviation: string;
+  levels: number;
+  usedFor: string;
+  source: string;
+  isActive: boolean;
+  lastUpdated: string;
+}
+
 const NOW = Date.now();
 
-export const MOCK_GRADING_SCALES: GradingScaleDefinition[] = [
+export const MOCK_GRADING_SCALES: (GradingScaleDefinition | GradingScaleDefinitionV2)[] = [
   {
     id: "gs-001",
     name: "DR国际分级",

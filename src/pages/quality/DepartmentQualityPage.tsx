@@ -11,6 +11,8 @@ import {
   PieChart as PieIcon, Download, Activity,
 } from 'lucide-react'
 import { reportQualityApi } from '../../services/api'
+import { ErrorBanner } from '../../components/feedback'
+import { t } from '../../i18n/appI18n'
 
 const SCORE_TREND = [
   { month: '1月', score: 82, passRate: 88 },
@@ -49,11 +51,12 @@ const RECENT_CHECKS = [
 
 export default function DepartmentQualityPage() {
   const [apiStats, setApiStats] = useState<{ total: number; avgScore: number } | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     reportQualityApi.getStats().then(res => {
-      if (res.success && res.data) setApiStats(res.data)
-    })
+      if (res.success && res.data) { setApiStats(res.data); setLoadError(null); }
+    }).catch(() => { setLoadError(t('w9.states.error')); })
   }, [])
 
   const avgScore = apiStats?.avgScore ?? SCORE_TREND[SCORE_TREND.length - 1].score
@@ -99,6 +102,7 @@ export default function DepartmentQualityPage() {
       </div>
 
       <div style={{ padding: '20px 24px' }}>
+        {loadError && <ErrorBanner message={loadError} />}
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
             { title: '当前评分', value: avgScore, unit: '分', icon: Activity, color: avgScore >= 80 ? '#22c55e' : '#f59e0b' },

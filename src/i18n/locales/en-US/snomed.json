@@ -1,0 +1,14 @@
+{
+  "title": "SNOMED CT Coding",
+  "subtitle": "Report Text → SNOMED CT Codes · Code Search",
+  "reportInput": "Report Text Input",
+  "inputPlaceholder": "Input report text for encoding...",
+  "encode": "Encode",
+  "encoding": "Encoding...",
+  "encodedCodes": "Encoded Codes",
+  "confirmAll": "Confirm All",
+  "noCodesFound": "No SNOMED CT codes matched",
+  "searchCodes": "SNOMED CT Code Search",
+  "searchPlaceholder": "Search by keyword...",
+  "noSearchResults": "No matching codes found"
+}

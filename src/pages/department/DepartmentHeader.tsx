@@ -1,10 +1,14 @@
-// @ts-nocheck
 import { Briefcase, Download, Plus } from "lucide-react";
 import { PageHeader } from "../../components/common";
 
 const C = { primary: "#1e40af", white: "#ffffff", border: "#d1d5db" };
 
-export default function DepartmentHeader({ onExport, onAdd }) {
+interface DepartmentHeaderProps {
+  onExport: () => void;
+  onAdd: () => void;
+}
+
+export default function DepartmentHeader({ onExport, onAdd }: DepartmentHeaderProps) {
   return (
     <PageHeader
       title="影像科室管理"

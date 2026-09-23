@@ -35,7 +35,7 @@ export const workflowHandlers = [
   }),
   http.delete(`${API}/definitions/:id`, async ({ params }) => {
     await delay(delayMs());
-    try { remove('null', params.id as string); } catch {}
+    try { remove('definition', params.id as string); } catch {}
     return HttpResponse.json({ success: true, data: {} });
   }),
   http.put(`${API}/definitions/:id`, async ({ params, request }) => {
@@ -49,7 +49,7 @@ export const workflowHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('null', newItem); } catch {}
+    try { create('definition', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/definitions/:id/steps`, async ({ params }) => {

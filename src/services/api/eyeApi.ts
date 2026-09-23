@@ -254,6 +254,9 @@ export const eyeApi = {
   // [G005 W3-A] 路径对齐: getReports /eye/report/reports -> /eye/reports (后端 @Get('reports'))
   getReports: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/reports${buildQuery(params)}`),
+  // [G005 W2] 旧报告列表路径 (后端 eye.controller @Get('report/reports') = listReportReports; MSW eyeHandlers 同路径)
+  getReportReportsLegacy: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/report/reports${buildQuery(params)}`),
   // [v3.0.6.11-88 P0] createReport 路径错位修复: 原 /eye/report/reports (仅 MSW 有)
   //   → 后端真实 POST /eye/reports (eye.controller generateReport, GenerateReportSchema: { studyId, template? })
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
@@ -270,6 +273,9 @@ export const eyeApi = {
   // [v3.0.6.11-103 Wave 3A] 亚专科检查记录 CRUD (SubspecialtyExamsPage 检查记录 UI 在用)
   getSubspecialtyRecords: (sub: string, params?: Record<string, any>) =>
     api.get(`${EYE_API}/subspecialty/${sub}/records${buildQuery(params)}`),
+  // [G005 W2] 旧亚专科列表路径 (后端 eye-subspecialty.controller @Get(':sub'); 等价 /:sub/records 的别名)
+  getSubspecialtyLegacy: (sub: string, params?: Record<string, any>) =>
+    api.get(`${EYE_API}/subspecialty/${sub}${buildQuery(params)}`),
   createSubspecialtyRecord: (sub: string, data: any) =>
     api.post(`${EYE_API}/subspecialty/${sub}/records`, data),
   // [G005 Wave1A P0] 亚专科检查动作 (SubspecialtyExamsPage 真实化, 后端 eye-subspecialty 模块)

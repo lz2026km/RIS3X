@@ -6,7 +6,7 @@ import React, { useState, useCallback } from 'react'
 import { SearchX } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 
-const { Text, Title, TextArea: _AntTextArea } = Typography
+const { Text, Title } = Typography
 
 const SnomedEncoderPage: React.FC = () => {
   const [text, setText] = useState('')

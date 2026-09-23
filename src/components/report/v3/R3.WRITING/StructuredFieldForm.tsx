@@ -5,7 +5,7 @@
  */
 import { getStructuredTemplates, RECIST_RESPONSE, PIRADS_ASSESSMENT } from '@data/reportWritingMock';
 import { calcRecistResponse, getBiradsByCategory, evaluateFormula } from '@services/writing/writingService';
-import type { StructuredTemplate, StructuredFieldDefinition, BiradsCategory, RecistResponse, PiradsScore } from '@types/R3/R3.WRITING';
+import type { StructuredTemplate, StructuredFieldDefinition, StructuredFieldGroup, BiradsCategory, RecistResponse, PiradsScore } from '@/types/R3/R3.WRITING';
 import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload, message } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText, Table as TableIcon } from 'lucide-react';
@@ -52,13 +52,13 @@ export const StructuredFieldForm: React.FC<Props> = ({
   // 公式自动计算
   useEffect(() => {
     if (!template) return;
-    const formulaFields = template.fields.filter((f) => f.formula);
+    const formulaFields = template.fields.filter((f: StructuredFieldDefinition) => f.formula);
     const newValues: Record<string, unknown> = { ...values };
     let changed = false;
-    formulaFields.forEach((f) => {
+    formulaFields.forEach((f: StructuredFieldDefinition) => {
       if (!f.formula) return;
       const numericValues: Record<string, number> = {};
-      template.fields.forEach((tf) => {
+      template.fields.forEach((tf: StructuredFieldDefinition) => {
         if (typeof values[tf.key] === 'number') numericValues[tf.key] = values[tf.key] as number;
       });
       const result = evaluateFormula(f.formula, numericValues);
@@ -83,8 +83,8 @@ export const StructuredFieldForm: React.FC<Props> = ({
   // 完成度计算
   const completion = useMemo(() => {
     if (!template) return { filled: 0, total: 0, percent: 0 };
-    const required = template.fields.filter((f) => f.required);
-    const filled = required.filter((f) => values[f.key] !== undefined && values[f.key] !== '' && values[f.key] !== null).length;
+    const required = template.fields.filter((f: StructuredFieldDefinition) => f.required);
+    const filled = required.filter((f: StructuredFieldDefinition) => values[f.key] !== undefined && values[f.key] !== '' && values[f.key] !== null).length;
     return { filled, total: required.length, percent: Math.round((filled / required.length) * 100) };
   }, [template, values]);
 
@@ -92,7 +92,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
   const fieldScore = useMemo(() => {
     if (!template) return 0;
     const all = template.fields;
-    const filled = all.filter((f) => values[f.key] !== undefined && values[f.key] !== '').length;
+    const filled = all.filter((f: StructuredFieldDefinition) => values[f.key] !== undefined && values[f.key] !== '').length;
     return Math.round((filled / all.length) * 100);
   }, [template, values]);
 
@@ -280,7 +280,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
             min={f.min}
             max={f.max}
             suffix={f.unitOptions ? (
-              <Select size="small" defaultValue={f.unit ?? f.unitOptions[0]} style={{ width: 70 }} options={f.unitOptions.map((u) => ({ value: u, label: u }))} />
+              <Select size="small" defaultValue={f.unit ?? f.unitOptions[0]} style={{ width: 70 }} options={f.unitOptions.map((u: string) => ({ value: u, label: u }))} />
             ) : f.unit}
             onChange={(v) => handleValueChange(f.key, v)}
             style={{ width: '100%' }}
@@ -293,7 +293,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
             {...commonProps}
             value={values[f.key] as string | undefined}
             onChange={(v) => handleValueChange(f.key, v)}
-            options={(f.options ?? []).map((o) => ({ value: o.value, label: <span><Tag color={o.color}>{o.label}</Tag></span> }))}
+            options={(f.options ?? []).map((o: { value: string; label: string; color?: string }) => ({ value: o.value, label: <span><Tag color={o.color}>{o.label}</Tag></span> }))}
             style={{ width: '100%' }}
           />
         );
@@ -305,7 +305,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
             mode="multiple"
             value={(values[f.key] as string[]) ?? []}
             onChange={(v) => handleValueChange(f.key, v)}
-            options={(f.options ?? []).map((o) => ({ value: o.value, label: o.label }))}
+            options={(f.options ?? []).map((o: { value: string; label: string }) => ({ value: o.value, label: o.label }))}
             style={{ width: '100%' }}
           />
         );
@@ -407,10 +407,10 @@ export const StructuredFieldForm: React.FC<Props> = ({
 
   const renderTab = (template: StructuredTemplate) => (
     <div className="space-y-3">
-      {template.groups.map((g) => {
-        const fields = template.fields.filter((f) => f.group === g.id);
+      {template.groups.map((g: StructuredFieldGroup) => {
+        const fields = template.fields.filter((f: StructuredFieldDefinition) => f.group === g.id);
         const collapsed = collapsedGroups.has(g.id);
-        const filled = fields.filter((f) => values[f.key] !== undefined && values[f.key] !== '').length;
+        const filled = fields.filter((f: StructuredFieldDefinition) => values[f.key] !== undefined && values[f.key] !== '').length;
         return (
           <Card
             key={g.id}
@@ -518,7 +518,7 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
           <Col span={6}><Statistic title={t('aiDraft.structuredForm.baselineSum')} value={response.baselineSum} suffix="mm" /></Col>
           <Col span={6}><Statistic title={t('aiDraft.structuredForm.change')} value={response.percentChange} suffix="%" precision={1} styles={{ content: {  color: response.percentChange < 0 ? '#10b981' : '#dc2626'  } }} /></Col>
           <Col span={6}>
-            <Tag color={{ CR: 'green', PR: 'blue', SD: 'orange', PD: 'red', NE: 'default' }[response.category]} style={{ fontSize: 16, padding: '4px 12px' }}>
+            <Tag color={({ CR: 'green', PR: 'blue', SD: 'orange', PD: 'red', NE: 'default' } as Record<string, string>)[String(response.category)]} style={{ fontSize: 16, padding: '4px 12px' }}>
               {response.categoryLabel} ({response.category})
             </Tag>
           </Col>

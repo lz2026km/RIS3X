@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 数据字典管理页面 v1.0.0
 // 放射科专用数据字典：CT/MRI/X线检查项目、设备类型、诊断术语等
@@ -6,16 +5,17 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Card,  message } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
-import { termApi } from '../services/api/termApi'
+import { termApi, type TermDto } from '../services/api/termApi'
 import { dictionaryApi } from '../services/api/dictionaryApi'
 import { t } from '../i18n/appI18n'
+import { uniqueId } from '../utils/uniqueId'
 import {
   Search, Plus, Edit2, Trash2, X, ChevronLeft, ChevronRight,
-  BookOpen, Filter, RotateCcw, Stethoscope, Monitor, Camera,
-  FileText, Activity, Zap, Cpu, Download, Upload, FileSpreadsheet,
-  AlertTriangle, CheckCircle2, Eye, GitBranch, RefreshCw,
+  BookOpen, Filter, RotateCcw,
+  Activity, Download, Upload, FileSpreadsheet,
+  AlertTriangle, CheckCircle2, Eye, RefreshCw,
   TrendingUp, BarChart2, Users, PieChart, Layers, Code,
-  Globe, Server, Archive, History, Shield,
+  Globe, Server, History, Shield,
 } from 'lucide-react'
 
 // ---------- 样式定义 ----------
@@ -225,6 +225,8 @@ interface DictionaryItem {
   notes?: string
 }
 
+type TermUpdatePayload = Partial<TermDto> & Partial<DictionaryItem> & { status?: string }
+
 // ---------- 映射条目 ----------
 interface MappingEntry {
   id: string
@@ -288,7 +290,7 @@ const modalityColors: Record<string, { bg: string; color: string }> = {
   '胃肠':  { bg: '#06b6d422', color: '#0891b2' },
 }
 
-const initialDictionaries: DictionaryItem[] = [
+export const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-CT-001', category: 'CT检查项目', code: 'CT-BRAIN-NC', name: '颅脑CT平扫', pinyin: 'lwnctps', modality: ['CT'], bodyPart: '头部', sortOrder: 1, isActive: true, notes: '常规颅脑平扫，层厚5mm' },
   { id: 'DICT-CT-002', category: 'CT检查项目', code: 'CT-BRAIN-C', name: '颅脑CT增强', pinyin: 'lwnctzq', modality: ['CT'], bodyPart: '头部', sortOrder: 2, isActive: true, notes: '需注射对比剂' },
   { id: 'DICT-CT-003', category: 'CT检查项目', code: 'CT-CHEST-NC', name: '胸部CT平扫', pinyin: 'xbctps', modality: ['CT'], bodyPart: '胸部', sortOrder: 3, isActive: true, notes: '肺窗+纵隔窗' },
@@ -368,7 +370,7 @@ const validateDictionary = (d: Partial<DictionaryItem>): string[] => {
   return errs
 }
 
-const mappingSourceSystems = ['SNOMED CT', 'LOINC', 'RadLex']
+export const mappingSourceSystems = ['SNOMED CT', 'LOINC', 'RadLex']
 const mockMappings: MappingEntry[] = [
   { id: 'M-001', sourceCode: 'CT-BRAIN-NC', sourceSystem: 'SNOMED CT', targetCode: '384692009', targetSystem: 'SNOMED CT', accuracy: 0.98, status: 'verified', lastVerified: '2025-01-15' },
   { id: 'M-002', sourceCode: 'CT-CHEST-NC', sourceSystem: 'SNOMED CT', targetCode: '168537009', targetSystem: 'SNOMED CT', accuracy: 0.95, status: 'verified', lastVerified: '2025-01-15' },
@@ -989,7 +991,7 @@ export default function DictionaryPage() {
                     });
                     if (res.success) {
                       setDictionaries(prev => [{
-                        id: res.data?.id ?? 'DICT-' + Date.now().toString().slice(-6),
+                        id: res.data?.id ?? uniqueId('DICT'),
                         category: '诊断术语',
                         code: selectedConcept.code,
                         name: selectedConcept.display,
@@ -1066,7 +1068,8 @@ export default function DictionaryPage() {
                         <button style={{ ...s.btnPrimary, padding: '6px 10px', minHeight: 32 }}
                           onClick={async () => {
                             try {
-                              const res = await termApi.update(v.id, { status: 'review' });
+                              const payload: TermUpdatePayload = { status: 'review' };
+                              const res = await termApi.update(v.id, payload);
                               if (res.success) {
                                 message.success(`版本 ${v.version} 已提交审核`);
                               } else {
@@ -1084,7 +1087,8 @@ export default function DictionaryPage() {
                         <button style={{ ...s.btnPrimary, background: '#16a34a', padding: '6px 10px', minHeight: 32 }}
                           onClick={async () => {
                             try {
-                              const res = await termApi.update(v.id, { status: 'published' });
+                              const payload: TermUpdatePayload = { status: 'published' };
+                              const res = await termApi.update(v.id, payload);
                               if (res.success) {
                                 message.success(`版本 ${v.version} 已批准发布`);
                               } else {
@@ -1103,7 +1107,8 @@ export default function DictionaryPage() {
                           style={{ ...s.btnIcon, color: '#d97706' }}
                           onClick={async () => {
                             try {
-                              const res = await termApi.update(v.id, { ...v.snapshot, notes: `已回滚到 ${v.version} @ ${new Date().toISOString()}` });
+                              const payload: TermUpdatePayload = { ...v.snapshot, notes: `已回滚到 ${v.version} @ ${new Date().toISOString()}` };
+                              const res = await termApi.update(v.id, payload);
                               if (res.success) {
                                 message.success(`已回滚字典版本 ${v.version}`);
                                 setDictionaries(prev => prev.map(d => d.id === v.dictionaryId ? { ...d, ...(v.snapshot as Partial<DictionaryItem>) } : d));
@@ -1160,7 +1165,7 @@ export default function DictionaryPage() {
           })))
         } catch { rows.length = 0 }
       } else if (lines.length >= 2) {
-        const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''))
+        const header = (lines[0] ?? '').split(',').map(h => h.trim().replace(/^"|"$/g, ''))
         for (const line of lines.slice(1)) {
           const cells = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
           const row: Record<string, string> = {}
@@ -1304,7 +1309,7 @@ export default function DictionaryPage() {
             <div style={s.chartCard}>
               <div style={s.chartTitle}><TrendingUp size={16} /> {t('dictionary.usageTrend')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t('dictionary.demoDataUsage')}</span></div>
               <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 8, padding: '0 10px' }}>
-                {mockUsageStats[0].trend.map((v, i) => (
+                {(mockUsageStats[0]?.trend ?? []).map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <div style={{ width: '100%', height: `${(v / 370) * 180}px`, background: '#3b82f6', borderRadius: '4px 4px 0 0', minHeight: 4, opacity: 0.7 + i * 0.05 }} />
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{[t('dictionary.month1'), t('dictionary.month2'), t('dictionary.month3'), t('dictionary.month4'), t('dictionary.month5'), t('dictionary.month6')][i]}</span>
@@ -1358,7 +1363,8 @@ export default function DictionaryPage() {
                   <button style={{ ...s.btnDanger, padding: '4px 8px', minHeight: 28, fontSize: 12 }}
                     onClick={async () => {
                       try {
-                        const res = await termApi.update(u.termName, { isActive: false });
+                        const payload: TermUpdatePayload = { isActive: false };
+                        const res = await termApi.update(u.termName, payload);
                         if (res.success) {
                           message.success(`已建议停用术语「${u.termName}」`);
                           setDictionaries(prev => prev.map(d => d.name === u.termName ? { ...d, isActive: false } : d));

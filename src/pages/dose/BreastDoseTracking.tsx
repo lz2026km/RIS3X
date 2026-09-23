@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -12,23 +13,52 @@ import { AlertTriangle } from "lucide-react";
 import { breastDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
 import type { BreastDoseRecord } from "./types";
+import { rdsrApi } from "../../services/api/rdsrApi";
+import { LoadingBanner } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
-// [W3-C] 乳腺剂量: rdsrApi 无乳腺专项端点 (仅 CT), 标注「演示数据」
+// [G005 W8-Dose] 乳腺剂量: 优先取 /rdsr/breast, 端点不可用/返回空时回退内置演示数据。
 export default function BreastDoseTracking() {
-  const totalExams = breastDoseRecords.length;
-  const recalledExams = breastDoseRecords.filter(
+  const [records, setRecords] = useState<BreastDoseRecord[]>(breastDoseRecords);
+  const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await rdsrApi.getBreast();
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setRecords(res.data as BreastDoseRecord[]);
+          setDataSource("api");
+        }
+      } catch {
+        /* 保留演示数据回退 */
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const totalExams = records.length;
+  const recalledExams = records.filter(
     (r: BreastDoseRecord) => r.recallStatus !== "none",
   ).length;
   const avgAGD =
-    breastDoseRecords.reduce((s: number, r: BreastDoseRecord) => s + r.agd, 0) /
+    records.reduce((s: number, r: BreastDoseRecord) => s + r.agd, 0) /
     totalExams;
-  const exceedCount = breastDoseRecords.filter(
+  const exceedCount = records.filter(
     (r: BreastDoseRecord) => r.agd > r.referenceValue,
   ).length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
+      {dataSource === "demo" && (
       <div
         style={{
           padding: "8px 12px",
@@ -41,8 +71,9 @@ export default function BreastDoseTracking() {
           gap: 8,
         }}
       >
-        <AlertTriangle size={14} /> 演示数据：rdsrApi 无乳腺 (MG) 剂量端点，AGD 记录为本地模拟数据
+        <AlertTriangle size={14} /> {t("w8Dose.breastDemo")}
       </div>
+      )}
       <div
         style={{
           display: "grid",
@@ -95,9 +126,9 @@ export default function BreastDoseTracking() {
             <Legend color="#dc2626" label="参考线(6mGy)" />
           </div>
         </div>
-        <ChartContainer height={200} state={breastDoseRecords.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
+        <ChartContainer height={200} state={records.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <BarChart
-            data={breastDoseRecords.map((r: BreastDoseRecord) => ({
+            data={records.map((r: BreastDoseRecord) => ({
               name: r.patientName.slice(0, 3),
               agd: r.agd,
               alert: r.agd > 6,
@@ -110,7 +141,7 @@ export default function BreastDoseTracking() {
             <Tooltip
               content={({ active, payload, label }: { active?: boolean; payload?: Array<{value: number}>; label?: string }) => {
                 if (active && payload && payload.length) {
-                  const record = breastDoseRecords.find((r: BreastDoseRecord) =>
+                  const record = records.find((r: BreastDoseRecord) =>
                     r.patientName.startsWith(label ?? ""),
                   );
                   return (
@@ -144,7 +175,7 @@ export default function BreastDoseTracking() {
             />
             <ReferenceLine y={6} stroke="#dc2626" strokeDasharray="3 3" />
             <Bar dataKey="agd" radius={[4, 4, 0, 0]} name="AGD">
-              {breastDoseRecords.map((entry, index) => (
+              {records.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={entry.agd > 6 ? "#dc2626" : "#1e40af"}
@@ -204,7 +235,7 @@ export default function BreastDoseTracking() {
               </tr>
             </thead>
             <tbody>
-              {breastDoseRecords.map((record: BreastDoseRecord, i: number) => {
+              {records.map((record: BreastDoseRecord, i: number) => {
                 const badge = getAlertBadge(record.alertLevel);
                 return (
                   <tr

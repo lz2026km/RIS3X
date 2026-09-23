@@ -42,7 +42,7 @@ describe('generateReportInsight', () => {
   });
 
   it('handles empty data gracefully', () => {
-    const def = reportDefinitions[0];
+    const def = reportDefinitions[0]!
     const insight = generateReportInsight(def, []);
     expect(insight).toBe('暂无数据，无法生成洞察分析。');
   });

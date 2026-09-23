@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
 import { Search, Calendar, Bell, UserCheck, Syringe, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 import { appointmentApi, type AppointmentDto, examApi, mobileApi, type TodaySummary, type CriticalValueItem } from '../../../services/api'
+import { LoadingBanner } from '../../../components/feedback'
 import { t } from '../../../i18n/appI18n'
 
 export interface NurseAppointment {
@@ -54,10 +55,12 @@ export default function NurseMobileWorkstation() {
   const [criticals, setCriticals] = useState<CriticalValueItem[]>([])
   const [ackingId, setAckingId] = useState<string | null>(null)
   const [usingMock, setUsingMock] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
+      setLoading(true)
       const [aptRes, sumRes, cvRes] = await Promise.allSettled([
         appointmentApi.list({ state: 'SCHEDULED' }),
         mobileApi.getTodaySummary(),
@@ -100,6 +103,7 @@ export default function NurseMobileWorkstation() {
         ])
         setUsingMock(true)
       }
+      if (!cancelled) setLoading(false)
     })()
     return () => { cancelled = true }
   }, [])
@@ -192,6 +196,8 @@ export default function NurseMobileWorkstation() {
           ))}
         </div>
       </div>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
 
       {usingMock && (
         <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>

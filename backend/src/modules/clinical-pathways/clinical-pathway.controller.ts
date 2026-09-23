@@ -63,4 +63,17 @@ export class ClinicalPathwayController {
   enrollPatient(@Body(new ZodValidationPipe(EnrollSchema)) body: z.infer<typeof EnrollSchema>) {
     return this.service.enrollPatient(body)
   }
+
+  // [G005 W3-BackendParity] 患者路径追踪: 推进阶段 / 退出路径
+  @Post('patients/:id/advance')
+  @ApiOperation({ summary: 'Advance patient to next pathway step' })
+  advancePatient(@Param('id') id: string) {
+    return this.service.advancePatient(id)
+  }
+
+  @Post('patients/:id/exit')
+  @ApiOperation({ summary: 'Exit patient from pathway' })
+  exitPatient(@Param('id') id: string) {
+    return this.service.exitPatient(id)
+  }
 }

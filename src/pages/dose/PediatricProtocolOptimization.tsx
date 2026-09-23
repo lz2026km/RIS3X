@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -11,6 +11,9 @@ import {
 import { Info } from "lucide-react";
 import { pediatricProtocols } from "./mockData";
 import type { PediatricProtocol } from "./types";
+import { rdsrApi, type PediatricDoseRecordDto } from "../../services/api/rdsrApi";
+import { LoadingBanner } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
 const AGE_GROUPS = ["0-5岁", "5-10岁", "10-15岁"];
@@ -22,14 +25,80 @@ const ADULT_VS_PED = [
   { name: "0-5岁", dose: 288, fill: "#ef4444" },
 ];
 
+// 由 /rdsr/pediatric 实际记录按年龄段派生协议建议参数
+const AGE_PROTOCOL_META: Record<string, { weightMin: number; weightMax: number; kvp: number; mas: number }> = {
+  "0-5岁": { weightMin: 5, weightMax: 15, kvp: 80, mas: 60 },
+  "5-10岁": { weightMin: 15, weightMax: 30, kvp: 100, mas: 80 },
+  "10-15岁": { weightMin: 30, weightMax: 50, kvp: 120, mas: 100 },
+};
+
+function deriveProtocols(rows: PediatricDoseRecordDto[]): PediatricProtocol[] {
+  const byAge = new Map<string, PediatricDoseRecordDto[]>();
+  for (const r of rows) {
+    if (!r.ageGroup) continue;
+    const list = byAge.get(r.ageGroup) ?? [];
+    list.push(r);
+    byAge.set(r.ageGroup, list);
+  }
+  const out: PediatricProtocol[] = [];
+  for (const [ageGroup, list] of byAge) {
+    if (!AGE_GROUPS.includes(ageGroup)) continue;
+    const meta = AGE_PROTOCOL_META[ageGroup]!;
+    const factor = list.reduce((s, r) => s + r.doseReductionFactor, 0) / list.length;
+    const itemCounts = new Map<string, number>();
+    for (const r of list) itemCounts.set(r.examItem, (itemCounts.get(r.examItem) ?? 0) + 1);
+    const primaryItem = [...itemCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "CT";
+    out.push({
+      protocolName: `${primaryItem}协议`,
+      ageGroup,
+      weightMin: meta.weightMin,
+      weightMax: meta.weightMax,
+      recommendedKVP: meta.kvp,
+      recommendedMAS: meta.mas,
+      doseReductionFactor: Number(factor.toFixed(2)),
+    });
+  }
+  return out.sort((a, b) => AGE_GROUPS.indexOf(a.ageGroup) - AGE_GROUPS.indexOf(b.ageGroup));
+}
+
+// [G005 W8-Dose] 儿科协议: 由 /rdsr/pediatric 记录派生, 端点不可用/返回空时回退内置演示数据。
 export default function PediatricProtocolOptimization() {
   const [selectedAge, setSelectedAge] = useState("0-5岁");
-  const filteredProtocols = pediatricProtocols.filter(
+  const [protocols, setProtocols] = useState<PediatricProtocol[]>(pediatricProtocols);
+  const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await rdsrApi.getPediatric();
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const derived = deriveProtocols(res.data as PediatricDoseRecordDto[]);
+          if (derived.length > 0) {
+            setProtocols(derived);
+            setDataSource("api");
+          }
+        }
+      } catch {
+        /* 保留演示数据回退 */
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filteredProtocols = protocols.filter(
     (p: PediatricProtocol) => p.ageGroup === selectedAge,
   );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
+      {dataSource === "demo" && (
       <div
         style={{
           padding: "8px 12px",
@@ -42,8 +111,9 @@ export default function PediatricProtocolOptimization() {
           gap: 8,
         }}
       >
-        <Info size={14} /> 演示数据：儿科协议优化建议基于 AAPM 指南模板，rdsrApi 无儿科专项端点，参数为本地模拟
+        <Info size={14} /> {t("w8Dose.pediatricProtocolDemo")}
       </div>
+      )}
       <div
         style={{
           background: "var(--bg-card)",

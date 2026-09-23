@@ -1,26 +1,26 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - AI智能质控 v1.0.0
 // @deprecated [v3.0.6.11-104 Wave 5A] 已内嵌为 QCPage 的「AI 智能质控」Tab; 旧路由 /ai-qc redirect → /qc?tab=ai。
 //   文件保留仅作参考/回退，请勿在路由中直接挂载，新功能请改 QCPage。
 // v1.0.4 (R4) 集成：跳转至 AIReportDraftPage 一键自动初稿
 // [v3.0.6.11-75] W1-2: 接入 aiPlatformApi.listQcResults (GET /ai-platform/qc, 后端 auditLog resource=ai-qc)
 import { useState, useEffect } from 'react'
+import type { ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { message } from 'antd'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import { qcImageAiApi } from '../services/api/qcImageAiApi'
+import type { QcAiAssessResult, QcAiAssessRecord } from '../services/api/qcImageAiApi'
 import { t } from '../i18n/appI18n'
 import {
-  ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
-  TrendingUp, TrendingDown, BarChart3, Clock, Camera, Image, X, Check,
-  Eye, Edit3, Activity, Bell, Target, Award, Users, FileText, RefreshCw,
-  Zap, ThumbsUp, ThumbsDown, Plus, Download, ChevronDown, ChevronUp,
+  ShieldCheck, AlertTriangle, CheckCircle, Search, Filter,
+  TrendingUp, Clock, X,
+  Eye, Target, RefreshCw,
+  Zap, Download,
   Brain, Bot, Scan, Gauge, MessageSquare, Wrench
 } from 'lucide-react'
 
 const PRIMARY = '#3b82f6'
 const PRIMARY_DARK = '#2563eb'
-const ACCENT = '#3b82f6'
 const SUCCESS = '#10b981'
 const WARNING = '#f59e0b'
 const DANGER = '#ef4444'
@@ -43,17 +43,32 @@ const QC_RESULTS = ['合格', '警告', '不合格']
 const TECHNICIANS = ['张明', '李华', '王芳', '刘强', '陈静', '赵伟', '孙磊', '周涛']
 
 // 模拟AI质控数据
+interface AIQCRecord {
+  id: string
+  deviceType: string
+  bodyPart: string
+  patientName: string
+  aiScore: number
+  result: '合格' | '警告' | '不合格'
+  technician: string
+  date: string
+  time: string
+  confirmed: boolean
+  confirmedTime: string | null
+  issues: string | null
+}
+
 const generateAIQCData = () => {
-  const data = []
+  const data: AIQCRecord[] = []
   const baseDate = new Date('2026-05-03')
   
   for (let i = 0; i < 50; i++) {
     const date = new Date(baseDate)
     date.setDate(date.getDate() - Math.floor(Math.random() * 30))
-    const deviceType = DEVICE_TYPES[Math.floor(Math.random() * DEVICE_TYPES.length)]
-    const bodyPart = BODY_PARTS[Math.floor(Math.random() * BODY_PARTS.length)]
+    const deviceType = DEVICE_TYPES[Math.floor(Math.random() * DEVICE_TYPES.length)]!
+    const bodyPart = BODY_PARTS[Math.floor(Math.random() * BODY_PARTS.length)]!
     const aiScore = Math.floor(Math.random() * 40) + 60 // 60-100
-    const technician = TECHNICIANS[Math.floor(Math.random() * TECHNICIANS.length)]
+    const technician = TECHNICIANS[Math.floor(Math.random() * TECHNICIANS.length)]!
     
     let result: '合格' | '警告' | '不合格'
     if (aiScore >= 85) result = '合格'
@@ -67,15 +82,15 @@ const generateAIQCData = () => {
       id: `AIQC-${String(i + 1).padStart(4, '0')}`,
       deviceType,
       bodyPart,
-      patientName: ['张三', '李四', '王五', '赵六', '刘七', '陈八', '杨九', '周十'][Math.floor(Math.random() * 8)],
+      patientName: ['张三', '李四', '王五', '赵六', '刘七', '陈八', '杨九', '周十'][Math.floor(Math.random() * 8)]!,
       aiScore,
       result,
       technician,
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split('T')[0]!,
       time: date.toTimeString().slice(0, 5),
       confirmed,
       confirmedTime: confirmedTime ? confirmedTime.toISOString().replace('T', ' ').slice(0, 16) : null,
-      issues: aiScore < 80 ? ['运动伪影', '曝光不当', '体位不正', '对比剂不足'][Math.floor(Math.random() * 4)] : null,
+      issues: aiScore < 80 ? ['运动伪影', '曝光不当', '体位不正', '对比剂不足'][Math.floor(Math.random() * 4)]! : null,
     })
   }
   return data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -83,9 +98,11 @@ const generateAIQCData = () => {
 
 const AI_QC_DATA = generateAIQCData()
 
+type AssessRow = QcAiAssessResult & { verdict?: string }
+
 // [v3.0.6.11-75] 归一化后端 /ai-platform/qc 记录 (auditLog: detail 为 JSON 负载)
-const normalizeQcRow = (item) => {
-  const d = item?.detail && typeof item.detail === 'object' ? item.detail : {}
+const normalizeQcRow = (item: { id?: string; detail?: unknown; createdAt?: string }) => {
+  const d = (item?.detail && typeof item.detail === 'object' ? item.detail : {}) as Record<string, any>
   const createdAt = item?.createdAt ? String(item.createdAt) : ''
   const aiScore = Number(d.aiScore ?? d.score ?? 90)
   const result = d.result ?? (aiScore >= 85 ? '合格' : aiScore >= 70 ? '警告' : '不合格')
@@ -156,7 +173,7 @@ export default function AIQCPage() {
   const [apiError, setApiError] = useState('')
 
   // [G005 Wave4A] G-24 三维度评估: POST /qc/image-ai/assess (后端确定性 seed, 无 DB 可跑)
-  const [dimAssessments, setDimAssessments] = useState([])
+  const [dimAssessments, setDimAssessments] = useState<AssessRow[]>([])
   const [assessStudyId, setAssessStudyId] = useState('EX-5001')
   const [assessing, setAssessing] = useState(false)
   const [assessError, setAssessError] = useState('')
@@ -167,7 +184,7 @@ export default function AIQCPage() {
   // [G005 Wave3A P16] G-24 深化: 历史趋势 / 批量评估 / CSV 导出 / 阈值配置
   const THRESHOLD_KEY = 'g005.aiqc.thresholds.v1'
   const DEFAULT_THRESHOLDS = { artifact: 80, exposure: 80, positioning: 80, overall: 80 }
-  const [thresholds, setThresholds] = useState(() => {
+  const [thresholds, setThresholds] = useState<typeof DEFAULT_THRESHOLDS>(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(THRESHOLD_KEY) ?? 'null')
       return { ...DEFAULT_THRESHOLDS, ...(saved ?? {}) }
@@ -175,11 +192,11 @@ export default function AIQCPage() {
       return DEFAULT_THRESHOLDS
     }
   })
-  const [assessHistory, setAssessHistory] = useState([])
+  const [assessHistory, setAssessHistory] = useState<QcAiAssessRecord[]>([])
   const [trendLoading, setTrendLoading] = useState(false)
   const [showTrend, setShowTrend] = useState(false)
   const [batchIds, setBatchIds] = useState('EX-5001,EX-5002,EX-5003')
-  const [batchResults, setBatchResults] = useState([])
+  const [batchResults, setBatchResults] = useState<(QcAiAssessResult & { verdict: string })[]>([])
   const [batchAssessing, setBatchAssessing] = useState(false)
 
   useEffect(() => {
@@ -187,12 +204,12 @@ export default function AIQCPage() {
   }, [thresholds])
 
   // 维度通过阈值判定: score >= 阈值 通过; >= 阈值-10 告警; 否则失败
-  const dimVerdict = (score, threshold) => {
+  const dimVerdict = (score: number, threshold: number): string => {
     if (score >= threshold) return '通过'
     if (score >= threshold - 10) return '告警'
     return '失败'
   }
-  const overallVerdict = (a) => {
+  const overallVerdict = (a: QcAiAssessResult): string => {
     const dims = [
       dimVerdict(a.artifact.score, thresholds.artifact),
       dimVerdict(a.exposure.score, thresholds.exposure),
@@ -202,9 +219,9 @@ export default function AIQCPage() {
     if (dims.includes('告警') || a.overall.score < thresholds.overall) return '告警'
     return '通过'
   }
-  const verdictColor = (v) => (v === '通过' ? SUCCESS : v === '告警' ? WARNING : DANGER)
+  const verdictColor = (v: string) => (v === '通过' ? SUCCESS : v === '告警' ? WARNING : DANGER)
 
-  const updateThreshold = (key) => (e) => {
+  const updateThreshold = (key: keyof typeof DEFAULT_THRESHOLDS) => (e: ChangeEvent<HTMLInputElement>) => {
     const v = Math.max(50, Math.min(100, Number(e.target.value) || 0))
     setThresholds((prev) => ({ ...prev, [key]: v }))
   }
@@ -225,15 +242,16 @@ export default function AIQCPage() {
 
   // 按日期聚合历史评估 (伪影/曝光/体位/总分 日均)
   const trendData = (() => {
-    const byDate = {}
+    const byDate: Record<string, { artifact: number; exposure: number; positioning: number; overall: number; n: number }> = {}
     for (const r of assessHistory) {
       const d = (r.assessedAt ?? '').slice(0, 10)
-      if (!byDate[d]) byDate[d] = { artifact: 0, exposure: 0, positioning: 0, overall: 0, n: 0 }
-      byDate[d].artifact += r.artifact.score
-      byDate[d].exposure += r.exposure.score
-      byDate[d].positioning += r.positioning.score
-      byDate[d].overall += r.overall.score
-      byDate[d].n += 1
+      let entry = byDate[d]
+      if (!entry) { entry = { artifact: 0, exposure: 0, positioning: 0, overall: 0, n: 0 }; byDate[d] = entry }
+      entry.artifact += r.artifact.score
+      entry.exposure += r.exposure.score
+      entry.positioning += r.positioning.score
+      entry.overall += r.overall.score
+      entry.n += 1
     }
     return Object.entries(byDate)
       .sort((a, b) => (a[0] < b[0] ? -1 : 1))
@@ -252,9 +270,9 @@ export default function AIQCPage() {
     const pad = 36
     const min = 50
     const max = 100
-    const xs = (i) => pad + (i * (w - pad * 2)) / Math.max(1, trendData.length - 1)
-    const ys = (v) => h - pad - ((v - min) / (max - min)) * (h - pad * 2)
-    const series = [
+    const xs = (i: number) => pad + (i * (w - pad * 2)) / Math.max(1, trendData.length - 1)
+    const ys = (v: number) => h - pad - ((v - min) / (max - min)) * (h - pad * 2)
+    const series: { key: 'artifact' | 'exposure' | 'positioning' | 'overall'; color: string; label: string }[] = [
       { key: 'artifact', color: WARNING, label: t('aiQcPage.artifact') },
       { key: 'exposure', color: PRIMARY, label: t('aiQcPage.exposure') },
       { key: 'positioning', color: '#a855f7', label: t('aiQcPage.positioning') },
@@ -301,7 +319,7 @@ export default function AIQCPage() {
     if (ids.length === 0 || batchAssessing) return
     setBatchAssessing(true)
     setAssessError('')
-    const results = []
+    const results: (QcAiAssessResult & { verdict: string })[] = []
     for (const id of ids) {
       try {
         const res = await qcImageAiApi.assess({ studyId: id })
@@ -313,7 +331,7 @@ export default function AIQCPage() {
     setBatchResults(results)
     if (results.length > 0) {
       setDimAssessments((prev) => {
-        const merged = [...results]
+        const merged: AssessRow[] = [...results]
         for (const p of prev) {
           if (!results.some((r) => r.studyId === p.studyId)) merged.push(p)
         }
@@ -328,7 +346,7 @@ export default function AIQCPage() {
 
   // 三维度评分结果导出 CSV (真实 Blob)
   const exportAssessCsv = () => {
-    const rows = batchResults.length > 0 ? batchResults : dimAssessments
+    const rows: AssessRow[] = batchResults.length > 0 ? batchResults : dimAssessments
     if (rows.length === 0) {
       setAssessError(t('aiQcPage.noResultToExport'))
       return
@@ -360,7 +378,7 @@ export default function AIQCPage() {
     URL.revokeObjectURL(url)
   }
 
-  const runAssess = async (studyId) => {
+  const runAssess = async (studyId: string) => {
     setAssessing(true)
     setAssessError('')
     try {
@@ -378,10 +396,10 @@ export default function AIQCPage() {
     }
   }
 
-  const loadAssessments = async (ids) => {
+  const loadAssessments = async (ids: string[]) => {
     setAssessing(true)
     try {
-      const results = []
+      const results: QcAiAssessResult[] = []
       for (const id of ids) {
         const res = await qcImageAiApi.assess({ studyId: id })
         if (res.success && res.data) results.push(res.data)
@@ -569,7 +587,7 @@ export default function AIQCPage() {
       '警告': { bg: '#92400e', color: WARNING },
       '不合格': { bg: '#991b1b', color: DANGER },
     }
-    const c = colors[result] || colors['警告']
+    const c = colors[result] ?? colors['警告']!
     return (
       <span style={{
         padding: '3px 10px',
@@ -585,7 +603,7 @@ export default function AIQCPage() {
   }
 
   // 确认状态
-  const ConfirmStatus = ({ confirmed, time }: { confirmed: boolean; time: string | null }) => (
+  const ConfirmStatus = ({ confirmed, time: _time }: { confirmed: boolean; time: string | null }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       {confirmed ? (
         <>
@@ -1069,12 +1087,12 @@ export default function AIQCPage() {
           <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
             <Target size={13} /> {t('aiQcPage.passThreshold')}
           </span>
-          {[
-            ['artifact', t('aiQcPage.artifact')],
-            ['exposure', t('aiQcPage.exposure')],
-            ['positioning', t('aiQcPage.positioning')],
-            ['overall', t('aiQcPage.overallScore')],
-          ].map(([key, label]) => (
+          {([
+            { key: 'artifact', label: t('aiQcPage.artifact') },
+            { key: 'exposure', label: t('aiQcPage.exposure') },
+            { key: 'positioning', label: t('aiQcPage.positioning') },
+            { key: 'overall', label: t('aiQcPage.overallScore') },
+          ] as { key: keyof typeof DEFAULT_THRESHOLDS; label: string }[]).map(({ key, label }) => (
             <label key={key} style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 5 }}>
               {label}
               <input
@@ -1185,7 +1203,7 @@ export default function AIQCPage() {
           <div style={{ borderBottom: `1px solid ${DARK_BORDER}`, padding: '14px 20px', overflowX: 'auto' }}>
             <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', gap: 14, alignItems: 'center' }}>
               <span>{t('aiQcPage.batchResults', { count: batchResults.length })}</span>
-              {[['通过', 'aiQcPage.verdictPass'], ['告警', 'aiQcPage.verdictWarn'], ['失败', 'aiQcPage.verdictFail']].map(([v, k]) => (
+              {([['通过', 'aiQcPage.verdictPass'], ['告警', 'aiQcPage.verdictWarn'], ['失败', 'aiQcPage.verdictFail']] as [string, string][]).map(([v, k]) => (
                 <span key={v} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: verdictColor(v) }} /> {t(k)}
                 </span>

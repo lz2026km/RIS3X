@@ -93,15 +93,15 @@ export const DentalAiOnnxPage: React.FC = () => {
   const runRealInference = async (ort: typeof import('onnxruntime-web'), sess: InferenceSession, tensor: Float32Array): Promise<DentalDetection[]> => {
     const feeds: Record<string, Tensor> = { images: new ort.Tensor('float32', tensor, [1, 3, INPUT_SIZE, INPUT_SIZE]) };
     const results = await sess.run(feeds);
-    const output = results.output0.data as Float32Array;
+    const output = results.output0!.data as Float32Array;
     const detections: DentalDetection[] = [];
     for (let i = 0; i < output.length; i += 6) {
-      if (output[i + 4] > 0.5) {
+      if (output[i + 4]! > 0.5) {
         detections.push({
-          toothNo: [16, 17, 26, 27, 36, 37, 46, 47][i % 8],
-          surface: ['O', 'M', 'D', 'B'][i % 4],
-          confidence: output[i + 4],
-          severity: output[i + 4] > 0.8 ? 'severe' : output[i + 4] > 0.65 ? 'moderate' : 'mild',
+          toothNo: [16, 17, 26, 27, 36, 37, 46, 47][i % 8]!,
+          surface: ['O', 'M', 'D', 'B'][i % 4]!,
+          confidence: output[i + 4]!,
+          severity: output[i + 4]! > 0.8 ? 'severe' : output[i + 4]! > 0.65 ? 'moderate' : 'mild',
           bbox: [output[i], output[i + 1], output[i + 2], output[i + 3]] as [number, number, number, number],
         });
       }
@@ -116,7 +116,7 @@ export const DentalAiOnnxPage: React.FC = () => {
     setLoading(true);
     try {
       const tensor = await loadImageToTensor(file);
-      const isRealSession = !!ortLib && !!session && session instanceof ortLib.InferenceSession;
+      const isRealSession = !!ortLib && !!session && session instanceof (ortLib.InferenceSession as unknown as Function);
       let detections: DentalDetection[];
       if (isRealSession && ortLib && session) {
         detections = await runRealInference(ortLib, session, tensor);

@@ -7,6 +7,7 @@ import { Download, X, Loader2, CheckCircle2, AlertCircle, FileText } from 'lucid
 import { BulkExporter } from '../../services/export/bulk/BulkExporter';
 import type { BulkExportResult, ExportProgressInfo, ExportFormatV2 } from '../../types/export';
 import { ExportProgressTracker } from './ExportProgressTracker';
+import { uniqueId } from '../../utils/uniqueId';
 
 interface BulkExportDialogProps {
   open: boolean;
@@ -34,7 +35,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
   const handleExport = useCallback(async () => {
     setRunning(true);
     setResult(null);
-    const jobId = `bulk-${Date.now()}`;
+    const jobId = uniqueId('bulk');
     try {
       const reports = reportIds.map(id => ({ id }));
       const promise = BulkExporter.exportBatch(reports, format, {});

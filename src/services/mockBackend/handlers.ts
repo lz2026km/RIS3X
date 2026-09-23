@@ -112,6 +112,12 @@ import { miscMissingHandlers } from './miscMissingHandlers';
 import { w3MissingHandlers } from './w3MissingHandlers';
 // [G005 W5] 缺失端点补齐 (worklist/report/exam/patient/templates 等 45 簇) — 必须最前置注册
 import { w5MissingHandlers } from './w5MissingHandlers';
+// [G005 W3-BackendParity] 后端补齐端点 (口腔影像后处理/眼科PACS/AI融合/通用AI诊断/DICOMweb/骨科/儿科剂量) — 必须最前置注册
+import { w3BackendParityHandlers } from './w3BackendParityHandlers';
+// [G005 W2] 后端有前端无 端点补齐 (clinical-pathways/definitions, dictionary 根, tech-ops 记录详情, eye 旧路径, ai/score)
+import { w2OrphansHandlers } from './w2OrphansHandlers';
+// [G005 W8-Dose] 剂量监测页面真实化 (staff/breast/device history/overview) — 最前置注册
+import { w8DoseHandlers } from './w8DoseHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -5295,6 +5301,12 @@ const advancedHandlers: any[] = [
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
+  // [G005 W8-Dose] 最最先注册: 剂量页面本 wave 新增端点 (/rdsr/staff|breast|device/:id/history|overview)
+  ...w8DoseHandlers,
+  // [G005 W3-BackendParity] 最最先注册: 后端本次补齐的前端 parity 端点
+  ...w3BackendParityHandlers,
+  // [G005 W2] 最先注册: 后端有前端无 端点 (静态路径需先于既有参数/通配路由)
+  ...w2OrphansHandlers,
   // [W10-B] 最先注册: 骨科影像分析等本 wave 新增端点 (避免被通配/参数路由拦截)
   ...w10MockFillHandlers,
   // [G005 W5] 最先注册: 静态缺失端点需先于既有参数/通配路由 (/worklist/:id、/exams/:id、/devices/:id 等)

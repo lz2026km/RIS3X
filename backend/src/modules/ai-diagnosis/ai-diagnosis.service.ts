@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import {
   extraSeedLung,
   extraSeedBreast,
@@ -964,6 +964,55 @@ export class AiDiagnosisService {
     if (!pool) throw new NotFoundException(`未知模型: ${model}`)
     const found = pool.find((c) => c.id === id)
     if (!found) throw new NotFoundException(`病例不存在: ${model}/${id}`)
+    return ok(found)
+  }
+
+  // ── [G005 W3-BackendParity] 通用模型路由 (前端 aiDiagnosisApi.listResults/getResult/confirmResult) ──
+  // 支持 4 个模型: lung-cad | breast-cad | fracture-cad | cardiac-ai; 其他模型 400。
+  static readonly SUPPORTED_MODELS = ['lung-cad', 'breast-cad', 'fracture-cad', 'cardiac-ai'] as const
+
+  private resolveModelPool(model: string): Array<Record<string, unknown>> {
+    const pool =
+      model === 'lung-cad' ? seededLung
+        : model === 'breast-cad' ? seededBreast
+        : model === 'fracture-cad' ? seededFracture
+        : model === 'cardiac-ai' ? seededCardiac
+        : null
+    if (!pool) {
+      throw new BadRequestException(`不支持的 AI 模型: ${model} (支持: ${AiDiagnosisService.SUPPORTED_MODELS.join(', ')})`)
+    }
+    return pool as unknown as Array<Record<string, unknown>>
+  }
+
+  /** GET /ai-diagnosis/:model/results */
+  listResultsByModel(model: string, filter: { status?: string; modality?: string } = {}) {
+    const pool = this.resolveModelPool(model)
+    let data = pool
+    if (filter.status) data = data.filter((r) => r.status === filter.status)
+    if (filter.modality) data = data.filter((r) => r.modality === filter.modality)
+    return ok(data)
+  }
+
+  /** GET /ai-diagnosis/:model/results/:id */
+  getResultByModel(model: string, id: string) {
+    const pool = this.resolveModelPool(model)
+    const found = pool.find((r) => r.id === id)
+    if (!found) throw new NotFoundException(`AI 结果不存在: ${model}/${id}`)
+    return ok(found)
+  }
+
+  /** POST /ai-diagnosis/:model/results/:id/review */
+  reviewResultByModel(model: string, id: string, body: Record<string, unknown>) {
+    const pool = this.resolveModelPool(model)
+    const found = pool.find((r) => r.id === id)
+    if (!found) throw new NotFoundException(`AI 结果不存在: ${model}/${id}`)
+    const status = String(body.status ?? 'confirmed')
+    found.status = status === 'confirmed' ? 'confirmed' : 'reviewed'
+    if (body.comment !== undefined) found.comment = body.comment
+    if (body.amendedDiagnosis !== undefined) found.recommendation = body.amendedDiagnosis
+    if (body.amendedAssessment !== undefined) found.overallAssessment = body.amendedAssessment
+    if (body.amendedBiRads !== undefined) found.overallBiRads = body.amendedBiRads
+    found.reviewedAt = new Date().toISOString()
     return ok(found)
   }
 }

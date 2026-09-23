@@ -12,7 +12,7 @@ async function login(page: any) {
   await page.locator('input').nth(0).fill('admin')
   await page.locator('input').nth(1).fill('123')
   await page.click('button[type="submit"]')
-  await page.waitForURL((url) => url.pathname !== '/login', { timeout: 10000 })
+  await page.waitForURL((url: URL) => url.pathname !== '/login', { timeout: 10000 })
   await page.waitForTimeout(2000)
 }
 

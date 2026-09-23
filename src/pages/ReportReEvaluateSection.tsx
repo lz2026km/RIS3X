@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Checkbox, Input, InputNumber, Space, Tag, message } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { ClipboardCheck, FileText, RefreshCw, Save } from 'lucide-react';
+import { ClipboardCheck, FileText, History, RefreshCw, Save } from 'lucide-react';
 import {
   reportQualityApi,
   type QualityEvaluation,
@@ -41,6 +41,9 @@ export function ReportReEvaluateSection() {
   const [structuredCompletion, setStructuredCompletion] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<QualityEvaluation | null>(null);
+  // [G005 W2] 历史评分 (GET /reports/quality/history/:reportId)
+  const [history, setHistory] = useState<QualityEvaluation[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const loadRules = useCallback(async () => {
     setRulesLoading(true);
@@ -54,6 +57,16 @@ export function ReportReEvaluateSection() {
   useEffect(() => {
     void loadRules();
   }, [loadRules]);
+
+  // [G005 W2] 报告历史评分 (reportQualityApi.getHistory)
+  const loadHistory = useCallback(async (id: string) => {
+    if (!id.trim()) { setHistory([]); return; }
+    setHistoryLoading(true);
+    const res = await reportQualityApi.getHistory(id.trim());
+    if (res.success && Array.isArray(res.data)) setHistory(res.data);
+    else setHistory([]);
+    setHistoryLoading(false);
+  }, []);
 
   const handleReEvaluate = async () => {
     if (!reportId.trim()) {
@@ -79,6 +92,7 @@ export function ReportReEvaluateSection() {
     if (res.success && res.data) {
       setResult(res.data);
       message.success(t('rqExt.evaluated'));
+      void loadHistory(reportId);
     } else {
       message.error(res.error?.message ?? t('w2d.loadFailed'));
     }
@@ -166,6 +180,27 @@ export function ReportReEvaluateSection() {
             </div>
           )}
         </Space>
+      </DashboardCard>
+
+      {/* [G005 W2] 历史评分记录 (reportQualityApi.getHistory) */}
+      <DashboardCard
+        title={`${t('w2Orphans.historyTitle')} (${t('w2Orphans.historyCount', { count: history.length })})`}
+        icon={<History size={15} />}
+      >
+        <DataTable<QualityEvaluation>
+          rowKey="id"
+          loading={historyLoading}
+          emptyText={t('w2Orphans.historyEmpty')}
+          dataSource={history}
+          columns={[
+            { title: t('w2Orphans.evaluatedAt'), dataIndex: 'evaluatedAt', key: 'evaluatedAt' },
+            { title: t('rqExt.totalScore'), dataIndex: 'totalScore', key: 'totalScore' },
+            {
+              title: t('rqExt.grade'), dataIndex: 'grade', key: 'grade',
+              render: (g: string) => <Tag color={g === 'A' ? 'green' : g === 'B' ? 'blue' : g === 'C' ? 'orange' : 'red'}>{g}</Tag>,
+            },
+          ]}
+        />
       </DashboardCard>
 
       <DashboardCard title={t('rqExt.scoreRules')} icon={<FileText size={15} />}>

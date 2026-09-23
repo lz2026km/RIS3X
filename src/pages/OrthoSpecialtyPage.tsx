@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Bone, Activity, AlertTriangle, Search, TrendingUp, Stethoscope, BarChart3, FileText, Scale, Plus } from 'lucide-react';
 import { t } from '../i18n/appI18n';
+import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { orthoSpecialtyApi, type OrthoStudy } from '../services/api/orthoSpecialtyApi';
 
 const JOINT_LABELS: Record<string, string> = { shoulder: 'ortho.jointShoulder', elbow: 'ortho.jointElbow', wrist: 'ortho.jointWrist', hip: 'ortho.jointHip', knee: 'ortho.jointKnee', ankle: 'ortho.jointAnkle', cervical: 'ortho.jointCervical', lumbar: 'ortho.jointLumbar' };
@@ -23,17 +24,25 @@ const OrthoSpecialtyPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newStudy, setNewStudy] = useState({ name: '', joint: 'knee' as keyof typeof JOINT_LABELS, modality: 'XR', klGrade: 'II' });
   const [studies, setStudies] = useState<OrthoStudy[]>(mockStudies);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   // [W10-B] 优先拉取后端 /ortho-specialty/studies, 接口不可用/返回空时保留内置演示数据
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoading(true);
       try {
         const res = await orthoSpecialtyApi.listStudies();
         if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
           setStudies(res.data);
+          setLoadError(null);
+        } else if (!cancelled) {
+          setLoadError(t('w9.states.error'));
         }
       } catch {
-        // 保留 mockStudies 回退
+        if (!cancelled) setLoadError(t('w9.states.error'));
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
@@ -63,6 +72,9 @@ const OrthoSpecialtyPage = () => {
 
   return (
     <div style={{ padding: 0 }}>
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
+
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> {t('ortho.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#8b5cf622', color: '#9333ea', border: '1px solid #e9d5ff' }}>{t('ortho.demoData')}</span></h1>
@@ -162,6 +174,13 @@ const OrthoSpecialtyPage = () => {
                 <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('ortho.colDate')}</th>
               </tr></thead>
               <tbody>
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={8}>
+                      <AppEmpty variant="no-results" minHeight={160} />
+                    </td>
+                  </tr>
+                )}
                 {filtered.map(r => (
                   <tr key={r.id}>
                     <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.id}</td>

@@ -1,18 +1,17 @@
-// @ts-nocheck
 // @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 DevicePage "设备故障" Tab (src/pages/DevicePage.tsx), 文件保留, 旧路由 /device-fault 已 redirect → /devices。功能未删除, 请勿单独继续扩展本页。
 import { Card } from 'antd'
 // G005 放射科RIS系统 - 设备故障登记页面（故障报修→维修→验收闭环管理）
 import { useState, useEffect } from 'react'
 import {
-  AlertTriangle, Wrench, Activity, Clock, Search, CheckCircle,
-  XCircle, RefreshCw, Plus, Filter, ChevronDown, ChevronUp,
+  AlertTriangle, Wrench, Activity, Search, CheckCircle,
+  Plus,
   BarChart2, PieChart as PieChartIcon, TrendingUp, Timer,
-  User, Settings, Eye, Check, X, AlertCircle, Bell,
-  FileText, Calendar, Zap, Gauge, Download, Send
+  User, X, AlertCircle,
+  FileText, Zap, Gauge, Send
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  LineChart, Line, PieChart as RePieChart, Pie, Cell, Legend,
+  PieChart as RePieChart, Pie, Cell,
   AreaChart, Area
 } from 'recharts'
 import { deviceMgmtApi, type DeviceFault } from '../services/api/deviceMgmtApi'
@@ -58,14 +57,31 @@ const PRIORITY_COLORS: Record<string, string> = {
   '低': C.textLight,
 }
 
-const PIE_COLORS = [C.danger, C.warning, C.primary, C.success, C.info, '#7c3aed', '#0891b2']
-
 // ============================================================
 // 模拟数据
 // ============================================================
 
+interface FaultRecord {
+  id: string
+  deviceId: string
+  deviceName: string
+  faultTime: string
+  reporter: string
+  faultType: string
+  description: string
+  priority: string
+  status: string
+  assignEngineer: string | null
+  repairStartTime?: string
+  repairCompleteTime?: string
+  acceptanceTime?: string | null
+  estimatedCost?: number
+  actualCost?: number
+  faultSymptoms?: string
+}
+
 // 故障登记记录
-const INITIAL_FAULT_RECORDS = [
+const INITIAL_FAULT_RECORDS: FaultRecord[] = [
   { id: 'F001', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', faultTime: '2026-04-28 09:15', reporter: '王医生', faultType: '硬件故障', description: '球管曝光异常，发出错误代码E-1042', priority: '紧急', status: '维修中', assignEngineer: '张工', repairStartTime: '2026-04-28 10:30', estimatedCost: 85000, faultSymptoms: '曝光时球管发出异常声响，控制台显示E-1042错误' },
   { id: 'F002', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', faultTime: '2026-04-27 14:20', reporter: '李技师', faultType: '软件故障', description: '图像重建失败，提示梯度模块通信异常', priority: '高', status: '待验收', assignEngineer: '李工', repairStartTime: '2026-04-27 15:00', repairCompleteTime: '2026-04-28 11:00', acceptanceTime: null, estimatedCost: 12000, faultSymptoms: '梯度放大器通信超时，图像重建中断' },
   { id: 'F003', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', faultTime: '2026-04-26 08:30', reporter: '张护士', faultType: '机械故障', description: '探测器面板无法复位，卡片堵塞', priority: '中', status: '已完成', assignEngineer: '王工', repairStartTime: '2026-04-26 09:00', repairCompleteTime: '2026-04-26 14:30', acceptanceTime: '2026-04-26 16:00', actualCost: 1800, faultSymptoms: '探测器面板卡住，无法完成复位流程' },
@@ -99,10 +115,10 @@ const DEVICES = [
 
 // [v3.0.6.11-96 Wave 3A P1] DeviceFault (API) → 主表记录形状映射
 // severity: CRITICAL/HIGH/MEDIUM/LOW → 优先级; status 英文态 → 中文展示态
-const mapApiFaultToRecord = (f) => {
+const mapApiFaultToRecord = (f: DeviceFault): FaultRecord => {
   const device = DEVICES.find(d => d.id === f.deviceId)
   const priority = f.severity === 'CRITICAL' ? '紧急' : f.severity === 'HIGH' ? '高' : f.severity === 'MEDIUM' ? '中' : '低'
-  const statusMap = {
+  const statusMap: Record<string, string> = {
     OPEN: '待处理', PENDING: '待处理', IN_PROGRESS: '维修中', REPAIRING: '维修中',
     RESOLVED: '待验收', CLOSED: '已完成', COMPLETED: '已完成', CANCELLED: '已取消',
   }
@@ -295,7 +311,7 @@ export default function DeviceFaultPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<typeof INITIAL_FAULT_RECORDS[0] | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
-  const [apiFaults, setApiFaults] = useState<DeviceFault[]>([])
+  const [, setApiFaults] = useState<DeviceFault[]>([])
   // [v3.0.6.11-96 Wave 3A P1] 主表数据源: apiFaults 优先; 空/失败回退 INITIAL_FAULT_RECORDS
   const [usingFallback, setUsingFallback] = useState(true)
 

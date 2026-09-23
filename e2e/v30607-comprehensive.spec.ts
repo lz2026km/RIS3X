@@ -29,7 +29,7 @@ test.describe('v3.0.6.11-7 综合验证', () => {
     };
     await page.goto(`${BASE}/login`, { waitUntil: 'load', timeout: 30000 })
     await page.waitForTimeout(2000)
-    await page.evaluate((p) => localStorage.setItem('ris_current_user', JSON.stringify(p)), payload)
+    await page.evaluate((p: typeof payload) => localStorage.setItem('ris_current_user', JSON.stringify(p)), payload)
     await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 30000 })
     await page.waitForTimeout(3000)
   }

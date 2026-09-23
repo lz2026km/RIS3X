@@ -1,0 +1,16 @@
+{
+  "title": "NLP 报告纠错",
+  "subtitle": "拼写检错 · 医学术语规范化",
+  "spellCheck": "拼写检错",
+  "terminology": "术语规范化",
+  "inputText": "输入报告文本",
+  "inputPlaceholder": "在此输入或粘贴报告文本...",
+  "check": "检查",
+  "checking": "检查中...",
+  "suggestions": "纠错建议",
+  "highlightedText": "高亮文本",
+  "replaceAll": "一键全部替换",
+  "replace": "替换",
+  "noIssues": "未发现拼写问题",
+  "termNormalization": "术语规范化建议"
+}

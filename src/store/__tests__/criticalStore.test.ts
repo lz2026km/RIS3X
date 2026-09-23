@@ -41,7 +41,7 @@ describe('criticalStore', () => {
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
       expect(useCriticalStore.getState().values).toHaveLength(1);
-      expect(useCriticalStore.getState().values[0].id).toBe('cv-1');
+      expect(useCriticalStore.getState().values[0]!.id).toBe('cv-1');
       expect(useCriticalStore.getState().loading).toBe(false);
       expect(useCriticalStore.getState().error).toBeNull();
     });
@@ -72,7 +72,7 @@ describe('criticalStore', () => {
       await useCriticalStore.getState().load();
       mockNotify.mockResolvedValue({ success: true, data: null as unknown as Record<string, unknown>, error: undefined });
       await useCriticalStore.getState().notify('cv-1', 'PHONE');
-      expect(useCriticalStore.getState().values[0].status).toBe('notified');
+      expect(useCriticalStore.getState().values[0]!.status).toBe('notified');
     });
   });
 
@@ -83,7 +83,7 @@ describe('criticalStore', () => {
       await useCriticalStore.getState().load();
       mockAcknowledge.mockResolvedValue({ success: true });
       await useCriticalStore.getState().acknowledge('cv-1');
-      expect(useCriticalStore.getState().values[0].status).toBe('acknowledged');
+      expect(useCriticalStore.getState().values[0]!.status).toBe('acknowledged');
     });
 
     it('handles acknowledge API failure', async () => {
@@ -92,7 +92,7 @@ describe('criticalStore', () => {
       await useCriticalStore.getState().load();
       mockAcknowledge.mockResolvedValue({ success: false, data: null, error: { message: '确认失败' } });
       await useCriticalStore.getState().acknowledge('cv-1');
-      expect(useCriticalStore.getState().values[0].status).toBe('notified');
+      expect(useCriticalStore.getState().values[0]!.status).toBe('notified');
     });
   });
 
@@ -103,7 +103,7 @@ describe('criticalStore', () => {
       await useCriticalStore.getState().load();
       mockResolve.mockResolvedValue({ success: true });
       await useCriticalStore.getState().resolve('cv-1');
-      expect(useCriticalStore.getState().values[0].status).toBe('resolved');
+      expect(useCriticalStore.getState().values[0]!.status).toBe('resolved');
     });
 
     it('handles resolve API failure', async () => {
@@ -112,7 +112,7 @@ describe('criticalStore', () => {
       await useCriticalStore.getState().load();
       mockResolve.mockResolvedValue({ success: false, data: null, error: { message: '处理失败' } });
       await useCriticalStore.getState().resolve('cv-1');
-      expect(useCriticalStore.getState().values[0].status).not.toBe('resolved');
+      expect(useCriticalStore.getState().values[0]!.status).not.toBe('resolved');
     });
   });
 
@@ -123,8 +123,8 @@ describe('criticalStore', () => {
       await useCriticalStore.getState().load();
       mockEscalate.mockResolvedValue({ success: true });
       await useCriticalStore.getState().escalate('cv-1', 'chief');
-      expect(useCriticalStore.getState().values[0].status).toBe('escalated');
-      expect(useCriticalStore.getState().values[0].escalatedTo).toBe('chief');
+      expect(useCriticalStore.getState().values[0]!.status).toBe('escalated');
+      expect(useCriticalStore.getState().values[0]!.escalatedTo).toBe('chief');
     });
   });
 });

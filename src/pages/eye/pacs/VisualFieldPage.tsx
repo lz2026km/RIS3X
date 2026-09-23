@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Space, Statistic, Spin } from "antd";
-import { Activity, Target } from 'lucide-react';
+import { Card, Row, Col, Tag, Space, Statistic, Spin, Button } from "antd";
+import { Activity, Target, RefreshCw, Download } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 import { t } from "../../../i18n/appI18n";
@@ -9,6 +9,18 @@ const VisualFieldPage: React.FC = () => {
   const [study, setStudy] = useState<any>(null);
   const [vf, setVf] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [reloadTick, setReloadTick] = useState(0);
+
+  const handleExport = () => {
+    const payload = { study, visualField: vf, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `视野报告_${study?.id ?? "export"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -31,7 +43,7 @@ const VisualFieldPage: React.FC = () => {
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('visualField.loading')} /></div>;
   if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>{t('visualField.noData')}</div>;
@@ -43,6 +55,10 @@ const VisualFieldPage: React.FC = () => {
         minHeight: "calc(100vh - 56px)",
       }}
     >
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
+        <Button icon={<RefreshCw size={16} />} onClick={() => setReloadTick((n) => n + 1)}>{t('w1tables.viewer.refresh')}</Button>
+        <Button type="primary" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.viewer.export')}</Button>
+      </div>
       <Row gutter={12}>
         <Col span={16}>
           <Card

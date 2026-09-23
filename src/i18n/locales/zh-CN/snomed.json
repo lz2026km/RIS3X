@@ -1,0 +1,14 @@
+{
+  "title": "SNOMED CT 编码",
+  "subtitle": "报告文本 → SNOMED CT 编码 · 编码搜索",
+  "reportInput": "报告文本输入",
+  "inputPlaceholder": "输入报告文本进行编码...",
+  "encode": "编码",
+  "encoding": "编码中...",
+  "encodedCodes": "编码结果",
+  "confirmAll": "全部确认",
+  "noCodesFound": "未匹配到 SNOMED CT 编码",
+  "searchCodes": "SNOMED CT 编码搜索",
+  "searchPlaceholder": "输入关键词搜索...",
+  "noSearchResults": "未找到匹配编码"
+}

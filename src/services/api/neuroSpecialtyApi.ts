@@ -31,6 +31,12 @@ export interface NeuroStudy {
   ruptureRisk?: string
   date: string
   status: string
+  acquiredAt?: string
+  technician?: string
+  radiologist?: string
+  deviceId?: string
+  accessionNumber?: string
+  findings?: string
 }
 
 export interface NeuroStats {

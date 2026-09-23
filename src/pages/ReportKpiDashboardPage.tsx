@@ -7,10 +7,12 @@
 import { useState, useEffect } from 'react';
 import {
   BarChart3, FileText, Clock, Target, Sparkles, CheckCircle2,
-  Zap, Award, Server, Leaf, Cloud, Cpu, Activity, TrendingUp, Gauge,
+  Zap, Award, Server, Leaf, Cloud, Cpu, Activity, TrendingUp, Gauge, Download,
 } from 'lucide-react';
 import { kpiEngine } from '../services/analytics/KpiEngine';
 import type { KpiSnapshot } from '../types/analytics';
+import { DataTable } from '../components/common/DataTable';
+import { ActionButton } from '../components/common/ActionButton';
 import {
   KpiCard, KpiCardGrid, DashboardCard, ProgressRing, TrendChart, SkeletonKpi,
 } from '../components/dashboard';
@@ -74,6 +76,38 @@ export default function ReportKpiDashboardPage() {
   const modalityColors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899', DSA: '#dc2626' };
   const modalityTotal = Object.values(modalityTotals).reduce((a, b) => a + b, 0);
 
+  const kpiRows = snapshot.values.map(v => {
+    const def = kpiEngine.getDefinition(v.kpiId);
+    return { ...v, name: def?.name ?? v.kpiId, unit: def?.unit ?? '' };
+  });
+
+  const handleExport = () => {
+    const rows: string[][] = [
+      [t('w1tables.kpi.id'), t('w1tables.kpi.name'), t('w1tables.kpi.value'), t('w1tables.kpi.unit'), t('w1tables.kpi.mom'), t('w1tables.kpi.trend')],
+      ...kpiRows.map(r => [r.kpiId, r.name, String(r.value), r.unit, r.mom != null ? `${r.mom}%` : '-', r.trend]),
+    ];
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `报告KPI_${period}_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const kpiColumns = [
+    { title: t('w1tables.kpi.id'), dataIndex: 'kpiId', key: 'kpiId', width: 100 },
+    { title: t('w1tables.kpi.name'), dataIndex: 'name', key: 'name' },
+    { title: t('w1tables.kpi.value'), dataIndex: 'value', key: 'value', align: 'right' as const },
+    { title: t('w1tables.kpi.unit'), dataIndex: 'unit', key: 'unit', width: 90 },
+    { title: t('w1tables.kpi.mom'), dataIndex: 'mom', key: 'mom', align: 'right' as const, render: (v: number | undefined) => v != null ? `${v}%` : '-' },
+    {
+      title: t('w1tables.kpi.trend'), dataIndex: 'trend', key: 'trend', align: 'center' as const,
+      render: (v: string) => v === 'up' ? t('w1tables.kpi.trendUp') : v === 'down' ? t('w1tables.kpi.trendDown') : t('w1tables.kpi.trendFlat'),
+    },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
@@ -105,6 +139,7 @@ export default function ReportKpiDashboardPage() {
             </button>
           ))}
         </div>
+        <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.export')}</ActionButton>
       </div>
 
       {/* 核心 KPI 4 大 (v3.0.6.11-103 Wave 6: KpiCard) */}
@@ -209,6 +244,13 @@ export default function ReportKpiDashboardPage() {
         <KpiCard title={t('reportKpi.filmFreeRate')} value={`${val('kpi-081')?.value ?? 86}%`} sub={t('reportKpi.reduceFilmWaste')} icon={<Cloud size={20} />} color="info" />
         <KpiCard title={t('reportKpi.carbonReduction')} value={`${(val('kpi-082')?.value ?? 92) * 0.013} t`} sub={t('reportKpi.monthCumulative')} icon={<Gauge size={20} />} color="success" />
       </KpiCardGrid>
+
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <BarChart3 size={13} /> {t('w1tables.kpi.title')}
+        </div>
+        <DataTable dataSource={kpiRows} rowKey="kpiId" columns={kpiColumns} pagination={{ pageSize: 20, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Search, Filter, X, Download, Printer } from 'lucide-react'
 import { userApi } from '../../services/api/userApi'
+import { LoadingBanner, ErrorBanner } from '../../components/feedback'
+import { t } from '../../i18n/appI18n'
 
 const WHITE = 'var(--bg-card)'
 const GRAY = '#64748b'
@@ -49,23 +51,35 @@ export default function ReportHeader({
 }: ReportHeaderProps) {
   // [v3.0.6.11-95 Wave2B P1] 医生下拉真实化: userApi.list → role 为 DOCTOR/DIRECTOR (医生/主任)
   const [doctors, setDoctors] = useState<DoctorOption[]>(cachedDoctors ?? [])
+  const [loadingDoctors, setLoadingDoctors] = useState(false)
+  const [doctorError, setDoctorError] = useState<string | null>(null)
   useEffect(() => {
     if (cachedDoctors) return
     let cancelled = false
-    userApi.list(0, 200).then((res) => {
-      if (cancelled) return
-      const raw = res.data as unknown
-      const items = Array.isArray(raw) ? raw : ((raw as { items?: unknown[] } | null)?.items ?? [])
-      const list: DoctorOption[] = (items as Array<{ id: string; fullName?: string; role?: string; name?: string }>)
-        // MSW toUserDto 将 role 映射为中文职称 (主任医师/副主任医师/主治医师/住院医师等), 后端为 DOCTOR/DIRECTOR 枚举
-        .filter(u => {
-          const r = String(u.role ?? '');
-          const up = r.toUpperCase();
-          return up.includes('DOCTOR') || up.includes('DIRECTOR') || up.includes('主任') || up.includes('医师') || r === '医生';
-        })
-        .map(u => ({ id: u.id, name: u.fullName ?? u.name ?? u.id, title: String(u.role ?? '') }))
-      if (list.length > 0) { cachedDoctors = list; setDoctors(list) }
-    }).catch(() => { /* 列表不可用时下拉为空, 不影响其他筛选 */ })
+    setLoadingDoctors(true)
+    ;(async () => {
+      try {
+        const res = await userApi.list(0, 200)
+        if (cancelled) return
+        const raw = res.data as unknown
+        const items = Array.isArray(raw) ? raw : ((raw as { items?: unknown[] } | null)?.items ?? [])
+        const list: DoctorOption[] = (items as Array<{ id: string; fullName?: string; role?: string; name?: string }>)
+          // MSW toUserDto 将 role 映射为中文职称 (主任医师/副主任医师/主治医师/住院医师等), 后端为 DOCTOR/DIRECTOR 枚举
+          .filter(u => {
+            const r = String(u.role ?? '');
+            const up = r.toUpperCase();
+            return up.includes('DOCTOR') || up.includes('DIRECTOR') || up.includes('主任') || up.includes('医师') || r === '医生';
+          })
+          .map(u => ({ id: u.id, name: u.fullName ?? u.name ?? u.id, title: String(u.role ?? '') }))
+        if (list.length > 0) { cachedDoctors = list; setDoctors(list) }
+        setDoctorError(null)
+      } catch {
+        /* 列表不可用时下拉为空, 不影响其他筛选 */
+        if (!cancelled) setDoctorError(t('w9.states.error'))
+      } finally {
+        if (!cancelled) setLoadingDoctors(false)
+      }
+    })()
     return () => { cancelled = true }
   }, [])
   const btnStyle = (active: boolean, color: string): React.CSSProperties => ({
@@ -97,6 +111,9 @@ export default function ReportHeader({
       background: WHITE, borderRadius: 10, padding: '14px 16px',
       border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', marginBottom: 14,
     }}>
+      {loadingDoctors && <LoadingBanner message={t('w9.states.loading')} />}
+      {doctorError && !loadingDoctors && <ErrorBanner message={doctorError} />}
+
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 220, border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 12px', background: 'var(--bg-card)' }}>
           <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
@@ -134,6 +151,10 @@ export default function ReportHeader({
           </select>
         </div>
       </div>
+
+      {!loadingDoctors && !doctorError && doctors.length === 0 && (
+        <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 10 }}>{t('w9.states.empty')}</div>
+      )}
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
-import { Users, Search, TrendingUp, Award, Clock, CheckCircle, XCircle, ChevronDown, ChevronRight } from 'lucide-react'
+import { DataTable } from '../../components/common/DataTable'
+import { Users, Search, TrendingUp, Award, Clock, CheckCircle, XCircle } from 'lucide-react'
 // [W2-A] 人员名册/工作量接 userApi 实时; 排班/满意度趋势无数据源 → 标注演示数据
 import { userApi } from '../../services/api/userApi'
 import { t } from '../../i18n/appI18n'
@@ -118,6 +119,31 @@ export default function HrOperationsPage() {
     name: s.name, examsThisWeek: s.examsThisWeek,
   }))
 
+  const staffColumns = [
+    {
+      title: t('hrOps.colName'), dataIndex: 'name', key: 'name',
+      render: (v: string) => (
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Users size={14} color="#3b82f6" />
+          <span>{v}</span>
+        </span>
+      ),
+    },
+    { title: t('hrOps.colRole'), dataIndex: 'role', key: 'role', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
+    {
+      title: t('hrOps.colTeam'), key: 'status',
+      render: (_: unknown, s: Staff) => (
+        <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: s.status === 'active' ? '#22c55e' : s.status === 'leave' ? '#ef4444' : '#f59e0b' }}>
+          {s.status === 'active' ? <CheckCircle size={12} /> : s.status === 'leave' ? <XCircle size={12} /> : <Clock size={12} />}
+          {s.status === 'active' ? t('hrOps.statusActive') : s.status === 'leave' ? t('hrOps.statusLeave') : t('hrOps.statusTraining')}
+        </span>
+      ),
+    },
+    { title: t('hrOps.colShift'), dataIndex: 'shift', key: 'shift', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
+    { title: t('hrOps.colWeeklyExams'), dataIndex: 'examsThisWeek', key: 'examsThisWeek', render: (v: number) => <strong style={{ color: '#f0f6fc' }}>{v}</strong> },
+    { title: t('hrOps.colOvertime'), dataIndex: 'overtimeHrs', key: 'overtimeHrs', render: (v: number) => <span style={{ color: v > 5 ? '#ef4444' : '#8b949e' }}>{v}</span> },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -203,38 +229,26 @@ export default function HrOperationsPage() {
 
             <StateView empty={filtered.length === 0} emptyDescription={t('w2d.empty')}>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr 90px 80px 90px 80px 60px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-                <span /><span>{t('hrOps.colName')}</span><span>{t('hrOps.colRole')}</span><span>{t('hrOps.colTeam')}</span><span>{t('hrOps.colShift')}</span><span>{t('hrOps.colWeeklyExams')}</span><span>{t('hrOps.colOvertime')}</span>
-              </div>
-              {filtered.map((s, idx) => {
-                const isOpen = expandedId === s.id
-                return (
-                  <div key={s.id}>
-                    <div onClick={() => setExpandedId(isOpen ? null : s.id)}
-                      style={{ display: 'grid', gridTemplateColumns: '24px 1fr 90px 80px 90px 80px 60px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22', cursor: 'pointer' }}>
-                      <span style={{ color: '#6e7681' }}>{isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Users size={14} color="#3b82f6" />
-                        <span style={{ fontSize: 13 }}>{s.name}</span>
-                      </div>
-                      <span style={{ fontSize: 12, color: '#8b949e' }}>{s.role}</span>
-                      <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: s.status === 'active' ? '#22c55e' : s.status === 'leave' ? '#ef4444' : '#f59e0b' }}>
-                        {s.status === 'active' ? <CheckCircle size={12} /> : s.status === 'leave' ? <XCircle size={12} /> : <Clock size={12} />}
-                        {s.status === 'active' ? t('hrOps.statusActive') : s.status === 'leave' ? t('hrOps.statusLeave') : t('hrOps.statusTraining')}
-                      </span>
-                      <span style={{ fontSize: 12, color: '#8b949e' }}>{s.shift}</span>
-                      <span style={{ fontSize: 12, color: '#f0f6fc', fontWeight: 600 }}>{s.examsThisWeek}</span>
-                      <span style={{ fontSize: 12, color: s.overtimeHrs > 5 ? '#ef4444' : '#8b949e' }}>{s.overtimeHrs}</span>
-                    </div>
-                    {isOpen && (
-                      <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d', display: 'flex', gap: 24, fontSize: 12 }}>
+              <DataTable
+                dataSource={filtered}
+                rowKey="id"
+                columns={staffColumns}
+                pagination={{ pageSize: 10, showSizeChanger: false }}
+                emptyText={t('w2d.empty')}
+                expandable={{
+                  expandedRowKeys: expandedId ? [expandedId] : [],
+                  onExpand: (expanded, record) => setExpandedId(expanded ? (record as Staff).id : null),
+                  expandedRowRender: (record) => {
+                    const s = record as Staff
+                    return (
+                      <div style={{ display: 'flex', gap: 24, fontSize: 12 }}>
                         <div><span style={{ color: '#6e7681' }}>{t('hrOps.certificationLabel')} </span><span>{s.certification}</span></div>
                         <div><span style={{ color: '#6e7681' }}>{t('hrOps.satisfactionLabel')} </span><span style={{ color: s.satisfaction >= 85 ? '#22c55e' : '#f59e0b' }}>{s.satisfaction}%</span></div>
                       </div>
-                    )}
-                  </div>
-                )
-              })}
+                    )
+                  },
+                }}
+              />
             </div>
             </StateView>
           </>

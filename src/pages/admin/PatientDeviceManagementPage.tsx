@@ -5,6 +5,7 @@ import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, messa
 import { User, Box, Plus, Edit3, Wrench, Stethoscope, FileText, History } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Inbox } from 'lucide-react'
+import { LoadingBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
 const { TextArea } = Input;
@@ -29,6 +30,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
   const [deviceFilter, setDeviceFilter] = useState({ modality: '' });
 
   // 加载
+  const [loading, setLoading] = useState(true);
   const loadPatients = async () => {
     try {
       const r = await patientApi.list({ pageSize: 50 });
@@ -42,7 +44,16 @@ export const PatientDeviceManagementPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
-  useEffect(() => { loadPatients(); loadDevices(); }, []);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        await Promise.all([loadPatients(), loadDevices()]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   // 患者详情
   const handleSelectPatient = async (p: any) => {
@@ -107,6 +118,8 @@ export const PatientDeviceManagementPage: React.FC = () => {
         <Tag color="purple">{t('patientDevice.benchmark')}</Tag>
         <Tag color="green">{t('patientDevice.endpointTag')}</Tag>
       </Space>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* 患者管理 */}

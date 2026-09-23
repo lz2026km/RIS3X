@@ -4,6 +4,7 @@ import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, AlertCir
 import { useNavigate } from 'react-router-dom'
 import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto, examApi, mobileApi, type TodaySummary, type WorklistItem, worklistApi, type WorklistItemDto } from '../../../services/api'
 import { t } from '../../../i18n/appI18n'
+import { LoadingBanner, ErrorBanner } from '../../../components/feedback'
 import TimeoutVerifyModal from '../../../components/worklist/TimeoutVerifyModal'
 
 export interface TechExamItem {
@@ -97,6 +98,8 @@ export default function TechMobileWorkstation() {
   // [v3.0.6.11-95 Wave1B] 扩展统计: GET /worklist/stats (当日完成/平均时长/技师维度)
   const [techStats, setTechStats] = useState<{ completedToday: number; avgDurationMin: number; technicianCount: number }>({ completedToday: 0, avgDurationMin: 0, technicianCount: 0 })
   const [usingMock, setUsingMock] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // [v3.0.6.11-95 Wave1B] 主数据源切换为 /worklist (含检查室/设备/年龄字段) (离线兜底保留)
   const mapWorklistDto = useCallback((w: WorklistItemDto): TechExamItem => ({
@@ -136,11 +139,14 @@ export default function TechMobileWorkstation() {
   useEffect(() => {
     let cancelled = false
     void (async () => {
+      setLoading(true)
+      try {
       const [summaryRes, statsRes, devRes] = await Promise.allSettled([
         mobileApi.getTodaySummary(),
         worklistApi.getStats(),
         deviceApi.list(),
       ])
+      if (!cancelled && [summaryRes, statsRes, devRes].some(r => r.status === 'rejected')) setLoadError(t('w9.states.error'))
       if (!cancelled && summaryRes.status === 'fulfilled' && summaryRes.value.success && summaryRes.value.data) {
         setSummary(summaryRes.value.data)
       } else if (!cancelled) {
@@ -203,6 +209,9 @@ export default function TechMobileWorkstation() {
             setUsingMock(true)
           }
         }
+      }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     })()
     return () => { cancelled = true }
@@ -412,6 +421,9 @@ export default function TechMobileWorkstation() {
           ))}
         </div>
       </div>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {usingMock && (
         <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>

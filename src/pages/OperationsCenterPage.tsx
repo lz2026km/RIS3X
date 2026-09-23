@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 运营指挥中心大屏
 // 科室主任/院长驾驶舱 - 放射科实时数据监控
@@ -6,8 +5,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   Activity, AlertTriangle, ArrowUp, ArrowDown, Bell,
-  Clock, Package, TrendingUp, TrendingDown, AlertCircle,
-  CheckCircle, XCircle, RefreshCw, Monitor, Users,
+  Clock, TrendingUp,
+  CheckCircle, RefreshCw, Monitor, Users,
   Zap, Wrench, MessageSquare, Gauge, Minus, Scan, Film,
   // [v3.0.6.11-99 Wave10B] 运营指挥中心深化: 多Tab看板/12KPI/预警/急诊通道
   LayoutDashboard, ShieldCheck, Siren, WifiOff, TimerReset,
@@ -577,7 +576,7 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
   }).join(' ')
 
   const peakIndex = data.findIndex(d => d.peak)
-  const peak = peakIndex >= 0 ? data[peakIndex] : data.reduce((m, p) => (p.today > m.today ? p : m), data[0] || { hour: '-', today: 0 })
+  const peak = (peakIndex >= 0 ? data[peakIndex] : data.reduce((m, p) => (p.today > m.today ? p : m), data[0] || { hour: '-', today: 0 })) ?? { hour: '-', today: 0 }
   const peakX = padding + ((peakIndex >= 0 ? peakIndex : Math.max(0, data.findIndex(d => d === peak))) / (data.length - 1)) * (width - padding * 2)
   const peakY = height - padding - (peak.today / maxValue) * (height - padding * 2)
 
@@ -756,7 +755,8 @@ export default function OperationsCenterPage() {
   const [extLoading, setExtLoading] = useState(false)
 
   // 12 KPI: 在既有 6 项基础上追加 6 项 (开机率/技师效率/报告及时率/危急值闭环率/报告积压/设备故障)
-  const [kpiExt, setKpiExt] = useState([
+  interface KpiExtItem { label: string; value: number; unit: string; yesterday: number; trend: 'up' | 'down' | 'neutral' }
+  const [kpiExt, setKpiExt] = useState<KpiExtItem[]>([
     { label: t('opsCenter.kpiUptime'), value: 96.4, unit: '%', yesterday: 95.8, trend: 'up' as const },
     { label: t('opsCenter.kpiTechEfficiency'), value: 18, unit: t('opsCenter.unitMinute'), yesterday: 20, trend: 'up' as const },
     { label: t('opsCenter.kpiReportTimely'), value: 96.5, unit: '%', yesterday: 95.2, trend: 'up' as const },
@@ -816,7 +816,7 @@ export default function OperationsCenterPage() {
         deviceMgmtApi.listMaterials(),
         statsApi.getTrend(7),
       ])
-      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+      const settled = (r: PromiseSettledResult<any>): any =>
         r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
 
       const daily = settled(results[0])
@@ -849,12 +849,12 @@ export default function OperationsCenterPage() {
       const waitingCount = lastOcc ? Math.max(0, toNum(lastOcc.total) - toNum(lastOcc.occupied)) : undefined
       const avgTAT = toNum(daily?.avgTAT ?? timing?.medianMinutes)
       setKpiData([
-        { label: t('opsCenter.kpiTodayExams'), value: todayExam || KPI_DATA[0].value, unit: t('opsCenter.unitExam'), yesterday: (yestExam ?? todayExam) || KPI_DATA[0].yesterday, trend: 'up' },
-        { label: t('opsCenter.kpiTodayAppointments'), value: toNum(daily?.examCount) || KPI_DATA[1].value, unit: t('opsCenter.unitExam'), yesterday: todayExam || KPI_DATA[1].yesterday, trend: 'up' },
+        { label: t('opsCenter.kpiTodayExams'), value: todayExam || KPI_DATA[0]!.value, unit: t('opsCenter.unitExam'), yesterday: (yestExam ?? todayExam) || KPI_DATA[0]!.yesterday, trend: 'up' },
+        { label: t('opsCenter.kpiTodayAppointments'), value: toNum(daily?.examCount) || KPI_DATA[1]!.value, unit: t('opsCenter.unitExam'), yesterday: todayExam || KPI_DATA[1]!.yesterday, trend: 'up' },
         { label: t('opsCenter.kpiInProgress'), value: occupiedRooms, unit: t('opsCenter.unitPeople'), trend: 'neutral', yesterday: occupiedRooms },
-        { label: t('opsCenter.kpiWaiting'), value: waitingCount ?? KPI_DATA[3].value, unit: t('opsCenter.unitPeople'), trend: 'neutral', yesterday: waitingCount ?? KPI_DATA[3].value },
-        { label: t('opsCenter.kpiEquipmentUsage'), value: toNum(oee?.average) || KPI_DATA[4].value, unit: '%', trend: 'neutral', yesterday: toNum(oee?.average) || KPI_DATA[4].value },
-        { label: t('opsCenter.kpiAvgReportTime'), value: avgTAT || KPI_DATA[5].value, unit: t('opsCenter.unitMinute'), trend: 'neutral', yesterday: avgTAT || KPI_DATA[5].value },
+        { label: t('opsCenter.kpiWaiting'), value: waitingCount ?? KPI_DATA[3]!.value, unit: t('opsCenter.unitPeople'), trend: 'neutral', yesterday: waitingCount ?? KPI_DATA[3]!.value },
+        { label: t('opsCenter.kpiEquipmentUsage'), value: toNum(oee?.average) || KPI_DATA[4]!.value, unit: '%', trend: 'neutral', yesterday: toNum(oee?.average) || KPI_DATA[4]!.value },
+        { label: t('opsCenter.kpiAvgReportTime'), value: avgTAT || KPI_DATA[5]!.value, unit: t('opsCenter.unitMinute'), trend: 'neutral', yesterday: avgTAT || KPI_DATA[5]!.value },
       ])
 
       // ---- 检查室状态 (occupancyApi) ----
@@ -883,7 +883,7 @@ export default function OperationsCenterPage() {
         }))
         setHourlyData(pts)
         setHourlyCaption(t('opsCenter.hourlyCaptionApi'))
-        const peak = pts.reduce((m, p) => (p.today > m.today ? p : m), pts[0] || { hour: '-', today: 0 })
+        const peak = pts.reduce((m: any, p: any) => (p.today > m.today ? p : m), pts[0] || { hour: '-', today: 0 })
         setPeakText(`${t('opsCenter.peakDayPrefix')}${peak.hour} (${peak.today}${t('opsCenter.unitExam')})`)
       } else {
         setHourlyCaption(t('opsCenter.hourlyCaptionDemo'))
@@ -902,7 +902,7 @@ export default function OperationsCenterPage() {
 
       // ---- 检查项目分布 (statsApi/by-modality) ----
       const modalityEntries = Object.entries(byModality || {}).slice(0, 5)
-        .map(([name, v]: [string, any], i: number) => ({ name, value: Math.round(toNum(v?.total ?? v)), color: PIE_COLORS[i % PIE_COLORS.length] }))
+        .map(([name, v]: [string, any], i: number) => ({ name, value: Math.round(toNum(v?.total ?? v)), color: PIE_COLORS[i % PIE_COLORS.length] ?? '#3b82f6' }))
         .filter((d) => d.value > 0)
       if (modalityEntries.length > 0) setProjectData(modalityEntries)
 
@@ -975,7 +975,7 @@ export default function OperationsCenterPage() {
         criticalExtApi.getStats(),
         statsApi.getDaily(),
       ])
-      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+      const settled = (r: PromiseSettledResult<any>): any =>
         r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
       const ecRecords = settled(results[0])
       const ecConfig = settled(results[1])
@@ -1075,12 +1075,12 @@ export default function OperationsCenterPage() {
       const cvClosure = toNum((cvSla as any)?.complianceRate ?? 0)
       const pendingReports = toNum((daily as any)?.pendingCount ?? (biApi ? 0 : 0))
       setKpiExt([
-        { label: t('opsCenter.kpiUptime'), value: availability || kpiExt[0].value, unit: '%', yesterday: availability || kpiExt[0].yesterday, trend: 'neutral' as const },
-        { label: t('opsCenter.kpiTechEfficiency'), value: techEfficiency || kpiExt[1].value, unit: t('opsCenter.unitMinute'), yesterday: techEfficiency || kpiExt[1].yesterday, trend: 'neutral' as const },
-        { label: t('opsCenter.kpiReportTimely'), value: timelyPct || kpiExt[2].value, unit: '%', yesterday: timelyPct || kpiExt[2].yesterday, trend: 'neutral' as const },
-        { label: t('opsCenter.kpiCriticalClosure'), value: cvClosure || kpiExt[3].value, unit: '%', yesterday: cvClosure || kpiExt[3].yesterday, trend: 'neutral' as const },
-        { label: t('opsCenter.kpiPendingReports'), value: pendingReports || kpiExt[4].value, unit: t('opsCenter.unitReport'), yesterday: pendingReports || kpiExt[4].yesterday, trend: 'neutral' as const },
-        { label: t('opsCenter.kpiDeviceFaults'), value: faults.length, unit: t('opsCenter.unitDevice'), yesterday: kpiExt[5].yesterday, trend: faults.length === 0 ? 'down' : 'neutral' as const },
+        { label: t('opsCenter.kpiUptime'), value: availability || kpiExt[0]!.value, unit: '%', yesterday: availability || kpiExt[0]!.yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiTechEfficiency'), value: techEfficiency || kpiExt[1]!.value, unit: t('opsCenter.unitMinute'), yesterday: techEfficiency || kpiExt[1]!.yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiReportTimely'), value: timelyPct || kpiExt[2]!.value, unit: '%', yesterday: timelyPct || kpiExt[2]!.yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiCriticalClosure'), value: cvClosure || kpiExt[3]!.value, unit: '%', yesterday: cvClosure || kpiExt[3]!.yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiPendingReports'), value: pendingReports || kpiExt[4]!.value, unit: t('opsCenter.unitReport'), yesterday: pendingReports || kpiExt[4]!.yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiDeviceFaults'), value: faults.length, unit: t('opsCenter.unitDevice'), yesterday: kpiExt[5]!.yesterday, trend: faults.length === 0 ? 'down' : 'neutral' as const },
       ])
 
       // ---- 设备维度看板 ----
@@ -1328,7 +1328,7 @@ export default function OperationsCenterPage() {
             { day: 'D-3', uptime: 96.7, util: 91.2 },
             { day: 'D-2', uptime: 95.9, util: 89.4 },
             { day: 'D-1', uptime: 96.3, util: 90.8 },
-            { day: t('opsCenter.todayLabel'), uptime: kpiExt[0].value, util: kpiExt[2].value || 91.2 },
+            { day: t('opsCenter.todayLabel'), uptime: kpiExt[0]!.value, util: kpiExt[2]!.value || 91.2 },
           ].map(d => (
             <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 100 }}>
@@ -1461,10 +1461,10 @@ export default function OperationsCenterPage() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[
-            { label: t('opsCenter.kpiCriticalClosure'), value: kpiExt[3].value, color: '#4ade80' },
-            { label: t('opsCenter.kpiReportTimely'), value: kpiExt[2].value, color: '#3b82f6' },
-            { label: t('opsCenter.kpiUptime'), value: kpiExt[0].value, color: '#8b5cf6' },
-            { label: t('opsCenter.qTechEfficiency'), value: kpiExt[1].value > 0 && kpiExt[1].value <= 25 ? 100 : 80, color: '#fbbf24' },
+            { label: t('opsCenter.kpiCriticalClosure'), value: kpiExt[3]!.value, color: '#4ade80' },
+            { label: t('opsCenter.kpiReportTimely'), value: kpiExt[2]!.value, color: '#3b82f6' },
+            { label: t('opsCenter.kpiUptime'), value: kpiExt[0]!.value, color: '#8b5cf6' },
+            { label: t('opsCenter.qTechEfficiency'), value: kpiExt[1]!.value > 0 && kpiExt[1]!.value <= 25 ? 100 : 80, color: '#fbbf24' },
           ].map(item => (
             <div key={item.label}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
@@ -1809,7 +1809,7 @@ export default function OperationsCenterPage() {
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.momGrowth')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{peakText.split('(')[0].replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{(peakText.split('(')[0] ?? '').replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.peakPeriod')}</div>
             </div>
           </div>

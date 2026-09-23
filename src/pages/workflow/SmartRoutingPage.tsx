@@ -13,6 +13,7 @@ import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route,
 import React, { useState, useEffect, useCallback } from 'react'
 import { workflowApi } from '../../services/api/workflowApi'
 import { t } from '../../i18n/appI18n'
+import { uniqueId } from '../../utils/uniqueId'
 
 const stageMeta: Record<string, { label: string; color: string }> = {
   qualification: { label: '资质匹配', color: 'blue' },
@@ -76,7 +77,7 @@ const SmartRoutingPage: React.FC = () => {
     ruleForm.validateFields().then(async (values) => {
       const next = editingRule
         ? rules.map((r) => (r.id === editingRule.id ? { ...r, ...values } : r))
-        : [...rules, { id: `rr-${Date.now().toString().slice(-6)}`, ...values }]
+        : [...rules, { id: uniqueId('rr'), ...values }]
       if (await saveRules(next)) {
         message.success(editingRule ? t('smartRouting.ruleUpdated') : t('smartRouting.ruleCreated'))
         setEditOpen(false)

@@ -7,10 +7,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   CheckCircle2, Target, Activity, Stethoscope, FlaskConical, Microscope,
-  TrendingUp, Database, Sparkles, FileText, Calendar, DatabaseZap,
+  TrendingUp, Database, Sparkles, FileText, Calendar, DatabaseZap, Download,
 } from 'lucide-react';
 import { diagnosisAccuracyApi, type DiagnosisAccuracyDto } from '../services/api/diagnosisAccuracyApi';
 import { DIAGNOSIS_ACCURACY_DATA } from '../data/knowledgeStatsMock';
+import { DataTable } from '../components/common/DataTable';
+import { ActionButton } from '../components/common/ActionButton';
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 主组件
@@ -44,6 +47,38 @@ export default function DiagnosisAccuracyPage() {
 
   useEffect(() => { fetchAccuracy() }, [fetchAccuracy]);
 
+  const handleExport = () => {
+    const rows: string[][] = [
+      [t('w1tables.dx.disease'), t('w1tables.dx.accuracy'), t('w1tables.dx.count'), t('w1tables.dx.level')],
+      ...data.byDisease.map((d) => {
+        const level = d.accuracy >= 98 ? t('w1tables.dx.levelHigh') : d.accuracy >= 95 ? t('w1tables.dx.levelMid') : t('w1tables.dx.levelLow');
+        return [d.disease, `${d.accuracy}%`, String(d.count), level];
+      }),
+    ];
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `诊断符合率_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const dxColumns = [
+    { title: t('w1tables.dx.disease'), dataIndex: 'disease', key: 'disease' },
+    { title: t('w1tables.dx.accuracy'), dataIndex: 'accuracy', key: 'accuracy', align: 'right' as const, render: (v: number) => `${v}%` },
+    { title: t('w1tables.dx.count'), dataIndex: 'count', key: 'count', align: 'right' as const },
+    {
+      title: t('w1tables.dx.level'), key: 'level', align: 'center' as const,
+      render: (_: unknown, r: { accuracy: number }) => {
+        const level = r.accuracy >= 98 ? t('w1tables.dx.levelHigh') : r.accuracy >= 95 ? t('w1tables.dx.levelMid') : t('w1tables.dx.levelLow');
+        const color = r.accuracy >= 98 ? '#10b981' : r.accuracy >= 95 ? '#f59e0b' : '#dc2626';
+        return <span style={{ color, fontWeight: 600 }}>{level}</span>;
+      },
+    },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
@@ -65,6 +100,8 @@ export default function DiagnosisAccuracyPage() {
             <DatabaseZap size={12} />
             {source === 'demo' ? (usingFallback ? '演示数据（接口失败回退）' : '演示数据（MSW，后端待实现）') : '真实数据（数据库聚合）'}
           </div>
+          <ActionButton action="refresh" onClick={() => void fetchAccuracy()}>{t('w1tables.refresh')}</ActionButton>
+          <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.export')}</ActionButton>
         </div>
       </div>
 
@@ -159,6 +196,14 @@ export default function DiagnosisAccuracyPage() {
             );
           })}
         </div>
+      </div>
+
+      {/* 病种符合率明细表 */}
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Sparkles size={13} /> {t('w1tables.dx.title')}
+        </div>
+        <DataTable dataSource={data.byDisease} rowKey="disease" columns={dxColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
       </div>
     </div>
   );

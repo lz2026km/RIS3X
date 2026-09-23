@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Users, FileText, AlertCircle, Award } from "lucide-react";
 
 const C = {

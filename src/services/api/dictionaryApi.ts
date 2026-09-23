@@ -31,6 +31,10 @@ export const dictionaryApi = {
   listCategories: () =>
     api.get<{ categories: DictCategoryDto[]; total: number }>('/dictionary/categories'),
 
+  // [G005 W2] 顶层分类列表 (后端 GET /dictionary, 与 /dictionary/categories 同载荷)
+  listCategoriesRoot: () =>
+    api.get<{ categories: DictCategoryDto[]; total: number }>('/dictionary'),
+
   listEntries: (category: string) =>
     api.get<DictEntryDto[]>(`/dictionary/${encodeURIComponent(category)}`),
 

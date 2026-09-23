@@ -3,9 +3,10 @@ import { message } from 'antd'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
-import { Monitor, AlertTriangle, CheckCircle, XCircle, Search, Clock, Settings, ChevronDown, ChevronRight, Gauge } from 'lucide-react'
+import { Monitor, AlertTriangle, CheckCircle, XCircle, Search, Clock, Settings, Gauge } from 'lucide-react'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common/DataTable'
 import { replayDeviceEvent } from '../../utils/deviceStateAdapter'
 // [W2-A] 设备运营接 deviceMgmtApi (equipment-lifecycle/faults/maintenance-plans) + oeeApi (利用率)
 // [W1-B] 剂量追踪接 deviceMgmtApi.getDoseTracking/recordDose (POST /device-mgmt/dose-tracking)
@@ -273,6 +274,28 @@ export default function DeviceOpsPage() {
 
   const types = [...new Set(devices.map(d => d.type))]
 
+  const deviceColumns = [
+    {
+      title: t('deviceOps.colDeviceName'), dataIndex: 'name', key: 'name',
+      render: (v: string) => (
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Monitor size={14} color="#3b82f6" />
+          <span>{v}</span>
+        </span>
+      ),
+    },
+    {
+      title: t('deviceOps.colStatus'), dataIndex: 'status', key: 'status',
+      render: (v: Device['status']) => {
+        const sc = STATUS_CONFIG[v]
+        return <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: sc?.color }}>{sc && <sc.icon size={12} />}{sc?.label}</span>
+      },
+    },
+    { title: t('deviceOps.colType'), dataIndex: 'type', key: 'type', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
+    { title: t('deviceOps.colLocation'), dataIndex: 'location', key: 'location', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
+    { title: t('deviceOps.colNextMaintenance'), dataIndex: 'nextMaintenance', key: 'nextMaintenance', render: (v: string) => <span style={{ fontSize: 12, color: '#6e7681' }}>{v}</span> },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -348,30 +371,19 @@ export default function DeviceOpsPage() {
 
         <StateView empty={filtered.length === 0} emptyDescription={t('w2d.empty')}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr 80px 90px 100px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span /><span>{t('deviceOps.colDeviceName')}</span><span>{t('deviceOps.colStatus')}</span><span>{t('deviceOps.colType')}</span><span>{t('deviceOps.colLocation')}</span><span>{t('deviceOps.colNextMaintenance')}</span>
-          </div>
-          {filtered.map((d, idx) => {
-            const sc = STATUS_CONFIG[d.status]
-            const isOpen = expandedId === d.id
-            return (
-              <div key={d.id}>
-                <div onClick={() => setExpandedId(isOpen ? null : d.id)}
-                  style={{ display: 'grid', gridTemplateColumns: '24px 1fr 80px 90px 100px 110px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22', cursor: 'pointer' }}>
-                  <span style={{ color: '#6e7681' }}>{isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Monitor size={14} color="#3b82f6" />
-                    <span style={{ fontSize: 13 }}>{d.name}</span>
-                  </div>
-                  <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: sc.color }}>
-                    <sc.icon size={12} />{sc.label}
-                  </span>
-                  <span style={{ fontSize: 12, color: '#8b949e' }}>{d.type}</span>
-                  <span style={{ fontSize: 12, color: '#8b949e' }}>{d.location}</span>
-                  <span style={{ fontSize: 12, color: '#6e7681' }}>{d.nextMaintenance}</span>
-                </div>
-                {isOpen && (
-                  <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d', display: 'flex', gap: 24, fontSize: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <DataTable
+            dataSource={filtered}
+            rowKey="id"
+            columns={deviceColumns}
+            pagination={{ pageSize: 10, showSizeChanger: false }}
+            emptyText={t('w2d.empty')}
+            expandable={{
+              expandedRowKeys: expandedId ? [expandedId] : [],
+              onExpand: (expanded, record) => setExpandedId(expanded ? (record as Device).id : null),
+              expandedRowRender: (record) => {
+                const d = record as Device
+                return (
+                  <div style={{ display: 'flex', gap: 24, fontSize: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                     <div><span style={{ color: '#6e7681' }}>{t('deviceOps.firmware')}: </span><span>{d.firmware}</span></div>
                     <div><span style={{ color: '#6e7681' }}>IP: </span><span>{d.ip}</span></div>
                     <div><span style={{ color: '#6e7681' }}>{t('deviceOps.lastMaintenance')}: </span><span>{d.lastMaintenance}</span></div>
@@ -391,10 +403,10 @@ export default function DeviceOpsPage() {
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            )
-          })}
+                )
+              },
+            }}
+          />
         </div>
         </StateView>
 

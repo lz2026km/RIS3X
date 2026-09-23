@@ -3,7 +3,7 @@ import { api } from './client'
 // [G005 Wave1B P1] 融合 API — register/render/series 真实; list/registration/:id/DELETE 已补
 // (fusion.controller, 内存注册记录 + FusionJob 派生), MSW 标注已更新。
 export interface FusionStudyDto { id: string; studyUid: string; patientName: string; patientId: string; studyDate: string; fixedModality: string; movingModality: string; status: string; registrationId?: string }
-export interface FusionRegisterDto { fixedSeriesUid: string; movingSeriesUid: string; transformType?: 'rigid' | 'affine' | 'deformable'; fixedModality?: string; movingModality?: string }
+export interface FusionRegisterDto { fixedSeriesUid: string; movingSeriesUid: string; transformType?: 'rigid' | 'affine' | 'deformable' | 'nonlinear'; fixedModality?: string; movingModality?: string }
 export interface FusionRegistrationResult { registrationId: string; status: string; metrics: { dice: number; hd95: number; rmse: number }; matrix: number[][]; processingTimeMs: number }
 export interface FusionRenderDto { registrationId: string; plane?: 'axial' | 'coronal' | 'sagittal'; sliceIndex: number; alpha?: number; windowWidth?: number; windowLevel?: number }
 export interface FusionRenderResult { frameId: string; pixelDataBase64: string; plane: string; sliceIndex: number; alpha: number }

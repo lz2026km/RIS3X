@@ -30,6 +30,7 @@ import {
 } from "../data/qualityScoreMock";
 import { AppModal } from "../components/common/AppModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { LoadingBanner, ErrorBanner, AppEmpty } from "../components/feedback";
 import { reportQualityApi } from "../services/api";
 import { t } from "../i18n/appI18n";
 
@@ -87,6 +88,8 @@ export default function ReportDefectLibraryPage() {
   const [defectList, setDefects] = useState<DefectItem[]>(defects);
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
   const [apiKpi, setApiKpi] = useState(QUALITY_KPI);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedDefect, setSelectedDefect] = useState<DefectItem | null>(
     defects[0] || null,
   );
@@ -118,33 +121,43 @@ export default function ReportDefectLibraryPage() {
   }, [toast.show]);
 
   useEffect(() => {
-    reportQualityApi.getDefectLibrary().then(res => {
-      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
-      const entries = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
-      if (res.success && Array.isArray(entries) && entries.length) {
-        const mapped: DefectItem[] = entries.map((entry, i) => {
-          const detail = (entry.detail || {}) as Record<string, unknown>
-          return {
-            id: entry.id,
-            code: (detail.code as string) || `DEF-${i + 1}`,
-            name: (detail.name as string) || t('reportDefect.unknown'),
-            category: (detail.category as DefectCategory) || 'description',
-            severity: (detail.severity as DefectItem['severity']) || 'minor',
-            description: (detail.description as string) || '',
-            examples: (detail.examples as string[]) || [],
-            solution: (detail.solution as string) || '',
-            count: (detail.count as number) || 0,
-          }
-        })
-        setDefects(mapped)
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await reportQualityApi.getDefectLibrary()
+        // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+        const entries = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        if (!cancelled && res.success && Array.isArray(entries) && entries.length) {
+          const mapped: DefectItem[] = entries.map((entry, i) => {
+            const detail = (entry.detail || {}) as Record<string, unknown>
+            return {
+              id: entry.id,
+              code: (detail.code as string) || `DEF-${i + 1}`,
+              name: (detail.name as string) || t('reportDefect.unknown'),
+              category: (detail.category as DefectCategory) || 'description',
+              severity: (detail.severity as DefectItem['severity']) || 'minor',
+              description: (detail.description as string) || '',
+              examples: (detail.examples as string[]) || [],
+              solution: (detail.solution as string) || '',
+              count: (detail.count as number) || 0,
+            }
+          })
+          setDefects(mapped)
+        }
+        const statsRes = await reportQualityApi.getStats()
+        if (!cancelled && statsRes.success && statsRes.data) {
+          const stats = statsRes.data
+          setApiKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
+        }
+        if (!cancelled) setLoadError(null)
+      } catch {
+        if (!cancelled) setLoadError(t('w9.states.error'))
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-    })
-    reportQualityApi.getStats().then(res => {
-      if (res.success && res.data) {
-        const stats = res.data
-        setApiKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
-      }
-    })
+    })()
+    return () => { cancelled = true }
   }, [])
 
   const resetForm = () => {
@@ -283,6 +296,9 @@ export default function ReportDefectLibraryPage() {
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: "0 auto" }}>
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
+
       {/* 顶部 */}
       <div
         style={{
@@ -567,6 +583,7 @@ export default function ReportDefectLibraryPage() {
             </div>
           </div>
           <div style={{ maxHeight: 540, overflowY: "auto" }}>
+            {filteredDefects.length === 0 && <AppEmpty variant="no-results" minHeight={160} />}
             {filteredDefects.map((d) => {
               // [G005 P1] 防御: API 数据 category/severity 非法时兜底, 避免 .bg 崩溃
               const cConf = CATEGORY_CONFIG[d.category] ?? CATEGORY_CONFIG.description;

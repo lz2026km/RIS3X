@@ -9,6 +9,7 @@
 //     (直接返回 DEMO_ANALYSES, 不发起网络请求 → 无 404) → 标注 DEPRECATED (回退保留)。
 //   · 其余 9 方法 0 引用 (无页面调用) → 标注 DEPRECATED 保留清理标记。
 import type { ApiResponse } from './types';
+import { uniqueId } from '../../utils/uniqueId';
 
 export type CoronarySegmentName = 'LM' | 'LAD-p' | 'LAD-m' | 'LAD-d' | 'LCX-p' | 'LCX-m' | 'LCX-d' | 'RCA-p' | 'RCA-m' | 'RCA-d';
 export type StenosisSeverity = 'normal' | 'mild' | 'moderate' | 'severe' | 'occluded';
@@ -142,7 +143,7 @@ export const cardiacSpecialtyApi = {
     mockOk<CardiacAnalysis>(DEMO_ANALYSES.find(a => a.id === id) ?? DEMO_ANALYSES[0]!),
   createAnalysis: (data: Partial<CardiacAnalysis>) =>
     mockOk<CardiacAnalysis>({
-      id: `CV-${Date.now().toString().slice(-6)}`,
+      id: uniqueId('CV'),
       patientId: data.patientId ?? '',
       patientName: data.patientName ?? '',
       modality: data.modality ?? 'CCTA',

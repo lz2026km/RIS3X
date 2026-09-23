@@ -12,6 +12,7 @@ import { Sparkles, Copy, Check, History, RefreshCw, FileText, ClipboardPaste, Br
 import React, { useCallback, useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
 import { t } from '../i18n/appI18n'
+import { uniqueId } from '../utils/uniqueId'
 
 const { Text, Paragraph } = Typography
 
@@ -93,7 +94,7 @@ const AIAssistPage: React.FC = () => {
     }
     setGenerating(true)
     setError('')
-    const reportId = `RP${Date.now()}`
+    const reportId = uniqueId('RP')
     try {
       const res = await aiDraftApi.generateReportDraft({
         reportId,

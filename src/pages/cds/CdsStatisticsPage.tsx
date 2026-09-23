@@ -3,6 +3,8 @@ import { BarChart3, TrendingUp, Download, AlertTriangle, CheckCircle, Activity, 
 import type { CdsStatsOverview } from '../../services/cds'
 import { cdsApi } from '../../services/api/cdsApi'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common/DataTable'
+import { ActionButton } from '../../components/common/ActionButton'
 import { t } from '../../i18n/appI18n'
 
 type Period = '7d' | '30d' | '90d'
@@ -71,6 +73,12 @@ export default function CdsStatisticsPage() {
   const acceptanceRate = overview ? (overview.suggestionAcceptanceRate * 100).toFixed(0) : '0'
   const overrideRatePct = overview ? (overview.overrideRate * 100).toFixed(1) : '0'
 
+  const detailColumns = [
+    { title: t('w1tables.cds.date'), dataIndex: 'date', key: 'date' },
+    { title: t('w1tables.cds.suggestions'), dataIndex: 'suggestions', key: 'suggestions', align: 'right' as const },
+    { title: t('w1tables.cds.overrides'), dataIndex: 'overrides', key: 'overrides', align: 'right' as const },
+  ]
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#0d1117', color: '#8b949e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
@@ -99,6 +107,7 @@ export default function CdsStatisticsPage() {
               {t(opt.label)}
             </button>
           ))}
+          <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
           <button onClick={() => { const csv = 'CDS统计报表\n总规则数,采纳率,覆盖次数,路径完成率\n' + overview.totalRules + ',' + (overview.suggestionAcceptanceRate * 100).toFixed(0) + '%,' + overview.totalOverrides + ',' + (overview.pathwayCompletionRate * 100).toFixed(0) + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'CDS统计报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} />{t('cdsStats.export')}
           </button>
@@ -177,6 +186,11 @@ export default function CdsStatisticsPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginTop: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('w1tables.cds.title')}</div>
+            <DataTable dataSource={chartData} rowKey="date" columns={detailColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
           </div>
         </div>
       </div>

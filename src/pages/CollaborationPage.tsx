@@ -4,6 +4,7 @@
 // ============================================================
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { uniqueId } from '../utils/uniqueId';
 import {
   Users, MessageSquare, Send, AtSign, CheckCircle2, Reply,
   Edit2, Activity, Wifi, Clock, UserCheck, UserX,
@@ -103,7 +104,7 @@ export default function CollaborationPage() {
     }
     const parent = comments.find(c => c.id === commentId);
     const newC: CollabComment = {
-      id: `c-${Date.now()}`,
+      id: uniqueId('c'),
       reportId: selectedReportId,
       authorId: currentUser.id,
       authorName: currentUser.name,
@@ -249,7 +250,7 @@ export default function CollaborationPage() {
       }
     }
     const newC: CollabComment = {
-      id: `cmt-${Date.now()}`,
+      id: uniqueId('cmt'),
       reportId: selectedReportId,
       authorId: currentUser.id,
       authorName: currentUser.name,

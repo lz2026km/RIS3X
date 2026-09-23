@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { api } from "../../services/api/client";
 import { usePagination } from "../../hooks/usePagination";
+import { ErrorBanner } from "../../components/feedback";
 import dayjs from "dayjs";
 import { t } from '../../i18n/appI18n';
 
@@ -34,19 +35,32 @@ export const MllpConfigPage: React.FC = () => {
   const [loading, setLoading] = useState({ status: false, logs: false });
   const [whitelistModalOpen, setWhitelistModalOpen] = useState(false);
   const [newCidr, setNewCidr] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchStatus = useCallback(async () => {
     setLoading((p) => ({ ...p, status: true }));
-    const res = await api.get<MllpStatus>("/hl7/mllp/status");
-    if (res.success) setStatus(res.data);
-    setLoading((p) => ({ ...p, status: false }));
+    try {
+      const res = await api.get<MllpStatus>("/hl7/mllp/status");
+      if (res.success) { setStatus(res.data); setLoadError(null); }
+      else setLoadError(t('w9.states.error'));
+    } catch {
+      setLoadError(t('w9.states.error'));
+    } finally {
+      setLoading((p) => ({ ...p, status: false }));
+    }
   }, []);
 
   const fetchLogs = useCallback(async () => {
     setLoading((p) => ({ ...p, logs: true }));
-    const res = await api.get<ConnectionLogEntry[]>("/hl7/mllp/logs?limit=50");
-    if (res.success) setLogs(res.data);
-    setLoading((p) => ({ ...p, logs: false }));
+    try {
+      const res = await api.get<ConnectionLogEntry[]>("/hl7/mllp/logs?limit=50");
+      if (res.success) { setLogs(res.data); setLoadError(null); }
+      else setLoadError(t('w9.states.error'));
+    } catch {
+      setLoadError(t('w9.states.error'));
+    } finally {
+      setLoading((p) => ({ ...p, logs: false }));
+    }
   }, []);
 
   useEffect(() => { fetchStatus(); fetchLogs(); }, []);
@@ -130,6 +144,8 @@ export const MllpConfigPage: React.FC = () => {
 
   return (
     <div className="p-4 space-y-3">
+      {loadError && <ErrorBanner message={loadError} />}
+
       <Card size="small" className="shadow-sm">
         <div className="flex items-center justify-between">
           <Space>

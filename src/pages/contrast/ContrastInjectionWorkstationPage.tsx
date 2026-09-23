@@ -13,6 +13,7 @@ import type {
   ContrastAllergyResult,
 } from '../../services/api/contrastSafetyApi'
 import { t } from '../../i18n/appI18n'
+import { uniqueId } from '../../utils/uniqueId'
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-ICME-05 对比剂外渗发生率
 import { RqiIndicatorLink } from '../../components/qc/RqiIndicatorLink'
 // [v3.0.6.11-104 Wave 3D] 临床资料接入: eGFR 30-59 警告 + 注射前安全核查 + 介入操作核查 (独立子组件, 避开 Wave 3B 区块)
@@ -183,7 +184,7 @@ export default function ContrastInjectionWorkstationPage() {
     setInjecting(true)
     try {
       const res = await contrastSafetyApi.inject({
-        examId: `E-${Date.now().toString().slice(-8)}`,
+        examId: uniqueId('E'),
         patientId: PATIENT_ID,
         patientName: t('contrastWs.demoPatient'),
         protocolId: proto.id,
@@ -208,7 +209,7 @@ export default function ContrastInjectionWorkstationPage() {
     } catch (e) {
       // 后端不可达: 基于本地核查回退演示 (本地核查已通过)
       try {
-        await svc.startInjection(`E-${Date.now().toString().slice(-8)}`, proto.id, { weightKg: weight, eGFR: egfr, adjustedVolumeMl: calculatedParams?.volumeMl ?? proto.totalVolumeMl })
+        await svc.startInjection(uniqueId('E'), proto.id, { weightKg: weight, eGFR: egfr, adjustedVolumeMl: calculatedParams?.volumeMl ?? proto.totalVolumeMl })
         setRecords(await svc.getInjectionHistory())
         setInjectionDone(true)
         message.warning(`后端不可用, 已回退本地演示: ${e instanceof Error ? e.message : '未知错误'}`)
@@ -231,7 +232,7 @@ export default function ContrastInjectionWorkstationPage() {
     setStartingObs(true)
     const payload = {
       patientId: PATIENT_ID,
-      examId: `E-${Date.now().toString().slice(-8)}`,
+      examId: uniqueId('E'),
       contrastType: selectedProto?.contrastName,
       operator: 'current-user',
     }

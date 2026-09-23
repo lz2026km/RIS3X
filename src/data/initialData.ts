@@ -1,8 +1,7 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - 模拟数据 v3.0.3.31
 // 包含：预约记录、医保审核、患者随访、设备维保合同、临床数据同步、影像会诊
 
-import { generateId, formatDate, addDays } from "./simulationStore";
+import { formatDate } from "./simulationStore";
 
 // ==================== 类型定义 ====================
 
@@ -150,7 +149,7 @@ export interface DeviceMaintenanceContract {
 export interface ClinicalSyncRecord {
   id: string;
   systemName: string;
-  systemCode: string;
+  systemCode: "HIS" | "EMR" | "LIS" | "PACS" | "RIS";
   recordType: string;
   patientId: string;
   patientName: string;
@@ -197,6 +196,161 @@ export interface ConsultationRecord {
   remarks?: string;
 }
 
+// ==================== 扩展数据类型（本文件数据常量使用） ====================
+
+export interface RadiologyExam {
+  id: string;
+  patientId: string;
+  patientName: string;
+  gender: "男" | "女";
+  age: number;
+  patientType: string;
+  examItemId: string;
+  examItemName: string;
+  modality: string;
+  bodyPart: string;
+  examDate: string;
+  examTime: string;
+  priority: string;
+  clinicalDiagnosis: string;
+  clinicalHistory: string;
+  examIndications: string;
+  relevantLabResults: string;
+  technologistId: string;
+  technologistName: string;
+  deviceId: string;
+  deviceName: string;
+  roomId: string;
+  roomName: string;
+  status: string;
+  accessionNumber: string;
+  imagesAcquired: number;
+  createdTime: string;
+  updatedTime: string;
+}
+
+export interface ExamExecution {
+  id: string;
+  examId: string;
+  technologistId: string;
+  technologistName: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  dose: number;
+  imagesAcquired: number;
+  quality: string;
+  notes: string;
+  deviceId: string;
+  deviceName: string;
+}
+
+export interface QueueCallItem {
+  id: string;
+  queueNum: string;
+  patientId: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  modality: string;
+  examItemName: string;
+  examRoom: string;
+  roomId: string;
+  status: "等待中" | "已呼叫" | "检查中" | "已完成" | "跳过";
+  registerTime: string;
+  waitMinutes: number;
+  priority: "普通" | "紧急" | "危重";
+  patientType: "急诊" | "住院" | "门诊" | "体检";
+  calledCount: number;
+  lastCalledTime: string;
+}
+
+export interface CriticalValue {
+  id: string;
+  reportId: string;
+  examId: string;
+  patientId: string;
+  patientName: string;
+  modality: string;
+  examItemName: string;
+  criticalFinding: string;
+  findingDetails: string;
+  severity: "高危" | "危急";
+  reportedBy: string;
+  reportedByName: string;
+  reportedTime: string;
+  receivingDoctorId: string;
+  receivingDoctorName: string;
+  receivingTime: string;
+  acknowledged: boolean;
+  status: string;
+}
+
+export interface Consultation {
+  id: string;
+  reportId: string;
+  examId: string;
+  patientId: string;
+  patientName: string;
+  modality: string;
+  examItemName: string;
+  requestingDoctorId: string;
+  requestingDoctorName: string;
+  requestingDepartment: string;
+  consultedDoctorId: string;
+  consultedDoctorName: string;
+  consultedDepartment: string;
+  consultationType: "疑难病例" | "MDT" | "远程会诊" | "二次意见";
+  status: string;
+  requestTime: string;
+  responseTime: string;
+  requestReason: string;
+  responseContent: string;
+  isRemote: boolean;
+}
+
+export interface ReportTemplate {
+  id: string;
+  name: string;
+  category: string;
+  modality: string;
+  bodyPart: string;
+  level: "default" | "dept" | "personal";
+  content: string;
+  createdBy: string;
+  updatedAt: string;
+}
+
+export interface TermLibrary {
+  id: string;
+  category: string;
+  term: string;
+  count: number;
+  standardReport: string;
+}
+
+export interface DailyStatistics {
+  date: string;
+  modality: string;
+  totalExams: number;
+  completedReports: number;
+  pendingReports: number;
+  criticalValues: number;
+  avgReportTime: number;
+}
+
+export interface ExamRoom {
+  id: string;
+  name: string;
+  roomNumber: string;
+  modality: string[];
+  deviceId: string;
+  deviceName: string;
+  status: "空闲" | "使用中" | "维护中";
+  currentPatient?: string;
+  todaysBookings: number;
+}
+
 // ==================== 辅助函数：生成相对日期 ====================
 function getRelativeDate(daysAgo: number): Date {
   const date = new Date();
@@ -209,7 +363,7 @@ function getRelativeDateStr(daysAgo: number): string {
 }
 
 function randomElement<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(Math.random() * arr.length)] as T;
 }
 
 function randomInt(min: number, max: number): number {
@@ -328,32 +482,6 @@ const LAST_NAMES = [
   "萱",
 ];
 
-const DEPARTMENTS = [
-  "呼吸内科",
-  "心内科",
-  "消化内科",
-  "神经内科",
-  "肾内科",
-  "血液科",
-  "内分泌科",
-  "风湿免疫科",
-  "感染科",
-  "肿瘤科",
-  "乳腺外科",
-  "泌尿外科",
-  "骨科",
-  "神经外科",
-  "普外科",
-  "胸外科",
-  "血管外科",
-  "妇科",
-  "产科",
-  "儿科",
-  "眼科",
-  "耳鼻喉科",
-  "皮肤科",
-  "精神科",
-];
 const DOCTORS = [
   "李建国",
   "赵红",
@@ -439,16 +567,6 @@ const CLINICAL_DIAGNOSES = [
   "肺栓塞",
 ];
 
-const MODALITIES = [
-  "CT",
-  "MR",
-  "DR",
-  "DSA",
-  "乳腺钼靶",
-  "PET-CT",
-  "SPECT-CT",
-  "US",
-];
 const STATUSES = ["待确认", "已确认", "已报到", "已检查", "已取消", "旷到"];
 const PRIORITIES = ["普通", "普通", "普通", "紧急", "危重"]; // 加权概率
 const REGISTRATION_TYPES = ["门诊", "门诊", "门诊", "住院", "体检", "急诊"];
@@ -1276,9 +1394,8 @@ function generateAppointmentRecords(): AppointmentRecord[] {
     const device = randomElement(DEVICE_DATA);
     const room =
       EXAM_ROOMS_DATA.find((r) => r.deviceId === device.id) ||
-      EXAM_ROOMS_DATA[0];
+      EXAM_ROOMS_DATA[0]!;
     const doctor = randomElement(DOCTORS);
-    const dept = randomElement(DEPARTMENTS);
 
     const daysAgo = randomInt(-7, 30); // 过去7天到未来30天
     const examDate = getRelativeDateStr(daysAgo);
@@ -2077,7 +2194,7 @@ export const DEVICE_MAINTENANCE_CONTRACTS: DeviceMaintenanceContract[] = [
 
 // ==================== v0.17 恢复数据 (v0.23.1修复) ====================
 
-export const initialRadiologyExams: RadiologyExam[] = [
+const radiologyExamsData: RadiologyExam[] = [
   {
     id: "RAD-EX001",
     patientId: "RAD-P001",
@@ -8080,6 +8197,9 @@ export const initialRadiologyExams: RadiologyExam[] = [
   },
 ];
 
+// 对外保持宽松类型 (any[]) 以兼容既有调用方, 内部数据按 RadiologyExam 校验
+export const initialRadiologyExams: any[] = radiologyExamsData;
+
 // ---------- 检查执行记录 ----------
 
 export const initialExamExecutions: ExamExecution[] = [
@@ -10965,7 +11085,7 @@ export const initialCriticalValues: CriticalValue[] = [
 
 // ---------- 会诊 ----------
 
-export const initialConsultations: Consultation[] = [
+const consultationsData: Consultation[] = [
   {
     id: "CONS001",
     patientId: "RAD-P001",
@@ -11420,6 +11540,9 @@ export const initialConsultations: Consultation[] = [
     examId: "RAD-EX021",
   },
 ];
+
+// 对外保持宽松类型 (any[]) 以兼容既有调用方, 内部数据按 Consultation 校验
+export const initialConsultations: any[] = consultationsData;
 
 // ---------- 报告模板 ----------
 
@@ -12812,7 +12935,7 @@ function generateVoucherData(): ElectronicVoucherRecord[] {
     const minute = randomInt(0, 5) * 10;
     const invoiceDate = getRelativeDateStr(daysAgo);
 
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)]!;
     let amount = 0;
     if (types[i % 3] === "检查费") {
       amount = randomInt(200, 1500);
@@ -12825,9 +12948,9 @@ function generateVoucherData(): ElectronicVoucherRecord[] {
     records.push({
       id: `EV${String(i).padStart(5, "0")}`,
       relatedAuditId: `AUD${String((i % 50) + 1).padStart(3, "0")}`,
-      patientName: names[i % names.length],
+      patientName: names[i % names.length]!,
       patientId: `P2026${String(i).padStart(5, "0")}`,
-      voucherType: types[i % 3],
+      voucherType: types[i % 3]!,
       amount,
       invoiceTime: `${invoiceDate} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
       status,
@@ -13323,11 +13446,11 @@ export const PATIENT_MASTER_INDEX: PatientMasterRecord[] = Array.from(
   { length: 520 },
   (_, i) => {
     const surname =
-      chineseSurnames[Math.floor(Math.random() * chineseSurnames.length)];
-    const name1 = chineseNames[Math.floor(Math.random() * chineseNames.length)];
+      chineseSurnames[Math.floor(Math.random() * chineseSurnames.length)]!;
+    const name1 = chineseNames[Math.floor(Math.random() * chineseNames.length)]!;
     const name2 =
       Math.random() > 0.3
-        ? chineseNames[Math.floor(Math.random() * chineseNames.length)]
+        ? chineseNames[Math.floor(Math.random() * chineseNames.length)]!
         : "";
     const name = surname + name1 + name2;
     const gender: "男" | "女" = Math.random() > 0.48 ? "男" : "女";
@@ -13340,11 +13463,11 @@ export const PATIENT_MASTER_INDEX: PatientMasterRecord[] = Array.from(
     const addressNum = Math.floor(Math.random() * 500) + 1;
     const address = `${city}${district}${street}${addressNum}号`;
     const patientType =
-      patientTypes[Math.floor(Math.random() * patientTypes.length)];
+      patientTypes[Math.floor(Math.random() * patientTypes.length)]!;
     const primaryDiagnosis =
-      diagnoses[Math.floor(Math.random() * diagnoses.length)];
+      diagnoses[Math.floor(Math.random() * diagnoses.length)]!;
     const allergyHistory =
-      allergies[Math.floor(Math.random() * allergies.length)];
+      allergies[Math.floor(Math.random() * allergies.length)]!;
     const registrationYear = 2020 + Math.floor(Math.random() * 6);
     const registrationMonth = Math.floor(Math.random() * 12) + 1;
     const registrationDay = Math.floor(Math.random() * 28) + 1;
@@ -13352,11 +13475,11 @@ export const PATIENT_MASTER_INDEX: PatientMasterRecord[] = Array.from(
     const linkedFacilitiesCount = Math.floor(Math.random() * 4);
     const linkedFacilities: string[] = [];
     for (let j = 0; j < linkedFacilitiesCount; j++) {
-      const fac = facilities[Math.floor(Math.random() * facilities.length)];
+      const fac = facilities[Math.floor(Math.random() * facilities.length)]!;
       if (!linkedFacilities.includes(fac)) linkedFacilities.push(fac);
     }
     const mergeStatus =
-      mergeStatuses[Math.floor(Math.random() * mergeStatuses.length)];
+      mergeStatuses[Math.floor(Math.random() * mergeStatuses.length)]!;
     const confidenceScore = Math.floor(Math.random() * 20) + 80;
     const updateYear = 2024 + Math.floor(Math.random() * 2);
     const updateMonth = Math.floor(Math.random() * 12) + 1;
@@ -13464,21 +13587,21 @@ function generateClinicalSyncRecords(): ClinicalSyncRecord[] {
   const names = ["志", "明", "强", "丽", "静", "勇", "磊", "燕", "超", "婷"];
 
   return Array.from({ length: 60 }, (_, i) => {
-    const sys = systems[i % systems.length];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const sys = systems[i % systems.length]!;
+    const status = statuses[Math.floor(Math.random() * statuses.length)]!;
     const daysAgo = Math.floor(Math.random() * 7);
     const hoursAgo = Math.floor(Math.random() * 24);
     const syncDate = new Date();
     syncDate.setDate(syncDate.getDate() - daysAgo);
     syncDate.setHours(syncDate.getHours() - hoursAgo);
-    const surname = surnames[Math.floor(Math.random() * surnames.length)];
-    const name = surname + names[Math.floor(Math.random() * names.length)];
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]!;
+    const name = surname + names[Math.floor(Math.random() * names.length)]!;
 
     return {
       id: `CDR-SYNC-${String(i + 1).padStart(4, "0")}`,
       systemName: sys.name,
       systemCode: sys.code,
-      recordType: recordTypes[Math.floor(Math.random() * recordTypes.length)],
+      recordType: recordTypes[Math.floor(Math.random() * recordTypes.length)]!,
       patientId: `P2026${String(Math.floor(Math.random() * 500) + 1).padStart(5, "0")}`,
       patientName: name,
       dataContent: `患者临床数据记录 #${i + 1}`,
@@ -13487,7 +13610,7 @@ function generateClinicalSyncRecords(): ClinicalSyncRecord[] {
       errorMessage: status === "失败" ? "连接超时，数据未返回" : undefined,
       retryCount: status === "失败" ? Math.floor(Math.random() * 3) + 1 : 0,
       dataVolume: `${Math.floor(Math.random() * 500 + 10)}KB`,
-      sourceDept: depts[Math.floor(Math.random() * depts.length)],
+      sourceDept: depts[Math.floor(Math.random() * depts.length)]!,
     };
   });
 }
@@ -13564,13 +13687,13 @@ function generateClinicalDataRecords(): ClinicalDataRecord[] {
   const names = ["志", "明", "强", "丽", "静", "勇", "磊", "燕", "超", "婷"];
 
   return Array.from({ length: 80 }, (_, i) => {
-    const visitType = visitTypes[Math.floor(Math.random() * visitTypes.length)];
+    const visitType = visitTypes[Math.floor(Math.random() * visitTypes.length)]!;
     const daysAgo = Math.floor(Math.random() * 60);
     const visitDate = new Date();
     visitDate.setDate(visitDate.getDate() - daysAgo);
     const gender: "男" | "女" = Math.random() > 0.5 ? "男" : "女";
-    const surname = surnames[Math.floor(Math.random() * surnames.length)];
-    const name = surname + names[Math.floor(Math.random() * names.length)];
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]!;
+    const name = surname + names[Math.floor(Math.random() * names.length)]!;
 
     return {
       id: `CDR-REC-${String(i + 1).padStart(4, "0")}`,
@@ -13578,18 +13701,18 @@ function generateClinicalDataRecords(): ClinicalDataRecord[] {
       patientName: name,
       gender,
       age: Math.floor(Math.random() * 50) + 20,
-      visitDate: visitDate.toISOString().split("T")[0],
+      visitDate: visitDate.toISOString().split("T")[0]!,
       visitType,
-      department: depts[Math.floor(Math.random() * depts.length)],
-      chiefComplaint: complaints[Math.floor(Math.random() * complaints.length)],
-      diagnosis: diagnoses[Math.floor(Math.random() * diagnoses.length)],
+      department: depts[Math.floor(Math.random() * depts.length)]!,
+      chiefComplaint: complaints[Math.floor(Math.random() * complaints.length)]!,
+      diagnosis: diagnoses[Math.floor(Math.random() * diagnoses.length)]!,
       examItems:
-        examItemsList[Math.floor(Math.random() * examItemsList.length)],
+        examItemsList[Math.floor(Math.random() * examItemsList.length)]!,
       labResults: labItems.slice(0, Math.floor(Math.random() * 4) + 2),
       medications:
-        medicationsList[Math.floor(Math.random() * medicationsList.length)],
+        medicationsList[Math.floor(Math.random() * medicationsList.length)]!,
       vitals: {
-        date: visitDate.toISOString().split("T")[0],
+        date: visitDate.toISOString().split("T")[0]!,
         bp: `${110 + Math.floor(Math.random() * 40)}/${70 + Math.floor(Math.random() * 20)}`,
         hr: 60 + Math.floor(Math.random() * 40),
         temp: 36.2 + Math.random() * 1.5,
@@ -13648,7 +13771,7 @@ export interface DRGRule {
   weight: number;
   price: number;
   description: string;
-  priority: number;
+  priority?: number;
   exclusiveGroup?: string;
 }
 

@@ -4,6 +4,7 @@ import { PageHeader } from "../components/common/PageHeader";
 import { t } from "../i18n/appI18n";
 // [G005 Wave2A P1] 真实保存: aiPlatformApi.createStructuredReport (POST /ai-platform/structured-reports, 后端 GenerateStructuredReportSchema)
 import { aiPlatformApi } from "../services/api/aiPlatformApi";
+import { uniqueId } from "../utils/uniqueId";
 
 // ============================================================================
 // Types
@@ -595,7 +596,7 @@ const generateTemplateData = (templateId: string) => {
       },
     },
   };
-  return templates[templateId] || templates["ct-brain"];
+  return templates[templateId] ?? templates["ct-brain"]!;
 };
 
 // ============================================================================
@@ -711,7 +712,7 @@ const AIStructuredReportPage: React.FC = () => {
       if (keys.length === 2) {
         setFormData((prev) => ({
           ...prev,
-          [keys[0]]: { ...(prev as any)[keys[0]], [keys[1]]: value },
+          [keys[0]!]: { ...(prev as any)[keys[0]!], [keys[1]!]: value },
         }));
       } else {
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -724,7 +725,7 @@ const AIStructuredReportPage: React.FC = () => {
     (index: number, field: string, value: string) => {
       setFormData((prev) => {
         const newDiagnoses = [...prev.impression.diagnoses];
-        newDiagnoses[index] = { ...newDiagnoses[index], [field]: value };
+        newDiagnoses[index] = { ...newDiagnoses[index]!, [field]: value } as DiagnosisItem;
         return {
           ...prev,
           impression: { ...prev.impression, diagnoses: newDiagnoses },
@@ -741,7 +742,7 @@ const AIStructuredReportPage: React.FC = () => {
         ...prev.impression,
         diagnoses: [
           ...prev.impression.diagnoses,
-          { id: String(Date.now()), conclusion: "", basis: "" },
+          { id: uniqueId('dx'), conclusion: "", basis: "" },
         ],
       },
     }));
@@ -770,7 +771,7 @@ const AIStructuredReportPage: React.FC = () => {
   const generateJsonReport = useCallback(() => {
     const report = {
       reportInfo: {
-        reportId: `RPT${Date.now()}`,
+        reportId: uniqueId('RPT'),
         reportDate: new Date().toISOString(),
         examDate: formData.examDate,
       },
@@ -857,7 +858,7 @@ const AIStructuredReportPage: React.FC = () => {
           examMethod: formData.finding.examMethod,
           impression: formData.impression.diagnoses.map((d) => d.conclusion),
           specialtyTab: activeSpecialtyTab,
-          reportId: `RPT${Date.now()}`,
+          reportId: uniqueId('RPT'),
         },
       });
       if (res.success && res.data) {

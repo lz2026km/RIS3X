@@ -5,6 +5,7 @@ import { pushService } from '../../services/mobile/push/PushService'
 import { mobileApi, notificationsApi } from '../../services/api'
 import type { PushPayload, PushSubscription } from '../../types/mobile'
 import type { NotificationSubscriptionType } from '../../services/api/notificationsApi'
+import { LoadingBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
 interface PushNotificationItem {
@@ -84,6 +85,7 @@ export default function MobilePushPage() {
   const [testBody, setTestBody] = useState(t('mobilePush.testBodyDefault'))
   // [v3.0.6.11-99 Wave7B] 推送订阅类型: 后端 /notifications/subscriptions + localStorage 持久化
   const [subTypes, setSubTypes] = useState<string[]>(loadLocalSubTypes)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     void (async () => {
@@ -149,6 +151,7 @@ export default function MobilePushPage() {
   useEffect(() => {
     let cancelled = false
     void (async () => {
+      setLoading(true)
       try {
         const res = await fetch('/api/v1/mobile/push-notifications').then(r => r.json())
         if (!cancelled && res.data && Array.isArray(res.data)) {
@@ -164,7 +167,9 @@ export default function MobilePushPage() {
             data: n.data,
           })))
         }
-      } catch { /* keep empty */ }
+      } catch { /* keep empty */ } finally {
+        if (!cancelled) setLoading(false)
+      }
     })()
     return () => { cancelled = true }
   }, [])
@@ -292,6 +297,8 @@ export default function MobilePushPage() {
           ))}
         </div>
       </div>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
 
       <div style={{ ...cardStyle, padding: 12 }}>
         <div style={{ display: 'flex', gap: 8 }}>

@@ -11,7 +11,7 @@ import { Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, Brain, Chec
 import { SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
 import { generateAiDraft } from '@services/writing/writingService';
 import { aiDraftApi, type LlmProviderId, type LlmProviderInfo, type AiDraftRagSource, type AiDraftRagContext, type AiDraftStructuredResult } from '@services/api/aiDraftApi';
-import type { AiDraftRequest, AiDraftResult, AiDraftStage } from '@types/R3/R3.WRITING';
+import type { AiDraftRequest, AiDraftResult, AiDraftStage } from '@/types/R3/R3.WRITING';
 import { t } from '../../../../i18n/appI18n';
 
 interface Props {

@@ -1,5 +1,4 @@
 // @deprecated [v3.0.6.11-104 Wave 5C] 已收敛至 DeptDashboardPage (/dept-dashboard); 旧路由 /department-dashboard redirect 兼容。文件保留供回滚参考。
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 // [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
 import { KpiCard, KpiCardGrid, DashboardCard, ProgressRing, SkeletonKpi } from '../components/dashboard';
@@ -44,57 +43,6 @@ const examStats = [
   { type: 'MG', total: 86, pending: 12, completed: 74, avgTime: 12 },
   { type: 'PET-CT', total: 28, pending: 5, completed: 23, avgTime: 60 },
   { type: 'SPECT-CT', total: 18, pending: 3, completed: 15, avgTime: 45 },
-];
-
-// 24小时分时数据
-const hourlyData = [
-  { hour: '0', ct: 0, mri: 0, xray: 0, us: 0, dsa: 0 },
-  { hour: '1', ct: 0, mri: 0, xray: 0, us: 0, dsa: 0 },
-  { hour: '2', ct: 0, mri: 0, xray: 0, us: 0, dsa: 0 },
-  { hour: '3', ct: 0, mri: 0, xray: 0, us: 0, dsa: 0 },
-  { hour: '4', ct: 1, mri: 0, xray: 2, us: 0, dsa: 0 },
-  { hour: '5', ct: 3, mri: 1, xray: 5, us: 2, dsa: 0 },
-  { hour: '6', ct: 8, mri: 3, xray: 12, us: 5, dsa: 0 },
-  { hour: '7', ct: 15, mri: 8, xray: 22, us: 10, dsa: 0 },
-  { hour: '8', ct: 28, mri: 18, xray: 38, us: 18, dsa: 2 },
-  { hour: '9', ct: 42, mri: 28, xray: 52, us: 25, dsa: 5 },
-  { hour: '10', ct: 55, mri: 35, xray: 62, us: 30, dsa: 8 },
-  { hour: '11', ct: 58, mri: 38, xray: 65, us: 32, dsa: 9 },
-  { hour: '12', ct: 35, mri: 20, xray: 40, us: 22, dsa: 3 },
-  { hour: '13', ct: 45, mri: 28, xray: 55, us: 28, dsa: 5 },
-  { hour: '14', ct: 52, mri: 32, xray: 58, us: 30, dsa: 8 },
-  { hour: '15', ct: 56, mri: 35, xray: 60, us: 32, dsa: 9 },
-  { hour: '16', ct: 48, mri: 30, xray: 52, us: 28, dsa: 7 },
-  { hour: '17', ct: 38, mri: 22, xray: 42, us: 22, dsa: 4 },
-  { hour: '18', ct: 25, mri: 15, xray: 30, us: 15, dsa: 2 },
-  { hour: '19', ct: 15, mri: 8, xray: 20, us: 10, dsa: 1 },
-  { hour: '20', ct: 8, mri: 4, xray: 12, us: 6, dsa: 0 },
-  { hour: '21', ct: 4, mri: 2, xray: 6, us: 3, dsa: 0 },
-  { hour: '22', ct: 2, mri: 1, xray: 3, us: 1, dsa: 0 },
-  { hour: '23', ct: 0, mri: 0, xray: 1, us: 0, dsa: 0 },
-];
-
-// 医生工作量数据
-const doctorWorkload = [
-  { name: '李明辉', title: '主任医师', ct: 68, mri: 52, xray: 35, reports: 145, critical: 8, accuracy: 98.5 },
-  { name: '王建军', title: '主任医师', ct: 72, mri: 48, xray: 28, reports: 138, critical: 12, accuracy: 97.8 },
-  { name: '张丽华', title: '副主任医师', ct: 65, mri: 55, xray: 32, reports: 142, critical: 9, accuracy: 98.2 },
-  { name: '陈晓东', title: '主治医师', ct: 78, mri: 42, xray: 45, reports: 155, critical: 6, accuracy: 96.5 },
-  { name: '刘芳', title: '主治医师', ct: 62, mri: 50, xray: 38, reports: 140, critical: 7, accuracy: 97.2 },
-  { name: '孙伟', title: '主治医师', ct: 58, mri: 45, xray: 30, reports: 128, critical: 5, accuracy: 96.8 },
-  { name: '赵强', title: '住院医师', ct: 52, mri: 38, xray: 42, reports: 118, critical: 3, accuracy: 94.5 },
-  { name: '周敏', title: '住院医师', ct: 48, mri: 35, xray: 40, reports: 112, critical: 4, accuracy: 93.8 },
-  { name: '吴昊', title: '住院医师', ct: 45, mri: 32, xray: 38, reports: 105, critical: 2, accuracy: 93.2 },
-  { name: '郑杰', title: '住院医师', ct: 42, mri: 30, xray: 35, reports: 98, critical: 3, accuracy: 92.8 },
-];
-
-// 预警信息
-const alerts = [
-  { level: 'warning', device: 'MRI-003', msg: 'MRI3室 正在维护中，预计今日18:00恢复' },
-  { level: 'info', device: 'MG-002', msg: '乳腺室2 设备利用率较低(28%)，建议优化排班' },
-  { level: 'critical', device: 'CT-001', msg: 'CT1室 今日检查量已超80人次，候诊时间延长' },
-  { level: 'warning', device: 'DSA-002', msg: '导管室2 今日无预约，可协调临时使用' },
-  { level: 'info', device: 'PETCT-001', msg: '核医学科 PET-CT 上午时段已约满' },
 ];
 
 // 今日放射科统计数据
@@ -390,7 +338,7 @@ const DepartmentDashboardPage: React.FC = () => {
                   </div>
                   <div>
                     <div style={styles.deviceName}>{device.name}</div>
-                    <div style={styles.deviceType}>{DEVICE_TYPE_I18N[device.type] ? t(DEVICE_TYPE_I18N[device.type]) : device.type} | {device.id}</div>
+                    <div style={styles.deviceType}>{t(DEVICE_TYPE_I18N[device.type] ?? device.type)} | {device.id}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

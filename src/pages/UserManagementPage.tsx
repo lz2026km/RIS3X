@@ -4,6 +4,7 @@ import { UserManagement, type UserAccount } from '../components/v3/admin/UserMan
 import { generateId } from '../data/simulationStore'
 import { PermissionGate } from '../components/common/PermissionGate'
 import { userApi } from '../services/api/userApi'
+import { uniqueId } from '../utils/uniqueId'
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserAccount[]>([])
@@ -112,7 +113,7 @@ export default function UserManagementPage() {
         return
       }
     } catch { /* 后端不可用 → 本地生成 */ }
-    showTemp(`Ris${Date.now().toString().slice(-6)}@a1`, false)
+    showTemp(`Ris${uniqueId('').replace(/-/g, '')}@a1`, false)
   }
 
   const onSave = async () => {

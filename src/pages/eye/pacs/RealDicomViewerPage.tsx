@@ -29,6 +29,7 @@ import {
   Crosshair,
 } from "lucide-react";
 import { eyeApi } from "@/services/api/eyeApi";
+import { LoadingBanner, ErrorBanner, AppEmpty } from "../../../components/feedback";
 import { t } from "../../../i18n/appI18n";
 import {
   useCornerstone3D,
@@ -63,6 +64,8 @@ export const RealDicomViewerPage: React.FC = () => {
 
   // [v3.0.6.8-43] PR 10 真实像素渲染
   const [pixelInfo, setPixelInfo] = useState<any>(null);
+  const [pixelLoading, setPixelLoading] = useState(true);
+  const [pixelError, setPixelError] = useState<string | null>(null);
   const [histogram, setHistogram] = useState<any>(null);
   const [colormap, setColormap] = useState<any>(null);
   const [sharpness, setSharpness] = useState<any>(null);
@@ -215,11 +218,20 @@ export const RealDicomViewerPage: React.FC = () => {
   // 加载像素信息
   useEffect(() => {
     (async () => {
+      setPixelLoading(true);
+      setPixelError(null);
       try {
         const res = await eyeApi.getPixelInstance(imageIds[currentIndex]!);
-        if (res.success) setPixelInfo(res.data);
+        if (res.success) {
+          setPixelInfo(res.data);
+        } else {
+          setPixelError(t('w9.states.error'));
+        }
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
+        setPixelError(t('w9.states.error'));
+      } finally {
+        setPixelLoading(false);
       }
     })();
   }, [currentIndex, imageIds]);
@@ -383,6 +395,9 @@ export const RealDicomViewerPage: React.FC = () => {
         background: "#000",
       }}
     >
+      {pixelLoading && <LoadingBanner message={t('w9.states.loading')} />}
+      {pixelError && !pixelLoading && <ErrorBanner message={pixelError} />}
+
       <div
         style={{
           background: "#001529",
@@ -514,6 +529,9 @@ export const RealDicomViewerPage: React.FC = () => {
                 imageRendering: "pixelated",
               }}
             />
+            {!pixelLoading && !pixelError && !pixelInfo && (
+              <AppEmpty variant="no-data" minHeight={160} />
+            )}
           </div>
 
           {/* 工具?- PR 10 新增 5 个像素分析工?*/}

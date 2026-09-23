@@ -26,7 +26,7 @@ export interface ConfigModuleMeta<T> {
   /** 描述 */
   description: string;
   /** zod schema */
-  schema: z.ZodType<T>;
+  schema: z.ZodType<T, z.ZodTypeDef, unknown>;
   /** 默认 JSON 相对路径（开发时从仓库 src/.../defaults 加载） */
   defaultPath: string;
   /** 运行时覆盖 JSON 相对路径（生产环境覆盖） */
@@ -169,7 +169,7 @@ export async function loadModule<T>(key: ModuleKey): Promise<T> {
   const merged = mergeLayers<T>({ defaults: def, override: ov });
   const r = validate(meta.schema, merged);
   if (!r.ok) {
-    const summary = r.error.issues.slice(0, 5).map((iss) => `${iss.path.join(".")}: ${iss.message}`).join("; ");
+    const summary = (r.error?.issues ?? []).slice(0, 5).map((iss) => `${iss.path.join(".")}: ${iss.message}`).join("; ");
     throw new Error(`Config "${meta.id}" (${meta.schemaVersion}) validation failed: ${summary}`);
   }
   return r.data as T;

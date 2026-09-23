@@ -209,6 +209,21 @@ export interface AiPlatformTestResult {
   testedAt: string;
 }
 
+// [G005 W2] AI 报告评分 (后端 modules/ai controller POST /ai/score)
+export interface AiScoreDto {
+  reportText: string;
+  findings: string;
+  conclusion: string;
+  radsCategory?: string;
+  hasCritical?: boolean;
+}
+
+export interface AiScoreResult {
+  totalScore: number;
+  grade: string;
+  evaluatedAt: string;
+}
+
 function unwrap<T>(res: { success: boolean; data: unknown }): T {
   const body = res.data as { data?: T } | T | null;
   if (body && typeof body === "object" && "data" in body && (body as { data: unknown }).data !== undefined) {
@@ -342,6 +357,12 @@ export const aiPlatformApi = {
   clearDenoiseHistory: async () => {
     const res = await api.post<unknown>("/ai-platform/denoise/history/clear", {});
     return { ...res, data: unwrap<{ cleared: boolean; count: number }>(res) };
+  },
+
+  // [G005 W2] AI 报告评分 (后端 modules/ai ai.controller POST /ai/score)
+  scoreReport: async (data: AiScoreDto) => {
+    const res = await api.post<unknown>("/ai/score", data);
+    return { ...res, data: unwrap<AiScoreResult>(res) };
   },
 
   // [v3.0.6.11-50] 对接后端 GET /ai-platform/medical-devices (aiplatform.controller)

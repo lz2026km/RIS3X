@@ -5,7 +5,7 @@
  */
 import { FHIR_DR_DOCUMENTS_MOCK, FHIR_DR_MOCK } from '@data/reportIntegrationMock';
 import { generateFhirDr, downloadFhirDr, sendFhirDr, validateFhir, buildFhirBundle } from '@services/integration/fhirDiagnosticService';
-import type { FhirDiagnosticReport } from '@types/R3/R3.INTEGRATION';
+import type { FhirDiagnosticReport } from '@/types/R3/R3.INTEGRATION';
 import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Divider, Alert } from 'antd';
 import { Braces, Download, Send, Copy, CheckCircle2, FileJson, Layers, Server, Globe, Lock, Key, Plus } from 'lucide-react';
 import React, { useState, useCallback, useMemo } from 'react';

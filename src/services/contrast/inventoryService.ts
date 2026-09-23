@@ -70,7 +70,7 @@ class MockContrastInventoryService implements IContrastInventoryService {
   async dispense(batchId: string, volumeMl: number, reference?: { type: 'exam' | 'order'; id: string }): Promise<ContrastInventoryItem> {
     const idx = MOCK_INVENTORY.findIndex(i => i.batchId === batchId)
     if (idx === -1) throw new Error(`批次 ${batchId} 不存在`)
-    const item = MOCK_INVENTORY[idx]
+    const item = MOCK_INVENTORY[idx]!
     if (item.remainingMl < volumeMl) throw new Error(`库存不足 (剩余 ${item.remainingMl}mL，需要 ${volumeMl}mL)`)
     item.remainingMl -= volumeMl
     MOCK_LOG.push({ id: `adj-${Date.now()}`, batchId, type: 'dispense', volumeMl, balanceAfterMl: item.remainingMl, operator: 'system', timestamp: new Date().toISOString(), reason: '检查使用', referenceType: reference?.type, referenceId: reference?.id })
@@ -80,9 +80,9 @@ class MockContrastInventoryService implements IContrastInventoryService {
   async adjustStock(batchId: string, deltaMl: number, reason: string): Promise<ContrastInventoryItem> {
     const idx = MOCK_INVENTORY.findIndex(i => i.batchId === batchId)
     if (idx === -1) throw new Error(`批次 ${batchId} 不存在`)
-    MOCK_INVENTORY[idx].remainingMl += deltaMl
-    MOCK_LOG.push({ id: `adj-${Date.now()}`, batchId, type: 'adjust', volumeMl: deltaMl, balanceAfterMl: MOCK_INVENTORY[idx].remainingMl, operator: 'admin', timestamp: new Date().toISOString(), reason })
-    return { ...MOCK_INVENTORY[idx], status: computeStatus(MOCK_INVENTORY[idx]) }
+    MOCK_INVENTORY[idx]!.remainingMl += deltaMl
+    MOCK_LOG.push({ id: `adj-${Date.now()}`, batchId, type: 'adjust', volumeMl: deltaMl, balanceAfterMl: MOCK_INVENTORY[idx]!.remainingMl, operator: 'admin', timestamp: new Date().toISOString(), reason })
+    return { ...MOCK_INVENTORY[idx]!, status: computeStatus(MOCK_INVENTORY[idx]!) }
   }
 
   async getLowStockAlerts(): Promise<ContrastInventoryItem[]> {

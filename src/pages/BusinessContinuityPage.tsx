@@ -10,6 +10,7 @@ import { syncEngine, type SyncQueueItem, type ConflictResolution } from "../serv
 import { REPLICAS, type DbReplica } from "../services/failover";
 import { deviceApi, type DeviceDto } from "./../services/api/deviceApi";
 import { usePagination } from "../hooks/usePagination";
+import { LoadingBanner } from "../components/feedback";
 import { t } from "../i18n/appI18n";
 
 const {  Text } = Typography;
@@ -76,6 +77,7 @@ export default function BusinessContinuityPage() {
   const [deviceStats, setDeviceStats] = useState<DeviceTodayStats | null>(null);
   const [devices, setDevices] = useState<DeviceDto[]>([]);
   const [deviceError, setDeviceError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -96,11 +98,16 @@ export default function BusinessContinuityPage() {
   useEffect(() => {
     let mounted = true;
     const refreshDevices = async () => {
-      const [statsRes, listRes] = await Promise.all([deviceApi.getTodayStats(), deviceApi.list()]);
-      if (!mounted) return;
-      if (statsRes.success) setDeviceStats(statsRes.data as unknown as DeviceTodayStats);
-      if (listRes.success && Array.isArray(listRes.data)) setDevices(listRes.data);
-      if (!statsRes.success || !listRes.success) setDeviceError(t("businessContinuity.deviceLoadFailed"));
+      setLoading(true);
+      try {
+        const [statsRes, listRes] = await Promise.all([deviceApi.getTodayStats(), deviceApi.list()]);
+        if (!mounted) return;
+        if (statsRes.success) setDeviceStats(statsRes.data as unknown as DeviceTodayStats);
+        if (listRes.success && Array.isArray(listRes.data)) setDevices(listRes.data);
+        if (!statsRes.success || !listRes.success) setDeviceError(t("businessContinuity.deviceLoadFailed"));
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
     refreshDevices();
     return () => { mounted = false; };
@@ -125,6 +132,8 @@ export default function BusinessContinuityPage() {
           </div>
         </Space>
       </Card>
+
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card><Statistic title={t("businessContinuity.syncQueue")} value={status?.total ?? 0} prefix={<RefreshCw size={16} />} styles={{ content: {  color: "#0ea5e9"  } }} /></Card></Col>

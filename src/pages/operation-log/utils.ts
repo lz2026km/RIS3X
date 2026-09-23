@@ -107,9 +107,9 @@ export function generateMockOperationLogs(): OperationLog[] {
   const baseTime = new Date('2026-05-01T08:00:00')
 
   for (let i = 0; i < 1060; i++) {
-    const user = users[Math.floor(Math.random() * users.length)]
-    const action = actions[Math.floor(Math.random() * actions.length)]
-    const module = action === '登录' || action === '登出' || action === '系统维护' ? '系统设置' : modules[Math.floor(Math.random() * modules.length)]
+    const user = users[Math.floor(Math.random() * users.length)]!
+    const action = actions[Math.floor(Math.random() * actions.length)]!
+    const module = action === '登录' || action === '登出' || action === '系统维护' ? '系统设置' : modules[Math.floor(Math.random() * modules.length)]!
     const hoursOffset = Math.floor(i / 3) + Math.random() * 0.5
     const timestamp = new Date(baseTime.getTime() + hoursOffset * 3600000).toISOString()
 
@@ -118,27 +118,27 @@ export function generateMockOperationLogs(): OperationLog[] {
     let beforeData = ''
     let afterData = ''
     let duration = Math.floor(Math.random() * 300) + 1
-    const patientId = patientIds[Math.floor(Math.random() * patientIds.length)]
-    const department = departments[Math.floor(Math.random() * departments.length)]
+    const patientId = patientIds[Math.floor(Math.random() * patientIds.length)]!
+    const department = departments[Math.floor(Math.random() * departments.length)]!
 
     if (action === '修改报告') {
-      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
-      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
-      const examItem = examItems[Math.floor(Math.random() * examItems.length)]
+      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]!
+      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]!
+      const examItem = examItems[Math.floor(Math.random() * examItems.length)]!
       targetDesc = `${patientName}的${examItem}报告`
       beforeData = `印象：左肺下叶见约1.2cm结节影，边缘毛糙。建议定期随访。\n诊断意见：左肺下叶结节，LU-RADS 3类。`
       afterData = `印象：左肺下叶见约1.3cm结节影，边缘毛糙伴少许索条影。较前片略增大。\n诊断意见：左肺下叶结节，LU-RADS 4A类，建议进一步检查。`
       duration = Math.floor(Math.random() * 600) + 30
     } else if (action === '审核通过') {
-      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
-      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
-      const examItem = examItems[Math.floor(Math.random() * examItems.length)]
+      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]!
+      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]!
+      const examItem = examItems[Math.floor(Math.random() * examItems.length)]!
       targetDesc = `${patientName}的${examItem}报告`
       duration = Math.floor(Math.random() * 120) + 5
     } else if (action === '审核驳回') {
-      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
-      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
-      const examItem = examItems[Math.floor(Math.random() * examItems.length)]
+      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]!
+      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]!
+      const examItem = examItems[Math.floor(Math.random() * examItems.length)]!
       targetDesc = `${patientName}的${examItem}报告`
       beforeData = `报告描述不完整，请补充诊断依据。`
       duration = Math.floor(Math.random() * 60) + 10
@@ -159,7 +159,7 @@ export function generateMockOperationLogs(): OperationLog[] {
     } else if (action === '修改设置') {
       targetId = `SETTINGS-${String(i % 5 + 1).padStart(2, '0')}`
       const settingNames = ['危急值通知规则', '报告审核流程', '预约超时设置', '系统参数配置', '用户权限设置']
-      targetDesc = settingNames[i % 5]
+      targetDesc = settingNames[i % 5]!
       beforeData = `危急值提醒时间间隔：5分钟\n短信通知：开启\n邮件通知：开启`
       afterData = `危急值提醒时间间隔：3分钟\n短信通知：开启\n邮件通知：关闭`
       duration = Math.floor(Math.random() * 180) + 20
@@ -169,9 +169,9 @@ export function generateMockOperationLogs(): OperationLog[] {
       targetDesc = `批量审核${count}份报告`
       duration = Math.floor(Math.random() * 300) + count * 10
     } else if (action === '打印报告') {
-      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
-      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
-      const examItem = examItems[Math.floor(Math.random() * examItems.length)]
+      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]!
+      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]!
+      const examItem = examItems[Math.floor(Math.random() * examItems.length)]!
       targetDesc = `打印${patientName}的${examItem}报告`
       duration = Math.floor(Math.random() * 30) + 5
     } else if (action === '数据导入') {
@@ -183,7 +183,7 @@ export function generateMockOperationLogs(): OperationLog[] {
     } else if (action === '系统维护') {
       targetId = `MAINT-${String(i % 8 + 1).padStart(2, '0')}`
       const maintNames = ['数据库备份', '缓存清理', '日志归档', '索引重建', '系统健康检查', '安全扫描', '性能优化', '服务重启']
-      targetDesc = maintNames[i % 8]
+      targetDesc = maintNames[i % 8]!
       duration = Math.floor(Math.random() * 3600) + 60
     }
 
@@ -198,9 +198,9 @@ export function generateMockOperationLogs(): OperationLog[] {
       beforeData,
       afterData,
       timestamp,
-      ipAddress: ips[Math.floor(Math.random() * ips.length)],
-      device: devices[Math.floor(Math.random() * devices.length)],
-      source: sources[Math.floor(Math.random() * sources.length)],
+      ipAddress: ips[Math.floor(Math.random() * ips.length)]!,
+      device: devices[Math.floor(Math.random() * devices.length)]!,
+      source: sources[Math.floor(Math.random() * sources.length)]!,
       duration,
       patientId,
       department,
@@ -231,11 +231,11 @@ export function generateMockOperationLogs(): OperationLog[] {
   ]
 
   for (let i = 0; i < 50; i++) {
-    const user = hipaaUsers[Math.floor(Math.random() * hipaaUsers.length)]
-    const actionInfo = hipaaActions[Math.floor(Math.random() * hipaaActions.length)]
-    const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
-    const patientId = patientIds[Math.floor(Math.random() * patientIds.length)]
-    const reportId = reportIds[Math.floor(Math.random() * reportIds.length)]
+    const user = hipaaUsers[Math.floor(Math.random() * hipaaUsers.length)]!
+    const actionInfo = hipaaActions[Math.floor(Math.random() * hipaaActions.length)]!
+    const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]!
+    const patientId = patientIds[Math.floor(Math.random() * patientIds.length)]!
+    const reportId = reportIds[Math.floor(Math.random() * reportIds.length)]!
 
     Math.random();
     let timestamp: Date
@@ -252,7 +252,7 @@ export function generateMockOperationLogs(): OperationLog[] {
 
     if (actionInfo.action.includes('报告')) {
       targetId = reportId
-      targetDesc = `${patientName}的${examItems[Math.floor(Math.random() * examItems.length)]}报告`
+      targetDesc = `${patientName}的${examItems[Math.floor(Math.random() * examItems.length)]!}报告`
     } else if (actionInfo.action.includes('影像')) {
       targetId = `IMG-${String(Math.floor(Math.random() * 1000)).padStart(4, '0')}`
       targetDesc = `${patientName}的影像检查`
@@ -270,8 +270,8 @@ export function generateMockOperationLogs(): OperationLog[] {
       targetId,
       targetDesc,
       timestamp: timestamp.toISOString(),
-      ipAddress: ips[Math.floor(Math.random() * ips.length)],
-      device: devices[Math.floor(Math.random() * devices.length)],
+      ipAddress: ips[Math.floor(Math.random() * ips.length)]!,
+      device: devices[Math.floor(Math.random() * devices.length)]!,
       source: 'Web端',
       patientId,
       department: user.department,

@@ -5,6 +5,8 @@ import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
 // [G005 Wave1B] 牙位图数据: dentalApi.getDentalChart (GET /dental/chart/:patientId)
 import { dentalApi } from "../../services/api/dentalApi";
+import { LoadingBanner, ErrorBanner, AppEmpty } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 
 export const ToothChartPage: React.FC = () => {
   // [G005 2B] 写死 P100000 真实化: 患者下拉选择, 切换后重查牙位图
@@ -12,6 +14,8 @@ export const ToothChartPage: React.FC = () => {
   const [patients, setPatients] = useState<any[]>([]);
   const [chart, setChart] = useState<any>(null);
   const [activeTooth, setActiveTooth] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -29,11 +33,17 @@ export const ToothChartPage: React.FC = () => {
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
+      setLoadError(null);
       try {
         const r = await dentalApi.getDentalChart(patientId);
         if (r.success) setChart(r.data);
+        else setLoadError(t('w9.states.error'));
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
+        setLoadError(t('w9.states.error'));
+      } finally {
+        setLoading(false);
       }
     })();
   }, [patientId]);
@@ -95,6 +105,9 @@ export const ToothChartPage: React.FC = () => {
           notFoundContent="暂无患者"
         />
       </Space>
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {!loading && !loadError && !chart && <AppEmpty variant="no-data" />}
       <Row gutter={16}>
         <Col span={18}>
           <Card size="small" title="牙位图">

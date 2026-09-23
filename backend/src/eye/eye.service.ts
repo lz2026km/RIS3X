@@ -31,6 +31,27 @@ const SEED_EYE_MEASUREMENTS = [
   { id: 'M-2004', studyId: 'ES-1005', patientName: '陈杰', measurementType: '眼轴长度 (AL)', value: 24.05, unit: 'mm', coordinates: [], createdAt: '2026-06-28T11:35:00.000Z' },
 ]
 
+// [G005 W3-BackendParity] 眼科 PACS 测量可变内存 store (POST/DELETE 后 list 可见)
+const eyeMeasurementsStore: any[] = [...SEED_EYE_MEASUREMENTS]
+
+// [G005 W3-BackendParity] 眼科 PACS 关键影像 / 病灶分割 / 标注 seed (无 DB 回退)
+const SEED_EYE_KEY_IMAGES = [
+  { id: 'KI-1001', studyId: 'ES-1001', reason: '糖尿病视网膜病变出血点', flaggedBy: '张明远', flaggedAt: '2026-07-02T10:05:00.000Z' },
+  { id: 'KI-1002', studyId: 'ES-1003', reason: '黄斑囊样水肿', flaggedBy: '李慧敏', flaggedAt: '2026-06-30T15:20:00.000Z' },
+  { id: 'KI-1003', studyId: 'ES-1006', reason: 'DR 随访对比', flaggedBy: '王建华', flaggedAt: '2026-07-03T09:25:00.000Z' },
+]
+
+const SEED_EYE_LESION_SEGMENTATIONS = [
+  { id: 'LS-1001', studyId: 'ES-1003', type: 'macularEdema', area: 3.2, distanceFromFovea: 0.4, quadrant: 'temporal', confidence: 0.95 },
+  { id: 'LS-1002', studyId: 'ES-1001', type: 'microaneurysm', area: 0.08, distanceFromFovea: 1.8, quadrant: 'superior', confidence: 0.82 },
+  { id: 'LS-1003', studyId: 'ES-1001', type: 'hemorrhage', area: 0.35, distanceFromFovea: 2.3, quadrant: 'inferior', confidence: 0.88 },
+]
+
+const SEED_EYE_ANNOTATIONS = [
+  { id: 'AN-1001', studyId: 'ES-1001', x: 512, y: 480, label: '视网膜出血', createdBy: '张明远' },
+  { id: 'AN-1002', studyId: 'ES-1003', x: 490, y: 512, label: '黄斑水肿区', createdBy: '李慧敏' },
+]
+
 const SEED_AI_INFERENCES = [
   { id: 'INF-3001', studyId: 'ES-1001', modelName: 'DR 五级精细分级', diagnosis: '中度 NPDR (R2)', confidence: 0.92, severity: 'moderate', timestamp: '2026-07-02T10:00:00.000Z', confirmed: true },
   { id: 'INF-3002', studyId: 'ES-1002', modelName: '青光眼视盘分析', diagnosis: '正常视盘', confidence: 0.87, severity: 'mild', timestamp: '2026-07-01T10:40:00.000Z', confirmed: false },
@@ -571,7 +592,7 @@ export class EyeService {
 
   async createVisionRecord(body: Record<string, unknown>) {
     const item: any = {
-      id: `VR-${Date.now()}`,
+      id: `VR-${Date.now()}-${++eyeSeq}`,
       patientId: (body.patientId as string) ?? 'PEYE-001',
       patientName: (body.patientName as string) ?? '李慧敏',
       odUcva: body.odUcva ?? 0,
@@ -606,7 +627,7 @@ export class EyeService {
 
   async createIopRecord(body: Record<string, unknown>) {
     const item = {
-      id: `IOP-${Date.now()}`,
+      id: `IOP-${Date.now()}-${++eyeSeq}`,
       patientId: (body.patientId as string) ?? 'PEYE-001',
       patientName: (body.patientName as string) ?? '李慧敏',
       od: Number(body.od) || 0,
@@ -654,7 +675,7 @@ export class EyeService {
   // [G005 W1-A] 保存报告草稿 (EyeReportWritePage 在用)
   async createReportDraft(body: Record<string, unknown>) {
     const item = {
-      id: `DRFT-${Date.now()}`,
+      id: `DRFT-${Date.now()}-${++eyeSeq}`,
       reportId: (body.reportId as string) ?? null,
       patientId: (body.patientId as string) ?? '',
       content: (body.content as string) ?? '',
@@ -691,9 +712,68 @@ export class EyeService {
   }
 
   async listPacsMeasurements(params: { studyId?: string }) {
-    let data = SEED_EYE_MEASUREMENTS
+    let data = eyeMeasurementsStore
     if (params.studyId) data = data.filter((m: any) => m.studyId === params.studyId)
     return { success: true, data }
+  }
+
+  // ── [G005 W3-BackendParity] 眼科 PACS 关键影像 / 病灶分割 / 标注 / 测量写端点 ──
+
+  /** GET /eye/pacs/key-images?studyId= */
+  listPacsKeyImages(params: { studyId?: string }) {
+    let data = SEED_EYE_KEY_IMAGES
+    if (params.studyId) data = data.filter((k: any) => k.studyId === params.studyId)
+    return { success: true, data }
+  }
+
+  /** GET /eye/pacs/lesion-segmentations?studyId= */
+  listPacsLesionSegmentations(params: { studyId?: string }) {
+    let data = SEED_EYE_LESION_SEGMENTATIONS
+    if (params.studyId) data = data.filter((s: any) => s.studyId === params.studyId)
+    return { success: true, data }
+  }
+
+  /** GET /eye/pacs/annotations?studyId= */
+  listPacsAnnotations(params: { studyId?: string }) {
+    let data = SEED_EYE_ANNOTATIONS
+    if (params.studyId) data = data.filter((a: any) => a.studyId === params.studyId)
+    return { success: true, data }
+  }
+
+  /** POST /eye/pacs/measurements */
+  createPacsMeasurement(body: Record<string, unknown>) {
+    const item: any = {
+      id: (body.id as string) ?? `MS${Date.now()}-${++eyeSeq}`,
+      studyId: (body.studyId as string) ?? '',
+      patientName: (body.patientName as string) ?? '',
+      measurementType: (body.measurementType as string) ?? (body.type as string) ?? '测量',
+      value: Number(body.value ?? 0),
+      unit: (body.unit as string) ?? '',
+      description: (body.description as string) ?? '',
+      coordinates: Array.isArray(body.coordinates) ? body.coordinates : [],
+      createdAt: new Date().toISOString(),
+    }
+    eyeMeasurementsStore.unshift(item)
+    return { success: true, data: item }
+  }
+
+  /** DELETE /eye/pacs/measurements/:id */
+  deletePacsMeasurement(id: string) {
+    const idx = eyeMeasurementsStore.findIndex((m: any) => m.id === id)
+    if (idx < 0) return { success: false, error: { code: 'NOT_FOUND', message: `Measurement ${id} not found` } }
+    eyeMeasurementsStore.splice(idx, 1)
+    return { success: true, data: { deleted: true } }
+  }
+
+  /** POST /eye/pacs/measurements/export-sr — 导出测量为 DICOM SR (演示级) */
+  exportPacsMeasurementSr(body: Record<string, unknown>) {
+    const studyUid = (body.studyUid as string) ?? '1.2.3'
+    return {
+      ok: true,
+      studyUid,
+      objectUrl: `/api/v1/eye/pacs/measurements/export-sr/result.dcm`,
+      createdAt: new Date().toISOString(),
+    }
   }
 
   async listAiInferences(params: { studyId?: string; modelId?: string }) {
@@ -908,7 +988,7 @@ export class EyeService {
 
   async createIolInventoryItem(body: Record<string, unknown>) {
     const item: IolInventoryItem = {
-      id: `iol-${Date.now()}`,
+      id: `iol-${Date.now()}-${++eyeSeq}`,
       barcode: body.barcode as string,
       model: body.model as string,
       type: body.type as string,
@@ -979,7 +1059,7 @@ export class EyeService {
 
   async createContactLens(body: Record<string, unknown>) {
     const item: ContactLens = {
-      id: `cl-${Date.now()}`,
+      id: `cl-${Date.now()}-${++eyeSeq}`,
       brand: body.brand as string,
       type: body.type as string,
       series: body.series as string,
@@ -1013,7 +1093,7 @@ export class EyeService {
   async contactLensFitting(body: { patientId: string; fittingData?: Record<string, unknown> }) {
     return {
       success: true,
-      data: { fittingId: `FIT-${Date.now()}`, result: 'fitting_recorded', patientId: body.patientId },
+      data: { fittingId: `FIT-${Date.now()}-${++eyeSeq}`, result: 'fitting_recorded', patientId: body.patientId },
     }
   }
 
@@ -1025,7 +1105,7 @@ export class EyeService {
     return {
       success: true,
       data: {
-        designId: `OK-${Date.now()}`,
+        designId: `OK-${Date.now()}-${++eyeSeq}`,
         baseCurve,
         returnZone,
         diameter,

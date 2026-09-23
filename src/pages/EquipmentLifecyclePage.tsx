@@ -1,8 +1,7 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
-  Monitor, Package, Wrench, AlertTriangle, Search, Plus,
-  X, Trash2, Download, Edit, CheckCircle, Clock, XCircle, Save,
+  Monitor, Wrench, AlertTriangle, Search, Plus,
+  X, Trash2, CheckCircle, Clock, Save,
   ClipboardList, Edit3, Eye, DollarSign,
 } from 'lucide-react'
 import { deviceMgmtApi, type EquipmentLifecycle } from '../services/api/deviceMgmtApi'
@@ -12,6 +11,7 @@ import { PageHeader } from '../components/common/PageHeader'
 import { ChartContainer } from '../components/charts'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { t } from '../i18n/appI18n'
+import { uniqueId } from '../utils/uniqueId'
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
 const mockDevices = [
@@ -53,7 +53,7 @@ const mockMaintPlans = [
 ]
 
 // ===== 样式 =====
-const s: Record<string, React.CSSProperties> = {
+const s = {
   root: { padding: 32 },
   title: { fontSize: 22, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 24 },
   // 统计卡片区
@@ -112,7 +112,7 @@ const s: Record<string, React.CSSProperties> = {
   tab: { padding: '10px 24px', cursor: 'pointer', fontSize: 15, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '3px solid transparent', transition: 'all 0.2s' },
   tabActive: { color: 'var(--color-primary-800)', borderBottomColor: 'var(--color-primary-800)' },
   empty: { textAlign: 'center' as const, padding: 40, color: 'var(--text-secondary)', fontSize: 15 },
-}
+} as const
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { style: React.CSSProperties; label: string }> = {
@@ -245,7 +245,7 @@ export default function EquipmentLifecyclePage() {
     }
     try {
       const res = await deviceMgmtApi.create({
-        code: `LC-${Date.now().toString().slice(-8)}`,
+        code: uniqueId('LC'),
         name: deviceForm.name,
         modality: deviceForm.modality,
         location: deviceForm.dept || '放射科',
@@ -260,7 +260,7 @@ export default function EquipmentLifecyclePage() {
       }
     } catch { /* 回退本地 */ }
     setLocalDevices(prev => [{
-      id: `LC-${Date.now().toString().slice(-8)}`, name: deviceForm.name, model: deviceForm.model,
+      id: uniqueId('LC'), name: deviceForm.name, model: deviceForm.model,
       serial: '-', vendor: '-', purchaseDate: new Date().toISOString().slice(0, 10), dept: deviceForm.dept || '放射科',
       status: deviceForm.status, useCount: 0, lastUse: '-', nextMaint: '-', lifeMonth: 0, deptRate: 0,
       totalCost: 0, maintCost: 0, spareCost: 0,
@@ -300,6 +300,7 @@ export default function EquipmentLifecyclePage() {
       return
     }
     const dto = {
+      deviceId: maintPlanForm.deviceName,
       deviceName: maintPlanForm.deviceName,
       type: maintPlanForm.type || '常规保养',
       maintenanceDate: maintPlanForm.maintenanceDate,
@@ -317,7 +318,7 @@ export default function EquipmentLifecyclePage() {
         return
       }
     } catch { /* 回退本地 */ }
-    setLocalPlans(prev => [{ id: `MP-${Date.now()}`, deviceId: maintPlanForm.deviceName, ...dto, status: 'PENDING' }, ...prev])
+    setLocalPlans(prev => [{ id: `MP-${Date.now()}`, ...dto, status: 'PENDING' }, ...prev])
     message.success(t('equipLifecycle.planCreatedDemo', { name: maintPlanForm.deviceName }))
     setShowMaintPlanModal(false)
     setMaintPlanForm(emptyMaintPlanForm)
@@ -532,7 +533,6 @@ export default function EquipmentLifecyclePage() {
       const slot = byModality[mod] ?? { name: mod, purchase: 0, maint: 0, depreciation: 0 }
       const totalCost = Number(d.totalCost ?? 0)
       const maintCost = Number(d.maintCost ?? 0)
-      const months = Math.max(1, Number(d.lifeMonth ?? 36))
       const annualDep = Math.round(totalCost * 0.08)
       slot.purchase += totalCost
       slot.maint += maintCost
@@ -619,7 +619,7 @@ export default function EquipmentLifecyclePage() {
     if (months.length === 0) {
       return ['2026-01', '2026-02', '2026-03', '2026-04'].map(m => ({ month: m, cost: 0 }))
     }
-    return months.map(m => ({ month: m, cost: map[m] }))
+    return months.map(m => ({ month: m, cost: map[m] ?? 0 }))
   }, [recordRows])
 
   // E7. 状态构成

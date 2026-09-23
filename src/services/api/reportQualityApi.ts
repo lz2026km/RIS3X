@@ -107,6 +107,12 @@ export const reportQualityApi = {
       `/reports/quality/trend/${reportId}?days=${days ?? 30}`,
     ),
 
+  // [G005 W2] 报告质量评分历史 (后端 GET /reports/quality/history/:reportId)
+  getHistory: (reportId: string) =>
+    api.get<QualityEvaluation[]>(
+      `/reports/quality/history/${encodeURIComponent(reportId)}`,
+    ),
+
   // ── Score rules (report-quality-ext.controller) ──
 
   // [v3.0.6.11-104 Wave 2D] 评分规则列表 (GET /report-quality-ext/score-rules)

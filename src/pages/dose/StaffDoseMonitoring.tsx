@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -11,18 +12,46 @@ import {
 import { AlertTriangle } from "lucide-react";
 import { staffDoseRecords } from "./mockData";
 import type { StaffDoseRecord } from "./types";
+import { rdsrApi } from "../../services/api/rdsrApi";
+import { LoadingBanner } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
 const STAFF_COLORS = ["#3b82f6", "#8b5cf6", "#ef4444", "#10b981", "#f59e0b", "#6366f1"];
 
+// [G005 W8-Dose] 工作人员剂量: 优先取 /rdsr/staff, 端点不可用/返回空时回退内置演示数据。
 export default function StaffDoseMonitoring() {
-  const first = staffDoseRecords[0];
+  const [records, setRecords] = useState<StaffDoseRecord[]>(staffDoseRecords);
+  const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await rdsrApi.getStaffDose();
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setRecords(res.data as StaffDoseRecord[]);
+          setDataSource("api");
+        }
+      } catch {
+        /* 保留演示数据回退 */
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const first = records[0];
   if (!first) return null;
 
   const monthlyChartData = first.readings.map((r, idx) => ({
     month: r.month,
     ...Object.fromEntries(
-      staffDoseRecords.map((s: StaffDoseRecord) => [
+      records.map((s: StaffDoseRecord) => [
         s.staffName,
         s.readings[idx]?.dose ?? 0,
       ]),
@@ -31,6 +60,8 @@ export default function StaffDoseMonitoring() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
+      {dataSource === "demo" && (
       <div
         style={{
           padding: "8px 12px",
@@ -43,8 +74,9 @@ export default function StaffDoseMonitoring() {
           gap: 8,
         }}
       >
-        <AlertTriangle size={14} /> 演示数据：rdsrApi 无工作人员剂量端点（仅患者检查剂量），个人剂量计数据为本地模拟
+        <AlertTriangle size={14} /> {t("w8Dose.staffDemo")}
       </div>
+      )}
       <div
         style={{
           display: "grid",
@@ -54,19 +86,19 @@ export default function StaffDoseMonitoring() {
       >
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>监测人数</div>
-          <div style={kpiVal("#1e40af")}>{staffDoseRecords.length}</div>
+          <div style={kpiVal("#1e40af")}>{records.length}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>最高年剂量</div>
           <div
             style={kpiVal(
-              Math.max(...staffDoseRecords.map((s: StaffDoseRecord) => s.annualDose)) >
+              Math.max(...records.map((s: StaffDoseRecord) => s.annualDose)) >
                 10
                 ? "#dc2626"
                 : "#1e40af",
             )}
           >
-            {Math.max(...staffDoseRecords.map((s: StaffDoseRecord) => s.annualDose))}
+            {Math.max(...records.map((s: StaffDoseRecord) => s.annualDose))}
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>mSv</div>
         </div>
@@ -74,10 +106,10 @@ export default function StaffDoseMonitoring() {
           <div style={{ fontSize: 12, color: "#64748b" }}>平均合规率</div>
           <div style={kpiVal("#16a34a")}>
             {Math.round(
-              staffDoseRecords.reduce(
+              records.reduce(
                 (s: number, r: StaffDoseRecord) => s + r.complianceRate,
                 0,
-              ) / staffDoseRecords.length,
+              ) / records.length,
             )}
             %
           </div>
@@ -86,14 +118,14 @@ export default function StaffDoseMonitoring() {
           <div style={{ fontSize: 12, color: "#64748b" }}>高风险人员</div>
           <div
             style={kpiVal(
-              staffDoseRecords.filter(
+              records.filter(
                 (s: StaffDoseRecord) => s.complianceRate < 60,
               ).length > 0
                 ? "#dc2626"
                 : "#16a34a",
             )}
           >
-            {staffDoseRecords.filter(
+            {records.filter(
               (s: StaffDoseRecord) => s.complianceRate < 60,
             ).length}
           </div>
@@ -136,7 +168,7 @@ export default function StaffDoseMonitoring() {
                 fill: "#d97706",
               }}
             />
-            {staffDoseRecords.map((s: StaffDoseRecord, idx: number) => (
+            {records.map((s: StaffDoseRecord, idx: number) => (
               <Bar
                 key={s.id}
                 dataKey={s.staffName}
@@ -197,7 +229,7 @@ export default function StaffDoseMonitoring() {
               </tr>
             </thead>
             <tbody>
-              {staffDoseRecords.map((s: StaffDoseRecord, i: number) => {
+              {records.map((s: StaffDoseRecord, i: number) => {
                 const isHighRisk = s.complianceRate < 60;
                 const badgeBg = isHighRisk
                   ? "#fef2f2"

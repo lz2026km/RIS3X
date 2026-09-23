@@ -10,6 +10,9 @@ import {
 } from 'recharts'
 import { financeApi } from '../../services/api/financeApi'
 import { ChartContainer } from '../../components/charts'
+import { DataTable } from '../../components/common/DataTable'
+import { ActionButton } from '../../components/common/ActionButton'
+import { t } from '../../i18n/appI18n'
 
 interface CostCategory { name: string; budget: number; actual: number; color: string }
 interface ModalityCost { name: string; costPerExam: number; revenuePerExam: number; profitPerExam: number; color: string }
@@ -52,6 +55,7 @@ export default function CostAccountingPage() {
   const [modalityCostData, setModalityCostData] = useState<ModalityCost[]>(DEMO_MODALITY_COST_DATA)
   const [budgetData, setBudgetData] = useState<BudgetRow[]>(DEMO_BUDGET_DATA)
   const [costRevenueRatio, setCostRevenueRatio] = useState<number | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -135,7 +139,7 @@ export default function CostAccountingPage() {
     }
     void load()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
 
   const totalActual = categoryData.reduce((s, c) => s + c.actual, 0)
   const totalBudget = categoryData.reduce((s, c) => s + c.budget, 0)
@@ -158,6 +162,26 @@ export default function CostAccountingPage() {
     URL.revokeObjectURL(url)
   }
 
+  const costColumns = [
+    { title: t('w1tables.cost.category'), dataIndex: 'name', key: 'name' },
+    { title: t('w1tables.cost.budget'), dataIndex: 'budget', key: 'budget', align: 'right' as const, render: (v: number) => `¥${v.toLocaleString()}` },
+    { title: t('w1tables.cost.actual'), dataIndex: 'actual', key: 'actual', align: 'right' as const, render: (v: number) => `¥${v.toLocaleString()}` },
+    {
+      title: t('w1tables.cost.variance'), key: 'variance', align: 'right' as const,
+      render: (_: unknown, r: CostCategory) => {
+        const d = r.actual - r.budget
+        return <span style={{ color: d > 0 ? 'var(--color-error-500, #ef4444)' : 'var(--color-success-500, #22c55e)' }}>{d > 0 ? '+' : ''}¥{d.toLocaleString()}</span>
+      },
+    },
+    {
+      title: t('w1tables.cost.varianceRate'), key: 'varianceRate', align: 'right' as const,
+      render: (_: unknown, r: CostCategory) => {
+        const p = r.budget ? ((r.actual - r.budget) / r.budget) * 100 : 0
+        return <span style={{ color: p > 0 ? 'var(--color-error-500, #ef4444)' : 'var(--color-success-500, #22c55e)' }}>{p > 0 ? '+' : ''}{p.toFixed(1)}%</span>
+      },
+    },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -174,7 +198,10 @@ export default function CostAccountingPage() {
           </span>
           {loading && <span style={{ fontSize: 12, color: '#93c5fd' }}>加载中...</span>}
         </div>
-        <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报表</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
+          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报表</button>
+        </div>
       </div>
       {error && (
         <div style={{ padding: '8px 24px', background: 'rgba(220,38,38,0.15)', color: '#fca5a5', fontSize: 12, borderBottom: '1px solid rgba(220,38,38,0.3)' }}>
@@ -313,6 +340,11 @@ export default function CostAccountingPage() {
               </div>
             </div>
           )}
+        </div>
+
+        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('w1tables.cost.title')}</div>
+          <DataTable dataSource={categoryData} rowKey="name" columns={costColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </div>
       </div>
     </div>

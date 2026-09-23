@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Clock, AlertTriangle, CheckCircle, Search, Download, Wallet } from 'lucide-react'
 import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
 
 type AgingBucket = '0-30' | '31-60' | '61-90' | '90+'
@@ -136,6 +137,42 @@ export default function AccountsReceivablePage() {
     return { total, byAging, byPayer, overdue }
   }, [items])
 
+  const arColumns = [
+    { title: t('ar.colPatient'), dataIndex: 'patientName', key: 'patientName' },
+    {
+      title: t('ar.colExamItem'), key: 'examItem',
+      render: (_: unknown, r: ReceivableItem) => (
+        <div>
+          <div>{r.examItem}</div>
+          <div style={{ fontSize: 12, color: '#6e7681' }}>{r.examDate}</div>
+        </div>
+      ),
+    },
+    {
+      title: t('ar.colPayer'), dataIndex: 'payer', key: 'payer',
+      render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${PAYER_COLORS[v] || '#6b7280'}20`, color: PAYER_COLORS[v] || '#6b7280' }}>{v}</span>,
+    },
+    { title: t('ar.colTotal'), dataIndex: 'totalAmount', key: 'totalAmount', align: 'right' as const, render: (v: number) => `¥${v.toLocaleString()}` },
+    { title: t('ar.colPaid'), dataIndex: 'paidAmount', key: 'paidAmount', align: 'right' as const, render: (v: number) => <span style={{ color: '#22c55e' }}>¥{v.toLocaleString()}</span> },
+    { title: t('ar.colBalance'), dataIndex: 'balance', key: 'balance', align: 'right' as const, render: (v: number) => <strong style={{ color: v > 0 ? '#f59e0b' : '#22c55e' }}>¥{v.toLocaleString()}</strong> },
+    {
+      title: t('ar.colAging'), dataIndex: 'aging', key: 'aging', align: 'center' as const,
+      render: (v: string) => {
+        const color = v === '0-30' ? '#22c55e' : v === '31-60' ? '#f59e0b' : v === '61-90' ? '#fb923c' : '#ef4444'
+        return <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${color}20`, color }}>{v}</span>
+      },
+    },
+    {
+      title: t('ar.colStatus'), dataIndex: 'status', key: 'status',
+      render: (v: ReceivableItem['status']) => (
+        <span style={{ fontSize: 12, color: v === 'current' ? '#22c55e' : v === 'overdue' ? '#ef4444' : '#6e7681', display: 'flex', alignItems: 'center', gap: 4 }}>
+          {v === 'current' ? <Clock size={12} /> : v === 'overdue' ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}
+          {v === 'current' ? t('ar.status.current') : v === 'overdue' ? t('ar.status.overdue') : t('ar.status.writeoff')}
+        </span>
+      ),
+    },
+  ]
+
   // [G005 Wave1B] 真实导出: 用已加载的应收账款数据 (financeApi.listInvoices) 生成 CSV, 无数据时禁用
   const handleExportCsv = () => {
     if (items.length === 0) return
@@ -213,26 +250,7 @@ export default function AccountsReceivablePage() {
 
         <StateView empty={!loading && !error && filteredItems.length === 0} emptyDescription={t('w2d.empty')}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 120px 120px 120px 100px 100px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>{t('ar.colPatient')}</span><span>{t('ar.colExamItem')}</span><span>{t('ar.colPayer')}</span><span>{t('ar.colTotal')}</span><span>{t('ar.colPaid')}</span><span>{t('ar.colBalance')}</span><span>{t('ar.colAging')}</span><span>{t('ar.colStatus')}</span>
-          </div>
-          {filteredItems.map((item, idx) => (
-            <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 120px 120px 120px 100px 100px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
-              <span style={{ fontSize: 13 }}>{item.patientName}</span>
-              <div>
-                <div style={{ fontSize: 13 }}>{item.examItem}</div>
-                <div style={{ fontSize: 12, color: '#6e7681' }}>{item.examDate}</div>
-              </div>
-              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: `${PAYER_COLORS[item.payer] || '#6b7280'}20`, color: PAYER_COLORS[item.payer] || '#6b7280', width: 'fit-content' }}>{item.payer}</span>
-              <span style={{ fontSize: 13 }}>¥{item.totalAmount.toLocaleString()}</span>
-              <span style={{ fontSize: 13, color: '#22c55e' }}>¥{item.paidAmount.toLocaleString()}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: item.balance > 0 ? '#f59e0b' : '#22c55e' }}>¥{item.balance.toLocaleString()}</span>
-              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: item.aging === '0-30' ? '#22c55e20' : item.aging === '31-60' ? '#f59e0b20' : item.aging === '61-90' ? '#fb923c20' : '#ef444420', color: item.aging === '0-30' ? '#22c55e' : item.aging === '31-60' ? '#f59e0b' : item.aging === '61-90' ? '#fb923c' : '#ef4444', textAlign: 'center' }}>{item.aging}</span>
-              <span style={{ fontSize: 12, color: item.status === 'current' ? '#22c55e' : item.status === 'overdue' ? '#ef4444' : '#6e7681', display: 'flex', alignItems: 'center', gap: 4 }}>
-                {item.status === 'current' ? <Clock size={12} /> : item.status === 'overdue' ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}{item.status === 'current' ? t('ar.status.current') : item.status === 'overdue' ? t('ar.status.overdue') : t('ar.status.writeoff')}
-              </span>
-            </div>
-          ))}
+          <DataTable dataSource={filteredItems} rowKey="id" columns={arColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </div>
         </StateView>
       </div>

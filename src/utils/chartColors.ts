@@ -16,6 +16,8 @@ export type ChartColorKey =
   | 'pink'
   | 'gray'
   | 'grayDark'
+  | 'deepBlue'
+  | 'error'
 
 export const CHART_COLORS: Record<ChartColorKey, string> = {
   primary: '#3b82f6',
@@ -29,6 +31,8 @@ export const CHART_COLORS: Record<ChartColorKey, string> = {
   pink: '#db2777',
   gray: '#94a3b8',
   grayDark: '#475569',
+  deepBlue: '#1e40af',
+  error: '#ef4444',
 }
 
 export const CHART_PALETTE: string[] = [

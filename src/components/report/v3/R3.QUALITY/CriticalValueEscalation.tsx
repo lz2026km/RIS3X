@@ -4,6 +4,7 @@
  * 功能:升级规则配置 / 编辑器 / 启用切换 / 触发统计
  */
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
+import { uniqueId } from '../../../../utils/uniqueId';
 import type {
   CriticalEscalationRule,
   CriticalLevel,
@@ -137,7 +138,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
       if (editing.id === 'new') {
         const created: CriticalEscalationRule = {
           ...editing,
-          id: `es-${Date.now()}`,
+          id: uniqueId('es'),
         };
         setRules((prev) => [...prev, created]);
         message.success(t('criticalValueEscalation.ruleAdded'));

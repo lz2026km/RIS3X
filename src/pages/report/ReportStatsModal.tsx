@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { Modal, Tag, Spin, Empty, Space } from 'antd'
 import { BarChart3, FileText, Clock, Zap, UserCheck, CalendarDays, TrendingUp } from 'lucide-react'
 import { reportApi } from '../../services/api/reportApi'
+import { ErrorBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
 interface OverviewData {
@@ -74,24 +75,34 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
   const [loading, setLoading] = useState(false)
   const [section, setSection] = useState<'overview' | 'doctors' | 'trend'>('overview')
   const [live, setLive] = useState<'api' | 'fallback'>('api')
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
     let cancelled = false
     setLoading(true)
+    setLoadError(null)
     void (async () => {
-      const [ov, bd, dt] = await Promise.all([
-        reportApi.getOverview(),
-        reportApi.getByDoctor(),
-        reportApi.getDailyTrend(30),
-      ])
-      if (cancelled) return
-      const ok = [ov, bd, dt].some((r) => r.success)
-      setLive(ok ? 'api' : 'fallback')
-      if (ov.success && ov.data) setOverview(ov.data)
-      if (bd.success && bd.data?.items) setDoctors(bd.data.items)
-      if (dt.success && dt.data?.items) setTrend(dt.data.items)
-      setLoading(false)
+      try {
+        const [ov, bd, dt] = await Promise.all([
+          reportApi.getOverview(),
+          reportApi.getByDoctor(),
+          reportApi.getDailyTrend(30),
+        ])
+        if (cancelled) return
+        const ok = [ov, bd, dt].some((r) => r.success)
+        setLive(ok ? 'api' : 'fallback')
+        if (ov.success && ov.data) setOverview(ov.data)
+        if (bd.success && bd.data?.items) setDoctors(bd.data.items)
+        if (dt.success && dt.data?.items) setTrend(dt.data.items)
+      } catch {
+        if (!cancelled) {
+          setLive('fallback')
+          setLoadError(t('w9.states.error'))
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     })()
     return () => { cancelled = true }
   }, [open])
@@ -130,6 +141,8 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
         {tabBtn('doctors', t('reportStats.tabDoctors'), <UserCheck size={14} />)}
         {tabBtn('trend', t('reportStats.tabTrend'), <CalendarDays size={14} />)}
       </div>
+
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: 48 }}><Spin /> <span style={{ marginLeft: 10, color: '#94a3b8', fontSize: 13 }}>{t('reportStats.loading')}</span></div>

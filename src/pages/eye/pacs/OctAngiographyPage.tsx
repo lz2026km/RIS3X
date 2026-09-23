@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Space, Statistic, Spin } from 'antd';
-import { Activity, Target, Droplets } from 'lucide-react';
+import { Card, Row, Col, Tag, Space, Statistic, Spin, Button } from 'antd';
+import { Activity, Target, Droplets, RefreshCw, Download } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import { eyeApi } from "@/services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
@@ -12,6 +13,18 @@ const OctAngiographyPage: React.FC = () => {
   const [measurements, setMeasurements] = useState<any[]>([]);
   const [aiDiag, setAiDiag] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reloadTick, setReloadTick] = useState(0);
+
+  const handleExport = () => {
+    const payload = { study, measurements, aiDiag, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `OCTA报告_${study?.id ?? "export"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -37,7 +50,7 @@ const OctAngiographyPage: React.FC = () => {
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
   if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
   if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>无 OCT-A 检查数据</div>;
   return (
@@ -48,6 +61,10 @@ const OctAngiographyPage: React.FC = () => {
         minHeight: "calc(100vh - 56px)",
       }}
     >
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
+        <Button icon={<RefreshCw size={16} />} onClick={() => setReloadTick((n) => n + 1)}>{t('w1tables.viewer.refresh')}</Button>
+        <Button type="primary" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.viewer.export')}</Button>
+      </div>
       <Row gutter={12}>
         <Col span={16}>
           <Card

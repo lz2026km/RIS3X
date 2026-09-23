@@ -14,6 +14,7 @@ import { screeningApi, type ScreeningStatsDto } from '@/services/api/screeningAp
 import { dbtApi, type DbtStudyDto } from '@/services/api/dbtApi';
 import { dualReadApi, type DualReadAssignment } from '@/services/api/dualReadApi';
 import { t } from '../../i18n/appI18n';
+import { uniqueId } from '../../utils/uniqueId';
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
 const DENSITY_LABELS: Record<string, string> = { a: 'breastSpecialty.densityFatty', b: 'breastSpecialty.densityScattered', c: 'breastSpecialty.densityHeterogeneous', d: 'breastSpecialty.densityExtreme' };
@@ -270,7 +271,7 @@ const BreastSpecialtyPage = () => {
       const res = dualSource === 'real' ? await dualReadApi.createAssignment(assignForm) : null;
       const created = res?.success && res.data
         ? res.data
-        : { ...assignForm, id: `DR-${Date.now().toString().slice(-6)}`, reader1Id: 'D001', reader1Name: '张医生', reader2Id: 'D002', reader2Name: '李医生', report1: '', report2: '', status: 'pending', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        : { ...assignForm, id: uniqueId('DR'), reader1Id: 'D001', reader1Name: '张医生', reader2Id: 'D002', reader2Name: '李医生', report1: '', report2: '', status: 'pending', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
       setDualList(prev => [created as DualReadAssignment, ...prev]);
       if (dualSource === 'real' && !(res?.success)) setDualSource('demo');
       setShowAssignModal(false);
@@ -278,7 +279,7 @@ const BreastSpecialtyPage = () => {
     } catch {
       setDualList(prev => [{
         ...assignForm,
-        id: `DR-${Date.now().toString().slice(-6)}`,
+        id: uniqueId('DR'),
         reader1Id: 'D001', reader1Name: '张医生', reader2Id: 'D002', reader2Name: '李医生',
         report1: '', report2: '', status: 'pending',
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
@@ -352,7 +353,7 @@ const BreastSpecialtyPage = () => {
         date: newForm.date,
       });
       const createdMock = res.success && res.data ? res.data : {
-        id: `S${Date.now().toString().slice(-5)}`,
+        id: uniqueId('S'),
         patientId: newForm.patientId,
         patientName: newForm.patientName,
         age: newForm.age,
@@ -368,7 +369,7 @@ const BreastSpecialtyPage = () => {
       setNewForm({ patientId: '', patientName: '', age: 45, risk: 'average', date: new Date().toISOString().split('T')[0] });
     } catch {
       setScreeningList(prev => [{
-        id: `S${Date.now().toString().slice(-5)}`,
+        id: uniqueId('S'),
         patientId: newForm.patientId,
         patientName: newForm.patientName,
         age: newForm.age,

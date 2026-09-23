@@ -1,19 +1,10 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback } from "react";
 import {
-  Users, Shield, BarChart3, Calendar, Settings, Crown, UserCog, Stethoscope,
-  Activity, Clock, CheckCircle, AlertTriangle, X, Plus, Search, Filter, ChevronRight,
-  ChevronUp, ChevronDown, Download, PieChart, TrendingUp, Award, Target,
-  AlertCircle as AlertCircleIcon, Edit3, Save, FileText, Monitor, Timer,
-  CalendarCheck, CalendarX, Briefcase, UserPlus, RefreshCw, Star, Zap,
-  TrendingDown, Eye, Minus, Printer,
+  Users, BarChart3, Calendar, Settings,
+  AlertTriangle, X, Plus, ChevronRight, ChevronUp, ChevronDown,
+  Award, Edit3, Save, UserPlus, Eye,
   Megaphone, CalendarClock, Pin, PinOff, Trash2,
 } from "lucide-react";
-import {
-  BarChart as DeptBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, LineChart, Line, PieChart as RePieChart, Pie,
-  Cell, Legend, AreaChart, Area,
-} from "recharts";
 import { PageContainer } from "../components/common";
 import { message } from "antd";
 // [W2-A] 真实 API: userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
@@ -22,14 +13,32 @@ import { deviceApi } from "../services/api/deviceApi";
 import { criticalExtApi } from "../services/api/criticalExtApi";
 import { statsApi } from "../services/api/statsApi";
 // [G005 Wave3A P2] 科室公告 + 值班管理 (dept-announcement module)
-import { deptApi } from "../services/api/deptApi";
+import { deptApi, type OnCallShiftType, type OnCallCalendar } from "../services/api/deptApi";
 import { t } from "../i18n/appI18n";
+import { uniqueId } from "../utils/uniqueId";
 
 import DepartmentHeader from './department/DepartmentHeader';
 import DepartmentStats from './department/DepartmentStats';
-import DepartmentStaffList, { DEPT_STAFF } from './department/DepartmentStaffList';
+import DepartmentStaffList, { DEPT_STAFF, type StaffMember } from './department/DepartmentStaffList';
 import DepartmentSchedule from './department/DepartmentSchedule';
 import DepartmentFinanceSummary from './department/DepartmentFinanceSummary';
+
+type ApiRole = "DOCTOR" | "TECHNICIAN" | "NURSE" | "ADMIN" | "DIRECTOR";
+
+interface StaffRef {
+  id: string
+  name: string
+  title?: string
+}
+
+interface OrgNode {
+  id: string
+  name: string
+  type: string
+  headName: string
+  staffCount?: number
+  children?: OrgNode[]
+}
 
 const C = {
   primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "var(--color-info-bg)",
@@ -66,7 +75,7 @@ const CRITICAL_VALUES = [
 ];
 
 // ===== Org data =====
-const ORG_TREE = {
+const ORG_TREE: OrgNode = {
   id: "H001", name: "仁爱医院", type: "hospital", headName: "张伟明",
   children: [{ id: "D001", name: "放射科", type: "department", headName: "张伟明", staffCount: 15,
     children: [
@@ -113,22 +122,21 @@ const DEPT_STAFF_FOR_REVIEW = [
 
 export default function DepartmentPage() {
   const [activeTab, setActiveTab] = useState("staff");
-  const [selectedStaff, setSelectedStaff] = useState(null);
+  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [roleFilter, setRoleFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showQueryModal, setShowQueryModal] = useState(false);
   // Config state
   const [editingConfig, setEditingConfig] = useState(false);
-  const [deptConfig, setDeptConfig] = useState(DEPT_CONFIG);
+  const [deptConfig] = useState(DEPT_CONFIG);
   // Org state
   const [expandedOrgs, setExpandedOrgs] = useState(["H001", "D001"]);
-  const [selectedOrg, setSelectedOrg] = useState(ORG_TREE.children?.[0] || null);
-  const [orderedChildren, setOrderedChildren] = useState(() => (ORG_TREE.children?.[0]?.children ? [...ORG_TREE.children[0].children] : []));
+  const [selectedOrg, setSelectedOrg] = useState<OrgNode | null>(ORG_TREE.children?.[0] || null);
+  const [orderedChildren, setOrderedChildren] = useState<OrgNode[]>(() => (ORG_TREE.children?.[0]?.children ? [...(ORG_TREE.children[0]?.children ?? [])] : []));
   // Credentials state
-  const [selectedCredStaff, setSelectedCredStaff] = useState(null);
+  const [selectedCredStaff, setSelectedCredStaff] = useState<StaffRef | null>(null);
   // Review state
   const [reviews, setReviews] = useState(PEER_REVIEWS);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -140,12 +148,12 @@ export default function DepartmentPage() {
   const [apiError, setApiError] = useState("");
   const [qcStandards, setQcStandards] = useState(QC_STANDARDS);
   const [criticalValues, setCriticalValues] = useState(CRITICAL_VALUES);
-  const [orgTree, setOrgTree] = useState(ORG_TREE);
-  const [deptStaff, setDeptStaff] = useState([]);
+  const [orgTree, setOrgTree] = useState<OrgNode>(ORG_TREE);
+  const [deptStaff, setDeptStaff] = useState<StaffMember[]>([]);
   const [credentials, setCredentials] = useState(STAFF_CREDENTIALS);
   const [staffForReview, setStaffForReview] = useState(DEPT_STAFF_FOR_REVIEW);
   // [G005 Wave2A P1] 添加/编辑人员表单 (受控) + 本地新增人员
-  const [localStaff, setLocalStaff] = useState([]);
+  const [localStaff, setLocalStaff] = useState<StaffMember[]>([]);
   const [addForm, setAddForm] = useState({ name: "", role: "physician", title: "", dept: "放射科" });
   const [addError, setAddError] = useState("");
   const [editForm, setEditForm] = useState({ name: "", role: "physician", title: "", dept: "放射科" });
@@ -159,10 +167,10 @@ export default function DepartmentPage() {
   const [announceError, setAnnounceError] = useState("");
   // [G005 Wave3A P2] 值班管理
   const [onCallMonth, setOnCallMonth] = useState(() => new Date().toISOString().slice(0, 7));
-  const [onCallCalendar, setOnCallCalendar] = useState<any>({ month: "", days: [] });
+  const [onCallCalendar, setOnCallCalendar] = useState<OnCallCalendar>({ month: "", days: [] });
   const [showOnCallModal, setShowOnCallModal] = useState(false);
   const [onCallEditId, setOnCallEditId] = useState(null);
-  const [onCallForm, setOnCallForm] = useState({ date: new Date().toISOString().slice(0, 10), doctorId: "", doctorName: "", shift: "DAY", role: "" });
+  const [onCallForm, setOnCallForm] = useState({ date: new Date().toISOString().slice(0, 10), doctorId: "", doctorName: "", shift: "DAY" as OnCallShiftType, role: "" });
   const [onCallError, setOnCallError] = useState("");
 
   // [W2-A] userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
@@ -191,7 +199,7 @@ export default function DepartmentPage() {
       setDataSource("api");
 
       if (users.length > 0) {
-        const staff = users.map((u: any) => ({ id: u.id, name: u.name, role: "physician", title: u.title || u.role || "医师" }));
+        const staff: StaffMember[] = users.map((u: any) => ({ id: u.id, name: u.name, role: "physician", title: u.title || u.role || "医师", dept: u.department || "", phone: u.phone || "-", email: u.email || "-", status: "online", joinDate: String(u.joinedAt || "").slice(0, 10) || "-" }));
         setDeptStaff(staff);
         setStaffForReview(staff.slice(0, 6));
         const sections: Record<string, any[]> = {};
@@ -201,7 +209,7 @@ export default function DepartmentPage() {
         });
         const sectionNodes = Object.entries(sections).map(([name, list]: [string, any[]], i: number) => ({
           id: `SEC-${i + 1}`, name, type: "section", headName: list[0]?.name, staffCount: list.length,
-          children: list.map((u: any, j: number) => ({
+          children: list.map((u: any) => ({
             id: u.id, name: `${u.name} · ${u.title || u.role || ""}`, type: "group", headName: u.name, staffCount: 1,
           })),
         }));
@@ -378,7 +386,7 @@ export default function DepartmentPage() {
 
   const openOnCallAdd = (date?: string, shift?: string) => {
     setOnCallEditId(null);
-    setOnCallForm({ date: date || new Date().toISOString().slice(0, 10), doctorId: "", doctorName: "", shift: shift || "DAY", role: "" });
+    setOnCallForm({ date: date || new Date().toISOString().slice(0, 10), doctorId: "", doctorName: "", shift: (shift || "DAY") as OnCallShiftType, role: "" });
     setOnCallError("");
     setShowOnCallModal(true);
   };
@@ -386,17 +394,17 @@ export default function DepartmentPage() {
   const panel = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const pH = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-card)" };
   const pB = { padding: 16 };
-  const tb = (a) => ({ padding: "10px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? C.primary : C.textMid, borderBottom: a ? `2px solid ${C.primary}` : "2px solid transparent", marginBottom: -1 });
+  const tb = (a: boolean) => ({ padding: "10px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? C.primary : C.textMid, borderBottom: a ? `2px solid ${C.primary}` : "2px solid transparent", marginBottom: -1 });
   // [G005 Wave3A P2] 公告/值班 tab 内嵌小按钮与表头样式
-  const miniBtn = (color) => ({ padding: "3px 10px", borderRadius: 4, border: `1px solid ${color}55`, background: `${color}14`, color, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 });
+  const miniBtn = (color: string) => ({ padding: "3px 10px", borderRadius: 4, border: `1px solid ${color}55`, background: `${color}14`, color, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 });
   const thStyle = { padding: "8px 10px", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 };
 
-  const toggleOrg = (id) => setExpandedOrgs((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
+  const toggleOrg = (id: string) => setExpandedOrgs((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
 
-  const renderOrgNode = (node, depth = 0) => {
+  const renderOrgNode = (node: OrgNode, depth = 0) => {
     const isExp = expandedOrgs.includes(node.id);
     const hasChildren = node.children && node.children.length > 0;
-    const tColors = { hospital: C.danger, department: C.primary, section: C.accent, group: C.success };
+    const tColors: Record<string, string> = { hospital: C.danger, department: C.primary, section: C.accent, group: C.success };
     return (
       <div key={node.id}>
         <div onClick={() => { setSelectedOrg(node); if (hasChildren) toggleOrg(node.id); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", marginLeft: depth * 20, cursor: "pointer", borderRadius: 6, background: selectedOrg?.id === node.id ? C.primaryLighter : "transparent", border: `1px solid ${selectedOrg?.id === node.id ? C.primary : "transparent"}`, transition: "all 0.15s" }}>
@@ -404,14 +412,14 @@ export default function DepartmentPage() {
           <div style={{ width: 8, height: 8, borderRadius: 2, background: tColors[node.type] }} />
           <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{node.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{node.type === "hospital" ? t("deptPage.hospital") : node.type === "department" ? t("deptPage.department") : node.type === "section" ? t("deptPage.section") : t("deptPage.group")}{node.headName && ` · ${node.headName}`}{node.staffCount && ` · ${node.staffCount}人`}</div></div>
         </div>
-        {hasChildren && isExp && node.children.map((child) => renderOrgNode(child, depth + 1))}
+        {hasChildren && isExp && node.children?.map((child) => renderOrgNode(child, depth + 1))}
       </div>
     );
   };
 
-  const moveChild = (idx, dir) => setOrderedChildren((prev) => { const next = [...prev]; const j = idx + dir; if (j < 0 || j >= next.length) return prev; [next[idx], next[j]] = [next[j], next[idx]]; return next; });
+  const moveChild = (idx: number, dir: number) => setOrderedChildren((prev) => { const next = [...prev]; const j = idx + dir; if (j < 0 || j >= next.length) return prev; [next[idx], next[j]] = [next[j]!, next[idx]!]; return next; });
 
-  const getExpiryStatus = (expiryDate) => {
+  const getExpiryStatus = (expiryDate: string) => {
     const now = new Date("2026-05-01"); const exp = new Date(expiryDate); const diff = Math.ceil((exp.getTime() - now.getTime()) / 86400000);
     if (diff < 0) return { label: t("deptPage.expired"), color: C.danger, bg: C.dangerBg };
     if (diff <= 30) return { label: t("deptPage.expiringSoon"), color: C.warning, bg: C.warningBg };
@@ -425,20 +433,20 @@ export default function DepartmentPage() {
     setShowReviewModal(false); setReviewForm({ targetId: "", caseType: "CT", comment: "" });
   };
 
-  const handleSubmitReview = (id) => { setReviews((prev) => prev.map((r) => r.id === id ? { ...r, score: reviewScore, comment: reviewForm.comment || "已评审", reviewDate: "2026-05-01", status: "completed" } : r)); setReviewScore(0); };
+  const handleSubmitReview = (id: string) => { setReviews((prev) => prev.map((r) => r.id === id ? { ...r, score: reviewScore, comment: reviewForm.comment || "已评审", reviewDate: "2026-05-01", status: "completed" } : r)); setReviewScore(0); };
 
   // [G005 Wave2A P1] 角色 → 后端枚举 (userApi)
-  const ROLE_TO_API = { director: "DIRECTOR", vice_director: "DIRECTOR", physician: "DOCTOR", technician: "TECHNICIAN", nurse: "NURSE", intern: "TECHNICIAN" };
+  const ROLE_TO_API: Record<string, ApiRole> = { director: "DIRECTOR", vice_director: "DIRECTOR", physician: "DOCTOR", technician: "TECHNICIAN", nurse: "NURSE", intern: "TECHNICIAN" };
 
   // [G005 Wave2A P1] 添加人员: userApi.create 真实创建 (后端 users 有 POST), 失败回退本地列表
   const handleAddStaff = async () => {
     if (!addForm.name.trim()) { setAddError(t("deptPage.nameRequired")); return; }
-    const newStaff = {
-      id: `S${Date.now().toString().slice(-5)}`, name: addForm.name.trim(), role: addForm.role,
+    const newStaff: StaffMember = {
+      id: uniqueId('S'), name: addForm.name.trim(), role: addForm.role as StaffMember["role"],
       title: addForm.title.trim() || "医师", dept: addForm.dept.trim() || "放射科",
       phone: "-", email: "-", status: "online", joinDate: new Date().toISOString().slice(0, 10),
     };
-    const applyLocal = (suffix) => {
+    const applyLocal = (suffix: string) => {
       setLocalStaff((prev) => [newStaff, ...prev]);
       setDeptStaff((prev) => [newStaff, ...prev]);
       message.success(`已添加人员「${newStaff.name}」 ${suffix}`);
@@ -448,8 +456,8 @@ export default function DepartmentPage() {
     };
     try {
       const res = await userApi.create({
-        username: `user_${Date.now().toString().slice(-6)}`,
-        password: `Ris@${Date.now().toString().slice(-6)}`,
+        username: uniqueId('user'),
+        password: `Ris@${uniqueId('').replace(/-/g, '')}`,
         fullName: newStaff.name,
         role: ROLE_TO_API[addForm.role] || "DOCTOR",
         department: newStaff.dept,
@@ -462,8 +470,8 @@ export default function DepartmentPage() {
   // [G005 Wave2A P1] 编辑人员: 预填表单 → userApi.update → 失败回退本地
   const handleEditStaff = () => {
     if (!selectedStaff) return;
-    const updated = { ...selectedStaff, name: editForm.name.trim(), role: editForm.role, title: editForm.title.trim(), dept: editForm.dept.trim() };
-    const applyLocal = (suffix) => {
+    const updated: StaffMember = { ...selectedStaff, name: editForm.name.trim(), role: editForm.role as StaffMember["role"], title: editForm.title.trim(), dept: editForm.dept.trim() };
+    const applyLocal = (suffix: string) => {
       setSelectedStaff(updated);
       setLocalStaff((prev) => prev.map((s) => s.id === updated.id ? updated : s));
       message.success(`已更新人员「${updated.name}」 ${suffix}`);
@@ -549,7 +557,7 @@ export default function DepartmentPage() {
         <span style={{ color: "#9ca3af" }}>{t("deptPage.reviewBlockNote")}</span>
       </div>
       <div style={{ display: "flex", gap: 4, padding: "0 16px", borderBottom: `1px solid ${C.borderLight}`, background: "var(--bg-card)", overflowX: "auto", whiteSpace: "nowrap" }}>
-        {[["staff",t("deptPage.tabStaff"),Users],["performance",t("deptPage.tabPerformance"),BarChart3],["attendance",t("deptPage.tabAttendance"),Calendar],["config",t("deptPage.tabConfig"),Settings],["org",t("deptPage.tabOrg"),Users],["credentials",t("deptPage.tabCredentials"),Award],["kpi",t("deptPage.tabKpi"),BarChart3],["review",t("deptPage.tabReview"),Eye],["announce",t("deptPage.tabAnnounce"),Megaphone],["oncall",t("deptPage.tabOnCall"),CalendarClock]].map(([id,label,Icon]) => (
+        {([["staff",t("deptPage.tabStaff"),Users],["performance",t("deptPage.tabPerformance"),BarChart3],["attendance",t("deptPage.tabAttendance"),Calendar],["config",t("deptPage.tabConfig"),Settings],["org",t("deptPage.tabOrg"),Users],["credentials",t("deptPage.tabCredentials"),Award],["kpi",t("deptPage.tabKpi"),BarChart3],["review",t("deptPage.tabReview"),Eye],["announce",t("deptPage.tabAnnounce"),Megaphone],["oncall",t("deptPage.tabOnCall"),CalendarClock]] as [string, string, typeof Users][]).map(([id,label,Icon]) => (
           <button key={id} style={tb(activeTab === id)} onClick={() => setActiveTab(id)}><Icon style={{ width: 14, height: 14, marginRight: 4 }} />{label}</button>
         ))}
       </div>
@@ -751,7 +759,7 @@ export default function DepartmentPage() {
                         {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.primary} />}
                         <strong style={{ fontSize: 14, color: C.textDark }}>{a.title}</strong>
                         <span style={{ padding: "1px 8px", borderRadius: 4, fontSize: 11, background: a.category === "urgent" ? C.dangerBg : C.infoBg, color: a.category === "urgent" ? C.danger : C.info }}>
-                          {{ notice: t("deptPage.announceNotice"), meeting: t("deptPage.announceMeeting"), policy: t("deptPage.announcePolicy"), urgent: t("deptPage.announceUrgent"), other: t("deptPage.announceOther") }[a.category] || a.category}
+                          {({ notice: t("deptPage.announceNotice"), meeting: t("deptPage.announceMeeting"), policy: t("deptPage.announcePolicy"), urgent: t("deptPage.announceUrgent"), other: t("deptPage.announceOther") } as Record<string, string>)[a.category] || a.category}
                         </span>
                         {a.pinned && <span style={{ padding: "1px 8px", borderRadius: 4, fontSize: 11, background: C.warningBg, color: C.warning }}>{t("deptPage.pinnedBadge")}</span>}
                         <span style={{ fontSize: 12, color: C.textLight, marginLeft: "auto" }}>{a.author} · {String(a.createdAt).slice(0, 16).replace("T", " ")} · {t("deptPage.until")} {a.expiresAt}</span>
@@ -851,7 +859,7 @@ export default function DepartmentPage() {
               ].map((f) => (
                 <div key={f.key}>
                   <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
-                  <input type="text" value={addForm[f.key]} onChange={(e) => setAddForm({ ...addForm, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                  <input type="text" value={addForm[f.key as keyof typeof addForm]} onChange={(e) => setAddForm({ ...addForm, [f.key as keyof typeof addForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
                 </div>
               ))}
               <div>
@@ -901,7 +909,7 @@ export default function DepartmentPage() {
               ].map((f) => (
                 <div key={f.key}>
                   <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
-                  <input type="text" value={editForm[f.key]} onChange={(e) => setEditForm({ ...editForm, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                  <input type="text" value={editForm[f.key as keyof typeof editForm]} onChange={(e) => setEditForm({ ...editForm, [f.key as keyof typeof editForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
                 </div>
               ))}
               <div>
@@ -992,7 +1000,7 @@ export default function DepartmentPage() {
                   <input type="date" value={onCallForm.date} onChange={(e) => setOnCallForm({ ...onCallForm, date: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }} />
                 </div>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.shiftRequired")}</label>
-                  <select value={onCallForm.shift} onChange={(e) => setOnCallForm({ ...onCallForm, shift: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+                  <select value={onCallForm.shift} onChange={(e) => setOnCallForm({ ...onCallForm, shift: e.target.value as OnCallShiftType })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
                     <option value="DAY">{t("deptPage.dayShift")}</option><option value="NIGHT">{t("deptPage.nightShift")}</option><option value="WEEKEND">{t("deptPage.weekendShift")}</option>
                   </select>
                 </div>

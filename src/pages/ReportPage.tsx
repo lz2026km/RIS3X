@@ -1,13 +1,9 @@
-// @ts-nocheck
 // G005 Radiology RIS - Report List v1.0.0
-import React from "react";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import {
-  FileText, Clock, CheckCircle, AlertTriangle, Filter, X, Printer,
-  Eye, Edit3, Download, ChevronDown, ChevronRight, Calendar, User,
-  Activity, Stethoscope, ClipboardList, ShieldCheck, History,
-  List, LayoutGrid, XCircle, RefreshCw, BarChart3, Plus, Bell,
-  Zap, Save, Bookmark,
+  FileText, Clock, AlertTriangle,
+  BarChart3,
+  Zap, Bookmark,
 } from "lucide-react";
 import { message, Modal, Input, Tag } from "antd";
 import type { RadiologyReport } from "../types";
@@ -15,9 +11,7 @@ import { PageContainer } from "../components/common/PageContainer";
 import { ActionButton } from "../components/common/ActionButton";
 import { LoadingBanner, ErrorBanner, AppEmpty } from "../components/feedback";
 import { useNavigate } from "react-router-dom";
-import { StatusBadge, REPORT_STATUS_META, REPORT_STATUS_ORDER } from "../components/report";
 import { toEnState } from "../components/report/statusMeta";
-import { extendedReportMock } from "../data/reportSubsystemMock";
 import { reportApi } from "../services/api";
 // [W2-3] 导出审批流 / 危急值转入
 import { exportApprovalApi } from "../services/api/analyticsApi";
@@ -27,7 +21,6 @@ import { offlineStorage } from "../services/pwa/offlineStorage";
 // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建
 import { lesionTrackingApi } from "../services/api/lesionTrackingApi";
 import { useReportStore } from "../store";
-import { PermissionGate } from "../components/common/PermissionGate";
 import { useRBAC } from "../hooks/useRBAC";
 import { useAuth } from "../hooks/useAuth";
 import { canApprove } from "../services/auth/rbacService";
@@ -51,7 +44,7 @@ import ReportAuditTrailDrawer from './report/ReportAuditTrailDrawer'; // [W2-C] 
 import ReportCriticalModal from './report/ReportCriticalModal'; // [W2-3] 危急值一键转入
 // [v3.0.6.11-103 Wave 2A] 报告统计报表 (overview/by-doctor/daily-trend)
 import ReportStatsModal from './report/ReportStatsModal';
-import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, PURPLE, GRAY, BG, WHITE, STATUS_CONFIG, isToday } from './report/reportUtils';
+import { ACCENT, WARNING, DANGER, PURPLE, GRAY, WHITE, isToday } from './report/reportUtils';
 
 // [v3.0.6.11-95 Wave2B P1] 筛选预置 (localStorage: report-filter-presets)
 interface ReportFilterPreset {
@@ -485,6 +478,7 @@ export default function ReportPage() {
         reportNo: r.reportId,
         state: toEnState(r.status),
         savedAt: Date.now(),
+        updatedAt: Date.now(),
       });
       showToast(`报告 ${r.reportId} 已保存至离线包`, 'success');
     } catch {
@@ -508,12 +502,12 @@ export default function ReportPage() {
           if (x.id !== r.id) return x
           if (action === 'supplement') return { ...x, status: '补充中' }
           if (action === 'rectify') return { ...x, status: '整改中' }
-          if (action === 'redistribute') return { ...x, status: '重新分配中' }
+          if (action === 'redistribute') return { ...x, status: '跨院区重分配' }
           return { ...x, status: '已升级' }
         }));
         showToast(`报告 ${r.reportId} ${action === 'supplement' ? '已进入补充流程' : action === 'rectify' ? '已进入整改' : action === 'redistribute' ? '已发起跨院区重分配' : '已升级'}`, 'success');
       } else {
-        showToast(`${actionLabel(action)}失败:${res.error?.message ?? res.message ?? '未知错误'}`, 'error');
+        showToast(`${actionLabel(action)}失败:${res.error?.message ?? '未知错误'}`, 'error');
       }
     } catch (e) {
       showToast(`${actionLabel(action)}失败:${e instanceof Error ? e.message : '网络错误'}`, 'error');
@@ -523,7 +517,7 @@ export default function ReportPage() {
   const handleToggleSelect = useCallback((id: string) => { setSelectedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; }); }, []);
   const handleSelectAll = useCallback(() => { setSelectedIds(new Set(filteredReports.map(r => r.id))); }, [filteredReports]);
   const handleDeselectAll = useCallback(() => { setSelectedIds(new Set()); }, []);
-  const handleReviewSubmit = async (reportId: string, result: "approved" | "rejected", suggestion: string, password: string) => {
+  const handleReviewSubmit = async (reportId: string, result: "approved" | "rejected", suggestion: string, _password: string) => {
     try {
       if (result === "approved") {
         const report = allReports.find(r => r.id === reportId);
@@ -534,7 +528,7 @@ export default function ReportPage() {
         await useReportStore.getState().review(reportId, 'initial', user?.id ?? '', user?.name ?? '', suggestion, 0);
         setMfaReportId(reportId);
       } else {
-        await useReportStore.getState().reject(reportId);
+        await useReportStore.getState().reject(reportId, suggestion || '');
         setReviewReport(null);
         setReviewResultModal({ show: true, reportId, result: "已退回", suggestion: suggestion || "(无)" });
       }
@@ -543,7 +537,7 @@ export default function ReportPage() {
     }
   };
 
-  const handleMfaVerified = async (token: string) => {
+  const handleMfaVerified = async (_token: string) => {
     const reportId = mfaReportId;
     setMfaReportId(null);
     if (!reportId) return;
@@ -639,7 +633,7 @@ export default function ReportPage() {
         </div>
       </div>
 
-      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onCreateLesionTracking={r => { setDetailReport(null); void handleCreateLesionTracking(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} onOfflineSave={handleOfflineSave} onCommittee={r => { setDetailReport(null); handleCommittee(r); }} />}
+      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={() => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onCreateLesionTracking={r => { setDetailReport(null); void handleCreateLesionTracking(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} onOfflineSave={handleOfflineSave} onCommittee={r => { setDetailReport(null); handleCommittee(r); }} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
 
@@ -705,7 +699,7 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量提交审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        showToast(`批量提交审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
         return;
         } else if (action === 'review') { // [v3.0.6.11-96 Wave3B P1] 批量审核: 单次 POST /reports/batch-transition → REVIEWED (逐条校验, 失败计数保留)
         const ids = Array.from(selectedIds).filter(id => {
@@ -725,7 +719,7 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        showToast(`批量审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
         return; } else if (action === 'sign') { // [v3.0.6.11-96 Wave3B P1] 批量签署: 单次 POST /reports/batch-transition → SIGNED
         const ids = Array.from(selectedIds).filter(id => {
           const r = allReports.find(x => x.id === id);
@@ -744,7 +738,7 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量签署完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        showToast(`批量签署完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
         return; } else if (action === 'archive') { // [G005 Wave 8] 报告冷归档: 批量归档 (仅 PUBLISHED → ARCHIVED + 归档任务)
         const ids = Array.from(selectedIds).filter(id => {
           const r = allReports.find(x => x.id === id);
@@ -762,7 +756,7 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量归档完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        showToast(`批量归档完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
         return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
     </PageContainer>
   );

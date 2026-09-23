@@ -286,8 +286,9 @@ describe('CA service', () => {
       keyUsage: ['digitalSignature'],
       fingerprint: { sha256: 'x', sha1: 'x' },
     };
-    expect(isExpired(fake)).toBe(true);
-    expect(isExpired({ ...fake, notAfter: '2099-12-31T00:00:00Z' })).toBe(false);
+    const atDate = new Date('2026-06-16T00:00:00Z');
+    expect(isExpired(fake, atDate)).toBe(true);
+    expect(isExpired({ ...fake, notAfter: '2099-12-31T00:00:00Z' }, atDate)).toBe(false);
   });
 
   it('serialize / deserialize roundtrip', async () => {

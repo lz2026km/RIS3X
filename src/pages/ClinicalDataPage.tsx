@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 临床数据中心/中台 v1.0.0
 // 功能：患者360视图 + 跨系统数据同步 + 数据质量监控
@@ -7,32 +6,23 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Select } from 'antd'
 import { DataTable } from '../components/common/DataTable'
 import {
-  Search, User, Phone, AlertCircle, Calendar, Plus, X, ChevronLeft, ChevronRight,
-  Eye, Edit2, FileText, BarChart2, Download, RefreshCw, Filter, ChevronDown, ChevronUp,
-  Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, XCircle,
-  TrendingUp, FilterX, Save, ArrowLeft, Stethoscope, Shield, MapPin,
-  Contact, CreditCard, History, Image, PlusCircle, Trash2, UserPlus, Database,
-  Server, Network, RefreshCw as SyncIcon, Check, AlertOctagon, ShieldCheck, 
-  Clock as ClockIcon, ArrowRight, ArrowDown, Droplet, Wifi, WifiOff, 
+  Search, User, AlertCircle, X, ChevronRight,
+  Eye, FileText, BarChart2, RefreshCw,
+  Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle,
+  TrendingUp, Stethoscope,
+  Image, PlusCircle, Database,
+  Server, Network, RefreshCw as SyncIcon, Check, AlertOctagon, ShieldCheck,
+  Clock as ClockIcon, Droplet, Wifi, WifiOff,
   Activity as ActivityIcon, PieChart as PieChartIcon,
-  TrendingDown, Pause, Play, Settings, MoreVertical, Bell, BellOff, EyeOff
+  TrendingDown, Pause, Settings, Bell
 } from 'lucide-react'
 import {
-  BarChart,
-  Bar,
   LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   Cell,
   PieChart,
   Pie,
-  AreaChart,
-  Area,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
@@ -40,9 +30,8 @@ import {
   Radar
 } from 'recharts'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
-import { patientApi, examApi } from '../services/api'
+import { patientApi } from '../services/api'
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback'
-import type { Patient } from '../types'
 import { t } from '../i18n/appI18n'
 
 // ==================== 类型定义 ====================
@@ -253,7 +242,7 @@ const styles = {
     gap: '16px',
     marginBottom: '20px',
   },
-  statCard: (color: string, bgColor: string) => ({
+  statCard: (_color: string, bgColor: string) => ({
     backgroundColor: bgColor,
     borderRadius: '10px',
     padding: '16px',
@@ -402,13 +391,13 @@ const styles = {
     fontWeight: 600,
     fontSize: '14px',
   }),
-  progress: (percent: number, color: string) => ({
+  progress: (_percent: number, _color: string) => ({
     width: '100%',
     height: '8px',
     backgroundColor: COLORS.bgGray,
     borderRadius: '4px',
     overflow: 'hidden',
-    position: 'relative',
+    position: 'relative' as const,
   }),
   progressBar: (percent: number, color: string) => ({
     height: '100%',
@@ -417,13 +406,7 @@ const styles = {
     borderRadius: '4px',
     transition: 'width 0.3s',
   }),
-  qualityBar: (level: QualityLevel) => {
-    const colors: Record<QualityLevel, string> = {
-      '优': COLORS.success,
-      '良': COLORS.primaryLight,
-      '中': COLORS.warning,
-      '差': COLORS.danger,
-    }
+  qualityBar: (_level: QualityLevel) => {
     return {
       width: '60px',
       height: '6px',
@@ -449,13 +432,13 @@ const generateSyncRecords = (): SyncRecord[] => {
   
   return systems.flatMap((sys, sysIdx) =>
     Array.from({ length: 8 }, (_, i) => {
-      const patient = patients[(sysIdx * 3 + i) % patients.length]
-      const status = statuses[Math.floor(Math.random() * statuses.length)]
+      const patient = patients[(sysIdx * 3 + i) % patients.length]!
+      const status = statuses[Math.floor(Math.random() * statuses.length)]!
       return {
         id: `sync-${sysIdx}-${i}`,
         systemName: sys.name,
         systemType: sys.type,
-        recordType: recordTypes[Math.floor(Math.random() * recordTypes.length)],
+        recordType: recordTypes[Math.floor(Math.random() * recordTypes.length)]!,
         patientId: patient.id,
         patientName: patient.name,
         syncTime: new Date(Date.now() - Math.random() * 86400000 * 3).toLocaleString('zh-CN'),
@@ -484,7 +467,7 @@ const generateQualityMetrics = (): QualityMetric[] => [
 ]
 
 const generatePatient360 = (patientId: string): Patient360Data => {
-  const patient = initialPatients.find(p => p.id === patientId) || initialPatients[0]
+  const patient = initialPatients.find(p => p.id === patientId) || initialPatients[0]!
   const exams = initialRadiologyExams.filter(e => e.patientId === patientId).slice(0, 5)
   
   return {
@@ -763,7 +746,6 @@ const Patient360View = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedPatient, setSelectedPatient] = useState<Patient360Data | null>(null)
   const [patientTypeFilter, setPatientTypeFilter] = useState('全部')
-  const [dateRange, setDateRange] = useState({ from: '', to: '' })
   const [activePatientTab, setActivePatientTab] = useState('overview')
   const [timelineView, setTimelineView] = useState<'vertical' | 'horizontal'>('vertical')
   const [apiPatients, setApiPatients] = useState<PatientListRow[]>([])
@@ -772,7 +754,7 @@ const Patient360View = () => {
   // [G005 Wave4A P1] 真实重拉患者列表 (不再随机生成)
   const loadPatients = useCallback(async () => {
     try {
-      const res = await patientApi.list({ skip: 0, take: 200 })
+      const res = await patientApi.list({ skip: 0, take: 200 } as unknown as import('../services/api/types').PatientQueryParams)
       const raw: any = res.data
       const rows = Array.isArray(raw)
         ? raw
@@ -920,7 +902,7 @@ const Patient360View = () => {
               return (
                 <div
                   key={patient.id}
-                  onClick={() => setSelectedPatient(patient)}
+                  onClick={() => setSelectedPatient(pData)}
                   style={{
                     padding: '12px',
                     borderRadius: '8px',
@@ -1735,7 +1717,7 @@ const DataQualityMonitor = () => {
       {/* 四维度质量评分卡 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
         {qualityDimensions.map(dim => {
-          const colors = dimensionColors[dim.dimension]
+          const colors = dimensionColors[dim.dimension]!
           return (
             <div key={dim.dimension} style={{
               padding: '20px',
@@ -1950,7 +1932,7 @@ const DataQualityMonitor = () => {
       {/* 质量指标明细 */}
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
-          <LineChart size={18} color={COLORS.primary} />
+          <LineChart {...({ size: 18, color: COLORS.primary } as Record<string, unknown>)} />
           {t('clinicalData.metricDetails')}
           <span style={{ marginLeft: 'auto', ...styles.badge(COLORS.warning, COLORS.warningLight) }}>{t('clinicalData.demoData')}</span>
         </div>

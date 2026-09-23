@@ -246,4 +246,37 @@ export class ClinicalPathwayService {
     memPatients.unshift(record)
     return record
   }
+
+  // ── [G005 W3-BackendParity] 患者路径追踪: 推进阶段 / 退出路径 ──
+
+  private findPatient(id: string): PathwayPatient {
+    const patient = [...memPatients, ...SEED_PATIENTS].find((p) => p.id === id)
+    if (!patient) throw new NotFoundException(`患者 ${id} 未在路径内`)
+    return patient
+  }
+
+  /** POST /clinical-pathways/patients/:id/advance — 推进到下一阶段 */
+  async advancePatient(id: string): Promise<PathwayPatient> {
+    const patient = this.findPatient(id)
+    if (patient.step < patient.totalSteps) {
+      patient.step += 1
+      if (patient.step >= patient.totalSteps) patient.status = 'completed'
+    }
+    return { ...patient }
+  }
+
+  /** POST /clinical-pathways/patients/:id/exit — 退出路径 */
+  async exitPatient(id: string): Promise<{ deleted: boolean }> {
+    const memIdx = memPatients.findIndex((p) => p.id === id)
+    if (memIdx >= 0) {
+      memPatients.splice(memIdx, 1)
+      return { deleted: true }
+    }
+    const seedIdx = SEED_PATIENTS.findIndex((p) => p.id === id)
+    if (seedIdx >= 0) {
+      SEED_PATIENTS.splice(seedIdx, 1)
+      return { deleted: true }
+    }
+    throw new NotFoundException(`患者 ${id} 未在路径内`)
+  }
 }

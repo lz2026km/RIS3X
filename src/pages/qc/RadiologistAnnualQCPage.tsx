@@ -14,6 +14,7 @@ import { THEME_TOKENS } from "../../components/common/ThemeTokens";
 import { DOCTOR_MASTER } from '../../data/master';
 import { DOCTOR_PERFORMANCE_PRE } from "../../data/_generators";
 import { qcextApi, type RadiologistAnnualDto } from '../../services/api/qcextApi';
+import { LoadingBanner, ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 function downloadCsv(filename: string, sections: Array<{ title: string; rows: (string | number)[][] }>) {
@@ -39,8 +40,13 @@ export default function RadiologistAnnualQCPage() {
   const [search, setSearch] = useState("");
   const [showCompare, setShowCompare] = useState(false);
   const [_annualData, setAnnualData] = useState<RadiologistAnnualDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   useEffect(() => {
-    qcextApi.listRadiologistAnnual().then(res => { if (res.success) setAnnualData(res.data); }).catch((err) => { console.error('[F04]', err); });
+    qcextApi.listRadiologistAnnual()
+      .then(res => { if (res.success) { setAnnualData(res.data); setLoadError(null); } })
+      .catch((err) => { console.error('[F04]', err); setLoadError(t('w9.states.error')); })
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredDoctors = useMemo(() => {
@@ -118,6 +124,8 @@ export default function RadiologistAnnualQCPage() {
         title={t('annualQc.title')}
         subtitle={t('annualQc.subtitle')}
       />
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       <StickyActionBar
         actions={[
           { key: "export", label: t('annualQc.exportProfile'), onClick: handleExportAnnual, type: "primary", ariaLabel: t('annualQc.exportProfileAria') },

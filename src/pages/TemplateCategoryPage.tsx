@@ -9,6 +9,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { templatesApi, type TemplateCategoryDto, type TemplateDto } from '../services/api/templatesApi';
+import { LoadingBanner, ErrorBanner } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
@@ -246,19 +247,28 @@ export default function TemplateCategoryPage() {
   const [moveModal, setMoveModal] = useState<{ cat: TemplateCategoryNode } | null>(null);
   const [moveTargetId, setMoveTargetId] = useState<string>('');
   const [moveSaving, setMoveSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     templatesApi.listCategories().then((res) => {
       if (cancelled) return;
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setRealCategories(res.data);
         setTree(buildTreeFromCategories(res.data));
         setCategorySource('api');
+        setLoadError(null);
       } else {
         setCategorySource('fallback');
       }
-    }).catch(() => { if (!cancelled) setCategorySource('fallback'); });
+    }).catch(() => {
+      if (!cancelled) {
+        setCategorySource('fallback');
+        setLoadError(t('w9.states.error'));
+      }
+    }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true };
   }, []);
 
@@ -278,7 +288,7 @@ export default function TemplateCategoryPage() {
         })
         setTemplateCount(prev => ({ ...prev, ...byCategory }))
       }
-    })
+    }).catch(() => { setLoadError(t('w9.states.error')) })
   }, [])
 
   const stats = useMemo(() => countByLevel(tree), [tree]);
@@ -457,6 +467,9 @@ export default function TemplateCategoryPage() {
           </button>
         </div>
       </div>
+
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>

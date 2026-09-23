@@ -8,6 +8,7 @@ import {
 } from 'recharts'
 import { DollarSign, TrendingUp, TrendingDown, PieChart as PieIcon, BarChart3, Download, FileText, Receipt, RefreshCw, Eye, CreditCard } from 'lucide-react'
 import { ChartContainer } from '../../components/charts'
+import { DataTable } from '../../components/common/DataTable'
 import FinanceAnalyticsSection from './FinanceAnalyticsSection'
 import { t } from '../../i18n/appI18n'
 
@@ -233,6 +234,52 @@ export default function DepartmentFinancePage() {
   const totalProfit = MONTHLY_REVENUE.reduce((s, m) => s + m.profit, 0)
   const margin = ((totalProfit / totalRev) * 100).toFixed(1)
 
+  const invoiceColumns = [
+    { title: t('deptFinance.colInvoiceNo'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#93c5fd' }}>{v}</span> },
+    {
+      title: t('deptFinance.colPatient'), key: 'patientName',
+      render: (_: unknown, r: any) => invOf(r).patientName,
+    },
+    {
+      title: t('deptFinance.colItem'), key: 'examItem',
+      render: (_: unknown, r: any) => {
+        const inv = invOf(r)
+        return (
+          <div>
+            <div>{inv.examItem}</div>
+            <div style={{ fontSize: 11, color: '#6e7681' }}>{fmtDate(inv.issuedAt)}</div>
+          </div>
+        )
+      },
+    },
+    { title: t('deptFinance.colTotal'), key: 'totalAmount', align: 'right' as const, render: (_: unknown, r: any) => <strong>{fmtMoney(invOf(r).totalAmount)}</strong> },
+    { title: t('deptFinance.colPaid'), key: 'paidAmount', align: 'right' as const, render: (_: unknown, r: any) => <span style={{ color: '#22c55e' }}>{fmtMoney(invOf(r).paidAmount)}</span> },
+    {
+      title: t('deptFinance.colStatus'), key: 'status',
+      render: (_: unknown, r: any) => {
+        const inv = invOf(r)
+        const st = STATUS_META[inv.status] ?? { label: inv.status, color: '#8b949e' }
+        return <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${st.color}20`, color: st.color }}>{st.label}</span>
+      },
+    },
+    {
+      title: t('deptFinance.colActions'), key: 'actions', align: 'right' as const,
+      render: (_: unknown, r: any) => {
+        const inv = invOf(r)
+        return (
+          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+            <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Eye size={12} />{t('deptFinance.detail')}</button>
+            {inv.status === 'UNPAID' || inv.status === 'PENDING' ? (
+              <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />{t('deptFinance.pay')}</button>
+            ) : (
+              <span style={{ fontSize: 11, color: '#6e7681' }}>—</span>
+            )}
+          </div>
+        )
+      },
+    },
+  ]
+
   const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
 
   // [G005 2B] 导出真实化: 用已加载 financeApi 数据 (发票/财务流水) 生成 CSV, 空数据禁用+提示
@@ -420,49 +467,7 @@ export default function DepartmentFinancePage() {
           )}
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '130px 120px 1fr 110px 110px 90px 150px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-              <span>{t('deptFinance.colInvoiceNo')}</span>
-              <span>{t('deptFinance.colPatient')}</span>
-              <span>{t('deptFinance.colItem')}</span>
-              <span style={{ textAlign: 'right' }}>{t('deptFinance.colTotal')}</span>
-              <span style={{ textAlign: 'right' }}>{t('deptFinance.colPaid')}</span>
-              <span>{t('deptFinance.colStatus')}</span>
-              <span style={{ textAlign: 'right' }}>{t('deptFinance.colActions')}</span>
-            </div>
-            {invLoading ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
-                <Spin size="large" />
-                <div style={{ marginTop: 12, fontSize: 13 }}>{t('deptFinance.loadingInvoices')}</div>
-              </div>
-            ) : invoices.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noInvoices')}</div>
-            ) : (
-              invoices.map((r, idx) => {
-                const inv = invOf(r)
-                const st = STATUS_META[inv.status] ?? { label: inv.status, color: '#8b949e' }
-                return (
-                  <div key={inv.id} style={{ display: 'grid', gridTemplateColumns: '130px 120px 1fr 110px 110px 90px 150px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
-                    <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#93c5fd' }}>{inv.id}</span>
-                    <span style={{ fontSize: 13 }}>{inv.patientName}</span>
-                    <div>
-                      <div style={{ fontSize: 13 }}>{inv.examItem}</div>
-                      <div style={{ fontSize: 11, color: '#6e7681' }}>{fmtDate(inv.issuedAt)}</div>
-                    </div>
-                    <span style={{ fontSize: 13, fontWeight: 600, textAlign: 'right' }}>{fmtMoney(inv.totalAmount)}</span>
-                    <span style={{ fontSize: 12, color: '#22c55e', textAlign: 'right' }}>{fmtMoney(inv.paidAmount)}</span>
-                    <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${st.color}20`, color: st.color, width: 'fit-content' }}>{st.label}</span>
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Eye size={12} />{t('deptFinance.detail')}</button>
-                      {inv.status === 'UNPAID' || inv.status === 'PENDING' ? (
-                        <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />{t('deptFinance.pay')}</button>
-                      ) : (
-                        <span style={{ fontSize: 11, color: '#6e7681' }}>—</span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })
-            )}
+            <DataTable dataSource={invoices} rowKey={(r: any) => invOf(r).id} columns={invoiceColumns} loading={invLoading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('deptFinance.noInvoices')} />
           </div>
 
           {/* 发票详情 Modal */}

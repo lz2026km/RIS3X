@@ -1,10 +1,9 @@
-// @ts-nocheck
 import { useState } from "react";
-import { AlertTriangle, Clock, Plus, CalendarCheck, CalendarX } from "lucide-react";
+import { AlertTriangle, Clock, Plus } from "lucide-react";
 import { regionalApi } from "../../services/api";
 import { Send } from "lucide-react";
 import {
-  PieChart as RePieChart, Pie, Cell, Tooltip, ResponsiveContainer,
+  Tooltip, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { t } from "../../i18n/appI18n";
@@ -18,14 +17,50 @@ const C = {
   purple: "#7c3aed", purpleBg: "#ede9fe",
 };
 
-const ATTENDANCE_STATS = [
-  { name: "正常出勤", value: 85, color: "#059669" },
-  { name: "迟到", value: 8, color: "#d97706" },
-  { name: "早退", value: 4, color: "#f59e0b" },
-  { name: "请假", value: 3, color: "#3b82f6" },
-];
+type LeaveStatus = "pending" | "approved" | "rejected";
 
-const ATTENDANCE_DATA = [
+interface LeaveRequest {
+  id: string;
+  staffId: string;
+  name: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  status: LeaveStatus;
+  applyDate: string;
+}
+
+interface AttendanceRow {
+  staffId: string;
+  name: string;
+  date: string;
+  shift: string;
+  checkIn: string;
+  checkOut: string;
+  status: string;
+  late: number;
+  early: number;
+}
+
+interface ScheduleApiRow {
+  staffId?: string;
+  staffName?: string;
+  name?: string;
+  workDate?: string;
+  date?: string;
+  shift?: string;
+  checkIn?: string;
+  checkOut?: string;
+  status?: string;
+  lateTimes?: number;
+  earlyTimes?: number;
+  late?: number;
+  early?: number;
+}
+
+const ATTENDANCE_DATA: AttendanceRow[] = [
   { staffId: "S001", name: "张伟明", date: "2026-04-28", shift: "day", checkIn: "07:55", checkOut: "18:02", status: "normal", late: 0, early: 0 },
   { staffId: "S002", name: "李秀英", date: "2026-04-28", shift: "day", checkIn: "08:01", checkOut: "18:05", status: "normal", late: 1, early: 0 },
   { staffId: "S003", name: "王建国", date: "2026-04-28", shift: "day", checkIn: "07:58", checkOut: "19:30", status: "normal", late: 0, early: 0 },
@@ -43,14 +78,14 @@ const ATTENDANCE_MONTHLY = [
   { month: "2026-04", present: 98.6, late: 0.8, absent: 0.1, leave: 2.2 },
 ];
 
-const LEAVE_REQUESTS = [
+const LEAVE_REQUESTS: LeaveRequest[] = [
   { id: "L001", staffId: "S004", name: "刘芳", type: "年假", startDate: "2026-05-06", endDate: "2026-05-08", days: 3, reason: "家庭旅行", status: "pending", applyDate: "2026-04-25" },
   { id: "L002", staffId: "S007", name: "孙伟", type: "病假", startDate: "2026-04-29", endDate: "2026-04-29", days: 1, reason: "感冒发热", status: "pending", applyDate: "2026-04-28" },
   { id: "L003", staffId: "S010", name: "郑晓丽", type: "事假", startDate: "2026-05-10", endDate: "2026-05-12", days: 3, reason: "处理私事", status: "approved", applyDate: "2026-04-20" },
   { id: "L004", staffId: "S014", name: "李雪", type: "病假", startDate: "2026-04-30", endDate: "2026-04-30", days: 1, reason: "身体不适", status: "rejected", applyDate: "2026-04-27" },
 ];
 
-const LeaveRow = ({ leave, onApprove, onReject }) => {
+const LeaveRow = ({ leave, onApprove, onReject }: { leave: LeaveRequest; onApprove: () => void; onReject: () => void }) => {
   const statusStyles = { pending: { bg: C.warningBg, color: C.warning }, approved: { bg: C.successBg, color: C.success }, rejected: { bg: C.dangerBg, color: C.danger } };
   const s = statusStyles[leave.status] || statusStyles.pending;
   return (
@@ -74,21 +109,21 @@ export default function DepartmentSchedule() {
   const [leaveList, setLeaveList] = useState(LEAVE_REQUESTS);
   const [dateFrom, setDateFrom] = useState("2026-04-28");
   const [dateTo, setDateTo] = useState("2026-04-28");
-  const [attendanceRows, setAttendanceRows] = useState(ATTENDANCE_DATA);
+  const [attendanceRows, setAttendanceRows] = useState<AttendanceRow[]>(ATTENDANCE_DATA);
   const [querying, setQuerying] = useState(false);
   const [showLeaveForm, setShowLeaveForm] = useState(false);
   const [newLeave, setNewLeave] = useState({ name: "", type: "年假", startDate: "", endDate: "", days: 1, reason: "" });
   const [attendResult, setAttendResult] = useState("");
 
-  const handleApprove = (id) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "approved" } : l)); };
-  const handleReject = (id) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "rejected" } : l)); };
+  const handleApprove = (id: string) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "approved" } : l)); };
+  const handleReject = (id: string) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "rejected" } : l)); };
 
   const handleQuery = async () => {
     setQuerying(true);
     setAttendResult("");
     try {
       const res = await regionalApi.getDepartmentSchedule();
-      const rows = res.success && Array.isArray(res.data) && res.data.length > 0 ? res.data : ATTENDANCE_DATA;
+      const rows: ScheduleApiRow[] = res.success && Array.isArray(res.data) && res.data.length > 0 ? res.data : ATTENDANCE_DATA;
       setAttendanceRows(rows.map((r, i) => ({
         staffId: r.staffId || `S${String(i + 1).padStart(3, '0')}`,
         name: r.staffName || r.name || t("deptSched.staffFallback"),
@@ -121,7 +156,7 @@ export default function DepartmentSchedule() {
       days: newLeave.days,
       reason: newLeave.reason || "-",
       status: "pending",
-      applyDate: new Date().toISOString().split("T")[0],
+      applyDate: new Date().toISOString().split("T")[0] ?? "",
     }]);
     setShowLeaveForm(false);
     setNewLeave({ name: "", type: "年假", startDate: "", endDate: "", days: 1, reason: "" });

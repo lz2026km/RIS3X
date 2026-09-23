@@ -75,6 +75,36 @@ export class RdsrController {
     return this.svc.getStats(dateFrom, dateTo, modality)
   }
 
+  // [G005 W3-BackendParity] 儿童剂量记录 (前端 rdsrApi.getPediatric)
+  @Get('pediatric')
+  getPediatric() {
+    return this.svc.getPediatric()
+  }
+
+  // [G005 W8-Dose] 工作人员个人剂量监测记录 (前端 rdsrApi.getStaffDose)
+  @Get('staff')
+  getStaffDose() {
+    return this.svc.getStaffDose()
+  }
+
+  // [G005 W8-Dose] 乳腺摄影 AGD 剂量记录 (前端 rdsrApi.getBreast)
+  @Get('breast')
+  getBreastDose() {
+    return this.svc.getBreastDose()
+  }
+
+  // [G005 W8-Dose] 设备近 7 日剂量历史 (前端 rdsrApi.getDeviceHistory)
+  @Get('device/:id/history')
+  getDeviceHistory(@Param('id') id: string) {
+    return this.svc.getDeviceHistory(id)
+  }
+
+  // [G005 W8-Dose] 剂量总览 (前端 rdsrApi.getOverview)
+  @Get('overview')
+  getDoseOverview() {
+    return this.svc.getDoseOverview()
+  }
+
   @Get('patients')
   searchPatients(@Query('search') search?: string) {
     return this.svc.searchPatients(search)

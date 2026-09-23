@@ -111,6 +111,11 @@ export const NAMESPACES = [
   "v3deviceGantt",
   // [v3.0.6.11-104 Wave 3C] 知情同意落库绑定 + 临床反馈闭环
   "v3consentFeedback",
+  // [G005 i18n] 未注册命名空间补齐 (页面已引用 useTranslation)
+  "rdsr",
+  "nlp",
+  "cds",
+  "snomed",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

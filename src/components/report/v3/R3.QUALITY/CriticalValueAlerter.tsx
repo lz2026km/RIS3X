@@ -29,7 +29,7 @@ import {
   Timeline,
   Divider,
 } from 'antd';
-import { AlertOctagon, Bell, Phone, MessageSquare, Smartphone, CheckCircle2, Clock, PhoneCall, Send, Mail, Search, RefreshCw, Activity, TrendingUp, Zap, X, Stethoscope } from 'lucide-react';
+import { AlertOctagon, Bell, Phone, MessageSquare, Smartphone, CheckCircle2, Clock, PhoneCall, Send, Mail, Search, RefreshCw, Activity, TrendingUp, Zap, X, Stethoscope, type LucideIcon } from 'lucide-react';
 import { BellOff } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react';
 import { t } from '../../../../i18n/appI18n';
@@ -51,7 +51,7 @@ const LEVEL_META: Record<CriticalLevel, { color: string; label: string; bg: stri
   info: { color: '#3b82f6', label: t('criticalValue.level.info'), bg: 'var(--color-info-bg)' },
 };
 
-const CHANNEL_META: Record<NotificationChannel, { icon: React.ComponentType<{ size?: number; color?: string }>; color: string; label: string }> = {
+const CHANNEL_META: Record<NotificationChannel, { icon: LucideIcon; color: string; label: string }> = {
   phone: { icon: Phone, color: '#10b981', label: t('criticalValue.channel.phone') },
   sms: { icon: MessageSquare, color: '#3b82f6', label: t('criticalValue.channel.sms') },
   wechat: { icon: Smartphone, color: '#10b981', label: t('criticalValue.channel.wechat') },
@@ -127,6 +127,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       const timer = setInterval(load, autoRefreshSec * 1000);
       return () => clearInterval(timer);
     }
+    return undefined;
   }, [autoRefreshSec]);
 
   const filtered = useMemo(() => {

@@ -346,6 +346,14 @@ const COLLECTIONS = [
   'smsLogs',
   // [G005 Wave 2A] 委员会会诊 (多医生合议, CommitteeRoomPage)
   'committee_consultations',
+  // [v3.0.6.11-7] 工作流定义/步骤/SLA策略/路由规则 (workflowHandlers)
+  'definitions',
+  'definition',
+  'steps',
+  'policies',
+  'policy',
+  'rules',
+  'rule',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 

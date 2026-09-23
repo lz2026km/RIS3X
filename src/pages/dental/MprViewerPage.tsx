@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Space, Tag, Button, InputNumber, Spin, Progress } from 'antd';
 import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { dentalApi } from '../../services/api/dentalApi';
+import { t } from '../../i18n/appI18n';
 
 const MODALITY_LABELS: Record<string, string> = { Axial: '轴向', Sagittal: '矢状', Coronal: '冠状' };
 
@@ -12,10 +14,13 @@ export const MprViewerPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activePlane, setActivePlane] = useState<'Axial' | 'Sagittal' | 'Coronal'>('Axial');
   const [slices, setSlices] = useState({ Axial: 50, Sagittal: 50, Coronal: 50 });
-  const [totalSlices] = useState({ Axial: 100, Sagittal: 100, Coronal: 100 });
+  const [totalSlices, setTotalSlices] = useState({ Axial: 100, Sagittal: 100, Coronal: 100 });
   const [ww, setWw] = useState(400);
   const [wc, setWc] = useState(40);
   const [study, setStudy] = useState<any>(null);
+  // [G005 W8-Dose] MPR 元数据: 优先 dentalApi.getMpr, 端点不可用/返回空时回退本地合成 (100 层)
+  const [mprMeta, setMprMeta] = useState<{ sliceCount: number; resolution: string; format: string } | null>(null);
+  const [mprSource, setMprSource] = useState<'api' | 'demo'>('demo');
   // [G005 Wave2A P1] 演示重建: 本地状态流转 (重建进度 → 结果占位)
   const [rebuild, setRebuild] = useState<{ running: boolean; progress: number; done: boolean }>({ running: false, progress: 0, done: false });
   const rebuildTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -44,12 +49,27 @@ export const MprViewerPage: React.FC = () => {
   const sagittalRef = useRef<HTMLCanvasElement>(null);
   const coronalRef = useRef<HTMLCanvasElement>(null);useRef<HTMLCanvasElement>(null);
 
-  // Load study
+  // Load study + MPR metadata
   useEffect(() => {
     if (!studyId) { setLoading(false); return; }
     fetch(`/api/v1/dental/studies/${studyId}`).then(r=>r.json()).then(d => {
       if (d.success) setStudy(d.data);
     }).catch((err) => { console.error('[F04]', err); }).finally(() => setLoading(false));
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await dentalApi.getMpr(studyId);
+        if (!cancelled && res.success && res.data && Number(res.data.sliceCount) > 0) {
+          const n = Number(res.data.sliceCount);
+          setMprMeta({ sliceCount: n, resolution: res.data.resolution, format: 'DICOM' });
+          setTotalSlices({ Axial: n, Sagittal: n, Coronal: n });
+          setMprSource('api');
+        }
+      } catch {
+        /* 保留本地合成回退 */
+      }
+    })();
+    return () => { cancelled = true; };
   }, [studyId]);
 
   // Generate simulated DICOM slice canvas
@@ -120,6 +140,8 @@ export const MprViewerPage: React.FC = () => {
           <span style={{ fontSize: 16, fontWeight: 600 }}>CBCT MPR 多平面重建</span>
           <Tag color="cyan">v3.0.6.8-56</Tag>
           <Tag color="purple">Planmeca Romexis 对标</Tag>
+          {mprMeta && <Tag color="geekblue">{mprMeta.resolution} · {mprMeta.format}</Tag>}
+          {mprSource === 'demo' && <Tag color="orange">{t('w8Dose.demoBadge')}</Tag>}
           <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{study?.patientName || studyId}</span>
         </Space>
         <Space>

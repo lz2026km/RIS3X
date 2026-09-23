@@ -3,6 +3,9 @@ import { TrendingUp, DollarSign, BarChart3, ArrowUpRight, ArrowDownRight, Monito
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart as RePie, Pie, Cell, Legend } from 'recharts'
 import { financeApi } from '../../services/api/financeApi'
 import { ChartContainer } from '../../components/charts'
+import { DataTable } from '../../components/common/DataTable'
+import { ActionButton } from '../../components/common/ActionButton'
+import { t } from '../../i18n/appI18n'
 
 const DEMO_MONTHLY_DATA = [
   { month: '2025-07', revenue: 680, cost: 420, profit: 260, exams: 4200 },
@@ -69,6 +72,7 @@ export default function RevenueAnalysisPage() {
   const [modalityData, setModalityData] = useState(DEMO_MODALITY_DATA)
   const [payerData, setPayerData] = useState(DEMO_PAYER_DATA)
   const [doctorData] = useState(DEMO_DOCTOR_DATA)
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -169,7 +173,7 @@ export default function RevenueAnalysisPage() {
     }
     void load()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
 
   const latest = monthlyData[monthlyData.length - 1] ?? { month: '', revenue: 0, cost: 0, profit: 0, exams: 0 }
   const previous = monthlyData[monthlyData.length - 3] ?? latest
@@ -195,6 +199,14 @@ export default function RevenueAnalysisPage() {
     URL.revokeObjectURL(url)
   }
 
+  const revenueColumns = [
+    { title: t('w1tables.revenue.month'), dataIndex: 'month', key: 'month' },
+    { title: t('w1tables.revenue.revenue'), dataIndex: 'revenue', key: 'revenue', align: 'right' as const, render: (v: number) => v.toLocaleString() },
+    { title: t('w1tables.revenue.cost'), dataIndex: 'cost', key: 'cost', align: 'right' as const, render: (v: number) => v.toLocaleString() },
+    { title: t('w1tables.revenue.profit'), dataIndex: 'profit', key: 'profit', align: 'right' as const, render: (v: number) => <span style={{ color: v >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>{v.toLocaleString()}</span> },
+    { title: t('w1tables.revenue.exams'), dataIndex: 'exams', key: 'exams', align: 'right' as const, render: (v: number) => v.toLocaleString() },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -211,7 +223,10 @@ export default function RevenueAnalysisPage() {
           </span>
           {loading && <span style={{ fontSize: 12, color: '#93c5fd' }}>加载中...</span>}
         </div>
-        <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报告</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
+          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报告</button>
+        </div>
       </div>
       {error && (
         <div style={{ padding: '8px 24px', background: 'rgba(220,38,38,0.15)', color: '#fca5a5', fontSize: 12, borderBottom: '1px solid rgba(220,38,38,0.3)' }}>
@@ -362,6 +377,11 @@ export default function RevenueAnalysisPage() {
               </ChartContainer>
             </div>
           )}
+        </div>
+
+        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('w1tables.revenue.title')}</div>
+          <DataTable dataSource={monthlyData} rowKey="month" columns={revenueColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </div>
       </div>
     </div>

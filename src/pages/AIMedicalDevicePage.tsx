@@ -1,21 +1,23 @@
-// @ts-nocheck
 import { Card, Select } from 'antd'
-import React, { useState, useMemo, useEffect } from 'react'
+import type { TableColumnsType } from 'antd'
+import { useState, useMemo, useEffect } from 'react'
+import type { ReactNode } from 'react'
 import { Search, X, Eye, Cpu, AlertCircle, CheckCircle, Clock, Activity } from 'lucide-react'
 import { DataTable } from '../components/common/DataTable'
 import { ActionButton } from '../components/common/ActionButton'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
+import type { AiPlatformMedicalDevice } from '../services/api/aiPlatformApi'
 import { t } from '../i18n/appI18n'
 
 // [v3.0.6.11-75] W1-2: 设备列表接入真实 GET /ai-platform/medical-devices (后端 prisma Device 表)
-const DEVICE_STATE_LABELS = {
+const DEVICE_STATE_LABELS: Record<string, string> = {
   IDLE: '空闲',
   IN_USE: '使用中',
   MAINTENANCE: '维护中',
   BROKEN: '故障',
   OFFLINE: '离线',
 }
-const DEVICE_STATE_STYLES = {
+const DEVICE_STATE_STYLES: Record<string, { bg: string; color: string }> = {
   IDLE: { bg: '#22c55e22', color: '#166534' },
   IN_USE: { bg: '#3b82f622', color: '#1e40af' },
   MAINTENANCE: { bg: '#f59e0b22', color: '#92400e' },
@@ -23,10 +25,10 @@ const DEVICE_STATE_STYLES = {
   OFFLINE: { bg: '#e2e8f0', color: 'var(--text-secondary)' },
 }
 
-const DeviceStateBadge = ({ state }) => {
-  const s = DEVICE_STATE_STYLES[state] || DEVICE_STATE_STYLES.IDLE
+const DeviceStateBadge = ({ state }: { state: string }) => {
+  const s = DEVICE_STATE_STYLES[state] || DEVICE_STATE_STYLES.IDLE!
   const label = DEVICE_STATE_LABELS[state] || state || t('aiMedicalDevice.unknown')
-  const icons = { IDLE: <CheckCircle size={12} />, IN_USE: <Activity size={12} />, MAINTENANCE: <Clock size={12} />, BROKEN: <AlertCircle size={12} />, OFFLINE: <AlertCircle size={12} /> }
+  const icons: Record<string, ReactNode> = { IDLE: <CheckCircle size={12} />, IN_USE: <Activity size={12} />, MAINTENANCE: <Clock size={12} />, BROKEN: <AlertCircle size={12} />, OFFLINE: <AlertCircle size={12} /> }
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: s.bg, color: s.color }}>
       {icons[state] || <CheckCircle size={12} />} {label}
@@ -35,7 +37,25 @@ const DeviceStateBadge = ({ state }) => {
 }
 
 // 模拟50+条AI医疗器械注册证数据
-const generateAIMedicalDevices = () => {
+interface AICertDevice {
+  id: number
+  regNumber: string
+  deviceName: string
+  model: string
+  manufacturer: string
+  expiryDate: string
+  status: string
+  category: string
+  applicationArea: string
+  certifiedDate: string
+  certificateOrg: string
+  softwareVersion: string
+  aiAlgorithm: string
+  accuracy: string
+  approvedIndications: string
+}
+
+const generateAIMedicalDevices = (): AICertDevice[] => {
   const manufacturers = [
     '上海联影医疗科技有限公司', '北京推想医疗科技股份有限公司', '深圳腾讯医疗健康科技有限公司',
     '杭州阿里云计算有限公司', '科大讯飞股份有限公司', '华为技术有限公司',
@@ -57,14 +77,14 @@ const generateAIMedicalDevices = () => {
     'SmartScan-Pro', 'ImageAI-Ultra', 'MedVision-Plus', 'AI-Reader-V4', 'Radiology-AI-X'
   ]
 
-  const devices = []
+  const devices: AICertDevice[] = []
   const today = new Date()
 
   for (let i = 1; i <= 55; i++) {
     const regNum = `国械注${2020 + (i % 5)}${String(i).padStart(6, '0')}`
-    const manufacturer = manufacturers[i % manufacturers.length]
-    const deviceType = deviceTypes[i % deviceTypes.length]
-    const model = models[i % models.length]
+    const manufacturer = manufacturers[i % manufacturers.length]!
+    const deviceType = deviceTypes[i % deviceTypes.length]!
+    const model = models[i % models.length]!
 
     // 随机生成有效期：部分已过期、部分即将过期、部分有效
     let expiryDate
@@ -87,16 +107,16 @@ const generateAIMedicalDevices = () => {
       deviceName: deviceType,
       model: model,
       manufacturer: manufacturer,
-      expiryDate: expiryDate.toISOString().split('T')[0],
+      expiryDate: expiryDate.toISOString().split('T')[0]!,
       status: status,
       category: i % 3 === 0 ? '三类' : '二类',
-      applicationArea: ['放射科', '病理科', '超声科', '内科', '外科', '眼科'][i % 6],
-      certifiedDate: new Date(2020 + (i % 4), i % 11, 15).toISOString().split('T')[0],
+      applicationArea: ['放射科', '病理科', '超声科', '内科', '外科', '眼科'][i % 6]!,
+      certifiedDate: new Date(2020 + (i % 4), i % 11, 15).toISOString().split('T')[0]!,
       certificateOrg: '国家药品监督管理局',
       softwareVersion: `v${2 + (i % 3)}.${i % 10}.${i % 20}`,
-      aiAlgorithm: ['深度学习', '机器学习', '卷积神经网络', '迁移学习'][i % 4],
+      aiAlgorithm: ['深度学习', '机器学习', '卷积神经网络', '迁移学习'][i % 4]!,
       accuracy: (85 + (i % 15)).toFixed(1) + '%',
-      approvedIndications: `适用于${['肺部', '乳腺', '心血管', '颅脑', '眼底', '皮肤'][i % 6]}影像的辅助诊断`,
+      approvedIndications: `适用于${['肺部', '乳腺', '心血管', '颅脑', '眼底', '皮肤'][i % 6]!}影像的辅助诊断`,
     })
   }
   return devices
@@ -105,14 +125,14 @@ const generateAIMedicalDevices = () => {
 const allDevices = generateAIMedicalDevices()
 
 // 状态徽章组件
-const StatusBadge = ({ status }) => {
-  const styles = {
+const StatusBadge = ({ status }: { status: string }) => {
+  const styles: Record<string, { bg: string; color: string; icon: ReactNode }> = {
     valid: { bg: '#22c55e22', color: '#166534', icon: <CheckCircle size={12} /> },
     expiring: { bg: '#f59e0b22', color: '#92400e', icon: <Clock size={12} /> },
     expired: { bg: '#ef444422', color: '#991b1b', icon: <AlertCircle size={12} /> },
   }
-  const labels = { valid: '有效', expiring: '即将过期', expired: '已过期' }
-  const s = styles[status] || styles.valid
+  const labels: Record<string, string> = { valid: '有效', expiring: '即将过期', expired: '已过期' }
+  const s = styles[status] || styles.valid!
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: s.bg, color: s.color }}>
       {s.icon} {labels[status]}
@@ -125,17 +145,17 @@ export default function AIMedicalDevicePage() {
   const [searchText, setSearchText] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedDevice, setSelectedDevice] = useState(null)
+  const [selectedDevice, setSelectedDevice] = useState<AICertDevice | null>(null)
   const pageSize = 20
 
   // [v3.0.6.11-75] 真实设备数据: GET /ai-platform/medical-devices
-  const [devices, setDevices] = useState([])
+  const [devices, setDevices] = useState<AiPlatformMedicalDevice[]>([])
   const [deviceSearch, setDeviceSearch] = useState('')
   const [deviceStateFilter, setDeviceStateFilter] = useState('all')
   const [devicePage, setDevicePage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedRealDevice, setSelectedRealDevice] = useState(null)
+  const [selectedRealDevice, setSelectedRealDevice] = useState<AiPlatformMedicalDevice | null>(null)
 
   const loadDevices = async () => {
     setLoading(true)
@@ -147,7 +167,7 @@ export default function AIMedicalDevicePage() {
         return
       }
       const rows = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
-      setDevices(rows)
+      setDevices(rows as AiPlatformMedicalDevice[])
     } catch (e) {
       setError((e as Error)?.message ?? t('aiMedicalDevice.errLoad'))
     } finally {
@@ -170,15 +190,12 @@ export default function AIMedicalDevicePage() {
     })
   }, [searchText, statusFilter])
 
-  const totalPages = Math.ceil(filteredDevices.length / pageSize)
-  const paginatedDevices = filteredDevices.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-
-  const formatDate = (dateStr) => {
+  const formatDate = (dateStr: string) => {
     const d = new Date(dateStr)
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   }
 
-  const isExpiringSoon = (dateStr) => {
+  const isExpiringSoon = (dateStr: string) => {
     const d = new Date(dateStr)
     const today = new Date()
     const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
@@ -203,19 +220,19 @@ export default function AIMedicalDevicePage() {
     })
   }, [devices, deviceSearch, deviceStateFilter])
 
-  const modalityColor = (mod) => {
-    const map = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#10b981', MG: '#ec4899', US: '#06b6d4', PET: '#f59e0b', DSA: '#ef4444', CBCT: '#f59e0b' }
+  const modalityColor = (mod: string) => {
+    const map: Record<string, string> = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#10b981', MG: '#ec4899', US: '#06b6d4', PET: '#f59e0b', DSA: '#ef4444', CBCT: '#f59e0b' }
     return map[mod] || '#64748b'
   }
 
-  const formatIsoDate = (v) => {
+  const formatIsoDate = (v: string | number | Date | null | undefined) => {
     if (!v) return '—'
     const d = new Date(v)
     if (Number.isNaN(d.getTime())) return String(v).slice(0, 10)
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   }
 
-  const deviceColumns = [
+  const deviceColumns: TableColumnsType<any> = [
     { title: t('aiMedicalDevice.colDeviceCode'), dataIndex: 'code', key: 'code', render: (v) => <span style={{ fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{v}</span> },
     { title: t('aiMedicalDevice.colDeviceName'), dataIndex: 'name', key: 'name', render: (v) => <span style={{ fontWeight: 600 }}>{v}</span> },
     { title: t('aiMedicalDevice.colModality'), dataIndex: 'modality', key: 'modality', render: (v) => <span style={{ background: modalityColor(v), color: '#fff', padding: '2px 8px', borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{v}</span> },
@@ -235,7 +252,7 @@ export default function AIMedicalDevicePage() {
     },
   ]
 
-  const certColumns = [
+  const certColumns: TableColumnsType<AICertDevice> = [
     { title: t('aiMedicalDevice.colCertNo'), dataIndex: 'regNumber', key: 'regNumber', render: (v) => <span style={{ fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{v}</span> },
     { title: t('aiMedicalDevice.colDeviceName'), dataIndex: 'deviceName', key: 'deviceName' },
     { title: t('aiMedicalDevice.colModel'), dataIndex: 'model', key: 'model' },

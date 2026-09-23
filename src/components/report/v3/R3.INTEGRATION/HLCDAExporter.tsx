@@ -6,7 +6,7 @@
 import { CDA_DOCUMENTS_MOCK, CDA_DEMO } from '@data/reportIntegrationMock';
 import { generateCda, downloadCda, parseCda, validateCda } from '@services/integration/hl7CdaService';
 import { CDA_SECTION_CODES } from '@services/integration/hl7CdaService'
-import type { CdaDocument, CdaSection, CdaSectionCode } from '@types/R3/R3.INTEGRATION';
+import type { CdaDocument, CdaSection, CdaSectionCode } from '@/types/R3/R3.INTEGRATION';
 import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Divider, Alert } from 'antd';
 import { FileCode, Download, Shield, CheckCircle2, FileText, Copy, Code2, Braces, Layers, Plus } from 'lucide-react';
 import { Inbox } from 'lucide-react'

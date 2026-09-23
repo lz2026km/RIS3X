@@ -3,7 +3,7 @@ import { X, Clock, User, FileText, CheckCircle, Download, BarChart3, Activity, A
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { Select } from 'antd'
 import type { TableColumnsType } from 'antd'
-import { userApi } from '../services/api'
+import { auditApi, type AuditEventDto } from '../services/api/auditApi'
 import { DataTable } from '../components/common/DataTable'
 import { ActionButton } from '../components/common/ActionButton'
 import { t } from '../i18n/appI18n'
@@ -13,12 +13,38 @@ import {
   TodayTrendCard, HipaaStatsCards, HipaaLogTable, HipaaAlertSummary,
   HipaaExportPanel, DurationAnalysisView, UserActivityHeatmap, StatisticsCharts,
 } from './operation-log'
-import type { OperationLog, ViewTab, QuickTimeValue, HipaaStats } from './operation-log'
+import type { OperationLog, ViewTab, QuickTimeValue, HipaaStats, ComplianceLevel } from './operation-log'
 import { PRIMARY, ACCENT, SUCCESS, WARNING, DANGER, GRAY, WHITE, BG, ACTION_COLORS, HIPAA_ACTION_TYPES, HIPAA_ACTION_CATEGORIES, PAGE_SIZES, QUICK_TIME_FILTERS } from './operation-log'
 import { generateMockOperationLogs, formatDateTime, formatTime } from './operation-log'
 
+// [G005 W8-Dose] 审计事件 → 操作日志映射 (字段桥接)
+function mapAuditToOperationLog(e: AuditEventDto): OperationLog {
+  const level: ComplianceLevel | undefined =
+    e.status === 'DENIED' ? 'critical' : e.status === 'FAILURE' ? 'warning' : undefined
+  return {
+    id: e.id,
+    userId: e.userId,
+    userName: e.username ?? e.userId,
+    action: e.action,
+    module: e.resource,
+    targetId: e.resourceId ?? '',
+    targetDesc: e.details ?? e.resource,
+    timestamp: e.createdAt,
+    ipAddress: e.ip ?? '-',
+    device: e.userAgent ?? '-',
+    source: 'API接口',
+    department: e.userRole,
+    complianceLevel: level,
+    complianceAlerts: level
+      ? [{ type: 'batch_export', level, message: level === 'critical' ? '审计拒绝操作' : '审计失败操作' }]
+      : undefined,
+  }
+}
+
 export default function OperationLogPage() {
-  const allLogs = useMemo(() => generateMockOperationLogs(), [])
+  // [G005 W8-Dose] 优先取 auditApi.list, 端点不可用/返回空时回退本地演示生成器
+  const [allLogs, setAllLogs] = useState<OperationLog[]>(() => generateMockOperationLogs())
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo')
 
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -27,14 +53,26 @@ export default function OperationLogPage() {
     let cancelled = false
     void (async () => {
       setLoading(true)
-      const res = await userApi.list()
-      if (cancelled) return
-      if (res.success) {
-        setLoadError(null)
-      } else {
-        setLoadError(t('opLog.apiUnavailableLocal'))
+      try {
+        const res = await auditApi.list({ pageSize: 500 })
+        if (cancelled) return
+        const items = res.success ? res.data?.items : undefined
+        if (Array.isArray(items) && items.length > 0) {
+          setAllLogs(
+            items
+              .map(mapAuditToOperationLog)
+              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
+          )
+          setDataSource('api')
+          setLoadError(null)
+        } else {
+          setLoadError(t('opLog.apiUnavailableLocal'))
+        }
+      } catch {
+        if (!cancelled) setLoadError(t('opLog.apiUnavailableLocal'))
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-      setLoading(false)
     })()
     return () => { cancelled = true }
   }, [])
@@ -378,6 +416,11 @@ export default function OperationLogPage() {
     <div data-testid="operation-log-page" style={{ minHeight: '100vh', background: BG }}>
       {loading && <LoadingBanner message={t('opLog.loadingBanner')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
+      {dataSource === 'demo' && !loading && (
+        <div style={{ padding: '8px 24px', background: '#fef3c7', color: '#d97706', fontSize: 12 }}>
+          {t('w8Dose.demoBadge')} · {t('opLog.apiUnavailableLocal')}
+        </div>
+      )}
       {/* 顶部导航 */}
       <div style={{
         background: WHITE, borderBottom: '1px solid var(--border-color)', padding: '14px 24px',

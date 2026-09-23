@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, List, Statistic, InputNumber, Modal, Badge, Table, Switch, Avatar } from 'antd';
 import { Bell, FileText, BookOpen, Plus, Edit3, CheckCircle2, RefreshCw } from 'lucide-react';
 import { notificationApi, templateApi, dictionaryApi } from '@/services/api/notificationTemplateDictApi';
+import { LoadingBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -34,6 +35,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
   const [dictPage, setDictPage] = useState(1);
 
   // 加载
+  const [loading, setLoading] = useState(true);
   const loadNotifs = async () => {
     try {
       const r = await notificationApi.list();
@@ -57,7 +59,16 @@ export const NotificationTemplateDictPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
-  useEffect(() => { loadNotifs(); loadTemplates(); loadDict(); }, []);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        await Promise.all([loadNotifs(), loadTemplates(), loadDict()]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   // 操作
   const handleMarkRead = async (id: string) => {
@@ -167,6 +178,8 @@ export const NotificationTemplateDictPage: React.FC = () => {
         <Tag color="green">{t('notificationTemplateDict.clientsEndpoints')}</Tag>
       </Space>
 
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* 通知中心 */}
         <Tabs.TabPane tab={
@@ -252,6 +265,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
           >
             <Table
               size="small"
+              loading={loading}
               dataSource={filteredTemplates}
               rowKey="id"
               pagination={{ current: tplPage, pageSize: PAGE_SIZE, total: filteredTemplates.length, onChange: setTplPage, showSizeChanger: false }}
@@ -285,6 +299,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
           >
             <Table
               size="small"
+              loading={loading}
               dataSource={filteredDict}
               rowKey="id"
               pagination={{ current: dictPage, pageSize: PAGE_SIZE, total: filteredDict.length, onChange: setDictPage, showSizeChanger: false }}

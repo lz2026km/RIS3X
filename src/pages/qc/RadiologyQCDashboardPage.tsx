@@ -34,6 +34,7 @@ import { qcextApi, type QcDashboardDto, type QcStatsDto } from '../../services/a
 // [v3.0.6.11-99 Wave10B] 质控看板深化: 图像质控三维度历史 (qcImageAiApi)
 import { qcImageAiApi, type QcAiAssessRecord } from '../../services/api/qcImageAiApi';
 import { reportQualityApi } from '../../services/api/reportQualityApi';
+import { LoadingBanner, ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 type QCTab = "overview" | "image" | "report" | "workflow" | "equipment" | "personnel" | "operations" | "ai" | "cqi";
@@ -73,9 +74,17 @@ export default function RadiologyQCDashboardPage() {
   const [drillDimension, setDrillDimension] = useState<"doctor" | "dept">("doctor");
   const [_dashboardData, setDashboardData] = useState<QcDashboardDto | null>(null);
   const [_qcStats, setQcStats] = useState<QcStatsDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const fetchData = useCallback(() => {
-    qcextApi.getQcDashboard().then(res => { if (res.success) setDashboardData(res.data); }).catch((err) => { console.error('[F04]', err); });
-    qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch((err) => { console.error('[F04]', err); });
+    setLoading(true);
+    Promise.allSettled([
+      qcextApi.getQcDashboard().then(res => { if (res.success) setDashboardData(res.data); }).catch((err) => { console.error('[F04]', err); throw err; }),
+      qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch((err) => { console.error('[F04]', err); throw err; }),
+    ]).then((results) => {
+      if (results.some((r) => r.status === 'rejected')) setLoadError(t('w9.states.error'));
+      else setLoadError(null);
+    }).finally(() => setLoading(false));
   }, []);
   useEffect(() => { fetchData(); }, [fetchData, refreshKey]);
 
@@ -995,6 +1004,8 @@ export default function RadiologyQCDashboardPage() {
           />
         }
       />
+      {loading && <LoadingBanner message={t('w9.states.loading')} />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       <StickyActionBar
         actions={[
           { key: "refresh", label: t("qcDashboard.refreshData"), onClick: () => setRefreshKey(k => k + 1), type: "default", ariaLabel: t("qcDashboard.refreshDataAria") },

@@ -86,6 +86,37 @@ export class EyeController {
     return this.eye.listPacsMeasurements({ studyId })
   }
 
+  // [G005 W3-BackendParity] 眼科 PACS 关键影像 / 病灶分割 / 标注 / 测量写端点
+  @Get('pacs/key-images')
+  listPacsKeyImages(@Query('studyId') studyId?: string) {
+    return this.eye.listPacsKeyImages({ studyId })
+  }
+
+  @Get('pacs/lesion-segmentations')
+  listPacsLesionSegmentations(@Query('studyId') studyId?: string) {
+    return this.eye.listPacsLesionSegmentations({ studyId })
+  }
+
+  @Get('pacs/annotations')
+  listPacsAnnotations(@Query('studyId') studyId?: string) {
+    return this.eye.listPacsAnnotations({ studyId })
+  }
+
+  @Post('pacs/measurements')
+  createPacsMeasurement(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) {
+    return this.eye.createPacsMeasurement(body)
+  }
+
+  @Delete('pacs/measurements/:id')
+  deletePacsMeasurement(@Param('id') id: string) {
+    return this.eye.deletePacsMeasurement(id)
+  }
+
+  @Post('pacs/measurements/export-sr')
+  exportPacsMeasurementSr(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) {
+    return this.eye.exportPacsMeasurementSr(body)
+  }
+
   // ── [G005 W1-A] 在用孤儿: PACS 详情 / 对比 / 危急值 / 视野 ──
 
   @Get('pacs/studies/:id')

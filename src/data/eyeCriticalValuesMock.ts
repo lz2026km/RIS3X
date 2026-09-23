@@ -1,9 +1,27 @@
 /** G005 眼科危急值 Mock 数据 v3.0.6.8-21 */
 import type { CriticalValue } from "../types/eye";
 
+interface CriticalValueV2 {
+  id: string;
+  studyId: string;
+  patientId: string;
+  patientName: string;
+  value: string;
+  unit: string;
+  severity: "urgent" | "emergent" | "significant" | "critical";
+  finding: string;
+  status: "open" | "acknowledged" | "resolved" | "false_alarm";
+  discoveredAt: string;
+  reportedBy: string;
+  notifiedTo: string;
+  notifiedAt: string;
+  notificationMethod: string;
+  closedAt?: string;
+}
+
 const NOW = Date.now();
 
-export const MOCK_CRITICAL_VALUES: CriticalValue[] = [
+export const MOCK_CRITICAL_VALUES: (CriticalValue | CriticalValueV2)[] = [
   {
     id: "cv-001",
     patientId: "p-1003",

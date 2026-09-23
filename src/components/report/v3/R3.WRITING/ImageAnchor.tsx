@@ -5,11 +5,20 @@
  */
 import { IMAGE_ANCHORS_MOCK } from '@data/reportWritingMock';
 import { pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
-import type { ImageAnchor } from '@types/R3/R3.WRITING';
+import type { ImageAnchor } from '@/types/R3/R3.WRITING';
 import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
 import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog , Type} from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { uniqueId } from '@utils/uniqueId';
+
+let dicomUidSeq = 0;
+/** 生成仅含数字与点的唯一 DICOM UID 后缀 (Date.now + 自增 + 随机数字), 满足 ^[0-9.]{1,64}$ */
+function dicomUidSuffix(): string {
+  dicomUidSeq = (dicomUidSeq + 1) % 1_000_000;
+  const rand = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+  return `${Date.now()}${dicomUidSeq.toString().padStart(6, '0')}${rand}`;
+}
 
 interface Props {
   reportId: string;
@@ -20,6 +29,14 @@ interface Props {
 }
 
 type AnnotationCategory = 'finding' | 'lesion' | 'organ' | 'measurement' | 'critical' | 'reference' | 'comparison';
+
+interface AnnotationItem {
+  type: string;
+  color: string;
+  label: string;
+  coords: { x: number; y: number }[];
+  measurement?: { value: number | string; unit: string };
+}
 
 const CATEGORY_COLORS: Record<AnnotationCategory, string> = {
   finding: '#3b82f6',
@@ -64,7 +81,7 @@ const TOOLS_PANEL = [
 const MOCK_CATEGORIES: AnnotationCategory[] = ['finding', 'lesion', 'organ', 'measurement', 'reference', 'critical', 'comparison'];
 
 function guessCategory(index: number): AnnotationCategory {
-  return MOCK_CATEGORIES[index % MOCK_CATEGORIES.length];
+  return MOCK_CATEGORIES[index % MOCK_CATEGORIES.length]!;
 }
 
 function guessVersion(createdAt: string, index: number): string {new Date(createdAt);
@@ -137,10 +154,10 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
       reader.onload = async (ev) => {
         const data = ev.target?.result as string;await uploadImageToReport(reportId, { name: file.name, size: file.size, data });
         const newAnchor: ImageAnchor = {
-          id: `ia-${Date.now()}`, reportId,
+          id: uniqueId('ia'), reportId,
           studyInstanceUID: studyInstanceUID ?? '1.2.840.10008.5.1.4.1.1.2.1.1',
           seriesInstanceUID: seriesInstanceUID ?? '1.2.840.10008.5.1.4.1.1.2.1.1.1',
-          sopInstanceUID: `1.2.840.10008.5.1.4.1.1.2.1.1.1.${Date.now()}`,
+          sopInstanceUID: `1.2.840.10008.5.1.4.1.1.2.1.1.1.${dicomUidSuffix()}`,
           frameNumber: 1, annotation: [],
           keyImage: false, thumbnail: data,
           status: 'active', createdBy: '陈医师', createdAt: new Date().toISOString(), usageCount: 0,
@@ -235,7 +252,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                   </div>
                 </div>
                 {/* 标注可视化 */}
-                {selected.annotation.map((a, i) => {
+                {selected.annotation.map((a: AnnotationItem, i: number) => {
                   const Icon = ANNOTATION_ICONS[a.type] ?? Pin;
                   const cat = guessCategory(i);
                   return (
@@ -307,7 +324,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           <div className="flex items-center gap-1 p-1 bg-slate-50 rounded flex-wrap">
             {TOOLS_PANEL.map((tool) => (
               <Tooltip key={tool.key} title={tool.label}>
-                <Button size="small" type="text" icon={<tool.icon className="w-3.5 h-3.5" />} onClick={() => setActiveTool(tool.key)} />
+                <Button size="small" type="text" icon={<tool.icon className="w-3.5 h-3.5" />} onClick={() => setActiveTool(tool.key as 'select' | 'arrow' | 'circle' | 'line' | 'text')} />
               </Tooltip>
             ))}
           </div>
@@ -320,7 +337,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
               <Layers className="w-3 h-3" />标注 ({selected.annotation.length})
             </h5>
             <div className="grid grid-cols-2 gap-2">
-              {selected.annotation.map((a, i) => {
+              {selected.annotation.map((a: AnnotationItem, i: number) => {
                 const Icon = ANNOTATION_ICONS[a.type] ?? Pin;
                 const cat = guessCategory(i);
                 const ver = guessVersion(selected.createdAt, i);

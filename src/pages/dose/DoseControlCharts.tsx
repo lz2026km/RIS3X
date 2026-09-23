@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import {
   LineChart,
@@ -11,16 +12,73 @@ import {
 } from "recharts";
 import { controlChartData } from "./mockData";
 import type { ControlChartPoint } from "./types";
+import { rdsrApi } from "../../services/api/rdsrApi";
+import { LoadingBanner } from "../../components/feedback";
+import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
+// [G005 W8-Dose] 由 /rdsr/stats 趋势派生 X-bar/R 控制图 (移动极差法)。
+// 端点不可用/趋势不足时回退内置演示数据。
+function deriveControlPoints(
+  trend: { date: string; avgCtdivol: number }[],
+): ControlChartPoint[] {
+  if (trend.length < 2) return [];
+  const means = trend.map((p) => Number(p.avgCtdivol) || 0);
+  const ranges: number[] = means.map((m, i) => (i === 0 ? 0 : Math.abs(m - means[i - 1]!)));
+  const meanBar = means.reduce((s, x) => s + x, 0) / means.length;
+  const mrBar =
+    ranges.slice(1).reduce((s, x) => s + x, 0) / Math.max(1, ranges.length - 1);
+  const sigma = mrBar / 1.128;
+  const ucl = +(meanBar + 3 * sigma).toFixed(1);
+  const lcl = Math.max(0, +(meanBar - 3 * sigma).toFixed(1));
+  const rangeUcl = +(3.267 * mrBar).toFixed(1);
+  return trend.map((p, i) => ({
+    date: p.date.slice(5, 10),
+    mean: +means[i]!.toFixed(1),
+    ucl,
+    lcl,
+    range: +ranges[i]!.toFixed(1),
+    rangeUcl,
+  }));
+}
+
 export default function DoseControlCharts() {
-  const outOfControl = controlChartData.filter(
+  const [points, setPoints] = useState<ControlChartPoint[]>(controlChartData);
+  const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await rdsrApi.getStats();
+        if (!cancelled && res.success && res.data && Array.isArray(res.data.trend)) {
+          const derived = deriveControlPoints(
+            res.data.trend.flatMap((p) => (p?.date ? [{ date: p.date, avgCtdivol: p.avgCtdivol }] : [])),
+          );
+          if (derived.length > 0) {
+            setPoints(derived);
+            setDataSource("api");
+          }
+        }
+      } catch {
+        /* 保留演示数据回退 */
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const outOfControl = points.filter(
     (p: ControlChartPoint) =>
       p.mean > p.ucl || p.mean < p.lcl || p.range > p.rangeUcl,
   );
 
-  const first = controlChartData[0];
-  const last = controlChartData[controlChartData.length - 1];
+  const first = points[0];
+  const last = points[points.length - 1];
   const meanShift =
     first && last
       ? (last.mean - first.mean >= 0 ? "+" : "") +
@@ -29,6 +87,8 @@ export default function DoseControlCharts() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {loading && <LoadingBanner message={t("w9.states.loading")} />}
+      {dataSource === "demo" && (
       <div
         style={{
           padding: "8px 12px",
@@ -41,8 +101,9 @@ export default function DoseControlCharts() {
           gap: 8,
         }}
       >
-        <AlertTriangle size={14} /> 演示数据：控制图需按日历史明细计算 UCL/LCL，rdsrApi 仅提供聚合趋势，暂以本地模拟数据呈现
+        <AlertTriangle size={14} /> {t("w8Dose.controlDemo")}
       </div>
+      )}
       <div
         style={{
           background: "var(--bg-card)",
@@ -64,7 +125,8 @@ export default function DoseControlCharts() {
               X-bar 控制图（CTDIvol均值）
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-              7日CTDIvol均值监控 · UCL: 32 · LCL: 12 · CL: 22
+              7日CTDIvol均值监控 · UCL: {first?.ucl ?? 32} · LCL: {first?.lcl ?? 12} · CL:{" "}
+              {first ? Math.round(first.mean) : 22}
             </div>
           </div>
           {outOfControl.length > 0 && (
@@ -85,8 +147,8 @@ export default function DoseControlCharts() {
             </span>
           )}
         </div>
-        <ChartContainer height={220} state={controlChartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
-          <LineChart data={controlChartData}>
+        <ChartContainer height={220} state={points.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
+          <LineChart data={points}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 40]} />
@@ -150,8 +212,8 @@ export default function DoseControlCharts() {
         >
           R 控制图（极差监控）
         </div>
-        <ChartContainer height={200} state={controlChartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
-          <LineChart data={controlChartData}>
+        <ChartContainer height={200} state={points.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
+          <LineChart data={points}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 20]} />

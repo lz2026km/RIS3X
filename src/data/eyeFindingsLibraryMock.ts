@@ -1,9 +1,23 @@
 /** G005 眼科所见征象库 Mock v3.0.6.8-23a — 92 条 */
 import type { FindingLibraryItem } from "../types/eye";
 
+interface FindingLibraryItemV2 {
+  id: string;
+  category: string;
+  name: string;
+  code: string;
+  icd10: string;
+  synonyms: string[];
+  description: string;
+  severity: string;
+  isActive: boolean;
+  usageCount: number;
+  lastUsed: string;
+}
+
 const NOW = Date.now();
 
-export const MOCK_FINDINGS_LIBRARY: FindingLibraryItem[] = [
+export const MOCK_FINDINGS_LIBRARY: (FindingLibraryItem | FindingLibraryItemV2)[] = [
   // === 眼底 20 ===
   {
     id: "fl-001",
@@ -87,7 +101,7 @@ export const MOCK_FINDINGS_LIBRARY: FindingLibraryItem[] = [
     category: "眼底-黄斑",
     name: "玻璃膜疣(软性)",
     laterality: "any",
-    modality: ["fundus_photo", "oct", "faf"],
+    modality: ["fundus_photo", "oct", "fundus_autofluorescence"],
     severity: "abnormal",
     common: true,
     description: "黄斑区软性玻璃膜疣>63μm,AMD 早期表现",

@@ -29,7 +29,7 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
 
   switch (report.id) {
     case 'exam-volume-daily': {
-      const today = data[data.length - 1];
+      const today = data[data.length - 1]!;
       const yesterday = data[data.length - 2];
       const totalToday = t(today.CT) + t(today.MR) + t(today.DR) + t(today.MG) + t(today.DSA);
       const totalYest = yesterday ? t(yesterday.CT) + t(yesterday.MR) + t(yesterday.DR) + t(yesterday.MG) + t(yesterday.DSA) : totalToday;
@@ -49,8 +49,8 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
     case 'exam-volume-monthly': {
       const total = sum(data.map((d) => t(d.value)));
       Math.round(total / data.length);
-      const lastMonth = data[data.length - 1];
-      const firstMonth = data[0];
+      const lastMonth = data[data.length - 1]!;
+      const firstMonth = data[0]!;
       const tr = trend(t(lastMonth.value), t(firstMonth.value));
       const peak = findMax(data.map((d) => ({ name: String(d.name), value: t(d.value) })));
       const ctTotal = sum(data.map((d) => t(d.CT)));
@@ -59,8 +59,8 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
 
     case 'exam-volume-yearly': {
       sum(data.map((d) => t(d.value)));
-      const last = data[data.length - 1];
-      const first = data[0];
+      const last = data[data.length - 1]!;
+      const first = data[0]!;
       const tr = trend(t(last.value), t(first.value));
       return `${last?.name}年总检查量${t(last.value)}例，较${first?.name}年${tr.direction}${Math.abs(Number(tr.pct))}%。年均复合增长率约${(Math.pow(t(last.value) / t(first.value), 1 / Math.max(data.length - 1, 1)) - 1) >= 0 ? '+' : ''}${(((Math.pow(t(last.value) / t(first.value), 1 / Math.max(data.length - 1, 1)) - 1) * 100).toFixed(1))}%。建议根据增长趋势规划设备扩容和人员储备。`;
     }
@@ -241,8 +241,8 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
 
     case 'remote-consultation-volume': {
       const total = sum(data.map((d) => t(d.value)));
-      const last = data[data.length - 1];
-      const first = data[0];
+      const last = data[data.length - 1]!;
+      const first = data[0]!;
       const tr = trend(t(last?.value), t(first?.value));
       return `远程会诊量呈${tr.direction}趋势，累计${total}例。本月${t(last?.value)}例，较年初${tr.direction}${Math.abs(Number(tr.pct))}%。建议加强远程会诊推广，提升基层覆盖。`;
     }
@@ -263,7 +263,7 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
     }
 
     case 'ai-accuracy-rate': {
-      const last = data[data.length - 1];
+      const last = data[data.length - 1]!;
       const aiAcc = t(last?.value);
       const docAcc = t(last?.doctorAccuracy);
       return `AI整体准确率${aiAcc}%，医生准确率${docAcc}%，差距${(docAcc - aiAcc).toFixed(1)}%。AI辅助诊断准确率持续提升，建议医生结合AI结果提高诊断效率。`;
@@ -276,14 +276,14 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
     }
 
     case 'ai-adoption-rate': {
-      const last = data[data.length - 1];
-      const first = data[0];
+      const last = data[data.length - 1]!;
+      const first = data[0]!;
       const tr = trend(t(last?.value), t(first?.value));
       return `AI辅助采纳率${t(last?.value)}%，较初期${tr.direction}${Math.abs(Number(tr.pct))}%。采纳率稳步提升，体现了医生对AI辅助的信任度增加。`;
     }
 
     case 'radiation-dose-stats': {
-      const last = data[data.length - 1];
+      const last = data[data.length - 1]!;
       const prev = data.length > 1 ? data[data.length - 2] : last;
       const tr = trend(t(last?.CT_DLP), t(prev?.CT_DLP));
       return `本月平均CT-DLP ${t(last?.CT_DLP)} mGy·cm，较上月${tr.direction}${Math.abs(Number(tr.pct))}%。DR剂量${t(last?.DR_DAP)} mGy·cm²，MG平均乳腺剂量${t(last?.MG_AGD)} mGy。各设备剂量水平均在国家标准范围内。`;
@@ -302,7 +302,7 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
     }
 
     case 'patient-wait-time': {
-      const last = data[data.length - 1];
+      const last = data[data.length - 1]!;
       const prev = data.length > 1 ? data[data.length - 2] : last;
       const tr = trend(t(last?.value), t(prev?.value));
       return `平均等待时间${t(last?.value)}分钟，较上月${tr.direction}${Math.abs(Number(tr.pct))}%。中位等待${t(last?.median)}分钟。建议优化预约间隔和报到流程。`;
@@ -321,7 +321,7 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
     }
 
     case 'mobile-usage': {
-      const last = data[data.length - 1];
+      const last = data[data.length - 1]!;
       const totalMau = sum(data.map((d) => t(d.value)));
       return `移动端月均访问${Math.round(totalMau / data.length)}人次，本月报告查看${t(last?.查看量)}次，预约${t(last?.预约量)}次。移动端使用量持续增长，建议持续优化移动端体验。`;
     }
@@ -333,14 +333,14 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
     }
 
     case 'image-storage-trend': {
-      const last = data[data.length - 1];
+      const last = data[data.length - 1]!;
       
       const monthlyGrowth = t(last.growth) || 0.6;
       return `当前存储总量${t(last.value)}TB，月均增长约${monthlyGrowth}TB。按当前增速预计未来12个月增长${(monthlyGrowth * 12).toFixed(1)}TB，建议提前规划存储扩容。`;
     }
 
     case 'system-online-rate': {
-      const last = data[data.length - 1];
+      const last = data[data.length - 1]!;
       return `本月系统在线率${t(last.value)}%，核心业务时段可用率${t(last.coreUptime)}%。系统运行稳定，建议继续保持当前运维水平。`;
     }
 

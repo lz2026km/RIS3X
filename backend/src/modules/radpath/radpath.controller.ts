@@ -47,6 +47,11 @@ export class RadPathController {
     return this.service.updateConsistency(body)
   }
 
+  @Get('records')
+  listRecords() {
+    return this.service.listRecords()
+  }
+
   @Get('stats')
   getStats() {
     return this.service.getStats()

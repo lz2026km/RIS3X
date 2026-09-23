@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Slider, Tag, Spin } from 'antd'
 import { Layers, RotateCcw } from 'lucide-react'
 import { volumeApi } from '../../services/api/volumeApi'
+import { ErrorBanner } from '../../components/feedback'
+import { t } from '../../i18n/appI18n'
 import {
   setupRealVolume,
   decodeInt16Base64,
@@ -62,6 +64,7 @@ const MipPage: React.FC = () => {
   const [dims, setDims] = useState<{ x: number; y: number; z: number } | null>(null)
   const [seriesInfo, setSeriesInfo] = useState('')
   const [tick, setTick] = useState(0)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const cacheRef = useRef<Map<string, { data: Int16Array; w: number; h: number }>>(new Map())
 
   useEffect(() => {
@@ -73,6 +76,11 @@ const MipPage: React.FC = () => {
       setDims(setup.dims)
       if (setup.series) {
         setSeriesInfo(`${setup.series.modality} #${setup.series.instanceCount} 层 ${setup.series.rows}x${setup.series.columns}`)
+      }
+    }).catch(() => {
+      if (!cancelled) {
+        setLoadError(t('w9.states.error'))
+        setMode('synthetic')
       }
     })
     return () => { cancelled = true }
@@ -125,6 +133,7 @@ const MipPage: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+      {loadError && <ErrorBanner message={loadError} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>MIP 最大密度投影</span>

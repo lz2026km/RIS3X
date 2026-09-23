@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
 import { Card, Row, Col, Statistic, DatePicker, Spin, Space } from 'antd'
-import { Cpu, TrendingUp } from 'lucide-react'
+import { Cpu, TrendingUp, Download } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { aiDiagnosisApi } from '../../services/api/aiDiagnosisApi'
+import { DataTable } from '../../components/common/DataTable'
+import { ActionButton } from '../../components/common/ActionButton'
 
 const { RangePicker } = DatePicker
 
@@ -106,6 +108,29 @@ export default function BenchmarkAiDiagnosisPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  const handleExport = () => {
+    const rows: string[][] = [
+      [t('w1tables.benchmark.date'), t('w1tables.benchmark.sensitivity'), t('w1tables.benchmark.specificity'), t('w1tables.benchmark.accuracy'), t('w1tables.benchmark.cases')],
+      ...trend.map((tp) => [tp.date, String(tp.sensitivity), String(tp.specificity), String(tp.accuracy), String(tp.totalCases)]),
+    ]
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `AI诊断准确率_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const trendColumns = [
+    { title: t('w1tables.benchmark.date'), dataIndex: 'date', key: 'date' },
+    { title: t('w1tables.benchmark.sensitivity'), dataIndex: 'sensitivity', key: 'sensitivity', align: 'right' as const, render: (v: number) => `${v}%` },
+    { title: t('w1tables.benchmark.specificity'), dataIndex: 'specificity', key: 'specificity', align: 'right' as const, render: (v: number) => `${v}%` },
+    { title: t('w1tables.benchmark.accuracy'), dataIndex: 'accuracy', key: 'accuracy', align: 'right' as const, render: (v: number) => `${v}%` },
+    { title: t('w1tables.benchmark.cases'), dataIndex: 'totalCases', key: 'totalCases', align: 'right' as const },
+  ]
+
   const trendMax = Math.max(...trend.flatMap((tp) => [tp.sensitivity, tp.specificity, tp.accuracy]), 1)
   const trendMin = Math.min(...trend.flatMap((tp) => [tp.sensitivity, tp.specificity, tp.accuracy]), 0)
   const range = trendMax - trendMin || 1
@@ -138,7 +163,7 @@ export default function BenchmarkAiDiagnosisPage() {
         </Space>
       </div>
 
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         <RangePicker
           size="small"
           value={[dateRange[0] ? dayjs(dateRange[0]) : null, dateRange[1] ? dayjs(dateRange[1]) : null] as [Dayjs | null, Dayjs | null]}
@@ -148,6 +173,8 @@ export default function BenchmarkAiDiagnosisPage() {
             }
           }}
         />
+        <ActionButton action="refresh" onClick={() => void fetchData()}>{t('w1tables.refresh')}</ActionButton>
+        <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.export')}</ActionButton>
       </div>
 
       <Spin spinning={loading}>
@@ -219,6 +246,10 @@ export default function BenchmarkAiDiagnosisPage() {
           ) : (
             <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('benchmarkAi.noTrend')}</div>
           )}
+        </Card>
+
+        <Card title={<Space><Cpu size={16} /> {t('w1tables.benchmark.title')}</Space>} variant="borderless" style={{ borderRadius: 12, marginTop: 16 }}>
+          <DataTable dataSource={trend} rowKey="date" columns={trendColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </Card>
       </Spin>
     </div>

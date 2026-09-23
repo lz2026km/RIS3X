@@ -1,16 +1,19 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - 核医学科专项统计 v1.0.0
 // 科室专项统计：检查数量/药物消耗/设备利用率/阳性率/SUV统计，12月趋势
 // [v3.0.6.11-54] Phase 2: 接入 nuclearStatsApi 真实数据 (mock 回退)
 import { useState, useEffect, useCallback } from 'react'
 import { replayDeviceEvent } from '../utils/deviceStateAdapter'
 import {
-  BarChart3, TrendingUp, PieChart as PieChartIcon, Activity, Calendar,
-  Radio, Droplets, Monitor, AlertCircle, CheckCircle, Download, RefreshCw,
-  TrendingDown, Percent, Pill, Gauge, Eye, Target, Timer
+  BarChart3, TrendingUp, Activity, Calendar,
+  Radio, Droplets, AlertCircle, Download, RefreshCw,
+  TrendingDown, Percent, Pill, Gauge, Eye, Target
 } from 'lucide-react'
-import { nuclearStatsApi } from '../services/api/nuclearStatsApi'
+import {
+  nuclearStatsApi,
+  type NuclearSummary,
+} from '../services/api/nuclearStatsApi'
 import { t } from '../i18n/appI18n'
+import { DataTable } from '../components/common/DataTable'
 
 // ============================================================
 // 样式常量
@@ -78,7 +81,7 @@ const DECEMBER_DATA = [
 ]
 
 // 设备信息 — status 字符串经 deviceMachine 校验/转换,确保只能是 idle/inUse/maintenance/broken/offline
-const DEVICES = [
+export const DEVICES = [
   { id: 'PET-CT 1', name: 'GE Discovery MI', type: 'PET-CT', utilization: 92, status: 'running' as const },
   { id: 'PET-CT 2', name: '西门子Biography', type: 'PET-CT', utilization: 88, status: 'running' as const },
   { id: 'SPECT 1', name: 'GE Discovery NM', type: 'SPECT', utilization: 76, status: 'running' as const },
@@ -86,8 +89,40 @@ const DEVICES = [
   { id: '回旋加速器', name: '西门子Eclipse', type: '回旋加速器', utilization: 85, status: 'running' as const },
 ]
 
+interface DrugStat {
+  name: string
+  consumption: number
+  unit: string
+  percent: number
+  color: string
+  usage?: string
+}
+
+interface SuvStats {
+  avg: number
+  max: number
+  min: number
+  std: number
+  tumorAvg: number
+  inflammationAvg: number
+  threshold?: number
+  distribution?: { range: string; count: number }[]
+}
+
+interface DeviceStat {
+  name: string
+  utilization: number
+  exams?: number
+  cycles?: number
+  positive?: number
+  avgSuv?: number
+  output?: number
+  purity?: number
+  status?: string
+}
+
 // 药物消耗数据
-const DRUG_DATA = [
+const DRUG_DATA: DrugStat[] = [
   { name: '¹⁸F-FDG', consumption: 48520, unit: 'mCi', percent: 62, color: '#0891b2' },
   { name: '⁹⁹mTc-MDP', consumption: 18250, unit: 'mCi', percent: 23, color: '#3b82f6' },
   { name: '¹³¹I', consumption: 5800, unit: 'mCi', percent: 7, color: '#8b5cf6' },
@@ -96,7 +131,7 @@ const DRUG_DATA = [
 ]
 
 // SUV统计数据
-const SUV_STATS = {
+const SUV_STATS: SuvStats = {
   avg: 6.1,
   max: 12.8,
   min: 2.1,
@@ -108,9 +143,20 @@ const SUV_STATS = {
 // ============================================================
 // SVG柱状图组件
 // ============================================================
-const BarChartSVG = ({ data, width = 600, height = 200, barColor = C.accent, valueKey = 'value', labelKey = 'label' }) => {
+type ChartDatum = Record<string, string | number>
+
+interface BarChartSVGProps {
+  data: ChartDatum[]
+  width?: number
+  height?: number
+  barColor?: string
+  valueKey?: string
+  labelKey?: string
+}
+
+const BarChartSVG = ({ data, width = 600, height = 200, barColor = C.accent, valueKey = 'value', labelKey = 'label' }: BarChartSVGProps) => {
   if (!data || data.length === 0) return null
-  const maxVal = Math.max(...data.map(d => d[valueKey]))
+  const maxVal = Math.max(...data.map(d => Number(d[valueKey] ?? 0)))
   const barWidth = Math.min(30, (width - 60) / data.length - 4)
   const chartHeight = height - 50
 
@@ -131,7 +177,7 @@ const BarChartSVG = ({ data, width = 600, height = 200, barColor = C.accent, val
       ))}
       {/* 柱子 */}
       {data.map((d, i) => {
-        const barH = (d[valueKey] / maxVal) * chartHeight
+        const barH = (Number(d[valueKey] ?? 0) / maxVal) * chartHeight
         const x = 45 + i * ((width - 55) / data.length)
         return (
           <g key={i}>
@@ -156,23 +202,35 @@ const BarChartSVG = ({ data, width = 600, height = 200, barColor = C.accent, val
 // ============================================================
 // SVG折线图组件
 // ============================================================
-const LineChartSVG = ({ data, width = 600, height = 200, lineColor = C.accent, valueKey = 'value', labelKey = 'label', showArea = true }) => {
+interface LineChartSVGProps {
+  data: ChartDatum[]
+  width?: number
+  height?: number
+  lineColor?: string
+  valueKey?: string
+  labelKey?: string
+  showArea?: boolean
+}
+
+const LineChartSVG = ({ data, width = 600, height = 200, lineColor = C.accent, valueKey = 'value', labelKey = 'label', showArea = true }: LineChartSVGProps) => {
   if (!data || data.length === 0) return null
-  const maxVal = Math.max(...data.map(d => d[valueKey]))
-  const minVal = Math.min(...data.map(d => d[valueKey]))
+  const maxVal = Math.max(...data.map(d => Number(d[valueKey] ?? 0)))
+  const minVal = Math.min(...data.map(d => Number(d[valueKey] ?? 0)))
   const range = maxVal - minVal || 1
   const chartHeight = height - 50
   const chartWidth = width - 60
 
   const points = data.map((d, i) => ({
     x: 45 + (i / (data.length - 1)) * chartWidth,
-    y: chartHeight - ((d[valueKey] - minVal) / range) * chartHeight,
+    y: chartHeight - ((Number(d[valueKey] ?? 0) - minVal) / range) * chartHeight,
     value: d[valueKey],
     label: d[labelKey],
   }))
 
+  const firstPoint = points[0]
+  const lastPoint = points[points.length - 1]
   const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-  const areaD = `${pathD} L ${points[points.length - 1].x} ${chartHeight} L ${points[0].x} ${chartHeight} Z`
+  const areaD = firstPoint && lastPoint ? `${pathD} L ${lastPoint.x} ${chartHeight} L ${firstPoint.x} ${chartHeight} Z` : ''
 
   return (
     <svg width={width} height={height} style={{ overflow: 'visible' }}>
@@ -214,13 +272,24 @@ const LineChartSVG = ({ data, width = 600, height = 200, lineColor = C.accent, v
 // ============================================================
 // SVG饼图组件
 // ============================================================
-const PieChartSVG = ({ data, size = 160 }) => {
+interface PieDatum {
+  name: string
+  value: number
+  color: string
+}
+
+interface PieChartSVGProps {
+  data: PieDatum[]
+  size?: number
+}
+
+const PieChartSVG = ({ data, size = 160 }: PieChartSVGProps) => {
   if (!data || data.length === 0) return null
   const total = data.reduce((sum, d) => sum + d.value, 0)
   const cx = size / 2, cy = size / 2, r = size / 2 - 10
   let startAngle = -90
 
-  const slices = data.map((d, i) => {
+  const slices = data.map(d => {
     const angle = (d.value / total) * 360
     const endAngle = startAngle + angle
     const x1 = cx + r * Math.cos((startAngle * Math.PI) / 180)
@@ -261,7 +330,15 @@ const PieChartSVG = ({ data, size = 160 }) => {
 // ============================================================
 // 进度条组件
 // ============================================================
-const ProgressBar = ({ value, max = 100, color = C.accent, label, showPercent = true }) => {
+interface ProgressBarProps {
+  value: number
+  max?: number
+  color?: string
+  label?: string
+  showPercent?: boolean
+}
+
+const ProgressBar = ({ value, max = 100, color = C.accent, label, showPercent = true }: ProgressBarProps) => {
   const percent = Math.min((value / max) * 100, 100)
   return (
     <div style={{ width: '100%' }}>
@@ -283,7 +360,7 @@ const ProgressBar = ({ value, max = 100, color = C.accent, label, showPercent = 
 // ============================================================
 
 // 设备统计数据 (加载失败回退)
-const DEVICE_FALLBACK = [
+const DEVICE_FALLBACK: DeviceStat[] = [
   { name: 'PET-CT 1', exams: 328, utilization: 92, positive: 71.5, avgSuv: 6.8 },
   { name: 'PET-CT 2', exams: 285, utilization: 88, positive: 69.2, avgSuv: 6.4 },
   { name: 'SPECT 1', exams: 245, utilization: 76, positive: 58.3, avgSuv: 3.2 },
@@ -305,8 +382,7 @@ export default function NuclearStatsPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
-  const [selectedDevice, setSelectedDevice] = useState('all')
-  const [summary, setSummary] = useState<any>(null)
+  const [summary] = useState<NuclearSummary | null>(null)
   const [daily, setDaily] = useState(DECEMBER_DATA)
   const [monthly, setMonthly] = useState(MONTHLY_FALLBACK)
   const [devices, setDevices] = useState(DEVICE_FALLBACK)
@@ -319,7 +395,7 @@ export default function NuclearStatsPage() {
     setLoading(true)
     setError(null)
     try {
-      const [s, d, m, dv, sv, dr] = await Promise.allSettled([
+      const [, d, m, dv, sv, dr] = await Promise.allSettled([
         nuclearStatsApi.getSummary(), nuclearStatsApi.getDaily(), nuclearStatsApi.getMonthly(),
         nuclearStatsApi.getDevices(), nuclearStatsApi.getSuv(), nuclearStatsApi.getDrugs(),
       ])
@@ -357,6 +433,17 @@ export default function NuclearStatsPage() {
     { key: 'equipment', label: t('nuclearStats.tabEquipment'), icon: <Gauge size={15} /> },
     { key: 'positive', label: t('nuclearStats.tabPositive'), icon: <Target size={15} /> },
     { key: 'suv', label: t('nuclearStats.tabSuv'), icon: <TrendingUp size={15} /> },
+  ]
+
+  const nuclearColumns = [
+    { title: t('w1tables.nuclear.date'), dataIndex: 'date', key: 'date' },
+    { title: t('w1tables.nuclear.exams'), dataIndex: 'exams', key: 'exams', align: 'right' as const },
+    { title: t('w1tables.nuclear.petct'), dataIndex: 'petct', key: 'petct', align: 'right' as const },
+    { title: t('w1tables.nuclear.spect'), dataIndex: 'spect', key: 'spect', align: 'right' as const },
+    { title: t('w1tables.nuclear.drug'), dataIndex: 'drug', key: 'drug', align: 'right' as const },
+    { title: t('w1tables.nuclear.positive'), dataIndex: 'positive', key: 'positive', align: 'right' as const },
+    { title: t('w1tables.nuclear.suv'), dataIndex: 'suvAvg', key: 'suvAvg', align: 'right' as const },
+    { title: t('w1tables.nuclear.utilization'), dataIndex: 'utilization', key: 'utilization', align: 'right' as const },
   ]
 
   if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('nuclearStats.loading')}</div>;
@@ -527,6 +614,12 @@ export default function NuclearStatsPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* 统计结果明细表 */}
+          <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>{t('w1tables.nuclear.title')}</h3>
+            <DataTable dataSource={daily} rowKey="date" columns={nuclearColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
           </div>
         </div>
       )}
@@ -792,7 +885,7 @@ export default function NuclearStatsPage() {
                     { range: '6-8', count: 38 },
                     { range: '8-10', count: 18 },
                     { range: '>10', count: 7 },
-                  ]).map(x => ({ label: x.range ?? x.label, value: x.count ?? x.value }))}
+                  ]).map(x => ({ label: x.range, value: x.count }))}
                   width={320} height={180}
                   barColor={C.accent}
                   valueKey="value"

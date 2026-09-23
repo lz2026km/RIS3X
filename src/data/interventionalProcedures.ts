@@ -9,7 +9,7 @@ export interface InterventionalProcedure {
   category: '血管介入' | '神经介入' | '肿瘤介入' | '非血管介入' | '心脏介入'
   modality: string
   bodyPart: string
-  anesthesia: '局麻' | '静脉镇静' | '全麻'
+  anesthesia: '局麻' | '静脉镇静' | '全麻' | '静脉镇静/全麻' | '局麻+镇静' | '无（或表面麻醉）'
   durationMin: number
   contrast?: string
   indications: string[]

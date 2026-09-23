@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar, FileText } from 'lucide-react';
 import { followupApi, FOLLOWUP_RESULT_OPTIONS, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue, type FollowUpResult } from '../services/api/followupApi';
@@ -708,13 +707,13 @@ export default function FollowUpPage() {
     setTplEditing(true);
   };
 
-  const deleteTemplate = async (t: FollowUpTemplate) => {
-    if (!window.confirm(`确认删除模板「${t.name}」？`)) return;
+  const deleteTemplate = async (tpl: FollowUpTemplate) => {
+    if (!window.confirm(`确认删除模板「${tpl.name}」？`)) return;
     try {
-      const res = await followupTemplatesApi.remove(t.id);
+      const res = await followupTemplatesApi.remove(tpl.id);
       if (res.success) {
-        setTemplates(list => list.filter(x => x.id !== t.id));
-        if (tplForm.id === t.id) { setTplForm({ name: '', category: '病种', intervals: '30,90,180', items: '', active: true }); setTplEditing(false); }
+        setTemplates(list => list.filter(x => x.id !== tpl.id));
+        if (tplForm.id === tpl.id) { setTplForm({ name: '', category: '病种', intervals: '30,90,180', items: '', active: true }); setTplEditing(false); }
       } else {
         setTplError(res.error?.message ?? t('followUp.deleteFailed'));
       }
@@ -983,7 +982,7 @@ export default function FollowUpPage() {
         </>
       ),
     },
-    { title: t('followUp.examType'), key: 'examType', render: (_: unknown, item: FollowUpPatient) => <span style={getExamTypeStyle(item.examType)}>{item.examType || '—'}</span> },
+    { title: t('followUp.examType'), key: 'examType', render: (_: unknown, item: FollowUpPatient) => <span style={getExamTypeStyle(item.examType ?? '')}>{item.examType || '—'}</span> },
     { title: t('followUp.followUpType'), dataIndex: 'followUpType', key: 'followUpType', render: (v: string) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{v || '—'}</span> },
     { title: t('followUp.examDate'), dataIndex: 'examDate', key: 'examDate', render: (v: string) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{v}</span> },
     { title: t('followUp.followUpDate'), dataIndex: 'nextFollowUpDate', key: 'nextFollowUpDate', render: (v: string) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{v}</span> },
@@ -1442,9 +1441,9 @@ export default function FollowUpPage() {
             ))}
             {(() => {
               const [y, m] = calendarMonth.split('-').map(Number)
-              const first = new Date(y, m - 1, 1)
+              const first = new Date(y ?? 0, (m ?? 1) - 1, 1)
               const startPad = (first.getDay() + 6) % 7
-              const daysInMonth = new Date(y, m, 0).getDate()
+              const daysInMonth = new Date(y ?? 0, m ?? 1, 0).getDate()
               const cells: Array<number | null> = [
                 ...Array.from({ length: startPad }, () => null),
                 ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
@@ -1630,7 +1629,7 @@ export default function FollowUpPage() {
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>{t('followUp.examType')}</label>
-                <span style={getExamTypeStyle(selectedPatient.examType)}>{selectedPatient.examType || '—'}</span>
+                <span style={getExamTypeStyle(selectedPatient.examType ?? '')}>{selectedPatient.examType || '—'}</span>
               </div>
 
               <div style={formGroupStyle}>

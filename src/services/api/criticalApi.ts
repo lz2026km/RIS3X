@@ -25,6 +25,8 @@ export interface CriticalValueDto {
   confirmedSignature?: string
   confirmedComment?: string
   resolvedAt?: string
+  escalatedAt?: string
+  escalatedTo?: string
   doctorId?: string
   notifiedTo?: string
   ackedBy?: string

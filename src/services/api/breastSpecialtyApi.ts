@@ -8,6 +8,7 @@
 //     本方法仅作筛查登记演示回退 → 标注 DEPRECATED (不删, 保持 import 兼容)。
 //   · 其余 13 方法 0 引用 (无页面调用) → 标注 DEPRECATED 保留清理标记。
 import type { ApiResponse } from './types';
+import { uniqueId } from '../../utils/uniqueId';
 
 export type BiRadsCategory = 0 | 1 | 2 | 3 | '4A' | '4B' | 4 | 5 | 6;
 export type BreastDensity = 'a' | 'b' | 'c' | 'd';
@@ -73,7 +74,7 @@ export const breastSpecialtyApi = {
   // DEPRECATED: 页面登记已走 screeningApi.create (真实), 仅演示回退
   createScreening: (data: Partial<ScreeningRecord>) =>
     mockOk<ScreeningRecord>({
-      id: `S-${Date.now().toString().slice(-6)}`,
+      id: uniqueId('S'),
       patientId: data.patientId ?? '',
       patientName: data.patientName ?? '',
       age: data.age ?? 0,
@@ -90,7 +91,7 @@ export const breastSpecialtyApi = {
     mockOk<BreastExam[]>([]),
   createExam: (data: Partial<BreastExam>) =>
     mockOk<BreastExam>({
-      id: `E-${Date.now().toString().slice(-6)}`,
+      id: uniqueId('E'),
       patientId: data.patientId ?? '',
       patientName: data.patientName ?? '',
       examDate: data.examDate ?? new Date().toISOString().split('T')[0] ?? '',

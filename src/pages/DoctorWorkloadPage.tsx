@@ -7,13 +7,15 @@
 import React, { useState, useEffect } from 'react';
 import {
   Users, Award, FileText, Clock, AlertCircle,
-  Stethoscope, Minus, ArrowUpRight, ArrowDownRight,
-  Target, Search, Database,
+  Stethoscope,
+  Target, Search, Database, Download,
 } from 'lucide-react';
 import { DOCTOR_WORKLOADS, type DoctorWorkload } from '../data/knowledgeStatsMock';
 import { statsApi } from '../services/api/statsApi';
 import { biApi } from '../services/api/biApi';
 import { t } from '../i18n/appI18n';
+import { DataTable } from '../components/common/DataTable';
+import { ActionButton } from '../components/common/ActionButton';
 
 // ============================================================
 // 主组件
@@ -163,6 +165,42 @@ export default function DoctorWorkloadPage() {
     );
   }
 
+  const handleExport = () => {
+    const rows: string[][] = [
+      [t('w1tables.workload.rank'), t('w1tables.workload.doctor'), t('w1tables.workload.titleName'), t('w1tables.workload.reports'), t('w1tables.workload.quality'), t('w1tables.workload.avgSign'), t('w1tables.workload.rvu'), t('w1tables.workload.bonus')],
+      ...filtered.map(d => [
+        String(d.ranking), d.doctorName, d.doctorTitle, String(d.totalReports), String(d.qualityScore),
+        String(d.avgSignTime), String(rvuByDoctor[d.doctorName] ?? 0), String(bonusByDoctor[d.doctorName]?.bonus ?? 0),
+      ]),
+    ];
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `医生工作量_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const workloadColumns = [
+    { title: t('w1tables.workload.rank'), dataIndex: 'ranking', key: 'ranking', width: 60, render: (v: number) => <strong style={{ color: '#7c3aed' }}>#{v}</strong> },
+    {
+      title: t('w1tables.workload.doctor'), key: 'doctor',
+      render: (_: unknown, r: DoctorWorkload) => (
+        <div>
+          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.doctorName}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.doctorTitle}</div>
+        </div>
+      ),
+    },
+    { title: t('w1tables.workload.reports'), dataIndex: 'totalReports', key: 'totalReports', align: 'right' as const },
+    { title: t('w1tables.workload.quality'), dataIndex: 'qualityScore', key: 'qualityScore', align: 'right' as const },
+    { title: t('w1tables.workload.avgSign'), dataIndex: 'avgSignTime', key: 'avgSignTime', align: 'right' as const },
+    { title: t('w1tables.workload.rvu'), key: 'rvu', align: 'right' as const, render: (_: unknown, r: DoctorWorkload) => rvuByDoctor[r.doctorName] ?? 0 },
+    { title: t('w1tables.workload.bonus'), key: 'bonus', align: 'right' as const, render: (_: unknown, r: DoctorWorkload) => <span style={{ color: '#059669' }}>¥{Number(bonusByDoctor[r.doctorName]?.bonus ?? 0).toLocaleString()}</span> },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
@@ -201,6 +239,7 @@ export default function DoctorWorkloadPage() {
             </button>
           ))}
         </div>
+        <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.export')}</ActionButton>
       </div>
 
       {/* 团队 KPI */}
@@ -227,71 +266,20 @@ export default function DoctorWorkloadPage() {
               />
             </div>
           </div>
-          <div style={{ maxHeight: 600, overflowY: 'auto' }}>
-            {filtered.map(d => {
-              const isSelected = d.doctorId === selectedDoctorId;
-              return (
-                <div
-                  key={d.doctorId}
-                  onClick={() => setSelectedDoctorId(d.doctorId)}
-                  style={{
-                    padding: 10, borderBottom: '1px solid var(--border-light)',
-                    background: isSelected ? '#faf5ff' : 'transparent',
-                    borderLeft: isSelected ? '3px solid #7c3aed' : '3px solid transparent',
-                    cursor: 'pointer',
-                    display: 'flex', gap: 10,
-                  }}
-                >
-                  <div style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    background: d.ranking === 1 ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : d.ranking === 2 ? 'linear-gradient(135deg, #d1d5db, #9ca3af)' : d.ranking === 3 ? 'linear-gradient(135deg, #fdba74, #ea580c)' : 'linear-gradient(135deg, #cbd5e1, #94a3b8)',
-                    color: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 14, fontWeight: 700, flexShrink: 0,
-                  }}>{d.ranking}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{d.doctorName}</span>
-                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>· {d.doctorTitle}</span>
-                      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: d.trend === 'up' ? '#10b981' : d.trend === 'down' ? '#dc2626' : '#94a3b8' }}>
-                        {d.trend === 'up' ? <ArrowUpRight size={9} /> : d.trend === 'down' ? <ArrowDownRight size={9} /> : <Minus size={9} />}
-                        {d.trendValue}%
-                      </span>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                      <div><strong style={{ color: '#1e40af' }}>{d.totalReports}</strong> {t('dw2.unitReports')}</div>
-                      <div><strong style={{ color: '#10b981' }}>{d.qualityScore}</strong> {t('dw2.unitScore')}</div>
-                      <div><strong style={{ color: '#7c3aed' }}>{d.avgSignTime}m</strong> {t('dw2.unitSign')}</div>
-                      <div><strong style={{ color: '#b45309' }}>{rvuByDoctor[d.doctorName] ?? 0}</strong> RVU</div>
-                    </div>
-                    {/* [v3.0.6.11-99] Wave 5B-B: 奖金预估列 + 质量系数 Tag */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 12 }}>
-                      <span style={{ color: 'var(--text-secondary)' }}>{t('dw2.bonusEstimate')}</span>
-                      <strong style={{ color: '#059669', fontSize: 13 }}>¥{Number(bonusByDoctor[d.doctorName]?.bonus ?? 0).toLocaleString()}</strong>
-                      <span
-                        style={{
-                          padding: '1px 6px', borderRadius: 4, fontWeight: 600, fontSize: 11,
-                          background: (bonusByDoctor[d.doctorName]?.coefficient ?? 1) >= 1.1 ? '#dcfce7' : (bonusByDoctor[d.doctorName]?.coefficient ?? 1) > 1 ? '#fef9c3' : '#fee2e2',
-                          color: (bonusByDoctor[d.doctorName]?.coefficient ?? 1) >= 1.1 ? '#15803d' : (bonusByDoctor[d.doctorName]?.coefficient ?? 1) > 1 ? '#a16207' : '#b91c1c',
-                        }}
-                      >
-                        ×{bonusByDoctor[d.doctorName]?.coefficient ?? 1}
-                      </span>
-                      {bonusByDoctor[d.doctorName] && (
-                        <span style={{ color: '#94a3b8' }}>{t('dw2.qualityInlinePrefix')}{bonusByDoctor[d.doctorName]!.qualityScore}{t('dw2.unitScore')}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {/* [v3.0.6.11-92] W2-B P2: 合计行 (报告数 + RVU); [v3.0.6.11-99] + 总奖金 */}
-            <div style={{ padding: 10, borderTop: '2px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-secondary)' }}>
-              <span><strong style={{ color: 'var(--text-primary)' }}>{t('dw2.total')}</strong> · {filtered.length} {t('dw2.unitPeople')}</span>
-              <span>{t('dw2.reportLabel')} <strong style={{ color: '#1e40af' }}>{doctors.reduce((s, d) => s + d.totalReports, 0)}</strong> {t('dw2.unitReports')}</span>
-              <span>RVU <strong style={{ color: '#b45309' }}>{totalRvu}</strong></span>
-              <span>{t('dw2.totalBonus')} <strong style={{ color: '#059669' }}>¥{totalBonus.toLocaleString()}</strong></span>
-            </div>
+          <DataTable
+            dataSource={filtered}
+            rowKey="doctorId"
+            columns={workloadColumns}
+            pagination={{ pageSize: 10, showSizeChanger: false }}
+            emptyText={t('w1tables.noData')}
+            onRow={(record) => ({ onClick: () => setSelectedDoctorId(record.doctorId), style: { cursor: 'pointer' } })}
+          />
+          {/* [v3.0.6.11-92] W2-B P2: 合计行 (报告数 + RVU); [v3.0.6.11-99] + 总奖金 */}
+          <div style={{ padding: 10, borderTop: '2px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-secondary)' }}>
+            <span><strong style={{ color: 'var(--text-primary)' }}>{t('dw2.total')}</strong> · {filtered.length} {t('dw2.unitPeople')}</span>
+            <span>{t('dw2.reportLabel')} <strong style={{ color: '#1e40af' }}>{doctors.reduce((s, d) => s + d.totalReports, 0)}</strong> {t('dw2.unitReports')}</span>
+            <span>RVU <strong style={{ color: '#b45309' }}>{totalRvu}</strong></span>
+            <span>{t('dw2.totalBonus')} <strong style={{ color: '#059669' }}>¥{totalBonus.toLocaleString()}</strong></span>
           </div>
         </div>
 

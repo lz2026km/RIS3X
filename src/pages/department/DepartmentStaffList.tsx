@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Edit3 } from "lucide-react";
 import { t } from "../../i18n/appI18n";
 
@@ -20,6 +19,21 @@ const ROLES = {
   intern: { label: t("deptStaff.role.intern"), color: "#6b7280", icon: null, permission: [] },
 };
 
+type RoleKey = keyof typeof ROLES;
+type StaffStatus = "online" | "busy" | "offline";
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: RoleKey;
+  title: string;
+  dept: string;
+  phone: string;
+  email: string;
+  status: StaffStatus;
+  joinDate: string;
+}
+
 const PERMISSIONS = [
   { key: "report_write", label: t("deptStaff.perm.report_write"), icon: null },
   { key: "report_review", label: t("deptStaff.perm.report_review"), icon: null },
@@ -30,7 +44,7 @@ const PERMISSIONS = [
   { key: "user_manage", label: t("deptStaff.perm.user_manage"), icon: null },
 ];
 
-export const DEPT_STAFF = [
+export const DEPT_STAFF: StaffMember[] = [
   { id: "S001", name: "张伟明", role: "director", title: "主任医师", dept: "放射科", phone: "138****1001", email: "zhangwm@hospital.com", status: "online", joinDate: "2015-08-01" },
   { id: "S002", name: "李秀英", role: "vice_director", title: "副主任医师", dept: "放射科", phone: "138****1002", email: "lixy@hospital.com", status: "online", joinDate: "2016-03-15" },
   { id: "S003", name: "王建国", role: "physician", title: "主治医师", dept: "CT组", phone: "138****1003", email: "wangjg@hospital.com", status: "online", joinDate: "2018-07-01" },
@@ -48,13 +62,13 @@ export const DEPT_STAFF = [
   { id: "S015", name: "高峰", role: "physician", title: "主治医师", dept: "放射科", phone: "138****1015", email: "gaof@hospital.com", status: "online", joinDate: "2018-02-01" },
 ];
 
-const PermissionTag = ({ permission }) => {
+const PermissionTag = ({ permission }: { permission: string }) => {
   const p = PERMISSIONS.find((x) => x.key === permission);
   if (!p) return null;
   return <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", background: C.primaryLighter, color: C.primary, borderRadius: 4, fontSize: 12, margin: "2px" }}>{p.label}</span>;
 };
 
-const StaffCard = ({ staff, isSelected, onClick }) => {
+const StaffCard = ({ staff, isSelected, onClick }: { staff: StaffMember; isSelected: boolean; onClick: () => void }) => {
   const role = ROLES[staff.role];
   const statusColors = { online: C.success, busy: C.warning, offline: C.textLight };
   return (
@@ -71,7 +85,25 @@ const StaffCard = ({ staff, isSelected, onClick }) => {
   );
 };
 
-export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, roleFilter, setRoleFilter, searchKeyword, setSearchKeyword, onEdit, extraStaff = [] }) {
+export default function DepartmentStaffList({
+  selectedStaff,
+  setSelectedStaff,
+  roleFilter,
+  setRoleFilter,
+  searchKeyword,
+  setSearchKeyword,
+  onEdit,
+  extraStaff = [],
+}: {
+  selectedStaff: StaffMember | null;
+  setSelectedStaff: (staff: StaffMember) => void;
+  roleFilter: string;
+  setRoleFilter: (role: string) => void;
+  searchKeyword: string;
+  setSearchKeyword: (keyword: string) => void;
+  onEdit: () => void;
+  extraStaff?: StaffMember[];
+}) {
   const filteredStaff = [...DEPT_STAFF, ...extraStaff].filter((s) => {
     const matchRole = roleFilter === "all" || s.role === roleFilter;
     const matchSearch = !searchKeyword || s.name.includes(searchKeyword) || s.title.includes(searchKeyword);
@@ -133,7 +165,7 @@ export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, r
                 <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>{t("deptStaff.permissions")}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                   {(ROLES[selectedStaff.role]?.permission || []).map((p) => <PermissionTag key={p} permission={p} />)}
-                  {(!ROLES[selectedStaff.role]?.permission || []).length === 0 && <span style={{ fontSize: 13, color: C.textLight, fontStyle: "italic" }}>{t("deptStaff.noPermissions")}</span>}
+                  {(((!ROLES[selectedStaff.role]?.permission || []) as unknown) as { length: number }).length === 0 && <span style={{ fontSize: 13, color: C.textLight, fontStyle: "italic" }}>{t("deptStaff.noPermissions")}</span>}
                 </div>
               </div>
             </div>

@@ -61,6 +61,9 @@ import { OccupancyModule } from "./modules/occupancy/occupancy.module";
 import { VolumeModule } from "./modules/volume/volume.module";
 import { BenchmarkModule } from "./modules/benchmark/benchmark.module";
 import { AiDiagnosisModule } from "./modules/ai-diagnosis/ai-diagnosis.module";
+// [G005 W3-BackendParity] AI 融合工作站 + 骨科影像分析 (孤儿模块, 无 DB 可启动)
+import { AiFusionWorkspaceModule } from "./modules/ai-fusion-workspace/ai-fusion-workspace.module";
+import { OrthoSpecialtyModule } from "./modules/ortho-specialty/ortho-specialty.module";
 import { DicomCompressModule } from "./modules/dicom-compress/dicom-compress.module";
 import { Dicom4dModule } from "./modules/dicom-4d/dicom-4d.module";
 import { DbtModule } from "./modules/dbt/dbt.module";
@@ -412,6 +415,9 @@ import { RqiReportCenterModule } from "./modules/rqi-report-center/rqi-report-ce
     Rqi2024Module,
     // [v3.0.6.11-105 Wave 2A] 放射影像质控指标国家上报中心 (rqi-report-center): 周期上报→提交→回执闭环
     RqiReportCenterModule,
+    // [G005 W3-BackendParity] 前端已调用但后端缺失端点补齐 (孤儿模块, 无 DB 可启动)
+    AiFusionWorkspaceModule,
+    OrthoSpecialtyModule,
   ],
   controllers: [HealthController],
   providers: [

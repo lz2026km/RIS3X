@@ -5,6 +5,7 @@ import { BarChart3, Download, Activity } from 'lucide-react'
 import BenchmarkV2, { type CompareMode, type MetricCode, type Dimension, type ChartType, type BenchmarkCompareData } from '../../components/analytics/BenchmarkV2'
 import type { ColumnsType } from 'antd/es/table'
 import { benchmarkApi } from '../../services/api'
+import { t } from '../../i18n/appI18n'
 
 const { RangePicker } = DatePicker
 
@@ -73,6 +74,8 @@ export default function BenchmarkPageV2() {
   const [crossSiteData, setCrossSiteData] = useState<SiteRow[]>([])
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+  // [G005 W8-Dose] 接口不可用/返回空时图表回退本地合成为演示数据
+  const [usingDemo, setUsingDemo] = useState(false)
   const [stats, setStats] = useState<Record<string, number>>({})
   const [metricNames, setMetricNames] = useState<Record<string, string>>(METRICS_LABEL)
 
@@ -118,6 +121,7 @@ export default function BenchmarkPageV2() {
         setCompareData(data)
       } else {
         setApiError(res.error?.message ?? '对比数据加载失败')
+        setUsingDemo(true)
         // 回退本地模拟,保证页面可用
         data = {
           metricName: metricNames[metricCode] ?? metricCode,
@@ -140,6 +144,7 @@ export default function BenchmarkPageV2() {
       }
     } catch (e) {
       setApiError((e as Error)?.message ?? '对比数据加载失败')
+      setUsingDemo(true)
       setCompareData(undefined)
     } finally {
       setLoading(false)
@@ -164,6 +169,7 @@ export default function BenchmarkPageV2() {
           }
           return row
         })
+        if (rows.length === 0) setUsingDemo(true)
         setCrossSiteData(rows.length > 0 ? rows : SITES.filter(s => selectedSites.includes(s.id)).map((s) => {
           const row: SiteRow = { key: s.id, siteName: s.name }
           for (const code of allMetricCodes) row[code] = rand(50, 100)
@@ -171,6 +177,7 @@ export default function BenchmarkPageV2() {
         }))
       } else {
         setApiError(res.error?.message ?? '跨院对比加载失败')
+        setUsingDemo(true)
         setCrossSiteData(SITES.filter(s => selectedSites.includes(s.id)).map((s) => {
           const row: SiteRow = { key: s.id, siteName: s.name }
           for (const code of allMetricCodes) row[code] = rand(50, 100)
@@ -179,6 +186,7 @@ export default function BenchmarkPageV2() {
       }
     } catch (e) {
       setApiError((e as Error)?.message ?? '跨院对比加载失败')
+      setUsingDemo(true)
       setCrossSiteData([])
     } finally {
       setLoading(false)
@@ -189,6 +197,15 @@ export default function BenchmarkPageV2() {
     const res = await benchmarkApi.stats()
     if (res.success && res.data && typeof res.data === 'object') {
       const d = res.data as StatsApiResult
+      if (
+        d.totalExams === undefined ||
+        d.positiveRate === undefined ||
+        d.gradeARate === undefined ||
+        d.reportOnTimeRate === undefined ||
+        d.criticalClosedRate === undefined
+      ) {
+        setUsingDemo(true)
+      }
       setStats({
         totalExams: d.totalExams ?? Math.round(Math.random() * 5000 + 3000),
         positiveRate: d.positiveRate ?? rand(30, 60),
@@ -198,6 +215,7 @@ export default function BenchmarkPageV2() {
       })
       return
     }
+    setUsingDemo(true)
     setStats({
       totalExams: Math.round(Math.random() * 5000 + 3000),
       positiveRate: rand(30, 60),
@@ -290,6 +308,12 @@ export default function BenchmarkPageV2() {
       {apiError && (
         <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 6, fontSize: 12 }}>
           {apiError}
+        </div>
+      )}
+
+      {usingDemo && (
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef3c7', border: '1px solid #fcd34d', color: '#d97706', borderRadius: 6, fontSize: 12 }}>
+          {t('w8Dose.benchmarkDemo')}
         </div>
       )}
 

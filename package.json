@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-107",
-  "description": "G005 Radiology RIS v3.0.6.11-107 - Backend/Frontend Parity + Contract & Workflow Fixes",
+  "version": "3.0.6.11-108",
+  "description": "G005 Radiology RIS v3.0.6.11-108 - Tables/Buttons + Backend Endpoint Parity + ID/Type Fixes",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

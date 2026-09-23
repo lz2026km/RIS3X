@@ -111,13 +111,13 @@ describe('ReportsController', () => {
   it('transition delegates to service with user from request', async () => {
     svc.transition.mockResolvedValue(mockReport({ state: 'WRITING', version: 2 }) as any)
     const r = await ctrl.transition('r1', { to: 'WRITING' as any, reason: 'start' }, { user: { id: 'd1' } } as any)
-    expect(svc.transition).toHaveBeenCalledWith('r1', 'WRITING', 'd1', 'start')
+    expect(svc.transition).toHaveBeenCalledWith('r1', 'WRITING', 'd1', 'start', undefined)
   })
 
   it('transition falls back to body actorId when request has no user', async () => {
     svc.transition.mockResolvedValue(mockReport({ state: 'WRITING', version: 2 }) as any)
     await ctrl.transition('r1', { to: 'WRITING' as any, actorId: 'd2' }, {} as any)
-    expect(svc.transition).toHaveBeenCalledWith('r1', 'WRITING', 'd2', undefined)
+    expect(svc.transition).toHaveBeenCalledWith('r1', 'WRITING', 'd2', undefined, undefined)
   })
 
   it('PATCH body with state is stripped by schema (cannot bypass transition)', async () => {

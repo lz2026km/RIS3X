@@ -1,3 +1,46 @@
+## v3.0.6.11-108 (2026-09-23) — 数据表格/按键补齐 + 后端端点补齐 + ID/类型修复 + 三态/i18n/mock 完善
+
+> **目标**: 审查软件，后端有的功能前端没有的补充完善修正，去除 BUG；补齐该有的数据表格、按键（版本 +0.0.0.1 → -108）
+> **范围**: W1–W10 全量，前端 tsc **812 → 387**，vitest 47 文件/831 测试 0 失败，后端 tsc 0、319 suites/3452 tests 0 失败，vite build 成功
+
+### W1 — 数据表格 / 按键补齐（用户重点）
+- 8 个"统计/分析"页加明细表 + 刷新/导出：CostAccounting、RevenueAnalysis、BenchmarkAiDiagnosis、DiagnosisAccuracy、ReportKpiDashboard、DoctorWorkload、NuclearStats、CdsStatistics
+- 9 个 CSS-grid 伪表格迁 `DataTable`（含行操作）：AccountsReceivable/ChargeItem/DepartmentFinance/AlertCenter/GuidelineLibrary/CdsDoseMonitoring/HrOperations/DeviceOps
+- 6 个零按键页补 Refresh/Export：BenchmarkAiDiagnosis、`eye/pacs/{Ffa,OctAngiography,Topography,VisualField}`、TermSynonymGraph
+
+### W2 — 后端有前端无（14 端点）
+- 接线：clinical-pathways/definitions(+steps)、qc-ext/dashboard/:id+image/:id、compliance-docs/report、dictionary 顶层、reports/quality/history/:id、tech-ops/emergency/records/:id、eye/report/reports、ai/score、eye/subspecialty/:sub
+- **清理 `ai` 重复控制器**：移除未被任何 module 注册的 `backend/src/aiplatform/ai.controller.ts`（保留已挂载的 `modules/ai`）
+
+### W3 — 新增后端端点（36 条失效调用，35 路由）
+- dental 影像/CAD 13、eye/pacs 6、ai/fusion-workspace 4、ai-diagnosis 通用 3、dicom-web 2、clinical-pathways advance/exit 2、ortho-specialty 2、devices/stats/today、radpath/records、rdsr/pediatric；每模块配 spec + MSW（`w3BackendParityHandlers.ts`）
+
+### W4 — ID 冲突修复
+- 18 处截断时间戳 `Date.now().slice(-N)` + 24 处裸 `Date.now()` ID → `uniqueId`（含 DICOM UID 保持 `^[0-9.]{1,64}$`）；后端 eye/dental service 加单调计数器（20 处）
+
+### W5 — `@ts-nocheck` 全部移除并修复（26 文件）
+- 12 + 14 两批全部移除，修复 900+ 处类型错误（新增接口/收窄/`??`/`!`），移除后 0 个 `@ts-nocheck` 残留；顺带修复 `FollowUpPage` 删除模板传参、`TypicalCasesPage` 未定义变量等真实 latent bug
+
+### W6 — i18n
+- 注册 4 个缺失命名空间 `rdsr`(32)/`nlp`(14)/`cds`(12)/`snomed`(12) → `NAMESPACES` + 聚合/分命名空间 locale（zh/en 对齐）
+
+### W7 — 三态补齐
+- 7 页三者全缺（loading+empty+error）+ 22 页 loading + 8 页无 try/catch error UI；复用 `w9.states.*`
+
+### W8 — mock 页真实化
+- `dose/{StaffDoseMonitoring,DoseControlCharts,BreastDoseTracking,PediatricProtocolOptimization,DeviceHistoryModal}` + `DoseTrackPage` + `dental/MprViewerPage` + `analytics/BenchmarkPageV2` + `OperationLogPage` 接真实 API（空态回退 + 演示数据徽标）；后端新增 rdsr staff/breast/device-history/overview
+
+### W9 — TS 错误收敛
+- 812 → **387**（-52%），覆盖 40+ 文件；修正 `@types/*` → `@/types/*` 错误别名等根因
+
+### W10 — 时间炸弹测试修复
+- 3 处真实时钟依赖测试（worklist fertile 年龄、image-ai dateTo 2099、CA isExpired）+ 2 处 stale 4 参断言；时间旅行验证 +100 年全绿
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.11-107` → `3.0.6.11-108`（无 BOM）
+
+---
+
 ## v3.0.6.11-107 (2026-09-22) — 后端有前端无补齐 + 前后端契约/流程/状态机/权限对齐 + MSW 全量覆盖 + 全链路回归
 
 > **目标**: 审查软件，后端有的功能前端没有的补充完善修正，去除 BUG（版本 +0.0.1）

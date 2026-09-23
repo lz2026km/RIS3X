@@ -5,7 +5,7 @@
 // ============================================================
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Network, Search } from 'lucide-react';
+import { Network, Search, Download } from 'lucide-react';
 import {
   FEATURED_TERMS,
   TERM_CATEGORIES,
@@ -16,6 +16,7 @@ import {
 } from '../data/knowledgeStatsMock';
 import { termApi } from '../services/api/termApi';
 import { t } from '../i18n/appI18n';
+import { ActionButton } from '../components/common/ActionButton';
 
 const MSW_CATEGORY_MAP: Record<string, TermCategory> = {
   finding: 'imaging_sign',
@@ -104,6 +105,22 @@ export default function TermSynonymGraphPage() {
     });
   }, [terms, search, filterCategory]);
 
+  const handleExport = () => {
+    const header = ['术语', '拼音', '分类', 'ICD-10', '使用次数'];
+    const rows = [header, ...filteredTerms.map((x) => {
+      const cConf = TERM_CATEGORIES.find((c) => c.key === x.category);
+      return [x.term, x.pinyin || '-', cConf?.label ?? x.category, x.icd10 ?? '-', String(x.usageCount)];
+    })];
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `同义词图谱_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const selected = terms.find(x => x.id === selectedTermId);
   const focusTerm = terms.find(x => x.id === graphFocus) ?? terms[0] ?? FEATURED_TERMS[0];
 
@@ -129,6 +146,10 @@ export default function TermSynonymGraphPage() {
             {t('termSyn.summary', { count: totalCount })}
             {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <ActionButton action="refresh" onClick={() => void loadTerms()}>{t('w1tables.refresh')}</ActionButton>
+          <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.graph.export')}</ActionButton>
         </div>
       </div>
 
