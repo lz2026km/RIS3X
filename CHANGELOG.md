@@ -1,3 +1,23 @@
+## v3.0.6.11-110 (2026-09-23) — 修复全站命名空间翻译未合并（import.meta.glob）+ 翻译恢复
+
+> **目标**: 修复 /equipment-lifecycle、/triage/worklist、/follow-up、/reports/archived 等页面"没翻译"（显示英文碎片/原始键）
+> **范围**: i18n 根因修复；前端 tsc 200，vitest 47 文件/831 测试 0 失败，Playwright 4 路由无原始键
+
+### 根因
+- `src/i18n/appI18n.ts` 将 Vite 静态宏 `import.meta.glob` **赋值给变量 `globFn` 后再调用**，运行时为 `undefined` → `src/i18n/namespaces/*.ts` **从未合并** → 所有命名空间键回退 `humanizeKey`，中文界面显示英文碎片（"Title"/"Col Patient"/"Nav"/"Error"）
+
+### 修复
+- `appI18n.ts`: 改为**直接调用** `import.meta.glob('./namespaces/*.ts', { eager: true })`（已确认 dev server 转换后宏展开，含 w6Workflow/wTriage）
+- `TriagePage.tsx`: 由 react-i18next `useTranslation()` 改为 appI18n `t`（原 `t('triage.x')` 默认命名空间无法解析）
+- 新增 `src/i18n/namespaces/wTriage.ts`（30 键 zh/en）
+- `src/i18n/index.ts`: `NAMESPACES` 补注册 `triage`/`insuranceAudit`/`tele`/`v3teach`
+
+### 验证
+- 模块级：`w6Workflow.archive.title`/`w9.states.error`/`triage.loadError`/`nav.*` 全部命中
+- Playwright：4 路由 `body.innerText` 无原始键/无人性化英文
+
+---
+
 ## v3.0.6.11-109 (2026-09-23) — 剩余页错误态覆盖 + dose 回退完善 + TS 类型收敛
 
 > **目标**: 完成 v3.0.6.11-108 遗留项（W7 Part C 剩余页 error UI / dose mock 子视图 / TS 长尾）

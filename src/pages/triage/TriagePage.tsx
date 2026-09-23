@@ -14,7 +14,7 @@ import {
   Descriptions,
 } from "antd";
 import { api } from "../../services/api/client";
-import { useTranslation } from "react-i18next";
+import { t } from "../../i18n/appI18n";
 import { usePagination } from "../../hooks/usePagination";
 
 interface TriageItem {
@@ -45,7 +45,6 @@ const levelLabel: Record<string, string> = {
 };
 
 const TriagePage: React.FC = () => {
-  const { t } = useTranslation();
   const [items, setItems] = useState<TriageItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TriageItem | null>(null);

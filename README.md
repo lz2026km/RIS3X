@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.11-109
+# G005 放射科 RIS 系统 v3.0.6.11-110
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.11-109（17 模块，9,000+ 升级点，**后端 319 suites/3452 tests + 前端 47 文件/831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.11-110（17 模块，9,000+ 升级点，**后端 319 suites/3452 tests + 前端 47 文件/831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.11-109**  | **剩余 56 页 error UI 覆盖(eye/dose/dental/qc/report)+ErrorBanner 重试+ dose 子视图回退完善 + TS 错误 387→200(-48%)+全量回归** | ✅ **当前** |
+| **v3.0.6.11-110**  | **修复全站命名空间翻译未合并 (import.meta.glob 未直接调用) → 恢复 w6Workflow/w9.states/w1Tables 等全部命名空间翻译；TriagePage 改 appI18n + wTriage；NAMESPACES 补注册 triage/insuranceAudit/tele/v3teach** | ✅ **当前** |
+| v3.0.6.11-109      | 剩余 56 页 error UI 覆盖 + dose 子视图回退完善 + TS 错误 387→200 |   ✅ 完成   |
 | v3.0.6.11-108      | 数据表格/按键补齐 + 后端孤儿端点 14 + 新增后端端点 35 + ID 冲突修复 + 26 个 @ts-nocheck 移除 + i18n 4 命名空间 + 三态 28 页 + mock 真实化 + TS 812→387 |   ✅ 完成   |
 | v3.0.6.11-107      | 后端有前端无补齐 + 前后端契约修复 + 失效调用修复 + MSW 全量覆盖 + 流程断点 B1-B9 + 状态机/权限对齐 + 三态/控件统一 + i18n/mock 页真实化 |   ✅ 完成   |
 | v3.0.6.11-106      | 页面点击/加载专项：白屏 TDZ + i18n 2444 键恢复 + MSW ~60 端点 + 路由冲突 + 392 路由 0 失败 |   ✅ 完成   |

@@ -2499,7 +2499,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-109 · 剩余页错误态覆盖+dose回退完善+TS类型收敛(387→200)+全量回归",
+      "v3.0.6.11-110 · 修复命名空间翻译未合并(import.meta.glob)+分诊页/命名空间注册+全站翻译恢复",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -31247,7 +31247,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-109 · Error-State Coverage + Dose Fallback Polish + Type Convergence (387→200)",
+      "v3.0.6.11-110 · Fix namespace i18n merge (import.meta.glob) + triage/namespace registration + site-wide translation restore",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -57529,20 +57529,17 @@ export const translations: Translations = {
 
 // [v3.0.6.11-106] 分命名空间字典自动合并 (src/i18n/namespaces/*.ts)
 // 目的: 新命名空间各自独立文件, 避免多人/多 agent 并发整文件覆写导致的键丢失。
+// [fix] import.meta.glob 是 Vite 静态宏, 必须"直接调用"; 之前赋给变量 globFn 导致
+//   未被 Vite 转换 → 运行时 undefined → 所有命名空间键从未合并 (回退人性化英文)。
 interface NamespaceModule {
   default?: { zh?: Record<string, string>; en?: Record<string, string> }
 }
-const globFn = (import.meta as unknown as {
-  glob?: (pattern: string, options?: Record<string, unknown>) => Record<string, NamespaceModule>
-}).glob
-if (typeof globFn === 'function') {
-  const nsModules = globFn('./namespaces/*.ts', { eager: true })
-  for (const mod of Object.values(nsModules)) {
-    const dict = mod?.default
-    if (!dict) continue
-    if (dict.zh) Object.assign(translations['zh-CN'], dict.zh)
-    if (dict.en) Object.assign(translations['en-US'], dict.en)
-  }
+const nsModules = import.meta.glob('./namespaces/*.ts', { eager: true }) as Record<string, NamespaceModule>
+for (const mod of Object.values(nsModules)) {
+  const dict = mod?.default
+  if (!dict) continue
+  if (dict.zh) Object.assign(translations['zh-CN'], dict.zh)
+  if (dict.en) Object.assign(translations['en-US'], dict.en)
 }
 
 let currentLocale: Locale = DEFAULT_LOCALE;

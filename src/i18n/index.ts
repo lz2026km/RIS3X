@@ -116,6 +116,10 @@ export const NAMESPACES = [
   "nlp",
   "cds",
   "snomed",
+  "triage",
+  "insuranceAudit",
+  "tele",
+  "v3teach",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 
