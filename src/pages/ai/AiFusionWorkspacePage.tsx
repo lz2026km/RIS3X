@@ -19,7 +19,7 @@ function downloadBlob(content: string, filename: string, mime = 'text/csv;charse
 }
 
 function studiesToCSV(rows: FusionStudy[]): string {
-  const header = ['患者', '设备', '融合评分', '发现数', 'AI告警', '状态', '日期'];
+  const header = [t('w9d.aiFusion.csvPatient'), t('w9d.aiFusion.csvModality'), t('w9d.aiFusion.csvScore'), t('w9d.aiFusion.csvFindings'), t('w9d.aiFusion.csvAlerts'), t('w9d.aiFusion.csvStatus'), t('w9d.aiFusion.csvDate')];
   const lines = rows.map((s) => [
     s.patient, s.modalities, Math.round(s.fusionScore * 100), s.findings, s.aiAlerts, s.status, s.date,
   ].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','));
@@ -47,7 +47,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
   const toggleLayer = () => {
     setLayerMode((m) => (m === '融合' ? '差值' : m === '差值' ? '棋盘格' : '融合'));
     setLayerVisible(true);
-    message.success(`画布模式: ${modality} · 图层模式切换为「${layerMode === '融合' ? '差值' : layerMode === '差值' ? '棋盘格' : '融合'}」`);
+    message.success(t('w9d.aiFusion.layerModeSwitched', { modality, mode: layerMode === '融合' ? t('w9d.aiFusion.modeFusion') : layerMode === '差值' ? t('w9d.aiFusion.modeDiff') : t('w9d.aiFusion.modeCheckerboard') }));
   };
 
   const fetchData = useCallback(async () => {
@@ -95,7 +95,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
     const fixed = study.modalities.split(' + ')[0] ?? 'CBCT'
     const moving = study.modalities.split(' + ')[1] ?? 'OPG'
     const res = await fusionApi.register({ fixedSeriesUid: fixed, movingSeriesUid: moving, transformType: 'rigid' })
-    if (res.success) message.success(`配准完成 (Dice ${res.data?.metrics?.dice ?? '-'})`)
+    if (res.success) message.success(t('w9d.aiFusion.registered', { dice: res.data?.metrics?.dice ?? '-' }))
     else message.error(res.error?.message ?? t('aiFusion.errRegister'))
   }
 
@@ -186,7 +186,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
       <Card
         size="small"
         title={<Space><FileText size={14} />{t('aiFusion.studies')}</Space>}
-        extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => { if (studies.length === 0) { message.warning(t('aiFusion.nothingToExport')); return } downloadBlob(studiesToCSV(studies), `融合报告_${new Date().toISOString().slice(0, 10)}.csv`); message.success(`已导出 ${studies.length} 条融合研究记录`) }}>{t('aiFusion.exportReport')}</Button></Space>}
+        extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => { if (studies.length === 0) { message.warning(t('aiFusion.nothingToExport')); return } downloadBlob(studiesToCSV(studies), `${t('w9d.aiFusion.reportFile')}_${new Date().toISOString().slice(0, 10)}.csv`); message.success(t('w9d.aiFusion.exported', { count: studies.length })) }}>{t('aiFusion.exportReport')}</Button></Space>}
       >
         <Table
           dataSource={studyPageData}
@@ -212,7 +212,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
                 <Space>
                   <Button size="small" icon={<Eye size={10} />} onClick={() => setDetail(r)}>{t('aiFusion.view')}</Button>
                   <Button size="small" icon={<Crosshair size={10} />} loading={running} onClick={() => void handleRegister(r)}>{t('aiFusion.register')}</Button>
-                  <Button size="small" icon={<Download size={10} />} onClick={() => downloadBlob(studiesToCSV([r]), `融合研究_${r.patient}_${r.id}.csv`)}>{t('aiFusion.download')}</Button>
+                  <Button size="small" icon={<Download size={10} />} onClick={() => downloadBlob(studiesToCSV([r]), `${t('w9d.aiFusion.studyFile')}_${r.patient}_${r.id}.csv`)}>{t('aiFusion.download')}</Button>
                 </Space>
               ),
             },

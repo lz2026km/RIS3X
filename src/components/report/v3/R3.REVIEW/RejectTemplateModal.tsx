@@ -12,16 +12,17 @@ import {
 } from 'lucide-react';
 import { reviewService } from '../../../../services/review/reviewService';
 import type { RejectTemplate, RejectCategory } from '../../../types/R3/R3.REVIEW';
+import { t } from '../../../../i18n/appI18n';
 
 const CATEGORY_META: Record<RejectCategory, { label: string; color: string }> = {
-  'unclear-description': { label: '描述不清', color: 'orange' },
-  'terminology-error': { label: '术语错误', color: 'purple' },
-  'left-right-confusion': { label: '左右混淆', color: 'red' },
-  'missing-key-finding': { label: '缺关键所见', color: 'volcano' },
-  'inconsistent-with-image': { label: '与图像不符', color: 'red' },
-  'missing-recommendation': { label: '缺建议', color: 'gold' },
-  'critical-not-marked': { label: '危急值未标', color: 'red' },
-  other: { label: '其他', color: 'default' },
+  'unclear-description': { label: t('w9e.rejectTemplate.catUnclear'), color: 'orange' },
+  'terminology-error': { label: t('w9e.rejectTemplate.catTerminology'), color: 'purple' },
+  'left-right-confusion': { label: t('w9e.rejectTemplate.catLeftRight'), color: 'red' },
+  'missing-key-finding': { label: t('w9e.rejectTemplate.catMissingKey'), color: 'volcano' },
+  'inconsistent-with-image': { label: t('w9e.rejectTemplate.catInconsistent'), color: 'red' },
+  'missing-recommendation': { label: t('w9e.rejectTemplate.catMissingRec'), color: 'gold' },
+  'critical-not-marked': { label: t('w9e.rejectTemplate.catCritical'), color: 'red' },
+  other: { label: t('w9e.rejectTemplate.catOther'), color: 'default' },
 };
 
 export interface RejectTemplateModalProps {
@@ -63,17 +64,17 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
   const handleConfirm = async () => {
     if (!taskId) return;
     if (reason.trim().length < 5) {
-      message.error('驳回原因不能少于 5 字符');
+      message.error(t('w9e.rejectTemplate.reasonTooShort'));
       return;
     }
     setSubmitting(true);
     try {
       await onConfirm(taskId, reason, category);
-      message.success('已驳回');
+      message.success(t('w9e.rejectTemplate.rejected'));
       handleClose();
     } catch (e: unknown) {
       const err = e as { message?: string };
-      message.error(err?.message ?? '驳回失败');
+      message.error(err?.message ?? t('w9e.rejectTemplate.rejectFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -91,7 +92,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
       title={
         <Space>
           <XCircle size={16} color="#dc2626" />
-          <span>退回报告</span>
+          <span>{t('w9e.rejectTemplate.title')}</span>
           <Tag color="purple">R3.REVIEW.038</Tag>
         </Space>
       }
@@ -100,7 +101,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
       width={760}
       footer={[
         <Button key="cancel" onClick={handleClose}>
-          取消
+          {t('w9e.rejectTemplate.cancel')}
         </Button>,
         <Button
           key="submit"
@@ -111,7 +112,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
           onClick={handleConfirm}
           disabled={reason.trim().length < 5}
         >
-          确认退回
+          {t('w9e.rejectTemplate.confirmReject')}
         </Button>,
       ]}
       destroyOnHidden
@@ -120,7 +121,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
         type="warning"
         showIcon
         icon={<AlertTriangle size={14} />}
-        message="退回后报告将进入整改状态，医生需修改后重新提交"
+        message={t('w9e.rejectTemplate.alertMsg')}
         style={{ marginBottom: 12 }}
       />
 
@@ -129,7 +130,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
           label={
             <Space>
               <ListChecks size={14} />
-              选择退回模板（点击应用）
+              {t('w9e.rejectTemplate.selectTemplate')}
             </Space>
           }
         >
@@ -166,20 +167,20 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
           />
         </Form.Item>
 
-        <Form.Item label="驳回分类" required>
+        <Form.Item label={t('w9e.rejectTemplate.categoryLabel')} required>
           <Select
             value={category}
             onChange={(v) => setCategory(v as RejectCategory)}
             options={Object.entries(CATEGORY_META).map(([k, v]) => ({ value: k, label: v.label }))}
-            aria-label="驳回分类"
+            aria-label={t('w9e.rejectTemplate.categoryLabel')}
           />
         </Form.Item>
 
         <Form.Item
           label={
             <Space>
-              <span>驳回原因</span>
-              <span style={{ color: '#94a3b8', fontSize: 12 }}>必填，最少 5 字符，最多 500 字符</span>
+              <span>{t('w9e.rejectTemplate.reasonLabel')}</span>
+              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('w9e.rejectTemplate.reasonHint')}</span>
             </Space>
           }
           required
@@ -190,9 +191,9 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
             rows={4}
             maxLength={500}
             showCount
-            placeholder="详细说明驳回原因..."
+            placeholder={t('w9e.rejectTemplate.reasonPlaceholder')}
             data-testid="reject-reason-input"
-            aria-label="驳回原因"
+            aria-label={t('w9e.rejectTemplate.reasonLabel')}
           />
         </Form.Item>
 
@@ -206,7 +207,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
           }}
         >
           <FileText size={12} style={{ marginRight: 4 }} />
-          驳回人：{reviewerName}（{reviewerId}） · 驳回后将通知报告医生
+          {t('w9e.rejectTemplate.footer', { name: reviewerName, id: reviewerId })}
         </div>
       </Form>
     </Modal>

@@ -28,7 +28,6 @@ import { Select } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
 import { ActionButton } from '../components/common/ActionButton'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
-import type { DeviceModality, DeviceState } from '../components/v3/admin/DeviceManagement'
 import {
   C, ModalityBadge, PIE_COLORS,
   DeviceFilter, DeviceList,
@@ -531,7 +530,7 @@ function QATestPlannerPanel() {
             ))}
             {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
               const dayTests = QA_TEST_PLANS.filter(p => {
-                const d = parseInt(p.nextDate.split('-')[2])
+                const d = parseInt(p.nextDate.split('-')[2] ?? '')
                 return d === day
               })
               return (
@@ -570,7 +569,7 @@ function QATestPlannerPanel() {
                   innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value"
                   label={({ name, value }) => `${name} ${value}%`}
                 >
-                  {complianceData.map((_, i) => <Cell key={i} fill={complianceData[i].color} />)}
+                  {complianceData.map((_, i) => <Cell key={i} fill={complianceData[i]?.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
               </RePieChart>

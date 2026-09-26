@@ -30,7 +30,9 @@ import {
 } from "../data/qualityScoreMock";
 import { AppModal } from "../components/common/AppModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
-import { LoadingBanner, ErrorBanner, AppEmpty } from "../components/feedback";
+import { LoadingBanner, ErrorBanner } from "../components/feedback";
+import { DataTable } from "../components/common/DataTable";
+import type { ColumnsType } from "antd/es/table";
 import { reportQualityApi } from "../services/api";
 import { t } from "../i18n/appI18n";
 
@@ -288,11 +290,31 @@ export default function ReportDefectLibraryPage() {
     const stats: Record<string, { count: number; totalCount: number }> = {};
     for (const d of defectList) {
       if (!stats[d.category]) stats[d.category] = { count: 0, totalCount: 0 };
-      stats[d.category].count += 1;
-      stats[d.category].totalCount += d.count;
+      const bucket = stats[d.category]!;
+      bucket.count += 1;
+      bucket.totalCount += d.count;
     }
     return stats;
   }, [defectList]);
+
+  const defectColumns: ColumnsType<DefectItem> = [
+    {
+      title: t("w3tables.col.category"), dataIndex: "category", key: "category", width: 150,
+      render: (_: unknown, d) => {
+        const cConf = CATEGORY_CONFIG[d.category] ?? CATEGORY_CONFIG.description;
+        const sConf = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.minor;
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12, padding: "1px 5px", borderRadius: 2, background: cConf.bg, color: cConf.color, fontWeight: 600 }}>{t(cConf.labelKey)}</span>
+            <span style={{ fontSize: 12, padding: "1px 4px", borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700 }}>{t(sConf.labelKey)}</span>
+          </div>
+        );
+      },
+    },
+    { title: t("w3tables.col.name"), dataIndex: "name", key: "name", render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{v}</span> },
+    { title: t("w3tables.col.code"), dataIndex: "code", key: "code", width: 110, render: (v: string) => <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{v}</span> },
+    { title: t("w3tables.col.count"), dataIndex: "count", key: "count", width: 80, align: "right", render: (v: number) => <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)" }}>×{v}</span> },
+  ];
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: "0 auto" }}>
@@ -582,82 +604,23 @@ export default function ReportDefectLibraryPage() {
               {t('reportDefect.ofItems', { count: defects.length })}
             </div>
           </div>
-          <div style={{ maxHeight: 540, overflowY: "auto" }}>
-            {filteredDefects.length === 0 && <AppEmpty variant="no-results" minHeight={160} />}
-            {filteredDefects.map((d) => {
-              // [G005 P1] 防御: API 数据 category/severity 非法时兜底, 避免 .bg 崩溃
-              const cConf = CATEGORY_CONFIG[d.category] ?? CATEGORY_CONFIG.description;
-              const sConf = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.minor;
-              const isSelected = selectedDefect?.id === d.id;
-              return (
-                <div
-                  key={d.id}
-                  onClick={() => setSelectedDefect(d)}
-                  style={{
-                    padding: 10,
-                    borderBottom: "1px solid var(--border-light)",
-                    background: isSelected ? "var(--color-info-bg)" : "transparent",
-                    borderLeft: isSelected
-                      ? "3px solid #3b82f6"
-                      : "3px solid transparent",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        padding: "1px 5px",
-                        borderRadius: 2,
-                        background: cConf.bg,
-                        color: cConf.color,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {t(cConf.labelKey)}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        padding: "1px 4px",
-                        borderRadius: 2,
-                        background: sConf.bg,
-                        color: sConf.color,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {t(sConf.labelKey)}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color: "var(--text-secondary)",
-                        marginLeft: "auto",
-                        fontWeight: 700,
-                      }}
-                    >
-                      ×{d.count}
-                    </span>
-                  </div>
-                  <div
-                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
-                  >
-                    {d.name}
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 1 }}>
-                    {d.code}
-                  </div>
-                </div>
-              );
+          <DataTable<DefectItem>
+            columns={defectColumns}
+            dataSource={filteredDefects}
+            rowKey="id"
+            loading={loading}
+            showPagination={false}
+            emptyText={t('w9.states.noResults')}
+            onRow={(d) => ({
+              onClick: () => setSelectedDefect(d),
+              style: {
+                cursor: "pointer",
+                background: selectedDefect?.id === d.id ? "var(--color-info-bg)" : undefined,
+                borderLeft: selectedDefect?.id === d.id ? "3px solid #3b82f6" : "3px solid transparent",
+              },
             })}
-          </div>
+            scroll={{ x: "max-content" }}
+          />
         </div>
 
         {/* 右：详情 */}

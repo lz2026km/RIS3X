@@ -221,6 +221,9 @@ function templateIdLabel(templateId: GenerateSrDto['templateId']): string {
 export class DicomSrService {
   private readonly logger = new Logger(DicomSrService.name)
 
+  /** 单调递增序号, 避免同毫秒 ID 冲突 */
+  private seq = 0
+
   // [G005 Wave4B] G-01 Encapsulated PDF 元数据对象 (内存)
   private readonly encapsulatedPdfs = new Map<string, EncapsulatedPdf>()
 
@@ -647,8 +650,8 @@ export class DicomSrService {
         })
       : null
     if (reportId && !report) throw new NotFoundException(`Report ${reportId} not found (PDF 封装)`)
-    reportId = report?.id ?? reportId ?? `pdf-${Date.now()}`
-    studyUid = studyUid || (report?.exam?.accessionNumber ? `1.2.840.10008.5.1.4.1.1.2.1.${report.exam.accessionNumber}` : `1.2.840.10008.5.1.4.1.1.2.1.${Date.now()}`)
+    reportId = report?.id ?? reportId ?? `pdf-${Date.now()}-${++this.seq}`
+    studyUid = studyUid || (report?.exam?.accessionNumber ? `1.2.840.10008.5.1.4.1.1.2.1.${report.exam.accessionNumber}` : `1.2.840.10008.5.1.4.1.1.2.1.${Date.now()}.${++this.seq}`)
     patientName = patientName || (report?.patient?.name ?? '')
 
     let pdfEmbedded = ''
@@ -676,10 +679,10 @@ export class DicomSrService {
     }
 
     const doc: EncapsulatedPdf = {
-      id: `pdf-${Date.now().toString(36)}-${this.encapsulatedPdfs.size + 1}`,
+      id: `pdf-${Date.now().toString(36)}-${this.encapsulatedPdfs.size + 1}-${++this.seq}`,
       reportId,
       sopClassUid: PDF_SOP_CLASS_UID,
-      sopInstanceUid: `1.2.840.10008.5.1.4.1.1.104.1.${Date.now()}`,
+      sopInstanceUid: `1.2.840.10008.5.1.4.1.1.104.1.${Date.now()}.${++this.seq}`,
       studyInstanceUid: studyUid,
       pdfEmbedded,
       size: pdfEmbedded.length,

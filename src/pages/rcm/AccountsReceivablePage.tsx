@@ -180,7 +180,7 @@ export default function AccountsReceivablePage() {
       const s = String(v ?? '')
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
     }
-    const lines: string[] = ['编号,患者,检查项目,检查日期,支付方,总额(元),已付(元),余额(元),到期日,账龄,状态']
+    const lines: string[] = [t('w9e.ar.csvHeader')]
     for (const i of items) {
       lines.push([i.id, i.patientName, i.examItem, i.examDate, i.payer, i.totalAmount, i.paidAmount, i.balance, i.dueDate, i.aging, i.status].map(esc).join(','))
     }
@@ -188,7 +188,7 @@ export default function AccountsReceivablePage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `应收账款报表_${new Date().toISOString().split('T')[0]}.csv`
+    a.download = `${t('w9e.ar.exportFileName')}_${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -239,10 +239,10 @@ export default function AccountsReceivablePage() {
             </div>
             <select value={payerFilter} onChange={e => setPayerFilter(e.target.value as PayerFilter)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
               <option value="all">{t('ar.allPayers')}</option>
-              <option value="医保(城镇职工)">医保(城镇职工)</option>
-              <option value="医保(城乡居民)">医保(城乡居民)</option>
-              <option value="商业保险">商业保险</option>
-              <option value="自费">自费</option>
+              <option value="医保(城镇职工)">{t('w9e.ar.payerEmployee')}</option>
+              <option value="医保(城乡居民)">{t('w9e.ar.payerResident')}</option>
+              <option value="商业保险">{t('w9e.ar.payerCommercial')}</option>
+              <option value="自费">{t('w9e.ar.payerSelf')}</option>
             </select>
           </div>
           <span style={{ fontSize: 13, color: '#6e7681' }}>{t('ar.totalCount', { count: filteredItems.length })}</span>

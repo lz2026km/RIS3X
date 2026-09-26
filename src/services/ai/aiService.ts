@@ -19,7 +19,9 @@ import type {
   AIReference,
   AIScenario,
   AIDraftStage,
+  AIConfidenceLevel,
 } from '../../types/R3/R3.AI';
+import { api } from '../api/client';
 import {
   AI_DRAFTS,
   AI_PRE_REVIEWS,
@@ -38,6 +40,16 @@ import {
 
 const MIN_DELAY_MS = 200;
 const MAX_DELAY_MS = 1500;
+
+// [G005 BackendParity] 场景 → 后端 POST /ai/generate 请求字段映射
+const SCENARIO_TARGET: Record<AIScenario, { modality: string; bodyPart: string }> = {
+  'chest-ct': { modality: 'CT', bodyPart: '胸部' },
+  'head-mri': { modality: 'MR', bodyPart: '头颅' },
+  'abdomen-ct': { modality: 'CT', bodyPart: '腹部' },
+  'spine-mri': { modality: 'MR', bodyPart: '脊柱' },
+  'breast-mg': { modality: 'MG', bodyPart: '乳腺' },
+  'cardiac-cta': { modality: 'CT', bodyPart: '心脏' },
+};
 
 function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
@@ -98,6 +110,21 @@ export class AIService {
       await delay(140 + Math.random() * 160);
     }
 
+    // [G005 BackendParity] 优先真实后端 POST /ai/generate; 失败/空响应回退本地确定性生成
+    const remote = await this.generateFromBackend(params, start);
+    if (remote) {
+      logUsage({
+        userId: 'current',
+        reportId: remote.reportId,
+        endpoint: '/api/v1/ai/generate',
+        requestTokens: remote.tokenUsage.prompt,
+        responseTokens: remote.tokenUsage.completion,
+        processingMs: remote.processingMs,
+        success: true,
+      });
+      return remote;
+    }
+
     const template = AI_SCENARIO_DETAILS[params.scenario];
     const references: AIReference[] = template.radsSystem
       ? [
@@ -139,6 +166,81 @@ export class AIService {
     });
 
     return result;
+  }
+
+  /**
+   * [G005 BackendParity] 调用后端 POST /ai/generate。
+   * 兼容三种响应形状:
+   *  1. 真实 NestJS `{ provider, sections:[{heading,content}], confidence }`
+   *  2. MSW 完整草稿形状 AIDraftResult
+   *  3. MSW 提示词形状 `{ content, usage }`
+   * 任何异常/空响应返回 null, 由调用方回退本地生成。
+   */
+  private async generateFromBackend(
+    params: GenerateDraftParams,
+    start: number
+  ): Promise<AIDraftResult | null> {
+    try {
+      const target = SCENARIO_TARGET[params.scenario];
+      const res = await api.post<unknown>('/ai/generate', {
+        modality: target.modality,
+        bodyPart: target.bodyPart,
+        findings: params.clinicalHistory,
+        clinicalHistory: params.clinicalHistory,
+      });
+      if (!res.success || res.data == null) return null;
+      const data = res.data as Record<string, unknown>;
+
+      // 形状 2: 已完整返回草稿
+      if (
+        typeof data.findings === 'string' &&
+        typeof data.impression === 'string'
+      ) {
+        return { ...(data as unknown as AIDraftResult) };
+      }
+
+      // 形状 1: sections 数组
+      const sections = Array.isArray(data.sections)
+        ? (data.sections as Array<{ heading?: string; content?: string }>)
+        : [];
+      const pick = (keys: string[]): string =>
+        sections.find((s) => keys.some((k) => (s.heading ?? '').includes(k)))
+          ?.content ?? '';
+      const findings =
+        pick(['影像所见', '所见']) ||
+        (typeof data.content === 'string' ? data.content : '');
+      const impression = pick(['影像诊断', '诊断意见', '意见', '印象']);
+      if (!findings && !impression) return null;
+
+      const rawConfidence =
+        typeof data.confidence === 'number' ? data.confidence : 0.85;
+      const level: AIConfidenceLevel =
+        rawConfidence >= 0.85 ? 'high' : rawConfidence >= 0.6 ? 'medium' : 'low';
+      return {
+        id: uuid('aidraft'),
+        reportId: params.reportId ?? 'new-' + Date.now().toString(36),
+        scenario: params.scenario,
+        clinicalHistory: params.clinicalHistory,
+        findings,
+        diagnosis: impression,
+        impression,
+        recommendations: pick(['建议']),
+        confidence: {
+          overall: rawConfidence,
+          findings: rawConfidence,
+          diagnosis: rawConfidence,
+          impression: rawConfidence,
+          level,
+        },
+        references: [],
+        generatedAt: nowIso(),
+        modelVersion: `backend:${typeof data.provider === 'string' ? data.provider : 'mock'}`,
+        tokenUsage: { prompt: 0, completion: 0, total: 0 },
+        processingMs: Date.now() - start,
+      };
+    } catch {
+      return null;
+    }
   }
 
   async listDrafts(): Promise<AIDraftResult[]> {

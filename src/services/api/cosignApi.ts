@@ -13,6 +13,7 @@ export interface CoSignItem {
   authorName: string
   status: string
   waitingHours: number
+  clinicalInfo?: string
 }
 
 export interface CoSignStats {

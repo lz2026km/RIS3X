@@ -17,6 +17,20 @@ import { ActionButton } from '../../components/common/ActionButton'
 import { t } from '../../i18n/appI18n'
 import type { Institution, Consultation, Report, CriticalValueReport, RemoteDiagnosis, CoSignRecord, ShareRecord, SLARecord } from './RegionalReportServiceWire'
 
+const QUICK_FILTERS: { key: string; labelKey: string }[] = [
+  { key: '全部', labelKey: 'w9e.regionalReportList.filterAll' },
+  { key: '三级医院', labelKey: 'w9e.regionalReportList.filterTertiary' },
+  { key: '二级医院', labelKey: 'w9e.regionalReportList.filterSecondary' },
+  { key: '一级医院', labelKey: 'w9e.regionalReportList.filterPrimary' },
+  { key: '待审核', labelKey: 'w9e.regionalReportList.filterPending' },
+]
+
+const PRIORITY_LABEL_KEY: Record<string, string> = {
+  '普通': 'w9e.regionalReportList.priorityNormal',
+  '紧急': 'w9e.regionalReportList.priorityUrgent',
+  '立即': 'w9e.regionalReportList.priorityImmediate',
+}
+
 interface InstitutionListProps {
   selectedInstitution: string
   onSelect: (id: string) => void
@@ -68,8 +82,8 @@ export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstit
       <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: COLORS.textMuted }}>{t('regionalReport.quickFilter')}</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          {['全部', '三级医院', '二级医院', '一级医院', '待审核'].map(filter => (
-            <span key={filter} style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', backgroundColor: filter === '全部' ? COLORS.primary : 'var(--bg-card)', color: filter === '全部' ? 'white' : COLORS.textMuted }}>{filter}</span>
+          {QUICK_FILTERS.map(filter => (
+            <span key={filter.key} style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', backgroundColor: filter.key === '全部' ? COLORS.primary : 'var(--bg-card)', color: filter.key === '全部' ? 'white' : COLORS.textMuted }}>{t(filter.labelKey)}</span>
           ))}
         </div>
       </div>
@@ -135,9 +149,9 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
         createDate: new Date().toISOString().split('T')[0],
       })
       if (res.success) {
-        alert(`会诊申请已提交: ${res.data?.id ?? ''}`)
+        alert(t('w9e.regionalReportList.applySubmittedId', { id: res.data?.id ?? '' }))
       } else {
-        alert('提交失败: ' + (res.error?.message ?? '接口不可用'))
+        alert(t('w9e.regionalReportList.submitFailedPrefix') + (res.error?.message ?? t('w9e.regionalReportList.apiUnavailable')))
       }
     } catch {
       alert(t('regionalReport.applySubmittedLocal'))
@@ -216,15 +230,15 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
           <div style={{ maxWidth: '600px' }}>
             <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.patientNameStar')}</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReport.placeholderPatientName')} value={applyForm.patientName} onChange={e => setApplyForm({ ...applyForm, patientName: e.target.value })} /></div>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.gender')}</label><Select style={{ width: '100%' }} value={applyForm.gender} onChange={v => setApplyForm({ ...applyForm, gender: v })} options={[{ value: '男', label: '男' }, { value: '女', label: '女' }]} /></div>
+              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.gender')}</label><Select style={{ width: '100%' }} value={applyForm.gender} onChange={v => setApplyForm({ ...applyForm, gender: v })} options={[{ value: '男', label: t('w9e.regionalReportList.genderMale') }, { value: '女', label: t('w9e.regionalReportList.genderFemale') }]} /></div>
               <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.age')}</label><input type="number" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReportList.age')} value={applyForm.age} onChange={e => setApplyForm({ ...applyForm, age: e.target.value })} /></div>
             </div>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.modalityType')}</label><Select style={{ width: '100%' }} value={applyForm.modality} onChange={v => setApplyForm({ ...applyForm, modality: v })} options={[{ value: 'CT', label: 'CT' }, { value: 'MRI', label: 'MRI' }, { value: 'DR', label: 'DR' }, { value: '超声', label: '超声' }, { value: '胃肠', label: '胃肠' }]} /></div>
+              <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReport.modalityType')}</label><Select style={{ width: '100%' }} value={applyForm.modality} onChange={v => setApplyForm({ ...applyForm, modality: v })} options={[{ value: 'CT', label: 'CT' }, { value: 'MRI', label: 'MRI' }, { value: 'DR', label: 'DR' }, { value: '超声', label: t('w9e.regionalReportList.modalityUltrasound') }, { value: '胃肠', label: t('w9e.regionalReportList.modalityGi') }]} /></div>
               <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.examItem')}</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder={t('regionalReportList.examItem')} value={applyForm.examItem} onChange={e => setApplyForm({ ...applyForm, examItem: e.target.value })} /></div>
             </div>
             <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>{t('regionalReportList.applyInstitution')}</label><Select style={{ width: '100%' }} value={applyForm.institution || undefined} placeholder={t('regionalReport.selectApplyInstitution')} onChange={v => setApplyForm({ ...applyForm, institution: v })} options={institutions.map(inst => ({ value: inst.name, label: inst.name }))} /></div>
-            <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.priority')}</label><div style={{ display: 'flex', gap: '10px' }}>{['普通', '紧急', '立即'].map(p => <label key={p} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}><input type="radio" name="priority" value={p} checked={applyForm.priority === p} onChange={() => setApplyForm({ ...applyForm, priority: p })} />{p}</label>)}</div></div>
+            <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.priority')}</label><div style={{ display: 'flex', gap: '10px' }}>{['普通', '紧急', '立即'].map(p => <label key={p} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}><input type="radio" name="priority" value={p} checked={applyForm.priority === p} onChange={() => setApplyForm({ ...applyForm, priority: p })} />{t(PRIORITY_LABEL_KEY[p] ?? p)}</label>)}</div></div>
             <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.applyReasonStar')}</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '120px' }} placeholder={t('regionalReport.applyReasonPlaceholder')} value={applyForm.applyReason} onChange={e => setApplyForm({ ...applyForm, applyReason: e.target.value })} /></div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}><button onClick={handleCancelApply} style={{ ...styles.button, ...styles.buttonOutline }}>{t('regionalReportList.cancel')}</button><button onClick={() => void handleSubmitApply()} disabled={submitting} style={{ ...styles.button, ...styles.buttonPrimary }}><Send size={14} /> {submitting ? t('regionalReport.submitting') : t('regionalReport.submitApply')}</button></div>
           </div>
@@ -494,7 +508,7 @@ export const ReportSharingSection: React.FC = () => {
 
   const handleRevoke = (id: string) => { setShares(shares.map(s => s.id === id ? { ...s, status: 'revoked' as const } : s)) }
   const handleShare = () => {
-    setShares([...shares, { id: `SH${Date.now()}`, reportId: shareForm.reportId, patientName: '新建患者', institution: '本院', targetInstitution: shareForm.targetInstitution, sharedDate: new Date().toISOString().split('T')[0]!, sharedBy: '当前用户', status: 'active', consent: shareForm.consent, accessCount: 0 }])
+    setShares([...shares, { id: `SH${Date.now()}`, reportId: shareForm.reportId, patientName: t('w9e.regionalReportList.newPatient'), institution: '本院', targetInstitution: shareForm.targetInstitution, sharedDate: new Date().toISOString().split('T')[0]!, sharedBy: t('w9e.regionalReportList.currentUser'), status: 'active', consent: shareForm.consent, accessCount: 0 }])
     setShowShareModal(false); setShareForm({ reportId: '', targetInstitution: '', consent: true })
   }
 

@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Space, Tag, Button, Row, Col, Select, message } from 'antd';
 import { Ruler, Square, Circle, Type, Trash2, Save } from 'lucide-react';
+import { t } from '../../i18n/appI18n';
 
 type Tool = 'ruler' | 'rect' | 'circle' | 'text';
 interface Annotation { id: string; tool: Tool; x: number; y: number; w: number; h: number; text?: string; color: string; label?: string; value?: string; }
@@ -33,9 +34,9 @@ export const PanoramicAnnotatorPage: React.FC = () => {
   const handleSaveAnnotations = () => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(annotations));
-      message.success(`已保存 ${annotations.length} 条标注到本地`);
+      message.success(t('w9d.panoramic.savedLocal', { count: annotations.length }));
     } catch {
-      message.error('保存失败，浏览器存储不可用');
+      message.error(t('w9d.panoramic.saveFailed'));
     }
   };
 
@@ -86,10 +87,10 @@ export const PanoramicAnnotatorPage: React.FC = () => {
       } else if (a.tool === 'circle') {
         ctx.beginPath(); ctx.arc(a.x, a.y, Math.max(a.w, a.h), 0, Math.PI*2); ctx.fill(); ctx.stroke();
       } else if (a.tool === 'text') {
-        ctx.fillStyle = a.color; ctx.font = '14px sans-serif'; ctx.fillText(a.text || a.label || '', a.x, a.y);
+        ctx.fillStyle = a.color; ctx.font = '14px sans-serif'; ctx.fillText(a.text || (a.label ? t(a.label) : ''), a.x, a.y);
       }
       if (a.label) {
-        ctx.fillStyle = a.color; ctx.font = '10px sans-serif'; ctx.fillText(a.label, a.x, a.y-8);
+        ctx.fillStyle = a.color; ctx.font = '10px sans-serif'; ctx.fillText(t(a.label), a.x, a.y-8);
       }
     }
   }, [annotations]);
@@ -103,8 +104,8 @@ export const PanoramicAnnotatorPage: React.FC = () => {
     if (!isDrawing) return;
     const rect = canvasRef.current!.getBoundingClientRect();
     const endX = e.clientX - rect.left, endY = e.clientY - rect.top;
-    const a: Annotation = { id: `ann-${Date.now()}`, tool: activeTool, x: Math.min(startPos.x, endX), y: Math.min(startPos.y, endY), w: Math.abs(endX - startPos.x), h: Math.abs(endY - startPos.y), color: COLORS[colorIdx % COLORS.length], label };
-    if (activeTool === 'text') { a.text = label || '标注'; a.w = 0; a.h = 0; }
+    const a: Annotation = { id: `ann-${Date.now()}`, tool: activeTool, x: Math.min(startPos.x, endX), y: Math.min(startPos.y, endY), w: Math.abs(endX - startPos.x), h: Math.abs(endY - startPos.y), color: COLORS[colorIdx % COLORS.length] ?? '#000', label };
+    if (activeTool === 'text') { a.text = label || t('w9d.panoramic.defaultAnnotation'); a.w = 0; a.h = 0; }
     setAnnotations([...annotations, a]);
     setIsDrawing(false);
   };
@@ -113,40 +114,40 @@ export const PanoramicAnnotatorPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Ruler size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>全景片标注</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.panoramic.title')}</span>
         <Tag color="cyan">v3.0.6.8-55</Tag>
-        <Tag color="blue">{studyId || '无研究'}</Tag>
+        <Tag color="blue">{studyId || t('w9d.panoramic.noStudy')}</Tag>
       </Space>
       <Row gutter={16}>
         <Col span={18}>
           <Card size="small" title={
             <Space>
-              {(['ruler','rect','circle','text'] as Tool[]).map(t => (
-                <Button key={t} type={activeTool === t ? 'primary' : 'default'} size="small"
-                  icon={t === 'ruler' ? <Ruler size={12} /> : t === 'rect' ? <Square size={12} /> : t === 'circle' ? <Circle size={12} /> : <Type size={12} />}
-                  onClick={() => setActiveTool(t)}>{t === 'ruler' ? '测量' : t === 'rect' ? '矩形' : t === 'circle' ? '椭圆' : '文字'}</Button>
+              {(['ruler','rect','circle','text'] as Tool[]).map(tool => (
+                <Button key={tool} type={activeTool === tool ? 'primary' : 'default'} size="small"
+                  icon={tool === 'ruler' ? <Ruler size={12} /> : tool === 'rect' ? <Square size={12} /> : tool === 'circle' ? <Circle size={12} /> : <Type size={12} />}
+                  onClick={() => setActiveTool(tool)}>{tool === 'ruler' ? t('w9d.panoramic.toolRuler') : tool === 'rect' ? t('w9d.panoramic.toolRect') : tool === 'circle' ? t('w9d.panoramic.toolCircle') : t('w9d.panoramic.toolText')}</Button>
               ))}
             </Space>
           } extra={
             <Space>
-              <Select size="small" value={label || undefined} onChange={setLabel} allowClear style={{ width: 100 }} options={['龋齿','根尖病变','骨丧失','种植位','阻生'].map(t=>({value:t,label:t}))} />
-              <Button size="small" icon={<Save size={12} />} onClick={handleSaveAnnotations}>保存标注</Button>
-              <Button size="small" icon={<Trash2 size={12} />} onClick={() => setAnnotations([])}>清除</Button>
+              <Select size="small" value={label || undefined} onChange={setLabel} allowClear style={{ width: 100 }} options={['w9d.panoramicAnno.caries','w9d.panoramicAnno.periapical','w9d.panoramicAnno.boneLoss','w9d.panoramicAnno.implantSite','w9d.panoramicAnno.impacted'].map(k=>({value:k,label:t(k)}))} />
+              <Button size="small" icon={<Save size={12} />} onClick={handleSaveAnnotations}>{t('w9d.panoramic.saveAnnotations')}</Button>
+              <Button size="small" icon={<Trash2 size={12} />} onClick={() => setAnnotations([])}>{t('w9d.panoramic.clear')}</Button>
             </Space>
           }>
             <canvas ref={canvasRef} width={700} height={550} style={{ width: '100%', height: 'auto', cursor: 'crosshair', border: '1px solid #333', borderRadius: 4 }}
               onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} />
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>在图片上拖动进行标注 | 标注数: {annotations.length}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('w9d.panoramic.hint')}{annotations.length}</div>
           </Card>
         </Col>
         <Col span={6}>
-          <Card title="标注列表" size="small">
+          <Card title={t('w9d.panoramic.annotationList')} size="small">
             {annotations.map((a, i) => <div key={a.id} style={{ padding: 8, marginBottom: 4, background: 'var(--bg-card)', borderRadius: 4, borderLeft: `3px solid ${a.color}` }}>
-              <div style={{ fontSize: 12, fontWeight: 600 }}>{a.tool} - {a.label || '-'}</div>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>{a.tool} - {a.label ? t(a.label) : '-'}</div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.tool === 'ruler' ? Math.round(Math.sqrt(a.w*a.w + a.h*a.h)) + 'mm' : `${a.w}×${a.h}`}</div>
-              <Button type="text" size="small" danger icon={<Trash2 size={10} />} onClick={() => setAnnotations(annotations.filter((_, j) => j !== i))}>删</Button>
+              <Button type="text" size="small" danger icon={<Trash2 size={10} />} onClick={() => setAnnotations(annotations.filter((_, j) => j !== i))}>{t('w9d.panoramic.delete')}</Button>
             </div>)}
-            {annotations.length === 0 && <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>暂无标注</div>}
+            {annotations.length === 0 && <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('w9d.panoramic.noAnnotations')}</div>}
           </Card>
         </Col>
       </Row>

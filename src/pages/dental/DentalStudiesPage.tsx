@@ -138,7 +138,7 @@ export const DentalStudiesPage: React.FC = () => {
     try {
       const res = await dentalApi.deleteStudy(s.id);
       if (res.success) {
-        message.success(`已删除影像: ${s.id}`);
+        message.success(t('w9d.dentalStudies.deleted', { id: s.id }));
         await load();
       } else {
         message.error(res.error?.message ?? t('dentalStudies.deleteFailed'));
@@ -252,7 +252,7 @@ export const DentalStudiesPage: React.FC = () => {
           <Row gutter={12}>
             <Col span={12}>
               <Form.Item label={t('dentalStudies.patientId')} name="patientId" rules={[{ required: true, message: t('dentalStudies.patientIdRequired') }]}>
-                <Input placeholder="如 PDNT-001" />
+                <Input placeholder={t('w9d.dentalStudies.patientIdPlaceholder')} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -283,7 +283,7 @@ export const DentalStudiesPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item label={t('dentalStudies.deviceModel')} name="deviceModel">
-                <Input placeholder="如 Planmeca ProMax 3D" />
+                <Input placeholder={t('w9d.dentalStudies.deviceModelPlaceholder')} />
               </Form.Item>
             </Col>
             <Col span={24}>

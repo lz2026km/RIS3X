@@ -8,7 +8,7 @@ import { eyeApi } from "../../../services/api/eyeApi";
 import { eyePacsApi, type EyeStudyDto, type EyeMeasurementDto, type KeyImageDto, type LesionSegmentationDto, type AiDiagnosisDto } from "../../../services/api/eyePacsApi";
 import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
-const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
+const modalityLabel = (m?: string) => t(`w9d.modality.${m ?? ''}`);
 
 const FundusViewerPage: React.FC = () => {
   const [study, setStudy] = useState<EyeStudyDto | null>(null);
@@ -55,7 +55,7 @@ const FundusViewerPage: React.FC = () => {
     ctx.fillStyle = "#94a3b8";
     [
       t('fundusViewer.exportPatient', { name: study.patientName, eye: study.eyeSide ?? "-", device: study.device }),
-      t('fundusViewer.exportExam', { type: MODALITY_LABELS[study.modality] || study.modality, date: new Date(study.studyDate).toLocaleString() }),
+      t('fundusViewer.exportExam', { type: modalityLabel(study.modality), date: new Date(study.studyDate).toLocaleString() }),
       t('fundusViewer.exportCounts', { measure: measurements.length, lesion: lesions.length, key: keyImages.length }),
       t('fundusViewer.exportAi', { count: aiDiag.length }),
     ].forEach((l, i) => ctx.fillText(l, 40, 120 + i * 36));
@@ -251,7 +251,7 @@ const FundusViewerPage: React.FC = () => {
               <Row>
                 <Col span={10}>{t('fundusViewer.exam')}:</Col>
                 <Col span={14}>
-                  <Tag color="orange">{MODALITY_LABELS[study.modality] || study.modality}</Tag>
+                  <Tag color="orange">{modalityLabel(study.modality)}</Tag>
                 </Col>
               </Row>
               <Row>

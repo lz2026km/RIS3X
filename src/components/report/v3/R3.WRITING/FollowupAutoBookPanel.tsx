@@ -9,6 +9,7 @@ import { Card, Tag, Button, Space, Switch, Tooltip, message, Alert } from 'antd'
 import { CalendarPlus, Bell, ArrowRight, RefreshCw } from 'lucide-react';
 import { followupApi } from '@services/api/followupApi';
 import { useNavigate } from 'react-router-dom';
+import { t } from '../../../../i18n/appI18n';
 
 // [v3.0.6.11-100 Wave2C P3] 客户端匹配规则种子 (与后端 followup-trigger-rules 同源, 前端展示+匹配)
 export interface FollowUpTriggerRule {
@@ -82,7 +83,7 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
     const next: 'auto' | 'hint' = checked ? 'auto' : 'hint';
     setMode(next);
     try { localStorage.setItem(MODE_KEY, next); } catch { /* 忽略 */ }
-    message.info(next === 'auto' ? '已开启自动创建: 报告提交审核时将按规则自动生成随访计划' : '已切换仅提示: 提交报告仅展示建议, 由医生手动创建随访计划');
+    message.info(next === 'auto' ? t('w9e.followup.toggleAutoMsg') : t('w9e.followup.toggleHintMsg'));
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -97,13 +98,13 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
         for (const days of rule.intervals) {
           const res = await followupApi.create({
             patientId,
-            patientName: patientName || '未知患者',
+            patientName: patientName || t('w9e.followup.unknownPatient'),
             reportId: reportId || undefined,
             examId: examId || undefined,
             templateId: rule.templateId,
             planDate: today,
             intervalDays: days,
-            note: `报告→随访自动触发: ${rule.label} (命中「${rule.keyword}」) 第${days}天复查`,
+            note: t('w9e.followup.noteText', { label: rule.label, keyword: rule.keyword, days }),
             reminderEnabled: true,
           });
           if (res.success) created += 1;
@@ -111,13 +112,13 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
       }
       setCreatedCount(created);
       if (created > 0) {
-        message.success(`已创建 ${created} 条随访计划, 跳转随访管理`);
+        message.success(t('w9e.followup.createdMsg', { count: created }));
         navigate('/follow-up');
       } else {
-        message.warning('随访计划创建失败, 请稍后重试');
+        message.warning(t('w9e.followup.createFailedRetry'));
       }
     } catch {
-      message.error('创建随访计划失败');
+      message.error(t('w9e.followup.createFailed'));
     } finally {
       setCreating(false);
     }
@@ -134,11 +135,11 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
       title={
         <Space size={6}>
           <CalendarPlus className="w-4 h-4 text-emerald-500" />
-          <span>建议随访</span>
-          <Tag color="emerald" className="m-0 text-[10px]">命中 {matched.length} 条规则 · {totalIntervals} 期计划</Tag>
-          <Tooltip title={effectiveMode === 'auto' ? '自动模式: 提交审核时按规则自动生成随访计划' : '仅提示模式: 由医生手动创建 (默认)'}>
+          <span>{t('w9e.followup.title')}</span>
+          <Tag color="emerald" className="m-0 text-[10px]">{t('w9e.followup.matchTag', { rules: matched.length, plans: totalIntervals })}</Tag>
+          <Tooltip title={effectiveMode === 'auto' ? t('w9e.followup.autoModeTip') : t('w9e.followup.hintModeTip')}>
             <Tag color={effectiveMode === 'auto' ? 'green' : 'orange'} className="m-0 text-[10px] cursor-help">
-              {effectiveMode === 'auto' ? '自动创建' : '仅提示'}
+              {effectiveMode === 'auto' ? t('w9e.followup.autoCreate') : t('w9e.followup.hintOnly')}
             </Tag>
           </Tooltip>
         </Space>
@@ -147,11 +148,11 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
         <Space size={8}>
           <Space size={4} className="text-[11px] text-slate-500">
             <Bell className="w-3 h-3" />
-            <span>自动创建</span>
+            <span>{t('w9e.followup.autoCreate')}</span>
             <Switch size="small" checked={mode === 'auto'} onChange={handleToggleMode} />
           </Space>
           <Button size="small" type="text" className="p-0 h-auto text-[11px]" onClick={() => setCollapsed((c) => !c)}>
-            {collapsed ? '展开' : '收起'}
+            {collapsed ? t('w9e.followup.expand') : t('w9e.followup.collapse')}
           </Button>
         </Space>
       }
@@ -163,7 +164,7 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
               type="info"
               showIcon
               className="!text-[11px]"
-              message="当前为「仅提示」模式: 报告提交审核时不会自动创建随访计划, 可点击下方按钮手动创建或开启自动创建"
+              message={t('w9e.followup.hintAlert')}
             />
           )}
           <div className="space-y-1.5">
@@ -172,7 +173,7 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
                 <Tag color="emerald" className="m-0 shrink-0 text-[10px]">「{r.keyword}」</Tag>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-slate-700">{r.label} → <b>{r.templateName}</b>
-                    <span className="text-slate-400 ml-1.5">{r.intervals.map((d) => `${Math.round(d / 30)}个月`).join(' / ')}</span>
+                    <span className="text-slate-400 ml-1.5">{r.intervals.map((d) => t('w9e.followup.monthsUnit', { count: Math.round(d / 30) })).join(' / ')}</span>
                   </div>
                   <div className="text-[11px] text-slate-500 mt-0.5">{r.hint}</div>
                 </div>
@@ -181,8 +182,8 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
           </div>
           <div className="flex items-center justify-between pt-1">
             <span className="text-[11px] text-slate-400">
-              {patientId ? `患者 ${patientName || patientId}` : '当前报告缺少患者信息, 无法创建随访计划'}
-              {createdCount != null && <span className="text-emerald-600 ml-2">已创建 {createdCount} 条计划</span>}
+              {patientId ? t('w9e.followup.patientLabel', { name: patientName || patientId }) : t('w9e.followup.missingPatient')}
+              {createdCount != null && <span className="text-emerald-600 ml-2">{t('w9e.followup.createdCount', { count: createdCount })}</span>}
             </span>
             <Space>
               <Button
@@ -193,10 +194,10 @@ export default function FollowupAutoBookPanel({ reportText, patientId = '', pati
                 disabled={!patientId}
                 onClick={() => void handleCreate()}
               >
-                一键创建随访计划
+                {t('w9e.followup.createButton')}
               </Button>
               <Button size="small" icon={<ArrowRight className="w-3 h-3" />} onClick={() => navigate('/follow-up')}>
-                随访管理
+                {t('w9e.followup.manage')}
               </Button>
             </Space>
           </div>

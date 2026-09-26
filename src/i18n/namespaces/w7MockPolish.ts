@@ -1,0 +1,38 @@
+// [G005 W7] 演示/模拟数据徽标 + 页面三态 (loading/empty/error) 通用键
+// 由 appI18n.ts 通过 import.meta.glob('./namespaces/*.ts') 自动合并。
+export default {
+  zh: {
+    'w7demo.simulatedBadge': '演示模拟',
+    'w7demo.demoDataBadge': '演示数据',
+    'w7demo.loading': '加载中...',
+    'w7demo.loadError': '数据加载失败，请稍后重试',
+    'w7demo.retry': '重试',
+    'w7demo.refresh': '刷新',
+    'w7demo.empty': '暂无数据',
+    'w7demo.contrastFallback': '演示数据 · 合规模拟数据',
+    'w7demo.kpiEngineSource': '数据源: 本地 KpiEngine（演示）',
+    'w7demo.kpiBiSource': '数据源: /bi/kpi（BI 接口）',
+    'w7demo.kpiRefreshDone': 'KPI 已刷新',
+    'w7demo.aiSimulated': '演示模拟 · STT/NLP/AI 本地模拟',
+    'w7demo.iheSimulated': '演示模拟 · 确定性测试结果',
+    'w7demo.dicomSimulated': '演示模拟 · 合成影像',
+    'w7demo.fhirFallback': '演示数据 · 接口不可达回退',
+  },
+  en: {
+    'w7demo.simulatedBadge': 'Simulated Demo',
+    'w7demo.demoDataBadge': 'Demo Data',
+    'w7demo.loading': 'Loading...',
+    'w7demo.loadError': 'Failed to load data. Please retry.',
+    'w7demo.retry': 'Retry',
+    'w7demo.refresh': 'Refresh',
+    'w7demo.empty': 'No data',
+    'w7demo.contrastFallback': 'Demo data · simulated compliance data',
+    'w7demo.kpiEngineSource': 'Source: local KpiEngine (demo)',
+    'w7demo.kpiBiSource': 'Source: /bi/kpi (BI API)',
+    'w7demo.kpiRefreshDone': 'KPI refreshed',
+    'w7demo.aiSimulated': 'Simulated demo · local STT/NLP/AI',
+    'w7demo.iheSimulated': 'Simulated demo · deterministic results',
+    'w7demo.dicomSimulated': 'Simulated demo · synthetic image',
+    'w7demo.fhirFallback': 'Demo data · API unreachable fallback',
+  },
+}

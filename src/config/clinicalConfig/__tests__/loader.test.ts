@@ -14,17 +14,17 @@ describe("mergeLayers", () => {
   });
 
   it("patches override the override", () => {
-    const m = mergeLayers({ defaults: { a: 1 }, override: { a: 2 }, patch: { a: 3 } });
+    const m = mergeLayers<Record<string, any>>({ defaults: { a: 1 }, override: { a: 2 }, patch: { a: 3 } });
     expect(m.a).toBe(3);
   });
 
   it("replaces arrays, does not concat", () => {
-    const m = mergeLayers({ defaults: { xs: [1, 2, 3] }, override: { xs: [9] } });
+    const m = mergeLayers<Record<string, any>>({ defaults: { xs: [1, 2, 3] }, override: { xs: [9] } });
     expect(m.xs).toEqual([9]);
   });
 
   it("deep-merges nested objects", () => {
-    const m = mergeLayers({
+    const m = mergeLayers<Record<string, any>>({
       defaults: { a: { x: 1, y: 2 } },
       override: { a: { y: 99, z: 3 } },
     });

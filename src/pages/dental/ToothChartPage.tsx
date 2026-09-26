@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 // [G005 Wave1B] 牙位图数据: dentalApi.getDentalChart (GET /dental/chart/:patientId)
 import { dentalApi } from "../../services/api/dentalApi";
 import { LoadingBanner, ErrorBanner, AppEmpty } from "../../components/feedback";
+import { ActionButton, ExportButton } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 export const ToothChartPage: React.FC = () => {
@@ -16,6 +17,7 @@ export const ToothChartPage: React.FC = () => {
   const [activeTooth, setActiveTooth] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -46,7 +48,7 @@ export const ToothChartPage: React.FC = () => {
         setLoading(false);
       }
     })();
-  }, [patientId]);
+  }, [patientId, refreshTick]);
 
   const FDI_ROW_1 = [18, 17, 16, 15, 14, 13, 12, 11];
   const FDI_ROW_2 = [21, 22, 23, 24, 25, 26, 27, 28];
@@ -64,35 +66,19 @@ export const ToothChartPage: React.FC = () => {
   };
 
   // [G005 Wave5] 牙位状态中文化 (Healthy/Caries/Restored/Missing/Crown/RootCanal/Implant)
-  const STATUS_LABELS: Record<string, string> = {
-    Healthy: "健康",
-    Caries: "龋齿",
-    Restored: "充填",
-    Missing: "缺失",
-    Crown: "全冠",
-    RootCanal: "根管治疗",
-    Implant: "种植",
-  };
+  const statusLabel = (k: string) => t(`w9d.tooth.status.${k}`);
 
   // [G005 Wave5] 牙面状态中文化 (Healthy/Caries-Mild/Caries-Moderate/Caries-Severe/Restored/Filling/Sealant)
-  const SURFACE_LABELS: Record<string, string> = {
-    Healthy: "健康",
-    "Caries-Mild": "轻度龋",
-    "Caries-Moderate": "中度龋",
-    "Caries-Severe": "重度龋",
-    Restored: "充填",
-    Filling: "充填",
-    Sealant: "窝沟封闭",
-  };
+  const surfaceLabel = (k: string) => t(`w9d.tooth.surface.${k}`);
 
   return (
     <div style={{ padding: 24, background: "var(--bg-card)" }}>
       <Space style={{ marginBottom: 16 }}>
         <Stethoscope size={20} color="#2563eb" />
         <Activity size={20} />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>牙位图 (FDI)</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.tooth.title')}</span>
         <Tag color="cyan">v3.0.6.8-53</Tag>
-        <Tag color="blue">32 颗牙</Tag>
+        <Tag color="blue">{t('w9d.tooth.countTag')}</Tag>
         <Select
           size="small"
           value={patientId}
@@ -102,7 +88,15 @@ export const ToothChartPage: React.FC = () => {
             value: p.id || p.patientId,
             label: `${p.name} (${p.id || p.patientId})`,
           }))}
-          notFoundContent="暂无患者"
+          notFoundContent={t('w9d.tooth.noPatient')}
+        />
+        <ActionButton action="refresh" loading={loading} onClick={() => setRefreshTick((n) => n + 1)}>{t('w45.actions.refresh')}</ActionButton>
+        <ExportButton
+          data={() => chart ? Object.entries(chart.teeth ?? {}).map(([tooth, info]) => ({ tooth, ...(info as object) })) : []}
+          filename={`tooth-chart-${patientId}`}
+          label={t('w45.actions.export')}
+          size="small"
+          formats={["csv", "json"]}
         />
       </Space>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
@@ -110,7 +104,7 @@ export const ToothChartPage: React.FC = () => {
       {!loading && !loadError && !chart && <AppEmpty variant="no-data" />}
       <Row gutter={16}>
         <Col span={18}>
-          <Card size="small" title="牙位图">
+          <Card size="small" title={t('w9d.tooth.chartTitle')}>
             {[FDI_ROW_1, FDI_ROW_2, FDI_ROW_3, FDI_ROW_4].map((row, ri) => (
               <div
                 key={ri}
@@ -129,7 +123,7 @@ export const ToothChartPage: React.FC = () => {
                       color: "var(--text-secondary)",
                     }}
                   >
-                    上颌
+                    {t('w9d.tooth.upperJaw')}
                   </div>
                 )}
                 {ri === 3 && (
@@ -140,11 +134,11 @@ export const ToothChartPage: React.FC = () => {
                       color: "var(--text-secondary)",
                     }}
                   >
-                    下颌
+                    {t('w9d.tooth.lowerJaw')}
                   </div>
                 )}
-                {row.map((t) => {
-                  const tooth = chart?.teeth?.[t];
+                {row.map((toothNo) => {
+                  const tooth = chart?.teeth?.[toothNo];
                   const color = STATUS_COLORS[tooth?.status || "Missing"];
                   const surfaces = tooth?.surfaces || {};
                   const hasCaries = Object.values(surfaces).some((s: any) =>
@@ -152,17 +146,17 @@ export const ToothChartPage: React.FC = () => {
                   );
                   return (
                     <Tooltip
-                      key={t}
-                      title={`FDI ${t}: ${STATUS_LABELS[tooth?.status || "Missing"]}${hasCaries ? " (龋齿)" : ""}`}
+                      key={toothNo}
+                      title={`FDI ${toothNo}: ${statusLabel(tooth?.status || "Missing")}${hasCaries ? ` (${t('w9d.tooth.caries')})` : ""}`}
                     >
                       <div
                         onClick={() =>
-                          setActiveTooth(t === activeTooth ? null : t)
+                          setActiveTooth(toothNo === activeTooth ? null : toothNo)
                         }
                         style={{
                           width: 40,
                           height: 48,
-                          border: `2px solid ${activeTooth === t ? "#2563eb" : "#d9d9d9"}`,
+                          border: `2px solid ${activeTooth === toothNo ? "#2563eb" : "#d9d9d9"}`,
                           borderRadius: 8,
                           background: color,
                           display: "flex",
@@ -175,7 +169,7 @@ export const ToothChartPage: React.FC = () => {
                           color: tooth?.status === "Missing" ? "#999" : "#fff",
                         }}
                       >
-                        <div>{t}</div>
+                        <div>{toothNo}</div>
                         {hasCaries && (
                           <div style={{ fontSize: 8, color: "#f5222d" }}>●</div>
                         )}
@@ -190,18 +184,18 @@ export const ToothChartPage: React.FC = () => {
         <Col span={6}>
           <Card
             size="small"
-            title={activeTooth ? `FDI ${activeTooth}` : "牙齿详情"}
+            title={activeTooth ? `FDI ${activeTooth}` : t('w9d.tooth.detailTitle')}
           >
             {activeTooth && chart?.teeth?.[activeTooth] ? (
               <div>
                 <div>
-                  状?{" "}
+                  {t('w9d.tooth.statusLabel')}{" "}
                   <Tag color={STATUS_COLORS[chart.teeth[activeTooth].status]}>
-                    {STATUS_LABELS[chart.teeth[activeTooth].status] ?? chart.teeth[activeTooth].status}
+                    {statusLabel(chart.teeth[activeTooth].status)}
                   </Tag>
                 </div>
                 <div>
-                  牙面:{" "}
+                  {t('w9d.tooth.surfacesLabel')}{" "}
                   {["O", "M", "D", "B", "L"].map((s) => (
                     <Tag
                       key={s}
@@ -211,15 +205,15 @@ export const ToothChartPage: React.FC = () => {
                           : "orange"
                       }
                     >
-                      {s}: {SURFACE_LABELS[chart.teeth[activeTooth].surfaces[s]] ?? chart.teeth[activeTooth].surfaces[s]}
+                      {s}: {surfaceLabel(chart.teeth[activeTooth].surfaces[s])}
                     </Tag>
                   ))}
                 </div>
                 {chart.teeth[activeTooth].cariesGrade && (
-                  <div>龋齿分级: {chart.teeth[activeTooth].cariesGrade} 级</div>
+                  <div>{t('w9d.tooth.cariesGrade', { grade: chart.teeth[activeTooth].cariesGrade })}</div>
                 )}
                 {chart.teeth[activeTooth].periodontal && (
-                  <Card size="small" title="牙周" style={{ marginTop: 8 }}>
+                  <Card size="small" title={t('w9d.tooth.periodontal')} style={{ marginTop: 8 }}>
                     <div>PD: {chart.teeth[activeTooth].periodontal.pd}mm</div>
                     <div>CAL: {chart.teeth[activeTooth].periodontal.cal}mm</div>
                     <div>
@@ -230,7 +224,7 @@ export const ToothChartPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击牙位查看详情" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9d.tooth.clickHint')} />
             )}
           </Card>
         </Col>

@@ -106,7 +106,7 @@ const MipPage: React.FC = () => {
       } else {
         ctx.font = '13px ui-monospace, monospace'
         ctx.fillStyle = 'rgba(148,163,184,0.9)'
-        ctx.fillText('计算 MIP...', 8, 18)
+        ctx.fillText(t('w9d.mip.computing'), 8, 18)
         volumeApi.mipProjection(jobId, 'axial', thickness).then((res) => {
           if (!res.success) return
           const p = res.data?.pixelData
@@ -136,14 +136,14 @@ const MipPage: React.FC = () => {
       {loadError && <ErrorBanner message={loadError} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>MIP 最大密度投影</span>
-        <Tag color="cyan">最大密度投影</Tag>
-        {mode === 'real' && <Tag color="green">真实DICOM</Tag>}
-        {mode === 'synthetic' && <Tag>合成数据</Tag>}
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('w9d.mip.title')}</span>
+        <Tag color="cyan">{t('w9d.mip.tag')}</Tag>
+        {mode === 'real' && <Tag color="green">{t('w9d.realDicom')}</Tag>}
+        {mode === 'synthetic' && <Tag>{t('w9d.syntheticData')}</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>层厚:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9d.mip.thicknessLabel')}</span>
         <Slider min={1} max={mode === 'real' ? (dims?.z ?? 20) : 128} value={thickness} onChange={setThickness} style={{ width: 200 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{thickness}</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
@@ -154,7 +154,7 @@ const MipPage: React.FC = () => {
         <Slider min={-1000} max={3000} value={wl} onChange={setWl} style={{ width: 120 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{wl}</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
-        <button style={btnStyle} onClick={() => { setThickness(80); setWw(400); setWl(40) }}><RotateCcw size={12} /> 重置</button>
+        <button style={btnStyle} onClick={() => { setThickness(80); setWw(400); setWl(40) }}><RotateCcw size={12} /> {t('w9d.resetView')}</button>
       </div>
       <div style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: 'calc(100vh - 140px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {mode === 'loading' ? <Spin size="large" /> : <canvas ref={canvasRef} style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }} />}

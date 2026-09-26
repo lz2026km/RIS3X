@@ -33,6 +33,8 @@ const SEED_SIGNED_REPORTS: Record<string, { signatureHash: string; signedAt: str
 
 @Injectable()
 export class SignService {
+  private seq = 0
+
   async listCertificates(params: { status?: string; pageSize?: number }) {
     let data = SEED_CERTIFICATES
     if (params.status) data = data.filter(c => c.status === params.status)
@@ -42,8 +44,8 @@ export class SignService {
 
   async requestCertificate(body: { commonName: string; userId: string; department: string; title: string; algorithm?: string }) {
     const item: Certificate = {
-      id: `cert-${Date.now()}`,
-      serialNumber: `SER-${Date.now().toString(16).toUpperCase()}`,
+      id: `cert-${Date.now()}-${++this.seq}`,
+      serialNumber: `SER-${Date.now().toString(16).toUpperCase()}-${++this.seq}`,
       subject: { commonName: body.commonName, userId: body.userId, department: body.department, title: body.title },
       issuer: ISSUER,
       validFrom: now(),
@@ -64,7 +66,7 @@ export class SignService {
 
   async signReport(reportId: string, body: { certificateId: string; reportHash: string }) {
     const cert = SEED_CERTIFICATES.find(c => c.id === body.certificateId)
-    const signatureHash = `SIG-${reportId}-${Date.now().toString(16).toUpperCase()}`
+    const signatureHash = `SIG-${reportId}-${Date.now().toString(16).toUpperCase()}-${++this.seq}`
     const signedAt = now()
     if (cert) {
       SEED_SIGNED_REPORTS[reportId] = { signatureHash, signedAt, certificateId: cert.id }
@@ -87,7 +89,7 @@ export class SignService {
       success: true,
       data: {
         timestamp: now(),
-        tsaSig: `TSA-${body.dataHash.slice(0, 8).toUpperCase()}-${Date.now().toString(16)}`,
+        tsaSig: `TSA-${body.dataHash.slice(0, 8).toUpperCase()}-${Date.now().toString(16)}-${++this.seq}`,
         tsaId: 'G005-TSA-01',
         reportId: body.reportId ?? null,
       },

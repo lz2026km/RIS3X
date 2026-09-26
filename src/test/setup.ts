@@ -74,8 +74,11 @@ const stableMatchMedia = (query: string) => {
       const idx = stableMatchMediaListeners.indexOf(cb)
       if (idx >= 0) stableMatchMediaListeners.splice(idx, 1)
     },
-    addEventListener: (_event: string, cb: (e: MediaQueryListEvent) => void) => { stableMatchMediaListeners.push(cb) },
-    removeEventListener: (_event: string, cb: (e: MediaQueryListEvent) => void) => {
+    addEventListener: (_type: string, listener: EventListenerOrEventListenerObject) => {
+      if (typeof listener === 'function') stableMatchMediaListeners.push(listener as (e: MediaQueryListEvent) => void)
+    },
+    removeEventListener: (_type: string, listener: EventListenerOrEventListenerObject) => {
+      const cb = listener as (e: MediaQueryListEvent) => void
       const idx = stableMatchMediaListeners.indexOf(cb)
       if (idx >= 0) stableMatchMediaListeners.splice(idx, 1)
     },
@@ -151,7 +154,6 @@ if (typeof globalThis.crypto === 'undefined') {
 // ============= IndexedDB Mock (fake-indexeddb / Dexie 兼容) =============
 import { indexedDB as fakeIndexedDB } from 'fake-indexeddb';
 if (typeof globalThis !== 'undefined') {
-  // @ts-expect-error - 替换为 fake-indexeddb
   globalThis.indexedDB = fakeIndexedDB;
 }
 

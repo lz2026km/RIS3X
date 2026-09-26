@@ -9,6 +9,12 @@ import { Card, Row, Col, Tag, Table, Button, Space, Select, message, Alert, Spin
 import { Eye, Save, History, RefreshCw, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 
+const VISION_GRADE_KEYS: Record<string, string> = {
+  '正常': 'w9d.visionGrade.normal', '轻度低下': 'w9d.visionGrade.mild', '中度低下': 'w9d.visionGrade.moderate',
+  '重度低下': 'w9d.visionGrade.severe', '盲(低视力)': 'w9d.visionGrade.lowVisionBlind', '盲': 'w9d.visionGrade.blind',
+};
+const visionGradeLabel = (g: string) => t(VISION_GRADE_KEYS[g] ?? g);
+
 interface VisionRecord {
   id: string;
   patientId: string;
@@ -120,8 +126,8 @@ const VisionExamPage: React.FC = () => {
     { title: t('visionExam.col.leftEye'), dataIndex: 'os', key: 'os', width: 80, render: (v: number) => <span style={{ fontWeight: 600 }}>{v || '-'}</span> },
     { title: 'Snellen OD', dataIndex: 'od', key: 'snellenOd', width: 100, render: (v: number) => v ? String(toAllNotations(v).snellen) : '-' },
     { title: 'Snellen OS', dataIndex: 'os', key: 'snellenOs', width: 100, render: (v: number) => v ? String(toAllNotations(v).snellen) : '-' },
-    { title: '5分 OD', dataIndex: 'od', key: 'fiveOd', width: 60, render: (v: number) => v ? toAllNotations(v).five : '-' },
-    { title: '5分 OS', dataIndex: 'os', key: 'fiveOs', width: 60, render: (v: number) => v ? toAllNotations(v).five : '-' },
+          { title: t('w9d.vision.fiveOd'), dataIndex: 'od', key: 'fiveOd', width: 60, render: (v: number) => v ? toAllNotations(v).five : '-' },
+          { title: t('w9d.vision.fiveOs'), dataIndex: 'os', key: 'fiveOs', width: 60, render: (v: number) => v ? toAllNotations(v).five : '-' },
     { title: 'LogMAR OD', dataIndex: 'od', key: 'logmarOd', width: 80, render: (v: number) => v ? toAllNotations(v).logmar : '-' },
     { title: 'LogMAR OS', dataIndex: 'os', key: 'logmarOs', width: 80, render: (v: number) => v ? toAllNotations(v).logmar : '-' },
   ];
@@ -132,8 +138,8 @@ const VisionExamPage: React.FC = () => {
     { title: t('visionExam.col.ucvaOs'), key: 'ucva', width: 110, render: (_: unknown, r: VisionRecord) => <span>{r.odUcva ?? '-'} / {r.osUcva ?? '-'}</span> },
     { title: t('visionExam.col.bcvaOs'), key: 'bcva', width: 110, render: (_: unknown, r: VisionRecord) => <span>{r.odBcva ?? '-'} / {r.osBcva ?? '-'}</span> },
     { title: t('visionExam.col.phvaOs'), key: 'phva', width: 110, render: (_: unknown, r: VisionRecord) => <span>{(r.odPhva ?? '-')} / {(r.osPhva ?? '-')}</span> },
-    { title: t('visionExam.col.odGrade'), key: 'odGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.odBcva) === '正常' ? 'success' : 'warning'}>{visionGrade(r.odBcva)}</Tag> },
-    { title: t('visionExam.col.osGrade'), key: 'osGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.osBcva) === '正常' ? 'success' : 'warning'}>{visionGrade(r.osBcva)}</Tag> },
+          { title: t('visionExam.col.odGrade'), key: 'odGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.odBcva) === '正常' ? 'success' : 'warning'}>{visionGradeLabel(visionGrade(r.odBcva))}</Tag> },
+          { title: t('visionExam.col.osGrade'), key: 'osGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.osBcva) === '正常' ? 'success' : 'warning'}>{visionGradeLabel(visionGrade(r.osBcva))}</Tag> },
     { title: t('visionExam.col.examiner'), dataIndex: 'examiner', key: 'examiner', width: 90, render: (v?: string) => v || '-' },
     { title: t('visionExam.col.actions'), key: 'actions', width: 80, render: (_: unknown, r: VisionRecord) => <Popconfirm title={t('visionExam.confirmDelete')} onConfirm={() => void handleDelete(r.id)}><Button size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
   ];

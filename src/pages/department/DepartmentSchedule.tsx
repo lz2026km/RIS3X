@@ -135,7 +135,7 @@ export default function DepartmentSchedule() {
         late: r.lateTimes || 0,
         early: r.earlyTimes || 0,
       })));
-      setAttendResult(`已按 ${dateFrom} ~ ${dateTo} 查询，获取 ${rows.length} 条排班/考勤记录`);
+      setAttendResult(t('w9e.deptSchedule.queryResult', { from: dateFrom, to: dateTo, count: rows.length }));
     } catch {
       setAttendanceRows(ATTENDANCE_DATA);
       setAttendResult(t("deptSched.scheduleUnavailable"));

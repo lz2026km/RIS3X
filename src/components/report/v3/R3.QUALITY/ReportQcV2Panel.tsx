@@ -271,7 +271,7 @@ export const ReportQcV2Panel: React.FC = () => {
       .catch(() => ({ success: false as const, data: null as unknown as QcTask }));
     if (res.success) {
       setTasks((prev) => [res.data, ...prev]);
-      message.success(`质控任务 ${res.data.id} 已创建`);
+      message.success(t('w9e.reportQcV2.taskCreated', { id: res.data.id }));
     } else {
       message.warning(t('reportQcV2.taskCreateFailed'));
     }
@@ -376,7 +376,7 @@ export const ReportQcV2Panel: React.FC = () => {
                   <Alert
                     type={result.grade === 'A' || result.grade === 'B' ? 'success' : 'warning'}
                     showIcon
-                    title={`评分完成: ${result.totalScore} 分 · ${result.grade} 级 (模型 ${result.modelVersion})`}
+                    title={t('w9e.reportQcV2.scoreDone', { score: result.totalScore, grade: result.grade, model: result.modelVersion })}
                     description={result.suggestions.slice(0, 2).map((s) => <div key={s} style={{ fontSize: 12 }}>{s}</div>)}
                   />
                 )}
@@ -553,7 +553,7 @@ const TaskFlowTable: React.FC<{
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={8}>
       <Table size="small" rowKey="id" columns={columns} dataSource={tasks} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }} />
-      <Modal title={`任务 ${detail?.id ?? ''} · 流转历史`} open={!!detail} footer={null} onCancel={() => setDetail(null)} width={560}>
+      <Modal title={t('w9e.reportQcV2.taskHistoryTitle', { id: detail?.id ?? '' })} open={!!detail} footer={null} onCancel={() => setDetail(null)} width={560}>
         {detail && (
           <List
             size="small"
@@ -574,7 +574,7 @@ const TaskFlowTable: React.FC<{
         )}
       </Modal>
       <Modal
-        title={reviewing ? `${reviewing.round === 1 ? '一级复核' : '二次复核 (双人)'} · ${reviewing.task.id}` : ''}
+        title={reviewing ? t('w9e.reportQcV2.reviewTitle', { round: reviewing.round === 1 ? t('w9e.reportQcV2.firstReviewRound') : t('w9e.reportQcV2.secondReviewRound'), id: reviewing.task.id }) : ''}
         open={!!reviewing}
         onCancel={() => setReviewing(null)}
         footer={null}

@@ -39,7 +39,7 @@ import {
   RotateCcw,
   ShieldCheck,
 } from 'lucide-react';
-import { Inbox, Map } from 'lucide-react'
+import { Inbox } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react';
 import { t } from '../../../../i18n/appI18n';
 
@@ -70,10 +70,10 @@ const PDCA_META: Record<'plan' | 'do' | 'check' | 'act', { color: string; label:
 function timeAgo(iso: string): string {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1) return t('defectRemediation.justNow');
-  if (m < 60) return `${m}分钟前`;
+  if (m < 60) return t('w9e.defectRemediation.timeMinutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  return `${Math.floor(h / 24)}天前`;
+  if (h < 24) return t('w9e.defectRemediation.timeHoursAgo', { count: h });
+  return t('w9e.defectRemediation.timeDaysAgo', { count: Math.floor(h / 24) });
 }
 
 function defectRate(items: DefectRemediation[]): { rate: number; fixed: number; total: number } {
@@ -254,11 +254,11 @@ export const DefectRemediationTracker: React.FC = () => {
           <Card size="small" title={<Space><Activity size={14} /> {t('defectRemediation.list')}</Space>}>
             <Segmented
               options={[
-                { value: 'all', label: `全部 (${list.length})` },
-                { value: 'pending', label: `待整改 (${stats.pending})` },
-                { value: 'in-progress', label: `整改中 (${stats.inProgress})` },
-                { value: 'rectified', label: `已整改 (${stats.rectified})` },
-                { value: 'overdue', label: `已逾期 (${stats.overdue})` },
+                { value: 'all', label: t('w9e.defectRemediation.filterAll', { count: list.length }) },
+                { value: 'pending', label: t('w9e.defectRemediation.filterPending', { count: stats.pending }) },
+                { value: 'in-progress', label: t('w9e.defectRemediation.filterInProgress', { count: stats.inProgress }) },
+                { value: 'rectified', label: t('w9e.defectRemediation.filterRectified', { count: stats.rectified }) },
+                { value: 'overdue', label: t('w9e.defectRemediation.filterOverdue', { count: stats.overdue }) },
               ]}
               value={statusFilter}
               onChange={(v) => setStatusFilter(v as string)}
@@ -471,7 +471,7 @@ export const DefectRemediationTracker: React.FC = () => {
       </Row>
 
       <Modal
-        title={`整改提交 - ${editing?.defectName}`}
+        title={t('w9e.defectRemediation.submitTitle', { name: editing?.defectName })}
         open={rectifyModal}
         onCancel={() => {
           setRectifyModal(false);
@@ -504,7 +504,7 @@ export const DefectRemediationTracker: React.FC = () => {
       </Modal>
 
       <Modal
-        title={`整改详情 - ${detailModal?.defectCode}`}
+        title={t('w9e.defectRemediation.detailTitle', { code: detailModal?.defectCode })}
         open={!!detailModal}
         onCancel={() => setDetailModal(null)}
         footer={null}

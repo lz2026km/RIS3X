@@ -118,6 +118,8 @@ import { w3BackendParityHandlers } from './w3BackendParityHandlers';
 import { w2OrphansHandlers } from './w2OrphansHandlers';
 // [G005 W8-Dose] 剂量监测页面真实化 (staff/breast/device history/overview) — 最前置注册
 import { w8DoseHandlers } from './w8DoseHandlers';
+// [G005 W7] 演示数据补齐 (对比剂质量与合规) — 前置注册
+import { w7MockHandlers } from './w7MockHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -5301,6 +5303,8 @@ const advancedHandlers: any[] = [
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
+  // [G005 W7] 最最先注册: 演示数据补齐端点 (/contrast/quality-compliance)
+  ...w7MockHandlers,
   // [G005 W8-Dose] 最最先注册: 剂量页面本 wave 新增端点 (/rdsr/staff|breast|device/:id/history|overview)
   ...w8DoseHandlers,
   // [G005 W3-BackendParity] 最最先注册: 后端本次补齐的前端 parity 端点

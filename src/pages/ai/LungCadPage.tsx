@@ -85,7 +85,7 @@ const LungCadPage: React.FC = () => {
       const modelVersion = results[0]?.modelVersion ?? "lungcad-v3.2.1";
       const res = await aiDiagnosisApi.retrainModel(modelVersion);
       if (res.success) {
-        message.success(`模型重训已提交: ${res.data?.modelVersion} (${res.data?.status})`);
+        message.success(t("w9d.fracture.retrainSubmitted", { version: res.data?.modelVersion, status: res.data?.status }));
       } else {
         message.error(res.error?.message ?? t("lungCad.retrainFailed"));
       }
@@ -106,14 +106,14 @@ const LungCadPage: React.FC = () => {
         "lung-cad",
       );
       if (res.success) {
-        message.success(`批量${status === "confirmed" ? "确认" : "驳回"} ${selectedRowKeys.length} 条`);
+        message.success(status === "confirmed" ? t("w9d.lungCad.batchConfirmed", { count: selectedRowKeys.length }) : t("w9d.lungCad.batchRejected", { count: selectedRowKeys.length }));
         setSelectedRowKeys([]);
         await load();
       } else {
-        message.error(res.error?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+        message.error(res.error?.message ?? (status === "confirmed" ? t("w9d.lungCad.batchConfirmFailed") : t("w9d.lungCad.batchRejectFailed")));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+      message.error((e as Error)?.message ?? (status === "confirmed" ? t("w9d.lungCad.batchConfirmFailed") : t("w9d.lungCad.batchRejectFailed")));
     } finally {
       setBatchLoading(false);
     }
@@ -298,7 +298,7 @@ const LungCadPage: React.FC = () => {
         </Spin>
       </Card>
       <Modal
-        title={`肺结节检测 - ${selected?.patientName}`}
+        title={`${t("w9d.lungCad.detailTitle")} - ${selected?.patientName}`}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         width={800}
@@ -325,7 +325,7 @@ const LungCadPage: React.FC = () => {
                       y: number;
                       z: number;
                     },
-                  ) => `层面 ${n.sliceLocation} (${n.x}, ${n.y}, ${n.z})`,
+                  ) => t("w9d.lungCad.sliceLocation", { slice: n.sliceLocation, x: n.x, y: n.y, z: n.z }),
                 },
                 { title: t("lungCad.colDiameter"), dataIndex: "diameter", key: "diameter" },
                 { title: t("lungCad.colDensity"), dataIndex: "density", key: "density" },

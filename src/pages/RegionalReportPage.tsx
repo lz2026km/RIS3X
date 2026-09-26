@@ -51,7 +51,7 @@ const RegionalReportPage: React.FC = () => {
   })
   const handleSaveSettings = () => {
     try { localStorage.setItem('ris_regional_settings', JSON.stringify(settingsForm)) } catch { /* ignore */ }
-    showToast(`设置已保存 (机构: ${settingsForm.institutionName || '未填写'})`)
+    showToast(t('w9c.regional.settingsSaved', { institution: settingsForm.institutionName || t('w9c.regional.notFilled') }))
     setShowSettingsModal(false)
   }
   const [consultationForm, setConsultationForm] = useState({ patientName: '', gender: '男', age: '', modality: 'CT', examItem: '', applyReason: '', priority: '普通', institution: '' })
@@ -121,10 +121,10 @@ const RegionalReportPage: React.FC = () => {
 
   const getFilteredStats = () => {
     if (selectedInstitution === 'all') {
-      return { totalReports: reports.length || 3713, pendingConsultations: consultations.filter(c => c.status === '待接诊').length, criticalValues: criticalValues.filter(cv => cv.status !== '已闭环').length, avgResponseTime: '18分钟' }
+      return { totalReports: reports.length || 3713, pendingConsultations: consultations.filter(c => c.status === '待接诊').length, criticalValues: criticalValues.filter(cv => cv.status !== '已闭环').length, avgResponseTime: t('w9c.regional.avgResponse18') }
     }
     const inst = institutions.find(i => i.id === selectedInstitution)
-    return { totalReports: inst?.reportCount || reports.length || 0, pendingConsultations: consultations.filter(c => c.institution === inst?.name && c.status === '待接诊').length, criticalValues: criticalValues.filter(cv => cv.institution === inst?.name && cv.status !== '已闭环').length, avgResponseTime: '15分钟' }
+    return { totalReports: inst?.reportCount || reports.length || 0, pendingConsultations: consultations.filter(c => c.institution === inst?.name && c.status === '待接诊').length, criticalValues: criticalValues.filter(cv => cv.institution === inst?.name && cv.status !== '已闭环').length, avgResponseTime: t('w9c.regional.avgResponse15') }
   }
 
   const getFilteredConsultations = () => consultations.filter(c => {
@@ -262,8 +262,8 @@ const RegionalReportPage: React.FC = () => {
 
         {activeMainTab === 'consultation' && (
           consultationTab === 'detail'
-            ? <ConsultationDetail selectedConsultation={selectedConsultation} opinionText={opinionText} onOpinionTextChange={setOpinionText} onBack={handleBackFromConsultationDetail} onOpenModal={(mt) => { setModalType(mt); setShowModal(true) }} onSubmitOpinion={handleSubmitOpinion} remoteReportContent='' onRemoteReportContentChange={() => {}} reviewText='' onReviewTextChange={() => {}} onSubmitRemoteReport={() => {}} />
-            : <ConsultationList consultations={getFilteredConsultations()} selectedConsultation={selectedConsultation} consultationTab={consultationTab} onSelect={handleSelectConsultation} onAccept={handleAcceptConsultation} onApply={handleApplyConsultation} onTabChange={(k) => setConsultationTab(k as 'list' | 'apply' | 'detail')} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} institutions={institutions.map(i => ({ id: i.id || '', name: i.institutionName || '', level: '三级' as const, type: '综合医院' as const, reportCount: i.examCount || 0, pendingCount: 0, icon: 'hospital' }))} />
+            ? <ConsultationDetail selectedConsultation={selectedConsultation} opinionText={opinionText} onOpinionTextChange={setOpinionText} onBack={handleBackFromConsultationDetail} onOpenModal={(mt) => { setModalType(mt); setShowModal(true) }} onSubmitOpinion={handleSubmitOpinion} remoteReportContent='' onRemoteReportContentChange={() => {}} reviewText='' onReviewTextChange={() => {}} onSubmitRemoteReport={() => {}} selectedReport={null} selectedRemoteDiagnosis={null} selectedCoSign={null} />
+            : <ConsultationList consultations={getFilteredConsultations()} selectedConsultation={selectedConsultation} consultationTab={consultationTab} onSelect={handleSelectConsultation} onAccept={handleAcceptConsultation} onApply={handleApplyConsultation} onTabChange={(k) => setConsultationTab(k as 'list' | 'apply' | 'detail')} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} />
         )}
         {activeMainTab === 'report' && (
           reportTab === 'detail'

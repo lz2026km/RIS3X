@@ -52,12 +52,14 @@ const RESPONSE_COLORS: Record<ResponseClass, string> = {
   NE: 'default',
 }
 
-const TYPE_OPTIONS: Array<{ value: LesionType; label: string }> = [
-  { value: '肺结节', label: '肺结节' },
-  { value: '肝占位', label: '肝占位' },
-  { value: '淋巴结', label: '淋巴结' },
-  { value: '其他', label: '其他' },
-]
+const TYPE_OPTIONS: LesionType[] = ['肺结节', '肝占位', '淋巴结', '其他']
+const LESION_LABEL_KEYS: Record<string, string> = {
+  '肺结节': 'w9dLesion.type.lungNodule', '肝占位': 'w9dLesion.type.liverLesion',
+  '淋巴结': 'w9dLesion.type.lymphNode', '其他': 'w9dLesion.type.other',
+  '稳定': 'w9dLesion.status.stable', '增大': 'w9dLesion.status.increase',
+  '缩小': 'w9dLesion.status.decrease', '消失': 'w9dLesion.status.disappear', '新发': 'w9dLesion.status.new',
+}
+const lesionLabel = (k: string) => t(LESION_LABEL_KEYS[k] ?? k)
 
 const latestSize = (lesion: TrackedLesion): number | null => {
   if (!lesion.measurements || lesion.measurements.length === 0) return null
@@ -290,7 +292,7 @@ const LesionTrackingPage: React.FC = () => {
     () =>
       (trend?.timeline ?? []).map((p) => ({
         date: p.date,
-        尺寸: p.sizeMm,
+        size: p.sizeMm,
       })),
     [trend],
   )
@@ -299,13 +301,13 @@ const LesionTrackingPage: React.FC = () => {
     { title: t('lesionTrack.colLesion'), dataIndex: 'name', key: 'name', width: 140, render: (v: string) => (<b>{v}</b>) },
     {
       title: t('lesionTrack.colType'), dataIndex: 'type', key: 'type', width: 90,
-      render: (v: LesionType) => <Tag color={v === '肺结节' ? 'geekblue' : v === '肝占位' ? 'purple' : v === '淋巴结' ? 'cyan' : 'default'}>{v}</Tag>,
+      render: (v: LesionType) => <Tag color={v === '肺结节' ? 'geekblue' : v === '肝占位' ? 'purple' : v === '淋巴结' ? 'cyan' : 'default'}>{lesionLabel(v)}</Tag>,
     },
     { title: t('lesionTrack.colSite'), dataIndex: 'site', key: 'site', width: 150 },
     { title: t('lesionTrack.colModality'), dataIndex: 'modality', key: 'modality', width: 70 },
     {
       title: t('lesionTrack.colStatus'), dataIndex: 'currentStatus', key: 'currentStatus', width: 100,
-      render: (v: string) => <Tag color={STATUS_COLORS[v]}>{v}</Tag>,
+      render: (v: string) => <Tag color={STATUS_COLORS[v]}>{lesionLabel(v)}</Tag>,
     },
     {
       title: t('lesionTrack.colLatestSize'), key: 'latest', width: 100,
@@ -493,7 +495,7 @@ const LesionTrackingPage: React.FC = () => {
                     labelStyle={{ color: '#e2e8f0' }}
                   />
                   <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
-                  <Line type="monotone" dataKey="尺寸" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="size" name={t('w9dLesion.size')} stroke="#3b82f6" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -521,7 +523,7 @@ const LesionTrackingPage: React.FC = () => {
             <Input placeholder={t('lesionTrack.sitePlaceholder')} />
           </Form.Item>
           <Form.Item name="type" label={t('lesionTrack.colType')} initialValue="肺结节">
-            <Select options={TYPE_OPTIONS} />
+            <Select options={TYPE_OPTIONS.map((v) => ({ value: v, label: lesionLabel(v) }))} />
           </Form.Item>
           <Form.Item name="initialSizeMm" label={t('lesionTrack.initialSize')} rules={[{ required: true, message: t('lesionTrack.initialSizeRequired') }]}>
             <InputNumber min={0} step={0.1} style={{ width: '100%' }} placeholder={t('lesionTrack.initialSizePlaceholder')} />
@@ -600,7 +602,7 @@ const LesionTrackingPage: React.FC = () => {
                   <Row gutter={8}>
                     <Col span={16}>
                       <Form.Item name="studyId" label={t('lesionTrack.studyId')}>
-                        <Input placeholder={`如: STU-${Date.now()}`} />
+                        <Input placeholder={t('w9dLesion.studyPlaceholder', { id: Date.now() })} />
                       </Form.Item>
                     </Col>
                     <Col span={8} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 24 }}>
@@ -657,7 +659,7 @@ const LesionTrackingPage: React.FC = () => {
                     </div>
                     <Space size={8} wrap>
                       <Tag color={compareResult.direction === '增大' ? 'red' : compareResult.direction === '缩小' ? 'green' : compareResult.direction === '消失' ? 'default' : 'blue'}>
-                        {t('lesionTrack.directionLabel')} {compareResult.direction}
+                        {t('lesionTrack.directionLabel')} {lesionLabel(compareResult.direction)}
                       </Tag>
                       <Tag color={RESPONSE_COLORS[compareResult.response]}>
                         {t('lesionTrack.responseLabel')} {compareResult.response} {t(`lesionTrack.response.${compareResult.response}`)}

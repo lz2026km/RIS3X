@@ -19,9 +19,14 @@ import {
   type TablePaginationConfig,
 } from 'antd';
 import type { ColumnType } from 'antd/es/table';
-import { useState, useMemo, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode, type ComponentType, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Inbox } from 'lucide-react'
+
+// antd Statistic 类型未声明 children, 但运行时支持 (趋势区); 放宽类型以保留原渲染
+const StatisticWithChildren = AntStatistic as unknown as ComponentType<
+  ComponentProps<typeof AntStatistic> & { children?: ReactNode }
+>;
 
 // ============= ProTable 业务封装(搜索 + 筛选 + 分页 + 导出) =============
 export const DEFAULT_TABLE_PAGE_SIZE = 20;
@@ -248,7 +253,7 @@ export function AppStatistic({
   loading = false,
 }: AppStatisticProps) {
   return (
-    <AntStatistic
+    <StatisticWithChildren
       title={
         <span style={{ color: 'var(--color-gray-600)' }}>{title}</span>
       }
@@ -270,7 +275,7 @@ export function AppStatistic({
           {trend.positive ? '↑' : '↓'} {Math.abs(trend.value)}% 较上期
         </div>
       )}
-    </AntStatistic>
+    </StatisticWithChildren>
   );
 }
 
@@ -347,7 +352,7 @@ export function AppTabs({
       defaultActiveKey={defaultActiveKey}
       onChange={onChange}
       type={type}
-      size={size}
+      size={size as unknown as ComponentProps<typeof Tabs>['size']}
       tabPosition={position}
       tabBarExtraContent={tabBarExtraContent}
     />

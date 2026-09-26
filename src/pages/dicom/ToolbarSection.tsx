@@ -1,6 +1,7 @@
 import { Tooltip } from './DicomViewerSubComponents'
 import { RotateCw, RotateCcw, PenTool, Plus, Minus, EyeOff, Eye, Flame, Droplets, Activity, Wind } from 'lucide-react'
 import type { Tool, PseudoColorMode } from './DicomViewerTypes'
+import { t } from '../../i18n/appI18n'
 
 const PRIMARY = '#1e40af'
 
@@ -58,7 +59,7 @@ export default function ToolbarSection(props: Props) {
         </div>
       )}
       <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <Tooltip title="伪彩显示">
+        <Tooltip title={t('w9d.toolbar.pseudoColor')}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(pseudoColorMode !== 'none' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => setShowPseudoColorPanel(!showPseudoColorPanel)}>
             {pseudoColorMode === 'none' ? <EyeOff size={14} /> : pseudoColorMode === 'hotIron' ? <Flame size={14} /> : pseudoColorMode === 'coolBlue' ? <Droplets size={14} /> : pseudoColorMode === 'pet' ? <Activity size={14} /> : <Wind size={14} />}
           </button>
@@ -68,15 +69,15 @@ export default function ToolbarSection(props: Props) {
         )}
       </div>
       <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <Tooltip title={invert ? '取消反色' : '反色显示'}>
+        <Tooltip title={invert ? t('w9d.toolbar.cancelInvert') : t('w9d.toolbar.invertDisplay')}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(invert ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => setInvert(!invert)}>
             {invert ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
         </Tooltip>
-        {invert && <span style={{ fontSize: 10, color: '#fbbf24' }}>反色</span>}
+        {invert && <span style={{ fontSize: 10, color: '#fbbf24' }}>{t('w9d.toolbar.inverted')}</span>}
       </div>
       <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <Tooltip title="标注工具">
+        <Tooltip title={t('w9d.annotation.panelTitle')}>
           <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(activeTool === 'annotate' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => { handleToolClick('annotate'); setShowAnnotationPanel(!showAnnotationPanel) }}>
             <PenTool size={14} />
           </button>

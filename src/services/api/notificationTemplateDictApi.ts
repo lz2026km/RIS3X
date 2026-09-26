@@ -36,6 +36,15 @@ export interface BroadcastNotificationData {
 }
 
 export const notificationApi = {
+  list: () =>
+    api.get<NotificationDto[]>('/notifications'),
+
+  unread: (userId = 'current') =>
+    api.get<{ unread: number }>(`/notifications/unread/${userId}`),
+
+  markAllRead: (userId = 'current') =>
+    api.post<{ userId: string; count: number }>(`/notifications/read-all/${userId}`),
+
   getUnreadCount: (userId: string) =>
     api.get<{ unread: number }>(`/notifications/unread/${userId}`),
 

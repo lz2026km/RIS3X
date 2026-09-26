@@ -183,7 +183,7 @@ type TechnicianExecution = {
 const formatTime = (time: string) => time || "-";
 
 const getPriorityStyle = (priority: string) => {
-  const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG["普通"];
+  const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG["普通"]!;
   return { color: config.color, backgroundColor: config.bg };
 };
 
@@ -728,8 +728,8 @@ export default function ExamPage() {
         if (res.success) {
           message.success(
             state === "QC_REJECT"
-              ? `检查已质控退回 (评级 ${imageQuality})`
-              : `检查图像已可用 (评级 ${imageQuality})`,
+              ? t("w9a.examPage.qcRejectedRating", { rating: imageQuality })
+              : t("w9a.examPage.imageReadyRating", { rating: imageQuality }),
           );
         } else {
           message.error(res.error?.message ?? t("examPage.qcSaveFailed"));
@@ -852,7 +852,7 @@ export default function ExamPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `批量导出检查_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.download = t("w9a.examPage.batchExportFile", { date: new Date().toISOString().slice(0, 10) });
         link.click();
         URL.revokeObjectURL(url);
         okCount = ids.length;
@@ -864,11 +864,11 @@ export default function ExamPage() {
     }
     if (action !== "assign") {
       if (failCount === 0 && okCount > 0) {
-        message.success(`批量操作成功 ${okCount} 项`);
+        message.success(t("w9a.examPage.batchSuccess", { count: okCount }));
       } else if (okCount > 0) {
-        message.warning(`成功 ${okCount} 项，失败 ${failCount} 项${results.length ? "：" + results.slice(0, 3).join("；") : ""}`);
+        message.warning(t("w9a.examPage.batchPartial", { ok: okCount, fail: failCount }) + (results.length ? "：" + results.slice(0, 3).join("；") : ""));
       } else {
-        message.error(`批量操作失败 ${failCount} 项${results.length ? "：" + results.slice(0, 3).join("；") : ""}`);
+        message.error(t("w9a.examPage.batchAllFailed", { fail: failCount }) + (results.length ? "：" + results.slice(0, 3).join("；") : ""));
       }
       void reloadExams();
       setSelectedIds(new Set());
@@ -884,7 +884,7 @@ export default function ExamPage() {
     }
     const res = await worklistApi.batchAssign(ids, { deviceId: batchAssignModal.deviceId });
     if (res.success) {
-      message.success(`批量分配设备成功 ${ids.length} 项`);
+      message.success(t("w9a.examPage.batchAssignSuccess", { count: ids.length }));
       ids.forEach((id) => log("batch_assign", id, { deviceId: batchAssignModal.deviceId }));
     } else {
       message.error(res.error?.message ?? t("examPage.batchAssignFailed"));
@@ -935,7 +935,7 @@ export default function ExamPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = res.data.filename || `检查列表_${new Date().toISOString().split("T")[0]}.csv`;
+        link.download = res.data.filename || t("w9a.examPage.examListFile", { date: new Date().toISOString().split("T")[0] });
         link.click();
         URL.revokeObjectURL(url);
         return;
@@ -962,7 +962,7 @@ export default function ExamPage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `检查列表_${new Date().toISOString().split("T")[0]}.csv`;
+      link.download = t("w9a.examPage.examListFile", { date: new Date().toISOString().split("T")[0] });
       link.click();
     }
   };
@@ -1054,8 +1054,8 @@ export default function ExamPage() {
       const res = await examApi.mergeExams({ targetId: mergeTargetId, sourceIds: ids });
       if (res.success && res.data) {
         setMergeResult(
-          `合并成功: ${res.data.movedReports} 份报告已迁移至目标检查, 合并源 ${res.data.mergedSourceCount} 个` +
-          (res.data.retainedSourceIds.length > 0 ? ` (${res.data.retainedSourceIds.length} 个源检查因关联数据保留)` : "")
+          t("w9a.examPage.mergeSuccess", { moved: res.data.movedReports, sources: res.data.mergedSourceCount }) +
+          (res.data.retainedSourceIds.length > 0 ? t("w9a.examPage.mergeRetained", { count: res.data.retainedSourceIds.length }) : "")
         );
         setSelectedIds(new Set());
         await reloadExams();
@@ -1098,7 +1098,7 @@ export default function ExamPage() {
       const res = await examApi.splitExam(splitExam.id, { reportIds });
       if (res.success && res.data) {
         setSplitResult(
-          `拆分成功: 生成 ${res.data.created.length} 个新检查` +
+          t("w9a.examPage.splitSuccess", { count: res.data.created.length }) +
           ` (${res.data.created.map((c) => c.accessionNumber).join(", ")})`
         );
         await reloadExams();
@@ -1138,7 +1138,7 @@ export default function ExamPage() {
         scheduledAt: values.scheduledAt || new Date().toISOString().slice(0, 10),
       });
       if (!res.success) throw new Error(res.error?.message ?? t("examPage.createFailed"));
-      message.success(`检查已创建: ${res.data.id ?? res.data.examId}`);
+      message.success(t("w9a.examPage.examCreated", { id: res.data.id ?? res.data.examId }));
       setShowCreateModal(false);
       createExamForm.resetFields();
       await reloadExams();
@@ -1156,7 +1156,7 @@ export default function ExamPage() {
     try {
       const res = await examApi.delete(exam.id);
       if (!res.success) throw new Error(res.error?.message ?? t("examPage.deleteFailed"));
-      message.success(`检查已删除: ${exam.accessionNumber}`);
+      message.success(t("w9a.examPage.examDeleted", { no: exam.accessionNumber }));
       await reloadExams();
     } catch (e) {
       message.error((e as Error)?.message ?? t("examPage.deleteFailed"));
@@ -1671,7 +1671,7 @@ export default function ExamPage() {
             {/* [Wave1B P2] 删除检查: examApi.delete (Popconfirm danger) */}
             <Popconfirm
               title={t("examPage.deleteConfirm")}
-              description={`确定删除检查 "${exam.accessionNumber}" 吗？`}
+              description={t("w9a.examPage.deleteConfirmDesc", { no: exam.accessionNumber })}
               okText={t("examPage.delete")}
               cancelText={t("examPage.cancel")}
               okButtonProps={{ danger: true }}
@@ -2398,7 +2398,7 @@ export default function ExamPage() {
                         strokeDashoffset={offset}
                         transform="rotate(-90 60 60)"
                       >
-                        <title>{`${d.modality}: ${d.count} 例`}</title>
+                        <title>{t("w9a.examPage.modalityCountTip", { modality: d.modality, count: d.count })}</title>
                       </circle>
                     )
                   })
@@ -2453,7 +2453,7 @@ export default function ExamPage() {
                     : d.avgMin <= 25 ? 'linear-gradient(180deg, #3b82f6, #93c5fd)'
                     : 'linear-gradient(180deg, #f59e0b, #fcd34d)',
                   transition: 'height 0.3s',
-                }} title={`${d.modality}: 平均 ${d.avgMin} 分钟`} />
+                }} title={t("w9a.examPage.avgMinutesTip", { modality: d.modality, min: d.avgMin })} />
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.modality} ({d.count})</span>
               </div>
             ))}
@@ -2587,7 +2587,7 @@ export default function ExamPage() {
                         </div>
                         <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
                           {ex.examDate} {ex.examTime} · {ex.roomName || '—'} · {ex.deviceName?.split('（')[0] || '—'}
-                          {ex.imageCount ? ` · ${ex.imageCount} 幅` : ''}
+                          {ex.imageCount ? t("w9a.examPage.imagesSuffix", { count: ex.imageCount }) : ''}
                         </div>
                       </div>
                       <ActionButton
@@ -2640,7 +2640,7 @@ export default function ExamPage() {
                         height: `${(count / maxCount) * 90}px`,
                         background: 'linear-gradient(180deg, #1e40af, #93c5fd)',
                         transition: 'height 0.3s',
-                      }} title={`${day}: ${count} 例`} />
+                      }} title={t("w9a.examPage.dayCountTip", { day, count })} />
                       <span style={{ fontSize: 9, color: '#94a3b8' }}>{day.slice(5)}</span>
                     </div>
                   ))}
@@ -3189,7 +3189,7 @@ export default function ExamPage() {
 
       {/* [v3.0.6.11-96 Wave 3A P1] 批量分配设备 Modal (worklistApi.batchAssign 真实调用) */}
       <Modal
-        title={`批量分配设备 (${selectedIds.size} 项)`}
+        title={t("w9a.examPage.batchAssignTitle", { count: selectedIds.size })}
         open={batchAssignModal.visible}
         onCancel={() => setBatchAssignModal((prev) => ({ ...prev, visible: false }))}
         onOk={() => void handleBatchAssignConfirm()}

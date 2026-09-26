@@ -128,7 +128,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
           <Col span={6}>
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportReview.aiHint.riskLevel')}</span>}
-              value={t(RISK_META[result.riskLevel].label)}
+              value={t(RISK_META[result.riskLevel]?.label ?? 'reportReview.aiHint.risk.low')}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<AlertTriangle size={14} />}
             />
@@ -214,7 +214,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
               }}
             >
               <Space>
-                <Tag color={SEVERITY_META[d.severity].color}>{t(SEVERITY_META[d.severity].label)}</Tag>
+                <Tag color={SEVERITY_META[d.severity]?.color}>{t(SEVERITY_META[d.severity]?.label ?? '')}</Tag>
                 <strong style={{ fontSize: 12 }}>{d.name}</strong>
                 <Tag>{d.code}</Tag>
               </Space>

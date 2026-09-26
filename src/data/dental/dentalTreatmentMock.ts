@@ -36,7 +36,7 @@ const PLANS = [
 ];
 
 export function randInt(a: number, b: number) { return Math.floor(Math.random() * (b - a + 1)) + a; }
-function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]!; }
 
 export const MOCK_DENTAL_TREATMENTS: DentalTreatment[] = Array.from({ length: 300 }, (_, i) => {
   const type = pick(['Restorative','Endodontic','Periodontal','Implant','Orthodontic','Extraction','Surgery','Pediatric'] as TreatmentType[]);

@@ -50,7 +50,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
   const transferredCount = data.filter((c) => c.transferredToFollowUp).length
   const overdueProcessingCount = data.filter((c) => toStoreStatus(String(c.status)) === 'resolving' && c.processingDuration && parseInt(String(c.processingDuration || 0)) > 60).length
   const thisMonthCount = data.filter((c) => {
-    const d = new Date(c.createdAt)
+    const d = new Date(c.createdAt ?? c.reportedTime ?? '')
     const now = new Date()
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
@@ -335,7 +335,7 @@ export const CriticalValueStatsSection = ({ data }: { data: CriticalValue[] }) =
   const resolved = apiStats?.resolved ?? data.filter((c) => toStoreStatus(String(c.status)) === 'resolved').length
   const overdue = apiStats?.escalated ?? data.filter((c) => toStoreStatus(String(c.status)) === 'overdue').length
   const thisMonth = apiStats?.todayCount ?? data.filter((c) => {
-    const d = new Date(c.createdAt)
+    const d = new Date(c.createdAt ?? c.reportedTime ?? '')
     const now = new Date()
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length

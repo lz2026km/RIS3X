@@ -1,7 +1,10 @@
 // [v3.0.6.8-61] FHIR Server 集成管理
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Tabs, Row, Col, Statistic, message, Input, Descriptions, Modal, Form, Select, Alert } from 'antd';
 import { Globe, Send, Search, RefreshCw, Plus } from 'lucide-react';
+import { fhirApi } from '../../services/api/fhirApi';
+import { api } from '../../services/api/client';
+import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -14,6 +17,55 @@ export const FhirServerPage: React.FC = () => {
   const [sendModal, setSendModal] = useState(false);
   const [fhirQuery, setFhirQuery] = useState('');
   const [queryResult, setQueryResult] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [usingDemo, setUsingDemo] = useState(false);
+
+  const demoRows = (type: string) => Array.from({ length: 5 }, (_, i) => ({
+    id: `demo-${i}`, resourceType: type,
+    name: [{ text: ['患者 A', '患者 B', '患者 C', '患者 D', '患者 E'][i] }],
+    gender: ['male', 'female'][i % 2],
+    birthDate: `197${i}-01-01`,
+  }));
+
+  // [G005 W7] 走 fhirApi / api client; 不可达时回退演示数据并展示「演示数据」徽标
+  const loadResources = useCallback(async (type: string) => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      let entries: { resource: any }[] | null = null;
+      if (type === 'Patient') {
+        const res = await fhirApi.searchPatient({ _count: '20' });
+        entries = res.success ? (res.data?.entry ?? null) : null;
+      } else if (type === 'Observation') {
+        const res = await fhirApi.searchObservation({ _count: '20' });
+        entries = res.success ? (res.data?.entry ?? null) : null;
+      } else if (type === 'DiagnosticReport') {
+        const res = await fhirApi.searchDiagnosticReport({ _count: '20' });
+        entries = res.success ? (res.data?.entry ?? null) : null;
+      } else if (type === 'ImagingStudy') {
+        const res = await fhirApi.searchImagingStudy({ _count: '20' });
+        entries = res.success ? (res.data?.entry ?? null) : null;
+      } else {
+        // Practitioner / Bundle 等无专用 api 方法 → 走通用 client (MSW 兜底)
+        const res = await api.get<{ entry?: { resource: any }[] }>(`/fhir/${type}`);
+        entries = res.success ? (res.data?.entry ?? null) : null;
+      }
+      if (entries && entries.length > 0) {
+        setResources(entries.map((e) => e.resource));
+        setUsingDemo(false);
+      } else {
+        setResources(demoRows(type));
+        setUsingDemo(true);
+      }
+    } catch {
+      setResources(demoRows(type));
+      setUsingDemo(true);
+      setLoadError(t('w7demo.loadError'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     // [W3-C] CapabilityStatement 为静态声明文档 (对齐 FHIR R4 规范, 后端未提供 /fhir/metadata 端点)
@@ -35,34 +87,21 @@ export const FhirServerPage: React.FC = () => {
         interaction: ['read', 'search-type', 'create', 'update'],
       }],
     });
-    loadResources('Patient');
-  }, []);
-
-  const loadResources = async (type: string) => {
-    try {
-      const r = await fetch(`/api/v1/fhir/${type}`);
-      const d = await r.json();
-      setResources(d.entry ? d.entry.map((e: any) => e.resource) : []);
-    } catch {
-      // Mock data
-      setResources(Array.from({length: 5}, (_, i) => ({
-        id: `demo-${i}`, resourceType: type,
-        name: [{ text: ['患者 A','患者 B','患者 C','患者 D','患者 E'][i] }],
-        gender: ['male','female'][i % 2],
-        birthDate: `197${i}-01-01`,
-      })));
-    }
-  };
+    void loadResources('Patient');
+  }, [loadResources]);
 
   const handleQuery = async () => {
     try {
-      const r = await fetch(`/api/v1/fhir/${resourceType}?${fhirQuery || '_count=5'}`);
-      const d = await r.json();
-      setQueryResult(d);
-      message.success(t('fhirServer.queryDone'));
+      const res = await api.get<any>(`/fhir/${resourceType}?${fhirQuery || '_count=5'}`);
+      if (res.success && res.data) {
+        setQueryResult(res.data);
+        message.success(t('fhirServer.queryDone'));
+      } else {
+        throw new Error('QUERY_FAILED');
+      }
     } catch {
       message.warning(t('fhirServer.queryNotConfigured'));
-      setQueryResult({ entry: Array.from({length:3}, (_, i) => ({ resource: { id:`q-${i}`, resourceType, name: `查询结果 ${i+1}` }})) });
+      setQueryResult({ entry: Array.from({ length: 3 }, (_, i) => ({ resource: { id: `q-${i}`, resourceType, name: `查询结果 ${i + 1}` } })) });
     }
   };
 
@@ -76,7 +115,13 @@ export const FhirServerPage: React.FC = () => {
         <Tag color="cyan">v3.0.6.8-61</Tag>
         <Tag color="purple">SMART on FHIR R4</Tag>
         <Tag color="blue">{capability?.fhirVersion || '4.0.1'}</Tag>
+        {/* [G005 W7] 接口不可达回退本地演示数据时展示「演示数据」徽标 */}
+        {usingDemo && <Tag color="orange">{t('w7demo.fhirFallback')}</Tag>}
       </Space>
+
+      {loadError && !loading && (
+        <ErrorBanner message={loadError} onRetry={() => void loadResources(resourceType)} retryLabel={t('w7demo.retry')} />
+      )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card><Statistic title={t('fhirServer.capability')} value="1" /></Card></Col>
@@ -90,7 +135,7 @@ export const FhirServerPage: React.FC = () => {
           { key:'capability', label:t('fhirServer.tabCapability'), children:
             capability ? <Card size="small" title={<Space>{t('fhirServer.capabilityTitle', { version: capability.fhirVersion })} <Tag color="orange">{t('fhirServer.staticDeclaration')}</Tag></Space>}>
               <Descriptions column={2} size="small">
-                <Descriptions.Item label={t('fhirServer.status')}><Tag color="green">{({active:'活跃', draft:'草稿', retired:'已停用'} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
+                <Descriptions.Item label={t('fhirServer.status')}><Tag color="green">{({active: t('w9e.fhirServer.statusActive'), draft: t('w9e.fhirServer.statusDraft'), retired: t('w9e.fhirServer.statusRetired')} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label={t('fhirServer.publisher')}>{capability.publisher}</Descriptions.Item>
                 <Descriptions.Item label={t('fhirServer.interaction')}>{capability.rest?.[0]?.interaction?.join(', ') ?? '-'}</Descriptions.Item>
                 <Descriptions.Item label={t('fhirServer.security')}>{capability.rest?.[0]?.security?.cors ? t('fhirServer.corsSmart') : t('fhirServer.none')}</Descriptions.Item>
@@ -103,12 +148,13 @@ export const FhirServerPage: React.FC = () => {
           { key:'browse', label:t('fhirServer.tabBrowse'), children:
             <Card size="small" extra={
               <Space>
-                <Select size="small" value={resourceType} onChange={(v) => { setResourceType(v); loadResources(v); }}
+                <Select size="small" value={resourceType} onChange={(v) => { setResourceType(v); void loadResources(v); }}
                   options={resourceTypes.map(rt=>({value:rt,label:rt}))} />
-                <Button icon={<RefreshCw size={12}/>} onClick={() => loadResources(resourceType)}>{t('fhirServer.refresh')}</Button>
+                <Button icon={<RefreshCw size={12}/>} loading={loading} onClick={() => void loadResources(resourceType)}>{t('fhirServer.refresh')}</Button>
               </Space>
-            } title={`资源: ${resourceType} (${resources.length})`}>
-              <Table dataSource={resources} rowKey="id" pagination={false}
+            } title={t('w9e.fhirServer.resourceTitle', { type: resourceType, count: resources.length })}>
+              <Table dataSource={resources} rowKey="id" pagination={false} loading={loading}
+                locale={{ emptyText: t('w7demo.empty') }}
                 columns={[
                   {title:t('fhirServer.colId'), dataIndex:'id'},
                   {title:t('fhirServer.colType'), dataIndex:'resourceType', render:(v)=><Tag color="blue">{v}</Tag>},

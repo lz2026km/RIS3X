@@ -202,7 +202,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500">{cases.length > 0 ? `基于当前草稿文本 · 按相关度前 ${cases.length} 条` : t("reportWrite.searchHint2")}</span>
+        <span className="text-xs text-slate-500">{cases.length > 0 ? t("w9a.reportWrite.basedOnDraft", { count: cases.length }) : t("reportWrite.searchHint2")}</span>
         <Space size={4}>
           <Select
             size="small" allowClear showSearch placeholder={t("reportWrite.linkExams")}
@@ -244,7 +244,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
       )}
       <Modal
         open={!!detail}
-        title={detail ? `相似病例 ${detail.reportId} (相似度 ${detail.similarity}%)` : ''}
+        title={detail ? t("w9a.reportWrite.similarCaseTitle", { id: detail.reportId, sim: detail.similarity }) : ''}
         footer={null}
         width={560}
         onCancel={() => setDetail(null)}
@@ -649,8 +649,8 @@ function buildPrintLayoutHtml(opts: {
 </style>
 ${letterhead}
 <div class="lp-header">
-  <div class="lp-title">放射诊断报告</div>
-  <div class="lp-time">打印时间: ${new Date().toLocaleString()}</div>
+  <div class="lp-title">${t("w9a.reportWrite.printTitle")}</div>
+  <div class="lp-time">${t("w9a.reportWrite.printTime", { time: new Date().toLocaleString() })}</div>
 </div>
 <div class="lp-meta">
   ${metaRows.map(([k, val]) => `<div><b>${k}:</b><span>${esc(val ?? '') || '-'}</span></div>`).join('')}
@@ -659,8 +659,8 @@ ${letterhead}
   ${opts.bodyHtml}
 </div>
 <div class="lp-footer">
-  <span>布局: ${esc(layout.name)}</span>
-  <span>放射科 · 本报告仅供临床参考</span>
+  <span>${t("w9a.reportWrite.layout", { name: esc(layout.name) })}</span>
+  <span>${t("w9a.reportWrite.footerDisclaimer")}</span>
 </div>
 </div>`;
 }
@@ -675,8 +675,8 @@ function buildMipFigureHtml(payload: MipScreenshotPayload, imgCount: number): st
   return [
     '<figure style="margin:10px 0;text-align:center;position:relative;">',
     `<img src="${payload.imageBase64}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" data-mip-source="${sourceInfo}" data-mip-direction="${payload.direction ?? 'axial'}" />`,
-    `<div style="position:relative;margin-top:4px;"><span style="display:inline-block;background:#fef3c7;color:#b45309;border:1px solid #fcd34d;border-radius:4px;padding:0 8px;font-size:11px;font-weight:600;">水印: ${safeLabel}${thicknessText} · 源检查 ${sourceInfo} · ${payload.source === 'real' ? t("reportWrite.realDicom") : t("reportWrite.synthetic")}</span></div>`,
-    `<figcaption style="font-size:12px;color:#475569;margin-top:4px;">图${figNo}: ${safeLabel}</figcaption>`,
+    `<div style="position:relative;margin-top:4px;"><span style="display:inline-block;background:#fef3c7;color:#b45309;border:1px solid #fcd34d;border-radius:4px;padding:0 8px;font-size:11px;font-weight:600;">${t("w9a.reportWrite.watermark", { label: safeLabel })}${thicknessText} · ${t("w9a.reportWrite.sourceExam", { info: sourceInfo })} · ${payload.source === 'real' ? t("reportWrite.realDicom") : t("reportWrite.synthetic")}</span></div>`,
+    `<figcaption style="font-size:12px;color:#475569;margin-top:4px;">${t("w9a.reportWrite.figureCaption", { no: figNo, label: safeLabel })}</figcaption>`,
     '</figure>',
   ].join('');
 }
@@ -779,7 +779,7 @@ export default function ReportWritePage() {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         setMeasureRows(parsed.map((r: any) => ({ type: String(r.type ?? 'line'), typeLabel: String(r.typeLabel ?? r.type ?? t("reportWrite.length")), label: String(r.label ?? ''), value: r.value ?? '', unit: String(r.unit ?? 'mm'), location: String(r.location ?? '') })));
-        message.success(`已从影像浏览器导入 ${parsed.length} 条测量数据`);
+        message.success(t("w9a.reportWrite.importedMeasurements", { count: parsed.length }));
       } else {
         message.info(t("reportWrite.noMeasurementsManual"));
       }
@@ -824,7 +824,7 @@ export default function ReportWritePage() {
     ).join('');
     return [
       t("reportWrite.measurementsHtml"),
-      `<table style="${TABLE_CSS}"><thead><tr><th style="${TH_CSS}">#</th><th style="${TH_CSS}">测量类型</th><th style="${TH_CSS}">部位</th><th style="${TH_CSS}">描述</th><th style="${TH_CSS}">数值</th><th style="${TH_CSS}">单位</th></tr></thead><tbody>${rows}</tbody></table>`,
+      `<table style="${TABLE_CSS}"><thead><tr><th style="${TH_CSS}">#</th><th style="${TH_CSS}">${t("w9a.reportWrite.thMeasureType")}</th><th style="${TH_CSS}">${t("w9a.reportWrite.thLocation")}</th><th style="${TH_CSS}">${t("w9a.reportWrite.thDescription")}</th><th style="${TH_CSS}">${t("w9a.reportWrite.thValue")}</th><th style="${TH_CSS}">${t("w9a.reportWrite.thUnit")}</th></tr></thead><tbody>${rows}</tbody></table>`,
     ].join('\n');
   }, [measureRows, escHtml]);
   const handleInsertMeasurement = useCallback(() => {
@@ -846,7 +846,7 @@ export default function ReportWritePage() {
       '</p>',
     ].join('');
     editorRef.current?.insertHtml(html);
-    message.success(`已插入单条测量: ${row.typeLabel} ${row.value}${row.unit}`);
+    message.success(t("w9a.reportWrite.insertedMeasurement", { type: row.typeLabel, value: row.value, unit: row.unit }));
     void idx;
   }, [escHtml]);
 
@@ -923,7 +923,7 @@ export default function ReportWritePage() {
   const [activeToolsTab, setActiveToolsTab] = useState('ai');
   const [submitting, setSubmitting] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [autoSaveTip, setAutoSaveTip] = useState('已保存');
+  const [autoSaveTip, setAutoSaveTip] = useState(t("w9a.reportWrite.savedTip"));
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [diffTarget, setDiffTarget] = useState<{ oldText: string; label: string } | null>(null);
   const [voiceInsert, setVoiceInsert] = useState<{ text: string; ts: number } | null>(null);
@@ -1013,14 +1013,14 @@ export default function ReportWritePage() {
         if (pending.length === 0) return;
         const cur = contextRef.current?.document ?? { html: '', plainText: '' };
         const mergedHtml = [cur.html, ...pending.map((f) => f.html)].filter(Boolean).join('\n');
-        const aiText = pending.map((f) => `**AI 检出**：${f.label} ${f.detail ?? ''}（置信度 ${f.confidence}%）`).join('\n');
+        const aiText = pending.map((f) => t("w9a.reportWrite.aiFindingLine", { label: f.label, detail: f.detail ?? '', confidence: f.confidence })).join('\n');
         const mergedText = [cur.plainText, aiText].filter(Boolean).join('\n');
         aiAutoInsertRef.current = [];
         setAiPendingFindings([]);
         setContext((c: any) => ({ ...c, document: { ...c.document, html: mergedHtml, plainText: mergedText, wordCount: mergedText.length } }));
         setEditorSet({ plainText: '', html: mergedHtml, ts: Date.now() });
         lastSavedRef.current = `${mergedText}|${mergedHtml}`;
-        message.success(`已插入 ${pending.length} 条 AI 检出`);
+        message.success(t("w9a.reportWrite.insertedAiFindings", { count: pending.length }));
       }, 4000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1034,14 +1034,14 @@ export default function ReportWritePage() {
     if (items.length === 0) return;
     const aiHtml = items.map((f) => f.html).join('\n');
     const mergedHtml = [currentHtml, aiHtml].filter(Boolean).join('\n');
-    const aiText = items.map((f) => `**AI 检出**：${f.label} ${f.detail ?? ''}（置信度 ${f.confidence}%）`).join('\n');
+    const aiText = items.map((f) => t("w9a.reportWrite.aiFindingLine", { label: f.label, detail: f.detail ?? '', confidence: f.confidence })).join('\n');
     const mergedText = [contextRef.current?.document?.plainText ?? '', aiText].filter(Boolean).join('\n');
     aiAutoInsertRef.current = [];
     setAiPendingFindings([]);
     setContext((c: any) => ({ ...c, document: { ...c.document, html: mergedHtml, plainText: mergedText, wordCount: mergedText.length } }));
     setEditorSet({ plainText: '', html: mergedHtml, ts: Date.now() });
     lastSavedRef.current = `${mergedText}|${mergedHtml}`;
-    message.success(`已插入 ${items.length} 条 AI 检出`);
+    message.success(t("w9a.reportWrite.insertedAiFindings", { count: items.length }));
   }, []);
 
   const handleAiInsertOne = useCallback((f: AiInsertItem) => {
@@ -1090,7 +1090,7 @@ export default function ReportWritePage() {
           if (hasFigure) {
             window.clearInterval(timer);
             mipPendingRef.current = '';
-            message.success(`${payload.label ?? t("reportWrite.mipScreenshot")}已自动插入报告正文 (来自阅片器)`);
+            message.success(t("w9a.reportWrite.autoInsertedFromViewer", { label: payload.label ?? t("reportWrite.mipScreenshot") }));
           } else if (attempts < 3) {
             attempts += 1;
             const imgCount = (html.match(/<img\b/gi) ?? []).length;
@@ -1262,7 +1262,7 @@ export default function ReportWritePage() {
         // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化: 优先 htmlContent (图片/表格/格式), 空时 findings 派生 (旧数据兼容)
         const loadedHtml = d.htmlContent && String(d.htmlContent).trim().length > 0
           ? d.htmlContent
-          : `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`;
+          : `<h2>${t("w9a.reportWrite.findingsSection")}</h2><p>${d.findings ?? ''}</p><h2>${t("w9a.reportWrite.impressionSection")}</h2><p>${d.impression ?? ''}</p>`;
         setContext((c: any) => ({
           ...c,
           reportId: d.reportId || d.id,
@@ -1513,8 +1513,8 @@ export default function ReportWritePage() {
     const existingImgs = (context.document.html?.match(/<img\b/gi) ?? []).length;
     const figNo = existingImgs + 1;
     const html = thumb
-      ? `<figure style="margin:10px 0;text-align:center;"><img src="${thumb}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" /><figcaption style="font-size:12px;color:#475569;margin-top:4px;">图${figNo}: ${safeLabel}</figcaption></figure>`
-      : `<div style="border:2px dashed #0891b2;border-radius:8px;padding:12px;margin:8px 0;background:#f0f9ff;text-align:center;font-size:13px;color:#0891b2;">[影像锚点 ${safeLabel}] 缩略图待加载, 可在影像浏览器截图后经编辑器"插入图像"上传</div>`;
+      ? `<figure style="margin:10px 0;text-align:center;"><img src="${thumb}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" /><figcaption style="font-size:12px;color:#475569;margin-top:4px;">${t("w9a.reportWrite.figureCaption", { no: figNo, label: safeLabel })}</figcaption></figure>`
+      : `<div style="border:2px dashed #0891b2;border-radius:8px;padding:12px;margin:8px 0;background:#f0f9ff;text-align:center;font-size:13px;color:#0891b2;">${t("w9a.reportWrite.anchorPlaceholder", { label: safeLabel })}</div>`;
     editorRef.current?.insertHtml(html);
     message.success(t("reportWrite.anchorInserted"));
   }, [context.document.html]);
@@ -1551,7 +1551,7 @@ export default function ReportWritePage() {
       if (snapshot === lastSavedRef.current) return;
       setAutoSaveTip(t("reportWrite.autoSaving2"));
       void doSave(true).then((ok) => {
-        setAutoSaveTip(ok ? `已自动保存 ${new Date().toLocaleTimeString()}` : t("reportWrite.autoSaveFailed"));
+        setAutoSaveTip(ok ? t("w9a.reportWrite.autoSavedAt", { time: new Date().toLocaleTimeString() }) : t("reportWrite.autoSaveFailed"));
       });
     }, 30000);
     return () => clearInterval(timer);
@@ -1753,11 +1753,11 @@ export default function ReportWritePage() {
         setEditorSet({ plainText: finalText, ts: Date.now() });
         if (resolved.length > 0 || unresolved.length > 0) {
           message.info(
-            `变量自动填充: ${resolved.length > 0 ? `已填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样可手动修改` : ''}`,
+            `${t("w9a.reportWrite.varFillPrefix")}${resolved.length > 0 ? t("w9a.reportWrite.varFilled", { keys: resolved.map((k) => `{{${k}}}`).join(',') }) : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')}${t("w9a.reportWrite.varUnresolvedSuffix")}` : ''}`,
             4,
           );
         }
-        message.success(`已应用模板「${cached?.name ?? id}」到编辑器`);
+        message.success(t("w9a.reportWrite.appliedTemplate", { name: cached?.name ?? id }));
       } else {
         message.info(t("reportWrite.structuredTemplateHint2"));
       }
@@ -1790,11 +1790,11 @@ export default function ReportWritePage() {
     recordTemplateRecent(tpl.id);
     if (resolved.length > 0 || unresolved.length > 0) {
       message.info(
-        `变量自动填充: ${resolved.length > 0 ? `已填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样可手动修改` : ''}`,
+        `${t("w9a.reportWrite.varFillPrefix")}${resolved.length > 0 ? t("w9a.reportWrite.varFilled", { keys: resolved.map((k) => `{{${k}}}`).join(',') }) : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')}${t("w9a.reportWrite.varUnresolvedSuffix")}` : ''}`,
         4,
       );
     }
-    message.success(`已插入模板「${tpl?.name ?? tpl.id}」到光标处`);
+    message.success(t("w9a.reportWrite.insertedTemplate", { name: tpl?.name ?? tpl.id }));
   }, [recordTemplateRecent, context]);
 
   // [v3.0.6.11-95 Wave3B P1] 模板库: 收藏星标
@@ -1919,13 +1919,13 @@ export default function ReportWritePage() {
   // 插入上例内容: 所见 → 影像所见段, 印象 → 诊断意见段 (externalInsert 光标处)
   const applyPreviousCopy = useCallback(() => {    if (!prevReport) return;
     const parts: string[] = [];
-    if (prevPick.findings && prevReport.findings) parts.push(`影像所见:\n${prevReport.findings}`);
+    if (prevPick.findings && prevReport.findings) parts.push(`${t("w9a.reportWrite.findingsSection")}:\n${prevReport.findings}`);
     const impression = prevReport.impression ?? prevReport.conclusion ?? prevReport.diagnosis;
-    if (prevPick.impression && impression) parts.push(`诊断意见:\n${impression}`);
+    if (prevPick.impression && impression) parts.push(`${t("w9a.reportWrite.impressionSection")}:\n${impression}`);
     if (parts.length === 0) { message.info(t("reportWrite.selectFindingOrImpression")); return; }
     setVoiceInsert({ text: parts.join('\n\n'), ts: Date.now() });
     setPrevCopyOpen(false);
-    message.success(`已复制上例(${prevReport.modality ?? ''} · ${prevReport.examDate ?? prevReport.createdTime ?? ''})所见/印象到编辑器`);
+    message.success(t("w9a.reportWrite.copiedPrev", { modality: prevReport.modality ?? '', date: prevReport.examDate ?? prevReport.createdTime ?? '' }));
   }, [prevReport, prevPick]);
 
   // [v3.0.6.11-95 Wave2B P1] 书写页快捷键: Ctrl+S 保存草稿 / Ctrl+Enter 提交 / Alt+↑↓ 上下例 / F2 语音 / F5 AI 草稿
@@ -1973,7 +1973,7 @@ export default function ReportWritePage() {
     setPhraseOpen(false);
     if (resolved.length > 0 || unresolved.length > 0) {
       message.info(
-        `变量自动填充: ${resolved.length > 0 ? `已填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样可手动修改` : ''}`,
+        `${t("w9a.reportWrite.varFillPrefix")}${resolved.length > 0 ? t("w9a.reportWrite.varFilled", { keys: resolved.map((k) => `{{${k}}}`).join(',') }) : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')}${t("w9a.reportWrite.varUnresolvedSuffix")}` : ''}`,
         4,
       );
     }
@@ -2268,7 +2268,7 @@ export default function ReportWritePage() {
               showIcon
               className="no-print"
               icon={<Lock className="w-4 h-4" />}
-              message={`报告状态为 ${displayStatus(context.status)},内容已锁定,仅供查看(如需修改请走修订流程)`}
+              message={t("w9a.reportWrite.lockedMessage", { status: displayStatus(context.status) })}
             />
           )}
           {/* [v3.0.6.11-95 Wave2A P0] 退回重写闭环: 展示驳回原因 + 引导重写 */}
@@ -2278,7 +2278,7 @@ export default function ReportWritePage() {
               showIcon
               className="no-print"
               icon={<XCircle className="w-4 h-4" />}
-              message={`报告已被驳回 (${displayStatus(statusRaw)})${context.rejectReason ? `,驳回原因: ${context.rejectReason}` : ''}`}
+              message={t("w9a.reportWrite.rejectedMessage", { status: displayStatus(statusRaw) }) + (context.rejectReason ? t("w9a.reportWrite.rejectedReason", { reason: context.rejectReason }) : '')}
               description={t("reportWrite.rewriteHint")}
             />
           )}
@@ -2296,7 +2296,7 @@ export default function ReportWritePage() {
               type="warning"
               showIcon
               className="no-print"
-              message={`该草稿已 ${Math.round(staleHours)} 小时未更新, 请及时完成书写并提交 (Ctrl+Enter)`}
+              message={t("w9a.reportWrite.staleDraft", { hours: Math.round(staleHours) })}
             />
           )}
           {/* [v3.0.6.11-100 Wave 2A] 危急值电话/短信网关卡片 (报告关联危急值时显示) */}
@@ -2339,7 +2339,7 @@ export default function ReportWritePage() {
               size="small"
               items={[{
                 key: 'images',
-                label: `当前检查影像 (${context.modality} · ${context.bodyPart}${context.examId ? ` · ${context.examId}` : ''})`,
+                label: t("w9a.reportWrite.currentExamImages", { modality: context.modality, bodyPart: context.bodyPart, examId: context.examId ? ` · ${context.examId}` : '' }),
                 children: (
                   <div className="flex items-center gap-3 flex-wrap">
                     {(() => {
@@ -2505,7 +2505,7 @@ export default function ReportWritePage() {
               tabBarExtraContent={
                 <Badge
                   count={drafts.length}
-                  title={`草稿 ${drafts.length} 个`}
+                  title={t("w9a.reportWrite.draftsCount", { count: drafts.length })}
                   style={{ backgroundColor: '#7c3aed' }}
                 />
               }
@@ -2554,7 +2554,7 @@ export default function ReportWritePage() {
           type={preScore.passed ? 'success' : 'warning'}
           showIcon
           className="mb-3"
-          title={preScore.passed ? t("reportWrite.allChecksPassed") : `部分检查项未通过 (${PASSED_COUNT}/${preScore.checklist.length})`}
+          title={preScore.passed ? t("reportWrite.allChecksPassed") : t("w9a.reportWrite.someChecksFailed", { passed: PASSED_COUNT, total: preScore.checklist.length })}
         />
         <div className="space-y-3">
           <div>
@@ -2701,7 +2701,7 @@ export default function ReportWritePage() {
               const res = await reportApi.applyTemplate(reportId, templateId, mode);
               if (res.success) {
                 const applied = res.data?.templateApplied as { name?: string; mode?: string } | undefined;
-                message.success(`模板「${applied?.name ?? name}」已${applied?.mode === 'overwrite' ? t("reportWrite.overwrite") : t("reportWrite.append")}到报告 (${applied?.mode ?? mode})`);
+                message.success(t("w9a.reportWrite.templateAppliedToReport", { name: applied?.name ?? name, modeText: applied?.mode === 'overwrite' ? t("reportWrite.overwrite") : t("reportWrite.append"), modeKey: applied?.mode ?? mode }));
                 // 同步刷新编辑器内容 (后端已合并 findings/htmlContent)
                 const fresh = await reportApi.getById(reportId);
                 if (fresh.success && fresh.data) {
@@ -2732,7 +2732,7 @@ export default function ReportWritePage() {
       {/* [v3.0.6.11-98 Wave1B P0-3] 上一例复制预览 Modal: 勾选所见/印象 → 插入编辑器 */}
       <Modal
         open={prevCopyOpen}
-        title={`复制上例 — ${prevReport?.reportId ?? prevReport?.id ?? ''} (${prevReport?.modality ?? ''} ${prevReport?.bodyPart ?? ''})`}
+        title={t("w9a.reportWrite.copyPrevTitle", { id: prevReport?.reportId ?? prevReport?.id ?? '', modality: prevReport?.modality ?? '', bodyPart: prevReport?.bodyPart ?? '' })}
         onCancel={() => setPrevCopyOpen(false)}
         footer={null}
         width={640}

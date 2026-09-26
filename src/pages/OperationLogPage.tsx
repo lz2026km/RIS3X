@@ -348,7 +348,9 @@ export default function OperationLogPage() {
   const liveContainerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const interval = setInterval(() => {
-      const newLog = { ...allLogs[Math.floor(Math.random() * allLogs.length)], id: `LIVE-${Date.now()}`, timestamp: new Date().toISOString() }
+      const base = allLogs[Math.floor(Math.random() * allLogs.length)]
+      if (!base) return
+      const newLog: OperationLog = { ...base, id: `LIVE-${Date.now()}`, timestamp: new Date().toISOString() }
       setLiveLogs(prev => [newLog, ...prev].slice(0, 200))
     }, 5000)
     return () => clearInterval(interval)

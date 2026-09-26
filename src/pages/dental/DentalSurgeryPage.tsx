@@ -25,10 +25,11 @@ const TYPE = "Surgery";
 const PAGE_SIZE = 10;
 
 const ANESTHESIA_OPTIONS = [
-  { value: "局麻", label: "局麻" },
-  { value: "全麻", label: "全麻" },
-  { value: "镇静", label: "镇静" },
+  { value: "局麻", key: "w9d.dentalSurgery.anesthesia.local" },
+  { value: "全麻", key: "w9d.dentalSurgery.anesthesia.general" },
+  { value: "镇静", key: "w9d.dentalSurgery.anesthesia.sedation" },
 ];
+const anesthesiaLabel = (v: string) => t(ANESTHESIA_OPTIONS.find((o) => o.value === v)?.key ?? v);
 
 // 确定性 seed 回退 (API 不可用时展示, 与 MSW 字段对齐)
 const SEED_TREATMENTS: any[] = [
@@ -248,7 +249,7 @@ export const DentalSurgeryPage: React.FC = () => {
               title: t("w9.dentalSurgery.anesthesia"),
               dataIndex: "anesthesia",
               width: 100,
-              render: (a?: string) => (a ? <Tag color="orange">{a}</Tag> : "-"),
+              render: (a?: string) => (a ? <Tag color="orange">{anesthesiaLabel(a)}</Tag> : "-"),
             },
             { title: t("w9.common.cost"), dataIndex: "cost", width: 100, render: (v?: number) => (v != null ? `¥${v.toLocaleString("zh-CN")}` : "-") },
             {
@@ -294,10 +295,10 @@ export const DentalSurgeryPage: React.FC = () => {
             <Input />
           </Form.Item>
           <Form.Item label={t("w9.dentalSurgery.plan")} name="plan" rules={[{ required: true }]}>
-            <Input placeholder="例 阻生牙拔除术" />
+                <Input placeholder={t("w9d.dentalSurgery.planPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.dentalSurgery.anesthesia")} name="anesthesia">
-            <Select options={ANESTHESIA_OPTIONS} />
+              <Select options={ANESTHESIA_OPTIONS.map((o) => ({ value: o.value, label: t(o.key) }))} />
           </Form.Item>
         </Form>
       </Modal>

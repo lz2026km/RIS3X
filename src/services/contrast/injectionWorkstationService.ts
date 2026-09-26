@@ -72,8 +72,10 @@ class MockInjectionWorkstationService implements IInjectionWorkstationService {
   async updateProtocol(id: string, updates: Partial<InjectionProtocol>): Promise<InjectionProtocol | null> {
     const idx = MOCK_PROTOCOLS.findIndex(p => p.id === id)
     if (idx === -1) return null
-    MOCK_PROTOCOLS[idx] = { ...MOCK_PROTOCOLS[idx], ...updates }
-    return MOCK_PROTOCOLS[idx]
+    const current = MOCK_PROTOCOLS[idx]!
+    const updated: InjectionProtocol = { ...current, ...updates }
+    MOCK_PROTOCOLS[idx] = updated
+    return updated
   }
 
   async calculateParameters(contrastName: string, weightKg: number, eGFR: number): Promise<{ volumeMl: number; flowRateMls: number; rationale: string }> {

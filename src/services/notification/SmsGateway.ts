@@ -53,7 +53,7 @@ export class SmsGatewayRouter {
     const limit = options.perProviderLimit ?? 100;
     const results: SendResult[] = [];
     for (let i = 0; i < payload.recipients.length; i += limit) {
-      const chunk = payload.recipients.slice(i, i + limit);
+      const chunk = (payload.recipients as SmsRecipient[]).slice(i, i + limit);
       const provider = this.pick(options.prefer ?? 'health');
       if (!provider) {
         results.push(...chunk.map<SendResult>(() => ({

@@ -27,7 +27,7 @@ const statusFromHeartbeat = (last: number): CollabUserStatus => {
   if (elapsed > HEARTBEAT_TIMEOUT_MS * 2) return 'offline';
   if (elapsed > AWAY_TIMEOUT_MS) return 'away';
   if (elapsed > HEARTBEAT_TIMEOUT_MS) return 'idle';
-  return 'online';
+  return 'viewing';
 };
 
 const ensureGC = (): void => {

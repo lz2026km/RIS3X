@@ -184,7 +184,7 @@ class PushService {
         badge: payload.badge,
         tag: payload.tag ?? 'g005-default',
         data: payload.data,
-        actions: payload.actions,
+        ...({ actions: payload.actions } as Partial<NotificationOptions>),
         requireInteraction: payload.requireInteraction ?? false,
         silent: payload.silent ?? false,
       });

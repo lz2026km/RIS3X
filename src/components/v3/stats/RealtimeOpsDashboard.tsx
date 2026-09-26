@@ -10,6 +10,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
 // [G005 Wave3A G-23] BI socket 推送: 订阅 'ops-update', 不可用时保留轮询兜底
 import { realtime, type RealtimePayload } from '../../../services/realtime'
+import { t } from '../../../i18n/appI18n'
 
 export interface RealtimeEvent {
   id: string
@@ -64,8 +65,8 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
 
   useEffect(() => {
     // 轮询兜底 (socket 不可用时沿用原逻辑: tick 驱动汇总/展示)
-    const t = setInterval(() => setTick((x) => x + 1), refreshInterval * 1000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setTick((x) => x + 1), refreshInterval * 1000)
+    return () => clearInterval(timer)
   }, [refreshInterval])
 
   useEffect(() => {
@@ -90,8 +91,8 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
         id: `ops-${payload?.timestamp ?? Date.now()}`,
         type: 'EXAM',
         at: new Date(payload?.timestamp ?? Date.now()).toLocaleString(),
-        title: '运营快照更新',
-        description: `今日检查 ${kpi.examsToday ?? 0} · 报告 ${kpi.reportsToday ?? 0} · 危急值 ${kpi.criticalsToday ?? 0}`,
+        title: t('w9e.realtimeOps.snapshotUpdate'),
+        description: t('w9e.realtimeOps.snapshotDesc', { exams: kpi.examsToday ?? 0, reports: kpi.reportsToday ?? 0, criticals: kpi.criticalsToday ?? 0 }),
         severity: 'info',
       }
       setPushEvents(prev => [snapshotEvent, ...prev].slice(0, 50))
@@ -145,7 +146,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
         <Col span={6}>
           <Card>
             <Statistic
-              title="在线用户"
+              title={t('w9e.realtimeOps.onlineUsers')}
               value={mergedOnlineUsers}
               prefix={<Users size={14} color={CHART_COLORS.primary} />}
               styles={{ content: {  color: CHART_COLORS.primary  } }}
@@ -153,25 +154,25 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             {/* [G005 Wave3A G-23] 实时徽标: socket 在线点亮 / 断线回退轮询模式 */}
             <Badge
               status={socketConnected ? 'processing' : 'warning'}
-              text={socketConnected ? '实时推送' : '轮询模式'}
+              text={socketConnected ? t('w9e.realtimeOps.realtimePush') : t('w9e.realtimeOps.pollingMode')}
               data-testid="ops-realtime-badge"
             />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="1h 检查数" value={summary.examsLastHour} prefix={<Activity size={14} color={CHART_COLORS.deepBlue} />} />
+            <Statistic title={t('w9e.realtimeOps.examsLastHour')} value={summary.examsLastHour} prefix={<Activity size={14} color={CHART_COLORS.deepBlue} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="1h 报告数" value={summary.reportsLastHour} prefix={<Stethoscope size={14} color={CHART_COLORS.success} />} />
+            <Statistic title={t('w9e.realtimeOps.reportsLastHour')} value={summary.reportsLastHour} prefix={<Stethoscope size={14} color={CHART_COLORS.success} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="1h 危急值"
+              title={t('w9e.realtimeOps.criticalsLastHour')}
               value={summary.criticalsLastHour}
               prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />}
               styles={{ content: {  color: summary.criticalsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success  } }}
@@ -180,24 +181,24 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="设备在线率" value={deviceStats.total > 0 ? (deviceStats.online / deviceStats.total * 100).toFixed(1) : 0} suffix="%" prefix={<Wifi size={14} />} />
+            <Statistic title={t('w9e.realtimeOps.deviceOnlineRate')} value={deviceStats.total > 0 ? (deviceStats.online / deviceStats.total * 100).toFixed(1) : 0} suffix="%" prefix={<Wifi size={14} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="设备使用中" value={deviceStats.busy} prefix={<Cpu size={14} color={CHART_COLORS.amber} />} />
+            <Statistic title={t('w9e.realtimeOps.deviceBusy')} value={deviceStats.busy} prefix={<Cpu size={14} color={CHART_COLORS.amber} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="平均利用率" value={deviceStats.avgUtilization} suffix="%" prefix={<TrendingUp size={14} color={CHART_COLORS.purple} />} />
+            <Statistic title={t('w9e.realtimeOps.avgUtilization')} value={deviceStats.avgUtilization} suffix="%" prefix={<TrendingUp size={14} color={CHART_COLORS.purple} />} />
             <Progress percent={Number(deviceStats.avgUtilization)} size="small" showInfo={false} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="1h 系统错误"
+              title={t('w9e.realtimeOps.systemErrorsLastHour')}
               value={summary.errorsLastHour}
               prefix={<Server size={14} color={summary.errorsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success} />}
               styles={{ content: {  color: summary.errorsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success  } }}
@@ -213,14 +214,14 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             title={
               <Space>
                 <Zap size={14} color={CHART_COLORS.amber} />
-                <span>实时事件流</span>
+                <span>{t('w9e.realtimeOps.eventStream')}</span>
               </Space>
             }
-            extra={<Tag color="red">实时</Tag>}
+            extra={<Tag color="red">{t('w9e.realtimeOps.realtime')}</Tag>}
             data-testid="ops-event-stream"
           >
             {mergedEvents.length === 0 ? (
-              <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
+              <Empty description={t('w9e.realtimeOps.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />
             ) : (
               <List
                 size="small"
@@ -263,7 +264,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             title={
               <Space>
                 <Cpu size={14} />
-                <span>设备状态</span>
+                <span>{t('w9e.realtimeOps.deviceStatus')}</span>
               </Space>
             }
             data-testid="ops-device-status"
@@ -285,8 +286,8 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                           <span style={{ fontSize: 12, fontWeight: 500 }}>{d.name}</span>
                         </Space>
                         <Tag color={stateColor} style={{ fontSize: 12 }}>{d.state}</Tag>
-                        {d.currentPatient && <div style={{ fontSize: 12, color: CHART_COLORS.grayDark }}>患者:{d.currentPatient}</div>}
-                        {d.queue > 0 && <div style={{ fontSize: 12, color: CHART_COLORS.amber }}>队列:{d.queue}</div>}
+                        {d.currentPatient && <div style={{ fontSize: 12, color: CHART_COLORS.grayDark }}>{t('w9e.realtimeOps.patientLabel', { name: d.currentPatient })}</div>}
+                        {d.queue > 0 && <div style={{ fontSize: 12, color: CHART_COLORS.amber }}>{t('w9e.realtimeOps.queueLabel', { count: d.queue })}</div>}
                         <Progress
                           percent={Math.round(d.utilization)}
                           size="small"
@@ -305,11 +306,11 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
 
       <Row gutter={12} style={{ marginTop: 12 }}>
         <Col span={8}>
-          <Card size="small" title="事件分布" data-testid="ops-event-distribution">
+          <Card size="small" title={t('w9e.realtimeOps.eventDistribution')} data-testid="ops-event-distribution">
             <ChartContainer
               height={220}
               state={eventTypeData.length === 0 ? 'empty' : 'ready'}
-              emptyDescription="暂无事件数据"
+              emptyDescription={t('w9e.realtimeOps.noEventData')}
             >
               <PieChart>
                 <Pie
@@ -330,11 +331,11 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="设备利用率" data-testid="ops-device-utilization">
+          <Card size="small" title={t('w9e.realtimeOps.deviceUtilization')} data-testid="ops-device-utilization">
             <ChartContainer
               height={220}
               state={mergedDevices.length === 0 ? 'empty' : 'ready'}
-              emptyDescription="暂无设备数据"
+              emptyDescription={t('w9e.realtimeOps.noDeviceData')}
             >
               <BarChart
                 data={mergedDevices.map((d) => ({ name: d.name, util: d.utilization }))}
@@ -349,31 +350,31 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="系统状态" data-testid="ops-system-status">
+          <Card size="small" title={t('w9e.realtimeOps.systemStatus')} data-testid="ops-system-status">
             <Space orientation="vertical" size={6} style={{ width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>数据库</span>
-                <Badge status="success" text="正常" />
+                <span>{t('w9e.realtimeOps.database')}</span>
+                <Badge status="success" text={t('w9e.realtimeOps.normal')} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>DICOM 网关</span>
-                <Badge status="success" text="正常" />
+                <span>{t('w9e.realtimeOps.dicomGateway')}</span>
+                <Badge status="success" text={t('w9e.realtimeOps.normal')} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>HL7 引擎</span>
-                <Badge status="success" text="正常" />
+                <span>{t('w9e.realtimeOps.hl7Engine')}</span>
+                <Badge status="success" text={t('w9e.realtimeOps.normal')} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>消息队列</span>
-                <Badge status="success" text="正常" />
+                <span>{t('w9e.realtimeOps.messageQueue')}</span>
+                <Badge status="success" text={t('w9e.realtimeOps.normal')} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>AI 服务</span>
-                <Badge status="processing" text="运行中" />
+                <span>{t('w9e.realtimeOps.aiService')}</span>
+                <Badge status="processing" text={t('w9e.realtimeOps.running')} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>缓存</span>
-                <Badge status="success" text="命中率 92%" />
+                <span>{t('w9e.realtimeOps.cache')}</span>
+                <Badge status="success" text={t('w9e.realtimeOps.cacheHitRate')} />
               </div>
             </Space>
           </Card>

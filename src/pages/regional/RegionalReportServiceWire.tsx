@@ -1,5 +1,6 @@
 import { message } from 'antd'
 import React from 'react'
+import { t } from '../../i18n/appI18n'
 
 export const COLORS = {
   primary: '#1e40af',
@@ -123,9 +124,9 @@ import { regionalApi } from '../../services/api/regionalApi'
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const consultationService = {
-  create: async (data: any) => { try { await delay(500); message.success('会诊申请已提交'); return { id: `C${Date.now()}`, ...data } } catch (e) { message.error('会诊申请提交失败'); throw e } },
-  accept: async (id: string) => { try { await delay(300); message.success(`已接受会诊 ${id}`) } catch (e) { message.error('接受会诊失败'); throw e } },
-  submitOpinion: async (_id: string, _opinion: string) => { try { await delay(300); message.success('会诊意见见已提交') } catch (e) { message.error('提交会诊意见见失败'); throw e } },
+  create: async (data: any) => { try { await delay(500); message.success(t('w9e.regionalWire.consultationSubmitted')); return { id: `C${Date.now()}`, ...data } } catch (e) { message.error(t('w9e.regionalWire.consultationSubmitFailed')); throw e } },
+  accept: async (id: string) => { try { await delay(300); message.success(t('w9e.regionalWire.consultationAccepted', { id })) } catch (e) { message.error(t('w9e.regionalWire.consultationAcceptFailed')); throw e } },
+  submitOpinion: async (_id: string, _opinion: string) => { try { await delay(300); message.success(t('w9e.regionalWire.opinionSubmitted')) } catch (e) { message.error(t('w9e.regionalWire.opinionSubmitFailed')); throw e } },
 }
 
 export const reportService = {
@@ -133,28 +134,28 @@ export const reportService = {
     try {
       await delay(300)
       await regionalApi.getRegionalReport(reportId)
-      message.success(`报告 ${reportId} ${result === '通过' ? '已通过' : '已驳回'}`)
-    } catch (e) { message.error('审核报告失败'); throw e }
+      message.success(t('w9e.regionalWire.reviewReport', { reportId, result: result === '通过' ? t('w9e.regionalWire.approved') : t('w9e.regionalWire.rejected') }))
+    } catch (e) { message.error(t('w9e.regionalWire.reviewFailed')); throw e }
   },
 }
 
 export const criticalValueService = {
-  acknowledge: async (id: string) => { try { await delay(300); message.success(`危急值 ${id} 已确认`) } catch (e) { message.error('确认危急值失败'); throw e } },
-  close: async (id: string) => { try { await delay(300); message.success(`危急值 ${id} 已闭环`) } catch (e) { message.error('闭环危急值失败'); throw e } },
+  acknowledge: async (id: string) => { try { await delay(300); message.success(t('w9e.regionalWire.criticalAcknowledged', { id })) } catch (e) { message.error(t('w9e.regionalWire.criticalAckFailed')); throw e } },
+  close: async (id: string) => { try { await delay(300); message.success(t('w9e.regionalWire.criticalClosed', { id })) } catch (e) { message.error(t('w9e.regionalWire.criticalCloseFailed')); throw e } },
 }
 
 export const teleradiologyService = {
-  submit: async (_data: any) => { try { await delay(500); message.success('报告提交成功') } catch (e) { message.error('提交远程报告失败'); throw e } },
+  submit: async (_data: any) => { try { await delay(500); message.success(t('w9e.regionalWire.remoteSubmitted')) } catch (e) { message.error(t('w9e.regionalWire.remoteSubmitFailed')); throw e } },
 }
 
 export const remoteSyncService = {
-  pull: async () => { try { await delay(500); message.success('数据同步成功') } catch (e) { message.error('数据同步失败'); throw e } },
+  pull: async () => { try { await delay(500); message.success(t('w9e.regionalWire.syncSuccess')) } catch (e) { message.error(t('w9e.regionalWire.syncFailed')); throw e } },
 }
 
 export const statsService = {
-  refresh: async () => { try { await delay(300); message.success('统计数据已刷新') } catch (e) { message.error('刷新统计失败'); throw e } },
+  refresh: async () => { try { await delay(300); message.success(t('w9e.regionalWire.statsRefreshed')) } catch (e) { message.error(t('w9e.regionalWire.statsRefreshFailed')); throw e } },
 }
 
 export const exportService = {
-  csv: async (type: string) => { try { await delay(500); message.success(`${type}记录导出成功`) } catch (e) { message.error('导出失败'); throw e } },
+  csv: async (type: string) => { try { await delay(500); message.success(t('w9e.regionalWire.exportSuccess', { type })) } catch (e) { message.error(t('w9e.regionalWire.exportFailed')); throw e } },
 }

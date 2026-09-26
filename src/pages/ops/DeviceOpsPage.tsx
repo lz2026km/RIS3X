@@ -29,13 +29,13 @@ const MOCK_DEVICES: Device[] = [
   { id: 'D007', name: 'US-01 (GE Logiq E10)', type: 'Ultrasound', location: '超声室1', status: 'online', utilization: 65, lastMaintenance: '2025-05-28', nextMaintenance: '2025-06-28', firmware: 'L6.0', ip: '10.0.5.10' },
 ]
 
-const UTIL_DATA = MOCK_DEVICES.filter(d => d.status === 'online').map(d => ({ name: d.name.split('(')[0].trim(), utilization: d.utilization }))
+const UTIL_DATA = MOCK_DEVICES.filter(d => d.status === 'online').map(d => ({ name: d.name.split('(')[0]?.trim() ?? d.name, utilization: d.utilization }))
 
 const STATUS_CONFIG: Record<string, { color: string; label: string; icon: typeof CheckCircle }> = {
-  online: { color: '#22c55e', label: '在线', icon: CheckCircle },
-  offline: { color: '#6e7681', label: '离线', icon: XCircle },
-  maintenance: { color: '#f59e0b', label: '维护中', icon: Settings },
-  fault: { color: '#ef4444', label: '故障', icon: AlertTriangle },
+  online: { color: '#22c55e', label: t('w9e.deviceOps.stateOnline'), icon: CheckCircle },
+  offline: { color: '#6e7681', label: t('w9e.deviceOps.stateOffline'), icon: XCircle },
+  maintenance: { color: '#f59e0b', label: t('w9e.deviceOps.stateMaintenance'), icon: Settings },
+  fault: { color: '#ef4444', label: t('w9e.deviceOps.stateFault'), icon: AlertTriangle },
 }
 
 const FAULTS = [
@@ -137,7 +137,7 @@ export default function DeviceOpsPage() {
       const res = await deviceMgmtApi.updateDevice(id, { state: state as any })
       if (res.success) {
         setDevices(prev => prev.map(d => d.id === id ? { ...d, status: stateStatusMap[state] ?? d.status } : d))
-        message.success(`设备 ${id} 状态已更新: ${state}`)
+        message.success(t('w9e.deviceOps.deviceUpdated', { id, state }))
       } else {
         message.error(res.error?.message ?? t('deviceOps.statusUpdateFailed'))
       }
@@ -191,7 +191,7 @@ export default function DeviceOpsPage() {
       life.forEach((l: any) => {
         const o = oeeById.get(String(l.id)) || Array.from(oeeById.values()).find((x: any) => String(x.name).includes(String(l.name).slice(0, 3)))
         merged.push({
-          id: l.id, name: `${l.name} (${l.model || '—'})`, type: l.modality || l.manufacturer || '设备',
+          id: l.id, name: `${l.name} (${l.model || '—'})`, type: l.modality || l.manufacturer || t('w9e.deviceOps.deviceTypeFallback'),
           location: l.location || '—',
           status: statusOf(l.status),
           utilization: toNum(o?.oee ?? l.oee),
@@ -204,7 +204,7 @@ export default function DeviceOpsPage() {
       oee.forEach((o: any) => {
         if (seen.has(String(o.id))) return
         merged.push({
-          id: o.id, name: `${o.name} (${o.model || ''})`.trim(), type: o.modality || '设备',
+          id: o.id, name: `${o.name} (${o.model || ''})`.trim(), type: o.modality || t('w9e.deviceOps.deviceTypeFallback'),
           location: '—', status: 'online', utilization: toNum(o.oee),
           lastMaintenance: '—', nextMaintenance: '—', firmware: '—', ip: '—',
         })
@@ -220,7 +220,7 @@ export default function DeviceOpsPage() {
         if (seen.has(id)) return
         merged.push({
           id, name: d.name || d.code || id,
-          type: d.modality || d.code || '设备',
+          type: d.modality || d.code || t('w9e.deviceOps.deviceTypeFallback'),
           location: d.location || '—',
           status: devStatusOf(d.state ?? d.status),
           utilization: 0, lastMaintenance: '—', nextMaintenance: '—', firmware: '—', ip: '—',
@@ -240,7 +240,7 @@ export default function DeviceOpsPage() {
         }
         setFaults(faultList.map((f: any) => ({
           device: nameOf(f.deviceId),
-          issue: f.description || f.name || '未知故障',
+          issue: f.description || f.name || t('w9e.deviceOps.unknownFault'),
           severity: ['CRITICAL', 'HIGH'].includes(String(f.severity)) ? 'critical' : 'warning',
           reported: String(f.createdAt || '').replace('T', ' ').slice(0, 16) || '—',
           eta: '—',
@@ -250,10 +250,10 @@ export default function DeviceOpsPage() {
       if (plans.length > 0) {
         setMaintLog(plans.map((p: any) => ({
           device: p.deviceName || p.deviceId || '—',
-          action: [p.type, p.content].filter(Boolean).join(' · ') || '维护',
+          action: [p.type, p.content].filter(Boolean).join(' · ') || t('w9e.deviceOps.maintenanceFallback'),
           performedBy: p.assignee || '—',
           date: String(p.maintenanceDate || '').slice(0, 10) || '—',
-          result: p.status === 'COMPLETED' ? '通过' : p.status === 'CANCELLED' ? '已取消' : '待执行',
+          result: p.status === 'COMPLETED' ? t('w9e.deviceOps.resultPass') : p.status === 'CANCELLED' ? t('w9e.deviceOps.resultCancelled') : t('w9e.deviceOps.resultPending'),
         })))
       }
     } catch (e) {
@@ -337,7 +337,7 @@ export default function DeviceOpsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart size={16} color="#3b82f6" />{t('deviceOps.utilizationTitle')}
+              <BarChart {...({ size: 16, color: "#3b82f6" } as Record<string, unknown>)} />{t('deviceOps.utilizationTitle')}
             </div>
             <ChartContainer height={200} state={utilData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deviceOps.noUtilization')}>
               <BarChart data={utilData}>

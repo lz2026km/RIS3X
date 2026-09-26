@@ -521,7 +521,7 @@ const generateTimelineEvents = (patientData: Patient360Data): TimelineEvent[] =>
       date: d.date,
       type: 'diagnosis',
       title: d.diagnosis,
-      description: `诊断医生: ${d.doctor}`,
+      description: t('w9a.clinicalData.diagnosisDoctor', { doctor: d.doctor }),
       source: d.source,
       doctor: d.doctor,
     })
@@ -534,7 +534,7 @@ const generateTimelineEvents = (patientData: Patient360Data): TimelineEvent[] =>
       date: l.date,
       type: 'lab',
       title: l.item,
-      description: `结果: ${l.value} (参考值: ${l.ref})`,
+      description: t('w9a.clinicalData.resultRef', { value: l.value, ref: l.ref }),
       source: l.source,
     })
   })
@@ -569,8 +569,8 @@ const generateTimelineEvents = (patientData: Patient360Data): TimelineEvent[] =>
       id: `vital-${i}`,
       date: v.date,
       type: 'vital',
-      title: '生命体征',
-      description: `BP: ${v.bp} | HR: ${v.hr}bpm | Temp: ${v.temp}°C${v.weight ? ` | 体重: ${v.weight}kg` : ''}`,
+      title: t('w9a.clinicalData.vitalSigns'),
+      description: `BP: ${v.bp} | HR: ${v.hr}bpm | Temp: ${v.temp}°C${v.weight ? ` | ${t('w9a.clinicalData.weight', { weight: v.weight })}` : ''}`,
       source: v.source,
     })
   })
@@ -762,8 +762,8 @@ const Patient360View = () => {
       if (rows.length > 0) {
         setApiPatients(rows.map((p: any) => ({
           id: p.id ?? '',
-          name: p.name ?? '未知',
-          gender: p.gender ?? '未知',
+          name: p.name ?? t('w9a.clinicalData.unknown'),
+          gender: p.gender ?? t('w9a.clinicalData.unknown'),
           age: typeof p.age === 'number' ? p.age : 0,
           phone: p.phone ?? undefined,
           patientType: p.patientType ?? p.type ?? '门诊',

@@ -62,7 +62,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
       requirePhone: createForm.requirePhone,
       requireIdCard: createForm.requireIdCard,
       channels: createForm.channels,
-      watermark: createForm.watermark || `患者:${patientId} 报告:${reportId}`,
+      watermark: createForm.watermark || t('w9e.patientReportPortal.watermark', { patient: patientId, report: reportId }),
     });
     setLinks((arr) => [link, ...arr]);
     setCreating(false);

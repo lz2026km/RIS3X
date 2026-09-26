@@ -130,6 +130,7 @@ export function AppProgress({
   if (status === 'normal') {
     if (safePercent >= 100) computedStatus = 'success';
   }
+  const progressStatus = computedStatus === 'error' ? 'exception' : computedStatus;
 
   return (
     <div
@@ -142,7 +143,7 @@ export function AppProgress({
       <div aria-hidden="true">
         <Progress
           percent={safePercent}
-          status={computedStatus}
+          status={progressStatus}
           showInfo={showInfo}
           size={size}
           strokeColor={strokeColor}

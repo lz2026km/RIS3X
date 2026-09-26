@@ -17,6 +17,7 @@ import { Activity, TrendingUp, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu,
 import React, { useState, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts'
 import { Inbox } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export interface KpiDataPoint {
   date: string
@@ -72,7 +73,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
     }
   }, [filtered])
 
-  if (!summary) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无数据" />
+  if (!summary) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.kpiDashboard.noData')} />
 
   // 模态分布
   const modalityTotal = modalityBreakdown.reduce((s, m) => s + m.count, 0)
@@ -84,10 +85,10 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
           value={r}
           onChange={(v) => setR(v as any)}
           options={[
-            { value: '7d', label: '7 天' },
-            { value: '30d', label: '30 天' },
-            { value: '90d', label: '90 天' },
-            { value: '1y', label: '1 年' },
+            { value: '7d', label: t('w9e.kpiDashboard.range7d') },
+            { value: '30d', label: t('w9e.kpiDashboard.range30d') },
+            { value: '90d', label: t('w9e.kpiDashboard.range90d') },
+            { value: '1y', label: t('w9e.kpiDashboard.range1y') },
           ]}
         />
       </Space>
@@ -96,29 +97,29 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
         <Col span={6}>
           <Card>
             <Statistic
-              title="总检查量"
+              title={t('w9e.kpiDashboard.totalExams')}
               value={summary.totalExams}
               prefix={<Activity size={14} color={CHART_COLORS.primary} />}
             />
-            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>日均 {(summary.totalExams / filtered.length).toFixed(0)}</div>
+            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>{t('w9e.kpiDashboard.dailyAvg')}{(summary.totalExams / filtered.length).toFixed(0)}</div>
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="总报告量"
+              title={t('w9e.kpiDashboard.totalReports')}
               value={summary.totalReports}
               prefix={<FileCheck size={14} color={CHART_COLORS.deepBlue} />}
             />
-            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>报告/检查 {(summary.totalReports / summary.totalExams * 100).toFixed(1)}%</div>
+            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>{t('w9e.kpiDashboard.reportPerExam')}{(summary.totalReports / summary.totalExams * 100).toFixed(1)}%</div>
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="平均报告耗时"
+              title={t('w9e.kpiDashboard.avgReportTime')}
               value={summary.avgReportTime}
-              suffix="分钟"
+              suffix={t('w9e.kpiDashboard.minutes')}
               prefix={<Clock size={14} color={CHART_COLORS.warning} />}
             />
           </Card>
@@ -126,17 +127,17 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
         <Col span={6}>
           <Card>
             <Statistic
-              title="危急值"
+              title={t('w9e.kpiDashboard.criticalValues')}
               value={summary.totalCritical}
               prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />}
             />
-            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>占检查 {(summary.totalCritical / summary.totalExams * 100).toFixed(2)}%</div>
+            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>{t('w9e.kpiDashboard.shareOfExams')}{(summary.totalCritical / summary.totalExams * 100).toFixed(2)}%</div>
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="报告审核率"
+              title={t('w9e.kpiDashboard.approvalRate')}
               value={summary.avgApproval}
               suffix="%"
               styles={{ content: {  color: Number(summary.avgApproval) >= 95 ? CHART_COLORS.success : CHART_COLORS.amber  } }}
@@ -148,7 +149,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
         <Col span={6}>
           <Card>
             <Statistic
-              title="阳性率"
+              title={t('w9e.kpiDashboard.positiveRate')}
               value={summary.avgPositive}
               suffix="%"
               prefix={<TrendingUp size={14} color={CHART_COLORS.primary} />}
@@ -158,9 +159,9 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
         <Col span={6}>
           <Card>
             <Statistic
-              title="设备使用时长"
+              title={t('w9e.kpiDashboard.deviceBusyHours')}
               value={summary.totalBusyHours}
-              suffix="小时"
+              suffix={t('w9e.kpiDashboard.hours')}
               prefix={<Cpu size={14} color={CHART_COLORS.purple} />}
             />
           </Card>
@@ -168,7 +169,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
         <Col span={6}>
           <Card>
             <Statistic
-              title="医师数"
+              title={t('w9e.kpiDashboard.doctorCount')}
               value={topDoctors.length}
               prefix={<Users size={14} />}
             />
@@ -178,8 +179,8 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={16}>
-          <Card size="small" title="检查与报告趋势" data-testid="kpi-trend">
-            <ChartContainer height={260} state={filtered.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无趋势数据">
+          <Card size="small" title={t('w9e.kpiDashboard.trendTitle')} data-testid="kpi-trend">
+            <ChartContainer height={260} state={filtered.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.kpiDashboard.noTrend')}>
               <AreaChart data={filtered}>
                 <defs>
                   <linearGradient id="examsG" x1="0" y1="0" x2="0" y2="1">
@@ -196,15 +197,15 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                 <YAxis />
                 <RTooltip />
                 <Legend verticalAlign="bottom" align="center" />
-                <Area type="monotone" dataKey="exams" stroke={CHART_COLORS.primary} fill="url(#examsG)" name="检查" />
-                <Area type="monotone" dataKey="reports" stroke={CHART_COLORS.success} fill="url(#reportsG)" name="报告" />
+                <Area type="monotone" dataKey="exams" stroke={CHART_COLORS.primary} fill="url(#examsG)" name={t('w9e.kpiDashboard.examsLegend')} />
+                <Area type="monotone" dataKey="reports" stroke={CHART_COLORS.success} fill="url(#reportsG)" name={t('w9e.kpiDashboard.reportsLegend')} />
               </AreaChart>
             </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="模态分布" data-testid="kpi-modality">
-            <ChartContainer height={260} state={modalityBreakdown.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态数据">
+          <Card size="small" title={t('w9e.kpiDashboard.modalityTitle')} data-testid="kpi-modality">
+            <ChartContainer height={260} state={modalityBreakdown.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.kpiDashboard.noModality')}>
               <PieChart>
                 <Pie
                   data={modalityBreakdown}
@@ -227,8 +228,8 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
 
       <Row gutter={12}>
         <Col span={12}>
-          <Card size="small" title="报告耗时(分钟)" data-testid="kpi-report-time">
-            <ChartContainer height={220} state={filtered.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无数据">
+          <Card size="small" title={t('w9e.kpiDashboard.reportTimeTitle')} data-testid="kpi-report-time">
+            <ChartContainer height={220} state={filtered.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.kpiDashboard.noDataShort')}>
               <LineChart data={filtered}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
@@ -240,8 +241,8 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
           </Card>
         </Col>
         <Col span={12}>
-          <Card size="small" title="Top 医师" data-testid="kpi-top-doctors">
-            <ChartContainer height={220} state={topDoctors.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无医师数据">
+          <Card size="small" title={t('w9e.kpiDashboard.topDoctorsTitle')} data-testid="kpi-top-doctors">
+            <ChartContainer height={220} state={topDoctors.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.kpiDashboard.noDoctors')}>
               <BarChart data={topDoctors} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />

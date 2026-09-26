@@ -137,7 +137,7 @@ export function diffStates(prev: Uint8Array, curr: Uint8Array): number {
 // 编码/解码 base64 (URL safe) 便于持久化
 export function encodeStateB64(state: Uint8Array): string {
   let bin = '';
-  for (let i = 0; i < state.length; i++) bin += String.fromCharCode(state[i]);
+  for (let i = 0; i < state.length; i++) bin += String.fromCharCode(state[i] ?? 0);
   return btoa(bin);
 }
 

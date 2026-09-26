@@ -28,6 +28,7 @@ import {
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { seededUnit } from "../../utils/seededRandom";
 import { t } from "../../i18n/appI18n";
 
 export const IheConnectathonPage: React.FC = () => {
@@ -95,9 +96,12 @@ export const IheConnectathonPage: React.FC = () => {
     if (!session) return;
     const updated: IheConnectathonSession = { ...session };
     for (const tc of updated.testCases) {
+      let stepIndex = 0;
       const runner = async (_step: { id: string; description: string }) => {
         await new Promise((r) => setTimeout(r, 60));
-        const passed = Math.random() > 0.1;
+        // [G005 W7] 确定性结果 (由 profile/titleEn/step 派生, 刷新后稳定不变)
+        const passed = seededUnit(`${tc.profile}|${tc.titleEn}|${stepIndex}`) > 0.1;
+        stepIndex += 1;
         return {
           status: passed
             ? ("pass" as IheTestStatus)
@@ -165,6 +169,8 @@ export const IheConnectathonPage: React.FC = () => {
             <Tag color="red">IHE</Tag>
             {/* [G005 Wave2B P2] Math.random 本地模拟测试 → 模拟工具徽标 */}
             <Tag color="orange">{t("iheConn.mockBadge")}</Tag>
+            {/* [G005 W7] 明确的「演示模拟」徽标 (确定性测试结果) */}
+            <Tag color="volcano">{t("w7demo.simulatedBadge")}</Tag>
             <Button
               size="small"
               icon={<BookOpen className="w-3 h-3" />}

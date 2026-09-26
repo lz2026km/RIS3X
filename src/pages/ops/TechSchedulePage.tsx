@@ -34,17 +34,17 @@ const C = {
 }
 
 const SHIFT_CONFIG: Record<TechShift, { label: string; color: string; icon: React.ReactNode }> = {
-  DAY: { label: '白班', color: C.blue, icon: <Sun size={12} /> },
-  NIGHT: { label: '夜班', color: C.purple, icon: <Moon size={12} /> },
-  WEEKEND: { label: '周末班', color: C.orange, icon: <CalendarDays size={12} /> },
-  BACKUP: { label: '备班', color: C.teal, icon: <Coffee size={12} /> },
+  DAY: { label: 'w9e.techSchedule.shiftDay', color: C.blue, icon: <Sun size={12} /> },
+  NIGHT: { label: 'w9e.techSchedule.shiftNight', color: C.purple, icon: <Moon size={12} /> },
+  WEEKEND: { label: 'w9e.techSchedule.shiftWeekend', color: C.orange, icon: <CalendarDays size={12} /> },
+  BACKUP: { label: 'w9e.techSchedule.shiftBackup', color: C.teal, icon: <Coffee size={12} /> },
 }
 
 const STATUS_CONFIG: Record<TechScheduleStatus, { label: string; color: string }> = {
-  SCHEDULED: { label: '排定', color: C.textMid },
-  CONFIRMED: { label: '已确认', color: C.green },
-  SWAPPED: { label: '已换班', color: C.orange },
-  ON_LEAVE: { label: '已请假', color: C.red },
+  SCHEDULED: { label: 'w9e.techSchedule.statusScheduled', color: C.textMid },
+  CONFIRMED: { label: 'w9e.techSchedule.statusConfirmed', color: C.green },
+  SWAPPED: { label: 'w9e.techSchedule.statusSwapped', color: C.orange },
+  ON_LEAVE: { label: 'w9e.techSchedule.statusOnLeave', color: C.red },
 }
 
 const SHIFT_LIST: TechShift[] = ['DAY', 'NIGHT', 'WEEKEND', 'BACKUP']
@@ -158,7 +158,7 @@ export default function TechSchedulePage() {
       notes: createForm.notes || null,
     })
     if (res.success) {
-      message.success(`排班已创建: ${res.data.technicianName} ${SHIFT_CONFIG[res.data.shift].label}`)
+      message.success(t('w9e.techSchedule.createdMsg', { name: res.data.technicianName, shift: t(SHIFT_CONFIG[res.data.shift].label) }))
       setCreateOpen(false)
       setCreateForm(EMPTY_FORM)
       afterMutate()
@@ -179,7 +179,7 @@ export default function TechSchedulePage() {
       shiftPattern: batchForm.pattern,
     })
     if (res.success) {
-      message.success(`批量生成完成: ${res.data.count} 条排班`)
+      message.success(t('w9e.techSchedule.batchDoneMsg', { count: res.data.count }))
       setBatchOpen(false)
       afterMutate()
     } else {
@@ -208,7 +208,7 @@ export default function TechSchedulePage() {
     }
     const res = await techScheduleApi.swap(detail.id, { targetTechId: swapForm.targetTechId, reason: swapForm.reason })
     if (res.success) {
-      message.success(`换班成功: ${res.data.source.technicianName} ↔ ${res.data.target.technicianName}`)
+      message.success(t('w9e.techSchedule.swapDoneMsg', { source: res.data.source.technicianName, target: res.data.target.technicianName }))
       setSwapOpen(false)
       setDetail(null)
       setSwapForm({ targetTechId: '', reason: '' })
@@ -227,7 +227,7 @@ export default function TechSchedulePage() {
     }
     const res = await techScheduleApi.leave(detail.id, { reason: leaveReason })
     if (res.success) {
-      message.warning(`${res.data.technicianName} 已请假，请安排补位`)
+      message.warning(t('w9e.techSchedule.leaveNeedsCoverMsg', { name: res.data.technicianName }))
       setLeaveOpen(false)
       setDetail(null)
       setLeaveReason('')
@@ -356,7 +356,7 @@ export default function TechSchedulePage() {
           <Select
             size="small" placeholder={t('techSchedule.allStatus')} value={filterStatus || undefined}
             onChange={(v) => setFilterStatus(v ?? '')} allowClear style={{ width: 130 }}
-            options={STATUS_LIST.map((s) => ({ value: s, label: STATUS_CONFIG[s].label }))}
+            options={STATUS_LIST.map((s) => ({ value: s, label: t(STATUS_CONFIG[s].label) }))}
           />
           <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => { setCreateForm({ ...EMPTY_FORM }); setCreateOpen(true) }}>
             {t('techSchedule.createSchedule')}
@@ -407,15 +407,15 @@ export default function TechSchedulePage() {
                           return (
                             <td key={d.date} style={{ ...tdStyle, textAlign: 'center', background: dim ? '#1a1f27' : weekend ? '#1c2129' : 'transparent', cursor: 'pointer' }}
                               onClick={() => { if (item) setDetail(item); else if (!isFiltered) openCreateOn(d.date) }}
-                              title={item ? `${tech.name} ${SHIFT_CONFIG[item.shift].label} (${STATUS_CONFIG[item.status].label})` : `为 ${tech.name} 添加 ${d.date} 排班`}
+                              title={item ? `${tech.name} ${t(SHIFT_CONFIG[item.shift].label)} (${t(STATUS_CONFIG[item.status].label)})` : t('w9e.techSchedule.addScheduleTitle', { name: tech.name, date: d.date })}
                             >
                               {item ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, opacity: statusOk ? 1 : 0.35 }}>
                                   <Tag color={SHIFT_CONFIG[item.shift].color} style={{ margin: 0, fontSize: 11, borderRadius: 4 }}>
-                                    {SHIFT_CONFIG[item.shift].icon} {SHIFT_CONFIG[item.shift].label}
+                                    {SHIFT_CONFIG[item.shift].icon} {t(SHIFT_CONFIG[item.shift].label)}
                                   </Tag>
                                   <span style={{ fontSize: 10, color: STATUS_CONFIG[item.status].color, fontWeight: 500 }}>
-                                    {STATUS_CONFIG[item.status].label}
+                                    {t(STATUS_CONFIG[item.status].label)}
                                   </span>
                                   {item.roomName && <span style={{ fontSize: 10, color: C.textLight }}>{item.roomName}</span>}
                                 </div>
@@ -443,13 +443,13 @@ export default function TechSchedulePage() {
           <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{t('techSchedule.shiftLegend')}</span>
           {SHIFT_LIST.map((s) => (
             <span key={s} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: SHIFT_CONFIG[s].color }}>
-              {SHIFT_CONFIG[s].icon}{SHIFT_CONFIG[s].label}
+              {SHIFT_CONFIG[s].icon}{t(SHIFT_CONFIG[s].label)}
             </span>
           ))}
           <span style={{ borderLeft: `1px solid ${C.border}`, height: 16 }} />
           {STATUS_LIST.map((s) => (
             <span key={s} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: STATUS_CONFIG[s].color }}>
-              {STATUS_CONFIG[s].label}
+              {t(STATUS_CONFIG[s].label)}
             </span>
           ))}
           <span style={{ marginLeft: 'auto', fontSize: 11, color: C.textLight }}>{t('techSchedule.cellHint')}</span>
@@ -503,7 +503,7 @@ export default function TechSchedulePage() {
 
       {/* ================= 排班详情/操作弹窗 ================= */}
       <Modal
-        title={detail ? `排班详情 · ${detail.date} ${SHIFT_CONFIG[detail.shift]?.label ?? detail.shift}` : ''}
+        title={detail ? t('w9e.techSchedule.detailTitle', { date: detail.date, shift: t(SHIFT_CONFIG[detail.shift]?.label ?? detail.shift) }) : ''}
         open={!!detail}
         onCancel={() => setDetail(null)}
         footer={null}
@@ -516,7 +516,7 @@ export default function TechSchedulePage() {
               {[
                 { label: t('techSchedule.technician'), value: detail.technicianName },
                 { label: t('techSchedule.examRoom'), value: detail.roomName ?? t('techSchedule.unassigned') },
-                { label: t('techSchedule.status'), value: STATUS_CONFIG[detail.status]?.label ?? detail.status },
+                { label: t('techSchedule.status'), value: t(STATUS_CONFIG[detail.status]?.label ?? detail.status) },
                 { label: t('techSchedule.notes'), value: detail.notes ?? '-' },
               ].map((f) => (
                 <div key={f.label} style={{ minWidth: 140 }}>
@@ -559,11 +559,11 @@ export default function TechSchedulePage() {
           <input type="date" value={createForm.date} onChange={(e) => setCreateForm({ ...createForm, date: e.target.value })} style={inputStyle} data-testid="ts-create-date" />
           <label style={labelStyle}>{t('techSchedule.shift')}</label>
           <Select size="small" value={createForm.shift} onChange={(v) => setCreateForm({ ...createForm, shift: v })} style={{ width: '100%' }}
-            options={SHIFT_LIST.map((s) => ({ value: s, label: `${SHIFT_CONFIG[s].label} (${s})` }))} />
+            options={SHIFT_LIST.map((s) => ({ value: s, label: `${t(SHIFT_CONFIG[s].label)} (${s})` }))} />
           <label style={labelStyle}>{t('techSchedule.technician')}</label>
           <Select size="small" placeholder={t('techSchedule.selectTechnician')} value={createForm.technicianId || undefined} onChange={(v) => setCreateForm({ ...createForm, technicianId: v })}
             style={{ width: '100%' }}
-            options={technicians.map((t) => ({ value: t.id, label: `${t.name}（${t.group}）` }))} />
+            options={technicians.map((tech) => ({ value: tech.id, label: t('w9e.techSchedule.techOption', { name: tech.name, group: tech.group }) }))} />
           <label style={labelStyle}>{t('techSchedule.examRoom')}</label>
           <Select size="small" placeholder={t('techSchedule.optional')} value={createForm.roomId ?? undefined} onChange={(v) => setCreateForm({ ...createForm, roomId: v ?? null })} allowClear
             style={{ width: '100%' }}
@@ -593,7 +593,7 @@ export default function TechSchedulePage() {
                     pattern: on ? batchForm.pattern.filter((x) => x !== s) : [...batchForm.pattern, s],
                   })}
                 >
-                  {SHIFT_CONFIG[s].icon} {SHIFT_CONFIG[s].label}
+                  {SHIFT_CONFIG[s].icon} {t(SHIFT_CONFIG[s].label)}
                 </Button>
               )
             })}
@@ -603,7 +603,7 @@ export default function TechSchedulePage() {
       </Modal>
 
       {/* ================= 换班弹窗 ================= */}
-      <Modal title={detail ? `换班 · ${detail.technicianName} (${SHIFT_CONFIG[detail.shift]?.label ?? detail.shift})` : t('techSchedule.swap')} open={swapOpen} onCancel={() => setSwapOpen(false)} onOk={() => void handleSwap()} width={420} destroyOnClose>
+      <Modal title={detail ? t('w9e.techSchedule.swapModalTitle', { name: detail.technicianName, shift: t(SHIFT_CONFIG[detail.shift]?.label ?? detail.shift) }) : t('techSchedule.swap')} open={swapOpen} onCancel={() => setSwapOpen(false)} onOk={() => void handleSwap()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
           <label style={labelStyle}>{t('techSchedule.targetTechLabel')}</label>
           <Select size="small" placeholder={t('techSchedule.selectTargetTech')} value={swapForm.targetTechId || undefined} onChange={(v) => setSwapForm({ ...swapForm, targetTechId: v })}
@@ -629,11 +629,11 @@ export default function TechSchedulePage() {
           <input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} style={inputStyle} />
           <label style={labelStyle}>{t('techSchedule.shift')}</label>
           <Select size="small" value={editForm.shift} onChange={(v) => setEditForm({ ...editForm, shift: v })} style={{ width: '100%' }}
-            options={SHIFT_LIST.map((s) => ({ value: s, label: `${SHIFT_CONFIG[s].label} (${s})` }))} />
+            options={SHIFT_LIST.map((s) => ({ value: s, label: `${t(SHIFT_CONFIG[s].label)} (${s})` }))} />
           <label style={labelStyle}>{t('techSchedule.technician')}</label>
           <Select size="small" placeholder={t('techSchedule.selectTechnician')} value={editForm.technicianId || undefined} onChange={(v) => setEditForm({ ...editForm, technicianId: v })}
             style={{ width: '100%' }}
-            options={technicians.map((t) => ({ value: t.id, label: `${t.name}（${t.group}）` }))} />
+            options={technicians.map((tech) => ({ value: tech.id, label: t('w9e.techSchedule.techOption', { name: tech.name, group: tech.group }) }))} />
           <label style={labelStyle}>{t('techSchedule.examRoom')}</label>
           <Select size="small" placeholder={t('techSchedule.optional')} value={editForm.roomId ?? undefined} onChange={(v) => setEditForm({ ...editForm, roomId: v ?? null })} allowClear
             style={{ width: '100%' }}
@@ -748,7 +748,7 @@ function buildDemoData(month: string): { calendar: TechCalendar; stats: TechStat
     }).filter((x) => x.count > 0),
     byShift: (['DAY', 'NIGHT', 'WEEKEND', 'BACKUP'] as TechShift[]).map((shift) => ({
       shift,
-      label: SHIFT_CONFIG[shift].label,
+      label: t(SHIFT_CONFIG[shift].label),
       count: schedules.filter((s) => s.shift === shift).length,
     })),
   }

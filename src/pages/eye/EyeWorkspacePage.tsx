@@ -16,7 +16,7 @@ import {
   Box,
   Package,
 } from 'lucide-react';
-import { PageContainer, PageHeader } from '@/components/common';
+import { PageContainer, PageHeader, ActionButton, ExportButton } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { eyeApi } from '@/services/api/eyeApi';
@@ -196,25 +196,35 @@ const EyeWorkspacePage: React.FC = () => {
         icon={<Eye className="v4-icon" style={{ width: 28, height: 28, color: '#2563eb' }} />}
         variant="inline"
         actions={
-          <button
-            type="button"
-            onClick={() => navigate('/appointments?action=new')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '6px 14px',
-              background: '#2563eb',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 6,
-              fontSize: 13,
-              cursor: 'pointer',
-            }}
-          >
-            <UserPlus size={14} />
-            {t('eyeWs.newAppointment')}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => navigate('/appointments?action=new')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 14px',
+                background: '#2563eb',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              <UserPlus size={14} />
+              {t('eyeWs.newAppointment')}
+            </button>
+            <ActionButton action="refresh" loading={loading} onClick={() => setReloadTick((n) => n + 1)}>{t('w45.actions.refresh')}</ActionButton>
+            <ExportButton
+              data={() => iolRecords}
+              filename="eye-workspace-iol"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
+            />
+          </>
         }
       />
 

@@ -215,7 +215,7 @@ export default function ReportPage() {
     setDateFrom(f.dateFrom); setDateTo(f.dateTo); setCriticalOnly(f.criticalOnly);
     setPositiveOnly(f.positiveOnly); setQualityScoreFrom(f.qualityScoreFrom); setQualityScoreTo(f.qualityScoreTo);
     setQuickQueue(null);
-    showToast(`已加载筛选预置「${p.name}」`, 'info');
+    showToast(t('w9c.reportPage.presetLoaded', { name: p.name }), 'info');
   };
   const saveCurrentPreset = () => {
     const name = savePresetName.trim();
@@ -224,13 +224,13 @@ export default function ReportPage() {
     setFilterPresets(newPresets);
     localStorage.setItem('report-filter-presets', JSON.stringify(newPresets));
     setSavePresetName(''); setShowSavePreset(false);
-    showToast(`当前筛选已保存为「${name}」`, 'success');
+    showToast(t('w9c.reportPage.presetSaved', { name }), 'success');
   };
   const deletePreset = (name: string) => {
     const newPresets = filterPresets.filter(p => p.name !== name);
     setFilterPresets(newPresets);
     localStorage.setItem('report-filter-presets', JSON.stringify(newPresets));
-    showToast(`预置「${name}」已删除`, 'info');
+    showToast(t('w9c.reportPage.presetDeleted', { name }), 'info');
   };
   const toggleQueue = (key: string) => setQuickQueue(prev => (prev === key ? null : key));
   const activeQueue = QUEUE_DEFS.find(q => q.key === quickQueue) ?? null;
@@ -243,7 +243,7 @@ export default function ReportPage() {
     if (list.length === 0) { showToast(t("reportPage.noExportable"), "error"); return; }
     if (exporting) return;
     setExporting(true);
-    setExportModal({ show: true, title, message: `后端入队中 (${list.length} 份)...`, complete: false });
+    setExportModal({ show: true, title, message: t('w9c.reportPage.exportQueued', { count: list.length }), complete: false });
     let done = 0; let failed = 0;
     for (const r of list) {
       try {
@@ -281,15 +281,15 @@ export default function ReportPage() {
         if (!ready) { failed++; continue; }
         done++;
       } catch { failed++; }
-      setExportModal(m => ({ ...m, message: `导出中... 成功 ${done} 份 / 失败 ${failed} 份` }));
+      setExportModal(m => ({ ...m, message: t('w9c.reportPage.exportInProgress', { done, failed }) }));
     }
     setExporting(false);
-    setExportModal(m => ({ ...m, complete: true, message: `导出完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ""}` }));
-    showToast(`导出完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ""}`, failed > 0 ? "info" : "success");
+    setExportModal(m => ({ ...m, complete: true, message: t('w9c.reportPage.exportComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : "" }) }));
+    showToast(t('w9c.reportPage.exportComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : "" }), failed > 0 ? "info" : "success");
     setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2500);
   };
 
-  const handleExport = () => { void runRealExport(filteredReports, "导出报表"); };
+  const handleExport = () => { void runRealExport(filteredReports, t('w9c.reportPage.exportReport')); };
 
   // [W2-3] 修订: 调 reportApi.revise (AMENDING) → 跳转修订页
   const handleRevise = async (r: RadiologyReport) => {
@@ -297,10 +297,10 @@ export default function ReportPage() {
       const res = await reportApi.revise(r.id);
       if (res.success) {
         setAllReports(prev => prev.map(x => (x.id === r.id ? { ...x, status: '修订中' } : x)));
-        showToast(`报告 ${r.reportId} 已进入修订流程`, 'success');
+        showToast(t('w9c.reportPage.reviseStarted', { id: r.reportId }), 'success');
         navigate(`/report-revisions?reportId=${r.id}`);
       } else {
-        showToast(`修订失败:${res.error?.message ?? '未知错误'}`, 'error');
+        showToast(t('w9c.reportPage.reviseFailed', { msg: res.error?.message ?? t('w9c.reportPage.unknownError') }), 'error');
       }
     } catch { showToast(t('reportPage.reviseNetError'), 'error'); }
   };
@@ -310,10 +310,10 @@ export default function ReportPage() {
     try {
       const res = await reportApi.publish(r.id);
       if (res.success) {
-        setAllReports(prev => prev.map(x => (x.id === r.id ? { ...x, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: user?.name ?? '当前用户' } : x)));
-        showToast(`报告 ${r.reportId} 补发成功`, 'success');
+        setAllReports(prev => prev.map(x => (x.id === r.id ? { ...x, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: user?.name ?? t('w9c.reportPage.currentUser') } : x)));
+        showToast(t('w9c.reportPage.republishSuccess', { id: r.reportId }), 'success');
       } else {
-        showToast(`补发失败:${res.error?.message ?? '未知错误'}`, 'error');
+        showToast(t('w9c.reportPage.republishFailed', { msg: res.error?.message ?? t('w9c.reportPage.unknownError') }), 'error');
       }
     } catch { showToast(t('reportPage.republishNetError'), 'error'); }
   };
@@ -324,13 +324,13 @@ export default function ReportPage() {
       const res = await exportApprovalApi.request({
         resource: 'REPORT',
         resourceId: r.id,
-        reason: `报告导出审批申请: ${r.reportId} (${r.patientName} · ${r.examItemName})`,
+        reason: t('w9c.reportPage.approvalReason', { id: r.reportId, patient: r.patientName, exam: r.examItemName }),
       });
       if (res.success) {
         showToast(t('reportPage.approvalSubmitted'), 'success');
         navigate('/export/approval');
       } else {
-        showToast(`审批申请失败:${res.error?.message ?? '未知错误'}`, 'error');
+        showToast(t('w9c.reportPage.approvalFailed', { msg: res.error?.message ?? t('w9c.reportPage.unknownError') }), 'error');
       }
     } catch { showToast(t('reportPage.approvalNetError'), 'error'); }
   };
@@ -346,11 +346,11 @@ export default function ReportPage() {
       if (res.success) {
         setAllReports(prev => prev.map(x => (x.id === r.id ? { ...x, criticalFinding: true, criticalFindingDetails: description } : x)));
         setCriticalModal({ report: null, submitting: false });
-        showToast(`报告 ${r.reportId} 已转入危急值流程`, 'success');
+        showToast(t('w9c.reportPage.criticalTransferred', { id: r.reportId }), 'success');
         navigate('/critical-value');
       } else {
         setCriticalModal(m => ({ ...m, submitting: false }));
-        showToast(`转入失败:${res.error?.message ?? '未知错误'}`, 'error');
+        showToast(t('w9c.reportPage.criticalTransferFailed', { msg: res.error?.message ?? t('w9c.reportPage.unknownError') }), 'error');
       }
     } catch {
       setCriticalModal(m => ({ ...m, submitting: false }));
@@ -389,12 +389,12 @@ export default function ReportPage() {
     if (deletingIds.has(r.id)) return;
     setDeletingIds(prev => new Set(prev).add(r.id));
     try {
-      const res = await reportApi.remove(r.id, `用户 ${user?.name ?? '当前用户'} 删除报告`);
+      const res = await reportApi.remove(r.id, t('w9c.reportPage.deleteReason', { name: user?.name ?? t('w9c.reportPage.currentUser') }));
       if (res.success) {
         setAllReports(prev => prev.filter(x => x.id !== r.id));
-        showToast(`报告 ${r.reportId} 已删除`, 'success');
+        showToast(t('w9c.reportPage.deleteSuccess', { id: r.reportId }), 'success');
       } else {
-        showToast(`删除失败:${res.error?.message ?? '未知错误'}`, 'error');
+        showToast(t('w9c.reportPage.deleteFailed', { msg: res.error?.message ?? t('w9c.reportPage.unknownError') }), 'error');
       }
     } catch {
       showToast(t('reportPage.deleteNetError'), 'error');
@@ -436,7 +436,7 @@ export default function ReportPage() {
       if (res.success && res.data) {
         const created = Array.isArray(res.data.created) ? res.data.created : [];
         if (created.length > 0) {
-          showToast(`已从报告提取并创建 ${created.length} 个病灶追踪记录`, 'success');
+          showToast(t('w9c.reportPage.lesionCreated', { count: created.length }), 'success');
           const pid = created[0]?.patientId ?? r.patientId;
           navigate(`/dicom/lesion-tracking?patientId=${encodeURIComponent(pid ?? '')}`);
         } else {
@@ -455,13 +455,13 @@ export default function ReportPage() {
     try {
       const esc = (s?: string) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
       const html = [
-        '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>离线报告</title>',
+        `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${t('w9c.reportPage.offlineTitle')}</title>`,
         '<style>body{font-family:-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#1e293b;line-height:1.8}h1{font-size:20px;border-bottom:2px solid #1e40af;padding-bottom:8px;margin-bottom:8px}.meta{color:#64748b;font-size:12px;margin-bottom:16px}label{font-weight:600;color:#1e40af;display:block;margin:14px 0 4px;font-size:13px}section{white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0}</style>',
-        `</head><body><h1>影像检查报告</h1><div class="meta">患者: ${esc(r.patientName)} · ${esc(r.modality)} ${esc(r.bodyPart)} · 报告号: ${esc(r.reportId)} · 检查号: ${esc(r.accessionNumber)}<br/>离线保存时间: ${new Date().toLocaleString('zh-CN')}</div>`,
-        `<label>检查所见</label><section>${esc(r.examFindings)}</section>`,
-        `<label>诊断意见</label><section>${esc(r.diagnosis)}</section>`,
-        `<label>影像印象</label><section>${esc(r.impression)}</section>`,
-        '<p style="font-size:12px;color:#94a3b8;margin-top:20px">电子报告与纸质报告具有同等法律效力。</p></body></html>',
+        `</head><body><h1>${t('w9c.reportPage.offlineHeading')}</h1><div class="meta">${t('w9c.reportPage.offlinePatientMeta', { patient: esc(r.patientName), modality: esc(r.modality), bodyPart: esc(r.bodyPart), reportId: esc(r.reportId), accession: esc(r.accessionNumber) })}<br/>${t('w9c.reportPage.offlineSavedAt', { time: new Date().toLocaleString('zh-CN') })}</div>`,
+        `<label>${t('w9c.reportPage.offlineFindings')}</label><section>${esc(r.examFindings)}</section>`,
+        `<label>${t('w9c.reportPage.offlineDiagnosis')}</label><section>${esc(r.diagnosis)}</section>`,
+        `<label>${t('w9c.reportPage.offlineImpression')}</label><section>${esc(r.impression)}</section>`,
+        `<p style="font-size:12px;color:#94a3b8;margin-top:20px">${t('w9c.reportPage.offlineDisclaimer')}</p></body></html>`,
       ].join('');
       await offlineStorage.saveReport({
         id: r.id,
@@ -480,7 +480,7 @@ export default function ReportPage() {
         savedAt: Date.now(),
         updatedAt: Date.now(),
       });
-      showToast(`报告 ${r.reportId} 已保存至离线包`, 'success');
+      showToast(t('w9c.reportPage.offlineSaved', { id: r.reportId }), 'success');
     } catch {
       showToast(t('reportPage.offlineSaveFailed'), 'error');
     }
@@ -505,15 +505,15 @@ export default function ReportPage() {
           if (action === 'redistribute') return { ...x, status: '跨院区重分配' }
           return { ...x, status: '已升级' }
         }));
-        showToast(`报告 ${r.reportId} ${action === 'supplement' ? '已进入补充流程' : action === 'rectify' ? '已进入整改' : action === 'redistribute' ? '已发起跨院区重分配' : '已升级'}`, 'success');
+        showToast(t('w9c.reportPage.specialActionDone', { id: r.reportId, result: action === 'supplement' ? t('w9c.reportPage.specialSupplementStarted') : action === 'rectify' ? t('w9c.reportPage.specialRectifyStarted') : action === 'redistribute' ? t('w9c.reportPage.specialRedistributeStarted') : t('w9c.reportPage.specialEscalated') }), 'success');
       } else {
-        showToast(`${actionLabel(action)}失败:${res.error?.message ?? '未知错误'}`, 'error');
+        showToast(t('w9c.reportPage.actionFailed', { action: actionLabel(action), msg: res.error?.message ?? t('w9c.reportPage.unknownError') }), 'error');
       }
     } catch (e) {
-      showToast(`${actionLabel(action)}失败:${e instanceof Error ? e.message : '网络错误'}`, 'error');
+      showToast(t('w9c.reportPage.actionFailed', { action: actionLabel(action), msg: e instanceof Error ? e.message : t('w9c.reportPage.networkError') }), 'error');
     }
   };
-  const actionLabel = (a: string) => a === 'supplement' ? '补充报告' : a === 'rectify' ? '整改' : a === 'redistribute' ? '跨院区重分配' : '升级';
+  const actionLabel = (a: string) => a === 'supplement' ? t('w9c.reportPage.actionSupplement') : a === 'rectify' ? t('w9c.reportPage.actionRectify') : a === 'redistribute' ? t('w9c.reportPage.actionRedistribute') : t('w9c.reportPage.actionEscalate');
   const handleToggleSelect = useCallback((id: string) => { setSelectedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; }); }, []);
   const handleSelectAll = useCallback(() => { setSelectedIds(new Set(filteredReports.map(r => r.id))); }, [filteredReports]);
   const handleDeselectAll = useCallback(() => { setSelectedIds(new Set()); }, []);
@@ -562,10 +562,10 @@ export default function ReportPage() {
 
       <div className="no-print" style={{ maxWidth: 1440, margin: "0 auto", padding: "20px 24px" }}>
         <div className="report-stats" style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 14 }}>
-          <StatCard label={t("reportPage.stat.todayReports")} value={stats.todayTotal} icon={<FileText size={20} />} color={ACCENT} sub={`本周共 ${stats.thisWeekTotal} 份`} />
-          <StatCard label={t("reportPage.stat.pendingReview")} value={stats.pendingReview} icon={<Clock size={20} />} color={PURPLE} sub={`占总数 ${stats.pendingReview > 0 ? Math.round((stats.pendingReview / allReports.length) * 100) : 0}%`} />
-          <StatCard label={t("reportPage.stat.criticalReports")} value={stats.criticalCount} icon={<Zap size={20} />} color={DANGER} sub={`含阳性 ${filteredStats.critical} 例`} />
-          <StatCard label={t("reportPage.stat.positive")} value={stats.positiveCount} icon={<AlertTriangle size={20} />} color={WARNING} sub={`阳性率 ${allReports.length > 0 ? Math.round((stats.positiveCount / allReports.length) * 100) : 0}%`} />
+          <StatCard label={t("reportPage.stat.todayReports")} value={stats.todayTotal} icon={<FileText size={20} />} color={ACCENT} sub={t('w9c.reportPage.weekTotalSub', { count: stats.thisWeekTotal })} />
+          <StatCard label={t("reportPage.stat.pendingReview")} value={stats.pendingReview} icon={<Clock size={20} />} color={PURPLE} sub={t('w9c.reportPage.pendingShareSub', { pct: stats.pendingReview > 0 ? Math.round((stats.pendingReview / allReports.length) * 100) : 0 })} />
+          <StatCard label={t("reportPage.stat.criticalReports")} value={stats.criticalCount} icon={<Zap size={20} />} color={DANGER} sub={t('w9c.reportPage.criticalPositiveSub', { count: filteredStats.critical })} />
+          <StatCard label={t("reportPage.stat.positive")} value={stats.positiveCount} icon={<AlertTriangle size={20} />} color={WARNING} sub={t('w9c.reportPage.positiveRateSub', { pct: allReports.length > 0 ? Math.round((stats.positiveCount / allReports.length) * 100) : 0 })} />
           <StatCard label={t("reportPage.stat.avgTurnaround")} value={stats.avgTurnaround} icon={<Clock size={20} />} color="#0891b2" sub={t("reportPage.stat.hoursTip")} />
           <StatCard label={t("reportPage.stat.weekTotal")} value={stats.thisWeekTotal} icon={<BarChart3 size={20} />} color="#7c3aed" sub={t("reportPage.stat.weekTotalTip")} />
         </div>
@@ -606,7 +606,7 @@ export default function ReportPage() {
             <Tag key={p.name} color="geekblue" closable style={{ cursor: "pointer", margin: 0 }}
               onClick={(e) => { e.stopPropagation(); applyPreset(p); }}
               onClose={(e) => { e.preventDefault(); deletePreset(p.name); }}
-              title={`加载预置「${p.name}」(点击加载, 关闭删除)`}
+              title={t('w9c.reportPage.presetTagTooltip', { name: p.name })}
             >{p.name}</Tag>
           ))}
           {activeQueue && <Tag color="blue" closable onClose={() => setQuickQueue(null)}>{t("reportPage.currentQueue")}: {t(activeQueue.labelKey)}</Tag>}
@@ -616,7 +616,7 @@ export default function ReportPage() {
 
         <ReportAdvancedFilter showAdvancedFilter={showAdvancedFilter} setShowAdvancedFilter={setShowAdvancedFilter} qualityScoreFrom={qualityScoreFrom} setQualityScoreFrom={setQualityScoreFrom} qualityScoreTo={qualityScoreTo} setQualityScoreTo={setQualityScoreTo} />
 
-        <ReportToolbar viewMode={viewMode} setViewMode={setViewMode} avgQuality={avgQuality} criticalCount={criticalCount} selectedIds={selectedIds} filteredStats={filteredStats} filteredReports={filteredReports} allReports={allReports} setDetailReport={setDetailReport} setReviewReport={setReviewReport} setExportModal={setExportModal} setPrintModal={setPrintModal} setBulkActionModal={setBulkActionModal} showToast={showToast} setStatusFilter={setStatusFilter} onBulkExport={(list) => void runRealExport(list, "批量导出")} />
+        <ReportToolbar viewMode={viewMode} setViewMode={setViewMode} avgQuality={avgQuality} criticalCount={criticalCount} selectedIds={selectedIds} filteredStats={filteredStats} filteredReports={filteredReports} allReports={allReports} setDetailReport={setDetailReport} setReviewReport={setReviewReport} setExportModal={setExportModal} setPrintModal={setPrintModal} setBulkActionModal={setBulkActionModal} showToast={showToast} setStatusFilter={setStatusFilter} onBulkExport={(list) => void runRealExport(list, t('w9c.reportPage.bulkExport'))} />
 
         {!loading && !loadError && filteredReports.length === 0 && (
           <div className="no-print" style={{ background: WHITE, borderRadius: 10, border: "1px solid var(--border-color)" }}>
@@ -626,14 +626,14 @@ export default function ReportPage() {
 
         <div className="no-print" style={{ display: !loading && !loadError && filteredReports.length === 0 ? "none" : undefined }}>
           {viewMode === "list" ? (
-            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={handleWriteReport} onOpen360={handleOpen360} onOfflineSave={handleOfflineSave} deletingIds={deletingIds} />
+            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], t('w9c.reportPage.exportPdf')); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={handleWriteReport} onOpen360={handleOpen360} onOfflineSave={handleOfflineSave} deletingIds={deletingIds} />
           ) : (
             <ReportKanbanView reports={filteredReports} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} />
           )}
         </div>
       </div>
 
-      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={() => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onCreateLesionTracking={r => { setDetailReport(null); void handleCreateLesionTracking(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} onOfflineSave={handleOfflineSave} onCommittee={r => { setDetailReport(null); handleCommittee(r); }} />}
+      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={() => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], t('w9c.reportPage.exportPdf')); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onCreateLesionTracking={r => { setDetailReport(null); void handleCreateLesionTracking(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} onOfflineSave={handleOfflineSave} onCommittee={r => { setDetailReport(null); handleCommittee(r); }} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
 
@@ -669,18 +669,18 @@ export default function ReportPage() {
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />
       <BatchResultModal show={batchResultModal.show} title={batchResultModal.title} message={batchResultModal.message} type={batchResultModal.type} onClose={() => setBatchResultModal(b => ({ ...b, show: false }))} />
       <PrintModal show={printModal.show} title={printModal.title} message={printModal.message} onClose={() => setPrintModal(p => ({ ...p, show: false }))} onPrint={() => { setPrintModal(p => ({ ...p, show: false })); window.print(); }} />
-      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { let done = 0; let failed = 0; for (const id of selectedIds) { try { await useReportStore.getState().publish(id, 85); done++; } catch { failed++; } } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)) ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量发布完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'error' : 'success'); return; } else if (action === 'delete') { // [W2-C] 批量删除接真实 API (DELETE /reports/:id + reason)
+      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { let done = 0; let failed = 0; for (const id of selectedIds) { try { await useReportStore.getState().publish(id, 85); done++; } catch { failed++; } }           setAllReports(prev => prev.map(r => selectedIds.has(r.id) && ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)) ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: t('w9c.reportPage.currentUser') } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(t('w9c.reportPage.bulkPublishComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : '' }), failed > 0 ? 'error' : 'success'); return; } else if (action === 'delete') { // [W2-C] 批量删除接真实 API (DELETE /reports/:id + reason)
         let done = 0; let failed = 0;
         for (const id of selectedIds) {
           try {
-            const res = await reportApi.remove(id, '批量删除');
+            const res = await reportApi.remove(id, t('w9c.reportPage.bulkDeleteReason'));
             if (res.success) done++; else failed++;
           } catch { failed++; }
         }
         setAllReports(prev => prev.filter(r => !selectedIds.has(r.id)));
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量删除完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'error' : 'success');
+        showToast(t('w9c.reportPage.bulkDeleteComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : '' }), failed > 0 ? 'error' : 'success');
         return;         } else if (action === 'submit') { // [v3.0.6.11-95 Wave3B P1] 批量提交审核: POST /reports/batch-transition → INITIAL_REVIEW
         const ids = Array.from(selectedIds).filter(id => {
           const r = allReports.find(x => x.id === id);
@@ -699,7 +699,7 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量提交审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
+        showToast(t('w9c.reportPage.bulkSubmitComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : '' }), failed > 0 ? 'info' : 'success');
         return;
         } else if (action === 'review') { // [v3.0.6.11-96 Wave3B P1] 批量审核: 单次 POST /reports/batch-transition → REVIEWED (逐条校验, 失败计数保留)
         const ids = Array.from(selectedIds).filter(id => {
@@ -719,7 +719,7 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
+        showToast(t('w9c.reportPage.bulkReviewComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : '' }), failed > 0 ? 'info' : 'success');
         return; } else if (action === 'sign') { // [v3.0.6.11-96 Wave3B P1] 批量签署: 单次 POST /reports/batch-transition → SIGNED
         const ids = Array.from(selectedIds).filter(id => {
           const r = allReports.find(x => x.id === id);
@@ -738,7 +738,7 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量签署完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
+        showToast(t('w9c.reportPage.bulkSignComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : '' }), failed > 0 ? 'info' : 'success');
         return; } else if (action === 'archive') { // [G005 Wave 8] 报告冷归档: 批量归档 (仅 PUBLISHED → ARCHIVED + 归档任务)
         const ids = Array.from(selectedIds).filter(id => {
           const r = allReports.find(x => x.id === id);
@@ -756,8 +756,8 @@ export default function ReportPage() {
         }
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
-        showToast(`批量归档完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'info' : 'success');
-        return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
+        showToast(t('w9c.reportPage.bulkArchiveComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : '' }), failed > 0 ? 'info' : 'success');
+        return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(t('w9c.reportPage.actionSuccessGeneric', { action: action === 'publish' ? t('w9c.reportPage.actionNamePublish') : t('w9c.reportPage.actionNameDelete') }), 'success'); }} />
     </PageContainer>
   );
 }

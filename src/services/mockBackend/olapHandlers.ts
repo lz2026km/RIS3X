@@ -402,4 +402,49 @@ export const olapHandlers = [
       }),
     });
   }),
+
+  // ============================================================
+  // CSV 导出 (olapApi.exportCsv → POST /olap/export/csv, postBlob 直取二进制)
+  //   返回 text/csv 本体 (含 BOM, Excel 中文兼容), 内容与 /olap/query 聚合一致。
+  // ============================================================
+  http.post('/api/v1/olap/export/csv', async ({ request }) => {
+    await delay(120);
+    const body = (await request.json().catch(() => ({}))) as {
+      dimensions?: string[];
+      measures?: string[];
+      granularity?: Granularity;
+      filters?: Array<{ dimension: string; operator: string; value: unknown }>;
+    };
+    const dimensions: string[] = body?.dimensions?.length ? body.dimensions : ['date'];
+    const requested: string[] = (body?.measures || []).filter((m) => METRIC_IDS.has(m));
+    const measures: string[] = requested.length > 0 ? requested : ['exam_count'];
+    const granularity: Granularity = body?.granularity || 'monthly';
+    const filters = body?.filters || [];
+
+    let result: AggregationResult;
+    const kpiCount = Object.keys(KPI_HISTORY || {}).length;
+    if (kpiCount > 0) {
+      const r = aggregateFromKpiHistory({ measures, dimensions, granularity, filters });
+      result = r.rows.length > 0 ? r : aggregateFromCollections({ measures, dimensions, granularity });
+    } else {
+      result = aggregateFromCollections({ measures, dimensions, granularity });
+    }
+
+    const headers = [...dimensions, ...measures];
+    const escapeCell = (v: unknown): string => {
+      const s = v === null || v === undefined ? '' : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [headers.map(escapeCell).join(',')];
+    for (const row of result.rows) {
+      lines.push(headers.map((h) => escapeCell(row[h])).join(','));
+    }
+    const csv = '\uFEFF' + lines.join('\n') + '\n';
+    return new HttpResponse(csv, {
+      headers: {
+        'Content-Type': 'text/csv;charset=utf-8',
+        'Content-Disposition': 'attachment; filename="olap-export.csv"',
+      },
+    });
+  }),
 ];

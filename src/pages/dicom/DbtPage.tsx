@@ -501,9 +501,9 @@ const DbtPage: React.FC = () => {
       .map((b) => `<li>${esc(b)}</li>`)
       .join('')
     const html = [
-      '<h3>DBT 微钙化 BI-RADS 自动评分</h3>',
-      `<p><strong>${esc(biradsResult.categoryLabel)}</strong> (ACR BI-RADS 规则自动判定)</p>`,
-      `<p>恶性可能: ${esc(biradsResult.malignancyRisk)} · 建议: ${esc(biradsResult.recommendation)}</p>`,
+      `<h3>${t('w9d.dbt.biradsTitle')}</h3>`,
+      `<p><strong>${esc(biradsResult.categoryLabel)}</strong> (${t('w9d.dbt.autoJudged')})</p>`,
+      `<p>${t('w9d.dbt.malignancyRisk')}: ${esc(biradsResult.malignancyRisk)} · ${t('w9d.aiRads.recommendLabel')}: ${esc(biradsResult.recommendation)}</p>`,
       basisHtml ? `<ul>${basisHtml}</ul>` : '',
     ].join('\n')
     window.dispatchEvent(new CustomEvent('report-insert-html', { detail: { html } }))

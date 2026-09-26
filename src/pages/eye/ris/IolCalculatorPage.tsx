@@ -138,7 +138,7 @@ const IolCalculatorPage: React.FC = () => {
                 style={{ marginTop: 8 }}
                 type={saveError ? 'warning' : 'success'}
                 showIcon
-                title={saveError ?? `已提交${patientId ? `至患者 ${patientId}` : '计算结果'}`}
+                title={saveError ?? (patientId ? t('w9d.iolCalc.submittedToPatient', { patientId }) : t('w9d.iolCalc.submittedResult'))}
               />
             )}
           </Card>
@@ -178,7 +178,7 @@ const IolCalculatorPage: React.FC = () => {
             <Card size="small" title={t('iolCalc.recentSubmit')} style={{ marginTop: 12 }}>
               <Statistic title={t('iolCalc.iolPower')} value={lastSummary.iolPower} suffix="D" />
               <div style={{ marginTop: 4, color: 'var(--text-secondary)', fontSize: 12 }}>
-                {patientId ? `患者 ${patientId}` : t('iolCalc.unboundPatient')} · {eyeSide || 'OD/OS'}
+                {patientId ? `${t('w9d.octa.patient')} ${patientId}` : t('iolCalc.unboundPatient')} · {eyeSide || 'OD/OS'}
               </div>
             </Card>
           )}

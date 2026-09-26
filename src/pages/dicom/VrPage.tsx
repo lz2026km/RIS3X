@@ -71,7 +71,7 @@ const VrPage: React.FC = () => {
       setMode(setup.mode)
       setJobId(setup.jobId)
       if (setup.series) {
-        setSeriesInfo(`${setup.series.modality} #${setup.series.instanceCount} 层 ${setup.series.rows}x${setup.series.columns}`)
+        setSeriesInfo(`${setup.series.modality} #${setup.series.instanceCount} ${t('w9d.volumeSlices.slices')} ${setup.series.rows}x${setup.series.columns}`)
       }
     })
     return () => { cancelled = true }
@@ -196,7 +196,7 @@ const VrPage: React.FC = () => {
     try {
       sessionStorage.setItem('ris_mip_insert', JSON.stringify({
         imageBase64: dataUrl,
-        label: 'VR 体绘制',
+        label: t('w9d.vr.volumeRendering'),
         studyUid: '',
         seriesUid: jobId ?? '',
         direction: 'axial',

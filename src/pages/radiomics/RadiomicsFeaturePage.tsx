@@ -100,7 +100,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
   const groupedFeatures = features.reduce<Record<string, RadiomicsFeature[]>>((acc, f) => {
     if (!acc[f.category]) acc[f.category] = []
-    acc[f.category].push(f)
+    acc[f.category]!.push(f)
     return acc
   }, {})
 

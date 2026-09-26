@@ -28,16 +28,16 @@ export interface ConflictResolution {
 const NOW = Date.now();
 
 let _syncQueue: SyncQueueItem[] = Array.from({ length: 28 }, (_, i) => {
-  const type = (["study", "report", "user_action", "config", "image"] as const)[i % 5];
+  const type = (["study", "report", "user_action", "config", "image"] as const)[i % 5] ?? "study";
   const op = (["create", "update", "delete"] as const)[i % 3];
   const pri = (["critical", "high", "normal", "low"] as const)[i % 4];
-  const status = (["pending", "syncing", "completed", "failed", "conflict"] as const)[i % 5];
+  const status = (["pending", "syncing", "completed", "failed", "conflict"] as const)[i % 5] ?? "pending";
   return {
     id: `Q-${(10000 + i).toString()}`,
     type,
-    operation: op,
+    operation: op ?? "create",
     payload: `${type}_${op}_${1000 + i}`,
-    priority: pri,
+    priority: pri ?? "normal",
     status,
     attempts: Math.floor(Math.random() * 3),
     maxAttempts: 5,

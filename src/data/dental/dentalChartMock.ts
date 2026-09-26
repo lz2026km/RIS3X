@@ -60,7 +60,7 @@ export const MOCK_DENTAL_CHARTS: DentalChart[] = Array.from({ length: 200 }, (_,
   }
   return {
     patientId: `P${String(100000 + i)}`,
-    patientName: FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)] + GIVEN_NAMES[Math.floor(Math.random() * GIVEN_NAMES.length)],
+    patientName: (FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)] ?? '') + (GIVEN_NAMES[Math.floor(Math.random() * GIVEN_NAMES.length)] ?? ''),
     age: Math.floor(Math.random() * 60) + 10,
     teeth,
     numberingSystem: 'FDI',

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Search, X } from 'lucide-react'
 import { styles, COLORS } from './RegionalReportServiceWire'
+import { t } from '../../i18n/appI18n'
 
 interface RegionalReportFilterProps {
   searchKeyword: string
@@ -8,7 +9,7 @@ interface RegionalReportFilterProps {
   placeholder?: string
 }
 
-const RegionalReportFilter: React.FC<RegionalReportFilterProps> = ({ searchKeyword, onSearchChange, placeholder = '搜索...' }) => {
+const RegionalReportFilter: React.FC<RegionalReportFilterProps> = ({ searchKeyword, onSearchChange, placeholder = t('w9e.regionalReportFilter.searchPlaceholder') }) => {
   return (
     <div style={styles.searchBox}>
       <Search size={16} style={{ color: COLORS.textMuted }} />

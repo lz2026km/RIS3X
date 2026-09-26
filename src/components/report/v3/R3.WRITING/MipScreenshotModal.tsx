@@ -14,6 +14,7 @@ import {
   decodeInt16Base64,
   applyWWL,
 } from '@pages/dicom/volumeReal'
+import { t } from '../../../../i18n/appI18n'
 
 export interface MipScreenshotPayload {
   imageBase64: string
@@ -35,9 +36,9 @@ interface Props {
 }
 
 const DIRECTION_OPTIONS = [
-  { value: 'axial', label: '轴位' },
-  { value: 'sagittal', label: '矢状位' },
-  { value: 'coronal', label: '冠状位' },
+  { value: 'axial', label: t('w9e.mipScreenshot.dirAxial') },
+  { value: 'sagittal', label: t('w9e.mipScreenshot.dirSagittal') },
+  { value: 'coronal', label: t('w9e.mipScreenshot.dirCoronal') },
 ]
 
 const PREVIEW_SIZE = 256
@@ -128,7 +129,7 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
   // 生成 MIP: 真实后端优先 (mipProjection → Int16 → WWL), 不可用回退前端合成
   const generate = useCallback(async () => {
     if (!studyUid) {
-      message.warning('请先选择检查序列')
+      message.warning(t('w9e.mipScreenshot.selectSeriesFirst'))
       return
     }
     setGenerating(true)
@@ -150,7 +151,7 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
           ctx.putImageData(imgData, 0, 0)
           canvas = c
           realSource = true
-          setSeriesInfo(`${setup.series?.modality ?? 'CT'} #${setup.series?.instanceCount ?? '?'} 层 ${p.width}x${p.height}`)
+          setSeriesInfo(t('w9e.mipScreenshot.seriesReal', { modality: setup.series?.modality ?? 'CT', count: setup.series?.instanceCount ?? '?', w: p.width, h: p.height }))
         }
       }
     } catch {
@@ -158,7 +159,7 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
     }
     if (!canvas) {
       canvas = generateSyntheticMip(direction, thickness, ww, wl)
-      setSeriesInfo(selectedSeries ? `${selectedSeries.modality} #${selectedSeries.instanceCount} 层 (合成回退)` : '合成数据 (无可用体数据)')
+      setSeriesInfo(selectedSeries ? t('w9e.mipScreenshot.seriesSynthetic', { modality: selectedSeries.modality, count: selectedSeries.instanceCount }) : t('w9e.mipScreenshot.syntheticData'))
     }
     setSource(realSource ? 'real' : 'synthetic')
     setPreview(canvas.toDataURL('image/png'))
@@ -177,13 +178,13 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
       ctx.drawImage(img, 0, 0, PREVIEW_SIZE, PREVIEW_SIZE)
       // 水印: 左下角「MIP 重建」+ 右下角源检查信息
       ctx.font = 'bold 15px "PingFang SC","Microsoft YaHei",sans-serif'
-      const label = 'MIP 重建'
+      const label = t('w9e.mipScreenshot.watermark')
       const labelW = ctx.measureText(label).width
       ctx.fillStyle = 'rgba(0,0,0,0.55)'
       ctx.fillRect(8, PREVIEW_SIZE - 30, labelW + 16, 22)
       ctx.fillStyle = '#facc15'
       ctx.fillText(label, 16, PREVIEW_SIZE - 14)
-      const info = `${selectedSeries?.seriesInstanceUid?.slice(-8) ?? 'N/A'} | ${DIRECTION_OPTIONS.find((d) => d.value === direction)?.label ?? direction} ${thickness}mm | ${source === 'real' ? '真实DICOM' : '合成'}`
+      const info = t('w9e.mipScreenshot.canvasInfo', { uid: selectedSeries?.seriesInstanceUid?.slice(-8) ?? 'N/A', dir: DIRECTION_OPTIONS.find((d) => d.value === direction)?.label ?? direction, thickness, source: source === 'real' ? t('w9e.mipScreenshot.realInline') : t('w9e.mipScreenshot.syntheticInline') })
       ctx.font = '11px ui-monospace,monospace'
       const infoW = ctx.measureText(info).width
       ctx.fillStyle = 'rgba(0,0,0,0.55)'
@@ -198,7 +199,7 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
     if (!preview) return
     onInsert({
       imageBase64: preview,
-      label: 'MIP 重建',
+      label: t('w9e.mipScreenshot.watermark'),
       studyUid: studyUid ?? '',
       seriesUid: selectedSeries?.seriesInstanceUid ?? '',
       direction,
@@ -216,44 +217,44 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
 
   return (
     <Modal
-      title={<Space><Layers className="w-4 h-4" style={{ color: '#0891b2' }} /><span>插入 MIP 截图</span><Tag color="cyan">最大密度投影</Tag></Space>}
+      title={<Space><Layers className="w-4 h-4" style={{ color: '#0891b2' }} /><span>{t('w9e.mipScreenshot.title')}</span><Tag color="cyan">{t('w9e.mipScreenshot.tag3d')}</Tag></Space>}
       open={open}
       onCancel={onClose}
       width={620}
       destroyOnHidden
       footer={
         <Space>
-          <Button onClick={onClose}>取消</Button>
+          <Button onClick={onClose}>{t('w9e.mipScreenshot.cancel')}</Button>
           <Button icon={<RefreshCw className="w-3 h-3" />} onClick={() => void generate()} loading={generating}>
-            生成 MIP
+            {t('w9e.mipScreenshot.generateMip')}
           </Button>
           <Button type="primary" icon={<Check className="w-3 h-3" />} disabled={!preview} onClick={handleInsert} data-testid="mip-insert-report">
-            插入报告
+            {t('w9e.mipScreenshot.insertReport')}
           </Button>
         </Space>
       }
     >
       <div style={{ padding: '4px 0' }}>
         <div style={controls}>
-          <span style={labelStyle}>检查:</span>
+          <span style={labelStyle}>{t('w9e.mipScreenshot.studyLabel')}</span>
           <Select
             size="small"
             style={{ minWidth: 300 }}
             loading={seriesLoading}
-            placeholder="选择检查序列"
+            placeholder={t('w9e.mipScreenshot.selectSeriesPlaceholder')}
             value={studyUid}
             onChange={setStudyUid}
             options={seriesList.map((s) => ({
               value: s.seriesInstanceUid,
-              label: `${s.modality} ${(s.seriesInstanceUid ?? '').slice(-8)} (${s.instanceCount}层 ${s.rows}x${s.columns})`,
+              label: t('w9e.mipScreenshot.seriesOption', { modality: s.modality, uid: (s.seriesInstanceUid ?? '').slice(-8), count: s.instanceCount, rows: s.rows, cols: s.columns }),
             }))}
             data-testid="mip-study-select"
           />
         </div>
         <div style={controls}>
-          <span style={labelStyle}>方向:</span>
+          <span style={labelStyle}>{t('w9e.mipScreenshot.directionLabel')}</span>
           <Select size="small" style={{ width: 110 }} value={direction} onChange={setDirection} options={DIRECTION_OPTIONS} />
-          <span style={labelStyle}>层厚:</span>
+          <span style={labelStyle}>{t('w9e.mipScreenshot.thicknessLabel')}</span>
           <Slider min={1} max={128} value={thickness} onChange={setThickness} style={{ width: 140 }} />
           <span style={{ fontSize: 11, color: '#94a3b8' }}>{thickness}</span>
           <span style={labelStyle}>WW:</span>
@@ -268,14 +269,14 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
           {generating ? (
             <div style={{ color: '#94a3b8', textAlign: 'center', padding: 24 }}>
               <Spin size="large" />
-              <div style={{ fontSize: 12, marginTop: 12 }}>计算 MIP 投影…</div>
+              <div style={{ fontSize: 12, marginTop: 12 }}>{t('w9e.mipScreenshot.computing')}</div>
             </div>
           ) : preview ? (
             <canvas ref={previewRef} style={{ width: '100%', imageRendering: 'pixelated' }} data-testid="mip-preview-canvas" />
           ) : (
             <div style={{ color: '#64748b', textAlign: 'center', padding: 24 }}>
               <ScanLine size={40} style={{ opacity: 0.4, marginBottom: 8 }} />
-              <div style={{ fontSize: 13 }}>选择检查并点击「生成 MIP」预览</div>
+              <div style={{ fontSize: 13 }}>{t('w9e.mipScreenshot.pickHint')}</div>
             </div>
           )}
         </div>
@@ -283,12 +284,12 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
         {error && <Alert type="error" showIcon style={{ marginTop: 8 }} message={error} />}
         {preview && (
           <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Tag color={source === 'real' ? 'green' : 'orange'}>{source === 'real' ? '真实 DICOM' : '合成数据'}</Tag>
+            <Tag color={source === 'real' ? 'green' : 'orange'}>{source === 'real' ? t('w9e.mipScreenshot.realDicom') : t('w9e.mipScreenshot.syntheticDataTag')}</Tag>
             <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace' }}>{seriesInfo}</span>
           </div>
         )}
         <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>
-          插入后图片将带「MIP 重建」水印与源检查信息, 报告正文以图注形式展示。
+          {t('w9e.mipScreenshot.footerNote')}
         </div>
       </div>
     </Modal>

@@ -610,7 +610,7 @@ export function generateCosignTasks(records: number, daysAgo: number = 7): Cosig
     const overdue = elapsed > sla;
     const signed = chance(0.7) && !overdue;
     const cosignedAt = signed ? new Date(submitTime + Math.min(elapsed, sla - 5) * 60000).toISOString() : null;
-    const status: CosignTask["status"] = cosignedAt ? "已签" : overdue ? pick(["待签", "已催办"]) : pick(["待签", "已催办"]);
+    const status: CosignTask["status"] = cosignedAt ? "已签" : overdue ? pick(["待签", "已催办", "已拒"] as CosignTask["status"][]) : pick(["待签", "已催办"] as CosignTask["status"][]);
 
     out.push({
       id: `CSIGN-${String(i + 1).padStart(6, "0")}`,

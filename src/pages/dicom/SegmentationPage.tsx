@@ -35,12 +35,17 @@ const ALGORITHMS: Array<{ value: SegmentationV2Algorithm; labelKey: string; colo
 ]
 
 const ORGAN_CLASSES: OrganClass[] = ['结节', '骨骼', '肝脏', '肺', '血管', '软组织', '其他']
+const ORGAN_LABEL_KEYS: Record<string, string> = {
+  '结节': 'w9dOrgan.nodule', '骨骼': 'w9dOrgan.bone', '肝脏': 'w9dOrgan.liver',
+  '肺': 'w9dOrgan.lung', '血管': 'w9dOrgan.vessel', '软组织': 'w9dOrgan.softTissue', '其他': 'w9dOrgan.other',
+}
 const RELABEL_COLORS = ['#ff4d4f', '#fa8c16', '#52c41a', '#2563eb', '#722ed1', '#eb2f96', '#13c2c2', '#f5222d']
 const PLANES: Array<{ value: 'axial' | 'sagittal' | 'coronal'; label: string }> = [
-  { value: 'axial', label: '轴位' },
-  { value: 'sagittal', label: '矢状位' },
-  { value: 'coronal', label: '冠状位' },
+  { value: 'axial', label: 'axial' },
+  { value: 'sagittal', label: 'sagittal' },
+  { value: 'coronal', label: 'coronal' },
 ]
+const organLabel = (k: string) => t(ORGAN_LABEL_KEYS[k] ?? k)
 
 function blankImage(width: number, height: number): ImageData {
   const canvas = document.createElement('canvas')
@@ -147,7 +152,7 @@ const SegmentationOverlayCanvas: React.FC<{
         ctx.stroke()
         ctx.fillStyle = '#ff4d4f'
         ctx.font = 'bold 11px sans-serif'
-        ctx.fillText(`种子 (${seed.x},${seed.y},${seed.z})`, px + 14, py - 10)
+        ctx.fillText(t('w9d.seg.seedLabel', { x: seed.x, y: seed.y, z: seed.z }), px + 14, py - 10)
       }
 
       // 图例: 标签 + 体积
@@ -167,7 +172,7 @@ const SegmentationOverlayCanvas: React.FC<{
       if (pickMode) {
         ctx.fillStyle = '#faad14'
         ctx.font = 'bold 12px sans-serif'
-        ctx.fillText('选点模式: 点击图像设置种子点', 10, canvas.height / devicePixelRatio - 10)
+        ctx.fillText(t('w9d.seg.pickMode'), 10, canvas.height / devicePixelRatio - 10)
       }
     }
 
@@ -676,7 +681,7 @@ const SegmentationPage: React.FC = () => {
                           <span style={{ width: 10, height: 10, borderRadius: '50%', background: s.color, display: 'inline-block' }} />
                           <span style={{ fontWeight: 500 }}>{s.label}</span>
                           <Tag color={ALGORITHMS.find((a) => a.value === s.algorithm)?.color ?? '#999'} style={{ marginRight: 0 }}>{s.algorithmLabel}</Tag>
-                          <Tag style={{ marginRight: 0 }}>{s.organClass}</Tag>
+                          <Tag style={{ marginRight: 0 }}>{organLabel(s.organClass)}</Tag>
                         </Space>
                       </div>
                       <div style={{ color: '#666', marginTop: 2 }}>
@@ -714,7 +719,7 @@ const SegmentationPage: React.FC = () => {
                   <div key={h.id} style={{ padding: '5px 4px', borderBottom: '1px solid #f0f0f0', fontSize: 12 }}>
                     <Space size={6} wrap>
                       <Tag color={ALGORITHMS.find((a) => a.value === h.algorithm)?.color ?? '#999'} style={{ marginRight: 0 }}>{ALGORITHMS.find((a) => a.value === h.algorithm) ? t(ALGORITHMS.find((a) => a.value === h.algorithm)!.labelKey) : h.algorithm}</Tag>
-                      <Tag style={{ marginRight: 0 }}>{h.organClass}</Tag>
+                      <Tag style={{ marginRight: 0 }}>{organLabel(h.organClass)}</Tag>
                       {h.status === 'active' ? <Tag color="success" style={{ marginRight: 0 }}>{t('segmentationV2.active')}</Tag> : <Tag style={{ marginRight: 0 }}>{t('segmentationV2.deleted')}</Tag>}
                     </Space>
                     <div style={{ color: '#666', marginTop: 2 }}>{h.voxelCount.toLocaleString()} vox · {h.volumeCm3.toFixed(2)} cm³</div>
@@ -730,7 +735,7 @@ const SegmentationPage: React.FC = () => {
           {!selected ? (
             <Card>
               <Empty
-                description="选择检查序列与算法后运行分割; 5 算法: 区域生长 / 阈值(Otsu·手动) / Canny 边缘 / K-means 聚类 / 活动轮廓; 支持多器官与病灶"
+                description={t('w9d.seg.emptyDesc')}
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             </Card>
@@ -785,7 +790,7 @@ const SegmentationPage: React.FC = () => {
                     <Space direction="vertical" style={{ width: '100%' }} size={4}>
                       <Tag color={ALGORITHMS.find((a) => a.value === selected.algorithm)?.color ?? '#999'}>{selected.algorithmLabel}</Tag>
                       <div><b>{t('segmentationV2.fldLabel')}</b>: {selected.label}</div>
-                      <div><b>{t('segmentationV2.fldOrganClass')}</b>: <Tag>{selected.organClass}</Tag></div>
+                      <div><b>{t('segmentationV2.fldOrganClass')}</b>: <Tag>{organLabel(selected.organClass)}</Tag></div>
                       <div><b>{t('segmentationV2.fldSource')}</b>: {selected.source === 'real' ? t('segmentationV2.realDicomShort') : t('segmentationV2.syntheticFallback')} {selected.usedFallback && <Tag color="orange">{t('segmentationV2.fallback')}</Tag>}</div>
                       <div><b>{t('segmentationV2.fldBbox')}</b>: x{selected.stats.bbox.x} y{selected.stats.bbox.y} z{selected.stats.bbox.z} · {selected.stats.bbox.w}×{selected.stats.bbox.h}×{selected.stats.bbox.d}</div>
                       <div><b>{t('segmentationV2.fldIntensity')}</b>: {selected.stats.minIntensity} ~ {selected.stats.maxIntensity}</div>
@@ -857,7 +862,7 @@ const SegmentationPage: React.FC = () => {
                 style={{ width: '100%' }}
                 value={relabelForm.organClass}
                 onChange={(v) => setRelabelForm((f) => ({ ...f, organClass: v }))}
-                options={ORGAN_CLASSES.map((o) => ({ value: o, label: o }))}
+                options={ORGAN_CLASSES.map((o) => ({ value: o, label: organLabel(o) }))}
               />
             </div>
           </Space>

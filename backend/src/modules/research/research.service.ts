@@ -169,6 +169,7 @@ function ageOf(birthDate: Date | null): number {
 @Injectable()
 export class ResearchService {
   private readonly logger = new Logger(ResearchService.name)
+  private seq = 0
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -205,7 +206,7 @@ export class ResearchService {
 
   async createProject(dto: Partial<ResearchProject>): Promise<ResearchProject> {
     const project: ResearchProject = {
-      id: `RP-${Date.now().toString(36)}`,
+      id: `RP-${Date.now().toString(36)}-${++this.seq}`,
       code: dto.code ?? `RS-2026-${String(SEED_PROJECTS.length + memProjects.length + 1).padStart(3, '0')}`,
       name: dto.name ?? '未命名课题',
       leader: dto.leader ?? '待定',
@@ -259,7 +260,7 @@ export class ResearchService {
 
   createLabel(dto: Partial<ResearchLabel>): ResearchLabel {
     const label: ResearchLabel = {
-      id: `LB-${Date.now().toString(36)}`,
+      id: `LB-${Date.now().toString(36)}-${++this.seq}`,
       name: dto.name ?? '未命名标签',
       type: (dto.type as ResearchLabel['type']) ?? '特征',
       color: dto.color ?? LABEL_COLORS[memLabels.length % LABEL_COLORS.length]!,
@@ -301,7 +302,7 @@ export class ResearchService {
 
   createIRBSubmission(dto: Partial<IRBSubmission>): IRBSubmission {
     const record: IRBSubmission = {
-      id: `IRB-${Date.now().toString(36)}`,
+      id: `IRB-${Date.now().toString(36)}-${++this.seq}`,
       projectName: dto.projectName ?? '未命名课题',
       pi: dto.pi ?? '待定',
       submittedDate: dto.submittedDate ?? isoDate(new Date()),
@@ -321,7 +322,7 @@ export class ResearchService {
 
   createCohort(dto: Partial<CohortDefinition>): CohortDefinition {
     const cohort: CohortDefinition = {
-      id: `CO-${Date.now().toString(36)}`,
+      id: `CO-${Date.now().toString(36)}-${++this.seq}`,
       name: dto.name ?? '未命名队列',
       criteria: dto.criteria ?? '',
       estimatedSize: dto.estimatedSize ?? 0,

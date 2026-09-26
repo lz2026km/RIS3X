@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
 import { financeApi, type InvoiceDto, type ChargeItemDto } from '../../services/api/financeApi'
 import { Card } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
+import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
 
 // [W1-B] 开票 Modal (POST /finance/invoices)
@@ -141,6 +143,68 @@ export default function PatientFinancePage() {
   const totalBalance = bills.reduce((s, b) => s + b.balance, 0)
   const pendingCount = bills.filter(b => b.status !== 'paid').length
 
+  const billColumns: ColumnsType<PatientBill> = [
+    {
+      title: t('w3tables.col.examItem'), dataIndex: 'examItem', key: 'examItem',
+      render: (_: unknown, b) => (
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>{b.examDate} · {b.id}</div>
+        </div>
+      ),
+    },
+    {
+      title: t('w3tables.col.amount'), dataIndex: 'totalAmount', key: 'totalAmount', width: 120, align: 'right',
+      render: (v: number) => <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>¥{v}</span>,
+    },
+    {
+      title: t('w3tables.col.status'), dataIndex: 'status', key: 'status', width: 110,
+      render: (v: string) => <span style={s.badge(v)}>{statusLabel(v)}</span>,
+    },
+    {
+      title: t('w3tables.col.action'), key: 'action', width: 100,
+      render: (_: unknown, b) => (
+        <button style={{ ...s.btnSmall, background: 'var(--color-info-bg)', color: '#1e40af' }}
+          onClick={(e) => { e.stopPropagation(); void handleSelectBill(b) }}>{t('w3tables.action.detail')}</button>
+      ),
+    },
+  ]
+
+  const paymentColumns: ColumnsType<PatientBill> = [
+    {
+      title: t('w3tables.col.examItem'), dataIndex: 'examItem', key: 'examItem',
+      render: (_: unknown, b) => (
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('patientFinance.paidOfTotal', { paid: b.paidAmount, total: b.totalAmount })}</div>
+        </div>
+      ),
+    },
+    { title: t('w3tables.col.paidAmount'), dataIndex: 'paidAmount', key: 'paidAmount', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600, color: '#059669' }}>¥{v}</span> },
+    { title: t('w3tables.col.balance'), dataIndex: 'balance', key: 'balance', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600, color: '#dc2626' }}>¥{v}</span> },
+  ]
+
+  const claimColumns: ColumnsType<InsuranceClaim> = [
+    {
+      title: t('w3tables.col.insuranceType'), dataIndex: 'insuranceType', key: 'insuranceType',
+      render: (_: unknown, c) => (
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{c.insuranceType}</div>
+          {c.rejectReason && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>{t('patientFinance.rejectReason')}{c.rejectReason}</div>}
+        </div>
+      ),
+    },
+    {
+      title: t('w3tables.col.claimAmounts'), key: 'claimAmounts',
+      render: (_: unknown, c) => <span>{t('patientFinance.claimAmounts', { claim: c.claimAmount, approved: c.approvedAmount })}</span>,
+    },
+    { title: t('w3tables.col.submittedAt'), dataIndex: 'submittedAt', key: 'submittedAt', width: 150 },
+    {
+      title: t('w3tables.col.status'), dataIndex: 'status', key: 'status', width: 110,
+      render: (v: string) => <span style={s.badge(v)}>{claimStatusLabel(v)}</span>,
+    },
+  ]
+
   return (
     <div style={s.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -228,20 +292,16 @@ export default function PatientFinancePage() {
             </div>
           ) : (
             <>
-              <h3 style={{ ...s.title, fontSize: 16 }}>{t('patientFinance.billList')}</h3>
-              {bills.map(b => (
-                <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}
-                  onClick={() => handleSelectBill(b)}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{b.examDate} · {b.id}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>¥{b.totalAmount}</div>
-                    <span style={s.badge(b.status)}>{statusLabel(b.status)}</span>
-                  </div>
-                </div>
-              ))}
+              <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 16 }}>{t('patientFinance.billList')}</h3>
+              <DataTable<PatientBill>
+                columns={billColumns}
+                dataSource={bills}
+                rowKey="id"
+                loading={loading}
+                emptyText={t('w3tables.empty')}
+                onRow={(b) => ({ onClick: () => void handleSelectBill(b), style: { cursor: 'pointer' } })}
+                scroll={{ x: 'max-content' }}
+              />
             </>
           )}
         </Card>
@@ -250,35 +310,28 @@ export default function PatientFinancePage() {
       {/* Payments Tab */}
       {activeTab === 'payments' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={{ ...s.title, fontSize: 16 }}>{t('patientFinance.paymentHistory')}</h3>
-          {bills.length === 0 ? <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: 24 }}>{t('patientFinance.noPaymentRecords')}</div> :
-            bills.filter(b => b.paidAmount > 0).map(b => (
-              <div key={b.id} style={{ padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('patientFinance.paidOfTotal', { paid: b.paidAmount, total: b.totalAmount })}</div>
-              </div>
-            ))
-          }
+          <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 16 }}>{t('patientFinance.paymentHistory')}</h3>
+          <DataTable<PatientBill>
+            columns={paymentColumns}
+            dataSource={bills.filter(b => b.paidAmount > 0)}
+            rowKey="id"
+            emptyText={t('patientFinance.noPaymentRecords')}
+            scroll={{ x: 'max-content' }}
+          />
         </Card>
       )}
 
       {/* Claims Tab */}
       {activeTab === 'claims' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={{ ...s.title, fontSize: 16 }}>{t('patientFinance.tabClaims')}</h3>
-          {claims.map(c => (
-            <div key={c.id} style={{ padding: '14px 0', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{c.insuranceType}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientFinance.claimAmounts', { claim: c.claimAmount, approved: c.approvedAmount })}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientFinance.submitted')}{c.submittedAt}</div>
-                </div>
-                <span style={s.badge(c.status)}>{claimStatusLabel(c.status)}</span>
-              </div>
-              {c.rejectReason && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{t('patientFinance.rejectReason')}{c.rejectReason}</div>}
-            </div>
-          ))}
+          <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 16 }}>{t('patientFinance.tabClaims')}</h3>
+          <DataTable<InsuranceClaim>
+            columns={claimColumns}
+            dataSource={claims}
+            rowKey="id"
+            emptyText={t('w3tables.empty')}
+            scroll={{ x: 'max-content' }}
+          />
         </Card>
       )}
 

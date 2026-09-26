@@ -125,7 +125,7 @@ const DirectorDashboardPage = lazy(
 const GreenITPage = lazy(() => import("../pages/GreenITPage"));
 const ResearchPage = lazy(() => import("../pages/ResearchPage"));
 const DicomPrintPage = lazy(() => import("../pages/System/DicomPrintPage"));
-const FileManagementPage = lazy(() => import("../pages/system/FileManagementPage")); // [W1-A v3.0.6.11-79] 文件管理
+const FileManagementPage = lazy(() => import("../pages/System/FileManagementPage")); // [W1-A v3.0.6.11-79] 文件管理
 const FhirServerPage = lazy(
   () => import("../pages/integration/FhirServerPage"),
 );

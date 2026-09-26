@@ -20,16 +20,16 @@ interface OctStudy {
   status?: string;
 }
 
-const ETDRS_ZONES = [
-  { key: 'central', zone: '中央 1mm' },
-  { key: 'innerTemporal', zone: '颞内 IT' },
-  { key: 'innerNasal', zone: '鼻内 NI' },
-  { key: 'outerTemporal', zone: '颞外 T' },
-  { key: 'outerSuperior', zone: '上 S' },
-  { key: 'outerNasal', zone: '鼻外 N' },
-  { key: 'innerInferior', zone: '颞下 IT' },
-  { key: 'outerInferior', zone: '下 I' },
-  { key: 'innerSuperior', zone: '鼻下 IN' },
+const ETDRS_ZONES: Array<{ key: string; zoneKey: string }> = [
+  { key: 'central', zoneKey: 'w9d.octZone.central' },
+  { key: 'innerTemporal', zoneKey: 'w9d.octZone.innerTemporal' },
+  { key: 'innerNasal', zoneKey: 'w9d.octZone.innerNasal' },
+  { key: 'outerTemporal', zoneKey: 'w9d.octZone.outerTemporal' },
+  { key: 'outerSuperior', zoneKey: 'w9d.octZone.outerSuperior' },
+  { key: 'outerNasal', zoneKey: 'w9d.octZone.outerNasal' },
+  { key: 'innerInferior', zoneKey: 'w9d.octZone.innerInferior' },
+  { key: 'outerInferior', zoneKey: 'w9d.octZone.outerInferior' },
+  { key: 'innerSuperior', zoneKey: 'w9d.octZone.innerSuperior' },
 ];
 
 // 合成 OCT B-scan: 简化视网膜分层渲染 (RNFL 亮带 / 视网膜 / RPE 亮带 / 脉络膜)
@@ -341,7 +341,7 @@ const OctViewerPage: React.FC = () => {
                   padding: 6, background: 'var(--bg-card)', borderRadius: 6, textAlign: 'center',
                   fontSize: 11, border: i === 0 ? '2px solid #0891b2' : '1px solid #e2e8f0',
                 }}>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{e.zone}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{t(e.zoneKey)}</div>
                   <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{e.od}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>OS {e.os}</div>
                 </div>

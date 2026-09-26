@@ -57,6 +57,7 @@ export interface DentalStudyDto {
     modelVersion: string;
   };
   notes: string;
+  toothNumbers?: number[];
   tags: string[];
   createdAt: string;
   updatedAt: string;

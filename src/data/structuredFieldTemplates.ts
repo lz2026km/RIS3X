@@ -811,7 +811,7 @@ export function findTemplatesByCategory(category: string): StructuredFieldTempla
 export const TEMPLATE_COUNT = STRUCTURED_FIELD_TEMPLATES.length;
 export const TEMPLATE_BY_MODALITY: Record<string, StructuredFieldTemplate[]> = STRUCTURED_FIELD_TEMPLATES.reduce((acc, t) => {
   if (!acc[t.modality]) acc[t.modality] = [];
-  acc[t.modality].push(t);
+  acc[t.modality]!.push(t);
   return acc;
 }, {} as Record<string, StructuredFieldTemplate[]>);
 

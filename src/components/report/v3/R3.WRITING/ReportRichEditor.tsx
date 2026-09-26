@@ -11,6 +11,7 @@ import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
 import { saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
 import type { RichEditorDocument } from '@/types/R3/R3.WRITING';
 import { useCollaborativeYjs } from '@hooks/useCollaborativeYjs';
+import { t } from '@/i18n/appI18n';
 
 interface Props {
   reportId: string;
@@ -38,10 +39,10 @@ export interface ReportRichEditorHandle {
 }
 
 const FONT_FAMILIES = [
-  { value: 'SimSun', label: '宋体' },
-  { value: 'SimHei', label: '黑体' },
-  { value: 'KaiTi', label: '楷体' },
-  { value: 'FangSong', label: '仿宋' },
+  { value: 'SimSun', label: t('w9b.reportRich.fontSimSun') },
+  { value: 'SimHei', label: t('w9b.reportRich.fontSimHei') },
+  { value: 'KaiTi', label: t('w9b.reportRich.fontKaiTi') },
+  { value: 'FangSong', label: t('w9b.reportRich.fontFangSong') },
   { value: 'Arial', label: 'Arial' },
   { value: 'Times New Roman', label: 'Times' },
   { value: 'Consolas', label: 'Consolas' },
@@ -243,7 +244,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
     const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     if (!SR) {
-      message.warning('当前浏览器不支持语音识别');
+      message.warning(t('w9b.reportRich.voiceUnsupported'));
       return;
     }
 
@@ -272,7 +273,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
     recognition.onerror = () => {
       setVoiceListening(false);
-      message.error('语音识别出错');
+      message.error(t('w9b.reportRich.voiceError'));
     };
 
     recognition.onend = () => {
@@ -282,8 +283,8 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
     };
 
     recognitionRef.current = recognition;
-    try { recognition.start(); setVoiceListening(true); message.success('语音听写已启动'); }
-    catch { message.error('启动语音识别失败'); }
+    try { recognition.start(); setVoiceListening(true); message.success(t('w9b.reportRich.voiceStarted')); }
+    catch { message.error(t('w9b.reportRich.voiceStartFailed')); }
   }, [voiceListening, voiceInterim, applyFormat, handleContentChange]);
 
   const insertImage = useCallback(() => {
@@ -297,7 +298,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
       reader.onload = (ev) => {
         const url = ev.target?.result as string;
         applyFormat('insertImage', url);
-        message.success(`已插入图片 ${file.name}`);
+        message.success(t('w9b.reportRich.imageInserted', { name: file.name }));
       };
       reader.readAsDataURL(file);
     };
@@ -306,11 +307,11 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
   const insertTable = useCallback(() => {
     Modal.confirm({
-      title: '插入表格',
+      title: t('w9b.reportRich.insertTableTitle'),
       content: (
         <div className="space-y-3 pt-2">
-          <div>行数: <InputNumber id="r-rows" defaultValue={3} min={1} max={20} /></div>
-          <div>列数: <InputNumber id="r-cols" defaultValue={3} min={1} max={10} /></div>
+          <div>{t('w9b.reportRich.rowsLabel')} <InputNumber id="r-rows" defaultValue={3} min={1} max={20} /></div>
+          <div>{t('w9b.reportRich.colsLabel')} <InputNumber id="r-cols" defaultValue={3} min={1} max={10} /></div>
         </div>
       ),
       onOk: () => {
@@ -320,7 +321,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         for (let r = 0; r < rows; r++) {
           html += '<tr>';
           for (let c = 0; c < cols; c++) {
-            html += `<td style="border: 1px solid #cbd5e1; padding: 6px;">${r === 0 ? '表头' : '内容'}</td>`;
+            html += `<td style="border: 1px solid #cbd5e1; padding: 6px;">${r === 0 ? t('w9b.reportRich.tableHeaderCell') : t('w9b.reportRich.tableBodyCell')}</td>`;
           }
           html += '</tr>';
         }
@@ -345,28 +346,28 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
     const saved = await saveRichDocument(next);
     setDoc(saved);
     onSave?.(saved);
-    message.success(`报告已保存 v${saved.version}`);
+    message.success(t('w9b.reportRich.reportSaved', { version: saved.version }));
   }, [doc, onSave]);
 
   const runSpellCheck = useCallback(async () => {
     const errors = await spellCheck(doc.plainText, 'en-US');
     setSpellErrors(errors);
-    if (errors.length === 0) message.success('未发现拼写/语法错误');
-    else message.warning(`发现 ${errors.length} 处问题`);
+    if (errors.length === 0) message.success(t('w9b.reportRich.spellNoErrors'));
+    else message.warning(t('w9b.reportRich.spellIssues', { count: errors.length }));
   }, [doc.plainText]);
 
   const insertEmbedPlaceholder = useCallback((type: string, label: string) => {
     if (readOnly) return;
-    const html = `<div style="border:2px dashed #0891b2;border-radius:8px;padding:16px;margin:8px 0;background:#f0f9ff;text-align:center;font-weight:bold;color:#0891b2;">[${label}] ${type} 占位</div>`;
+    const html = `<div style="border:2px dashed #0891b2;border-radius:8px;padding:16px;margin:8px 0;background:#f0f9ff;text-align:center;font-weight:bold;color:#0891b2;">${t('w9b.reportRich.embedPlaceholder', { label, type })}</div>`;
     applyFormat('insertHTML', html);
-    message.success(`已插入 ${label} 占位符`);
+    message.success(t('w9b.reportRich.embedInserted', { label }));
   }, [readOnly, applyFormat]);
 
   const insertComparison = useCallback((prior: { date: string; findings: string; impression: string }) => {
     if (readOnly) return;
-    const html = `<div style="border-left:4px solid #f59e0b;padding:8px 12px;margin:8px 0;background:#fffbeb;border-radius:4px;"><strong>先前对比 (${prior.date})</strong><br/>所见: ${prior.findings}<br/>印象: ${prior.impression}</div>`;
+    const html = `<div style="border-left:4px solid #f59e0b;padding:8px 12px;margin:8px 0;background:#fffbeb;border-radius:4px;"><strong>${t('w9b.reportRich.priorCompare', { date: prior.date })}</strong><br/>${t('w9b.reportRich.findingsLabel')} ${prior.findings}<br/>${t('w9b.reportRich.impressionLabel')} ${prior.impression}</div>`;
     applyFormat('insertHTML', html);
-    message.success('已插入对比内容');
+    message.success(t('w9b.reportRich.comparisonInserted'));
     setShowComparison(false);
   }, [readOnly, applyFormat]);
 
@@ -374,7 +375,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
     if (readOnly) return;
     const html = `<div style="width:200px;height:200px;border:2px solid #8b5cf6;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#e0e7ff,#f5f3ff);margin:8px;font-weight:bold;color:#6d28d9;position:relative;"><div>PET/CT 融合</div><div style="font-size:10px;color:#8b5cf6;margin-top:4px;">SUVmax: 12.8 | SUVmean: 4.2</div><div style="font-size:10px;color:#8b5cf6;">病灶: 右肺上叶 2.3×1.8cm</div></div>`;
     applyFormat('insertHTML', html);
-    message.success('已插入融合视图占位符');
+    message.success(t('w9b.reportRich.fusionInserted'));
   }, [readOnly, applyFormat]);
 
   const handleAutoSummary = useCallback(async () => {
@@ -385,9 +386,9 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
     const summary = findings
       ? '总结: 上述所见提示无明显异常发现。建议临床随访，必要时进一步检查。'
       : '印象: 未见明确异常。';
-    applyFormat('insertHTML', `<p style="border-top:2px solid #0891b2;padding-top:8px;margin-top:16px;"><strong>自动摘要:</strong> ${summary}</p>`);
+    applyFormat('insertHTML', `<p style="border-top:2px solid #0891b2;padding-top:8px;margin-top:16px;"><strong>${t('w9b.reportRich.autoSummaryLabel')}</strong> ${summary}</p>`);
     setSummarizing(false);
-    message.success('自动摘要已生成');
+    message.success(t('w9b.reportRich.summaryGenerated'));
   }, [readOnly, applyFormat]);
 
   const insertHorizontalRule = useCallback(() => {
@@ -403,104 +404,104 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
         <Divider orientation="vertical" />
 
-        <Tooltip title="粗体 Ctrl+B">
+        <Tooltip title={t('w9b.reportRich.tipBold')}>
           <Button size="small" type="text" icon={<Bold className="w-4 h-4" />} onClick={() => applyFormat('bold')} />
         </Tooltip>
-        <Tooltip title="斜体 Ctrl+I">
+        <Tooltip title={t('w9b.reportRich.tipItalic')}>
           <Button size="small" type="text" icon={<Italic className="w-4 h-4" />} onClick={() => applyFormat('italic')} />
         </Tooltip>
-        <Tooltip title="下划线 Ctrl+U">
+        <Tooltip title={t('w9b.reportRich.tipUnderline')}>
           <Button size="small" type="text" icon={<Underline className="w-4 h-4" />} onClick={() => applyFormat('underline')} />
         </Tooltip>
-        <Tooltip title="删除线">
+        <Tooltip title={t('w9b.reportRich.tipStrike')}>
           <Button size="small" type="text" icon={<Strikethrough className="w-4 h-4" />} onClick={() => applyFormat('strikeThrough')} />
         </Tooltip>
-        <Tooltip title="上标">
+        <Tooltip title={t('w9b.reportRich.tipSuperscript')}>
           <Button size="small" type="text" icon={<Superscript className="w-4 h-4" />} onClick={() => applyFormat('superscript')} />
         </Tooltip>
-        <Tooltip title="下标">
+        <Tooltip title={t('w9b.reportRich.tipSubscript')}>
           <Button size="small" type="text" icon={<Subscript className="w-4 h-4" />} onClick={() => applyFormat('subscript')} />
         </Tooltip>
-        <Tooltip title="插入水平线">
+        <Tooltip title={t('w9b.reportRich.tipHr')}>
           <Button size="small" type="text" icon={<Minus className="w-4 h-4" />} onClick={insertHorizontalRule} />
         </Tooltip>
 
         <Divider orientation="vertical" />
 
         <ColorPicker size="small" onChange={(c) => applyFormat('foreColor', c.toHexString())} />
-        <ColorPicker size="small" onChange={(c) => applyFormat('hiliteColor', c.toHexString())} showText={() => '背景'} />
+        <ColorPicker size="small" onChange={(c) => applyFormat('hiliteColor', c.toHexString())} showText={() => t('w9b.reportRich.bg')} />
 
         <Divider orientation="vertical" />
 
-        <Tooltip title="左对齐"><Button size="small" type="text" icon={<AlignLeft className="w-4 h-4" />} onClick={() => applyFormat('justifyLeft')} /></Tooltip>
-        <Tooltip title="居中"><Button size="small" type="text" icon={<AlignCenter className="w-4 h-4" />} onClick={() => applyFormat('justifyCenter')} /></Tooltip>
-        <Tooltip title="右对齐"><Button size="small" type="text" icon={<AlignRight className="w-4 h-4" />} onClick={() => applyFormat('justifyRight')} /></Tooltip>
-        <Tooltip title="两端对齐"><Button size="small" type="text" icon={<AlignJustify className="w-4 h-4" />} onClick={() => applyFormat('justifyFull')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignLeft')}><Button size="small" type="text" icon={<AlignLeft className="w-4 h-4" />} onClick={() => applyFormat('justifyLeft')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignCenter')}><Button size="small" type="text" icon={<AlignCenter className="w-4 h-4" />} onClick={() => applyFormat('justifyCenter')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignRight')}><Button size="small" type="text" icon={<AlignRight className="w-4 h-4" />} onClick={() => applyFormat('justifyRight')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignJustify')}><Button size="small" type="text" icon={<AlignJustify className="w-4 h-4" />} onClick={() => applyFormat('justifyFull')} /></Tooltip>
 
         <Divider orientation="vertical" />
 
-        <Tooltip title="有序列表"><Button size="small" type="text" icon={<ListOrdered className="w-4 h-4" />} onClick={() => applyFormat('insertOrderedList')} /></Tooltip>
-        <Tooltip title="无序列表"><Button size="small" type="text" icon={<List className="w-4 h-4" />} onClick={() => applyFormat('insertUnorderedList')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipOrderedList')}><Button size="small" type="text" icon={<ListOrdered className="w-4 h-4" />} onClick={() => applyFormat('insertOrderedList')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipUnorderedList')}><Button size="small" type="text" icon={<List className="w-4 h-4" />} onClick={() => applyFormat('insertUnorderedList')} /></Tooltip>
 
         <Divider orientation="vertical" />
 
         <Tooltip title="H1"><Button size="small" type="text" icon={<Heading1 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H1')} /></Tooltip>
         <Tooltip title="H2"><Button size="small" type="text" icon={<Heading2 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H2')} /></Tooltip>
         <Tooltip title="H3"><Button size="small" type="text" icon={<Heading3 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H3')} /></Tooltip>
-        <Tooltip title="引用"><Button size="small" type="text" icon={<Quote className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'BLOCKQUOTE')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipQuote')}><Button size="small" type="text" icon={<Quote className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'BLOCKQUOTE')} /></Tooltip>
 
         <Divider orientation="vertical" />
 
-        <Tooltip title="插入图像">
+        <Tooltip title={t('w9b.reportRich.tipInsertImage')}>
           <Button size="small" type="text" icon={<ImageIcon className="w-4 h-4" />} onClick={insertImage} />
         </Tooltip>
-        <Tooltip title="插入表格">
+        <Tooltip title={t('w9b.reportRich.tipInsertTable')}>
           <Button size="small" type="text" icon={<TableIcon className="w-4 h-4" />} onClick={insertTable} />
         </Tooltip>
-        <Tooltip title="插入特殊符号">
+        <Tooltip title={t('w9b.reportRich.tipInsertSpecials')}>
           <Button size="small" type="text" icon={<Hash className="w-4 h-4" />} onClick={() => setShowSpecials(true)} />
         </Tooltip>
-        <Tooltip title="链接">
+        <Tooltip title={t('w9b.reportRich.tipLink')}>
           <Button size="small" type="text" icon={<Link2 className="w-4 h-4" />} onClick={() => {
             let url = '';
             Modal.confirm({
-              title: '请输入链接 URL',
+              title: t('w9b.reportRich.linkUrlTitle'),
               content: <Input placeholder="https://" autoFocus onChange={(e) => { url = e.target.value; }} />,
-              okText: '确定',
-              cancelText: '取消',
+              okText: t('w9b.reportRich.ok'),
+              cancelText: t('w9b.reportRich.cancel'),
               onOk: () => { if (url.trim()) applyFormat('createLink', url.trim()); },
             });
           }} />
         </Tooltip>
-        <Tooltip title="3D快照">
-          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('3D-VRT', '3D快照')}>3D</Button>
+        <Tooltip title={t('w9b.reportRich.tip3dSnapshot')}>
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('3D-VRT', t('w9b.reportRich.tip3dSnapshot'))}>3D</Button>
         </Tooltip>
-        <Tooltip title="Cine循环">
-          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('Cine', 'Cine循环')}>Cine</Button>
+        <Tooltip title={t('w9b.reportRich.tipCine')}>
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('Cine', t('w9b.reportRich.tipCine'))}>Cine</Button>
         </Tooltip>
-        <Tooltip title="MIP切片">
-          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('MIP', 'MIP切片')}>MIP</Button>
-        </Tooltip>
-
-        <Divider orientation="vertical" />
-
-        <Tooltip title="撤销 Ctrl+Z"><Button size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
-        <Tooltip title="重做 Ctrl+Y"><Button size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
-
-        <Divider orientation="vertical" />
-        <Tooltip title="对比先前">
-          <Button size="small" type={showComparison ? 'primary' : 'text'} icon={<FileText className="w-4 h-4" />} onClick={() => setShowComparison((v) => !v)}>对比</Button>
-        </Tooltip>
-        <Tooltip title="融合视图">
-          <Button size="small" type="text" icon={<Eye className="w-4 h-4" />} onClick={insertFusionPlaceholder}>融合</Button>
-        </Tooltip>
-        <Tooltip title="自动摘要">
-          <Button size="small" type="text" icon={<Sparkles className="w-4 h-4" />} loading={summarizing} onClick={handleAutoSummary}>摘要</Button>
+        <Tooltip title={t('w9b.reportRich.tipMip')}>
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('MIP', t('w9b.reportRich.tipMip'))}>MIP</Button>
         </Tooltip>
 
         <Divider orientation="vertical" />
 
-        <Tooltip title={voiceListening ? '停止语音听写' : '语音听写'}>
+        <Tooltip title={t('w9b.reportRich.tipUndo')}><Button size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipRedo')}><Button size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
+
+        <Divider orientation="vertical" />
+        <Tooltip title={t('w9b.reportRich.tipCompare')}>
+          <Button size="small" type={showComparison ? 'primary' : 'text'} icon={<FileText className="w-4 h-4" />} onClick={() => setShowComparison((v) => !v)}>{t('w9b.reportRich.btnCompare')}</Button>
+        </Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipFusion')}>
+          <Button size="small" type="text" icon={<Eye className="w-4 h-4" />} onClick={insertFusionPlaceholder}>{t('w9b.reportRich.btnFusion')}</Button>
+        </Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAutoSummary')}>
+          <Button size="small" type="text" icon={<Sparkles className="w-4 h-4" />} loading={summarizing} onClick={handleAutoSummary}>{t('w9b.reportRich.btnSummary')}</Button>
+        </Tooltip>
+
+        <Divider orientation="vertical" />
+
+        <Tooltip title={voiceListening ? t('w9b.reportRich.voiceStopTip') : t('w9b.reportRich.voiceTip')}>
           <Button
             size="small"
             type={voiceListening ? 'primary' : 'text'}
@@ -517,19 +518,19 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
         <div className="flex-1" />
 
-        <Tooltip title="拼写/语法检查">
-          <Button size="small" icon={<SpellCheck2 className="w-4 h-4" />} onClick={runSpellCheck}>检查</Button>
+        <Tooltip title={t('w9b.reportRich.tipSpellCheck')}>
+          <Button size="small" icon={<SpellCheck2 className="w-4 h-4" />} onClick={runSpellCheck}>{t('w9b.reportRich.btnCheck')}</Button>
         </Tooltip>
-        <Tooltip title="分屏预览"><Button size="small" type={splitPreview ? 'primary' : 'text'} icon={<Eye className="w-4 h-4" />} onClick={() => setSplitPreview((v) => !v)} /></Tooltip>
-        <Tooltip title="打印预览"><Button size="small" type="text" icon={<Printer className="w-4 h-4" />} onClick={() => window.print()} /></Tooltip>
-        <Tooltip title="全屏编辑 F11"><Button size="small" type="text" icon={fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />} onClick={() => setFullscreen((v) => !v)} /></Tooltip>
-        <Button size="small" type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>保存</Button>
+        <Tooltip title={t('w9b.reportRich.tipSplitPreview')}><Button size="small" type={splitPreview ? 'primary' : 'text'} icon={<Eye className="w-4 h-4" />} onClick={() => setSplitPreview((v) => !v)} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipPrintPreview')}><Button size="small" type="text" icon={<Printer className="w-4 h-4" />} onClick={() => window.print()} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipFullscreen')}><Button size="small" type="text" icon={fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />} onClick={() => setFullscreen((v) => !v)} /></Tooltip>
+        <Button size="small" type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>{t('w9b.reportRich.btnSave')}</Button>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-slate-500">段距:</span>
+        <span className="text-xs text-slate-500">{t('w9b.reportRich.paragraphSpacing')}</span>
         <Slider min={1.0} max={3.0} step={0.1} defaultValue={doc.style.lineHeight ?? 1.6} style={{ width: 100 }} onChange={(v) => applyFormat('lineHeight', String(v))} />
-        <span className="text-xs text-slate-500 ml-2">字距:</span>
+        <span className="text-xs text-slate-500 ml-2">{t('w9b.reportRich.letterSpacing')}</span>
         <Slider min={0} max={5} step={0.5} defaultValue={doc.style.letterSpacing ?? 0} style={{ width: 80 }} onChange={(v) => applyFormat('letterSpacing', `${v}px`)} />
       </div>
     </div>
@@ -557,10 +558,10 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
           <div className="flex items-center justify-between">
             <Space>
               <Type className="w-4 h-4" style={{ color: '#0891b2' }} />
-              <span>富文本编辑器</span>
+              <span>{t('w9b.reportRich.title')}</span>
               <Tag color="blue">v{doc.version}</Tag>
-              {autoSaving && <Tag color="processing">自动保存中...</Tag>}
-              {!autoSaving && doc.autoSaveAt && <Tag color="success" icon={<CheckCheck className="w-3 h-3" />}>已保存 {new Date(doc.autoSaveAt).toLocaleTimeString()}</Tag>}
+              {autoSaving && <Tag color="processing">{t('w9b.reportRich.autoSaving')}</Tag>}
+              {!autoSaving && doc.autoSaveAt && <Tag color="success" icon={<CheckCheck className="w-3 h-3" />}>{t('w9b.reportRich.savedAt', { time: new Date(doc.autoSaveAt).toLocaleTimeString() })}</Tag>}
             </Space>
             <Space size="small">
               {enableCollaboration && (
@@ -568,7 +569,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
                   content={
                     <div style={{ minWidth: 180 }}>
                       <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13 }}>
-                        {collab.isConnected ? '在线用户' : '未连接'}
+                        {collab.isConnected ? t('w9b.reportRich.onlineUsers') : t('w9b.reportRich.offline')}
                       </div>
                       {collab.onlineUsers.map((u) => (
                         <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
@@ -591,10 +592,10 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
                   </Badge>
                 </Popover>
               )}
-              <Tag>字 {wordCount.words}</Tag>
-              <Tag>字符 {wordCount.chars}</Tag>
-              <Tag>段 {wordCount.paragraphs}</Tag>
-              <Tag>读时 {Math.ceil(wordCount.chars / 300)} min</Tag>
+              <Tag>{t('w9b.reportRich.wordCountTag', { count: wordCount.words })}</Tag>
+              <Tag>{t('w9b.reportRich.charCountTag', { count: wordCount.chars })}</Tag>
+              <Tag>{t('w9b.reportRich.paragraphTag', { count: wordCount.paragraphs })}</Tag>
+              <Tag>{t('w9b.reportRich.readingTimeTag', { count: Math.ceil(wordCount.chars / 300) })}</Tag>
             </Space>
           </div>
         }
@@ -607,11 +608,11 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
           </div>
           {splitPreview && (
             <div className="border border-slate-200 rounded-md bg-slate-50 p-4">
-              <h4 className="text-sm font-semibold mb-2 flex items-center gap-1"><BookOpen className="w-4 h-4" />纯文本预览</h4>
+              <h4 className="text-sm font-semibold mb-2 flex items-center gap-1"><BookOpen className="w-4 h-4" />{t('w9b.reportRich.plainTextPreview')}</h4>
               <pre className="whitespace-pre-wrap text-sm text-slate-700">{doc.plainText}</pre>
               {spellErrors.length > 0 && (
                 <div className="mt-3 space-y-1">
-                  <h5 className="text-xs font-semibold text-amber-600">拼写/语法问题:</h5>
+                  <h5 className="text-xs font-semibold text-amber-600">{t('w9b.reportRich.spellIssuesTitle')}</h5>
                   {spellErrors.map((e, i) => (
                     <div key={i} className="text-xs text-amber-700 bg-amber-50 p-1.5 rounded">
                       {e.type}: ...{e.suggestion}...
@@ -626,9 +627,9 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         {/* 图像列表 */}
         {doc.images.length > 0 && (
           <div className="border-t border-slate-200 p-3 bg-slate-50">
-            <h5 className="text-xs font-semibold text-slate-600 mb-2">已插入图像 ({doc.images.length})</h5>
+            <h5 className="text-xs font-semibold text-slate-600 mb-2">{t('w9b.reportRich.insertedImages', { count: doc.images.length })}</h5>
             <div className="flex gap-2 overflow-x-auto">
-              {doc.images.map((img) => (
+              {doc.images.map((img: { id: string; src: string; alt: string; keyImage?: boolean }) => (
                 <div key={img.id} className="relative w-20 h-20 border border-slate-200 rounded overflow-hidden bg-white flex-shrink-0">
                   <img src={img.src} alt={img.alt} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   {img.keyImage && <Star className="w-3 h-3 absolute top-1 right-1 text-amber-500 fill-amber-500" />}
@@ -640,7 +641,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
       </Card>
 
       <Modal
-        title="特殊符号(放射学常用)"
+        title={t('w9b.reportRich.specialsTitle')}
         open={showSpecials}
         onCancel={() => setShowSpecials(false)}
         footer={null}
@@ -656,7 +657,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
       </Modal>
 
       <Modal
-        title="先前对比报告"
+        title={t('w9b.reportRich.priorCompareTitle')}
         open={showComparison}
         onCancel={() => setShowComparison(false)}
         footer={null}
@@ -669,9 +670,9 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
               label: '2024-09-15 胸部CT',
               children: (
                 <div>
-                  <p><strong>所见:</strong> 双肺纹理清晰，未见实变或结节。纵隔无肿大淋巴结。</p>
-                  <p><strong>印象:</strong> 胸部CT未见明显异常。</p>
-                  <Button size="small" type="primary" onClick={() => insertComparison({ date: '2024-09-15', findings: '双肺纹理清晰，未见实变或结节。', impression: '胸部CT未见明显异常。' })}>插入对比</Button>
+                  <p><strong>{t('w9b.reportRich.findingsLabel')}</strong> 双肺纹理清晰，未见实变或结节。纵隔无肿大淋巴结。</p>
+                  <p><strong>{t('w9b.reportRich.impressionLabel')}</strong> 胸部CT未见明显异常。</p>
+                  <Button size="small" type="primary" onClick={() => insertComparison({ date: '2024-09-15', findings: '双肺纹理清晰，未见实变或结节。', impression: '胸部CT未见明显异常。' })}>{t('w9b.reportRich.btnInsertComparison')}</Button>
                 </div>
               ),
             },
@@ -680,9 +681,9 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
               label: '2024-06-20 胸部CT',
               children: (
                 <div>
-                  <p><strong>所见:</strong> 右肺上叶见磨玻璃结节，大小约0.8cm。左肺下叶条索影。</p>
-                  <p><strong>印象:</strong> 右肺上叶GGO，建议随访。</p>
-                  <Button size="small" type="primary" onClick={() => insertComparison({ date: '2024-06-20', findings: '右肺上叶磨玻璃结节0.8cm。', impression: '右肺上叶GGO，建议随访。' })}>插入对比</Button>
+                  <p><strong>{t('w9b.reportRich.findingsLabel')}</strong> 右肺上叶见磨玻璃结节，大小约0.8cm。左肺下叶条索影。</p>
+                  <p><strong>{t('w9b.reportRich.impressionLabel')}</strong> 右肺上叶GGO，建议随访。</p>
+                  <Button size="small" type="primary" onClick={() => insertComparison({ date: '2024-06-20', findings: '右肺上叶磨玻璃结节0.8cm。', impression: '右肺上叶GGO，建议随访。' })}>{t('w9b.reportRich.btnInsertComparison')}</Button>
                 </div>
               ),
             },

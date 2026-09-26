@@ -11,6 +11,7 @@ import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Ruler, Pi
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { uniqueId } from '@utils/uniqueId';
+import { t } from '../../../../i18n/appI18n';
 
 let dicomUidSeq = 0;
 /** 生成仅含数字与点的唯一 DICOM UID 后缀 (Date.now + 自增 + 随机数字), 满足 ^[0-9.]{1,64}$ */
@@ -49,8 +50,8 @@ const CATEGORY_COLORS: Record<AnnotationCategory, string> = {
 };
 
 const CATEGORY_LABELS: Record<AnnotationCategory, string> = {
-  finding: '所见', lesion: '病灶', organ: '器官', measurement: '测量值',
-  critical: '危急', reference: '参考', comparison: '比较',
+  finding: t('w9e.imageAnchor.catFinding'), lesion: t('w9e.imageAnchor.catLesion'), organ: t('w9e.imageAnchor.catOrgan'), measurement: t('w9e.imageAnchor.catMeasurement'),
+  critical: t('w9e.imageAnchor.catCritical'), reference: t('w9e.imageAnchor.catReference'), comparison: t('w9e.imageAnchor.catComparison'),
 };
 
 const ANNOTATION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -65,17 +66,17 @@ const ANNOTATION_ICONS: Record<string, React.ComponentType<{ className?: string 
 };
 
 const TOOLS_PANEL = [
-  { key: 'Arrow', icon: ArrowUpRight, label: '箭头' },
-  { key: 'Rectangle', icon: Square, label: '矩形' },
-  { key: 'Ellipse', icon: CircleIcon, label: '椭圆' },
-  { key: 'ArrowDown', icon: ArrowDown, label: '下箭头' },
-  { key: 'Pen', icon: Pen, label: '画笔' },
-  { key: 'Text', icon: Type, label: '文字' },
-  { key: 'CobbAngle', icon: Cog, label: 'Cobb角' },
-  { key: 'Length', icon: Ruler, label: '长度' },
-  { key: 'Area', icon: Box, label: '面积' },
-  { key: 'Volume', icon: Box, label: '体积' },
-  { key: 'HU', icon: Activity, label: 'HU测量' },
+  { key: 'Arrow', icon: ArrowUpRight, label: t('w9e.imageAnchor.toolArrow') },
+  { key: 'Rectangle', icon: Square, label: t('w9e.imageAnchor.toolRectangle') },
+  { key: 'Ellipse', icon: CircleIcon, label: t('w9e.imageAnchor.toolEllipse') },
+  { key: 'ArrowDown', icon: ArrowDown, label: t('w9e.imageAnchor.toolArrowDown') },
+  { key: 'Pen', icon: Pen, label: t('w9e.imageAnchor.toolPen') },
+  { key: 'Text', icon: Type, label: t('w9e.imageAnchor.toolText') },
+  { key: 'CobbAngle', icon: Cog, label: t('w9e.imageAnchor.toolCobbAngle') },
+  { key: 'Length', icon: Ruler, label: t('w9e.imageAnchor.toolLength') },
+  { key: 'Area', icon: Box, label: t('w9e.imageAnchor.toolArea') },
+  { key: 'Volume', icon: Box, label: t('w9e.imageAnchor.toolVolume') },
+  { key: 'HU', icon: Activity, label: t('w9e.imageAnchor.toolHU') },
 ];
 
 const MOCK_CATEGORIES: AnnotationCategory[] = ['finding', 'lesion', 'organ', 'measurement', 'reference', 'critical', 'comparison'];
@@ -134,13 +135,13 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
     const updated = await pinImageAnchor(id, 'u-001');
     if (updated) {
       setAnchors((arr) => arr.map((a) => a.id === id ? updated : a));
-      message.success('已置顶');
+      message.success(t('w9e.imageAnchor.pinned'));
     }
   }, []);
 
   const handleInsert = useCallback((anchor: ImageAnchor) => {
     onInsertAnchor?.(anchor);
-    message.success('已插入到报告');
+    message.success(t('w9e.imageAnchor.inserted'));
   }, [onInsertAnchor]);
 
   const handleUpload = useCallback(() => {
@@ -163,7 +164,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           status: 'active', createdBy: '陈医师', createdAt: new Date().toISOString(), usageCount: 0,
         };
         setAnchors((arr) => [...arr, newAnchor]);
-        message.success(`已上传 ${file.name}`);
+        message.success(t('w9e.imageAnchor.uploaded', { name: file.name }));
       };
       reader.readAsDataURL(file);
     };
@@ -178,13 +179,13 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
         <div className="flex items-center justify-between">
           <Space>
             <ImageIcon className="w-4 h-4" style={{ color: '#0891b2' }} />
-            <span className="font-semibold">影像锚定</span>
-            <Tag color="blue">{filtered.length} 个</Tag>
-            <Tag color="amber" icon={<Star className="w-3 h-3" />}>关键 {anchors.filter((a) => a.keyImage).length}</Tag>
+            <span className="font-semibold">{t('w9e.imageAnchor.title')}</span>
+            <Tag color="blue">{t('w9e.imageAnchor.countTag', { count: filtered.length })}</Tag>
+            <Tag color="amber" icon={<Star className="w-3 h-3" />}>{t('w9e.imageAnchor.keyTag', { count: anchors.filter((a) => a.keyImage).length })}</Tag>
           </Space>
           <Space>
-            <Tooltip title="仅显示关键图像"><Switch size="small" checked={showOnlyKey} onChange={setShowOnlyKey} /></Tooltip>
-            <Button size="small" type="primary" icon={<ImageIcon className="w-3 h-3" />} onClick={handleUpload} disabled={readOnly}>上传</Button>
+            <Tooltip title={t('w9e.imageAnchor.onlyKeyTip')}><Switch size="small" checked={showOnlyKey} onChange={setShowOnlyKey} /></Tooltip>
+            <Button size="small" type="primary" icon={<ImageIcon className="w-3 h-3" />} onClick={handleUpload} disabled={readOnly}>{t('w9e.imageAnchor.upload')}</Button>
           </Space>
         </div>
       }
@@ -192,11 +193,11 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
       <div className="space-y-3">
         {/* 工具栏 */}
         <div className="flex items-center gap-1 p-1 bg-slate-50 rounded">
-          <Tooltip title="选择"><Button size="small" type={activeTool === 'select' ? 'primary' : 'text'} icon={<Move className="w-3 h-3" />} onClick={() => setActiveTool('select')} /></Tooltip>
-          <Tooltip title="箭头"><Button size="small" type={activeTool === 'arrow' ? 'primary' : 'text'} icon={<ArrowUpRight className="w-3 h-3" />} onClick={() => setActiveTool('arrow')} /></Tooltip>
-          <Tooltip title="圆"><Button size="small" type={activeTool === 'circle' ? 'primary' : 'text'} icon={<CircleIcon className="w-3 h-3" />} onClick={() => setActiveTool('circle')} /></Tooltip>
-          <Tooltip title="线/测距"><Button size="small" type={activeTool === 'line' ? 'primary' : 'text'} icon={<Ruler className="w-3 h-3" />} onClick={() => setActiveTool('line')} /></Tooltip>
-          <Tooltip title="文字"><Button size="small" type={activeTool === 'text' ? 'primary' : 'text'} icon={<Type className="w-3 h-3" />} onClick={() => setActiveTool('text')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolSelect')}><Button size="small" type={activeTool === 'select' ? 'primary' : 'text'} icon={<Move className="w-3 h-3" />} onClick={() => setActiveTool('select')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolArrow')}><Button size="small" type={activeTool === 'arrow' ? 'primary' : 'text'} icon={<ArrowUpRight className="w-3 h-3" />} onClick={() => setActiveTool('arrow')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolCircleTip')}><Button size="small" type={activeTool === 'circle' ? 'primary' : 'text'} icon={<CircleIcon className="w-3 h-3" />} onClick={() => setActiveTool('circle')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolLineTip')}><Button size="small" type={activeTool === 'line' ? 'primary' : 'text'} icon={<Ruler className="w-3 h-3" />} onClick={() => setActiveTool('line')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolTextTip')}><Button size="small" type={activeTool === 'text' ? 'primary' : 'text'} icon={<Type className="w-3 h-3" />} onClick={() => setActiveTool('text')} /></Tooltip>
           <div className="flex-1" />
           <Select
             size="small"
@@ -204,8 +205,8 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
             onChange={setFrameMode}
             style={{ width: 110 }}
             options={[
-              { value: 'single', label: '单帧' },
-              { value: 'cine', label: '多帧动态' },
+              { value: 'single', label: t('w9e.imageAnchor.frameSingle') },
+              { value: 'cine', label: t('w9e.imageAnchor.frameCine') },
             ]}
           />
           <div className="w-1" />
@@ -223,10 +224,10 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
               <>
                 <div className="absolute top-2 left-2 z-10 flex items-center gap-2">
                   <Tag color="blue">{selected.sopInstanceUID.slice(-12)}</Tag>
-                  {selected.keyImage && <Tag color="amber" icon={<Star className="w-3 h-3 fill-amber-500" />}>关键图像</Tag>}
+                  {selected.keyImage && <Tag color="amber" icon={<Star className="w-3 h-3 fill-amber-500" />}>{t('w9e.imageAnchor.keyImage')}</Tag>}
                   {selected.windowing && <Tag color="cyan">W:{selected.windowing.width}/C:{selected.windowing.center}</Tag>}
                   {frameMode === 'cine' && (
-                    <Tag color="purple" icon={<Play className="w-3 h-3" />}>帧 {cineFrame}/60</Tag>
+                    <Tag color="purple" icon={<Play className="w-3 h-3" />}>{t('w9e.imageAnchor.cineFrame', { frame: cineFrame })}</Tag>
                   )}
                 </div>
                 <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
@@ -236,8 +237,8 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                   {frameMode === 'cine' && (
                     <>
                       {/* [v3.0.6.11-99 Wave8A P1] 动态序列暂无序列帧数据 → 保留 disabled + tooltip 标注 */}
-                      <Tooltip title="动态序列待接入（序列帧数据暂不可用）">
-                        <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(暂未实现)')} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+                      <Tooltip title={t('w9e.imageAnchor.cinePendingTip')}>
+                        <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info(t('w9e.imageAnchor.playNotImplemented'))} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
                       </Tooltip>
                     </>
                   )}
@@ -247,7 +248,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                     <ImageIcon className="w-20 h-20 mx-auto mb-2 opacity-30" />
                     <div className="text-xs font-mono opacity-60">{selected.thumbnail || '/mock/ct-001.png'}</div>
                     <div className="text-xs opacity-60 mt-1">
-                      {frameMode === 'cine' ? `帧 ${cineFrame}/60` : `Frame ${selected.frameNumber}`}
+                      {frameMode === 'cine' ? t('w9e.imageAnchor.cineFrame', { frame: cineFrame }) : `Frame ${selected.frameNumber}`}
                     </div>
                   </div>
                 </div>
@@ -268,16 +269,16 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                 {/* 工具预览 */}
                 {activeTool !== 'select' && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-xs px-2 py-1 rounded z-10">
-                    {activeTool === 'arrow' && '点击图像放置箭头'}
-                    {activeTool === 'circle' && '拖动绘制圆形 ROI'}
-                    {activeTool === 'line' && '拖动测量距离'}
-                    {activeTool === 'text' && '点击添加文字标注'}
+                    {activeTool === 'arrow' && t('w9e.imageAnchor.tipArrow')}
+                    {activeTool === 'circle' && t('w9e.imageAnchor.tipCircle')}
+                    {activeTool === 'line' && t('w9e.imageAnchor.tipLine')}
+                    {activeTool === 'text' && t('w9e.imageAnchor.tipText')}
                   </div>
                 )}
               </>
             ) : (
               <div className="flex items-center justify-center h-full text-slate-500">
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择左侧图像" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.imageAnchor.selectImage')} />
               </div>
             )}
           </div>
@@ -285,7 +286,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           {/* 缩略图列 */}
           <div className="space-y-2 max-h-[360px] overflow-y-auto">
             {filtered.length === 0 ? (
-              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无锚定" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.imageAnchor.noAnchors')} />
             ) : (
               filtered.map((a) => (
                 <div
@@ -303,10 +304,10 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                         {a.id}
                       </div>
                       <div className="text-[10px] text-slate-500 truncate">
-                        {a.annotation.length} 标注 · Frame {a.frameNumber}
+                        {t('w9e.imageAnchor.annotationCount', { count: a.annotation.length, frame: a.frameNumber })}
                       </div>
                       <div className="text-[10px] text-slate-400">
-                        {a.createdBy} · {a.usageCount}次使用
+                        {a.createdBy} · {t('w9e.imageAnchor.usageCount', { count: a.usageCount })}
                       </div>
                     </div>
                   </div>
@@ -319,7 +320,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
         {/* 标注工具面板 */}
         <div className="border-t border-slate-200 pt-3">
           <h5 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
-            <Cog className="w-3 h-3" />标注工具
+            <Cog className="w-3 h-3" />{t('w9e.imageAnchor.toolsTitle')}
           </h5>
           <div className="flex items-center gap-1 p-1 bg-slate-50 rounded flex-wrap">
             {TOOLS_PANEL.map((tool) => (
@@ -334,7 +335,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
         {selected && selected.annotation.length > 0 && (
           <div className="border-t border-slate-200 pt-3">
             <h5 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
-              <Layers className="w-3 h-3" />标注 ({selected.annotation.length})
+              <Layers className="w-3 h-3" />{t('w9e.imageAnchor.annotationsTitle', { count: selected.annotation.length })}
             </h5>
             <div className="grid grid-cols-2 gap-2">
               {selected.annotation.map((a: AnnotationItem, i: number) => {
@@ -360,12 +361,12 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
         {selected && (
           <div className="border-t border-slate-200 pt-3">
             <h5 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
-              <Info className="w-3 h-3" />DICOM SR 元数据
+              <Info className="w-3 h-3" />{t('w9e.imageAnchor.srTitle')}
             </h5>
             <div className="text-xs font-mono bg-slate-50 p-2 rounded space-y-1">
-              <div>模板 ID: <span className="text-blue-600">{DICOM_SR_MOCK.templateId}</span></div>
-              <div>观察上下文: <span className="text-blue-600">{DICOM_SR_MOCK.observationContext}</span></div>
-              <div>测量数量: <span className="text-blue-600">{DICOM_SR_MOCK.measurementCount}</span></div>
+              <div>{t('w9e.imageAnchor.templateId')}<span className="text-blue-600">{DICOM_SR_MOCK.templateId}</span></div>
+              <div>{t('w9e.imageAnchor.observationContext')}<span className="text-blue-600">{DICOM_SR_MOCK.observationContext}</span></div>
+              <div>{t('w9e.imageAnchor.measurementCount')}<span className="text-blue-600">{DICOM_SR_MOCK.measurementCount}</span></div>
             </div>
           </div>
         )}
@@ -374,8 +375,8 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
         {selected && (
           <div className="text-xs text-slate-500 font-mono bg-slate-50 p-2 rounded">
             <div>SOP Instance UID: <span className="text-blue-600">{selected.sopInstanceUID}</span></div>
-            <div>检查 UID: <span className="text-blue-600">{selected.studyInstanceUID}</span></div>
-            <div>序列 UID: <span className="text-blue-600">{selected.seriesInstanceUID}</span></div>
+            <div>{t('w9e.imageAnchor.studyUid')}<span className="text-blue-600">{selected.studyInstanceUID}</span></div>
+            <div>{t('w9e.imageAnchor.seriesUid')}<span className="text-blue-600">{selected.seriesInstanceUID}</span></div>
           </div>
         )}
       </div>

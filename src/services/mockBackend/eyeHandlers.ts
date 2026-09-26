@@ -1757,10 +1757,19 @@ const eyeIolModule = [
   }),
 
   // [G005 Wave4A P1] IOL 计算记录保存/查询 (IolCalculatorPage 提交到病历, 内存 store)
+  // [G005 demo] localStorage 为空时返回确定性 seed, 避免商业演示出现空列表
   http.get(`${API_BASE}/iol/calculations`, async () => {
     await delay(80);
     const saved = (() => { try { return JSON.parse(localStorage.getItem('g005_eye_iol_calculations') || '[]') } catch { return [] } })();
-    return HttpResponse.json({ success: true, data: Array.isArray(saved) ? saved : [] });
+    if (Array.isArray(saved) && saved.length > 0) return HttpResponse.json({ success: true, data: saved });
+    const seeded = [
+      { id: 'IOL-CALC-SEED-001', patientId: 'P001', patientName: '张伟', eyeSide: 'OD', surgeon: '陈明', formula: 'Barrett Universal II', iolPower: 21.5, iolModel: 'AcrySof IQ SN60WF', al: 23.62, k1: 43.1, k2: 43.6, acd: 3.12, lt: 4.48, aConstant: 118.7, targetRefraction: -0.25, createdAt: '2026-08-20T08:15:00.000Z' },
+      { id: 'IOL-CALC-SEED-002', patientId: 'P003', patientName: '李娜', eyeSide: 'OS', surgeon: '王建华', formula: 'Kane', iolPower: 20.0, iolModel: 'Tecnis ZCB00', al: 23.05, k1: 43.8, k2: 44.2, acd: 3.05, lt: 4.30, aConstant: 119.1, targetRefraction: 0, createdAt: '2026-08-22T09:40:00.000Z' },
+      { id: 'IOL-CALC-SEED-003', patientId: 'P005', patientName: '王强', eyeSide: 'OD', surgeon: '陈明', formula: 'SRK/T', iolPower: 22.0, iolModel: 'AcrySof IQ SN60WF', al: 24.10, k1: 42.6, k2: 43.0, acd: 3.20, lt: 4.70, aConstant: 118.4, targetRefraction: -0.5, createdAt: '2026-08-25T14:05:00.000Z' },
+      { id: 'IOL-CALC-SEED-004', patientId: 'P007', patientName: '赵敏', eyeSide: 'OS', surgeon: '刘芳', formula: 'Barrett Universal II', iolPower: 19.5, iolModel: 'Toric TFNT00', al: 22.80, k1: 44.5, k2: 45.1, acd: 2.98, lt: 4.20, aConstant: 119.3, targetRefraction: 0, createdAt: '2026-08-28T10:30:00.000Z' },
+      { id: 'IOL-CALC-SEED-005', patientId: 'P009', patientName: '孙丽', eyeSide: 'OD', surgeon: '王建华', formula: 'Hill-RBF 2.0', iolPower: 21.0, iolModel: 'Tecnis ZCB00', al: 23.40, k1: 43.3, k2: 43.9, acd: 3.10, lt: 4.55, aConstant: 119.0, targetRefraction: -0.25, createdAt: '2026-09-01T11:20:00.000Z' },
+    ];
+    return HttpResponse.json({ success: true, data: seeded });
   }),
 
   http.post(`${API_BASE}/iol/calculations`, async ({ request }) => {
@@ -3326,9 +3335,14 @@ const eyeW3aAlignedModule = [
     return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
   }),
   // /eye/emr/:patientId (原 /eye/emr/records/:id, 后端 @Get('emr/:patientId'))
+  // [G005 demo] 该 id 无病历记录时回退首条 seed, 避免商业演示打开出现空/404
   http.get(`${API_BASE}/emr/:patientId`, async ({ params }) => {
     await delay(40);
-    const e = get<any>('eye_emrs', params.patientId as string) ?? list<any>('eye_emrs').find((x: any) => x.patientId === params.patientId);
+    const pid = String(params.patientId);
+    const all = list<any>('eye_emrs');
+    const e = get<any>('eye_emrs', pid)
+      ?? all.find((x: any) => x.patientId === pid || x.id === pid)
+      ?? all[0];
     if (!e) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: e });
   }),

@@ -5140,6 +5140,21 @@
       "submittedByRequired": "Please enter submitter",
       "departmentRequired": "Please enter department"
     }
+  },
+  "asr": {
+    "title": "Speech Recognition",
+    "subtitle": "Voice transcription · Lexicon correction · Dictation history",
+    "recordingHint": "Recording, click stop to finish",
+    "processing": "Processing...",
+    "clickToRecord": "Click the microphone to start recording",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording",
+    "transcribing": "Transcribing...",
+    "transcriptionResult": "Transcription Result",
+    "confidence": "Confidence",
+    "submitToReport": "Submit to Report",
+    "submitted": "Submitted",
+    "reset": "Reset"
   }
 }
 

@@ -588,7 +588,7 @@ export default function PrintManagementPage() {
         tags: [t("printMgmt.printLayout")],
       })
       if (res.success) {
-        displayToast(`自定义模板「${res.data.name}」已保存`, 'success')
+        displayToast(t('w9b.printMgmt.templateSaved', { name: res.data.name }), 'success')
       } else {
         displayToast(res.error?.message ?? t("printMgmt.templateSaveFailed"), 'error')
       }
@@ -754,7 +754,7 @@ export default function PrintManagementPage() {
     try {
       const res = await printApi.reprintJob(taskId)
       if (res.success) {
-        displayToast(`已重新提交打印任务: ${res.data?.id ?? taskId}`, 'success')
+        displayToast(t('w9b.printMgmt.jobResubmitted', { id: res.data?.id ?? taskId }), 'success')
         handleRefreshQueue()
       } else {
         displayToast(res.error?.message ?? t("printMgmt.reprintFailed"), 'error')
@@ -860,14 +860,14 @@ export default function PrintManagementPage() {
 
   // [G005 Wave2A P0] 删除打印机 → deletePrinter 真实调用
   const handleDeletePrinter = async (printer: any) => {
-    if (!window.confirm(`确定删除打印机「${printer.name}」吗？`)) return
+    if (!window.confirm(t('w9b.printMgmt.confirmDeletePrinter', { name: printer.name }))) return
     setDeletingPrinterId(printer.id)
     try {
       const res = await printApi.deletePrinter(printer.id)
       if (res.success) {
         setPrinters(prev => prev.filter((p: any) => p.id !== printer.id))
         setPrintersApi(prev => prev.filter((p: any) => p.id !== printer.id))
-        displayToast(`打印机「${printer.name}」已删除`, 'success')
+        displayToast(t('w9b.printMgmt.printerDeleted', { name: printer.name }), 'success')
       } else {
         displayToast(res.error?.message ?? t("printMgmt.printerDeleteFailed"), 'error')
       }
@@ -894,7 +894,7 @@ export default function PrintManagementPage() {
     setDicomPresets(updated)
     try { localStorage.setItem('g005_dicom_presets', JSON.stringify(updated)) } catch { /* ignore */ }
     setPresetEditOpen(false)
-    displayToast(`预设「${presetForm.name}」已保存`, 'success')
+    displayToast(t('w9b.printMgmt.presetSaved', { name: presetForm.name }), 'success')
   }
 
   // [G005 Wave1B] 打印机状态看板: printApi.listPrinters 优先, 空则静态 DICOM_PRINTERS
@@ -992,7 +992,7 @@ export default function PrintManagementPage() {
     const pad = (n: number) => String(n).padStart(2, '0')
     const timeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
     const html = `<!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="utf-8"><title>胶片打印任务 ${taskId}</title>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>${t('w9b.printMgmt.taskSheetTitle', { taskId })}</title>
 <style>
   body { font-family: "Microsoft YaHei", sans-serif; margin: 40px; color: #1e293b; }
   h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; }
@@ -1001,28 +1001,28 @@ export default function PrintManagementPage() {
   th { background: #eff6ff; }
   .foot { margin-top: 32px; font-size: 12px; color: #64748b; }
 </style></head><body>
-<h1>胶片打印任务单</h1>
+<h1>${t('w9b.printMgmt.taskSheetHeading')}</h1>
 <table>
-  <tr><th>任务ID</th><td>${taskId}</td></tr>
-  <tr><th>患者姓名</th><td>${patientName}</td></tr>
-  <tr><th>检查类型</th><td>${modality}</td></tr>
-  <tr><th>检查项目</th><td>${studyDesc}</td></tr>
-  <tr><th>胶片规格</th><td>${filmSpec}</td></tr>
-  <tr><th>打印份数</th><td>${copies}</td></tr>
-  <tr><th>生成时间</th><td>${timeStr}</td></tr>
+  <tr><th>${t('w9b.printMgmt.thTaskId')}</th><td>${taskId}</td></tr>
+  <tr><th>${t('w9b.printMgmt.thPatientName')}</th><td>${patientName}</td></tr>
+  <tr><th>${t('w9b.printMgmt.thModality')}</th><td>${modality}</td></tr>
+  <tr><th>${t('w9b.printMgmt.thStudyDesc')}</th><td>${studyDesc}</td></tr>
+  <tr><th>${t('w9b.printMgmt.thFilmSpec')}</th><td>${filmSpec}</td></tr>
+  <tr><th>${t('w9b.printMgmt.thCopies')}</th><td>${copies}</td></tr>
+  <tr><th>${t('w9b.printMgmt.thGeneratedAt')}</th><td>${timeStr}</td></tr>
 </table>
-<div class="foot">G005 RIS v3.0.6.11-87 · 胶片打印管理 · 本文件为文本报告导出（.html 可打印/转 PDF）</div>
+<div class="foot">G005 RIS v3.0.6.11-87 · ${t('w9b.printMgmt.footText')}</div>
 </body></html>`
     const blob = new Blob(['\ufeff', html], { type: 'text/html;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `打印任务_${taskId}.html`
+    a.download = t('w9b.printMgmt.taskFileName', { taskId })
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    displayToast(`任务 ${taskId} 的打印报告已生成下载`, 'success')
+    displayToast(t('w9b.printMgmt.reportDownloaded', { taskId }), 'success')
   }
 
   // 刷新队列
@@ -1092,7 +1092,7 @@ export default function PrintManagementPage() {
             copies: item.copies || 1,
             printer: item.printer,          })
           if (res.success) {
-            displayToast(`已开始打印: ${item.patientName}（${res.data?.id ?? ''}）`, 'success')
+            displayToast(t('w9b.printMgmt.printStarted', { name: item.patientName, id: res.data?.id ?? '' }), 'success')
             handleRefreshQueue()
           } else {
             displayToast(res.error?.message ?? t("printMgmt.taskCreateFailed"), 'error')
@@ -1146,7 +1146,7 @@ export default function PrintManagementPage() {
             printer: task?.printer,
           })
           if (res.success) {
-            displayToast(`已开始打印任务: ${res.data?.id ?? taskId}`, 'success')
+            displayToast(t('w9b.printMgmt.jobStarted', { id: res.data?.id ?? taskId }), 'success')
             handleRefreshQueue()
           } else {
             displayToast(res.error?.message ?? t("printMgmt.taskCreateFailed"), 'error')
@@ -1172,7 +1172,7 @@ export default function PrintManagementPage() {
         try {
           const res = await printApi.cancelJob(taskId)
           if (res.success) {
-            displayToast(`已取消任务: ${taskId}`, 'success')
+            displayToast(t('w9b.printMgmt.jobCancelled', { id: taskId }), 'success')
             setDicomTasks(prev => prev.filter((t: any) => t.id !== taskId))
             setPrintQueue(prev => prev.filter((t: any) => t.id !== taskId))
           } else {
@@ -1199,7 +1199,7 @@ export default function PrintManagementPage() {
         try {
           const res = await printApi.retryJob(taskId)
           if (res.success) {
-            displayToast(`已重新提交任务: ${taskId}`, 'success')
+            displayToast(t('w9b.printMgmt.jobRetried', { id: taskId }), 'success')
             setDicomTasks(prev => prev.map((t: any) => t.id === taskId ? { ...t, status: 'queued', progress: 0, errorMsg: undefined, completeTime: null } : t))
             setPrintQueue(prev => prev.map((t: any) => t.id === taskId ? { ...t, status: 'queued', progress: 0, errorMsg: undefined } : t))
           } else {
@@ -1249,7 +1249,7 @@ export default function PrintManagementPage() {
           }
         }
         if (ok > 0) {
-          displayToast(`批量打印已提交 ${ok}/${selectedQueueItems.length} 份`, 'success')
+          displayToast(t('w9b.printMgmt.batchSubmitted', { ok, total: selectedQueueItems.length }), 'success')
           setSelectedQueueItems([])
           handleRefreshQueue()
         } else {
@@ -1350,7 +1350,7 @@ export default function PrintManagementPage() {
       setQuotaModalOpen(false)
       setQuotaForm({ dept: DEPT_PRINT_QUOTAS[0]?.dept ?? t("printMgmt.roomCt"), requestedAmount: 100, reason: '' })
       setQuotaSaving(false)
-      displayToast(`额度申请已提交：${record.dept} +${record.requestedAmount} 张（本地记录, 待后端审批流）`, 'success')
+      displayToast(t('w9b.printMgmt.quotaSubmitted', { dept: record.dept, amount: record.requestedAmount }), 'success')
     }, 400)
   }
 

@@ -21,6 +21,9 @@ import {
 import { checkKeywords, type KeywordCheckOutput, type KeywordIssue } from '../utils/keywordChecker';
 import { extendedReportMock } from '../data/reportSubsystemMock';
 import { reportApi } from '../services/api/reportApi';
+import { DataTable } from '../components/common/DataTable';
+import { ActionButton, ExportButton } from '../components/common';
+import type { ColumnsType } from 'antd/es/table';
 import { t } from '../i18n/appI18n';
 
 // ============================================================
@@ -160,6 +163,49 @@ export default function KeywordCheckPage() {
     lesion: Object.values(LESION_KEYWORDS_BY_MODALITY).flat().length,
   }), []);
 
+  const reportColumns: ColumnsType<ScanReportRow> = [
+    {
+      title: t('w3tables.col.patient'), dataIndex: 'patientName', key: 'patientName',
+      render: (_: unknown, r) => (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
+          <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 2 }}>{r.modality}</span>
+        </div>
+      ),
+    },
+    { title: t('w3tables.col.examItem'), dataIndex: 'examItemName', key: 'examItemName' },
+    { title: t('w3tables.col.reportNo'), dataIndex: 'id', key: 'id', width: 130 },
+  ];
+
+  const issueColumns: ColumnsType<KeywordIssue> = [
+    {
+      title: t('kwc.severity'), dataIndex: 'severity', key: 'severity', width: 100,
+      render: (v: string) => {
+        const sConf = SEVERITY_CONFIG[v];
+        if (!sConf) return v;
+        const SIcon = sConf.icon;
+        return (
+          <span style={{ fontSize: 12, padding: '1px 5px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+            <SIcon size={9} /> {sConf.label}
+          </span>
+        );
+      },
+    },
+    { title: t('kwc.categoryLabel'), dataIndex: 'category', key: 'category', width: 110, render: (v: string) => CATEGORY_LABELS[v] },
+    {
+      title: t('w3tables.col.description'), dataIndex: 'message', key: 'message',
+      render: (v: string, issue) => (
+        <div style={{ minWidth: 220 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{v}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>💡 {issue.suggestion}</div>
+          {issue.matched && issue.matched !== '未找到' && (
+            <div style={{ fontSize: 12, padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#78350f', borderRadius: 3, marginTop: 4, display: 'inline-block', fontFamily: 'monospace' }}>"{issue.matched}"</div>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
@@ -199,6 +245,14 @@ export default function KeywordCheckPage() {
             {scanning ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
             {scanning ? `扫描中 ${scanProgress}%` : t('kwc.startScan')}
           </button>
+          <ActionButton action="refresh" loading={loading} onClick={() => void loadReports()}>{t('w45.actions.refresh')}</ActionButton>
+          <ExportButton
+            data={() => scanResult?.issues ?? reports}
+            filename="keyword-check"
+            label={t('w45.actions.export')}
+            size="small"
+            formats={["csv", "json"]}
+          />
         </div>
       </div>
 
@@ -224,27 +278,19 @@ export default function KeywordCheckPage() {
               <FileText size={12} /> {t('kwc.selectReport')} ({reports.length})
             </div>
           </div>
-          <div style={{ maxHeight: 600, overflowY: 'auto' }}>
-            {reports.map(r => (
-              <div
-                key={r.id}
-                onClick={() => { setSelectedReportId(r.id); setScanResult(null); }}
-                style={{
-                  padding: 10, borderBottom: '1px solid var(--border-light)',
-                  background: selectedReportId === r.id ? 'var(--color-info-bg)' : 'transparent',
-                  borderLeft: selectedReportId === r.id ? '3px solid #3b82f6' : '3px solid transparent',
-                  cursor: 'pointer',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
-                  <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 2 }}>{r.modality}</span>
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.examItemName}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{r.id}</div>
-              </div>
-            ))}
-          </div>
+          <DataTable<ScanReportRow>
+            columns={reportColumns}
+            dataSource={reports}
+            rowKey="id"
+            loading={loading}
+            showPagination={false}
+            emptyText={t('w3tables.empty')}
+            onRow={(r) => ({
+              onClick: () => { setSelectedReportId(r.id); setScanResult(null); },
+              style: { cursor: 'pointer', background: selectedReportId === r.id ? 'var(--color-info-bg)' : undefined },
+            })}
+            scroll={{ x: 'max-content' }}
+          />
         </div>
 
         {/* 右：扫描结果 */}
@@ -336,56 +382,24 @@ export default function KeywordCheckPage() {
                   background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
                   overflow: 'hidden',
                 }}>
-                  {filteredIssues.length === 0 ? (
-                    <div style={{ padding: 40, textAlign: 'center', color: '#10b981' }}>
-                      <CheckCircle2 size={48} style={{ display: 'block', margin: '0 auto 8px' }} />
-                      <div style={{ fontSize: 13, fontWeight: 700 }}>{t('kwc.noIssues')}</div>
-                      <div style={{ fontSize: 12, marginTop: 4 }}>{t('kwc.noIssuesHint')}</div>
-                    </div>
-                  ) : (
-                    filteredIssues.map(issue => {
-                      const sConf = SEVERITY_CONFIG[issue.severity]!;
-                      const SIcon = sConf.icon;
-                      return (
-                        <div
-                          key={issue.id}
-                          onClick={() => setSelectedIssue(issue)}
-                          style={{
-                            padding: 10, borderBottom: '1px solid var(--border-light)',
-                            background: selectedIssue?.id === issue.id ? 'var(--color-info-bg)' : 'transparent',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                            <span style={{
-                              fontSize: 12, padding: '1px 5px', borderRadius: 2,
-                              background: sConf.bg, color: sConf.color, fontWeight: 700,
-                              display: 'flex', alignItems: 'center', gap: 2,
-                            }}>
-                              <SIcon size={9} /> {sConf.label}
-                            </span>
-                            <span style={{
-                              fontSize: 12, padding: '1px 4px', borderRadius: 2,
-                              background: 'var(--bg-card)', color: 'var(--text-secondary)',
-                            }}>{CATEGORY_LABELS[issue.category]}</span>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{issue.message}</span>
-                          </div>
-                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', paddingLeft: 4 }}>
-                            💡 {issue.suggestion}
-                          </div>
-                          {issue.matched && issue.matched !== '未找到' && (
-                            <div style={{
-                              fontSize: 12, padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#78350f',
-                              borderRadius: 3, marginTop: 4, display: 'inline-block',
-                              fontFamily: 'monospace',
-                            }}>
-                              "{issue.matched}"
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  )}
+                  <DataTable<KeywordIssue>
+                    columns={issueColumns}
+                    dataSource={filteredIssues}
+                    rowKey="id"
+                    showPagination={false}
+                    scroll={{ x: 'max-content' }}
+                    emptyText={(
+                      <div style={{ padding: 20, textAlign: 'center', color: '#10b981' }}>
+                        <CheckCircle2 size={40} style={{ display: 'block', margin: '0 auto 8px' }} />
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{t('kwc.noIssues')}</div>
+                        <div style={{ fontSize: 12, marginTop: 4 }}>{t('kwc.noIssuesHint')}</div>
+                      </div>
+                    )}
+                    onRow={(issue) => ({
+                      onClick: () => setSelectedIssue(issue),
+                      style: { cursor: 'pointer', background: selectedIssue?.id === issue.id ? 'var(--color-info-bg)' : undefined },
+                    })}
+                  />
                 </div>
 
                 {/* 右：详情 + 建议 */}

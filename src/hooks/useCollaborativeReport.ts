@@ -75,7 +75,7 @@ function decodeB64(b64: string): Uint8Array {
 
 function encodeB64(bytes: Uint8Array): string {
   let bin = '';
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i] ?? 0);
   return btoa(bin);
 }
 

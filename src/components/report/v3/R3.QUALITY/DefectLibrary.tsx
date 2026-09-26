@@ -117,7 +117,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
   const handleDelete = async (code: string) => {
     Modal.confirm({
       title: t('defectLibrary.deleteConfirmTitle'),
-      content: `确定删除缺陷 ${code}？此操作不可恢复。`,
+      content: t('w9e.defectLibrary.deleteConfirm', { code }),
       okText: t('defectLibrary.delete'),
       okType: 'danger',
       cancelText: t('defectLibrary.cancel'),
@@ -377,7 +377,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
                         {t('defectLibrary.trigger')} {d.count} {t('defectLibrary.timesUnit')} · {t('defectLibrary.remediationSla')} {d.sla}h · {t('defectLibrary.updated')} {new Date(d.updatedAt).toLocaleDateString()}
-                        {d.tags.length > 0 && ` · 标签: ${d.tags.join(', ')}`}
+                        {d.tags.length > 0 && t('w9e.defectLibrary.tagsPrefix', { tags: d.tags.join(', ') })}
                       </div>
                     </div>
                   }

@@ -2,6 +2,7 @@
 // G005 放射RIS系统 v2.1.0 - 测量工具基类
 // Phase R10 W1: 长度/角度/椭圆 ROI/箭头/窗宽窗位
 // ============================================================
+import { t } from '../../i18n/appI18n'
 
 export interface DicomMeasurement {
   id: string;
@@ -19,26 +20,30 @@ export interface DicomMeasurement {
 
 export type ToolType = 'windowlevel' | 'pan' | 'zoom' | 'length' | 'angle' | 'ellipse' | 'arrow' | 'text' | 'cobb' | 'stack-scroll';
 
-// 工具元数据
+// 工具元数据 (nameKey/descKey 经 i18n 渲染, id 为逻辑键)
 export const TOOLS: Record<ToolType, {
   id: ToolType;
   name: string;
+  nameKey: string;
   icon: string;
   shortcut: string;
   group: 'navigation' | 'measurement' | 'annotation';
   description: string;
+  descKey: string;
 }> = {
-  'windowlevel':     { id: 'windowlevel',     name: '窗宽窗位',     icon: 'Sun',     shortcut: 'W', group: 'navigation', description: '调节 WW/WL' },
-  'pan':             { id: 'pan',             name: '平移',         icon: 'Move',    shortcut: 'P', group: 'navigation', description: '平移图像' },
-  'zoom':            { id: 'zoom',            name: '缩放',         icon: 'ZoomIn',  shortcut: 'Z', group: 'navigation', description: '缩放图像' },
-  'length':          { id: 'length',          name: '长度',         icon: 'Ruler',   shortcut: 'L', group: 'measurement', description: '测量两点间距离（mm）' },
-  'angle':           { id: 'angle',           name: '角度',         icon: 'Triangle',shortcut: 'A', group: 'measurement', description: '测量三点间角度（°）' },
-  'ellipse':         { id: 'ellipse',         name: '椭圆 ROI',     icon: 'Circle',  shortcut: 'R', group: 'measurement', description: '椭圆区域 ROI（mm² / HU）' },
-  'arrow':           { id: 'arrow',           name: '箭头标注',     icon: 'ArrowRight',shortcut:'T', group: 'annotation', description: '添加箭头标注' },
-  'text':            { id: 'text',            name: '文字标注',     icon: 'Type',    shortcut: 'X', group: 'annotation', description: '添加文字标注' },
-  'cobb':            { id: 'cobb',            name: 'Cobb 角',      icon: 'Minus',   shortcut: 'B', group: 'measurement', description: '脊柱 Cobb 角' },
-  'stack-scroll':    { id: 'stack-scroll',    name: '序列滚动',     icon: 'Layers',  shortcut: 'S', group: 'navigation', description: '滚轮切层' },
+  'windowlevel':     { id: 'windowlevel',     name: '窗宽窗位',     nameKey: 'w9d.tool.windowlevel', icon: 'Sun',     shortcut: 'W', group: 'navigation', description: '调节 WW/WL', descKey: 'w9d.tool.windowlevelDesc' },
+  'pan':             { id: 'pan',             name: '平移',         nameKey: 'w9d.tool.pan', icon: 'Move',    shortcut: 'P', group: 'navigation', description: '平移图像', descKey: 'w9d.tool.panDesc' },
+  'zoom':            { id: 'zoom',            name: '缩放',         nameKey: 'w9d.tool.zoom', icon: 'ZoomIn',  shortcut: 'Z', group: 'navigation', description: '缩放图像', descKey: 'w9d.tool.zoomDesc' },
+  'length':          { id: 'length',          name: '长度',         nameKey: 'w9d.tool.length', icon: 'Ruler',   shortcut: 'L', group: 'measurement', description: '测量两点间距离（mm）', descKey: 'w9d.tool.lengthDesc' },
+  'angle':           { id: 'angle',           name: '角度',         nameKey: 'w9d.tool.angle', icon: 'Triangle',shortcut: 'A', group: 'measurement', description: '测量三点间角度（°）', descKey: 'w9d.tool.angleDesc' },
+  'ellipse':         { id: 'ellipse',         name: '椭圆 ROI',     nameKey: 'w9d.tool.ellipse', icon: 'Circle',  shortcut: 'R', group: 'measurement', description: '椭圆区域 ROI（mm² / HU）', descKey: 'w9d.tool.ellipseDesc' },
+  'arrow':           { id: 'arrow',           name: '箭头标注',     nameKey: 'w9d.tool.arrow', icon: 'ArrowRight',shortcut:'T', group: 'annotation', description: '添加箭头标注', descKey: 'w9d.tool.arrowDesc' },
+  'text':            { id: 'text',            name: '文字标注',     nameKey: 'w9d.tool.text', icon: 'Type',    shortcut: 'X', group: 'annotation', description: '添加文字标注', descKey: 'w9d.tool.textDesc' },
+  'cobb':            { id: 'cobb',            name: 'Cobb 角',      nameKey: 'w9d.tool.cobb', icon: 'Minus',   shortcut: 'B', group: 'measurement', description: '脊柱 Cobb 角', descKey: 'w9d.tool.cobbDesc' },
+  'stack-scroll':    { id: 'stack-scroll',    name: '序列滚动',     nameKey: 'w9d.tool.stack-scroll', icon: 'Layers',  shortcut: 'S', group: 'navigation', description: '滚轮切层', descKey: 'w9d.tool.stackScrollDesc' },
 };
+export const toolName = (type: ToolType) => t(TOOLS[type].nameKey);
+export const toolDesc = (type: ToolType) => t(TOOLS[type].descKey);
 
 // 计算工具函数
 export function calculateLength(p1: { x: number; y: number }, p2: { x: number; y: number }, pixelSpacing: [number, number]): number {

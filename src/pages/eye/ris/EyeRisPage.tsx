@@ -91,14 +91,14 @@ const EyeRisPage: React.FC = () => {
       const res = await eyeApi.checkinAppointment(record.id);
       if (res.success) {
         updateAppointmentStatus(record.id, "arrived");
-        message.success(`${record.patientName} 已到检`);
+        message.success(t('w9d.eyeRis.checkedIn', { name: record.patientName }));
       } else {
         message.warning(res.error?.message ?? t("eyeRis.checkinUnavailable"));
         updateAppointmentStatus(record.id, "arrived");
       }
     } catch {
       updateAppointmentStatus(record.id, "arrived");
-      message.success(`${record.patientName} 已到检（本地）`);
+      message.success(t('w9d.eyeRis.checkedInLocal', { name: record.patientName }));
     } finally {
       setCheckinLoadingId(null);
     }
@@ -110,14 +110,14 @@ const EyeRisPage: React.FC = () => {
       const res = await eyeApi.startAppointment(record.id);
       if (res.success) {
         updateAppointmentStatus(record.id, "in_progress");
-        message.success(`已叫号: ${record.patientName}（${MODALITY_LABELS[record.modality] || record.modality}）`);
+        message.success(t('w9d.eyeRis.called', { name: record.patientName, modality: MODALITY_LABELS[record.modality] || record.modality }));
       } else {
         message.warning(res.error?.message ?? t("eyeRis.callUnavailable"));
         updateAppointmentStatus(record.id, "in_progress");
       }
     } catch {
       updateAppointmentStatus(record.id, "in_progress");
-      message.success(`已叫号: ${record.patientName}（本地）`);
+      message.success(t('w9d.eyeRis.calledLocal', { name: record.patientName }));
     } finally {
       setCallLoadingId(null);
     }
@@ -130,13 +130,13 @@ const EyeRisPage: React.FC = () => {
       const res = await eyeApi.acceptReferral(r.id);
       if (res.success) {
         setReferrals(prev => prev.map(x => x.id === r.id ? { ...x, status: "accepted" as const } : x));
-        message.success(`已接受转诊: ${r.patientName}`);
+        message.success(t('w9d.eyeRis.referralAccepted', { name: r.patientName }));
       } else {
         message.warning(res.error?.message ?? t("eyeRis.acceptReferralUnavailable"));
       }
     } catch {
       setReferrals(prev => prev.map(x => x.id === r.id ? { ...x, status: "accepted" as const } : x));
-      message.success(`已接受转诊 (本地): ${r.patientName}`);
+      message.success(t('w9d.eyeRis.referralAcceptedLocal', { name: r.patientName }));
     } finally {
       setAcceptLoadingId(null);
     }
@@ -161,7 +161,7 @@ const EyeRisPage: React.FC = () => {
         estimatedDuration: 60,
       });
       if (res.success) {
-        message.success(`手术已排程: ${values.patientName} (${values.procedure})`);
+        message.success(t('w9d.eyeRis.surgeryScheduled', { name: values.patientName, procedure: values.procedure }));
         setSurgeryModal({ open: false, submitting: false });
         surgeryForm.resetFields();
         const surgRes = await eyeApi.getSurgeries();
@@ -182,13 +182,13 @@ const EyeRisPage: React.FC = () => {
       const res = await eyeApi.deleteSurgery(s.id);
       if (res.success) {
         setSurgeryAppointments(prev => prev.filter(x => x.id !== s.id));
-        message.success(`已取消手术: ${s.patientName}`);
+        message.success(t('w9d.eyeRis.surgeryCancelled', { name: s.patientName }));
       } else {
         message.warning(res.error?.message ?? t("eyeRis.cancelUnavailable"));
       }
     } catch {
       setSurgeryAppointments(prev => prev.map(x => x.id === s.id ? { ...x, status: "cancelled" as const } : x));
-      message.success(`已取消手术 (本地): ${s.patientName}`);
+      message.success(t('w9d.eyeRis.surgeryCancelledLocal', { name: s.patientName }));
     }
   };
 

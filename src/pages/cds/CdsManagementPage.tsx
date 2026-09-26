@@ -1,8 +1,10 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { Sliders, ToggleLeft, ToggleRight, Plus, Edit3, Search, Eye, ChevronDown, ChevronRight, Shield, Pill, FlaskConical, Route, BrainCircuit, X, Save } from 'lucide-react';
+import { Sliders, ToggleLeft, ToggleRight, Plus, Edit3, Search, Eye, Shield, Pill, FlaskConical, Route, BrainCircuit, X, Save } from 'lucide-react';
+import type { ColumnsType } from "antd/es/table";
 import type { CdsRuleSummary, CdsAuditEntry } from "../../services/cds";
 import { cdsApi } from "../../services/api/cdsApi";
 import { StateView } from "../../components/common/StateView";
+import { DataTable } from "../../components/common/DataTable";
 import { t } from "../../i18n/appI18n";
 
 type RuleTab = "appropriateness" | "pathway" | "contrast" | "drug";
@@ -160,6 +162,58 @@ export default function CdsManagementPage() {
 
   const toggleExpand = (id: string) =>
     setExpandedId((prev) => (prev === id ? null : id));
+
+  const ruleColumns: ColumnsType<CdsRuleSummary> = [
+    {
+      title: t("cdsMgmt.col.name"),
+      dataIndex: "name",
+      key: "name",
+      render: (_: unknown, rule) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: TYPE_COLORS[rule.type], display: "inline-block" }} />
+          <span style={{ fontSize: 13 }}>{rule.name}</span>
+          <span style={{ fontSize: 12, color: "#6e7681" }}>({rule.id})</span>
+        </div>
+      ),
+    },
+    {
+      title: t("cdsMgmt.col.version"),
+      dataIndex: "version",
+      key: "version",
+      width: 100,
+      render: (v: string) => <span style={{ fontSize: 12, color: "#8b949e" }}>v{v}</span>,
+    },
+    {
+      title: t("cdsMgmt.col.status"),
+      dataIndex: "isActive",
+      key: "status",
+      width: 110,
+      render: (active: boolean) => (
+        <span style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
+          {active
+            ? <ToggleRight size={12} style={{ color: "var(--color-success-500, #22c55e)" }} />
+            : <ToggleLeft size={12} style={{ color: "var(--color-error-500, #ef4444)" }} />}
+          <span style={{ color: active ? "var(--color-success-500, #22c55e)" : "var(--color-error-500, #ef4444)" }}>
+            {active ? t("cdsMgmt.enabled") : t("cdsMgmt.disabled")}
+          </span>
+        </span>
+      ),
+    },
+    {
+      title: t("cdsMgmt.col.usage"),
+      dataIndex: "usageCount",
+      key: "usage",
+      width: 90,
+      render: (v: number) => <span style={{ fontSize: 12, color: "#8b949e" }}>{v}</span>,
+    },
+    {
+      title: t("cdsMgmt.col.updated"),
+      dataIndex: "updatedTime",
+      key: "updated",
+      width: 120,
+      render: (v: string) => <span style={{ fontSize: 12, color: "#6e7681" }}>{new Date(v).toLocaleDateString("zh-CN")}</span>,
+    },
+  ];
 
   return (
     <div
@@ -383,156 +437,59 @@ export default function CdsManagementPage() {
           onRetry={() => void fetchData()}
           skeletonRows={6}
         >
-        <div
-          style={{
-            background: "#161b22",
-            border: "1px solid #30363d",
-            borderRadius: 8,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "24px 1fr 100px 80px 100px 100px",
-              gap: 8,
-              padding: "12px 16px",
-              borderBottom: "1px solid #21262d",
-              background: "#0d1117",
-              color: "#8b949e",
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
-            <span></span>
-            <span>{t("cdsMgmt.col.name")}</span>
-            <span>{t("cdsMgmt.col.version")}</span>
-            <span>{t("cdsMgmt.col.status")}</span>
-            <span>{t("cdsMgmt.col.usage")}</span>
-            <span>{t("cdsMgmt.col.updated")}</span>
-          </div>
-          {filteredRules.map((rule, idx) => (
-            <div key={rule.id}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "24px 1fr 100px 80px 100px 100px",
-                  gap: 8,
-                  padding: "12px 16px",
-                  borderBottom: "1px solid #21262d",
-                  alignItems: "center",
-                  background: idx % 2 === 0 ? "#0d1117" : "#161b22",
-                  cursor: "pointer",
-                }}
-                onClick={() => toggleExpand(rule.id)}
-              >
-                <span style={{ color: "#6e7681" }}>
-                  {expandedId === rule.id ? (
-                    <ChevronDown size={14} />
-                  ) : (
-                    <ChevronRight size={14} />
-                  )}
-                </span>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      background: TYPE_COLORS[rule.type],
-                      display: "inline-block",
-                    }}
-                  ></span>
-                  <span style={{ fontSize: 13 }}>{rule.name}</span>
-                  <span style={{ fontSize: 12, color: "#6e7681" }}>
-                    ({rule.id})
-                  </span>
-                </div>
-                <span style={{ fontSize: 12, color: "#8b949e" }}>
-                  v{rule.version}
-                </span>
-                <span
+        <DataTable<CdsRuleSummary>
+          columns={ruleColumns}
+          dataSource={filteredRules}
+          rowKey="id"
+          showPagination={false}
+          emptyText={t("w2d.empty")}
+          onRow={(rule) => ({ onClick: () => toggleExpand(rule.id), style: { cursor: "pointer" } })}
+          expandable={{
+            expandedRowKeys: expandedId ? [expandedId] : [],
+            onExpand: (expanded, rule) => setExpandedId(expanded ? rule.id : null),
+            expandedRowRender: (rule) => (
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => openEditRule(rule)}
                   style={{
+                    padding: "6px 12px",
+                    borderRadius: 4,
+                    border: "1px solid #30363d",
+                    background: "transparent",
+                    color: "#8b949e",
+                    cursor: "pointer",
                     fontSize: 12,
                     display: "flex",
                     alignItems: "center",
                     gap: 4,
                   }}
                 >
-                  {rule.isActive ? (
-                    <>
-                      <ToggleRight size={12} style={{ color: "var(--color-success-500, #22c55e)" }} />
-                      <span style={{ color: "var(--color-success-500, #22c55e)" }}>{t("cdsMgmt.enabled")}</span>
-                    </>
-                  ) : (
-                    <>
-                      <ToggleLeft size={12} style={{ color: "var(--color-error-500, #ef4444)" }} />
-                      <span style={{ color: "var(--color-error-500, #ef4444)" }}>{t("cdsMgmt.disabled")}</span>
-                    </>
-                  )}
-                </span>
-                <span style={{ fontSize: 12, color: "#8b949e" }}>
-                  {rule.usageCount}
-                </span>
-                <span style={{ fontSize: 12, color: "#6e7681" }}>
-                  {new Date(rule.updatedTime).toLocaleDateString("zh-CN")}
-                </span>
-              </div>
-              {expandedId === rule.id && (
-                <div
+                  <Edit3 size={12} />
+                  {t("cdsMgmt.edit")}
+                </button>
+                <button
+                  onClick={() => void toggleRule(rule)}
                   style={{
-                    padding: "12px 16px 12px 48px",
-                    background: "#0d1117",
-                    borderBottom: "1px solid #21262d",
+                    padding: "6px 12px",
+                    borderRadius: 4,
+                    border: "1px solid #30363d",
+                    background: "transparent",
+                    color: rule.isActive ? "var(--color-error-500, #ef4444)" : "var(--color-success-500, #22c55e)",
+                    cursor: "pointer",
+                    fontSize: 12,
                     display: "flex",
-                    gap: 8,
+                    alignItems: "center",
+                    gap: 4,
                   }}
                 >
-                  <button
-                    onClick={() => openEditRule(rule)}
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: 4,
-                      border: "1px solid #30363d",
-                      background: "transparent",
-                      color: "#8b949e",
-                      cursor: "pointer",
-                      fontSize: 12,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <Edit3 size={12} />
-                    {t("cdsMgmt.edit")}
-                  </button>
-                  <button
-                    onClick={() => void toggleRule(rule)}
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: 4,
-                      border: "1px solid #30363d",
-                      background: "transparent",
-                      color: rule.isActive ? "var(--color-error-500, #ef4444)" : "var(--color-success-500, #22c55e)",
-                      cursor: "pointer",
-                      fontSize: 12,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    {rule.isActive ? (
-                      <ToggleLeft size={12} />
-                    ) : (
-                      <ToggleRight size={12} />
-                    )}
-                    {rule.isActive ? t("cdsMgmt.disabled") : t("cdsMgmt.enabled")}
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                  {rule.isActive ? <ToggleLeft size={12} /> : <ToggleRight size={12} />}
+                  {rule.isActive ? t("cdsMgmt.disabled") : t("cdsMgmt.enabled")}
+                </button>
+              </div>
+            ),
+          }}
+          scroll={{ x: "max-content" }}
+        />
         </StateView>
       </div>
 

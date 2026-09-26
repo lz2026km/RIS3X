@@ -17,6 +17,7 @@ import {
 } from "antd";
 import { UploadCloud, CheckCircle, Database, RefreshCw } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
+import { t } from "../../i18n/appI18n";
 
 const { Text } = Typography;
 
@@ -34,11 +35,11 @@ const StowRsPage: React.FC = () => {
       if (res.success) {
         setInstances(res.data ?? []);
       } else {
-        setError(res.error?.message ?? "加载失败");
+        setError(res.error?.message ?? t("w9d.stowRs.loadFailed"));
         setInstances([]);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t("w9d.stowRs.loadFailed"));
       setInstances([]);
     } finally {
       setLoading(false);
@@ -57,13 +58,13 @@ const StowRsPage: React.FC = () => {
       const res = await stowRsApi.storeInstances({ formData });
       if (res.success) {
         const count = res.data?.receivedInstanceCount ?? 1;
-        message.success(`已存储 ${count} 个实例`);
+        message.success(t("w9d.stowRs.stored", { count }));
         void load();
       } else {
-        message.error(res.error?.message ?? "上传失败");
+        message.error(res.error?.message ?? t("w9d.stowRs.uploadFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? "上传失败");
+      message.error((e as Error)?.message ?? t("w9d.stowRs.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -72,7 +73,7 @@ const StowRsPage: React.FC = () => {
 
   const columns = [
     {
-      title: "检查 UID",
+      title: t("w9d.stowRs.colStudyUid"),
       dataIndex: "studyInstanceUid",
       key: "uid",
       render: (v: string) => (
@@ -81,17 +82,17 @@ const StowRsPage: React.FC = () => {
         </Text>
       ),
     },
-    { title: "患者", dataIndex: "patientName", key: "patientName" },
-    { title: "编号", dataIndex: "patientId", key: "patientId" },
+    { title: t("w9d.stowRs.colPatient"), dataIndex: "patientName", key: "patientName" },
+    { title: t("w9d.stowRs.colPatientId"), dataIndex: "patientId", key: "patientId" },
     {
-      title: "模态",
+      title: t("w9d.stowRs.colModality"),
       dataIndex: "modality",
       key: "modality",
       render: (v: string) => <Tag>{v}</Tag>,
     },
-    { title: "日期", dataIndex: "studyDate", key: "studyDate" },
+    { title: t("w9d.stowRs.colDate"), dataIndex: "studyDate", key: "studyDate" },
     {
-      title: "接收时间",
+      title: t("w9d.stowRs.colReceivedAt"),
       dataIndex: "receivedAt",
       key: "receivedAt",
       render: (v: string) => (v ? new Date(v).toLocaleString() : "-"),
@@ -102,21 +103,21 @@ const StowRsPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <UploadCloud size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>STOW-RS 存储</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.stowRs.title")}</span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
           onClick={() => void load()}
           loading={loading}
         >
-          刷新
+          {t("w9d.stowRs.refresh")}
         </Button>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
           <Card>
             <Statistic
-              title="已存储实例"
+              title={t("w9d.stowRs.statStored")}
               value={instances.length}
               prefix={<Database size={16} />}
             />
@@ -125,7 +126,7 @@ const StowRsPage: React.FC = () => {
         <Col span={8}>
           <Card>
             <Statistic
-              title="成功存储"
+              title={t("w9d.stowRs.statSuccess")}
               value={instances.length}
               prefix={<CheckCircle size={16} />}
               styles={{ content: {  color: "#52c41a"  } }}
@@ -140,7 +141,7 @@ const StowRsPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-              重试
+              {t("w9d.stowRs.retry")}
             </Button>
           }
         />
@@ -157,7 +158,7 @@ const StowRsPage: React.FC = () => {
               icon={<UploadCloud size={14} />}
               loading={uploading}
             >
-              上传 DICOM
+              {t("w9d.stowRs.uploadDicom")}
             </Button>
           </Upload>
         }

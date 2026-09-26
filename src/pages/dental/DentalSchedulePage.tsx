@@ -12,16 +12,14 @@ import { usePagination } from '@/hooks/usePagination';
 
 const TIME_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
 const APPT_TYPES = [
-  { value: '初诊', label: '初诊' },
-  { value: '复诊', label: '复诊' },
-  { value: '治疗', label: '治疗' },
-  { value: '复查', label: '复查' },
-  { value: '洁牙', label: '洁牙' },
-  { value: '种植', label: '种植' },
-  { value: '正畸', label: '正畸' },
+  { value: '初诊', labelKey: 'w9d.apptType.initial' },
+  { value: '复诊', labelKey: 'w9d.apptType.followup' },
+  { value: '治疗', labelKey: 'w9d.apptType.treatment' },
+  { value: '复查', labelKey: 'w9d.apptType.review' },
+  { value: '洁牙', labelKey: 'w9d.apptType.scaling' },
+  { value: '种植', labelKey: 'w9d.apptType.implant' },
+  { value: '正畸', labelKey: 'w9d.apptType.ortho' },
 ];
-
-export const DENTAL_APPT_STATUS_LABELS_DICT: Record<string, string> = { scheduled: '已预约', 'in-progress': '进行中', completed: '已完成', cancelled: '已取消', 'no-show': '未到诊' };
 
 const apptStatusLabel = (s: string): string =>
   s === 'scheduled' ? t('dentalSchedule.statusScheduled')
@@ -302,7 +300,7 @@ export const DentalSchedulePage: React.FC = () => {
             <Select options={dentists} />
           </Form.Item>
           <Form.Item label={t('dentalSchedule.colType')} name="type" rules={[{ required: true }]}>
-            <Select options={APPT_TYPES} />
+            <Select options={APPT_TYPES.map((o) => ({ value: o.value, label: t(o.labelKey) }))} />
           </Form.Item>
         </Form>
       </Modal>

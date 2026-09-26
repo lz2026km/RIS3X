@@ -71,7 +71,7 @@ const MeasurementPanel: React.FC<{
                       : "green"
               }
             >
-              {({ normal: '正常', borderline: '临界', abnormal: '异常', critical: '危急' } as any)[r.interpretation] || r.interpretation}
+              {(({ normal: '正常', borderline: '临界', abnormal: '异常', critical: '危急' } as Record<string, string>)[String(r.interpretation)] || r.interpretation) ?? '-'}
             </Tag>
           ),
         },

@@ -19,10 +19,10 @@ export default function NlpCheckPage() {
     try {
       if (activeTab === "spell") {
         const res = await nlpApi.spellcheck(text)
-        setSpellResult(res)
+        if (res.data) setSpellResult(res.data)
       } else {
         const res = await nlpApi.terminology(text)
-        setTermResult(res)
+        if (res.data) setTermResult(res.data)
       }
     } finally {
       setLoading(false)

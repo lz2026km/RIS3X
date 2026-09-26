@@ -25,7 +25,7 @@ const ReportTemplateSelector: React.FC<{
     />
     {value && (
       <Tag color="blue">
-        {MODALITY_LABELS_LOCAL[MOCK_REPORT_TEMPLATES.find((t) => t.id === value)?.modality || ""] || MOCK_REPORT_TEMPLATES.find((t) => t.id === value)?.modality || "-"}
+        {MODALITY_LABELS_LOCAL[(MOCK_REPORT_TEMPLATES.find((t) => t.id === value)?.modality ?? "") as string] || MOCK_REPORT_TEMPLATES.find((t) => t.id === value)?.modality || "-"}
       </Tag>
     )}
   </Space>

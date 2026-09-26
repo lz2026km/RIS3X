@@ -86,7 +86,7 @@ export const DentalTelePage: React.FC = () => {
       uploadedAt: new Date().toLocaleString('zh-CN', { hour12: false }),
     }));
     setPhotos((prev) => [...prev, ...next]);
-    message.success(`已选择 ${next.length} 张口内照片 (本地预览, 未上传服务器)`);
+    message.success(t('w9d.dentalTele.photosSelected', { count: next.length }));
   };
 
   const openPhotoModal = () => {
@@ -144,10 +144,10 @@ export const DentalTelePage: React.FC = () => {
   };
 
   const joinSession = async (s: TeleSession) => {
-    message.success(`正在加入会诊 ${s.id} ...`);
+    message.success(t('w9d.dentalTele.joiningSession', { id: s.id }));
     setTimeout(() => {
       setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'in_progress' } : x));
-      message.success(`已加入专家 ${s.expert} 的会诊`);
+      message.success(t('w9d.dentalTele.joinedSession', { expert: s.expert }));
     }, 800);
   };
 
@@ -192,7 +192,7 @@ export const DentalTelePage: React.FC = () => {
       if (res.success && data && Array.isArray(data.detections)) {
         setScreeningDetections(data.detections);
         setScreeningMeta({ model: data.model ?? '', method: data.method ?? '' });
-        setScreeningSource(imageBase64 ? `照片 ${photos[0]!.name}` : `会诊患者标识 (无照片, mock 预筛)`);
+        setScreeningSource(imageBase64 ? t('w9d.dentalTele.photoSource', { name: photos[0]!.name }) : t('w9d.dentalTele.mockSource'));
         setScreeningModal(true);
       } else {
         throw new Error(res.error?.message ?? t('dentalTele.emptyResult'));
@@ -225,7 +225,7 @@ export const DentalTelePage: React.FC = () => {
         <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} loading={screeningLoading} onClick={() => void runAiPrescreen()}>{t('dentalTele.aiPrescreen')}</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<RefreshCw size={14} />} onClick={() => void load()}>{t('dentalTele.refresh')}</Button></Card></Col>
       </Row>
-      <Card title={`会诊记录 (${sessions.length})`} size="small" style={{ marginTop: 16 }}>
+      <Card title={t('w9d.dentalTele.sessionRecords', { count: sessions.length })} size="small" style={{ marginTop: 16 }}>
         <Spin spinning={loading}>
           {sessions.length === 0 && !loading ? (
             <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalTele.empty')} />
@@ -257,7 +257,7 @@ export const DentalTelePage: React.FC = () => {
                       </Space>}
                       description={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                         {t('dentalTele.patient')}: {s.patientName} | {t('dentalTele.expert')}: {s.expert} | {t('dentalTele.host')}: {s.hostDoctor} | {t('dentalTele.time')}: {(s.createdAt ?? '').replace('T', ' ').slice(0, 16)}
-                        {s.reason ? ` | 议题: ${s.reason}` : ''}
+                        {s.reason ? t('w9d.dentalTele.topic', { reason: s.reason }) : ''}
                       </span>}
                     />
                   </List.Item>

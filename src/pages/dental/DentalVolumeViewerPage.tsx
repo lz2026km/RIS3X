@@ -160,9 +160,9 @@ export const DentalVolumeViewerPage: React.FC = () => {
             extra={<Select size="small" value={activePreset} onChange={v => {setActivePreset(v); dentalApi.applyVolumePreset(v).catch((err) => console.error('[F04]', err));}} options={presets.map((p:any)=>({value:p.id,label:p.name}))} />}>
             <canvas ref={canvasRef} width={480} height={360} style={{width:'100%',height:300,borderRadius:8}} />
             <Row gutter={8} style={{marginTop:8}}>
-              <Col span={8}><Form.Item label={t('dvv.windowWidth')} size="small"><InputNumber value={ww} onChange={v=>setWw(v||1500)} min={100} max={4000} step={100} style={{width:'100%'}} /></Form.Item></Col>
-              <Col span={8}><Form.Item label={t('dvv.windowCenter')} size="small"><InputNumber value={wc} onChange={v=>setWc(v||500)} min={-1000} max={2000} step={100} style={{width:'100%'}} /></Form.Item></Col>
-              <Col span={8}><Form.Item label={t('dvv.slice')} size="small"><InputNumber value={sliceIdx} onChange={v=>setSliceIdx(v||50)} min={0} max={current?.slices||400} style={{width:'100%'}} /></Form.Item></Col>
+              <Col span={8}><Form.Item label={t('dvv.windowWidth')}><InputNumber value={ww} onChange={v=>setWw(v||1500)} min={100} max={4000} step={100} style={{width:'100%'}} /></Form.Item></Col>
+              <Col span={8}><Form.Item label={t('dvv.windowCenter')}><InputNumber value={wc} onChange={v=>setWc(v||500)} min={-1000} max={2000} step={100} style={{width:'100%'}} /></Form.Item></Col>
+              <Col span={8}><Form.Item label={t('dvv.slice')}><InputNumber value={sliceIdx} onChange={v=>setSliceIdx(v||50)} min={0} max={current?.slices||400} style={{width:'100%'}} /></Form.Item></Col>
             </Row>
             <Slider value={sliceIdx} min={0} max={current?.slices||400} onChange={setSliceIdx} />
           </Card>

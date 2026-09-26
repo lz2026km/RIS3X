@@ -18,7 +18,13 @@ interface OrthoPlan {
 }
 
 const STAGE_NAMES = ['初诊评估', '诊断记录', '矫治设计', '矫治器佩戴', '主动矫治', '精细调整', '保持期'];
-const STATUS_LABELS: Record<string, string> = { Planned: '计划中', Active: '进行中', InProgress: '进行中', Completed: '已完成' };
+const STAGE_LABEL_KEYS: Record<string, string> = {
+  '初诊评估': 'w9d.orthoStage.initial', '诊断记录': 'w9d.orthoStage.diagnosis', '矫治设计': 'w9d.orthoStage.design',
+  '矫治器佩戴': 'w9d.orthoStage.wearing', '主动矫治': 'w9d.orthoStage.active', '精细调整': 'w9d.orthoStage.fineTuning', '保持期': 'w9d.orthoStage.retention',
+};
+const STATUS_LABEL_KEYS: Record<string, string> = { Planned: 'w9d.orthoStatus.planned', Active: 'w9d.orthoStatus.inProgress', InProgress: 'w9d.orthoStatus.inProgress', Completed: 'w9d.orthoStatus.completed' };
+const stageLabel = (s: string) => t(STAGE_LABEL_KEYS[s] ?? s);
+const orthoStatusLabel = (s: string) => t(STATUS_LABEL_KEYS[s] ?? s);
 
 export const DentalOrthoPage: React.FC = () => {
   const [plans, setPlans] = useState<OrthoPlan[]>([]);
@@ -58,13 +64,13 @@ export const DentalOrthoPage: React.FC = () => {
       patientName: values.patientName,
       patientId: values.patientId,
       diagnosis: values.diagnosis,
-      plan: values.plan ?? '正畸治疗计划',
+      plan: values.plan ?? t('w9d.dentalOrtho.defaultPlan'),
       cost: values.cost ?? 0,
       toothNo: values.toothNo,
       status: 'Planned',
     }).catch(() => null);
     if (res && res.success) {
-      message.success('正畸病例已创建');
+      message.success(t('w9d.dentalOrtho.created'));
       setModalOpen(false);
       form.resetFields();
       void load();
@@ -74,7 +80,7 @@ export const DentalOrthoPage: React.FC = () => {
       type: 'Orthodontic',
       patientName: values.patientName,
       diagnosis: values.diagnosis,
-      plan: values.plan ?? '正畸治疗计划',
+      plan: values.plan ?? t('w9d.dentalOrtho.defaultPlan'),
       cost: values.cost ?? 0,
       status: 'Planned',
     });
@@ -104,7 +110,7 @@ export const DentalOrthoPage: React.FC = () => {
 
   const updateStage = async (plan: OrthoPlan, stage: string) => {
     const res = await dentalApi.updateTreatment(plan.id, { status: stage });
-    if (res.success) { message.success(`已更新为「${stage}」`); void load(); }
+    if (res.success) { message.success(t('w9d.dentalOrtho.updatedTo', { stage: stageLabel(stage) })); void load(); }
     else message.error(res.error?.message ?? t('dentalOrtho.updateFailed'));
   };
 
@@ -152,7 +158,7 @@ export const DentalOrthoPage: React.FC = () => {
               { title: t('dentalOrtho.diagnosis'), dataIndex: 'diagnosis' },
               { title: t('dentalOrtho.plan'), dataIndex: 'plan' },
               { title: t('dentalOrtho.cost'), render: (_, row: OrthoPlan) => '¥' + (row.cost ?? 0) },
-              { title: t('dentalOrtho.status'), dataIndex: 'status', render: (s: string) => <Tag color={statusColor(s)}>{STATUS_LABELS[s] ?? (s || t('dentalOrtho.statusPlanned'))}</Tag> },
+              { title: t('dentalOrtho.status'), dataIndex: 'status', render: (s: string) => <Tag color={statusColor(s)}>{s ? orthoStatusLabel(s) : t('dentalOrtho.statusPlanned')}</Tag> },
               {
                 title: t('dentalOrtho.stage'),
                 dataIndex: 'status',
@@ -160,7 +166,7 @@ export const DentalOrthoPage: React.FC = () => {
                   <Progress
                     percent={Math.min(100, Math.round(((stageIndex(s) + 1) / STAGE_NAMES.length) * 100))}
                     size="small"
-                    format={() => STAGE_NAMES[stageIndex(s)]}
+                      format={() => stageLabel(STAGE_NAMES[stageIndex(s)]!)}
                   />
                 ),
               },
@@ -212,7 +218,7 @@ export const DentalOrthoPage: React.FC = () => {
       </Modal>
 
       <Modal
-        title={`治疗阶段 - ${detail?.patientName ?? ''}`}
+        title={`${t('w9d.dentalOrtho.stageTitle')} - ${detail?.patientName ?? ''}`}
         open={!!detail}
         onCancel={() => setDetail(null)}
         footer={null}
@@ -224,14 +230,14 @@ export const DentalOrthoPage: React.FC = () => {
               <Descriptions.Item label={t('dentalOrtho.diagnosis')}>{detail.diagnosis}</Descriptions.Item>
               <Descriptions.Item label={t('dentalOrtho.plan')}>{detail.plan}</Descriptions.Item>
               <Descriptions.Item label={t('dentalOrtho.cost')}>¥{detail.cost ?? 0}</Descriptions.Item>
-              <Descriptions.Item label={t('dentalOrtho.currentStatus')}><Tag color={statusColor(detail.status)}>{STATUS_LABELS[detail.status ?? ''] ?? (detail.status || t('dentalOrtho.statusPlanned'))}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dentalOrtho.currentStatus')}><Tag color={statusColor(detail.status)}>{detail.status ? orthoStatusLabel(detail.status) : t('dentalOrtho.statusPlanned')}</Tag></Descriptions.Item>
             </Descriptions>
             <Steps
               current={stageIndex(detail.status)}
               direction="vertical"
               size="small"
               items={STAGE_NAMES.map((name, i) => ({
-                title: name,
+                title: stageLabel(name),
                 status: i < stageIndex(detail.status) ? 'finish' : i === stageIndex(detail.status) ? 'process' : 'wait',
                 description: i === stageIndex(detail.status) ? t('dentalOrtho.currentStage') : undefined,
               }))}

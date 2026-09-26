@@ -101,7 +101,7 @@ const Viewport: React.FC<ViewportProps> = ({ plane, sliceIndex, ww, wl, mode, jo
         ctx.clearRect(0, 0, w, h)
         ctx.font = '13px ui-monospace, monospace'
         ctx.fillStyle = 'rgba(148,163,184,0.9)'
-        ctx.fillText('加载切片...', 8, 18)
+        ctx.fillText(t('w9d.mpr.loadingSlice'), 8, 18)
         volumeApi.mprSlice(jobId, plane, sliceIndex).then((res) => {
           if (!res.success || !res.data) return
           const p = res.data.pixelData
@@ -142,7 +142,7 @@ const MprPage: React.FC = () => {
       setJobId(setup.jobId)
       setDims(setup.dims)
       if (setup.series) {
-        setSeriesInfo(`${setup.series.modality} #${setup.series.instanceCount} 层 ${setup.series.rows}x${setup.series.columns}`)
+        setSeriesInfo(`${setup.series.modality} #${setup.series.instanceCount} ${t('w9d.volumeSlices.slices')} ${setup.series.rows}x${setup.series.columns}`)
       }
     }).catch(() => {
       if (!cancelled) {
@@ -178,14 +178,14 @@ const MprPage: React.FC = () => {
       {loadError && <ErrorBanner message={loadError} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>MPR 多平面重建</span>
-        <Tag color="cyan">多平面重建</Tag>
-        {mode === 'real' && <Tag color="green">真实DICOM</Tag>}
-        {mode === 'synthetic' && <Tag>合成数据</Tag>}
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('w9d.mpr.title')}</span>
+        <Tag color="cyan">{t('w9d.mpr.tag')}</Tag>
+        {mode === 'real' && <Tag color="green">{t('w9d.realDicom')}</Tag>}
+        {mode === 'synthetic' && <Tag>{t('w9d.syntheticData')}</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>切片:</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9d.mpr.sliceLabel')}</span>
         <Slider min={0} max={maxSlice} value={sliceIndex} onChange={setSliceIndex} style={{ width: 200 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{sliceIndex}/{maxSlice}</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
@@ -196,8 +196,8 @@ const MprPage: React.FC = () => {
         <Slider min={-1000} max={3000} value={wl} onChange={setWl} style={{ width: 120 }} />
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{wl}</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
-        <button style={showCrosshair ? activeBtnStyle : btnStyle} onClick={() => setShowCrosshair(v => !v)}>十字线</button>
-        <button style={btnStyle} onClick={() => { setSliceIndex(0); setWw(400); setWl(40) }}><RotateCcw size={12} /> 重置</button>
+        <button style={showCrosshair ? activeBtnStyle : btnStyle} onClick={() => setShowCrosshair(v => !v)}>{t('w9d.crosshair')}</button>
+        <button style={btnStyle} onClick={() => { setSliceIndex(0); setWw(400); setWl(40) }}><RotateCcw size={12} /> {t('w9d.resetView')}</button>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, height: 'calc(100vh - 140px)' }}>
         <div style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

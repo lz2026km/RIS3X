@@ -124,7 +124,7 @@ export default function ChargeItemPage() {
   const handleDelete = (item: ChargeItemDto) => {
     Modal.confirm({
       title: t('chargeItem.deleteTitle'),
-      content: `确认删除「${item.name}」?该操作不可恢复。`,
+      content: t('w9e.chargeItem.deleteConfirm', { name: item.name }),
       okText: t('chargeItem.delete'),
       okButtonProps: { style: { background: 'var(--color-error-500, #ef4444)', borderColor: 'var(--color-error-500, #ef4444)' } },
       cancelText: t('chargeItem.cancel'),

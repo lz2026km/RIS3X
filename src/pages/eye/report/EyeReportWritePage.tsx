@@ -11,7 +11,7 @@ import type { OphthalmologyReport, ReportTemplate, FindingLibraryItem, ReportAud
 import { AppModal } from "@/components/common/AppModal";
 import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
-const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
+const modalityLabel = (m?: string) => t(`w9d.modality.${m ?? ''}`);
 
 const reportStatusColors: Record<string, string> = {
   draft: "default",
@@ -22,36 +22,14 @@ const reportStatusColors: Record<string, string> = {
   printed: "purple",
   critical_value: "red",
 };
-const reportStatusLabels: Record<string, string> = {
-  draft: "草稿",
-  pending_review: "待审核",
-  reviewing: "审核中",
-  published: "已发布",
-  amended: "已修改",
-  printed: "已打印",
-  critical_value: "危急值",
-  oct_a: "OCTA",
-  corneal_endothelium: "角膜内皮",
-  tear_film: "泪膜",
-  fundus_autofluorescence: "眼底自发荧光",
-  borderline: "临界",
-  cup_to_disc_ratio: "杯盘比",
-  rim_width: "视盘缘宽度",
-  arteriovenous_ratio: "动静脉比",
-  abnormal: "异常",
-  v6: "v6",
-  text: "文本",
-  findings_multi: "多发发现",
-  images: "图像",
-  productivity: "生产力",
-  clinical: "临床",
-  operational: "运营",
-  financial: "财务",
-};
-const SEGMENT_TYPE_LABELS_DICT: Record<string, string> = {
-  v6: 'V6 模板', text: '文本', findings_multi: '多发现', images: '图像',
-  grading_scale: '分级标度', diagnosis: '诊断', measurement: '量测',
-};
+const REPORT_STATUS_KEYS = [
+  "draft", "pending_review", "reviewing", "published", "amended", "printed", "critical_value",
+  "oct_a", "corneal_endothelium", "tear_film", "fundus_autofluorescence", "borderline",
+  "cup_to_disc_ratio", "rim_width", "arteriovenous_ratio", "abnormal", "v6", "text",
+  "findings_multi", "images", "productivity", "clinical", "operational", "financial",
+];
+const reportStatusLabel = (k: string) => t(`w9d.reportStatus.${k}`);
+const segmentTypeLabel = (k: string) => t(`w9d.segmentType.${k}`);
 
 interface ReportEditorProps {
   report: OphthalmologyReport;
@@ -147,7 +125,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           }}
         >
         <Tag color={reportStatusColors[status]}>
-          {reportStatusLabels[status]}
+          {reportStatusLabel(status)}
         </Tag>
         <Tag color="blue">v{report.version}</Tag>
         <EyeLateralityBadge eyeSide={report.eyeSide as any} size="small" />
@@ -353,10 +331,10 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             <strong>{t('eyeReport.printer')}</strong> DryView 8700
           </div>
           <div>
-            <strong>{t('eyeReport.film')}</strong> 4 张
+            <strong>{t('eyeReport.film')}</strong> {t('w9d.eyeReport.filmCount', { n: 4 })}
           </div>
           <div>
-            <strong>{t('eyeReport.reportCopies')}</strong> 2 份
+            <strong>{t('eyeReport.reportCopies')}</strong> {t('w9d.eyeReport.copyCount', { n: 2 })}
           </div>
         </div>
       </AppModal>
@@ -397,7 +375,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                     >
                       {s.title}
                     </span>
-                    <Tag style={{ fontSize: 12 }}>{SEGMENT_TYPE_LABELS_DICT[s.type] || s.type}</Tag>
+                    <Tag style={{ fontSize: 12 }}>{segmentTypeLabel(s.type)}</Tag>
                   </Space>
                 ),
                 children: (
@@ -412,7 +390,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                           ""
                         }
                         onChange={(e) => setEditing(e.target.value)}
-                        placeholder={`输入${s.title}...`}
+                        placeholder={t('w9d.eyeReport.inputPlaceholder', { title: s.title })}
                       />
                     )}
                     {s.type === "findings_multi" && (
@@ -531,7 +509,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             <div style={{ fontSize: 12, lineHeight: 2 }}>
               {t('eyeReport.patientLabel')} <strong>{report.patientName}</strong>
               <br />
-              {t('eyeReport.examLabel')} <Tag>{MODALITY_LABELS[report.modality] || report.modality}</Tag>
+              {t('eyeReport.examLabel')} <Tag>{modalityLabel(report.modality)}</Tag>
               <br />
               {t('eyeReport.eyeSideLabel')}{" "}
               <EyeLateralityBadge
@@ -584,9 +562,9 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               onChange={(e) => setStatus(e.target.value)}
               size="small"
             >
-              {Object.entries(reportStatusLabels).map(([k, v]) => (
+              {REPORT_STATUS_KEYS.map((k) => (
                 <Radio.Button key={k} value={k} style={{ fontSize: 12 }}>
-                  {v}
+                  {reportStatusLabel(k)}
                 </Radio.Button>
               ))}
             </Radio.Group>
@@ -648,7 +626,7 @@ const EyeReportWritePage: React.FC = () => {
         if (reportsRes.success && Array.isArray(reportsRes.data)) {
           setReports(reportsRes.data as unknown as OphthalmologyReport[]);
           if ((reportsRes.data as unknown as OphthalmologyReport[]).length > 0) {
-            setSelectedReportId((reportsRes.data as unknown as OphthalmologyReport[])[0].id);
+            setSelectedReportId(((reportsRes.data as unknown as OphthalmologyReport[])[0])?.id ?? '');
           }
         }
         if (templatesRes.success && Array.isArray(templatesRes.data)) {
@@ -707,7 +685,7 @@ const EyeReportWritePage: React.FC = () => {
           style={{ width: 220 }}
           options={reports.map((r) => ({
             value: r.id,
-            label: `${r.patientName} — ${MODALITY_LABELS[r.modality] || r.modality}`,
+            label: `${r.patientName} — ${modalityLabel(r.modality)}`,
           }))}
         />
       </div>

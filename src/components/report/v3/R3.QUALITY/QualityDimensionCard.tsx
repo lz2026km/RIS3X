@@ -67,9 +67,9 @@ const CATEGORY_META: Record<
   ScoringDimensionCategory,
   { label: string; labelEn: string; color: string; icon: React.ReactNode }
 > = {
-  completeness: { label: '完整性', labelEn: 'Completeness', color: '#3b82f6', icon: <FileText size={14} /> },
-  accuracy: { label: '准确性', labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
-  timeliness: { label: '时效性', labelEn: 'Timeliness', color: '#f59e0b', icon: <TrendingUp size={14} /> },
+  completeness: { label: t('w9e.qualityDimensionCard.dimCompleteness'), labelEn: 'Completeness', color: '#3b82f6', icon: <FileText size={14} /> },
+  accuracy: { label: t('w9e.qualityDimensionCard.dimAccuracy'), labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
+  timeliness: { label: t('w9e.qualityDimensionCard.dimTimeliness'), labelEn: 'Timeliness', color: '#f59e0b', icon: <TrendingUp size={14} /> },
 };
 
 const GRADE_COLOR: Record<ScoringGrade, string> = {
@@ -183,7 +183,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
 
   const save = async () => {
     if (Math.abs(totalWeight - 1) > 0.01) {
-      message.error(`权重合计 ${(totalWeight * 100).toFixed(1)}% ,必须为 100%`);
+      message.error(t('w9e.qualityDimensionCard.weightInvalid', { value: (totalWeight * 100).toFixed(1) }));
       return;
     }
     setSaving(true);
@@ -306,7 +306,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                         size="small"
                         checked={enabled[d.key] ?? false}
                         onChange={() => toggleEnabled(d.key)}
-                        aria-label={`启用 ${d.name}`}
+                        aria-label={t('w9e.qualityDimensionCard.ariaEnable', { name: d.name })}
                       />
                       <Tag color={w > 0 ? 'green' : 'default'}>{w}%</Tag>
                     </Space>
@@ -324,14 +324,14 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                     disabled={!enabled[d.key]}
                     tooltip={{ formatter: (v) => `${v}%` }}
                     trackStyle={{ background: CATEGORY_META[d.category].color }}
-                    aria-label={`${d.name} 权重`}
+                    aria-label={t('w9e.qualityDimensionCard.ariaWeight', { name: d.name })}
                   />
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                     {t('reportQuality.subRules')} ({d.rules.length}): {d.passingRule}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                     {d.rules.map((r) => (
-                      <Tooltip key={r.key} title={`${r.name} (权重 ${(r.weight * 100).toFixed(0)}%)`}>
+                      <Tooltip key={r.key} title={t('w9e.qualityDimensionCard.weightTooltip', { name: r.name, weight: (r.weight * 100).toFixed(0) })}>
                         <Tag color="blue" style={{ fontSize: 12 }}>
                           {r.name}
                         </Tag>
@@ -401,7 +401,7 @@ const ThresholdTab: React.FC = () => {
       const result = await scoringService.updateThresholdConfig(draft, 'D001');
       setThreshold(result);
       setDraft(result);
-      message.success('阈值配置已保存,版本 v' + result.version);
+      message.success(t('w9e.qualityDimensionCard.thresholdSaved', { version: result.version }));
     } finally {
       setSaving(false);
     }
@@ -691,7 +691,7 @@ const HistoryTab: React.FC = () => {
               style={{ width: '100%', marginTop: 14 }}
               value={filterGrade}
               onChange={setFilterGrade}
-              options={(['A', 'B', 'C', 'D'] as ScoringGrade[]).map((g) => ({ value: g, label: `${g} 级` }))}
+              options={(['A', 'B', 'C', 'D'] as ScoringGrade[]).map((g) => ({ value: g, label: t('w9e.qualityDimensionCard.gradeOption', { grade: g }) }))}
             />
           </Col>
           <Col xs={12} sm={6}>
@@ -716,7 +716,7 @@ const HistoryTab: React.FC = () => {
           </Col>
         </Row>
       </Card>
-      <Card size="small" title={`评分历史 (${total} 条)`}>
+      <Card size="small" title={t('w9e.qualityDimensionCard.scoreHistoryTitle', { count: total })}>
         <Table scroll={{ x: 'max-content' }}
           rowKey="id"
           columns={columns}
@@ -733,7 +733,7 @@ const HistoryTab: React.FC = () => {
         />
       </Card>
       <Modal
-        title={`评分明细 ${detail?.entry.scoreId ?? ''}`}
+        title={t('w9e.qualityDimensionCard.scoreDetailTitle', { id: detail?.entry.scoreId ?? '' })}
         open={!!detail}
         footer={null}
         onCancel={() => setDetail(null)}
@@ -867,12 +867,12 @@ const ReportTab: React.FC = () => {
       if (!resp.ok) throw new Error('mock-url');
       const blob = await resp.blob();
       saveBlob(blob, `quality-score-${scoreId}.${format}`);
-      message.success(`${format.toUpperCase()} 报告已下载`);
+      message.success(t('w9e.qualityDimensionCard.reportDownloaded', { format: format.toUpperCase() }));
     } catch {
       saveBlob(
         new Blob([buildMockHtml()], { type: 'text/html;charset=utf-8' }),
         `quality-score-${scoreId}-${format}.html`,
-        `后端为 Mock URL，已生成本地模拟文件（${format.toUpperCase()} 内容为 HTML，可打印为 PDF）`,
+        t('w9e.qualityDimensionCard.mockNote', { format: format.toUpperCase() }),
       );
     } finally {
       setDownloading(false);
@@ -888,7 +888,7 @@ const ReportTab: React.FC = () => {
     try {
       const r = await scoringService.generateReport(scoreId, format, 'D001');
       setReportUrl(r.downloadUrl ?? '');
-      message.success(`${format.toUpperCase()} 报告已生成`);
+      message.success(t('w9e.qualityDimensionCard.reportGenerated', { format: format.toUpperCase() }));
     } finally {
       setGenerating(false);
     }
@@ -1021,12 +1021,12 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
   const trigger = async (b: BonusLinkage) => {
     Modal.confirm({
       title: t('reportQuality.triggerBonusConfirm'),
-      content: `将触发 ${b.name} (阈值 ${b.thresholdScore} 分)`,
+      content: t('w9e.qualityDimensionCard.rewardTriggerContent', { name: b.name, score: b.thresholdScore }),
       onOk: async () => {
         const updated = await scoringService.triggerBonusLinkage(b.id);
         setBonuses((prev) => prev.map((x) => (x.id === b.id ? updated : x)));
         onTrigger?.(b.id);
-        message.success(`${b.name} 已触发`);
+        message.success(t('w9e.qualityDimensionCard.rewardTriggered', { name: b.name }));
       },
     });
   };
@@ -1186,7 +1186,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
       const r = await scoringService.scoreTemplate(selectedId);
       setResult(r);
       onGenerated?.(selectedId, r);
-      message.success(`模板评分完成: ${r.finalScore} 分`);
+      message.success(t('w9e.qualityDimensionCard.templateScoreDone', { score: r.finalScore }));
     } finally {
       setScoring(false);
     }

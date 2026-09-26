@@ -8,7 +8,7 @@ export interface Radiopharmaceutical {
   englishName: string
   isotope: string
   halfLife: string
-  route: '静脉注射' | '口服' | '吸入' | '皮下注射'
+  route: '静脉注射' | '口服' | '吸入' | '皮下注射' | '肝动脉灌注'
   examType: string
   activityAdultMBq: string
   activityChildMBq?: string

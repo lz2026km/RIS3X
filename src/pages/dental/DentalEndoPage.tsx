@@ -288,13 +288,13 @@ export const DentalEndoPage: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item label={t("w9.common.patientId")} name="patientId" rules={[{ required: true }]}>
-            <Input placeholder="例 P100001" />
+                <Input placeholder={t("w9d.dentalEndo.patientIdPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.dentalEndo.tooth")} name="toothNo" rules={[{ required: true }]}>
             <InputNumber min={11} max={48} style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label={t("w9.common.diagnosis")} name="diagnosis">
-            <Input placeholder="例 慢性牙髓炎" />
+                <Input placeholder={t("w9d.dentalEndo.diagnosisPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.dentalEndo.rootCount")} name="rootCount">
             <InputNumber min={1} max={5} style={{ width: "100%" }} />

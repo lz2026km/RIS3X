@@ -1,3 +1,50 @@
+## v3.0.6.12-0 (2026-09-25) — 正式商业演示版：后端全量补全 + 前端完全体现 + 数据/表格完善 + i18n 全量
+
+> **目标**: 全面审查；后端功能补全并前端完全体现；数据/表格完善；无法接接口的暂时模拟数据；正式商业演示版
+> **范围**: W1–W11；前端 **tsc 0**（基线 200）+ vitest 47 文件/831 测试 0 失败；后端 tsc 0 + jest 319 suites/3452 tests；vite build 成功
+
+### W1 — 构建阻断 + 类型收敛
+- 修 `routeTable.tsx` `../pages/system/` → `../pages/System/`（大小写不一致，Linux/Docker 构建 TS1261）
+- 前端 tsc **200 → 0**（TOP 文件逐一修复；`examStore`/`ReportWorkflowPage` 的 `ListPayload`↔数组归一；清理失效 `@ts-expect-error`；`CriticalStatsDashboard`/`QualityDashboard` 导入/合并声明修复）
+
+### W2 — 后端补全 + 真实模式对齐
+- `app.module.ts` 注册 5 个孤儿模块：`IheModule`、`CriticalV2Module`、`ReportExportCenterV2Module`、`TemplateApprovalModule`、`TemplateLibraryV2Module`（~70 端点真实可用）
+- `POST /ai/generate` 前端接线（失败回退本地生成）
+- 后端裸 `Date.now()` ID 加单调计数器（eye-edu/eye-optometry/critical-v2/research/auto-collection/consultations/critical-alert/sign/dicom-sr/ihe）
+
+### W3 — 表格补齐
+- 复核列表页表格；`CdsManagementPage` 由 CSS-grid 迁 `DataTable`（行展开+操作）；其余列表页已用 `DataTable`/卡片为设计
+
+### W4 + W5 — 按键 + 空态补齐（23 页）
+- 0 按键页（BusinessContinuity/ToothChart/EyeEmr/VisitDetail/TechnicianKpiDashboard）加 Refresh/Export/New/Back
+- 11 页加第二按键；多页 map 列表补 `AppEmpty`（DoseTrack/Template*/ServiceManagement/AdverseReaction/Contrast*/MultiSite 等）
+
+### W6 — MSW 种子完善（演示不为空）
+- 新增 `POST /olap/export/csv`、`GET /eye/emr/:param`
+- 播种空 handler：`/eye/iol/calculations`(5)、`/dicom/compress/stats`(非零+算法分布)、`/quality/scoring/kpi.trend30d`(30点)、`/tech-v2/rotation/history.executions`(6)、`/report-quality-ext/ai-report-drafts`(5，移除空数组覆盖)
+
+### W7 — 纯 mock 页完善（6 页）
+- ContrastQualityCompliance/ReportKpiDashboard 接 service（回退本地）；AiReportWriter/IheConnectathon/PostProcessing 加"演示模拟"徽标 + 确定性种子；FhirServer 走 fhirApi + 回退 + loading/empty/error
+- 新增 `src/utils/seededRandom.ts`（确定性随机）
+
+### W8 — i18n 命名空间修复
+- 注册 `asr` 命名空间 + `locales/{zh-CN,en-US}/asr.json` + 聚合 JSON（13 键 zh/en）
+- 修 `criticalAlert.title` 缺失键
+
+### W9 — i18n 硬编码全量转换（分批 A–E）
+- 新增 `src/i18n/namespaces/w9aPages|w9bPages|w9cPages|w9dPages|w9ePages.ts`（+ w1Types/w2Orphans/w7MockPolish/w8I18nFixes）
+- 覆盖：报告/统计/首页/设备/质控/随访/排班/术语/打印/协同、DICOM 全模块、AI、眼科、口腔、rcm/ops/finance/integration/department/regional、report 组件群（~200 文件）
+- 原则：仅转换 UI 文案；数据/医学名词/逻辑枚举值保留
+
+### W10 — 时间敏感测试核查
+- 时间旅行（+100 年）验证：后端 319/3452、前端 47/831 全绿 → 无真实 time bomb（已确定性）
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.11-111` → `3.0.6.12-0`（无 BOM）
+- 推送 GitCode `origin` + GitHub `github`(SSH)
+
+---
+
 ## v3.0.6.11-111 (2026-09-23) — 修复多人协同页 (/collaboration) 布局重叠
 
 > **目标**: 修复 /collaboration 页面布局不佳、元素重叠

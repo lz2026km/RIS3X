@@ -6,6 +6,7 @@ import { Card, Tabs, Tag, Space, Button, Statistic, Row, Col, Empty, Timeline, A
 import { User, Calendar, FileText, AlertOctagon, ImageIcon, Phone, MapPin, IdCard, Shield } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export interface PatientProfile {
   id: string
@@ -68,19 +69,19 @@ export interface PatientProfile360Props {
   onSelectReport?: (id: string) => void
 }
 
-const GENDER_META = { M: { color: 'blue', label: '男' }, F: { color: 'pink', label: '女' }, O: { color: 'default', label: '其他' } } as const
+const GENDER_META = { M: { color: 'blue', label: t('w9e.patientProfile360.genderM') }, F: { color: 'pink', label: t('w9e.patientProfile360.genderF') }, O: { color: 'default', label: t('w9e.patientProfile360.genderO') } } as const
 
 const STATUS_META = {
-  SCHEDULED: { color: 'blue', label: '已预约' },
-  IN_PROGRESS: { color: 'gold', label: '检查中' },
-  COMPLETED: { color: 'green', label: '已完成' },
-  CANCELLED: { color: 'red', label: '已取消' },
+  SCHEDULED: { color: 'blue', label: t('w9e.patientProfile360.statusScheduled') },
+  IN_PROGRESS: { color: 'gold', label: t('w9e.patientProfile360.statusInProgress') },
+  COMPLETED: { color: 'green', label: t('w9e.patientProfile360.statusCompleted') },
+  CANCELLED: { color: 'red', label: t('w9e.patientProfile360.statusCancelled') },
 } as const
 
 const REPORT_STATE_META = {
-  PENDING: { color: 'default', label: '待写' },
-  IN_REVIEW: { color: 'gold', label: '审核中' },
-  APPROVED: { color: 'green', label: '已通过' },
+  PENDING: { color: 'default', label: t('w9e.patientProfile360.reportPending') },
+  IN_REVIEW: { color: 'gold', label: t('w9e.patientProfile360.reportInReview') },
+  APPROVED: { color: 'green', label: t('w9e.patientProfile360.reportApproved') },
 } as const
 
 export const PatientProfile360: React.FC<PatientProfile360Props> = ({
@@ -116,32 +117,32 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
             <Space size={8} wrap>
               <h2 style={{ margin: 0 }}>{patient.name}</h2>
               <Tag color={GENDER_META[patient.gender].color}>{GENDER_META[patient.gender].label}</Tag>
-              <Tag>{patient.age}岁</Tag>
+              <Tag>{t('w9e.patientProfile360.ageSuffix', { age: patient.age })}</Tag>
               <Tag color="blue">ID: {patient.id}</Tag>
-              {patient.bloodType && <Tag color="red">血型 {patient.bloodType}</Tag>}
+              {patient.bloodType && <Tag color="red">{t('w9e.patientProfile360.bloodType', { type: patient.bloodType })}</Tag>}
               {patient.allergy && patient.allergy.length > 0 && (
-                <Tag color="orange" icon={<Shield size={10} />}>过敏:{patient.allergy.join('/')}</Tag>
+                <Tag color="orange" icon={<Shield size={10} />}>{t('w9e.patientProfile360.allergy', { list: patient.allergy.join('/') })}</Tag>
               )}
             </Space>
             <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
               <Space size={12} wrap>
-                <span><IdCard size={10} /> 身份证:{patient.idCard}</span>
+                <span><IdCard size={10} /> {t('w9e.patientProfile360.idCard', { id: patient.idCard })}</span>
                 <span><Phone size={10} /> {patient.phone}</span>
                 <span><MapPin size={10} /> {patient.address}</span>
-                {patient.insurance && <span>医保:{patient.insurance}</span>}
+                {patient.insurance && <span>{t('w9e.patientProfile360.insurance', { name: patient.insurance })}</span>}
               </Space>
             </div>
           </Col>
           <Col flex="280px">
             <Row gutter={8}>
               <Col span={8}>
-                <Statistic title="检查数" value={stats.totalExams} styles={{ content: {  fontSize: 18  } }} />
+                <Statistic title={t('w9e.patientProfile360.statExams')} value={stats.totalExams} styles={{ content: {  fontSize: 18  } }} />
               </Col>
               <Col span={8}>
-                <Statistic title="报告数" value={stats.totalReports} styles={{ content: {  fontSize: 18  } }} />
+                <Statistic title={t('w9e.patientProfile360.statReports')} value={stats.totalReports} styles={{ content: {  fontSize: 18  } }} />
               </Col>
               <Col span={8}>
-                <Statistic title="危急值" value={stats.criticalCount} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} />
+                <Statistic title={t('w9e.patientProfile360.statCritical')} value={stats.criticalCount} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} />
               </Col>
             </Row>
           </Col>
@@ -154,13 +155,13 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
         items={[
           {
             key: 'overview',
-            label: '总览',
+            label: t('w9e.patientProfile360.tabOverview'),
             children: (
               <Row gutter={12}>
                 <Col span={16}>
-                  <Card size="small" title="就诊时间轴" data-testid="patient-timeline">
+                  <Card size="small" title={t('w9e.patientProfile360.timelineTitle')} data-testid="patient-timeline">
                     {timeline.length === 0 ? (
-                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无就诊记录" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.patientProfile360.noVisit')} />
                     ) : (
                       <Timeline
                         items={timeline.map((e) => ({
@@ -180,22 +181,22 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                   </Card>
                 </Col>
                 <Col span={8}>
-                  <Card size="small" title="慢性病" style={{ marginBottom: 12 }}>
+                  <Card size="small" title={t('w9e.patientProfile360.chronicTitle')} style={{ marginBottom: 12 }}>
                     {patient.chronicDiseases && patient.chronicDiseases.length > 0 ? (
                       <Space wrap>
                         {patient.chronicDiseases.map((d) => <Tag key={d} color="orange">{d}</Tag>)}
                       </Space>
                     ) : (
-                      <span style={{ color: '#94a3b8', fontSize: 12 }}>无</span>
+                      <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('w9e.patientProfile360.none')}</span>
                     )}
                   </Card>
-                  <Card size="small" title="过敏史">
+                  <Card size="small" title={t('w9e.patientProfile360.allergyTitle')}>
                     {patient.allergy && patient.allergy.length > 0 ? (
                       <Space wrap>
                         {patient.allergy.map((a) => <Tag key={a} color="red">{a}</Tag>)}
                       </Space>
                     ) : (
-                      <span style={{ color: '#94a3b8', fontSize: 12 }}>无</span>
+                      <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('w9e.patientProfile360.none')}</span>
                     )}
                   </Card>
                 </Col>
@@ -204,7 +205,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
           },
           {
             key: 'exams',
-            label: `检查 (${exams.length})`,
+            label: t('w9e.patientProfile360.examsTab', { count: exams.length }),
             children: (
               <List
                 dataSource={exams}
@@ -214,7 +215,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                     <List.Item
                       key={e.id}
                       data-testid={`exam-item-${e.id}`}
-                      actions={onSelectExam ? [<Button key="open" size="small" onClick={() => onSelectExam(e.id)}>详情</Button>] : undefined}
+                      actions={onSelectExam ? [<Button key="open" size="small" onClick={() => onSelectExam(e.id)}>{t('w9e.patientProfile360.detail')}</Button>] : undefined}
                     >
                       <List.Item.Meta
                         avatar={<ImageIcon size={28} color="#3b82f6" />}
@@ -223,25 +224,25 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                             <Tag color="blue">{e.modality}</Tag>
                             <Tag>{e.bodyPart}</Tag>
                             <Tag color={s.color}>{s.label}</Tag>
-                            {e.critical && <Tag color="red" icon={<AlertOctagon size={10} />}>危急值</Tag>}
+                            {e.critical && <Tag color="red" icon={<AlertOctagon size={10} />}>{t('w9e.patientProfile360.critical')}</Tag>}
                           </Space>
                         }
                         description={
                           <div style={{ fontSize: 12, color: '#64748b' }}>
-                            <Calendar size={10} /> {e.studyDate} {e.studyTime} · 检查医师 {e.doctor ?? '-'}
+                            <Calendar size={10} /> {e.studyDate} {e.studyTime} · {t('w9e.patientProfile360.examDoctor', { name: e.doctor ?? '-' })}
                           </div>
                         }
                       />
                     </List.Item>
                   )
                 }}
-                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无检查" /> }}
+                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.patientProfile360.noExam')} /> }}
               />
             ),
           },
           {
             key: 'reports',
-            label: `报告 (${reports.length})`,
+            label: t('w9e.patientProfile360.reportsTab', { count: reports.length }),
             children: (
               <List
                 dataSource={reports}
@@ -249,7 +250,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                   <List.Item
                     key={r.id}
                     data-testid={`report-item-${r.id}`}
-                    actions={onSelectReport ? [<Button key="open" size="small" onClick={() => onSelectReport(r.id)}>详情</Button>] : undefined}
+                    actions={onSelectReport ? [<Button key="open" size="small" onClick={() => onSelectReport(r.id)}>{t('w9e.patientProfile360.detail')}</Button>] : undefined}
                   >
                     <List.Item.Meta
                       avatar={<FileText size={28} color="#1e40af" />}
@@ -258,20 +259,20 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                           <Tag color="blue">{r.modality}</Tag>
                           <Tag>{r.bodyPart}</Tag>
                           {r.reportState && <Tag color={REPORT_STATE_META[r.reportState].color}>{REPORT_STATE_META[r.reportState].label}</Tag>}
-                          {r.verified && <Tag color="green">已审核</Tag>}
+                          {r.verified && <Tag color="green">{t('w9e.patientProfile360.verified')}</Tag>}
                           {r.radsCategory && <Tag color="purple">{r.radsCategory}</Tag>}
                         </Space>
                       }
                       description={
                         <div>
                           <div style={{ fontSize: 13, color: '#475569' }}>{r.conclusion.slice(0, 120)}{r.conclusion.length > 120 ? '...' : ''}</div>
-                          <div style={{ fontSize: 12, color: '#94a3b8' }}>报告医师 {r.author} · {r.reportDate}</div>
+                          <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9e.patientProfile360.reportAuthor', { name: r.author })} · {r.reportDate}</div>
                         </div>
                       }
                     />
                   </List.Item>
                 )}
-                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无报告" /> }}
+                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.patientProfile360.noReport')} /> }}
               />
             ),
           },

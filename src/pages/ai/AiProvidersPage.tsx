@@ -1,4 +1,5 @@
 import { v3AiPlatformApi } from '../../services/api/v3Api'
+import { ExportButton } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 import { Card, Table, Tag, Space, Typography, Button, message, Row, Col, Statistic, Empty, Badge } from 'antd'
 import { Cpu, RefreshCw, Settings } from 'lucide-react'
@@ -32,7 +33,7 @@ const AiProvidersPage: React.FC = () => {
           res.data.providers.map((p, _idx) => ({
             id: p,
             name: `Provider ${p}`,
-            type: '生产',
+            type: 'production',
             status: p === res.data.active ? 'active' : 'inactive',
             latency: 0,
             accuracy: 0,
@@ -68,7 +69,7 @@ const AiProvidersPage: React.FC = () => {
       title: t('aiProviders.colType'),
       dataIndex: 'type',
       key: 'type',
-      render: (type: string) => <Tag color={type === '生产' ? 'green' : 'blue'}>{type}</Tag>,
+      render: (type: string) => <Tag color={type === 'production' ? 'green' : 'blue'}>{t(`w9d.aiProviders.type.${type}`)}</Tag>,
     },
     {
       title: t('aiProviders.colStatus'),
@@ -133,9 +134,18 @@ const AiProvidersPage: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card>
-            <Button icon={<RefreshCw size={14} />} onClick={fetchProviders} loading={loading} block>
-              {t('aiProviders.refresh')}
-            </Button>
+            <Space style={{ width: '100%' }} styles={{ item: { flex: 1 } }}>
+              <Button icon={<RefreshCw size={14} />} onClick={fetchProviders} loading={loading} block>
+                {t('aiProviders.refresh')}
+              </Button>
+              <ExportButton
+                data={() => providerDetails}
+                filename="ai-providers"
+                label={t('w45.actions.export')}
+                size="small"
+                formats={["csv", "json"]}
+              />
+            </Space>
           </Card>
         </Col>
       </Row>

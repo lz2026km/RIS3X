@@ -131,6 +131,7 @@ interface MemConsultation extends ConsultationDto {
 
 const memConsultations: MemConsultation[] = []
 const memComments: ConsultationComment[] = []
+let commentSeq = 0
 
 // [G005 Wave 2A] 委员会会诊内存存储
 const memCommittees: CommitteeDto[] = []
@@ -182,7 +183,7 @@ function iso(d: Date): string {
 
 function createComment(consultationId: string, author: string, content: string, parentId?: string): ConsultationComment {
   const comment: ConsultationComment = {
-    id: `CMT-${Date.now().toString(36)}-${memComments.length + 1}`,
+    id: `CMT-${Date.now().toString(36)}-${memComments.length + 1}-${++commentSeq}`,
     consultationId,
     author,
     content,
@@ -196,6 +197,7 @@ function createComment(consultationId: string, author: string, content: string, 
 @Injectable()
 export class ConsultationsService {
   private readonly logger = new Logger(ConsultationsService.name)
+  private seq = 0
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -242,8 +244,8 @@ export class ConsultationsService {
   create(input: Partial<ConsultationDto>): ConsultationDto {
     const now = iso(new Date())
     const record: MemConsultation = {
-      id: input.id ?? `C-${Date.now().toString(36)}`,
-      consultationId: input.consultationId ?? `CST${Date.now().toString(36).toUpperCase()}`,
+      id: input.id ?? `C-${Date.now().toString(36)}-${++this.seq}`,
+      consultationId: input.consultationId ?? `CST${Date.now().toString(36).toUpperCase()}-${++this.seq}`,
       examId: input.examId ?? 'UNKNOWN',
       patientId: input.patientId,
       patientName: input.patientName ?? '待定患者',
@@ -380,7 +382,7 @@ export class ConsultationsService {
       }
     })
     const committee: CommitteeDto = {
-      id: `CMT-${Date.now().toString(36).toUpperCase()}`,
+      id: `CMT-${Date.now().toString(36).toUpperCase()}-${++this.seq}`,
       reportId: input.reportId,
       reportTitle: input.title,
       title: input.title,

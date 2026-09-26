@@ -10,6 +10,8 @@ import { WorkloadBalancer } from '../services/worklist/WorkloadBalancer'
 import { HeatmapBuilder } from '../services/worklist/HeatmapBuilder'
 import { workflowApi } from '../services/api/workflowApi'
 import { statsApi, type WorkloadDto } from '../services/api/statsApi'
+import { ExportButton } from '../components/common'
+import { t } from '../i18n/appI18n'
 
 const FALLBACK_SITES = [
   { siteId: 'SITE-MAIN', siteName: '总院', doctors: 28, activeStudies: 142, pendingReports: 86, completedToday: 168, averageReportMinutes: 18, utilizationPct: 92 },
@@ -168,7 +170,14 @@ export default function WorkloadHeatmapPage() {
         </div>
         <Space>
           <Tag color="cyan" style={{ marginInlineEnd: 0 }}>v3.0.6.11-75</Tag>
-          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('w45.actions.refresh')}</Button>
+          <ExportButton
+            data={() => workload}
+            filename="workload-heatmap"
+            label={t('w45.actions.export')}
+            size="small"
+            formats={["csv", "json"]}
+          />
         </Space>
       </header>
 

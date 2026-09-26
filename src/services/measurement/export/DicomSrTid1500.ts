@@ -246,6 +246,7 @@ export async function generateTid1500(input: {
   }
 
   const sr: DicomSrDocument = {
+    id: sopInstanceUID,
     sopClassUID: '1.2.840.10008.5.1.4.1.1.88.11',
     sopInstanceUID,
     studyInstanceUID,

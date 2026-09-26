@@ -103,7 +103,7 @@ export default function DicomWebPage() {
       message.success(t('dw.uploadSuccess'))
       void handleQidoSearch()
     } catch (err) {
-      message.error('上传失败: ' + (err instanceof Error ? err.message : '未知错误'))
+      message.error(t('w9d.dicomWeb.uploadFailed', { msg: err instanceof Error ? err.message : t('w9d.sidebar.unknownError') }))
     } finally {
       setUploading(false)
     }
@@ -165,7 +165,7 @@ export default function DicomWebPage() {
         ) : studies.length === 0 ? (
           <EmptyState description={t('dw.noResults')} />
         ) : (
-          <Table rowKey="studyInstanceUID" size="small" dataSource={studies} columns={columns} pagination={{ current: studyPage, pageSize: 10, total: studies.length, onChange: setStudyPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} scroll={{ x: 900 }} />
+          <Table rowKey="studyInstanceUID" size="small" dataSource={studies} columns={columns} pagination={{ current: studyPage, pageSize: 10, total: studies.length, onChange: setStudyPage, showSizeChanger: false, showTotal: (n) => t('w9d.dicomWeb.totalCount', { n }) }} scroll={{ x: 900 }} />
         )}
       </Card>
 

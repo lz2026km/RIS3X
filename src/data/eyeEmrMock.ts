@@ -548,12 +548,12 @@ export const MOCK_PRE_OP_ASSESSMENTS: PreOpAssessment[] = [
 /** 术后记录 */
 export const MOCK_POST_OP_NOTES: PostOpNote[] = [
   {
-    dayOfSurgery: new Date(NOW - 86400000 * 30).toISOString().split("T")[0],
+    dayOfSurgery: new Date(NOW - 86400000 * 30).toISOString().split("T")[0] ?? '',
     visionOd: [0.6, 0.9],
     slitLamp: "角膜切口对位好,前房深度可,晶体位正",
     complications: [],
     medicationPrescribed: ["左氧氟沙星 qid", "强的松龙 qid", "普拉洛芬 qid"],
-    followUpDate: new Date(NOW - 86400000 * 16).toISOString().split("T")[0],
+    followUpDate: new Date(NOW - 86400000 * 16).toISOString().split("T")[0] ?? '',
     notes: "术后恢复良好",
     doctorName: "张明远",
   },

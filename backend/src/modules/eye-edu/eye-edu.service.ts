@@ -69,6 +69,7 @@ function deterministicHash(seed: string): number {
 @Injectable()
 export class EyeEduService {
   private readonly logger = new Logger(EyeEduService.name)
+  private seq = 0
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -114,8 +115,8 @@ export class EyeEduService {
 
   createCase(dto: Partial<EduCase>): { success: boolean; data: EduCase } {
     const record: EduCase = {
-      id: dto.id ?? `C${Date.now().toString(36)}`,
-      reportId: `R${Date.now().toString(36)}`,
+      id: dto.id ?? `C${Date.now().toString(36)}-${++this.seq}`,
+      reportId: `R${Date.now().toString(36)}-${++this.seq}`,
       patientName: dto.patientName ?? '',
       patientId: dto.patientId ?? '',
       modality: dto.modality ?? 'fundus_photo',
@@ -136,7 +137,7 @@ export class EyeEduService {
     success: boolean; data: any
   } {
     const record = {
-      annotationId: `ANN${Date.now().toString(36)}`,
+      annotationId: `ANN${Date.now().toString(36)}-${++this.seq}`,
       caseId,
       annotationType: dto.annotationType ?? 'roi',
       coordinates: dto.coordinates ?? [],
@@ -175,7 +176,7 @@ export class EyeEduService {
       if (criteria.modality && c.modality !== criteria.modality) return false
       return true
     })
-    const cohortId = `COH${Date.now().toString(36).toUpperCase()}`
+    const cohortId = `COH${Date.now().toString(36).toUpperCase()}-${++this.seq}`
     return {
       success: true,
       data: {
@@ -190,7 +191,7 @@ export class EyeEduService {
 
   deidentify(caseId: string, level: string): { success: boolean; data: any } {
     const result = {
-      deidentifiedId: `DEID${Date.now().toString(36).toUpperCase()}`,
+      deidentifiedId: `DEID${Date.now().toString(36).toUpperCase()}-${++this.seq}`,
       caseId,
       level: level ?? 'basic',
       actions: [
@@ -212,7 +213,7 @@ export class EyeEduService {
     success: boolean; data: any
   } {
     const annotations = body.annotations ?? []
-    const sopInstanceUID = `1.2.826.0.1.3680043.8.498.edu.${Date.now()}`
+    const sopInstanceUID = `1.2.826.0.1.3680043.8.498.edu.${Date.now()}.${++this.seq}`
     const contentSequence = annotations.map((a: any, i: number) => ({
       relationshipType: 'CONTAINS',
       referencedContentItemIdentifier: i + 1,
@@ -229,7 +230,7 @@ export class EyeEduService {
       caseId: body.caseId,
       format: body.format ?? 'sr-tid1500',
       contentSequence,
-      url: `data:application/dicom;base64,EDUCATIONAL_SR_${Date.now()}`,
+      url: `data:application/dicom;base64,EDUCATIONAL_SR_${Date.now()}-${++this.seq}`,
       exportedAt: new Date().toISOString(),
     }
     memSrExports.unshift(result)

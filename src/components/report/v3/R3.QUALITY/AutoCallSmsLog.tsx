@@ -6,12 +6,13 @@ import React, { useEffect, useState } from 'react';
 import { Timeline, Empty, Tag, Spin, Tooltip } from 'antd';
 import { Phone, MessageSquare, CheckCircle2, XCircle, PlayCircle, FileAudio } from 'lucide-react';
 import { criticalAlertApi, type CommunicationEntry } from '../../../../services/api/criticalAlertApi';
+import { t } from '../../../../i18n/appI18n';
 
 const STATUS_META: Record<string, { label: string; color: string }> = {
-  connected: { label: '已接通', color: 'green' },
-  initiated: { label: '呼叫中', color: 'blue' },
-  failed: { label: '失败', color: 'red' },
-  sent: { label: '已送达', color: 'green' },
+  connected: { label: t('w9e.autoCallSmsLog.statusConnected'), color: 'green' },
+  initiated: { label: t('w9e.autoCallSmsLog.statusInitiated'), color: 'blue' },
+  failed: { label: t('w9e.autoCallSmsLog.statusFailed'), color: 'red' },
+  sent: { label: t('w9e.autoCallSmsLog.statusSent'), color: 'green' },
 };
 
 function fmt(iso: string): string {
@@ -57,22 +58,22 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
   }, [alertId, refreshKey]);
 
   return (
-    <div data-testid={testIdPrefix} role="region" aria-label="电话短信通知记录">
+    <div data-testid={testIdPrefix} role="region" aria-label={t('w9e.autoCallSmsLog.ariaLabel')}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <strong style={{ fontSize: 12, color: '#334155' }}>通知记录</strong>
-        <Tag color={source === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }} title="通信记录数据源">
-          {source === 'api' ? '实时记录' : '无记录'}
+        <strong style={{ fontSize: 12, color: '#334155' }}>{t('w9e.autoCallSmsLog.title')}</strong>
+        <Tag color={source === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }} title={t('w9e.autoCallSmsLog.sourceTitle')}>
+          {source === 'api' ? t('w9e.autoCallSmsLog.sourceLive') : t('w9e.autoCallSmsLog.sourceNone')}
         </Tag>
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>共 {entries.length} 条</span>
+        <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('w9e.autoCallSmsLog.totalCount', { count: entries.length })}</span>
       </div>
       {loading ? (
         <div style={{ textAlign: 'center', padding: 12 }}>
-          <Spin size="small" /> 加载中…
+          <Spin size="small" /> {t('w9e.autoCallSmsLog.loading')}
         </div>
       ) : entries.length === 0 ? (
         <Empty
           image={<MessageSquare size={40} style={{ opacity: 0.3 }} />}
-          description={<span style={{ fontSize: 12, color: '#94a3b8' }}>暂无电话/短信通知记录</span>}
+          description={<span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9e.autoCallSmsLog.noRecords')}</span>}
           style={{ margin: '6px 0' }}
         />
       ) : (
@@ -88,20 +89,20 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
                 children: (
                   <div key={e.id} style={{ fontSize: 12, lineHeight: 1.7 }}>
                     <span style={{ fontWeight: 600, color: '#334155' }}>
-                      {isPhone ? '电话呼叫' : '短信发送'}
+                      {isPhone ? t('w9e.autoCallSmsLog.phoneCall') : t('w9e.autoCallSmsLog.smsSend')}
                     </span>{' '}
                     <Tag color={meta.color} style={{ fontSize: 10 }}>{meta.label}</Tag>
                     <span style={{ color: '#475569' }}>{e.phone}</span>
                     <span style={{ color: '#94a3b8', marginLeft: 6 }}>{fmt(e.at)}</span>
                     {isPhone && typeof e.durationSec === 'number' && e.durationSec > 0 && (
                       <Tag icon={<PlayCircle size={10} />} color="blue" style={{ marginLeft: 6, fontSize: 10 }}>
-                        {Math.floor(e.durationSec / 60)}分{e.durationSec % 60}秒
+                        {t('w9e.autoCallSmsLog.duration', { min: Math.floor(e.durationSec / 60), sec: e.durationSec % 60 })}
                       </Tag>
                     )}
                     {isPhone && e.recordingUrl && (
-                      <Tooltip title="通话录音可回放">
+                      <Tooltip title={t('w9e.autoCallSmsLog.recordingTip')}>
                         <Tag icon={<FileAudio size={10} />} color="cyan" style={{ marginLeft: 4, fontSize: 10 }}>
-                          录音
+                          {t('w9e.autoCallSmsLog.recording')}
                         </Tag>
                       </Tooltip>
                     )}

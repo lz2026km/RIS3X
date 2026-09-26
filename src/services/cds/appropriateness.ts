@@ -55,7 +55,7 @@ class MockExamAppropriatenessService implements IExamAppropriatenessService {
     const matched = MOCK_RULES.filter(
       r => r.isActive && (indication.includes(r.indication) || r.indication.includes(indication) || (r.icdCode && indication.includes(r.icdCode)))
     )
-    if (matched.length === 0) return MOCK_RULES[0].recommendedExams
+    if (matched.length === 0) return MOCK_RULES[0]?.recommendedExams ?? []
     return matched.flatMap(r => r.recommendedExams)
   }
 
@@ -81,9 +81,11 @@ class MockExamAppropriatenessService implements IExamAppropriatenessService {
 
   async updateRule(ruleId: string, updates: Partial<AppropriatenessRule>): Promise<AppropriatenessRule | null> {
     const idx = MOCK_RULES.findIndex(r => r.id === ruleId)
-    if (idx === -1) return null
-    MOCK_RULES[idx] = { ...MOCK_RULES[idx], ...updates, updatedTime: new Date().toISOString() }
-    return MOCK_RULES[idx]
+    const current = idx === -1 ? undefined : MOCK_RULES[idx]
+    if (!current) return null
+    const updated: AppropriatenessRule = { ...current, ...updates, updatedTime: new Date().toISOString() }
+    MOCK_RULES[idx] = updated
+    return updated
   }
 
   async toggleRule(ruleId: string, isActive: boolean): Promise<boolean> {

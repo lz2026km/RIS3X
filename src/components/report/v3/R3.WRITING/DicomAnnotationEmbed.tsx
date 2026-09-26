@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Tag, Empty, Space, Spin, Tooltip } from 'antd'
 import { Image as ImageIcon, RefreshCw, PenLine, ArrowUpRight, Circle as CircleIcon, Ruler, Square, ExternalLink } from 'lucide-react'
 import { reportApi, type ReportImageAnnotationItem, type ReportImageAnnotationsDto } from '@services/api/reportApi'
+import { t } from '../../../../i18n/appI18n'
 
 interface Props {
   reportId: string
@@ -19,18 +20,18 @@ interface Props {
 }
 
 const TYPE_META: Record<ReportImageAnnotationItem['type'], { label: string; Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> }> = {
-  arrow: { label: '箭头', Icon: ArrowUpRight },
-  circle: { label: '圆', Icon: CircleIcon },
-  ruler: { label: '标尺', Icon: Ruler },
-  box: { label: '框', Icon: Square },
+  arrow: { label: t('w9e.annotationEmbed.typeArrow'), Icon: ArrowUpRight },
+  circle: { label: t('w9e.annotationEmbed.typeCircle'), Icon: CircleIcon },
+  ruler: { label: t('w9e.annotationEmbed.typeRuler'), Icon: Ruler },
+  box: { label: t('w9e.annotationEmbed.typeBox'), Icon: Square },
 }
 
 const CANVAS_W = 320
 const CANVAS_H = 260
 
 const TYPE_LABELS: Record<string, string> = {
-  arrow: '箭头', circle: '圆', ruler: '标尺', box: '框',
-  length: '长度', ellipse: '椭圆', text: '文字',
+  arrow: t('w9e.annotationEmbed.typeArrow'), circle: t('w9e.annotationEmbed.typeCircle'), ruler: t('w9e.annotationEmbed.typeRuler'), box: t('w9e.annotationEmbed.typeBox'),
+  length: t('w9e.annotationEmbed.typeLength'), ellipse: t('w9e.annotationEmbed.typeEllipse'), text: t('w9e.annotationEmbed.typeText'),
 }
 
 const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudyUid, seriesUid: presetSeriesUid, onJumpToViewer }) => {
@@ -50,11 +51,11 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
         setData(res.data)
       } else {
         setData(null)
-        setError(res.error?.message ?? '标注加载失败')
+        setError(res.error?.message ?? t('w9e.annotationEmbed.loadFailed'))
       }
     } catch {
       setData(null)
-      setError('标注加载失败:网络异常')
+      setError(t('w9e.annotationEmbed.loadFailedNetwork'))
     } finally {
       setLoading(false)
     }
@@ -160,7 +161,7 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
     }
     // 底部水印
     ctx.font = '11px ui-monospace,monospace'
-    const wm = '影像标注 (报告关联)'
+    const wm = t('w9e.annotationEmbed.watermark')
     const wmW = ctx.measureText(wm).width
     ctx.fillStyle = 'rgba(0,0,0,0.55)'
     ctx.fillRect(CANVAS_W - wmW - 14, CANVAS_H - 22, wmW + 12, 18)
@@ -185,11 +186,11 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
       <div className="flex items-center justify-between mb-2">
         <Space>
           <PenLine className="w-3.5 h-3.5" style={{ color: '#7c3aed' }} />
-          <span className="text-xs font-semibold text-slate-600">影像标注 (双向同步)</span>
-          {annotations.length > 0 && <Tag color="purple">{annotations.length} 条</Tag>}
+          <span className="text-xs font-semibold text-slate-600">{t('w9e.annotationEmbed.title')}</span>
+          {annotations.length > 0 && <Tag color="purple">{t('w9e.annotationEmbed.countTag', { count: annotations.length })}</Tag>}
           {data?.updatedAt && <Tag className="text-[10px]">{new Date(data.updatedAt).toLocaleString()}</Tag>}
         </Space>
-        <Tooltip title="刷新标注">
+        <Tooltip title={t('w9e.annotationEmbed.refreshTip')}>
           <Button size="small" icon={<RefreshCw className="w-3 h-3" />} loading={loading} onClick={() => void load()} data-testid="annotation-refresh" />
         </Tooltip>
       </div>
@@ -205,7 +206,7 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
           image={<ImageIcon size={40} style={{ opacity: 0.35 }} />}
           description={
             <span className="text-xs text-slate-400">
-              暂无影像标注 — 在 DICOM 阅片器完成标注后点击「发送到报告」即可在此查看
+              {t('w9e.annotationEmbed.emptyHint')}
             </span>
           }
         />
@@ -233,7 +234,7 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
                       {meta.label} · ({Math.round(a.x1)},{Math.round(a.y1)})→({Math.round(a.x2)},{Math.round(a.y2)})
                     </div>
                   </div>
-                  <Tooltip title="阅片器定位">
+                  <Tooltip title={t('w9e.annotationEmbed.jumpTip')}>
                     <Button
                       size="small"
                       type="text"
@@ -246,8 +247,8 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
               )
             })}
             <div className="text-[10px] text-slate-400 font-mono px-1 pt-1">
-              检查: {data?.studyUid ? data.studyUid.slice(-12) : '—'}
-              {data?.seriesUid ? ` · 序列: ${data.seriesUid.slice(-8)}` : ''}
+              {t('w9e.annotationEmbed.studyLabel')}{data?.studyUid ? data.studyUid.slice(-12) : '—'}
+              {data?.seriesUid ? `${t('w9e.annotationEmbed.seriesSuffix')}${data.seriesUid.slice(-8)}` : ''}
             </div>
           </div>
         </div>
@@ -255,7 +256,7 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
 
       {annotations.length > 0 && (
         <div className="text-[11px] text-slate-400 mt-2">
-          点击标注行高亮缩略图; 点击右侧图标跳转阅片器定位至对应检查/序列。标注来自阅片器「发送到报告」, 由后端 POST /reports/:id/image-annotations 持久化。
+          {t('w9e.annotationEmbed.footerNote')}
         </div>
       )}
     </div>

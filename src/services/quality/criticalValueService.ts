@@ -266,7 +266,7 @@ export const criticalValueService = {
     await wait();
     const chain = ESCALATION_CHAINS.find((c) => c.id === chainId);
     if (!chain) throw new Error('升级链不存在');
-    const node = chain.nodes.find((n) => n.level === level);
+    const node = chain.nodes.find((n: EscalationChainNode) => n.level === level);
     if (!node) throw new Error('节点不存在');
     Object.assign(node, patch);
     return clone(chain);

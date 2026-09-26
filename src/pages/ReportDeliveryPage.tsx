@@ -6,6 +6,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs, Badge, message, Popconfirm, Modal } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import { Send, MessageSquare, Mail, Database, Printer, Cloud, Film, CheckCircle2, RefreshCw, Loader2, Bell, Eye, Filter, Undo2, RotateCcw } from 'lucide-react';
 import MultiChannelSender from '@components/report/v3/R3.DIST/MultiChannelSender';
@@ -20,6 +21,7 @@ import {
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
 import { LoadingBanner } from '../components/feedback';
+import { DataTable } from '../components/common/DataTable';
 import { t } from '../i18n/appI18n';
 
 // [G005 W2-B] reportApi 无 delivery 端点 → 由 reportApi.list 派生推送记录 + 页面标注
@@ -215,6 +217,112 @@ export default function ReportDeliveryPage() {
     setSelectedRecords(new Set());
   };
 
+  const deliveryColumns: ColumnsType<DeliveryRecord> = [
+    {
+      title: t('reportDelivery.fPatientName'), dataIndex: 'patientName', key: 'patientName',
+      render: (_: unknown, r) => {
+        const cConf = CHANNEL_CONFIG[r.channel];
+        const recall = recalls[r.id];
+        return (
+          <div style={{ minWidth: 220 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
+              <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: cConf.bg, color: cConf.color, fontWeight: 600 }}>{cConf.label}</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+              {r.patientPhone || r.patientEmail || r.patientWechat} · {t('reportDelivery.templateLabel')}{TEMPLATE_LABEL[r.template] ?? r.template}
+            </div>
+            {r.failureReason && !recall && (
+              <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · {t('reportDelivery.retry')} {r.retryCount} {t('reportDelivery.times')}</div>
+            )}
+            {recall && (
+              <div style={{ fontSize: 12, color: '#7c3aed', marginTop: 2 }}>
+                ↩ {t('reportDelivery.recalledLabel')}: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>{t('reportDelivery.localState')}</span>
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      title: t('reportDelivery.fStatus'), dataIndex: 'status', key: 'status', width: 100,
+      render: (_: unknown, r) => {
+        const recall = recalls[r.id];
+        const effStatus: DeliveryRecord['status'] | 'recalled' = recall ? 'recalled' : r.status;
+        const sConf = STATUS_CONFIG[effStatus];
+        return <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700 }}>{sConf.label}</span>;
+      },
+    },
+    {
+      title: t('reportDelivery.fPushTime'), dataIndex: 'deliveredAt', key: 'deliveredAt', width: 180,
+      render: (v: string, r) => (
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
+          <div>{v}</div>
+          {r.openedAt && <div style={{ color: '#10b981' }}>{t('reportDelivery.readAt')}{r.openedAt.slice(11)}</div>}
+          <div>{t('reportDelivery.downloads')} {r.downloadCount} {t('reportDelivery.times')}</div>
+        </div>
+      ),
+    },
+    { title: t('reportDelivery.fRetryCount'), dataIndex: 'retryCount', key: 'retryCount', width: 90, align: 'center' },
+    {
+      title: t('w3tables.col.actions'), key: 'actions', width: 240,
+      render: (_: unknown, r) => {
+        const recall = recalls[r.id];
+        return (
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {r.status === 'failed' && !recall && (
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/v1/dist/tasks/' + encodeURIComponent(r.id) + '/retry', { method: 'POST' });
+                    const data = await res.json().catch(() => ({ success: res.ok }));
+                    if (res.ok && data.success !== false) {
+                      message.success(`已重新入队推送任务 ${r.id}`);
+                    } else {
+                      message.warning(`重试请求已发送 · ${r.id}`);
+                    }
+                  } catch (e: any) {
+                    message.warning(`重试请求已发送 · ${r.id} · ${e?.message || String(e)}`);
+                  }
+                }}
+                style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: 'var(--bg-card)', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+              >
+                <RefreshCw size={10} /> {t('reportDelivery.retry')}
+              </button>
+            )}
+            {recall ? (
+              <button
+                onClick={() => void handleResend(r)}
+                disabled={resendingId === r.id}
+                style={{ padding: '4px 8px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, cursor: resendingId === r.id ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+              >
+                <RotateCcw size={10} /> {resendingId === r.id ? t('reportDelivery.resending') : t('reportDelivery.resend')}
+              </button>
+            ) : (
+              <Popconfirm
+                title={t('reportDelivery.confirmRecallTitle')}
+                description={t('reportDelivery.confirmRecallDesc')}
+                okText={t('reportDelivery.recall')}
+                cancelText={t('reportDelivery.cancel')}
+                onConfirm={() => { setRecallTarget(r); setRecallReason(''); }}
+              >
+                <button style={{ padding: '4px 8px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <Undo2 size={10} /> {t('reportDelivery.recall')}
+                </button>
+              </Popconfirm>
+            )}
+            <button
+              onClick={() => setDetailTarget(r)}
+              style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+            >
+              <Eye size={10} /> {t('reportDelivery.detail')}
+            </button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {recordsLoading && <LoadingBanner message={t('w9.states.loading')} />}
@@ -381,126 +489,18 @@ export default function ReportDeliveryPage() {
       </div>
 
       {/* 记录列表 */}
-      <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-        {filteredRecords.map(r => {
-          const cConf = CHANNEL_CONFIG[r.channel];
-          const recall = recalls[r.id];
-          const effStatus: DeliveryRecord['status'] | 'recalled' = recall ? 'recalled' : r.status;
-          const sConf = STATUS_CONFIG[effStatus];
-          const CIcon = cConf.icon;
-          const isSelected = selectedRecords.has(r.id);
-          return (
-            <div
-              key={r.id}
-              style={{
-                padding: 12, borderBottom: '1px solid var(--border-light)',
-                background: r.status === 'failed' && !recall ? 'var(--color-error-bg)' : isSelected ? 'var(--color-info-bg)' : 'transparent',
-                display: 'flex', alignItems: 'center', gap: 10,
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => {
-                  const next = new Set(selectedRecords);
-                  if (next.has(r.id)) next.delete(r.id);
-                  else next.add(r.id);
-                  setSelectedRecords(next);
-                }}
-                style={{ width: 16, height: 16 }}
-              />
-              <div style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: cConf.bg, color: cConf.color,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <CIcon size={16} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
-                  <span style={{
-                    fontSize: 12, padding: '1px 4px', borderRadius: 2,
-                    background: cConf.bg, color: cConf.color, fontWeight: 600,
-                  }}>{cConf.label}</span>
-                  <span style={{
-                    fontSize: 12, padding: '1px 4px', borderRadius: 2,
-                    background: sConf.bg, color: sConf.color, fontWeight: 700,
-                  }}>{sConf.label}</span>
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  {r.patientPhone || r.patientEmail || r.patientWechat} · {t('reportDelivery.templateLabel')}{TEMPLATE_LABEL[r.template] ?? r.template}
-                </div>
-                {r.failureReason && !recall && (
-                  <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · {t('reportDelivery.retry')} {r.retryCount} {t('reportDelivery.times')}</div>
-                )}
-                {recall && (
-                  <div style={{ fontSize: 12, color: '#7c3aed', marginTop: 2 }}>
-                    ↩ {t('reportDelivery.recalledLabel')}: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>{t('reportDelivery.localState')}</span>
-                  </div>
-                )}
-              </div>
-              <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)' }}>
-                <div>{r.deliveredAt}</div>
-                {r.openedAt && <div style={{ color: '#10b981' }}>{t('reportDelivery.readAt')}{r.openedAt.slice(11)}</div>}
-                <div>{t('reportDelivery.downloads')} {r.downloadCount} {t('reportDelivery.times')}</div>
-              </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {r.status === 'failed' && !recall && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch('/api/v1/dist/tasks/' + encodeURIComponent(r.id) + '/retry', { method: 'POST' });
-                        const data = await res.json().catch(() => ({ success: res.ok }));
-                        if (res.ok && data.success !== false) {
-                          message.success(`已重新入队推送任务 ${r.id}`);
-                        } else {
-                          message.warning(`重试请求已发送 · ${r.id}`);
-                        }
-                      } catch (e: any) {
-                        message.warning(`重试请求已发送 · ${r.id} · ${e?.message || String(e)}`);
-                      }
-                    }}
-                    style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: 'var(--bg-card)', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
-                  >
-                    <RefreshCw size={10} /> {t('reportDelivery.retry')}
-                  </button>
-                )}
-                {recall ? (
-                  <button
-                    onClick={() => void handleResend(r)}
-                    disabled={resendingId === r.id}
-                    style={{ padding: '4px 8px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, cursor: resendingId === r.id ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
-                  >
-                    <RotateCcw size={10} /> {resendingId === r.id ? t('reportDelivery.resending') : t('reportDelivery.resend')}
-                  </button>
-                ) : (
-                  <Popconfirm
-                    title={t('reportDelivery.confirmRecallTitle')}
-                    description={t('reportDelivery.confirmRecallDesc')}
-                    okText={t('reportDelivery.recall')}
-                    cancelText={t('reportDelivery.cancel')}
-                    onConfirm={() => { setRecallTarget(r); setRecallReason(''); }}
-                  >
-                    <button style={{ padding: '4px 8px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                      <Undo2 size={10} /> {t('reportDelivery.recall')}
-                    </button>
-                  </Popconfirm>
-                )}
-                <button
-                  onClick={() => setDetailTarget(r)}
-                  style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
-                >
-                  <Eye size={10} /> {t('reportDelivery.detail')}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-        {filteredRecords.length === 0 && (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportDelivery.noMatch')}</div>
-        )}
-      </div>
+      <DataTable<DeliveryRecord>
+        columns={deliveryColumns}
+        dataSource={filteredRecords}
+        rowKey="id"
+        emptyText={t('reportDelivery.noMatch')}
+        rowSelection={{
+          selectedRowKeys: Array.from(selectedRecords),
+          onChange: (keys) => setSelectedRecords(new Set(keys.map(String))),
+          preserveSelectedRowKeys: true,
+        }}
+        scroll={{ x: 'max-content' }}
+      />
 
       {/* [G005 Wave6A] 撤回原因 Modal + 本地状态说明 */}
       <Modal

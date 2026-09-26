@@ -42,7 +42,7 @@ export class QrGenerator {
     if (extra) {
       Object.entries(extra).forEach(([k, v]) => url.searchParams.set(k, v));
     }
-    return this.generate({ content: url.toString(), size: 128 });
+    return this.generate({ content: url.toString(), size: 128 }).then((r) => r.dataUrl);
   }
 
   async stampHtml(html: string, opts: Partial<QrStampOptions> & { content: string }): Promise<string> {

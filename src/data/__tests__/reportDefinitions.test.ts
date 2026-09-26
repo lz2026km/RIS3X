@@ -74,12 +74,12 @@ describe('reportDefinitions', () => {
     const categoryGroups: Record<string, string[]> = {};
     reportDefinitions.forEach((def) => {
       if (!categoryGroups[def.category]) categoryGroups[def.category] = [];
-      categoryGroups[def.category].push(def.id);
+      categoryGroups[def.category]!.push(def.id);
     });
 
     VALID_CATEGORIES.forEach((cat) => {
       it(`${cat} has at least 2 reports`, () => {
-        expect(categoryGroups[cat].length).toBeGreaterThanOrEqual(2);
+        expect((categoryGroups[cat] ?? []).length).toBeGreaterThanOrEqual(2);
       });
     });
   });

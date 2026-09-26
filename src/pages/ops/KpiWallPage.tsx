@@ -472,7 +472,7 @@ const KpiWallPage: React.FC = () => {
     })
     setTemplateName('')
     setSelectedTemplateId(template.id)
-    message.success(`模板「${name}」已保存 (${layout})`)
+    message.success(t('w9e.kpiWall.templateSaved', { name, layout }))
   }, [templateName, activeTemplate, activeBlocks, templates])
 
   return (

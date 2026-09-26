@@ -78,7 +78,7 @@ export class RoutingEngine {
       this.engine.addRule({
         name: rule.id,
         priority: rule.priority,
-        conditions: rule.enabled ? (rule.conditions as TopLevelCondition) : { all: [] },
+        conditions: rule.active ? (rule.conditions as TopLevelCondition) : { all: [] },
         event: rule.event,
       });
     }
@@ -86,7 +86,7 @@ export class RoutingEngine {
 
   addRule(rule: RoutingRule): void {
     this.rules.push(rule);
-    if (rule.enabled) {
+    if (rule.active) {
       this.engine.addRule({
         name: rule.id,
         priority: rule.priority,
@@ -107,7 +107,7 @@ export class RoutingEngine {
   toggle(ruleId: string, enabled: boolean): void {
     const rule = this.rules.find((r) => r.id === ruleId);
     if (!rule) return;
-    rule.enabled = enabled;
+    rule.active = enabled;
     if (enabled) {
       this.engine.addRule({
         name: rule.id,

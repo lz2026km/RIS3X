@@ -128,7 +128,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                     <XAxis type="number" domain={[90, 100]} tick={{ fontSize: 12 }} />
                     <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={60} />
-                    <Tooltip formatter={(v) => `${v}分`} />
+                    <Tooltip formatter={(v) => t('w9e.deptFinance.scoreUnit', { value: v })} />
                     <Bar dataKey="score" fill={C.success} radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ChartContainer>

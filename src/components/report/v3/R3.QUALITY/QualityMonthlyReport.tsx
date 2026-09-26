@@ -71,7 +71,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
       a.download = result.filename;
       a.click();
       URL.revokeObjectURL(url);
-      message.success(`已导出 ${format.toUpperCase()}`);
+      message.success(t('w9e.qualityMonthlyReport.exported', { format: format.toUpperCase() }));
     } catch (e) {
       message.error(t('qualityMonthly.exportFailed'));
     } finally {

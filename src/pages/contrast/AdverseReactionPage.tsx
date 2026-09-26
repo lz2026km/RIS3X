@@ -10,6 +10,7 @@ import { deviceMgmtApi } from '../../services/api/deviceMgmtApi'
 import { CONTRAST_ALLERGY_TREATMENT } from '../../data/contrastProtocols'
 // [v3.0.6.11-104 Wave 3B] 不良反应与注射后留观联动 (记录后追加留观观察记录)
 import { contrastSafetyApi } from '../../services/api/contrastSafetyApi'
+import { AppEmpty } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
 const svc = getAdverseReactionService()
@@ -208,6 +209,7 @@ export default function AdverseReactionPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
               <span></span><span>{t('advR.col.patient')}</span><span>{t('advR.col.type')}</span><span>{t('advR.col.severity')}</span><span>{t('advR.col.description')}</span><span>{t('advR.col.time')}</span><span>{t('advR.col.outcome')}</span>
             </div>
+            {filtered.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
             {filtered.map((r, idx) => (
               <div key={r.id}>
                 <div onClick={() => setExpandedId(expandedId === r.id ? null : r.id)} style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22', cursor: 'pointer' }}>

@@ -5,6 +5,7 @@
 import React, { createContext, useContext, useMemo, useState, useCallback } from 'react'
 import { Select, Button, Tooltip, Modal, Form, Input, InputNumber, Space, Card } from 'antd'
 import { Settings, Plus, Trash2, Star } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export interface HangingProtocolView {
   id: string
@@ -173,13 +174,13 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
         }))}
       />
       {showManager && (
-        <Tooltip title="协议管理">
+        <Tooltip title={t('w9e.hangingProtocol.managerTip')}>
           <Button size="small" icon={<Settings size={12} />} onClick={() => setOpen(true)} data-testid="hp-manage" />
         </Tooltip>
       )}
 
       <Modal
-        title="摆位协议管理"
+        title={t('w9e.hangingProtocol.manageTitle')}
         open={open}
         onCancel={() => setOpen(false)}
         onOk={() => setOpen(false)}
@@ -200,7 +201,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
               extra={
                 !p.builtin && (
                   <Button danger size="small" icon={<Trash2 size={12} />}>
-                    删除
+                    {t('w9e.hangingProtocol.delete')}
                   </Button>
                 )
               }
@@ -229,19 +230,19 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
             icon={<Plus size={12} />}
             onClick={() => {
               Modal.confirm({
-                title: '新建协议',
+                title: t('w9e.hangingProtocol.newProtocol'),
                 content: (
                   <Form form={form} layout="vertical">
-                    <Form.Item label="名称" name="name" rules={[{ required: true }]}>
+                    <Form.Item label={t('w9e.hangingProtocol.formName')} name="name" rules={[{ required: true }]}>
                       <Input />
                     </Form.Item>
-                    <Form.Item label="描述" name="description">
+                    <Form.Item label={t('w9e.hangingProtocol.formDescription')} name="description">
                       <Input.TextArea rows={2} />
                     </Form.Item>
-                    <Form.Item label="设备类型" name="modality">
+                    <Form.Item label={t('w9e.hangingProtocol.formModality')} name="modality">
                       <Input placeholder="CT / MR / DR" />
                     </Form.Item>
-                    <Form.Item label="优先级" name="priority" initialValue={50}>
+                    <Form.Item label={t('w9e.hangingProtocol.formPriority')} name="priority" initialValue={50}>
                       <InputNumber min={0} max={1000} />
                     </Form.Item>
                   </Form>
@@ -249,7 +250,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
               })
             }}
           >
-            新建协议
+            {t('w9e.hangingProtocol.newProtocol')}
           </Button>
         </Space>
       </Modal>

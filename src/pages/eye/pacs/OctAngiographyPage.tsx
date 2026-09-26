@@ -7,7 +7,7 @@ import { eyeApi } from "@/services/api/eyeApi";
 import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
-const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
+const modalityLabel = (m?: string) => t(`w9d.modality.${m ?? 'oct_a'}`);
 
 const OctAngiographyPage: React.FC = () => {
   const [study, setStudy] = useState<any>(null);
@@ -23,7 +23,7 @@ const OctAngiographyPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `OCTA报告_${study?.id ?? "export"}.json`;
+    a.download = `${t('w9d.octa.exportName')}_${study?.id ?? "export"}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -56,11 +56,11 @@ const OctAngiographyPage: React.FC = () => {
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
-  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
   if (!study) return (
     <div style={{ padding: 16, textAlign: 'center' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-      无 OCT-A 检查数据
+      {t('w9d.octa.empty')}
     </div>
   );
   return (
@@ -82,7 +82,7 @@ const OctAngiographyPage: React.FC = () => {
             title={
               <Space>
                 <Activity size={16} />
-                <span>OCT-A 血管成像</span>
+                <span>{t('w9d.octa.title')}</span>
                 <EyeLateralityBadge eyeSide="OD" />
                 <Tag color="cyan">Optovue RTVue XR AngioVue</Tag>
               </Space>
@@ -126,7 +126,7 @@ const OctAngiographyPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title="OCTA 定量分析" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.octa.quantTitle')} style={{ marginTop: 8 }}>
             <Row gutter={16}>
               {measurements.slice(0, 6).map((m) => (
                 <Col span={8} key={m.id}>
@@ -144,7 +144,7 @@ const OctAngiographyPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title="CNV 分析" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.octa.cnvTitle')} style={{ marginTop: 8 }}>
             <div
               style={{
                 background: "#0f172a",
@@ -176,13 +176,13 @@ const OctAngiographyPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={`患者 ${study?.patientName}`}>
+          <Card size="small" title={`${t('w9d.octa.patient')} ${study?.patientName}`}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
-              诊断: <Tag color="orange">湿性AMD</Tag>
+              {t('w9d.ffa.diagnosis')} <Tag color="orange">湿性AMD</Tag>
               <br />
-              检查类型: {MODALITY_LABELS[study?.modality || "oct_a"] || "OCT-A"}
+              {t('w9d.octa.examType')} {modalityLabel(study?.modality || "oct_a")}
               <br />
-              日期: {study ? new Date(study.studyDate).toLocaleString() : "-"}
+              {t('w9d.octa.date')} {study ? new Date(study.studyDate).toLocaleString() : "-"}
             </div>
           </Card>
           {aiDiag.map((d) => (

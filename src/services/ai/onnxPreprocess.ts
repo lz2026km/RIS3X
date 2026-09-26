@@ -14,9 +14,9 @@ export async function loadImageToTensor(file: File): Promise<Float32Array> {
     for (let x = 0; x < INPUT_SIZE; x++) {
       const srcIdx = (y * INPUT_SIZE + x) * 4;
       const dstIdx = y * INPUT_SIZE + x;
-      tensor[dstIdx] = imageData.data[srcIdx] / 255.0;
-      tensor[INPUT_SIZE * INPUT_SIZE + dstIdx] = imageData.data[srcIdx + 1] / 255.0;
-      tensor[2 * INPUT_SIZE * INPUT_SIZE + dstIdx] = imageData.data[srcIdx + 2] / 255.0;
+      tensor[dstIdx] = (imageData.data[srcIdx] ?? 0) / 255.0;
+      tensor[INPUT_SIZE * INPUT_SIZE + dstIdx] = (imageData.data[srcIdx + 1] ?? 0) / 255.0;
+      tensor[2 * INPUT_SIZE * INPUT_SIZE + dstIdx] = (imageData.data[srcIdx + 2] ?? 0) / 255.0;
     }
   }
   return tensor;

@@ -48,9 +48,9 @@ const TYPES: SyncEvent["type"][] = ["study_pushed", "study_pushed", "study_pulle
 const STATUSES: SyncEvent["status"][] = ["success", "success", "success", "success", "success", "success", "failed", "success"];
 
 export const SYNC_EVENTS: SyncEvent[] = Array.from({ length: 32 }, (_, i) => {
-  const site = SITES[i % SITES.length];
-  const type = TYPES[i % TYPES.length];
-  const status = STATUSES[i % STATUSES.length];
+  const site = SITES[i % SITES.length] ?? SITES[0]!;
+  const type = TYPES[i % TYPES.length] ?? 'study_pushed';
+  const status = STATUSES[i % STATUSES.length] ?? 'success';
   return {
     id: `SYNC-${(1000 + i).toString()}`,
     siteId: site.id,

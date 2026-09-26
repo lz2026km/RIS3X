@@ -301,7 +301,7 @@ export default function ViewportArea(props: Props) {
             transition: 'all 0.15s',
           }}
           onClick={() => setShowGsofPanel(!showGsofPanel)}
-          title={`GSOF 灰阶校准${gsofEnabled ? ' (已启用)' : ''}`}
+          title={`${t('w9d.viewport.gsofCalibration')}${gsofEnabled ? ` (${t('w9d.viewport.enabled')})` : ''}`}
           data-testid="gsof-toggle"
           aria-pressed={gsofEnabled}
         >
@@ -584,7 +584,7 @@ export default function ViewportArea(props: Props) {
       <div style={s.seriesStrip}>
         {seriesList.map((sItem, idx) => (
           <div key={sItem.id} style={{ ...s.seriesThumb, ...(activeSeriesIdx === idx ? s.seriesThumbActive : {}) }}
-            onClick={() => handleSeriesSelect(idx)} title={`${sItem.seriesDescription} (${sItem.imageCount}幅)`}>
+            onClick={() => handleSeriesSelect(idx)} title={`${sItem.seriesDescription} (${t('w9d.viewport.imageCountUnit', { count: sItem.imageCount })})`}>
             <div style={{ ...s.seriesThumbInner, background: sItem.thumbnail, opacity: activeSeriesIdx === idx ? 1 : 0.7 }}><Layers size={16} /></div>
             <span style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{sItem.seriesNumber}</span>
             <span style={{ fontSize: 8, color: '#6b7280' }}>{t('dcmView.framesUnit', { count: sItem.imageCount })}</span>

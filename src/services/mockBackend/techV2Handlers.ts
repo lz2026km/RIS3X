@@ -282,6 +282,28 @@ const HISTORY_PLANS: HistoryPlan[] = [
   },
 ]
 
+// [G005 demo] 轮转执行记录 seed (确定性), 避免历史抽屉/表格为空
+const ROTATION_EXECUTIONS: Array<{
+  id: string
+  planId: string
+  assignmentId: string
+  date: string
+  shift: TechShift
+  technicianId: string
+  technicianName: string
+  roomId: string | null
+  status: 'EXECUTED' | 'SKIPPED'
+  executedAt: string
+  note: string | null
+}> = [
+  { id: 'ex-seed-1', planId: 'plan-20260801-14', assignmentId: 'as-1', date: '2026-08-01', shift: 'DAY', technicianId: 't-001', technicianName: '刘技师', roomId: 'room-ct-1', status: 'EXECUTED', executedAt: '2026-08-01T08:10:00.000Z', note: null },
+  { id: 'ex-seed-2', planId: 'plan-20260801-14', assignmentId: 'as-2', date: '2026-08-01', shift: 'DAY', technicianId: 't-003', technicianName: '杨技师', roomId: 'room-mr-1', status: 'EXECUTED', executedAt: '2026-08-01T08:12:00.000Z', note: null },
+  { id: 'ex-seed-3', planId: 'plan-20260801-14', assignmentId: 'as-3', date: '2026-08-02', shift: 'NIGHT', technicianId: 't-002', technicianName: '陈技师', roomId: 'room-ct-1', status: 'EXECUTED', executedAt: '2026-08-02T17:05:00.000Z', note: '设备预热完成' },
+  { id: 'ex-seed-4', planId: 'plan-20260801-14', assignmentId: 'as-4', date: '2026-08-03', shift: 'DAY', technicianId: 't-005', technicianName: '吴技师', roomId: 'room-dr-1', status: 'SKIPPED', executedAt: '2026-08-03T08:15:00.000Z', note: '临时调休, 由郑技师替班' },
+  { id: 'ex-seed-5', planId: 'plan-20260801-14', assignmentId: 'as-5', date: '2026-08-04', shift: 'DAY', technicianId: 't-004', technicianName: '周技师', roomId: 'room-mr-1', status: 'EXECUTED', executedAt: '2026-08-04T08:08:00.000Z', note: null },
+  { id: 'ex-seed-6', planId: 'plan-20260801-14', assignmentId: 'as-6', date: '2026-08-05', shift: 'WEEKEND', technicianId: 't-006', technicianName: '郑技师', roomId: 'room-dr-2', status: 'EXECUTED', executedAt: '2026-08-05T08:20:00.000Z', note: '周末门诊高峰' },
+]
+
 function buildForecast(startDate: string, days: number, technicianId?: string) {
   const start = new Date(`${startDate}T00:00:00Z`)
   const daily = []
@@ -382,7 +404,7 @@ export const techV2Handlers = [
 
   http.get(`${API}/rotation/history`, async () => {
     await delay(40)
-    return HttpResponse.json({ success: true, data: { plans: HISTORY_PLANS, executions: [] } })
+    return HttpResponse.json({ success: true, data: { plans: HISTORY_PLANS, executions: ROTATION_EXECUTIONS } })
   }),
 
   http.post(`${API}/rotation/assignments/:id/execute`, async ({ params, request }) => {

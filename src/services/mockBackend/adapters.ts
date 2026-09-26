@@ -270,6 +270,7 @@ export interface ReportDto {
   modality: string;
   bodyPart: string;
   status: string;
+  state?: string;
   findings: string;
   // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化透出
   htmlContent?: string;
@@ -288,6 +289,7 @@ export interface ReportDto {
   clinicalDiagnosis: string;
   priority: string;
   hasCriticalValue: boolean;
+  rejectReason?: string;
 }
 
 // [W6] 报告小写 status → 后端大写 ReportState (toReportDto.state 透出 / 前端幂等门禁)

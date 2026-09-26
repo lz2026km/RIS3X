@@ -8,7 +8,7 @@ function randomFloat(min: number, max: number, decimals = 1): number {
 }
 
 function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(Math.random() * arr.length)]!;
 }
 
 const modalities = ['CT', 'MR', 'DR', 'MG', 'DSA', 'CR', 'NM'];

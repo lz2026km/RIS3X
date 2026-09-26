@@ -38,7 +38,7 @@ const COLLAB_PALETTE = [
 export function pickUserColor(userId: string): string {
   let h = 0;
   for (let i = 0; i < userId.length; i++) h = (h * 31 + userId.charCodeAt(i)) >>> 0;
-  return COLLAB_PALETTE[h % COLLAB_PALETTE.length];
+  return COLLAB_PALETTE[h % COLLAB_PALETTE.length] ?? '#3b82f6';
 }
 
 export default function CollaborativeReportEditor({

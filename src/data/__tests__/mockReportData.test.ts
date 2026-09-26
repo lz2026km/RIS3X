@@ -275,7 +275,7 @@ describe('generateMockReportData', () => {
       const data = generateMockReportData('qc-score-distribution');
       const gradeA = data.find((d) => String(d.name).includes('甲级'))!;
       const gradeD = data.find((d) => String(d.name).includes('丁级'))!;
-      expect(gradeA.value).toBeGreaterThan(gradeD.value);
+      expect(Number(gradeA.value)).toBeGreaterThan(Number(gradeD.value));
     });
   });
 

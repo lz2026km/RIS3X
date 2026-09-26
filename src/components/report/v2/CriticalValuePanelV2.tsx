@@ -256,7 +256,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
       })
       if (res.success) {
         const created = res.data ?? []
-        message.success(`已生成 ${created.length} 条危急值触发记录, 自动通知已发送`)
+        message.success(t('w9e.criticalValuePanelV2.triggeredCount', { count: created.length }))
         setPreview([])
         setTab('triggers')
         await loadAll()

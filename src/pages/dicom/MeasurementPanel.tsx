@@ -8,7 +8,7 @@ import { Ruler, Triangle, Circle as CircleIcon, Square, Activity, Trash2, Eye as
 const RectIcon = Square
 import type { Dispatch, SetStateAction } from 'react'
 import type { MeasureSubMenu, Measurement, RightTab, Tool, MeasureV2Type, Point2D, MeasureV2Record, MeasureV2Version, AnnotationV2Type, AnnotationV2Record, AnnotationV2Version } from './DicomViewerTypes'
-import { MEASURE_V2_META, MEASURE_V2_TOOL_ORDER, computeMeasureV2 } from './DicomViewerTypes'
+import { MEASURE_V2_META, MEASURE_V2_META_LABEL_KEYS, MEASURE_V2_TOOL_ORDER, computeMeasureV2 } from './DicomViewerTypes'
 import { measurementV2Api, type MeasurementTypeMeta, type ComputeResult, type ConvertCoordinatesResult } from '../../services/api/measurementV2Api'
 import { t } from '../../i18n/appI18n'
 
@@ -737,9 +737,9 @@ export default function MeasurementPanel(props: Props) {
           {MEASURE_V2_TOOL_ORDER.map(type => (
             <button key={type} style={{ ...s.v2ToolBtn, ...(v2Tool === type ? s.v2ToolBtnActive : {}) }}
               onClick={() => { setV2Tool(v2Tool === type ? null : type); setV2Draft([]) }}
-              title={`${MEASURE_V2_META[type].label} · ${toolHint(type)}`}>
+              title={`${t(MEASURE_V2_META_LABEL_KEYS[type])} · ${toolHint(type)}`}>
               {V2_TOOL_ICONS[type]}
-              {MEASURE_V2_META[type].label}
+              {t(MEASURE_V2_META_LABEL_KEYS[type])}
             </button>
           ))}
         </div>
@@ -770,7 +770,7 @@ export default function MeasurementPanel(props: Props) {
           <div style={{ marginTop: 8, border: '1px solid #dbeafe', borderRadius: 8, padding: 8, background: '#fff' }}>
             <div style={{ ...s.infoSectionTitle, marginBottom: 4 }}>
               <CircleIcon size={11} />{t('measPanel.properties')}
-              <span style={{ ...s.badge, background: '#dbeafe', color: PRIMARY, marginLeft: 'auto' }}>{MEASURE_V2_META[selectedV2.type].label}</span>
+              <span style={{ ...s.badge, background: '#dbeafe', color: PRIMARY, marginLeft: 'auto' }}>{t(MEASURE_V2_META_LABEL_KEYS[selectedV2.type])}</span>
             </div>
             <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.value')}</span><span style={s.propValue}>{selectedV2.value} {selectedV2.unit}</span></div>
             <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.formula')}</span><span style={{ fontSize: 11, color: '#64748b' }}>{selectedV2.formula}</span></div>
@@ -821,7 +821,7 @@ export default function MeasurementPanel(props: Props) {
                 <div style={s.measureItemInfo}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 110 }}>{m.label}</span>
-                    <span style={{ ...s.badge, background: '#dbeafe', color: PRIMARY }}>{MEASURE_V2_META[m.type].label}</span>
+                    <span style={{ ...s.badge, background: '#dbeafe', color: PRIMARY }}>{t(MEASURE_V2_META_LABEL_KEYS[m.type])}</span>
                   </div>
                   <div style={{ fontSize: 11, color: '#64748b' }}>{m.value} {m.unit} · v{m.version}{m.annotationId ? ' · 🔗' : ''}</div>
                 </div>
@@ -941,7 +941,7 @@ export default function MeasurementPanel(props: Props) {
             onChange={e => setServerComputeType(e.target.value as MeasureV2Type)}
             style={{ ...s.input, maxWidth: 130 }}
           >
-            {MEASURE_V2_TOOL_ORDER.map(type => <option key={type} value={type}>{MEASURE_V2_META[type].label}</option>)}
+            {MEASURE_V2_TOOL_ORDER.map(type => <option key={type} value={type}>{t(MEASURE_V2_META_LABEL_KEYS[type])}</option>)}
           </select>
           <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} disabled={serverComputeBusy} onClick={() => void runServerCompute()}>
             <Zap size={10} />{t('measurementV2.computeBtn') || '计算'}

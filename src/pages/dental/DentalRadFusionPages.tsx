@@ -20,14 +20,18 @@ interface Referral {
   createdAt: string;
 }
 
-const STATUS_META: Record<string, { color: string; label: string }> = {
-  pending: { color: 'orange', label: '待转诊' },
-  accepted: { color: 'green', label: '已接诊' },
-  completed: { color: 'blue', label: '已完成' },
+const STATUS_META: Record<string, { color: string; labelKey: string }> = {
+  pending: { color: 'orange', labelKey: 'w9d.referral.status.pending' },
+  accepted: { color: 'green', labelKey: 'w9d.referral.status.accepted' },
+  completed: { color: 'blue', labelKey: 'w9d.referral.status.completed' },
 };
 
-const SOURCE_OPTIONS = ['口腔科', '正畸科', '口腔外科', '牙周科'].map(d => ({ value: d, label: d }));
-const TARGET_OPTIONS = ['放射科', '口腔外科', '种植中心', '正畸科'].map(d => ({ value: d, label: d }));
+const DEPT_LABEL_KEYS: Record<string, string> = {
+  '口腔科': 'w9d.dept.stomatology', '正畸科': 'w9d.dept.orthodontics', '口腔外科': 'w9d.dept.oralSurgery',
+  '牙周科': 'w9d.dept.periodontics', '放射科': 'w9d.dept.radiology', '种植中心': 'w9d.dept.implantCenter',
+};
+const SOURCE_OPTIONS = ['口腔科', '正畸科', '口腔外科', '牙周科'].map(d => ({ value: d, labelKey: DEPT_LABEL_KEYS[d] }));
+const TARGET_OPTIONS = ['放射科', '口腔外科', '种植中心', '正畸科'].map(d => ({ value: d, labelKey: DEPT_LABEL_KEYS[d] }));
 const PATIENT_OPTIONS = [
   { value: 'P100001', label: '张伟' },
   { value: 'P100002', label: '李娜' },
@@ -100,7 +104,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
     try {
       const res = await dentalApi.acceptReferral(r.id);
       if (res.success) {
-        message.success(`已接诊 ${r.patient} 的转诊`);
+        message.success(t('w9d.referral.accepted', { patient: r.patient }));
         void load();
       } else {
         message.error(res.error?.message ?? t('dentalRadFusion.acceptFailed'));
@@ -117,15 +121,15 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
       const res = await fetch(`/api/v1/dental/referrals/${r.id}`, { method: 'DELETE' });
       const d = await res.json().catch(() => null);
       if (d?.success || res.ok) {
-        message.success(`转诊 ${r.id} 已撤销`);
+        message.success(t('w9d.referral.revoked', { id: r.id }));
         void load();
         return;
       }
       setReferrals(prev => prev.filter(x => x.id !== r.id));
-      message.success(`转诊 ${r.id} 已撤销`);
+      message.success(t('w9d.referral.revoked', { id: r.id }));
     } catch {
       setReferrals(prev => prev.filter(x => x.id !== r.id));
-      message.success(`转诊 ${r.id} 已撤销`);
+      message.success(t('w9d.referral.revoked', { id: r.id }));
     }
   };
 
@@ -136,7 +140,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
     { title: t('dentalRadFusion.target'), dataIndex: 'target', key: 'target', width: 90, render: (s: string) => <Tag color="purple">{s}</Tag> },
     { title: t('dentalRadFusion.reason'), dataIndex: 'reason', key: 'reason', ellipsis: true },
     { title: t('dentalRadFusion.time'), dataIndex: 'createdAt', key: 'createdAt', width: 130, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
-    { title: t('dentalRadFusion.status'), dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={STATUS_META[s]?.color ?? 'default'}>{STATUS_META[s]?.label ?? s}</Tag> },
+    { title: t('dentalRadFusion.status'), dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={STATUS_META[s]?.color ?? 'default'}>{STATUS_META[s] ? t(STATUS_META[s]!.labelKey) : s}</Tag> },
     {
       title: t('dentalRadFusion.actions'), key: 'actions', width: 140,
       render: (_: unknown, r: Referral) => (
@@ -186,10 +190,10 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
             <Select options={PATIENT_OPTIONS} placeholder={t('dentalRadFusion.selectPatient')} />
           </Form.Item>
           <Form.Item label={t('dentalRadFusion.sourceDept')} name="source">
-            <Select options={SOURCE_OPTIONS} />
+                <Select options={SOURCE_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey!) }))} />
           </Form.Item>
           <Form.Item label={t('dentalRadFusion.targetDept')} name="target" rules={[{ required: true, message: t('dentalRadFusion.requiredTargetDept') }]}>
-            <Select options={TARGET_OPTIONS} />
+                <Select options={TARGET_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey!) }))} />
           </Form.Item>
           <Form.Item label={t('dentalRadFusion.referralReason')} name="reason" rules={[{ required: true, message: t('dentalRadFusion.requiredReason') }]}>
             <TextArea rows={3} placeholder={t('dentalRadFusion.reasonPlaceholder')} />
@@ -199,7 +203,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
 
       {/* [G005 Wave2A P0] 转诊详情 Modal: 融合参数 / 叠加层信息 */}
       <Modal
-        title={`转诊详情 - ${detailRow?.id ?? ''}`}
+        title={`${t('w9d.referral.detailTitle')} - ${detailRow?.id ?? ''}`}
         open={!!detailRow}
         onCancel={() => setDetailRow(null)}
         footer={<Button onClick={() => setDetailRow(null)}>{t('dentalRadFusion.close')}</Button>}
@@ -214,7 +218,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
               <Descriptions.Item label={t('dentalRadFusion.referralReason')}>{detailRow.reason || '—'}</Descriptions.Item>
               <Descriptions.Item label={t('dentalRadFusion.referringDoctor')}>{detailRow.doctor ?? '—'}</Descriptions.Item>
               <Descriptions.Item label={t('dentalRadFusion.status')}>
-                <Tag color={STATUS_META[detailRow.status]?.color ?? 'default'}>{STATUS_META[detailRow.status]?.label ?? detailRow.status}</Tag>
+                <Tag color={STATUS_META[detailRow.status]?.color ?? 'default'}>{STATUS_META[detailRow.status] ? t(STATUS_META[detailRow.status]!.labelKey) : detailRow.status}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label={t('dentalRadFusion.createdAt')}>{detailRow.createdAt ? detailRow.createdAt.replace('T', ' ').slice(0, 16) : '—'}</Descriptions.Item>
             </Descriptions>
@@ -430,7 +434,7 @@ export const DentalRadFusionPage: React.FC = () => {
           </Row>
         },
         { key: 'overlay', label: t('dentalRadFusion.tabOverlay'), children:
-          <Card size="small" title={selected ? `CBCT + 口扫 3D 叠加融合 (${selected.patientName})` : t('dentalRadFusion.overlayTitleWebgl')}>
+          <Card size="small" title={selected ? `${t('w9d.referral.overlayTitle')} (${selected.patientName})` : t('dentalRadFusion.overlayTitleWebgl')}>
             <div style={{ height: 300, background: '#0a0a1a', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
               <ActivityIcon size={28} />
               <div style={{ marginTop: 8 }}>{t('dentalRadFusion.overlayTitleWebgl')}</div>

@@ -102,7 +102,7 @@ const MontagePage: React.FC = () => {
   const gridItems = studies.slice(0, 9);
 
   const handleExportCsv = useCallback(() => {
-    const header = ["检查ID", "患者ID", "患者姓名", "模态", "眼别", "采集时间", "设备型号", "状态", "适应症"];
+    const header = [t("w9d.montage.csvStudyId"), t("w9d.montage.csvPatientId"), t("w9d.montage.csvPatientName"), t("w9d.montage.csvModality"), t("w9d.montage.csvEye"), t("w9d.montage.csvAcqTime"), t("w9d.montage.csvDevice"), t("w9d.montage.csvStatus"), t("w9d.montage.csvIndications")];
     const rows = gridItems.map((s) => [
       s.id,
       s.patientId,
@@ -119,7 +119,7 @@ const MontagePage: React.FC = () => {
       .join("\r\n");
     const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
     downloadBlob(blob, `eye-montage-${new Date().toISOString().slice(0, 10)}.csv`);
-    message.success(`CSV 已导出 (${gridItems.length} 条检查)`);
+    message.success(t("w9d.montage.csvExported", { count: gridItems.length }));
   }, [gridItems]);
 
   // canvas 生成拼图截图 → PNG Blob 下载
@@ -171,7 +171,7 @@ const MontagePage: React.FC = () => {
     ctx.font = "18px sans-serif";
     ctx.textAlign = "left";
     ctx.fillText(
-      `${gridItems.length} 张图像拼合 · 重叠率 ${overlap}% · ${type === "mosaic" ? "马赛克(4x4)" : type === "widefield" ? "超广角" : "全景"}`,
+      t("w9d.montage.pngCaption", { count: gridItems.length, overlap, type: type === "mosaic" ? t("w9d.montage.typeMosaic") : type === "widefield" ? t("w9d.montage.typeWidefield") : t("w9d.montage.typePanorama") }),
       18,
       size - 16,
     );

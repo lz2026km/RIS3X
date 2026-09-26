@@ -4,6 +4,7 @@ import {
   Row, Col, Card, Statistic, Alert, Spin, Button, Space, Tag, Typography,
 } from 'antd';
 import { EmptyState } from '../../components/common/EmptyState';
+import { ExportButton } from '../../components/common';
 import {
   Calendar, ScanLine, Activity, ArrowRight, RefreshCw, Stethoscope, Microscope, Layers,
 } from 'lucide-react';
@@ -71,7 +72,16 @@ export const DentalWorkspacePage: React.FC = () => {
         title: t('dental.workspace.title'),
         version: 'v3.0.6.11-54',
         extra: (
-          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('dental.action.refresh')}</Button>
+          <>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('dental.action.refresh')}</Button>
+            <ExportButton
+              data={() => [...appointments, ...recentStudies]}
+              filename="dental-workspace"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
+            />
+          </>
         ),
       }}
       alert={error ? { message: error, type: 'error' } : undefined}
@@ -143,7 +153,7 @@ export const DentalWorkspacePage: React.FC = () => {
             </Card>
           </Col>
         </Row>
-        <Alert style={{ marginTop: 16 }} title={`工作台已就绪 · 今日待办 ${pendingCount + appointments.length} 项`} type="success" showIcon />
+        <Alert style={{ marginTop: 16 }} title={t('w9d.dentalWorkspace.ready', { count: pendingCount + appointments.length })} type="success" showIcon />
       </Spin>
     </DentalPageLayout>
   );

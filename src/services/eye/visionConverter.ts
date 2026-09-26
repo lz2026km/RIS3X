@@ -6,7 +6,8 @@ type Notation = 'snellen' | 'decimal' | 'five' | 'logmar';
 function snellenToDecimal(snellen: string): number {
   const parts = snellen.split('/');
   if (parts.length !== 2) return 0;
-  const [numerator, denominator] = parts.map(Number);
+  const numerator = Number(parts[0]);
+  const denominator = Number(parts[1]);
   if (denominator === 0) return 0;
   return Math.round((numerator / denominator) * 100) / 100;
 }
@@ -63,7 +64,7 @@ export function toDecimal(value: number, fromNotation: Notation): number {
 export function fromDecimal(decimal: number, toNotation: Notation): number {
   switch (toNotation) {
     case 'decimal': return decimal;
-    case 'snellen': return parseFloat(decimalToSnellen(decimal).split('/')[0]) / parseFloat(decimalToSnellen(decimal).split('/')[1] || '20');
+    case 'snellen': return parseFloat(decimalToSnellen(decimal).split('/')[0] ?? '20') / parseFloat(decimalToSnellen(decimal).split('/')[1] || '20');
     case 'five': return decimalToFive(decimal);
     case 'logmar': return decimalToLogmar(decimal);
     default: return decimal;

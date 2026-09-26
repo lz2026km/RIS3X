@@ -193,7 +193,7 @@ export const DentalPediatricPage: React.FC = () => {
         ),
       }}
       alert={{
-        message: `${t("w9.dentalPed.deciduous")} · 窝沟封闭 / 氟保护`,
+        message: `${t("w9.dentalPed.deciduous")} · ${t("w9d.dentalPed.alertMsg")}`,
         type: "info",
       }}
     >
@@ -289,13 +289,13 @@ export const DentalPediatricPage: React.FC = () => {
             <Input />
           </Form.Item>
           <Form.Item label={t("w9.dentalPed.deciduous")} name="toothNo" rules={[{ required: true }]}>
-            <Input placeholder="例 A (右上乳中切牙)" />
+                <Input placeholder={t("w9d.dentalPed.toothPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.common.diagnosis")} name="diagnosis">
-            <Input placeholder="例 乳牙龋坏" />
+                <Input placeholder={t("w9d.dentalPed.diagnosisPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.common.plan")} name="plan">
-            <Input placeholder="例 窝沟封闭 / 充填" />
+                <Input placeholder={t("w9d.dentalPed.planPlaceholder")} />
           </Form.Item>
         </Form>
       </Modal>

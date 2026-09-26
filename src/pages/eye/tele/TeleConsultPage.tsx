@@ -447,7 +447,7 @@ export const TeleConsultPage: React.FC = () => {
                         <Col span={24}>
                           <Alert
                             title={t("eye.tele.edgeSliceTitle")}
-                            description={`节点: ${turnInfo && turnInfo["5G"] ? turnInfo["5G"].edgeNodeId : "N/A"} | 切片: ${turnInfo && turnInfo["5G"] ? turnInfo["5G"].slice : "N/A"}`}
+                            description={t('w9d.tele.edgeSliceDesc', { node: turnInfo && turnInfo["5G"] ? turnInfo["5G"].edgeNodeId : "N/A", slice: turnInfo && turnInfo["5G"] ? turnInfo["5G"].slice : "N/A" })}
                             type="success"
                             showIcon
                           />
@@ -575,7 +575,7 @@ export const TeleConsultPage: React.FC = () => {
                       style={{ marginTop: 16 }}
                     >
                       <Alert
-                        title={`状态: ${consult.status} | SLA: ${consult.sla.responseTime}`}
+                        title={t('w9d.tele.statusSla', { status: consult.status, sla: consult.sla.responseTime })}
                         type="info"
                         showIcon
                       />
@@ -837,7 +837,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Col>
                         <Col span={24}>
                           <Alert
-                            title={`处方类型: ${refraction.prescriptionType} | 有效期至: ${refraction.validUntil.slice(0, 10)}`}
+                            title={t('w9d.tele.prescriptionLine', { type: refraction.prescriptionType, validUntil: refraction.validUntil.slice(0, 10) })}
                             type="success"
                             showIcon
                           />
@@ -1007,7 +1007,7 @@ export const TeleConsultPage: React.FC = () => {
                         <div style={{ color: "var(--text-secondary)" }}>
                           {t("eye.tele.startedAtLabel")} {String(sessionDetail.startedAt ?? "").slice(0, 19).replace("T", " ")}
                           {sessionDetail.endedAt
-                            ? ` · 结束于 ${String(sessionDetail.endedAt).slice(0, 19).replace("T", " ")}`
+                            ? t('w9d.tele.endedAt', { time: String(sessionDetail.endedAt).slice(0, 19).replace("T", " ") })
                             : ""}
                         </div>
                         <Divider style={{ margin: "8px 0" }} />
@@ -1064,7 +1064,7 @@ export const TeleConsultPage: React.FC = () => {
                     {consultDetail ? (
                       <div style={{ marginTop: 12, fontSize: 12 }}>
                         <Alert
-                          title={`${consultDetail.specialistName ?? consultDetail.specialistId} · ${consultDetail.status === "pending" ? "待答复" : consultDetail.status}`}
+                          title={`${consultDetail.specialistName ?? consultDetail.specialistId} · ${consultDetail.status === "pending" ? t('w9d.tele.pendingReply') : consultDetail.status}`}
                           description={consultDetail.question}
                           type={consultDetail.status === "pending" ? "info" : "success"}
                           showIcon
@@ -1179,13 +1179,13 @@ export const TeleConsultPage: React.FC = () => {
       >
         <Form layout="vertical" size="small">
           <Form.Item label={t("eye.tele.videoDevice")}>
-            <Select value={settings.device} onChange={(v) => setSettings({ ...settings, device: v })} options={[{ value: '内置摄像头 (HD)', label: '内置摄像头 (HD)' }, { value: '外接摄像头', label: '外接摄像头' }, { value: 'USB 高清摄像头', label: 'USB 高清摄像头' }]} />
+            <Select value={settings.device} onChange={(v) => setSettings({ ...settings, device: v })} options={[{ value: '内置摄像头 (HD)', label: t('w9d.tele.device.builtin') }, { value: '外接摄像头', label: t('w9d.tele.device.external') }, { value: 'USB 高清摄像头', label: t('w9d.tele.device.usbHd') }]} />
           </Form.Item>
           <Form.Item label={t("eye.tele.microphone")}>
-            <Select value={settings.mic} onChange={(v) => setSettings({ ...settings, mic: v })} options={[{ value: '内置麦克风', label: '内置麦克风' }, { value: '耳机麦克风', label: '耳机麦克风' }, { value: '领夹麦克风', label: '领夹麦克风' }]} />
+            <Select value={settings.mic} onChange={(v) => setSettings({ ...settings, mic: v })} options={[{ value: '内置麦克风', label: t('w9d.tele.mic.builtin') }, { value: '耳机麦克风', label: t('w9d.tele.mic.headset') }, { value: '领夹麦克风', label: t('w9d.tele.mic.lavalier') }]} />
           </Form.Item>
           <Form.Item label={t("eye.tele.speaker")}>
-            <Select value={settings.speaker} onChange={(v) => setSettings({ ...settings, speaker: v })} options={[{ value: '默认扬声器', label: '默认扬声器' }, { value: '耳机', label: '耳机' }]} />
+            <Select value={settings.speaker} onChange={(v) => setSettings({ ...settings, speaker: v })} options={[{ value: '默认扬声器', label: t('w9d.tele.speaker.default') }, { value: '耳机', label: t('w9d.tele.speaker.headset') }]} />
           </Form.Item>
           <Form.Item label={t("eye.tele.resolution")}>
             <Radio.Group value={settings.resolution} onChange={(e) => setSettings({ ...settings, resolution: e.target.value })}>

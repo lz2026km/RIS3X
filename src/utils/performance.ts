@@ -165,7 +165,5 @@ export function getNavigationTiming(): { ttfb: number; domContentLoaded: number;
   };
 }
 
-// @ts-expect-error - stub
 export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void { let timer: any; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); }; }
-// @ts-expect-error - stub
 export function throttle<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void { let last = 0; return (...args) => { const now = Date.now(); if (now - last >= delay) { last = now; fn(...args); } }; }

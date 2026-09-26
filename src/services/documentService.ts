@@ -13,8 +13,6 @@ export const documentService = {
     formData.append('file', data.file)
     formData.append('criticalValueId', data.criticalValueId)
     formData.append('name', data.name)
-    return api.post('/documents/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    return api.post<{ id: string; url: string }>('/documents/upload', formData)
   },
 }

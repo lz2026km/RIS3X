@@ -12,7 +12,9 @@ import TechnicianRankingTable from '../../components/worklist/TechnicianRankingT
 import { ChartContainer } from '../../components/charts'
 import { PageHeader } from '../../components/common/PageHeader'
 import { AppText } from '../../components/common/AppText'
+import { ActionButton, ExportButton } from '../../components/common'
 import { THEME_TOKENS } from '../../components/common/ThemeTokens'
+import { t } from '../../i18n/appI18n'
 
 const todayStr = () => {
   const d = new Date()
@@ -137,6 +139,14 @@ export default function TechnicianKpiDashboardPage() {
               onChange={setTechnicianId}
               options={techOptions}
               data-testid="tech-kpi-technician"
+            />
+            <ActionButton action="refresh" loading={loading} onClick={() => void load(from, to, technicianId)}>{t('w45.actions.refresh')}</ActionButton>
+            <ExportButton
+              data={() => data?.technicians ?? []}
+              filename="technician-kpi"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
             />
           </>
         }

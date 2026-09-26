@@ -730,14 +730,14 @@ export default function PatientPage() {
     });
 
     const typeDistribution = [
-      { label: "门诊", value: outpatients, color: "#3b82f6" },
-      { label: "住院", value: inpatients, color: "#8b5cf6" },
-      { label: "体检", value: healthCheck, color: "#06b6d4" },
-      { label: "急诊", value: emergency, color: "#f59e0b" },
+      { label: t("w9c.patient.typeOutpatient"), value: outpatients, color: "#3b82f6" },
+      { label: t("w9c.patient.typeInpatient"), value: inpatients, color: "#8b5cf6" },
+      { label: t("w9c.patient.typePhysical"), value: healthCheck, color: "#06b6d4" },
+      { label: t("w9c.patient.typeEmergency"), value: emergency, color: "#f59e0b" },
     ];
     const genderDistribution = [
-      { label: "男", value: males, color: "#3b82f6" },
-      { label: "女", value: females, color: "#ec4899" },
+      { label: t("w9c.patient.genderMale"), value: males, color: "#3b82f6" },
+      { label: t("w9c.patient.genderFemale"), value: females, color: "#ec4899" },
     ];
     const returnRate = (
       (patients.filter((p) => p.totalExamCount > 1).length / totalPatients) *
@@ -755,7 +755,7 @@ export default function PatientPage() {
       .sort((a, b) => parseInt(a) - parseInt(b))
       .forEach((key, i) => {
         examFrequency.push({
-          label: `${key}次`,
+          label: t("w9c.patient.examTimesLabel", { count: key }),
           value: freqMap[parseInt(key)]!,
           color: colors[i % colors.length]!,
         });

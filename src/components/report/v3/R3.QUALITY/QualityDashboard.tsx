@@ -4,7 +4,7 @@
  * 实时质控仪表盘:9 指标 / 待评估 / 完成数 / 告警 / 趋势 / 医生排行
  */
 import { qualityService } from '../../../../services/quality/qualityService';
-import type { QualityDashboard, QualityGrade } from '../../../../types/R3/R3.QUALITY';
+import type { QualityDashboard as QualityDashboardData, QualityGrade } from '../../../../types/R3/R3.QUALITY';
 import { ChartContainer } from '../../../charts';
 import { Card, Tag, Space, Row, Col, Statistic, List, Alert, message, Empty, Button } from 'antd';
 import {
@@ -33,7 +33,7 @@ const GRADE_COLOR: Record<QualityGrade, string> = {
 };
 
 export const QualityDashboard: React.FC = () => {
-  const [dashboard, setDashboard] = useState<QualityDashboard | null>(null);
+  const [dashboard, setDashboard] = useState<QualityDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<string>('');
 

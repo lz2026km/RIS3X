@@ -12,6 +12,7 @@ import {
   TrendingUp, Users, Layers, BarChart3, Activity, FileCode,
 } from 'lucide-react';
 import { templatesApi } from '../services/api/templatesApi';
+import { AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 
 // ============================================================
@@ -378,6 +379,7 @@ export default function TemplateInheritancePage() {
             </div>
           </div>
           <div style={{ padding: 4, maxHeight: 600, overflowY: 'auto' }}>
+            {nodes.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
             {viewMode === 'tree' ? renderTree(null) : (
               <div>
                 <div style={{ padding: 6, borderBottom: '1px solid var(--border-color)' }}>

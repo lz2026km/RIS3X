@@ -127,7 +127,7 @@ export interface PacsRoute {
 export const pacsAdminApi = {
   // [Wave1B] 真实端点 (pacs-admin.controller)
   listServers: (params?: PacsQueryParams) =>
-    api.get<PacsServer[]>(`/pacs-admin/servers?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<PacsServer[]>(`/pacs-admin/servers?${new URLSearchParams(params as Record<string, string> | undefined).toString()}`),
 
   // [Wave1B] 真实端点 (pacs-admin.controller); 页面无详情视图, 行数据已足够 — 保留备用
   getServer: (id: string) =>
@@ -178,7 +178,7 @@ export const pacsAdminApi = {
 
   // [Wave1B] 真实端点 (pacs-admin.controller)
   listAssociations: (params?: PacsQueryParams) =>
-    api.get<PacsAssociation[]>(`/pacs-admin/associations?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<PacsAssociation[]>(`/pacs-admin/associations?${new URLSearchParams(params as Record<string, string> | undefined).toString()}`),
 
   // [Wave1B] 真实端点 (pacs-admin.controller)
   getStats: () =>

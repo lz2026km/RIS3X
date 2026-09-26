@@ -25,15 +25,17 @@ interface DetectionResult {
   summary: string;
 }
 
-const TYPE_META: Record<string, { label: string; color: string }> = {
-  caries: { label: '龋齿检测', color: 'orange' },
-  periapical: { label: '根尖周炎分级', color: 'gold' },
-  boneloss: { label: '牙周骨丧失', color: 'lime' },
-  rootcanal: { label: '根管检测', color: 'purple' },
-  oral: { label: '口腔黏膜筛查', color: 'cyan' },
+const TYPE_META: Record<string, { color: string }> = {
+  caries: { color: 'orange' },
+  periapical: { color: 'gold' },
+  boneloss: { color: 'lime' },
+  rootcanal: { color: 'purple' },
+  oral: { color: 'cyan' },
 };
 
 const TYPE_ORDER = ['caries', 'periapical', 'boneloss', 'rootcanal', 'oral'];
+
+const typeLabel = (key: string) => t(`w9d.dentalAi.type.${key}`);
 
 export const DentalAIPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('caries');
@@ -65,37 +67,36 @@ export const DentalAIPage: React.FC = () => {
   }, [loadFindings]);
 
   const buildResult = (key: string, data: any): DetectionResult => {
-    const meta = TYPE_META[key] ?? { label: key, color: 'default' };
     if (key === 'caries') {
       const tags = (data?.detections ?? []).map((d: any, i: number) => (
         <Tag key={i} color="orange">{d.toothNo}-{d.surface} ({(d.confidence * 100).toFixed(0)}%)</Tag>
       ));
-      return { type: key, label: meta.label, tags, summary: `检测到 ${tags.length} 处龋损，模型 ${data?.model ?? '-'}` };
+      return { type: key, label: typeLabel(key), tags, summary: t('w9d.dentalAi.cariesSummary', { count: tags.length, model: data?.model ?? '-' }) };
     }
     if (key === 'periapical') {
       return {
-        type: key, label: meta.label,
+        type: key, label: typeLabel(key),
         tags: [<Tag key="pi" color="orange">PI: {data?.periapicalIndex}</Tag>, <Tag key="rcp" color="blue">RCP: {data?.rcpScore}</Tag>],
-        summary: `根尖周指数 ${data?.periapicalIndex ?? '-'}，置信度 ${((data?.confidence ?? 0) * 100).toFixed(0)}%`,
+        summary: t('w9d.dentalAi.periapicalSummary', { index: data?.periapicalIndex ?? '-', confidence: ((data?.confidence ?? 0) * 100).toFixed(0) }),
       };
     }
     if (key === 'boneloss') {
       return {
-        type: key, label: meta.label,
+        type: key, label: typeLabel(key),
         tags: [<Tag key="mx" color="orange">{t('dentalAi.maxilla')}: {data?.boneLoss?.maxilla}%</Tag>, <Tag key="md" color="blue">{t('dentalAi.mandible')}: {data?.boneLoss?.mandible}%</Tag>],
-        summary: `牙周骨丧失评估，置信度 ${((data?.confidence ?? 0) * 100).toFixed(0)}%`,
+        summary: t('w9d.dentalAi.boneLossSummary', { confidence: ((data?.confidence ?? 0) * 100).toFixed(0) }),
       };
     }
     if (key === 'rootcanal') {
       const tags = (data?.canals ?? []).map((c: any, i: number) => (
         <Tag key={i} color="purple">{c.toothNo} ({c.canalCount}{t('dentalAi.canalUnit')})</Tag>
       ));
-      return { type: key, label: meta.label, tags, summary: `检查 ${tags.length} 颗牙根管状态` };
+      return { type: key, label: typeLabel(key), tags, summary: t('w9d.dentalAi.rootCanalSummary', { count: tags.length }) };
     }
     const tags = (data?.findings ?? []).map((f: any, i: number) => (
       <Tag key={i} color={f.risk === 'moderate' ? 'orange' : f.risk === 'high' ? 'red' : 'green'}>{f.location}: {f.type}</Tag>
     ));
-    return { type: key, label: meta.label, tags, summary: `筛查 ${tags.length} 处黏膜区域` };
+    return { type: key, label: typeLabel(key), tags, summary: t('w9d.dentalAi.oralSummary', { count: tags.length }) };
   };
 
   const handleInfer = async (key: string) => {
@@ -118,7 +119,7 @@ export const DentalAIPage: React.FC = () => {
           status: 'pending',
         });
         if (finding.success) void loadFindings();
-        message.success(`${TYPE_META[key]?.label ?? key} 完成`);
+        message.success(t('w9d.dentalAi.inferDone', { type: typeLabel(key) }));
       } else {
         message.error(res.error?.message ?? t('dentalAi.detectFailed'));
       }
@@ -175,7 +176,7 @@ export const DentalAIPage: React.FC = () => {
         onChange={setActiveTab}
         items={[
           { key: 'detect', label: t('dentalAi.detectTab') },
-          { key: 'records', label: `检测记录 (${findings.length})` },
+          { key: 'records', label: t('w9d.dentalAi.recordsTab', { count: findings.length }) },
         ]}
         style={{ marginBottom: 16 }}
       />
@@ -183,13 +184,13 @@ export const DentalAIPage: React.FC = () => {
       {activeTab === 'detect' && (
         <Row gutter={16}>
           {TYPE_ORDER.map((key) => {
-            const meta = TYPE_META[key] ?? { label: key, color: 'default' };
+            const meta = TYPE_META[key] ?? { color: 'default' };
             const result = results[key];
             return (
               <Col span={8} key={key} style={{ marginBottom: 16 }}>
                 <Card
                   size="small"
-                  title={<Space><Scan size={12} color={meta.color} />{meta.label}</Space>}
+                  title={<Space><Scan size={12} color={meta.color} />{typeLabel(key)}</Space>}
                   extra={<Button size="small" type="primary" loading={loading && activeTab === key} icon={<Scan size={12} />} onClick={() => void handleInfer(key)}>{t('dentalAi.run')}</Button>}
                 >
                   {result ? (
@@ -217,7 +218,7 @@ export const DentalAIPage: React.FC = () => {
               columns={[
                 { title: 'ID', dataIndex: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
                 { title: t('dentalAi.patient'), dataIndex: 'patientName', render: (v?: string) => v ?? '—' },
-                { title: t('dentalAi.type'), dataIndex: 'type', render: (type: string) => <Tag color={TYPE_META[type]?.color ?? 'default'}>{TYPE_META[type]?.label ?? type}</Tag> },
+                { title: t('dentalAi.type'), dataIndex: 'type', render: (type: string) => <Tag color={TYPE_META[type]?.color ?? 'default'}>{typeLabel(type)}</Tag> },
                 { title: t('dentalAi.toothNo'), dataIndex: 'toothNo', render: (v?: string) => v && v !== '-' ? <Tag color="blue">#{v}</Tag> : '—' },
                 { title: t('dentalAi.finding'), dataIndex: 'finding', ellipsis: true },
                 {
@@ -234,11 +235,11 @@ export const DentalAIPage: React.FC = () => {
         </Card>
       )}
 
-      <Modal title={`检测详情 - ${detail?.id ?? ''}`} open={!!detail} onCancel={() => setDetail(null)} footer={null}>
+      <Modal title={`${t('w9d.dentalAi.detailTitle')} - ${detail?.id ?? ''}`} open={!!detail} onCancel={() => setDetail(null)} footer={null}>
         {detail && (
           <>
             <Descriptions bordered column={2} size="small">
-              <Descriptions.Item label={t('dentalAi.type')}><Tag color={TYPE_META[detail.type ?? '']?.color ?? 'default'}>{TYPE_META[detail.type ?? '']?.label ?? detail.type}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dentalAi.type')}><Tag color={TYPE_META[detail.type ?? '']?.color ?? 'default'}>{typeLabel(detail.type ?? '')}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('dentalAi.patient')}>{detail.patientName ?? '—'}</Descriptions.Item>
               <Descriptions.Item label={t('dentalAi.toothNo')}>{detail.toothNo && detail.toothNo !== '-' ? `#${detail.toothNo}` : '—'}</Descriptions.Item>
               <Descriptions.Item label={t('dentalAi.confidence')}>{(detail.confidence ?? 0) * 100}%</Descriptions.Item>

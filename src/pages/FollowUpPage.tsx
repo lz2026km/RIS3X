@@ -202,7 +202,7 @@ export default function FollowUpPage() {
     try {
       const res = await followupApi.fromExam(fromExamForm.examId.trim(), fromExamForm.templateId || undefined);
       if (res.success && res.data) {
-        window.alert(`检查联动成功: 为该检查生成 ${String((res.data as any)?.total ?? 0)} 条随访计划`);
+        window.alert(t('w9b.followUp.examLinkSuccess', { count: String((res.data as any)?.total ?? 0) }));
         setShowFromExamModal(false);
         void loadFollowUps();
       } else {
@@ -633,7 +633,7 @@ export default function FollowUpPage() {
 
   // [W4-B] 删除随访 → DELETE /followups/:id
   const handleDelete = async (item: FollowUpPatient) => {
-    if (!window.confirm(`确认删除患者「${item.patientName}」的随访计划？`)) return;
+    if (!window.confirm(t('w9b.followUp.confirmDeletePlan', { name: item.patientName }))) return;
     try {
       const res = await followupApi.remove(item.id);
       if (res.success) {
@@ -708,7 +708,7 @@ export default function FollowUpPage() {
   };
 
   const deleteTemplate = async (tpl: FollowUpTemplate) => {
-    if (!window.confirm(`确认删除模板「${tpl.name}」？`)) return;
+    if (!window.confirm(t('w9b.followUp.confirmDeleteTemplate', { name: tpl.name }))) return;
     try {
       const res = await followupTemplatesApi.remove(tpl.id);
       if (res.success) {
@@ -738,7 +738,7 @@ export default function FollowUpPage() {
         planDate: tplApplyForm.planDate,
       });
       if (res.success && res.data) {
-        window.alert(`模板「${tplApply.name}」已应用：按间隔 ${(tplApply.intervals ?? []).join('/')} 天批量生成 ${res.data.total} 条随访计划`);
+        window.alert(t('w9b.followUp.templateApplied', { name: tplApply.name, intervals: (tplApply.intervals ?? []).join('/'), total: res.data.total }));
         setTplApply(null);
         setTplApplyForm({ patientId: '', patientName: '', planDate: new Date().toISOString().slice(0, 10) });
         void loadFollowUps();

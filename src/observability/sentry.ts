@@ -87,8 +87,10 @@ export function initSentry(): void {
     // 过滤敏感数据
     beforeSend(event) {
       if (event.request) {
-        event.request.cookies = '';
-        event.request.headers = scrubSensitive(event.request.headers ?? {});
+        event.request.cookies = {} as typeof event.request.cookies;
+        if (event.request.headers) {
+          event.request.headers = scrubSensitive(event.request.headers);
+        }
         if (event.request.data) {
           event.request.data = scrubSensitive(event.request.data);
         }

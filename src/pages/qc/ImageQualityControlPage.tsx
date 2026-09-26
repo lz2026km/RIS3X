@@ -109,7 +109,7 @@ export default function ImageQualityControlPage() {
         qcImageAiApi.listResults(modality === 'all' ? undefined : { modality }),
         qcImageAiApi.getStatsV2(modality === 'all' ? undefined : { modality }),
       ])
-      if (listRes.success && Array.isArray(listRes.data)) setResults(listRes.data)
+      if (listRes.success && Array.isArray(listRes.data)) setResults(listRes.data as unknown as QcImageAiResult[])
       else setError(listRes.error?.message ?? t('imageQualityControl.scoreListLoadFailed'))
       if (statsRes.success && statsRes.data) setStatsV2(statsRes.data)
     } catch (e) {

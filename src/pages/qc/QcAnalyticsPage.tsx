@@ -216,6 +216,7 @@ export default function QcAnalyticsPage() {
     setClosing(it)
     closeForm.resetFields()
   }
+  void openClose
 
   const handleClose = async () => {
     if (!closing) return
@@ -307,7 +308,7 @@ export default function QcAnalyticsPage() {
     ) },
     { title: t('qcAnalytics.thReports'), dataIndex: 'reports', key: 'reports', width: 90, align: 'right' as const },
     { title: t('qcAnalytics.thDefects'), dataIndex: 'defects', key: 'defects', width: 90, align: 'right' as const },
-    { title: t('qcAnalytics.thDefectRate'), dataIndex: 'defectRate', key: 'defectRate', width: 110, align: 'right' as const, render: (v: number, r) => (
+    { title: t('qcAnalytics.thDefectRate'), dataIndex: 'defectRate', key: 'defectRate', width: 110, align: 'right' as const, render: (v: number) => (
       <Space size={8}>
         <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: v >= 130 ? '#dc2626' : v >= 100 ? '#d97706' : '#059669' }}>{v}%</span>
         <Progress percent={Math.min(100, Math.round(v))} showInfo={false} size="small" strokeColor={v >= 130 ? '#dc2626' : v >= 100 ? '#d97706' : '#10b981'} style={{ width: 60, margin: 0 }} />

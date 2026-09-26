@@ -347,24 +347,24 @@ export default function CriticalValuePage() {
     const newFollowUpRecord: FollowUpRecord = {
       id: followUpId, time: new Date().toISOString().replace("T", " ").substring(0, 16),
       type: t("criticalValuePage.followUpType") as FollowUpRecord["type"], result: t("criticalValuePage.followUpResult") as FollowUpRecord["result"], operator: t("criticalValuePage.followUpOperator"),
-      content: `危急值 ${transferCV.id} 已转随访，计划随访日期：${followUpDate}`,
+      content: t('w9c.critical.transferredFollowUp', { id: transferCV.id, date: followUpDate }),
       relatedCVId: transferCV.id, followUpDate,
     }
     setFollowUpRecords(prev => [...prev, newFollowUpRecord])
-    showToast(`转随访成功！随访编号：${followUpId}，计划随访日期：${followUpDate}`)
+    showToast(t('w9c.critical.transferFollowUpSuccess', { id: followUpId, date: followUpDate }))
     setShowTransferModal(false); setTransferCV(null)
   }
 
-  const handleBatchNotify = () => { setConfirmType("notify"); setConfirmMessage(`确定要批量发送通知给 ${selectedIds.size} 个危急值吗？`); setShowConfirmModal(true) }
-  const handleBatchProcess = () => { setConfirmType("process"); setConfirmMessage(`确定要批量标记处理 ${selectedIds.size} 个危急值吗？`); setShowConfirmModal(true) }
+  const handleBatchNotify = () => { setConfirmType("notify"); setConfirmMessage(t('w9c.critical.confirmBatchNotify', { count: selectedIds.size })); setShowConfirmModal(true) }
+  const handleBatchProcess = () => { setConfirmType("process"); setConfirmMessage(t('w9c.critical.confirmBatchProcess', { count: selectedIds.size })); setShowConfirmModal(true) }
 
   const handleConfirm = async () => {
     if (confirmType === "notify") {
       for (const id of Array.from(selectedIds)) { await useCriticalStore.getState().notify(id, "SYSTEM"); log("batch_notify", id) }
-      showToast(`已成功发送 ${selectedIds.size} 条通知`)
+      showToast(t('w9c.critical.batchNotifySuccess', { count: selectedIds.size }))
     } else {
       for (const id of Array.from(selectedIds)) { await useCriticalStore.getState().resolve(id); log("batch_resolve", id) }
-      showToast(`已成功标记处理 ${selectedIds.size} 条记录`)
+      showToast(t('w9c.critical.batchProcessSuccess', { count: selectedIds.size }))
     }
     setSelectedIds(new Set()); setShowConfirmModal(false)
   }
@@ -380,8 +380,8 @@ export default function CriticalValuePage() {
   ])
 
   const handleBatchAction = (action: string) => {
-    if (action === 'acknowledge') { setConfirmType('notify'); setConfirmMessage(`确定要批量确认 ${selectedIds.size} 个危急值吗？`) }
-    else if (action === 'resolve') { setConfirmType('process'); setConfirmMessage(`确定要批量处理 ${selectedIds.size} 个危急值吗？`) }
+    if (action === 'acknowledge') { setConfirmType('notify'); setConfirmMessage(t('w9c.critical.confirmBatchAck', { count: selectedIds.size })) }
+    else if (action === 'resolve') { setConfirmType('process'); setConfirmMessage(t('w9c.critical.confirmBatchResolve', { count: selectedIds.size })) }
     selectedIds.forEach((id) => log('batch_' + action, id))
     setShowConfirmModal(true)
   }

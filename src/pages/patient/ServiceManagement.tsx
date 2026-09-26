@@ -3,6 +3,7 @@ import { appointmentApi } from '../../services/api/appointmentApi'
 import { templatesApi } from '../../services/api/templatesApi'
 import { getCurrentUser } from '../../utils/auth'
 import { Card } from 'antd'
+import { AppEmpty } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
 
 // ===== Types =====
@@ -263,6 +264,13 @@ export default function ServiceManagement() {
               </div>
             )}
           </Card>
+
+          {appointments.length === 0 && (
+            <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+              <h3 style={s.title}>{t('serviceMgmt.myAppointments')}</h3>
+              <AppEmpty variant="no-data" minHeight={160} />
+            </Card>
+          )}
 
           {appointments.length > 0 && (
             <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>

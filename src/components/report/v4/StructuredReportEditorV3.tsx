@@ -252,14 +252,14 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
 
       {editable && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '6px 8px', borderBottom: '1px solid #f1f5f9', flexWrap: 'wrap' }}>
-          <button type="button" title="粗体" onClick={() => exec('bold')} style={toolBtn}><Bold size={13} /></button>
-          <button type="button" title="斜体" onClick={() => exec('italic')} style={toolBtn}><Italic size={13} /></button>
-          <button type="button" title="下划线" onClick={() => exec('underline')} style={toolBtn}><Underline size={13} /></button>
-          <button type="button" title="无序列表" onClick={() => exec('insertUnorderedList')} style={toolBtn}><List size={13} /></button>
-          <button type="button" title="有序列表" onClick={() => exec('insertOrderedList')} style={toolBtn}><ListOrdered size={13} /></button>
+          <button type="button" title={t('w9e.structuredEditorV3.toolbarBold')} onClick={() => exec('bold')} style={toolBtn}><Bold size={13} /></button>
+          <button type="button" title={t('w9e.structuredEditorV3.toolbarItalic')} onClick={() => exec('italic')} style={toolBtn}><Italic size={13} /></button>
+          <button type="button" title={t('w9e.structuredEditorV3.toolbarUnderline')} onClick={() => exec('underline')} style={toolBtn}><Underline size={13} /></button>
+          <button type="button" title={t('w9e.structuredEditorV3.toolbarBulletList')} onClick={() => exec('insertUnorderedList')} style={toolBtn}><List size={13} /></button>
+          <button type="button" title={t('w9e.structuredEditorV3.toolbarNumberedList')} onClick={() => exec('insertOrderedList')} style={toolBtn}><ListOrdered size={13} /></button>
           <span style={{ width: 1, height: 14, background: '#e2e8f0', margin: '0 6px' }} />
-          <button type="button" title="撤销" onClick={() => exec('undo')} style={toolBtn}><Undo size={13} /></button>
-          <button type="button" title="重做" onClick={() => exec('redo')} style={toolBtn}><Redo size={13} /></button>
+          <button type="button" title={t('w9e.structuredEditorV3.toolbarUndo')} onClick={() => exec('undo')} style={toolBtn}><Undo size={13} /></button>
+          <button type="button" title={t('w9e.structuredEditorV3.toolbarRedo')} onClick={() => exec('redo')} style={toolBtn}><Redo size={13} /></button>
           <span style={{ width: 1, height: 14, background: '#e2e8f0', margin: '0 6px' }} />
           <span style={{ position: 'relative' }}>
             <button

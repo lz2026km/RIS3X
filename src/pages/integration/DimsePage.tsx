@@ -7,7 +7,7 @@ import { t } from '../../i18n/appI18n';
 
 const { RangePicker } = DatePicker;
 
-const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功', FAIL: '失败' };
+const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: t('w9e.dimse.statusSuccess'), FAIL: t('w9e.dimse.statusFail') };
 
 const ECHO_COLUMNS: any[] = [
   { title: t('dimse.colAeTitle'), dataIndex: 'aeTitle', key: 'aeTitle' },
@@ -121,7 +121,7 @@ export const DimsePage: React.FC = () => {
     });
     if (res.success) {
       setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: res.data!.transferredCount, status: 'SUCCESS' }]);
-      message.success(`移动完成：${res.data!.transferredCount} 个实例已传输`);
+      message.success(t('w9e.dimse.moveDone', { count: res.data!.transferredCount }));
     } else {
       setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: 0, status: 'FAIL' }]);
       message.error(res.error?.message || t('dimse.errMove'));

@@ -6,6 +6,7 @@ export type NotificationMethod = 'PHONE' | 'SMS' | 'SYSTEM' | 'EMAIL' | 'WECHAT'
 export interface CriticalValueDto {
   id: string
   examId?: string
+  reportId?: string
   patientName: string
   patientId?: string
   finding: string

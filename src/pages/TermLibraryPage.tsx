@@ -398,7 +398,7 @@ export default function TermLibraryPage() {
     try {
       text = await importFile.text()
     } catch (e: any) {
-      message.error('文件读取失败: ' + (e?.message ?? String(e)))
+      message.error(t9('w9b.termLibrary.fileReadFailed') + (e?.message ?? String(e)))
       setImportLoading(false)
       return
     }
@@ -442,8 +442,8 @@ export default function TermLibraryPage() {
     if (fileInputRef.current) fileInputRef.current.value = ''
     setImportSuccess(`批量导入完成: 成功 ${success} 条, 失败 ${fail} 条`)
     setTimeout(() => setImportSuccess(''), 3000)
-    if (success > 0) message.success(`导入完成: 成功 ${success} 条, 失败 ${fail} 条`)
-    else message.error(`导入失败: 成功 0 条, 失败 ${fail} 条`)
+    if (success > 0) message.success(t9('w9b.termLibrary.importDone', { success, fail }))
+    else message.error(t9('w9b.termLibrary.importFailed', { fail }))
   }
 
   const handleDownloadTemplate = () => {

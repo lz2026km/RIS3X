@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ComponentProps } from "react";
 import {
   BarChart,
   Bar,
@@ -145,7 +146,7 @@ export default function BreastDoseTracking() {
             <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 8]} />
             <Tooltip
-              content={({ active, payload, label }: { active?: boolean; payload?: Array<{value: number}>; label?: string }) => {
+              content={(({ active, payload, label }: { active?: boolean; payload?: Array<{value: number}>; label?: string }) => {
                 if (active && payload && payload.length) {
                   const record = records.find((r: BreastDoseRecord) =>
                     r.patientName.startsWith(label ?? ""),
@@ -177,7 +178,7 @@ export default function BreastDoseTracking() {
                   );
                 }
                 return null;
-              }}
+              }) as ComponentProps<typeof Tooltip>['content']}
             />
             <ReferenceLine y={6} stroke="#dc2626" strokeDasharray="3 3" />
             <Bar dataKey="agd" radius={[4, 4, 0, 0]} name="AGD">

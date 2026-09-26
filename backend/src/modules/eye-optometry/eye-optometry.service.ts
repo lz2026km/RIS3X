@@ -42,6 +42,7 @@ function deterministicHash(seed: string): number {
 @Injectable()
 export class EyeOptometryService {
   private readonly logger = new Logger(EyeOptometryService.name)
+  private seq = 0
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -90,7 +91,7 @@ export class EyeOptometryService {
       pr && (Number(pr.reSphere) < -3 || Number(pr.leSphere) < -3) ? 'high' : 'low'
     const myopiaRisk = ageRisk === 'high' || parentRisk === 'high' ? 'high' : ageRisk === 'medium' ? 'medium' : 'low'
     const record = {
-      screeningId: `SCR-${Date.now().toString(36)}`,
+      screeningId: `SCR-${Date.now().toString(36)}-${++this.seq}`,
       patientId,
       age,
       ageRisk,
@@ -139,7 +140,7 @@ export class EyeOptometryService {
     return {
       success: true,
       data: {
-        trialId: `TRI-${Date.now().toString(36)}`,
+        trialId: `TRI-${Date.now().toString(36)}-${++this.seq}`,
         patientId: body.patientId ?? 'P000099',
         trialLensId: body.trialLensId ?? 'TRIAL-A1',
         fluoresceinPattern: pattern,
@@ -154,7 +155,7 @@ export class EyeOptometryService {
   orthoKOrder(body: { patientId?: string; design?: any; prescriptionId?: string; patientName?: string }) {
     const design = body.design ?? {}
     const record = {
-      orderId: `OKO-${Date.now().toString(36)}`,
+      orderId: `OKO-${Date.now().toString(36)}-${++this.seq}`,
       patientId: body.patientId ?? 'P000099',
       brand: design.brand ?? 'Euclid Emerald',
       parameters: design,
@@ -172,7 +173,7 @@ export class EyeOptometryService {
   defocusOrder(body: { patientId?: string; frameSelection?: string; lensType?: string; patientName?: string }) {
     const lensType = body.lensType ?? 'DIMS'
     const record = {
-      orderId: `DFC-${Date.now().toString(36)}`,
+      orderId: `DFC-${Date.now().toString(36)}-${++this.seq}`,
       patientId: body.patientId ?? 'P000099',
       frame: body.frameSelection ?? 'Ray-Ban Junior',
       lensType,
@@ -210,7 +211,7 @@ export class EyeOptometryService {
       pd: Number((body.leftEye as any)?.pd) || Number(body.lePd) || 32.0,
     }
     const record = {
-      refractionId: `REF-${Date.now().toString(36)}`,
+      refractionId: `REF-${Date.now().toString(36)}-${++this.seq}`,
       patientId: (body.patientId as string) ?? 'P000001',
       patientName: (body.patientName as string) ?? '当前患者',
       rightEye,
@@ -236,7 +237,7 @@ export class EyeOptometryService {
     const k2 = Number(body.k2) || 43.5
     const targetReduction = Number(body.targetReduction) || 3.0
     const record = {
-      okLensId: `OK-${Date.now().toString(36)}`,
+      okLensId: `OK-${Date.now().toString(36)}-${++this.seq}`,
       patientId: (body.patientId as string) ?? 'P000001',
       patientName: (body.patientName as string) ?? '当前患者',
       design: {

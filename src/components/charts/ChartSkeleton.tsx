@@ -22,7 +22,7 @@ export default function ChartSkeleton({
     overflow: 'hidden',
   }
 
-  const block = (w: string, h: number, extra: React.CSSProperties = {}): React.ReactElement => (
+  const block = (w: string, h: number | string, extra: React.CSSProperties = {}): React.ReactElement => (
     <div
       className="chart-skel-block"
       style={{

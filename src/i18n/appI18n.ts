@@ -2499,7 +2499,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-111 · 修复多人协同页布局重叠(三栏自适应/字段按钮横排/浮层裁剪/选区高亮重定位)",
+      "v3.0.6.12-0 · 商业演示版: 后端全量补全+表格/按键/空态完善+MSW种子齐全+i18n全量+TS 0",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -31247,7 +31247,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-111 · Fix collaboration page layout overlap (responsive 3-column, tabs, overlay clipping)",
+      "v3.0.6.12-0 · Commercial Demo: backend parity, tables/actions/empty states, MSW seeds, full i18n, TS 0",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

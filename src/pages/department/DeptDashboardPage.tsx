@@ -130,7 +130,7 @@ export default function DeptDashboardPage() {
         setLoading(false)
         return
       }
-      if (failed > 0) setError(`部分数据源加载失败 (${failed}/${results.length})，当前展示可用数据`)
+      if (failed > 0) setError(t('w9e.deptDashboard.partialLoadFailed', { failed, total: results.length }))
 
       const r0 = results[0]
       const r1 = results[1]
@@ -284,7 +284,7 @@ export default function DeptDashboardPage() {
         </Space>
         <Space>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            {lastUpdated ? `更新于 ${lastUpdated.toLocaleTimeString('zh-CN', { hour12: false })}` : ''}
+            {lastUpdated ? t('w9e.deptDashboard.updatedAt', { time: lastUpdated.toLocaleTimeString('zh-CN', { hour12: false }) }) : ''}
           </Text>
           <Select
             value={refreshMs}

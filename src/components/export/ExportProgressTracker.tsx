@@ -105,7 +105,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
                 <BarChart3 size={10} /> 事件日志
               </div>
               <div style={{ maxHeight: 80, overflowY: 'auto', fontSize: 12, color: '#94a3b8' }}>
-                {progress.history.slice(-10).map((ev, i) => (
+                {progress.history.slice(-10).map((ev: { level: string; message: string }, i: number) => (
                   <div key={i} style={{ padding: '1px 0' }}>
                     <span style={{ color: ev.level === 'error' ? '#dc2626' : ev.level === 'warn' ? '#d97706' : '#64748b' }}>
                       [{ev.level.toUpperCase()}]

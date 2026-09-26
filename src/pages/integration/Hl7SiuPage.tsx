@@ -72,7 +72,7 @@ const Hl7SiuPage: React.FC = () => {
         note: 'SIU^S12 appointment scheduling',
       })
       if (res.success) {
-        message.success(`SIU^S12 已发送 (控制ID: ${siuResult.controlId})`)
+        message.success(t('w9e.hl7Siu.sent', { id: siuResult.controlId }))
       } else {
         message.error(res.error?.message || t('hl7Siu.sendFail'))
       }
@@ -151,7 +151,7 @@ const Hl7SiuPage: React.FC = () => {
       ]} />
 
       <Drawer
-        title={`SIU^S12 消息预览 - ${siuResult?.controlId ?? ''}`}
+        title={t('w9e.hl7Siu.previewTitle', { id: siuResult?.controlId ?? '' })}
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
         width={560}

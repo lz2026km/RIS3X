@@ -92,7 +92,7 @@ export const autoCollectionApi = {
 
   // [Wave1B] 后端已实现 (auto-collection.controller)
   listTasks: (params?: { ruleId?: string; status?: string; page?: number; pageSize?: number }) =>
-    api.get<AutoCollectionTask[]>(`/auto-collection/tasks?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<AutoCollectionTask[]>(`/auto-collection/tasks?${new URLSearchParams(params as Record<string, string> | undefined).toString()}`),
 
   // [Wave1B P2] 创建采集任务 (后端 POST /auto-collection/tasks, CreateTaskSchema: ruleId?/sourceType?)
   createTask: async (data: { name?: string; ruleId?: string; sourceType?: 'DICOM' | 'HL7' | 'FTP'; sourceConfig?: Record<string, unknown> }) => {

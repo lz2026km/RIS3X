@@ -63,6 +63,29 @@ interface AISuggestion {
   rating?: number;
 }
 
+// [G005 W7] 初始演示 AI 报告 — 保证页面打开即有数据 (非空白), 按钮可直接操作
+const DEMO_AI_TEXT = `【检查所见】
+右眼视盘边界清晰，色淡红，杯盘比约 0.3。视网膜平伏，黄斑中心凹反光未见明显异常。后极部未见明显出血、渗出。
+
+【诊断】
+1. 双眼屈光不正
+2. 右眼轻度玻璃体混浊
+
+【建议】
+1. 定期复查眼底（3-6 个月）
+2. 必要时行 OCT 或 FFA 检查
+3. 注意用眼卫生，避免剧烈运动`;
+
+const DEMO_HISTORY: AISuggestion[] = [
+  {
+    id: 'H-demo-1',
+    text: DEMO_AI_TEXT,
+    condition: 'dr',
+    wordCount: DEMO_AI_TEXT.length,
+    generatedAt: '2026-01-01T08:00:00.000Z',
+  },
+];
+
 export const AiReportWriterPage: React.FC = () => {
   const [patientName, setPatientName] = useState("张三");
   const [patientId, setPatientId] = useState("P000001");
@@ -71,12 +94,12 @@ export const AiReportWriterPage: React.FC = () => {
   const [findings, setFindings] = useState(
     "右眼视盘边界清晰,色淡红,杯盘比约 0.3。视网膜平伏,黄斑中心凹反光未见明显异常。",
   );
-  const [aiText, setAiText] = useState("");
+  const [aiText, setAiText] = useState(DEMO_AI_TEXT);
   const [busy, setBusy] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [vocab, setVocab] = useState<any>(null);
-  const [history, setHistory] = useState<AISuggestion[]>([]);
+  const [history, setHistory] = useState<AISuggestion[]>(DEMO_HISTORY);
   const [rewriteStyle, setRewriteStyle] = useState<
     "concise" | "detailed" | "academic"
   >("detailed");
@@ -131,10 +154,10 @@ export const AiReportWriterPage: React.FC = () => {
             ...prev,
           ].slice(0, 10),
         );
-        message.success(`已生成 ${data.data.wordCount} 字报告`);
+        message.success(t('w9d.aiReportWriter.generated', { count: data.data.wordCount }));
       }
     } catch (e: any) {
-      message.error(`续写失败: ${e.message}`);
+      message.error(t('w9d.aiReportWriter.continueFailed', { msg: e.message }));
     } finally {
       setBusy(false);
     }
@@ -163,7 +186,7 @@ export const AiReportWriterPage: React.FC = () => {
         message.success(t('aiReportWriter.rewritten'));
       }
     } catch (e: any) {
-      message.error(`改写失败: ${e.message}`);
+      message.error(t('w9d.aiReportWriter.rewriteFailed', { msg: e.message }));
     } finally {
       setBusy(false);
     }
@@ -188,7 +211,7 @@ export const AiReportWriterPage: React.FC = () => {
         message.success(t('aiReportWriter.nlpDone'));
       }
     } catch (e: any) {
-      message.error(`提取失败: ${e.message}`);
+      message.error(t('w9d.aiReportWriter.extractFailed', { msg: e.message }));
     } finally {
       setExtracting(false);
     }
@@ -217,7 +240,7 @@ export const AiReportWriterPage: React.FC = () => {
           prev ? prev + " " + data.data.text : data.data.text,
         );
         message.success(
-          `已识别${data.data.termsDetected?.length || 0} 个术语${simulated ? "（模拟音频）" : "（真实录音）"}`,
+          t('w9d.aiReportWriter.termsDetected', { count: data.data.termsDetected?.length || 0, source: simulated ? t('w9d.aiReportWriter.simulatedAudio') : t('w9d.aiReportWriter.realAudio') }),
         );
       }
     } catch (e) {
@@ -319,6 +342,10 @@ export const AiReportWriterPage: React.FC = () => {
         <Tag color="blue">DeepSeek-Opthalmic</Tag>
         {/* [v3.0.6.11-88 Round10] /eye/report/ai|nlp|voice 后端未实现, MSW 演示数据 */}
         <Tag color="orange">{t('aiReportWriter.demoData')}</Tag>
+        {/* [G005 W7] 明确的「演示模拟」徽标 (STT/NLP/AI 均为本地/模拟) */}
+        <Tooltip title={t('w7demo.aiSimulated')}>
+          <Tag color="volcano">{t('w7demo.simulatedBadge')}</Tag>
+        </Tooltip>
       </Space>
 
       <Row gutter={16}>

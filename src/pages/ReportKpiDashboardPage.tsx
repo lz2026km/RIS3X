@@ -7,12 +7,17 @@
 import { useState, useEffect } from 'react';
 import {
   BarChart3, FileText, Clock, Target, Sparkles, CheckCircle2,
-  Zap, Award, Server, Leaf, Cloud, Cpu, Activity, TrendingUp, Gauge, Download,
+  Zap, Award, Server, Leaf, Cloud, Cpu, Activity, TrendingUp, Gauge, Download, RefreshCw,
 } from 'lucide-react';
+import { Button } from 'antd';
 import { kpiEngine } from '../services/analytics/KpiEngine';
 import type { KpiSnapshot } from '../types/analytics';
+import { biApi } from '../services/api/biApi';
+import type { KpiDto } from '../services/api/biApi';
 import { DataTable } from '../components/common/DataTable';
 import { ActionButton } from '../components/common/ActionButton';
+import { ErrorBanner } from '../components/feedback';
+import { seededUnit } from '../utils/seededRandom';
 import {
   KpiCard, KpiCardGrid, DashboardCard, ProgressRing, TrendChart, SkeletonKpi,
 } from '../components/dashboard';
@@ -24,6 +29,10 @@ import { t } from '../i18n/appI18n';
 export default function ReportKpiDashboardPage() {
   const [period, setPeriod] = useState<'today' | 'month' | 'year'>('month');
   const [snapshot, setSnapshot] = useState<KpiSnapshot | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [biKpi, setBiKpi] = useState<KpiDto | null>(null);
+  const [biLoading, setBiLoading] = useState(false);
+  const [biError, setBiError] = useState<string | null>(null);
 
   useEffect(() => {
     const now = new Date();
@@ -33,9 +42,49 @@ export default function ReportKpiDashboardPage() {
       year: { start: new Date(now.getFullYear(), 0, 1).toISOString().substring(0, 10), end: now.toISOString().substring(0, 10) },
     };
     setSnapshot(kpiEngine.computeSnapshot(period, rangeMap[period]));
-  }, [period]);
+  }, [period, refreshKey]);
+
+  // [G005 W7] 真实 KPI 源 (/bi/kpi) 优先; 不可达则保留确定性 KpiEngine 演示数据
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      setBiLoading(true);
+      setBiError(null);
+      try {
+        const res = await biApi.getKpi();
+        if (cancelled) return;
+        if (res.success && res.data?.data) {
+          setBiKpi(res.data.data);
+        } else {
+          setBiKpi(null);
+          setBiError(t('w7demo.loadError'));
+        }
+      } catch {
+        if (!cancelled) {
+          setBiKpi(null);
+          setBiError(t('w7demo.loadError'));
+        }
+      } finally {
+        if (!cancelled) setBiLoading(false);
+      }
+    };
+    void run();
+    return () => { cancelled = true; };
+  }, [period, refreshKey]);
 
   const val = (id: string) => snapshot?.values.find(v => v.kpiId === id);
+  // [G005 W7] 真实 BI KPI 覆盖 (语义一致的核心指标), 否则回退 KpiEngine
+  const biVal = (id: string): number | undefined => {
+    if (!biKpi) return undefined;
+    switch (id) {
+      case 'kpi-001': return biKpi.reportCount;
+      case 'kpi-004': return biKpi.pendingReports;
+      case 'kpi-010': return biKpi.avgReportMinutes;
+      case 'kpi-030': return biKpi.criticalSlaRate;
+      default: return undefined;
+    }
+  };
+  const kpiValue = (id: string) => biVal(id) ?? val(id)?.value ?? 0;
   const periodLabel = period === 'today' ? t('reportKpi.periodToday') : period === 'month' ? t('reportKpi.periodMonth') : t('reportKpi.periodYear');
 
   const trendProps = (id: string): { value: number | string; direction?: 'up' | 'down' } | undefined => {
@@ -64,13 +113,14 @@ export default function ReportKpiDashboardPage() {
   const deviceRates = devices.map(dev => 60 + Math.abs(hashCode(dev + period)) % 40);
   const avgDeviceRate = Math.round(deviceRates.reduce((s, r) => s + r, 0) / Math.max(deviceRates.length, 1));
 
+  // [G005 W7] 确定性演示数据 (seeded) — 刷新后不再抖动
   const hourData = Array.from({ length: 24 }, (_, h) => ({
     hour: `${h}`,
-    count: Math.floor(Math.abs(Math.sin(h * 0.5)) * 200),
+    count: Math.floor(seededUnit(`kpi-hour-${h}`) * 200),
   }));
-  const weekData = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, i) => ({
+  const weekData = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day) => ({
     day,
-    count: Math.floor(200 + Math.sin(i * 1.2) * 80 + Math.random() * 40),
+    count: Math.floor(200 + seededUnit(`kpi-week-${day}`) * 120),
   }));
   const modalityTotals: Record<string, number> = { CT: 1245, MR: 678, DR: 1234, US: 567, MG: 234, DSA: 45 };
   const modalityColors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899', DSA: '#dc2626' };
@@ -118,6 +168,8 @@ export default function ReportKpiDashboardPage() {
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             {/* [G005 Wave2B P2] KpiEngine 本地合成指标 → 演示数据徽标 */}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t('reportKpi.demoBadge')}</span>
+            {/* [G005 W7] 真实 KPI 源 (/bi/kpi) 优先, 否则标注本地引擎 */}
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: biKpi ? '#ecfdf5' : '#f1f5f9', color: biKpi ? '#059669' : '#475569', border: `1px solid ${biKpi ? '#6ee7b7' : '#cbd5e1'}`, fontWeight: 600 }}>{biKpi ? t('w7demo.kpiBiSource') : t('w7demo.kpiEngineSource')}</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportKpi.subtitle')}
@@ -139,13 +191,18 @@ export default function ReportKpiDashboardPage() {
             </button>
           ))}
         </div>
-        <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.export')}</ActionButton>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Button icon={<RefreshCw size={14} />} loading={biLoading} onClick={() => setRefreshKey(k => k + 1)}>{t('w7demo.refresh')}</Button>
+          <ActionButton action="export" icon={<Download size={16} />} onClick={handleExport}>{t('w1tables.export')}</ActionButton>
+        </div>
       </div>
+
+      {biError && !biLoading && <ErrorBanner message={biError} onRetry={() => setRefreshKey(k => k + 1)} retryLabel={t('w7demo.retry')} />}
 
       {/* 核心 KPI 4 大 (v3.0.6.11-103 Wave 6: KpiCard) */}
       <KpiCardGrid minWidth={260} gap={10} style={{ marginBottom: 12 }}>
-        <KpiCard title={t('reportKpi.reportCount')} value={val('kpi-001')?.value ?? 0} suffix={t('reportKpi.unitReports')} icon={<FileText size={20} />} color="primary" trend={trendProps('kpi-001')} />
-        <KpiCard title={t('reportKpi.avgSign')} value={val('kpi-010')?.value ?? 0} suffix={t('reportKpi.unitMinutes')} icon={<Clock size={20} />} color="info" trend={{ value: val('kpi-010')?.mom ?? 0, direction: val('kpi-010')?.trend === 'up' ? 'down' : val('kpi-010')?.trend === 'down' ? 'up' : undefined, goodWhenDown: true }} />
+        <KpiCard title={t('reportKpi.reportCount')} value={kpiValue('kpi-001')} suffix={t('reportKpi.unitReports')} icon={<FileText size={20} />} color="primary" trend={trendProps('kpi-001')} />
+        <KpiCard title={t('reportKpi.avgSign')} value={kpiValue('kpi-010')} suffix={t('reportKpi.unitMinutes')} icon={<Clock size={20} />} color="info" trend={{ value: val('kpi-010')?.mom ?? 0, direction: val('kpi-010')?.trend === 'up' ? 'down' : val('kpi-010')?.trend === 'down' ? 'up' : undefined, goodWhenDown: true }} />
         <KpiCard title={t('reportKpi.gradeARate')} value={val('kpi-020')?.value ?? 0} suffix="%" icon={<Target size={20} />} color="success" trend={trendProps('kpi-020')} />
         <KpiCard title={t('reportKpi.aiAdoption')} value={val('kpi-050')?.value ?? 0} suffix="%" icon={<Sparkles size={20} />} color="warning" trend={trendProps('kpi-050')} />
       </KpiCardGrid>
@@ -153,8 +210,8 @@ export default function ReportKpiDashboardPage() {
       {/* 质量 + 时效 + 危急值 + CA + 区块链 */}
       <KpiCardGrid minWidth={200} gap={8} style={{ marginBottom: 12 }}>
         <KpiCard title={t('reportKpi.signed')} value={val('kpi-001')?.value ?? 0} icon={<CheckCircle2 size={18} />} color="success" size="sm" />
-        <KpiCard title={t('reportKpi.pendingReports')} value={val('kpi-004')?.value ?? 0} icon={<Clock size={18} />} color="warning" size="sm" />
-        <KpiCard title={t('reportKpi.criticalTimelyRate')} value={`${val('kpi-030')?.value ?? 0}%`} icon={<Zap size={18} />} color="info" size="sm" />
+        <KpiCard title={t('reportKpi.pendingReports')} value={kpiValue('kpi-004')} icon={<Clock size={18} />} color="warning" size="sm" />
+        <KpiCard title={t('reportKpi.criticalTimelyRate')} value={`${kpiValue('kpi-030')}%`} icon={<Zap size={18} />} color="info" size="sm" />
         <KpiCard title={t('reportKpi.avgQualityScore')} value={val('kpi-021')?.value ?? 0} icon={<Award size={18} />} color="primary" size="sm" />
         <KpiCard title={t('reportKpi.blockchainProof')} value={val('kpi-080')?.value ?? 0} icon={<Server size={18} />} color="warning" size="sm" />
       </KpiCardGrid>

@@ -140,7 +140,7 @@ const AiRadsPage: React.FC = () => {
       } else {
         const local = scoreRadsLocally(radsType as LocalRadsType, dto)
         setResult({ ...local, source: 'local' })
-        message.warning(`后端评分不可用, 已按本地规则回退: ${res.error?.message ?? '未知错误'}`)
+        message.warning(t('w9d.aiRads.backendFallback', { msg: res.error?.message ?? t('w9d.sidebar.unknownError') }))
       }
     } catch {
       const local = scoreRadsLocally(radsType as LocalRadsType, dto)
@@ -163,9 +163,9 @@ const AiRadsPage: React.FC = () => {
     const html = [
       `<h3>${t('aiRads.insertTitleHtml')}</h3>`,
       `<p><strong>${esc(result.category)}</strong> ${esc(sourceTag)}</p>`,
-      `<p>分级: <strong>${esc(result.score)}</strong> · ${esc(result.description)}</p>`,
+      `<p>${t('w9d.aiRads.gradeLabel')}: <strong>${esc(result.score)}</strong> · ${esc(result.description)}</p>`,
       findingsHtml ? `<ul>${findingsHtml}</ul>` : '',
-      `<p><strong>建议</strong>: ${esc(result.recommendations)}</p>`,
+      `<p><strong>${t('w9d.aiRads.recommendLabel')}</strong>: ${esc(result.recommendations)}</p>`,
     ].join('\n')
     window.dispatchEvent(new CustomEvent('report-insert-html', { detail: { html } }))
     try { window.localStorage.setItem('ris_rads_pending_insert', html) } catch { /* 忽略 */ }
@@ -288,7 +288,7 @@ const AiRadsPage: React.FC = () => {
         return (
           <Card
             size="small"
-            title={`${group.name} 评分规则表 (${rulesSource === 'api' ? '后端规则' : '内置规则'})`}
+            title={t('w9d.aiRads.rulesTableTitle', { group: group.name, source: rulesSource === 'api' ? t('w9d.aiRads.backendRules') : t('w9d.aiRads.builtinRules') })}
             style={{ marginTop: 16 }}
           >
             <Table<RadsRule>

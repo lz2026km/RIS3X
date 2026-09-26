@@ -123,7 +123,7 @@ const RegionalCollaborationPage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setCrossResults(res.data);
         setSource("api");
-        message.success(`检索到 ${res.data.length} 条跨院检查`);
+        message.success(t('w9e.regionalCollab.crossQueryFound', { count: res.data.length }));
       } else {
         setCrossResults([]);
       }
@@ -148,7 +148,7 @@ const RegionalCollaborationPage: React.FC = () => {
       });
       if (res.success && res.data) {
         setAccessRecords((prev) => [res.data, ...prev]);
-        message.success(`已记录调阅 ${study.patientName} 的检查 (${study.institution})`);
+        message.success(t('w9e.regionalCollab.accessRecorded', { patient: study.patientName, institution: study.institution }));
       } else {
         throw new Error(t('regionalCollab.recordFailed'));
       }
@@ -161,7 +161,7 @@ const RegionalCollaborationPage: React.FC = () => {
       };
       setAccessRecords((prev) => [local, ...prev]);
     }
-    message.info(`跨院影像已记录调阅。原始 DICOM 位于 ${study.institution}, 可进入阅片器按 Study UID ${study.studyUid} 检索渲染。`);
+    message.info(t('w9e.regionalCollab.accessInfo', { institution: study.institution, uid: study.studyUid }));
   };
 
   // ── 发起远程会诊 ──
@@ -185,7 +185,7 @@ const RegionalCollaborationPage: React.FC = () => {
       }
     } catch (e: any) {
       if (e?.errorFields) return;
-      message.error(`发起会诊失败: ${e?.message ?? "未知错误"}`);
+      message.error(t('w9e.regionalCollab.applyFailed', { msg: e?.message ?? t('w9e.regionalCollab.unknownError') }));
     } finally {
       setApplying(false);
     }
@@ -197,7 +197,7 @@ const RegionalCollaborationPage: React.FC = () => {
       const res = await regionalApi.acceptConsultationRequest(req.id);
       if (res.success && res.data) {
         setConsultations((prev) => prev.map((c) => (c.id === req.id ? { ...c, ...res.data } : c)));
-        message.success(`已参与会诊 ${req.patientName} (${req.hospital})`);
+        message.success(t('w9e.regionalCollab.accepted', { patient: req.patientName, hospital: req.hospital }));
       } else {
         message.warning(t('regionalCollab.acceptOffline'));
       }

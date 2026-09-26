@@ -289,7 +289,7 @@ export const RealDicomViewerPage: React.FC = () => {
       if (res.success && res.data) {
         setMprInfo(res.data);
         setShowMpr(true);
-        message.success(`MPR ${mprAxis} 重建完成`);
+        message.success(t('w9d.eyePixel.mprDone', { axis: mprAxis }));
       }
     } catch (e: any) {
       message.error(e.message);
@@ -884,7 +884,7 @@ export const RealDicomViewerPage: React.FC = () => {
           </Space>
           <div style={{ marginTop: 8, fontSize: 12 }}>
             <div>
-              质量评分: <Tag color="green">{artifacts.qualityScore}</Tag>
+              {t('w9d.realDicom.qualityScore')}: <Tag color="green">{artifacts.qualityScore}</Tag>
             </div>
             <div>{t('realDicom.passed')}: {artifacts.passed ? t('realDicom.yes') : t('realDicom.no')}</div>
             {artifacts.artifacts?.map((a: any, i: number) => (

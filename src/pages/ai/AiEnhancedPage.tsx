@@ -79,7 +79,7 @@ const OrganDetectionPanel: React.FC = () => {
       const res = await aiV2Api.analyzeOrgans({ studyId: studyId.trim(), modality, bodyPart })
       if (res.success && res.data) {
         setResult(res.data)
-        message.success(`检出 ${res.data.organsDetected} 个器官`)
+        message.success(t('w9d.aiEnhanced.organsDetected', { count: res.data.organsDetected }))
       } else {
         message.error(res.error?.message || t('aiEnhanced.detectFailed'))
       }
@@ -201,7 +201,7 @@ const OrganDetectionPanel: React.FC = () => {
                     strokeColor={scoreColor(organ.confidence * 100)}
                     size="small"
                   />
-                  <Tooltip title={`边界框 x=${organ.bbox.x} y=${organ.bbox.y} ${organ.bbox.width}×${organ.bbox.height}`}>
+                  <Tooltip title={t('w9d.aiEnhanced.bboxTooltip', { x: organ.bbox.x, y: organ.bbox.y, w: organ.bbox.width, h: organ.bbox.height })}>
                     <Text type="secondary" style={{ fontSize: 12 }}>{organ.featureNote}</Text>
                   </Tooltip>
                 </div>
@@ -262,7 +262,7 @@ const DraftScorePanel: React.FC = () => {
       const res = await aiV2Api.scoreDraft({ draftText, modality })
       if (res.success && res.data) {
         setResult(res.data)
-        message.success(`评分完成: ${res.data.score} 分 (${res.data.grade})`)
+        message.success(t('w9d.aiEnhanced.scoreDone', { score: res.data.score, grade: res.data.grade }))
       } else {
         message.error(res.error?.message || t('aiEnhanced.scoreFailed'))
       }
@@ -408,7 +408,7 @@ const HangingPanel: React.FC = () => {
       })
       if (res.success && res.data) {
         setRecommendation(res.data)
-        message.success(`推荐布局: ${res.data.name}`)
+        message.success(t('w9d.aiEnhanced.recommendedLayout', { name: res.data.name }))
       } else {
         message.error(res.error?.message || t('aiEnhanced.recommendFailed'))
       }
@@ -430,7 +430,7 @@ const HangingPanel: React.FC = () => {
         appliedBy: doctorId.trim() || 'D1001',
       })
       if (res.success && res.data) {
-        message.success(`已应用布局「${res.data.layoutName}」(${res.data.rows}×${res.data.cols})`)
+        message.success(t('w9d.aiEnhanced.layoutApplied', { name: res.data.layoutName, rows: res.data.rows, cols: res.data.cols }))
         setRecommendation(null)
         await loadApplications()
       } else {

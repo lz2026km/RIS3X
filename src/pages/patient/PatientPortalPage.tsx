@@ -4,6 +4,7 @@ import { Card, Space, Tag, Row, Col, Tabs, Timeline, Table, Spin, message, Empty
 import { User, Calendar, Clock, RefreshCw } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
 import { ActionButton } from '../../components/common/ActionButton';
+import { ExportButton } from '../../components/common';
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi';
 import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
 
@@ -117,6 +118,13 @@ export const PatientPortalPage: React.FC = () => {
         <ActionButton action="refresh" loading={loading} onClick={fetchData} icon={<RefreshCw size={14} />}>
           {t('w8.patientPortal.refresh')}
         </ActionButton>
+        <ExportButton
+          data={() => [...filteredAppts, ...timeline]}
+          filename="patient-portal"
+          label={t('w45.actions.export')}
+          size="small"
+          formats={["csv", "json"]}
+        />
       </Space>
       <Card size="small" style={{ marginBottom: 16 }}>
         <Row gutter={16}>

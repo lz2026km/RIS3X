@@ -14,7 +14,7 @@ export const financeHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('items'); } catch {}
+    try { items = list<any>('chargeItems'); } catch {}
     if (!items.length) items = [{"id":"CI001","code":"CHG-001","name":"CT平扫","category":"检查","unitPrice":300,"active":true}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });

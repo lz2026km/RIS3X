@@ -38,7 +38,7 @@ export class MarketplaceService {
     await delay(120);
     let arr = [...AI_MARKETPLACE_ALGORITHMS];
     if (filters.type) arr = arr.filter((a) => a.type === filters.type);
-    if (filters.modality) arr = arr.filter((a) => a.modality.includes(filters.modality));
+    if (filters.modality) arr = arr.filter((a) => a.modality.includes(filters.modality ?? ''));
     if (filters.bodyPart) {
       const bp = filters.bodyPart.toLowerCase();
       arr = arr.filter((a) => a.bodyParts.some((b) => b.toLowerCase().includes(bp)));

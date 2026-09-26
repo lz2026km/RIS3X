@@ -1,5 +1,3 @@
-import type { Bell, Clock, CheckCircle, AlertTriangle } from 'lucide-react'
-
 export interface TimelineEvent {
   time: string
   event: string
@@ -57,6 +55,7 @@ export interface CriticalValue {
   reportedBy: string
   reportedByName: string
   reportedTime: string
+  createdAt?: string
   receivingDoctorId?: string
   receivingDoctorName?: string
   receivingTime?: string
@@ -152,7 +151,7 @@ export const CN_STATUS_TO_STORE: Record<string, string> = {
 
 export function toStoreStatus(raw: string): string {
   if (!raw) return raw
-  if (raw in CN_STATUS_TO_STORE) return CN_STATUS_TO_STORE[raw]
+  if (raw in CN_STATUS_TO_STORE) return CN_STATUS_TO_STORE[raw] ?? raw
   return raw
 }
 

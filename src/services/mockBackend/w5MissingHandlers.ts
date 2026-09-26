@@ -1096,7 +1096,22 @@ const reportQualityHandlers = [
     if (item) Object.assign(item, body)
     return HttpResponse.json(item ?? { id: String(params.id), ...body })
   }),
-  http.get(`${API_BASE}/report-quality-ext/ai-report-drafts`, () => HttpResponse.json([])),
+  // [G005 demo] 原实现返回 HttpResponse.json([]) 并 shadow reportQualityHandlers 的 seeded 版本 →
+  //   商业演示列表为空。此处返回 5 条确定性 seed, 形状对齐 reportQualityApi ListPayload ({ items, total })。
+  http.get(`${API_BASE}/report-quality-ext/ai-report-drafts`, () =>
+    HttpResponse.json({
+      success: true,
+      data: {
+        items: [
+          { id: 'AID-001', patientId: 'P001', patientName: '张伟', reportId: 'RPT-0001', draftText: '双肺纹理清晰，未见明显实质性病变。心影大小、形态未见异常。', confidence: 0.94, status: 'DRAFT', createdAt: '2026-08-21T08:10:00.000Z' },
+          { id: 'AID-002', patientId: 'P003', patientName: '李娜', reportId: 'RPT-0003', draftText: '右肺上叶见一磨玻璃结节，直径约 6mm，边界尚清，建议 3 个月复查。', confidence: 0.88, status: 'DRAFT', createdAt: '2026-08-23T09:35:00.000Z' },
+          { id: 'AID-003', patientId: 'P005', patientName: '王强', reportId: 'RPT-0005', draftText: '颅脑 CT 平扫未见明显异常密度影，脑室系统对称，中线结构居中。', confidence: 0.91, status: 'REVIEWING', createdAt: '2026-08-25T13:20:00.000Z' },
+          { id: 'AID-004', patientId: 'P007', patientName: '赵敏', reportId: 'RPT-0007', draftText: '腰椎生理曲度变直，L4-L5 椎间盘膨出，硬膜囊轻度受压。', confidence: 0.86, status: 'DRAFT', createdAt: '2026-08-27T10:05:00.000Z' },
+          { id: 'AID-005', patientId: 'P009', patientName: '孙丽', reportId: 'RPT-0009', draftText: '肝脏形态大小正常，肝实质回声均匀，肝内胆管未见扩张。', confidence: 0.89, status: 'ACCEPTED', createdAt: '2026-08-29T15:40:00.000Z' },
+        ],
+        total: 5,
+      },
+    })),
   http.post(`${API_BASE}/report-quality-ext/ai-report-drafts`, async ({ request }) => {
     const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
     return HttpResponse.json({ id: `AID-${Date.now()}`, reportId: body.reportId ?? 'RPT-0001', draftText: '双肺纹理清晰，未见明显实质性病变。', confidence: 0.9, createdAt: nowIso() })

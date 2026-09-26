@@ -295,4 +295,43 @@ export const contrastSafetyApi = {
     await invalidateApiCacheByPrefix('/contrast/extravasation')
     return res
   },
+
+  // ── [G005 W7] 对比剂质量与合规 (ContrastQualityCompliancePage) ──
+  getQualityCompliance: (startDate?: string, endDate?: string) => {
+    const params = new URLSearchParams()
+    if (startDate) params.set('start', startDate)
+    if (endDate) params.set('end', endDate)
+    const qs = params.toString()
+    return api.get<ContrastQualityComplianceDto>(`/contrast/quality-compliance${qs ? `?${qs}` : ''}`)
+  },
+}
+
+export interface ContrastQualityMetricDto {
+  id: string
+  name: string
+  category: 'usage' | 'safety' | 'adherence' | 'regulatory'
+  currentValue: number
+  targetValue: number
+  unit: string
+  trend: 'up' | 'down' | 'stable'
+  periodStart: string
+  periodEnd: string
+  details: string
+}
+
+export interface ContrastRegulatoryCheckDto {
+  checkId: string
+  name: string
+  regulation: string
+  status: 'pass' | 'fail' | 'pending' | 'na'
+  details: string
+  checkedAt: string
+}
+
+export interface ContrastQualityComplianceDto {
+  source: 'backend' | 'demo'
+  periodStart: string
+  periodEnd: string
+  metrics: ContrastQualityMetricDto[]
+  regulatoryChecks: ContrastRegulatoryCheckDto[]
 }

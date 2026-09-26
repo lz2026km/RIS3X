@@ -131,7 +131,7 @@ export const QualityScorePanel: React.FC<{
       const ev = await scoringService.evaluate(samples[idx]!);
       setScore(ev);
       setSampleIndex(idx + 1);
-      message.success(`评分完成: ${ev.totalScore} 分 (${ev.grade} 级)`);
+      message.success(t('w9e.qualityScorePanel.scoreDone', { score: ev.totalScore, grade: ev.grade }));
     } finally {
       setEvaluating(false);
     }
@@ -146,7 +146,7 @@ export const QualityScorePanel: React.FC<{
     try {
       const report = await scoringService.generateReport(score.scoreId, format, 'D001');
       onGenerateReport?.(report);
-      message.success(`${format.toUpperCase()} 评分报告已生成`);
+      message.success(t('w9e.qualityScorePanel.reportGenerated', { format: format.toUpperCase() }));
     } finally {
       setGenerating(false);
     }
@@ -258,7 +258,7 @@ export const QualityScorePanel: React.FC<{
             </Button>
             <Select
               size="small"
-              value="report"
+              value={"report" as QualityScoreReport['format']}
               style={{ width: 110 }}
               onChange={(v: QualityScoreReport['format']) => handleGenerateReport(v)}
               loading={generating}
@@ -537,7 +537,7 @@ export const QualityScorePanel: React.FC<{
             key: 'evidence',
             label: <span><Sparkles size={12} /> {t('qualityScore.tab.evidence')}</span>,
             children: (
-              <Card size="small" title={`评分证据 (${score.evidence.length} 条)`}>
+              <Card size="small" title={t('w9e.qualityScorePanel.evidenceTitle', { count: score.evidence.length })}>
                 {score.evidence.length === 0 ? (
                   <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('qualityScore.noEvidence')} />
                 ) : (

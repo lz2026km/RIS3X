@@ -620,7 +620,7 @@ export default function FusionPage() {
             <input
               type="range" min={100} max={4000} value={wwl.ww}
               onChange={e => setWWL(p => ({ ...p, ww: parseInt(e.target.value) }))}
-              aria-label={`${primaryLabel}-窗宽`}
+              aria-label={`${primaryLabel}-${t('w9d.fusion.windowWidth')}`}
               style={{ flex: 1, height: 3, accentColor: BLUE }}
             />
             <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 60, textAlign: 'right' }}>WW:{wwl.ww} WL:{wwl.wl}</span>
@@ -634,7 +634,7 @@ export default function FusionPage() {
               <input
                 type="range" min={100} max={4000} value={fusionWWL.ww}
                 onChange={e => setFusionWWL(p => ({ ...p, ww: parseInt(e.target.value) }))}
-                aria-label={`${fusionLabel}-融合窗宽`}
+                aria-label={`${fusionLabel}-${t('w9d.fusion.fusionWindowWidth')}`}
                 style={{ flex: 1, height: 3, accentColor: '#facc15' }}
               />
               <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 60, textAlign: 'right' }}>WW:{fusionWWL.ww} WL:{fusionWWL.wl}</span>

@@ -17,6 +17,7 @@ import { ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle, Search, Filter
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { ChartContainer } from '../components/charts';
 import { t } from '../i18n/appI18n';
+import { t as appT } from '../i18n/appI18n';
 
 // ---------- 类型定义 ----------
 interface PendingAudit {
@@ -3295,7 +3296,7 @@ const PendingAuditCard: React.FC<{
 // 审核历史表格行
 const HistoryRow: React.FC<{ record: AuditHistory }> = ({ record }) => {
   const { t } = useTranslation("insuranceAudit");
-  const colors = resultColors[record.result];
+  const colors = resultColors[record.result] ?? resultColors["补充资料"]!;
   return (
     <tr>
       <td style={styles.td}>{record.auditTime}</td>
@@ -3734,6 +3735,7 @@ export default function InsuranceAuditPage() {
       const timer = setTimeout(() => setToastMessage(null), 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [toastMessage]);
 
   // 过滤后的待审核数据
@@ -4076,7 +4078,7 @@ export default function InsuranceAuditPage() {
                 />
                 <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit={t("insuranceAudit.tenThousand")} />
                 <Tooltip
-                  formatter={(value: number) => [`¥${value}万元`, t("insuranceAudit.usageAmount")]}
+                  formatter={(value: number) => [appT("w9a.insuranceAudit.currencyWan", { value }), t("insuranceAudit.usageAmount")]}
                   contentStyle={{
                     borderRadius: 8,
                     border: "1px solid var(--border-color)",
@@ -4207,7 +4209,7 @@ export default function InsuranceAuditPage() {
                 />
                 <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit={t("insuranceAudit.tenThousand")} />
                 <Tooltip
-                  formatter={(value: number) => [`¥${value}万元`, t("insuranceAudit.usageAmount")]}
+                  formatter={(value: number) => [appT("w9a.insuranceAudit.currencyWan", { value }), t("insuranceAudit.usageAmount")]}
                   contentStyle={{
                     borderRadius: 8,
                     border: "1px solid var(--border-color)",
@@ -4622,7 +4624,7 @@ export default function InsuranceAuditPage() {
                   return (
                     <button
                       key={page}
-                      aria-label={`第 ${page} 页`}
+                      aria-label={appT("w9a.insuranceAudit.pageAria", { page })}
                       aria-current={historyPage === page ? "page" : undefined}
                       style={{
                         ...styles.pageBtn,

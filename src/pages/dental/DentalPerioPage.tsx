@@ -299,7 +299,7 @@ export const DentalPerioPage: React.FC = () => {
             <InputNumber min={11} max={48} style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label={t("w9.common.diagnosis")} name="diagnosis">
-            <Input placeholder="例 牙周炎 (中度)" />
+                <Input placeholder={t("w9d.dentalPerio.diagnosisPlaceholder")} />
           </Form.Item>
           <Form.Item label={t("w9.dentalPerio.pd")} name="pd">
             <InputNumber min={0} max={15} step={0.1} style={{ width: "100%" }} />

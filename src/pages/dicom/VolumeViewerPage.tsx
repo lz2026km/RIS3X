@@ -11,7 +11,7 @@ import { Card, Space, Tag, Button, Row, Col, Select, Tabs, Empty, message, Slide
 import { Box, Activity, List } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
+import { t } from '../../i18n/appI18n'
 
 interface SeriesInfo {
   seriesUID: string
@@ -86,10 +86,10 @@ const RealSlicePanel: React.FC<{ jobId: string; kind: 'mip' | 'mpr' | 'vr'; tota
   const controls = (
     <Row gutter={8} style={{ marginTop: 8 }}>
       {kind === 'mpr' && (
-        <Col span={8}><Space style={{ width: '100%' }}><small>切片</small><Slider min={0} max={Math.max(1, totalSlices - 1)} value={sliceIdx} onChange={setSliceIdx} /></Space></Col>
+        <Col span={8}><Space style={{ width: '100%' }}><small>{t('w9d.volumeViewer.slice')}</small><Slider min={0} max={Math.max(1, totalSlices - 1)} value={sliceIdx} onChange={setSliceIdx} /></Space></Col>
       )}
       {kind === 'vr' && (
-        <Col span={8}><Space style={{ width: '100%' }}><small>不透明度</small><Slider min={0} max={1} step={0.05} value={opacity} onChange={setOpacity} /></Space></Col>
+        <Col span={8}><Space style={{ width: '100%' }}><small>{t('w9d.volumeViewer.opacity')}</small><Slider min={0} max={1} step={0.05} value={opacity} onChange={setOpacity} /></Space></Col>
       )}
       <Col span={8}><Space style={{ width: '100%' }}><small>WW</small><Slider min={1} max={4000} value={ww} onChange={setWw} /></Space></Col>
       <Col span={8}><Space style={{ width: '100%' }}><small>WL</small><Slider min={-1000} max={3000} value={wl} onChange={setWl} /></Space></Col>
@@ -107,7 +107,6 @@ const RealSlicePanel: React.FC<{ jobId: string; kind: 'mip' | 'mpr' | 'vr'; tota
 }
 
 const VolumeViewerPage: React.FC = () => {
-  const { t } = useTranslation('v3dicom')
   const [series, setSeries] = useState<SeriesInfo[]>([])
   const [selectedUid, setSelectedUid] = useState<string | undefined>()
   const [reconstructing, setReconstructing] = useState(false)
@@ -134,7 +133,7 @@ const VolumeViewerPage: React.FC = () => {
   }, [])
 
   const handleReconstruct = useCallback(async () => {
-    if (!selectedUid) { message.warning('请先选择序列'); return }
+    if (!selectedUid) { message.warning(t('w9d.volumeViewer.selectSeriesFirst')); return }
     setReconstructing(true)
     setProgress(0)
     setVolumeDims(null)
@@ -143,13 +142,13 @@ const VolumeViewerPage: React.FC = () => {
     const res = await volumeApi.reconstruct(selectedUid)
     if (!res.success) {
       setReconstructing(false)
-      message.error(res.error?.message || '重建请求失败')
+      message.error(res.error?.message || t('w9d.volumeViewer.reconstructFailed'))
       return
     }
     const d = res?.data
     if (!d) {
       setReconstructing(false)
-      message.error('重建响应缺少数据')
+      message.error(t('w9d.volumeViewer.reconstructNoData'))
       return
     }
     const { jobId: newJobId, volume, source } = d
@@ -163,7 +162,7 @@ const VolumeViewerPage: React.FC = () => {
       if (sr.data.status === 'completed' || sr.data.progress >= 100) {
         clearInterval(poll)
         setReconstructing(false)
-        message.success(source === 'real' ? '真实体数据重建完成' : '体数据重建完成(合成)')
+        message.success(source === 'real' ? t('w9d.volumeViewer.reconstructDoneReal') : t('w9d.volumeViewer.reconstructDoneSynthetic'))
       }
     }, 300)
   }, [selectedUid])
@@ -172,7 +171,7 @@ const VolumeViewerPage: React.FC = () => {
 
   const renderTabContent = (kind: 'mip' | 'mpr' | 'vr') => {
     if (jobSource !== 'real' || !jobId) {
-      return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={jobSource === 'synthetic' ? '当前为合成模式,重建后可用' : '重建后可用真实体数据'} />
+      return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={jobSource === 'synthetic' ? t('w9d.volumeViewer.syntheticModeHint') : t('w9d.volumeViewer.realAvailableHint')} />
     }
     return <RealSlicePanel jobId={jobId} kind={kind} totalSlices={volumeDims?.z ?? 20} />
   }
@@ -181,19 +180,19 @@ const VolumeViewerPage: React.FC = () => {
     <div style={{ padding: 16, background: '#f0f2f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 12 }}>
         <Box size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('volumeViewer', '3D Volume Viewer')}</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.volumeViewer.title')}</span>
         <Tag color="cyan">MIP / MPR / VR</Tag>
         {volumeDims && <Tag color="geekblue">{volumeDims.x}×{volumeDims.y}×{volumeDims.z}</Tag>}
-        {jobSource === 'real' && <Tag color="green">真实DICOM</Tag>}
-        {jobSource === 'synthetic' && <Tag>合成数据</Tag>}
+        {jobSource === 'real' && <Tag color="green">{t('w9d.volumeViewer.realDicom')}</Tag>}
+        {jobSource === 'synthetic' && <Tag>{t('w9d.volumeViewer.syntheticData')}</Tag>}
       </Space>
 
       <Row gutter={12} style={{ height: 'calc(100vh - 100px)' }}>
         <Col span={4}>
-          <Card size="small" title={<Space><List size={14} /><span>序列</span></Space>} style={{ height: '100%' }} styles={{ body: { overflow: 'auto', maxHeight: 'calc(100vh - 160px)' } }}>
+          <Card size="small" title={<Space><List size={14} /><span>{t('w9d.volumeViewer.seriesTitle')}</span></Space>} style={{ height: '100%' }} styles={{ body: { overflow: 'auto', maxHeight: 'calc(100vh - 160px)' } }}>
             <Select
               style={{ width: '100%', marginBottom: 8 }}
-              placeholder="选择序列"
+              placeholder={t('w9d.volumeViewer.selectSeries')}
               value={selectedUid}
               onChange={setSelectedUid}
               options={series.map(s => ({ value: s.seriesUID, label: `#${s.seriesNumber} ${s.seriesDescription}` }))}
@@ -202,12 +201,12 @@ const VolumeViewerPage: React.FC = () => {
               <div style={{ fontSize: 12 }}>
                 <div><Tag color="blue">{selectedSeries.modality}</Tag></div>
                 <div style={{ color: '#666', marginTop: 4 }}>{selectedSeries.seriesDescription}</div>
-                <div style={{ color: '#999' }}>实例数: {selectedSeries.instances}</div>
+                <div style={{ color: '#999' }}>{t('w9d.volumeViewer.instancesCount', { count: selectedSeries.instances })}</div>
               </div>
             )}
             <div style={{ marginTop: 12 }}>
               <Button type="primary" size="small" block loading={reconstructing} onClick={handleReconstruct} icon={<Activity size={12} />}>
-                {reconstructing ? `重建中 ${progress}%` : '重建'}
+                {reconstructing ? t('w9d.volumeViewer.reconstructing', { progress }) : t('w9d.volumeViewer.reconstruct')}
               </Button>
             </div>
             {jobId && <div style={{ marginTop: 8, fontSize: 11, color: '#999' }}>Job: {jobId}</div>}

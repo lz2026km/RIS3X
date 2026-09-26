@@ -8,7 +8,7 @@ import { eyeApi } from "@/services/api/eyeApi";
 import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
-const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
+const modalityLabel = (m?: string) => t(`w9d.modality.${m ?? 'ffa'}`);
 
 const FfaViewerPage: React.FC = () => {
   const [study, setStudy] = useState<any>(null);
@@ -24,7 +24,7 @@ const FfaViewerPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `FFA报告_${study?.id ?? "export"}.json`;
+    a.download = `${t('w9d.ffa.exportName')}_${study?.id ?? "export"}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -57,7 +57,7 @@ const FfaViewerPage: React.FC = () => {
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
-  if (loading) return <div style={{ padding: 32, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
+  if (loading) return <div style={{ padding: 32, textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
   if (!study) {
     return (
       <div style={{ padding: 32, textAlign: "center" }}>
@@ -65,8 +65,8 @@ const FfaViewerPage: React.FC = () => {
         <Alert
           type="warning"
           showIcon
-          title="无 FFA 检查数据"
-          description="当前未加载眼底血管造影(FFA)检查数据,请先在检查列表中选择 FFA 检查。"
+          title={t('w9d.ffa.emptyTitle')}
+          description={t('w9d.ffa.emptyDesc')}
           style={{ maxWidth: 480, margin: "60px auto" }}
         />
       </div>
@@ -92,10 +92,10 @@ const FfaViewerPage: React.FC = () => {
             title={
               <Space>
                 <Image size={16} />
-                <span>FFA 荧光血管造影</span>
+                <span>{t('w9d.ffa.title')}</span>
                 <EyeLateralityBadge eyeSide="OD" />
                 <Tag color="cyan">Heidelberg Spectralis HRA+OCT</Tag>
-                <Tag color="gold">演示数据 · 示例影像数据</Tag>
+                <Tag color="gold">{t('w9d.ffa.demoTag')}</Tag>
               </Space>
             }
           >
@@ -127,7 +127,7 @@ const FfaViewerPage: React.FC = () => {
               ))}
             </Row>
           </Card>
-          <Card size="small" title="FFA 定量分析" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.ffa.quantTitle')} style={{ marginTop: 8 }}>
             <Row gutter={16}>
               {[
                 { title: "AVT", value: "14", suffix: "s", note: "正常 10-15s" },
@@ -161,18 +161,18 @@ const FfaViewerPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="患者信息">
+          <Card size="small" title={t('w9d.ffa.patientInfo')}>
             <div style={{ fontSize: 12, lineHeight: 2 }}>
-              患者: <strong>{study?.patientName}</strong>
+              {t('w9d.sidebar.patientLabel')} <strong>{study?.patientName}</strong>
               <br />
-              眼别: <EyeLateralityBadge eyeSide="OD" size="small" />
+              {t('w9d.ffa.eyeSide')} <EyeLateralityBadge eyeSide="OD" size="small" />
               <br />
-              诊断: <Tag color="orange">湿性AMD-CNV</Tag>
+              {t('w9d.ffa.diagnosis')} <Tag color="orange">湿性AMD-CNV</Tag>
               <br />
-              检查: {MODALITY_LABELS[study?.modality || "ffa"]}
+              {t('w9d.ffa.examLabel')} {modalityLabel(study?.modality || "ffa")}
               <br />
               <Alert
-                title="活动性 CNV,需 72h 内抗 VEGF 治疗"
+                title={t('w9d.ffa.activeCnvAlert')}
                 type="warning"
                 showIcon
                 style={{ fontSize: 12, marginTop: 8 }}

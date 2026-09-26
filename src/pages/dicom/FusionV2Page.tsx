@@ -394,15 +394,15 @@ export default function FusionV2Page() {
         setStudies(res.data)
         setSelectedStudy(res.data[0] || null)
         if (res.data.length > 0) {
-          message.success(`已载入患者 ${pid} 的 ${res.data.length} 组融合检查`)
+          message.success(t('w9d.fusionV2.loaded', { pid, count: res.data.length }))
         } else {
-          message.warning('该患者暂无可用融合检查')
+          message.warning(t('w9d.fusionV2.noneAvailable'))
         }
       } else {
-        message.error('融合检查列表加载失败')
+        message.error(t('w9d.fusionV2.listLoadFailed'))
       }
     } catch {
-      message.error('融合服务暂不可用')
+      message.error(t('w9d.fusionV2.serviceUnavailable'))
     } finally {
       setStudyLoading(false)
     }
@@ -428,7 +428,7 @@ export default function FusionV2Page() {
         setRenderedFrame(res.data)
       }
     } catch {
-      message.error('融合渲染失败')
+      message.error(t('w9d.fusionV2.renderFailed'))
     } finally {
       setRenderLoading(false)
     }
@@ -480,7 +480,7 @@ export default function FusionV2Page() {
 
   const handleRegister = useCallback(async () => {
     if (!selectedStudy) {
-      message.warning('请先选择融合检查')
+      message.warning(t('w9d.fusionV2.selectFirst'))
       return
     }
     setRegistering(true)
@@ -496,14 +496,14 @@ export default function FusionV2Page() {
       if (res.success && res.data) {
         setRegistration(res.data)
         setRegisterDone(true)
-        message.success(`配准完成（${transformType}）：Dice ${res.data.metrics.dice} · HD95 ${res.data.metrics.hd95}mm`)
+        message.success(t('w9d.fusionV2.regDone', { type: transformType, dice: res.data.metrics.dice, hd95: res.data.metrics.hd95 }))
         setTimeout(() => setRegisterDone(false), 2000)
         void runRender()
       } else {
-        message.error(res.error?.message || '配准失败')
+        message.error(res.error?.message || t('w9d.fusionV2.regFailed'))
       }
     } catch {
-      message.error('配准服务暂不可用')
+      message.error(t('w9d.fusionV2.regServiceUnavailable'))
     } finally {
       setRegistering(false)
     }
@@ -650,9 +650,9 @@ export default function FusionV2Page() {
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10, border: '1px solid #334155' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <Database size={13} color={BLUE} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>检查选择</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('w9d.fusionV2.studySelect')}</span>
               <button style={{ marginLeft: 'auto', ...btnStyle, padding: '2px 6px' }} onClick={() => setPanelOpen(v => !v)}>
-                {panelOpen ? '收起' : '展开'}
+                {panelOpen ? t('w9d.fusionV2.collapse') : t('w9d.fusionV2.expand')}
               </button>
             </div>
             {panelOpen && (
@@ -661,7 +661,7 @@ export default function FusionV2Page() {
                   <input
                     value={patientInput}
                     onChange={e => setPatientInput(e.target.value)}
-                    placeholder="患者ID (如 P000001)"
+                    placeholder={t('w9d.fusionV2.patientIdPlaceholder')}
                     style={{ flex: 1, padding: '6px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: 4, fontSize: 12, color: '#f8fafc', outline: 'none' }}
                   />
                   <button
@@ -669,11 +669,11 @@ export default function FusionV2Page() {
                     disabled={studyLoading}
                     onClick={() => setPatientId(patientInput.trim() || 'P000001')}
                   >
-                    {studyLoading ? <Loader2 size={12} className="spin" /> : '载入'}
+                    {studyLoading ? <Loader2 size={12} className="spin" /> : t('w9d.fusionV2.load')}
                   </button>
                 </div>
                 {studies.length === 0 ? (
-                  <div style={{ fontSize: 11, color: '#64748b', padding: '8px 0', textAlign: 'center' }}>暂无检查，请输入患者ID载入</div>
+                  <div style={{ fontSize: 11, color: '#64748b', padding: '8px 0', textAlign: 'center' }}>{t('w9d.fusionV2.noStudy')}</div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {studies.map(s => (
@@ -696,8 +696,8 @@ export default function FusionV2Page() {
                 {selectedStudy && (
                   <div style={{ marginTop: 8, fontSize: 10, color: '#64748b', lineHeight: 1.7 }}>
                     Study: {selectedStudy.studyUid}<br />
-                    序列: {selectedStudy.fixedModality} + {selectedStudy.movingModality}<br />
-                    日期: {selectedStudy.studyDate}
+                    {t('w9d.fusionV2.series')} {selectedStudy.fixedModality} + {selectedStudy.movingModality}<br />
+                    {t('w9d.fusionV2.date')} {selectedStudy.studyDate}
                   </div>
                 )}
               </>
@@ -710,7 +710,7 @@ export default function FusionV2Page() {
               {t('fusion.registerResult')}
             </div>
             {!registration ? (
-              <div style={{ fontSize: 11, color: '#64748b' }}>尚未配准，点击工具栏"配准"按钮执行融合配准</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>{t('w9d.fusionV2.notRegistered')}</div>
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
@@ -726,18 +726,18 @@ export default function FusionV2Page() {
                   ))}
                 </div>
                 <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6 }}>
-                  变换类型: {transformType} · 耗时 {registration.processingTimeMs || '-'}ms
+                  {t('w9d.fusionV2.transformType')} {transformType} · {t('w9d.fusionV2.elapsed')} {registration.processingTimeMs || '-'}ms
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
                   <button style={{ ...btnStyle, flex: 1, color: BLUE, borderColor: BLUE }} disabled={renderLoading} onClick={() => void runRender()}>
-                    {renderLoading ? <Loader2 size={11} className="spin" /> : <Layers size={11} />} 渲染融合帧
+                    {renderLoading ? <Loader2 size={11} className="spin" /> : <Layers size={11} />} {t('w9d.fusionV2.renderFrame')}
                   </button>
                 </div>
                 {renderedFrame && renderedFrame.pixelDataBase64 && (
                   <div style={{ marginTop: 8, background: '#0f172a', borderRadius: 4, overflow: 'hidden' }}>
                     <img
                       src={`data:image/png;base64,${renderedFrame.pixelDataBase64}`}
-                      alt="融合帧"
+                      alt={t('w9d.fusionV2.fusedFrame')}
                       style={{ width: '100%', display: 'block' }}
                     />
                   </div>

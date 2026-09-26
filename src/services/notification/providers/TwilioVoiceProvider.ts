@@ -118,7 +118,7 @@ export class TwilioVoiceProvider {
       menu.greeting,
     );
     const gather = menu.items
-      .map((it) => `<Press id="${it.action}">${it.digit}</Press>`)
+      .map((it: { action: string; digit: string }) => `<Press id="${it.action}">${it.digit}</Press>`)
       .join('');
     return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>

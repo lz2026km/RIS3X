@@ -9,6 +9,8 @@ import { SITES, SYNC_EVENTS, ROUTING_RULES, type Site, type SyncEvent, type Rout
 import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Typography, Alert, Button } from "antd";
 import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield } from "lucide-react";
 import { useMemo, useEffect, useState, useCallback } from "react";
+import { AppEmpty } from "../components/feedback";
+import { ActionButton, ExportButton } from "../components/common";
 import { t } from "../i18n/appI18n";
 
 const {  Text } = Typography;
@@ -136,15 +138,27 @@ export default function MultiSiteDashboardPage() {
   return (
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       <Card style={{ background: "linear-gradient(135deg,#1e40af 0%,#3b82f6 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
-        <Space size={16}>
-          <Globe size={36} color="#fff" />
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{t('multiSiteDashboard.title')}</div>
-            <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
-              {t('multiSiteDashboard.subtitle', { count: sites.length })}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Space size={16}>
+            <Globe size={36} color="#fff" />
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800 }}>{t('multiSiteDashboard.title')}</div>
+              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+                {t('multiSiteDashboard.subtitle', { count: sites.length })}
+              </div>
             </div>
-          </div>
-        </Space>
+          </Space>
+          <Space>
+            <ActionButton action="refresh" loading={loading} onClick={() => void fetchAll()}>{t('w45.actions.refresh')}</ActionButton>
+            <ExportButton
+              data={() => sites}
+              filename="multi-site-dashboard"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
+            />
+          </Space>
+        </div>
       </Card>
 
       {error && <Alert type="warning" showIcon message={t('multiSiteDashboard.fallbackWarning')} description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('multiSiteDashboard.retry')}</Button>} style={{ marginBottom: 16 }} />}
@@ -163,7 +177,7 @@ export default function MultiSiteDashboardPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
           <Card title={<Space><Network size={16} />{t('multiSiteDashboard.siteListTitle', { count: sites.length })}<Tag color="green">{t('multiSiteDashboard.onlineTag', { count: activeCount })}</Tag><Tag color="red">{t('multiSiteDashboard.offlineTag', { count: offlineCount })}</Tag></Space>} extra={<Badge count={offlineCount} title={t('multiSiteDashboard.alertSites')} />}>
-            <Table scroll={{ x: 'max-content' }} dataSource={sites} columns={siteColumns} rowKey="id" size="small" pagination={false} loading={loading}/>
+            <Table scroll={{ x: 'max-content' }} dataSource={sites} columns={siteColumns} rowKey="id" size="small" pagination={false} loading={loading} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }} />
           </Card>
         </Col>
         <Col span={8}>
@@ -197,6 +211,7 @@ export default function MultiSiteDashboardPage() {
                   rowKey="id"
                   size="small"
                   pagination={eventsPagination.pagination}
+                  locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }}
                   columns={[
                     { title: t('multiSiteDashboard.colTime'), dataIndex: "timestamp", key: "ts", width: 160, render: (value: string) => new Date(value).toLocaleString("zh-CN") },
                     { title: t('multiSiteDashboard.colSite'), dataIndex: "siteId", key: "siteId", width: 120, render: (id: string) => sites.find(s => s.id === id)?.name || id },
@@ -220,6 +235,7 @@ export default function MultiSiteDashboardPage() {
                   rowKey="id"
                   size="small"
                   pagination={false}
+                  locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }}
                   columns={[
                     { title: t('multiSiteDashboard.colId'), dataIndex: "id", key: "id", width: 80 },
                     { title: t('multiSiteDashboard.colName'), dataIndex: "name", key: "name" },

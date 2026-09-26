@@ -3,7 +3,7 @@
  */
 import type { DefectCategoryCode, DefectRemediation } from './R3.QUALITY';
 
-export type { DefectRemediation };
+export type { DefectRemediation, DefectCategoryCode };
 
 export type DefectSeverityLevel = 'minor' | 'major' | 'critical';
 export type DefectStatus = 'active' | 'deprecated' | 'draft' | 'reviewing';

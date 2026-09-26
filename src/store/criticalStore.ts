@@ -3,7 +3,8 @@
 import { create } from 'zustand'
 import { createActor, type Actor } from 'xstate'
 import { criticalApi } from '../services/api'
-import type { CriticalValueDto, NotificationMethod as ApiNotificationMethod } from '../services/api'
+import type { CriticalValueDto } from '../services/api'
+import type { NotificationMethod as ApiNotificationMethod } from '../services/api/criticalApi'
 import { criticalValueMachine, type CriticalMachine, type NotificationMethod as MachineNotificationMethod } from '../machines/criticalValueMachine'
 import { criticalValueService } from '../services/quality/criticalValueService'
 

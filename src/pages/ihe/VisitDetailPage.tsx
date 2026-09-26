@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Space, Tag, Table, Descriptions, Steps, Divider, message } from 'antd';
 import { Activity, Clock, ArrowRight, GitBranch } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { VisitState } from '../../services/api/integrationApi';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../../components/feedback';
+import { ActionButton, ExportButton } from '../../components/common';
 import { t } from '../../i18n/appI18n';
 
 const STATE_STEPS = [
@@ -21,6 +22,7 @@ const STATE_MAP: Record<string, number> = {
 
 export const VisitDetailPage: React.FC = () => {
   const { patientId, visitNumber } = useParams<{ patientId: string; visitNumber: string }>();
+  const navigate = useNavigate();
   const [visit, setVisit] = useState<VisitState | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -70,6 +72,15 @@ export const VisitDetailPage: React.FC = () => {
         <Tag color="cyan">v3.0.6.0</Tag>
         <Tag color="blue">{patientId}</Tag>
         <Tag color="purple">{visitNumber}</Tag>
+        <ActionButton action="cancel" onClick={() => navigate(-1)}>{t('w45.visitDetail.back')}</ActionButton>
+        <ActionButton action="refresh" loading={loading} onClick={() => void loadVisit()}>{t('w45.actions.refresh')}</ActionButton>
+        <ExportButton
+          data={() => visit?.adtMessages ?? []}
+          filename={`visit-${patientId}-${visitNumber}`}
+          label={t('w45.actions.export')}
+          size="small"
+          formats={["csv", "json"]}
+        />
       </Space>
 
       {loading && <LoadingBanner message={t('w9.states.loading')} />}

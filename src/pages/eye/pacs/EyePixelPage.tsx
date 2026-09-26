@@ -39,13 +39,8 @@ const FALLBACK_COLORMAPS = [
   { id: "biometry", name: "生物测量", type: "BONE", description: "眼生物测量 BONE 骨密度伪彩" },
 ];
 
-const ARTIFACT_LABELS: Record<string, string> = {
-  motion: "运动伪影",
-  eyelid: "眼睑遮挡",
-  noise: "噪声",
-  shadow: "阴影伪影",
-  saturation: "过曝",
-};
+const artifactLabel = (type: string) =>
+  t(`w9d.artifact.${type}`);
 
 /** 绘制 256 色 LUT 色条 (canvas) */
 function drawLutBar(canvas: HTMLCanvasElement | null, lut?: Array<[number, number, number]>) {
@@ -333,7 +328,7 @@ const EyePixelPage: React.FC = () => {
       if (res.success && res.data) {
         setMpr(res.data);
         setSource("api");
-        message.success(`MPR ${mprAxis} 重建完成`);
+        message.success(t('w9d.eyePixel.mprDone', { axis: mprAxis }));
       } else {
         throw new Error("mpr 不可达");
       }
@@ -455,7 +450,7 @@ const EyePixelPage: React.FC = () => {
                           <XAxis dataKey="intensity" tick={{ fontSize: 10 }} interval={15} />
                           <YAxis tick={{ fontSize: 10 }} />
                           <ReTooltip
-                            formatter={(value: any, _name: any, item: any) => [`${value}`, `灰阶 ${item?.payload?.intensity}`]}
+                            formatter={(value: any, _name: any, item: any) => [`${value}`, t('w9d.eyePixel.grayLevel', { v: item?.payload?.intensity })]}
                           />
                           <ReferenceLine x={histogram.mean} stroke="#ef4444" strokeDasharray="4 4" />
                           <Bar dataKey="count" fill="#3b82f6" isAnimationActive={false} />
@@ -529,7 +524,7 @@ const EyePixelPage: React.FC = () => {
                     style={{ width: "100%", height: 220, borderRadius: 6, border: "1px solid var(--border-color)", background: "#0f172a" }}
                   />
                   <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
-                    {applyLut ? `已应用 ${colormap?.name ?? colormapId} 伪彩 · 预览帧 frame-${frameIdx + 1}` : t('eyePixel.grayscalePreview')}
+                    {applyLut ? t('w9d.eyePixel.applyLutPreview', { name: colormap?.name ?? colormapId, frame: frameIdx + 1 }) : t('eyePixel.grayscalePreview')}
                   </div>
                 </Space>
               </Card>
@@ -609,7 +604,7 @@ const EyePixelPage: React.FC = () => {
                     {Array.isArray(artifacts.artifacts) && artifacts.artifacts.map((a: any, i: number) => (
                       <div key={`art-${i}`} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, padding: "4px 0" }}>
                         <Droplets size={13} color="#dc2626" />
-                        <span>{ARTIFACT_LABELS[a.type] ?? a.type}</span>
+                        <span>{artifactLabel(a.type)}</span>
                         <span style={{ color: "var(--text-secondary)" }}>{t('eyePixel.severity')} {(Number(a.severity) * 100).toFixed(1)}%</span>
                         {a.location && <Tag>{t('eyePixel.location')} x:{a.location.x} y:{a.location.y}</Tag>}
                       </div>
@@ -691,11 +686,11 @@ const EyePixelPage: React.FC = () => {
               <Row gutter={[12, 8]} style={{ fontSize: 12 }}>
                 {[
                   [t('eyePixel.metaRowsCols'), `${pixelInfo.rows}×${pixelInfo.columns}`],
-                  [t('eyePixel.metaBitAlloc'), `${pixelInfo.bitsAllocated} bit (存储 ${pixelInfo.bitsStored})`],
+                  [t('eyePixel.metaBitAlloc'), `${pixelInfo.bitsAllocated} bit (${t('w9d.eyePixel.metaStored', { bits: pixelInfo.bitsStored })})`],
                   [t('eyePixel.metaPhotometric'), pixelInfo.photometricInterpretation],
                   [t('eyePixel.metaTransferSyntax'), String(pixelInfo.transferSyntaxUID).slice(0, 26) + "…"],
                   [t('eyePixel.metaWindow'), `${pixelInfo.windowCenter} / ${pixelInfo.windowWidth}`],
-                  [t('eyePixel.metaRescale'), `斜率 ${pixelInfo.rescaleSlope} · 截距 ${pixelInfo.rescaleIntercept}`],
+                  [t('eyePixel.metaRescale'), t('w9d.eyePixel.metaRescaleValue', { slope: pixelInfo.rescaleSlope, intercept: pixelInfo.rescaleIntercept })],
                   [t('eyePixel.metaSamples'), pixelInfo.samplesPerPixel],
                   [t('eyePixel.metaPixelData'), pixelInfo.pixelDataRef],
                   [t('eyePixel.metaSize'), `${(Number(pixelInfo.size) / 1024 / 1024).toFixed(2)} MB`],

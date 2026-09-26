@@ -59,7 +59,7 @@ export default function DepartmentQualityPage() {
     }).catch(() => { setLoadError(t('w9.states.error')); })
   }, [])
 
-  const avgScore = apiStats?.avgScore ?? SCORE_TREND[SCORE_TREND.length - 1].score
+  const avgScore = apiStats?.avgScore ?? SCORE_TREND[SCORE_TREND.length - 1]?.score ?? 0
   const totalChecks = CHECK_RESULTS.reduce((s, c) => s + c.total, 0)
   const totalPassed = CHECK_RESULTS.reduce((s, c) => s + c.passed, 0)
   const totalFailed = CHECK_RESULTS.reduce((s, c) => s + c.failed, 0)

@@ -1178,7 +1178,7 @@ const CardiacSpecialtyPage = () => {
                       <div
                         style={{
                           height: "100%",
-                          width: `${Math.min(t.avgEf, 100)}%`,
+                          width: `${Math.min(tr.avgEf, 100)}%`,
                           background: "#16a34a",
                           borderRadius: 3,
                         }}

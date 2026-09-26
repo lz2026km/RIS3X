@@ -17,6 +17,8 @@ import {
   Gauge,
 } from "lucide-react";
 import { t } from "../i18n/appI18n";
+import { DataTable } from "../components/common/DataTable";
+import type { ColumnsType } from "antd/es/table";
 import {
   DoseSearchPanel,
   DoseTrackingTable,
@@ -48,7 +50,7 @@ import {
   deviceDoseData,
 } from "./dose/mockData";
 import { exportDoseDataToCSV, exportDeviceDoseToCSV } from "./dose/utils";
-import { LoadingBanner } from "../components/feedback";
+import { LoadingBanner, AppEmpty } from "../components/feedback";
 import {
   LineChart, Line, BarChart as RBChart, Bar, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -274,6 +276,9 @@ export default function DoseTrackPage() {
       )}
 
       {view === "device" && (
+        deviceDose.length === 0 ? (
+          <AppEmpty variant="no-data" minHeight={200} />
+        ) : (
         <div
           style={{
             display: "grid",
@@ -289,6 +294,7 @@ export default function DoseTrackPage() {
             />
           ))}
         </div>
+        )
       )}
 
       {view === "alert" && (
@@ -785,6 +791,45 @@ function DoseAnalyticsSection({
 
   const overTotal = drlOverDevice.reduce((s, d) => s + d.over, 0);
 
+  type PatientRankRow = { name: string; id: string; dlp1y: number; dlp30d: number; exams: number; overDrl: number };
+  const patientRankColumns: ColumnsType<PatientRankRow> = [
+    {
+      title: t("w3tables.col.index"), key: "rank", width: 70, align: "center",
+      render: (_: unknown, _row, index) => <span style={{ fontSize: 13, fontWeight: 800, color: index < 3 ? "#d97706" : "#94a3b8" }}>#{index + 1}</span>,
+    },
+    {
+      title: t("w3tables.col.patient"), dataIndex: "name", key: "name",
+      render: (_: unknown, p) => (
+        <div>
+          <b style={{ fontSize: 12, color: "#1e293b" }}>{p.name}</b>
+          <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "monospace" }}>{p.id}</div>
+        </div>
+      ),
+    },
+    {
+      title: t("doseTrack.patientRankTitle"), dataIndex: "dlp1y", key: "dlp1y",
+      render: (v: number) => {
+        const pct = Math.min(100, Math.round((v / 2500) * 100));
+        const color = v > 2000 ? "#dc2626" : v > 1200 ? "#d97706" : "#3b82f6";
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 220 }}>
+            <div style={{ flex: 1, height: 12, background: "#f1f5f9", borderRadius: 6, overflow: "hidden" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 6, opacity: 0.85 }} />
+            </div>
+            <span style={{ width: 100, fontSize: 12, fontWeight: 700, color: "#1e293b", textAlign: "right" }}>{v.toLocaleString()} mGy·cm</span>
+          </div>
+        );
+      },
+    },
+    { title: t("w3tables.col.exam"), dataIndex: "exams", key: "exams", width: 100, align: "center", render: (v: number) => t("doseTrack.examCount", { count: v }) },
+    {
+      title: t("w3tables.col.count"), dataIndex: "overDrl", key: "overDrl", width: 100, align: "center",
+      render: (v: number) => v > 0
+        ? <span style={{ padding: "1px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: "var(--color-error-bg)", color: "#dc2626" }}>{t("doseTrack.overCount", { count: v })}</span>
+        : <span style={{ color: "var(--text-secondary)" }}>—</span>,
+    },
+  ];
+
   return (
     <div data-testid="dose-analytics-section">
       {/* 数据源徽标 */}
@@ -836,26 +881,13 @@ function DoseAnalyticsSection({
           <Award size={14} /> {t('doseTrack.patientRankTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.patientRankSubtitle')}</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {patientRank.map((p, i) => {
-            const pct = Math.min(100, Math.round((p.dlp1y / 2500) * 100));
-            const color = p.dlp1y > 2000 ? '#dc2626' : p.dlp1y > 1200 ? '#d97706' : '#3b82f6';
-            return (
-              <div key={p.id + i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 26, fontSize: 13, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', textAlign: 'center' }}>#{i + 1}</span>
-                <b style={{ width: 90, fontSize: 12, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</b>
-                <div style={{ flex: 1, height: 12, background: '#f1f5f9', borderRadius: 6, overflow: 'hidden' }}>
-                  <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 6, opacity: 0.85 }} />
-                </div>
-                <span style={{ width: 90, fontSize: 12, fontWeight: 700, color: '#1e293b', textAlign: 'right' }}>{p.dlp1y.toLocaleString()} mGy·cm</span>
-                <span style={{ width: 56, fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>{t('doseTrack.examCount', { count: p.exams })}</span>
-                {p.overDrl > 0 && (
-                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'var(--color-error-bg)', color: '#dc2626' }}>{t('doseTrack.overCount', { count: p.overDrl })}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <DataTable<PatientRankRow>
+          columns={patientRankColumns}
+          dataSource={patientRank}
+          rowKey={(r) => r.id + r.name}
+          pagination={{ pageSize: 10 }}
+          scroll={{ x: 'max-content' }}
+        />
       </div>
 
       {/* G3. DRL 超标清单 (按设备) */}

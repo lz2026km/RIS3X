@@ -205,15 +205,15 @@ export default function SidebarPanel(props: Props) {
       ctx.fillRect(0, 0, size, 26)
       ctx.fillStyle = '#e2e8f0'
       ctx.font = '13px sans-serif'
-      ctx.fillText(`${exam.patientName} ${exam.gender}/${exam.age}岁  ${exam.examItemName}`, 8, 17)
-      ctx.fillText(`${ww}/WW  ${wl}/WL  ${zoom ? '缩放 ' + zoom + 'x' : ''}`, size - 180, 17)
+      ctx.fillText(`${exam.patientName} ${exam.gender}/${exam.age}${t('w9d.common.ageSuffix')}  ${exam.examItemName}`, 8, 17)
+      ctx.fillText(`${ww}/WW  ${wl}/WL  ${zoom ? t('w9d.sidebar.zoomPrefix') + zoom + 'x' : ''}`, size - 180, 17)
       ctx.fillStyle = 'rgba(0,0,0,0.6)'
       ctx.fillRect(0, size - 24, size, 24)
       ctx.fillStyle = '#94a3b8'
       ctx.font = '12px sans-serif'
-      ctx.fillText(`${exam.accessionNumber} · 序列 ${activeSeries.seriesNumber} · 层 ${currentImage?.imageNumber ?? 1}/${activeSeries.imageCount}`, 8, size - 8)
+      ctx.fillText(`${exam.accessionNumber} · ${t('w9d.sidebar.seriesLabel')} ${activeSeries.seriesNumber} · ${t('w9d.sidebar.sliceLabel')} ${currentImage?.imageNumber ?? 1}/${activeSeries.imageCount}`, 8, size - 8)
       canvas.toBlob((blob) => {
-        if (!blob) { showToast('PNG 导出失败: 浏览器不支持'); return }
+        if (!blob) { showToast(t('w9d.sidebar.pngExportUnsupported')); return }
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -222,10 +222,10 @@ export default function SidebarPanel(props: Props) {
         a.click()
         a.remove()
         setTimeout(() => URL.revokeObjectURL(url), 1000)
-        showToast('PNG 已导出')
+        showToast(t('w9d.sidebar.pngExported'))
       }, 'image/png')
     } catch {
-      showToast('PNG 导出失败')
+      showToast(t('w9d.sidebar.pngExportFailed'))
     }
   }
 
@@ -237,25 +237,25 @@ export default function SidebarPanel(props: Props) {
     if (exam.patientId) params.set('patientId', exam.patientId)
     params.set('modality', exam.modality || '')
     navigate(`/integration/dimse/upload?${params.toString()}`)
-    showToast('已跳转 DICOM 上传 (DIMSE)')
+    showToast(t('w9d.sidebar.dicomUploadJump'))
   }
 
   // [Wave2A] 危急值通知: 接 criticalExtApi.autoDetect 真实创建, 失败回退危急值页
   const sendCritical = async () => {
-    showToast('正在创建危急值通知...')
+    showToast(t('w9d.sidebar.creatingCritical'))
     try {
       const res = await criticalExtApi.autoDetect({
         examId: String(exam.id ?? exam.accessionNumber ?? ''),
         reportContent: String(exam.clinicalDiagnosis || exam.examIndications || exam.clinicalHistory || '危急值待确认'),
       })
       if (res.success) {
-        showToast('危急值通知已发送')
+        showToast(t('w9d.sidebar.criticalSent'))
       } else {
-        showToast(`危急值创建失败: ${res.error?.message ?? '未知错误'}，跳转危急值中心`)
+        showToast(t('w9d.sidebar.criticalCreateFailed', { msg: res.error?.message ?? t('w9d.sidebar.unknownError') }))
         navigate(`/critical-value?examId=${encodeURIComponent(exam.id || '')}`)
       }
     } catch {
-      showToast('危急值接口不可用，跳转危急值中心')
+      showToast(t('w9d.sidebar.criticalUnavailable'))
       navigate(`/critical-value?examId=${encodeURIComponent(exam.id || '')}`)
     }
   }
@@ -309,20 +309,20 @@ export default function SidebarPanel(props: Props) {
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><AlertCircle size={12} />{t('dcm.clinicalInfo')}</div>
               <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('dcm.clinicalDiagnosis')}</span><div style={{ ...s.infoValueFull, color: '#dc2626' }}>{exam.clinicalDiagnosis}</div></div>
-              <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>病史</span><div style={s.infoValueFull}>{exam.clinicalHistory}</div></div>
+              <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('w9d.sidebar.historyLabel')}</span><div style={s.infoValueFull}>{exam.clinicalHistory}</div></div>
               <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('dcm.examIndications')}</span><div style={s.infoValueFull}>{exam.examIndications}</div></div>
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><Layers3 size={12} />{t('dcm.mpr')}</div>
-              <div style={s.mprTabs}>{['横断面', '冠状面', '矢状面'].map((tab, i) => (<button key={tab} style={{ ...s.mprTab, ...(i === activeMprIdx ? s.mprTabActive : {}) }} onClick={() => setActiveMprIdx(i)}>{tab}</button>))}</div>
+              <div style={s.mprTabs}>{[t('w9d.sidebar.mprAxial'), t('w9d.sidebar.mprCoronal'), t('w9d.sidebar.mprSagittal')].map((tab, i) => (<button key={tab} style={{ ...s.mprTab, ...(i === activeMprIdx ? s.mprTabActive : {}) }} onClick={() => setActiveMprIdx(i)}>{tab}</button>))}</div>
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><Activity size={12} />{t('dcm.mip')}</div>
               <Card bordered={false} style={s.mipControlPanel} styles={{ body: { padding: 0 } }}>
                 <div style={s.mipControlTitle}><span>{t('dcm.projDir')}</span></div>
-                <div style={s.mipDirRow}>{(['axial', 'sagittal', 'coronal'] as const).map(dir => (<button key={dir} style={{ ...s.mipDirBtn, ...(mipDirection === dir ? s.mipDirBtnActive : {}) }} onClick={() => setMipDirection(dir)}>{dir === 'axial' ? '轴位' : dir === 'sagittal' ? '矢状' : '冠状'}</button>))}</div>
+                <div style={s.mipDirRow}>{(['axial', 'sagittal', 'coronal'] as const).map(dir => (<button key={dir} style={{ ...s.mipDirBtn, ...(mipDirection === dir ? s.mipDirBtnActive : {}) }} onClick={() => setMipDirection(dir)}>{dir === 'axial' ? t('w9d.sidebar.planeAxial') : dir === 'sagittal' ? t('w9d.sidebar.planeSagittal') : t('w9d.sidebar.planeCoronal')}</button>))}</div>
                 <div style={s.mipControlTitle}><span>{t('dcm.frameSelect')}</span></div>
-                <div style={s.mipFrameRow}><span style={s.mipFrameLabel}>帧:</span><input type="range" min={0} max={Math.max(0, images.length - 1)} value={mipFrame} onChange={e => setMipFrame(parseInt(e.target.value))} style={{ flex: 1, accentColor: PRIMARY }} /><span style={s.mipFrameVal}>{mipFrame + 1}/{images.length}</span></div>
+                <div style={s.mipFrameRow}><span style={s.mipFrameLabel}>{t('w9d.sidebar.frameLabel')}</span><input type="range" min={0} max={Math.max(0, images.length - 1)} value={mipFrame} onChange={e => setMipFrame(parseInt(e.target.value))} style={{ flex: 1, accentColor: PRIMARY }} /><span style={s.mipFrameVal}>{mipFrame + 1}/{images.length}</span></div>
               </Card>
             </div>
             <div style={s.infoSection}>
@@ -351,14 +351,14 @@ export default function SidebarPanel(props: Props) {
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.imageNumber')}</span><span style={s.infoValue}>{currentImage?.imageNumber || 1}</span></div>
                 <div style={{ ...s.infoItem, gridColumn: '1 / -1' }}><span style={s.infoLabel}>{t('dcm.seriesDesc')}</span><span style={{ ...s.infoValue, gridColumn: '1 / -1' }}>{activeSeries.seriesDescription}</span></div>
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.imageCount')}</span><span style={s.infoValue}>{activeSeries.imageCount}</span></div>
-                <div style={s.infoItem}><span style={s.infoLabel}>设备</span><span style={s.infoValue}>{activeSeries.modality}</span></div>
+                <div style={s.infoItem}><span style={s.infoLabel}>{t('w9d.sidebar.device')}</span><span style={s.infoValue}>{activeSeries.modality}</span></div>
               </div>
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><Info size={12} />{t('dcm.imageParams')}</div>
               <div style={s.infoGrid}>
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.sliceThickness')}</span><span style={s.infoValue}>{currentImage?.sliceThickness || 2.5}mm</span></div>
-                <div style={s.infoItem}><span style={s.infoLabel}>层间距</span><span style={s.infoValue}>2.5mm</span></div>
+                <div style={s.infoItem}><span style={s.infoLabel}>{t('w9d.sidebar.sliceGap')}</span><span style={s.infoValue}>2.5mm</span></div>
                 {currentImage?.tr && <div style={s.infoItem}><span style={s.infoLabel}>TR</span><span style={s.infoValue}>{currentImage.tr}ms</span></div>}
                 {currentImage?.te && <div style={s.infoItem}><span style={s.infoLabel}>TE</span><span style={s.infoValue}>{currentImage.te}ms</span></div>}
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.matrix')}</span><span style={s.infoValue}>{currentImage?.matrix || '512×512'}</span></div>
@@ -409,18 +409,18 @@ export default function SidebarPanel(props: Props) {
                     {reportStatus === '已报告' && <CheckCircle size={10} />}{reportStatus === '待书写' && <Clock size={10} />}{reportStatus}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>患者: {exam.patientName} | {exam.age}岁{exam.gender}<br />检查日期: {exam.examDate} {exam.examTime}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('w9d.sidebar.patientLabel')} {exam.patientName} | {exam.age}{t('w9d.common.ageSuffix')}{exam.gender}<br />{t('w9d.sidebar.examDateLabel')} {exam.examDate} {exam.examTime}</div>
               </Card>
               {reportStatus === '已报告' && (
                 <><div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>李明辉</div></div>
-                <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>报告时间</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
+                <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('w9d.sidebar.reportTime')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
               )}
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><FileText size={12} />{t('dcm.reportActions')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {exam.status !== '待报告' && exam.status !== '已报告' && (
-                  <button style={{ ...s.reportBtn, background: '#059669', color: '#fff' }} onClick={async () => { await examApi.complete(exam.id); showToast('影像采集完成') }}><CheckCircle size={14} />{t('dcm.completeAcquisition')}</button>
+                   <button style={{ ...s.reportBtn, background: '#059669', color: '#fff' }} onClick={async () => { await examApi.complete(exam.id); showToast(t('w9d.sidebar.acquisitionComplete')) }}><CheckCircle size={14} />{t('dcm.completeAcquisition')}</button>
                 )}
                 {reportStatus === '已报告' ? (
                   <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => goWriteReport()}><Eye size={14} />{t('dcm.viewReport')}</button>
@@ -438,13 +438,13 @@ export default function SidebarPanel(props: Props) {
               <div style={s.infoSectionTitle}><Calendar size={12} />{t('dcm.reportTimelinessSection')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.examCompleteTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 10:00</span></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.waitingTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: '#d97706' }}>4小时30分</span></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.avgReportTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>28分钟</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.waitingTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: '#d97706' }}>{t('w9d.sidebar.waitingTimeValue')}</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.avgReportTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t('w9d.sidebar.avgReportTimeValue')}</span></div>
               </div>
             </div>
             {(exam.priority === '紧急' || exam.priority === '危重') && (
               <div style={{ padding: 10, background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)', marginTop: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}><AlertCircle size={14} color="#dc2626" /><span style={{ fontSize: 12, fontWeight: 700, color: '#dc2626' }}>{exam.priority === '危重' ? '危重' : '紧急'}检查</span></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}><AlertCircle size={14} color="#dc2626" /><span style={{ fontSize: 12, fontWeight: 700, color: '#dc2626' }}>{exam.priority === '危重' ? t('w9d.sidebar.priorityCritical') : t('w9d.sidebar.priorityUrgent')}{t('w9d.sidebar.examWord')}</span></div>
                 <div style={{ fontSize: 12, color: 'var(--color-error)', lineHeight: 1.5 }}>{exam.clinicalDiagnosis}</div>
               </div>
             )}
@@ -456,13 +456,13 @@ export default function SidebarPanel(props: Props) {
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><History size={12} />{t('dcm.historyList')}</div>
               <div style={s.historySearchRow}>
-                <input type="text" placeholder="搜索检查项目/日期/模态..." style={s.historySearchInput} value={historySearchText} onChange={e => setHistorySearchText(e.target.value)} />
+                <input type="text" placeholder={t('w9d.sidebar.searchPlaceholder')} style={s.historySearchInput} value={historySearchText} onChange={e => setHistorySearchText(e.target.value)} />
               </div>
               <div style={s.historyActionBar}>
                 <button style={{ ...s.historyActionBtn, ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}) }} disabled={selectedHistoryExams.length === 0} onClick={enterCompareMode}><GitCompare size={12} />{t('dcm.compare')}</button>
                 <button style={{ ...s.historyActionBtn, ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}) }} disabled={selectedHistoryExams.length === 0} onClick={() => setSelectedHistoryExams([])}><X size={12} />{t('dcm.clear')}</button>
               </div>
-              {selectedHistoryExams.length > 0 && <div style={{ fontSize: 12, color: '#3b82f6', marginBottom: 8, fontWeight: 600 }}>已选择 {selectedHistoryExams.length} 项检查</div>}
+              {selectedHistoryExams.length > 0 && <div style={{ fontSize: 12, color: '#3b82f6', marginBottom: 8, fontWeight: 600 }}>{t('w9d.sidebar.selectedCount', { count: selectedHistoryExams.length })}</div>}
               {filteredHistoryExams.length === 0 ? (
                 <div style={s.historyListEmpty}><div style={s.historyListEmptyIcon}><ScrollText size={32} /></div><div>{t('dcm.noHistory')}</div></div>
               ) : (
@@ -487,16 +487,16 @@ export default function SidebarPanel(props: Props) {
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><GitCompare size={12} />{t('dcm.compareMode')}</div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dcm.syncScroll')}</span>
-                    <button style={{ ...s.syncScrollBadge, ...(syncScroll ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setSyncScroll(!syncScroll)}>{syncScroll ? <CheckCircle size={10} /> : <X size={10} />}{syncScroll ? '开' : '关'}</button></div>
+                    <button style={{ ...s.syncScrollBadge, ...(syncScroll ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setSyncScroll(!syncScroll)}>{syncScroll ? <CheckCircle size={10} /> : <X size={10} />}{syncScroll ? t('w9d.sidebar.on') : t('w9d.sidebar.off')}</button></div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
-                    <button style={{ ...s.syncScrollBadge, ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setShowDiffHighlight(!showDiffHighlight)}>{showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}{showDiffHighlight ? '开' : '关'}</button></div>
+                    <button style={{ ...s.syncScrollBadge, ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setShowDiffHighlight(!showDiffHighlight)}>{showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}{showDiffHighlight ? t('w9d.sidebar.on') : t('w9d.sidebar.off')}</button></div>
                   <button style={{ ...s.reportBtn, background: '#ef4444', color: '#fff' }} onClick={exitCompareMode}><X size={14} />{t('dcm.exitCompareMode')}</button>
                 </div>
                 <Card bordered={false} style={s.compareInfoCard} styles={{ body: { padding: 0 } }}>
                   <div style={s.compareInfoCardTitle}><ArrowLeftRight size={12} />{t('dcm.compareInfo')}</div>
                   <div style={s.compareInfoRow}><span style={s.compareInfoLabel}>{t('dcm.currentExam')}</span><span style={s.compareInfoValue}>{exam.examDate}</span></div>
                   <div style={s.compareInfoRow}><span style={s.compareInfoLabel}>{t('dcm.historyExam')}</span><span style={s.compareInfoValue}>{compareExam.examDate}</span></div>
-                  <div style={s.compareInfoRow}><span style={s.compareInfoLabel}>{t('dcm.timeInterval')}</span><span style={s.compareInfoValue}>约45天</span></div>
+                  <div style={s.compareInfoRow}><span style={s.compareInfoLabel}>{t('dcm.timeInterval')}</span><span style={s.compareInfoValue}>{t('w9d.sidebar.approx45Days')}</span></div>
                 </Card>
                 {getCompareDiffInfo() && (
                   <Card bordered={false} style={s.diffSummaryCard} styles={{ body: { padding: 0 } }}>
@@ -512,7 +512,7 @@ export default function SidebarPanel(props: Props) {
                 )}
                 <Card bordered={false} style={s.compareInfoCard} styles={{ body: { padding: 0 } }}>
                   <div style={s.compareInfoCardTitle}><ScrollText size={12} />{t('dcm.historyReport')}</div>
-                  <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{compareExam.reportDoctor || '未报告'}</div></div>
+                  <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{compareExam.reportDoctor || t('w9d.sidebar.noReport')}</div></div>
                   {compareExam.finding && <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{t('dcm.finding')}</div><div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{compareExam.finding}</div></div>}
                   {compareExam.conclusion && <div><div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{t('dcm.conclusion')}</div><div style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.5 }}>{compareExam.conclusion}</div></div>}
                 </Card>
@@ -539,20 +539,20 @@ export default function SidebarPanel(props: Props) {
                 <button style={{ ...s.mprTab, flex: 1, ...(externalSearchType === 'patientName' ? s.mprTabActive : {}) }} onClick={() => setExternalSearchType('patientName')}>{t('dc.patientName')}</button>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <input type="text" placeholder={externalSearchType === 'patientId' ? '输入患者ID' : '输入患者姓名'} value={externalSearchText} onChange={e => setExternalSearchText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleExternalSearch()} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
+                <input type="text" placeholder={externalSearchType === 'patientId' ? t('w9d.sidebar.inputPatientId') : t('w9d.sidebar.inputPatientName')} value={externalSearchText} onChange={e => setExternalSearchText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleExternalSearch()} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
                 <button style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={handleExternalSearch}>{t('dcm.search')}</button>
               </div>
             </div>
             {externalSearchResults.length > 0 && (
               <div style={s.infoSection}>
-                <div style={s.infoSectionTitle}><FileSearch size={12} />检索结果 ({externalSearchResults.length})</div>
+                <div style={s.infoSectionTitle}><FileSearch size={12} />{t('w9d.sidebar.searchResults')} ({externalSearchResults.length})</div>
                 {externalSearchResults.map((extExam: any) => (
                   <div key={extExam.id} style={{ ...s.historyListItem, ...(selectedExternalExam?.id === extExam.id ? s.historyListItemSelected : {}) }} onClick={() => setSelectedExternalExam(extExam)}>
                     <div style={s.historyListItemContent}>
                       <div style={s.historyListItemHeader}><span style={s.historyListItemTitle}>{extExam.examItemName}</span><span style={s.historyListItemDate}>{extExam.examDate}</span></div>
-                      <div style={s.historyListItemMeta}>{extExam.patientName} · {extExam.gender}/{extExam.age}岁 · {extExam.modality} · {extExam.bodyPart}</div>
+                      <div style={s.historyListItemMeta}>{extExam.patientName} · {extExam.gender}/{extExam.age}{t('w9d.common.ageSuffix')} · {extExam.modality} · {extExam.bodyPart}</div>
                       <div style={{ ...s.historyListItemStatus, background: extExam.status === 'available' ? 'var(--color-success-bg)' : extExam.status === 'pending' ? 'var(--color-warning-bg)' : 'var(--border-light)',                         color: extExam.status === 'available' ? '#16a34a' : extExam.status === 'pending' ? '#d97706' : 'var(--text-muted)' }}>
-                        {extExam.status === 'available' && <CheckCircle size={9} />}{extExam.status === 'available' ? '可调阅' : extExam.status === 'pending' ? '申请中' : '已归档'}
+                        {extExam.status === 'available' && <CheckCircle size={9} />}{extExam.status === 'available' ? t('w9d.sidebar.statusAvailable') : extExam.status === 'pending' ? t('w9d.sidebar.statusPending') : t('w9d.sidebar.statusArchived')}
                       </div>
                     </div>
                   </div>
@@ -562,7 +562,7 @@ export default function SidebarPanel(props: Props) {
             {selectedExternalExam && (
               <>
                 <div style={s.infoSection}>
-                  <div style={s.infoSectionTitle}><FileText size={12} />外院检查详情</div>
+                  <div style={s.infoSectionTitle}><FileText size={12} />{t('w9d.sidebar.externalExamDetail')}</div>
                   <div style={s.infoGrid}>
                     <div style={s.infoItem}><span style={s.infoLabel}>{t('dc.patientName')}</span><span style={s.infoValue}>{selectedExternalExam.patientName}</span></div>
                     <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.genderAge')}</span><span style={s.infoValue}>{selectedExternalExam.gender}/{selectedExternalExam.age}岁</span></div>
@@ -574,33 +574,33 @@ export default function SidebarPanel(props: Props) {
                 </div>
                 {selectedExternalExam.finding && (
                   <div style={s.infoSection}>
-                    <div style={s.infoSectionTitle}><ScrollText size={12} />外院报告摘要</div>
+                    <div style={s.infoSectionTitle}><ScrollText size={12} />{t('w9d.sidebar.externalReportSummary')}</div>
                     <Card bordered={false} style={s.reportStatusCard} styles={{ body: { padding: 0 } }}>
-                      <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.reportDoctor')}</span><div style={s.infoValue}>{selectedExternalExam.reportDoctor || '未填写'}</div></div>
+                      <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.reportDoctor')}</span><div style={s.infoValue}>{selectedExternalExam.reportDoctor || t('w9d.sidebar.notFilled')}</div></div>
                       {selectedExternalExam.finding && <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.finding')}</span><div style={{ ...s.infoValueFull, fontSize: 12, lineHeight: 1.5 }}>{selectedExternalExam.finding}</div></div>}
                       {selectedExternalExam.conclusion && <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.conclusion')}</span><div style={{ ...s.infoValueFull, fontSize: 12, fontWeight: 600, color: '#dc2626', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div></div>}
                     </Card>
                   </div>
                 )}
                 <div style={s.infoSection}>
-                  <div style={s.infoSectionTitle}><GitCompare size={12} />影像对比</div>
+                  <div style={s.infoSectionTitle}><GitCompare size={12} />{t('w9d.sidebar.imageCompare')}</div>
                   <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
-                    <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'leftRight' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('leftRight')}>左右</button>
-                    <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'topBottom' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('topBottom')}>上下</button>
+                    <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'leftRight' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('leftRight')}>{t('w9d.sidebar.layoutLeftRight')}</button>
+                    <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'topBottom' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('topBottom')}>{t('w9d.sidebar.layoutTopBottom')}</button>
                   </div>
-                  <button style={{ ...s.reportBtn, background: isExternalCompareMode ? '#ef4444' : PRIMARY, color: '#fff' }} onClick={() => setIsExternalCompareMode(!isExternalCompareMode)}><GitCompare size={14} />{isExternalCompareMode ? '退出对比' : '启动对比'}</button>
+                  <button style={{ ...s.reportBtn, background: isExternalCompareMode ? '#ef4444' : PRIMARY, color: '#fff' }} onClick={() => setIsExternalCompareMode(!isExternalCompareMode)}><GitCompare size={14} />{isExternalCompareMode ? t('w9d.sidebar.exitCompare') : t('w9d.sidebar.startCompare')}</button>
                 </div>
                 <div style={s.infoSection}>
-                  <div style={s.infoSectionTitle}><Upload size={12} />申请调阅归档</div>
-                  <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>将外院影像归档至本院PACS系统，便于后续长期查阅和对比。</div></div>
+                  <div style={s.infoSectionTitle}><Upload size={12} />{t('w9d.sidebar.archiveRequest')}</div>
+                  <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('w9d.sidebar.archiveRequestDesc')}</div></div>
                   {archiveRequestStatus && (
                     <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: archiveRequestStatus === 'success' ? '#16a34a' : '#d97706' }}>
-                      {archiveRequestStatus === 'success' ? <><CheckCircle size={12} /> 申请已提交，请等待审核</> : <><Clock size={12} /> 申请处理中...</>}
+                      {archiveRequestStatus === 'success' ? <><CheckCircle size={12} /> {t('w9d.sidebar.archiveSubmitted')}</> : <><Clock size={12} /> {t('w9d.sidebar.archiveProcessing')}</>}
                     </div>
                   )}
                   <button style={{ ...s.reportBtn, background: selectedExternalExam.status === 'archived' ? '#94a3b8' : PRIMARY, color: '#fff', cursor: selectedExternalExam.status === 'archived' ? 'not-allowed' : 'pointer' }}
                     disabled={selectedExternalExam.status === 'archived' || !!archiveRequestStatus} onClick={handleArchiveRequest}>
-                    <Upload size={14} />{selectedExternalExam.status === 'archived' ? '已归档' : archiveRequestStatus ? '已申请' : '申请调阅'}
+                    <Upload size={14} />{selectedExternalExam.status === 'archived' ? t('w9d.sidebar.statusArchived') : archiveRequestStatus ? t('w9d.sidebar.requested') : t('w9d.sidebar.requestAccess')}
                   </button>
                 </div>
               </>

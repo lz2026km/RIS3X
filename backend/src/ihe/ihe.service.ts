@@ -130,6 +130,7 @@ export interface VisitState {
 @Injectable()
 export class IheService {
   private readonly logger = new Logger(IheService.name)
+  private seq = 0
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -161,7 +162,7 @@ export class IheService {
   // ===========================================================
 
   async pixFeed(dto: PixFeedDto): Promise<{ ack: 'AA' | 'AE' | 'AR'; messageId: string; errors?: string[]; storedPid?: string }> {
-    const messageId = `PIX-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const messageId = `PIX-${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${++this.seq}`
     const errors: string[] = []
 
     if (!dto.patientId) errors.push('缺少 patientId')
@@ -458,7 +459,7 @@ export class IheService {
   }
 
   async sendPamMessage(dto: PamMessageDto): Promise<PamAck> {
-    const messageId = `PAM-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const messageId = `PAM-${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${++this.seq}`
     const ts = new Date().toISOString()
     const errors: string[] = []
 
@@ -476,7 +477,7 @@ export class IheService {
       this.logger.error(`PAM ${dto.messageType} 应用到本地 Patient 失败: ${(err as Error).message}`, (err as Error).stack)
     }
 
-    const visitNumber = dto.visitNumber ?? `VN-${Date.now()}`
+    const visitNumber = dto.visitNumber ?? `VN-${Date.now()}-${++this.seq}`
     await this.transitionVisitState(dto, visitNumber)
     await this.appendPamLog({ ts, message: dto, ack: 'AA', messageId })
 
@@ -500,7 +501,7 @@ export class IheService {
 
   async registerDocumentStub(document: Record<string, unknown>, _repository: string): Promise<string> {
     await this.delay(300)
-    return `doc-${Date.now()}`
+    return `doc-${Date.now()}-${++this.seq}`
   }
 
   async queryDocumentsStub(patientId: string, _domain: string): Promise<Array<Record<string, unknown>>> {

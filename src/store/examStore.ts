@@ -126,7 +126,14 @@ export const useExamStore = create<ExamState>((set, get) => {
   const crud = createCrudStore<ExamDto>({
     field: 'exams',
     label: '检查',
-    api: { list: () => examApi.list({}) },
+    api: {
+      list: async () => {
+        const res = await examApi.list({})
+        const data = res.data
+        const items = Array.isArray(data) ? data : data?.items ?? []
+        return { ...res, data: items }
+      },
+    },
     methodName: 'load',
     loadErrorMsg: '加载失败',
   })(set as any, get) as Record<string, (...args: any[]) => Promise<void>>

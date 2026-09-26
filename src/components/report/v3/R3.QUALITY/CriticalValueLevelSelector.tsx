@@ -8,14 +8,15 @@ import { Card, Tag, Space, Row, Col, Statistic, message, Alert, Progress, Badge,
 import { AlertTriangle, Layers, Clock, Zap, Bell, ChevronRight, Target, Timer, Gauge } from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import type { CriticalLevel, CriticalLevelConfig, NotificationChannel, CriticalKPI } from '../../../../types/R3/R3.CRITICAL';
+import { t } from '../../../../i18n/appI18n';
 
 const CHANNEL_META: Record<NotificationChannel, { label: string; color: string; icon: string }> = {
-  phone: { label: '电话', color: 'green', icon: '☎' },
-  sms: { label: '短信', color: 'blue', icon: '✉' },
-  wechat: { label: '微信', color: 'cyan', icon: '💬' },
-  inApp: { label: '应用', color: 'purple', icon: '🔔' },
-  email: { label: '邮件', color: 'orange', icon: '📧' },
-  pager: { label: '传呼', color: 'red', icon: '📟' },
+  phone: { label: t('w9e.criticalLevelSelector.channelPhone'), color: 'green', icon: '☎' },
+  sms: { label: t('w9e.criticalLevelSelector.channelSms'), color: 'blue', icon: '✉' },
+  wechat: { label: t('w9e.criticalLevelSelector.channelWechat'), color: 'cyan', icon: '💬' },
+  inApp: { label: t('w9e.criticalLevelSelector.channelInApp'), color: 'purple', icon: '🔔' },
+  email: { label: t('w9e.criticalLevelSelector.channelEmail'), color: 'orange', icon: '📧' },
+  pager: { label: t('w9e.criticalLevelSelector.channelPager'), color: 'red', icon: '📟' },
 };
 
 const LEVEL_ORDER: CriticalLevel[] = ['critical', 'urgent', 'warning', 'info'];
@@ -42,7 +43,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
         setLevels(l);
         setKpi(k);
       })
-      .catch(() => message.error('加载分级配置失败'))
+      .catch(() => message.error(t('w9e.criticalLevelSelector.loadFailed')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -73,7 +74,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
   }, [orderedLevels]);
 
   return (
-    <div data-testid="critical-value-level-selector" role="region" aria-label="危急值分级选择器">
+    <div data-testid="critical-value-level-selector" role="region" aria-label={t('w9e.criticalLevelSelector.ariaLabel')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 100%)',
@@ -86,22 +87,22 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Layers size={18} />
-            <strong style={{ fontSize: 16 }}>危急值分级分类器</strong>
+            <strong style={{ fontSize: 16 }}>{t('w9e.criticalLevelSelector.title')}</strong>
             <Tag color="purple">R3.QUALITY.211</Tag>
           </Space>
           <Segmented
             value={view}
             onChange={(v) => setView(v as 'grid' | 'list')}
             options={[
-              { label: '卡片', value: 'grid' },
-              { label: '列表', value: 'list' },
+              { label: t('w9e.criticalLevelSelector.viewGrid'), value: 'grid' },
+              { label: t('w9e.criticalLevelSelector.viewList'), value: 'list' },
             ]}
           />
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>分级数</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.criticalLevelSelector.statLevelCount')}</span>}
               value={orderedLevels.length}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Layers size={14} />}
@@ -109,16 +110,16 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>最高响应</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.criticalLevelSelector.statMaxResponse')}</span>}
               value={orderedLevels.length > 0 ? Math.min(...orderedLevels.map((l) => l.responseDeadline)) : 0}
-              suffix="分钟"
+              suffix={t('w9e.criticalLevelSelector.minutes')}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Zap size={14} />}
             />
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>通知渠道</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.criticalLevelSelector.statChannels')}</span>}
               value={channelUniverse.length}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Bell size={14} />}
@@ -126,7 +127,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>本月触发</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.criticalLevelSelector.statMonthTriggers')}</span>}
               value={totalThisMonth}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Target size={14} />}
@@ -138,13 +139,13 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
       <Alert
         type="info"
         showIcon
-        title="危急值根据响应时效、影响范围等分为 4 级,分级决定默认通报渠道与升级规则"
-        description="分级标准遵循国家卫健委 2024 版放射科危急值目录及院内危急值管理 SOP"
+        title={t('w9e.criticalLevelSelector.alertTitle')}
+        description={t('w9e.criticalLevelSelector.alertDesc')}
         style={{ marginBottom: 12 }}
       />
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+        <div style={{ textAlign: 'center', padding: 40 }}>{t('w9e.criticalLevelSelector.loading')}</div>
       ) : view === 'grid' ? (
         <Row gutter={[12, 12]}>
           {orderedLevels.map((l) => {
@@ -164,7 +165,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                   }}
                   data-testid={`level-card-${l.level}`}
                   role="button"
-                  aria-label={`${l.label} 级别`}
+                  aria-label={t('w9e.criticalLevelSelector.levelAria', { label: l.label })}
                   tabIndex={0}
                 >
                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -197,10 +198,10 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                   <Row gutter={8} style={{ marginTop: 10 }}>
                     <Col span={12}>
                       <div style={{ fontSize: 12, color: '#64748b' }}>
-                        <Timer size={10} /> 响应时效
+                        <Timer size={10} /> {t('w9e.criticalLevelSelector.responseTime')}
                       </div>
                       <div style={{ fontSize: 16, fontWeight: 600, color: l.color }}>
-                        {l.responseDeadline} <span style={{ fontSize: 12 }}>分钟</span>
+                        {l.responseDeadline} <span style={{ fontSize: 12 }}>{t('w9e.criticalLevelSelector.minutes')}</span>
                       </div>
                       <Progress
                         percent={Math.round(((maxDeadline - l.responseDeadline + 1) / (maxDeadline + 1)) * 100)}
@@ -211,7 +212,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                     </Col>
                     <Col span={12}>
                       <div style={{ fontSize: 12, color: '#64748b' }}>
-                        <Bell size={10} /> 通知渠道
+                        <Bell size={10} /> {t('w9e.criticalLevelSelector.statChannels')}
                       </div>
                       <div style={{ marginTop: 2 }}>
                         <Space size={3} wrap>
@@ -235,7 +236,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                       color: '#475569',
                     }}
                   >
-                    <Gauge size={10} /> 本月占比:
+                    <Gauge size={10} /> {t('w9e.criticalLevelSelector.monthShare')}
                     <strong style={{ color: l.color, marginLeft: 4 }}>{pct}%</strong>
                     <span style={{ marginLeft: 4, color: '#94a3b8' }}>({count}/{totalThisMonth})</span>
                   </div>
@@ -270,7 +271,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                     <Clock size={10} /> {l.responseDeadline}min
                   </span>
                   <span style={{ fontSize: 12 }}>
-                    本月 <strong>{levelCounts[l.level] ?? 0}</strong>
+                    {t('w9e.criticalLevelSelector.thisMonth')} <strong>{levelCounts[l.level] ?? 0}</strong>
                   </span>
                   <ChevronRight size={14} color="#94a3b8" />
                 </Space>
@@ -282,7 +283,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
       )}
 
       {showKPI && kpi && (
-        <Card size="small" title="分级分布" style={{ marginTop: 12 }}>
+        <Card size="small" title={t('w9e.criticalLevelSelector.distribution')} style={{ marginTop: 12 }}>
           <Space orientation="vertical" style={{ width: '100%' }} size={6}>
             {LEVEL_ORDER.map((lv) => {
               const meta = orderedLevels.find((l) => l.level === lv);

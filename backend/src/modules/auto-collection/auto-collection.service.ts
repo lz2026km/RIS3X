@@ -81,6 +81,7 @@ const memTasks: AutoCollectionTask[] = []
 const memRules: AutoCollectionRule[] = []
 const memLogs: AutoCollectionLog[] = []
 const memConfigs: AutoCollectionConfig[] = []
+let logSeq = 0
 
 const SEED_CONFIGS: AutoCollectionConfig[] = [
   { id: 'cfg-001', key: 'poll_interval_sec', value: '30', description: 'DICOM 轮询间隔', category: 'DICOM' },
@@ -95,7 +96,7 @@ function nowIso(): string {
 
 function addLog(source: string, message: string, level: AutoCollectionLog['level'] = 'INFO'): AutoCollectionLog {
   const log: AutoCollectionLog = {
-    id: `ac-log-${Date.now().toString(36)}-${memLogs.length + 1}`,
+    id: `ac-log-${Date.now().toString(36)}-${++logSeq}`,
     time: nowIso(),
     level,
     source,
@@ -107,6 +108,8 @@ function addLog(source: string, message: string, level: AutoCollectionLog['level
 
 @Injectable()
 export class AutoCollectionService {
+  private seq = 0
+
   // ===== Rules (采集规则 CRUD) =====
   listRules(): AutoCollectionRule[] {
     return [...memRules, ...SEED_RULES.filter((r) => !memRules.some((m) => m.id === r.id))]
@@ -121,7 +124,7 @@ export class AutoCollectionService {
   createRule(input: Omit<AutoCollectionRule, 'id' | 'createdAt' | 'updatedAt'>): AutoCollectionRule {
     const now = nowIso()
     const rule: AutoCollectionRule = {
-      id: `ac-${Date.now().toString(36)}`,
+      id: `ac-${Date.now().toString(36)}-${++this.seq}`,
       name: input.name?.trim() || '未命名规则',
       description: input.description ?? '',
       triggerType: input.triggerType ?? 'event',
@@ -174,7 +177,7 @@ export class AutoCollectionService {
   createTask(input: { ruleId?: string; sourceType?: AutoCollectionTask['sourceType'] }): AutoCollectionTask {
     const rule = input.ruleId ? this.getRule(input.ruleId) : undefined
     const task: AutoCollectionTask = {
-      id: `ac-t-${Date.now().toString(36)}`,
+      id: `ac-t-${Date.now().toString(36)}-${++this.seq}`,
       ruleId: rule?.id ?? 'manual',
       ruleName: rule?.name ?? '手动任务',
       sourceType: input.sourceType ?? (rule?.action === 'notify' ? 'HL7' : 'DICOM'),
@@ -227,7 +230,7 @@ export class AutoCollectionService {
     }
     const seed = SEED_CONFIGS.find((c) => c.key === key)
     const config: AutoCollectionConfig = {
-      id: seed?.id ?? `cfg-${Date.now().toString(36)}`,
+      id: seed?.id ?? `cfg-${Date.now().toString(36)}-${++this.seq}`,
       key,
       value,
       description: seed?.description ?? '',

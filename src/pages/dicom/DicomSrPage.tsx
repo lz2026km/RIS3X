@@ -19,7 +19,6 @@ export const DicomSrPage: React.FC = () => {
   const [generating, setGenerating] = useState(false)
   const [srDoc, setSrDoc] = useState<DicomSrDocument | null>(null)
   const [templates, setTemplates] = useState<DicomSrTemplate[]>([])
-  const [loadingTemplates, setLoadingTemplates] = useState(false)
 
   // [G005 Wave4B] G-01 Encapsulated PDF 封装
   const [pdfReportId, setPdfReportId] = useState<string>('')
@@ -111,12 +110,11 @@ export const DicomSrPage: React.FC = () => {
   }
 
   useEffect(() => {
-    setLoadingTemplates(true)
     dicomSrApi.getTemplates().then(res => {
       if (res.success && res.data) {
         setTemplates(res.data)
       }
-    }).finally(() => setLoadingTemplates(false))
+    })
   }, [])
 
   // ============================================================
@@ -387,7 +385,6 @@ export const DicomSrPage: React.FC = () => {
                       { label: t('dicomSrPage.tid2000Label'), value: 'tid2000' },
                     ]
                 }
-                loading={loadingTemplates}
               />
             </div>
             {selectedTemplate && (
@@ -756,7 +753,7 @@ export const DicomSrPage: React.FC = () => {
               </div>
             </div>
             <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8' }}>
-              定稿率 {srStats.total > 0 ? Math.round((srStats.finalized / srStats.total) * 100) : 0}% · 推送率 {srStats.total > 0 ? Math.round((srStats.pushed / srStats.total) * 100) : 0}%
+              {t('w9d.dicomSr.rateLine', { finalized: srStats.total > 0 ? Math.round((srStats.finalized / srStats.total) * 100) : 0, pushed: srStats.total > 0 ? Math.round((srStats.pushed / srStats.total) * 100) : 0 })}
             </div>
           </div>
         </div>
@@ -978,7 +975,7 @@ export const DicomSrPage: React.FC = () => {
               { title: t('dicomSrPage.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
               { title: t('dicomSrPage.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', width: 80 },
               { title: t('dicomSrPage.category'), dataIndex: 'category', key: 'category', width: 100 },
-              { title: t('dicomSrPage.measurementsTitle'), dataIndex: 'measurements', key: 'measurements', width: 120, render: (v: MeasurementTemplate['measurements']) => `${v.length} 项` },
+              { title: t('dicomSrPage.measurementsTitle'), dataIndex: 'measurements', key: 'measurements', width: 120, render: (v: MeasurementTemplate['measurements']) => t('w9d.dicomSr.itemCount', { n: v.length }) },
               {
                 title: t('dicomSr.mtView') || '查看',
                 key: 'action',

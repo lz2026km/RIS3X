@@ -19,7 +19,7 @@ const VisualFieldPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `视野报告_${study?.id ?? "export"}.json`;
+    a.download = `${t('w9d.visualField.exportName')}_${study?.id ?? "export"}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

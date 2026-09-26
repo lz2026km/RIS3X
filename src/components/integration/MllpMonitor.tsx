@@ -44,6 +44,7 @@ export const MllpMonitor: React.FC = () => {
       tickRef.current = setInterval(() => setStats(server.stats()), 1000);
       return () => { if (tickRef.current) clearInterval(tickRef.current); };
     }
+    return undefined;
   }, [autoRefresh, server]);
 
   const handleStart = useCallback(async () => {

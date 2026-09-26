@@ -65,10 +65,10 @@ export const TIER_METRICS: TierMetrics[] = [
 
 export const ARCHIVE_JOBS: ArchiveJob[] = Array.from({ length: 12 }, (_, i) => ({
   id: `JOB-${(1000 + i).toString()}`,
-  type: (["auto_archive", "manual_archive", "restore", "purge"] as const)[i % 4],
-  status: (["success", "running", "success", "success", "failed", "success"] as const)[i % 6],
-  source: ["STR-001", "STR-002", "STR-003", "STR-004"][i % 4],
-  target: ["STR-002", "STR-003", "STR-003", "STR-005"][i % 4],
+  type: (["auto_archive", "manual_archive", "restore", "purge"] as const)[i % 4] ?? "auto_archive",
+  status: (["success", "running", "success", "success", "failed", "success"] as const)[i % 6] ?? "success",
+  source: ["STR-001", "STR-002", "STR-003", "STR-004"][i % 4] ?? "STR-001",
+  target: ["STR-002", "STR-003", "STR-003", "STR-005"][i % 4] ?? "STR-002",
   objects: 100 + i * 42,
   bytes: 1024 * 1024 * (100 + i * 50),
   startedAt: new Date(NOW - i * 3600000).toISOString(),

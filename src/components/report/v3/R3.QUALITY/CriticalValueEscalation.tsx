@@ -158,7 +158,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
   const removeRule = async (rule: CriticalEscalationRule) => {
     Modal.confirm({
       title: t('criticalValueEscalation.deleteRuleTitle'),
-      content: `确定要删除规则 ${rule.id}(触发:${rule.triggerAfterMinutes}分钟)吗?`,
+      content: t('w9e.criticalValueEscalation.deleteConfirm', { id: rule.id, minutes: rule.triggerAfterMinutes }),
       okText: t('criticalValueEscalation.delete'),
       okType: 'danger',
       cancelText: t('criticalValueEscalation.cancel'),
@@ -299,7 +299,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                     key="sw"
                     checked={rule.enabled}
                     onChange={() => toggleRule(rule)}
-                    aria-label={`启用规则 ${rule.id}`}
+                    aria-label={t('w9e.criticalValueEscalation.enableRuleAria', { id: rule.id })}
                   />,
                   <Button
                     key="edit"

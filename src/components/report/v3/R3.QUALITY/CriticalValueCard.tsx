@@ -21,10 +21,10 @@ function timeAgo(iso?: string): string {
   if (!iso) return '-';
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1) return t('criticalValue.justNow');
-  if (m < 60) return `${m} 分钟前`;
+  if (m < 60) return t('w9e.criticalValueCard.timeMinutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} 小时前`;
-  return `${Math.floor(h / 24)} 天前`;
+  if (h < 24) return t('w9e.criticalValueCard.timeHoursAgo', { count: h });
+  return t('w9e.criticalValueCard.timeDaysAgo', { count: Math.floor(h / 24) });
 }
 
 export interface CriticalValueCardProps {
@@ -52,12 +52,12 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         const call = res.data;
         message.success(
           call.status === 'failed'
-            ? `呼叫失败 (${call.phone}): 对方未接听`
-            : `电话呼叫已接通 ${call.phone} · 通话 ${call.durationSec}s (录音已保存)`,
+            ? t('w9e.criticalValueCard.callNoAnswer', { phone: call.phone })
+            : t('w9e.criticalValueCard.callConnected', { phone: call.phone, duration: call.durationSec }),
         );
         setLogRefresh((v) => v + 1);
       } else {
-        message.error(`呼叫失败:${res.error?.message ?? '未知错误'}`);
+        message.error(t('w9e.criticalValueCard.callFailed', { msg: res.error?.message ?? t('w9e.criticalValueCard.unknownError') }));
       }
     } catch {
       message.error(t('criticalValueCard.callNetworkError'));
@@ -76,12 +76,12 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
       const res = await criticalAlertApi.autoSms(alert.id, { phone: smsPhone.trim(), content: smsContent.trim() || undefined });
       if (res.success) {
         const sms = res.data;
-        message.success(sms.status === 'failed' ? `短信发送失败 (${sms.phone})` : `短信已发送至 ${sms.phone}`);
+        message.success(sms.status === 'failed' ? t('w9e.criticalValueCard.smsFailed', { phone: sms.phone }) : t('w9e.criticalValueCard.smsSent', { phone: sms.phone }));
         setSmsModal(false);
         setSmsContent('');
         setLogRefresh((v) => v + 1);
       } else {
-        message.error(`短信发送失败:${res.error?.message ?? '未知错误'}`);
+        message.error(t('w9e.criticalValueCard.smsFailedMsg', { msg: res.error?.message ?? t('w9e.criticalValueCard.unknownError') }));
       }
     } catch {
       message.error(t('criticalValueCard.smsNetworkError'));
@@ -98,7 +98,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         message.success(t('criticalValueCard.notifiedRecorded'));
         onNotified?.(res.data);
       } else {
-        message.error(`记录失败:${res.error?.message ?? '未知错误'}`);
+        message.error(t('w9e.criticalValueCard.recordFailed', { msg: res.error?.message ?? t('w9e.criticalValueCard.unknownError') }));
       }
     } catch {
       message.error(t('criticalValueCard.recordNetworkError'));
@@ -242,7 +242,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
             rows={3}
             value={smsContent}
             onChange={(e) => setSmsContent(e.target.value)}
-            placeholder={`【危急值通知】${alert.patientName}: ${alert.title}, 请及时查看处理。`}
+            placeholder={t('w9e.criticalValueCard.smsPlaceholder', { patient: alert.patientName, title: alert.title })}
             data-testid="cv-sms-content"
           />
         </div>

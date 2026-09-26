@@ -3,6 +3,7 @@ import { Card, Space, Button, Slider, Tag, Row, Col, Tooltip, Segmented } from '
 import { RotateCcw, Crosshair, Sun, Layers, Eye } from 'lucide-react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { t } from '../../../i18n/appI18n'
 
 export type RenderMode = 'MIP' | 'MPR' | 'VR'
 
@@ -93,7 +94,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     } catch (err) {
       console.warn('[VolumeRenderer] WebGL init failed, degrade to 2D view:', err)
-      setWebglError(err instanceof Error ? err.message : 'WebGL 不可用')
+      setWebglError(err instanceof Error ? err.message : t('w9e.volumeRenderer.webglUnavailable'))
       return
     }
     try {
@@ -105,7 +106,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
       console.warn('[VolumeRenderer] WebGL setup failed, degrade to 2D view:', err)
       try { if (mountRef.current?.contains(renderer.domElement)) mountRef.current.removeChild(renderer.domElement) } catch { /* noop */ }
       renderer.dispose()
-      setWebglError(err instanceof Error ? err.message : 'WebGL 初始化失败')
+      setWebglError(err instanceof Error ? err.message : t('w9e.volumeRenderer.webglInitFailed'))
       return
     }
     rendererRef.current = renderer
@@ -304,10 +305,10 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
       title={
         <Space>
           <Eye size={14} />
-          <span>容积渲染</span>
+          <span>{t('w9e.volumeRenderer.title')}</span>
           <Tag color={mode === 'VR' ? 'purple' : mode === 'MIP' ? 'cyan' : 'blue'}>{mode}</Tag>
-          {webglError && <Tag color="orange">WebGL 不可用，已降级 2D 视图</Tag>}
-          {!webgl2Ok && !webglError && <Tag color="orange">WebGL2 不可用，体积渲染已降级</Tag>}
+          {webglError && <Tag color="orange">{t('w9e.volumeRenderer.webglDegraded')}</Tag>}
+          {!webgl2Ok && !webglError && <Tag color="orange">{t('w9e.volumeRenderer.webgl2Degraded')}</Tag>}
           {seriesUid && <Tag color="geekblue">{seriesUid.slice(0, 16)}...</Tag>}
         </Space>
       }
@@ -329,22 +330,22 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
       <div ref={mountRef} style={{ flex: 1, minHeight: 360, borderRadius: 6, overflow: 'hidden', position: 'relative', background: '#0f172a' }}>
         {webglError && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12 }}>
-            WebGL 初始化失败，已降级为 2D 视图（{webglError}）
+            {t('w9e.volumeRenderer.webgl2dFallback', { msg: webglError })}
           </div>
         )}
       </div>
       <Row gutter={8} style={{ marginTop: 8 }}>
         <Col span={6}>
-          <Tooltip title="窗宽"><Space style={{ width: '100%' }}><small>WW</small><Slider value={ww} min={100} max={4000} step={10} onChange={setWw} /></Space></Tooltip>
+          <Tooltip title={t('w9e.volumeRenderer.windowWidth')}><Space style={{ width: '100%' }}><small>WW</small><Slider value={ww} min={100} max={4000} step={10} onChange={setWw} /></Space></Tooltip>
         </Col>
         <Col span={6}>
-          <Tooltip title="窗位"><Space style={{ width: '100%' }}><small>WC</small><Slider value={wc} min={-1000} max={2000} step={10} onChange={setWc} /></Space></Tooltip>
+          <Tooltip title={t('w9e.volumeRenderer.windowLevel')}><Space style={{ width: '100%' }}><small>WC</small><Slider value={wc} min={-1000} max={2000} step={10} onChange={setWc} /></Space></Tooltip>
         </Col>
         <Col span={6}>
-          <Tooltip title="透明度"><Space style={{ width: '100%' }}><small>Op</small><Slider value={opacity} min={0} max={1} step={0.01} onChange={setOpacity} /></Space></Tooltip>
+          <Tooltip title={t('w9e.volumeRenderer.opacity')}><Space style={{ width: '100%' }}><small>Op</small><Slider value={opacity} min={0} max={1} step={0.01} onChange={setOpacity} /></Space></Tooltip>
         </Col>
         <Col span={6}>
-          <Tooltip title="亮度"><Space style={{ width: '100%' }}><small>Br</small><Slider value={brightness} min={-0.5} max={0.5} step={0.01} onChange={setBrightness} /></Space></Tooltip>
+          <Tooltip title={t('w9e.volumeRenderer.brightness')}><Space style={{ width: '100%' }}><small>Br</small><Slider value={brightness} min={-0.5} max={0.5} step={0.01} onChange={setBrightness} /></Space></Tooltip>
         </Col>
       </Row>
       {mode === 'MPR' && (
@@ -355,7 +356,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
         </Row>
       )}
       <Space style={{ marginTop: 4 }}>
-        <Tooltip title="复位"><Button size="small" icon={<RotateCcw size={12} />} onClick={handleReset} /></Tooltip>
+        <Tooltip title={t('w9e.volumeRenderer.reset')}><Button size="small" icon={<RotateCcw size={12} />} onClick={handleReset} /></Tooltip>
       </Space>
     </Card>
   )

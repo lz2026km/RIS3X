@@ -241,7 +241,7 @@ export const AIDraftPanel: React.FC<Props> = ({
         onApplyStructured?.(res.data.sections ?? []);
         message.success(t('aiDraft.structured.generatedWithScore', { score: Math.round((res.data.confidenceScore ?? 0.9) * 100) }));
       } else {
-        message.warning('结构化字段生成失败: ' + (res.error?.message ?? '未知错误'));
+        message.warning(t('w9e.aiDraftPanel.structFieldsFailed', { msg: res.error?.message ?? t('w9e.aiDraftPanel.unknownError') }));
       }
     } catch {
       message.error(t('aiDraft.structured.failedNetwork'));
@@ -318,7 +318,7 @@ export const AIDraftPanel: React.FC<Props> = ({
     }
     message.success(t('aiDraft.msg.switchedVersion', { version: index + 1 }));
   }, [draftVersions]);
-  const stageLabel = ({ idle: t('aiDraft.stage.idle'), analyzing: t('aiDraft.stage.analyzing'), drafting: t('aiDraft.stage.drafting'), ready: t('aiDraft.stage.ready'), merging: t('aiDraft.stage.merging'), error: t('aiDraft.stage.error') } as const)[stage];
+  const stageLabel = ({ idle: t('aiDraft.stage.idle'), analyzing: t('aiDraft.stage.analyzing'), drafting: t('aiDraft.stage.drafting'), ready: t('aiDraft.stage.ready'), merging: t('aiDraft.stage.merging'), error: t('aiDraft.stage.error') } as Record<string, string>)[stage] ?? '';
 
   const renderConfidenceBar = (confidence: number) => (
     <Tooltip title={t('aiDraft.confidenceTooltip', { value: (confidence * 100).toFixed(0) })}>

@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SearchX } from 'lucide-react'
+import { t } from '../../../../i18n/appI18n';
 
 interface TreeDatum {
   key: string;
@@ -68,9 +69,9 @@ export const DefectCategoryTree: React.FC<{
               <span style={{ fontSize: 14 }}>{cat.icon}</span>
               <strong style={{ color: cat.color }}>{cat.name}</strong>
               <Tag color="blue">{cat.code}</Tag>
-              <Tag color="cyan">{items.length} 项</Tag>
+              <Tag color="cyan">{t('w9e.defectCategoryTree.itemsCount', { count: items.length })}</Tag>
               <Tag color="purple">L{cat.level}</Tag>
-              {cat.totalCount > 0 && <Tag color="orange">{cat.totalCount} 触发</Tag>}
+              {cat.totalCount > 0 && <Tag color="orange">{t('w9e.defectCategoryTree.triggerCount', { count: cat.totalCount })}</Tag>}
             </Space>
           ),
           icon: <FolderTree size={14} color={cat.color} />,
@@ -80,11 +81,11 @@ export const DefectCategoryTree: React.FC<{
             title: (
               <Space>
                 <Tag color={d.severity === 'critical' ? 'red' : d.severity === 'major' ? 'orange' : 'gold'}>
-                  {d.severity === 'critical' ? '严重' : d.severity === 'major' ? '重要' : '轻微'}
+                  {d.severity === 'critical' ? t('w9e.defectCategoryTree.sevCritical') : d.severity === 'major' ? t('w9e.defectCategoryTree.sevMajor') : t('w9e.defectCategoryTree.sevMinor')}
                 </Tag>
                 <span style={{ fontSize: 12 }}>{d.name}</span>
                 <Tag>{d.code}</Tag>
-                <Tag color="default">{d.count} 次</Tag>
+                <Tag color="default">{t('w9e.defectCategoryTree.timesCount', { count: d.count })}</Tag>
               </Space>
             ),
             icon: <Activity size={12} />,
@@ -158,7 +159,7 @@ export const DefectCategoryTree: React.FC<{
   }, [tree, selected]);
 
   return (
-    <div data-testid="defect-category-tree" role="region" aria-label="缺陷分类树">
+    <div data-testid="defect-category-tree" role="region" aria-label={t('w9e.defectCategoryTree.ariaLabel')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
@@ -171,15 +172,15 @@ export const DefectCategoryTree: React.FC<{
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <TreePine size={18} />
-            <strong style={{ fontSize: 16 }}>缺陷分类树</strong>
+            <strong style={{ fontSize: 16 }}>{t('w9e.defectCategoryTree.title')}</strong>
             <Tag color="purple">R3.QUALITY.111</Tag>
-            <Tag color="cyan">层级: 一级 10 / 二级 N</Tag>
+            <Tag color="cyan">{t('w9e.defectCategoryTree.levelTag')}</Tag>
           </Space>
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>一级分类</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.defectCategoryTree.statTopCategories')}</span>}
               value={totals.categories}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Layers size={14} />}
@@ -187,7 +188,7 @@ export const DefectCategoryTree: React.FC<{
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>缺陷总数</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.defectCategoryTree.statTotalDefects')}</span>}
               value={totals.total}
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<BookOpen size={14} />}
@@ -195,14 +196,14 @@ export const DefectCategoryTree: React.FC<{
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>逻辑+危急</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.defectCategoryTree.statLogicCritical')}</span>}
               value={totals.critical}
               styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
             />
           </Col>
           <Col span={6}>
             <Statistic
-              title={<span style={{ color: '#fff' }}>层级</span>}
+              title={<span style={{ color: '#fff' }}>{t('w9e.defectCategoryTree.statLevel')}</span>}
               value="2"
               styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<TreePine size={14} />}
@@ -215,7 +216,7 @@ export const DefectCategoryTree: React.FC<{
         <Space wrap>
           <Input
             prefix={<Search size={12} />}
-            placeholder="搜索分类或缺陷"
+            placeholder={t('w9e.defectCategoryTree.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ width: 220 }}
@@ -225,14 +226,14 @@ export const DefectCategoryTree: React.FC<{
             onChange={setSeverityFilter}
             style={{ width: 130 }}
             options={[
-              { value: 'all', label: '全部严重度' },
-              { value: 'critical', label: '严重' },
-              { value: 'major', label: '重要' },
-              { value: 'minor', label: '轻微' },
+              { value: 'all', label: t('w9e.defectCategoryTree.filterAll') },
+              { value: 'critical', label: t('w9e.defectCategoryTree.sevCritical') },
+              { value: 'major', label: t('w9e.defectCategoryTree.sevMajor') },
+              { value: 'minor', label: t('w9e.defectCategoryTree.sevMinor') },
             ]}
           />
           <span style={{ fontSize: 12, color: '#94a3b8' }}>
-            {filteredTree.length} / {tree.length} 分类可见
+            {t('w9e.defectCategoryTree.visibleCount', { visible: filteredTree.length, total: tree.length })}
           </span>
         </Space>
       </Card>
@@ -243,17 +244,17 @@ export const DefectCategoryTree: React.FC<{
             size="small"
             title={
               <Space>
-                <FolderTree size={14} /> 分类层级
+                <FolderTree size={14} /> {t('w9e.defectCategoryTree.hierarchy')}
               </Space>
             }
             extra={
-              <Tooltip title="点击展开/收起分类">
+              <Tooltip title={t('w9e.defectCategoryTree.expandTip')}>
                 <Tag icon={<ChevronRight size={10} />}>树形</Tag>
               </Tooltip>
             }
           >
             {filteredTree.length === 0 ? (
-              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="无匹配分类" />
+              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('w9e.defectCategoryTree.noMatch')} />
             ) : (
               <Tree
                 showIcon
@@ -266,7 +267,7 @@ export const DefectCategoryTree: React.FC<{
                     onSelect?.(keys[0] as string);
                   }
                 }}
-                aria-label="缺陷分类树"
+                aria-label={t('w9e.defectCategoryTree.ariaLabel')}
               />
             )}
           </Card>
@@ -276,7 +277,7 @@ export const DefectCategoryTree: React.FC<{
             size="small"
             title={
               <Space>
-                <BookOpen size={14} /> 分类详情
+                <BookOpen size={14} /> {t('w9e.defectCategoryTree.detail')}
               </Space>
             }
           >
@@ -310,21 +311,21 @@ export const DefectCategoryTree: React.FC<{
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{selectedNode.data.cat.descriptionEn}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
                   <div>
-                    <Tag>总触发</Tag> <strong>{selectedNode.data.cat.totalCount}</strong>
+                    <Tag>{t('w9e.defectCategoryTree.totalTrigger')}</Tag> <strong>{selectedNode.data.cat.totalCount}</strong>
                   </div>
                   <div>
-                    <Tag>子项</Tag> <strong>{selectedNode.data.cat.childCount}</strong>
+                    <Tag>{t('w9e.defectCategoryTree.subItems')}</Tag> <strong>{selectedNode.data.cat.childCount}</strong>
                   </div>
                   <div>
-                    <Tag>层级</Tag> <strong>L{selectedNode.data.cat.level}</strong>
+                    <Tag>{t('w9e.defectCategoryTree.statLevel')}</Tag> <strong>L{selectedNode.data.cat.level}</strong>
                   </div>
                   <div>
-                    <Tag>排序</Tag> <strong>{selectedNode.data.cat.sortOrder}</strong>
+                    <Tag>{t('w9e.defectCategoryTree.sortOrder')}</Tag> <strong>{selectedNode.data.cat.sortOrder}</strong>
                   </div>
                 </div>
                 {selectedNode.data.defects.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>缺陷样例</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('w9e.defectCategoryTree.defectSamples')}</div>
                     <Space orientation="vertical" style={{ width: '100%' }} size={4}>
                       {selectedNode.data.defects.slice(0, 3).map((d) => (
                         <div
@@ -348,10 +349,10 @@ export const DefectCategoryTree: React.FC<{
                               }
                             >
                               {d.severity === 'critical'
-                                ? '严重'
+                                ? t('w9e.defectCategoryTree.sevCritical')
                                 : d.severity === 'major'
-                                ? '重要'
-                                : '轻微'}
+                                ? t('w9e.defectCategoryTree.sevMajor')
+                                : t('w9e.defectCategoryTree.sevMinor')}
                             </Tag>
                             <strong>{d.name}</strong>
                           </Space>
@@ -364,7 +365,7 @@ export const DefectCategoryTree: React.FC<{
               </Space>
             ) : (
               <div style={{ color: '#94a3b8', textAlign: 'center', padding: 20 }}>
-                请从左侧选择分类
+                {t('w9e.defectCategoryTree.selectHint')}
               </div>
             )}
           </Card>

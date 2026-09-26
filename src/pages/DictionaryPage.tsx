@@ -545,14 +545,14 @@ export default function DictionaryPage() {
       try {
         const res = await dictionaryApi.deleteEntry(editingDictionary.category ?? '', editingDictionary.code ?? '')
         if (res.success) {
-          message.success(`字典项「${editingDictionary.name}」已删除`)
+          message.success(t('w9a.dictionary.itemDeleted', { name: editingDictionary.name }))
           closeModal()
           await loadDictionary()
         } else {
           message.error(res.error?.message ?? t('dictionary.deleteFailed'))
         }
       } catch (e: any) {
-        message.error('删除失败: ' + (e?.message ?? String(e)))
+        message.error(t('w9a.dictionary.deleteFailedPrefix') + (e?.message ?? String(e)))
       } finally {
         setSaving(false)
       }
@@ -589,7 +589,7 @@ export default function DictionaryPage() {
         message.error(res.error?.message ?? t('dictionary.saveFailed'))
       }
     } catch (e: any) {
-      message.error('保存失败: ' + (e?.message ?? String(e)))
+      message.error(t('w9a.dictionary.saveFailedPrefix') + (e?.message ?? String(e)))
     } finally {
       setSaving(false)
     }
@@ -1002,12 +1002,12 @@ export default function DictionaryPage() {
                         isActive: true,
                         notes: `从 FHIR ${selectedConcept.system} 导入`,
                       } as DictionaryItem, ...prev]);
-                      message.success(`已将概念 ${selectedConcept.display} (${selectedConcept.code}) 应用到字典`);
+                      message.success(t('w9a.dictionary.conceptApplied', { display: selectedConcept.display, code: selectedConcept.code }));
                     } else {
                       message.error(res.error?.message || t('dictionary.applyFailed'));
                     }
                   } catch (e: any) {
-                    message.error('应用失败: ' + (e?.message || String(e)));
+                    message.error(t('w9a.dictionary.applyFailedPrefix') + (e?.message || String(e)));
                   }
                 }}
               >{t('dictionary.applyToDictionary')}</button>
@@ -1071,12 +1071,12 @@ export default function DictionaryPage() {
                               const payload: TermUpdatePayload = { status: 'review' };
                               const res = await termApi.update(v.id, payload);
                               if (res.success) {
-                                message.success(`版本 ${v.version} 已提交审核`);
+                                message.success(t('w9a.dictionary.versionSubmittedReview', { version: v.version }));
                               } else {
                                 message.error(res.error?.message || t('dictionary.submitReviewFailed'));
                               }
                             } catch (e: any) {
-                              message.error('提交审核失败: ' + (e?.message || String(e)));
+                              message.error(t('w9a.dictionary.submitReviewFailedPrefix') + (e?.message || String(e)));
                             }
                           }}
                         >
@@ -1090,12 +1090,12 @@ export default function DictionaryPage() {
                               const payload: TermUpdatePayload = { status: 'published' };
                               const res = await termApi.update(v.id, payload);
                               if (res.success) {
-                                message.success(`版本 ${v.version} 已批准发布`);
+                                message.success(t('w9a.dictionary.versionApprovedPublished', { version: v.version }));
                               } else {
                                 message.error(res.error?.message || t('dictionary.publishFailed'));
                               }
                             } catch (e: any) {
-                              message.error('批准发布失败: ' + (e?.message || String(e)));
+                              message.error(t('w9a.dictionary.publishFailedPrefix') + (e?.message || String(e)));
                             }
                           }}
                         >
@@ -1116,7 +1116,7 @@ export default function DictionaryPage() {
                                 message.error(res.error?.message || t('dictionary.rollbackFailed'));
                               }
                             } catch (e: any) {
-                              message.error('回滚失败: ' + (e?.message || String(e)));
+                              message.error(t('w9a.dictionary.rollbackFailedPrefix') + (e?.message || String(e)));
                             }
                           }}
                         >
@@ -1149,7 +1149,7 @@ export default function DictionaryPage() {
       try {
         text = await importFile.text()
       } catch (e: any) {
-        setImportResult({ success: 0, errors: 1, warnings: ['文件读取失败: ' + (e?.message ?? String(e))] })
+        setImportResult({ success: 0, errors: 1, warnings: [t('w9a.dictionary.fileReadFailed') + (e?.message ?? String(e))] })
         return
       }
       const trimmed = text.trim()
@@ -1184,11 +1184,11 @@ export default function DictionaryPage() {
         const category = String(row['分类'] ?? row.category ?? '').trim()
         const code = String(row['编码'] ?? row.code ?? '').trim()
         const name = String(row['名称'] ?? row.name ?? '').trim()
-        if (!category || !code || !name) { errors++; warnings.push(`跳过: 缺 分类/编码/名称 (${code || '-'})`); continue }
+        if (!category || !code || !name) { errors++; warnings.push(t('w9a.dictionary.importSkipMissing', { code: code || '-' })); continue }
         try {
           const res = await dictionaryApi.createEntry(category, { key: code, value: name, sort: 0, active: true, extra: {} })
           if (res.success) success++
-          else { errors++; warnings.push(`${code}: ${res.error?.message ?? '导入失败'}`) }
+          else { errors++; warnings.push(`${code}: ${res.error?.message ?? t('w9a.dictionary.importFailed')}`) }
         } catch (e: any) {
           errors++
           warnings.push(`${code}: ${e?.message ?? String(e)}`)
@@ -1366,13 +1366,13 @@ export default function DictionaryPage() {
                         const payload: TermUpdatePayload = { isActive: false };
                         const res = await termApi.update(u.termName, payload);
                         if (res.success) {
-                          message.success(`已建议停用术语「${u.termName}」`);
+                          message.success(t('w9a.dictionary.termDeactivateSuggested', { name: u.termName }));
                           setDictionaries(prev => prev.map(d => d.name === u.termName ? { ...d, isActive: false } : d));
                         } else {
                           message.error(res.error?.message || t('dictionary.operationFailed'));
                         }
                       } catch (e: any) {
-                        message.error('操作失败: ' + (e?.message || String(e)));
+                        message.error(t('w9a.dictionary.operationFailedPrefix') + (e?.message || String(e)));
                       }
                     }}
                   >

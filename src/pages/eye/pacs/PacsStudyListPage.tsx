@@ -10,32 +10,33 @@ import { usePagination } from "@/hooks/usePagination";
 import { t } from "../../../i18n/appI18n";
 
 const MODALITY_LABELS: Record<string, string> = {
-  oct_a: "OCTA",  corneal_endothelium: "角膜内皮",  tear_film: "泪膜",  fundus_autofluorescence: "眼底自发荧光",  fundus_photo: "眼底彩照",
-  oct: "OCT",
-  ffa: "FFA",
-  icga: "ICGA",
-  visual_field: "视野",
-  topography: "角膜地形图",
+  oct_a: "w9d.modality.oct_a",  corneal_endothelium: "w9d.modality.corneal_endothelium",  tear_film: "w9d.modality.tear_film",  fundus_autofluorescence: "w9d.modality.fundus_autofluorescence",  fundus_photo: "w9d.modality.fundus_photo",
+  oct: "w9d.modality.oct",
+  ffa: "w9d.modality.ffa",
+  icga: "w9d.modality.icga",
+  visual_field: "w9d.modality.visual_field",
+  topography: "w9d.modality.topography",
   pentacam: "Pentacam",
-  iol_master: "IOL Master",
+  iol_master: "w9d.modality.iol_master",
   ubm: "UBM",
-  slit_lamp: "裂隙灯",
-  borderline: "临界",
-  cup_to_disc_ratio: "杯盘比",
-  rim_width: "视盘缘宽度",
-  arteriovenous_ratio: "动静脉比",
-  abnormal: "异常",
-  v6: "v6",
-  text: "文本",
-  findings_multi: "多发发现",
-  images: "图像",
-  productivity: "生产力",
-  clinical: "临床",
-  operational: "运营",
-  financial: "财务",
-  critical_value: "危急值",
-  pending_review: "待审核",
+  slit_lamp: "w9d.modality.slit_lamp",
+  borderline: "w9d.reportStatus.borderline",
+  cup_to_disc_ratio: "w9d.reportStatus.cup_to_disc_ratio",
+  rim_width: "w9d.reportStatus.rim_width",
+  arteriovenous_ratio: "w9d.reportStatus.arteriovenous_ratio",
+  abnormal: "w9d.reportStatus.abnormal",
+  v6: "w9d.reportStatus.v6",
+  text: "w9d.reportStatus.text",
+  findings_multi: "w9d.reportStatus.findings_multi",
+  images: "w9d.reportStatus.images",
+  productivity: "w9d.reportStatus.productivity",
+  clinical: "w9d.reportStatus.clinical",
+  operational: "w9d.reportStatus.operational",
+  financial: "w9d.reportStatus.financial",
+  critical_value: "w9d.reportStatus.critical_value",
+  pending_review: "w9d.reportStatus.pending_review",
 };
+const modalityLabel = (m?: string) => (m && MODALITY_LABELS[m] ? t(MODALITY_LABELS[m]) : (m ?? ''));
 
 const PacsStudyListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -141,7 +142,7 @@ const PacsStudyListPage: React.FC = () => {
       width: 100,
       render: (v: string) => (
         <Tag color="cyan" style={{ fontSize: 12 }}>
-          {MODALITY_LABELS[v] || v}
+          {modalityLabel(v)}
         </Tag>
       ),
     },

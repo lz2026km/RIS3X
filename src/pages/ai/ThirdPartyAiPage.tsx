@@ -371,7 +371,7 @@ const ThirdPartyAiPage: React.FC = () => {
         </Form>
       </Modal>
       <Modal
-        title={`提供商详情 - ${detail?.name}`}
+        title={`${t('w9d.thirdAi.providerDetail')} - ${detail?.name}`}
         open={detail != null}
         onCancel={() => setDetail(null)}
         footer={null}
@@ -406,7 +406,7 @@ const ThirdPartyAiPage: React.FC = () => {
         )}
       </Modal>
       <Modal
-        title={`模型测试 - ${testResult?.id ?? testBusyId ?? ""}`}
+        title={`${t('w9d.thirdAi.modelTest')} - ${testResult?.id ?? testBusyId ?? ""}`}
         open={testResult != null || testError !== ""}
         onCancel={() => { setTestResult(null); setTestError(""); }}
         footer={null}
@@ -426,7 +426,7 @@ const ThirdPartyAiPage: React.FC = () => {
               type={testResult.reachable ? "success" : "warning"}
               showIcon
               title={testResult.message}
-              description={`端点: ${testResult.endpoint ?? "-"}`}
+              description={t('w9d.thirdAi.endpointLabel', { endpoint: testResult.endpoint ?? "-" })}
             />
             <Descriptions column={1} size="small" bordered>
               <Descriptions.Item label={t("thirdAi.connectStatus")}>

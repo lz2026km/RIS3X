@@ -67,7 +67,7 @@ export const DentalAiOnnxPage: React.FC = () => {
     } catch (e) {
       const err = e as Error;
       setModelStatus('error');
-      message.error('ONNX Runtime Web 初始化失败: ' + err.message);
+      message.error(t('w9d.dentalAiOnnx.initFailed', { msg: err.message }));
     } finally {
       setLoading(false);
     }
@@ -133,7 +133,7 @@ export const DentalAiOnnxPage: React.FC = () => {
       message.success(t('dentalAiOnnx.inferenceDone'));
     } catch (e) {
       const err = e as Error;
-      message.error('推理失败: ' + err.message);
+      message.error(t('w9d.dentalAiOnnx.inferenceFailed', { msg: err.message }));
     } finally { setLoading(false); }
   };
 

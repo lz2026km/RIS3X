@@ -409,9 +409,11 @@ class PrintQueueManager {
       const pendingJobs = this.queue.filter(job => job.status === 'Pending')
       if (pendingJobs.length > 0) {
         const job = pendingJobs[0]
-        job.status = 'Printing'
-        job.progress = 0
-        changed = true
+        if (job) {
+          job.status = 'Printing'
+          job.progress = 0
+          changed = true
+        }
       }
 
       // 处理 Printing 进度

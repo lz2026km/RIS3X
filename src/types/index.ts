@@ -5,7 +5,8 @@
 // ============================================================
 
 
-import { UserSchema, PatientSchema, ExamSchema, ReportSchema } from '../utils/validation';
+// schema 由 ./validation 定义; 此处仅再导出供外部消费
+export { UserSchema, PatientSchema, ExamSchema, ReportSchema } from '../utils/validation';
 
 // ---------- 基础枚举 ----------
 export type Gender = '男' | '女' | '其他';

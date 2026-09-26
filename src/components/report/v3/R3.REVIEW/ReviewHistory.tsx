@@ -22,22 +22,23 @@ import {
 } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useEffect, useState } from 'react';
+import { t } from '../../../../i18n/appI18n';
 
 const ACTION_META: Record<string, { color: string; label: string; icon: LucideIcon }> = {
-  submit: { color: 'blue', label: '提交', icon: Send },
-  assign: { color: 'cyan', label: '分配', icon: Edit2 },
-  'start-initial': { color: 'orange', label: '启动初审', icon: Edit2 },
-  'approve-initial': { color: 'green', label: '初审通过', icon: ThumbsUp },
-  reject: { color: 'red', label: '驳回', icon: ThumbsDown },
-  'start-final': { color: 'purple', label: '启动终审', icon: ShieldCheck },
-  'approve-final': { color: 'green', label: '终审通过', icon: ShieldCheck },
-  'start-cosign': { color: 'magenta', label: '启动双签', icon: Award },
-  'complete-cosign': { color: 'green', label: '完成双签', icon: Award },
-  escalate: { color: 'volcano', label: '升级', icon: AlertCircle },
-  withdraw: { color: 'default', label: '撤回', icon: RotateCcw },
-  reopen: { color: 'blue', label: '重开', icon: RotateCcw },
-  rectify: { color: 'gold', label: '整改', icon: Edit2 },
-  'request-info': { color: 'cyan', label: '补充资料', icon: FileText },
+  submit: { color: 'blue', label: t('w9e.reviewHistory.actionSubmit'), icon: Send },
+  assign: { color: 'cyan', label: t('w9e.reviewHistory.actionAssign'), icon: Edit2 },
+  'start-initial': { color: 'orange', label: t('w9e.reviewHistory.actionStartInitial'), icon: Edit2 },
+  'approve-initial': { color: 'green', label: t('w9e.reviewHistory.actionApproveInitial'), icon: ThumbsUp },
+  reject: { color: 'red', label: t('w9e.reviewHistory.actionReject'), icon: ThumbsDown },
+  'start-final': { color: 'purple', label: t('w9e.reviewHistory.actionStartFinal'), icon: ShieldCheck },
+  'approve-final': { color: 'green', label: t('w9e.reviewHistory.actionApproveFinal'), icon: ShieldCheck },
+  'start-cosign': { color: 'magenta', label: t('w9e.reviewHistory.actionStartCosign'), icon: Award },
+  'complete-cosign': { color: 'green', label: t('w9e.reviewHistory.actionCompleteCosign'), icon: Award },
+  escalate: { color: 'volcano', label: t('w9e.reviewHistory.actionEscalate'), icon: AlertCircle },
+  withdraw: { color: 'default', label: t('w9e.reviewHistory.actionWithdraw'), icon: RotateCcw },
+  reopen: { color: 'blue', label: t('w9e.reviewHistory.actionReopen'), icon: RotateCcw },
+  rectify: { color: 'gold', label: t('w9e.reviewHistory.actionRectify'), icon: Edit2 },
+  'request-info': { color: 'cyan', label: t('w9e.reviewHistory.actionRequestInfo'), icon: FileText },
 };
 
 function fmtTime(iso: string): string {
@@ -100,7 +101,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
         setEntries(hist);
       }
     } catch (e) {
-      message.error('加载审核历史失败');
+      message.error(t('w9e.reviewHistory.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -123,14 +124,14 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
       a.download = result.filename;
       a.click();
       URL.revokeObjectURL(url);
-      message.success(`已导出 ${format.toUpperCase()}`);
+      message.success(t('w9e.reviewHistory.exported', { format: format.toUpperCase() }));
     } catch (e) {
-      message.error('导出失败');
+      message.error(t('w9e.reviewHistory.exportFailed'));
     }
   };
 
   return (
-    <div data-testid="review-history" role="region" aria-label="审核历史">
+    <div data-testid="review-history" role="region" aria-label={t('w9e.reviewHistory.ariaLabel')}>
       <div
         style={{
           background: 'linear-gradient(135deg, #475569 0%, #1e293b 100%)',
@@ -143,7 +144,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <History size={18} />
-            <strong style={{ fontSize: 16 }}>审核历史</strong>
+            <strong style={{ fontSize: 16 }}>{t('w9e.reviewHistory.title')}</strong>
             <Tag color="purple">R3.REVIEW.010</Tag>
           </Space>
           <Space>
@@ -166,20 +167,20 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
             onChange={setFilter}
             style={{ width: 160 }}
             options={[
-              { value: 'all', label: '全部' },
+              { value: 'all', label: t('w9e.reviewHistory.filterAll') },
               ...Object.entries(ACTION_META).map(([k, v]) => ({ value: k, label: v.label })),
             ]}
-            aria-label="动作筛选"
+            aria-label={t('w9e.reviewHistory.actionFilterAria')}
           />
           <span style={{ fontSize: 12, color: '#94a3b8' }}>
-            共 {entries.length} 条 · 显示 {filtered.length} 条
+            {t('w9e.reviewHistory.countSummary', { total: entries.length, shown: filtered.length })}
           </span>
         </Space>
       </Card>
 
       <Card size="small" loading={loading}>
         {filtered.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无历史记录" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.reviewHistory.noHistory')} />
         ) : (
           <Timeline>
             {filtered.map((e) => {
@@ -209,7 +210,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                       <Tag color={meta.color}>{meta.label}</Tag>
                       <strong>{e.actorName}</strong>
                       <span style={{ fontSize: 12, color: '#94a3b8' }}>{fmtTime(e.timestamp)}</span>
-                      {e.score !== undefined && <Tag color="cyan">评分 {e.score}</Tag>}
+                      {e.score !== undefined && <Tag color="cyan">{t('w9e.reviewHistory.scoreTag', { score: e.score })}</Tag>}
                     </Space>
                   </div>
                   {e.comment && (
@@ -219,7 +220,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                   )}
                   {e.reason && (
                     <div style={{ fontSize: 12, color: '#dc2626', marginBottom: 4 }}>
-                      原因：{e.reason}
+                      {t('w9e.reviewHistory.reasonPrefix', { reason: e.reason })}
                     </div>
                   )}
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Activity, Heart, Play, Pause, SkipBack, SkipForward, RotateCcw, Clock, Zap, BarChart3, TrendingUp } from 'lucide-react'
 import { Select, Card, Slider, Tag, message } from 'antd'
 import { dicom4dApi, type Series4D, type PhaseInfoDetail4D, type MovieData4D } from '../../services/api/dicomApi'
+import { t } from '../../i18n/appI18n'
 
 interface PhaseState {
   cardiacPhase: number
@@ -15,10 +15,10 @@ interface PhaseState {
 
 type LoopMode = 'once' | 'loop' | 'pingpong'
 
-const LOOP_LABELS: Record<LoopMode, string> = {
-  once: '单次',
-  loop: '循环',
-  pingpong: '往返',
+const LOOP_LABEL_KEYS: Record<LoopMode, string> = {
+  once: 'w9d.dicom4d.loopOnce',
+  loop: 'w9d.dicom4d.loopLoop',
+  pingpong: 'w9d.dicom4d.loopPingpong',
 }
 
 /** 仅加载可用的帧图 URL (/api/v1 或完整 http(s)), 否则走合成帧回退 (避免 500 资源错误) */
@@ -188,13 +188,13 @@ function PhaseDistributionBars(props: {
     <div style={{ marginTop: 4 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
         <span style={{ fontSize: 10, color: '#64748b' }}>{label}</span>
-        <span style={{ fontSize: 9, color: '#475569' }}>({bins.length} 相)</span>
+        <span style={{ fontSize: 9, color: '#475569' }}>{t('w9d.dicom4d.phaseCount', { count: bins.length })}</span>
       </div>
       <div style={{ display: 'flex', gap: 1, alignItems: 'flex-end', height: 34 }}>
         {bins.map((b) => (
           <div
             key={b.phase}
-            title={`${label} 相位 ${b.phase}: ${b.count} 帧`}
+            title={`${label} ${t('w9d.dicom4d.phase')} ${b.phase}: ${b.count} ${t('w9d.dicom4d.frames')}`}
             style={{
               flex: 1,
               height: maxCount > 0 ? `${Math.max(6, Math.round((b.count / maxCount) * 100))}%` : '8%',
@@ -210,7 +210,6 @@ function PhaseDistributionBars(props: {
 }
 
 export default function Dicom4dPage() {
-  const { t } = useTranslation('dicom')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animRef = useRef<number>(0)
 
@@ -254,7 +253,7 @@ export default function Dicom4dPage() {
         if (res.data.length > 0) setSelectedUid(res.data[0]?.seriesUid ?? '')
         setSeriesLoadError(null)
       } else {
-        setSeriesLoadError('4D 序列列表加载失败')
+        setSeriesLoadError(t('w9d.dicom4d.listLoadFailed'))
       }
     })
     return () => { cancelled = true }
@@ -316,7 +315,7 @@ export default function Dicom4dPage() {
       setPlaying(false)
       setSyntheticFrames(!usable)
     } catch {
-      message.warning(t('dicom4d.loadError', '4D 序列加载失败') + ' — 已回退合成帧')
+      message.warning(t('dicom4d.loadError') + ' — ' + t('w9d.dicom4d.fallbackSynthetic'))
       // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 请求异常 → 合成帧 + 标注
       const s = seriesList.find(x => x.seriesUid === uid)
       const frameCount = s?.frameCount ?? 32
@@ -478,12 +477,12 @@ export default function Dicom4dPage() {
       <style>{`@keyframes g005-frame-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }`}</style>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Activity size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dicom4d.title', '4D 动态成像')}</span>
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dicom4d.title')}</span>
         {syntheticFrames && (
-          <Tag color="orange" style={{ marginLeft: 8 }}>{t('dicom4d.synthetic', '合成帧 (数据缺失回退)')}</Tag>
+          <Tag color="orange" style={{ marginLeft: 8 }}>{t('w9d.dicom4d.syntheticTag')}</Tag>
         )}
         {!syntheticFrames && phaseState && (
-          <Tag color="green" style={{ marginLeft: 8 }}>真实帧源 · phase 派生</Tag>
+          <Tag color="green" style={{ marginLeft: 8 }}>{t('w9d.dicom4d.realFrameSource')}</Tag>
         )}
       </div>
 
@@ -491,12 +490,12 @@ export default function Dicom4dPage() {
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>
-              {t('dicom4d.series', '4D 序列')}:
+              {t('dicom4d.series')}:
             </span>
             <Select
               value={selectedUid || undefined}
               onChange={setSelectedUid}
-              placeholder={t('dicom4d.selectSeries', '选择 4D 序列')}
+              placeholder={t('dicom4d.selectSeries')}
               loading={loading}
               style={{ width: 320 }}
               options={seriesList.map(s => ({
@@ -536,7 +535,7 @@ export default function Dicom4dPage() {
               style={currentFrame === 0 ? { ...btnStyle, opacity: 0.4 } : btnStyle}
               disabled={currentFrame === 0}
               onClick={() => { setCurrentFrame(0); setPlaying(false) }}
-              aria-label="第一帧"
+              aria-label={t('w9d.dicom4d.firstFrame')}
             >
               <SkipBack size={14} />
             </button>
@@ -544,7 +543,7 @@ export default function Dicom4dPage() {
               style={playing ? activeBtnStyle : btnStyle}
               onClick={() => setPlaying(v => !v)}
               disabled={frameCount === 0}
-              aria-label={playing ? '暂停' : '播放'}
+              aria-label={playing ? t('w9d.dicom4d.pause') : t('w9d.dicom4d.play')}
             >
               {playing ? <Pause size={14} /> : <Play size={14} />}
             </button>
@@ -552,7 +551,7 @@ export default function Dicom4dPage() {
               style={currentFrame >= frameCount - 1 ? { ...btnStyle, opacity: 0.4 } : btnStyle}
               disabled={currentFrame >= frameCount - 1}
               onClick={() => { setCurrentFrame(f => Math.min(frameCount - 1, f + 1)); setPlaying(false) }}
-              aria-label="下一帧"
+              aria-label={t('w9d.dicom4d.nextFrame')}
             >
               <SkipForward size={14} />
             </button>
@@ -582,15 +581,15 @@ export default function Dicom4dPage() {
 
             {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 循环模式: 单次/循环/往返 */}
             <RotateCcw size={12} color={loopMode === 'loop' ? BLUE : '#64748b'} />
-            <span style={{ fontSize: 11, color: '#64748b' }}>{t('dicom4d.loop', '循环')}:</span>
+            <span style={{ fontSize: 11, color: '#64748b' }}>{t('dicom4d.loop')}:</span>
             {(['once', 'loop', 'pingpong'] as LoopMode[]).map(m => (
               <button
                 key={m}
                 style={loopMode === m ? activeBtnStyle : btnStyle}
                 onClick={() => setLoopMode(m)}
-                aria-label={LOOP_LABELS[m]}
+                aria-label={t(LOOP_LABEL_KEYS[m])}
               >
-                {LOOP_LABELS[m]}
+                {t(LOOP_LABEL_KEYS[m])}
               </button>
             ))}
           </div>
@@ -599,7 +598,7 @@ export default function Dicom4dPage() {
             display: 'flex', alignItems: 'center', gap: 8, marginTop: 4,
             background: PANEL_BG, borderRadius: 4, padding: '4px 12px',
           }}>
-            <span style={{ fontSize: 10, color: '#64748b', minWidth: 30 }}>帧</span>
+            <span style={{ fontSize: 10, color: '#64748b', minWidth: 30 }}>{t('w9d.dicom4d.frame')}</span>
             <Slider
               min={0}
               max={Math.max(0, frameCount - 1)}
@@ -625,10 +624,10 @@ export default function Dicom4dPage() {
             <div style={{ marginTop: 4, background: PANEL_BG, borderRadius: 4, padding: '6px 12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <TrendingUp size={11} color="#facc15" />
-                <span style={{ fontSize: 10, color: '#64748b' }}>相位曲线 (帧序 → 时相)</span>
+                <span style={{ fontSize: 10, color: '#64748b' }}>{t('w9d.dicom4d.phaseCurve')}</span>
                 {movieData && (
                   <span style={{ fontSize: 9, color: '#475569', marginLeft: 'auto' }}>
-                    {movieData.interpolationMode === 'linear' ? `线性插值 · 补 ${movieData.interpolatedFrames} 帧` : `相位分箱 · 每相 ${movieData.framesPerPhase} 帧`}
+                    {movieData.interpolationMode === 'linear' ? t('w9d.dicom4d.interpLinear', { count: movieData.interpolatedFrames }) : t('w9d.dicom4d.interpBinned', { count: movieData.framesPerPhase })}
                   </span>
                 )}
               </div>
@@ -650,18 +649,18 @@ export default function Dicom4dPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <span style={{ fontSize: 10, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Heart size={10} color="#ef4444" />
-                  心动周期门控
+                  {t('w9d.dicom4d.cardiacGating')}
                 </span>
                 <span style={{ display: 'flex', gap: 10, fontSize: 10, color: '#94a3b8' }}>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#ef4444', borderRadius: 2, marginRight: 4 }} />收缩期</span>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#3b82f6', borderRadius: 2, marginRight: 4 }} />舒张期</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#ef4444', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.systole')}</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#3b82f6', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.diastole')}</span>
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 1 }}>
                 {cardiacSegments.map(seg => (
                   <div
                     key={seg.frame}
-                    title={`帧 ${seg.frame + 1}: ${seg.systole ? '收缩期' : '舒张期'}`}
+                    title={t('w9d.dicom4d.frameStatus', { frame: seg.frame + 1, status: seg.systole ? t('dicom4d.systole') : t('dicom4d.diastole') })}
                     style={{
                       flex: 1, height: 8, borderRadius: 1,
                       background: seg.systole ? '#ef4444' : '#3b82f6',
@@ -680,18 +679,18 @@ export default function Dicom4dPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <span style={{ fontSize: 10, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Activity size={10} color="#60a5fa" />
-                  呼吸门控
+                  {t('w9d.dicom4d.respiratoryGating')}
                 </span>
                 <span style={{ display: 'flex', gap: 10, fontSize: 10, color: '#94a3b8' }}>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#22c55e', borderRadius: 2, marginRight: 4 }} />吸气</span>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#f59e0b', borderRadius: 2, marginRight: 4 }} />呼气</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#22c55e', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.inspiration')}</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#f59e0b', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.expiration')}</span>
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 1 }}>
                 {respiratorySegments.map(seg => (
                   <div
                     key={seg.frame}
-                    title={`帧 ${seg.frame + 1}: ${seg.inspiration ? '吸气' : '呼气'}`}
+                    title={t('w9d.dicom4d.frameStatus', { frame: seg.frame + 1, status: seg.inspiration ? t('dicom4d.inspiration') : t('dicom4d.expiration') })}
                     style={{
                       flex: 1, height: 8, borderRadius: 1,
                       background: seg.inspiration ? '#22c55e' : '#f59e0b',
@@ -711,7 +710,7 @@ export default function Dicom4dPage() {
             title={
               <span style={{ fontSize: 12, color: '#94a3b8' }}>
                 <Heart size={12} style={{ marginRight: 4, color: '#ef4444' }} />
-                {t('dicom4d.cardiacPhase', '心脏相位')}
+                {t('dicom4d.cardiacPhase')}
               </span>
             }
             style={{ background: PANEL_BG, border: '1px solid #334155' }}
@@ -720,7 +719,7 @@ export default function Dicom4dPage() {
           >
             <div style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748b', marginBottom: 2 }}>
-                <span>{t('dicom4d.phase', '相位')}</span>
+                <span>                {t('dicom4d.phase')}</span>
                 <span style={{ color: '#facc15', fontWeight: 600 }}>{cardiacPhase}%</span>
               </div>
               <div style={{ background: '#1e293b', borderRadius: 4, height: 12, overflow: 'hidden', position: 'relative' }}>
@@ -732,8 +731,8 @@ export default function Dicom4dPage() {
             </div>
             <div style={{ fontSize: 10, color: '#475569' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t('dicom4d.systole', '收缩期')}</span>
-                <span>{t('dicom4d.diastole', '舒张期')}</span>
+                <span>{t('dicom4d.systole')}</span>
+                <span>{t('dicom4d.diastole')}</span>
               </div>
               <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
                 {Array.from({ length: 20 }).map((_, i) => (
@@ -752,7 +751,7 @@ export default function Dicom4dPage() {
             title={
               <span style={{ fontSize: 12, color: '#94a3b8' }}>
                 <Activity size={12} style={{ marginRight: 4, color: '#60a5fa' }} />
-                {t('dicom4d.respiratoryPhase', '呼吸相位')}
+                {t('dicom4d.respiratoryPhase')}
               </span>
             }
             style={{ background: PANEL_BG, border: '1px solid #334155' }}
@@ -761,7 +760,7 @@ export default function Dicom4dPage() {
           >
             <div style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748b', marginBottom: 2 }}>
-                <span>{t('dicom4d.phase', '相位')}</span>
+                <span>                {t('dicom4d.phase')}</span>
                 <span style={{ color: '#60a5fa', fontWeight: 600 }}>{respiratoryPhase}%</span>
               </div>
               <div style={{ background: '#1e293b', borderRadius: 4, height: 12, overflow: 'hidden', position: 'relative' }}>
@@ -773,8 +772,8 @@ export default function Dicom4dPage() {
             </div>
             <div style={{ fontSize: 10, color: '#475569' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t('dicom4d.inspiration', '吸气')}</span>
-                <span>{t('dicom4d.expiration', '呼气')}</span>
+                <span>{t('dicom4d.inspiration')}</span>
+                <span>{t('dicom4d.expiration')}</span>
               </div>
               <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
                 {Array.from({ length: 20 }).map((_, i) => (
@@ -794,7 +793,7 @@ export default function Dicom4dPage() {
             title={
               <span style={{ fontSize: 12, color: '#94a3b8' }}>
                 <BarChart3 size={12} style={{ marginRight: 4, color: '#facc15' }} />
-                时相分布
+                {t('w9d.dicom4d.phaseDistribution')}
               </span>
             }
             style={{ background: PANEL_BG, border: '1px solid #334155' }}
@@ -810,12 +809,12 @@ export default function Dicom4dPage() {
                   <PhaseDistributionBars bins={distBins.respiratory} maxCount={distBins.respiratoryMax} color="#60a5fa" label="respiratory 0-9" />
                 )}
                 <div style={{ fontSize: 9, color: '#475569', marginTop: 6 }}>
-                  {distBins.cardiac.reduce((s, b) => s + b.count, 0)} 帧 · {phaseDetail?.distribution?.totalFrames ?? 0} 总帧
-                  {phaseDetail && ` · 周期 ${phaseDetail.cardiacCycleMs}ms / ${phaseDetail.respiratoryCycleMs}ms`}
+                  {t('w9d.dicom4d.phaseSummary', { frames: distBins.cardiac.reduce((s, b) => s + b.count, 0), total: phaseDetail?.distribution?.totalFrames ?? 0 })}
+                  {phaseDetail && t('w9d.dicom4d.cycleSummary', { cardiac: phaseDetail.cardiacCycleMs, respiratory: phaseDetail.respiratoryCycleMs })}
                 </div>
               </>
             ) : (
-              <div style={{ fontSize: 10, color: '#475569' }}>时相分布数据不可用 (回退)</div>
+              <div style={{ fontSize: 10, color: '#475569' }}>{t('w9d.dicom4d.phaseDistributionUnavailable')}</div>
             )}
           </Card>
 
@@ -826,7 +825,7 @@ export default function Dicom4dPage() {
               title={
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>
                   <TrendingUp size={12} style={{ marginRight: 4, color: '#22c55e' }} />
-                  心电 / RR 间期
+                  {t('w9d.dicom4d.ecgRrInterval')}
                 </span>
               }
               style={{ background: PANEL_BG, border: '1px solid #334155' }}
@@ -834,8 +833,8 @@ export default function Dicom4dPage() {
               bodyStyle={{ padding: '10px' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>
-                <span>心率 <b style={{ color: '#22c55e' }}>{movieData.bpm}</b> bpm</span>
-                <span>周期 {Math.round(movieData.cycleMs)} ms</span>
+                <span>{t('w9d.dicom4d.heartRate')} <b style={{ color: '#22c55e' }}>{movieData.bpm}</b> bpm</span>
+                <span>{t('w9d.dicom4d.cycle')} {Math.round(movieData.cycleMs)} ms</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 40, marginBottom: 4 }}>
                 {movieData.rrIntervals.map((rr, i) => {
@@ -852,7 +851,7 @@ export default function Dicom4dPage() {
                 })}
               </div>
               <div style={{ fontSize: 9, color: '#475569' }}>
-                {movieData.interpolationMode} · {movieData.framesPerPhase} 帧/相 · {movieData.phaseSequence.length} 帧序列
+                {movieData.interpolationMode} · {movieData.framesPerPhase} {t('w9d.dicom4d.framesPerPhase')} · {movieData.phaseSequence.length} {t('w9d.dicom4d.frameSequence')}
               </div>
             </Card>
           )}

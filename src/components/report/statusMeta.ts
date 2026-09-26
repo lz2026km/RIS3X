@@ -283,6 +283,6 @@ export function toEnState(status: string | null | undefined): string {
   if (REPORT_EN_STATES.includes(upper)) return upper;
   const cn = normalizeReportStatus(key);
   if (CN_TO_EN[cn]) return CN_TO_EN[cn];
-  if (MSW_STATUS_TO_CN[key.toLowerCase()]) return CN_TO_EN[MSW_STATUS_TO_CN[key.toLowerCase()]] ?? upper;
+  if (MSW_STATUS_TO_CN[key.toLowerCase()]) return CN_TO_EN[MSW_STATUS_TO_CN[key.toLowerCase()] ?? ''] ?? upper;
   return upper;
 }

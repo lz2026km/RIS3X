@@ -4,6 +4,7 @@ import { ArrowLeftRight, Eye, TrendingUp, TrendingDown, Trash2 } from "lucide-re
 
 import { eyeApi } from "@/services/api/eyeApi";
 import { ErrorBanner } from "@/components/feedback";
+import { ActionButton, ExportButton } from "@/components/common";
 import { t } from "../../../i18n/appI18n";
 
 const ImageComparePage: React.FC = () => {
@@ -49,7 +50,7 @@ const ImageComparePage: React.FC = () => {
         }}
       >
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        暂无对比数据（影像对比服务不可用或未返回既往/当前检查）
+        {t('w9d.imageCompare.noData')}
       </div>
     );
   }
@@ -62,7 +63,7 @@ const ImageComparePage: React.FC = () => {
         ? { ...p, measurements: (p.measurements ?? []).filter((m: any) => m.parameter !== parameter) }
         : p,
     ));
-    message.success(`已删除测量: ${parameter}`);
+    message.success(t('w9d.imageCompare.measureDeleted', { name: parameter }));
   };
 
   return (
@@ -77,15 +78,23 @@ const ImageComparePage: React.FC = () => {
         <Col span={24} style={{ marginBottom: 12 }}>
           <Space>
             <ArrowLeftRight size={20} color="#2563eb" />
-            <span style={{ fontSize: 16, fontWeight: 600 }}>影像对比</span>
+            <span style={{ fontSize: 16, fontWeight: 600 }}>{t('w9d.imageCompare.title')}</span>
             <Select
               value={pairIdx}
               onChange={setPairIdx}
               style={{ width: 280 }}
               options={pairs.map((p, i) => ({
                 value: i,
-                label: `${p.patientName} - ${p.eyeSide === "OD" ? "右" : "左"}眼 (${p.priorDate ? new Date(p.priorDate).toLocaleDateString() : "—"} vs ${p.currentDate ? new Date(p.currentDate).toLocaleDateString() : "—"})`,
+                label: `${p.patientName} - ${p.eyeSide === "OD" ? t('w9d.imageCompare.right') : t('w9d.imageCompare.left')}${t('w9d.imageCompare.eyeSuffix')} (${p.priorDate ? new Date(p.priorDate).toLocaleDateString() : "—"} vs ${p.currentDate ? new Date(p.currentDate).toLocaleDateString() : "—"})`,
               }))}
+            />
+            <ActionButton action="refresh" loading={_loading} onClick={() => setReloadTick((n) => n + 1)}>{t('w45.actions.refresh')}</ActionButton>
+            <ExportButton
+              data={() => pairs}
+              filename="image-compare"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
             />
           </Space>
         </Col>
@@ -96,7 +105,7 @@ const ImageComparePage: React.FC = () => {
             size="small"
             title={
               <>
-                <Eye size={14} /> 既往检查{" "}
+                <Eye size={14} /> {t('w9d.imageCompare.priorExam')}{" "}
                 <Tag>{new Date(pair.priorDate).toLocaleDateString()}</Tag>
               </>
             }
@@ -112,7 +121,7 @@ const ImageComparePage: React.FC = () => {
                 color: "var(--text-secondary)",
               }}
             >
-              既往图像
+              {t('w9d.imageCompare.priorImage')}
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
               {pair.priorModality}
@@ -134,7 +143,7 @@ const ImageComparePage: React.FC = () => {
             size="small"
             title={
               <>
-                <Eye size={14} /> 当前检查{" "}
+                <Eye size={14} /> {t('w9d.imageCompare.currentExam')}{" "}
                 <Tag>{new Date(pair.currentDate).toLocaleDateString()}</Tag>
               </>
             }
@@ -150,7 +159,7 @@ const ImageComparePage: React.FC = () => {
                 color: "var(--text-secondary)",
               }}
             >
-              当前图像
+              {t('w9d.imageCompare.currentImage')}
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
               {pair.currentModality}
@@ -158,28 +167,28 @@ const ImageComparePage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title="对比测量">
+          <Card size="small" title={t('w9d.imageCompare.compareMeasures')}>
             <Table
               dataSource={pair.measurements}
               rowKey="parameter"
               size="small"
               pagination={false}
               columns={[
-                { title: "参数", dataIndex: "parameter", key: "parameter" },
+                { title: t('w9d.imageCompare.colParam'), dataIndex: "parameter", key: "parameter" },
                 {
-                  title: "既往",
+                  title: t('w9d.imageCompare.colPrior'),
                   dataIndex: "priorValue",
                   key: "priorValue",
                   render: (v: number, r: any) => `${v} ${r.unit}`,
                 },
                 {
-                  title: "当前",
+                  title: t('w9d.imageCompare.colCurrent'),
                   dataIndex: "currentValue",
                   key: "currentValue",
                   render: (v: number, r: any) => `${v} ${r.unit}`,
                 },
                 {
-                  title: "变化",
+                  title: t('w9d.imageCompare.colChange'),
                   key: "change",
                   render: (_, r) => (
                     <Tag
@@ -197,7 +206,7 @@ const ImageComparePage: React.FC = () => {
                   ),
                 },
                 {
-                  title: "趋势",
+                  title: t('w9d.imageCompare.colTrend'),
                   key: "trend",
                   render: (_, r) =>
                     r.direction === "worsened" ? (
@@ -209,22 +218,22 @@ const ImageComparePage: React.FC = () => {
                     ),
                 },
                 {
-                  title: "操作",
+                  title: t('w9d.imageCompare.colAction'),
                   key: "action",
                   render: (_, r) => (
-                    <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => removeMeasurement(r.parameter)}>删除</Button>
+                    <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => removeMeasurement(r.parameter)}>{t('w9d.imageCompare.delete')}</Button>
                   ),
                 },
               ]}
             scroll={{ x: 'max-content' }}
             />
           </Card>
-          <Card size="small" title="AI 进展评估" style={{ marginTop: 8 }}>
+          <Card size="small" title={t('w9d.imageCompare.aiProgression')} style={{ marginTop: 8 }}>
             <div style={{ fontSize: 12, lineHeight: 1.8, color: "var(--text-secondary)" }}>
               {pair.aiProgression}
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, marginTop: 8 }}>
-              结论:{" "}
+              {t('w9d.imageCompare.conclusion')}{" "}
               <Tag color={pair.conclusion.includes("进展") ? "red" : "green"}>
                 {pair.conclusion}
               </Tag>

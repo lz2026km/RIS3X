@@ -215,7 +215,7 @@ export const CriticalEscalationV2: React.FC = () => {
     if (res.success) {
       const updated = res.data;
       if (updated.escalatedCount > (chains.find((c) => c.id === id)?.escalatedCount ?? 0)) {
-        message.warning(`${updated.id}: 当前级别超时未确认, 已自动升级至 ${LEVEL_META[updated.currentLevel]?.label}`);
+        message.warning(t('w9e.criticalEscalationV2.autoEscalatedMsg', { id: updated.id, level: LEVEL_META[updated.currentLevel]?.label }));
       }
       await load();
     }
@@ -224,7 +224,7 @@ export const CriticalEscalationV2: React.FC = () => {
   const runEscalate = async (c: EscalationChain) => {
     const res = await criticalEscalationApi.escalate(c.id, { reason: '危急程度高, 手动升级', escalatedBy: '当前用户' }).catch(() => ({ success: false as const, data: null as unknown as EscalationChain, error: undefined }));
     if (res.success) {
-      message.success(`${c.id} 已升级至 ${LEVEL_META[res.data.currentLevel]?.label}`);
+      message.success(t('w9e.criticalEscalationV2.escalatedMsg', { id: c.id, level: LEVEL_META[res.data.currentLevel]?.label }));
       await load();
     } else {
       message.error(res.error?.message ?? t('criticalEscalation.escalateFailed'));
@@ -234,7 +234,7 @@ export const CriticalEscalationV2: React.FC = () => {
   const runClose = async (c: EscalationChain) => {
     const res = await criticalEscalationApi.closeChain(c.id, { closedBy: '当前用户', comment: '升级链关闭' }).catch(() => ({ success: false as const, data: null as unknown as EscalationChain, error: undefined }));
     if (res.success) {
-      message.success(`${c.id} 已关闭`);
+      message.success(t('w9e.criticalEscalationV2.closedMsg', { id: c.id }));
       await load();
     } else {
       message.error(res.error?.message ?? t('criticalEscalation.closeFailed'));
@@ -247,7 +247,7 @@ export const CriticalEscalationV2: React.FC = () => {
       .acknowledge(confirming.id, { confirmedBy: confirmBy.trim() || '值班医师', comment: '已电话确认并通知临床' })
       .catch(() => ({ success: false as const, data: null as unknown as EscalationChain, error: undefined }));
     if (res.success) {
-      message.success(`${confirming.id} 已在 ${LEVEL_META[confirming.currentLevel]?.label} 确认`);
+      message.success(t('w9e.criticalEscalationV2.confirmedMsg', { id: confirming.id, level: LEVEL_META[confirming.currentLevel]?.label }));
       setConfirming(null);
       await load();
     } else {
@@ -284,7 +284,7 @@ export const CriticalEscalationV2: React.FC = () => {
       dataIndex: 'currentLevel',
       key: 'currentLevel',
       width: 100,
-      render: (v: EscalationLevel, r) => <Tag color={LEVEL_META[v]?.color}>{LEVEL_META[v]?.label}{r.escalatedCount > 0 ? ` (升级×${r.escalatedCount})` : ''}</Tag>,
+      render: (v: EscalationLevel, r) => <Tag color={LEVEL_META[v]?.color}>{LEVEL_META[v]?.label}{r.escalatedCount > 0 ? t('w9e.criticalEscalationV2.escalatedTimesSuffix', { count: r.escalatedCount }) : ''}</Tag>,
     },
     {
       title: t('criticalEscalation.col.status'),
@@ -442,7 +442,7 @@ export const CriticalEscalationV2: React.FC = () => {
       </Card>
 
       {/* ===== 确认弹窗 ===== */}
-      <Modal title={confirming ? `确认危急值 · ${confirming.id}` : ''} open={!!confirming} onCancel={() => setConfirming(null)} onOk={() => void runAcknowledge()} okText={t('criticalEscalation.confirm')} width={420}>
+      <Modal title={confirming ? t('w9e.criticalEscalationV2.confirmTitle', { id: confirming.id }) : ''} open={!!confirming} onCancel={() => setConfirming(null)} onOk={() => void runAcknowledge()} okText={t('criticalEscalation.confirm')} width={420}>
         {confirming && (
           <Space direction="vertical" style={{ width: '100%' }} size={8}>
             <Descriptions size="small" column={1}>
@@ -458,7 +458,7 @@ export const CriticalEscalationV2: React.FC = () => {
       </Modal>
 
       {/* ===== 阶梯图弹窗 ===== */}
-      <Modal title={detail ? `升级链阶梯图 · ${detail.id}` : ''} open={!!detail} footer={null} onCancel={() => setDetail(null)} width={560}>
+      <Modal title={detail ? t('w9e.criticalEscalationV2.staircaseTitle', { id: detail.id }) : ''} open={!!detail} footer={null} onCancel={() => setDetail(null)} width={560}>
         {detail && <ChainStaircase chain={detail} />}
       </Modal>
     </div>
@@ -508,7 +508,7 @@ const ChainStaircase: React.FC<{ chain: EscalationChain }> = ({ chain }) => {
       <Alert
         type={chain.status === 'CLOSED' ? 'info' : chain.status === 'CONFIRMED' ? 'success' : chain.status === 'ESCALATED' ? 'warning' : 'info'}
         showIcon
-        title={`状态: ${STATUS_META[chain.status]?.label} · 当前 ${LEVEL_META[chain.currentLevel]?.label}`}
+        title={t('w9e.criticalEscalationV2.statusCurrent', { status: STATUS_META[chain.status]?.label, current: LEVEL_META[chain.currentLevel]?.label })}
         description={
           <Space size={4}>
             <span style={{ fontSize: 12 }}>{t('criticalEscalation.started')} {fmt(chain.startedAt)} · {t('criticalEscalation.escalate')} {chain.escalatedCount} {t('criticalEscalation.times')} · {t('criticalEscalation.confirmBy')} {chain.acknowledgedBy ?? '-'}</span>

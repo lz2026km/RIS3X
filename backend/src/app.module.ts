@@ -203,6 +203,12 @@ import { ContrastSafetyModule } from "./modules/contrast-safety/contrast-safety.
 import { Rqi2024Module } from "./modules/rqi-2024/rqi-2024.module";
 // [v3.0.6.11-105 Wave 2A] 放射影像质控指标国家上报中心 (rqi-report-center): 周期上报→提交→回执闭环 (孤儿模块, 无 DB 可启动)
 import { RqiReportCenterModule } from "./modules/rqi-report-center/rqi-report-center.module";
+// [G005 BackendParity] 注册孤儿模块: IHE 集成 + 危急值 V2 + 报告导出中心 V2 + 模板审批/模板库 V2
+import { IheModule } from "./ihe/ihe.module";
+import { CriticalV2Module } from "./modules/critical-v2/critical-v2.module";
+import { ReportExportCenterV2Module } from "./modules/report-export-center-v2/report-export-center-v2.module";
+import { TemplateApprovalModule } from "./modules/template-approval/template-approval.module";
+import { TemplateLibraryV2Module } from "./modules/template-library-v2/template-library-v2.module";
 
 @Module({
   imports: [
@@ -418,6 +424,12 @@ import { RqiReportCenterModule } from "./modules/rqi-report-center/rqi-report-ce
     // [G005 W3-BackendParity] 前端已调用但后端缺失端点补齐 (孤儿模块, 无 DB 可启动)
     AiFusionWorkspaceModule,
     OrthoSpecialtyModule,
+    // [G005 BackendParity] 孤儿模块注册: IHE 集成 + 危急值 V2 + 报告导出中心 V2 + 模板审批/模板库 V2
+    IheModule,
+    CriticalV2Module,
+    ReportExportCenterV2Module,
+    TemplateApprovalModule,
+    TemplateLibraryV2Module,
   ],
   controllers: [HealthController],
   providers: [

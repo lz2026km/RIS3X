@@ -735,6 +735,7 @@ export const MOCK_REPORTS: OphthalmologyReport[] = [
       {
         key: "grading",
         content: "",
+        findings: [],
         gradingResults: [
           {
             scaleId: "gs-005",
@@ -795,6 +796,7 @@ export const MOCK_REPORTS: OphthalmologyReport[] = [
       {
         key: "grading",
         content: "",
+        findings: [],
         gradingResults: [
           {
             scaleId: "gs-001",
@@ -847,6 +849,7 @@ export const MOCK_REPORTS: OphthalmologyReport[] = [
       {
         key: "grading",
         content: "",
+        findings: [],
         gradingResults: [
           {
             scaleId: "gs-004",

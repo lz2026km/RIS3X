@@ -382,14 +382,14 @@ const CancerScreenPage = () => {
     age: 55, gender: '男', smoking: '无', family: '无', exposure: '无', symptoms: '无', history: '无', region: '低风险'
   })
   const assessmentDimensions = [
-    { key: 'age', label: '年龄', options: [{ v: 0, l: '<40岁' }, { v: 1, l: '40-50岁' }, { v: 2, l: '50-60岁' }, { v: 3, l: '>60岁' }] },
-    { key: 'gender', label: '性别', options: [{ v: 0, l: '女' }, { v: 1, l: '男' }] },
-    { key: 'smoking', label: '吸烟史', options: [{ v: 0, l: '无' }, { v: 1, l: '已戒' }, { v: 3, l: '正在吸' }] },
-    { key: 'family', label: '肿瘤家族史', options: [{ v: 0, l: '无' }, { v: 3, l: '有' }] },
-    { key: 'exposure', label: '职业暴露', options: [{ v: 0, l: '无' }, { v: 2, l: '有' }] },
-    { key: 'symptoms', label: '呼吸道症状', options: [{ v: 0, l: '无' }, { v: 2, l: '轻微' }, { v: 4, l: '明显' }] },
-    { key: 'history', label: '既往肺病史', options: [{ v: 0, l: '无' }, { v: 2, l: 'COPD/结核' }, { v: 4, l: '其他' }] },
-    { key: 'region', label: '地区风险', options: [{ v: 0, l: '低风险' }, { v: 2, l: '中风险' }, { v: 4, l: '高风险' }] },
+    { key: 'age', label: t('w9a.cancerScreen.dimAge'), options: [{ v: 0, l: '<40岁' }, { v: 1, l: '40-50岁' }, { v: 2, l: '50-60岁' }, { v: 3, l: '>60岁' }] },
+    { key: 'gender', label: t('w9a.cancerScreen.dimGender'), options: [{ v: 0, l: '女' }, { v: 1, l: '男' }] },
+    { key: 'smoking', label: t('w9a.cancerScreen.dimSmoking'), options: [{ v: 0, l: '无' }, { v: 1, l: '已戒' }, { v: 3, l: '正在吸' }] },
+    { key: 'family', label: t('w9a.cancerScreen.dimFamily'), options: [{ v: 0, l: '无' }, { v: 3, l: '有' }] },
+    { key: 'exposure', label: t('w9a.cancerScreen.dimExposure'), options: [{ v: 0, l: '无' }, { v: 2, l: '有' }] },
+    { key: 'symptoms', label: t('w9a.cancerScreen.dimSymptoms'), options: [{ v: 0, l: '无' }, { v: 2, l: '轻微' }, { v: 4, l: '明显' }] },
+    { key: 'history', label: t('w9a.cancerScreen.dimHistory'), options: [{ v: 0, l: '无' }, { v: 2, l: 'COPD/结核' }, { v: 4, l: '其他' }] },
+    { key: 'region', label: t('w9a.cancerScreen.dimRegion'), options: [{ v: 0, l: '低风险' }, { v: 2, l: '中风险' }, { v: 4, l: '高风险' }] },
   ]
 
   // 早癌/高危结节检出数据
@@ -637,7 +637,7 @@ const CancerScreenPage = () => {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `早癌筛查报告-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = t('w9a.cancerScreen.exportFileName', { date: new Date().toISOString().slice(0, 10) })
     document.body.appendChild(a)
     a.click()
     a.remove()

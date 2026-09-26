@@ -43,6 +43,20 @@ const SCORING_DIMENSIONS_FALLBACK = [
   { key: 'timeliness_sign_within_window', category: 'timeliness', name: '签发及时', weight: 0.02 },
 ];
 
+// [G005 demo] 30 天评分趋势 seed (确定性, 无 Math.random), 保证 KPI 折线/卡片非空
+function buildTrend30d(): Array<{ date: string; avgScore: number; evaluated: number; gradeA: number }> {
+  const base = Date.UTC(2026, 7, 25); // 2026-08-25
+  return Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(base + i * 86400000);
+    return {
+      date: d.toISOString().slice(0, 10),
+      avgScore: 85 + ((i * 7 + 3) % 8),
+      evaluated: 30 + ((i * 5 + 11) % 20),
+      gradeA: 12 + ((i * 3 + 2) % 8),
+    };
+  });
+}
+
 // [v3.0.6.12-B3] 读 store 失败/空时返回的硬编码 KPI 快照
 const KPI_FALLBACK = {
   totalEvaluated: 1248,
@@ -50,7 +64,7 @@ const KPI_FALLBACK = {
   publishableRate: 81.7,
   bonusEligibleRate: 41.3,
   gradeDistribution: { A: 542, B: 478, C: 168, D: 60 },
-  trend30d: [],
+  trend30d: buildTrend30d(),
 };
 
 // [v3.0.6.12-B3] 读 store 失败/空时返回的硬编码阈值配置
@@ -170,11 +184,16 @@ export const qualityScoringHandlers = [
   }),
 
   // 1.8 评分 KPI   [v3.0.6.12-B3] 读 store quality_kpi
+  // [G005 demo] trend30d 为空时回退 30 点 seed (store seed 或 fallback 均已填充, 此处为双保险)
   http.get(`${API_BASE}/quality/scoring/kpi`, async () => {
     await delay(150);
     let data: any = null;
     try { data = get<any>('quality_kpi', 'current'); } catch {}
-    return success(data ?? KPI_FALLBACK);
+    const base = data ?? KPI_FALLBACK;
+    const trend30d = Array.isArray(base?.trend30d) && base.trend30d.length > 0
+      ? base.trend30d
+      : buildTrend30d();
+    return success({ ...base, trend30d });
   }),
 
   // ========== 2. 阈值配置 (4 点) ==========

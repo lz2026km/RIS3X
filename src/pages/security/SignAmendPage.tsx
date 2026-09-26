@@ -86,7 +86,7 @@ export const SignAmendPage: React.FC = () => {
   };
 
   const handleVerify = async () => {
-    if (!certModal.data.signatureHash) return message.warning(t('signAmend.enterSignatureHash'));
+    if (!certModal.data.signatureHash) { message.warning(t('signAmend.enterSignatureHash')); return; }
     try {
       const r = await signApi.verifySignature(certModal.data.signatureHash);
       if (r.success) { setVerifyResult(r.data); message.success(r.data.valid ? t('signAmend.signatureValidMsg') : t('signAmend.signatureInvalidMsg')); }
@@ -110,7 +110,7 @@ export const SignAmendPage: React.FC = () => {
 
   // 修订操作
   const handleAmendStart = async () => {
-    if (!amendModal.data.reportId || !amendModal.data.reason) return message.warning(t('signAmend.requiredReportIdAndReason'));
+    if (!amendModal.data.reportId || !amendModal.data.reason) { message.warning(t('signAmend.requiredReportIdAndReason')); return; }
     try {
       const r = await amendApi.startAmendment(amendModal.data.reportId, { reason: amendModal.data.reason });
       if (r.success) { message.success(t('signAmend.amendStarted')); setAmendModal({ type: null, data: {} }); loadAmends(); }
@@ -314,7 +314,7 @@ export const SignAmendPage: React.FC = () => {
           certModal.type === 'sign' ? t('signAmend.signReportTitle') :
           certModal.type === 'verify' ? t('signAmend.verifyTitle') : ''
         }
-        open={!!certModal.type && certModal.type !== 'history' && certModal.type !== 'verify' || (certModal.type === 'verify' && verifyResult)}
+        open={!!certModal.type && certModal.type !== 'verify' || (certModal.type === 'verify' && verifyResult)}
         onCancel={() => { setCertModal({ type: null, data: {} }); setVerifyResult(null); }}
         footer={null}
         width={500}

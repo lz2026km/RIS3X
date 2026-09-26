@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { Activity, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
+import { t } from "../../i18n/appI18n";
 
 const biRadsColor: Record<string, string> = {
   "2": "green",
@@ -43,11 +44,11 @@ const BreastCadPage: React.FC = () => {
       if (res.success) {
         setResults(res.data ?? []);
       } else {
-        setError(res.error?.message ?? "加载失败");
+        setError(res.error?.message ?? t("w9d.breast.loadFailed"));
         setResults([]);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t("w9d.breast.loadFailed"));
       setResults([]);
     } finally {
       setLoading(false);
@@ -60,12 +61,12 @@ const BreastCadPage: React.FC = () => {
       const modelVersion = results[0]?.modelVersion ?? "breastcad-v2.8.0";
       const res = await aiDiagnosisApi.retrainModel(modelVersion);
       if (res.success) {
-        message.success(`模型重训已提交: ${res.data?.modelVersion} (${res.data?.status})`);
+        message.success(t("w9d.breast.retrainSubmitted", { version: res.data?.modelVersion ?? "", status: res.data?.status ?? "" }));
       } else {
-        message.error(res.error?.message ?? "重训提交失败");
+        message.error(res.error?.message ?? t("w9d.breast.retrainFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? "重训提交失败");
+      message.error((e as Error)?.message ?? t("w9d.breast.retrainFailed"));
     } finally {
       setRetraining(false);
     }
@@ -81,14 +82,14 @@ const BreastCadPage: React.FC = () => {
         "breast-cad",
       );
       if (res.success) {
-        message.success(`批量${status === "confirmed" ? "确认" : "驳回"} ${selectedRowKeys.length} 条`);
+        message.success(t(status === "confirmed" ? "w9d.breast.batchConfirmed" : "w9d.breast.batchRejected", { count: selectedRowKeys.length }));
         setSelectedRowKeys([]);
         await load();
       } else {
-        message.error(res.error?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+        message.error(res.error?.message ?? t(status === "confirmed" ? "w9d.breast.batchConfirmFailed" : "w9d.breast.batchRejectFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+      message.error((e as Error)?.message ?? t(status === "confirmed" ? "w9d.breast.batchConfirmFailed" : "w9d.breast.batchRejectFailed"));
     } finally {
       setBatchLoading(false);
     }
@@ -99,9 +100,9 @@ const BreastCadPage: React.FC = () => {
   }, [load]);
 
   const columns = [
-    { title: "检查号", dataIndex: "studyId", key: "studyId" },
-    { title: "患者", dataIndex: "patientName", key: "patientName" },
-    { title: "病灶数", dataIndex: "lesionCount", key: "lesionCount" },
+    { title: t("w9d.breast.colStudyId"), dataIndex: "studyId", key: "studyId" },
+    { title: t("w9d.breast.colPatient"), dataIndex: "patientName", key: "patientName" },
+    { title: t("w9d.breast.colLesionCount"), dataIndex: "lesionCount", key: "lesionCount" },
     {
       title: "BI-RADS",
       dataIndex: "overallBiRads",
@@ -109,7 +110,7 @@ const BreastCadPage: React.FC = () => {
       render: (v: string) => <Tag color={biRadsColor[v]}>{`BI-RADS ${v}`}</Tag>,
     },
     {
-      title: "状态",
+      title: t("w9d.breast.colStatus"),
       dataIndex: "status",
       key: "status",
       render: (v: string) => (
@@ -123,7 +124,7 @@ const BreastCadPage: React.FC = () => {
       ),
     },
     {
-      title: "操作",
+      title: t("w9d.breast.colAction"),
       key: "action",
       render: (_: unknown, r: BreastCadResult) => (
         <Button
@@ -132,7 +133,7 @@ const BreastCadPage: React.FC = () => {
           data-testid={`goto-viewer-${r.id}`}
           onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
         >
-          去阅片叠加
+          {t("w9d.breast.gotoViewer")}
         </Button>
       ),
     },
@@ -142,14 +143,14 @@ const BreastCadPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>乳腺 AI 检测</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.breast.title")}</span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
           onClick={() => void load()}
           loading={loading}
         >
-          刷新
+          {t("w9d.breast.refresh")}
         </Button>
         <Button
           size="small"
@@ -157,7 +158,7 @@ const BreastCadPage: React.FC = () => {
           onClick={() => void handleRetrain()}
           loading={retraining}
         >
-          重训模型
+          {t("w9d.breast.retrain")}
         </Button>
         {selectedRowKeys.length > 0 && (
           <>
@@ -168,7 +169,7 @@ const BreastCadPage: React.FC = () => {
               loading={batchLoading}
               onClick={() => void handleBatch("confirmed")}
             >
-              批量确认 ({selectedRowKeys.length})
+              {t("w9d.breast.batchConfirm", { count: selectedRowKeys.length })}
             </Button>
             <Button
               size="small"
@@ -177,7 +178,7 @@ const BreastCadPage: React.FC = () => {
               loading={batchLoading}
               onClick={() => void handleBatch("rejected")}
             >
-              批量驳回 ({selectedRowKeys.length})
+              {t("w9d.breast.batchReject", { count: selectedRowKeys.length })}
             </Button>
           </>
         )}
@@ -185,7 +186,7 @@ const BreastCadPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总检测" value={results.length} />
+            <Statistic title={t("w9d.breast.statTotal")} value={results.length} />
           </Card>
         </Col>
         <Col span={6}>
@@ -204,7 +205,7 @@ const BreastCadPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="已复核"
+              title={t("w9d.breast.statReviewed")}
               value={results.filter((r) => r.status !== "auto").length}
             />
           </Card>
@@ -217,7 +218,7 @@ const BreastCadPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-              重试
+              {t("w9d.breast.retry")}
             </Button>
           }
         />

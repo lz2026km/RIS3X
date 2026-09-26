@@ -5,7 +5,7 @@ export interface EducationMaterial {
   category: 'pre_exam' | 'post_exam' | 'condition' | 'medication' | 'general'
   modality?: string
   bodyPart?: string
-  contentType: 'text' | 'video' | 'pdf' | 'image'
+  contentType: 'text' | 'video' | 'audio' | 'pdf' | 'image'
   duration?: number
   content: string
   summary: string

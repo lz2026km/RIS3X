@@ -60,7 +60,7 @@ function newRule(): RoutingRule {
     id: `r_${Math.random().toString(36).slice(2, 8)}`,
     name: '新规则',
     priority: 1,
-    enabled: true,
+    active: true,
     conditions: { all: [emptyCondition()] },
     event: { type: 'assign_doctor' },
     target: {},

@@ -9,6 +9,7 @@ import { Modal, Button, Tag, Spin, Empty, Tooltip, Alert } from 'antd';
 import { TreePine, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { templatesApi, type TemplateDto, type TemplateStructure } from '@services/api/templatesApi';
 import { resolveTemplateVariables, describeTemplateVariables, collectTemplateVariables } from '@utils/templateVariables';
+import { t } from '../../../../i18n/appI18n';
 
 /** 段落标题 (节段标记), 命中则作为段落树分支标题 */
 const SECTION_TITLE_SET = new Set([
@@ -36,7 +37,7 @@ export function buildSectionTree(structure: TemplateStructure | null | undefined
     const parts = String(body ?? '').split(/\n{2,}/).filter((p) => p.trim().length > 0);
     return parts.map((p, i) => ({
       id: `sec-${i}`,
-      title: p.trim().slice(0, 12) || `段落 ${i + 1}`,
+      title: p.trim().slice(0, 12) || t('w9e.sectionTemplateEngine.paraN', { n: i + 1 }),
       type: 'text' as const,
       raw: p,
       rendered: p,
@@ -52,7 +53,7 @@ export function buildSectionTree(structure: TemplateStructure | null | undefined
     const clean = normalizeTitle(trimmed);
     const isTitleLike = SECTION_TITLE_SET.has(clean) || trimmed.startsWith('【');
     if (isTitleLike || b.type === 'structured') {
-      sectionTitle = clean || '结构化段落';
+      sectionTitle = clean || t('w9e.sectionTemplateEngine.structuredParagraph');
       nodes.push({
         id: `sec-${i}`,
         title: sectionTitle,
@@ -99,7 +100,7 @@ const matchLevel = (t: TemplateDto, mod: string, bp: string): number => {
 };
 
 const LEVEL_TAG: Record<number, string> = { 0: 'volcano', 1: 'cyan', 2: 'blue' };
-const LEVEL_TEXT: Record<number, string> = { 0: '精准', 1: '模态', 2: '部位' };
+const LEVEL_TEXT: Record<number, string> = { 0: t('w9e.sectionTemplateEngine.levelExact'), 1: t('w9e.sectionTemplateEngine.levelModality'), 2: t('w9e.sectionTemplateEngine.levelBodyPart') };
 
 export default function SectionTemplateEngine({ open, modality, bodyPart, context, onClose, onApply }: SectionTemplateEngineProps) {
   const [templates, setTemplates] = useState<TemplateDto[]>([]);
@@ -126,11 +127,11 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
           .sort((a, b) => a.lv - b.lv || String(a.t?.name ?? '').localeCompare(String(b.t?.name ?? ''), 'zh-CN'));
         setTemplates(scored.map((x) => x.t));
         if (scored.length > 0) setSelectedId(scored[0]!.t.id);
-        if (scored.length === 0) setError('当前模态/部位暂无段落模板, 可在模板库创建或更换模板');
+        if (scored.length === 0) setError(t('w9e.sectionTemplateEngine.noTemplateForModality'));
       } else {
-        setError('段落模板加载失败');
+        setError(t('w9e.sectionTemplateEngine.loadFailed'));
       }
-    }).catch(() => { if (!cancelled) setError('段落模板加载失败'); })
+    }).catch(() => { if (!cancelled) setError(t('w9e.sectionTemplateEngine.loadFailed')); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [open, mod, bp]);
@@ -163,14 +164,14 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
       return (
         <div key={n.id} className="flex items-center gap-1.5 py-1">
           <TreePine className="w-3 h-3 text-amber-500 shrink-0" />
-          <span className="text-xs font-bold text-slate-800">{normalizeTitle(n.rendered) || '结构化段落'}</span>
+          <span className="text-xs font-bold text-slate-800">{normalizeTitle(n.rendered) || t('w9e.sectionTemplateEngine.structuredParagraph')}</span>
         </div>
       );
     }
     return (
       <div key={n.id} className="pl-5 py-0.5 text-xs text-slate-600 border-l border-slate-200 ml-1.5">
-        <span className="whitespace-pre-wrap leading-relaxed">{n.rendered || <span className="text-slate-300">(空段落)</span>}</span>
-        {n.hasUnresolved && <Tag color="purple" className="m-0 ml-1 text-[10px]">未识别变量</Tag>}
+        <span className="whitespace-pre-wrap leading-relaxed">{n.rendered || <span className="text-slate-300">{t('w9e.sectionTemplateEngine.emptyParagraph')}</span>}</span>
+        {n.hasUnresolved && <Tag color="purple" className="m-0 ml-1 text-[10px]">{t('w9e.sectionTemplateEngine.unresolvedVar')}</Tag>}
       </div>
     );
   };
@@ -180,8 +181,8 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
       title={
         <span className="flex items-center gap-2">
           <TreePine className="w-4 h-4 text-amber-500" />
-          <span>模板生成段落树</span>
-          <Tag color="blue" className="text-[10px] m-0">按 {mod || '—'} / {bp || '—'} 匹配</Tag>
+          <span>{t('w9e.sectionTemplateEngine.title')}</span>
+          <Tag color="blue" className="text-[10px] m-0">{t('w9e.sectionTemplateEngine.matchTag', { mod: mod || '—', bp: bp || '—' })}</Tag>
         </span>
       }
       open={open}
@@ -191,13 +192,13 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
       footer={
         <div className="flex items-center justify-between">
           <span className="text-[11px] text-slate-400">
-            {tree.length} 段 · 共 {fullText.length} 字
-            {unresolvedCount > 0 && <span className="text-purple-600 ml-2">{unresolvedCount} 个变量未识别(保留原样可手动修改)</span>}
+            {t('w9e.sectionTemplateEngine.footerSummary', { sections: tree.length, chars: fullText.length })}
+            {unresolvedCount > 0 && <span className="text-purple-600 ml-2">{t('w9e.sectionTemplateEngine.unresolvedSummary', { count: unresolvedCount })}</span>}
           </span>
           <div className="flex gap-2">
-            <Button onClick={onClose}>取消</Button>
+            <Button onClick={onClose}>{t('w9e.sectionTemplateEngine.cancel')}</Button>
             <Button type="primary" icon={<CheckCircle2 className="w-3 h-3" />} onClick={handleApply} disabled={!fullText.trim()}>
-              一键填充编辑器
+              {t('w9e.sectionTemplateEngine.applyAll')}
             </Button>
           </div>
         </div>
@@ -205,14 +206,14 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
     >
       <div className="pt-2 space-y-3">
         {loading ? (
-          <div className="text-center py-8"><Spin /> 正在匹配段落模板…</div>
+          <div className="text-center py-8"><Spin /> {t('w9e.sectionTemplateEngine.matching')}</div>
         ) : error && templates.length === 0 ? (
           <Empty image={<FileText size={40} style={{ opacity: 0.4 }} />} description={error} />
         ) : (
           <>
             <div className="flex gap-1.5 flex-wrap">
               {templates.length === 0 && (
-                <span className="text-xs text-slate-400">无匹配段落模板 — 可在模板库创建 (保存类型选「段落」)</span>
+                <span className="text-xs text-slate-400">{t('w9e.sectionTemplateEngine.noMatchHint')}</span>
               )}
               {templates.map((t) => {
                 const lv = matchLevel(t, mod, bp);
@@ -229,10 +230,10 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
                 );
               })}
             </div>
-            <Alert type="info" showIcon className="!text-[11px]" message="预览为变量插值结果: 来自当前报告上下文的变量已自动填充, 未识别占位符保留原样" />
+            <Alert type="info" showIcon className="!text-[11px]" message={t('w9e.sectionTemplateEngine.previewNote')} />
             <div className="border border-slate-200 rounded p-3 max-h-[360px] overflow-y-auto bg-slate-50/60">
               {tree.length === 0 ? (
-                <Empty image={<FileText size={36} style={{ opacity: 0.4 }} />} description="该模板无可生成段落" />
+                <Empty image={<FileText size={36} style={{ opacity: 0.4 }} />} description={t('w9e.sectionTemplateEngine.noSections')} />
               ) : (
                 <div className="space-y-1">{tree.map((n) => renderNode(n))}</div>
               )}
@@ -249,7 +250,7 @@ export function SectionVariableHint({ text }: { text: string }) {
   const vars = useMemo(() => collectTemplateVariables(text), [text]);
   if (vars.length === 0) return null;
   return (
-    <Tooltip title={`模板变量: ${vars.map((v) => `{{${v}}}`).join(' ')} (插入时自动填充)`}>
+    <Tooltip title={t('w9e.sectionTemplateEngine.varHint', { vars: vars.map((v) => `{{${v}}}`).join(' ') })}>
       <Sparkles className="w-3 h-3 text-purple-500 cursor-help" />
     </Tooltip>
   );

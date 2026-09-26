@@ -7,6 +7,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { message, Modal, Input } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { getCurrentUser } from '../utils/auth';
 import { notificationsApi } from '../services/api/notificationsApi';
 import {
@@ -20,6 +21,7 @@ import {
 } from '../data/reviewRevisionCollabMock';
 import { extendedReportMock } from '../data/reportSubsystemMock';
 import { reportApi } from '../services/api/reportApi';
+import { DataTable } from '../components/common/DataTable';
 import { t } from '../i18n/appI18n';
 
 // ============================================================
@@ -226,13 +228,13 @@ export default function ReportRevisionsPage() {
         userId: `patient-${selectedReportId}`,
         type: 'REPORT',
         severity: 'INFO',
-        title: '报告已更新（修订）',
-        content: `${report.patientName} 的报告 ${selectedReportId} 已发布修订版（${rightRev.versionLabel} · ${ACTION_CONFIG[rightRev.action].label}），请登录患者端查看。`,
+        title: t('w9c.reportRev.notifyTitle'),
+        content: t('w9c.reportRev.notifyContent', { patient: report.patientName, reportId: selectedReportId, version: rightRev.versionLabel, action: ACTION_CONFIG[rightRev.action].label }),
         targetId: selectedReportId,
       });
       setAllRevisions(prev => prev.map(r => r.id === rightRev.id ? { ...r, patientNotified: true } : r));
       if (res.success) {
-        message.success(`已发送通知给 ${report.patientName}`);
+        message.success(t('w9c.reportRev.notifySentTo', { name: report.patientName }));
       } else {
         message.warning(t('reportRev.notifyUnavailable'));
       }
@@ -249,16 +251,16 @@ export default function ReportRevisionsPage() {
     if (!report) return;
     Modal.confirm({
       title: t('reportRev.withdrawTitle'),
-      content: `撤回后报告 ${selectedReportId} 将置为「已撤回 (WITHDRAWN)」，患者端不可见。是否继续？`,
+      content: t('w9c.reportRev.withdrawConfirm', { reportId: selectedReportId }),
       okText: t('reportRev.withdrawOk'),
       okButtonProps: { danger: true },
       cancelText: t('reportRev.cancel'),
       onOk: async () => {
         setWithdrawing(true);
         try {
-          const res = await reportApi.remove(selectedReportId, '报告修订页手动撤回');
+          const res = await reportApi.remove(selectedReportId, t('w9c.reportRev.withdrawReason'));
           if (res.success) {
-            message.success(`报告 ${selectedReportId} 已撤回（WITHDRAWN）`);
+            message.success(t('w9c.reportRev.withdrawSuccess', { reportId: selectedReportId }));
             await loadRevisions();
           } else {
             message.error(res.error?.message ?? t('reportRev.withdrawFail'));
@@ -301,13 +303,52 @@ export default function ReportRevisionsPage() {
       setAllRevisions(prev => [...prev, newRev]);
       setAddendumNote('');
       setShowAddendumModal(false);
-      message.success(`报告 ${selectedReportId} 已置为修订中 (AMENDING)，补发说明已记录`);
+      message.success(t('w9c.reportRev.addendumSuccess', { reportId: selectedReportId }));
     } catch {
       message.error(t('reportRev.addendumFailRetry'));
     } finally {
       setAddendumLoading(false);
     }
   };
+
+  const filteredReportIds = reportIds.filter(rid => {
+    if (!search) return true;
+    const meta = reportMeta[rid];
+    return rid.includes(search) || (meta?.patientName || '').includes(search);
+  });
+  const reportListData = filteredReportIds.map(id => ({ id }));
+
+  const revisionReportColumns: ColumnsType<{ id: string }> = [
+    {
+      title: t('w3tables.col.patient'), dataIndex: 'id', key: 'patient',
+      render: (rid: string) => {
+        const r = reportMeta[rid];
+        return (
+          <div style={{ minWidth: 130 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r?.patientName || rid}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r?.modality}</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{rid} · {t('reportRev.versionCount', { count: (revisionsByReport[rid] ?? []).length })}</div>
+          </div>
+        );
+      },
+    },
+    {
+      title: t('reportRev.timeline'), key: 'actions',
+      render: (_: unknown, row) => {
+        const revs = revisionsByReport[row.id] ?? [];
+        return (
+          <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            {revs.map(rev => {
+              const aConf = ACTION_CONFIG[rev.action];
+              return <span key={rev.id} style={{ fontSize: 12, padding: '1px 5px', borderRadius: 3, background: aConf.bg, color: aConf.color, fontWeight: 600 }}>{rev.versionLabel} {aConf.label}</span>;
+            })}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -381,59 +422,27 @@ export default function ReportRevisionsPage() {
               />
             </div>
           </div>
-          <div style={{ maxHeight: 600, overflowY: 'auto' }}>
-            {reportIds
-              .filter(rid => {
-                if (!search) return true;
-                const meta = reportMeta[rid];
-                return rid.includes(search) || (meta?.patientName || '').includes(search);
-              })
-              .map(rid => {
-              const revs = revisionsByReport[rid] ?? [];
-              const r = reportMeta[rid];
-              const isSelected = rid === selectedReportId;
-              return (
-                  <div
-                    key={rid}
-                    onClick={() => {
-                      setSelectedReportId(rid);
-                      setLeftVersion(revs[0]!.versionNumber);
-                      setRightVersion(revs[revs.length - 1]!.versionNumber);
-                    }}
-                    style={{
-                      padding: 10, borderBottom: '1px solid var(--border-light)',
-                      background: isSelected ? 'var(--color-info-bg)' : 'transparent',
-                      borderLeft: isSelected ? '3px solid #3b82f6' : '3px solid transparent',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r?.patientName || rid}</span>
-                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r?.modality}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                      {rid} · {t('reportRev.versionCount', { count: revs.length })}
-                    </div>
-                    <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                      {revs.map(rev => {
-                        const aConf = ACTION_CONFIG[rev.action];
-                        return (
-                          <span key={rev.id} style={{
-                            fontSize: 12, padding: '1px 5px', borderRadius: 3,
-                            background: aConf.bg, color: aConf.color, fontWeight: 600,
-                          }}>{rev.versionLabel} {aConf.label}</span>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            {reportIds.length === 0 && (
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-                {t('reportRev.emptyRevisions')}
-              </div>
-            )}
-          </div>
+          <DataTable<{ id: string }>
+            columns={revisionReportColumns}
+            dataSource={reportListData}
+            rowKey="id"
+            showPagination={false}
+            emptyText={t('reportRev.emptyRevisions')}
+            onRow={(row) => ({
+              onClick: () => {
+                const revs = revisionsByReport[row.id] ?? [];
+                setSelectedReportId(row.id);
+                if (revs[0]) setLeftVersion(revs[0].versionNumber);
+                const last = revs[revs.length - 1];
+                if (last) setRightVersion(last.versionNumber);
+              },
+              style: {
+                cursor: 'pointer',
+                background: row.id === selectedReportId ? 'var(--color-info-bg)' : undefined,
+              },
+            })}
+            scroll={{ x: 'max-content' }}
+          />
         </div>
 
         {/* 右：详情 + 版本对比 */}
@@ -688,7 +697,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
 
       {/* [v3.0.6.11-98 Wave3B P1] 终版预览 Modal */}
       <Modal
-        title={rightRev ? `终版预览 · ${selectedReportId} ${rightRev.versionLabel}（${ACTION_CONFIG[rightRev.action].label}）` : t('reportRev.finalPreview')}
+        title={rightRev ? t('w9c.reportRev.finalPreviewTitle', { reportId: selectedReportId, version: rightRev.versionLabel, action: ACTION_CONFIG[rightRev.action].label }) : t('reportRev.finalPreview')}
         open={previewFinal}
         onCancel={() => setPreviewFinal(false)}
         footer={null}
@@ -718,7 +727,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
 
       {/* [v3.0.6.11-99 Wave8A P1] 创建修订/补发 Modal: 修订说明 → reportApi.revise (AMENDING) */}
       <Modal
-        title={`创建修订/补发 · ${selectedReportId}`}
+        title={t('w9c.reportRev.createAddendumTitle', { reportId: selectedReportId })}
         open={showAddendumModal}
         onCancel={() => setShowAddendumModal(false)}
         onOk={() => void handleCreateAddendum()}
@@ -729,7 +738,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
       >
         <div style={{ fontSize: 13 }}>
           <p style={{ marginBottom: 10, color: 'var(--text-secondary)' }}>
-            将报告 {selectedReportId} 置为修订中 (AMENDING)，修订完成后需重新签署发布。当前已有 {currentRevisions.length} 个版本。
+            {t('w9c.reportRev.createAddendumBody', { reportId: selectedReportId, count: currentRevisions.length })}
           </p>
           <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('reportRev.addendumNoteLabel')}</label>
           <Input.TextArea

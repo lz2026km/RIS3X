@@ -7,6 +7,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message, Modal, Tag, Select } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import {
   ClipboardCheck, Clock, XCircle,
   FileText, Search, BarChart3, TrendingUp,
@@ -28,6 +29,7 @@ import { criticalAlertApi } from '../services/api/criticalAlertApi';
 import FollowupAutoBookPanel from '../components/report/v3/R3.WRITING/FollowupAutoBookPanel';
 import { t } from '../i18n/appI18n';
 import { ActionButton } from '../components/common/ActionButton';
+import { DataTable } from '../components/common/DataTable';
 import { CheckCircle2, Siren, CalendarClock } from 'lucide-react';
 import ReportFlowBar from '../components/report/ReportFlowBar';
 // [v3.0.6.11-70] P0 真实化: 后端 ReportDto → 审核任务 (状态过滤/阶段映射)
@@ -50,12 +52,12 @@ function reportToReviewTask(r: ReportDto): ReviewTask | null {
   return {
     id: `rv-${r.reportId || r.id}`,
     reportId: r.reportId || r.id,
-    patientName: r.patientName || '未知患者',
+    patientName: r.patientName || t('w9c.reportReview.unknownPatient'),
     modality: r.modality || 'CT',
-    bodyPart: r.bodyPart || '胸部',
+    bodyPart: r.bodyPart || t('w9c.reportReview.defaultBodyPart'),
     reportDoctorId: r.doctorId || '',
-    reportDoctorName: r.doctorId || '报告医师',
-    reportDoctorTitle: '医师',
+    reportDoctorName: r.doctorId || t('w9c.reportReview.defaultDoctorName'),
+    reportDoctorTitle: t('w9c.reportReview.defaultDoctorTitle'),
     stage,
     status,
     submittedAt,
@@ -94,18 +96,18 @@ const STATUS_CONFIG: Record<ReviewStatus, { label: string; color: string; bg: st
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 60) return `${m} 分钟前`;
+  if (m < 60) return t('w9c.reportReview.minutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} 小时前`;
-  return `${Math.floor(h / 24)} 天前`;
+  if (h < 24) return t('w9c.reportReview.hoursAgo', { count: h });
+  return t('w9c.reportReview.daysAgo', { count: Math.floor(h / 24) });
 }
 
 function deadlineInfo(_deadline: string, isOverdue: boolean, hoursToDeadline: number): { label: string; color: string } {
   if (isOverdue) {
-    return { label: `超时 ${Math.abs(hoursToDeadline)}h`, color: '#dc2626' };
+    return { label: t('w9c.reportReview.overdueH', { hours: Math.abs(hoursToDeadline) }), color: '#dc2626' };
   }
-  if (hoursToDeadline < 2) return { label: `${hoursToDeadline}h 内`, color: '#f59e0b' };
-  return { label: `${hoursToDeadline}h 后`, color: 'var(--text-secondary)' };
+  if (hoursToDeadline < 2) return { label: t('w9c.reportReview.hoursWithin', { hours: hoursToDeadline }), color: '#f59e0b' };
+  return { label: t('w9c.reportReview.hoursAfter', { hours: hoursToDeadline }), color: 'var(--text-secondary)' };
 }
 
 // ============================================================
@@ -196,7 +198,7 @@ export default function ReportReviewPage() {
       ? await reportApi.review(selectedTask.reportId)
       : await reportApi.reject(selectedTask.reportId, auditSuggestion.trim());
     if (res.success) {
-      message.success(decision === 'approve' ? `已通过 (${STAGE_CONFIG[selectedTask.stage].label})` : t('reportReviewPage.msgRejectedBack'));
+      message.success(decision === 'approve' ? t('w9c.reportReview.approvedWithStage', { stage: STAGE_CONFIG[selectedTask.stage].label }) : t('reportReviewPage.msgRejectedBack'));
       setAuditDecision(null);
       setAuditSuggestion('');
       await loadTasks();
@@ -205,6 +207,52 @@ export default function ReportReviewPage() {
     }
     setSubmitting(false);
   }, [selectedTask, auditSuggestion, loadTasks]);
+
+  const taskColumns: ColumnsType<ReviewTask> = [
+    {
+      title: t('reportReviewPage.stageInitial'), key: 'stage', width: 150,
+      render: (_: unknown, task) => {
+        const stageConf = STAGE_CONFIG[task.stage];
+        const statusConf = STATUS_CONFIG[task.status];
+        const StageIcon = stageConf.icon;
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+            <span style={{ padding: '1px 6px', borderRadius: 3, background: stageConf.bg, color: stageConf.color, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+              <StageIcon size={9} /> {stageConf.label}
+            </span>
+            <span style={{ padding: '1px 6px', borderRadius: 3, background: statusConf.bg, color: statusConf.color, border: `1px solid ${statusConf.border}`, fontSize: 12, fontWeight: 600 }}>{statusConf.label}</span>
+            {task.criticalFinding && <span style={{ fontSize: 12, padding: '1px 4px', background: '#dc2626', color: '#fff', borderRadius: 2, fontWeight: 700 }}>{t('reportReviewPage.critical')}</span>}
+          </div>
+        );
+      },
+    },
+    {
+      title: t('reportReviewPage.patientLabel'), dataIndex: 'patientName', key: 'patientName',
+      render: (_: unknown, task) => (
+        <div style={{ minWidth: 160 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{task.patientName} · {task.modality} {task.bodyPart}</div>
+          <div style={{ display: 'flex', gap: 2 }}>
+            {['initial', 'final', 'sign'].map(s => {
+              const idx = ['initial', 'final', 'sign'];
+              const isPast = idx.indexOf(s) < idx.indexOf(task.stage);
+              const isCurrent = s === task.stage;
+              return <div key={s} style={{ flex: 1, height: 3, borderRadius: 2, background: isPast ? '#10b981' : isCurrent ? '#3b82f6' : '#e2e8f0' }} />;
+            })}
+          </div>
+        </div>
+      ),
+    },
+    { title: t('reportReviewPage.reportLabel'), key: 'doctor', width: 130, render: (_: unknown, task) => <span>{task.reportDoctorTitle} {task.reportDoctorName}</span> },
+    { title: t('reportReviewPage.quality'), dataIndex: 'qualityScore', key: 'qualityScore', width: 90, align: 'center' },
+    { title: t('reportReviewPage.infoSubmitTime'), dataIndex: 'submittedAt', key: 'submittedAt', width: 100, render: (v: string) => timeAgo(v) },
+    {
+      title: t('reportReviewPage.infoDeadline'), key: 'deadline', width: 100,
+      render: (_: unknown, task) => {
+        const deadline = deadlineInfo(task.deadline, task.isOverdue, task.hoursToDeadline);
+        return <span style={{ fontSize: 12, color: deadline.color, fontWeight: 600 }}>⏱ {deadline.label}</span>;
+      },
+    },
+  ];
 
   if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.loading')}</div>;
   if (error) return <div role="alert" data-testid="review-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
@@ -328,87 +376,21 @@ export default function ReportReviewPage() {
             <span><strong style={{ color: '#1e40af' }}>{filteredTasks.length}</strong> {t('reportReviewPage.taskUnit')}</span>
             <span>{t('reportReviewPage.totalPrefix')} {tasks.length} {t('reportReviewPage.recordUnit')}</span>
           </div>
-          {filteredTasks.map(task => {
-            const stageConf = STAGE_CONFIG[task.stage];
-            const statusConf = STATUS_CONFIG[task.status];
-            const StageIcon = stageConf.icon;
-            const isSelected = task.id === selectedTaskId;
-            const deadline = deadlineInfo(task.deadline, task.isOverdue, task.hoursToDeadline);
-
-            return (
-              <div
-                key={task.id}
-                onClick={() => setSelectedTaskId(task.id)}
-                style={{
-                  padding: 12, borderBottom: '1px solid var(--border-light)',
-                  background: isSelected ? 'var(--color-info-bg)' : task.isOverdue ? 'var(--color-error-bg)' : 'transparent',
-                  borderLeft: isSelected ? '3px solid #3b82f6' : '3px solid transparent',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{
-                      padding: '1px 6px', borderRadius: 3,
-                      background: stageConf.bg, color: stageConf.color,
-                      fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2,
-                    }}>
-                      <StageIcon size={9} /> {stageConf.label}
-                    </span>
-                    <span style={{
-                      padding: '1px 6px', borderRadius: 3,
-                      background: statusConf.bg, color: statusConf.color, border: `1px solid ${statusConf.border}`,
-                      fontSize: 12, fontWeight: 600,
-                    }}>{statusConf.label}</span>
-                    {task.criticalFinding && (
-                      <span style={{
-                        fontSize: 12, padding: '1px 4px',
-                        background: '#dc2626', color: '#fff', borderRadius: 2,
-                        fontWeight: 700,
-                      }}>{t('reportReviewPage.critical')}</span>
-                    )}
-                  </div>
-                  <span style={{ fontSize: 12, color: deadline.color, fontWeight: 600 }}>
-                    ⏱ {deadline.label}
-                  </span>
-                </div>
-
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                  {task.patientName} · {task.modality} {task.bodyPart}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <span>{t('reportReviewPage.reportLabel')}<strong>{task.reportDoctorTitle} {task.reportDoctorName}</strong></span>
-                  <span>·</span>
-                  <span>{t('reportReviewPage.quality')} {task.qualityScore}</span>
-                  <span>·</span>
-                  <span>{timeAgo(task.submittedAt)}</span>
-                </div>
-
-                {/* 阶段进度指示 */}
-                <div style={{ display: 'flex', gap: 2, marginTop: 6 }}>
-                  {['initial', 'final', 'sign'].map(s => {
-                    const isPast = ['initial', 'final', 'sign'].indexOf(s) < ['initial', 'final', 'sign'].indexOf(task.stage);
-                    const isCurrent = s === task.stage;
-                    return (
-                      <div
-                        key={s}
-                        style={{
-                          flex: 1, height: 3, borderRadius: 2,
-                          background: isPast ? '#10b981' : isCurrent ? '#3b82f6' : '#e2e8f0',
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-          {filteredTasks.length === 0 && (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-              {t('reportReviewPage.noMatchingTask')}
-            </div>
-          )}
+          <DataTable<ReviewTask>
+            columns={taskColumns}
+            dataSource={filteredTasks}
+            rowKey="id"
+            showPagination={false}
+            emptyText={t('reportReviewPage.noMatchingTask')}
+            onRow={(task) => ({
+              onClick: () => setSelectedTaskId(task.id),
+              style: {
+                cursor: 'pointer',
+                background: task.id === selectedTaskId ? 'var(--color-info-bg)' : task.isOverdue ? 'var(--color-error-bg)' : undefined,
+              },
+            })}
+            scroll={{ x: 'max-content' }}
+          />
         </div>
 
         {/* 右：任务详情 + 审核操作 */}
@@ -529,8 +511,8 @@ const ReviewTaskDetail: React.FC<{
         patientName: task.patientName,
         studyId: task.reportId,
         modality: task.modality,
-        title: `审核发布后检测: ${criticalHits.join('/')}`,
-        description: `报告 ${task.reportId} 审核后命中危急值关键词: ${criticalHits.join('、')}`,
+        title: t('w9c.reportReview.criticalNotifyTitle', { hits: criticalHits.join('/') }),
+        description: t('w9c.reportReview.criticalNotifyDesc', { reportId: task.reportId, hits: criticalHits.join('、') }),
         reportId: task.reportId,
       });
       if (res.success) {
@@ -786,7 +768,7 @@ const ReviewTaskDetail: React.FC<{
 
       {/* [v3.0.6.11-98 Wave3B P1] 全屏预览 Modal */}
       <Modal
-        title={`报告全屏预览 · ${task.patientName} ${task.bodyPart}`}
+        title={t('w9c.reportReview.fullPreviewTitle', { patient: task.patientName, bodyPart: task.bodyPart })}
         open={previewFull}
         onCancel={() => setPreviewFull(false)}
         footer={null}
@@ -989,7 +971,7 @@ const ReviewTaskDetail: React.FC<{
             style={{ marginTop: 8 }}
             onClick={() => onAuditSubmit(auditDecision ?? 'approve')}
           >
-            {submitting ? t('reportReviewPage.submitting') : `提交${stageConf.label}（${currentUser.name}）`}
+            {submitting ? t('reportReviewPage.submitting') : t('w9c.reportReview.submitLabel', { stage: stageConf.label, name: currentUser.name })}
           </ActionButton>
         </div>
       )}

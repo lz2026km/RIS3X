@@ -78,7 +78,7 @@ export const scoringService = {
 
   async evaluateSample(sampleIndex = 0): Promise<ScoringEvaluationResult> {
     await wait(400);
-    const sub = SAMPLE_SUBMISSIONS[sampleIndex] ?? SAMPLE_SUBMISSIONS[0];
+    const sub = SAMPLE_SUBMISSIONS[sampleIndex] ?? SAMPLE_SUBMISSIONS[0]!
     return scoringService.evaluate(sub);
   },
 

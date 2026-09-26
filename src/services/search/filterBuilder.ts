@@ -24,7 +24,7 @@ export function buildFilterString(group: FilterGroup): string {
     }
   });
   const joiner = group.logic === 'AND' ? ' AND ' : ' OR ';
-  return parts.length > 1 ? `(${parts.join(joiner)})` : parts[0];
+  return parts.length > 1 ? `(${parts.join(joiner)})` : (parts[0] ?? '');
 }
 
 export function parseFilterString(_filterStr: string): FilterGroup {

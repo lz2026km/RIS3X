@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { t as appT } from '../../i18n/appI18n'
 import {
   Card, Table, Button, Select, InputNumber, Space, Typography, message, Divider, Row, Col, Tag, Alert, Tabs,
 } from 'antd'
@@ -122,7 +123,7 @@ export default function RadiomicsPage() {
 
   const handleCompare = useCallback(async () => {
     if (results.length < 2) {
-      message.warning('至少需要 2 个 ROI 才能比较')
+      message.warning(appT('w9d.radiomics.needTwoRoi'))
       return
     }
     setCompareMode(true)
@@ -273,7 +274,7 @@ export default function RadiomicsPage() {
 function RadarChart({ config }: { config: any }) {
   const colors = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#13c2c2']
   const { radar, series } = config
-  if (!radar?.indicator?.length) return <div style={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>暂无数据</div>
+  if (!radar?.indicator?.length) return <div style={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>{appT('w9d.radiomics.noData')}</div>
   const cx = 200, cy = 200, r = 160, levels = 5
   const n = radar.indicator.length
   const angleStep = (2 * Math.PI) / n
@@ -315,7 +316,7 @@ function RadarChart({ config }: { config: any }) {
           </text>
         )
       })}
-      {series.map((s: any, si: number) => polygon(s.data, colors[si % colors.length], 0.15))}
+      {series.map((s: any, si: number) => polygon(s.data, colors[si % colors.length] ?? '#1890ff', 0.15))}
       {series.map((s: any, si: number) => s.data.map((v: number, i: number) => {
         const p = getPoint(i, v)
         return <circle key={`${si}-${i}`} cx={p.x} cy={p.y} r={3} fill={colors[si % colors.length]} />

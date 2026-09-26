@@ -191,6 +191,9 @@ export class CriticalAlertService {
   /** [v3.0.6.11-103 Wave 13] 5 步流程各步时间戳内存记录 (处置步骤无 DB 列, 走内存) */
   private readonly flowStepsMem = new Map<string, CriticalFlowSteps>()
 
+  /** 单调递增序号, 避免同毫秒 ID 冲突 */
+  private seq = 0
+
   constructor(private readonly prisma: PrismaService) {}
 
   // ================= 电话/短信网关 (Wave 2A) =================
@@ -203,13 +206,13 @@ export class CriticalAlertService {
     const failed = phone.endsWith('9')
     const connected = !failed
     const log: CallLog = {
-      id: `CL-${Date.now().toString(36).toUpperCase()}`,
+      id: `CL-${Date.now().toString(36).toUpperCase()}-${++this.seq}`,
       alertId: id,
       phone,
       status: failed ? 'failed' : 'connected',
       startedAt: new Date().toISOString(),
       durationSec: failed ? 0 : 30 + Math.floor(Math.random() * 180),
-      recordingUrl: connected ? `/recordings/${id}-${Date.now()}.wav` : undefined,
+      recordingUrl: connected ? `/recordings/${id}-${Date.now()}-${++this.seq}.wav` : undefined,
     }
     this.callLogs.unshift(log)
     await this.recordAudit('AUTO_CALL', id, { phone, status: log.status, alertTitle: alert.title })
@@ -222,7 +225,7 @@ export class CriticalAlertService {
     const phone = dto.phone?.trim() || '13800000000'
     const failed = phone.endsWith('8')
     const log: SmsLog = {
-      id: `SM-${Date.now().toString(36).toUpperCase()}`,
+      id: `SM-${Date.now().toString(36).toUpperCase()}-${++this.seq}`,
       alertId: id,
       phone,
       status: failed ? 'failed' : 'sent',
@@ -644,7 +647,7 @@ export class CriticalAlertService {
       } catch {
         // [v3.0.6.11-103 Wave 13] id 保证唯一 (同毫秒多次创建不冲突)
         const item: CriticalAlertItem = {
-          id: `CA-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+          id: `CA-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8).toUpperCase()}-${++this.seq}`,
           patientId: dto.patientId,
           patientName: dto.patientName ?? '未知患者',
           studyId: dto.studyId,

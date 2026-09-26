@@ -542,13 +542,52 @@ export const dicomCompressHandlers = [
   http.get(`${API}/stats`, async () => {
     await delay(60);
     const all = Array.from(taskStore.values());
+    const done = all.filter(t => t.status === 'done' && t.compressedSize !== null);
+    if (done.length > 0) {
+      const algoAgg = new Map<string, { algorithm: string; algorithmName: string; count: number; ratioSum: number }>();
+      let totalSavedBytes = 0;
+      let ratioSum = 0;
+      for (const t of done) {
+        const compressed = t.compressedSize ?? 0;
+        const saved = t.originalSize - compressed;
+        const ratio = compressed > 0 ? t.originalSize / compressed : 0;
+        totalSavedBytes += saved;
+        ratioSum += ratio;
+        const key = t.transferSyntax;
+        const agg = algoAgg.get(key) ?? {
+          algorithm: key,
+          algorithmName: t.algorithmName ?? key,
+          count: 0,
+          ratioSum: 0,
+        };
+        agg.count++;
+        agg.ratioSum += ratio;
+        algoAgg.set(key, agg);
+      }
+      return HttpResponse.json({
+        totalTasks: all.length,
+        completedTasks: done.length,
+        failedTasks: all.filter(t => t.status === 'failed').length,
+        totalSavedBytes,
+        avgRatio: Math.round((ratioSum / done.length) * 100) / 100,
+        algorithmDistribution: Array.from(algoAgg.values())
+          .map(a => ({ algorithm: a.algorithm, algorithmName: a.algorithmName, count: a.count }))
+          .sort((a, b) => b.count - a.count),
+      });
+    }
+    // [G005 demo] 尚无已完成任务时返回确定性 seed, 避免商业演示 KPI 为 0 / 分布为空
     return HttpResponse.json({
-      totalTasks: all.length,
-      completedTasks: all.filter(t => t.status === 'done').length,
-      failedTasks: all.filter(t => t.status === 'failed').length,
-      totalSavedBytes: 0,
-      avgRatio: 0,
-      algorithmDistribution: [],
+      totalTasks: 128,
+      completedTasks: 121,
+      failedTasks: 7,
+      totalSavedBytes: 3842150400,
+      avgRatio: 3.42,
+      algorithmDistribution: [
+        { algorithm: '1.2.840.10008.1.2.4.90', algorithmName: 'JPEG 2000 Lossless (OpenJPEG WASM)', count: 54 },
+        { algorithm: '1.2.840.10008.1.2.5', algorithmName: 'RLE Lossless', count: 31 },
+        { algorithm: '1.2.840.10008.1.2.4.80', algorithmName: 'JPEG-LS Lossless (LOCO-I)', count: 22 },
+        { algorithm: '1.2.840.10008.1.2.4.91', algorithmName: 'JPEG 2000 Lossy (Predictive)', count: 14 },
+      ],
     });
   }),
 

@@ -7,12 +7,11 @@ import { FEATURED_TERMS, REPORT_PHRASES } from '../data/knowledgeStatsMock';
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
 import { Spin, Alert, Empty, message } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import {
   Search,
   Filter,
   FileText,
-  Calendar,
-  User,
   X,
   Save,
   Star,
@@ -24,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SearchX } from 'lucide-react'
+import { DataTable } from '../components/common/DataTable';
 import { t } from '../i18n/appI18n';
 
 interface SearchReport extends ReportDto {
@@ -105,7 +105,6 @@ export default function ReportSearchPage() {
   // [G005 v3.0.6.11-99 Wave 10E-1] 结果分页 (前端切片, 每页 20)
   const [resultPage, setResultPage] = useState(1);
   const resultPageSize = 20;
-  const resultTotalPages = Math.max(1, Math.ceil(results.length / resultPageSize));
   useEffect(() => {
     setResultPage(1);
   }, [total]);
@@ -192,10 +191,6 @@ export default function ReportSearchPage() {
     if (!sortByScore) return sortedResults;
     return [...results].sort((a, b) => (b.qualityScore ?? 0) - (a.qualityScore ?? 0));
   }, [results, sortedResults, sortByScore]);
-  const pagedResults = useMemo(() => {
-    const start = (resultPage - 1) * resultPageSize;
-    return effectiveSortedResults.slice(start, start + resultPageSize);
-  }, [effectiveSortedResults, resultPage, resultPageSize]);
 
   const fetchReports = useCallback(async (keyword: string) => {
     setLoading(true);
@@ -318,6 +313,66 @@ export default function ReportSearchPage() {
   const modalityOptions = ['CT', 'MR', 'DR', 'US', 'MG', 'DSA'];
   const bodyPartOptions = ['胸部', '腹部', '头颅', '脊柱', '四肢', '乳腺', '盆腔', '颈部'];
   const statusOptions = ['草稿', '待审核', '审核中', '已审核', '报告已发', '已签发', '已完成'];
+
+  const resultColumns: ColumnsType<SearchReport> = [
+    {
+      title: t('w3tables.col.reportNo'), key: 'reportNo', width: 190,
+      render: (_: unknown, r) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <FileText size={14} color="#3b82f6" />
+          <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{r.reportId || r.id}</span>
+          <span style={{ padding: '1px 6px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 3, fontSize: 12, fontWeight: 600 }}>{r.modality}</span>
+          <span style={{ padding: '1px 6px', background: 'var(--bg-card)', color: 'var(--text-secondary)', borderRadius: 3, fontSize: 12 }}>{r.bodyPart}</span>
+        </div>
+      ),
+    },
+    { title: t('w3tables.col.patient'), dataIndex: 'patientName', key: 'patientName', width: 110, render: (v: string) => highlight(v, query) },
+    { title: t('w3tables.col.doctor'), dataIndex: 'doctorName', key: 'doctorName', width: 100, render: (v: string) => v || t('reportSearch.unassigned') },
+    { title: t('w3tables.col.date'), dataIndex: 'reportDate', key: 'reportDate', width: 150 },
+    { title: t('w3tables.col.status'), dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <span style={{ fontSize: 12, color: STATUS_META[v] || '#64748b', fontWeight: 600 }}>{v}</span> },
+    {
+      title: t('w3tables.col.score'), dataIndex: 'qualityScore', key: 'qualityScore', width: 90, align: 'center',
+      render: (v: number, r) => (v ?? 0) > 0
+        ? <span style={{ fontWeight: 700, color: (r.qualityScore ?? 0) >= 90 ? '#10b981' : '#f59e0b' }}>{r.qualityScore}</span>
+        : <span>—</span>,
+    },
+    {
+      title: t('reportSearch.findings'), dataIndex: 'findings', key: 'findings',
+      render: (v: string) => <span style={{ fontSize: 12, lineHeight: 1.6 }}>{highlight(v, query)}</span>,
+    },
+    {
+      title: t('reportSearch.impression'), key: 'impression',
+      render: (_: unknown, r) => <span style={{ fontSize: 12, lineHeight: 1.6 }}>{highlight(r.impression || r.diagnosis, query)}</span>,
+    },
+    {
+      title: t('w3tables.col.actions'), key: 'actions', width: 220,
+      render: (_: unknown, r) => (
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <button style={{ padding: '2px 8px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+            onClick={() => window.open(`/reports?reportId=${r.reportId || r.id}`, '_blank')}>
+            <Eye size={10} /> {t('reportSearch.view')}
+          </button>
+          <button style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}
+            onClick={() => { navigator.clipboard?.writeText(`${r.patientName} ${r.findings || ''} ${r.impression || ''}`).catch(() => undefined); message.success(t('reportSearch.copied')) }}>
+            {t('reportSearch.copy')}
+          </button>
+          <button style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+            onClick={() => {
+              try {
+                const key = 'report-search:report-favs';
+                const favs = JSON.parse(localStorage.getItem(key) || '[]');
+                if (favs.some((f: any) => f.reportId === (r.reportId || r.id))) { message.info(t('reportSearch.alreadyFavorited')); return }
+                favs.unshift({ reportId: r.reportId || r.id, patientName: r.patientName, modality: r.modality, findings: r.findings, impression: r.impression, savedAt: new Date().toISOString() });
+                localStorage.setItem(key, JSON.stringify(favs.slice(0, 100)));
+                message.success(t('reportSearch.reportFavorited'));
+              } catch { message.error(t('reportSearch.favoriteFailed')) }
+            }}>
+            <Star size={10} /> {t('reportSearch.favorite')}
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -734,88 +789,19 @@ export default function ReportSearchPage() {
             <div>{t('reportSearch.noResults')}</div>
           </div>
         ) : (
-          <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {pagedResults.map(r => (
-              <div key={r.id} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                    <FileText size={14} color="#3b82f6" />
-                    <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{r.reportId || r.id}</span>
-                    <span style={{ padding: '1px 6px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 3, fontSize: 12, fontWeight: 600 }}>{r.modality}</span>
-                    <span style={{ padding: '1px 6px', background: 'var(--bg-card)', color: 'var(--text-secondary)', borderRadius: 3, fontSize: 12 }}>{r.bodyPart}</span>
-                  </div>
-                  <span style={{ fontSize: 12, color: STATUS_META[r.status] || '#64748b', fontWeight: 600 }}>{r.status}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, flexWrap: 'wrap' }}>
-                  <span><User size={10} style={{ verticalAlign: 'middle' }} /> {highlight(r.patientName, query)}</span>
-                  <span><Stethoscope size={10} /> {r.doctorName || t('reportSearch.unassigned')}</span>
-                  <span><Calendar size={10} style={{ verticalAlign: 'middle' }} /> {r.reportDate || '-'}</span>
-                  {(r.qualityScore ?? 0) > 0 && <span style={{ marginLeft: 'auto', fontWeight: 700, color: (r.qualityScore ?? 0) >= 90 ? '#10b981' : '#f59e0b' }}>{t('reportSearch.scoreUnit')} {r.qualityScore}</span>}
-                  {r.hasCriticalValue && <span style={{ padding: '1px 6px', background: 'var(--color-error-bg)', color: '#dc2626', borderRadius: 3, fontSize: 11, fontWeight: 600 }}>{t('reportSearch.criticalValue')}</span>}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 4, lineHeight: 1.6 }}>
-                  <span style={{ color: '#7c3aed', fontWeight: 600 }}>{t('reportSearch.findings')}</span> {highlight(r.findings, query)}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 6, lineHeight: 1.6 }}>
-                  <span style={{ color: '#dc2626', fontWeight: 600 }}>{t('reportSearch.impression')}</span> {highlight(r.impression || r.diagnosis, query)}
-                </div>
-                <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-                  <button style={{ padding: '2px 8px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
-                    onClick={() => window.open(`/reports?reportId=${r.reportId || r.id}`, '_blank')}>
-                    <Eye size={10} /> {t('reportSearch.view')}
-                  </button>
-                  <button style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}
-                    onClick={() => { navigator.clipboard?.writeText(`${r.patientName} ${r.findings || ''} ${r.impression || ''}`).catch(() => undefined); message.success(t('reportSearch.copied')) }}>
-                    {t('reportSearch.copy')}
-                  </button>
-                  {/* [G005 v3.0.6.11-99 Wave 10E-1] 收藏单条报告 */}
-                  <button style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
-                    onClick={() => {
-                      try {
-                        const key = 'report-search:report-favs';
-                        const favs = JSON.parse(localStorage.getItem(key) || '[]');
-                        if (favs.some((f: any) => f.reportId === (r.reportId || r.id))) { message.info(t('reportSearch.alreadyFavorited')); return }
-                        favs.unshift({ reportId: r.reportId || r.id, patientName: r.patientName, modality: r.modality, findings: r.findings, impression: r.impression, savedAt: new Date().toISOString() });
-                        localStorage.setItem(key, JSON.stringify(favs.slice(0, 100)));
-                        message.success(t('reportSearch.reportFavorited'));
-                      } catch { message.error(t('reportSearch.favoriteFailed')) }
-                    }}>
-                    <Star size={10} /> {t('reportSearch.favorite')}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* 分页 */}
-          {resultTotalPages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, fontSize: 12 }}>
-              <span style={{ color: 'var(--text-secondary)' }}>
-                {t('reportSearch.totalPrefix')} <b style={{ color: '#1e40af' }}>{results.length}</b> {t('reportSearch.itemsCount')} · {t('reportSearch.pageLabel')} {resultPage}/{resultTotalPages} {t('reportSearch.pageUnit')}
-              </span>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button disabled={resultPage === 1} onClick={() => setResultPage(p => Math.max(1, p - 1))} style={{ padding: '4px 12px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: resultPage === 1 ? 'not-allowed' : 'pointer', opacity: resultPage === 1 ? 0.5 : 1 }}>{t('reportSearch.prevPage')}</button>
-                {Array.from({ length: Math.min(5, resultTotalPages) }, (_, i) => {
-                  let num = i + 1;
-                  if (resultTotalPages > 5) {
-                    if (resultPage > 3) num = resultPage - 2 + i;
-                    if (resultPage > resultTotalPages - 2) num = resultTotalPages - 4 + i;
-                  }
-                  return (
-                    <button key={num} onClick={() => setResultPage(num)} style={{
-                      padding: '4px 10px', borderRadius: 4, cursor: 'pointer',
-                      border: resultPage === num ? '1px solid #3b82f6' : '1px solid var(--border-color)',
-                      background: resultPage === num ? '#eff6ff' : 'var(--bg-card)',
-                      color: resultPage === num ? '#1e40af' : 'var(--text-secondary)',
-                      fontWeight: resultPage === num ? 700 : 400,
-                    }}>{num}</button>
-                  );
-                })}
-                <button disabled={resultPage === resultTotalPages} onClick={() => setResultPage(p => Math.min(resultTotalPages, p + 1))} style={{ padding: '4px 12px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: resultPage === resultTotalPages ? 'not-allowed' : 'pointer', opacity: resultPage === resultTotalPages ? 0.5 : 1 }}>{t('reportSearch.nextPage')}</button>
-              </div>
-            </div>
-          )}
-          </>
+          <DataTable<SearchReport>
+            columns={resultColumns}
+            dataSource={effectiveSortedResults}
+            rowKey="id"
+            emptyText={t('reportSearch.noResults')}
+            pagination={{
+              current: resultPage,
+              pageSize: resultPageSize,
+              total: results.length,
+              onChange: (page: number) => setResultPage(page),
+            }}
+            scroll={{ x: 'max-content' }}
+          />
         )}
       </div>
 
@@ -863,12 +849,4 @@ function FilterSelect({ label, value, onChange, options }: any) {
   );
 }
 
-function Stethoscope({ size }: { size?: number }) {
-  return (
-    <svg width={size || 10} height={size || 10} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
-      <path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4" />
-      <circle cx="20" cy="10" r="2" />
-    </svg>
-  );
-}
+

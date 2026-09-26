@@ -8,16 +8,19 @@ import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
 
-const STATUS_META: Record<string, { color: string; label: string }> = {
-  planning: { color: 'default', label: '规划中' },
-  'guided-surgery': { color: 'cyan', label: '导板设计' },
-  approved: { color: 'green', label: '已批准' },
-  implementing: { color: 'blue', label: '实施中' },
-  completed: { color: 'purple', label: '已完成' },
-  pending: { color: 'orange', label: '待种植' },
+const STATUS_META: Record<string, { color: string; labelKey: string }> = {
+  planning: { color: 'default', labelKey: 'w9d.implantStatus.planning' },
+  'guided-surgery': { color: 'cyan', labelKey: 'w9d.implantStatus.guidedSurgery' },
+  approved: { color: 'green', labelKey: 'w9d.implantStatus.approved' },
+  implementing: { color: 'blue', labelKey: 'w9d.implantStatus.implementing' },
+  completed: { color: 'purple', labelKey: 'w9d.implantStatus.completed' },
+  pending: { color: 'orange', labelKey: 'w9d.implantStatus.pending' },
 };
 
-const TYPE_OPTIONS = ['单颗种植', '多颗种植', '全口种植', '即刻种植'].map(item => ({ value: item, label: item }));
+const TYPE_KEYS: Record<string, string> = {
+  '单颗种植': 'w9d.implantType.single', '多颗种植': 'w9d.implantType.multiple', '全口种植': 'w9d.implantType.full', '即刻种植': 'w9d.implantType.immediate',
+};
+const TYPE_OPTIONS = ['单颗种植', '多颗种植', '全口种植', '即刻种植'].map(item => ({ value: item, labelKey: TYPE_KEYS[item]! }));
 
 export const DentalImplantPlanPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
@@ -122,7 +125,7 @@ export const DentalImplantPlanPage: React.FC = () => {
                 dataSource={display}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dentalImplantPlan.noPlans')} /> }}
                 renderItem={(item: any) => {
-                  const meta = STATUS_META[item.status] ?? { color: 'default', label: item.status ?? t('dentalImplantPlan.unknown') };
+                  const meta = (STATUS_META[item.status] ?? { color: 'default', label: item.status ?? t('dentalImplantPlan.unknown') }) as { color: string; label?: string; labelKey?: string };
                   return (
                     <List.Item
                       actions={[
@@ -138,7 +141,7 @@ export const DentalImplantPlanPage: React.FC = () => {
                       ].filter(Boolean)}
                     >
                       <List.Item.Meta
-                        title={<span><Tag color='blue'>FDI {item.toothNo}</Tag>{item.patientName} - {item.type} <Tag color={meta.color}>{meta.label}</Tag></span>}
+                        title={<span><Tag color='blue'>FDI {item.toothNo}</Tag>{item.patientName} - {item.type} <Tag color={meta.color}>{meta.labelKey ? t(meta.labelKey) : meta.label}</Tag></span>}
                         description={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.diagnosis || '-'} | {item.plan || '-'} | {t('dentalImplantPlan.outpatientFee')}{item.cost ?? 0} | {item.entryPoint ? `植入位点 (${item.entryPoint.x}, ${item.entryPoint.y}, ${item.entryPoint.z})` : ''}</span>}
                       />
                     </List.Item>
@@ -179,7 +182,7 @@ export const DentalImplantPlanPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item label={t('dentalImplantPlan.treatmentType')} name="type">
-                <Select options={TYPE_OPTIONS} />
+                <Select options={TYPE_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))} />
               </Form.Item>
             </Col>
           </Row>
@@ -202,7 +205,7 @@ export const DentalImplantPlanPage: React.FC = () => {
               <Descriptions.Item label={t('dentalImplantPlan.patient')}>{detail.patientName}</Descriptions.Item>
               <Descriptions.Item label={t('dentalImplantPlan.toothPosition')}><Tag color="blue">FDI {detail.toothNo}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('dentalImplantPlan.type')}>{detail.type}</Descriptions.Item>
-              <Descriptions.Item label={t('dentalImplantPlan.status')}><Tag color={STATUS_META[detail.status]?.color ?? 'default'}>{STATUS_META[detail.status]?.label ?? detail.status}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('dentalImplantPlan.status')}><Tag color={STATUS_META[detail.status]?.color ?? 'default'}>{STATUS_META[detail.status] ? t(STATUS_META[detail.status]!.labelKey) : detail.status}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('dentalImplantPlan.diagnosis')} span={2}>{detail.diagnosis || '-'}</Descriptions.Item>
               <Descriptions.Item label={t('dentalImplantPlan.plan')} span={2}>{detail.plan || '-'}</Descriptions.Item>
               <Descriptions.Item label={t('dentalImplantPlan.cost')}>¥{detail.cost ?? 0}</Descriptions.Item>

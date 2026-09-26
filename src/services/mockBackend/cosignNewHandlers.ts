@@ -64,7 +64,7 @@ export const cosignNewHandlers = [
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
+    let items: any = [];
     try { items = list<any>('cosignTasks'); } catch {}
     if (!items.length) items = {"total":156,"pending":12,"avgHours":4.5};
     const result = applyQuery(items, opts);

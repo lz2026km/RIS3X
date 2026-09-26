@@ -37,7 +37,7 @@ export function generateMockAppointments(date: string) {
         patientId: `P${String(100000 + (idx % 5) + 1)}`,
         chairId: chair.id,
         chairName: chair.name,
-        dentist: MOCK_DENTISTS[i % MOCK_DENTISTS.length].name,
+        dentist: MOCK_DENTISTS[i % MOCK_DENTISTS.length]?.name ?? '',
         date,
         time: TIME_SLOTS[i],
         type,

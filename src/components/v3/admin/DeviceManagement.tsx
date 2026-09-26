@@ -5,6 +5,7 @@ import { Card, Table, Tag, Space, Button, Modal, Form, Input, Select, Statistic,
 import { Cpu, Wifi, WifiOff, Settings, Plus, Edit, Trash2, Power, Activity, MapPin } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export type DeviceModality = 'CT' | 'MR' | 'DR' | 'US' | 'MG' | 'DSA' | 'PETCT'
 export type DeviceState = 'ONLINE' | 'OFFLINE' | 'MAINTENANCE' | 'BUSY' | 'IDLE'
@@ -36,11 +37,11 @@ export interface DeviceAccount {
 }
 
 const STATE_META: Record<DeviceState, { color: string; label: string; icon: React.ReactNode }> = {
-  ONLINE: { color: 'green', label: '在线', icon: <Wifi size={12} /> },
-  OFFLINE: { color: 'default', label: '离线', icon: <WifiOff size={12} /> },
-  MAINTENANCE: { color: 'orange', label: '维护中', icon: <Settings size={12} /> },
-  BUSY: { color: 'red', label: '使用中', icon: <Activity size={12} /> },
-  IDLE: { color: 'cyan', label: '空闲', icon: <Power size={12} /> },
+  ONLINE: { color: 'green', label: t('w9e.deviceManagement.stateOnline'), icon: <Wifi size={12} /> },
+  OFFLINE: { color: 'default', label: t('w9e.deviceManagement.stateOffline'), icon: <WifiOff size={12} /> },
+  MAINTENANCE: { color: 'orange', label: t('w9e.deviceManagement.stateMaintenance'), icon: <Settings size={12} /> },
+  BUSY: { color: 'red', label: t('w9e.deviceManagement.stateBusy'), icon: <Activity size={12} /> },
+  IDLE: { color: 'cyan', label: t('w9e.deviceManagement.stateIdle'), icon: <Power size={12} /> },
 }
 
 export interface DeviceManagementProps {
@@ -70,29 +71,29 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总设备" value={stats.total} prefix={<Cpu size={14} />} />
+            <Statistic title={t('w9e.deviceManagement.statTotal')} value={stats.total} prefix={<Cpu size={14} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="在线" value={stats.online} styles={{ content: {  color: '#16a34a'  } }} />
+            <Statistic title={t('w9e.deviceManagement.statOnline')} value={stats.online} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="使用中" value={stats.busy} styles={{ content: {  color: '#dc2626'  } }} />
+            <Statistic title={t('w9e.deviceManagement.statBusy')} value={stats.busy} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="离线/维护" value={stats.offline} styles={{ content: {  color: '#94a3b8'  } }} />
+            <Statistic title={t('w9e.deviceManagement.statOfflineMaint')} value={stats.offline} styles={{ content: {  color: '#94a3b8'  } }} />
           </Card>
         </Col>
       </Row>
 
       <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'flex-end' }}>
         <Button type="primary" icon={<Plus size={14} />} onClick={() => { setEditing(null); form.resetFields(); setModal(true) }} data-testid="device-create-btn">
-          新建设备
+          {t('w9e.deviceManagement.createDevice')}
         </Button>
       </Space>
 
@@ -103,28 +104,28 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
         pagination={false}
         data-testid="device-table"
         columns={[
-          { title: '名称', dataIndex: 'name', width: 140 },
+          { title: t('w9e.deviceManagement.colName'), dataIndex: 'name', width: 140 },
           {
-            title: '模态', dataIndex: 'modality', width: 80,
+            title: t('w9e.deviceManagement.colModality'), dataIndex: 'modality', width: 80,
             render: (m: DeviceModality) => <Tag color="blue">{m}</Tag>,
           },
-          { title: '厂商', dataIndex: 'manufacturer', width: 100 },
-          { title: '型号', dataIndex: 'model', width: 100 },
+          { title: t('w9e.deviceManagement.colManufacturer'), dataIndex: 'manufacturer', width: 100 },
+          { title: t('w9e.deviceManagement.colModel'), dataIndex: 'model', width: 100 },
           { title: 'AE Title', dataIndex: 'aeTitle', width: 90, render: (v) => <code>{v}</code> },
           { title: 'IP/Port', dataIndex: 'ip', width: 130, render: (v, d: DeviceAccount) => `${v}:${d.port}` },
           {
-            title: '位置', dataIndex: 'room', width: 80, render: (v) => v ? <span><MapPin size={10} /> {v}</span> : '-',
+            title: t('w9e.deviceManagement.colRoom'), dataIndex: 'room', width: 80, render: (v) => v ? <span><MapPin size={10} /> {v}</span> : '-',
           },
           {
-            title: '状态', dataIndex: 'state', width: 90,
+            title: t('w9e.deviceManagement.colState'), dataIndex: 'state', width: 90,
             render: (s: DeviceState) => {
               const m = STATE_META[s]
               return <Tag color={m.color} icon={m.icon}>{m.label}</Tag>
             },
           },
-          { title: '今日/总', dataIndex: 'todayExams', width: 100, render: (v, d: DeviceAccount) => `${v}/${d.totalExams}` },
+          { title: t('w9e.deviceManagement.colTodayTotal'), dataIndex: 'todayExams', width: 100, render: (v, d: DeviceAccount) => `${v}/${d.totalExams}` },
           {
-            title: '启用', dataIndex: 'enabled', width: 80,
+            title: t('w9e.deviceManagement.colEnabled'), dataIndex: 'enabled', width: 80,
             render: (e: boolean, d: DeviceAccount) => (
               <Switch
                 size="small"
@@ -135,7 +136,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
             ),
           },
           {
-            title: '操作', dataIndex: 'id', width: 120,
+            title: t('w9e.deviceManagement.colActions'), dataIndex: 'id', width: 120,
             render: (id: string) => {
               const d = devices.find((x) => x.id === id)!
               return (
@@ -158,11 +159,11 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
           },
         ]}
         scroll={{ x: 1300 }}
-        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无设备" /> }}
+        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.deviceManagement.noDevices')} /> }}
       />
 
       <Modal
-        title={editing ? '编辑设备' : '新建设备'}
+        title={editing ? t('w9e.deviceManagement.editDevice') : t('w9e.deviceManagement.createDevice')}
         open={modal}
         onCancel={() => { setModal(false); setEditing(null) }}
         onOk={() => {
@@ -177,10 +178,10 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
           onFinish={(values) => {
             if (editing) {
               onUpdate?.(editing.id, values)
-              void message.success('已更新')
+              void message.success(t('w9e.deviceManagement.updated'))
             } else {
               onCreate?.({ ...values, state: 'OFFLINE' as DeviceState, enabled: values.enabled ?? true, lastMaintenance: new Date().toISOString().slice(0, 10) })
-              void message.success('已创建')
+              void message.success(t('w9e.deviceManagement.created'))
             }
             setModal(false)
             setEditing(null)
@@ -189,29 +190,29 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
         >
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="name" label="名称" rules={[{ required: true }]}>
+              <Form.Item name="name" label={t('w9e.deviceManagement.formName')} rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+              <Form.Item name="modality" label={t('w9e.deviceManagement.formModality')} rules={[{ required: true }]}>
                 <Select
                   options={['CT', 'MR', 'DR', 'US', 'MG', 'DSA', 'PETCT'].map((m) => ({ value: m, label: m }))}
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="manufacturer" label="厂商" rules={[{ required: true }]}>
+              <Form.Item name="manufacturer" label={t('w9e.deviceManagement.formManufacturer')} rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="model" label="型号" rules={[{ required: true }]}>
+              <Form.Item name="model" label={t('w9e.deviceManagement.formModel')} rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="serial" label="序列号" rules={[{ required: true }]}>
+              <Form.Item name="serial" label={t('w9e.deviceManagement.formSerial')} rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
             </Col>
@@ -221,22 +222,22 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="ip" label="IP 地址" rules={[{ required: true }]}>
+              <Form.Item name="ip" label={t('w9e.deviceManagement.formIp')} rules={[{ required: true }]}>
                 <Input placeholder="192.168.1.10" />
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name="port" label="DICOM 端口" rules={[{ required: true }]} initialValue={104}>
+              <Form.Item name="port" label={t('w9e.deviceManagement.formPort')} rules={[{ required: true }]} initialValue={104}>
                 <Input type="number" />
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name="room" label="检查室">
+              <Form.Item name="room" label={t('w9e.deviceManagement.formRoom')}>
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="enabled" label="启用" valuePropName="checked" initialValue={true}>
+              <Form.Item name="enabled" label={t('w9e.deviceManagement.formEnabled')} valuePropName="checked" initialValue={true}>
                 <Switch />
               </Form.Item>
             </Col>

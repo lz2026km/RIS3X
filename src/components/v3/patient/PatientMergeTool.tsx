@@ -6,6 +6,7 @@ import { Card, Tag, Space, Button, Input, Modal, Empty, Statistic, Row, Col, Pro
 import { UserCheck, UserMinus, Search, GitMerge, Phone, IdCard, Calendar, GitCompare } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export interface PatientCandidate {
   id: string
@@ -106,8 +107,8 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
         <Space>
           {role === 'source' ? <GitMerge size={14} /> : <GitCompare size={14} />}
           <span>{c.name}</span>
-          <Tag color={c.gender === 'M' ? 'blue' : c.gender === 'F' ? 'pink' : 'default'}>{c.gender === 'M' ? '男' : c.gender === 'F' ? '女' : '其他'}</Tag>
-          <Tag>{c.age}岁</Tag>
+          <Tag color={c.gender === 'M' ? 'blue' : c.gender === 'F' ? 'pink' : 'default'}>{c.gender === 'M' ? t('w9e.patientMerge.male') : c.gender === 'F' ? t('w9e.patientMerge.female') : t('w9e.patientMerge.other')}</Tag>
+          <Tag>{t('w9e.patientMerge.ageSuffix', { age: c.age })}</Tag>
         </Space>
       }
       style={{ background: role === 'source' ? '#eff6ff' : '#fef3c7' }}
@@ -117,7 +118,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
         <div style={{ fontSize: 12 }}><IdCard size={10} /> {c.idCard ?? '-'}</div>
         <div style={{ fontSize: 12 }}><Phone size={10} /> {c.phone ?? '-'}</div>
         <div style={{ fontSize: 12 }}><Calendar size={10} /> {c.birthDate}</div>
-        <div style={{ fontSize: 12, color: '#94a3b8' }}>就诊 {c.visitCount} 次 · 最近 {c.lastVisit ?? '-'}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9e.patientMerge.visitSummary', { count: c.visitCount, last: c.lastVisit ?? '-' })}</div>
       </Space>
     </Card>
   )
@@ -127,29 +128,29 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="重复候选" value={stats.total} />
+            <Statistic title={t('w9e.patientMerge.statDuplicate')} value={stats.total} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="高风险(≥80)" value={stats.highRisk} styles={{ content: {  color: '#dc2626'  } }} />
+            <Statistic title={t('w9e.patientMerge.statHigh')} value={stats.highRisk} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="中风险(60-79)" value={stats.mediumRisk} styles={{ content: {  color: '#ca8a04'  } }} />
+            <Statistic title={t('w9e.patientMerge.statMedium')} value={stats.mediumRisk} styles={{ content: {  color: '#ca8a04'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="低风险(<60)" value={stats.lowRisk} />
+            <Statistic title={t('w9e.patientMerge.statLow')} value={stats.lowRisk} />
           </Card>
         </Col>
       </Row>
 
       <Input
         prefix={<Search size={12} />}
-        placeholder="搜索患者姓名 / ID..."
+        placeholder={t('w9e.patientMerge.searchPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         allowClear
@@ -158,7 +159,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
       />
 
       {filtered.length === 0 ? (
-        <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无重复患者" />
+        <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.patientMerge.noDuplicate')} />
       ) : (
         filtered.map((d, idx) => (
           <Card
@@ -169,11 +170,11 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
             title={
               <Space>
                 <Tag color={d.score >= 80 ? 'red' : 'orange'} data-testid={`merge-score-${idx}`}>
-                  匹配度 {d.score}%
+                  {t('w9e.patientMerge.matchScore', { score: d.score })}
                 </Tag>
                 <Progress percent={d.score} size="small" showInfo={false} style={{ width: 100 }} strokeColor={d.score >= 80 ? '#dc2626' : '#ca8a04'} />
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                  匹配项:{d.matchedFields.join('、')}
+                  {t('w9e.patientMerge.matchedFields', { fields: d.matchedFields.join('、') })}
                 </span>
               </Space>
             }
@@ -189,7 +190,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
                   icon={<UserCheck size={12} />}
                   data-testid={`merge-confirm-${idx}`}
                 >
-                  合并
+                  {t('w9e.patientMerge.merge')}
                 </Button>
                 <Button
                   size="small"
@@ -199,7 +200,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
                   icon={<UserMinus size={12} />}
                   data-testid={`merge-dismiss-${idx}`}
                 >
-                  忽略
+                  {t('w9e.patientMerge.dismiss')}
                 </Button>
               </Space>
             }
@@ -212,14 +213,14 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
               <Col span={11}>{renderCandidate(d.match, 'match')}</Col>
             </Row>
             <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
-              姓名 {d.nameScore}% · 身份证 {d.idCardScore}% · 电话 {d.phoneScore}% · 出生 {d.birthDateScore}% · 性别 {d.genderScore}% · 地址 {d.addressScore}%
+              {t('w9e.patientMerge.factorLine', { name: d.nameScore, idCard: d.idCardScore, phone: d.phoneScore, birth: d.birthDateScore, gender: d.genderScore, address: d.addressScore })}
             </div>
           </Card>
         ))
       )}
 
       <Modal
-        title="确认合并"
+        title={t('w9e.patientMerge.confirmTitle')}
         open={!!confirm}
         onCancel={() => setConfirm(null)}
         onOk={() => {
@@ -236,16 +237,16 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
             <Alert
               type="warning"
               showIcon
-              title={`合并将保留 1 位患者档案,另 1 位 ${keepId === confirm.source.id ? '匹配' : '源'}将被归档。所有检查/报告将迁移到保留档案。`}
+              title={t('w9e.patientMerge.confirmAlert', { kept: keepId === confirm.source.id ? t('w9e.patientMerge.keptMatch') : t('w9e.patientMerge.keptSource') })}
             />
             <div>
-              <strong>保留档案:</strong>
+              <strong>{t('w9e.patientMerge.keepArchive')}</strong>
               <Radio.Group value={keepId} onChange={(e) => setKeepId(e.target.value)} style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
                 <Radio value={confirm.source.id}>
-                  {confirm.source.name} ({confirm.source.id}) - {confirm.source.visitCount} 次就诊
+                  {confirm.source.name} ({confirm.source.id}){t('w9e.patientMerge.visitsSuffix', { count: confirm.source.visitCount })}
                 </Radio>
                 <Radio value={confirm.match.id}>
-                  {confirm.match.name} ({confirm.match.id}) - {confirm.match.visitCount} 次就诊
+                  {confirm.match.name} ({confirm.match.id}){t('w9e.patientMerge.visitsSuffix', { count: confirm.match.visitCount })}
                 </Radio>
               </Radio.Group>
             </div>

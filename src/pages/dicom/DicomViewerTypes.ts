@@ -271,6 +271,11 @@ export interface AnnotationV2Record {
 }
 
 /** 测量 V2 八工具元数据 (与后端一致, 前端本地兜底计算用) */
+export const MEASURE_V2_META_LABEL_KEYS: Record<MeasureV2Type, string> = {
+  line: 'w9d.measureV2.line', angle: 'w9d.measureV2.angle', ellipseArea: 'w9d.measureV2.ellipseArea',
+  rectangleArea: 'w9d.measureV2.rectangleArea', polygonArea: 'w9d.measureV2.polygonArea', polyline: 'w9d.measureV2.polyline',
+  cobb: 'w9d.measureV2.cobb', calciumScore: 'w9d.measureV2.calciumScore',
+}
 export const MEASURE_V2_META: Record<MeasureV2Type, MeasureV2Meta> = {
   line: { type: 'line', label: '直线长度', unit: 'mm', minPoints: 2, fixedPoints: 2, deterministic: true, formula: '√(dx²+dy²)×spacing', precision: 2 },
   angle: { type: 'angle', label: '角度', unit: '°', minPoints: 3, fixedPoints: 3, deterministic: true, formula: 'atan2 三点夹角', precision: 2 },

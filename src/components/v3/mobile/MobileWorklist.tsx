@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { Card as ACard, Tag as ATag, Space as ASpace, Button as AButton, Empty as AEmpty, Badge as ABadge, Tabs as ATabs, Statistic as AStatistic, Row as ARow, Col as ACol, Input, List, Tag } from 'antd'
 import { ChevronRight, WifiOff } from 'lucide-react'
 import { offlineStorage, type OfflineWorklistItem } from '../../../services/pwa/offlineStorage'
+import { t } from '../../../i18n/appI18n'
 
 export interface MobileWorklistItem {
   id: string
@@ -26,17 +27,17 @@ export interface MobileWorklistProps {
 }
 
 const STATE_META: Record<MobileWorklistItem['state'], { color: string; label: string }> = {
-  PENDING: { color: 'default', label: '待写' },
-  IN_REVIEW: { color: 'gold', label: '审核中' },
-  APPROVED: { color: 'green', label: '已通过' },
-  REJECTED: { color: 'red', label: '已退回' },
-  CRITICAL: { color: 'magenta', label: '危急' },
+  PENDING: { color: 'default', label: t('w9e.mobileWorklist.statePending') },
+  IN_REVIEW: { color: 'gold', label: t('w9e.mobileWorklist.stateInReview') },
+  APPROVED: { color: 'green', label: t('w9e.mobileWorklist.stateApproved') },
+  REJECTED: { color: 'red', label: t('w9e.mobileWorklist.stateRejected') },
+  CRITICAL: { color: 'magenta', label: t('w9e.mobileWorklist.stateCritical') },
 }
 
 const PRIORITY_META = {
-  ROUTINE: { color: 'default', label: '常规' },
-  URGENT: { color: 'orange', label: '加急' },
-  STAT: { color: 'red', label: '急诊' },
+  ROUTINE: { color: 'default', label: t('w9e.mobileWorklist.priorityRoutine') },
+  URGENT: { color: 'orange', label: t('w9e.mobileWorklist.priorityUrgent') },
+  STAT: { color: 'red', label: t('w9e.mobileWorklist.priorityStat') },
 } as const
 
 export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect, onRefresh, offline }) => {
@@ -91,25 +92,25 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
     <div data-testid="mobile-worklist" style={{ maxWidth: 480, margin: '0 auto', padding: 12, background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       {offline && (
         <div style={{ textAlign: 'center', marginBottom: 8 }} data-testid="mob-offline-badge">
-          <Tag icon={<WifiOff size={12} />} color="warning">离线模式</Tag>
+          <Tag icon={<WifiOff size={12} />} color="warning">{t('w9e.mobileWorklist.offline')}</Tag>
         </div>
       )}
       <ARow gutter={8} style={{ marginBottom: 12 }}>
-        <ACol span={8}><ACard size="small"><AStatistic title="待办" value={stats.pending} styles={{ content: {  fontSize: 18, color: '#3b82f6'  } }} /></ACard></ACol>
-        <ACol span={8}><ACard size="small"><AStatistic title="危急" value={stats.critical} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} /></ACard></ACol>
-        <ACol span={8}><ACard size="small"><AStatistic title="完成" value={stats.completed} styles={{ content: {  fontSize: 18, color: '#16a34a'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statPending')} value={stats.pending} styles={{ content: {  fontSize: 18, color: '#3b82f6'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCritical')} value={stats.critical} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCompleted')} value={stats.completed} styles={{ content: {  fontSize: 18, color: '#16a34a'  } }} /></ACard></ACol>
       </ARow>
-      <Input placeholder="搜索患者" value={search} onChange={(e) => setSearch(e.target.value)} style={{ marginBottom: 8 }} data-testid="mob-search" allowClear />
+      <Input placeholder={t('w9e.mobileWorklist.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} style={{ marginBottom: 8 }} data-testid="mob-search" allowClear />
       <ATabs activeKey={tab} onChange={(k) => setTab(k as any)}
         items={[
-          { key: 'all', label: `全部 (${items.length})` },
-          { key: 'pending', label: `待办 (${stats.pending})` },
-          { key: 'critical', label: `危急 (${stats.critical})` },
-          { key: 'mine', label: '我的' },
+          { key: 'all', label: t('w9e.mobileWorklist.tabAll', { count: items.length }) },
+          { key: 'pending', label: t('w9e.mobileWorklist.tabPending', { count: stats.pending }) },
+          { key: 'critical', label: t('w9e.mobileWorklist.tabCritical', { count: stats.critical }) },
+          { key: 'mine', label: t('w9e.mobileWorklist.tabMine') },
         ]}
       />
-      <AButton onClick={handleRefresh} loading={refreshing} block style={{ marginBottom: 8 }} data-testid="mob-refresh">下拉刷新</AButton>
-      {filtered.length === 0 ? <AEmpty description="无任务" /> : (
+      <AButton onClick={handleRefresh} loading={refreshing} block style={{ marginBottom: 8 }} data-testid="mob-refresh">{t('w9e.mobileWorklist.pullRefresh')}</AButton>
+      {filtered.length === 0 ? <AEmpty description={t('w9e.mobileWorklist.noTasks')} /> : (
         <List dataSource={filtered} renderItem={(i) => {
           const s = STATE_META[i.state]; const p = PRIORITY_META[i.priority]
           return (
@@ -120,12 +121,12 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
                 {i.bodyPart && <ATag>{i.bodyPart}</ATag>}
                 <ATag color={p.color}>{p.label}</ATag>
                 <ATag color={s.color}>{s.label}</ATag>
-                {i.critical && <ABadge count="危急" />}
+                {i.critical && <ABadge count={t('w9e.mobileWorklist.criticalBadge')} />}
               </ASpace>
               <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{i.patientName}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{i.patientId} · {i.studyDate} {i.studyTime}</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-                <span style={{ fontSize: 12, color: '#94a3b8' }}>{i.author ?? '未分配'}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{i.author ?? t('w9e.mobileWorklist.unassigned')}</span>
                 <ChevronRight size={14} color="#94a3b8" />
               </div>
             </ACard>

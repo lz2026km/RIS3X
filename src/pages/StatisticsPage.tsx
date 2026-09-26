@@ -34,6 +34,7 @@ import { ExportButton } from '../components/common/ExportButton'
 import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { t } from '../i18n/appI18n';
+import { t as appT } from '../i18n/appI18n';
 
 // [v3.0.6.8-28] 派生工具 - 把 7-30 天 KPI 转成图表格式
 const DAY_NAMES = [t("statsPage.sunday"), t("statsPage.monday"), t("statsPage.tuesday"), t("statsPage.wednesday"), t("statsPage.thursday"), t("statsPage.friday"), t("statsPage.saturday")];
@@ -201,7 +202,7 @@ const deviceEfficiencyData = DEVICE_MASTER.slice(0, 9).map((d) => ({
   avgTime: Math.round(d.avgScanDurationMin),
   utilization: Math.round(100 - (d.monthlyDowntime / 720) * 100),
   faults: Math.round(d.defectRate * 100),
-  status: d.status === '运行中' ? t("statsPage.normal") : d.status === '维护中' ? '维护中' : t("statsPage.standby"),
+  status: d.status === '运行中' ? t("statsPage.normal") : d.status === '维护中' ? appT("w9a.statsPage.maintenance") : t("statsPage.standby"),
 }))
 
 const heatmapData = [
@@ -360,7 +361,7 @@ const deviceStartupData = DEVICE_MASTER.slice(0, 9).map((d) => ({
   startupRate: Math.round((100 - d.defectRate * 50) * 10) / 10,
   avgStartupTime: Math.round(d.avgScanDurationMin * 0.5),
   faults: Math.round(d.defectRate * 100),
-  status: d.status === '运行中' ? t("statsPage.normal") : d.status === '维护中' ? '维护中' : t("statsPage.standby"),
+  status: d.status === '运行中' ? t("statsPage.normal") : d.status === '维护中' ? appT("w9a.statsPage.maintenance") : t("statsPage.standby"),
 }))
 
 const examCompletionTimeData = DEVICE_MASTER.slice(0, 9).map((d) => ({
@@ -880,16 +881,16 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
 
       {/* 收入统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.todayRevenue")} value={`¥${(revenueStats.today / 10000).toFixed(1)}万`}
+        <StatCard label={t("statsPage.todayRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.today / 10000).toFixed(1) })}
           icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: '+8.2%', up: true }} />
-        <StatCard label={t("statsPage.weekRevenue")} value={`¥${(revenueStats.week / 10000).toFixed(0)}万`}
+        <StatCard label={t("statsPage.weekRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.week / 10000).toFixed(0) })}
           icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: '+12.5%', up: true }} />
-        <StatCard label={t("statsPage.monthRevenue")} value={`¥${(revenueStats.month / 10000).toFixed(0)}万`}
+        <StatCard label={t("statsPage.monthRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.month / 10000).toFixed(0) })}
           icon={<BarChart3 size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: '+15.6%', up: true }} />
-        <StatCard label={t("statsPage.quarterRevenue")} value={`¥${(revenueStats.quarter / 10000).toFixed(0)}万`}
+        <StatCard label={t("statsPage.quarterRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.quarter / 10000).toFixed(0) })}
           icon={<Activity size={20} />} color={C.purple} bg={C.purpleBg}
           trend={{ value: '+18.3%', up: true }} />
         <StatCard label={t("statsPage.yoyGrowth")} value={revenueStats.yoy}
@@ -912,7 +913,7 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, maxRevenue * 1.2]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
-                formatter={(value: number) => [`¥${(value / 10000).toFixed(1)}万`, t("statsPage.revenue")]} />
+                formatter={(value: number) => [appT("w9a.statsPage.currencyWan", { value: (value / 10000).toFixed(1) }), t("statsPage.revenue")]} />
               <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name={t("statsPage.chart.revenue")} />
             </AreaChart>
           </ChartContainer>
@@ -1022,11 +1023,11 @@ function QualityControlTab() {
     <div>
       {/* 质控概览卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.avgQcScore")} value={`${qualityStats.avgScore}分`}
+        <StatCard label={t("statsPage.avgQcScore")} value={appT("w9a.statsPage.scoreSuffix", { score: qualityStats.avgScore })}
           subValue={t("statsPage.maxScore100")} icon={<Award size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: t("statsPage.plus12"), up: true }} />
         <StatCard label={t("statsPage.overdueReports")} value={qualityStats.overtimeCount}
-          subValue={`超时率 ${qualityStats.overtimeRate}%`} icon={<Clock size={20} />} color={C.warning} bg={C.warningBg}
+          subValue={appT("w9a.statsPage.overtimeRate", { rate: qualityStats.overtimeRate })} icon={<Clock size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: '-8%', up: true }} />
         <StatCard label={t("statsPage.criticalAlerts")} value={qualityStats.criticalCount}
           subValue={t("statsPage.handlingRate978")} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
@@ -1197,7 +1198,7 @@ function DeviceEfficiencyTab() {
         <StatCard label={t("statsPage.avgPowerOnRate")} value={`${startupAvg}%`}
           subValue={t("statsPage.target95")} icon={<Zap size={20} />} color={C.purple} bg={C.purpleBg}
           trend={{ value: '+1.5%', up: true }} />
-        <StatCard label={t("statsPage.avgApptWait")} value={`${waitAvg}天`}
+        <StatCard label={t("statsPage.avgApptWait")} value={appT("w9a.statsPage.daysSuffix", { count: waitAvg })}
           subValue={t("statsPage.ctMrBusy")} icon={<Clock size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: t("statsPage.plus03days"), up: false }} />
         <StatCard label={t("statsPage.totalFaults")} value={deviceEfficiencyData.reduce((s, d) => s + d.faults, 0)}
@@ -1587,7 +1588,7 @@ function PatientAnalysisTab() {
         <StatCard label={t("statsPage.patientsThisMonth")} value={patientStats.total}
           subValue={t("statsPage.patientMix")} icon={<Users size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: '+6.8%', up: true }} />
-        <StatCard label={t("statsPage.avgAge")} value={`${patientStats.avgAge}岁`}
+        <StatCard label={t("statsPage.avgAge")} value={appT("w9a.statsPage.yearsSuffix", { count: patientStats.avgAge })}
           subValue={t("statsPage.genderRatio5545")} icon={<UserCheck size={20} />} color={C.purple} bg={C.purpleBg} />
         <StatCard label={t("statsPage.overallPositiveRate")} value={`${patientStats.positiveRate}%`}
           subValue={t("statsPage.aboveNationalAvg")} icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
@@ -1775,7 +1776,7 @@ function PositiveRateTab() {
           subValue={t("statsPage.monthlyStats")} icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: positiveStats.momChange, up: false }} />
         <StatCard label={t("statsPage.positiveCases")} value={positiveStats.positiveCount}
-          subValue={`共 ${positiveStats.totalExams} 例检查`} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
+          subValue={appT("w9a.statsPage.examsSuffix", { count: positiveStats.totalExams })} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
           trend={{ value: t("statsPage.plus32"), up: false }} />
         <StatCard label={t("statsPage.retakeRate")} value={`${positiveStats.reexamRate}%`}
           subValue={t("statsPage.dueToImageQuality")} icon={<RefreshCw size={20} />} color={C.warning} bg={C.warningBg}
@@ -1951,16 +1952,16 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
 
       {/* 经营概览卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.totalRevenue")} value={`¥${(businessStats.totalRevenue / 10000).toFixed(0)}万`}
+        <StatCard label={t("statsPage.totalRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.totalRevenue / 10000).toFixed(0) })}
           subValue={t("statsPage.monthCumulative")} icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: businessStats.yoyRevenue, up: true }} />
-        <StatCard label={t("statsPage.totalCost")} value={`¥${(businessStats.totalCost / 10000).toFixed(0)}万`}
+        <StatCard label={t("statsPage.totalCost")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.totalCost / 10000).toFixed(0) })}
           subValue={t("statsPage.costRate53B")} icon={<BarChart3 size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: '+8.2%', up: false }} />
-        <StatCard label={t("statsPage.netProfit")} value={`¥${(businessStats.netProfit / 10000).toFixed(0)}万`}
-          subValue={`利润率 ${profitMargin}%`} icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
+        <StatCard label={t("statsPage.netProfit")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.netProfit / 10000).toFixed(0) })}
+          subValue={appT("w9a.statsPage.profitMargin", { rate: profitMargin })} icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: businessStats.yoyProfit, up: true }} />
-        <StatCard label={t("statsPage.perCapitaOutput")} value={`¥${(businessStats.perCapitaRevenue / 10000).toFixed(1)}万`}
+        <StatCard label={t("statsPage.perCapitaOutput")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.perCapitaRevenue / 10000).toFixed(1) })}
           subValue={t("statsPage.perCapitaProfit875")} icon={<Award size={20} />} color={C.purple} bg={C.purpleBg}
           trend={{ value: '+12.3%', up: true }} />
       </div>
@@ -2004,7 +2005,7 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
                 <Pie data={costBreakdown} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {costBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => appT("w9a.statsPage.currencyWan", { value: (v / 10000).toFixed(0) })} />
               </StatPieChart>
             </ChartContainer>
             </div>
@@ -2033,7 +2034,7 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
-                formatter={(value: number) => `¥${(value / 10000).toFixed(1)}万`} />
+                formatter={(value: number) => appT("w9a.statsPage.currencyWan", { value: (value / 10000).toFixed(1) })} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.perCapitaRevenue")} />
               <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.perCapitaProfit")} />
@@ -2126,7 +2127,7 @@ const DeepAnalysisTab: React.FC = () => {
     })
     setRadarData(radar)
     const devices = DEVICE_MASTER.slice(0, 8).map((d: any, i: number) => ({
-      name: d.name ?? `设备${i}`,
+      name: d.name ?? appT("w9a.statsPage.deviceFallback", { index: i }),
       modality: d.modality ?? 'CT',
       utilization: 62 + ((i * 9) % 34),
       exams: 380 + i * 240 + ((i * 7) % 90),
@@ -2181,7 +2182,7 @@ const DeepAnalysisTab: React.FC = () => {
         }
         if (volumeRows.length > 0) {
           setDeviceVolumeRank(volumeRows.map((r: any, i: number) => ({
-            name: r.name ?? r.deviceName ?? `设备${i}`,
+            name: r.name ?? r.deviceName ?? appT("w9a.statsPage.deviceFallback", { index: i }),
             modality: r.modality ?? 'CT',
             utilization: Math.round(r.utilization ?? r.usageRate ?? 0),
             exams: Number(r.examCount ?? r.count ?? 0),
@@ -2245,7 +2246,7 @@ const DeepAnalysisTab: React.FC = () => {
           const dist = Array.isArray(slaData.distribution) ? slaData.distribution : []
           const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#dc2626']
           setCriticalDist(dist.length > 0
-            ? dist.map((b: any, i: number) => ({ bucket: String(b.bucket ?? `档${i + 1}`), count: Number(b.count ?? 0), color: colors[i % colors.length] }))
+            ? dist.map((b: any, i: number) => ({ bucket: String(b.bucket ?? appT("w9a.statsPage.bucketFallback", { index: i + 1 })), count: Number(b.count ?? 0), color: colors[i % colors.length] }))
             : [
               { bucket: '<10min', count: 8, color: '#22c55e' },
               { bucket: '10-30min', count: 15, color: '#3b82f6' },
@@ -2560,9 +2561,9 @@ const DeepAnalysisTab: React.FC = () => {
                       <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 800, color: 'var(--text-primary)' }}>{total}</td>
                       <td style={{ padding: '8px 10px' }}>
                         <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: 'var(--bg-deep)' }}>
-                          <div style={{ width: pct(d.初核), background: '#3b82f6' }} title={`初核 ${pct(d.初核)}`} />
-                          <div style={{ width: pct(d.终核), background: '#8b5cf6' }} title={`终核 ${pct(d.终核)}`} />
-                          <div style={{ width: pct(d.双签), background: '#ec4899' }} title={`双签 ${pct(d.双签)}`} />
+                          <div style={{ width: pct(d.初核), background: '#3b82f6' }} title={appT("w9a.statsPage.initialReviewTooltip", { pct: pct(d.初核) })} />
+                          <div style={{ width: pct(d.终核), background: '#8b5cf6' }} title={appT("w9a.statsPage.finalReviewTooltip", { pct: pct(d.终核) })} />
+                          <div style={{ width: pct(d.双签), background: '#ec4899' }} title={appT("w9a.statsPage.cosignTooltip", { pct: pct(d.双签) })} />
                         </div>
                       </td>
                     </tr>

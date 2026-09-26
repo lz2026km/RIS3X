@@ -231,7 +231,7 @@ export const DentalPhotoPage: React.FC = () => {
                   <Card size="small" title={t('dentalPhoto.beforeTreatment')}>
                     {photos.length > 1 ? (
                       <img
-                        src={photos[photos.length - 1].url}
+                        src={photos[photos.length - 1]?.url}
                         alt={t('dentalPhoto.beforeTreatment')}
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />

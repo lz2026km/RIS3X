@@ -148,8 +148,8 @@ const SrReportPage: React.FC = () => {
       if (res.success) {
         message.success(
           res.data?.oru?.pushed
-            ? `ORU^R01 已推送成功 (ACK ${res.data.oru.ackStatus})`
-            : `ORU^R01 已组装归档 (controlId=${res.data?.oru.controlId ?? "-"}, MLLP 推送未启用)`,
+            ? t("w9d.srReport.oruPushed", { ack: res.data.oru.ackStatus })
+            : t("w9d.srReport.oruArchived", { controlId: res.data?.oru.controlId ?? "-" }),
         );
         void load();
         if (detail?.id === r.id) setDetail(res.data?.document ?? null);
@@ -218,8 +218,8 @@ const SrReportPage: React.FC = () => {
     const esc = (v: unknown): string =>
       String(v ?? "").replace(/[<>&"']/g, (ch) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" })[ch] ?? ch);
     const html = [
-      "<h3>DICOM SR 测量摘要</h3>",
-      `<p>来源: SR ${esc(backfillData.srId)} (${esc(backfillData.templateId)})</p>`,
+      `<h3>${t("w9d.srReport.summaryTitle")}</h3>`,
+      `<p>${t("w9d.srReport.sourceLabel")}: SR ${esc(backfillData.srId)} (${esc(backfillData.templateId)})</p>`,
       `<div>${backfillData.paragraph.split("\n").map((line) => `<p style="margin:2px 0">${esc(line)}</p>`).join("")}</div>`,
     ].join("\n");
     window.dispatchEvent(new CustomEvent("report-insert-html", { detail: { html } }));

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Table, Tabs, Input, Descriptions, Alert, Space, Badge, Spin } from 'antd';
+import { Card, Row, Col, Tag, Table, Tabs, Input, Descriptions, Alert, Space, Badge, Spin, message } from 'antd';
 import { BookOpen, User } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 import { ErrorBanner } from "@/components/feedback";
-import { PageContainer, PageHeader } from "@/components/common";
+import { PageContainer, PageHeader, ActionButton, ExportButton } from "@/components/common";
 import { usePagination } from "@/hooks/usePagination";
 import { t } from "../../../i18n/appI18n";
 
@@ -51,12 +51,23 @@ const EyeEmrPage: React.FC = () => {
         icon={<BookOpen size={24} color="#8b5cf6" />}
         variant="inline"
         actions={
-          <Input.Search
-            placeholder={t('eyeEmr.searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ width: 240 }}
-          />
+          <>
+            <Input.Search
+              placeholder={t('eyeEmr.searchPlaceholder')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: 240 }}
+            />
+            <ActionButton action="refresh" loading={loading} onClick={() => setReloadTick((n) => n + 1)}>{t('w45.actions.refresh')}</ActionButton>
+            <ActionButton action="create" onClick={() => message.info(t('w45.eyeEmr.createHint'))}>{t('w45.eyeEmr.newRecord')}</ActionButton>
+            <ExportButton
+              data={() => filtered}
+              filename="eye-emr"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
+            />
+          </>
         }
       />
 
@@ -125,7 +136,7 @@ const EyeEmrPage: React.FC = () => {
               tabBarExtraContent={
                 <Badge
                   count={filtered.length}
-                  title={`病历 ${filtered.length} 份`}
+                  title={t('w9d.eyeEmr.recordCount', { count: filtered.length })}
                   style={{ backgroundColor: '#8b5cf6' }}
                 />
               }
@@ -295,7 +306,7 @@ const EyeEmrPage: React.FC = () => {
                         items={[
                           {
                             label: t('eyeEmr.diagnosis'),
-                            children: selected.diagnosis.map((d, i) => (
+                            children: selected.diagnosis.map((d: string, i: number) => (
                               <Tag key={i} color="orange">
                                 {d}
                               </Tag>
@@ -309,7 +320,7 @@ const EyeEmrPage: React.FC = () => {
                           {
                             label: t('eyeEmr.followUp'),
                             children: selected.followUpDays
-                              ? `${selected.followUpDays}天后复查`
+                              ? t('w9d.eyeEmr.followUpDays', { days: selected.followUpDays })
                               : "-",
                           },
                         ]}

@@ -7,7 +7,9 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertOctagon, Settings, Edit2, Search, Phone, MessageSquare, Bell, Smartphone, Clock, Activity, BarChart3, Zap, CheckCircle2, CheckCircle } from 'lucide-react';
-import { LoadingBanner, AppEmpty } from "../components/feedback";
+import { LoadingBanner } from "../components/feedback";
+import { DataTable } from "../components/common/DataTable";
+import type { ColumnsType } from "antd/es/table";
 import {
   CRITICAL_VALUE_RULES,
   CRITICAL_VALUE_KPI,
@@ -210,6 +212,42 @@ export default function CriticalValueRulePage() {
   const selectedRule = ruleList.find((r) => r.id === selectedRuleId);
   const kpi = CRITICAL_VALUE_KPI;
 
+  const ruleColumns: ColumnsType<CriticalValueRule> = [
+    {
+      title: t("w3tables.col.category"), dataIndex: "category", key: "category", width: 120,
+      render: (_: unknown, r) => {
+        const cConf = CATEGORY_CONFIG[r.category];
+        const sConf = SEVERITY_CONFIG[r.severity];
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12, padding: "1px 4px", borderRadius: 2, background: cConf.bg, color: cConf.color, fontWeight: 600 }}>{cConf.label}</span>
+            <span style={{ fontSize: 12, padding: "1px 4px", borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700 }}>{sConf.label}</span>
+          </div>
+        );
+      },
+    },
+    { title: t("w3tables.col.name"), dataIndex: "name", key: "name", render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{v}</span> },
+    { title: t("w3tables.col.code"), dataIndex: "code", key: "code", width: 100, render: (v: string) => <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{v}</span> },
+    {
+      title: t("w3tables.col.time"), dataIndex: "responseDeadline", key: "responseDeadline", width: 130,
+      render: (_: unknown, r) => {
+        const sConf = SEVERITY_CONFIG[r.severity];
+        return (
+          <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "var(--text-secondary)" }}>
+            <Clock size={9} color={sConf.color} />
+            <span>{r.responseDeadline}m</span>
+            <span>·</span>
+            {r.notificationChannels.slice(0, 2).map((c) => {
+              const Icon = CHANNEL_ICONS[c];
+              return Icon ? <Icon key={c} size={9} /> : null;
+            })}
+            {r.notificationChannels.length > 2 && <span>+{r.notificationChannels.length - 2}</span>}
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: "0 auto" }}>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
@@ -386,102 +424,23 @@ export default function CriticalValueRulePage() {
               / {ruleList.length} {t("cvRule.itemUnit")}
             </div>
           </div>
-          <div style={{ maxHeight: 600, overflowY: "auto" }}>
-            {filteredRules.length === 0 && <AppEmpty variant="no-results" minHeight={160} />}
-            {filteredRules.map((r) => {
-              const cConf = CATEGORY_CONFIG[r.category];
-              const sConf = SEVERITY_CONFIG[r.severity];
-              const isSelected = r.id === selectedRuleId;
-              return (
-                <div
-                  key={r.id}
-                  onClick={() => setSelectedRuleId(r.id)}
-                  style={{
-                    padding: 10,
-                    borderBottom: "1px solid var(--border-light)",
-                    background: isSelected ? "#fef2f2" : "transparent",
-                    borderLeft: isSelected
-                      ? `3px solid ${sConf.color}`
-                      : "3px solid transparent",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        padding: "1px 4px",
-                        borderRadius: 2,
-                        background: cConf.bg,
-                        color: cConf.color,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {cConf.label}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        padding: "1px 4px",
-                        borderRadius: 2,
-                        background: sConf.bg,
-                        color: sConf.color,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {sConf.label}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color: "var(--text-secondary)",
-                        marginLeft: "auto",
-                      }}
-                    >
-                      {r.code}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: "var(--text-primary)",
-                      marginBottom: 2,
-                    }}
-                  >
-                    {r.name}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: "var(--text-secondary)",
-                      display: "flex",
-                      gap: 6,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Clock size={9} color={sConf.color} />
-                    <span>{r.responseDeadline}m</span>
-                    <span>·</span>
-                    {r.notificationChannels.slice(0, 2).map((c) => {
-                      const Icon = CHANNEL_ICONS[c];
-                      return <Icon key={c} size={9} />;
-                    })}
-                    {r.notificationChannels.length > 2 && (
-                      <span>+{r.notificationChannels.length - 2}</span>
-                    )}
-                  </div>
-                </div>
-              );
+          <DataTable<CriticalValueRule>
+            columns={ruleColumns}
+            dataSource={filteredRules}
+            rowKey="id"
+            loading={loading}
+            showPagination={false}
+            emptyText={t("w9.states.noResults")}
+            onRow={(r) => ({
+              onClick: () => setSelectedRuleId(r.id),
+              style: {
+                cursor: "pointer",
+                background: r.id === selectedRuleId ? "#fef2f2" : undefined,
+                borderLeft: r.id === selectedRuleId ? `3px solid ${SEVERITY_CONFIG[r.severity].color}` : "3px solid transparent",
+              },
             })}
-          </div>
+            scroll={{ x: "max-content" }}
+          />
         </div>
 
         {/* 右：规则详情 */}

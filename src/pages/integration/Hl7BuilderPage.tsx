@@ -217,7 +217,7 @@ export const Hl7BuilderPage: React.FC = () => {
       if (res.success) {
         const d = res.data as { message?: string; controlId?: string } | undefined;
         if (d?.message) setPreview(d.message);
-        message.success(`消息已发送 (控制ID: ${d?.controlId ?? "-"})`);
+        message.success(t('w9e.hl7Builder.sentWithControl', { id: d?.controlId ?? "-" }));
         fetchHistory();
       } else {
         setError(res.error?.message ?? t('hl7Builder.sendFailed'));
@@ -256,7 +256,7 @@ export const Hl7BuilderPage: React.FC = () => {
       const reports: Hl7Report[] = [base, { ...base, accessionNumber: `${base.accessionNumber}-B`, reportId: `${base.reportId}-B` }];
       const res = await hl7Api.buildBatch(reports);
       if (res.success) {
-        message.success(`批量 ORU 已发送 (${res.data?.count ?? reports.length} 条, POST /hl7/batch)`);
+        message.success(t('w9e.hl7Builder.batchSent', { count: res.data?.count ?? reports.length }));
         fetchHistory();
       } else {
         setError(res.error?.message ?? t('hl7Builder.batchFailed'));
@@ -279,7 +279,7 @@ export const Hl7BuilderPage: React.FC = () => {
       }
       const res = await hl7Api.pushOru(values.examId.trim(), values.examId.trim());
       if (res.success) {
-        message.success(`ORU 已推送至外部系统`);
+        message.success(t('w9e.hl7Builder.oruPushed'));
         fetchHistory();
       } else {
         setError(res.error?.message ?? t('hl7Builder.pushFailed'));

@@ -74,7 +74,8 @@ const s = {
     try {
       const res = await kioskApi.lookup(idInput)
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setSelectedPatient(res.data[0])
+        const first = res.data[0]
+        if (first) setSelectedPatient(first)
         setStep('confirm')
       } else {
         message.warning(t('kiosk.notFound'))

@@ -33,7 +33,7 @@ export const TransferToFollowUpModal = ({
   const [followUpDate, setFollowUpDate] = useState(() => {
     const date = new Date();
     date.setDate(date.getDate() + 30);
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split("T")[0] ?? '';
   });
 
   const containerRef = useFocusTrap(true);
@@ -272,7 +272,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
       const result = await followUpService.create({
         patientId: cv.patientId,
         criticalValueId: cv.id,
-        followUpDate: new Date().toISOString().split("T")[0],
+        followUpDate: new Date().toISOString().split("T")[0] ?? '',
         notes: cv.findingDetails.substring(0, 100),
       });
       message.success(`回访记录已创建(ID: ${result.data?.id || "待同步"})`);

@@ -2,6 +2,9 @@ import { useState, useMemo } from "react";
 import { Zap, ArrowUpDown, Brain, Info, Settings, Sliders, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { worklistSmartApi, type SmartWeightConfig } from '../../services/api/worklistSmartApi';
 
+const WEIGHT_KEYS = ['urgencyWeight', 'waitWeight', 'ageWeight', 'examTypeWeight'] as const;
+type SmartWeightKey = (typeof WEIGHT_KEYS)[number];
+
 interface SmartSortPanelProps {
   enabled: boolean;
   onToggle: (enabled: boolean) => void;
@@ -29,7 +32,7 @@ export function SmartSortPanel({
 
   const isAdmin = role === "ADMIN";
 
-  const handleWeightChange = (key: keyof SmartWeightConfig, value: number) => {
+  const handleWeightChange = (key: SmartWeightKey, value: number) => {
     const clamped = Math.round(Math.max(0, Math.min(1, value)) * 100) / 100;
     const newWeights = { ...weights, [key]: clamped };
     setWeights(newWeights);
@@ -55,7 +58,7 @@ export function SmartSortPanel({
     [weights],
   );
 
-  const weightLabels: Record<keyof SmartWeightConfig, string> = {
+  const weightLabels: Record<SmartWeightKey, string> = {
     urgencyWeight: "紧急度",
     waitWeight: "等待时间",
     ageWeight: "患者年龄",
@@ -259,7 +262,7 @@ export function SmartSortPanel({
             )}
           </div>
           <div style={{ display: "grid", gap: 10 }}>
-            {(Object.keys(weights) as Array<keyof SmartWeightConfig>).map(
+            {WEIGHT_KEYS.map(
               (key) => (
                 <div
                   key={key}

@@ -6,14 +6,15 @@ import { Input, Button, List, Space, Tag, Avatar, message } from 'antd';
 import { Send, AtSign, CheckCircle2, Reply, MessageCircle } from 'lucide-react';
 import { reviewService } from '../../../../services/review/reviewService';
 import type { ReviewComment } from '../../../types/R3/R3.REVIEW';
+import { t } from '../../../../i18n/appI18n';
 
 function timeAgo(iso: string): string {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (m < 1) return '刚刚';
-  if (m < 60) return `${m}分钟前`;
+  if (m < 1) return t('w9e.reviewComment.timeNow');
+  if (m < 60) return t('w9e.reviewComment.minutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  return `${Math.floor(h / 24)}天前`;
+  if (h < 24) return t('w9e.reviewComment.hoursAgo', { count: h });
+  return t('w9e.reviewComment.daysAgo', { count: Math.floor(h / 24) });
 }
 
 const COLORS = ['#dc2626', '#7c3aed', '#0891b2', '#10b981', '#f59e0b', '#a855f7'];
@@ -40,7 +41,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
       const data = await reviewService.listComments(taskId);
       setComments(data);
     } catch (e) {
-      message.error('加载批注失败');
+      message.error(t('w9e.reviewComment.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
 
   const submit = async () => {
     if (!content.trim() || content.trim().length < 2) {
-      message.warning('批注内容不能少于 2 字符');
+      message.warning(t('w9e.reviewComment.tooShort'));
       return;
     }
     try {
@@ -67,9 +68,9 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
       setComments((prev) => [...prev, created]);
       setContent('');
       setMentions([]);
-      message.success('批注已添加');
+      message.success(t('w9e.reviewComment.added'));
     } catch (e) {
-      message.error('添加批注失败');
+      message.error(t('w9e.reviewComment.addFailed'));
     }
   };
 
@@ -77,9 +78,9 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
     try {
       const updated = await reviewService.resolveComment(commentId, currentUserId, currentUserName);
       setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)));
-      message.success('批注已解决');
+      message.success(t('w9e.reviewComment.resolved'));
     } catch (e) {
-      message.error('操作失败');
+      message.error(t('w9e.reviewComment.opFailed'));
     }
   };
 
@@ -93,7 +94,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
   };
 
   return (
-    <div data-testid="review-comment-thread" role="region" aria-label="审核批注">
+    <div data-testid="review-comment-thread" role="region" aria-label={t('w9e.reviewComment.ariaLabel')}>
       <div
         style={{
           background: 'var(--bg-primary)',
@@ -105,9 +106,9 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
       >
         <Space style={{ width: '100%' }}>
           <MessageCircle size={14} color="#3b82f6" />
-          <strong style={{ fontSize: 13 }}>审核批注</strong>
+          <strong style={{ fontSize: 13 }}>{t('w9e.reviewComment.title')}</strong>
           <Tag color="purple">R3.REVIEW.063</Tag>
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>{comments.length} 条</span>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('w9e.reviewComment.countUnit', { count: comments.length })}</span>
         </Space>
       </div>
 
@@ -123,16 +124,16 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
         <Input.TextArea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="添加批注... 使用 @ 提及医生"
+          placeholder={t('w9e.reviewComment.placeholder')}
           rows={2}
           maxLength={500}
           showCount
-          aria-label="批注输入"
+          aria-label={t('w9e.reviewComment.inputAria')}
           data-testid="comment-input"
         />
         <Space style={{ marginTop: 6 }}>
           <Button size="small" icon={<AtSign size={12} />} onClick={insertMention}>
-            提及
+            {t('w9e.reviewComment.mention')}
           </Button>
           <Button
             size="small"
@@ -141,7 +142,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
             onClick={submit}
             disabled={!content.trim()}
           >
-            发布
+            {t('w9e.reviewComment.publish')}
           </Button>
           {mentions.length > 0 && (
             <span style={{ fontSize: 12, color: '#3b82f6' }}>@ {mentions.join(', ')}</span>
@@ -159,7 +160,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
           maxHeight: 400,
           overflowY: 'auto',
         }}
-        locale={{ emptyText: '暂无批注' }}
+        locale={{ emptyText: t('w9e.reviewComment.noComments') }}
         renderItem={(c) => {
           const colorIdx = c.authorId.charCodeAt(0) % COLORS.length;
           return (
@@ -184,7 +185,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(c.createdAt)}</span>
                     {c.resolved && (
                       <Tag color="green" icon={<CheckCircle2 size={10} />}>
-                        已解决
+                        {t('w9e.reviewComment.resolvedTag')}
                       </Tag>
                     )}
                     {c.mentions.length > 0 &&
@@ -204,9 +205,9 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
                         type="text"
                         icon={<Reply size={10} />}
                         onClick={() => reply(c.id)}
-                        aria-label="回复"
+                        aria-label={t('w9e.reviewComment.replyAria')}
                       >
-                        回复
+                        {t('w9e.reviewComment.reply')}
                       </Button>
                       {!c.resolved && (
                         <Button
@@ -214,9 +215,9 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
                           type="text"
                           icon={<CheckCircle2 size={10} />}
                           onClick={() => resolve(c.id)}
-                          aria-label="标记解决"
+                          aria-label={t('w9e.reviewComment.resolveAria')}
                         >
-                          解决
+                          {t('w9e.reviewComment.resolveBtn')}
                         </Button>
                       )}
                     </Space>

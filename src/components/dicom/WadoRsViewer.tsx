@@ -43,7 +43,8 @@ export default function WadoRsViewer({ studyUID }: Props) {
         dicomWebApi.searchSeries(studyUID),
       ])
       if (studiesRes.success && studiesRes.data.length > 0) {
-        setStudy(studiesRes.data[0])
+        const first = studiesRes.data[0]
+        if (first) setStudy(first)
       }
       if (seriesRes.success) {
         setSeriesList(seriesRes.data)

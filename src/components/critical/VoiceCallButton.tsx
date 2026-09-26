@@ -186,7 +186,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
                     <strong>IVR 菜单:{menu.name}</strong>
                     <div style={{ fontSize: 12, marginTop: 4 }}>"{menu.greeting}"</div>
                     <div style={{ fontSize: 12, marginTop: 6 }}>
-                      {menu.items.map((it) => (
+                      {menu.items.map((it: { digit: string | number; label: string }) => (
                         <Tag key={it.digit} color="blue">{it.digit}. {it.label}</Tag>
                       ))}
                     </div>
@@ -204,7 +204,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
         ) : (
           <Space orientation="vertical" style={{ width: '100%' }}>
             <Result
-              status={call.status === 'failed' || call.status === 'no-answer' ? 'warning' : 'success'}
+              status={call.status === 'failed' ? 'warning' : 'success'}
               icon={<PhoneCall size={36} color={call.status === 'failed' ? '#dc2626' : '#10b981'} />}
               title={renderStatus(call.status)}
               subTitle={call.startedAt ? <><Clock size={10} /> 发起于 {new Date(call.startedAt).toLocaleTimeString()}</> : undefined}

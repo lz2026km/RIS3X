@@ -324,7 +324,7 @@ export function sortIssuesBySeverity(issues: KeywordIssue[]): KeywordIssue[] {
 export function groupIssuesByCategory(issues: KeywordIssue[]): Record<string, KeywordIssue[]> {
   return issues.reduce((acc, issue) => {
     if (!acc[issue.category]) acc[issue.category] = [];
-    acc[issue.category].push(issue);
+    acc[issue.category]!.push(issue);
     return acc;
   }, {} as Record<string, KeywordIssue[]>);
 }

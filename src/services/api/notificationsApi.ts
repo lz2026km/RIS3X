@@ -20,6 +20,7 @@ export interface NotificationDto {
   read: boolean
   readAt?: string
   targetId?: string
+  category?: string
   createdAt: string
 }
 
@@ -74,6 +75,16 @@ export interface NotificationTrendDto {
 }
 
 export const notificationsApi = {
+  list: (params?: { page?: number; pageSize?: number }) => {
+    const sp = new URLSearchParams()
+    if (params?.page) sp.set('page', String(params.page))
+    if (params?.pageSize) sp.set('pageSize', String(params.pageSize))
+    const qs = sp.toString()
+    return api.get<NotificationDto[] | { items: NotificationDto[]; total: number }>(
+      `/notifications${qs ? `?${qs}` : ''}`,
+    )
+  },
+
   getUnread: (userId: string) =>
     api.get<{ userId: string; unread: number }>(`/notifications/unread/${userId}`),
 

@@ -18,7 +18,7 @@ import {
   type ScoreGradeConfig,
 } from '../data/qualityScoreMock';
 import { reportQualityApi } from '../services/api';
-import { LoadingBanner, ErrorBanner } from '../components/feedback';
+import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 import ReportReEvaluateSection from './ReportReEvaluateSection';
 import { message } from 'antd';
@@ -64,7 +64,7 @@ export default function ReportScoreRulePage() {
             description: `${d.label} (满分 ${d.max})`,
             evaluationCriteria: [],
             scoringRules: [{ score: d.max, condition: `${d.label} 达标` }],
-            color: ['#3b82f6', '#7c3aed', '#10b981', '#f59e0b', '#0891b2', '#dc2626', '#8b5cf6', '#06b6d4'][i % 8],
+            color: ['#3b82f6', '#7c3aed', '#10b981', '#f59e0b', '#0891b2', '#dc2626', '#8b5cf6', '#06b6d4'][i % 8] ?? '#3b82f6',
             icon: '📊',
           }));
           setDimensions(mapped);
@@ -164,6 +164,7 @@ export default function ReportScoreRulePage() {
                 权重合计：{(totalWeight * 100).toFixed(0)}%
               </span>
             </div>
+            {dimensions.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
             {dimensions.map(dim => (
               <div
                 key={dim.id}
@@ -191,7 +192,7 @@ export default function ReportScoreRulePage() {
               </div>
             ))}
             <button
-              onClick={() => setDimensions(prev => [...prev, { id: `dim-${Date.now()}`, name: `新维度${prev.length + 1}`, description: '请编辑', weight: 0.1, icon: '⭐', color: '#3b82f6', criteria: [] }])}
+              onClick={() => setDimensions(prev => [...prev, { id: `dim-${Date.now()}`, name: `新维度${prev.length + 1}`, description: '请编辑', weight: 0.1, icon: '⭐', color: '#3b82f6', evaluationCriteria: [], scoringRules: [] } as ScoreDimension])}
               style={{
                 width: '100%', padding: 10, border: 'none', background: 'var(--bg-card)',
                 color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex',
@@ -212,6 +213,7 @@ export default function ReportScoreRulePage() {
             }}>
               <Award size={13} /> 评分等级映射
             </div>
+            {grades.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
             {grades.map(g => (
               <div key={g.grade} style={{
                 padding: 10, borderBottom: '1px solid var(--border-light)',
@@ -233,7 +235,7 @@ export default function ReportScoreRulePage() {
         </div>
 
         {/* 右：维度详情 */}
-        {currentDim && (
+        {currentDim ? (
           <div style={{
             background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
           }}>
@@ -312,7 +314,7 @@ export default function ReportScoreRulePage() {
               ))}
             </div>
           </div>
-        )}
+        ) : <AppEmpty variant="no-data" minHeight={200} />}
       </div>
 
       <ReportReEvaluateSection />

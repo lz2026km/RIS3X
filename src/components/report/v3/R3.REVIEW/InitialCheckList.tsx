@@ -37,10 +37,10 @@ function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
   if (m < 1) return t('reportReview.justNow');
-  if (m < 60) return `${m}分钟前`;
+  if (m < 60) return t('w9e.initialCheckList.timeMinutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  return `${Math.floor(h / 24)}天前`;
+  if (h < 24) return t('w9e.initialCheckList.timeHoursAgo', { count: h });
+  return t('w9e.initialCheckList.timeDaysAgo', { count: Math.floor(h / 24) });
 }
 
 function deadlineInfo(
@@ -48,9 +48,9 @@ function deadlineInfo(
   isOverdue: boolean,
   hoursToDeadline: number,
 ): { label: string; color: string } {
-  if (isOverdue) return { label: `超时 ${Math.abs(hoursToDeadline)}h`, color: '#dc2626' };
-  if (hoursToDeadline < 2) return { label: `${hoursToDeadline}h 内`, color: '#f59e0b' };
-  return { label: `${hoursToDeadline}h 后`, color: '#64748b' };
+  if (isOverdue) return { label: t('w9e.initialCheckList.overdue', { hours: Math.abs(hoursToDeadline) }), color: '#dc2626' };
+  if (hoursToDeadline < 2) return { label: t('w9e.initialCheckList.withinHours', { hours: hoursToDeadline }), color: '#f59e0b' };
+  return { label: t('w9e.initialCheckList.afterHours', { hours: hoursToDeadline }), color: '#64748b' };
 }
 
 export interface InitialCheckListProps {

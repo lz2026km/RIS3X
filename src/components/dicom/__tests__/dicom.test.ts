@@ -123,9 +123,9 @@ describe('DICOM Window Presets', () => {
   });
 
   it('presets are matched to correct modalities', () => {
-    expect(WINDOW_PRESETS_DETAILED.CT_LUNG.modality).toContain('CT');
-    expect(WINDOW_PRESETS_DETAILED.MR_T1.modality).toContain('MR');
-    expect(WINDOW_PRESETS_DETAILED.MG_DEFAULT.modality).toContain('MG');
+    expect(WINDOW_PRESETS_DETAILED.CT_LUNG!.modality).toContain('CT');
+    expect(WINDOW_PRESETS_DETAILED.MR_T1!.modality).toContain('MR');
+    expect(WINDOW_PRESETS_DETAILED.MG_DEFAULT!.modality).toContain('MG');
   });
 
   it('list contains all presets', () => {

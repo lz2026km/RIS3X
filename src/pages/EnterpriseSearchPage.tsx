@@ -5,6 +5,8 @@ import { Input, Button, Tag, Spin, Alert, Empty, Tabs, message } from 'antd';
 import { Search, FileText, User, Microscope, FileSearch } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { SearchX } from 'lucide-react'
+import { ActionButton, ExportButton } from '../components/common'
+import { t } from '../i18n/appI18n'
 
 const TYPE_META: Record<string, { label: string; color: string }> = {
   patient: { label: '患者', color: 'blue' },
@@ -163,6 +165,17 @@ export default function EnterpriseSearchPage() {
             {q}
           </Tag>
         ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <ActionButton action="refresh" loading={loading} disabled={!searched} onClick={() => void handleSearch(query || inputValue)}>{t('w45.actions.refresh')}</ActionButton>
+        <ExportButton
+          data={() => [...results, ...apiResults]}
+          filename="enterprise-search"
+          label={t('w45.actions.export')}
+          size="small"
+          formats={["csv", "json"]}
+        />
       </div>
 
       {error && (

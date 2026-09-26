@@ -9,6 +9,7 @@ import { AlertOctagon, CheckCircle2, Clock, User } from 'lucide-react'
 import React, { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
 import { Inbox } from 'lucide-react'
+import { t } from '../../../i18n/appI18n'
 
 export interface CriticalStatsDashboardProps {
   values: CriticalValueV2[]
@@ -47,9 +48,10 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
     const dailyMap: Record<string, Record<string, number>> = {}
     const catKeys = ['LIFE_THREATENING', 'URGENT', 'IMPORTANT']
     recent.forEach((v) => {
-      const d = v.triggeredAt.split('T')[0]
-      if (!dailyMap[d]) dailyMap[d] = Object.fromEntries(catKeys.map((c) => [c, 0]))
-      dailyMap[d][v.category] = (dailyMap[d][v.category] ?? 0) + 1
+      const d = v.triggeredAt.split('T')[0] ?? ''
+      if (!dailyMap[d]) dailyMap[d] = Object.fromEntries(catKeys.map((c) => [c, 0])) as Record<string, number>
+      const bucket = dailyMap[d]!
+      bucket[v.category] = (bucket[v.category] ?? 0) + 1
     })
     const daily = Object.entries(dailyMap)
       .sort(([a], [b]) => a.localeCompare(b))
@@ -79,41 +81,41 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
     return { recent, byCategory, byStatus, byRecipient, daily, avgResponseTime, overdueRate, catKeys }
   }, [values, days])
 
-  if (data.recent.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={`近 ${days} 天无危急值数据`} />
+  if (data.recent.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('w9e.criticalStats.noDataDays', { days })} />
 
   return (
     <div data-testid="critical-stats-dashboard">
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>
-            <Statistic title={`近 ${days} 天危急值`} value={data.recent.length} prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />} />
+            <Statistic title={t('w9e.criticalStats.recentDays', { days })} value={data.recent.length} prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="平均响应" value={`${data.avgResponseTime}秒`} prefix={<Clock size={14} />} />
+            <Statistic title={t('w9e.criticalStats.avgResponse')} value={t('w9e.criticalStats.seconds', { value: data.avgResponseTime })} prefix={<Clock size={14} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="超时率" value={data.overdueRate.toFixed(1)} suffix="%" styles={{ content: {  color: data.overdueRate > 10 ? CHART_COLORS.error : CHART_COLORS.success  } }} />
+            <Statistic title={t('w9e.criticalStats.overdueRate')} value={data.overdueRate.toFixed(1)} suffix="%" styles={{ content: {  color: data.overdueRate > 10 ? CHART_COLORS.error : CHART_COLORS.success  } }} />
             <Progress percent={data.overdueRate} size="small" status={data.overdueRate > 10 ? 'exception' : 'normal'} showInfo={false} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="完成数" value={data.recent.filter((v) => v.notifyStatus === 'COMPLETED' || v.notifyStatus === 'ACKED').length} prefix={<CheckCircle2 size={14} color={CHART_COLORS.success} />} />
+            <Statistic title={t('w9e.criticalStats.completedCount')} value={data.recent.filter((v) => v.notifyStatus === 'COMPLETED' || v.notifyStatus === 'ACKED').length} prefix={<CheckCircle2 size={14} color={CHART_COLORS.success} />} />
           </Card>
         </Col>
       </Row>
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={12}>
-          <Card size="small" title="按类别分布" data-testid="cv-stats-category">
+          <Card size="small" title={t('w9e.criticalStats.byCategory')} data-testid="cv-stats-category">
             <ChartContainer
               height={240}
               state={data.byCategory.length === 0 ? 'empty' : 'ready'}
-              emptyDescription="暂无分类数据"
+              emptyDescription={t('w9e.criticalStats.noCategoryData')}
             >
               <PieChart>
                 <Pie data={data.byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
@@ -126,11 +128,11 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
           </Card>
         </Col>
         <Col span={12}>
-          <Card size="small" title="按状态分布" data-testid="cv-stats-status">
+          <Card size="small" title={t('w9e.criticalStats.byStatus')} data-testid="cv-stats-status">
             <ChartContainer
               height={240}
               state={data.byStatus.length === 0 ? 'empty' : 'ready'}
-              emptyDescription="暂无状态数据"
+              emptyDescription={t('w9e.criticalStats.noStatusData')}
             >
               <BarChart data={data.byStatus}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -146,11 +148,11 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={14}>
-          <Card size="small" title="近 30 天每日触发(分类)" data-testid="cv-stats-daily">
+          <Card size="small" title={t('w9e.criticalStats.daily30')} data-testid="cv-stats-daily">
             <ChartContainer
               height={240}
               state={data.daily.length === 0 ? 'empty' : 'ready'}
-              emptyDescription="近 30 天无触发数据"
+              emptyDescription={t('w9e.criticalStats.noDailyData')}
             >
               <LineChart data={data.daily}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -166,15 +168,15 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
           </Card>
         </Col>
         <Col span={10}>
-          <Card size="small" title="接收方 Top 10" data-testid="cv-stats-recipient">
+          <Card size="small" title={t('w9e.criticalStats.recipientTop10')} data-testid="cv-stats-recipient">
             <Table
               size="small"
               dataSource={data.byRecipient.map((r, i) => ({ ...r, key: i }))}
               pagination={false}
               scroll={{ x: 'max-content' }}
               columns={[
-                { title: '医师', dataIndex: 'name', render: (v) => <span><User size={10} /> {v}</span> },
-                { title: '次数', dataIndex: 'value', width: 60, render: (v) => <Tag color="red">{v}</Tag> },
+                { title: t('w9e.criticalStats.physician'), dataIndex: 'name', render: (v) => <span><User size={10} /> {v}</span> },
+                { title: t('w9e.criticalStats.count'), dataIndex: 'value', width: 60, render: (v) => <Tag color="red">{v}</Tag> },
               ]}
             />
           </Card>

@@ -236,7 +236,7 @@ const DlDenoisePage: React.FC = () => {
     const est = estimateLocalNoise(imgData)
     setLocalEstimate(est)
     setNoiseLevel(est.level)
-    message.info(`噪声等级自动估计: ${est.type} · σ=${est.sigma} · ${est.level}%`)
+    message.info(t('w9d.dlDenoise.noiseEstimated', { type: est.type, sigma: est.sigma, level: est.level }))
   }
 
   // [G005 v3.0.6.11-90 Wave 4B (G-10)] 执行降噪: 上传当前噪声图 → 真实后端端点
@@ -336,8 +336,8 @@ const DlDenoisePage: React.FC = () => {
         {dataSource === 'preview' && <Tag color="gold">{t('dlDenoisePage.localPreview')}</Tag>}
         <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
           {t('dlDenoisePage.dataNote')} {noiseLevel}% · {KERNEL_LABELS[kernel]} · {PRESET_LABELS[preset]}
-          {localEstimate ? ` · 噪声 ${localEstimate.type}/σ=${localEstimate.sigma}` : ''}
-          {serverResult ? ` · 服务端 PSNR ${serverResult.psnr}dB / SSIM ${serverResult.ssim}` : ` (PSNR ${currentModel.psnr}dB / SSIM ${currentModel.ssim})`}
+          {localEstimate ? t('w9d.dlDenoise.localNoise', { type: localEstimate.type, sigma: localEstimate.sigma }) : ''}
+          {serverResult ? t('w9d.dlDenoise.serverMetrics', { psnr: serverResult.psnr, ssim: serverResult.ssim }) : t('w9d.dlDenoise.modelMetrics', { psnr: currentModel.psnr, ssim: currentModel.ssim })}
         </span>
         <Button size="small" type="primary" icon={<PlayCircle size={12} />} loading={executing} onClick={() => void handleExecute()}>{t('dlDenoisePage.execute')}</Button>
         <button onClick={handleSaveResult} style={btnStyle}><Save size={12} /> {t('dlDenoisePage.saveResult')}</button>

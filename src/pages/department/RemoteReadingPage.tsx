@@ -117,7 +117,7 @@ const RemoteReadingPage: React.FC = () => {
     try {
       const res = await remoteReadingApi.createSession(values)
       if (res.success) {
-        message.success(`已分配远程阅片任务: ${values.studyId}`)
+        message.success(t('w9e.remoteReading.assignedTask', { id: values.studyId }))
         setAssignOpen(false)
         assignForm.resetFields()
         setStatusFilter('all')
@@ -135,7 +135,7 @@ const RemoteReadingPage: React.FC = () => {
   const handleStart = async (row: RemoteReadingSession) => {
     const res = await remoteReadingApi.startReading(row.id)
     if (res.success) {
-      message.success(`已开始阅片: ${row.studyId}`)
+      message.success(t('w9e.remoteReading.startedReading', { id: row.studyId }))
       void load()
     } else {
       message.error(res.error?.message ?? t('remoteReading.operationFailed'))

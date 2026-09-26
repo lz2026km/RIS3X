@@ -23,15 +23,16 @@ const SEED_INVENTORY: any[] = [
 ];
 
 const CATEGORY_OPTIONS = [
-  { value: 'Implant', label: '种植' },
-  { value: 'Restorative', label: '修复' },
-  { value: 'Endo', label: '根管' },
-  { value: 'Ortho', label: '正畸' },
-  { value: 'Anesthesia', label: '麻醉' },
-  { value: 'Periodontal', label: '牙周' },
+  { value: 'Implant', labelKey: 'w9d.dentalInvCat.implant' },
+  { value: 'Restorative', labelKey: 'w9d.dentalInvCat.restorative' },
+  { value: 'Endo', labelKey: 'w9d.dentalInvCat.endo' },
+  { value: 'Ortho', labelKey: 'w9d.dentalInvCat.ortho' },
+  { value: 'Anesthesia', labelKey: 'w9d.dentalInvCat.anesthesia' },
+  { value: 'Periodontal', labelKey: 'w9d.dentalInvCat.periodontal' },
 ];
 
-const UNIT_LABELS: Record<string, string> = { pcs: '件', tube: '支', set: '套', box: '盒', ml: '毫升', g: '克' };
+const UNIT_LABELS: Record<string, string> = { pcs: 'w9d.dentalInvUnit.pcs', tube: 'w9d.dentalInvUnit.tube', set: 'w9d.dentalInvUnit.set', box: 'w9d.dentalInvUnit.box', ml: 'w9d.dentalInvUnit.ml', g: 'w9d.dentalInvUnit.g' };
+const unitLabel = (u: string) => (UNIT_LABELS[u] ? t(UNIT_LABELS[u]!) : u);
 
 export const DentalInventoryPage: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -106,11 +107,11 @@ export const DentalInventoryPage: React.FC = () => {
         message.success(t('w9.dentalInv.created'));
         await loadInventory();
       } else {
-        message.error('创建失败: ' + (res.error?.message || '未知错误'));
+        message.error(t('w9d.dentalInv.createFailed', { msg: res.error?.message || t('w9d.sidebar.unknownError') }));
       }
     } catch (err) {
       console.error('[F04]', err);
-      message.error('创建失败，请重试');
+      message.error(t('w9d.dentalInv.createRetry'));
     } finally {
       setCreating(false);
     }
@@ -215,7 +216,7 @@ export const DentalInventoryPage: React.FC = () => {
           { title: t('w9.dentalInv.name'), dataIndex: 'name' },
           { title: t('w9.dentalInv.category'), dataIndex: 'category', render: (c: string) => <Tag>{c}</Tag> },
           { title: t('w9.dentalInv.stock'), dataIndex: 'stock', render: (n: number) => <b>{n}</b> },
-          { title: t('w9.dentalInv.unit'), dataIndex: 'unit', render: (u: string) => UNIT_LABELS[u] || u },
+          { title: t('w9.dentalInv.unit'), dataIndex: 'unit', render: (u: string) => unitLabel(u) },
           { title: t('w9.dentalInv.minStock'), dataIndex: 'minStock' },
           {
             title: t('w9.common.status'),
@@ -245,11 +246,11 @@ export const DentalInventoryPage: React.FC = () => {
         <Form form={form} layout="vertical">
           <Form.Item label={t('w9.dentalInv.name')} name="name" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item label={t('w9.dentalInv.category')} name="category">
-            <Select options={CATEGORY_OPTIONS} />
+              <Select options={CATEGORY_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))} />
           </Form.Item>
           <Form.Item label={t('w9.dentalInv.minStock')} name="minStock" rules={[{ required: true }]}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item>
           <Form.Item label={t('w9.dentalInv.unit')} name="unit">
-            <Select options={Object.entries(UNIT_LABELS).map(([v, l]) => ({ value: v, label: l }))} />
+              <Select options={Object.entries(UNIT_LABELS).map(([v, l]) => ({ value: v, label: t(l) }))} />
           </Form.Item>
         </Form>
       </Modal>
@@ -259,7 +260,7 @@ export const DentalInventoryPage: React.FC = () => {
             <Descriptions.Item label="ID">{detail.id}</Descriptions.Item>
             <Descriptions.Item label={t('w9.dentalInv.name')}>{detail.name}</Descriptions.Item>
             <Descriptions.Item label={t('w9.dentalInv.category')}><Tag>{detail.category}</Tag></Descriptions.Item>
-            <Descriptions.Item label={t('w9.dentalInv.stock')}><b>{detail.stock}</b> {UNIT_LABELS[detail.unit] || detail.unit}</Descriptions.Item>
+            <Descriptions.Item label={t('w9.dentalInv.stock')}><b>{detail.stock}</b> {unitLabel(detail.unit)}</Descriptions.Item>
             <Descriptions.Item label={t('w9.dentalInv.minStock')}>{detail.minStock}</Descriptions.Item>
           </Descriptions>
           <Space style={{ marginTop: 12 }}>

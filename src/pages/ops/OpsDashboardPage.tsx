@@ -145,7 +145,9 @@ export default function OpsDashboardPage() {
           </span>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <RefreshCw size={16} style={{ color: '#8b949e', cursor: 'pointer' }} onClick={() => void load()} title={t('opsDashboard.refreshTitle')} />
+          <span title={t('opsDashboard.refreshTitle')} style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => void load()}>
+            <RefreshCw size={16} style={{ color: '#8b949e' }} />
+          </span>
           <span style={{ fontSize: 12, color: '#8b949e' }}>{t('opsDashboard.autoRefresh')}</span>
         </div>
       </div>

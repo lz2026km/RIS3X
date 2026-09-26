@@ -491,7 +491,7 @@ const CoSignPage: React.FC = () => {
           setSelectedItem(null);
         }}
         footer={
-          selectedItem?.status === "pending" && (
+          selectedItem?.status === "pending" ? (
             <Space>
               <Button
                 onClick={() => {
@@ -516,20 +516,9 @@ const CoSignPage: React.FC = () => {
                 {t('coSign.approve')}
               </Button>
             </Space>
-          )
+          ) : null
         }
         width={600}
-        extra={
-          selectedItem && (
-            <Button
-              size="small"
-              icon={<RefreshCw size={12} />}
-              onClick={() => void openDetail(selectedItem)}
-            >
-              {v3t("detailRefresh")}
-            </Button>
-          )
-        }
       >
         {selectedItem && (
           <Descriptions bordered column={2} size="small">

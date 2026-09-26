@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import type { Annotation, AnnotationType } from './DicomViewerTypes'
 import { useFocusTrap } from '../../a11y/SkipLink'
 import { useEscape } from '../../hooks/useEscape'
+import { t } from '../../i18n/appI18n'
 
 interface Props {
   annotations: Annotation[]
@@ -72,10 +73,10 @@ export default function AnnotationOverlay(props: Props) {
       )}
 
       {showAnnotationPanel && (
-        <div ref={panelRef} role="dialog" aria-modal="true" aria-label="标注工具" style={{ position: 'absolute' as const, left: 60, top: 200, width: 200, background: 'var(--bg-card)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 }}>
+        <div ref={panelRef} role="dialog" aria-modal="true" aria-label={t('w9d.annotation.panelTitle')} style={{ position: 'absolute' as const, left: 60, top: 200, width: 200, background: 'var(--bg-card)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>标注工具</span>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} onClick={closePanel} aria-label="关闭标注工具">✕</button>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('w9d.annotation.panelTitle')}</span>
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} onClick={closePanel} aria-label={t('w9d.annotation.closePanelAria')}>✕</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 }}>
             {annotationTypes.map(({ type, icon, label }) => (
@@ -85,27 +86,27 @@ export default function AnnotationOverlay(props: Props) {
               </button>
             ))}
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>颜色</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('w9d.annotation.color')}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 }}>
             {ANNOTATION_COLORS.map(color => (
               <button key={color} style={{ width: 24, height: 24, borderRadius: 4, border: activeAnnotationColor === color ? '2px solid #1e40af' : '2px solid transparent', background: color, cursor: 'pointer', transform: activeAnnotationColor === color ? 'scale(1.1)' : 'none' }} onClick={() => setActiveAnnotationColor(color)} title={ANNOTATION_COLOR_NAMES[color] || color} />
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <span style={{ fontSize: 12, color: '#64748b' }}>字号</span>
+            <span style={{ fontSize: 12, color: '#64748b' }}>{t('w9d.annotation.fontSize')}</span>
             <input type="number" min={8} max={48} value={activeAnnotationFontSize} onChange={e => setActiveAnnotationFontSize(Number(e.target.value))} style={{ flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid #cbd5e1', fontSize: 12, outline: 'none', width: 50 }} />
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4, marginTop: 8 }}>已添加标注 ({annotations.length})</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4, marginTop: 8 }}>{t('w9d.annotation.addedAnnotations', { count: annotations.length })}</div>
           <div style={{ maxHeight: 150, overflowY: 'auto' }}>
             {annotations.length === 0 ? (
-              <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 8 }}>点击图像添加标注</div>
+              <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 8 }}>{t('w9d.annotation.clickToAdd')}</div>
             ) : (
               annotations.map(ann => (
                 <div key={ann.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: `1px solid ${selectedAnnotationId === ann.id ? '#3b82f6' : 'var(--border-color)'}`, cursor: 'pointer' }} onClick={() => setSelectedAnnotationId(ann.id)}>
                   <div style={{ width: 8, height: 8, borderRadius: 2, background: ann.color, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ann.type === 'text' ? ann.text : ann.type === 'arrow' ? '箭头标注' : ann.type === 'rect' ? '矩形标注' : '椭圆标注'}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{ann.type} | {ann.visible ? '可见' : '隐藏'}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ann.type === 'text' ? ann.text : ann.type === 'arrow' ? t('w9d.annotation.arrowAnnotation') : ann.type === 'rect' ? t('w9d.annotation.rectAnnotation') : t('w9d.annotation.ellipseAnnotation')}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{ann.type} | {ann.visible ? t('w9d.annotation.visible') : t('w9d.annotation.hidden')}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
                     <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={e => { e.stopPropagation(); toggleAnnotationVisibility(ann.id) }}>{ann.visible ? '👁' : '👁‍🗨'}</button>
@@ -117,15 +118,15 @@ export default function AnnotationOverlay(props: Props) {
             )}
           </div>
           {annotations.length > 0 && (
-            <button style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'var(--color-error-bg)', color: '#ef4444', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={clearAllAnnotations}>🗑 清除全部标注</button>
+            <button style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'var(--color-error-bg)', color: '#ef4444', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={clearAllAnnotations}>{t('w9d.annotation.clearAll')}</button>
           )}
           <button
             type="button"
-            aria-label="关闭标注工具"
+            aria-label={t('w9d.annotation.closePanelAria')}
             style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: '#64748b', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
             onClick={closePanel}
           >
-            关闭 (Esc)
+            {t('w9d.annotation.closeEsc')}
           </button>
         </div>
       )}

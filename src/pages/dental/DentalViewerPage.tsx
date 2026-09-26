@@ -86,8 +86,8 @@ export const DentalViewerPage: React.FC = () => {
           <Tag color="purple">v3.0.6.8-54</Tag>
         </Space>
         <Space>
-          <Tooltip title={t("dViewer.windowWidth")}><InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} suffix="W" /></Tooltip>
-          <Tooltip title={t("dViewer.windowCenter")}><InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} suffix="C" /></Tooltip>
+          <Tooltip title={t("dViewer.windowWidth")}><InputNumber size="small" value={ww} onChange={(v) => setWw(v ?? 400)} min={1} max={2000} style={{ width: 80 }} suffix="W" /></Tooltip>
+          <Tooltip title={t("dViewer.windowCenter")}><InputNumber size="small" value={wc} onChange={(v) => setWc(v ?? 40)} min={-500} max={500} style={{ width: 80 }} suffix="C" /></Tooltip>
           <Slider min={50} max={300} value={zoom} onChange={setZoom} style={{ width: 100 }} />
           <Tooltip title={t("dViewer.zoomIn")}><Button size="small" icon={<ZoomIn size={14} />} onClick={() => setZoom(z => Math.min(300, z + 20))} /></Tooltip>
           <Tooltip title={t("dViewer.zoomOut")}><Button size="small" icon={<ZoomOut size={14} />} onClick={() => setZoom(z => Math.max(50, z - 20))} /></Tooltip>

@@ -56,7 +56,7 @@ class IVRMenuServiceImpl implements IVRMenuService {
   simulateReply(menuId: string, digit: string): { action: string; nextMenuId?: string } {
     const menu = this.get(menuId);
     if (!menu) return { action: 'hangup' };
-    const item = menu.items.find((i) => i.digit === digit);
+    const item = menu.items.find((i: IVRMenuItem) => i.digit === digit);
     if (!item) {
       return { action: menu.fallbackAction ?? 'hangup' };
     }

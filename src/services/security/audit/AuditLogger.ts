@@ -161,7 +161,7 @@ export class AuditLogger {
   async logSecurityEvent(input: { actor: AuditLogInput['actor']; action: string; outcome: 'success' | 'failure' | 'denied' | 'partial'; riskScore: number; detail?: Record<string, unknown> }): Promise<AuditLogEntry> {
     return this.log({
       category: 'security',
-      severity: input.riskScore >= 80 ? 'critical' : input.riskScore >= 60 ? 'high' : input.riskScore >= 40 ? 'medium' : input.riskScore >= 20 ? 'low' : 'info',
+      severity: input.riskScore >= 80 ? 'critical' : input.riskScore >= 60 ? 'error' : input.riskScore >= 40 ? 'warning' : input.riskScore >= 20 ? 'notice' : 'info',
       actor: input.actor,
       action: input.action,
       target: { type: 'system', id: 'security' },

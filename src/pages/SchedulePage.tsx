@@ -559,9 +559,9 @@ function ShiftBadge({ shift, size = 'default' }: { shift: ShiftType; size?: 'sma
 /** 状态徽章 */
 function StatusBadge({ status }: { status: SwapRequest['status'] }) {
   const config = {
-    pending: { label: '待审批', bg: C.warningLight, color: C.warning },
-    approved: { label: '已同意', bg: C.successLight, color: C.success },
-    rejected: { label: '已拒绝', bg: C.dangerLight, color: C.danger },
+    pending: { label: t('w9b.schedule.swapPending'), bg: C.warningLight, color: C.warning },
+    approved: { label: t('w9b.schedule.swapApproved'), bg: C.successLight, color: C.success },
+    rejected: { label: t('w9b.schedule.swapRejected'), bg: C.dangerLight, color: C.danger },
   }[status]
   
   return (
@@ -2291,7 +2291,7 @@ export default function SchedulePage() {
                     outline: 'none',
                   }}
                 >
-                  <option value="">选择申请人</option>
+                  <option value="">{t('w9b.schedule.selectApplicant')}</option>
                   {STAFF_LIST.map(s => (
                     <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>
                   ))}

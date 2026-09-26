@@ -9,23 +9,23 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../../i18n/appI18n';
 
 const DEVICE_OPTIONS = [
-  { value: 'nct', label: 'NCT 非接触' },
-  { value: 'goldmann', label: 'Goldmann 压平' },
-  { value: 'icare', label: 'iCare 反弹' },
-  { value: 'tonopen', label: 'Tonopen 手持' },
+  { value: 'nct', labelKey: 'w9d.iopDevice.nct' },
+  { value: 'goldmann', labelKey: 'w9d.iopDevice.goldmann' },
+  { value: 'icare', labelKey: 'w9d.iopDevice.icare' },
+  { value: 'tonopen', labelKey: 'w9d.iopDevice.tonopen' },
 ];
 
 const DEVICE_LABEL: Record<string, string> = {
-  nct: 'NCT 非接触',
-  goldmann: 'Goldmann 压平',
-  icare: 'iCare 反弹',
-  tonopen: 'Tonopen 手持',
+  nct: 'w9d.iopDevice.nct',
+  goldmann: 'w9d.iopDevice.goldmann',
+  icare: 'w9d.iopDevice.icare',
+  tonopen: 'w9d.iopDevice.tonopen',
 };
 
 const classify = (v: number) => {
-  if (v >= 25) return { label: '高眼压', color: 'error' as const, level: 2 };
-  if (v > 21) return { label: '偏高', color: 'warning' as const, level: 1 };
-  return { label: '正常', color: 'success' as const, level: 0 };
+  if (v >= 25) return { label: t('w9d.iopClass.high'), color: 'error' as const, level: 2 };
+  if (v > 21) return { label: t('w9d.iopClass.elevated'), color: 'warning' as const, level: 1 };
+  return { label: t('w9d.iopClass.normal'), color: 'success' as const, level: 0 };
 };
 
 const PATIENT_OPTIONS = [
@@ -121,7 +121,7 @@ const IntraocularPressurePage: React.FC = () => {
     { title: t('iop.colPatient'), dataIndex: 'patientName', key: 'patientName', width: 80 },
     { title: t('iop.colOd'), dataIndex: 'od', key: 'od', width: 90, render: (v: number) => { const c = classify(v); return <Space size={4}><b>{v}</b><Tag color={c.color} style={{ margin: 0, fontSize: 11 }}>{c.label}</Tag></Space>; } },
     { title: t('iop.colOs'), dataIndex: 'os', key: 'os', width: 90, render: (v: number) => { const c = classify(v); return <Space size={4}><b>{v}</b><Tag color={c.color} style={{ margin: 0, fontSize: 11 }}>{c.label}</Tag></Space>; } },
-    { title: t('iop.colDevice'), dataIndex: 'device', key: 'device', width: 130, render: (v: string) => DEVICE_LABEL[v] ?? v },
+    { title: t('iop.colDevice'), dataIndex: 'device', key: 'device', width: 130, render: (v: string) => (DEVICE_LABEL[v] ? t(DEVICE_LABEL[v]!) : v) },
     { title: t('iop.colActions'), key: 'actions', width: 70, render: (_: unknown, r: IopRecord) => <Popconfirm title={t('iop.deleteConfirm')} onConfirm={() => void handleDelete(r.id)}><Button size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
   ];
 
@@ -157,7 +157,7 @@ const IntraocularPressurePage: React.FC = () => {
             </div>
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('iop.colDevice')}</div>
-              <Select value={device} onChange={setDevice} options={DEVICE_OPTIONS} style={{ width: 160 }} />
+              <Select value={device} onChange={setDevice} options={DEVICE_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))} style={{ width: 160 }} />
             </div>
             <div style={{ marginBottom: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
               {t('iop.patient')}: <Tag color="geekblue">{patientName}</Tag>
@@ -183,7 +183,7 @@ const IntraocularPressurePage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card size="small" title={`测量记录 (${iopRecords.length})`} style={{ marginTop: 12 }}>
+      <Card size="small" title={t('w9d.iop.recordTitle', { count: iopRecords.length })} style={{ marginTop: 12 }}>
         <Spin spinning={loading}>
           <Table
             rowKey="id"

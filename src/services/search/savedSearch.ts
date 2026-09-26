@@ -32,9 +32,11 @@ export const savedSearchService = {
     const searches = load();
     const idx = searches.findIndex(s => s.id === id);
     if (idx < 0) return null;
-    searches[idx] = { ...searches[idx], ...updates, updatedAt: new Date().toISOString() };
+    const current = searches[idx]!;
+    const updated: SavedSearch = { ...current, ...updates, updatedAt: new Date().toISOString() };
+    searches[idx] = updated;
     save(searches);
-    return searches[idx];
+    return updated;
   },
 
   delete(id: string): boolean {

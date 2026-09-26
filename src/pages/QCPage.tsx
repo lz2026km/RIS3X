@@ -1232,7 +1232,7 @@ export default function QCPage() {
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => { setDetailModal({ show: true, title: `影像详情 ${img.id}`, content: `正在查看影像 ${img.id}` }) }} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                      <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.imageDetailTitle', { id: img.id }), content: t('w9b.qc.viewingImage', { id: img.id }) }) }} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
                         <Image size={14} />{t('qcimage.viewImage')}</button>
                     </td>
                   </tr>
@@ -1535,7 +1535,7 @@ export default function QCPage() {
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => { setDetailModal({ show: true, title: `抽检详情 ${record.id}`, content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.detail')}</button>
+                      <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.sampleDetailTitle', { id: record.id }), content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.detail')}</button>
                     </td>
                   </tr>
                 ))}
@@ -2343,7 +2343,7 @@ export default function QCPage() {
                       title: t("qcPage.actions"), key: 'action', width: 90,
                       render: (_: unknown, item) => (
                         <button
-                          onClick={() => { setDetailModal({ show: true, title: `问题详情 ${item.id}`, content: `${item.issueType} - ${item.description}` }) }}
+                          onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.issueDetailTitle', { id: item.id }), content: `${item.issueType} - ${item.description}` }) }}
                           style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >{t('qc.detail')}</button>
                       ),

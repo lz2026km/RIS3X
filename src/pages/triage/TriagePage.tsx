@@ -57,7 +57,7 @@ const TriagePage: React.FC = () => {
   const fetchPending = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get("/triage/pending");
+      const res = await api.get<TriageItem[]>("/triage/pending");
       setItems(res.data ?? []);
     } catch {
       message.error(t("triage.loadError"));
@@ -72,7 +72,7 @@ const TriagePage: React.FC = () => {
 
   const handleAssign = async (item: TriageItem) => {
     try {
-      const res = await api.post("/triage/assign", {
+      const res = await api.post<{ assignedDoctor: string }>("/triage/assign", {
         examId: item.examId,
         patientId: item.patientId,
         patientName: item.patientName,
@@ -234,7 +234,7 @@ const TriagePage: React.FC = () => {
               <Tag color={scoreColor(selectedItem.score)}>{selectedItem.score}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label={t("triage.level")}>
-              <Tag color={levelColor[selectedItem.level]}>{t(levelLabel[selectedItem.level])}</Tag>
+              <Tag color={levelColor[selectedItem.level]}>{t(levelLabel[selectedItem.level] ?? selectedItem.level)}</Tag>
             </Descriptions.Item>
           </Descriptions>
         )}

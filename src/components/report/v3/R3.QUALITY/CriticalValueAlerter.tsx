@@ -66,10 +66,10 @@ const CURRENT_USER_NAME = '张明远';
 function timeAgo(iso: string): string {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1) return t('criticalValue.justNow');
-  if (m < 60) return `${m}分钟前`;
+  if (m < 60) return t('w9e.criticalValueAlerter.timeMinutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  return `${Math.floor(h / 24)}天前`;
+  if (h < 24) return t('w9e.criticalValueAlerter.timeHoursAgo', { count: h });
+  return t('w9e.criticalValueAlerter.timeDaysAgo', { count: Math.floor(h / 24) });
 }
 
 function formatHM(iso?: string): string {
@@ -229,7 +229,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
     }
     try {
       await criticalValueService.notifyEvent(notifyModal.event.id, notifyChannels, 'D-CLN', recipient);
-      message.success(`已通过 ${notifyChannels.length} 个渠道通知 ${recipient}`);
+      message.success(t('w9e.criticalValueAlerter.notifiedChannels', { count: notifyChannels.length, recipient }));
       setNotifyModal({ open: false, event: null });
       load();
     } catch (e) {
@@ -466,7 +466,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               }}
               data-testid={`critical-event-${e.id}`}
               role="button"
-              aria-label={`危急值事件 ${e.patientName} ${e.ruleName}`}
+              aria-label={t('w9e.criticalValueAlerter.eventAria', { patient: e.patientName, rule: e.ruleName })}
               tabIndex={0}
               style={{
                 cursor: 'pointer',

@@ -15,6 +15,7 @@ import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
 import { getDefaultWindowing } from '../../services/viewer/displayService';
 import { DICOM_SAMPLES, DicomSample } from '../../data/dicomSamples';
 import { TOOLS, ToolType, DicomMeasurement, createMeasurement, calculateLength, calculateAngle, calculateCobbAngle } from './tools';
+import { t } from '../../i18n/appI18n';
 
 // 将 tools.ts 中的字符串 icon 名称映射为 lucide 组件
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -245,7 +246,7 @@ export default function DicomViewerPro({
     if (!pos) return;
     if (activeTool === 'length' || activeTool === 'arrow' || activeTool === 'text') {
       if (!drawing) {
-        const label = activeTool === 'length' ? '长度' : activeTool === 'arrow' ? '箭头' : '文字';
+        const label = activeTool === 'length' ? t('w9d.measLabel.length') : activeTool === 'arrow' ? t('w9d.measLabel.arrow') : t('w9d.measLabel.text');
         const m = createMeasurement(activeTool, [pos], 0, activeTool === 'length' ? 'mm' : '', label);
         setDrawing(m);
       } else {
@@ -261,7 +262,7 @@ export default function DicomViewerPro({
       }
     } else if (activeTool === 'angle') {
       if (!drawing) {
-        setDrawing(createMeasurement('angle', [pos], 0, '°', '角度'));
+        setDrawing(createMeasurement('angle', [pos], 0, '°', t('w9d.measLabel.angle')));
       } else {
         const newPoints = [...drawing.points, pos];
         if (newPoints.length === 3) {
@@ -276,7 +277,7 @@ export default function DicomViewerPro({
       }
     } else if (activeTool === 'cobb') {
       if (!drawing) {
-        setDrawing(createMeasurement('cobb', [pos], 0, '°', 'Cobb 角'));
+        setDrawing(createMeasurement('cobb', [pos], 0, '°', t('w9d.measLabel.cobb')));
       } else {
         const newPoints = [...drawing.points, pos];
         if (newPoints.length === 4) {
@@ -291,7 +292,7 @@ export default function DicomViewerPro({
       }
     } else if (activeTool === 'ellipse') {
       if (!drawing) {
-        setDrawing(createMeasurement('ellipse', [pos], 0, 'mm²', '椭圆 ROI'));
+        setDrawing(createMeasurement('ellipse', [pos], 0, 'mm²', t('w9d.measLabel.ellipse')));
       } else {
         const newPoints = [...drawing.points, pos];
         const rx = Math.abs(newPoints[1]!.x - newPoints[0]!.x) / 2;
@@ -343,21 +344,21 @@ export default function DicomViewerPro({
               icon={tool.icon as any}
               active={activeTool === key}
               onClick={() => setActiveTool(key as ToolType)}
-              title={`${tool.name} (${tool.shortcut})`}
+              title={`${t('w9d.tool.' + key)} (${tool.shortcut})`}
             />
           ))}
           <div style={{ width: 1, height: 20, background: '#333', margin: '0 4px' }} />
-          <ToolButton icon={Eye} active={showAnnotations} onClick={() => setShowAnnotations(!showAnnotations)} title="切换标注" />
-          <ToolButton icon={Crosshair} active={showCrosshair} onClick={() => setShowCrosshair(!showCrosshair)} title="十字线" />
-          <ToolButton icon={Grid3X3} active={showGrid} onClick={() => setShowGrid(!showGrid)} title="网格" />
+          <ToolButton icon={Eye} active={showAnnotations} onClick={() => setShowAnnotations(!showAnnotations)} title={t('w9d.viewerPro.toggleAnnotations')} />
+          <ToolButton icon={Crosshair} active={showCrosshair} onClick={() => setShowCrosshair(!showCrosshair)} title={t('w9d.viewerPro.crosshair')} />
+          <ToolButton icon={Grid3X3} active={showGrid} onClick={() => setShowGrid(!showGrid)} title={t('w9d.viewerPro.grid')} />
           <div style={{ flex: 1 }} />
-          <button onClick={clearMeasurements} style={iconBtnStyle} title="清除所有测量">
+          <button onClick={clearMeasurements} style={iconBtnStyle} title={t('w9d.viewerPro.clearAllMeasurements')}>
             <Trash2 size={14} color="#94a3b8" />
           </button>
-          <button onClick={reset} style={iconBtnStyle} title="重置视图">
+          <button onClick={reset} style={iconBtnStyle} title={t('w9d.viewerPro.resetView')}>
             <RotateCcw size={14} color="#94a3b8" />
           </button>
-          <button onClick={() => setIsFullscreen(!isFullscreen)} style={iconBtnStyle} title="全屏">
+          <button onClick={() => setIsFullscreen(!isFullscreen)} style={iconBtnStyle} title={t('w9d.viewerPro.fullscreen')}>
             {isFullscreen ? <Minimize2 size={14} color="#94a3b8" /> : <Maximize2 size={14} color="#94a3b8" />}
           </button>
         </div>
@@ -371,25 +372,25 @@ export default function DicomViewerPro({
           </select>
         )}
         <span style={{ color: '#64748b' }}>W:{ww} L:{wc}</span>
-        <input type="range" min="1" max="3000" value={ww} onChange={e => setWw(Math.max(1, parseInt(e.target.value)))} style={{ width: 60 }} title="窗宽" />
-        <input type="range" min="-1000" max="1000" value={wc} onChange={e => setWc(parseInt(e.target.value))} style={{ width: 60 }} title="窗位" />
+        <input type="range" min="1" max="3000" value={ww} onChange={e => setWw(Math.max(1, parseInt(e.target.value)))} style={{ width: 60 }} title={t('w9d.viewerPro.windowWidth')} />
+        <input type="range" min="-1000" max="1000" value={wc} onChange={e => setWc(parseInt(e.target.value))} style={{ width: 60 }} title={t('w9d.viewerPro.windowLevel')} />
         <div style={{ width: 1, height: 16, background: '#333' }} />
         <select value={currentSample?.id || ''} onChange={e => setSelectedSampleId(e.target.value)} style={selectStyle}>
           {DICOM_SAMPLES.map(s => <option key={s.id} value={s.id}>{s.modality} {s.bodyPart} {s.studyDescription.slice(0, 20)}</option>)}
         </select>
         <div style={{ flex: 1 }} />
-        <button onClick={() => scroll(-1)} style={iconBtnStyle} disabled={cinePlaying} title={cinePlaying ? '播放中已禁用' : '上一帧'}><ChevronLeft size={12} /></button>
+        <button onClick={() => scroll(-1)} style={iconBtnStyle} disabled={cinePlaying} title={cinePlaying ? t('w9d.viewerPro.disabledWhilePlaying') : t('w9d.viewerPro.prevFrame')}><ChevronLeft size={12} /></button>
         <span style={{ minWidth: 60, textAlign: 'center', fontFamily: 'monospace' }}>
           {imageIds.length > 0 ? `${currentIndex + 1}/${imageIds.length}` : '0/0'}
         </span>
-        <button onClick={() => scroll(1)} style={iconBtnStyle} disabled={cinePlaying} title={cinePlaying ? '播放中已禁用' : '下一帧'}><ChevronRight size={12} /></button>
+        <button onClick={() => scroll(1)} style={iconBtnStyle} disabled={cinePlaying} title={cinePlaying ? t('w9d.viewerPro.disabledWhilePlaying') : t('w9d.viewerPro.nextFrame')}><ChevronRight size={12} /></button>
         <input type="range" min="0" max={Math.max(0, imageIds.length - 1)} value={currentIndex} disabled={cinePlaying} onChange={e => jumpTo(parseInt(e.target.value))} style={{ flex: 1, maxWidth: 120 }} />
         <div style={{ width: 1, height: 16, background: '#333' }} />
         {/* [G005 v3.0.6.11-86 Wave 4B] cine 播放控制 */}
         <button
           onClick={toggleCine}
           style={{ ...iconBtnStyle, border: cinePlaying ? '1px solid #fbbf24' : 'none' }}
-          title={cinePlaying ? '暂停播放' : '播放'}
+          title={cinePlaying ? t('w9d.viewerPro.pausePlayback') : t('w9d.viewerPro.play')}
           data-testid="cine-toggle"
         >
           {cinePlaying ? <PauseCircle size={16} color="#fbbf24" /> : <PlayCircle size={16} color="#94a3b8" />}
@@ -399,7 +400,7 @@ export default function DicomViewerPro({
           onChange={e => setCineSpeed(Number(e.target.value) as 1 | 2 | 4)}
           style={selectStyle}
           disabled={imageIds.length < 2}
-          title="播放速度"
+          title={t('w9d.viewerPro.playbackSpeed')}
           data-testid="cine-speed"
         >
           <option value={1}>1x</option>
@@ -417,7 +418,7 @@ export default function DicomViewerPro({
         {/* 缩略图栏 */}
         {showThumbnails && (
           <div style={{ width: 100, background: '#1a1a1a', borderRight: '1px solid #333', overflowY: 'auto', padding: 4 }}>
-            <div style={{ fontSize: 12, color: '#64748b', padding: '4px 0', fontWeight: 700 }}>样本 ({DICOM_SAMPLES.length})</div>
+            <div style={{ fontSize: 12, color: '#64748b', padding: '4px 0', fontWeight: 700 }}>{t('w9d.viewerPro.samplesCount', { count: DICOM_SAMPLES.length })}</div>
             {DICOM_SAMPLES.slice(0, 20).map(s => (
               <div
                 key={s.id}
@@ -432,7 +433,7 @@ export default function DicomViewerPro({
                   {s.modality === 'CT' ? '🫁' : s.modality === 'MR' ? '🧠' : s.modality === 'DR' ? '🩻' : s.modality === 'MG' ? '🟣' : s.modality === 'US' ? '🔊' : '⚛️'}
                 </div>
                 <div style={{ fontWeight: 600 }}>{s.modality} {s.bodyPart}</div>
-                <div style={{ color: '#64748b' }}>{s.sliceCount} 切</div>
+                <div style={{ color: '#64748b' }}>{t('w9d.viewerPro.slicesCount', { count: s.sliceCount })}</div>
               </div>
             ))}
           </div>
@@ -461,10 +462,10 @@ export default function DicomViewerPro({
               {displayError ? (
                 <>
                   <div style={{ color: '#ef4444', fontSize: 14 }}>⚠ {displayError}</div>
-                  <div style={{ fontSize: 12 }}>使用占位图像替代</div>
+                  <div style={{ fontSize: 12 }}>{t('w9d.viewerPro.usingPlaceholder')}</div>
                 </>
               ) : (
-                <div style={{ fontSize: 12 }}>加载中...</div>
+                <div style={{ fontSize: 12 }}>{t('w9d.viewerPro.loading')}</div>
               )}
             </div>
           )}
@@ -583,9 +584,9 @@ export default function DicomViewerPro({
             borderRadius: 4, fontFamily: 'monospace',
           }}>
             <div style={{ fontWeight: 600, color: '#fff' }}>{currentSample?.studyDescription || 'DICOM Viewer Pro'}</div>
-            <div>模态：<span style={{ color: '#fbbf24' }}>{currentSample?.modality}</span> | 部位：{currentSample?.bodyPart}</div>
-            <div>采集时间：{currentSample?.acquisitionDate} | ID: {currentSample?.studyId}</div>
-            <div style={{ color: '#64748b' }}>引擎：Cornerstone3D {cornerstoneReady ? '✓' : '✗'}</div>
+            <div>{t('w9d.viewerPro.modalityLabel')}<span style={{ color: '#fbbf24' }}>{currentSample?.modality}</span> | {t('w9d.viewerPro.bodyPartLabel')}{currentSample?.bodyPart}</div>
+            <div>{t('w9d.viewerPro.acquisitionTimeLabel')}{currentSample?.acquisitionDate} | ID: {currentSample?.studyId}</div>
+            <div style={{ color: '#64748b' }}>{t('w9d.viewerPro.engineLabel')}Cornerstone3D {cornerstoneReady ? '✓' : '✗'}</div>
           </div>
         </div>
 
@@ -593,8 +594,8 @@ export default function DicomViewerPro({
         {showMeasurementPanel && measurements.length > 0 && (
           <div style={{ width: 200, background: '#1a1a1a', borderLeft: '1px solid #333', padding: 8, overflowY: 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700 }}>测量 ({measurements.length})</div>
-              <button onClick={clearMeasurements} style={{ ...iconBtnStyle, padding: 2 }} title="清空">
+              <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700 }}>{t('w9d.viewerPro.measurementsCount', { count: measurements.length })}</div>
+              <button onClick={clearMeasurements} style={{ ...iconBtnStyle, padding: 2 }} title={t('w9d.viewerPro.clear')}>
                 <Trash2 size={11} color="#ef4444" />
               </button>
             </div>
@@ -613,8 +614,8 @@ export default function DicomViewerPro({
               </div>
             ))}
             <div style={{ marginTop: 12, fontSize: 12, color: '#64748b' }}>
-              工具: <span style={{ color: '#fbbf24' }}>{TOOLS[activeTool].name}</span><br />
-              快捷键: {TOOLS[activeTool].shortcut}
+              {t('w9d.viewerPro.toolLabel')} <span style={{ color: '#fbbf24' }}>{t('w9d.tool.' + activeTool)}</span><br />
+              {t('w9d.viewerPro.shortcutLabel')} {TOOLS[activeTool].shortcut}
             </div>
           </div>
         )}

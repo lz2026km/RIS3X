@@ -232,6 +232,9 @@ export class CriticalV2Service {
   /** 判定输入次数 (统计触发率用) */
   private evaluationCount = 0
 
+  /** 单调递增序号, 避免同毫秒 ID 冲突 */
+  private seq = 0
+
   constructor(private readonly prisma: PrismaService) {}
 
   // ================= 规则库 =================
@@ -254,7 +257,7 @@ export class CriticalV2Service {
     if (!['>', '>=', '<', '<=', 'contains', 'notContains'].includes(dto.operator)) throw new BadRequestException('非法比较运算符')
     const rule: CriticalRuleV2 = {
       ...dto,
-      id: `cvr-${Date.now().toString(36)}`,
+      id: `cvr-${Date.now().toString(36)}-${++this.seq}`,
       code: dto.code?.trim() || `CV-R-${this.rules.length + 1}`,
       enabled: true,
       createdAt: new Date().toISOString(),
@@ -287,7 +290,7 @@ export class CriticalV2Service {
       const hit = this.matchSingleRule(rule, items, description)
       if (!hit) continue
       hits.push({
-        id: `cvt-${Date.now().toString(36)}-${hits.length}`,
+        id: `cvt-${Date.now().toString(36)}-${hits.length}-${++this.seq}`,
         ruleId: rule.id,
         ruleCode: rule.code,
         ruleName: rule.name,
@@ -320,7 +323,7 @@ export class CriticalV2Service {
     const matched = this.matchRules(dto)
     const recipients = dto.recipients && dto.recipients.length > 0 ? dto.recipients : [{ name: '急诊值班医生', dept: '急诊科', phone: '13800000000' }]
     for (const t of matched) {
-      t.id = `cvt-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 999)}`
+      t.id = `cvt-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 999)}-${++this.seq}`
       this.triggers.unshift(t)
       await this.notifyTrigger(t.id, {
         recipients: recipients.map((r) => ({ ...r, channels: (['phone', 'sms', 'message'] as NotifyChannelV2[]) })),
@@ -360,7 +363,7 @@ export class CriticalV2Service {
       for (const channel of channels) {
         const failed = channel === 'phone' ? (r.phone ?? '').endsWith('9') : channel === 'sms' ? (r.phone ?? '').endsWith('8') : false
         const n: CriticalNotificationV2 = {
-          id: `cvn-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 999)}`,
+          id: `cvn-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 999)}-${++this.seq}`,
           triggerId: id,
           channel,
           recipientName: r.name,

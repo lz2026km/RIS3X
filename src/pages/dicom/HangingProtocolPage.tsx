@@ -59,7 +59,7 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
             padding: '0 4px',
           }}
         >
-          {label ?? `视口 ${i + 1}`}
+          {label ?? t('w9d.hanging.viewport', { n: i + 1 })}
         </div>
       ))}
     </div>
@@ -204,7 +204,7 @@ const HangingProtocolPage: React.FC = () => {
       dataIndex: 'layout',
       key: 'layout',
       width: 160,
-      render: (l: HangingLayout) => <Tag icon={<LayoutGrid size={12} />}>{l.rows} × {l.cols}{l.seriesOrder?.length ? ` (${l.seriesOrder.length}序列)` : ''}</Tag>,
+      render: (l: HangingLayout) => <Tag icon={<LayoutGrid size={12} />}>{l.rows} × {l.cols}{l.seriesOrder?.length ? ` (${t('w9d.hanging.seriesCount', { n: l.seriesOrder.length })})` : ''}</Tag>,
     },
     { title: t('hangProto.col.priority'), dataIndex: 'priority', key: 'priority', width: 80 },
     {
@@ -234,7 +234,7 @@ const HangingProtocolPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }} align="center">
         <LayoutGrid size={20} color="#2563eb" />
         <Title level={4} style={{ margin: 0 }}>{t('hangProto.title')}</Title>
-        <Tag color="geekblue">对标 GE / Siemens / Fujifilm</Tag>
+        <Tag color="geekblue">{t('w9d.hanging.benchmark')}</Tag>
       </Space>
 
       {/* [G005 Wave 4B] 应用到阅片入口说明 */}
@@ -250,7 +250,7 @@ const HangingProtocolPage: React.FC = () => {
               {t('hangProto.applyDesc')}
             </span>
             <span>
-              内置预设有 {HANGING_PROTOCOL_PRESETS.length} 套 (布局模板: {LAYOUT_PRESETS.map((p) => `${p.layout.rows}×${p.layout.cols}`).join(' / ')}), 与后端协议共同参与匹配 (优先级高的优先)。
+              {t('w9d.hanging.presetDesc', { count: HANGING_PROTOCOL_PRESETS.length, layouts: LAYOUT_PRESETS.map((p) => `${p.layout.rows}×${p.layout.cols}`).join(' / ') })}
             </span>
             {ctChestTop && (
               <span>{t('hangProto.autoMatchExample')} <Tag color="blue">{ctChestTop.name}</Tag> {ctChestTop.layout.rows}×{ctChestTop.layout.cols} {ctChestTop.layout.seriesOrder.join(' / ')}</span>
@@ -265,7 +265,7 @@ const HangingProtocolPage: React.FC = () => {
       <Card
         size="small"
         style={{ marginBottom: 16 }}
-        title={<Space><RefreshCw size={14} />协议列表 ({protocols.length})</Space>}
+        title={<Space><RefreshCw size={14} />{t('w9d.hanging.protocolList', { count: protocols.length })}</Space>}
         extra={
           <Space>
             <Button icon={<Search size={14} />} onClick={() => setMatchModalOpen(true)}>{t('hangProto.matchTest')}</Button>

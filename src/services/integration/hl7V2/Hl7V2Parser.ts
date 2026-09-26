@@ -323,11 +323,11 @@ export function validate(msg: Hl7ParsedMessage | string): Hl7ValidationResult {
   if (parsed.messageType.startsWith('ADT^') && !parsed.patient) {
     issues.push({ level: 'error', code: 'PID001', message: 'ADT 报文缺少 PID 段' });
   }
-  if (parsed.messageType.startsWith('ORM^') && parsed.order.length === 0) {
+  if (parsed.messageType.startsWith('ORM^') && (parsed.order?.length ?? 0) === 0) {
     issues.push({ level: 'error', code: 'ORC001', message: 'ORM 报文缺少 ORC/OBR 段' });
   }
   if (parsed.messageType.startsWith('ORU^')) {
-    if (parsed.order.length === 0) issues.push({ level: 'error', code: 'OBR001', message: 'ORU 报文缺少 OBR 段' });
+    if ((parsed.order?.length ?? 0) === 0) issues.push({ level: 'error', code: 'OBR001', message: 'ORU 报文缺少 OBR 段' });
     if (parsed.observations && parsed.observations.length === 0) {
       issues.push({ level: 'warning', code: 'OBX001W', message: 'ORU 报文无 OBX 观察段' });
     }

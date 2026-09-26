@@ -132,7 +132,7 @@ const AiDraftPage: React.FC = () => {
 
   const handleAccept = (id: string) => {
     setAcceptedIds(prev => prev.includes(id) ? prev : [...prev, id])
-    message.success(`已接受段落`)
+    message.success(t('w9d.aiDraft.paragraphAccepted'))
   }
 
   const handleReject = (id: string) => {
@@ -177,10 +177,10 @@ const AiDraftPage: React.FC = () => {
         bodyPart: currentExam?.bodyPart,
         findings: reportText,
         impression: paragraphs.find(p => p.heading.includes('结论') || p.heading.includes('印象'))?.content ?? '',
-        doctorName: 'AI 辅助',
+        radiologistId: 'AI 辅助',
       })
       if (res.success) {
-        message.success(`报告已提交 (${reportText.length} 字符)`)
+        message.success(t('w9d.aiDraft.reportSubmitted', { count: reportText.length }))
         setDraftResult(null)
         setAcceptedIds([])
       } else {

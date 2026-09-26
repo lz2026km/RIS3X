@@ -39,10 +39,10 @@ const timeAgo = (iso: string): string => {
   if (!iso) return '';
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1) return t('reportAnnotation.justNow');
-  if (m < 60) return `${m}分钟前`;
+  if (m < 60) return t('w9e.reportAnnotation.timeMinutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  return `${Math.floor(h / 24)}天前`;
+  if (h < 24) return t('w9e.reportAnnotation.timeHoursAgo', { count: h });
+  return t('w9e.reportAnnotation.timeDaysAgo', { count: Math.floor(h / 24) });
 };
 
 export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({

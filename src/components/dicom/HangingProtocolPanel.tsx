@@ -1,5 +1,6 @@
 import _React, { useState, useCallback } from 'react'
 import { Settings, Star, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 import {
   HangingProtocolProvider,
   HangingProtocolSwitcher,
@@ -36,7 +37,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
     addProtocol({
       id,
       name: newName.trim(),
-      description: newDesc.trim() || '自定义协议',
+      description: newDesc.trim() || t('w9d.hanging.customProtocol'),
       builtin: false,
       modality: newModality.trim() || undefined,
       priority: 50,
@@ -71,7 +72,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
         }}
       >
         <Settings size={14} color="#94a3b8" />
-        <span style={{ fontSize: 12, fontWeight: 600, color: '#e2e8f0', flex: 1 }}>摆位协议</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#e2e8f0', flex: 1 }}>{t('w9d.hanging.panelTitle')}</span>
         {active && (
           <span style={{
             fontSize: 11,
@@ -95,7 +96,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
             gap: 3,
           }}>
             <Star size={10} />
-            推荐
+            {t('w9d.hanging.recommended')}
           </span>
         )}
         {expanded ? <ChevronUp size={12} color="#94a3b8" /> : <ChevronDown size={12} color="#94a3b8" />}
@@ -130,7 +131,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
             >
               <Star size={12} color="#4ade80" />
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#4ade80' }}>推荐: {suggested.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#4ade80' }}>{t('w9d.hanging.recommended')}: {suggested.name}</div>
                 <div style={{ fontSize: 11, color: '#86efac', marginTop: 2 }}>{suggested.description}</div>
               </div>
             </div>
@@ -138,7 +139,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
 
           <div style={{ padding: '0 8px' }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', padding: '4px 4px', textTransform: 'uppercase' }}>
-              全部协议 ({protocols.length})
+              {t('w9d.hanging.allProtocols', { count: protocols.length })}
             </div>
             <div style={{ maxHeight: 200, overflowY: 'auto' }}>
               {protocols.map(p => (
@@ -190,19 +191,19 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                 <input
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
-                  placeholder="协议名称"
+                  placeholder={t('w9d.hanging.protocolNamePlaceholder')}
                   style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12, outline: 'none' }}
                 />
                 <input
                   value={newDesc}
                   onChange={e => setNewDesc(e.target.value)}
-                  placeholder="描述 (可选)"
+                  placeholder={t('w9d.hanging.descPlaceholder')}
                   style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12, outline: 'none' }}
                 />
                 <input
                   value={newModality}
                   onChange={e => setNewModality(e.target.value)}
-                  placeholder="设备类型 (CT/MR/DR)"
+                  placeholder={t('w9d.hanging.modalityPlaceholder')}
                   style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12, outline: 'none' }}
                 />
                 <div style={{ display: 'flex', gap: 6 }}>
@@ -210,13 +211,13 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                     onClick={handleCreate}
                     style={{ flex: 1, padding: '4px 8px', borderRadius: 4, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                   >
-                    创建
+                    {t('w9d.hanging.create')}
                   </button>
                   <button
                     onClick={() => setShowCreate(false)}
                     style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: 'transparent', color: '#94a3b8', fontSize: 12, cursor: 'pointer' }}
                   >
-                    取消
+                    {t('w9d.hanging.cancel')}
                   </button>
                 </div>
               </div>
@@ -239,7 +240,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                 }}
               >
                 <Plus size={12} />
-                新建协议
+                {t('w9d.hanging.newProtocol')}
               </button>
             )}
           </div>

@@ -265,9 +265,10 @@ const EXAM_BY_MODALITY: Record<string, number> = { CT: 1, MR: 1, DR: 1, US: 1, M
 const EXAM_PREFIX: Record<string, string> = { CT: "CT", MR: "MR", DR: "DR", US: "US", MG: "MG", DSA: "DSA", "PET-CT": "PET", NM: "NM" };
 
 export const EXAM_ITEM_MASTER: ExamItemMaster[] = EXAM_DATA.map((e) => {
-  const idx = EXAM_BY_MODALITY[e.modality]++;
+  const idx = (EXAM_BY_MODALITY[e.modality] ?? 0) + 1;
+  EXAM_BY_MODALITY[e.modality] = idx;
   return {
-    code: `${EXAM_PREFIX[e.modality]}-${String(idx).padStart(3, "0")}`,
+    code: `${EXAM_PREFIX[e.modality] ?? 'EX'}-${String(idx).padStart(3, "0")}`,
     name: e.name,
     modality: e.modality,
     category: e.category,

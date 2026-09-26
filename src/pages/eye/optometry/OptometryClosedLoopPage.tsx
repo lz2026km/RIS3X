@@ -651,7 +651,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           onChange={(e) => setLensType(e.target.value)}
                         >
                           <Radio.Button value="DIMS">
-                            DIMS (新乐学)
+                            {t("w9d.optometry.dims")}
                           </Radio.Button>
                           <Radio.Button value="MiSight">MiSight</Radio.Button>
                         </Radio.Group>
@@ -807,8 +807,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         <Divider style={{ margin: "4px 0" }} />
                         <div style={{ color: "var(--text-secondary)" }}>
                           {orderDetail.followupSchedule
-                            ? `随访计划: ${orderDetail.followupSchedule.join(" / ")}`
-                            : `订购于 ${String(orderDetail.orderedAt ?? "").slice(0, 19).replace("T", " ")}`}
+                            ? t("w9d.optometry.followupPlan", { plan: orderDetail.followupSchedule.join(" / ") })
+                            : t("w9d.optometry.orderedAt", { time: String(orderDetail.orderedAt ?? "").slice(0, 19).replace("T", " ") })}
                         </div>
                       </div>
                     )}

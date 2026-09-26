@@ -9,7 +9,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { templatesApi, type TemplateCategoryDto, type TemplateDto } from '../services/api/templatesApi';
-import { LoadingBanner, ErrorBanner } from '../components/feedback';
+import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
@@ -531,6 +531,7 @@ export default function TemplateCategoryPage() {
           </div>
 
           <div style={{ padding: 4, maxHeight: 540, overflowY: 'auto' }}>
+            {tree.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
             {viewMode === 'tree' ? (
               tree.map(node => (
                 <TreeNode
@@ -726,7 +727,7 @@ export default function TemplateCategoryPage() {
                     {(() => {
                       const pathNodes = flatList.filter(n => n.path === selectedNode.name || n.path.startsWith(selectedNode.name + ' / '));
                       if (pathNodes.length > 0) {
-                        return pathNodes[0].path.split(' / ').map((p, i, arr) => (
+                        return (pathNodes[0]?.path ?? '').split(' / ').map((p, i, arr) => (
                           <React.Fragment key={i}>
                             <span style={{ padding: '1px 6px', background: 'var(--bg-card)', borderRadius: 3 }}>{p}</span>
                             {i < arr.length - 1 && <ArrowRight size={10} />}

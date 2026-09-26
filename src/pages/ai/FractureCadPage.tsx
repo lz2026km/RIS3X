@@ -16,16 +16,12 @@ import {
 } from "antd";
 import { Activity, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
+import { t } from "../../i18n/appI18n";
 
 const severityColor: Record<string, string> = {
   mild: "green",
   moderate: "orange",
   severe: "red",
-};
-const severityLabel: Record<string, string> = {
-  mild: "轻度",
-  moderate: "中度",
-  severe: "重度",
 };
 
 const FractureCadPage: React.FC = () => {
@@ -45,11 +41,11 @@ const FractureCadPage: React.FC = () => {
       if (res.success) {
         setResults(res.data ?? []);
       } else {
-        setError(res.error?.message ?? "加载失败");
+        setError(res.error?.message ?? t("w9d.fracture.loadFailed"));
         setResults([]);
       }
     } catch (e) {
-      setError((e as Error)?.message ?? "加载失败");
+      setError((e as Error)?.message ?? t("w9d.fracture.loadFailed"));
       setResults([]);
     } finally {
       setLoading(false);
@@ -62,12 +58,12 @@ const FractureCadPage: React.FC = () => {
       const modelVersion = results[0]?.modelVersion ?? "fracturecad-v1.9.3";
       const res = await aiDiagnosisApi.retrainModel(modelVersion);
       if (res.success) {
-        message.success(`模型重训已提交: ${res.data?.modelVersion} (${res.data?.status})`);
+        message.success(t("w9d.fracture.retrainSubmitted", { version: res.data?.modelVersion ?? "", status: res.data?.status ?? "" }));
       } else {
-        message.error(res.error?.message ?? "重训提交失败");
+        message.error(res.error?.message ?? t("w9d.fracture.retrainFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? "重训提交失败");
+      message.error((e as Error)?.message ?? t("w9d.fracture.retrainFailed"));
     } finally {
       setRetraining(false);
     }
@@ -83,14 +79,14 @@ const FractureCadPage: React.FC = () => {
         "fracture-cad",
       );
       if (res.success) {
-        message.success(`批量${status === "confirmed" ? "确认" : "驳回"} ${selectedRowKeys.length} 条`);
+        message.success(t(status === "confirmed" ? "w9d.fracture.batchConfirmed" : "w9d.fracture.batchRejected", { count: selectedRowKeys.length }));
         setSelectedRowKeys([]);
         await load();
       } else {
-        message.error(res.error?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+        message.error(res.error?.message ?? t(status === "confirmed" ? "w9d.fracture.batchConfirmFailed" : "w9d.fracture.batchRejectFailed"));
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+      message.error((e as Error)?.message ?? t(status === "confirmed" ? "w9d.fracture.batchConfirmFailed" : "w9d.fracture.batchRejectFailed"));
     } finally {
       setBatchLoading(false);
     }
@@ -101,18 +97,18 @@ const FractureCadPage: React.FC = () => {
   }, [load]);
 
   const columns = [
-    { title: "检查号", dataIndex: "studyId", key: "studyId" },
-    { title: "患者", dataIndex: "patientName", key: "patientName" },
-    { title: "部位", dataIndex: "bodyPart", key: "bodyPart" },
-    { title: "骨折数", dataIndex: "fractureCount", key: "fractureCount" },
+    { title: t("w9d.fracture.colStudyId"), dataIndex: "studyId", key: "studyId" },
+    { title: t("w9d.fracture.colPatient"), dataIndex: "patientName", key: "patientName" },
+    { title: t("w9d.fracture.colBodyPart"), dataIndex: "bodyPart", key: "bodyPart" },
+    { title: t("w9d.fracture.colFractureCount"), dataIndex: "fractureCount", key: "fractureCount" },
     {
-      title: "严重度",
+      title: t("w9d.fracture.colSeverity"),
       dataIndex: "severity",
       key: "severity",
-      render: (v: string) => <Tag color={severityColor[v]}>{severityLabel[v] ?? v}</Tag>,
+      render: (v: string) => <Tag color={severityColor[v]}>{t(`w9d.fracture.severity.${v}`)}</Tag>,
     },
     {
-      title: "状态",
+      title: t("w9d.fracture.colStatus"),
       dataIndex: "status",
       key: "status",
       render: (v: string) => (
@@ -126,7 +122,7 @@ const FractureCadPage: React.FC = () => {
       ),
     },
     {
-      title: "操作",
+      title: t("w9d.fracture.colAction"),
       key: "action",
       render: (_: unknown, r: FractureCadResult) => (
         <Button
@@ -135,7 +131,7 @@ const FractureCadPage: React.FC = () => {
           data-testid={`goto-viewer-${r.id}`}
           onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
         >
-          去阅片叠加
+          {t("w9d.fracture.gotoViewer")}
         </Button>
       ),
     },
@@ -145,14 +141,14 @@ const FractureCadPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>骨折 AI 检测</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.fracture.title")}</span>
         <Button
           size="small"
           icon={<RefreshCw size={14} />}
           onClick={() => void load()}
           loading={loading}
         >
-          刷新
+          {t("w9d.fracture.refresh")}
         </Button>
         <Button
           size="small"
@@ -160,7 +156,7 @@ const FractureCadPage: React.FC = () => {
           onClick={() => void handleRetrain()}
           loading={retraining}
         >
-          重训模型
+          {t("w9d.fracture.retrain")}
         </Button>
         {selectedRowKeys.length > 0 && (
           <>
@@ -171,7 +167,7 @@ const FractureCadPage: React.FC = () => {
               loading={batchLoading}
               onClick={() => void handleBatch("confirmed")}
             >
-              批量确认 ({selectedRowKeys.length})
+              {t("w9d.fracture.batchConfirm", { count: selectedRowKeys.length })}
             </Button>
             <Button
               size="small"
@@ -180,7 +176,7 @@ const FractureCadPage: React.FC = () => {
               loading={batchLoading}
               onClick={() => void handleBatch("rejected")}
             >
-              批量驳回 ({selectedRowKeys.length})
+              {t("w9d.fracture.batchReject", { count: selectedRowKeys.length })}
             </Button>
           </>
         )}
@@ -188,13 +184,13 @@ const FractureCadPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总检测" value={results.length} />
+            <Statistic title={t("w9d.fracture.statTotal")} value={results.length} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
             <Statistic
-              title="严重骨折"
+              title={t("w9d.fracture.statSevere")}
               value={results.filter((r) => r.severity === "severe").length}
               styles={{ content: {  color: "#ff4d4f"  } }}
             />
@@ -203,7 +199,7 @@ const FractureCadPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="已复核"
+              title={t("w9d.fracture.statReviewed")}
               value={results.filter((r) => r.status !== "auto").length}
             />
           </Card>
@@ -216,7 +212,7 @@ const FractureCadPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           title={error}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
-              重试
+              {t("w9d.fracture.retry")}
             </Button>
           }
         />

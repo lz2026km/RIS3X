@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Card, Row, Col, Slider, Tag, Button } from 'antd'
 import { Layers, Save, Download } from 'lucide-react'
+import { seededUnit } from '../../utils/seededRandom'
+import { t } from '../../i18n/appI18n'
 
 const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
@@ -8,13 +10,15 @@ const PANEL_BG = '#1e293b'
 
 type ProcessingType = 'sharpen' | 'smooth' | 'edge' | 'denoise' | 'enhance'
 
-const PROCESSING_OPTIONS: Record<ProcessingType, { label: string; description: string }> = {
-  sharpen: { label: '锐化', description: '增强边缘对比度' },
-  smooth: { label: '平滑', description: '降低噪声平滑图像' },
-  edge: { label: '边缘检测', description: '提取结构边缘' },
-  denoise: { label: '降噪', description: '去除随机噪声' },
-  enhance: { label: '增强', description: '增强组织对比度' },
+const PROCESSING_OPTIONS: Record<ProcessingType, { labelKey: string; descKey: string }> = {
+  sharpen: { labelKey: 'w9d.postproc.sharpen', descKey: 'w9d.postproc.sharpenDesc' },
+  smooth: { labelKey: 'w9d.postproc.smooth', descKey: 'w9d.postproc.smoothDesc' },
+  edge: { labelKey: 'w9d.postproc.edge', descKey: 'w9d.postproc.edgeDesc' },
+  denoise: { labelKey: 'w9d.postproc.denoise', descKey: 'w9d.postproc.denoiseDesc' },
+  enhance: { labelKey: 'w9d.postproc.enhance', descKey: 'w9d.postproc.enhanceDesc' },
 }
+const procLabel = (p: ProcessingType) => t(PROCESSING_OPTIONS[p].labelKey)
+const procDesc = (p: ProcessingType) => t(PROCESSING_OPTIONS[p].descKey)
 
 function generateProcessedSlice(type: ProcessingType, size: number): ImageData {
   const canvas = document.createElement('canvas')
@@ -31,7 +35,7 @@ function generateProcessedSlice(type: ProcessingType, size: number): ImageData {
       case 'sharpen': v += 80 * Math.cos(d * 0.1); break
       case 'smooth': v = 200 + 150 * Math.sin(d * 0.02); break
       case 'edge': v = Math.abs(Math.cos(d * 0.05)) * 255; break
-      case 'denoise': v = 200 + 150 * Math.sin(d * 0.03) + (Math.random() - 0.5) * 20; break
+      case 'denoise': v = 200 + 150 * Math.sin(d * 0.03) + (seededUnit(`dicom-noise-${x}-${y}`) - 0.5) * 20; break
       case 'enhance': v = 100 + 200 * Math.abs(Math.sin(d * 0.03 + a)); break
     }
     v = Math.max(0, Math.min(255, Math.round(v)))
@@ -61,7 +65,7 @@ const PostProcessingPage: React.FC = () => {
     const imgData = generateProcessedSlice(type, 256)
     // [W2-C] 数据标注: 统计当前帧像素均值/标准差
     let sum = 0, sumSq = 0, n = 0
-    for (let i = 0; i < imgData.data.length; i += 4) { sum += imgData.data[i]; sumSq += imgData.data[i] * imgData.data[i]; n++ }
+    for (let i = 0; i < imgData.data.length; i += 4) { const v = imgData.data[i] ?? 0; sum += v; sumSq += v * v; n++ }
     const mean = sum / n
     setSliceStats({ mean: Math.round(mean * 10) / 10, sigma: Math.round(Math.sqrt(sumSq / n - mean * mean) * 10) / 10 })
     const tmp = document.createElement('canvas'); tmp.width = 256; tmp.height = 256
@@ -72,7 +76,7 @@ const PostProcessingPage: React.FC = () => {
     ctx.font = '13px ui-monospace, monospace'
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 300, 20)
     ctx.fillStyle = '#facc15'
-    ctx.fillText(`后处理 | ${PROCESSING_OPTIONS[type].label} | ${intensityVal}%${appliedAt ? ' | 已应用' : ''}`, 8, 18)
+    ctx.fillText(t('w9d.postproc.canvasOverlay', { label: procLabel(type), intensity: intensityVal, applied: appliedAt ? t('w9d.postproc.appliedSuffix') : '' }), 8, 18)
   }
 
   useEffect(() => {
@@ -84,7 +88,7 @@ const PostProcessingPage: React.FC = () => {
     setTimeout(() => {
       const at = new Date().toLocaleTimeString('zh-CN', { hour12: false })
       setAppliedAt(at)
-      setHistory(prev => [`${PROCESSING_OPTIONS[processingType].label} ${intensity}% @ ${at}`, ...prev].slice(0, 5))
+      setHistory(prev => [`${procLabel(processingType)} ${intensity}% @ ${at}`, ...prev].slice(0, 5))
       renderFrame(processingType, intensity)
       setProcessing(false)
     }, 600)
@@ -113,11 +117,13 @@ const PostProcessingPage: React.FC = () => {
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>3D 后处理</span>
-        <Tag color="cyan">后处理</Tag>
-        <Tag color="gold">本地演示 · 合成数据</Tag>
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('w9d.postproc.title')}</span>
+        <Tag color="cyan">{t('w9d.postproc.tag')}</Tag>
+        <Tag color="gold">{t('w9d.postproc.demoTag')}</Tag>
+        {/* [G005 W7] 明确的「演示模拟」徽标 (合成影像 + 确定性噪声) */}
+        <Tag color="volcano">{t('w7demo.simulatedBadge')}</Tag>
         <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
-          数据标注: 256×256 单帧 · 均值 {sliceStats?.mean ?? '-'} · 标准差 {sliceStats?.sigma ?? '-'} · 已应用 {history.length} 次
+          {t('w9d.postproc.dataNote', { mean: sliceStats?.mean ?? '-', sigma: sliceStats?.sigma ?? '-', count: history.length })}
         </span>
       </div>
       <Row gutter={12}>
@@ -127,32 +133,32 @@ const PostProcessingPage: React.FC = () => {
           </div>
         </Col>
         <Col span={6}>
-          <Card size="small" title="处理参数" style={{ background: PANEL_BG, border: '1px solid #334155' }}>
+          <Card size="small" title={t('w9d.postproc.params')} style={{ background: PANEL_BG, border: '1px solid #334155' }}>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>处理类型</div>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{t('w9d.postproc.type')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {(Object.keys(PROCESSING_OPTIONS) as ProcessingType[]).map(p => (
                   <button key={p} style={processingType === p ? activeBtnStyle : { ...btnStyle, width: '100%', justifyContent: 'flex-start' }}
                     onClick={() => setProcessingType(p)}>
-                    {PROCESSING_OPTIONS[p].label}
+                    {procLabel(p)}
                   </button>
                 ))}
               </div>
             </div>
             <div style={{ marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>
-                <span>强度</span><span style={{ color: '#facc15' }}>{intensity}%</span>
+                <span>{t('w9d.postproc.intensity')}</span><span style={{ color: '#facc15' }}>{intensity}%</span>
               </div>
               <Slider min={0} max={100} value={intensity} onChange={setIntensity} />
             </div>
             <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
-              {PROCESSING_OPTIONS[processingType].description}
+              {procDesc(processingType)}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              <Button type="primary" size="small" icon={<Save size={12} />} style={{ flex: 1 }} loading={processing} onClick={handleApply}>{processing ? '处理中...' : '应用'}</Button>
-              <Button size="small" icon={<Download size={12} />} style={{ flex: 1 }} onClick={handleExport}>导出</Button>
+              <Button type="primary" size="small" icon={<Save size={12} />} style={{ flex: 1 }} loading={processing} onClick={handleApply}>{processing ? t('w9d.postproc.processing') : t('w9d.postproc.apply')}</Button>
+              <Button size="small" icon={<Download size={12} />} style={{ flex: 1 }} onClick={handleExport}>{t('w9d.postproc.export')}</Button>
             </div>
-            {appliedAt && <div style={{ marginTop: 8, fontSize: 11, color: '#4ade80' }}>✓ 已于 {appliedAt} 应用 {PROCESSING_OPTIONS[processingType].label} {intensity}%</div>}
+            {appliedAt && <div style={{ marginTop: 8, fontSize: 11, color: '#4ade80' }}>{t('w9d.postproc.appliedAt', { at: appliedAt, label: procLabel(processingType), intensity })}</div>}
           </Card>
         </Col>
       </Row>

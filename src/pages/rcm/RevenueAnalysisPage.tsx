@@ -166,7 +166,7 @@ export default function RevenueAnalysisPage() {
           if (!cancelled) setSource('api')
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : '收入数据加载失败，已回退演示数据')
+        setError(e instanceof Error ? e.message : t('w9e.revenueAnalysis.loadFailed'))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -183,10 +183,10 @@ export default function RevenueAnalysisPage() {
 
   const handleExport = () => {
     const rows = [
-      ['月份', '收入(万元)', '成本(万元)', '利润(万元)', '检查量'],
+      [t('w9e.revenueAnalysis.csvMonth'), t('w9e.revenueAnalysis.revenueWan'), t('w9e.revenueAnalysis.costWan'), t('w9e.revenueAnalysis.profitWan'), t('w9e.revenueAnalysis.csvExamVolume')],
       ...monthlyData.map(m => [m.month, String(m.revenue), String(m.cost), String(m.profit), String(m.exams)]),
       [],
-      ['设备', '收入(万元)', '检查量'],
+      [t('w9e.revenueAnalysis.csvDevice'), t('w9e.revenueAnalysis.revenueWan'), t('w9e.revenueAnalysis.csvExamVolume')],
       ...modalityData.map(m => [m.name, String(m.revenue), String(m.exams)]),
     ]
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
@@ -194,7 +194,7 @@ export default function RevenueAnalysisPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `收入分析报告_${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `${t('w9e.revenueAnalysis.exportFileName')}_${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -211,7 +211,7 @@ export default function RevenueAnalysisPage() {
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>收入分析</span>
+          <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9e.revenueAnalysis.title')}</span>
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 10,
             background: source === 'api' ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)',
@@ -219,68 +219,68 @@ export default function RevenueAnalysisPage() {
             border: `1px solid ${source === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)'}`,
             fontWeight: 500,
           }}>
-            {source === 'api' ? '数据源: financeApi 实时' : '演示数据(接口不可用)'}
+            {source === 'api' ? t('w9e.revenueAnalysis.sourceApi') : t('w9e.revenueAnalysis.sourceDemo')}
           </span>
-          {loading && <span style={{ fontSize: 12, color: '#93c5fd' }}>加载中...</span>}
+          {loading && <span style={{ fontSize: 12, color: '#93c5fd' }}>{t('w9e.revenueAnalysis.loading')}</span>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
-          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报告</button>
+          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />{t('w9e.revenueAnalysis.exportReport')}</button>
         </div>
       </div>
       {error && (
         <div style={{ padding: '8px 24px', background: 'rgba(220,38,38,0.15)', color: '#fca5a5', fontSize: 12, borderBottom: '1px solid rgba(220,38,38,0.3)' }}>
-          {error}（已回退演示数据）
+          {error}{t('w9e.revenueAnalysis.fallbackSuffix')}
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>月收入(万元)</span>
+            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.monthlyRevenue')}</span>
             <DollarSign size={16} color="#22c55e" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momRevenue >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
-            {momRevenue >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momRevenue >= 0 ? '+' : ''}{momRevenue.toFixed(1)}% 环比
+            {momRevenue >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momRevenue >= 0 ? '+' : ''}{momRevenue.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>月利润(万元)</span>
+            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.monthlyProfit')}</span>
             <Activity size={16} color="#f59e0b" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momProfit >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
-            {momProfit >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momProfit >= 0 ? '+' : ''}{momProfit.toFixed(1)}% 环比
+            {momProfit >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momProfit >= 0 ? '+' : ''}{momProfit.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>月检查量</span>
+            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.monthlyExams')}</span>
             <Users size={16} color="#3b82f6" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momExams >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
-            {momExams >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momExams >= 0 ? '+' : ''}{momExams.toFixed(1)}% 环比
+            {momExams >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momExams >= 0 ? '+' : ''}{momExams.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>次均收入(元)</span>
+            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.avgRevenue')}</span>
             <TrendingUp size={16} color="#8b5cf6" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-modality-mr, #8b5cf6)', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
-          <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>人均创收能力</div>
+          <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{t('w9e.revenueAnalysis.revenueCapacity')}</div>
         </div>
       </div>
 
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          {(['trend', 'modality', 'payer', 'doctor'] as const).map(t => (
-            <button key={t} onClick={() => setView(t)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: view === t ? '#1e40af' : '#21262d', color: view === t ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {t === 'trend' ? <BarChart3 size={14} /> : t === 'modality' ? <Monitor size={14} /> : t === 'payer' ? <Building2 size={14} /> : <Users size={14} />}
-              {t === 'trend' ? '收入趋势' : t === 'modality' ? '设备构成' : t === 'payer' ? '支付方' : '医生排行'}
+          {(['trend', 'modality', 'payer', 'doctor'] as const).map(tab => (
+            <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: view === tab ? '#1e40af' : '#21262d', color: view === tab ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {tab === 'trend' ? <BarChart3 size={14} /> : tab === 'modality' ? <Monitor size={14} /> : tab === 'payer' ? <Building2 size={14} /> : <Users size={14} />}
+              {tab === 'trend' ? t('w9e.revenueAnalysis.tabTrend') : tab === 'modality' ? t('w9e.revenueAnalysis.tabModality') : tab === 'payer' ? t('w9e.revenueAnalysis.tabPayer') : t('w9e.revenueAnalysis.tabDoctor')}
             </button>
           ))}
         </div>
@@ -289,19 +289,19 @@ export default function RevenueAnalysisPage() {
           {view === 'trend' && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
-                月度收入/成本/利润趋势
-                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? '发票按月聚合 · 成本按成本收入比派生' : '演示数据'}</span>
+                {t('w9e.revenueAnalysis.trendTitle')}
+                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.revenueAnalysis.trendApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
-<ChartContainer height={320} state={monthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度收入数据">
+<ChartContainer height={320} state={monthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noMonthlyData')}>
   <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
                   <XAxis dataKey="month" tick={{ fill: '#8b949e', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#8b949e', fontSize: 12 }} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4 }} />
                   <Legend />
-                  <Bar dataKey="revenue" name="收入(万元)" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="cost" name="成本(万元)" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="profit" name="利润(万元)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="#22c55e" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="cost" name={t('w9e.revenueAnalysis.costWan')} fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="profit" name={t('w9e.revenueAnalysis.profitWan')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -309,8 +309,8 @@ export default function RevenueAnalysisPage() {
           {view === 'modality' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>各设备收入占比 <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? '发票派生' : '演示数据'}</span></div>
-                <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态收入数据">
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.modalityShareTitle')} <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.demoData')}</span></div>
+                <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noModalityData')}>
                   <RePie>
                     <Pie data={modalityData} dataKey="revenue" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
                       {modalityData.map(d => <Cell key={d.name} fill={d.color} />)}
@@ -320,8 +320,8 @@ export default function RevenueAnalysisPage() {
                 </ChartContainer>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>各设备收入(万元)</div>
-                <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态收入数据">
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.modalityRevenueTitle')}</div>
+                <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noModalityData')}>
                   <BarChart data={modalityData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
                     <XAxis type="number" tick={{ fill: '#8b949e', fontSize: 12 }} />
@@ -338,8 +338,8 @@ export default function RevenueAnalysisPage() {
           {view === 'payer' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>支付方收入分布 <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? '医保/自费由发票派生' : '演示数据'}</span></div>
-                <ChartContainer height={300} state={payerData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无支付方数据">
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.payerTitle')} <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.payerApiNote') : t('w9e.revenueAnalysis.demoData')}</span></div>
+                <ChartContainer height={300} state={payerData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noPayerData')}>
                   <RePie>
                     <Pie data={payerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
                       {payerData.map(d => <Cell key={d.name} fill={d.color} />)}
@@ -363,16 +363,16 @@ export default function RevenueAnalysisPage() {
           {view === 'doctor' && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
-                医生收入排行(万元)
-                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>演示数据（无医生维度接口）</span>
+                {t('w9e.revenueAnalysis.doctorTitle')}
+                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{t('w9e.revenueAnalysis.doctorNote')}</span>
               </div>
-              <ChartContainer height={300} state={doctorData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无医生收入数据">
+              <ChartContainer height={300} state={doctorData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noDoctorData')}>
                 <BarChart data={doctorData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
                   <XAxis type="number" tick={{ fill: '#8b949e', fontSize: 12 }} />
                   <YAxis type="category" dataKey="name" tick={{ fill: '#8b949e', fontSize: 12 }} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
-                  <Bar dataKey="revenue" name="收入(万元)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ChartContainer>
             </div>

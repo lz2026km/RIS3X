@@ -99,7 +99,7 @@ export const ReportWorkflowPage: React.FC = () => {
     setLoadError(null);
     try {
       const r = await reportApi.list({ pageSize: 50 });
-      if (r.success) setReports(r.data);
+      if (r.success) setReports(Array.isArray(r.data) ? r.data : r.data?.items ?? []);
       else setLoadError(t('w9.states.error'));
     } catch (e: any) {
       setLoadError(t('w9.states.error'));

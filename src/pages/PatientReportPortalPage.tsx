@@ -15,6 +15,8 @@ import {
 } from '../data/deliveryExportSignatureMock';
 import ShareDialog from '../components/portal/ShareDialog';
 import QrShareButton from '../components/portal/QrShareButton';
+import { DataTable } from '../components/common/DataTable';
+import type { ColumnsType } from 'antd/es/table';
 import { patientPortalApi } from '../services/api/patientPortalApi';
 import { shareApi } from '../services/api/shareApi';
 import { t } from '../i18n/appI18n';
@@ -177,6 +179,31 @@ export default function PatientReportPortalPage() {
 
   const selectedAccess = access.find(a => a.id === selectedAccessId);
 
+  const accessColumns: ColumnsType<PatientReportAccess> = [
+    {
+      title: t('patientPortal.patient'), dataIndex: 'patientName', key: 'patientName',
+      render: (_: unknown, a) => (
+        <div style={{ minWidth: 130 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{a.patientName}</span>
+            <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-secondary)' }}>{a.id}</span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{a.accessToken}</div>
+        </div>
+      ),
+    },
+    {
+      title: t('patientPortal.accessList'), key: 'counts', width: 130,
+      render: (_: unknown, a) => (
+        <div style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+          <span>👁 {a.viewCount}</span>
+          <span>📥 {a.downloadCount}</span>
+          <span>↗ {a.shareCount}</span>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       {/* 顶部 */}
@@ -257,31 +284,23 @@ export default function PatientReportPortalPage() {
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
             {t('patientPortal.accessList')}
           </div>
-          <div>
-            {access.map(a => (
-              <div
-                key={a.id}
-                onClick={() => setSelectedAccessId(a.id)}
-                style={{
-                  padding: 10, borderBottom: '1px solid var(--border-light)',
-                  background: selectedAccessId === a.id ? 'var(--color-info-bg)' : 'transparent',
-                  borderLeft: selectedAccessId === a.id ? '3px solid #0ea5e9' : '3px solid transparent',
-                  cursor: 'pointer',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{a.patientName}</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-secondary)' }}>{a.id}</span>
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.accessToken}</div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                  <span>👁 {a.viewCount}</span>
-                  <span>📥 {a.downloadCount}</span>
-                  <span>↗ {a.shareCount}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <DataTable<PatientReportAccess>
+            columns={accessColumns}
+            dataSource={access}
+            rowKey="id"
+            loading={accessLoading}
+            showPagination={false}
+            emptyText={t('w3tables.empty')}
+            onRow={(a) => ({
+              onClick: () => setSelectedAccessId(a.id),
+              style: {
+                cursor: 'pointer',
+                background: selectedAccessId === a.id ? 'var(--color-info-bg)' : undefined,
+                borderLeft: selectedAccessId === a.id ? '3px solid #0ea5e9' : '3px solid transparent',
+              },
+            })}
+            scroll={{ x: 'max-content' }}
+          />
         </div>
 
         {/* 右：详情 + 预览 */}

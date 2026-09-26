@@ -44,6 +44,7 @@ export function NProgressBar({ children }: { children?: React.ReactNode }) {
         clearTimeout(hide)
       }
     }
+    return undefined
   }, [location.pathname])
 
   return (

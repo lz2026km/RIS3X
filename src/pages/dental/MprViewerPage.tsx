@@ -7,7 +7,7 @@ import { dentalApi } from '../../services/api/dentalApi';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 
-const MODALITY_LABELS: Record<string, string> = { Axial: '轴向', Sagittal: '矢状', Coronal: '冠状' };
+const planeLabel = (plane: string) => t(`w9d.mprPlane.${plane}`);
 
 export const MprViewerPage: React.FC = () => {
   const [search] = useSearchParams();
@@ -145,17 +145,17 @@ export const MprViewerPage: React.FC = () => {
       <div style={{ background: '#001529', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Space>
           <Maximize2 size={18} />
-          <span style={{ fontSize: 16, fontWeight: 600 }}>CBCT MPR 多平面重建</span>
+          <span style={{ fontSize: 16, fontWeight: 600 }}>{t('w9d.mprViewer.title')}</span>
           <Tag color="cyan">v3.0.6.8-56</Tag>
-          <Tag color="purple">Planmeca Romexis 对标</Tag>
+          <Tag color="purple">{t('w9d.mprViewer.benchmark')}</Tag>
           {mprMeta && <Tag color="geekblue">{mprMeta.resolution} · {mprMeta.format}</Tag>}
           {mprSource === 'demo' && <Tag color="orange">{t('w8Dose.demoBadge')}</Tag>}
           <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{study?.patientName || studyId}</span>
         </Space>
         <Space>
-          <InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} suffix="W" />
-          <InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} suffix="C" />
-          <Button size="small" icon={<RotateCcw size={14} />} onClick={() => { setWw(400); setWc(40); }}>重置</Button>
+          <InputNumber size="small" value={ww} onChange={(v) => setWw(v ?? 400)} min={1} max={2000} style={{ width: 80 }} suffix="W" />
+          <InputNumber size="small" value={wc} onChange={(v) => setWc(v ?? 40)} min={-500} max={500} style={{ width: 80 }} suffix="C" />
+          <Button size="small" icon={<RotateCcw size={14} />} onClick={() => { setWw(400); setWc(40); }}>{t('w9d.mprViewer.reset')}</Button>
         </Space>
       </div>
 
@@ -163,18 +163,18 @@ export const MprViewerPage: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', height: 'calc(100vh - 50px)' }}>
         {(['Axial', 'Sagittal', 'Coronal'] as const).map(plane => (
           <div key={plane} role="button" tabIndex={0}
-            aria-label={`${MODALITY_LABELS[plane]} 视图`}
+            aria-label={`${planeLabel(plane)} ${t('w9d.mprViewer.viewSuffix')}`}
             aria-pressed={activePlane === plane}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActivePlane(plane) } }}
             style={{ position: 'relative', border: activePlane === plane ? '1px solid #00ff88' : '1px solid #222', cursor: 'pointer' }}
             onClick={() => setActivePlane(plane)}>
             <div style={{ position: 'absolute', top: 4, left: 8, color: '#00ff88', fontSize: 12, fontWeight: 600, zIndex: 2 }}>
-              {MODALITY_LABELS[plane]}
+              {planeLabel(plane)}
               <Tag style={{ marginLeft: 8 }} color="blue">{slices[plane] + 1}/{totalSlices[plane]}</Tag>
             </div>
             <canvas ref={plane === 'Axial' ? axialRef : plane === 'Sagittal' ? sagittalRef : coronalRef}
               width={512} height={512} style={{ width: '100%', height: '100%', cursor: 'pointer', imageRendering: 'pixelated' }}
-              aria-label={`${MODALITY_LABELS[plane]} 切片画布`}
+              aria-label={`${planeLabel(plane)} ${t('w9d.mprViewer.canvasSuffix')}`}
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = Math.floor((e.clientX - rect.left) / rect.width * 512);
@@ -186,8 +186,8 @@ export const MprViewerPage: React.FC = () => {
               WW: {ww} WC: {wc}
             </div>
             <div style={{ position: 'absolute', bottom: 4, right: 8, display: 'flex', gap: 4 }}>
-              <Button size="small" aria-label={`${MODALITY_LABELS[plane]}-上一张`} icon={<ChevronLeft size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, -1); }} />
-              <Button size="small" aria-label={`${MODALITY_LABELS[plane]}-下一张`} icon={<ChevronRight size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, 1); }} />
+              <Button size="small" aria-label={`${planeLabel(plane)}-${t('w9d.mprViewer.prevSlice')}`} icon={<ChevronLeft size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, -1); }} />
+              <Button size="small" aria-label={`${planeLabel(plane)}-${t('w9d.mprViewer.nextSlice')}`} icon={<ChevronRight size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, 1); }} />
             </div>
           </div>
         ))}
@@ -197,30 +197,30 @@ export const MprViewerPage: React.FC = () => {
             {rebuild.done ? (
               <>
                 <CheckCircle2 size={40} color="#00ff88" />
-                <div style={{ color: '#00ff88', marginTop: 8, fontSize: 13, fontWeight: 600 }}>体绘制重建完成</div>
+                <div style={{ color: '#00ff88', marginTop: 8, fontSize: 13, fontWeight: 600 }}>{t('w9d.mprViewer.volumeDone')}</div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>
-                  演示重建 · 512³ 容积 · 三角面 2,148,352 · 1.2s
+                  {t('w9d.mprViewer.volumeInfo')}
                 </div>
-                <Tag color="orange" style={{ marginTop: 8 }}>演示重建 (WebGL 2.0 未启用)</Tag>
+                <Tag color="orange" style={{ marginTop: 8 }}>{t('w9d.mprViewer.demoRebuildWebgl')}</Tag>
                 <div style={{ marginTop: 8 }}>
-                  <Button size="small" onClick={() => setRebuild({ running: false, progress: 0, done: false })}>重新重建</Button>
+                  <Button size="small" onClick={() => setRebuild({ running: false, progress: 0, done: false })}>{t('w9d.mprViewer.rebuildAgain')}</Button>
                 </div>
               </>
             ) : rebuild.running ? (
               <>
                 <Activity size={40} color="#00ff88" style={{ animation: 'pulse 1s infinite' }} />
-                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>正在重建体绘制... {rebuild.progress}%</div>
+                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>{t('w9d.mprViewer.rebuilding', { progress: rebuild.progress })}</div>
                 <div style={{ width: 220, margin: '12px auto 0' }}>
                   <Progress percent={rebuild.progress} size="small" strokeColor="#00ff88" showInfo={false} />
                 </div>
-                <Tag color="orange" style={{ marginTop: 8 }}>演示重建</Tag>
+                <Tag color="orange" style={{ marginTop: 8 }}>{t('w9d.mprViewer.demoRebuild')}</Tag>
               </>
             ) : (
               <>
                 <Activity size={48} color="var(--text-secondary)" />
-                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>体绘制</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>3D 容积渲染需要 WebGL 2.0</div>
-                <Button size="small" style={{ marginTop: 8 }} onClick={startRebuild}>开始重建</Button>
+                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>{t('w9d.mprViewer.volumeRender')}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>{t('w9d.mprViewer.volumeHint')}</div>
+                <Button size="small" style={{ marginTop: 8 }} onClick={startRebuild}>{t('w9d.mprViewer.startRebuild')}</Button>
               </>
             )}
           </div>

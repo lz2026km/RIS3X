@@ -18,7 +18,7 @@ const TopographyPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `角膜地形图报告_${study?.id ?? "export"}.json`;
+    a.download = `${t('w9d.topography.exportName')}_${study?.id ?? "export"}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

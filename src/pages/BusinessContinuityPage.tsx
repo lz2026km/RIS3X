@@ -11,6 +11,7 @@ import { REPLICAS, type DbReplica } from "../services/failover";
 import { deviceApi, type DeviceDto } from "./../services/api/deviceApi";
 import { usePagination } from "../hooks/usePagination";
 import { LoadingBanner } from "../components/feedback";
+import { ActionButton, ExportButton } from "../components/common";
 import { t } from "../i18n/appI18n";
 
 const {  Text } = Typography;
@@ -78,6 +79,7 @@ export default function BusinessContinuityPage() {
   const [devices, setDevices] = useState<DeviceDto[]>([]);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -93,7 +95,7 @@ export default function BusinessContinuityPage() {
     refresh();
     const timer = setInterval(refresh, 3000);
     return () => { mounted = false; clearInterval(timer); };
-  }, []);
+  }, [refreshTick]);
 
   useEffect(() => {
     let mounted = true;
@@ -111,7 +113,7 @@ export default function BusinessContinuityPage() {
     };
     refreshDevices();
     return () => { mounted = false; };
-  }, []);
+  }, [refreshTick]);
 
   const replicas: DbReplica[] = REPLICAS;
 
@@ -122,15 +124,27 @@ export default function BusinessContinuityPage() {
   return (
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       <Card style={{ background: "linear-gradient(135deg,#dc2626 0%,#f59e0b 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
-        <Space size={16}>
-          <Shield size={36} color="#fff" />
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{t("businessContinuity.title")}</div>
-            <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
-              {t("businessContinuity.subtitle")}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Space size={16}>
+            <Shield size={36} color="#fff" />
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800 }}>{t("businessContinuity.title")}</div>
+              <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+                {t("businessContinuity.subtitle")}
+              </div>
             </div>
-          </div>
-        </Space>
+          </Space>
+          <Space>
+            <ActionButton action="refresh" loading={loading} onClick={() => setRefreshTick((n) => n + 1)}>{t("w45.actions.refresh")}</ActionButton>
+            <ExportButton
+              data={() => [...devices, ...queue]}
+              filename="business-continuity"
+              label={t("w45.actions.export")}
+              size="small"
+              formats={["csv", "json"]}
+            />
+          </Space>
+        </div>
       </Card>
 
       {loading && <LoadingBanner message={t("w9.states.loading")} />}

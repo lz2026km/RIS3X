@@ -12,13 +12,14 @@ import {
 import { Brain, Activity, AlertTriangle, CheckCircle, Clock, PlayCircle } from 'lucide-react';
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import ChartContainer from "@/components/charts/ChartContainer";
-import { PageContainer, PageHeader } from "@/components/common";
+import { PageContainer, PageHeader, ActionButton, ExportButton } from "@/components/common";
 import { AppEmpty, ErrorBanner } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePagination } from "@/hooks/usePagination";
 import { eyeApi } from "@/services/api/eyeApi";
 import { t } from "../../../i18n/appI18n";
 
+const DAY_KEYS = ['w9d.weekday.mon', 'w9d.weekday.tue', 'w9d.weekday.wed', 'w9d.weekday.thu', 'w9d.weekday.fri', 'w9d.weekday.sat', 'w9d.weekday.sun'];
 const ACCEPTANCE_TREND_DATA = [
   { day: '周一', rate: 65, target: 80 },
   { day: '周二', rate: 68, target: 80 },
@@ -27,7 +28,7 @@ const ACCEPTANCE_TREND_DATA = [
   { day: '周五', rate: 73, target: 80 },
   { day: '周六', rate: 75, target: 80 },
   { day: '周日', rate: 78, target: 80 },
-];
+].map((d, i) => ({ ...d, dayKey: DAY_KEYS[i]! }));
 
 const ROC_CURVE_DATA = [
   { fpr: 0.0, auc_dr: 0.0, auc_glaucoma: 0.0, auc_amd: 0.0, random: 0.0 },
@@ -44,15 +45,16 @@ const ROC_CURVE_DATA = [
 ];
 
 const MODALITY_LABELS: Record<string, string> = {
-  oct_a: "OCTA", corneal_endothelium: "角膜内皮", tear_film: "泪膜",
-  fundus_autofluorescence: "眼底自发荧光", fundus_photo: "眼底彩照", oct: "OCT",
-  ffa: "FFA", icga: "ICGA", visual_field: "视野", topography: "角膜地形图",
-  pentacam: "Pentacam", iol_master: "IOL Master", ubm: "UBM", slit_lamp: "裂隙灯",
-  borderline: "临界", cup_to_disc_ratio: "杯盘比", rim_width: "视盘缘宽度",
-  arteriovenous_ratio: "动静脉比", abnormal: "异常", v6: "v6", text: "文本",
-  findings_multi: "多发发现", images: "图像", productivity: "生产力", clinical: "临床",
-  operational: "运营", financial: "财务", critical_value: "危急值", pending_review: "待审核",
+  oct_a: "w9d.modality.oct_a", corneal_endothelium: "w9d.modality.corneal_endothelium", tear_film: "w9d.modality.tear_film",
+  fundus_autofluorescence: "w9d.modality.fundus_autofluorescence", fundus_photo: "w9d.modality.fundus_photo", oct: "w9d.modality.oct",
+  ffa: "w9d.modality.ffa", icga: "w9d.modality.icga", visual_field: "w9d.modality.visual_field", topography: "w9d.modality.topography",
+  pentacam: "w9d.modality.pentacam", iol_master: "w9d.modality.iol_master", ubm: "w9d.modality.ubm", slit_lamp: "w9d.modality.slit_lamp",
+  borderline: "w9d.reportStatus.borderline", cup_to_disc_ratio: "w9d.reportStatus.cup_to_disc_ratio", rim_width: "w9d.reportStatus.rim_width",
+  arteriovenous_ratio: "w9d.reportStatus.arteriovenous_ratio", abnormal: "w9d.reportStatus.abnormal", v6: "w9d.reportStatus.v6", text: "w9d.reportStatus.text",
+  findings_multi: "w9d.reportStatus.findings_multi", images: "w9d.reportStatus.images", productivity: "w9d.reportStatus.productivity", clinical: "w9d.reportStatus.clinical",
+  operational: "w9d.reportStatus.operational", financial: "w9d.reportStatus.financial", critical_value: "w9d.reportStatus.critical_value", pending_review: "w9d.reportStatus.pending_review",
 };
+const modalityLabel = (v: string) => (MODALITY_LABELS[v] ? t(MODALITY_LABELS[v]!) : v);
 
 const EyeAiPage: React.FC = () => {
   const [tab, setTab] = useState("diagnoses");
@@ -140,7 +142,7 @@ const EyeAiPage: React.FC = () => {
     try {
       const res = await eyeApi.runInference({ studyId: inferModal.studyId.trim(), modelId: inferModal.modelId });
       if (res.success) {
-        message.success(`推理完成: ${inferModal.modelName} · ${inferModal.studyId} (置信度 ${((res.data as any)?.confidence ?? 0).toFixed(2)})`);
+        message.success(t('w9d.eyeAi.inferDone', { model: inferModal.modelName, study: inferModal.studyId, confidence: ((res.data as any)?.confidence ?? 0).toFixed(2) }));
         setInferModal(prev => ({ ...prev, open: false, running: false }));
         const diagRes = await eyeApi.listInferences();
         if (diagRes.success && Array.isArray(diagRes.data)) setAiDiagnoses(diagRes.data);
@@ -219,6 +221,14 @@ const EyeAiPage: React.FC = () => {
             <Tag color="warning">{t('eyeAi.pendingReview', { count: Math.max(pendingDiag.length, pendingInferenceCount) })}</Tag>
             <Tag color="green">{t('eyeAi.acceptedCount', { count: acceptedDiag.length })}</Tag>
             <Tag color="cyan">{t('eyeAi.heatmapCount', { count: heatmapCount })}</Tag>
+            <ActionButton action="refresh" loading={_loading} onClick={() => setReloadTick((n) => n + 1)}>{t('w45.actions.refresh')}</ActionButton>
+            <ExportButton
+              data={() => aiDiagnoses}
+              filename="eye-ai-diagnoses"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
+            />
           </>
         }
       />
@@ -276,7 +286,7 @@ const EyeAiPage: React.FC = () => {
               <Space size={6} wrap>
                 <Badge
                   count={pendingDiag.length}
-                  title={`待审核 ${pendingDiag.length}`}
+                  title={t('w9d.eyeAi.pendingTitle', { count: pendingDiag.length })}
                   style={{ backgroundColor: "#f59e0b" }}
                 />
                 <Tag color="purple">{t('eyeAi.totalCount', { count: totalDiag })}</Tag>
@@ -285,7 +295,7 @@ const EyeAiPage: React.FC = () => {
             items={[
               {
                 key: "diagnoses",
-                label: `诊断列表 (${totalDiag})`,
+                label: t('w9d.eyeAi.diagListTab', { count: totalDiag }),
                 children: (
                   <Row gutter={12}>
                     <Col span={12}>
@@ -330,7 +340,7 @@ const EyeAiPage: React.FC = () => {
               },
               {
                 key: "models",
-                label: `AI 模型管理 (${aiModels.length})`,
+                label: t('w9d.eyeAi.modelMgmtTab', { count: aiModels.length }),
                 children: (
                   <Table
                     dataSource={modelsPagination.pageData}
@@ -349,7 +359,7 @@ const EyeAiPage: React.FC = () => {
                         dataIndex: "vendor",
                         key: "vendor",
                         width: 100,
-                        render: (v: string) => <Tag>{MODALITY_LABELS[v] || v}</Tag>,
+                        render: (v: string) => <Tag>{modalityLabel(v)}</Tag>,
                       },
                       {
                         title: t('eyeAi.colConditions'),
@@ -456,6 +466,7 @@ const EyeAiPage: React.FC = () => {
                                 dataKey="day"
                                 tick={{ fontSize: 11, fill: "#64748b" }}
                                 stroke="#cbd5e1"
+                                tickFormatter={(v: string) => t(`w9d.weekday.${v === '周一' ? 'mon' : v === '周二' ? 'tue' : v === '周三' ? 'wed' : v === '周四' ? 'thu' : v === '周五' ? 'fri' : v === '周六' ? 'sat' : 'sun'}`)}
                               />
                               <YAxis
                                 tick={{ fontSize: 11, fill: "#64748b" }}
@@ -569,7 +580,7 @@ const EyeAiPage: React.FC = () => {
 
       {/* [G005 Wave1B] 运行推理 Modal (POST /eye/ai/inferences) */}
       <Modal
-        title={`运行 AI 推理 - ${inferModal.modelName}`}
+        title={`${t('w9d.eyeAi.runInferTitle')} - ${inferModal.modelName}`}
         open={inferModal.open}
         onCancel={() => setInferModal(prev => ({ ...prev, open: false, running: false }))}
         onOk={() => void handleRunInference()}

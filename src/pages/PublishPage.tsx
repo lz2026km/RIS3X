@@ -4,9 +4,12 @@
  * v3.0.4.0: 强制每条报告单独输入质量分 + 确认弹窗，禁止一键发布全部
  */
 import { useState, useEffect } from 'react'
+import type { HTMLAttributes } from 'react'
+import type { ColumnsType } from 'antd/es/table'
 import { useReportStore } from '../store'
 import { reportApi } from '../services/api'
 import type { ReportDto } from '../services/api'
+import { DataTable } from '../components/common/DataTable'
 
 const MIN_QUALITY_SCORE = 60
 
@@ -75,6 +78,65 @@ export default function PublishPage() {
     }
   }
 
+  const columns: ColumnsType<ReportDto> = [
+    {
+      title: '患者 / 检查', dataIndex: 'patientName', key: 'patient',
+      render: (_: unknown, r) => (
+        <div>
+          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+            {r.modality} · {r.bodyPart} · {r.reportId}
+          </div>
+        </div>
+      ),
+    },
+    { title: '报告号', dataIndex: 'reportId', key: 'reportId', width: 160 },
+    {
+      title: `质量分(≥ ${MIN_QUALITY_SCORE})`, key: 'qualityScore', width: 160,
+      render: (_: unknown, r) => {
+        const raw = qualityScores[r.id] ?? ''
+        return (
+          <input
+            type="number"
+            min={0}
+            max={100}
+            value={raw}
+            data-testid={`publish-score-${r.id}`}
+            onChange={(e) => setQualityScores((prev) => ({ ...prev, [r.id]: e.target.value }))}
+            style={{
+              width: 96, padding: '6px 8px', border: '1px solid var(--border-color)',
+              borderRadius: 4, fontSize: 13, color: 'var(--text-primary)',
+            }}
+            placeholder="0-100"
+          />
+        )
+      },
+    },
+    {
+      title: '操作', key: 'action', width: 130,
+      render: (_: unknown, r) => {
+        const raw = qualityScores[r.id] ?? ''
+        const score = Number(raw)
+        const scoreValid = raw.trim() !== '' && !Number.isNaN(score) && score >= MIN_QUALITY_SCORE
+        return (
+          <button
+            onClick={() => handlePublishClick(r)}
+            disabled={publishing === r.id || !scoreValid}
+            title={!scoreValid ? `请录入 ≥ ${MIN_QUALITY_SCORE} 的质量分` : '发布该报告'}
+            style={{
+              padding: '6px 16px',
+              background: publishing === r.id || !scoreValid ? '#94a3b8' : '#059669',
+              color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600,
+              cursor: publishing === r.id || !scoreValid ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {publishing === r.id ? '发布中...' : '发布'}
+          </button>
+        )
+      },
+    },
+  ]
+
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto', minHeight: '100vh', background: 'var(--bg-card)' }}>
       <div style={{ marginBottom: 20 }}>
@@ -98,72 +160,15 @@ export default function PublishPage() {
         </div>
       )}
 
-      {loading && <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>加载中...</div>}
-
-      {!loading && reports.length === 0 && (
-        <div
-          data-testid="publish-empty"
-          style={{
-            textAlign: 'center', padding: 60, color: 'var(--text-secondary)', fontSize: 14,
-            background: 'var(--bg-card)', borderRadius: 8, border: '1px dashed var(--border-color)',
-          }}
-        >
-          暂无待发布的已签发报告
-        </div>
-      )}
-
-      {reports.map((r) => {
-        const raw = qualityScores[r.id] ?? ''
-        const score = Number(raw)
-        const scoreValid = raw.trim() !== '' && !Number.isNaN(score) && score >= MIN_QUALITY_SCORE
-        return (
-          <div
-            key={r.id}
-            data-testid={`publish-row-${r.id}`}
-            style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '16px 20px', marginBottom: 12, background: 'var(--bg-card)', borderRadius: 8,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)', gap: 16,
-            }}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-                {r.modality} · {r.bodyPart} · {r.reportId}
-              </div>
-            </div>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-              质量分(≥ {MIN_QUALITY_SCORE})
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={raw}
-                data-testid={`publish-score-${r.id}`}
-                onChange={(e) => setQualityScores((prev) => ({ ...prev, [r.id]: e.target.value }))}
-                style={{
-                  width: 96, padding: '6px 8px', border: '1px solid var(--border-color)',
-                  borderRadius: 4, fontSize: 13, color: 'var(--text-primary)',
-                }}
-                placeholder="0-100"
-              />
-            </label>
-            <button
-              onClick={() => handlePublishClick(r)}
-              disabled={publishing === r.id || !scoreValid}
-              title={!scoreValid ? `请录入 ≥ ${MIN_QUALITY_SCORE} 的质量分` : '发布该报告'}
-              style={{
-                padding: '6px 16px',
-                background: publishing === r.id || !scoreValid ? '#94a3b8' : '#059669',
-                color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600,
-                cursor: publishing === r.id || !scoreValid ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {publishing === r.id ? '发布中...' : '发布'}
-            </button>
-          </div>
-        )
-      })}
+      <DataTable<ReportDto>
+        columns={columns}
+        dataSource={reports}
+        rowKey="id"
+        loading={loading}
+        emptyText={<span data-testid="publish-empty">暂无待发布的已签发报告</span>}
+        onRow={(r) => ({ 'data-testid': `publish-row-${r.id}` }) as HTMLAttributes<HTMLElement>}
+        scroll={{ x: 'max-content' }}
+      />
 
       {confirming && (
         <div

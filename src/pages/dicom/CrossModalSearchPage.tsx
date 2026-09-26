@@ -18,10 +18,10 @@ const { Text } = Typography
 
 const MODALITY_OPTIONS = ['CT', 'MR', 'DX', 'MG', 'US', 'DSA'].map((m) => ({ label: m, value: m }))
 type ResultType = 'exam' | 'report' | 'dicom'
-const TYPE_META: Record<ResultType, { label: string; color: string }> = {
-  exam: { label: '检查', color: 'blue' },
-  report: { label: '报告', color: 'green' },
-  dicom: { label: '影像', color: 'purple' },
+const TYPE_META: Record<ResultType, { labelKey: string; color: string }> = {
+  exam: { labelKey: 'w9d.crossModal.exam', color: 'blue' },
+  report: { labelKey: 'w9d.crossModal.report', color: 'green' },
+  dicom: { labelKey: 'w9d.crossModal.dicom', color: 'purple' },
 }
 
 const CrossModalSearchPage: React.FC = () => {
@@ -297,7 +297,7 @@ const CrossModalSearchPage: React.FC = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                       <Space size={4}>
                         <Tag color={modalityColors[r.modality]}>{r.modality}</Tag>
-                        <Tag color={TYPE_META[type].color}>{TYPE_META[type].label}</Tag>
+                        <Tag color={TYPE_META[type].color}>{t(TYPE_META[type].labelKey)}</Tag>
                       </Space>
                       <Text strong style={{ color: '#7c3aed' }}>{Math.round((r.score ?? 0) * 100)}%</Text>
                     </div>

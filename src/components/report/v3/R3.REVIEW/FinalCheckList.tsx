@@ -118,10 +118,10 @@ function timeAgo(iso?: string): string {
   if (!iso) return '-';
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1) return t('reportReview.justNow');
-  if (m < 60) return `${m}分钟前`;
+  if (m < 60) return t('w9e.finalCheckList.timeMinutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  return `${Math.floor(h / 24)}天前`;
+  if (h < 24) return t('w9e.finalCheckList.timeHoursAgo', { count: h });
+  return t('w9e.finalCheckList.timeDaysAgo', { count: Math.floor(h / 24) });
 }
 
 function fmtTime(iso?: string): string {
@@ -250,7 +250,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       setLists((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
       message.success(t('reportReview.final.markedAs', { label: t(STATUS_META[status].label) }));
     } catch (e: unknown) {
-      message.error('更新失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.updateFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
     }
   };
 
@@ -262,7 +262,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       setLists((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
       message.success(t('reportReview.final.completedScoring', { score: updated.summary.totalScore, max: updated.summary.maxScore, grade: updated.summary.grade }));
     } catch (e: unknown) {
-      message.error('完成失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.completeFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
     }
   };
 
@@ -280,7 +280,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       message.success(t('reportReview.final.rejectedAs', { target: t(REJECT_TARGET_META[rejectTarget].label) }));
       setRejectReason('');
     } catch (e: unknown) {
-      message.error('驳回失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.rejectFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
     }
   };
 
@@ -299,7 +299,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       noteForm.resetFields();
       message.success(t('reportReview.final.noteAdded'));
     } catch (e: unknown) {
-      message.error('添加失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.addFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
     }
   };
 
@@ -328,7 +328,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       );
       setEmergencies((prev) => [created, ...prev]);
     } catch (e: unknown) {
-      message.error('触发失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.triggerFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
       return;
     }
     setEmOpen(false);
@@ -349,10 +349,10 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         setEmConfig(res.data);
         message.success(t('reportReview.final.channelConfigSaved'));
       } else {
-        message.error('保存失败: ' + (res.error?.message ?? '未知错误'));
+        message.error(t('w9e.finalCheckList.saveFailed', { msg: res.error?.message ?? t('w9e.finalCheckList.unknownError') }));
       }
     } catch (e: unknown) {
-      message.error('保存失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.saveFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
     } finally {
       setEmConfigSaving(false);
     }
@@ -370,7 +370,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       setMsReason('');
       message.success(t('reportReview.final.multiSigStarted'));
     } catch (e: unknown) {
-      message.error('发起失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.launchFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
     }
   };
 
@@ -380,7 +380,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       setMultiSigs((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
       message.success(t('reportReview.final.signed'));
     } catch (e: unknown) {
-      message.error('签章失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      message.error(t('w9e.finalCheckList.signFailed', { msg: e instanceof Error ? e.message : t('w9e.finalCheckList.unknownError') }));
     }
   };
 
@@ -1085,7 +1085,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         <User size={10} /> {task.authorTitle} {task.authorName} · {t('reportReview.final.initialScore')} <strong>{task.initialReviewScore ?? '-'}</strong>
                         <div style={{ fontSize: 12, color: task.isOverdue ? '#dc2626' : 'var(--text-muted)' }}>
-                          <Clock size={10} /> {task.isOverdue ? `超时 ${Math.abs(task.hoursToDeadline)}h` : `${task.hoursToDeadline}h`} · {t('reportReview.final.submitted')} {timeAgo(task.submittedAt)}
+                          <Clock size={10} /> {task.isOverdue ? t('w9e.finalCheckList.overdue', { hours: Math.abs(task.hoursToDeadline) }) : `${task.hoursToDeadline}h`} · {t('reportReview.final.submitted')} {timeAgo(task.submittedAt)}
                         </div>
                       </div>
                     }

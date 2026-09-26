@@ -74,9 +74,12 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
     return { hour: i, busy: busy && Math.random() > 0.2, examCount: busy ? Math.floor(Math.random() * 4) : 0 }
   })
 
-  const device7d = deviceStatsData.dates.map((date, i) => ({
-    date, count: deviceStatsData.deviceUsageMap[device.id][i]
-  }))
+  const usageDates: string[] = deviceStatsData.dates
+  const usageMap: Record<string, number[]> = deviceStatsData.deviceUsageMap
+  const device7d: Array<{ date: string; count: number }> = []
+  for (let i = 0; i < usageDates.length; i++) {
+    device7d.push({ date: usageDates[i] ?? '', count: usageMap[device.id]?.[i] ?? 0 })
+  }
 
   `DEVICE:${device.id}|${device.name}|${device.modality}|${extInfo.serialNumber || device.id}`;
 

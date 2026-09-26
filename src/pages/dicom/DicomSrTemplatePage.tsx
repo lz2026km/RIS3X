@@ -124,7 +124,7 @@ export const DicomSrTemplatePage: React.FC = () => {
 
       <Card
         size="small"
-        title={`SR 模板列表 (${templates.length})`}
+        title={t('w9d.srTpl.listTitle', { count: templates.length })}
         extra={
           <Space>
             <Button icon={<RefreshCw size={14} />} onClick={fetchTemplates}>{t('srTpl.refresh')}</Button>

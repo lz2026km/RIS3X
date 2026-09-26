@@ -137,7 +137,7 @@ export const AI_PRE_REVIEWS: AIPreReview[] = [
       },
       {
         id: 'def-003',
-        type: 'missing-recommendation',
+        type: 'missing-key-finding',
         field: 'recommendations',
         severity: 'low',
         description: '建议补充随访时间间隔',

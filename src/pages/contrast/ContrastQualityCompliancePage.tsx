@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BarChart3, CheckCircle, XCircle, AlertTriangle, TrendingUp, TrendingDown, Download, FileText, Shield } from 'lucide-react'
 import { getQualityComplianceService } from '../../services/contrast'
 import type { QualityMetric, RegulatoryCheck } from '../../services/contrast'
+import { contrastSafetyApi } from '../../services/api/contrastSafetyApi'
+import { AppEmpty, ErrorBanner } from '../../components/feedback'
+import { t } from '../../i18n/appI18n'
 
 const svc = getQualityComplianceService()
 
@@ -22,20 +25,45 @@ export default function ContrastQualityCompliancePage() {
   const [metrics, setMetrics] = useState<QualityMetric[]>([])
   const [regulatoryChecks, setRegulatoryChecks] = useState<RegulatoryCheck[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [source, setSource] = useState<'api' | 'fallback'>('fallback')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
-  useEffect(() => {
-    const run = async () => {
-      const [m, r] = await Promise.all([
-        svc.getQualityMetrics('2025-06-01', '2025-06-30'),
-        svc.getRegulatoryCompliance(),
-      ])
-      setMetrics(m)
-      setRegulatoryChecks(r)
+  const run = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    const startDate = '2025-06-01'
+    const endDate = '2025-06-30'
+    try {
+      // [G005 W7] 优先走真实 service 层 (MSW demo 数据), 失败回退本地 mock service
+      const res = await contrastSafetyApi.getQualityCompliance(startDate, endDate)
+      if (res.success && res.data?.metrics?.length) {
+        setMetrics(res.data.metrics as QualityMetric[])
+        setRegulatoryChecks((res.data.regulatoryChecks ?? []) as RegulatoryCheck[])
+        setSource(res.data.source === 'demo' ? 'fallback' : 'api')
+        return
+      }
+      throw new Error('NO_DATA')
+    } catch {
+      try {
+        const [m, r] = await Promise.all([
+          svc.getQualityMetrics(startDate, endDate),
+          svc.getRegulatoryCompliance(),
+        ])
+        setMetrics(m)
+        setRegulatoryChecks(r)
+        setSource('fallback')
+      } catch {
+        setLoadError(t('w7demo.loadError'))
+      }
+    } finally {
       setLoading(false)
     }
-    void run()
   }, [])
+
+  useEffect(() => {
+    void run()
+  }, [run])
 
   const filtered = activeCategory ? metrics.filter(m => m.category === activeCategory) : metrics
   const categories = [...new Set(metrics.map(m => m.category))]
@@ -70,7 +98,7 @@ export default function ContrastQualityCompliancePage() {
   }
 
   if (loading) {
-    return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>加载中...</div>
+    return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{t('w7demo.loading')}</div>
   }
 
   return (
@@ -78,8 +106,10 @@ export default function ContrastQualityCompliancePage() {
       <div style={{ background: 'linear-gradient(135deg,#7c3aed,#4c1d95)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>对比剂质量与合规</span>
-          {/* [G005 Wave2B P2] MockQualityComplianceService 模拟数据 → 演示数据徽标 */}
-          <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.45)', fontWeight: 600 }}>演示数据 · 合规模拟数据</span>
+          {/* [G005 W7] 真实 service 层优先; 回退本地 mock 时展示演示数据徽标 */}
+          {source === 'fallback' && (
+            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.45)', fontWeight: 600 }}>{t('w7demo.contrastFallback')}</span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
@@ -92,6 +122,9 @@ export default function ContrastQualityCompliancePage() {
       </div>
 
       <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {loadError && (
+          <ErrorBanner message={loadError} onRetry={() => void run()} retryLabel={t('w7demo.retry')} />
+        )}
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setActiveCategory(null)} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: !activeCategory ? '#7c3aed' : 'transparent', color: !activeCategory ? '#fff' : '#8b949e', cursor: 'pointer', fontSize: 12 }}>全部</button>
           {categories.map(cat => (
@@ -101,6 +134,7 @@ export default function ContrastQualityCompliancePage() {
           ))}
         </div>
 
+        {filtered.length === 0 && <AppEmpty variant="no-data" minHeight={160} />}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
           {filtered.map(m => (
             <div key={m.id} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
@@ -130,6 +164,7 @@ export default function ContrastQualityCompliancePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, marginBottom: 12 }}>
             <Shield size={16} />合规检查项
           </div>
+          {regulatoryChecks.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {regulatoryChecks.map(check => (
               <div key={check.checkId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: '#0d1117', borderRadius: 6 }}>

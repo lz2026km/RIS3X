@@ -464,7 +464,13 @@ const QUALITY_KPI_SEED = {
   publishableRate: 81.7,
   bonusEligibleRate: 41.3,
   gradeDistribution: { A: 542, B: 478, C: 168, D: 60 },
-  trend30d: [],
+  // [G005 demo] 30 天趋势 seed (确定性), 避免评分 KPI 折线为空
+  trend30d: Array.from({ length: 30 }, (_, i) => ({
+    date: new Date(Date.UTC(2026, 7, 25) + i * 86400000).toISOString().slice(0, 10),
+    avgScore: 85 + ((i * 7 + 3) % 8),
+    evaluated: 30 + ((i * 5 + 11) % 20),
+    gradeA: 12 + ((i * 3 + 2) % 8),
+  })),
 };
 
 const QUALITY_THRESHOLD_SEED = {
@@ -579,7 +585,7 @@ export async function initStore(): Promise<void> {
     }
 
     // 异步加载大规模检查/报告数据 (JSON 文件，懒加载)
-    loadGeneratedExamDataAsync(getCollection, getCollection('exams'), getCollection('reports'));
+    loadGeneratedExamDataAsync((n) => getCollection(n as Collection), getCollection('exams'), getCollection('reports'));
 
     // [v3.0.6.8-33] 眼科专科数据加载 (从 src/data/eye*Mock.ts)
     MOCK_EYE_PATIENTS.forEach((p: any) => getCollection('eye_patients').set(p.id || p.patientId || `EP${Date.now()}-${Math.random()}`, p));

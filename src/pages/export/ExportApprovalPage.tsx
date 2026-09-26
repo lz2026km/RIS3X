@@ -3,7 +3,8 @@
 // 后端: POST /export-approval, GET /export-approval, POST /export-approval/:id/approve|reject
 import { useState, useEffect, useCallback } from 'react'
 import type { CSSProperties } from 'react'
-import { Modal, Input, Select, message, Spin } from 'antd'
+import { Modal, Input, Select, message, Tag } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
 import { FileDown, Plus, RefreshCw, Check, X, Clock, Loader2, ShieldCheck, FileText, Inbox, Hourglass, BadgeCheck, Ban } from 'lucide-react'
 import { exportApprovalApi, type ExportApprovalDto } from '../../services/api/analyticsApi'
 import { useAuth } from '../../hooks/useAuth'
@@ -11,6 +12,7 @@ import { normalizeRole } from '../../services/auth/roleUtils'
 import { t } from '../../i18n/appI18n'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { ActionButton } from '../../components/common/ActionButton'
+import { DataTable } from '../../components/common/DataTable'
 
 type StatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'REJECTED'
 
@@ -195,6 +197,73 @@ export default function ExportApprovalPage() {
 
   const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
 
+  const columns: ColumnsType<ExportApprovalDto> = [
+    {
+      title: t('w9.exportApproval.requester'), dataIndex: 'requesterName', key: 'requester', width: 150,
+      render: (_: unknown, item) => (
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>{item.requesterName ?? '未知用户'}</div>
+          <div style={{ fontSize: 11, color: '#6e7681', fontFamily: 'monospace' }}>{item.requesterId}</div>
+        </div>
+      ),
+    },
+    {
+      title: t('w9.exportApproval.resource'), dataIndex: 'resource', key: 'resource', width: 110,
+      render: (value: string) => <Tag color="blue">{RESOURCE_LABELS[value] ?? value}</Tag>,
+    },
+    {
+      title: t('w9.exportApproval.resourceInfo'), key: 'resourceInfo',
+      render: (_: unknown, item) => (
+        <div>
+          <div style={{ fontSize: 13 }}>{item.resourceId ?? '—'}</div>
+          <div style={{ fontSize: 12, color: '#8b949e' }}>{item.reason}</div>
+          {item.status === 'REJECTED' && item.rejectReason && (
+            <div style={{ fontSize: 12, color: '#fca5a5', marginTop: 2 }}>{t('w9.exportApproval.rejectReason')}:{item.rejectReason}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: t('w9.exportApproval.status'), dataIndex: 'status', key: 'status', width: 90,
+      render: (value: string) => {
+        const st = STATUS_META[value] ?? { label: value, color: '#8b949e', bg: '#8b949e20' }
+        return <div style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: st.bg, color: st.color, width: 'fit-content' }}>{st.label}</div>
+      },
+    },
+    {
+      title: t('w9.exportApproval.time'), dataIndex: 'createdAt', key: 'time', width: 150,
+      render: (_: unknown, item) => (
+        <div>
+          <div style={{ fontSize: 12, color: '#8b949e' }}>{fmtTime(item.createdAt)}</div>
+          {item.approverId && <div style={{ fontSize: 11, color: '#6e7681' }}>审批人:{item.approverId}</div>}
+        </div>
+      ),
+    },
+    {
+      title: t('w9.exportApproval.actions'), key: 'actions', width: 150, align: 'right',
+      render: (_: unknown, item) => (
+        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+          {item.status === 'PENDING' && canApprove && (
+            <>
+              <button onClick={() => handleApprove(item.id)} disabled={actionId === item.id}
+                style={{ padding: '5px 12px', borderRadius: 5, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, opacity: actionId === item.id ? 0.6 : 1 }}>
+                {actionId === item.id ? <Loader2 size={12} /> : <Check size={12} />}{t('w9.exportApproval.approve')}
+              </button>
+              <button onClick={() => handleReject(item.id)}
+                style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid #ef4444', background: 'transparent', color: '#fca5a5', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <X size={12} />{t('w9.exportApproval.reject')}
+              </button>
+            </>
+          )}
+          {item.status === 'PENDING' && !canApprove && (
+            <span style={{ fontSize: 12, color: '#6e7681' }}>{t('w9.exportApproval.waiting')}</span>
+          )}
+          {item.status !== 'PENDING' && <span style={{ fontSize: 12, color: '#6e7681' }}>—</span>}
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -243,72 +312,15 @@ export default function ExportApprovalPage() {
           </div>
         )}
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '150px 110px 1fr 90px 150px 120px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>{t('w9.exportApproval.requester')}</span>
-            <span>{t('w9.exportApproval.resource')}</span>
-            <span>{t('w9.exportApproval.resourceInfo')}</span>
-            <span>{t('w9.exportApproval.status')}</span>
-            <span>{t('w9.exportApproval.time')}</span>
-            <span style={{ textAlign: 'right' }}>{t('w9.exportApproval.actions')}</span>
-          </div>
-
-          {loading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
-              <Spin size="large" />
-              <div style={{ marginTop: 12, fontSize: 13 }}>{t('w9.exportApproval.loading')}</div>
-            </div>
-          ) : items.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>
-              {t('w9.exportApproval.empty')}{filter === 'all' ? '' : `: ${STATUS_META[filter]?.label ?? ''}`}
-            </div>
-          ) : (
-            items.map((item, idx) => {
-              const st = STATUS_META[item.status] ?? { label: item.status, color: '#8b949e', bg: '#8b949e20' }
-              return (
-                <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '150px 110px 1fr 90px 150px 120px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{item.requesterName ?? '未知用户'}</div>
-                    <div style={{ fontSize: 11, color: '#6e7681', fontFamily: 'monospace' }}>{item.requesterId}</div>
-                  </div>
-                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: '#1e40af30', color: '#93c5fd', width: 'fit-content' }}>
-                    {RESOURCE_LABELS[item.resource] ?? item.resource}
-                  </span>
-                  <div>
-                    <div style={{ fontSize: 13 }}>{item.resourceId ?? '—'}</div>
-                    <div style={{ fontSize: 12, color: '#8b949e' }}>{item.reason}</div>
-                    {item.status === 'REJECTED' && item.rejectReason && (
-                      <div style={{ fontSize: 12, color: '#fca5a5', marginTop: 2 }}>{t('w9.exportApproval.rejectReason')}:{item.rejectReason}</div>
-                    )}
-                  </div>
-                  <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: st.bg, color: st.color, width: 'fit-content' }}>{st.label}</span>
-                  <div>
-                    <div style={{ fontSize: 12, color: '#8b949e' }}>{fmtTime(item.createdAt)}</div>
-                    {item.approverId && <div style={{ fontSize: 11, color: '#6e7681' }}>审批人:{item.approverId}</div>}
-                  </div>
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                    {item.status === 'PENDING' && canApprove && (
-                      <>
-                        <button onClick={() => handleApprove(item.id)} disabled={actionId === item.id}
-                          style={{ padding: '5px 12px', borderRadius: 5, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, opacity: actionId === item.id ? 0.6 : 1 }}>
-                          {actionId === item.id ? <Loader2 size={12} /> : <Check size={12} />}{t('w9.exportApproval.approve')}
-                        </button>
-                        <button onClick={() => handleReject(item.id)}
-                          style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid #ef4444', background: 'transparent', color: '#fca5a5', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <X size={12} />{t('w9.exportApproval.reject')}
-                        </button>
-                      </>
-                    )}
-                    {item.status === 'PENDING' && !canApprove && (
-                      <span style={{ fontSize: 12, color: '#6e7681' }}>{t('w9.exportApproval.waiting')}</span>
-                    )}
-                    {item.status !== 'PENDING' && <span style={{ fontSize: 12, color: '#6e7681' }}>—</span>}
-                  </div>
-                </div>
-              )
-            })
-          )}
-        </div>
+        <DataTable<ExportApprovalDto>
+          columns={columns}
+          dataSource={items}
+          rowKey="id"
+          loading={loading}
+          emptyText={t('w9.exportApproval.empty') + (filter === 'all' ? '' : `: ${STATUS_META[filter]?.label ?? ''}`)}
+          pagination={{ pageSize: 10 }}
+          scroll={{ x: 'max-content' }}
+        />
         <div style={{ marginTop: 12, fontSize: 12, color: '#6e7681', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><ShieldCheck size={13} color="#22c55e" />{t('w9.exportApproval.approverHint')}</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FileText size={13} color="#3b82f6" />{t('w9.exportApproval.autoHint')}</span>

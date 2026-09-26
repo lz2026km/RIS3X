@@ -120,6 +120,8 @@ export const NAMESPACES = [
   "insuranceAudit",
   "tele",
   "v3teach",
+  // [G005 i18n] AsrPage 语音识别命名空间
+  "asr",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

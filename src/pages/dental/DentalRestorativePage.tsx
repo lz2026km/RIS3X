@@ -16,6 +16,7 @@ import type { DentalTreatment } from "./DentalShared";
 // [v3.0.6.11-88 Round10] raw fetch → dentalApi.listTreatments/createTreatment (后端 /dental/treatments 真实存在)
 import { dentalApi } from "../../services/api/dentalApi";
 import { ErrorBanner } from "../../components/feedback";
+import { ActionButton } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 export const DentalRestorativePage: React.FC = () => {
@@ -64,13 +65,16 @@ export const DentalRestorativePage: React.FC = () => {
       header={{
         title: t("dentalRestorative.title"),
         extra: (
-          <Button
-            type="primary"
-            icon={<Plus size={14} />}
-            onClick={() => setModalOpen(true)}
-          >
-            {t("dentalRestorative.createNew")}
-          </Button>
+          <>
+            <ActionButton action="refresh" loading={loading} onClick={() => load()}>{t('w45.actions.refresh')}</ActionButton>
+            <Button
+              type="primary"
+              icon={<Plus size={14} />}
+              onClick={() => setModalOpen(true)}
+            >
+              {t("dentalRestorative.createNew")}
+            </Button>
+          </>
         ),
       }}
     >

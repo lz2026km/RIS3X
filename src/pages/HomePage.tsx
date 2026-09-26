@@ -880,7 +880,7 @@ const HomePage: FC = () => {
             color: COLORS.white,
             marginBottom: 4,
           }}>
-              {t('homePage.greeting', { name: currentUser?.name ?? '用户', title: currentUser?.title ? ` ${currentUser.title}` : '' })}
+              {t('homePage.greeting', { name: currentUser?.name ?? t('w9a.homePage.userFallback'), title: currentUser?.title ? ` ${currentUser.title}` : '' })}
           </div>
           <div style={{
             fontSize: 14,
@@ -1234,7 +1234,7 @@ const HomePage: FC = () => {
       />
       <KpiCard
         title={t('homePage.kpiRevenue')}
-        value={`¥${(285000 / 10000).toFixed(1)}万`}
+        value={t('w9a.statsPage.currencyWan', { value: (285000 / 10000).toFixed(1) })}
         sub={t('homePage.kpiRevenueTarget')}
         icon={<IconXRayBeam size={24} />}
         color={COLORS.success}
@@ -2487,7 +2487,7 @@ const HomePage: FC = () => {
           <YAxis
             tick={{ fontSize: 12, fill: COLORS.textMuted }}
             axisLine={{ stroke: COLORS.border }}
-            tickFormatter={(value) => `¥${(value / 10000).toFixed(1)}万`}
+            tickFormatter={(value) => t('w9a.statsPage.currencyWan', { value: (value / 10000).toFixed(1) })}
           />
           <Tooltip
             formatter={(value: number) => [`¥${value.toLocaleString()}`, t('homePage.revenue')]}
@@ -2603,7 +2603,7 @@ const HomePage: FC = () => {
                   {col.items.length}
                 </span>
               </div>
-              <div style={{ maxHeight: 320, overflowY: 'auto' }} tabIndex={0} aria-label={`${col.title}列表`}>
+              <div style={{ maxHeight: 320, overflowY: 'auto' }} tabIndex={0} aria-label={t('w9a.homePage.listSuffix', { title: col.title })}>
                 {col.items.length === 0 ? (
                   <EmptyState
                     type="nodata"
@@ -2767,7 +2767,7 @@ const HomePage: FC = () => {
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14,
                     flexShrink: 0,
                   }}>
-                    {(s.doctorName ?? '值').slice(0, 1)}
+                    {(s.doctorName ?? t('w9a.homePage.valueFallback')).slice(0, 1)}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{s.doctorName}</div>
@@ -2934,7 +2934,7 @@ const HomePage: FC = () => {
       {
         label: t('homePage.perfTodayReports'),
         value: String(perfCard.todayReports),
-        unit: '份',
+        unit: t('w9a.homePage.unitReports'),
         icon: <FileText size={22} />,
         color: COLORS.purple,
         bg: COLORS.purpleBg,
@@ -2942,7 +2942,7 @@ const HomePage: FC = () => {
       {
         label: t('homePage.perfRvu'),
         value: String(perfCard.rvu),
-        unit: '点',
+        unit: t('w9a.homePage.unitPoints'),
         icon: <Sparkles size={22} />,
         color: COLORS.warning,
         bg: COLORS.warningBg,
@@ -2958,7 +2958,7 @@ const HomePage: FC = () => {
       {
         label: t('homePage.perfAvgTat'),
         value: perfCard.timelinessMin > 0 ? String(perfCard.timelinessMin) : '—',
-        unit: '分',
+        unit: t('w9a.homePage.unitMinutes'),
         icon: <Timer size={22} />,
         color: COLORS.info,
         bg: COLORS.infoBg,
@@ -3084,7 +3084,7 @@ const HomePage: FC = () => {
       {loadError && !loading && (
         <div style={{ marginTop: 8, padding: '8px 14px', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)', fontSize: 12, color: '#b45309', display: 'flex', alignItems: 'center', gap: 8 }}>
           <AlertTriangle size={14} />
-          <span><b>演示数据</b>：{t('homePage.demoNotice')}</span>
+          <span><b>{t('w9a.homePage.demoData')}</b>：{t('homePage.demoNotice')}</span>
         </div>
       )}
       {/* CSS动画 */}
