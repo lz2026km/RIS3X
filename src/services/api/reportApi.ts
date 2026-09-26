@@ -374,4 +374,199 @@ export const reportApi = {
     await invalidateApiCache(`/reports/${id}`)
     return res
   },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // [G005 W8-Report] 内容版本 / 数据签名 / 分级审核 / 字段规范 / 召回
+  // ══════════════════════════════════════════════════════════════════════
+
+  // 内容版本快照列表
+  getRevisions: (id: string) =>
+    api.get<{ reportId: string; total: number; data: ReportRevisionContentDto[] }>(`/reports/${id}/revisions`),
+
+  // 指定版本相对前一版本的内容差异
+  getRevisionDiff: (id: string, versionId: string) =>
+    api.get<ReportRevisionDiffDto>(`/reports/${id}/revisions/${encodeURIComponent(versionId)}/diff`),
+
+  // 最新数据签名 + 历史
+  getSignature: (id: string) =>
+    api.get<{ reportId: string; signed: boolean; signature: ReportSignatureDto | null; history: ReportSignatureDto[] }>(`/reports/${id}/signature`),
+
+  // 验签 (证书/CRL/摘要/签名/TSA)
+  verifySignature: async (id: string, body?: { signatureId?: string; content?: Partial<ReportSignatureContent> }) => {
+    const res = await api.post<ReportSignatureVerificationDto>(`/reports/${id}/verify-signature`, body ?? {})
+    return res
+  },
+
+  // 分级审核链判定
+  resolveReviewTier: (id: string, body: ReviewTierQuery) =>
+    api.post<ReviewTierResolutionDto>(`/reports/${id}/resolve-review-tier`, body),
+
+  // 结构化字段规范 + 参考范围
+  getFieldSpecs: () =>
+    api.get<{ source: string; generatedAt: string; total: number; data: ReportFieldSpecDto[] }>('/reports/field-specs'),
+
+  // 报告召回: HL7 ORU(C) + 通知
+  recall: async (id: string, reason: string, actorId?: string) => {
+    const user = getCurrentUser()
+    const res = await api.post<ReportRecallDto>(`/reports/${id}/recall`, { reason, actorId: actorId ?? user?.id ?? 'unknown' })
+    await invalidateApiCache(`/reports/${id}`)
+    return res
+  },
+
+  // 召回回执状态
+  getRecallAck: (id: string) =>
+    api.get<ReportRecallAckDto>(`/reports/${id}/recall-ack`),
+
+  // 临床回执确认
+  acknowledgeRecall: async (id: string, ackBy: string, note?: string, source: 'HIS' | 'CLINICIAN' = 'CLINICIAN') => {
+    const res = await api.post<ReportRecallDto>(`/reports/${id}/recall-ack`, { ackBy, note, source })
+    return res
+  },
+}
+
+// ── [G005 W8-Report] DTO ──
+export interface ReportRevisionContentDto {
+  id: string
+  reportId: string
+  versionNumber: number
+  findings: string
+  impression: string
+  conclusion: string
+  diagnosis: string
+  recommendations: string
+  qualityScore: number | null
+  actorId: string
+  fromState: string
+  toState: string
+  reason?: string
+  createdAt: string
+}
+
+export interface ReportRevisionDiffDto {
+  reportId: string
+  fromVersionId: string | null
+  toVersionId: string
+  fromVersionNumber: number | null
+  toVersionNumber: number
+  changedFields: string[]
+  fields: Array<{ field: string; label: string; before: string; after: string; changed: boolean }>
+  before: ReportRevisionContentDto | null
+  after: ReportRevisionContentDto
+}
+
+export type SignatureAlgorithm = 'SHA-256' | 'SM3'
+
+export interface ReportSignatureContent {
+  findings: string
+  impression: string
+  conclusion: string
+  diagnosis: string
+  recommendations: string
+  qualityScore: number | null
+  version: number
+}
+
+export interface ReportSignatureDto {
+  reportId: string
+  signatureId: string
+  algorithm: SignatureAlgorithm
+  digest: string
+  signature: string
+  signedById: string
+  signedAt: string
+  tsaToken: string
+  certificateSerial: string
+  status: 'valid' | 'superseded' | 'revoked'
+  content: ReportSignatureContent
+  supersededBy?: string
+  supersededAt?: string
+}
+
+export interface ReportCertificateDto {
+  serial: string
+  subject: string
+  issuer: string
+  algorithm: SignatureAlgorithm
+  usage: string
+  notBefore: string
+  notAfter: string
+  status: 'valid' | 'revoked'
+  keyId: string
+  revocationReason?: string
+  revokedAt?: string
+}
+
+export interface ReportSignatureVerificationDto {
+  valid: boolean
+  reportId: string
+  signatureId: string | null
+  algorithm: SignatureAlgorithm | null
+  reasons: string[]
+  digestMatch: boolean
+  signatureMatch: boolean
+  certificateValid: boolean
+  notRevoked: boolean
+  tsaValid: boolean
+  certificate: ReportCertificateDto | null
+  signedAt: string | null
+  signedById: string | null
+  computedDigest: string | null
+  verifiedAt: string
+}
+
+export interface ReviewTierQuery {
+  modality?: string
+  radsCategory?: number
+  severity?: 'low' | 'normal' | 'high' | 'critical'
+  isCritical?: boolean
+  authorSeniority?: 'resident' | 'attending' | 'senior' | 'chief'
+  authorId?: string
+}
+
+export interface ReviewTierResolutionDto {
+  source: string
+  generatedAt: string
+  reportId?: string
+  input: ReviewTierQuery
+  requiredTier: 'none' | 'initial' | 'final' | 'dual-sign' | 'dual-read'
+  tierLabel: string
+  steps: Array<{ order: number; step: string; role: string; label: string; reason: string }>
+  matchedRules: Array<{ ruleId: string; code: string; name: string; tier: string; reason: string }>
+  critical: boolean
+}
+
+export interface ReportFieldSpecDto {
+  field: string
+  label: string
+  labelEn: string
+  type: 'text' | 'number' | 'enum'
+  required: boolean
+  unit?: string
+  minLength?: number
+  maxLength?: number
+  min?: number
+  max?: number
+  normalRange?: { min?: number; max?: number; unit: string; reference: string }
+  allowedValues?: string[]
+  description: string
+}
+
+export interface ReportRecallDto {
+  id?: string
+  reportId: string
+  reason?: string
+  actorId?: string
+  recalledAt?: string
+  hl7?: { messageType: string; controlId: string; resultStatus: string; target: string; message: string; sentAt: string; bytes: number }
+  notify?: { channel: string; event: string; delivered: boolean }
+  acknowledgement?: { ackBy: string; ackAt: string; note: string; source: 'HIS' | 'CLINICIAN' }
+}
+
+export interface ReportRecallAckDto {
+  reportId: string
+  recalled: boolean
+  notifiedAt: string | null
+  acknowledged: boolean
+  acknowledgement: { ackBy: string; ackAt: string; note: string; source: 'HIS' | 'CLINICIAN' } | null
+  controlId: string | null
 }

@@ -15,6 +15,18 @@ export interface AdvancedFilters {
   diagnosisCategory: string
 }
 
+// [G005 W6] 结构化过敏项
+export interface StructuredAllergyInput {
+  code: string
+  display: string
+  severity: 'MILD' | 'MODERATE' | 'SEVERE' | 'UNKNOWN'
+}
+
+export type StructuredIdType = 'ID_CARD' | 'PASSPORT' | 'OFFICER_CARD' | 'BIRTH_CERT' | 'OTHER'
+export type StructuredPregnancyStatus = 'NONE' | 'PREGNANT' | 'UNKNOWN' | 'NOT_APPLICABLE' | 'POSTPARTUM'
+export type StructuredEgfrSource = 'LIS' | 'MANUAL' | 'CALCULATED'
+export type StructuredIsolationFlag = 'NONE' | 'CONTACT' | 'DROPLET' | 'AIRBORNE' | 'PROTECTIVE'
+
 export interface PatientFormData {
   name: string
   gender: GenderFilter
@@ -30,6 +42,18 @@ export interface PatientFormData {
   medicalHistory: string
   bedNumber: string
   attendingDoctor: string
+  // [G005 W6] 结构化登记字段 (可选)
+  idType?: StructuredIdType
+  empiId?: string
+  insuranceNo?: string
+  heightCm?: string
+  weightKg?: string
+  structuredAllergyCodes?: StructuredAllergyInput[]
+  pregnancyStatus?: StructuredPregnancyStatus
+  egfr?: string
+  creatinine?: string
+  egfrSource?: StructuredEgfrSource
+  isolationFlag?: StructuredIsolationFlag
 }
 
 export interface MergeRecord {

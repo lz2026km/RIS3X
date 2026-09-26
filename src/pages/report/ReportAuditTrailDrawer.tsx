@@ -1,12 +1,13 @@
 // [G005 W2-C] 报告审计轨迹 Drawer
 // reportApi.auditTrail → 修订历史 (事件时间线) 展示
 import { reportApi } from '../../services/api'
+import type { ReportSignatureDto, ReportSignatureVerificationDto } from '../../services/api/reportApi'
 import { ErrorBanner } from '../../components/feedback'
 import type { RadiologyReport } from '../../types'
 import { PRIMARY, GRAY } from './reportUtils'
-import { Drawer, Empty, Spin, Tag } from 'antd'
-import { History, User, Clock } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Button, Drawer, Empty, Spin, Tag } from 'antd'
+import { History, User, Clock, ShieldCheck, BadgeCheck } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 
@@ -48,12 +49,43 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState<string | null>(null)
   const [reloadTick, setReloadTick] = useState(0)
+  // [G005 W8-Report] 数据签名状态 + 验签
+  const [signature, setSignature] = useState<ReportSignatureDto | null>(null)
+  const [verifyResult, setVerifyResult] = useState<ReportSignatureVerificationDto | null>(null)
+  const [verifying, setVerifying] = useState(false)
+
+  const loadSignature = useCallback(async (id: string) => {
+    try {
+      const res = await reportApi.getSignature(id)
+      if (res.success && res.data) {
+        setSignature(res.data.signature)
+        setVerifyResult(null)
+      }
+    } catch {
+      setSignature(null)
+    }
+  }, [])
+
+  const handleVerify = async () => {
+    if (!report) return
+    setVerifying(true)
+    try {
+      const res = await reportApi.verifySignature(report.id)
+      if (res.success && res.data) setVerifyResult(res.data)
+    } catch {
+      setVerifyResult(null)
+    } finally {
+      setVerifying(false)
+    }
+  }
 
   useEffect(() => {
     setLoaded(false)
     setFailed(null)
     setEvents([])
-    if (!report) return
+    setVerifyResult(null)
+    if (!report) { setSignature(null); return }
+    void loadSignature(report.id)
     void (async () => {
       try {
         const res = await reportApi.auditTrail(report.id)
@@ -88,6 +120,36 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
         </span>
       }
     >
+      {/* [G005 W8-Report] 数据签名与证书 */}
+      <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#0891b2' }}>
+          <ShieldCheck size={14} /> {t('w8Report.sig.panelTitle')}
+        </div>
+        {signature ? (
+          <div style={{ fontSize: 12, display: 'grid', gap: 4 }}>
+            <div>{t('w8Report.sig.algorithm')}: <Tag color={signature.algorithm === 'SM3' ? 'purple' : 'blue'} style={{ marginInlineEnd: 0 }}>{signature.algorithm}</Tag></div>
+            <div>{t('w8Report.sig.digest')}: <code style={{ fontSize: 11 }}>{signature.digest.slice(0, 40)}…</code></div>
+            <div>{t('w8Report.sig.certificate')}: {signature.certificateSerial}</div>
+            <div>{t('w8Report.sig.signedBy')}: {signature.signedById} · {signature.signedAt.slice(0, 19).replace('T', ' ')}</div>
+            <div>{t('w8Report.sig.status')}: <Tag color={signature.status === 'valid' ? 'green' : signature.status === 'superseded' ? 'orange' : 'red'} style={{ marginInlineEnd: 0 }}>{t(`w8Report.sig.status.${signature.status}`)}</Tag></div>
+            <div style={{ marginTop: 4 }}>
+              <Button size="small" type="primary" ghost loading={verifying} icon={<BadgeCheck size={12} />} onClick={() => void handleVerify()}>{t('w8Report.sig.verify')}</Button>
+            </div>
+            {verifyResult && (
+              <div style={{ marginTop: 6, padding: 8, borderRadius: 6, background: verifyResult.valid ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: verifyResult.valid ? 'var(--color-success)' : '#92400e' }}>
+                <div style={{ fontWeight: 700 }}>{verifyResult.valid ? t('w8Report.sig.verifyPass') : t('w8Report.sig.verifyFail')}</div>
+                <div style={{ fontSize: 11 }}>
+                  {t('w8Report.sig.digestMatch')}: {String(verifyResult.digestMatch)} · {t('w8Report.sig.certValid')}: {String(verifyResult.certificateValid)} · {t('w8Report.sig.notRevoked')}: {String(verifyResult.notRevoked)} · {t('w8Report.sig.tsaValid')}: {String(verifyResult.tsaValid)}
+                </div>
+                {verifyResult.reasons.length > 0 && <div style={{ fontSize: 11, marginTop: 2 }}>{verifyResult.reasons.join('; ')}</div>}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ fontSize: 12, color: GRAY }}>{t('w8Report.sig.noSignature')}</div>
+        )}
+      </div>
+
       <Spin spinning={!loaded}>
         {failed && <ErrorBanner message={failed} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
         {loaded && events.length === 0 && !failed ? (

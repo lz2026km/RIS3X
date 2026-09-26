@@ -7,6 +7,7 @@
  *   + 业务子模块 worklist / device / critical / appointment / print
  */
 
+import { w7ExecHandlers } from './w7ExecHandlers';
 import { http, HttpResponse, delay } from 'msw';
 import { newPagesHandlers } from './newPagesHandlers';
 // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
@@ -118,8 +119,12 @@ import { w3BackendParityHandlers } from './w3BackendParityHandlers';
 import { w2OrphansHandlers } from './w2OrphansHandlers';
 // [G005 W8-Dose] 剂量监测页面真实化 (staff/breast/device history/overview) — 最前置注册
 import { w8DoseHandlers } from './w8DoseHandlers';
+// [G005 W8-Report] 报告专业深度 (字段规范/内容版本/签名证书/召回/分级审核) — 最前置注册
+import { w8ReportHandlers } from './w8ReportHandlers';
 // [G005 W7] 演示数据补齐 (对比剂质量与合规) — 前置注册
 import { w7MockHandlers } from './w7MockHandlers';
+// [W5 预约/排班深度] 机房/技师/容量/冲突/等候/提醒/失约/绿色通道/编号 — 最前置注册
+import { w5ApptHandlers } from './w5ApptHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -173,6 +178,8 @@ import { radiomicsHandlers } from './radiomicsHandlers';
 import { hl7Handlers } from './hl7Handlers';
 // [v3.0.6.11-75 W3-1] 影像 AI 质控 (qcImageAiApi: score/score-v2/results/stats)
 import { imageAiHandlers } from './imageAiHandlers';
+// [G005 W6] 登记工作站 + 分诊深度 (registration/scan|prep-confirm|consent|charge|pay, patients/:id/clinical-profile, triage/re-triage|nurse) — 必须最前置注册
+import { w6RegHandlers } from './w6RegHandlers';
 // [W3-2] AI 分检 (aiTriageApi: /triage/* [G005 Wave1A 路径对齐]) + 跨科室治疗计划 (/treatment-plans/*)
 import { aiTriageHandlers } from './aiTriageHandlers';
 import { treatmentPlanHandlers } from './treatmentPlanHandlers';
@@ -5303,6 +5310,16 @@ const advancedHandlers: any[] = [
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
+  // [G005 W8-Report] 最最先注册: 报告字段规范/内容版本/签名证书/召回/分级审核
+  //   (静态 /reports/field-specs 与 /reports/:id/revisions 需先于 reportHandlers 的 /reports/:id)
+  ...w8ReportHandlers,
+  // [G005 W7-Exec] 最先注册: 检查执行深化端点 (MWL/MPPS/协议/序列QC/剂量, 需先于 /exam/:id 与 dicom-dimse 参数路由)
+  ...w7ExecHandlers,
+  // [G005 W6] 最最最最先注册: 登记工作站 + 分诊深度 (静态子路径需先于既有 /patients/:id 参数路由)
+  ...w6RegHandlers,
+  // [W5 预约/排班深度] 最最最先注册: 机房/技师/容量/冲突/等候/提醒/失约/绿色通道/编号
+  // (静态子路径必须先于既有 /appointments/:id 参数路由)
+  ...w5ApptHandlers,
   // [G005 W7] 最最先注册: 演示数据补齐端点 (/contrast/quality-compliance)
   ...w7MockHandlers,
   // [G005 W8-Dose] 最最先注册: 剂量页面本 wave 新增端点 (/rdsr/staff|breast|device/:id/history|overview)

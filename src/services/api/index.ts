@@ -111,7 +111,21 @@ export { criticalApi } from "./criticalApi";
 export type { CriticalValueDto } from "./criticalApi";
 
 export { appointmentApi } from "./appointmentApi";
-export type { AppointmentDto } from "./appointmentApi";
+export type {
+  AppointmentDto,
+  // [W5] 预约/排班深度 DTO
+  RoomDto,
+  TechnicianDto,
+  ConflictType,
+  AppointmentConflictDto,
+  ConflictCheckResultDto,
+  SlotCapacityDto,
+  WaitlistEntryDto,
+  ReminderChannelDto,
+  ReminderPlanDto,
+  NoShowRecordDto,
+  GreenChannelReservationDto,
+} from "./appointmentApi";
 
 export { statsApi } from "./statsApi";
 export type {

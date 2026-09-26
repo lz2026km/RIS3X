@@ -1,3 +1,48 @@
+## v3.0.6.12-1 (2026-09-26) — 专业级升级（对标联影/东软/飞利浦/GE + 数坤/医准概念）W1–W8
+
+> **目标**: 全面升级到专业放射 RIS 水平；引入数坤/医准扩展概念（概念 UI + 确定性模拟）
+> **范围**: W1–W8；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0 / **326 suites 3530 tests**；vite build 成功
+
+### W1 — 真实 DICOM 像素管线（基石）
+- 注册 `@cornerstonejs/dicom-image-loader`（wadouri）+ metadata providers；`useCornerstone` 真实 imageIds
+- 真实 DICOM 样例（`backend/dicom-samples` 6 序列/76 实例）经 Vite 中间件（dev）+ 构建复制（dist）服务，避免 42MB 重复入库
+- 测量工具注册（WindowLevel/Pan/Zoom/StackScroll + Length/Angle/Ellipse/Rect/Probe/Arrow/Freehand/Label）；`setWWWC` 修正为 `voiRange`
+- 新增 **真实 DICOM 工作站** `/dicom/workstation`（序列列表/多视口/预设/工具/HUD/播放）
+- CSP 增加 `worker-src 'self' blob:`；修复 codec ESM/`dicom-parser` CJS 预打包
+
+### W2 — 高级后处理真实化
+- `useVolumeViewports`：由真实 imageIds 构建 StreamingImageVolume；ORTHOGRAPHIC 轴/矢/冠 + `VOLUME_3D` 视口；传输函数预设（骨/肺/软组织）；MIP（MAXIMUM_INTENSITY_BLEND）+ 层厚滑块（thin-slab）；Crosshairs 联动
+- 工作站新增 1×1 / 2×2 MPR / VR 布局 + 预设 + MIP + 十字准星
+
+### W3 — AI 定量分析（数坤/医准概念，确定性模拟）
+- `quantEngine.ts`（按 study 种子确定性）+ **AI 定量分析中心** `/ai/quant-center`：冠脉 CTA（分段狭窄/斑块/Agatston/CAD-RADS/FFR-CT）、卒中（ASPECTS/侧支/核心-半暗带/LVO/时间窗/ICH）、头颈、肝（Couinaud/脂肪/铁/LI-RADS）、骨龄、肺结节（VDT/Lung-RADS）、乳腺密度、心胸比、脊柱 QCT/Genant、体成分
+
+### W4 — AI 平台概念
+- **AI 模型注册表** `/ai/models`（目录/NMPA/CE/FDA/版本/部署/灰度/回滚/版本对比）+ **AI 工作流中心** `/ai/workflow`（分诊队列/采纳统计/质控/多模态报告助手+RAG 引用+护栏）
+
+### W5 — 预约/资源模型
+- 后端：Room/Technician/Slot/Waitlist/ReminderPlan/RescheduleHistory/NoShow/GreenChannel + 冲突引擎（设备/机房/技师/患者/容量/班次/维保）+ accession 编号策略 + 提醒/爽约 Cron + 急诊预留
+- 前端：`AppointmentForm` 5 步向导、`ResourceGantt`、候补/提醒/爽约面板
+
+### W6 — 登记/分诊
+- 后端：结构化患者字段（证件/EMPI/医保/过敏编码/妊娠/eGFR/隔离/vitals）+ 登记工作站端点（扫码/准备确认/知情同意/缴费）+ ESI/vitals 分诊/复评/队列优先级
+- 前端：**登记工作站** `/registration`、分诊 vitals/ESI/复评、患者表单结构化
+
+### W7 — 执行/MWL/协议
+- 后端：**DICOM MWL C-FIND SCP** + MPPS↔accession 关联 + 扫描协议/序列/曝光参数/图像数校验 + 序列级 QC + RDSR 剂量回写
+- 前端：技师工作站「检查执行」Tab、`ExecutionPanel`、**MWL 管理** `/tech/mwl`
+
+### W8 — 报告域深化
+- **真实服务端签名**：纯 JS **SM3** + SHA-256，真实 **RSA-SHA256** 签名/验签，证书库 + CRL + RFC3161 式 TSA token；签名中心 `/security/certificate-center`
+- **内容版本化修订**（修复损坏的 diff，真实字段级快照 diff）；amend 落库 + re-sign 联动；补充报告为独立关联文档
+- 报告**召回通知临床**（HL7 ORU^R01 status C + 回执）；**分级审核规则引擎**（模态/RADS/严重度/危急值/资质 → 初核/终核/双签/双阅）；字段参考范围校验
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.12-0` → `3.0.6.12-1`（无 BOM）
+- W9–W14（质量/集成/设备运营/患者服务/安全合规/前端 UX）为下一阶段
+
+---
+
 ## v3.0.6.12-0 (2026-09-25) — 正式商业演示版：后端全量补全 + 前端完全体现 + 数据/表格完善 + i18n 全量
 
 > **目标**: 全面审查；后端功能补全并前端完全体现；数据/表格完善；无法接接口的暂时模拟数据；正式商业演示版

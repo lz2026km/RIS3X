@@ -6,8 +6,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Checkbox, Empty, Input, InputNumber, Modal, Radio, Select, Spin, Tag, Tooltip, message } from 'antd'
 import {
   Activity, AlertTriangle, ArrowRightLeft, CheckCircle2, ClipboardList,
-  DoorOpen, FileText, Flame, Gauge, ListOrdered, Play, RefreshCw,
-  ShieldCheck, Siren, StickyNote, UserCheck, Zap,
+  DoorOpen, FileText, Flame, Gauge, Layers, ListOrdered, Play, RadioTower, RefreshCw,
+  ScanLine, ShieldCheck, Siren, StickyNote, UserCheck, Zap,
 } from 'lucide-react'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -24,6 +24,14 @@ import {
   RETAKE_REASON_OPTIONS,
 } from '../../services/api/worklistApi'
 import { techOpsApi, type EmergencyRecord, type EmergencySuggestion, type ExamPriority } from '../../services/api/techOpsApi'
+import {
+  execApi,
+  mwlApi,
+  type ExamExecutionSummaryDto,
+  type MwlWorklistItemDto,
+  type ProtocolRecordDto,
+  type SeriesQcQuality,
+} from '../../services/api/execApi'
 import { invalidateApiCacheByPrefix } from '../../services/api/client'
 import { userApi } from '../../services/api/userApi'
 import type { UserDto } from '../../types/dto'
@@ -97,7 +105,7 @@ const DEMO_RECORDS: EmergencyRecord[] = [
 // ============================================================
 // 主页面
 // ============================================================
-type WorkbenchTab = 'today' | 'rooms' | 'retake' | 'handover' | 'emergency'
+type WorkbenchTab = 'today' | 'rooms' | 'retake' | 'execution' | 'handover' | 'emergency'
 
 interface TransitionModalState {
   exam: WorklistItemDto
@@ -498,6 +506,287 @@ export default function TechWorkbenchPage() {
   }, [exams])
 
   const inProgressExams = useMemo(() => exams.filter(e => ['IN_PROGRESS', 'PAUSED'].includes(normalizeExamStatus(String(e.state ?? e.status)))), [exams])
+
+  // ---- [G005 W7-Exec] 检查执行: 协议 / 序列级 QC / 剂量 / MWL 队列 ----
+  const [execExamId, setExecExamId] = useState<string | null>(null)
+  const [execution, setExecution] = useState<ExamExecutionSummaryDto | null>(null)
+  const [execLoading, setExecLoading] = useState(false)
+  const [protocols, setProtocols] = useState<ProtocolRecordDto[]>([])
+  const [mwlItems, setMwlItems] = useState<MwlWorklistItemDto[]>([])
+  const [execExamOptions, setExecExamOptions] = useState<WorklistItemDto[]>([])
+  const [selectedProtocolId, setSelectedProtocolId] = useState<string | undefined>(undefined)
+  const [execBusy, setExecBusy] = useState(false)
+  const [qcReasons, setQcReasons] = useState<Record<number, string>>({})
+  const [execDose, setExecDose] = useState<{ dlp: string; ctdivol: string; ssde: string }>({ dlp: '', ctdivol: '', ssde: '' })
+
+  const loadExecution = useCallback(async (id: string) => {
+    setExecLoading(true)
+    try {
+      const res = await execApi.getExamExecution(id)
+      if (res.success && res.data) {
+        setExecution(res.data)
+        setSelectedProtocolId(res.data.state.protocolId)
+      } else {
+        setExecution(null)
+      }
+    } catch {
+      setExecution(null)
+    } finally {
+      setExecLoading(false)
+    }
+  }, [])
+
+  const loadMwlQueue = useCallback(async () => {
+    try {
+      const res = await mwlApi.worklistItems()
+      const data = res.data as unknown
+      const list = Array.isArray(data) ? (data as MwlWorklistItemDto[]) : (data as { items?: MwlWorklistItemDto[] })?.items ?? []
+      if (res.success) setMwlItems(list)
+    } catch { /* MWL 队列不可用不阻断 */ }
+  }, [])
+
+  useEffect(() => {
+    if (activeTab !== 'execution') return
+    execApi.listProtocols().then(res => { if (res.success && res.data) setProtocols(res.data.items) }).catch(() => {})
+    void loadMwlQueue()
+    worklistApi.list({ page: 1, pageSize: 200 }).then(res => {
+      const data = res.data as unknown
+      const list = Array.isArray(data) ? (data as WorklistItemDto[]) : (data as { items?: WorklistItemDto[] })?.items ?? []
+      if (res.success) setExecExamOptions(list)
+    }).catch(() => { /* 选项不可用不阻断 */ })
+  }, [activeTab, loadMwlQueue])
+
+  useEffect(() => {
+    if (activeTab !== 'execution') return
+    const options = execExamOptions.length > 0 ? execExamOptions : exams
+    const id = execExamId ?? options[0]?.id
+    if (!id) { setExecution(null); return }
+    if (!execExamId) { setExecExamId(id); return }
+    void loadExecution(id)
+  }, [activeTab, execExamId, execExamOptions, exams, loadExecution])
+
+  const applyProtocol = async () => {
+    if (!execExamId) return
+    if (!selectedProtocolId) { message.warning(t('w7exec.protocolSelect')); return }
+    setExecBusy(true)
+    try {
+      const res = await execApi.setExamProtocol(execExamId, { protocolId: selectedProtocolId })
+      if (res.success) { message.success(t('w7exec.protocolApplied')); await loadExecution(execExamId) }
+      else message.error(res.error?.message ?? t('w7exec.loadFailed'))
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : t('w7exec.loadFailed'))
+    } finally { setExecBusy(false) }
+  }
+
+  const submitSeriesQc = async (seriesNumber: number, quality: SeriesQcQuality) => {
+    if (!execExamId) return
+    const reason = qcReasons[seriesNumber]?.trim()
+    if (quality === 'REJECT' && !reason) { message.warning(t('w7exec.qcReasonRequired')); return }
+    setExecBusy(true)
+    try {
+      const res = await execApi.submitSeriesQc(execExamId, {
+        items: [{ seriesNumber, quality, reason: reason || undefined, score: quality === 'PASS' ? 95 : undefined }],
+        scoredBy: user?.name ?? user?.id ?? '技师',
+      })
+      if (res.success) {
+        message.success(res.data.retakeTriggered ? t('w7exec.qcRetakeTriggered') : t('w7exec.qcSubmitted'))
+        await loadExecution(execExamId)
+      } else {
+        message.error(res.error?.message ?? t('w7exec.loadFailed'))
+      }
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : t('w7exec.loadFailed'))
+    } finally { setExecBusy(false) }
+  }
+
+  const writeExecutionDose = async () => {
+    if (!execExamId) return
+    if (execDose.dlp.trim() === '' && execDose.ctdivol.trim() === '') { message.warning(t('w7exec.doseWriteback')); return }
+    setExecBusy(true)
+    try {
+      const res = await execApi.writeDose(execExamId, {
+        dlp: execDose.dlp.trim() === '' ? undefined : Number(execDose.dlp),
+        ctdivol: execDose.ctdivol.trim() === '' ? undefined : Number(execDose.ctdivol),
+        ssde: execDose.ssde.trim() === '' ? undefined : Number(execDose.ssde),
+        source: 'RDSR',
+      })
+      if (res.success) { message.success(t('w7exec.doseWritten')); await loadExecution(execExamId) }
+      else message.error(res.error?.message ?? t('w7exec.loadFailed'))
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : t('w7exec.loadFailed'))
+    } finally { setExecBusy(false) }
+  }
+
+  const renderExecution = () => {
+    const validation = execution?.validation
+    return (
+      <div data-testid="execution-tab">
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
+          <Select
+            size="small" style={{ width: 260 }} placeholder={t('w7exec.selectExamHint')} showSearch optionFilterProp="label"
+            value={execExamId ?? undefined}
+            onChange={(v) => { setExecExamId(v); setExecution(null) }}
+            options={(execExamOptions.length > 0 ? execExamOptions : orderedExams).map(e => ({ value: e.id, label: `${e.patientName ?? e.patient?.name ?? '--'} · ${e.examName ?? e.bodyPart ?? e.modality ?? '--'} (${e.accessionNumber ?? e.id})` }))}
+          />
+          <Button size="small" icon={<RefreshCw size={12} />} loading={execLoading} onClick={() => execExamId && void loadExecution(execExamId)}>
+            {t('w7exec.refresh')}
+          </Button>
+        </div>
+
+        {!execExamId || (!execution && !execLoading) ? (
+          <Empty description={t('w7exec.selectExamHint')} style={{ padding: 40 }} />
+        ) : execLoading ? (
+          <div style={{ padding: 60, textAlign: 'center' }}><Spin tip={t('w7exec.loading')} /></div>
+        ) : execution && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* 协议 + 曝光参数 */}
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-protocol-panel">
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                  <ScanLine size={14} /> {t('w7exec.protocol')}
+                </div>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
+                  <Select
+                    size="small" style={{ width: 260 }} placeholder={t('w7exec.protocolSelect')}
+                    value={selectedProtocolId}
+                    onChange={setSelectedProtocolId}
+                    options={protocols.map(p => ({ value: p.id, label: `${p.name} (${p.modality}/${p.bodyPart})` }))}
+                  />
+                  <Button size="small" type="primary" loading={execBusy} onClick={() => void applyProtocol()}>
+                    {t('w7exec.assignProtocol')}
+                  </Button>
+                </div>
+                {execution.protocol ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                    <div>{t('w7exec.protocolCode')}: <b>{execution.protocol.code}</b></div>
+                    <div>{t('w7exec.contrast')}: <Tag color={execution.protocol.contrast ? 'volcano' : 'default'}>{execution.protocol.contrast ? t('w7exec.contrastYes') : t('w7exec.contrastNo')}</Tag></div>
+                    <div>{t('w7exec.exposureParams')}: <b>{(() => {
+                      const p = execution.state.exposureParams as Record<string, unknown> | undefined
+                      if (!p) return '--'
+                      const parts: string[] = []
+                      if (p.kVp !== undefined) parts.push(`kVp ${p.kVp}`)
+                      if (p.mAs !== undefined) parts.push(`mAs ${p.mAs}`)
+                      if (p.aec !== undefined) parts.push(`AEC ${p.aec ? 'on' : 'off'}`)
+                      if (p.rotationTime !== undefined) parts.push(`Rota ${p.rotationTime}s`)
+                      if (p.pitch !== undefined) parts.push(`Pitch ${p.pitch}`)
+                      return parts.join(' · ') || '--'
+                    })()}</b></div>
+                    <div>{t('w7exec.scanRange')}: <b>{execution.state.scanRange?.orientation ?? '--'}</b></div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w7exec.protocolNone')}</div>
+                )}
+              </div>
+
+              {/* 序列 + 序列级 QC */}
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-series-panel">
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                  <Layers size={14} /> {t('w7exec.series')}
+                  <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{t('w7exec.seriesQcDesc')}</span>
+                </div>
+                {validation && (
+                  <div
+                    data-testid="exec-image-mismatch"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, padding: '6px 10px', borderRadius: 8,
+                      background: validation.imageCountMismatch ? '#fef2f2' : '#f0fdf4',
+                      border: `1px solid ${validation.imageCountMismatch ? '#fecaca' : '#bbf7d0'}`,
+                      color: validation.imageCountMismatch ? '#dc2626' : '#059669', fontSize: 12, fontWeight: 600,
+                    }}
+                  >
+                    {validation.imageCountMismatch ? <AlertTriangle size={12} /> : <CheckCircle2 size={12} />}
+                    {t('w7exec.expectedImages')} {validation.expectedImages} / {t('w7exec.capturedImages')} {validation.capturedImages}
+                    {validation.imageCountMismatch ? ` · ${t('w7exec.imageCountMismatch')}` : ` · ${t('w7exec.imageCountMatch')}`}
+                  </div>
+                )}
+                {execution.series.length === 0 ? (
+                  <Empty description={t('w7exec.empty')} style={{ padding: 16 }} />
+                ) : (
+                  <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 12 }} data-testid="exec-series-table">
+                    <thead>
+                      <tr style={{ color: 'var(--text-secondary)', textAlign: 'left' }}>
+                        <th style={{ padding: '4px 6px' }}>{t('w7exec.seriesNumber')}</th>
+                        <th style={{ padding: '4px 6px' }}>{t('w7exec.imageCount')}</th>
+                        <th style={{ padding: '4px 6px' }}>{t('w7exec.seriesQc')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {execution.series.map(s => (
+                        <tr key={s.id} style={{ borderTop: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '6px 6px', fontWeight: 600 }}>#{s.seriesNumber}</td>
+                          <td style={{ padding: '6px 6px' }}>{s.imageCount}</td>
+                          <td style={{ padding: '6px 6px' }}>
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                              <Input size="small" style={{ width: 140 }} placeholder={t('w7exec.qcReason')} value={qcReasons[s.seriesNumber] ?? ''} onChange={e => setQcReasons(r => ({ ...r, [s.seriesNumber]: e.target.value }))} />
+                              <Button size="small" style={{ color: '#059669' }} disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'PASS')}>
+                                {t('w7exec.qcPass')}
+                              </Button>
+                              <Button size="small" danger disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'REJECT')}>
+                                {t('w7exec.qcReject')}
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* MWL 队列 */}
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-mwl-panel">
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                  <RadioTower size={14} /> {t('w7exec.mwlQueue')}
+                  <Button size="small" type="text" icon={<RefreshCw size={11} />} onClick={() => void loadMwlQueue()} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 260, overflowY: 'auto' }}>
+                  {mwlItems.length === 0 ? (
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w7exec.empty')}</span>
+                  ) : mwlItems.slice(0, 12).map(item => (
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '6px 8px', background: 'var(--content-bg)', borderRadius: 6 }}>
+                      <Tag color={item.priority === 'STAT' ? 'red' : item.priority === 'URGENT' ? 'orange' : 'default'}>{item.modality}</Tag>
+                      <b>{item.patientName}</b>
+                      <span style={{ color: 'var(--text-secondary)' }}>{item.requestedProcedureDescription}</span>
+                      <Tag style={{ marginLeft: 'auto' }} color={(item.mppsStatus ?? item.state) === 'COMPLETED' ? 'green' : (item.mppsStatus ?? item.state) === 'IN_PROGRESS' ? 'magenta' : 'blue'}>
+                        {item.mppsStatus ?? item.state}
+                      </Tag>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 剂量 */}
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-dose-panel">
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                  <Activity size={14} /> {t('w7exec.dose')}
+                </div>
+                {execution.dose ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, fontSize: 12, marginBottom: 10 }}>
+                    <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseDlp')}</div><b>{execution.dose.dlp}</b></div>
+                    <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseCtdiVol')}</div><b>{execution.dose.ctdiVol}</b></div>
+                    <div><div style={{ color: 'var(--text-secondary)' }}>{t('w7exec.doseSsde')}</div><b>{execution.dose.ssde ?? '--'}</b></div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('w7exec.doseNone')}</div>
+                )}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <InputNumber size="small" style={{ width: 100 }} min={0} placeholder="DLP" value={execDose.dlp !== '' ? Number(execDose.dlp) : undefined} onChange={v => setExecDose(d => ({ ...d, dlp: v !== null && v !== undefined ? String(v) : '' }))} />
+                  <InputNumber size="small" style={{ width: 100 }} min={0} placeholder="CTDIvol" value={execDose.ctdivol !== '' ? Number(execDose.ctdivol) : undefined} onChange={v => setExecDose(d => ({ ...d, ctdivol: v !== null && v !== undefined ? String(v) : '' }))} />
+                  <InputNumber size="small" style={{ width: 100 }} min={0} placeholder="SSDE" value={execDose.ssde !== '' ? Number(execDose.ssde) : undefined} onChange={v => setExecDose(d => ({ ...d, ssde: v !== null && v !== undefined ? String(v) : '' }))} />
+                  <Button size="small" type="primary" loading={execBusy} onClick={() => void writeExecutionDose()}>
+                    {t('w7exec.doseWriteback')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
 
   // ---- 紧急插队 ----
   const [emgForm, setEmgForm] = useState({ modality: 'CT', durationMin: 15, patientName: '', examItem: '', priority: 'URGENT' as ExamPriority, reason: '' })
@@ -910,6 +1199,7 @@ export default function TechWorkbenchPage() {
           { key: 'today', label: t('techWorkbench.tabToday'), icon: <ClipboardList size={13} />, badge: todayStats.waiting + todayStats.inProgress },
           { key: 'rooms', label: t('techWorkbench.tabRooms'), icon: <DoorOpen size={13} /> },
           { key: 'retake', label: t('techWorkbench.tabRetake'), icon: <RefreshCw size={13} /> },
+          { key: 'execution', label: t('w7exec.tabExecution'), icon: <ScanLine size={13} /> },
           { key: 'handover', label: t('techWorkbench.tabHandover'), icon: <ArrowRightLeft size={13} />, badge: inProgressExams.length },
           { key: 'emergency', label: t('techWorkbench.tabEmergency'), icon: <Siren size={13} /> },
         ]}
@@ -920,6 +1210,7 @@ export default function TechWorkbenchPage() {
       {activeTab === 'today' && renderToday()}
       {activeTab === 'rooms' && <ExamRoomStatusBoard />}
       {activeTab === 'retake' && <RetakeRateAnalyticsPage />}
+      {activeTab === 'execution' && renderExecution()}
       {activeTab === 'handover' && renderHandover()}
       {activeTab === 'emergency' && renderEmergency()}
 

@@ -159,7 +159,8 @@ describe('AppointmentsService (P0 预约→检查联动)', () => {
     expect(examArgs.data.state).toBe('SCHEDULED')
     expect(examArgs.data.patientId).toBe(created.patientId)
     expect(examArgs.data.bodyPart).toBe('胸部')
-    expect(examArgs.data.accessionNumber).toMatch(/^ACC-/)
+    // [W5] 检查号改由 AccessionPolicy 生成: {模态}{年}{序列5}{校验位}
+    expect(examArgs.data.accessionNumber).toMatch(/^CT\d{4}\d{5}\d$/)
     expect(exams.size).toBe(1)
   })
 
@@ -227,7 +228,8 @@ describe('AppointmentsService (P0 预约→检查联动)', () => {
       tenantId: 'default',
     })
     const list = await withTenant('default', () => service.waitlist())
-    expect(list).toHaveLength(1)
+    // [W5] DB 派生条目在前 + 托管等候队列 seed (WL-001..003) 在后
+    expect(list.length).toBeGreaterThanOrEqual(1)
     expect(list[0].patientName).toBe('张三')
     expect(list[0].priority).toBe('urgent')
     expect(list[0].preferredDate).toBe('2026-08-05')

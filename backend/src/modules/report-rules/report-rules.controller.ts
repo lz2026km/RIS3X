@@ -6,10 +6,44 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { z } from 'zod'
 import { ReportRulesService } from './report-rules.service'
+import { ReviewTierService } from './review-tier.service'
 import { RULE_FIELDS, RULE_OPERATORS, RULE_SEVERITIES, RULE_TYPES } from './report-rules.types'
+import { AUTHOR_SENIORITIES, CASE_SEVERITIES, REVIEW_TIERS } from './review-tier.types'
 import type { RuleField, RuleOperator, RuleSeverity, RuleType } from './report-rules.types'
+import type { AuthorSeniority, CaseSeverity, ReviewTier, ReviewTierRule } from './review-tier.types'
 
 const asTuple = <T extends string>(arr: readonly T[]): [T, ...T[]] => arr as unknown as [T, ...T[]]
+
+// [G005 W8-Report] 分级审核规则 schema
+const ReviewTierWhenSchema = z.object({
+  modalities: z.array(z.string().max(16)).max(20).optional(),
+  radsCategoryGte: z.number().int().min(0).max(5).optional(),
+  severities: z.array(z.enum(asTuple<CaseSeverity>(CASE_SEVERITIES))).max(4).optional(),
+  isCritical: z.boolean().optional(),
+  authorSeniorityIn: z.array(z.enum(asTuple<AuthorSeniority>(AUTHOR_SENIORITIES))).max(4).optional(),
+})
+
+const CreateReviewTierRuleSchema = z.object({
+  code: z.string().min(1).max(40).optional(),
+  name: z.string().min(1).max(80),
+  description: z.string().max(200).optional(),
+  tier: z.enum(asTuple<ReviewTier>(REVIEW_TIERS)),
+  enabled: z.boolean().optional(),
+  priority: z.number().int().min(0).max(1000).optional(),
+  when: ReviewTierWhenSchema,
+  reason: z.string().max(200).optional(),
+})
+
+const UpdateReviewTierRuleSchema = CreateReviewTierRuleSchema.partial()
+
+const ResolveReviewTierSchema = z.object({
+  modality: z.string().max(16).optional(),
+  radsCategory: z.number().int().min(0).max(5).optional(),
+  severity: z.enum(asTuple<CaseSeverity>(CASE_SEVERITIES)).optional(),
+  isCritical: z.boolean().optional(),
+  authorSeniority: z.enum(asTuple<AuthorSeniority>(AUTHOR_SENIORITIES)).optional(),
+  authorId: z.string().max(64).optional(),
+})
 
 const ConditionSchema = z.object({
   field: z.enum(asTuple<RuleField>(RULE_FIELDS)),
@@ -109,7 +143,38 @@ const RwsRateSchema = z
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
 @Controller('report-rules')
 export class ReportRulesController {
-  constructor(private readonly service: ReportRulesService) {}
+  constructor(
+    private readonly service: ReportRulesService,
+    private readonly reviewTier: ReviewTierService,
+  ) {}
+
+  // [G005 W8-Report] 分级审核规则 CRUD + resolve
+  @Get('review-tiers')
+  listReviewTierRules() {
+    return this.reviewTier.listRules()
+  }
+
+  @Post('review-tiers')
+  @HttpCode(HttpStatus.CREATED)
+  createReviewTierRule(@Body(new ZodValidationPipe(CreateReviewTierRuleSchema)) body: z.infer<typeof CreateReviewTierRuleSchema>) {
+    return this.reviewTier.createRule(body as Partial<ReviewTierRule> & { name: string; tier: ReviewTier })
+  }
+
+  @Put('review-tiers/:id')
+  updateReviewTierRule(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateReviewTierRuleSchema)) body: z.infer<typeof UpdateReviewTierRuleSchema>) {
+    return this.reviewTier.updateRule(id, body as Partial<ReviewTierRule>)
+  }
+
+  @Delete('review-tiers/:id')
+  deleteReviewTierRule(@Param('id') id: string) {
+    return this.reviewTier.deleteRule(id)
+  }
+
+  @Post('review-tiers/resolve')
+  @HttpCode(HttpStatus.OK)
+  resolveReviewTier(@Body(new ZodValidationPipe(ResolveReviewTierSchema)) body: z.infer<typeof ResolveReviewTierSchema>) {
+    return this.reviewTier.resolve(body)
+  }
 
   @Get('rules')
   listRules(@Query('examType') examType?: string) {

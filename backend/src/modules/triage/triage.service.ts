@@ -1,5 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, Optional } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+// [G005 W6] 队列优先级联动 (可选注入; 无队列模块时静默跳过)
+import { QueueService } from '../queue/queue.service'
+
+// [G005 W6] 生命体征输入 (ESI 分级依据)
+export interface VitalSigns {
+  systolicBp?: number
+  diastolicBp?: number
+  heartRate?: number
+  temperature?: number
+  spo2?: number
+  respiratoryRate?: number
+}
+
+export type EsiLevel = 1 | 2 | 3 | 4 | 5
+export type QueuePriorityZh = '危重' | '紧急' | '普通'
 
 export interface TriageExamInput {
   examId: string
@@ -11,6 +26,10 @@ export interface TriageExamInput {
   referringDoctorLevel?: string
   patientAge?: number
   gender?: string
+  // [G005 W6] 结构化生命体征 (BP/HR/Temp/SpO2/RR)
+  vitals?: VitalSigns
+  nurseId?: string
+  nurseName?: string
 }
 
 export interface TriageScoreResult {
@@ -24,6 +43,14 @@ export interface TriageScoreResult {
   reasoning: string
   status?: 'PENDING' | 'ASSIGNED' | 'COMPLETED'
   assignedDoctor?: string
+  // [G005 W6] ESI 五级分诊 + 复评 + 队列优先级联动 + 分诊护士
+  esiLevel: EsiLevel
+  queuePriority: QueuePriorityZh
+  vitalsBreaches: string[]
+  reTriageRecommended: boolean
+  reTriageAt?: string
+  nurseId?: string
+  nurseName?: string
 }
 
 export interface TriageStats {
@@ -50,6 +77,14 @@ export interface TriagePendingItem {
   status: 'PENDING' | 'ASSIGNED' | 'COMPLETED'
   assignedDoctor?: string
   createdAt: Date
+  // [G005 W6]
+  esiLevel?: EsiLevel
+  queuePriority?: QueuePriorityZh
+  reTriageRecommended?: boolean
+  reTriageAt?: string
+  nurseId?: string
+  nurseName?: string
+  vitals?: VitalSigns
 }
 
 const EMERGENCY_KEYWORDS = [
@@ -118,8 +153,57 @@ const LEVEL_LABEL: Record<string, string> = {
   ROUTINE: '常规',
 }
 
+// [G005 W6] ESI 五级分诊: 生命体征越界时升级 (1=复苏 2=危急 3=紧急 4=次紧急 5=非紧急)
+type EsiBase = Omit<TriageScoreResult, 'aiConfidence' | 'reasoning' | 'status' | 'assignedDoctor' | 'esiLevel' | 'queuePriority' | 'vitalsBreaches' | 'reTriageRecommended'>
+
+function computeEsi(input: TriageExamInput, level: TriageScoreResult['level']): { esiLevel: EsiLevel; breaches: string[] } {
+  const v = input.vitals ?? {}
+  const breaches: string[] = []
+  let esi: EsiLevel = level === 'CRITICAL' ? 2 : level === 'URGENT' ? 3 : level === 'SEMI_URGENT' ? 4 : 5
+  const elevate = (to: EsiLevel, label: string) => {
+    breaches.push(label)
+    if (to < esi) esi = to
+  }
+  if (v.systolicBp !== undefined) {
+    if (v.systolicBp < 90 || v.systolicBp >= 220) elevate(1, `收缩压危象 ${v.systolicBp}mmHg`)
+    else if (v.systolicBp < 100 || v.systolicBp >= 180) elevate(2, `收缩压异常 ${v.systolicBp}mmHg`)
+    else if (v.systolicBp >= 160) elevate(3, `收缩压偏高 ${v.systolicBp}mmHg`)
+  }
+  if (v.diastolicBp !== undefined) {
+    if (v.diastolicBp >= 120 || v.diastolicBp < 50) elevate(2, `舒张压异常 ${v.diastolicBp}mmHg`)
+    else if (v.diastolicBp >= 100) elevate(3, `舒张压偏高 ${v.diastolicBp}mmHg`)
+  }
+  if (v.spo2 !== undefined) {
+    if (v.spo2 < 90) elevate(1, `血氧危急 ${v.spo2}%`)
+    else if (v.spo2 < 93) elevate(2, `血氧偏低 ${v.spo2}%`)
+    else if (v.spo2 < 95) elevate(3, `血氧临界 ${v.spo2}%`)
+  }
+  if (v.heartRate !== undefined) {
+    if (v.heartRate < 40 || v.heartRate > 150) elevate(1, `心率危象 ${v.heartRate}bpm`)
+    else if (v.heartRate < 50 || v.heartRate > 120) elevate(2, `心率异常 ${v.heartRate}bpm`)
+    else if (v.heartRate < 60 || v.heartRate > 100) elevate(3, `心率偏离 ${v.heartRate}bpm`)
+  }
+  if (v.respiratoryRate !== undefined) {
+    if (v.respiratoryRate < 8 || v.respiratoryRate > 30) elevate(1, `呼吸危象 ${v.respiratoryRate}/min`)
+    else if (v.respiratoryRate > 24 || v.respiratoryRate < 10) elevate(2, `呼吸异常 ${v.respiratoryRate}/min`)
+    else if (v.respiratoryRate > 20) elevate(3, `呼吸偏快 ${v.respiratoryRate}/min`)
+  }
+  if (v.temperature !== undefined) {
+    if (v.temperature >= 41 || v.temperature < 35) elevate(1, `体温危象 ${v.temperature}℃`)
+    else if (v.temperature >= 39 || v.temperature < 36) elevate(2, `体温异常 ${v.temperature}℃`)
+    else if (v.temperature >= 38) elevate(3, `发热 ${v.temperature}℃`)
+  }
+  return { esiLevel: esi, breaches }
+}
+
+function esiToQueuePriority(esi: EsiLevel): QueuePriorityZh {
+  if (esi <= 1) return '危重'
+  if (esi <= 3) return '紧急'
+  return '普通'
+}
+
 // 确定性 AI 辅助字段 (无 Math.random): 置信度由得分映射, 推理文本由因子拼接
-function enrichScore(scored: Omit<TriageScoreResult, 'aiConfidence' | 'reasoning' | 'status' | 'assignedDoctor'>, input: TriageExamInput): TriageScoreResult {
+function enrichScore(scored: EsiBase, input: TriageExamInput): TriageScoreResult {
   const aiConfidence = Math.round((0.72 + scored.score / 250) * 100) / 100
   const reasons = [
     `检查类型 ${input.examType ?? '未知'} 权重 ${scored.factors[0]?.weight ?? 4}`,
@@ -127,21 +211,68 @@ function enrichScore(scored: Omit<TriageScoreResult, 'aiConfidence' | 'reasoning
     input.referringDept ? `申请科室 ${input.referringDept}` : '未提供申请科室',
     input.patientAge !== undefined ? `患者年龄 ${input.patientAge} 岁` : null,
   ].filter(Boolean)
+  const { esiLevel, breaches } = computeEsi(input, scored.level)
   return {
     ...scored,
     aiConfidence,
-    reasoning: `基于多因子加权评分（${reasons.join('；')}），综合得分 ${scored.score} 分，判定为${LEVEL_LABEL[scored.level] ?? scored.level}优先级。`,
+    reasoning: `基于多因子加权评分（${reasons.join('；')}），综合得分 ${scored.score} 分，判定为${LEVEL_LABEL[scored.level] ?? scored.level}优先级。` +
+      (breaches.length > 0 ? `生命体征触发复评：${breaches.join('、')}。` : ''),
+    esiLevel,
+    queuePriority: esiToQueuePriority(esiLevel),
+    vitalsBreaches: breaches,
+    reTriageRecommended: breaches.length > 0,
+    nurseId: input.nurseId,
+    nurseName: input.nurseName,
   }
+}
+
+interface TriageEsiEntry {
+  esiLevel: EsiLevel
+  queuePriority: QueuePriorityZh
+  vitalsBreaches: string[]
+  reTriageRecommended: boolean
+  reTriageAt?: string
+  nurseId?: string
+  nurseName?: string
+  vitals?: VitalSigns
 }
 
 @Injectable()
 export class TriageService {
   private pendingStore: TriagePendingItem[] = []
   private idCounter = 0
+  // [G005 W6] ESI/复评/护士 内存 overlay (key = examId)
+  private readonly esiStore = new Map<string, TriageEsiEntry>()
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly queue?: QueueService,
+  ) {}
 
-  private computeScore(input: TriageExamInput): Omit<TriageScoreResult, 'aiConfidence' | 'reasoning' | 'status' | 'assignedDoctor'> {
+  /** 记录 ESI 扩展信息并 best-effort 联动队列优先级 */
+  private async rememberEsi(input: TriageExamInput, scored: TriageScoreResult, extra: Partial<TriageEsiEntry> = {}): Promise<void> {
+    const prev = this.esiStore.get(input.examId)
+    const entry: TriageEsiEntry = {
+      esiLevel: scored.esiLevel,
+      queuePriority: scored.queuePriority,
+      vitalsBreaches: scored.vitalsBreaches,
+      reTriageRecommended: scored.reTriageRecommended,
+      reTriageAt: extra.reTriageAt ?? prev?.reTriageAt,
+      nurseId: input.nurseId ?? prev?.nurseId,
+      nurseName: input.nurseName ?? prev?.nurseName,
+      vitals: input.vitals ?? prev?.vitals,
+    }
+    this.esiStore.set(input.examId, entry)
+    if (this.queue?.setPriority) {
+      try {
+        await this.queue.setPriority(input.examId, scored.queuePriority)
+      } catch {
+        // 队列无对应条目 / DB 不可用 → 静默跳过 (仅保留 triage 侧优先级)
+      }
+    }
+  }
+
+  private computeScore(input: TriageExamInput): EsiBase {
     const factors: TriageFactor[] = []
     let totalScore = 0
 
@@ -177,6 +308,8 @@ export class TriageService {
   }
 
   private toItem(row: { id: string; examId: string; patientId: string; patientName: string | null; examType: string | null; score: number; status: string; assignedTo: string | null; createdAt: Date }): TriagePendingItem {
+    const esi = this.esiStore.get(row.examId)
+    const level = scoreToLevel(row.score)
     return {
       id: row.id,
       examId: row.examId,
@@ -184,10 +317,17 @@ export class TriageService {
       patientName: row.patientName ?? '',
       examType: row.examType ?? '',
       score: row.score,
-      level: scoreToLevel(row.score),
+      level,
       status: (['PENDING', 'ASSIGNED', 'COMPLETED'].includes(row.status) ? row.status : 'PENDING') as TriagePendingItem['status'],
       assignedDoctor: row.assignedTo ?? undefined,
       createdAt: row.createdAt,
+      esiLevel: esi?.esiLevel ?? (level === 'CRITICAL' ? 2 : level === 'URGENT' ? 3 : level === 'SEMI_URGENT' ? 4 : 5),
+      queuePriority: esi?.queuePriority ?? esiToQueuePriority(level === 'CRITICAL' ? 2 : level === 'URGENT' ? 3 : level === 'SEMI_URGENT' ? 4 : 5),
+      reTriageRecommended: esi?.reTriageRecommended ?? false,
+      reTriageAt: esi?.reTriageAt,
+      nurseId: esi?.nurseId,
+      nurseName: esi?.nurseName,
+      vitals: esi?.vitals,
     }
   }
 
@@ -212,6 +352,7 @@ export class TriageService {
 
   async score(input: TriageExamInput): Promise<TriageScoreResult> {
     const scored = enrichScore(this.computeScore(input), input)
+    await this.rememberEsi(input, scored)
     try {
       await this.persistScore(input, scored, 'PENDING')
     } catch {
@@ -224,6 +365,7 @@ export class TriageService {
     const results: TriageScoreResult[] = []
     for (const input of inputs) {
       const scored = enrichScore(this.computeScore(input), input)
+      await this.rememberEsi(input, scored)
       try {
         await this.persistScore(input, scored, 'PENDING')
       } catch {
@@ -232,6 +374,32 @@ export class TriageService {
       results.push({ ...scored, status: 'PENDING' })
     }
     return results
+  }
+
+  /**
+   * POST /triage/re-triage — 复评: 重新采集生命体征并重算 ESI/评分, 写入 reTriageAt。
+   * 生命体征越界时 reTriageRecommended=true (前端高亮 复评 提示)。
+   */
+  async reTriage(input: TriageExamInput): Promise<TriageScoreResult> {
+    const scored = enrichScore(this.computeScore(input), input)
+    const reTriageAt = new Date().toISOString()
+    await this.rememberEsi(input, scored, { reTriageAt })
+    try {
+      await this.persistScore(input, scored, 'PENDING')
+    } catch {
+      // DB unavailable -> keep pure scoring result
+    }
+    return { ...scored, status: 'PENDING', reTriageAt, reTriageRecommended: scored.reTriageRecommended || scored.vitalsBreaches.length > 0 }
+  }
+
+  /** POST /triage/nurse — 分诊护士指派 (内存 overlay, DB-less-safe) */
+  async assignNurse(examId: string, nurseId: string, nurseName?: string): Promise<{ examId: string; nurseId: string; nurseName?: string; esiLevel?: EsiLevel; queuePriority?: QueuePriorityZh }> {
+    const prev = this.esiStore.get(examId)
+    const entry: TriageEsiEntry = prev
+      ? { ...prev, nurseId, nurseName: nurseName ?? prev.nurseName }
+      : { esiLevel: 5, queuePriority: '普通', vitalsBreaches: [], reTriageRecommended: false, nurseId, nurseName }
+    this.esiStore.set(examId, entry)
+    return { examId, nurseId, nurseName: entry.nurseName, esiLevel: entry.esiLevel, queuePriority: entry.queuePriority }
   }
 
   async getStats(): Promise<TriageStats> {
@@ -283,6 +451,7 @@ export class TriageService {
     const scored = enrichScore(this.computeScore(input), input)
     const idx = Math.floor(Math.random() * DOCTOR_POOL.length)
     const doctor = DOCTOR_POOL[idx]
+    await this.rememberEsi(input, scored)
 
     const item: TriagePendingItem = {
       id: `triage-${++this.idCounter}`,

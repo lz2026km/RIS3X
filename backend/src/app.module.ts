@@ -199,6 +199,8 @@ import { QcAnalyticsModule } from "./modules/qc-analytics/qc-analytics.module";
 import { ClinicalFeedbackModule } from "./modules/clinical-feedback/clinical-feedback.module";
 // [v3.0.6.11-104 Wave 3B] 对比剂安全闭环 (contrast-safety): 过敏试验 + 注射前核查 + 注射后留观 (孤儿模块, 无 DB 可启动)
 import { ContrastSafetyModule } from "./modules/contrast-safety/contrast-safety.module";
+// [G005 W6] 登记工作站: 扫码检索 + 准备项确认 + 知情同意 + 缴费 (孤儿模块, 无 DB 可启动)
+import { RegistrationModule } from "./modules/registration/registration.module";
 // [v3.0.6.11-105 Wave 1A] 放射影像专业质控指标 (2024 年版) (rqi-2024): 7 条国标指标采集与计算 (孤儿模块, 无 DB 可启动)
 import { Rqi2024Module } from "./modules/rqi-2024/rqi-2024.module";
 // [v3.0.6.11-105 Wave 2A] 放射影像质控指标国家上报中心 (rqi-report-center): 周期上报→提交→回执闭环 (孤儿模块, 无 DB 可启动)
@@ -415,6 +417,8 @@ import { TemplateLibraryV2Module } from "./modules/template-library-v2/template-
     QcAnalyticsModule,
     // [v3.0.6.11-104 Wave 3B] 对比剂安全闭环 (contrast-safety): 过敏试验 + 注射前核查 + 注射后留观
     ContrastSafetyModule,
+    // [G005 W6] 登记工作站: 扫码检索 + 准备项确认 + 知情同意 + 缴费 (孤儿模块, 无 DB 可启动)
+    RegistrationModule,
     // [v3.0.6.11-104 Wave 3C] 临床反馈闭环 (clinical-feedback): 异议/补充/更正 + 回应 + 关闭
     ClinicalFeedbackModule,
     // [v3.0.6.11-105 Wave 1A] 放射影像专业质控指标 (2024 年版) (rqi-2024): 7 条国标指标

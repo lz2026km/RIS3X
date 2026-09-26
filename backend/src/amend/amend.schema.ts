@@ -22,3 +22,11 @@ export const ApproveAmendmentSchema = z.object({
 export const RejectAmendmentSchema = z.object({
   reason: z.string().min(1),
 })
+
+// [G005 W8-Report] 补发: 独立文档 + parentReportId 关联
+export const SupplementAmendmentSchema = z.object({
+  parentReportId: z.string().min(1),
+  reportId: z.string().min(1).optional(),
+  reason: z.string().min(1),
+  changes: z.string().optional(),
+})

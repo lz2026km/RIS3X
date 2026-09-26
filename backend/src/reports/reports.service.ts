@@ -13,6 +13,14 @@ import { FollowUpService } from '../modules/followup/followup.service'
 import { LesionTrackingService } from '../modules/lesion-tracking/lesion-tracking.service'
 // [G005 Wave 8] 报告→危急值反向引用: 内存链接表 (criticals 模块导出, 与 batchExportStore 同风格直引)
 import { criticalReportLinks } from '../criticals/criticals.service'
+// [G005 W8-Report] 真实签名 / 内容版本快照 / 召回通知 / 分级审核 / 字段规范
+import { ReportSigningService } from '../modules/report-sign-v2/report-signing.service'
+import { ReportRevisionContentStore } from './report-revision-content.store'
+import { ReportRecallService } from './report-recall.service'
+import { ReviewTierService } from '../modules/report-rules/review-tier.service'
+import { REPORT_FIELD_SPECS, assertReportFieldsValid, validateReportFields } from './report-field-specs'
+import type { SignatureContentSnapshot, SignatureVerification } from '../modules/report-sign-v2/report-signing.types'
+import type { ReviewTierInput, ReviewTierResolution } from '../modules/report-rules/review-tier.types'
 import type { Prisma, ReportState, Report } from '@prisma/client'
 
 // [v3.0.6.11-100 Wave 2B (报告-MIP/3D + 影像标注)] 报告关联影像标注
@@ -175,6 +183,9 @@ export class ReportsService {
   ]
   private archiveTaskSeq = 100
 
+  // [G005 W8-Report] 内容版本快照 (DB-less-safe); 未注入时自建 (单测构造兼容)
+  private readonly revisions: ReportRevisionContentStore
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly queue: QueueService,
@@ -184,8 +195,30 @@ export class ReportsService {
     private readonly followUp?: FollowUpService,
     // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪 (ReportsModule 导入 LesionTrackingModule), 可空 → 返回空列表不阻塞
     @Optional() private readonly lesionTracking?: LesionTrackingService,
+    // [G005 W8-Report] 真实签名服务 (ReportsModule 导入 ReportSignV2Module), 可空
+    @Optional() private readonly signing?: ReportSigningService,
+    // [G005 W8-Report] 内容版本快照 store (可注入以便共享; 缺省自建)
+    @Optional() revisionContent?: ReportRevisionContentStore,
+    // [G005 W8-Report] 召回通知服务, 可空
+    @Optional() private readonly recallService?: ReportRecallService,
+    // [G005 W8-Report] 分级审核规则引擎, 可空
+    @Optional() private readonly reviewTierService?: ReviewTierService,
   ) {
     this.gateway = gateway ?? createNoopGateway()
+    this.revisions = revisionContent ?? new ReportRevisionContentStore()
+  }
+
+  /** 从 Report 记录构造签名内容快照 */
+  private toSignatureContent(r: ReportWithExam | Report): SignatureContentSnapshot {
+    return {
+      findings: (r as Report).findings ?? '',
+      impression: (r as Report).impression ?? '',
+      conclusion: (r as Report).conclusion ?? '',
+      diagnosis: (r as Report).diagnosis ?? '',
+      recommendations: (r as Report).recommendations ?? '',
+      qualityScore: (r as Report).qualityScore ?? null,
+      version: (r as Report).version ?? 0,
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -311,7 +344,7 @@ export class ReportsService {
     return toReportDto(r)
   }
 
-  async update(id: string, dto: { findings?: string; conclusion?: string; htmlContent?: string }) {
+  async update(id: string, dto: { findings?: string; conclusion?: string; htmlContent?: string }, actorId = 'unknown') {
     const { findings, conclusion, htmlContent } = dto
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.report.findUnique({ where: { id } })
@@ -326,6 +359,21 @@ export class ReportsService {
             version: { increment: 1 },
           },
           include: { patient: { select: { id: true, name: true, gender: true } } },
+        })
+        // [G005 W8-Report] 内容版本快照: 每次编辑追加一条, 供 /reports/:id/revisions[/diff]
+        const prev = this.revisions.latest(id)
+        this.revisions.append({
+          reportId: id,
+          findings: r.findings ?? current.findings ?? '',
+          impression: r.impression ?? current.impression ?? '',
+          conclusion: r.conclusion ?? current.conclusion ?? '',
+          diagnosis: r.diagnosis ?? current.diagnosis ?? '',
+          recommendations: r.recommendations ?? current.recommendations ?? '',
+          qualityScore: (r.qualityScore ?? current.qualityScore ?? null) as number | null,
+          actorId,
+          fromState: current.state,
+          toState: current.state,
+          reason: `内容修订 v${(prev?.versionNumber ?? 0) + 1}`,
         })
         return toReportDto(r)
       } catch (error: any) {
@@ -360,7 +408,30 @@ export class ReportsService {
           tenantId: currentTenantId(),
         },
       })
+      // [G005 W8-Report] 撤回 = 召回: 作废签名 + 内容快照
+      this.signing?.supersede(id)
+      this.revisions.append({
+        reportId: id,
+        findings: existing.findings ?? '',
+        impression: existing.impression ?? '',
+        conclusion: existing.conclusion ?? '',
+        diagnosis: existing.diagnosis ?? '',
+        recommendations: existing.recommendations ?? '',
+        qualityScore: existing.qualityScore ?? null,
+        actorId,
+        fromState: existing.state,
+        toState: 'WITHDRAWN',
+        reason,
+      })
       return toReportDto(r)
+    }).then((dto) => {
+      // [G005 W8-Report] 撤回/召回 → HL7 ORU(C) + 通知 + 回执待确认
+      try {
+        this.recallService?.recall(id, { reason, actorId, reportSnapshot: { findings: existing.findings, conclusion: existing.conclusion, impression: existing.impression } })
+      } catch (e) {
+        this.logger.warn(`[ReportRecall] delete→recall failed: ${(e as Error).message}`)
+      }
+      return dto
     })
   }
 
@@ -462,10 +533,35 @@ export class ReportsService {
       await tx.reportRevision.create({
         data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: currentTenantId() },
       })
+      // [G005 W8-Report] 状态流转内容快照 (含发布时质控评分)
+      this.revisions.append({
+        reportId: id,
+        findings: report.findings ?? '',
+        impression: report.impression ?? '',
+        conclusion: report.conclusion ?? '',
+        diagnosis: report.diagnosis ?? '',
+        recommendations: report.recommendations ?? '',
+        qualityScore: (qualityScore ?? report.qualityScore ?? null) as number | null,
+        actorId,
+        fromState: report.state,
+        toState: to,
+        reason: reason ?? undefined,
+      })
       return toReportDto(r)
     }).then(async (dto) => {
       // W4-2: 报告状态变化 → 工作列表实时刷新; 签署/发布额外推送 notify
       this.gateway.emitWorklistRefresh()
+      // [G005 W8-Report] 签署 → 真实摘要/RSA 签名/TSA; 修订/补发 → 作废旧签名 (superseded)
+      if (to === 'SIGNED') {
+        try {
+          this.signing?.signReport({ reportId: id, content: this.toSignatureContent(report), signedById: actorId })
+        } catch (e) {
+          this.logger.warn(`[ReportSigning] sign on transition failed: ${(e as Error).message}`)
+        }
+      }
+      if (to === 'AMENDING' || to === 'AMENDED' || to === 'RECTIFYING' || to === 'SUPPLEMENTING') {
+        this.signing?.supersede(id)
+      }
       // [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发 (auto 模式自动创建, 失败不阻塞)
       // [v3.0.6.11-103 Wave 13] 触发点从 SUBMITTED 强化为 PUBLISHED: 报告发布后按规则自动创建随访计划
       if (to === 'PUBLISHED') {
@@ -639,24 +735,199 @@ export class ReportsService {
     return task
   }
 
+  /**
+   * [G005 W8-Report] 版本对比: 优先使用内容版本快照 (真实前后差异), 无快照时回退状态迁移 diff。
+   */
   async diff(id: string) {
-    const report = await this.prisma.report.findUnique({
-      where: { id },
-      include: { revisions: { orderBy: { createdAt: 'desc' }, take: 2 } },
-    })
+    const report = await this.prisma.report.findUnique({ where: { id } })
     if (!report) throw new NotFoundException(`Report ${id} not found`)
-    const revisions = (report as any).revisions ?? []
-    const oldVersion = revisions.length >= 2 ? revisions[1] : null
-    const newVersion = revisions.length >= 1 ? revisions[0] : null
+    const snapshotDiff = this.revisions.diff(id)
+    if (snapshotDiff && snapshotDiff.before) {
+      return {
+        source: 'snapshot' as const,
+        oldVersion: snapshotDiff.before
+          ? { findings: snapshotDiff.before.findings, conclusion: snapshotDiff.before.conclusion, state: snapshotDiff.before.fromState, versionNumber: snapshotDiff.before.versionNumber }
+          : null,
+        newVersion: { findings: snapshotDiff.after.findings, conclusion: snapshotDiff.after.conclusion, state: snapshotDiff.after.toState, versionNumber: snapshotDiff.after.versionNumber },
+        changes: snapshotDiff.changedFields.map((f) => `${f} changed`),
+        changedFields: snapshotDiff.changedFields,
+        fields: snapshotDiff.fields,
+      }
+    }
+    const dbRevisions = await this.prisma.reportRevision.findMany({ where: { reportId: id }, orderBy: { createdAt: 'desc' }, take: 2 })
+    const oldVersion = dbRevisions.length >= 2 ? dbRevisions[1] : null
+    const newVersion = dbRevisions.length >= 1 ? dbRevisions[0] : null
     const changes: string[] = []
-    if (oldVersion && newVersion) {
-      if (oldVersion.fromState !== newVersion.fromState) changes.push(`State: ${oldVersion.fromState} → ${newVersion.fromState}`)
+    if (oldVersion && newVersion && oldVersion.fromState !== newVersion.fromState) {
+      changes.push(`State: ${oldVersion.fromState} → ${newVersion.fromState}`)
     }
     return {
-      oldVersion: oldVersion ? { findings: oldVersion.findings ?? '', conclusion: oldVersion.conclusion ?? '', state: oldVersion.fromState } : null,
-      newVersion: newVersion ? { findings: newVersion.findings ?? '', conclusion: newVersion.conclusion ?? '', state: newVersion.toState } : null,
+      source: 'state' as const,
+      oldVersion: oldVersion ? { findings: '', conclusion: '', state: oldVersion.fromState } : null,
+      newVersion: newVersion ? { findings: '', conclusion: '', state: newVersion.toState } : null,
       changes,
+      changedFields: oldVersion && newVersion && oldVersion.fromState !== newVersion.fromState ? ['state'] : [],
+      fields: [],
     }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // [G005 W8-Report] 内容版本修订 / 签名 / 分级审核 / 字段规范 / 召回
+  // ══════════════════════════════════════════════════════════════════════
+
+  /** GET /reports/:id/revisions — 内容版本快照列表 (含变更字段) */
+  async listRevisionContents(id: string): Promise<{ reportId: string; total: number; data: ReturnType<ReportRevisionContentStore['list']> }> {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const data = this.revisions.list(id)
+    return { reportId: id, total: data.length, data }
+  }
+
+  /** GET /reports/:id/revisions/:versionId/diff — 指定版本相对前一版本的内容差异 */
+  async revisionContentDiff(id: string, versionId: string) {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const diff = this.revisions.diff(id, versionId)
+    if (!diff) throw new NotFoundException(`报告 ${id} 的版本 ${versionId} 不存在或无对比基准`)
+    return diff
+  }
+
+  /** GET /reports/:id/signature — 最新数据签名 (含算法/摘要/证书/TSA) */
+  async getSignature(id: string) {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const signature = this.signing?.getSignature(id) ?? null
+    return { reportId: id, signed: Boolean(signature), signature, history: this.signing?.listSignatures(id) ?? [] }
+  }
+
+  /** POST /reports/:id/verify-signature — 验签 (证书/CRL/摘要/签名/TSA) */
+  async verifySignature(id: string, body: { content?: Partial<SignatureContentSnapshot>; signatureId?: string }): Promise<SignatureVerification> {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const current = this.toSignatureContent(report)
+    const content: SignatureContentSnapshot | undefined = body.content
+      ? {
+          findings: body.content.findings ?? current.findings,
+          impression: body.content.impression ?? current.impression,
+          conclusion: body.content.conclusion ?? current.conclusion,
+          diagnosis: body.content.diagnosis ?? current.diagnosis,
+          recommendations: body.content.recommendations ?? current.recommendations,
+          qualityScore: body.content.qualityScore ?? current.qualityScore,
+          version: body.content.version ?? current.version,
+        }
+      : current
+    const fallback: SignatureVerification = {
+      valid: false,
+      reportId: id,
+      signatureId: null,
+      algorithm: null,
+      reasons: ['SIGNING_SERVICE_UNAVAILABLE: 签名服务未启用'],
+      digestMatch: false,
+      signatureMatch: false,
+      certificateValid: false,
+      notRevoked: false,
+      tsaValid: false,
+      certificate: null,
+      signedAt: null,
+      signedById: null,
+      computedDigest: null,
+      verifiedAt: new Date().toISOString(),
+    }
+    return this.signing?.verifySignature(id, { content, signatureId: body.signatureId }) ?? fallback
+  }
+
+  /** POST /reports/:id/resolve-review-tier — 分级审核链判定 */
+  async resolveReviewTier(id: string, body: Partial<ReviewTierInput>): Promise<ReviewTierResolution> {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const exam = await this.prisma.exam.findUnique({ where: { id: (report as Report).examId ?? '' } }).catch(() => null)
+    const input: ReviewTierInput = {
+      reportId: id,
+      modality: body.modality ?? (exam as { modality?: string } | null)?.modality,
+      radsCategory: body.radsCategory,
+      severity: body.severity,
+      isCritical: body.isCritical ?? (report as Report).isCritical,
+      authorSeniority: body.authorSeniority,
+      authorId: body.authorId ?? (report as Report).radiologistId ?? undefined,
+    }
+    if (!this.reviewTierService) {
+      return {
+        source: 'demo',
+        generatedAt: new Date().toISOString(),
+        reportId: id,
+        input,
+        requiredTier: input.isCritical ? 'dual-sign' : 'initial',
+        tierLabel: input.isCritical ? '双签' : '初核',
+        steps: [],
+        matchedRules: [],
+        critical: Boolean(input.isCritical),
+      }
+    }
+    return this.reviewTierService.resolve(input)
+  }
+
+  /** POST /reports/:id/recall — 报告召回: HL7 ORU(C) 通知 + 事件 + 回执待确认 */
+  async recallReport(id: string, body: { reason: string; actorId?: string }, actorId = 'unknown') {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    if (!this.recallService) {
+      return { reportId: id, recalled: false, message: '召回服务未启用', reason: body.reason }
+    }
+    const actor = body.actorId?.trim() || actorId
+    const record = this.recallService.recall(id, {
+      reason: body.reason,
+      actorId: actor,
+      reportSnapshot: { findings: (report as Report).findings, conclusion: (report as Report).conclusion, impression: (report as Report).impression },
+    })
+    // 作废签名
+    this.signing?.supersede(id)
+    return record
+  }
+
+  /** GET /reports/:id/recall-ack — 召回回执状态 */
+  async getRecallAck(id: string) {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    if (!this.recallService) return { reportId: id, recalled: false, notifiedAt: null, acknowledged: false, acknowledgement: null, controlId: null }
+    return this.recallService.getAck(id)
+  }
+
+  /** POST /reports/:id/recall-ack — 临床回执确认 */
+  async acknowledgeRecall(id: string, body: { ackBy: string; note?: string; source?: 'HIS' | 'CLINICIAN' }) {
+    if (!this.recallService) throw new BadRequestException('召回服务未启用')
+    return this.recallService.acknowledge(id, body)
+  }
+
+  /** GET /reports/field-specs — 结构化字段规范 + 参考范围 */
+  getFieldSpecs() {
+    return {
+      source: 'seed' as const,
+      generatedAt: new Date().toISOString(),
+      total: REPORT_FIELD_SPECS.length,
+      data: REPORT_FIELD_SPECS,
+    }
+  }
+
+  /** POST /reports/:id/validate-fields — 结构化字段校验 (提交前); 未传 values 时校验报告当前内容 */
+  async validateFieldsById(id: string, values?: Record<string, unknown>) {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const source = values && Object.keys(values).length > 0
+      ? values
+      : {
+          findings: (report as Report).findings ?? '',
+          conclusion: (report as Report).conclusion ?? '',
+          impression: (report as Report).impression ?? '',
+          diagnosis: (report as Report).diagnosis ?? '',
+          recommendations: (report as Report).recommendations ?? '',
+          qualityScore: (report as Report).qualityScore ?? undefined,
+        }
+    return { reportId: id, ...validateReportFields(source) }
+  }
+
+  /** 提交前字段规范强校验 (错误即抛 400) */
+  assertFieldsForSubmit(values: Record<string, unknown>) {
+    return assertReportFieldsValid(values)
   }
 
   async auditTrail(id: string) {

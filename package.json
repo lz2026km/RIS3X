@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.12-0",
-  "description": "G005 Radiology RIS v3.0.6.12-0 - Commercial Demo Release (backend parity + i18n + demo data)",
+  "version": "3.0.6.12-1",
+  "description": "G005 Radiology RIS v3.0.6.12-1 - Professional Upgrade (real DICOM pipeline + MPR/MIP/VR + AI quant + workflow depth)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

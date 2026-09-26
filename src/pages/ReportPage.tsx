@@ -367,7 +367,10 @@ export default function ReportPage() {
       const oldVersion = (d.oldVersion ?? d.previous ?? {}) as Record<string, unknown>;
       const newVersion = (d.newVersion ?? d.current ?? {}) as Record<string, unknown>;
       const changes = (d.changes ?? d.diff ?? []) as ReportDiffData['changes'];
-      setDiffModal({ report: r, data: { oldVersion, newVersion, changes }, loading: false });
+      // [G005 W8-Report] 内容版本快照真实字段差异 (后端 diff 返回 source=snapshot + fields)
+      const fields = Array.isArray(d.fields) ? (d.fields as ReportDiffData['fields']) : undefined;
+      const changedFields = Array.isArray(d.changedFields) ? (d.changedFields as string[]) : undefined;
+      setDiffModal({ report: r, data: { oldVersion, newVersion, changes, fields, changedFields, source: String(d.source ?? '') }, loading: false });
     } catch {
       const { examFindings, diagnosis, impression } = r;
       setDiffModal({

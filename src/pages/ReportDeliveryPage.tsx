@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Tabs, Badge, message, Popconfirm, Modal } from 'antd';
+import { Tabs, Badge, message, Popconfirm, Modal, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import { Send, MessageSquare, Mail, Database, Printer, Cloud, Film, CheckCircle2, RefreshCw, Loader2, Bell, Eye, Filter, Undo2, RotateCcw } from 'lucide-react';
@@ -96,7 +96,16 @@ const TEMPLATE_LABEL: Record<string, string> = {
 };
 
 // [G005 Wave6A] 撤回记录 (本地状态流转)
-interface RecallEntry { at: string; reason: string }
+// [G005 W8-Report] 召回记录 (真实后端 + 本地回退)
+interface RecallEntry {
+  at: string
+  reason: string
+  source?: 'api' | 'local'
+  hl7ControlId?: string
+  acknowledged?: boolean
+  ackBy?: string
+  ackAt?: string
+}
 
 // ============================================================
 // 主组件
@@ -158,16 +167,58 @@ export default function ReportDeliveryPage() {
     });
   }, [records, filterChannel, filterStatus, recalls]);
 
-  // [Wave6A] 撤回: 状态置 recalled + 记录原因 (本地)
-  const confirmRecall = () => {
+  // [G005 W8-Report] 撤回/召回: 调后端 POST /reports/:id/recall (HL7 ORU C + 通知 + 回执),
+  //   失败则回退本地状态记录
+  const confirmRecall = async () => {
     if (!recallTarget) return;
-    setRecalls(prev => ({
-      ...prev,
-      [recallTarget.id]: { at: new Date().toLocaleString('zh-CN', { hour12: false }), reason: recallReason.trim() || t('reportDelivery.noReason') },
-    }));
+    const reason = recallReason.trim() || t('reportDelivery.noReason');
+    const localAt = new Date().toLocaleString('zh-CN', { hour12: false });
+    let entry: RecallEntry = { at: localAt, reason, source: 'local' };
+    try {
+      const res = await reportApi.recall(recallTarget.reportId || recallTarget.id, reason);
+      if (res.success && res.data) {
+        const d = res.data;
+        entry = {
+          at: (d.recalledAt ?? new Date().toISOString()).replace('T', ' ').slice(0, 19),
+          reason: d.reason ?? reason,
+          source: 'api',
+          hl7ControlId: d.hl7?.controlId,
+          acknowledged: Boolean(d.acknowledgement),
+        };
+        message.success(t('w8Report.recall.success', { name: recallTarget.patientName }));
+      } else {
+        message.success(`已撤回推送记录 ${recallTarget.patientName} · 状态本地记录`);
+      }
+    } catch {
+      message.warning(t('w8Report.recall.fallback'));
+    }
+    setRecalls(prev => ({ ...prev, [recallTarget.id]: entry }));
     setRecallTarget(null);
     setRecallReason('');
-    message.success(`已撤回推送记录 ${recallTarget.patientName} · 状态本地记录`);
+  };
+
+  // [G005 W8-Report] 临床回执确认
+  const handleAckRecall = async (r: DeliveryRecord) => {
+    const reportId = r.reportId || r.id;
+    try {
+      const res = await reportApi.acknowledgeRecall(reportId, '临床-值班', t('w8Report.recall.ackNote'));
+      if (res.success) {
+        message.success(t('w8Report.recall.ackSuccess'));
+        setRecalls(prev => {
+          const cur = prev[r.id];
+          if (!cur) return prev;
+          return { ...prev, [r.id]: { ...cur, acknowledged: true, ackBy: res.data?.acknowledgement?.ackBy ?? '临床-值班', ackAt: new Date().toISOString() } };
+        });
+      }
+    } catch {
+      // 后端不可用: 仍标记本地已确认
+      setRecalls(prev => {
+        const cur = prev[r.id];
+        if (!cur) return prev;
+        return { ...prev, [r.id]: { ...cur, acknowledged: true, ackBy: '临床-值班', ackAt: new Date().toISOString() } };
+      });
+      message.warning(t('w8Report.recall.ackFallback'));
+    }
   };
 
   // [Wave6A] 重发: 重新触发推送 (调 /api/v1/dist/tasks 入队; 失败则本地状态流转)
@@ -379,6 +430,39 @@ export default function ReportDeliveryPage() {
           ]}
         />
       </div>
+
+      {/* [G005 W8-Report] 召回通知列表 (HL7 ORU C + 临床回执) */}
+      {Object.keys(recalls).length > 0 && (
+        <div style={{ marginBottom: 16, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-card)', padding: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Undo2 size={13} /> {t('w8Report.recall.listTitle')} ({Object.keys(recalls).length})
+          </div>
+          <div style={{ display: 'grid', gap: 6 }}>
+            {records.filter(r => recalls[r.id]).map(r => {
+              const rec = recalls[r.id]!;
+              return (
+                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', fontSize: 12, padding: '6px 8px', border: '1px solid var(--border-color)', borderRadius: 6 }}>
+                  <span style={{ fontWeight: 600 }}>{r.patientName}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{r.reportId}</span>
+                  <span>{rec.reason}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{rec.at}</span>
+                  {rec.hl7ControlId && <Tag color="purple" style={{ fontSize: 11 }}>HL7 ORU C</Tag>}
+                  {rec.acknowledged ? (
+                    <Tag color="green" style={{ fontSize: 11 }}>{t('w8Report.recall.acknowledged')} · {rec.ackBy}</Tag>
+                  ) : (
+                    <button
+                      onClick={() => void handleAckRecall(r)}
+                      style={{ padding: '3px 8px', border: '1px solid #16a34a', borderRadius: 4, background: 'var(--bg-card)', color: '#16a34a', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3 }}
+                    >
+                      <CheckCircle2 size={10} /> {t('w8Report.recall.ackAction')}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {view === 'v3' ? (
         <div className="space-y-3">

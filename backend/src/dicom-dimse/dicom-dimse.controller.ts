@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { DicomDimseService } from './dicom-dimse.service'
+import { MwlService } from './mwl.service'
 import { z } from 'zod'
-import { CEchoSchema, CFindMwlSchema, CMoveSchema, CStoreSchema, MppsSchema, NodeTlsSchema, TlsConfigSchema, TransferEnqueueSchema, UploadS3Schema } from './dto'
+import { CEchoSchema, CFindMwlSchema, CMoveSchema, CStoreSchema, MppsLinkSchema, NodeTlsSchema, TlsConfigSchema, TransferEnqueueSchema, UploadS3Schema, MwlQuerySchema } from './dto'
 
 @ApiTags('dicom-dimse')
 @ApiBearerAuth()
@@ -13,7 +14,10 @@ import { CEchoSchema, CFindMwlSchema, CMoveSchema, CStoreSchema, MppsSchema, Nod
 @UseGuards(AuthGuard('jwt'))
 @Controller('dicom-dimse')
 export class DicomDimseController {
-  constructor(private readonly service: DicomDimseService) {}
+  constructor(
+    private readonly service: DicomDimseService,
+    private readonly mwl: MwlService,
+  ) {}
 
   @Post('echo')
   async cEcho(@Body(new ZodValidationPipe(CEchoSchema)) body: z.infer<typeof CEchoSchema>) {
@@ -69,8 +73,8 @@ export class DicomDimseController {
   // ═══════════ [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度 ═══════════
 
   @Post('mpps')
-  @ApiOperation({ summary: 'MPPS N-CREATE/N-SET 简化: 记录/更新检查进度 (内存 + Exam 派生回退)' })
-  async createMpps(@Body(new ZodValidationPipe(MppsSchema)) body: z.infer<typeof MppsSchema>) {
+  @ApiOperation({ summary: 'MPPS N-CREATE/N-SET 简化: 记录/更新检查进度 (携带 accessionNumber/requestedProcedureId)' })
+  async createMpps(@Body(new ZodValidationPipe(MppsLinkSchema)) body: z.infer<typeof MppsLinkSchema>) {
     return this.service.createOrUpdateMpps(body)
   }
 
@@ -78,6 +82,20 @@ export class DicomDimseController {
   @ApiOperation({ summary: 'MPPS 检查进度列表' })
   listMpps() {
     return this.service.listMpps()
+  }
+
+  // ═══════════ [G005 W7-Exec] DICOM MWL C-FIND SCP ═══════════
+
+  @Get('mwl/worklist-items')
+  @ApiOperation({ summary: 'MWL 工作列表项查询 (modality/date/patientName/stationAE, Exam/Appointment seed + DB 回退)' })
+  worklistItems(@Query(new ZodValidationPipe(MwlQuerySchema)) query: z.infer<typeof MwlQuerySchema>) {
+    return this.mwl.listWorklistItems(query)
+  }
+
+  @Post('mwl/query')
+  @ApiOperation({ summary: 'MWL C-FIND 查询: 返回 C-FIND JSON dataset 形状' })
+  mwlQuery(@Body(new ZodValidationPipe(MwlQuerySchema)) body: z.infer<typeof MwlQuerySchema>) {
+    return this.mwl.query(body)
   }
 
   // ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列 ═══════════

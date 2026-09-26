@@ -12,10 +12,15 @@ import {
   Statistic,
   Space,
   Descriptions,
+  InputNumber,
+  Alert,
 } from "antd";
 import { api } from "../../services/api/client";
 import { t } from "../../i18n/appI18n";
 import { usePagination } from "../../hooks/usePagination";
+
+// [G005 W6] ESI 五级标签
+const esiLabel = (level?: number): string => (level ? t(`w6Reg.triage.esi${level}`) : "-");
 
 interface TriageItem {
   id: string;
@@ -28,6 +33,21 @@ interface TriageItem {
   status: "PENDING" | "ASSIGNED" | "COMPLETED";
   assignedDoctor?: string;
   createdAt: string;
+  // [G005 W6] ESI 五级 + 队列优先级 + 复评
+  esiLevel?: number;
+  queuePriority?: string;
+  reTriageRecommended?: boolean;
+  reTriageAt?: string;
+  nurseName?: string;
+}
+
+interface VitalInput {
+  systolicBp?: number;
+  diastolicBp?: number;
+  heartRate?: number;
+  temperature?: number;
+  spo2?: number;
+  respiratoryRate?: number;
 }
 
 const levelColor: Record<string, string> = {
@@ -51,6 +71,11 @@ const TriagePage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [newDoctor, setNewDoctor] = useState("");
   const [newStatus, setNewStatus] = useState<string>("");
+  // [G005 W6] 复评 (vitals + ESI)
+  const [reTriageItem, setReTriageItem] = useState<TriageItem | null>(null);
+  const [vitals, setVitals] = useState<VitalInput>({});
+  const [reTriageInfo, setReTriageInfo] = useState<{ esiLevel?: number; queuePriority?: string; breaches: string[] } | null>(null);
+  const [reTriaging, setReTriaging] = useState(false);
   // [W3-C] 受控分页: 待分诊列表
   const listPagination = usePagination(items, 10);
 
@@ -110,12 +135,50 @@ const TriagePage: React.FC = () => {
     }
   };
 
+  // [G005 W6] 复评: 采集生命体征 → 重算 ESI / 队列优先级
+  const handleReTriage = async () => {
+    if (!reTriageItem) return;
+    setReTriaging(true);
+    try {
+      const res = await api.post<{
+        esiLevel?: number;
+        queuePriority?: string;
+        vitalsBreaches?: string[];
+        reTriageAt?: string;
+        reTriageRecommended?: boolean;
+      }>("/triage/re-triage", {
+        examId: reTriageItem.examId,
+        patientId: reTriageItem.patientId,
+        patientName: reTriageItem.patientName,
+        examType: reTriageItem.examType,
+        vitals,
+      });
+      const d = res.data;
+      setReTriageInfo({ esiLevel: d.esiLevel, queuePriority: d.queuePriority, breaches: d.vitalsBreaches ?? [] });
+      setItems((list) =>
+        list.map((i) =>
+          i.id === reTriageItem.id
+            ? { ...i, esiLevel: d.esiLevel, queuePriority: d.queuePriority, reTriageRecommended: !!d.reTriageRecommended, reTriageAt: d.reTriageAt }
+            : i,
+        ),
+      );
+      message.success(t("w6Reg.triage.success"));
+    } catch {
+      message.error(t("w6Reg.loadFailed"));
+    } finally {
+      setReTriaging(false);
+    }
+  };
+
   const scoreColor = (score: number) => {
     if (score >= 16) return "red";
     if (score >= 11) return "orange";
     if (score >= 6) return "gold";
     return "green";
   };
+
+  const levelToEsi = (lvl: string) => (lvl === "CRITICAL" ? 2 : lvl === "URGENT" ? 3 : lvl === "SEMI_URGENT" ? 4 : 5);
+  const esiColor = (esi?: number) => (esi === 1 ? "red" : esi === 2 ? "volcano" : esi === 3 ? "orange" : esi === 4 ? "blue" : "green");
 
   const columns = [
     {
@@ -146,6 +209,30 @@ const TriagePage: React.FC = () => {
       ),
     },
     {
+      // [G005 W6] ESI 五级 (缺失时由 level 推导)
+      title: t("w6Reg.triage.esi"),
+      dataIndex: "esiLevel",
+      key: "esiLevel",
+      render: (_: unknown, r: TriageItem) => {
+        const esi = r.esiLevel ?? levelToEsi(r.level);
+        return (
+          <Space size={4}>
+            <Tag color={esiColor(esi)}>{esiLabel(esi)}</Tag>
+            {r.reTriageRecommended && <Tag color="red">{t("w6Reg.triage.reTriage")}</Tag>}
+          </Space>
+        );
+      },
+    },
+    {
+      // [G005 W6] 队列优先级
+      title: t("w6Reg.triage.queuePriority"),
+      dataIndex: "queuePriority",
+      key: "queuePriority",
+      render: (p: string | undefined) => (
+        <Tag color={p === "危重" ? "red" : p === "紧急" ? "orange" : "default"}>{p ?? "-"}</Tag>
+      ),
+    },
+    {
       title: t("triage.status"),
       dataIndex: "status",
       key: "status",
@@ -171,6 +258,9 @@ const TriagePage: React.FC = () => {
           )}
           <Button size="small" onClick={() => { setSelectedItem(record); setNewDoctor(record.assignedDoctor ?? ""); setNewStatus(record.status); setModalOpen(true); }}>
             {t("triage.adjust")}
+          </Button>
+          <Button size="small" onClick={() => { setReTriageItem(record); setVitals({}); setReTriageInfo(null); }} data-testid={`re-triage-${record.id}`}>
+            {t("w6Reg.triage.reTriage")}
           </Button>
           {record.status !== "COMPLETED" && (
             <Button size="small" type="default" onClick={() => handleConfirm(record)}>
@@ -269,6 +359,51 @@ const TriagePage: React.FC = () => {
             ]}
           />
         </div>
+      </Modal>
+
+      {/* [G005 W6] 复评: 生命体征录入 + ESI 自动建议 */}
+      <Modal
+        title={`${t("w6Reg.triage.reTriage")} · ${reTriageItem?.patientName ?? ""}`}
+        open={!!reTriageItem}
+        confirmLoading={reTriaging}
+        okText={t("w6Reg.triage.reTriage")}
+        cancelText={t("w6Reg.cancel")}
+        onOk={handleReTriage}
+        onCancel={() => setReTriageItem(null)}
+        width={560}
+      >
+        <Row gutter={[8, 8]}>
+          {([
+            ["systolicBp", t("w6Reg.safety.bp")],
+            ["diastolicBp", "舒张压 (mmHg)"],
+            ["heartRate", t("w6Reg.safety.hr")],
+            ["temperature", t("w6Reg.safety.temp")],
+            ["spo2", t("w6Reg.safety.spo2")],
+            ["respiratoryRate", t("w6Reg.safety.rr")],
+          ] as Array<[keyof VitalInput, string]>).map(([key, label]) => (
+            <Col span={8} key={key}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{label}</div>
+              <InputNumber
+                style={{ width: "100%" }}
+                value={vitals[key]}
+                onChange={(v) => setVitals((prev) => ({ ...prev, [key]: v ?? undefined }))}
+              />
+            </Col>
+          ))}
+        </Row>
+        {reTriageInfo && (
+          <div style={{ marginTop: 12 }}>
+            <Space>
+              <span>{t("w6Reg.triage.esi")}:</span>
+              <Tag color={esiColor(reTriageInfo.esiLevel)}>{esiLabel(reTriageInfo.esiLevel)}</Tag>
+              <span>{t("w6Reg.triage.queuePriority")}:</span>
+              <Tag color="volcano">{reTriageInfo.queuePriority ?? "-"}</Tag>
+            </Space>
+            {reTriageInfo.breaches.length > 0 && (
+              <Alert style={{ marginTop: 8 }} type="warning" showIcon message={t("w6Reg.triage.breach")} description={reTriageInfo.breaches.join("；")} />
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import {
   Table, Button, Tag, Modal, Select, message, Card, Row, Col, Statistic,
-  Space, Descriptions, Progress, Typography, Tooltip, Badge, Input,
+  Space, Descriptions, Progress, Typography, Tooltip, Badge, Input, InputNumber, Alert,
 } from 'antd'
-import { Siren, UserCheck, Clock, AlertTriangle, RefreshCw, Filter } from 'lucide-react'
-import { triageApi, type TriagePendingItem, type TriageScoreResult, type TriageFactor } from '../../services/api/triageApi'
+import { Siren, UserCheck, Clock, AlertTriangle, RefreshCw, Filter, Activity } from 'lucide-react'
+import { triageApi, type TriagePendingItem, type TriageScoreResult, type TriageFactor, type VitalSigns } from '../../services/api/triageApi'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
+
+// [G005 W6] ESI 五级标签与颜色
+const esiLabel = (level?: number): string => (level ? t(`w6Reg.triage.esi${level}`) : '-')
+const esiColor = (esi?: number) => (esi === 1 ? 'red' : esi === 2 ? 'volcano' : esi === 3 ? 'orange' : esi === 4 ? 'blue' : 'green')
+const levelToEsi = (lvl: string) => (lvl === 'CRITICAL' ? 2 : lvl === 'URGENT' ? 3 : lvl === 'SEMI_URGENT' ? 4 : 5)
 
 const { Text, Title } = Typography
 
@@ -35,6 +40,11 @@ const TriageDashboardPage: React.FC = () => {
   const [searchText, setSearchText] = useState('')
   const [scoreResult, setScoreResult] = useState<TriageScoreResult | null>(null)
   const [scoring, setScoring] = useState(false)
+  // [G005 W6] 复评 (vitals + ESI)
+  const [reTriageItem, setReTriageItem] = useState<TriagePendingItem | null>(null)
+  const [vitals, setVitals] = useState<VitalSigns>({})
+  const [reTriageResult, setReTriageResult] = useState<TriageScoreResult | null>(null)
+  const [reTriaging, setReTriaging] = useState(false)
 
   const fetchPending = useCallback(async () => {
     setLoading(true)
@@ -97,6 +107,32 @@ const TriageDashboardPage: React.FC = () => {
       message.error(t('triage.scoreFailed'))
     } finally {
       setScoring(false)
+    }
+  }
+
+  // [G005 W6] 复评: 生命体征 → 重算 ESI / 队列优先级
+  const handleReTriage = async () => {
+    if (!reTriageItem) return
+    setReTriaging(true)
+    try {
+      const res = await triageApi.reTriage({
+        examId: reTriageItem.examId,
+        patientId: reTriageItem.patientId,
+        patientName: reTriageItem.patientName,
+        examType: reTriageItem.examType,
+        vitals,
+      })
+      if (res.success) {
+        setReTriageResult(res.data)
+        message.success(t('w6Reg.triage.success'))
+        fetchPending()
+      } else {
+        message.error(res.error?.message || t('w6Reg.loadFailed'))
+      }
+    } catch {
+      message.error(t('w6Reg.loadFailed'))
+    } finally {
+      setReTriaging(false)
     }
   }
 
@@ -178,6 +214,30 @@ const TriageDashboardPage: React.FC = () => {
       ),
     },
     {
+      // [G005 W6] ESI 五级
+      title: t('w6Reg.triage.esi'),
+      dataIndex: 'esiLevel',
+      key: 'esiLevel',
+      render: (_: unknown, r: TriagePendingItem) => {
+        const esi = r.esiLevel ?? levelToEsi(r.level)
+        return (
+          <Space size={4}>
+            <Tag color={esiColor(esi)}>{esiLabel(esi)}</Tag>
+            {r.reTriageRecommended && <Tag color="red">{t('w6Reg.triage.reTriage')}</Tag>}
+          </Space>
+        )
+      },
+    },
+    {
+      // [G005 W6] 队列优先级
+      title: t('w6Reg.triage.queuePriority'),
+      dataIndex: 'queuePriority',
+      key: 'queuePriority',
+      render: (p: string | undefined) => (
+        <Tag color={p === '危重' ? 'red' : p === '紧急' ? 'orange' : 'default'}>{p ?? '-'}</Tag>
+      ),
+    },
+    {
       title: t('triage.colStatus'),
       dataIndex: 'status',
       key: 'status',
@@ -221,6 +281,11 @@ const TriageDashboardPage: React.FC = () => {
               setDetailOpen(true)
             }}>
               {t('triage.detail')}
+            </Button>
+          </Tooltip>
+          <Tooltip title={t('w6Reg.triage.autoSuggested')}>
+            <Button size="small" icon={<Activity size={12} />} onClick={() => { setReTriageItem(record); setVitals({ ...(record.vitals ?? {}) }); setReTriageResult(null) }} data-testid={`re-triage-${record.id}`}>
+              {t('w6Reg.triage.reTriage')}
             </Button>
           </Tooltip>
           {record.status !== 'COMPLETED' && (
@@ -395,6 +460,51 @@ const TriageDashboardPage: React.FC = () => {
               />
             </div>
           </>
+        )}
+      </Modal>
+
+      {/* [G005 W6] 复评: 生命体征录入 + ESI 自动建议 */}
+      <Modal
+        title={`${t('w6Reg.triage.reTriage')} · ${reTriageItem?.patientName ?? ''}`}
+        open={!!reTriageItem}
+        confirmLoading={reTriaging}
+        okText={t('w6Reg.triage.reTriage')}
+        cancelText={t('w6Reg.cancel')}
+        onOk={handleReTriage}
+        onCancel={() => setReTriageItem(null)}
+        width={560}
+      >
+        <Row gutter={[8, 8]}>
+          {([
+            ['systolicBp', t('w6Reg.safety.bp')],
+            ['diastolicBp', t('w6Reg.safety.bp') + ' (舒张)'],
+            ['heartRate', t('w6Reg.safety.hr')],
+            ['temperature', t('w6Reg.safety.temp')],
+            ['spo2', t('w6Reg.safety.spo2')],
+            ['respiratoryRate', t('w6Reg.safety.rr')],
+          ] as Array<[keyof VitalSigns, string]>).map(([key, label]) => (
+            <Col span={8} key={key}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>{label}</div>
+              <InputNumber
+                style={{ width: '100%' }}
+                value={vitals[key]}
+                onChange={(v) => setVitals((prev) => ({ ...prev, [key]: v ?? undefined }))}
+              />
+            </Col>
+          ))}
+        </Row>
+        {reTriageResult && (
+          <div style={{ marginTop: 12 }}>
+            <Space>
+              <span>{t('w6Reg.triage.esi')}:</span>
+              <Tag color={esiColor(reTriageResult.esiLevel)}>{esiLabel(reTriageResult.esiLevel)}</Tag>
+              <span>{t('w6Reg.triage.queuePriority')}:</span>
+              <Tag color="volcano">{reTriageResult.queuePriority ?? '-'}</Tag>
+            </Space>
+            {reTriageResult.vitalsBreaches && reTriageResult.vitalsBreaches.length > 0 && (
+              <Alert style={{ marginTop: 8 }} type="warning" showIcon message={t('w6Reg.triage.breach')} description={reTriageResult.vitalsBreaches.join('；')} />
+            )}
+          </div>
         )}
       </Modal>
     </div>

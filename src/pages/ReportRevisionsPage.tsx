@@ -6,13 +6,14 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { message, Modal, Input } from 'antd';
+import { message, Modal, Input, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getCurrentUser } from '../utils/auth';
 import { notificationsApi } from '../services/api/notificationsApi';
 import {
   History, GitCompare, ChevronRight, Plus, Edit2, Eye, X,
   FileText, Bell, ArrowLeftRight, RotateCcw, Search, Layers, GitBranch,
+  ShieldCheck, BadgeCheck,
 } from 'lucide-react';
 import {
   REPORT_REVISIONS,
@@ -20,7 +21,7 @@ import {
   type ReportRevision,
 } from '../data/reviewRevisionCollabMock';
 import { extendedReportMock } from '../data/reportSubsystemMock';
-import { reportApi } from '../services/api/reportApi';
+import { reportApi, type ReportRevisionContentDto, type ReportSignatureDto } from '../services/api/reportApi';
 import { DataTable } from '../components/common/DataTable';
 import { t } from '../i18n/appI18n';
 
@@ -102,6 +103,11 @@ export default function ReportRevisionsPage() {
     }
     return m;
   });
+  // [G005 W8-Report] 真实内容版本快照 + 数据签名状态
+  const [revContents, setRevContents] = useState<Record<string, ReportRevisionContentDto[]>>({});
+  const [signatures, setSignatures] = useState<Record<string, ReportSignatureDto | null>>({});
+  const [verifyMsg, setVerifyMsg] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
 
   const loadRevisions = useCallback(async () => {
     setLoading(true);
@@ -123,38 +129,52 @@ export default function ReportRevisionsPage() {
           bodyPart: String(rr.bodyPart ?? ''),
         };
       }
+      const contentMap: Record<string, ReportRevisionContentDto[]> = {};
+      const sigMap: Record<string, ReportSignatureDto | null> = {};
       const batch = reports.slice(0, 12).map(async (r: any) => {
         const id = String(r.id);
-        const [trailRes, diffRes] = await Promise.allSettled([
+        const [trailRes, diffRes, revRes, sigRes] = await Promise.allSettled([
           reportApi.auditTrail(id),
           reportApi.diff(id),
+          reportApi.getRevisions(id),
+          reportApi.getSignature(id),
         ]);
         const events = trailRes.status === 'fulfilled' && Array.isArray(trailRes.value.data?.events)
           ? trailRes.value.data.events
           : [];
-        if (events.length === 0) return null;
         const diff = diffRes.status === 'fulfilled' ? diffRes.value.data : null;
         const oldV = (diff?.oldVersion ?? {}) as Record<string, any>;
         const newV = (diff?.newVersion ?? {}) as Record<string, any>;
-        return events.map((ev: any, i: number) => {
-          const isLastTwo = i >= events.length - 2;
-          const isNewest = i === events.length - 1;
-          const content = isNewest ? newV : isLastTwo ? oldV : {};
+        // [G005 W8-Report] 真实内容版本快照 (按版本号匹配)
+        const contents = revRes.status === 'fulfilled' && Array.isArray(revRes.value.data?.data) ? revRes.value.data.data : [];
+        contentMap[id] = contents;
+        sigMap[id] = sigRes.status === 'fulfilled' ? (sigRes.value.data?.signature ?? null) : null;
+        // 无审计事件时, 由内容快照合成修订链 (保证真实版本内容可见)
+        const effectiveEvents = events.length > 0
+          ? events
+          : contents.map((c) => ({ actor: c.actorId, fromState: c.fromState, toState: c.toState, reason: c.reason, timestamp: c.createdAt }));
+        if (effectiveEvents.length === 0) return null;
+        return effectiveEvents.map((ev: any, i: number) => {
+          const isLastTwo = i >= effectiveEvents.length - 2;
+          const isNewest = i === effectiveEvents.length - 1;
+          const fallback = isNewest ? newV : isLastTwo ? oldV : {};
+          const snapshot = contents.find((c) => c.versionNumber === i + 1);
+          const content = snapshot ? { findings: snapshot.findings, conclusion: snapshot.conclusion || snapshot.impression, diagnosis: snapshot.diagnosis, impression: snapshot.impression } : fallback;
           return {
-            id: `rev-${id}-${i}`,
+            id: snapshot?.id ?? `rev-${id}-${i}`,
             reportId: id,
             versionNumber: i + 1,
             versionLabel: `v1.${i}`,
-            authorId: String(ev.actor ?? 'unknown'),
-            authorName: String(ev.actor ?? t('reportRev.unknownUser')),
+            authorId: String(snapshot?.actorId ?? ev.actor ?? 'unknown'),
+            authorName: String(snapshot?.actorId ?? ev.actor ?? t('reportRev.unknownUser')),
             authorTitle: '—',
             action: mapAction(String(ev.fromState ?? ''), String(ev.toState ?? '')),
-            reason: String(ev.reason ?? `${ev.fromState ?? ''} → ${ev.toState ?? ''}`),
+            reason: String(snapshot?.reason ?? ev.reason ?? `${ev.fromState ?? ''} → ${ev.toState ?? ''}`),
             changes: [],
             findings: String(content?.findings ?? ''),
             diagnosis: String(content?.conclusion ?? ''),
-            impression: '',
-            createdAt: String(ev.timestamp ?? '').replace('T', ' ').slice(0, 19),
+            impression: String(content?.impression ?? ''),
+            createdAt: String(snapshot?.createdAt ?? ev.timestamp ?? '').replace('T', ' ').slice(0, 19),
             patientNotified: false,
           } as ReportRevision;
         });
@@ -164,6 +184,8 @@ export default function ReportRevisionsPage() {
         const flat = results.flat().sort((a, b) => a.createdAt.localeCompare(b.createdAt));
         setAllRevisions(flat);
         setReportMeta(prev => ({ ...prev, ...meta }));
+        setRevContents(contentMap);
+        setSignatures(sigMap);
         setSource('api');
       } else {
         setSource('demo');
@@ -218,6 +240,8 @@ export default function ReportRevisionsPage() {
   // 选中的左右版本
   const leftRev = currentRevisions.find(r => r.versionNumber === leftVersion);
   const rightRev = currentRevisions.find(r => r.versionNumber === rightVersion);
+  // [G005 W8-Report] 当前报告的真实内容版本快照 (按版本号索引)
+  const selectedContents = useMemo(() => revContents[selectedReportId] ?? [], [revContents, selectedReportId]);
 
   // [v3.0.6.11-98 Wave3B P1] 通知患者: notificationsApi.create 真实发送 (失败回退提示)
   const handleNotifyPatient = async () => {
@@ -272,6 +296,25 @@ export default function ReportRevisionsPage() {
         }
       },
     });
+  };
+
+  // [G005 W8-Report] 数据签名验签
+  const handleVerifySignature = async () => {
+    if (!selectedReportId) return;
+    setVerifying(true);
+    setVerifyMsg(null);
+    try {
+      const res = await reportApi.verifySignature(selectedReportId);
+      if (res.success && res.data) {
+        setVerifyMsg(res.data.valid ? t('w8Report.sig.verifyPass') : `${t('w8Report.sig.verifyFail')}: ${res.data.reasons.join('; ')}`);
+      } else {
+        setVerifyMsg(t('w8Report.sig.verifyFail'));
+      }
+    } catch {
+      setVerifyMsg(t('w8Report.sig.verifyFail'));
+    } finally {
+      setVerifying(false);
+    }
   };
 
   // [v3.0.6.11-99 Wave8A P1] 创建修订/补发: reportApi.revise → AMENDING (修订说明本地记录, 随修订链展示)
@@ -461,9 +504,32 @@ export default function ReportRevisionsPage() {
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('reportRev.reportIdLabel')}{selectedReportId}</div>
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.revisionCount')}</span>
-                      <span style={{ marginLeft: 6, fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{currentRevisions.length}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.revisionCount')}</span>
+                        <span style={{ marginLeft: 6, fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{currentRevisions.length}</span>
+                      </div>
+                      {/* [G005 W8-Report] 数据签名与证书状态 */}
+                      {(() => {
+                        const sig = signatures[selectedReportId] ?? null;
+                        return (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                            <ShieldCheck size={13} color="#0891b2" />
+                            {sig ? (
+                              <span>
+                                <Tag color={sig.algorithm === 'SM3' ? 'purple' : 'blue'} style={{ fontSize: 11 }}>{sig.algorithm}</Tag>
+                                <Tag color={sig.status === 'valid' ? 'green' : sig.status === 'superseded' ? 'orange' : 'red'} style={{ fontSize: 11 }}>{t(`w8Report.sig.status.${sig.status}`)}</Tag>
+                              </span>
+                            ) : (
+                              <span style={{ color: 'var(--text-secondary)' }}>{t('w8Report.sig.noSignature')}</span>
+                            )}
+                            <button onClick={() => void handleVerifySignature()} disabled={verifying} style={{ padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: '#0891b2', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                              <BadgeCheck size={11} /> {verifying ? '...' : t('w8Report.sig.verify')}
+                            </button>
+                          </div>
+                        );
+                      })()}
+                      {verifyMsg && <span style={{ fontSize: 11, color: verifyMsg.startsWith(t('w8Report.sig.verifyPass')) ? '#16a34a' : '#b45309' }}>{verifyMsg}</span>}
                     </div>
                   </div>
                 </div>
@@ -714,7 +780,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
               <div key={field} style={{ marginBottom: 10 }}>
                 <strong style={{ color: '#1e40af' }}>{field === 'findings' ? t('reportRev.findingsBracket') : field === 'diagnosis' ? t('reportRev.diagnosisBracket') : t('reportRev.impressionBracket')}</strong>
                 <div style={{ marginTop: 2, padding: 8, background: 'var(--content-bg)', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
-                  {(rightRev as any)[field] || t('reportRev.noContent')}
+                  {(selectedContents.find((c) => c.versionNumber === rightRev.versionNumber)?.[field as 'findings' | 'diagnosis' | 'impression']) || (rightRev as any)[field] || t('reportRev.noContent')}
                 </div>
               </div>
             ))}

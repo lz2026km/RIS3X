@@ -35,6 +35,10 @@ const DicomViewerProPage = lazy(() => import("../pages/dicom/DicomViewerPro"));
 const DicomCompressPage = lazy(
   () => import("../pages/dicom/DicomCompressPage"),
 );
+// [W1] 真实 DICOM 阅片工作站 (Cornerstone3D + 本地真实样本)
+const DicomRealWorkstationPage = lazy(
+  () => import("../pages/dicom/DicomRealWorkstationPage"),
+);
 const Dicom4dPage = lazy(() => import("../pages/dicom/Dicom4dPage"));
 const TypicalCasesPage = lazy(() => import("../pages/TypicalCasesPage"));
 const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
@@ -240,6 +244,8 @@ const KpiWallPage = lazy(() => import("../pages/ops/KpiWallPage"));
 const TechOpsPage = lazy(() => import("../pages/tech/TechOpsPage"));
 // [v3.0.6.11-103 Wave 11] 技师工作站: 端到端应用流程贯通 (今日检查/房间状态/重拍/交接/紧急插队)
 const TechWorkbenchPage = lazy(() => import("../pages/tech/TechWorkbenchPage"));
+// [G005 W7-Exec] MWL 管理 (Modality Worklist 查询 / 工作列表项 / MPPS 状态)
+const MwlManagerPage = lazy(() => import("../pages/tech/MwlManagerPage"));
 // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 (运营组)
 const TechnicianKpiDashboardPage = lazy(() => import("../pages/tech/TechnicianKpiDashboardPage"));
 // [v3.0.6.11-101 Wave 4A] 技师工作站 V2: 双检间轮转 + 工作量预测
@@ -515,6 +521,10 @@ const AiReviewPage = lazy(() => import("../pages/ai/AiReviewPage"));
 // [v3.0.6.11-101 Wave 3C] AI 增强工作台: 多器官检出 + 草稿评分 + 智能挂片
 const AiEnhancedPage = lazy(() => import("../pages/ai/AiEnhancedPage"));
 const AiProvidersPage = lazy(() => import("../pages/ai/AiProvidersPage"));
+// [G005 W3] AI 定量分析中心 (概念 UI)
+const AiQuantCenterPage = lazy(
+  () => import("../pages/ai/AiQuantCenterPage"),
+);
 const ClinicalCalculatorHubPage = lazy(
   () => import("../pages/clinical/ClinicalCalculatorHubPage"),
 );
@@ -620,6 +630,10 @@ const TriagePage = lazy(() => import("../pages/triage/TriagePage"));
 const TriageDashboardPage = lazy(
   () => import("../pages/triage/TriageDashboardPage"),
 );
+// [G005 W6] 登记工作站 (扫码/身份/准备项/知情同意/对比剂安全/缴费/分诊)
+const RegistrationWorkstationPage = lazy(
+  () => import("../pages/registration/RegistrationWorkstationPage"),
+);
 // [v3.0.6.11-104 Wave 5C] SnomedEncoderPage 已嵌入 SnomedPage (编码宿主) Tab, 旧路由 /snomed/encoder redirect (见下方)
 const OrchestratorPage = lazy(
   () => import("../pages/workflow/OrchestratorPage"),
@@ -655,6 +669,9 @@ const PacsAdminPage = lazy(() => import("../pages/admin/PacsAdminPage"));
 
 // [Sprint 4] F13 AI Marketplace
 const AiMarketplacePage = lazy(() => import("../pages/ai/AiMarketplacePage"));
+// [W4-AI] AI 平台 / 工作流中心 (概念 UI, 确定性模拟)
+const AiModelRegistryPage = lazy(() => import("../pages/ai/AiModelRegistryPage"));
+const AiWorkflowCenterPage = lazy(() => import("../pages/ai/AiWorkflowCenterPage"));
 // [Sprint 4] F14 Cross-Modal Search
 const CrossModalSearchPage = lazy(
   () => import("../pages/dicom/CrossModalSearchPage"),
@@ -764,6 +781,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/workbench": ALL_ROLES,
   "/triage/worklist": ["医生", "主任", "管理员"],
   "/triage/dashboard": ["医生", "主任", "管理员"],
+  // [G005 W6] 登记工作站 (登记/分诊, 护士主用)
+  "/registration": ["护士", "技师", "医生", "主任", "管理员"],
   "/eye": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs/viewer": ["医生", "主任", "技师", "管理员"],
@@ -916,6 +935,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom/radiomics": ["医生", "主任", "管理员"],
   "/dicom/lesion-tracking": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-99 Wave 4A] 病灶追踪
   "/dicom/compress": ["医生", "技师", "主任", "管理员"],
+  // [W1] 真实 DICOM 阅片工作站
+  "/dicom/workstation": ["医生", "技师", "主任", "管理员"],
   "/dicom/sr-manager": ["医生", "技师", "主任", "管理员"],
   "/orchestrator": ["管理员", "主任"],
   "/nlp/spellcheck": ["医生", "主任", "管理员"],
@@ -964,6 +985,9 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/cosign-review": ["医生", "主任", "管理员"],
   "/radpath": ["医生", "主任", "管理员"],
   "/critical-value-5step": ["医生", "主任", "管理员", "护士"],
+  // [W4-AI] AI 平台 / 工作流中心角色映射
+  "/ai/models": ["医生", "主任", "管理员"],
+  "/ai/workflow": ["医生", "主任", "管理员"],
   // [v3.0.6.11-40] A9-A14 后端模块对接路由角色映射
   "/ai/lung-cad": ["医生", "主任", "技师", "管理员"],
   "/ai/breast-cad": ["医生", "主任", "技师", "管理员"],
@@ -1002,6 +1026,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/tech/overview": ["主任", "管理员", "技师"],
   // [v3.0.6.11-103 Wave 11] 技师工作站: 端到端应用流程贯通
   "/tech/workbench": ["主任", "管理员", "技师"],
+  // [G005 W7-Exec] MWL 管理
+  "/tech/mwl": ["主任", "管理员", "技师"],
   "/ortho-specialty": ["医生", "主任", "管理员"],
   "/neuro-specialty": ["医生", "主任", "管理员"],
 };
@@ -1058,6 +1084,8 @@ export const routes: RouteObject[] = [
   wrapped("/queue-call", React.createElement(QueueCallPage)),
   wrapped("/dicom-viewer-classic", React.createElement(DicomViewerClassicPage)),
   wrapped("/dicom-viewer", React.createElement(DicomViewerProPage)),
+  // [W1] 真实 DICOM 阅片工作站 (Cornerstone3D 真实像素 + 多视口)
+  wrapped("/dicom/workstation", React.createElement(DicomRealWorkstationPage)),
   // [G005 v3.0.6.11-104 Wave 4A] 路由别名重定向: 保留 canonical /dicom-viewer
   wrapped("/dicom-viewer-pro", React.createElement(Navigate, { to: "/dicom-viewer", replace: true })),
   wrapped("/typical-cases", React.createElement(TypicalCasesPage)),
@@ -1220,6 +1248,8 @@ export const routes: RouteObject[] = [
   wrapped("/tech/overview", React.createElement(TechOverviewPage)),
   // [v3.0.6.11-103 Wave 11] 技师工作站: 端到端应用流程贯通
   wrapped("/tech/workbench", React.createElement(TechWorkbenchPage)),
+  // [G005 W7-Exec] MWL 管理页
+  wrapped("/tech/mwl", React.createElement(MwlManagerPage)),
   wrapped("/cds/management", React.createElement(CdsManagementPage)),
   wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
   // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
@@ -1397,6 +1427,8 @@ export const routes: RouteObject[] = [
   // [v3.0.6.11-101 Wave 3C] AI 增强工作台
   wrapped("/ai/enhanced", React.createElement(AiEnhancedPage)),
   wrapped("/ai/providers", React.createElement(AiProvidersPage)),
+  // [G005 W3] AI 定量分析中心 (概念 UI)
+  wrapped("/ai/quant-center", React.createElement(AiQuantCenterPage)),
   wrapped(
     "/clinical-calculators",
     React.createElement(ClinicalCalculatorHubPage),
@@ -1492,6 +1524,8 @@ export const routes: RouteObject[] = [
   wrapped("/radpath/detail/:reportId", React.createElement(RadPathDetailPage)),
   wrapped("/triage/worklist", React.createElement(TriagePage)),
   wrapped("/triage/dashboard", React.createElement(TriageDashboardPage)),
+  // [G005 W6] 登记工作站
+  wrapped("/registration", React.createElement(RegistrationWorkstationPage)),
   wrapped("/teach/lecture", React.createElement(TeachLecturePage)),
   // [G005 v3.0.6.11-103 Wave 18] 教学病例库 (病例收藏/分类/分享评论/考试模式)
   wrapped("/teach/case-library", React.createElement(TeachingCaseLibraryPage)),
@@ -1520,6 +1554,11 @@ export const routes: RouteObject[] = [
   wrapped(
     "/security/mfa-setup",
     React.createElement(lazy(() => import("../pages/security/MfaSetupPage"))),
+  ),
+  // [G005 W8-Report] 签名与证书中心 (证书列表/CRL/验签)
+  wrapped(
+    "/security/certificate-center",
+    React.createElement(lazy(() => import("../pages/security/CertificateCenterPage"))),
   ),
   // [v3.0.6.11-21] P0 fix: 合规管理页接入路由
   wrapped(
@@ -1589,6 +1628,9 @@ export const routes: RouteObject[] = [
   wrapped("/ihe/manager", React.createElement(IheManagerPage)),
   wrapped("/hl7/manager", React.createElement(Hl7ManagerPage)),
   // [v3.0.6.11-41] A11 AI 集成补齐路由
+  // [W4-AI] AI 模型注册表 / 工作流中心
+  wrapped("/ai/models", React.createElement(AiModelRegistryPage)),
+  wrapped("/ai/workflow", React.createElement(AiWorkflowCenterPage)),
   wrapped("/ai/lung-cad", React.createElement(LungCadPage)),
   wrapped("/ai/breast-cad", React.createElement(BreastCadPage)),
   wrapped("/ai/fracture-cad", React.createElement(FractureCadPage)),

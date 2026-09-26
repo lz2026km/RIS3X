@@ -3,7 +3,7 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { PatientService, type CreatePatientDto, type UpdatePatientDto } from './patient.service'
+import { PatientService, type CreatePatientDto, type UpdatePatientDto, type ClinicalProfileDto } from './patient.service'
 import { ListQuerySchema, resolvePagination } from '../../common/dto/pagination.dto'
 
 const CreatePatientSchema = z.object({
@@ -22,6 +22,42 @@ const UpdatePatientSchema = z.object({
   idCard: z.string().length(18).optional(),
   phone: z.string().regex(/^1[3-9]\d{9}$/).optional(),
   type: z.enum(['OUTPATIENT', 'INPATIENT', 'EMERGENCY', 'PHYSICAL']).optional(),
+})
+
+// [G005 W6] 结构化临床档案更新 (证件/EMPI/医保/身高体重/结构化过敏/妊娠/肾功能/隔离/生命体征)
+const StructuredAllergySchema = z.object({
+  code: z.string().min(1),
+  display: z.string().min(1),
+  severity: z.enum(['MILD', 'MODERATE', 'SEVERE', 'UNKNOWN']).optional(),
+  reaction: z.string().optional(),
+})
+
+const ClinicalProfileSchema = z.object({
+  idType: z.enum(['ID_CARD', 'PASSPORT', 'OFFICER_CARD', 'BIRTH_CERT', 'OTHER']).optional(),
+  documentType: z.string().optional(),
+  documentNo: z.string().optional(),
+  empiId: z.string().optional(),
+  insuranceNo: z.string().optional(),
+  heightCm: z.number().positive().max(260).optional(),
+  weightKg: z.number().positive().max(400).optional(),
+  structuredAllergyCodes: z.array(StructuredAllergySchema).max(50).optional(),
+  pregnancyStatus: z.enum(['NONE', 'PREGNANT', 'UNKNOWN', 'NOT_APPLICABLE', 'POSTPARTUM']).optional(),
+  renalFunction: z.object({
+    egfr: z.number().nonnegative().optional(),
+    creatinine: z.number().nonnegative().optional(),
+    egfrSource: z.enum(['LIS', 'MANUAL', 'CALCULATED']).optional(),
+    measuredAt: z.string().optional(),
+  }).optional(),
+  isolationFlag: z.enum(['NONE', 'CONTACT', 'DROPLET', 'AIRBORNE', 'PROTECTIVE']).optional(),
+  vitals: z.object({
+    systolicBp: z.number().min(0).max(400).optional(),
+    diastolicBp: z.number().min(0).max(300).optional(),
+    heartRate: z.number().min(0).max(400).optional(),
+    temperature: z.number().min(25).max(45).optional(),
+    spo2: z.number().min(0).max(100).optional(),
+    respiratoryRate: z.number().min(0).max(80).optional(),
+    measuredAt: z.string().optional(),
+  }).optional(),
 })
 
 // [W2-4] 患者合并: sourceId 关联数据迁至 targetId 后软删 sourceId
@@ -103,6 +139,17 @@ export class PatientController {
   @Get(':id')
   get(@Param('id') id: string) {
     return this.service.get(id)
+  }
+
+  // [G005 W6] 结构化临床档案 (证件/EMPI/医保/身高体重/过敏/妊娠/肾功能/隔离/生命体征)
+  @Get(':id/clinical-profile')
+  getClinicalProfile(@Param('id') id: string) {
+    return this.service.getClinicalProfile(id)
+  }
+
+  @Patch(':id/clinical-profile')
+  updateClinicalProfile(@Param('id') id: string, @Body(new ZodValidationPipe(ClinicalProfileSchema)) body: Partial<ClinicalProfileDto>) {
+    return this.service.updateClinicalProfile(id, body)
   }
 
   @Post()

@@ -29,6 +29,8 @@ const CSP_HEADER = (isDev: boolean) => [
     : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.sentry.io",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
+  // Cornerstone3D / dicom-image-loader 使用 Web Worker 解码 (可能为 blob: URL)
+  "worker-src 'self' blob:",
   "font-src 'self' data:",
   "connect-src 'self' https://*.sentry.io https://*.deepseek.com wss: https:",
   "frame-ancestors 'none'",
@@ -170,6 +172,34 @@ export default defineConfig({
         }
       },
     },
+    // 真实 DICOM 样例: dev 由中间件从 backend/dicom-samples 提供; build 复制到 dist
+    // (避免把 42MB 样例重复提交进 public/)
+    {
+      name: 'dicom-samples-serve',
+      apply: 'serve',
+      configureServer(server) {
+        const root = path.resolve(__dirname, 'backend/dicom-samples');
+        server.middlewares.use('/dicom-samples', (req, res, next) => {
+          const rel = decodeURIComponent(((req.url || '').split('?')[0] || '')).replace(/^\/+/, '');
+          const file = path.join(root, rel);
+          if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return next();
+          res.setHeader('Content-Type', 'application/dicom');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          fs.createReadStream(file).pipe(res);
+        });
+      },
+    },
+    {
+      name: 'dicom-samples-build',
+      apply: 'build',
+      closeBundle() {
+        const srcDir = path.resolve(__dirname, 'backend/dicom-samples');
+        const destDir = path.resolve(__dirname, 'dist/dicom-samples');
+        if (!fs.existsSync(srcDir)) return;
+        fs.cpSync(srcDir, destDir, { recursive: true });
+        console.log('[Build] copied dicom-samples -> dist/dicom-samples');
+      },
+    },
   ],
 
   resolve: {
@@ -304,6 +334,18 @@ export default defineConfig({
       '@ant-design/icons',
       'recharts',
       'dayjs',
+      // [W1] Cornerstone3D 解码器为 CJS/UMD 子路径导出, 需经 esbuild 预打包
+      // 生成 default 导出, 否则 dev 下 `import factory from '.../decodewasmjs'` 报
+      // "does not provide an export named 'default'" 导致 wadouri scheme 注册失败。
+      '@cornerstonejs/codec-libjpeg-turbo-8bit/decodewasmjs',
+      '@cornerstonejs/codec-openjpeg/decodewasmjs',
+      '@cornerstonejs/codec-openjph/wasmjs',
+      '@cornerstonejs/codec-charls/decodewasmjs',
+      // DICOM 解析/解压运行时依赖 (CJS/UMD), 需预打包以提供 ESM 默认导出
+      'dicom-parser',
+      'pako',
+      'comlink',
+      'jpeg-lossless-decoder-js',
     ],
     exclude: ['@cornerstonejs/dicom-image-loader'],
   },

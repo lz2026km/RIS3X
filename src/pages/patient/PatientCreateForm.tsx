@@ -588,6 +588,213 @@ function RegistrationWizard({
                   style={inputStyle("attendingDoctor")}
                 />
               </div>
+              {/* [G005 W6] 结构化登记字段 */}
+              <div style={{ gridColumn: "1 / -1", marginTop: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
+                  {t('patientForm.structuredAllergy')}
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.idType')}
+                </label>
+                <select
+                  value={formData.idType ?? 'ID_CARD'}
+                  onChange={(e) => setFormData({ ...formData, idType: e.target.value as PatientFormData['idType'] })}
+                  style={inputStyle("idType")}
+                >
+                  <option value="ID_CARD">{t('patientForm.idTypeIdCard')}</option>
+                  <option value="PASSPORT">{t('patientForm.idTypePassport')}</option>
+                  <option value="OFFICER_CARD">{t('patientForm.idTypeOfficer')}</option>
+                  <option value="BIRTH_CERT">{t('patientForm.idTypeBirth')}</option>
+                  <option value="OTHER">{t('patientForm.idTypeOther')}</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.empiId')}
+                </label>
+                <input
+                  value={formData.empiId ?? ''}
+                  onChange={(e) => setFormData({ ...formData, empiId: e.target.value })}
+                  placeholder="EMPI-000001"
+                  style={inputStyle("empiId")}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.insuranceNo')}
+                </label>
+                <input
+                  value={formData.insuranceNo ?? ''}
+                  onChange={(e) => setFormData({ ...formData, insuranceNo: e.target.value })}
+                  placeholder="YB-1101010001"
+                  style={inputStyle("insuranceNo")}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.pregnancyStatus')}
+                </label>
+                <select
+                  value={formData.pregnancyStatus ?? 'NOT_APPLICABLE'}
+                  onChange={(e) => setFormData({ ...formData, pregnancyStatus: e.target.value as PatientFormData['pregnancyStatus'] })}
+                  style={inputStyle("pregnancyStatus")}
+                >
+                  <option value="NONE">{t('patientForm.pregNone')}</option>
+                  <option value="PREGNANT">{t('patientForm.pregPregnant')}</option>
+                  <option value="UNKNOWN">{t('patientForm.pregUnknown')}</option>
+                  <option value="NOT_APPLICABLE">{t('patientForm.pregNotApplicable')}</option>
+                  <option value="POSTPARTUM">{t('patientForm.pregPostpartum')}</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.heightCm')}
+                </label>
+                <input
+                  value={formData.heightCm ?? ''}
+                  onChange={(e) => setFormData({ ...formData, heightCm: e.target.value })}
+                  placeholder="170"
+                  style={inputStyle("heightCm")}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.weightKg')}
+                </label>
+                <input
+                  value={formData.weightKg ?? ''}
+                  onChange={(e) => setFormData({ ...formData, weightKg: e.target.value })}
+                  placeholder="65"
+                  style={inputStyle("weightKg")}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.egfr')}
+                </label>
+                <input
+                  value={formData.egfr ?? ''}
+                  onChange={(e) => setFormData({ ...formData, egfr: e.target.value })}
+                  placeholder="78"
+                  style={inputStyle("egfr")}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.creatinine')}
+                </label>
+                <input
+                  value={formData.creatinine ?? ''}
+                  onChange={(e) => setFormData({ ...formData, creatinine: e.target.value })}
+                  placeholder="92"
+                  style={inputStyle("creatinine")}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.egfrSource')}
+                </label>
+                <select
+                  value={formData.egfrSource ?? 'LIS'}
+                  onChange={(e) => setFormData({ ...formData, egfrSource: e.target.value as PatientFormData['egfrSource'] })}
+                  style={inputStyle("egfrSource")}
+                >
+                  <option value="LIS">{t('patientForm.egfrLIS')}</option>
+                  <option value="MANUAL">{t('patientForm.egfrManual')}</option>
+                  <option value="CALCULATED">{t('patientForm.egfrCalculated')}</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                  {t('patientForm.isolationFlag')}
+                </label>
+                <select
+                  value={formData.isolationFlag ?? 'NONE'}
+                  onChange={(e) => setFormData({ ...formData, isolationFlag: e.target.value as PatientFormData['isolationFlag'] })}
+                  style={inputStyle("isolationFlag")}
+                >
+                  <option value="NONE">{t('patientForm.isolationNone')}</option>
+                  <option value="CONTACT">{t('patientForm.isolationContact')}</option>
+                  <option value="DROPLET">{t('patientForm.isolationDroplet')}</option>
+                  <option value="AIRBORNE">{t('patientForm.isolationAirborne')}</option>
+                  <option value="PROTECTIVE">{t('patientForm.isolationProtective')}</option>
+                </select>
+              </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>
+                    {t('patientForm.structuredAllergy')}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        structuredAllergyCodes: [
+                          ...(formData.structuredAllergyCodes ?? []),
+                          { code: '', display: '', severity: 'UNKNOWN' },
+                        ],
+                      })
+                    }
+                    style={{ fontSize: 12, color: "#1e40af", background: "none", border: "none", cursor: "pointer" }}
+                  >
+                    + {t('patientForm.addAllergy')}
+                  </button>
+                </div>
+                {(formData.structuredAllergyCodes ?? []).map((a, idx) => (
+                  <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 8, marginBottom: 6 }}>
+                    <input
+                      value={a.code}
+                      onChange={(e) => {
+                        const list = [...(formData.structuredAllergyCodes ?? [])]
+                        list[idx] = { ...list[idx]!, code: e.target.value }
+                        setFormData({ ...formData, structuredAllergyCodes: list })
+                      }}
+                      placeholder={t('patientForm.allergyCode')}
+                      style={inputStyle(`allergyCode-${idx}`)}
+                    />
+                    <input
+                      value={a.display}
+                      onChange={(e) => {
+                        const list = [...(formData.structuredAllergyCodes ?? [])]
+                        list[idx] = { ...list[idx]!, display: e.target.value }
+                        setFormData({ ...formData, structuredAllergyCodes: list })
+                      }}
+                      placeholder={t('patientForm.allergyDisplay')}
+                      style={inputStyle(`allergyDisplay-${idx}`)}
+                    />
+                    <select
+                      value={a.severity}
+                      onChange={(e) => {
+                        const list = [...(formData.structuredAllergyCodes ?? [])]
+                        list[idx] = { ...list[idx]!, severity: e.target.value as typeof a.severity }
+                        setFormData({ ...formData, structuredAllergyCodes: list })
+                      }}
+                      style={inputStyle(`allergySeverity-${idx}`)}
+                    >
+                      <option value="MILD">MILD</option>
+                      <option value="MODERATE">MODERATE</option>
+                      <option value="SEVERE">SEVERE</option>
+                      <option value="UNKNOWN">UNKNOWN</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          structuredAllergyCodes: (formData.structuredAllergyCodes ?? []).filter((_, i) => i !== idx),
+                        })
+                      }
+                      style={{ fontSize: 12, color: "#dc2626", background: "none", border: "none", cursor: "pointer" }}
+                      aria-label={t('patientForm.removeAllergy')}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

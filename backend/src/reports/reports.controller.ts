@@ -48,6 +48,46 @@ export const SaveImageAnnotationsSchema = z.object({
   imageBase64: z.string().max(8_000_000).optional(),
 })
 
+// [G005 W8-Report] 签名内容 / 分级审核 / 召回 请求体
+const SignatureContentSchema = z.object({
+  findings: z.string().max(50000).optional(),
+  impression: z.string().max(20000).optional(),
+  conclusion: z.string().max(20000).optional(),
+  diagnosis: z.string().max(20000).optional(),
+  recommendations: z.string().max(20000).optional(),
+  qualityScore: z.number().int().min(0).max(100).nullable().optional(),
+  version: z.number().int().min(0).optional(),
+})
+
+const VerifySignatureSchema = z.object({
+  signatureId: z.string().max(64).optional(),
+  content: SignatureContentSchema.optional(),
+})
+
+const ResolveReviewTierSchema = z.object({
+  modality: z.string().max(16).optional(),
+  radsCategory: z.number().int().min(0).max(5).optional(),
+  severity: z.enum(['low', 'normal', 'high', 'critical']).optional(),
+  isCritical: z.boolean().optional(),
+  authorSeniority: z.enum(['resident', 'attending', 'senior', 'chief']).optional(),
+  authorId: z.string().max(64).optional(),
+})
+
+const RecallSchema = z.object({
+  reason: z.string().min(1).max(500),
+  actorId: z.string().max(64).optional(),
+})
+
+const RecallAckSchema = z.object({
+  ackBy: z.string().min(1).max(64),
+  note: z.string().max(500).optional(),
+  source: z.enum(['HIS', 'CLINICIAN']).optional(),
+})
+
+const ValidateFieldsSchema = z.object({
+  values: z.record(z.unknown()).optional(),
+})
+
 @ApiTags('reports')
 @ApiBearerAuth()
 @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN')
@@ -171,6 +211,12 @@ export class ReportsController {
     return this.reports.updateArchivePolicy(body)
   }
 
+  // [G005 W8-Report] 结构化字段规范 + 参考范围 (静态子路由先于 :id)
+  @Get('field-specs')
+  fieldSpecs() {
+    return this.reports.getFieldSpecs()
+  }
+
   // [G005 Wave 8] 报告冷归档: POST /reports/:id/archive
   @Post(':id/archive')
   archive(@Param('id') id: string, @Req() req: Request) {
@@ -238,6 +284,81 @@ export class ReportsController {
   @Get(':id/audit-trail')
   auditTrail(@Param('id') id: string) {
     return this.reports.auditTrail(id)
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // [G005 W8-Report] 内容版本 / 数据签名 / 分级审核 / 召回
+  // ══════════════════════════════════════════════════════════════════════
+
+  // 内容版本快照列表
+  @Get(':id/revisions')
+  listRevisions(@Param('id') id: string) {
+    return this.reports.listRevisionContents(id)
+  }
+
+  // 指定版本相对前一版本的内容差异
+  @Get(':id/revisions/:versionId/diff')
+  revisionDiff(@Param('id') id: string, @Param('versionId') versionId: string) {
+    return this.reports.revisionContentDiff(id, versionId)
+  }
+
+  // 最新数据签名
+  @Get(':id/signature')
+  signature(@Param('id') id: string) {
+    return this.reports.getSignature(id)
+  }
+
+  // 结构化字段校验 (提交前; 未传 values 校验报告当前内容)
+  @Post(':id/validate-fields')
+  validateFields(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ValidateFieldsSchema)) body: z.infer<typeof ValidateFieldsSchema>,
+  ) {
+    return this.reports.validateFieldsById(id, body.values as Record<string, unknown> | undefined)
+  }
+
+  // 验签 (证书/CRL/摘要/签名/TSA)
+  @Post(':id/verify-signature')
+  verifySignature(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(VerifySignatureSchema)) body: z.infer<typeof VerifySignatureSchema>,
+  ) {
+    return this.reports.verifySignature(id, body as Parameters<ReportsService['verifySignature']>[1])
+  }
+
+  // 分级审核链判定
+  @Post(':id/resolve-review-tier')
+  resolveReviewTier(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ResolveReviewTierSchema)) body: z.infer<typeof ResolveReviewTierSchema>,
+  ) {
+    return this.reports.resolveReviewTier(id, body)
+  }
+
+  // 报告召回 (HL7 ORU C + 通知)
+  @Post(':id/recall')
+  recall(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(RecallSchema)) body: z.infer<typeof RecallSchema>,
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
+    return this.reports.recallReport(id, body, actorId)
+  }
+
+  // 召回回执状态
+  @Get(':id/recall-ack')
+  recallAck(@Param('id') id: string) {
+    return this.reports.getRecallAck(id)
+  }
+
+  // 临床回执确认
+  @Post(':id/recall-ack')
+  acknowledgeRecall(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(RecallAckSchema)) body: z.infer<typeof RecallAckSchema>,
+  ) {
+    return this.reports.acknowledgeRecall(id, body)
   }
 
   // [v3.0.6.11-100 Wave 2B] 报告关联影像标注 (阅片标注 → 报告双向同步)

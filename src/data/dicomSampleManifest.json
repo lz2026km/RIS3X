@@ -1,0 +1,1036 @@
+{
+  "generatedAt": "2026-08-03T11:15:01.069Z",
+  "baseDir": "dicom-samples",
+  "transferSyntax": "1.2.840.10008.1.2.1",
+  "seriesCount": 6,
+  "instanceCount": 76,
+  "totalBytes": 43871072,
+  "series": [
+    {
+      "key": "CT_HEAD",
+      "modality": "CT",
+      "sopClassUid": "1.2.840.10008.5.1.4.1.1.2",
+      "studyInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.20260115.ACC-SAMPLE-0001",
+      "seriesInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.S.1",
+      "patientName": "ZHANG^CS01",
+      "patientId": "P0000001",
+      "patientSex": "M",
+      "patientBirthDate": "19750312",
+      "studyDate": "20260115",
+      "studyDescription": "HEAD CT",
+      "seriesDescription": "AXIAL HEAD 5MM",
+      "seriesNumber": 1,
+      "rows": 512,
+      "columns": 512,
+      "pixelSpacing": "0.500000\\0.500000",
+      "sliceThickness": "5.000000",
+      "windowCenter": "40",
+      "windowWidth": "80",
+      "rescaleIntercept": "-1024",
+      "rescaleSlope": "1",
+      "transferSyntax": "1.2.840.10008.1.2.1",
+      "instances": [
+        {
+          "file": "CT_HEAD/CT_HEAD_001.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0001",
+          "instanceNumber": 1,
+          "sliceLocation": -47.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -47.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_002.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0002",
+          "instanceNumber": 2,
+          "sliceLocation": -42.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -42.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_003.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0003",
+          "instanceNumber": 3,
+          "sliceLocation": -37.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -37.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_004.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0004",
+          "instanceNumber": 4,
+          "sliceLocation": -32.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -32.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_005.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0005",
+          "instanceNumber": 5,
+          "sliceLocation": -27.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -27.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_006.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0006",
+          "instanceNumber": 6,
+          "sliceLocation": -22.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -22.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_007.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0007",
+          "instanceNumber": 7,
+          "sliceLocation": -17.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -17.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_008.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0008",
+          "instanceNumber": 8,
+          "sliceLocation": -12.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -12.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_009.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0009",
+          "instanceNumber": 9,
+          "sliceLocation": -7.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -7.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_010.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0010",
+          "instanceNumber": 10,
+          "sliceLocation": -2.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -2.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_011.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0011",
+          "instanceNumber": 11,
+          "sliceLocation": 2.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            2.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_012.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0012",
+          "instanceNumber": 12,
+          "sliceLocation": 7.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            7.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_013.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0013",
+          "instanceNumber": 13,
+          "sliceLocation": 12.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            12.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_014.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0014",
+          "instanceNumber": 14,
+          "sliceLocation": 17.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            17.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_015.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0015",
+          "instanceNumber": 15,
+          "sliceLocation": 22.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            22.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_016.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0016",
+          "instanceNumber": 16,
+          "sliceLocation": 27.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            27.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_017.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0017",
+          "instanceNumber": 17,
+          "sliceLocation": 32.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            32.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_018.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0018",
+          "instanceNumber": 18,
+          "sliceLocation": 37.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            37.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_019.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0019",
+          "instanceNumber": 19,
+          "sliceLocation": 42.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            42.5
+          ]
+        },
+        {
+          "file": "CT_HEAD/CT_HEAD_020.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.1.0020",
+          "instanceNumber": 20,
+          "sliceLocation": 47.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            47.5
+          ]
+        }
+      ]
+    },
+    {
+      "key": "CT_CHEST",
+      "modality": "CT",
+      "sopClassUid": "1.2.840.10008.5.1.4.1.1.2",
+      "studyInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.20260115.ACC-SAMPLE-0002",
+      "seriesInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.S.2",
+      "patientName": "LI^CS02",
+      "patientId": "P0000002",
+      "patientSex": "F",
+      "patientBirthDate": "19821005",
+      "studyDate": "20260115",
+      "studyDescription": "CHEST CT",
+      "seriesDescription": "AXIAL CHEST 5MM",
+      "seriesNumber": 2,
+      "rows": 512,
+      "columns": 512,
+      "pixelSpacing": "0.700000\\0.700000",
+      "sliceThickness": "5.000000",
+      "windowCenter": "40",
+      "windowWidth": "400",
+      "rescaleIntercept": "-1024",
+      "rescaleSlope": "1",
+      "transferSyntax": "1.2.840.10008.1.2.1",
+      "instances": [
+        {
+          "file": "CT_CHEST/CT_CHEST_001.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0001",
+          "instanceNumber": 1,
+          "sliceLocation": -35,
+          "imagePositionPatient": [
+            0,
+            0,
+            -35
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_002.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0002",
+          "instanceNumber": 2,
+          "sliceLocation": -30,
+          "imagePositionPatient": [
+            0,
+            0,
+            -30
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_003.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0003",
+          "instanceNumber": 3,
+          "sliceLocation": -25,
+          "imagePositionPatient": [
+            0,
+            0,
+            -25
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_004.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0004",
+          "instanceNumber": 4,
+          "sliceLocation": -20,
+          "imagePositionPatient": [
+            0,
+            0,
+            -20
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_005.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0005",
+          "instanceNumber": 5,
+          "sliceLocation": -15,
+          "imagePositionPatient": [
+            0,
+            0,
+            -15
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_006.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0006",
+          "instanceNumber": 6,
+          "sliceLocation": -10,
+          "imagePositionPatient": [
+            0,
+            0,
+            -10
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_007.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0007",
+          "instanceNumber": 7,
+          "sliceLocation": -5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -5
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_008.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0008",
+          "instanceNumber": 8,
+          "sliceLocation": 0,
+          "imagePositionPatient": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_009.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0009",
+          "instanceNumber": 9,
+          "sliceLocation": 5,
+          "imagePositionPatient": [
+            0,
+            0,
+            5
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_010.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0010",
+          "instanceNumber": 10,
+          "sliceLocation": 10,
+          "imagePositionPatient": [
+            0,
+            0,
+            10
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_011.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0011",
+          "instanceNumber": 11,
+          "sliceLocation": 15,
+          "imagePositionPatient": [
+            0,
+            0,
+            15
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_012.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0012",
+          "instanceNumber": 12,
+          "sliceLocation": 20,
+          "imagePositionPatient": [
+            0,
+            0,
+            20
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_013.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0013",
+          "instanceNumber": 13,
+          "sliceLocation": 25,
+          "imagePositionPatient": [
+            0,
+            0,
+            25
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_014.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0014",
+          "instanceNumber": 14,
+          "sliceLocation": 30,
+          "imagePositionPatient": [
+            0,
+            0,
+            30
+          ]
+        },
+        {
+          "file": "CT_CHEST/CT_CHEST_015.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.CT.I.2.0015",
+          "instanceNumber": 15,
+          "sliceLocation": 35,
+          "imagePositionPatient": [
+            0,
+            0,
+            35
+          ]
+        }
+      ]
+    },
+    {
+      "key": "MR_BRAIN",
+      "modality": "MR",
+      "sopClassUid": "1.2.840.10008.5.1.4.1.1.4",
+      "studyInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.20260116.ACC-SAMPLE-0003",
+      "seriesInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.S.3",
+      "patientName": "WANG^CS03",
+      "patientId": "P0000003",
+      "patientSex": "F",
+      "patientBirthDate": "19901122",
+      "studyDate": "20260116",
+      "studyDescription": "BRAIN MRI",
+      "seriesDescription": "T1 AXIAL",
+      "seriesNumber": 3,
+      "rows": 256,
+      "columns": 256,
+      "pixelSpacing": "0.900000\\0.900000",
+      "sliceThickness": "5.000000",
+      "windowCenter": "900",
+      "windowWidth": "1800",
+      "rescaleIntercept": "0",
+      "rescaleSlope": "1",
+      "transferSyntax": "1.2.840.10008.1.2.1",
+      "instances": [
+        {
+          "file": "MR_BRAIN/MR_BRAIN_001.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0001",
+          "instanceNumber": 1,
+          "sliceLocation": -22.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -22.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_002.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0002",
+          "instanceNumber": 2,
+          "sliceLocation": -17.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -17.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_003.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0003",
+          "instanceNumber": 3,
+          "sliceLocation": -12.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -12.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_004.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0004",
+          "instanceNumber": 4,
+          "sliceLocation": -7.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -7.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_005.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0005",
+          "instanceNumber": 5,
+          "sliceLocation": -2.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -2.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_006.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0006",
+          "instanceNumber": 6,
+          "sliceLocation": 2.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            2.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_007.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0007",
+          "instanceNumber": 7,
+          "sliceLocation": 7.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            7.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_008.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0008",
+          "instanceNumber": 8,
+          "sliceLocation": 12.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            12.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_009.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0009",
+          "instanceNumber": 9,
+          "sliceLocation": 17.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            17.5
+          ]
+        },
+        {
+          "file": "MR_BRAIN/MR_BRAIN_010.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.MR.I.3.0010",
+          "instanceNumber": 10,
+          "sliceLocation": 22.5,
+          "imagePositionPatient": [
+            0,
+            0,
+            22.5
+          ]
+        }
+      ]
+    },
+    {
+      "key": "DR_CHEST",
+      "modality": "DR",
+      "sopClassUid": "1.2.840.10008.5.1.4.1.1.1.1",
+      "studyInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.20260116.ACC-SAMPLE-0004",
+      "seriesInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DR.S.4",
+      "patientName": "LIU^CS04",
+      "patientId": "P0000004",
+      "patientSex": "M",
+      "patientBirthDate": "19680730",
+      "studyDate": "20260116",
+      "studyDescription": "CHEST X-RAY",
+      "seriesDescription": "PA CHEST",
+      "seriesNumber": 4,
+      "rows": 2048,
+      "columns": 2048,
+      "pixelSpacing": "0.200000\\0.200000",
+      "sliceThickness": "0.000000",
+      "windowCenter": "1024",
+      "windowWidth": "2048",
+      "rescaleIntercept": "0",
+      "rescaleSlope": "1",
+      "transferSyntax": "1.2.840.10008.1.2.1",
+      "instances": [
+        {
+          "file": "DR_CHEST/DR_CHEST_001.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DR.I.4.0001",
+          "instanceNumber": 1,
+          "sliceLocation": 0,
+          "imagePositionPatient": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "key": "DBT_LEFT",
+      "modality": "DBT",
+      "sopClassUid": "1.2.840.10008.5.1.4.1.1.13.1.3",
+      "studyInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.20260310.ACC-SAMPLE-0005",
+      "seriesInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.S.5",
+      "patientName": "CHEN^DBT01",
+      "patientId": "P0000005",
+      "patientSex": "F",
+      "patientBirthDate": "19780819",
+      "studyDate": "20260310",
+      "studyDescription": "BREAST TOMOSYNTHESIS",
+      "seriesDescription": "L-CC DBT TOMOSYNTHESIS",
+      "seriesNumber": 5,
+      "bodyPartExamined": "BREAST",
+      "viewPosition": "LCC",
+      "rows": 512,
+      "columns": 512,
+      "pixelSpacing": "0.100000\\0.100000",
+      "sliceThickness": "1.000000",
+      "windowCenter": "1600",
+      "windowWidth": "2400",
+      "rescaleIntercept": "0",
+      "rescaleSlope": "1",
+      "transferSyntax": "1.2.840.10008.1.2.1",
+      "instances": [
+        {
+          "file": "DBT/DBT_LEFT_001.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0001",
+          "instanceNumber": 1,
+          "sliceLocation": -7,
+          "imagePositionPatient": [
+            0,
+            0,
+            -7
+          ],
+          "tomoAngle": -15
+        },
+        {
+          "file": "DBT/DBT_LEFT_002.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0002",
+          "instanceNumber": 2,
+          "sliceLocation": -6,
+          "imagePositionPatient": [
+            0,
+            0,
+            -6
+          ],
+          "tomoAngle": -12.86
+        },
+        {
+          "file": "DBT/DBT_LEFT_003.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0003",
+          "instanceNumber": 3,
+          "sliceLocation": -5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -5
+          ],
+          "tomoAngle": -10.71
+        },
+        {
+          "file": "DBT/DBT_LEFT_004.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0004",
+          "instanceNumber": 4,
+          "sliceLocation": -4,
+          "imagePositionPatient": [
+            0,
+            0,
+            -4
+          ],
+          "tomoAngle": -8.57
+        },
+        {
+          "file": "DBT/DBT_LEFT_005.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0005",
+          "instanceNumber": 5,
+          "sliceLocation": -3,
+          "imagePositionPatient": [
+            0,
+            0,
+            -3
+          ],
+          "tomoAngle": -6.43
+        },
+        {
+          "file": "DBT/DBT_LEFT_006.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0006",
+          "instanceNumber": 6,
+          "sliceLocation": -2,
+          "imagePositionPatient": [
+            0,
+            0,
+            -2
+          ],
+          "tomoAngle": -4.29
+        },
+        {
+          "file": "DBT/DBT_LEFT_007.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0007",
+          "instanceNumber": 7,
+          "sliceLocation": -1,
+          "imagePositionPatient": [
+            0,
+            0,
+            -1
+          ],
+          "tomoAngle": -2.14
+        },
+        {
+          "file": "DBT/DBT_LEFT_008.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0008",
+          "instanceNumber": 8,
+          "sliceLocation": 0,
+          "imagePositionPatient": [
+            0,
+            0,
+            0
+          ],
+          "tomoAngle": 0
+        },
+        {
+          "file": "DBT/DBT_LEFT_009.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0009",
+          "instanceNumber": 9,
+          "sliceLocation": 1,
+          "imagePositionPatient": [
+            0,
+            0,
+            1
+          ],
+          "tomoAngle": 2.14
+        },
+        {
+          "file": "DBT/DBT_LEFT_010.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0010",
+          "instanceNumber": 10,
+          "sliceLocation": 2,
+          "imagePositionPatient": [
+            0,
+            0,
+            2
+          ],
+          "tomoAngle": 4.29
+        },
+        {
+          "file": "DBT/DBT_LEFT_011.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0011",
+          "instanceNumber": 11,
+          "sliceLocation": 3,
+          "imagePositionPatient": [
+            0,
+            0,
+            3
+          ],
+          "tomoAngle": 6.43
+        },
+        {
+          "file": "DBT/DBT_LEFT_012.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0012",
+          "instanceNumber": 12,
+          "sliceLocation": 4,
+          "imagePositionPatient": [
+            0,
+            0,
+            4
+          ],
+          "tomoAngle": 8.57
+        },
+        {
+          "file": "DBT/DBT_LEFT_013.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0013",
+          "instanceNumber": 13,
+          "sliceLocation": 5,
+          "imagePositionPatient": [
+            0,
+            0,
+            5
+          ],
+          "tomoAngle": 10.71
+        },
+        {
+          "file": "DBT/DBT_LEFT_014.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0014",
+          "instanceNumber": 14,
+          "sliceLocation": 6,
+          "imagePositionPatient": [
+            0,
+            0,
+            6
+          ],
+          "tomoAngle": 12.86
+        },
+        {
+          "file": "DBT/DBT_LEFT_015.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.5.0015",
+          "instanceNumber": 15,
+          "sliceLocation": 7,
+          "imagePositionPatient": [
+            0,
+            0,
+            7
+          ],
+          "tomoAngle": 15
+        }
+      ]
+    },
+    {
+      "key": "DBT_RIGHT",
+      "modality": "DBT",
+      "sopClassUid": "1.2.840.10008.5.1.4.1.1.13.1.3",
+      "studyInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.20260310.ACC-SAMPLE-0005",
+      "seriesInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.S.6",
+      "patientName": "CHEN^DBT01",
+      "patientId": "P0000005",
+      "patientSex": "F",
+      "patientBirthDate": "19780819",
+      "studyDate": "20260310",
+      "studyDescription": "BREAST TOMOSYNTHESIS",
+      "seriesDescription": "R-CC DBT TOMOSYNTHESIS",
+      "seriesNumber": 6,
+      "bodyPartExamined": "BREAST",
+      "viewPosition": "RCC",
+      "rows": 512,
+      "columns": 512,
+      "pixelSpacing": "0.100000\\0.100000",
+      "sliceThickness": "1.000000",
+      "windowCenter": "1600",
+      "windowWidth": "2400",
+      "rescaleIntercept": "0",
+      "rescaleSlope": "1",
+      "transferSyntax": "1.2.840.10008.1.2.1",
+      "instances": [
+        {
+          "file": "DBT/DBT_RIGHT_001.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0001",
+          "instanceNumber": 1,
+          "sliceLocation": -7,
+          "imagePositionPatient": [
+            0,
+            0,
+            -7
+          ],
+          "tomoAngle": -15
+        },
+        {
+          "file": "DBT/DBT_RIGHT_002.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0002",
+          "instanceNumber": 2,
+          "sliceLocation": -6,
+          "imagePositionPatient": [
+            0,
+            0,
+            -6
+          ],
+          "tomoAngle": -12.86
+        },
+        {
+          "file": "DBT/DBT_RIGHT_003.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0003",
+          "instanceNumber": 3,
+          "sliceLocation": -5,
+          "imagePositionPatient": [
+            0,
+            0,
+            -5
+          ],
+          "tomoAngle": -10.71
+        },
+        {
+          "file": "DBT/DBT_RIGHT_004.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0004",
+          "instanceNumber": 4,
+          "sliceLocation": -4,
+          "imagePositionPatient": [
+            0,
+            0,
+            -4
+          ],
+          "tomoAngle": -8.57
+        },
+        {
+          "file": "DBT/DBT_RIGHT_005.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0005",
+          "instanceNumber": 5,
+          "sliceLocation": -3,
+          "imagePositionPatient": [
+            0,
+            0,
+            -3
+          ],
+          "tomoAngle": -6.43
+        },
+        {
+          "file": "DBT/DBT_RIGHT_006.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0006",
+          "instanceNumber": 6,
+          "sliceLocation": -2,
+          "imagePositionPatient": [
+            0,
+            0,
+            -2
+          ],
+          "tomoAngle": -4.29
+        },
+        {
+          "file": "DBT/DBT_RIGHT_007.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0007",
+          "instanceNumber": 7,
+          "sliceLocation": -1,
+          "imagePositionPatient": [
+            0,
+            0,
+            -1
+          ],
+          "tomoAngle": -2.14
+        },
+        {
+          "file": "DBT/DBT_RIGHT_008.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0008",
+          "instanceNumber": 8,
+          "sliceLocation": 0,
+          "imagePositionPatient": [
+            0,
+            0,
+            0
+          ],
+          "tomoAngle": 0
+        },
+        {
+          "file": "DBT/DBT_RIGHT_009.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0009",
+          "instanceNumber": 9,
+          "sliceLocation": 1,
+          "imagePositionPatient": [
+            0,
+            0,
+            1
+          ],
+          "tomoAngle": 2.14
+        },
+        {
+          "file": "DBT/DBT_RIGHT_010.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0010",
+          "instanceNumber": 10,
+          "sliceLocation": 2,
+          "imagePositionPatient": [
+            0,
+            0,
+            2
+          ],
+          "tomoAngle": 4.29
+        },
+        {
+          "file": "DBT/DBT_RIGHT_011.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0011",
+          "instanceNumber": 11,
+          "sliceLocation": 3,
+          "imagePositionPatient": [
+            0,
+            0,
+            3
+          ],
+          "tomoAngle": 6.43
+        },
+        {
+          "file": "DBT/DBT_RIGHT_012.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0012",
+          "instanceNumber": 12,
+          "sliceLocation": 4,
+          "imagePositionPatient": [
+            0,
+            0,
+            4
+          ],
+          "tomoAngle": 8.57
+        },
+        {
+          "file": "DBT/DBT_RIGHT_013.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0013",
+          "instanceNumber": 13,
+          "sliceLocation": 5,
+          "imagePositionPatient": [
+            0,
+            0,
+            5
+          ],
+          "tomoAngle": 10.71
+        },
+        {
+          "file": "DBT/DBT_RIGHT_014.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0014",
+          "instanceNumber": 14,
+          "sliceLocation": 6,
+          "imagePositionPatient": [
+            0,
+            0,
+            6
+          ],
+          "tomoAngle": 12.86
+        },
+        {
+          "file": "DBT/DBT_RIGHT_015.dcm",
+          "sopInstanceUid": "1.2.826.0.1.3680043.10.155.3.0.6.11.DBT.I.6.0015",
+          "instanceNumber": 15,
+          "sliceLocation": 7,
+          "imagePositionPatient": [
+            0,
+            0,
+            7
+          ],
+          "tomoAngle": 15
+        }
+      ]
+    }
+  ]
+}

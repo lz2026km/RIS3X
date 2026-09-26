@@ -5,6 +5,7 @@ import { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { ReportRulesService } from './report-rules.service'
 import { ReportRulesController } from './report-rules.controller'
+import { ReviewTierService } from './review-tier.service'
 import { PrismaService } from '../../prisma/prisma.service'
 import type { RwsReportInput } from './report-rules.types'
 
@@ -163,7 +164,7 @@ describe('ReportRulesController 国标书写规范端点 (Wave 1C)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [ReportRulesController],
-      providers: [ReportRulesService, { provide: PrismaService, useValue: {} }],
+      providers: [ReportRulesService, ReviewTierService, { provide: PrismaService, useValue: {} }],
     }).compile()
     app = moduleRef.createNestApplication()
     await app.init()

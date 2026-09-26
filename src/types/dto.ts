@@ -259,3 +259,69 @@ export interface WorkflowStepDto {
   timeout?: number
   actions?: string[]
 }
+
+// ============ [G005 W6] 登记工作站 / 结构化患者档案 ============
+export type PatientIdType = 'ID_CARD' | 'PASSPORT' | 'OFFICER_CARD' | 'BIRTH_CERT' | 'OTHER'
+export type PatientIsolationFlag = 'NONE' | 'CONTACT' | 'DROPLET' | 'AIRBORNE' | 'PROTECTIVE'
+export type PatientPregnancyStatus = 'NONE' | 'PREGNANT' | 'UNKNOWN' | 'NOT_APPLICABLE' | 'POSTPARTUM'
+export type EgfrSource = 'LIS' | 'MANUAL' | 'CALCULATED'
+
+export interface StructuredAllergyCodeDto {
+  code: string
+  display: string
+  severity?: 'MILD' | 'MODERATE' | 'SEVERE' | 'UNKNOWN'
+  reaction?: string
+}
+
+export interface VitalsDto {
+  systolicBp?: number
+  diastolicBp?: number
+  heartRate?: number
+  temperature?: number
+  spo2?: number
+  respiratoryRate?: number
+  measuredAt?: string
+}
+
+export interface RenalFunctionDto {
+  egfr?: number
+  creatinine?: number
+  egfrSource?: EgfrSource
+  measuredAt?: string
+}
+
+export interface ClinicalProfileDto {
+  patientId: string
+  idType: PatientIdType
+  documentType?: string
+  documentNo?: string
+  empiId: string
+  insuranceNo?: string
+  heightCm?: number
+  weightKg?: number
+  bmi?: number
+  structuredAllergyCodes: StructuredAllergyCodeDto[]
+  pregnancyStatus: PatientPregnancyStatus
+  renalFunction: RenalFunctionDto
+  isolationFlag: PatientIsolationFlag
+  vitals: VitalsDto
+  updatedAt: string
+}
+
+export interface RegistrationPatientDto {
+  patientId: string
+  name: string
+  gender: 'MALE' | 'FEMALE' | 'OTHER'
+  birthDate: string
+  age: number
+  idType: PatientIdType
+  documentNo: string
+  empiId: string
+  insuranceNo?: string
+  phone?: string
+  isolationFlag: PatientIsolationFlag
+  structuredAllergyCodes: StructuredAllergyCodeDto[]
+  pregnancyStatus: PatientPregnancyStatus
+  renalFunction: RenalFunctionDto
+  vitals: VitalsDto
+}

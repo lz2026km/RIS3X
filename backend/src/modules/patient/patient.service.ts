@@ -21,9 +21,130 @@ export interface UpdatePatientDto {
   type?: 'OUTPATIENT' | 'INPATIENT' | 'EMERGENCY' | 'PHYSICAL'
 }
 
+// ============ [G005 W6 登记/分诊深度] 结构化患者临床档案 (DB-less-safe 内存 overlay) ============
+// 证件类型: 身份证 / 护照 / 军官证 / 出生证 / 其他
+export type IdType = 'ID_CARD' | 'PASSPORT' | 'OFFICER_CARD' | 'BIRTH_CERT' | 'OTHER'
+export const ID_TYPES: IdType[] = ['ID_CARD', 'PASSPORT', 'OFFICER_CARD', 'BIRTH_CERT', 'OTHER']
+// 隔离标识 (基于传播途径)
+export type IsolationFlag = 'NONE' | 'CONTACT' | 'DROPLET' | 'AIRBORNE' | 'PROTECTIVE'
+export const ISOLATION_FLAGS: IsolationFlag[] = ['NONE', 'CONTACT', 'DROPLET', 'AIRBORNE', 'PROTECTIVE']
+// 妊娠状态 (结构化)
+export type PregnancyStatus = 'NONE' | 'PREGNANT' | 'UNKNOWN' | 'NOT_APPLICABLE' | 'POSTPARTUM'
+// eGFR 来源 (LIS 自动 / 手动录入 / 公式估算)
+export type EgfrSource = 'LIS' | 'MANUAL' | 'CALCULATED'
+
+export interface StructuredAllergyCode {
+  /** SNOMED-ish 编码, 如 373255001 (碘对比剂过敏) */
+  code: string
+  display: string
+  severity?: 'MILD' | 'MODERATE' | 'SEVERE' | 'UNKNOWN'
+  reaction?: string
+}
+
+export interface VitalsDto {
+  systolicBp?: number
+  diastolicBp?: number
+  heartRate?: number
+  temperature?: number
+  spo2?: number
+  respiratoryRate?: number
+  measuredAt?: string
+}
+
+export interface RenalFunctionDto {
+  egfr?: number
+  creatinine?: number
+  egfrSource?: EgfrSource
+  measuredAt?: string
+}
+
+export interface ClinicalProfileDto {
+  patientId: string
+  idType: IdType
+  documentType?: string
+  documentNo?: string
+  empiId: string
+  insuranceNo?: string
+  heightCm?: number
+  weightKg?: number
+  bmi?: number
+  structuredAllergyCodes: StructuredAllergyCode[]
+  pregnancyStatus: PregnancyStatus
+  renalFunction: RenalFunctionDto
+  isolationFlag: IsolationFlag
+  vitals: VitalsDto
+  updatedAt: string
+}
+
+function hashSeed(input: string): number {
+  let h = 2166136261
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+/** 确定性临床档案 seed: 同一 patientId 恒同输出, 保证无 DB 时页面可复现 */
+export function seedClinicalProfile(patientId: string): ClinicalProfileDto {
+  const h = hashSeed(patientId || 'anonymous')
+  const idTypes: IdType[] = ['ID_CARD', 'PASSPORT', 'OFFICER_CARD', 'BIRTH_CERT', 'OTHER']
+  const isolations: IsolationFlag[] = ['NONE', 'NONE', 'CONTACT', 'DROPLET', 'AIRBORNE']
+  const pregnancies: PregnancyStatus[] = ['NOT_APPLICABLE', 'NONE', 'UNKNOWN', 'PREGNANT']
+  const heightCm = 158 + (h % 25)
+  const weightKg = 52 + (h % 40)
+  const bmi = Math.round((weightKg / ((heightCm / 100) * (heightCm / 100))) * 10) / 10
+  const egfr = 55 + (h % 60)
+  return {
+    patientId,
+    idType: idTypes[h % idTypes.length]!,
+    documentType: '居民身份证',
+    documentNo: `110101${String(19600101 + (h % 20000)).slice(-8)}${String(h % 10000).padStart(4, '0')}`.slice(0, 18),
+    empiId: `EMPI-${String(h % 1000000).padStart(6, '0')}`,
+    insuranceNo: `YB-${String(h % 1000000000).padStart(9, '0')}`,
+    heightCm,
+    weightKg,
+    bmi,
+    structuredAllergyCodes: h % 3 === 0
+      ? [{ code: '373255001', display: '碘对比剂过敏', severity: 'MODERATE', reaction: '皮疹/瘙痒' }]
+      : [],
+    pregnancyStatus: pregnancies[h % pregnancies.length]!,
+    renalFunction: { egfr, creatinine: Math.round((9000 / egfr) * 10) / 10, egfrSource: h % 2 === 0 ? 'LIS' : 'MANUAL' as EgfrSource },
+    isolationFlag: isolations[h % isolations.length]!,
+    vitals: {
+      systolicBp: 108 + (h % 70),
+      diastolicBp: 66 + (h % 30),
+      heartRate: 58 + (h % 50),
+      temperature: 36 + (h % 15) / 10,
+      spo2: 93 + (h % 8),
+      respiratoryRate: 14 + (h % 10),
+    },
+    updatedAt: new Date(0).toISOString(),
+  }
+}
+
+/** 患者临床档案合并 (update 只覆盖显式传入字段) */
+export function mergeClinicalProfile(base: ClinicalProfileDto, patch: Partial<ClinicalProfileDto>): ClinicalProfileDto {
+  const next: ClinicalProfileDto = {
+    ...base,
+    ...patch,
+    structuredAllergyCodes: patch.structuredAllergyCodes ?? base.structuredAllergyCodes,
+    renalFunction: { ...base.renalFunction, ...(patch.renalFunction ?? {}) },
+    vitals: { ...base.vitals, ...(patch.vitals ?? {}) },
+    updatedAt: new Date().toISOString(),
+  }
+  if (next.heightCm && next.weightKg) {
+    next.bmi = Math.round((next.weightKg / ((next.heightCm / 100) * (next.heightCm / 100))) * 10) / 10
+  }
+  return next
+}
+
 @Injectable()
 export class PatientService {
   private readonly logger = new Logger(PatientService.name)
+
+  // [G005 W6] 结构化临床档案内存 overlay (key = patientId)
+  private readonly clinicalProfiles = new Map<string, ClinicalProfileDto>()
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -263,6 +384,33 @@ export class PatientService {
       this.prisma.patient.count({ where }),
     ])
     return { items, total }
+  }
+
+  // ============ [G005 W6] 结构化临床档案: 证件/EMPI/医保/身高体重/结构化过敏/妊娠/肾功能/隔离/生命体征 ============
+
+  /** GET /patients/:id/clinical-profile — 结构化临床档案 (内存 overlay, 无记录返回确定性 seed) */
+  async getClinicalProfile(id: string): Promise<ClinicalProfileDto> {
+    const existing = this.clinicalProfiles.get(id)
+    if (existing) return existing
+    // 校验患者存在性 (DB 不可用时静默跳过, 保持 DB-less-safe)
+    try {
+      const p = await this.prisma.patient.findFirst({ where: { id, deletedAt: null, tenantId: currentTenantId() }, select: { id: true } })
+      if (!p) throw new NotFoundException(`Patient ${id} not found`)
+    } catch (err) {
+      if (err instanceof NotFoundException) throw err
+      this.logger.warn(`[Patient] clinical-profile patient lookup skipped (DB unavailable): ${(err as Error)?.message}`)
+    }
+    const seeded = seedClinicalProfile(id)
+    this.clinicalProfiles.set(id, seeded)
+    return seeded
+  }
+
+  /** PATCH /patients/:id/clinical-profile — 更新结构化临床档案 (只覆盖显式传入字段) */
+  async updateClinicalProfile(id: string, patch: Partial<ClinicalProfileDto>): Promise<ClinicalProfileDto> {
+    const base = await this.getClinicalProfile(id)
+    const next = mergeClinicalProfile(base, patch)
+    this.clinicalProfiles.set(id, next)
+    return next
   }
 
   async get(id: string): Promise<Patient> {

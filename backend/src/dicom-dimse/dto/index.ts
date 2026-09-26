@@ -16,3 +16,27 @@ export { MppsSchema } from './tls-config.dto'
 export type { MppsDto } from './tls-config.dto'
 export { TransferEnqueueSchema } from './transfer.dto'
 export type { TransferEnqueueDto } from './transfer.dto'
+export {
+  MwlQuerySchema,
+  MppsLinkSchema,
+  ProtocolSchema,
+  ExamProtocolSetSchema,
+  SeriesRegisterSchema,
+  SeriesQcSchema,
+  SeriesQcItemSchema,
+  DoseWritebackSchema,
+  ExposureParamsSchema,
+  ScanRangeSchema,
+} from './w7-exec.dto'
+export type {
+  MwlQueryDto,
+  MppsLinkDto,
+  ProtocolDto,
+  ExamProtocolSetDto,
+  SeriesRegisterDto,
+  SeriesQcDto,
+  SeriesQcItemDto,
+  DoseWritebackDto,
+  ExposureParamsDto,
+  ScanRangeDto,
+} from './w7-exec.dto'

@@ -171,6 +171,10 @@ describe('AppointmentsService', () => {
       tx.device.findUnique.mockResolvedValue({ id: 'd1' })
       tx.appointment.findFirst.mockResolvedValue(mockAppointment)
       mockPrismaService.$transaction.mockImplementation((cb: any) => cb(tx))
+      // [W5] 冲突引擎改由顶层 prisma 读取既有预约 (跨 设备/机房/技师/患者/容量)
+      mockPrismaService.appointment = tx.appointment
+      mockPrismaService.appointment.findMany.mockResolvedValue([mockAppointment])
+      mockPrismaService.device = { findMany: jest.fn().mockResolvedValue([]) }
       await expect(svc.create(dto)).rejects.toThrow(ConflictException)
       expect(tx.exam.create).not.toHaveBeenCalled()
     })

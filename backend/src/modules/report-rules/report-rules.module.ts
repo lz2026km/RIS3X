@@ -3,11 +3,12 @@ import { Module } from '@nestjs/common'
 import { PrismaModule } from '../../prisma/prisma.module'
 import { ReportRulesController } from './report-rules.controller'
 import { ReportRulesService } from './report-rules.service'
+import { ReviewTierService } from './review-tier.service'
 
 @Module({
   imports: [PrismaModule],
   controllers: [ReportRulesController],
-  providers: [ReportRulesService],
-  exports: [ReportRulesService],
+  providers: [ReportRulesService, ReviewTierService],
+  exports: [ReportRulesService, ReviewTierService],
 })
 export class ReportRulesModule {}

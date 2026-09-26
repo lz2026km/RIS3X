@@ -8,6 +8,8 @@ import { S3StorageDriver } from '../common/storage/s3-storage.driver'
 import type { StorageDriver } from '../common/storage/storage.interface'
 import { currentTenantId } from '../common/tenant/tenant-utils'
 import type { CFindMwlDto } from './dto'
+import { MwlService } from './mwl.service'
+import type { WorklistItemState } from './mwl.service'
 
 /** [G005 v3.0.6.11-86 Wave 4B (G-03)] DICOM TLS 配置 (内存 + seed 回退, 对标 HL7 MLLP TLS) */
 export interface DicomTlsConfig {
@@ -30,6 +32,10 @@ export interface MppsRecord {
   performedSteps: Array<{ code?: string; description?: string; startTime?: string; endTime?: string }>
   updatedAt: string
   source: 'mpps' | 'exam'
+  // [G005 W7-Exec] MPPS ↔ accession 关联 (N-CREATE/N-SET 携带)
+  accessionNumber?: string
+  requestedProcedureId?: string
+  examId?: string
 }
 
 /** [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输任务记录
@@ -71,6 +77,7 @@ export class DicomDimseService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     @Optional() @Inject(STORAGE_DRIVER) storageDriver?: StorageDriver,
+    @Optional() private readonly mwl?: MwlService,
   ) {
     this.storageDir = this.config.get<string>('DICOM_STORAGE_DIR', 'dicom')
     this.storage = storageDriver ?? new LocalStorageDriver({ root: this.storageDir })
@@ -432,7 +439,8 @@ export class DicomDimseService {
   // ═══════════ [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS (N-CREATE/N-SET 简化) ═══════════
   // [G005 v3.0.6.11-96 Wave 2B (B)] MPPS 落库: Prisma mpps_records 优先, DB 不可用回退内存 Map
 
-  private toMppsRecord(row: any): MppsRecord {
+  private toMppsRecord(row: any, link?: Partial<MppsRecord>): MppsRecord {
+    const mem = this.mppsRecords.get(row.studyUid)
     return {
       studyUid: row.studyUid,
       status: row.status as MppsRecord['status'],
@@ -444,6 +452,9 @@ export class DicomDimseService {
       performedSteps: Array.isArray(row.steps) ? row.steps : [],
       updatedAt: new Date(row.updatedAt ?? Date.now()).toISOString(),
       source: (row.source ?? 'mpps') as MppsRecord['source'],
+      accessionNumber: link?.accessionNumber ?? mem?.accessionNumber,
+      requestedProcedureId: link?.requestedProcedureId ?? mem?.requestedProcedureId,
+      examId: link?.examId ?? mem?.examId,
     }
   }
 
@@ -451,9 +462,16 @@ export class DicomDimseService {
     studyUid: string
     status: 'IN_PROGRESS' | 'COMPLETED' | 'DISCONTINUED'
     performedSteps?: Array<{ code?: string; description?: string; startTime?: string; endTime?: string }>
+    // [G005 W7-Exec] N-CREATE/N-SET 携带 accession 关联
+    accessionNumber?: string
+    requestedProcedureId?: string
+    examId?: string
   }): Promise<MppsRecord> {
     const now = new Date().toISOString()
     const existing = this.mppsRecords.get(dto.studyUid)
+    const link = dto.examId
+      ? { examId: dto.examId, accessionNumber: dto.accessionNumber ?? '' }
+      : await this.deriveExamFromStudyUid(dto.studyUid)
     const base: MppsRecord = {
       studyUid: dto.studyUid,
       status: dto.status,
@@ -470,6 +488,9 @@ export class DicomDimseService {
       patientName: existing?.patientName,
       patientId: existing?.patientId,
       modality: existing?.modality,
+      accessionNumber: dto.accessionNumber ?? link?.accessionNumber ?? existing?.accessionNumber,
+      requestedProcedureId: dto.requestedProcedureId ?? existing?.requestedProcedureId,
+      examId: dto.examId ?? link?.examId ?? existing?.examId,
     }
     if (!existing) {
       // 内存无记录 → 从 Exam 派生回退 (studyUid 即 exam.id 或 1.2.840.10008.<examId>)
@@ -482,6 +503,14 @@ export class DicomDimseService {
       }
     }
     this.mppsRecords.set(dto.studyUid, base)
+    // MPPS 完成/进行中 → 联动更新 MWL worklist item 状态
+    this.mwl?.applyMppsStatus({
+      studyUid: dto.studyUid,
+      accessionNumber: base.accessionNumber,
+      requestedProcedureId: base.requestedProcedureId,
+      examId: base.examId,
+      status: dto.status,
+    })
     // [v3.0.6.11-96 Wave 2B (B)] 落库 (mpps_records 表未迁移/DB 不可用时回退内存)
     try {
       const model = (this.prisma as any).mppsRecord
@@ -511,7 +540,7 @@ export class DicomDimseService {
           },
         })
         this.logger.log(`MPPS ${dto.status} for study=${dto.studyUid} persisted (${base.source})`)
-        return this.toMppsRecord(row)
+        return this.toMppsRecord(row, base)
       }
     } catch (err) {
       this.logger.warn(`[DicomDimse] MPPS persist failed, fallback memory: ${(err as Error)?.message}`)
@@ -535,6 +564,60 @@ export class DicomDimseService {
       this.logger.warn(`[DicomDimse] MPPS list from DB failed, fallback memory: ${(err as Error)?.message}`)
     }
     return [...this.mppsRecords.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }
+
+  // [G005 W7-Exec] GET /exam/:accessionNumber/mpps — accession 关联的 MPPS 记录 + MWL 状态
+  async getMppsByAccession(accessionNumber: string): Promise<{
+    accessionNumber: string
+    examId: string | null
+    total: number
+    mwlState?: WorklistItemState
+    items: MppsRecord[]
+  }> {
+    let exam: any = null
+    try {
+      exam = await this.prisma.exam.findUnique({ where: { accessionNumber }, include: { patient: true } })
+    } catch {
+      // DB 不可用 → 仅内存/派生
+    }
+    const keys = new Set<string>([accessionNumber])
+    if (exam) {
+      keys.add(exam.id)
+      keys.add(`1.2.840.10008.${exam.id}`)
+      keys.add(`RP-${accessionNumber}`)
+    }
+    const matched = new Map<string, MppsRecord>()
+    for (const rec of this.mppsRecords.values()) {
+      if (
+        rec.accessionNumber === accessionNumber ||
+        (rec.requestedProcedureId && keys.has(rec.requestedProcedureId)) ||
+        (exam && rec.examId === exam.id) ||
+        keys.has(rec.studyUid)
+      ) {
+        matched.set(rec.studyUid, rec)
+      }
+    }
+    try {
+      const model = (this.prisma as any).mppsRecord
+      if (model?.findMany) {
+        const or: Array<Record<string, unknown>> = [{ studyUid: { in: [...keys] } }]
+        if (exam?.patientId) or.push({ patientId: exam.patientId })
+        const rows = await model.findMany({ where: { OR: or }, orderBy: { updatedAt: 'desc' }, take: 200 })
+        for (const row of rows) {
+          if (!matched.has(row.studyUid)) matched.set(row.studyUid, this.toMppsRecord(row))
+        }
+      }
+    } catch (err) {
+      this.logger.warn(`[DicomDimse] getMppsByAccession DB read failed: ${(err as Error)?.message}`)
+    }
+    const items = [...matched.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    return {
+      accessionNumber,
+      examId: exam?.id ?? null,
+      total: items.length,
+      mwlState: this.mwl?.getWorklistState(accessionNumber),
+      items,
+    }
   }
 
   // ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列 ═══════════

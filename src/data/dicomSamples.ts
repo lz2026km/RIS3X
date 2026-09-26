@@ -312,3 +312,110 @@ export const DICOMWEB_DEMO_ENDPOINTS = {
   wadoRsRoot: 'https://ohif.org/dicom-cases/dicomweb/',
   wadoUri: 'https://ohif.org/dicom-cases/',
 };
+
+// ============================================================
+// [W1] 真实 DICOM 样本 (public/dicom-samples/**) 读取器
+// 数据来源: src/data/dicomSampleManifest.json (Vite 静态服务 /dicom-samples/<file>)
+// 用途: Cornerstone3D wadouri imageId 生成 (真实像素渲染)
+// ============================================================
+import dicomSampleManifest from './dicomSampleManifest.json';
+
+/** 单个 DICOM 实例 (切片) */
+export interface DicomSampleInstance {
+  /** 相对 public/dicom-samples 的文件路径, 如 CT_CHEST/CT_CHEST_001.dcm */
+  file: string;
+  sopInstanceUid: string;
+  instanceNumber: number;
+  sliceLocation: number;
+  imagePositionPatient?: number[];
+}
+
+/** 单个真实 DICOM 序列 (manifest 条目) */
+export interface DicomSampleSeries {
+  key: string;
+  modality: string;
+  sopClassUid?: string;
+  studyInstanceUid?: string;
+  seriesInstanceUid?: string;
+  patientName?: string;
+  patientId?: string;
+  patientSex?: string;
+  patientBirthDate?: string;
+  studyDate?: string;
+  studyDescription: string;
+  seriesDescription: string;
+  seriesNumber?: number;
+  rows: number;
+  columns: number;
+  pixelSpacing?: string;
+  sliceThickness?: string;
+  windowCenter: string | number;
+  windowWidth: string | number;
+  rescaleIntercept?: string;
+  rescaleSlope?: string;
+  instances: DicomSampleInstance[];
+}
+
+/** 序列列表摘要 (供左侧序列列表渲染) */
+export interface SampleSeriesSummary {
+  key: string;
+  modality: string;
+  studyDescription: string;
+  seriesDescription: string;
+  count: number;
+  rows: number;
+  columns: number;
+}
+
+interface DicomSampleManifestShape {
+  series: DicomSampleSeries[];
+}
+
+const REAL_SERIES: DicomSampleSeries[] = (
+  dicomSampleManifest as unknown as DicomSampleManifestShape
+).series;
+
+/** 返回全部真实 DICOM 样本序列摘要 (key/模态/描述/实例数) */
+export function listSampleSeries(): SampleSeriesSummary[] {
+  return REAL_SERIES.map((s) => ({
+    key: s.key,
+    modality: s.modality,
+    studyDescription: s.studyDescription,
+    seriesDescription: s.seriesDescription,
+    count: s.instances.length,
+    rows: s.rows,
+    columns: s.columns,
+  }));
+}
+
+/** 按 key 获取完整序列信息 (含 instances) */
+export function getSampleSeries(key: string): DicomSampleSeries | undefined {
+  return REAL_SERIES.find((s) => s.key === key);
+}
+
+/**
+ * 返回序列的 Cornerstone wadouri imageId 列表, 按 instanceNumber 升序。
+ * 形如: wadouri:/dicom-samples/CT_CHEST/CT_CHEST_001.dcm
+ */
+export function getSeriesImageIds(key: string): string[] {
+  const series = getSampleSeries(key);
+  if (!series) return [];
+  return [...series.instances]
+    .sort((a, b) => a.instanceNumber - b.instanceNumber)
+    .map((inst) => `wadouri:/dicom-samples/${inst.file.replace(/\\/g, '/')}`);
+}
+
+/** 数值化 windowCenter/windowWidth (manifest 中为字符串) */
+export function getSeriesWindow(series: DicomSampleSeries | undefined): {
+  ww: number;
+  wc: number;
+} {
+  const toNum = (v: string | number | undefined, fallback: number): number => {
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  return {
+    ww: toNum(series?.windowWidth, 400),
+    wc: toNum(series?.windowCenter, 40),
+  };
+}

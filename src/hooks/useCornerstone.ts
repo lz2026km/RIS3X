@@ -1,6 +1,7 @@
 // ============================================================
 // G005 放射RIS系统 v3.0.6.8-34 - Cornerstone3D Real Rendering
 // PR 1: 真实 DICOM 渲染 (8 模态 viewport + 标注工具 + DICOM-SR)
+// [W1] 接入真实 DICOM 样本: wadouri imageIds + ToolGroup + 真实标注读回
 // 对标: ZEISS FORUM DICOM Viewer
 // ============================================================
 
@@ -15,34 +16,35 @@ function dicomUidSuffix(): string {
   return `${Date.now()}${dicomUidSeq.toString().padStart(6, "0")}${rand}`;
 }
 
-// Module type shims for Cornerstone3D dynamic imports
-interface CsModule {
-  init?: () => void;
-  cache?: { setMaxCacheSize?: (size: number) => void };
-  RenderingEngine?: {
-    getOrCreate?: (id: string) => RenderingEngine | undefined;
-  };
-  Enums?: { ViewportType?: Record<string, string> };
-  metaData?: { get: (type: string, imageId: string) => unknown };
-}
-interface RenderingEngine {
-  enableElement: (opts: {
+// ------------------------------------------------------------
+// Cornerstone3D 模块类型 shim (动态 import, 运行期以 any 访问)
+// ------------------------------------------------------------
+interface RenderingEngineLike {
+  id?: string;
+  enableElement(opts: {
     viewportId: string;
     type?: string;
     element: HTMLElement;
     defaultOptions?: { background: number[] };
-  }) => void;
-  getViewport: (id: string) => ViewportLike;
-  disableElement: (id: string) => void;
-  destroy: () => void;
+  }): void;
+  getViewport(id: string): ViewportLike;
+  getViewports?(): ViewportLike[];
+  disableElement(id: string): void;
+  resize?(immediate?: boolean, keepCamera?: boolean): void;
+  render?(): void;
+  destroy(): void;
 }
+
 interface ViewportLike {
   destroy?: () => void;
   render?: () => void;
+  resize?: () => void;
   setStack?: (ids: string[], currentImageIdIndex?: number) => void;
+  getImageIds?: () => string[];
   setImageIds?: (ids: string[]) => void;
   setImageIdIndex?: (index: number) => void;
-  getCurrentIndex?: () => number;
+  getCurrentImageIdIndex?: () => number;
+  getCurrentImageId?: () => string;
   setWindowLevel?: (windowCenter: number, windowWidth: number) => void;
   setPreset?: (preset: string) => void;
   resetCamera?: () => void;
@@ -50,44 +52,350 @@ interface ViewportLike {
   addAnnotation?: (data: unknown) => unknown;
   getAnnotations?: () => unknown[];
   setProperties?: (props: Record<string, unknown>) => void;
+  getProperties?: () => unknown;
+  canvasToWorld?: (canvasPos: number[]) => number[];
+  worldToIndex?: (worldPos: number[]) => number[];
+  getImageData?: () => unknown;
+  getScalarData?: () => unknown;
 }
 
-// 全局状态: Cornerstone3D 初始化状态
+interface CoreModule {
+  init?: () => unknown;
+  cache?: { setMaxCacheSize?: (size: number) => void };
+  RenderingEngine?: new (id: string) => RenderingEngineLike;
+  getRenderingEngine?: (id: string) => RenderingEngineLike | undefined;
+  Enums?: {
+    ViewportType?: Record<string, string>;
+    Events?: Record<string, string>;
+  };
+  metaData?: { get: (type: string, imageId: string) => unknown };
+  eventTarget?: EventTarget;
+}
+
+interface ToolGroupLike {
+  addTool(name: string, config?: unknown): void;
+  addViewport(viewportId: string, renderingEngineId?: string): void;
+  removeViewports?(renderingEngineId: string, viewportId?: string): void;
+  setToolActive(
+    name: string,
+    options?: { bindings?: Array<{ mouseButton?: number }> },
+  ): void;
+  setToolPassive(name: string): void;
+  getActivePrimaryToolName?(): string | undefined;
+}
+
+interface AnnotationStateLike {
+  getAnnotations: (toolName: string, element?: HTMLElement) => unknown[];
+  addAnnotation?: (annotation: unknown, element?: HTMLElement) => void;
+  removeAllAnnotations?: () => void;
+}
+
+interface ToolsModule {
+  init?: () => void;
+  addTool?: (tool: unknown) => void;
+  ToolGroupManager?: {
+    createToolGroup?: (id: string) => ToolGroupLike | undefined;
+    getToolGroup?: (id: string) => ToolGroupLike | undefined;
+    destroyToolGroup?: (id: string) => void;
+  };
+  annotation?: { state?: AnnotationStateLike };
+  Enums?: {
+    MouseBindings?: Record<string, number>;
+    Events?: Record<string, string>;
+  };
+  [key: string]: unknown;
+}
+
+interface DicomLoaderModule {
+  init?: (options?: { maxWebWorkers?: number }) => void;
+  default?: DicomLoaderModule;
+}
+
+interface ToolClassLike {
+  toolName?: string;
+  name?: string;
+}
+
+// ------------------------------------------------------------
+// 全局单例状态
+// ------------------------------------------------------------
+export const RENDERING_ENGINE_ID = "g005-rendering-engine";
+export const TOOL_GROUP_ID = "g005-tool-group";
+const VIEWPORT_PREFIX = "g005-viewport";
+
+/** Cornerstone3D 初始化状态 */
 let cornerstoneInitPromise: Promise<boolean> | null = null;
+/** 已注册的逻辑工具 -> 实际 toolName 映射 */
+let registeredTools: Record<string, string> = {};
+let toolGroupRef: ToolGroupLike | null = null;
+let csToolsApi: ToolsModule | null = null;
+let activePrimaryLogical: string | null = null;
+
+/** 逻辑工具名 (工具栏/测量面板使用) */
+export type LogicalTool =
+  | "WindowLevel"
+  | "Pan"
+  | "Zoom"
+  | "StackScroll"
+  | "Length"
+  | "Angle"
+  | "Rectangle"
+  | "Ellipse"
+  | "Probe"
+  | "Arrow"
+  | "FreehandRoi"
+  | "TextMarker";
+
+type MeasurementLogical =
+  | "Length"
+  | "Angle"
+  | "Rectangle"
+  | "Ellipse"
+  | "Probe"
+  | "Arrow"
+  | "FreehandRoi"
+  | "TextMarker";
+
+// 逻辑工具 -> 候选 Cornerstone 类名 (不同版本命名差异的兼容回退)
+const TOOL_CLASS_CANDIDATES: Record<LogicalTool, string[]> = {
+  WindowLevel: ["WindowLevelTool"],
+  Pan: ["PanTool"],
+  Zoom: ["ZoomTool"],
+  StackScroll: ["StackScrollMouseWheelTool", "StackScrollTool"],
+  Length: ["LengthTool"],
+  Angle: ["AngleTool"],
+  Rectangle: ["RectangleROITool"],
+  Ellipse: ["EllipticalROITool"],
+  Probe: ["ProbeTool"],
+  Arrow: ["ArrowAnnotateTool"],
+  FreehandRoi: ["FreehandROITool", "PlanarFreehandROITool"],
+  TextMarker: ["TextMarkerTool", "LabelTool"],
+};
+
+function resolveToolClass(
+  csTools: ToolsModule,
+  candidates: string[],
+): ToolClassLike | undefined {
+  for (const name of candidates) {
+    const cls = csTools[name];
+    if (cls && typeof cls === "function") {
+      return cls as ToolClassLike;
+    }
+  }
+  return undefined;
+}
+
+function registerCornerstoneTools(csTools: ToolsModule): void {
+  const map: Record<string, string> = {};
+  (Object.keys(TOOL_CLASS_CANDIDATES) as LogicalTool[]).forEach((logical) => {
+    const cls = resolveToolClass(csTools, TOOL_CLASS_CANDIDATES[logical]);
+    const toolName = cls?.toolName;
+    if (!cls || !toolName) return;
+    try {
+      csTools.addTool?.(cls);
+      map[logical] = toolName;
+    } catch (e) {
+      console.warn(`[Cornerstone3D] addTool(${toolName}) failed:`, e);
+    }
+  });
+  registeredTools = map;
+}
+
+function mouseBindings(csTools: ToolsModule): {
+  primary: number;
+  auxiliary: number;
+  wheel: number;
+} {
+  const mb = csTools.Enums?.MouseBindings ?? {};
+  return {
+    primary: mb["Primary"] ?? 1,
+    auxiliary: mb["Auxiliary"] ?? 4,
+    wheel: mb["Wheel"] ?? 524288,
+  };
+}
+
+/** 创建/复用可复用的 ToolGroup 并绑定默认工具 (WL/Pan/滚轮翻页) */
+function ensureToolGroup(csTools: ToolsModule): ToolGroupLike | null {
+  if (toolGroupRef) return toolGroupRef;
+  const mgr = csTools.ToolGroupManager;
+  if (!mgr?.createToolGroup) return null;
+  const existing = mgr.getToolGroup?.(TOOL_GROUP_ID);
+  const tg = existing ?? mgr.createToolGroup(TOOL_GROUP_ID);
+  if (!tg) return null;
+  toolGroupRef = tg;
+
+  const { primary, auxiliary, wheel } = mouseBindings(csTools);
+  Object.values(registeredTools).forEach((name) => {
+    try {
+      tg.addTool(name);
+    } catch (e) {
+      console.warn(`[Cornerstone3D] toolGroup.addTool(${name}) failed:`, e);
+    }
+  });
+
+  if (registeredTools["WindowLevel"]) {
+    tg.setToolActive(registeredTools["WindowLevel"], {
+      bindings: [{ mouseButton: primary }],
+    });
+  }
+  if (registeredTools["Pan"]) {
+    // 鼠标中键平移 (与主键工具互不冲突)
+    tg.setToolActive(registeredTools["Pan"], {
+      bindings: [{ mouseButton: auxiliary }],
+    });
+  }
+  if (registeredTools["StackScroll"]) {
+    tg.setToolActive(registeredTools["StackScroll"], {
+      bindings: [{ mouseButton: wheel }],
+    });
+  }
+  return tg;
+}
+
+function setPrimary(logical: string, bindings: number[]): void {
+  const tg = toolGroupRef;
+  const target = registeredTools[logical];
+  if (!tg || !target) return;
+  tg.setToolActive(target, { bindings: bindings.map((mouseButton) => ({ mouseButton })) });
+  activePrimaryLogical = logical;
+}
+
+/**
+ * 切换当前主键工具 (WindowLevel/Pan/Zoom/测量工具)。
+ * 返回是否成功 (工具未注册时返回 false)。
+ */
+export function activateTool(tool: LogicalTool): boolean {
+  const csTools = csToolsApi;
+  const tg = toolGroupRef;
+  if (!csTools || !tg) return false;
+  const { primary, auxiliary } = mouseBindings(csTools);
+
+  if (tool === "StackScroll") {
+    // 滚轮翻页始终可用, 不占用主键
+    if (registeredTools["StackScroll"]) {
+      const { wheel } = mouseBindings(csTools);
+      tg.setToolActive(registeredTools["StackScroll"], {
+        bindings: [{ mouseButton: wheel }],
+      });
+    }
+    return true;
+  }
+
+  const target = registeredTools[tool];
+  if (!target) return false;
+
+  // 关闭上一个主键工具
+  if (activePrimaryLogical && activePrimaryLogical !== tool) {
+    const prev = registeredTools[activePrimaryLogical];
+    if (prev) {
+      try {
+        tg.setToolPassive(prev);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  // WindowLevel 与主键测量/平移/缩放互斥
+  if (tool !== "WindowLevel" && registeredTools["WindowLevel"]) {
+    try {
+      tg.setToolPassive(registeredTools["WindowLevel"]);
+    } catch {
+      // ignore
+    }
+  }
+
+  if (tool === "Pan") {
+    // 平移同时保留中键
+    setPrimary("Pan", [primary, auxiliary]);
+  } else {
+    setPrimary(tool, [primary]);
+  }
+  return true;
+}
+
+/** 切换当前激活的测量工具 */
+export function setActiveMeasurementTool(tool: MeasurementLogical): boolean {
+  return activateTool(tool);
+}
+
+/** 恢复窗宽窗位 (主键左键) */
+export function activateWindowLevel(): boolean {
+  return activateTool("WindowLevel");
+}
+
+/** 读取某个工具在当前元素上的真实标注 (Cornerstone annotation state) */
+export function getAnnotationsForElement(
+  toolName: string,
+  element: HTMLElement,
+): unknown[] {
+  const state = csToolsApi?.annotation?.state;
+  if (!state?.getAnnotations) return [];
+  try {
+    return state.getAnnotations(toolName, element) || [];
+  } catch {
+    return [];
+  }
+}
+
+/** 清除当前元素上的全部标注 */
+export function clearAllAnnotations(): void {
+  try {
+    csToolsApi?.annotation?.state?.removeAllAnnotations?.();
+  } catch {
+    // ignore
+  }
+}
+
+/** 已注册工具的逻辑名 -> 实际 toolName (调试/HUD) */
+export function getRegisteredToolNames(): Record<string, string> {
+  return { ...registeredTools };
+}
 
 export async function initCornerstone3D(): Promise<boolean> {
   if (cornerstoneInitPromise) return cornerstoneInitPromise;
   cornerstoneInitPromise = (async () => {
     try {
-      const csCore = await import("@cornerstonejs/core");
-      const csTools = await import("@cornerstonejs/tools");
+      const csCore = (await import("@cornerstonejs/core")) as unknown as CoreModule;
+      const csTools = (await import("@cornerstonejs/tools")) as unknown as ToolsModule;
 
-      // [v3.0.6.11-88] codec-libjpeg-turbo ESM 默认导出在部分打包器下不可用,
-      // dicom-image-loader 加载失败时隔离处理, 不影响 core/tools 初始化
-      // (视口自动回退占位帧, 页面不崩)
+      // 1) core init (WebGL/CPU 渲染管线探测)
       try {
-        const csDicom = await import("@cornerstonejs/dicom-image-loader");
-        const csDicomImageLoader = ((csDicom as unknown as { default?: unknown })
-          .default || csDicom) as CsModule;
-        if (csDicomImageLoader?.init) {
-          csDicomImageLoader.init();
-        }
+        csCore.init?.();
       } catch (e) {
-        console.warn("[Cornerstone3D] DICOM image loader unavailable, viewport 回退占位帧:", e);
+        console.warn("[Cornerstone3D] core.init failed:", e);
       }
 
-      const csCoreModule = csCore as unknown as CsModule;
-      if (csCoreModule.cache?.setMaxCacheSize) {
-        csCoreModule.cache.setMaxCacheSize(2 * 1024 * 1024 * 1024);
+      // 2) DICOM image loader: 注册 wadouri/wadors scheme + metadata provider
+      try {
+        const loaderMod = (await import(
+          "@cornerstonejs/dicom-image-loader"
+        )) as unknown as DicomLoaderModule;
+        const dl = loaderMod.default ?? loaderMod;
+        const hc =
+          typeof navigator !== "undefined" ? navigator.hardwareConcurrency : 0;
+        dl.init?.({ maxWebWorkers: Math.min(4, Math.max(1, hc || 2)) });
+      } catch (e) {
+        console.warn(
+          "[Cornerstone3D] DICOM image loader 不可用, viewport 回退占位帧:",
+          e,
+        );
       }
 
-      const csToolsModule = csTools as unknown as CsModule;
-      if (csToolsModule.init) {
-        csToolsModule.init();
+      // 3) 缓存
+      csCore.cache?.setMaxCacheSize?.(2 * 1024 * 1024 * 1024);
+
+      // 4) tools init
+      try {
+        csTools.init?.();
+      } catch (e) {
+        console.warn("[Cornerstone3D] tools.init failed:", e);
       }
 
-      // 标注工具: Length / Angle / Rectangle / Ellipse / Arrow / Text / Freehand
-      // 实际注册在 useViewport 内的 csTools.addTool 调用完成
+      // 5) 注册工具 + 复用 ToolGroup
+      csToolsApi = csTools;
+      registerCornerstoneTools(csTools);
+      ensureToolGroup(csTools);
       return true;
     } catch (e) {
       console.warn("[Cornerstone3D] init degraded, viewport 回退占位帧:", e);
@@ -125,6 +433,16 @@ export type AnnotationTool =
   | "FreehandRoi"
   | "TextMarker";
 
+const ANNOTATION_TO_LOGICAL: Record<AnnotationTool, MeasurementLogical> = {
+  Length: "Length",
+  Angle: "Angle",
+  Rectangle: "Rectangle",
+  Ellipse: "Ellipse",
+  Arrow: "Arrow",
+  FreehandRoi: "FreehandRoi",
+  TextMarker: "TextMarker",
+};
+
 // 单 viewport hook (PR 1 真实渲染)
 export function useViewport(
   elementId: string,
@@ -137,15 +455,45 @@ export function useViewport(
 ) {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<ViewportLike | null>(null);
-  const renderingEngineRef = useRef<RenderingEngine | null>(null);
+  const renderingEngineRef = useRef<RenderingEngineLike | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<AnnotationTool>("Length");
+  const [annotations, setAnnotations] = useState<unknown[]>([]);
+  const imageIdsKey = options.imageIds.join("|");
 
   useEffect(() => {
     let mounted = true;
-    const viewportId = `eye-viewport-${elementId}`;
+    const viewportId = `${VIEWPORT_PREFIX}-${elementId}`;
+    let resizeObserver: ResizeObserver | null = null;
+    const element = elementRef.current;
+    const stackEventName = "CORNERSTONE_STACK_NEW_IMAGE";
+    const annotationEventNames = [
+      "CORNERSTONE_TOOLS_ANNOTATION_ADDED",
+      "CORNERSTONE_TOOLS_ANNOTATION_COMPLETED",
+      "CORNERSTONE_TOOLS_ANNOTATION_REMOVED",
+      "CORNERSTONE_TOOLS_ANNOTATION_MODIFIED",
+    ];
+
+    const refreshAnnotations = () => {
+      if (!mounted || !element) return;
+      const names = Object.values(registeredTools);
+      const all: unknown[] = [];
+      names.forEach((name) => {
+        all.push(...getAnnotationsForElement(name, element));
+      });
+      setAnnotations(all);
+    };
+
+    const handleStackNewImage = () => {
+      const idx = viewportRef.current?.getCurrentImageIdIndex?.();
+      if (typeof idx === "number") setCurrentIndex(idx);
+    };
+
+    let attachedStackEvent: string = stackEventName;
+    let annTarget: EventTarget | null = null;
+
     const run = async () => {
       const ok = await initCornerstone3D();
       if (!ok || !mounted || !elementRef.current) {
@@ -156,57 +504,102 @@ export function useViewport(
         return;
       }
       try {
-        const csCore = await import("@cornerstonejs/core");
+        const csCore = (await import("@cornerstonejs/core")) as unknown as CoreModule;
+        const target = elementRef.current;
 
-        // [v3.0.6.11-50] 真实 RenderingEngine + STACK viewport 接入
-        const element = elementRef.current;
-        const csCoreModule = csCore as unknown as CsModule;
-        const renderingEngine = csCoreModule.RenderingEngine?.getOrCreate?.(
-          "eye-rendering-engine",
-        );
-        if (renderingEngine && element) {
-          try {
-            renderingEngine.enableElement({
-              viewportId,
-              type: csCoreModule.Enums?.ViewportType?.STACK || "stack",
-              element,
-              defaultOptions: { background: [0, 0, 0] },
-            });
-            const viewport = renderingEngine.getViewport(viewportId);
-            renderingEngineRef.current = renderingEngine;
-            viewportRef.current = viewport;
-            // [v3.0.6.11-50] F06: enableElement 后必须装载 DICOM 栈并触发渲染
-            if (options.imageIds.length > 0) {
-              viewport.setStack?.(options.imageIds);
-              viewport.render?.();
+        let engine = csCore.getRenderingEngine?.(RENDERING_ENGINE_ID);
+        if (!engine && csCore.RenderingEngine) {
+          engine = new csCore.RenderingEngine(RENDERING_ENGINE_ID);
+        }
+        if (!engine) {
+          throw new Error("RenderingEngine 创建失败");
+        }
+        renderingEngineRef.current = engine;
+
+        engine.enableElement({
+          viewportId,
+          type: csCore.Enums?.ViewportType?.STACK || "stack",
+          element: target,
+          defaultOptions: { background: [0, 0, 0] },
+        });
+        const viewport = engine.getViewport(viewportId);
+        viewportRef.current = viewport;
+
+        if (options.imageIds.length > 0) {
+          viewport.setStack?.(options.imageIds, 0);
+          viewport.render?.();
+          setCurrentIndex(viewport.getCurrentImageIdIndex?.() ?? 0);
+        }
+
+        // 绑定到复用 ToolGroup + 渲染
+        try {
+          toolGroupRef?.addViewport(viewportId, RENDERING_ENGINE_ID);
+        } catch (e) {
+          console.warn("[Cornerstone3D] toolGroup.addViewport failed:", e);
+        }
+        viewport.render?.();
+
+        // 尺寸变化重绘 (grid 布局切换 / window resize)
+        if (typeof ResizeObserver !== "undefined") {
+          resizeObserver = new ResizeObserver(() => {
+            try {
+              renderingEngineRef.current?.resize?.(true, false);
+            } catch {
+              // ignore
             }
-            setIsLoading(false);
-            options.onMount?.(viewport);
-          } catch (renderErr) {
-            console.warn("[Cornerstone3D] viewport init fallback:", renderErr);
-            // 降级: 创建 mock viewport (保留基本 API)
-            viewportRef.current = createMockViewport(element);
-            setIsLoading(false);
-            options.onMount?.(viewportRef.current);
-          }
-        } else {
-          viewportRef.current = createMockViewport(element);
+          });
+          resizeObserver.observe(target);
+        }
+
+        // 滚轮翻页/程序切换切片 → 同步索引 (元素级事件)
+        const coreEvents = csCore.Enums?.Events ?? {};
+        const coreStackEvent = coreEvents["STACK_NEW_IMAGE"] ?? stackEventName;
+        attachedStackEvent = coreStackEvent;
+        target.addEventListener(coreStackEvent, handleStackNewImage as EventListener);
+
+        // 标注事件 (tools 在 core.eventTarget 上派发) → 刷新真实标注
+        annTarget = csCore.eventTarget ?? null;
+        annotationEventNames.forEach((name) =>
+          annTarget?.addEventListener(name, refreshAnnotations as EventListener),
+        );
+
+        refreshAnnotations();
+        setIsLoading(false);
+        options.onMount?.(viewport);
+      } catch (renderErr) {
+        console.warn("[Cornerstone3D] viewport init fallback:", renderErr);
+        if (mounted) {
+          viewportRef.current = createMockViewport(elementRef.current);
           setIsLoading(false);
           options.onMount?.(viewportRef.current);
-        }
-      } catch (e: unknown) {
-        if (mounted) {
-          setError(e instanceof Error ? e.message : String(e));
-          setIsLoading(false);
         }
       }
     };
     run();
     return () => {
       mounted = false;
+      if (resizeObserver) resizeObserver.disconnect();
+      if (element) {
+        element.removeEventListener(
+          attachedStackEvent,
+          handleStackNewImage as EventListener,
+        );
+      }
+      if (annTarget) {
+        annotationEventNames.forEach((name) =>
+          annTarget?.removeEventListener(
+            name,
+            refreshAnnotations as EventListener,
+          ),
+        );
+      }
+      try {
+        toolGroupRef?.removeViewports?.(RENDERING_ENGINE_ID, viewportId);
+      } catch {
+        // ignore
+      }
       const vp = viewportRef.current;
       if (vp?.destroy) vp.destroy();
-      // [v3.0.6.11-50] F06: cleanup 必须释放 viewport 资源
       try {
         renderingEngineRef.current?.disableElement(viewportId);
       } catch {
@@ -214,7 +607,8 @@ export function useViewport(
       }
       renderingEngineRef.current = null;
     };
-  }, [elementId, options.imageIds.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elementId, imageIdsKey]);
 
   const scroll = useCallback(
     (delta: number) => {
@@ -238,8 +632,14 @@ export function useViewport(
     [options.imageIds.length],
   );
 
+  // [W1] 真实窗宽窗位: StackViewport.setProperties({ voiRange }) (setWindowLevel 不存在)
   const setWWWC = useCallback((ww: number, wc: number) => {
-    viewportRef.current?.setWindowLevel?.(ww, wc);
+    const viewport = viewportRef.current;
+    if (!viewport?.setProperties) return;
+    const lower = wc - ww / 2;
+    const upper = wc + ww / 2;
+    viewport.setProperties({ voiRange: { lower, upper } });
+    viewport.render?.();
   }, []);
 
   const setPreset = useCallback((preset: string) => {
@@ -248,26 +648,41 @@ export function useViewport(
 
   const reset = useCallback(() => {
     viewportRef.current?.resetCamera?.();
+    viewportRef.current?.render?.();
   }, []);
 
-  // [v3.0.6.8-34] 标注工具切换
+  // [v3.0.6.8-34] 标注工具切换 (接入真实 ToolGroup)
   const setTool = useCallback((tool: AnnotationTool) => {
     setActiveTool(tool);
-    viewportRef.current?.setActiveTool?.(tool);
+    const logical = ANNOTATION_TO_LOGICAL[tool];
+    activateTool(logical);
   }, []);
 
-  // [v3.0.6.8-34] 添加标注
+  // [v3.0.6.8-34] 添加标注 (真实 annotation state 可用时写入)
   const addAnnotation = useCallback(
-    (data: { type: AnnotationTool; coordinates: any[]; text?: string }) => {
-      return viewportRef.current?.addAnnotation?.(data);
+    (data: { type: AnnotationTool; coordinates: unknown[]; text?: string }) => {
+      const element = elementRef.current;
+      const state = csToolsApi?.annotation?.state;
+      if (element && state?.addAnnotation) {
+        try {
+          const annotation = {
+            annotationUID: uniqueId("ANN"),
+            data,
+            metadata: {},
+          };
+          state.addAnnotation(annotation, element);
+          return annotation;
+        } catch {
+          // fallthrough to mock
+        }
+      }
+      return { ...data, id: uniqueId("ANN") };
     },
     [],
   );
 
-  // [v3.0.6.8-34] 获取所有标注
-  const getAnnotations = useCallback(() => {
-    return viewportRef.current?.getAnnotations?.() || [];
-  }, []);
+  // [W1] 获取真实标注 (Cornerstone annotation state)
+  const getAnnotations = useCallback(() => annotations, [annotations]);
 
   return {
     elementRef,
@@ -276,6 +691,7 @@ export function useViewport(
     isLoading,
     error,
     activeTool,
+    annotations,
     scroll,
     jumpTo,
     setWWWC,
@@ -288,13 +704,13 @@ export function useViewport(
 }
 
 // 降级 mock viewport (WebGL 不可用时使用)
-function createMockViewport(element: HTMLElement) {
+function createMockViewport(element: HTMLElement | null): ViewportLike {
+  void element;
   return {
-    element,
     setImageIdIndex: (_idx: number) => {
       /* mock */
     },
-    getCurrentIndex: () => 0,
+    getCurrentImageIdIndex: () => 0,
     resetCamera: () => {
       /* mock */
     },
@@ -307,12 +723,12 @@ function createMockViewport(element: HTMLElement) {
     setActiveTool: (_tool: string) => {
       /* mock */
     },
-    addAnnotation: (data: any) => ({ ...data, id: uniqueId('ANN') }),
+    addAnnotation: (data: unknown) => ({ ...(data as object), id: uniqueId("ANN") }),
     getAnnotations: () => [],
     destroy: () => {
       /* mock */
     },
-  };
+  } as ViewportLike;
 }
 
 // 8 模态适配 (PR 1)
@@ -374,8 +790,8 @@ async function readRealDicomMetadata(
   imageId: string,
 ): Promise<Record<string, unknown> | null> {
   try {
-    const csCore = await import("@cornerstonejs/core");
-    const metaData = (csCore as unknown as CsModule).metaData;
+    const csCore = (await import("@cornerstonejs/core")) as unknown as CoreModule;
+    const metaData = csCore.metaData;
     if (!metaData?.get) return null;
     const pixel = metaData.get("imagePixelModule", imageId) as
       | {
@@ -387,9 +803,11 @@ async function readRealDicomMetadata(
         }
       | undefined;
     const plane = metaData.get("imagePlaneModule", imageId) as
-      { sliceThickness?: number; pixelSpacing?: number[] } | undefined;
+      | { sliceThickness?: number; pixelSpacing?: number[] }
+      | undefined;
     const series = metaData.get("generalSeriesModule", imageId) as
-      { seriesDescription?: string; modality?: string } | undefined;
+      | { seriesDescription?: string; modality?: string }
+      | undefined;
     if (!pixel) return null;
     const pick = (v: number | number[] | undefined): number | undefined =>
       Array.isArray(v) ? v[0] : v;

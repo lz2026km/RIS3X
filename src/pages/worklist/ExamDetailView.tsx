@@ -43,6 +43,8 @@ import { Input, InputNumber, Modal, Radio, Select, message } from "antd";
 import type { ExamDto } from "../../types/dto";
 // [v3.0.6.11-100 Wave 1B] 设备维护提醒横幅 (设备信息存在时展示)
 import DeviceMaintenanceBanner from "../../components/tech/DeviceMaintenanceBanner";
+// [G005 W7-Exec] 检查执行面板 (协议/序列/曝光/序列级 QC/剂量)
+import { ExecutionPanel } from "../../components/tech/ExecutionPanel";
 // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师分配 + 交接班
 import TechnicianAssignmentEditor from "../../components/worklist/TechnicianAssignmentEditor";
 // [v3.0.6.11-103 Wave 11] 技师工作站: 流程状态条 (7 态 + 一键流转)
@@ -1021,6 +1023,11 @@ export function ExamDetailView({
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* [G005 W7-Exec] 检查执行: 协议/序列/曝光参数/序列级 QC/剂量 + 图像数校验 */}
+            <div style={{ marginBottom: 20 }}>
+              <ExecutionPanel examId={exam.id} accessionNumber={exam.accessionNumber} />
             </div>
 
             {/* [v3.0.6.11-103 Wave 1B] 技师备注: 回显 techNotes + POST /worklist/:id/notes */}

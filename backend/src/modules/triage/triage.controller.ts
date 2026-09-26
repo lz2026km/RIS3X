@@ -5,6 +5,16 @@ import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { TriageService, type TriageExamInput } from './triage.service'
 
+// [G005 W6] 生命体征 (BP/HR/Temp/SpO2/RR)
+const VitalsSchema = z.object({
+  systolicBp: z.number().min(0).max(400).optional(),
+  diastolicBp: z.number().min(0).max(300).optional(),
+  heartRate: z.number().min(0).max(400).optional(),
+  temperature: z.number().min(25).max(45).optional(),
+  spo2: z.number().min(0).max(100).optional(),
+  respiratoryRate: z.number().min(0).max(80).optional(),
+}).optional()
+
 const ScoreAssignSchema = z.object({
   examId: z.string().min(1),
   patientId: z.string().min(1),
@@ -15,6 +25,15 @@ const ScoreAssignSchema = z.object({
   referringDoctorLevel: z.string().optional(),
   patientAge: z.number().int().optional(),
   gender: z.string().optional(),
+  vitals: VitalsSchema,
+  nurseId: z.string().optional(),
+  nurseName: z.string().optional(),
+})
+
+const NurseSchema = z.object({
+  examId: z.string().min(1),
+  nurseId: z.string().min(1),
+  nurseName: z.string().optional(),
 })
 
 const UpdateSchema = z.object({
@@ -47,6 +66,18 @@ export class TriageController {
   @Post('assign')
   assign(@Body(new ZodValidationPipe(ScoreAssignSchema)) body: TriageExamInput) {
     return this.service.assign(body)
+  }
+
+  // [G005 W6] 复评: 重采生命体征重算 ESI/评分 (vitals 越界 → reTriageRecommended)
+  @Post('re-triage')
+  reTriage(@Body(new ZodValidationPipe(ScoreAssignSchema)) body: TriageExamInput) {
+    return this.service.reTriage(body)
+  }
+
+  // [G005 W6] 分诊护士指派
+  @Post('nurse')
+  assignNurse(@Body(new ZodValidationPipe(NurseSchema)) body: z.infer<typeof NurseSchema>) {
+    return this.service.assignNurse(body.examId, body.nurseId, body.nurseName)
   }
 
   @Get('pending')

@@ -135,6 +135,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "主任", "管理员"],
       },
       {
+        // [G005 W6] 登记工作站 (扫码/身份/准备项/知情同意/对比剂安全/缴费/分诊)
+        path: "/registration",
+        icon: <ClipboardCheck size={18} />,
+        labelKey: "nav.registrationWorkstation",
+        roles: ["护士", "技师", "医生", "主任", "管理员"],
+      },
+      {
         path: "/exams",
         icon: <ClipboardList size={18} />,
         labelKey: "nav.examRecords",
@@ -613,6 +620,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dicomBrowser",
         roles: ["医生", "技师", "主任", "管理员",],
       },
+      // [W1] 真实 DICOM 阅片工作站 (Cornerstone3D 真实像素)
+      {
+        path: "/dicom/workstation",
+        icon: <Monitor size={18} />,
+        labelKey: "nav.dicomWorkstation",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
       {
         path: "/dicom/fusion",
         icon: <GitMerge size={18} />,
@@ -871,6 +885,26 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Server size={18} />,
         labelKey: "nav.aiProviders",
         roles: ["管理员",],
+      },
+      // [G005 W3] AI 定量分析中心 (概念 UI, 确定性模拟)
+      {
+        path: "/ai/quant-center",
+        icon: <ScanSearch size={18} />,
+        labelKey: "nav.aiQuantCenter",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      // [G005 W4-AI] AI 模型注册表 / 工作流中心 (概念 UI, 确定性模拟)
+      {
+        path: "/ai/models",
+        icon: <Boxes size={18} />,
+        labelKey: "nav.aiModelRegistry",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/ai/workflow",
+        icon: <Workflow size={18} />,
+        labelKey: "nav.aiWorkflow",
+        roles: ["医生", "主任", "管理员"],
       },
       // [v3.0.6.11-40] A12 AI CAD 子专科
       {
@@ -1527,6 +1561,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     path: "/tech/workbench",
     icon: <ClipboardCheck size={18} />,
     labelKey: "nav.techWorkbench",
+    roles: ["技师", "主任", "管理员"],
+  },
+  // [G005 W7-Exec] MWL 管理 (Modality Worklist 查询 / MPPS 状态)
+  {
+    path: "/tech/mwl",
+    icon: <RadioTower size={18} />,
+    labelKey: "w7exec.mwlManagerTitle",
     roles: ["技师", "主任", "管理员"],
   },
       {
@@ -2299,6 +2340,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Fingerprint size={18} />,
         labelKey: "nav.mfaSetup",
         roles: ["管理员", "主任", "医生", "技师", "护士"],
+      },
+      // [G005 W8-Report] 签名与证书中心 (证书注册表/CRL/验签)
+      {
+        path: "/security/certificate-center",
+        icon: <ShieldCheck size={18} />,
+        labelKey: "nav.certificateCenter",
+        roles: ["管理员", "主任", "医生"],
       },
     ],
   },

@@ -9,6 +9,10 @@ export interface ReportDiffData {
   oldVersion?: Record<string, unknown>
   newVersion?: Record<string, unknown>
   changes?: Array<{ field?: string; type?: string; oldValue?: string; newValue?: string }>
+  // [G005 W8-Report] 后端内容版本快照 diff 的真实字段级差异
+  source?: string
+  changedFields?: string[]
+  fields?: Array<{ field: string; label: string; before: string; after: string; changed: boolean }>
 }
 
 export interface ReportDiffModalProps {
@@ -67,6 +71,12 @@ function DiffText({ before, after }: { before: string; after: string }) {
 export default function ReportDiffModal({ report, data, loading, onClose }: ReportDiffModalProps) {
   const merged = useMemo(() => {
     if (!report || !data) return null
+    // [G005 W8-Report] 优先使用内容版本快照的真实字段差异 (含 label)
+    if (data.fields && data.fields.length > 0) {
+      return data.fields
+        .filter(f => f.changed || f.after)
+        .map(f => ({ field: f.field, label: f.label || FIELD_LABEL[f.field] || f.field, before: f.before, after: f.after }))
+    }
     const oldV = pickText(data.oldVersion)
     const newV = pickText(data.newVersion)
     const keys = Array.from(new Set([...Object.keys(oldV), ...Object.keys(newV)]))

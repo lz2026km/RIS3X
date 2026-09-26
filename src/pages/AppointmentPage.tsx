@@ -43,6 +43,9 @@ import {
 } from "../utils/orderStateAdapter";
 import AppointmentCalendar from "./AppointmentCalendar";
 import AppointmentForm from "./AppointmentForm";
+// [W5] 资源甘特 + 运营面板 (等候/提醒/失约)
+import ResourceGantt from "../components/appointments/ResourceGantt";
+import AppointmentOpsPanels from "../components/appointments/AppointmentOpsPanels";
 // [v3.0.6.11-103 Wave 10] 重复页合并: AppointmentManagementPage (冲突检测/统计/管理) 嵌入为 AppointmentPage "预约管理" 视图, 旧路由 /appointment-management redirect → /appointments
 import AppointmentManagementPage from "./AppointmentManagementPage";
 import { formatDateObj } from '../utils/date';
@@ -663,7 +666,28 @@ export default function AppointmentPage() {
     clinicalDiagnosis: "",
     notes: "",
     priority: "normal",
+    // [W5] 资源/安全/医保/绿色通道字段
+    technicianId: "",
+    technicianName: "",
+    durationMin: 30,
+    bufferMin: 0,
+    prepInstruction: "",
+    consentRequired: false,
+    insuranceType: "城镇职工医保",
+    insurancePreAuthNo: "",
+    greenChannel: false,
+    allergyHistory: "",
+    pregnant: false,
+    renalFunction: "",
+    contrastAgent: false,
+    clinicalIndication: "",
+    weightKg: "",
+    heightCm: "",
   });
+
+  // [W5] 视图开关: 资源甘特 + 运营面板 (不改动既有 viewMode 联合类型, 降低回归风险)
+  const [showGantt, setShowGantt] = useState(false);
+  const [showOps, setShowOps] = useState(false);
 
   const weekDates = useMemo(
     () => getWeekDates(currentWeekStart),
@@ -806,6 +830,25 @@ export default function AppointmentPage() {
       note: formData.notes || undefined,
       referringDoctor: formData.referringDoctorName || undefined,
       createdById: "current-user",
+      // [W5] 资源/安全/医保/绿色通道
+      roomId: formData.roomId || undefined,
+      roomName: formData.roomName || undefined,
+      technicianId: formData.technicianId || undefined,
+      technicianName: formData.technicianName || undefined,
+      durationMin: Number(formData.durationMin) || 30,
+      bufferMin: Number(formData.bufferMin) || 0,
+      prepInstruction: formData.prepInstruction || undefined,
+      consentRequired: !!formData.consentRequired,
+      insuranceType: formData.insuranceType || undefined,
+      insurancePreAuthNo: formData.insurancePreAuthNo || undefined,
+      greenChannel: !!formData.greenChannel,
+      weightKg: formData.weightKg === "" ? undefined : Number(formData.weightKg),
+      heightCm: formData.heightCm === "" ? undefined : Number(formData.heightCm),
+      allergyHistory: formData.allergyHistory || undefined,
+      pregnant: !!formData.pregnant,
+      renalFunction: formData.renalFunction || undefined,
+      contrastAgent: !!formData.contrastAgent,
+      clinicalIndication: formData.clinicalIndication || undefined,
     };
   };
 
@@ -878,6 +921,22 @@ export default function AppointmentPage() {
       clinicalDiagnosis: "",
       notes: "",
       priority: "normal",
+      technicianId: "",
+      technicianName: "",
+      durationMin: 30,
+      bufferMin: 0,
+      prepInstruction: "",
+      consentRequired: false,
+      insuranceType: "城镇职工医保",
+      insurancePreAuthNo: "",
+      greenChannel: false,
+      allergyHistory: "",
+      pregnant: false,
+      renalFunction: "",
+      contrastAgent: false,
+      clinicalIndication: "",
+      weightKg: "",
+      heightCm: "",
     });
   };
 
@@ -1100,6 +1159,46 @@ const borderGray = "var(--border-color)";
             >
               <BarChart3 size={13} /> {t("apptPage.management")}
             </button>
+            {/* [W5] 资源甘特视图开关 */}
+            <button
+              data-testid="toggle-gantt"
+              onClick={() => { setShowGantt(!showGantt); setShowForm(false); setShowRules(false); }}
+              style={{
+                padding: "7px 14px",
+                background: showGantt ? primaryBlue : whiteBg,
+                color: showGantt ? "#fff" : primaryBlue,
+                border: `1px solid ${primaryBlue}`,
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <BarChart3 size={13} /> {t("w5Appt.ganttTitle")}
+            </button>
+            {/* [W5] 运营面板开关 */}
+            <button
+              data-testid="toggle-ops"
+              onClick={() => { setShowOps(!showOps); setShowForm(false); setShowRules(false); }}
+              style={{
+                padding: "7px 14px",
+                background: showOps ? primaryBlue : whiteBg,
+                color: showOps ? "#fff" : primaryBlue,
+                border: `1px solid ${primaryBlue}`,
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <Bell size={13} /> {t("w5Appt.opsTitle")}
+            </button>
             <ActionButton
               action={showForm ? "cancel" : "create"}
               onClick={() => {
@@ -1172,6 +1271,36 @@ const borderGray = "var(--border-color)";
             color="info"
           />
         </div>
+
+        {/* [W5] 资源排班甘特 (设备/机房/技师) */}
+        {showGantt && (
+          <div style={{ marginBottom: 16 }}>
+            <ResourceGantt
+              appointments={appointments as unknown as Array<Record<string, unknown>>}
+              onCreate={({ rowId, dimension, startMin, date }) => {
+                const hh = String(Math.floor(startMin / 60)).padStart(2, "0");
+                const mm = String(startMin % 60).padStart(2, "0");
+                setFormData((prev) => ({
+                  ...prev,
+                  examDate: date,
+                  examTime: `${hh}:${mm}`,
+                  ...(dimension === "ROOM" ? { roomId: rowId } : {}),
+                  ...(dimension === "DEVICE" ? { deviceId: rowId } : {}),
+                  ...(dimension === "TECH" ? { technicianId: rowId } : {}),
+                }));
+                setShowForm(true);
+                setShowGantt(false);
+              }}
+            />
+          </div>
+        )}
+
+        {/* [W5] 预约运营面板 (等候队列/提醒计划/失约清单) */}
+        {showOps && (
+          <div style={{ marginBottom: 16 }}>
+            <AppointmentOpsPanels />
+          </div>
+        )}
 
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
           {/* ====== 左侧面板 (60%) ====== */}
