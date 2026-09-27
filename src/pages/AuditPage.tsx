@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { auditApi, type AuditLogDto, type AuditStatsDto } from '../services/api/systemApi'
 import { auditApi as auditAggApi, type AuditOverviewDto, type AuditUserActivityDto, type AuditTrendPoint, type AuditHighRiskDto, type AuditHighRiskActionDto } from '../services/api/auditApi'
-import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List } from 'antd'
+import { auditChainApi, type AuditChainVerificationDto, type RetentionPolicyDto } from '../services/api/w13SecurityApi'
+import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List, Alert } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
 import { PageHeader } from '../components/common/PageHeader'
 import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined, WarningOutlined, LineChartOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
@@ -28,6 +29,10 @@ export default function AuditPage() {
   const [userActivity, setUserActivity] = useState<AuditUserActivityDto[]>([])
   const [trend, setTrend] = useState<AuditTrendPoint[]>([])
   const [highRisk, setHighRisk] = useState<AuditHighRiskDto | null>(null)
+  // [G005 W13-Security] 审计链端到端校验
+  const [chain, setChain] = useState<AuditChainVerificationDto | null>(null)
+  const [chainRetention, setChainRetention] = useState<RetentionPolicyDto | null>(null)
+  const [chainLoading, setChainLoading] = useState(false)
 
   const fetchLogs = async (requestedPage?: number) => {
     const targetPage = requestedPage ?? page
@@ -79,6 +84,18 @@ export default function AuditPage() {
     } catch { /* 回退: 不展示 */ }
   }
 
+  // [G005 W13-Security] 审计链校验 + 留存策略
+  const fetchChain = async () => {
+    setChainLoading(true)
+    try {
+      const [v, r] = await Promise.all([auditChainApi.verify(), auditChainApi.retention()])
+      if (v.success && v.data) setChain(v.data)
+      if (r.success && r.data) setChainRetention(r.data)
+    } catch { /* 回退: 不展示链校验 */ } finally {
+      setChainLoading(false)
+    }
+  }
+
   // [W2-C] 审计记录详情: 操作者/资源/请求/响应/时间
   const handleViewDetail = async (id: string) => {
     setDetailOpen(true)
@@ -100,7 +117,7 @@ export default function AuditPage() {
     }
   }
 
-  useEffect(() => { fetchLogs(1); fetchStats(); fetchExtended() }, [])
+  useEffect(() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain() }, [])
 
   const columns: ProColumn<AuditLogDto>[] = [
     { title: t('auditPage.colTime'), dataIndex: 'createdAt', key: 'createdAt', width: 180, sorter: (a, b) => a.createdAt.localeCompare(b.createdAt), defaultSortOrder: 'descend', render: (v) => new Date(String(v)).toLocaleString('zh-CN') },
@@ -144,7 +161,7 @@ export default function AuditPage() {
 <PageHeader variant="flex" icon={<AuditOutlined />} title={t('auditPage.title')} style={{ marginBottom: 0 }} />
             <Space>
               <Button icon={<DownloadOutlined />} onClick={handleExport}>{t('auditPage.export')}</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended() }}>{t('auditPage.refresh')}</Button>
+              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain() }}>{t('auditPage.refresh')}</Button>
             </Space>
           </Row>
           <Tabs items={[
@@ -280,6 +297,42 @@ export default function AuditPage() {
                     size="small"
                   />
                 </>
+              ),
+            },
+            {
+              key: 'chain',
+              label: <span><SafetyCertificateOutlined /> {t('w13Sec.ac.title')}</span>,
+              children: (
+                <Card size="small" extra={<Button size="small" type="primary" icon={<ReloadOutlined />} loading={chainLoading} onClick={() => void fetchChain()}>{t('w13Sec.ac.verify')}</Button>}>
+                  {chain ? (
+                    <>
+                      <Alert
+                        type={chain.verified ? 'success' : 'error'}
+                        showIcon
+                        message={chain.verified ? t('w13Sec.ac.verified') : t('w13Sec.ac.broken', { index: chain.brokenAt ?? 0 })}
+                        description={chain.reason ?? undefined}
+                      />
+                      <Row gutter={16} style={{ marginTop: 12 }}>
+                        <Col span={6}><Statistic title={t('w13Sec.ac.blocks')} value={chain.totalBlocks} prefix={<SafetyCertificateOutlined />} /></Col>
+                        <Col span={6}><Statistic title={t('w13Sec.ac.checked')} value={chain.checkedBlocks} /></Col>
+                        <Col span={6}><Statistic title={t('w13Sec.ac.source')} value={t(`w13Sec.ac.source.${chain.source}`)} /></Col>
+                        <Col span={6}><Card size="small"><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w13Sec.ac.headHash')}</div><Tooltip title={chain.headHash}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{chain.headHash.slice(0, 20)}…</span></Tooltip></Card></Col>
+                      </Row>
+                      {chainRetention && (
+                        <Descriptions bordered size="small" column={3} style={{ marginTop: 12 }}>
+                          <Descriptions.Item label={t('w13Sec.ac.retentionMonths')}>{chainRetention.retentionMonths}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.retentionDays')}>{chainRetention.retentionDays}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{chainRetention.archiveLocation}</span></Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.encrypted')}>{chainRetention.encrypted ? '✓' : '✗'}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.immutable')}>{chainRetention.immutable ? '✓' : '✗'}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.lastArchive')}>{chainRetention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
+                        </Descriptions>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: 24 }}><Spin tip={t('auditPage.loading')} /></div>
+                  )}
+                </Card>
               ),
             },
             {

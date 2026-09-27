@@ -14,6 +14,11 @@ import { QualityIndicatorsService } from './quality-indicators.service'
 import { EvaluateTargetSchema, IndicatorCodeSchema, ListIndicatorsSchema } from './quality-indicators.schema'
 import { z } from 'zod'
 
+const ComputeSchema = z.object({
+  period: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+  persist: z.coerce.boolean().optional(),
+})
+
 @ApiTags('quality-indicators')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
@@ -39,5 +44,23 @@ export class QualityIndicatorsController {
   @Get('standards')
   getStandards() {
     return this.svc.getStandards()
+  }
+
+  // [W9-QC] 2024 国标 40 指标计算引擎
+  @Get('compute')
+  async compute(@Query(new ZodValidationPipe(ComputeSchema)) query: z.infer<typeof ComputeSchema>) {
+    const { source, snapshot } = await this.svc.compute(query.period, query.persist !== false)
+    return { source, ...snapshot }
+  }
+
+  @Get('dashboard')
+  async dashboard(@Query('period') period?: string) {
+    const parsed = period && /^\d{4}-\d{2}$/.test(period) ? period : undefined
+    return { success: true, data: await this.svc.computeDashboard(parsed) }
+  }
+
+  @Get('snapshots')
+  snapshots() {
+    return { success: true, data: this.svc.listSnapshots() }
   }
 }

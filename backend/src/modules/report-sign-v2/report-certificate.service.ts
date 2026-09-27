@@ -2,11 +2,12 @@
 // 提供 list/query/revoke/crl/isValid 供报告签名验签使用。
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { DEMO_CA_KEY_ID } from './report-signing-keys'
-import type { CertificateRecord, CertStatus, CrlView } from './report-signing.types'
+import type { CertificateRecord, CertStatus, CrlView, DigestAlgorithm } from './report-signing.types'
 
 const iso = (offsetDays: number) => new Date(Date.now() + offsetDays * 86_400_000).toISOString()
 
-const ISSUER = 'CN=G005 RIS Demo CA, O=G005 Hospital, C=CN'
+export const CERT_ISSUER = 'CN=G005 RIS Demo CA, O=G005 Hospital, C=CN'
+const ISSUER = CERT_ISSUER
 
 const SEED_CERTIFICATES: CertificateRecord[] = [
   {
@@ -61,6 +62,7 @@ const SEED_CERTIFICATES: CertificateRecord[] = [
 export class ReportCertificateService {
   private readonly certs: CertificateRecord[] = SEED_CERTIFICATES.map((c) => ({ ...c }))
   private readonly defaultSerial = SEED_CERTIFICATES[0]!.serial
+  private issuedSeq = 0
 
   /** 证书列表 (可按状态/关键字过滤) */
   list(filter?: { status?: CertStatus; keyword?: string }): { source: 'demo'; generatedAt: string; total: number; data: CertificateRecord[] } {
@@ -132,5 +134,79 @@ export class ReportCertificateService {
       entryCount: entries.length,
       entries,
     }
+  }
+
+  // ================= [G005 W13-Security] RA 颁发 / 注册 / 续期 =================
+
+  /** 生成新证书序列号 (唯一, 前缀 05 表示 G005 颁发) */
+  nextSerial(): string {
+    this.issuedSeq += 1
+    const stamp = Date.now().toString(16).toUpperCase()
+    const seq = this.issuedSeq.toString(16).toUpperCase().padStart(4, '0')
+    return `05${stamp.slice(-8)}${seq}`
+  }
+
+  /** 注册外部/RA 生成的证书记录 (幂等: 同 serial 覆盖) */
+  register(record: CertificateRecord): CertificateRecord {
+    const idx = this.certs.findIndex((c) => c.serial === record.serial)
+    if (idx >= 0) this.certs[idx] = { ...record }
+    else this.certs.unshift({ ...record })
+    return { ...record }
+  }
+
+  /** RA 颁发证书 (由证书请求批准后调用) */
+  issue(input: {
+    subject: string
+    algorithm?: DigestAlgorithm
+    usage?: CertificateRecord['usage']
+    keyId: string
+    days?: number
+    notBefore?: string
+  }): CertificateRecord {
+    if (!input.subject?.trim()) throw new BadRequestException('证书主题不能为空')
+    const days = input.days && input.days > 0 ? input.days : 365
+    const record: CertificateRecord = {
+      serial: this.nextSerial(),
+      subject: input.subject.trim(),
+      issuer: ISSUER,
+      algorithm: input.algorithm ?? 'SHA-256',
+      usage: input.usage ?? 'signature',
+      notBefore: input.notBefore ?? new Date().toISOString(),
+      notAfter: iso(days),
+      status: 'valid',
+      keyId: input.keyId,
+    }
+    return this.register(record)
+  }
+
+  /** 续期: 基于既有证书签发新证书, 原证书置为 revoked (supersededByRenew)。 */
+  renew(serial: string, opts?: { days?: number; keyId?: string; notBefore?: string }): CertificateRecord {
+    const old = this.get(serial)
+    if (old.status === 'revoked') throw new BadRequestException(`证书 ${serial} 已吊销, 不可续期`)
+    const renewed = this.issue({
+      subject: old.subject,
+      algorithm: old.algorithm,
+      usage: old.usage,
+      keyId: opts?.keyId ?? old.keyId,
+      days: opts?.days ?? 365,
+      notBefore: opts?.notBefore ?? new Date().toISOString(),
+    })
+    const idx = this.certs.findIndex((c) => c.serial === serial)
+    if (idx >= 0) {
+      this.certs[idx]!.status = 'revoked'
+      this.certs[idx]!.revocationReason = `supersededByRenew:${renewed.serial}`
+      this.certs[idx]!.revokedAt = new Date().toISOString()
+    }
+    return renewed
+  }
+
+  /** 全部证书 (含 RA 新增) */
+  all(): CertificateRecord[] {
+    return this.certs.map((c) => ({ ...c }))
+  }
+
+  count(): { total: number; valid: number; revoked: number } {
+    const revoked = this.certs.filter((c) => c.status === 'revoked').length
+    return { total: this.certs.length, valid: this.certs.length - revoked, revoked }
   }
 }

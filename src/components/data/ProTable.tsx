@@ -22,6 +22,7 @@ import type { ColumnType } from 'antd/es/table';
 import { useState, useMemo, type ReactNode, type ComponentType, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Inbox } from 'lucide-react'
+import { useTableColumnConfig } from './useTableColumnConfig';
 
 // antd Statistic 类型未声明 children, 但运行时支持 (趋势区); 放宽类型以保留原渲染
 const StatisticWithChildren = AntStatistic as unknown as ComponentType<
@@ -43,6 +44,14 @@ export interface ProTableProps<T extends object = Record<string, unknown>> exten
   onRefresh?: () => void;
   pageSize?: number;
   rowSelection?: TableProps<T>['rowSelection'];
+  /** [W14-UX] 启用列显隐/排序 + 保存视图 (需提供稳定 storageKey) */
+  columnConfigKey?: string;
+  /** [W14-UX] 保存视图时读取当前 filter/sort 状态 */
+  getViewState?: () => Record<string, unknown>;
+  /** [W14-UX] 应用保存视图时恢复 filter/sort */
+  applyViewState?: (state: Record<string, unknown>) => void;
+  /** [W14-UX] 侧栏额外工具栏内容 (显示在列配置按钮左侧) */
+  toolbarExtra?: ReactNode;
 }
 
 export interface ProColumn<T extends object = Record<string, unknown>> {
@@ -93,6 +102,10 @@ export function ProTable<T extends object = Record<string, unknown>>({
   onRefresh,
   pageSize = DEFAULT_TABLE_PAGE_SIZE,
   rowSelection,
+  columnConfigKey,
+  getViewState,
+  applyViewState,
+  toolbarExtra,
   pagination: paginationProp,
   locale,
   scroll,
@@ -102,6 +115,16 @@ export function ProTable<T extends object = Record<string, unknown>>({
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+
+  // [W14-UX] 列配置 + 保存视图 (可选)
+  const columnConfig = useTableColumnConfig<ProColumn<T>>({
+    columns,
+    storageKey: columnConfigKey ?? '__protable_default__',
+    getKey: (col, i) => String(col.key ?? (Array.isArray(col.dataIndex) ? col.dataIndex.join('.') : col.dataIndex ?? `__col_${i}`)),
+    getViewState,
+    applyViewState,
+  });
+  const baseColumns = columnConfigKey ? columnConfig.visibleColumns : columns;
 
   // 过滤 + 搜索
   const filteredData = useMemo(() => {
@@ -126,12 +149,12 @@ export function ProTable<T extends object = Record<string, unknown>>({
   }, [dataSource, debouncedSearch, columns, searchFields]);
 
   const visibleColumns = useMemo(
-    () => columns
+    () => baseColumns
       .filter((column) => !column.hidden)
       .map((column) => isActionColumn(column) && !column.fixed
         ? { ...column, fixed: 'right' as const }
         : column),
-    [columns]
+    [baseColumns]
   );
 
   const pagination = useMemo<TablePaginationConfig | false>(() => {
@@ -169,6 +192,8 @@ export function ProTable<T extends object = Record<string, unknown>>({
             aria-label={t('common.search')}
           />
           <div style={{ flex: 1 }} />
+          {toolbarExtra}
+          {columnConfigKey && columnConfig.toolbar}
           {onRefresh && (
             <button
               type="button"

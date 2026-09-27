@@ -17,6 +17,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useRef,
   createContext,
   useContext,
 } from "react";
@@ -50,6 +51,9 @@ import { normalizeRole } from "../services/auth/roleUtils";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 import { useUserConfig } from "../hooks/useUserConfig";
 import { useAppTheme, type ThemeMode } from "../components/Provider";
+// [W14-UX] 全局快捷键注册中心 + 帮助浮层
+import { useGlobalShortcuts } from "../hooks/useGlobalShortcuts";
+import { ShortcutHelpModal } from "../components/common/ShortcutHelpModal";
 import { SettingsPanel } from "../components/feedback/SettingsPanel";
 import { NetworkOfflineBanner } from "../components/feedback/NetworkOfflineBanner";
 import { SkipLink } from "../a11y/SkipLink";
@@ -502,6 +506,19 @@ export function AppLayout() {
   const filteredItems = useSidebarItems((user?.role as Role) ?? "医生");
   const { theme: appTheme, cycleTheme } = useAppTheme();
 
+  // [W14-UX] 全局快捷键 (导航序列键 g+x / Ctrl+K 搜索 / Alt+T 主题 / ? 与 F1 帮助)
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { shortcuts: globalShortcuts, helpOpen, closeHelp } = useGlobalShortcuts({
+    navigate,
+    onToggleTheme: cycleTheme,
+    onRefresh: () =>
+      window.dispatchEvent(new CustomEvent("g005:refresh")),
+    onSearch: () => {
+      setSearchOpen(true);
+      requestAnimationFrame(() => searchInputRef.current?.focus());
+    },
+  });
+
   // [W4A-C7] Header 搜索: 路由名匹配下拉 (sidebarConfig labelKey 中文)
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -592,6 +609,7 @@ export function AppLayout() {
   return (
     <div style={{ ...s.root, direction }}>
       <SkipLink />
+      <ShortcutHelpModal open={helpOpen} onClose={closeHelp} shortcuts={globalShortcuts} />
       <NavigateCtx.Provider value={navigate}>
         <aside
           className="app-sidebar no-print"
@@ -788,6 +806,7 @@ export function AppLayout() {
               />
               <input
                 type="text"
+                ref={searchInputRef}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);

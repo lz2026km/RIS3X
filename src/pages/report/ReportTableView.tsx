@@ -5,6 +5,8 @@ import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 // [v3.0.6.11-103 Wave 6] 表格统一: ProTable → DataTable (斑马纹/行高/列头/分页统一)
 import { DataTable } from '../../components/common/DataTable'
+// [W14-UX] 右键上下文菜单项类型
+import type { ContextMenuItem } from '../../components/common/ContextMenu'
 import type { ProColumn } from '../../components/data/ProTable'
 import type { TableColumnsType } from 'antd'
 import { formatDateTime } from '../../utils/date';
@@ -131,6 +133,33 @@ export default function ReportTableView({
 }: ReportTableViewProps) {
   // [W3-C] 受控分页: 报告列表 (全量数据前端切片)
   const listPagination = usePagination(reports, 10);
+  // [W14-UX] 右键行操作 (查看/打印/导出/审核/危急值/删除)
+  const buildReportContextItems = (report: RadiologyReport): ContextMenuItem[] => {
+    const isPending = ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW'].includes(toEnState(report.status));
+    return [
+      { key: 'view', label: t('w14Ux.contextMenu.view'), onSelect: () => onView(report) },
+      { key: 'print', label: t('w14Ux.contextMenu.print'), onSelect: () => onPrint(report) },
+      { key: 'export', label: t('w14Ux.contextMenu.export'), onSelect: () => onExportPDF(report) },
+      ...(isPending
+        ? [{ key: 'review', label: t('w14Ux.contextMenu.approve'), dividerBefore: true, onSelect: () => onReview(report) }]
+        : []),
+      ...(onCritical
+        ? [{ key: 'critical', label: t('w14Ux.contextMenu.markCritical'), onSelect: () => onCritical(report) }]
+        : []),
+      ...(onDelete
+        ? [
+            {
+              key: 'delete',
+              label: t('rptTable.delete'),
+              danger: true,
+              confirm: t('w14Ux.contextMenu.confirmDelete'),
+              dividerBefore: true,
+              onSelect: () => onDelete(report),
+            } as ContextMenuItem,
+          ]
+        : []),
+    ];
+  };
   const columns = useMemo<ProColumn<RadiologyReport>[]>(() => [
     {
       title: t('rptTable.col.patient'),
@@ -279,6 +308,10 @@ export default function ReportTableView({
       loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
       pagination={listPagination.pagination}
       scroll={{ x: 1250 }}
+      columnConfigKey="report-table"
+      alwaysVisibleColumns={["actions"]}
+      contextMenuTestId="report-context-menu"
+      contextMenuItems={buildReportContextItems}
       rowSelection={{
         preserveSelectedRowKeys: true,
         selectedRowKeys: [...selectedIds],

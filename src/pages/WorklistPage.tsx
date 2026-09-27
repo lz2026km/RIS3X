@@ -866,9 +866,35 @@ export default function WorklistPage() {
   const toggleColumn = (key: string) => setColumnConfig(prev => ({ ...prev, [key]: !(key in prev ? prev[key] : true) }))
   const resetColumnConfig = () => {
     setColumnConfig({})
-    setShowColumnConfig(false)
-  }
+    setShowColumnConfig(false)  }
   const allColumnsShown = hiddenColumnKeys.length === 0
+
+  // ---- B1b. [W14-UX] 命名保存视图 (列配置 + 过滤集合, localStorage 持久化) ----
+  const [savedColumnViews, setSavedColumnViews] = useState<Array<{ name: string; config: Record<string, boolean>; filters?: FilterState }>>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem('worklist-column-views') || '[]')
+      return Array.isArray(raw) ? raw : []
+    } catch { return [] }
+  })
+  const [columnViewName, setColumnViewName] = useState('')
+  useEffect(() => {
+    try { localStorage.setItem('worklist-column-views', JSON.stringify(savedColumnViews)) } catch { /* ignore */ }
+  }, [savedColumnViews])
+  const saveColumnView = () => {
+    const name = columnViewName.trim()
+    if (!name) return
+    setSavedColumnViews(prev => [...prev.filter(v => v.name !== name), { name, config: columnConfig, filters }])
+    setColumnViewName('')
+  }
+  const applyColumnView = (name: string) => {
+    const v = savedColumnViews.find(x => x.name === name)
+    if (!v) return
+    setColumnConfig(v.config)
+    if (v.filters) setFilters(v.filters)
+  }
+  const removeColumnView = (name: string) => {
+    setSavedColumnViews(prev => prev.filter(v => v.name !== name))
+  }
 
   // ---- B2. SLA 分析卡 (超时分布直方图) ----
   const slaBuckets = useMemo(() => {
@@ -2266,6 +2292,20 @@ export default function WorklistPage() {
           prefetchStatus={prefetchStatusMap}
           transferStatus={transferStatusMap}
           hiddenColumns={hiddenColumnKeys}
+          contextActions={{
+            onView: (exam) => { setHistoryDrawerTab('info'); setSelectedExam(exam) },
+            onAssign: (exam) => setDoctorSelectModalExam(exam),
+            onPrint: (exam) => setPrintPreviewModalData({ open: true, examIds: [exam.id] }),
+            onExport: (exam) => setBatchResultModalData({
+              open: true,
+              action: t('worklistPage.actionLabel.export'),
+              count: 1,
+              results: [exam.accessionNumber ?? exam.id],
+            }),
+            onCritical: handleCriticalValueClick,
+            onReschedule: (exam) => { void transitionExamTo(exam, 'SCHEDULED') },
+            onCancel: handleCancelExam,
+          }}
         />
       )}
 
@@ -2703,6 +2743,33 @@ export default function WorklistPage() {
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
                {t('worklistPage.columnConfigHint')}
+            </div>
+            {/* [W14-UX] 命名保存视图 */}
+            <div style={{ borderTop: '1px solid var(--border-subtle, rgba(0,0,0,0.08))', paddingTop: 12, marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>{t('w14Ux.views.title')}</div>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                <input
+                  value={columnViewName}
+                  onChange={(e) => setColumnViewName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') saveColumnView() }}
+                  placeholder={t('w14Ux.views.namePlaceholder')}
+                  aria-label={t('w14Ux.views.namePlaceholder')}
+                  style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+                />
+                <ActionButton action="create" size="compact" onClick={saveColumnView}>{t('w14Ux.views.saveShort')}</ActionButton>
+              </div>
+              {savedColumnViews.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {savedColumnViews.map(v => (
+                    <span key={v.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12 }}>
+                      <button type="button" onClick={() => applyColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#1e40af', fontWeight: 600, fontSize: 12 }}>{v.name}</button>
+                      <button type="button" aria-label={`${t('w14Ux.views.delete')}: ${v.name}`} onClick={() => removeColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex' }}>
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 16 }}>
               {WORKLIST_COLUMNS.map(c => {

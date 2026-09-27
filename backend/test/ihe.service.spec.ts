@@ -232,20 +232,24 @@ describe('IheService', () => {
   describe('getStatus', () => {
     it('returns status metrics', async () => {
       const result = await svc.getStatus()
-      expect(result.profile).toBe('PAM/PIX/PDQ')
+      expect(result.profile).toBe('XDS.b/XCA/XDR/PAM/PIX/PDQ')
       expect(result.transactions).toContain('ITI-8')
+      expect(result.transactions).toContain('ITI-41')
+      expect(result.metrics.xdsDocuments).toBeGreaterThanOrEqual(1)
     })
   })
 
-  describe('Stubs', () => {
-    it('registerDocumentStub returns doc ID', async () => {
-      const id = await svc.registerDocumentStub({}, 'repo1')
-      expect(id).toContain('doc-')
+  describe('XDS (ITI-41/ITI-18 委托)', () => {
+    it('registerDocumentStub 返回真实 documentUniqueId', async () => {
+      const id = await svc.registerDocumentStub({ patientId: 'P-XDS-SPEC', title: '测试' }, '1.2.840.113556.1.8000.2554.1.100')
+      expect(id.length).toBeGreaterThan(0)
     })
 
-    it('queryDocumentsStub returns documents', async () => {
-      const docs = await svc.queryDocumentsStub('p1', 'domain')
-      expect(docs).toHaveLength(2)
+    it('queryDocumentsStub 返回已登记文档', async () => {
+      await svc.registerDocumentStub({ patientId: 'P-XDS-Q', title: 'A' }, '1.2.840.113556.1.8000.2554.1.100')
+      const docs = await svc.queryDocumentsStub('P-XDS-Q', '1.2.840.113556.1.8000.2554.1.100')
+      expect(docs).toHaveLength(1)
+      expect(docs[0]!.patientId).toBe('P-XDS-Q')
     })
 
     it('crossReferencePatientStub returns cross-ref', async () => {

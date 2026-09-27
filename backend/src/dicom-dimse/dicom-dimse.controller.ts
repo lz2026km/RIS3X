@@ -118,6 +118,12 @@ export class DicomDimseController {
     return this.service.getTransferStats()
   }
 
+  @Post('transfers/process')
+  @ApiOperation({ summary: '[v3.0.6.13] 处理到期传输队列 (持久化 + 指数退避重试)' })
+  processTransfers(@Query('now') now?: string) {
+    return this.service.processTransferQueue(now)
+  }
+
   @Post('transfers/:id/retry')
   @ApiOperation({ summary: '重试失败/暂停的传输任务' })
   retryTransfer(@Param('id') id: string) {

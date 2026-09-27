@@ -90,6 +90,81 @@ export const PamQuerySchema = z.object({
 
 export type PamQueryDto = z.infer<typeof PamQuerySchema>
 
+// ── v3.0.6.13 XDS.b / XCA / XDR DTO ──────────────────────────────────────────
+
+export const XdsDocumentSchema = z.object({
+  uniqueId: z.string().optional(),
+  title: z.string().optional(),
+  mimeType: z.string().optional(),
+  classCode: z.string().optional(),
+  classDisplayName: z.string().optional(),
+  formatCode: z.string().optional(),
+  formatDisplayName: z.string().optional(),
+  typeCode: z.string().optional(),
+  typeDisplayName: z.string().optional(),
+  languageCode: z.string().optional(),
+  practiceSettingCode: z.string().optional(),
+  healthcareFacilityTypeCode: z.string().optional(),
+  creationTime: z.string().optional(),
+  serviceStartTime: z.string().optional(),
+  serviceStopTime: z.string().optional(),
+  authorInstitution: z.string().optional(),
+  authorPerson: z.string().optional(),
+  content: z.string().optional(),
+  size: z.number().int().nonnegative().optional(),
+})
+
+export type XdsDocumentDto = z.infer<typeof XdsDocumentSchema>
+
+export const XdsProvideSchema = z.object({
+  patientId: z.string().min(1),
+  repositoryUniqueId: z.string().optional(),
+  homeCommunityId: z.string().optional(),
+  sourcePatientId: z.string().optional(),
+  sourcePatientInfo: z.string().optional(),
+  submissionSetStatus: z.enum(['Original', 'Approved', 'Deprecated']).optional(),
+  documents: z.array(XdsDocumentSchema).min(1).max(200),
+})
+
+export type XdsProvideDto = z.infer<typeof XdsProvideSchema>
+
+export const XdsRetrieveSchema = z.object({
+  homeCommunityId: z.string().optional(),
+  documents: z.array(z.object({
+    repositoryUniqueId: z.string().min(1),
+    documentUniqueId: z.string().min(1),
+  })).min(1).max(200),
+})
+
+export type XdsRetrieveDto = z.infer<typeof XdsRetrieveSchema>
+
+export const XdsQuerySchema = z.object({
+  patientId: z.string().optional(),
+  classCode: z.string().optional(),
+  formatCode: z.string().optional(),
+  typeCode: z.string().optional(),
+  creationTimeFrom: z.string().optional(),
+  creationTimeTo: z.string().optional(),
+  status: z.enum(['APPROVED', 'DEPRECATED', 'ALL']).optional(),
+  homeCommunityId: z.string().optional(),
+  authorPerson: z.string().optional(),
+  limit: z.number().int().positive().max(500).optional(),
+})
+
+export type XdsQueryDto = z.infer<typeof XdsQuerySchema>
+
+export const XcaQuerySchema = XdsQuerySchema.extend({
+  homeCommunityId: z.string().min(1),
+})
+
+export type XcaQueryDto = z.infer<typeof XcaQuerySchema>
+
+export const XcaRetrieveSchema = XdsRetrieveSchema.extend({
+  homeCommunityId: z.string().min(1),
+})
+
+export type XcaRetrieveDto = z.infer<typeof XcaRetrieveSchema>
+
 export const AffinityDomainSchema = z.object({
   homeCommunityId: z.string(),
   name: z.string(),

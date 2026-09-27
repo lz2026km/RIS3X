@@ -44,6 +44,45 @@ export interface PdcaDefectRef {
   reportedAt: string
 }
 
+// [W9-QC] PDCA 整改措施 / 问题发现 (持久化模型扩展)
+export type PdcaActionStatus = 'pending' | 'in_progress' | 'done' | 'overdue'
+
+export interface PdcaAction {
+  id: string
+  cycleId: string
+  phase: Exclude<PdcaPhaseCode, 'completed'>
+  description: string
+  ownerId: string
+  ownerName: string
+  deadline: string
+  status: PdcaActionStatus
+  createdAt: string
+  completedAt?: string
+}
+
+export interface PdcaFinding {
+  id: string
+  cycleId: string
+  title: string
+  description: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  source: string
+  createdAt: string
+}
+
+export interface PdcaMetrics {
+  cycleCount: number
+  actionCount: number
+  actionDone: number
+  actionOverdue: number
+  actionCompletionRate: number
+  findingCount: number
+  byOwner: Array<{ ownerId: string; ownerName: string; total: number; done: number; overdue: number }>
+  byActionStatus: Record<PdcaActionStatus, number>
+  defectCount: number
+  linkedDefectCount: number
+}
+
 export const PDCA_PHASE_ORDER: Exclude<PdcaPhaseCode, 'completed'>[] = ['plan', 'do', 'check', 'act']
 
 const CATEGORIES: PdcaCategory[] = ['报告质控', '图像质控', '流程质控', '服务质控']
@@ -84,6 +123,8 @@ export class QcPdcaService {
   private readonly logger = new Logger(QcPdcaService.name)
   private cycles: PdcaCycle[] = []
   private phaseEntries = new Map<string, PdcaPhaseEntry[]>()
+  private actions: PdcaAction[] = []
+  private findings: PdcaFinding[] = []
   // [G005 Wave 10A] 起始计数 1000, 避免与 seed 周期 id (pdca-10x) 冲突
   private idCounter = 1000
 
@@ -218,6 +259,48 @@ export class QcPdcaService {
         })),
       ]),
     )
+
+    // [W9-QC] 整改措施 (actions) 种子: 覆盖 pending/in_progress/done/overdue
+    const mkAction = (
+      id: string,
+      cycleId: string,
+      phase: Exclude<PdcaPhaseCode, 'completed'>,
+      description: string,
+      owner: { id: string; name: string },
+      deadline: string,
+      status: PdcaActionStatus,
+      completedAt?: string,
+    ): PdcaAction => ({
+      id, cycleId, phase, description,
+      ownerId: owner.id, ownerName: owner.name,
+      deadline, status, createdAt: iso('2026-05-06'), completedAt,
+    })
+    this.actions = [
+      mkAction('act-001', 'pdca-001', 'do', '组织 2 场全员术语规范培训', OWNERS[0]!, '2026-05-30', 'done', iso('2026-05-28')),
+      mkAction('act-002', 'pdca-001', 'act', '将术语规范写入科室 SOP', OWNERS[0]!, '2026-06-25', 'done', iso('2026-06-24')),
+      mkAction('act-003', 'pdca-002', 'do', '模板增加造影剂描述必填字段', OWNERS[1]!, '2026-07-15', 'done', iso('2026-07-12')),
+      mkAction('act-004', 'pdca-002', 'check', '7 月抽查覆盖率复核', OWNERS[1]!, '2026-08-10', 'in_progress'),
+      mkAction('act-005', 'pdca-003', 'do', '上线电话复核提醒与超时预警', OWNERS[0]!, '2026-07-20', 'done', iso('2026-07-18')),
+      mkAction('act-006', 'pdca-003', 'check', '满月复核率评估', OWNERS[0]!, '2026-08-05', 'overdue'),
+      mkAction('act-007', 'pdca-004', 'do', '校准 3 台 DR 自动曝光参数', OWNERS[2]!, '2026-08-20', 'in_progress'),
+      mkAction('act-008', 'pdca-101', 'do', '组织技师外渗预防培训并考核', OWNERS[2]!, '2026-04-30', 'done', iso('2026-04-28')),
+      mkAction('act-009', 'pdca-101', 'check', '复查 420 例增强扫描外渗率', OWNERS[2]!, '2026-05-20', 'done', iso('2026-05-18')),
+      mkAction('act-010', 'pdca-102', 'do', '调整技师排班, 夜间及周六开放预约', OWNERS[0]!, '2026-06-15', 'done', iso('2026-06-14')),
+      mkAction('act-011', 'pdca-102', 'act', '固化排班方案并建立预约超时预警', OWNERS[0]!, '2026-07-15', 'in_progress'),
+      mkAction('act-012', 'pdca-103', 'do', '更新电子知情同意模板并增加必填校验', OWNERS[1]!, '2026-07-01', 'done', iso('2026-06-30')),
+      mkAction('act-013', 'pdca-104', 'do', '升级移动 DR 网络模块并部署 QoS', OWNERS[2]!, '2026-07-31', 'pending'),
+      mkAction('act-014', 'pdca-105', 'plan', '梳理双签名流程耗时分布', OWNERS[0]!, '2026-07-25', 'overdue'),
+    ]
+
+    // [W9-QC] 问题发现 (findings) 种子
+    this.findings = [
+      { id: 'find-001', cycleId: 'pdca-001', title: '模糊表述占比偏高', description: '4-5 月 600 份报告中模糊表述占比 8.3%', severity: 'medium', source: '抽样质控', createdAt: iso('2026-05-06') },
+      { id: 'find-002', cycleId: 'pdca-002', title: '增强报告字段缺失', description: 'CT 增强报告造影剂描述缺失率 18%', severity: 'high', source: '结构化校验', createdAt: iso('2026-06-10') },
+      { id: 'find-003', cycleId: 'pdca-003', title: '危急值复核断点', description: '口头通知后 30 分钟未电话复核占 4%', severity: 'high', source: '流程审计', createdAt: iso('2026-06-20') },
+      { id: 'find-004', cycleId: 'pdca-101', title: '对比剂外渗超标', description: '3 月外渗率 0.9% 超国标目标 0.3%', severity: 'high', source: '不良事件上报', createdAt: iso('2026-04-01') },
+      { id: 'find-005', cycleId: 'pdca-102', title: 'MRI 预约等待过长', description: '4 月平均等待 6.5 天', severity: 'medium', source: '运营统计', createdAt: iso('2026-05-10') },
+      { id: 'find-006', cycleId: 'pdca-104', title: '床旁 DR 传输延迟', description: '移动 DR 上传 PACS 平均延迟 95 秒', severity: 'medium', source: '设备巡检', createdAt: iso('2026-06-15') },
+    ]
   }
 
   private cloneCycle(c: PdcaCycle): PdcaCycle {
@@ -463,5 +546,141 @@ export class QcPdcaService {
   async listAllDefects(): Promise<{ source: 'database' | 'demo'; generatedAt: string; data: PdcaDefectRef[] }> {
     const derived = await this.deriveDefects()
     return { source: derived.length === SEED_DEFECTS.length ? 'demo' : 'database', generatedAt: new Date().toISOString(), data: derived }
+  }
+
+  // ================= [W9-QC] 整改措施 / 问题发现 (持久化模型扩展) =================
+
+  private findAction(id: string): PdcaAction {
+    const action = this.actions.find((a) => a.id === id)
+    if (!action) throw new NotFoundException(`整改措施 ${id} 不存在`)
+    return action
+  }
+
+  private deriveActionStatus(a: PdcaAction): PdcaAction {
+    if (a.status !== 'done' && Date.parse(a.deadline) < Date.parse('2026-08-14')) {
+      return { ...a, status: 'overdue' }
+    }
+    return a
+  }
+
+  listActions(cycleId: string): PdcaAction[] {
+    this.findCycle(cycleId)
+    return this.actions.filter((a) => a.cycleId === cycleId).map((a) => this.deriveActionStatus({ ...a }))
+  }
+
+  addAction(cycleId: string, body: { description: string; phase?: Exclude<PdcaPhaseCode, 'completed'>; ownerId?: string; deadline?: string }): PdcaAction {
+    this.findCycle(cycleId)
+    if (!body.description?.trim()) throw new BadRequestException('description 不能为空')
+    const phase = body.phase ?? 'plan'
+    if (!PDCA_PHASE_ORDER.includes(phase)) throw new BadRequestException(`阶段必须为 ${PDCA_PHASE_ORDER.join('|')}`)
+    const owner = OWNERS.find((o) => o.id === body.ownerId) ?? OWNERS[0]!
+    const action: PdcaAction = {
+      id: this.nextId('act'),
+      cycleId,
+      phase,
+      description: body.description.trim(),
+      ownerId: owner.id,
+      ownerName: owner.name,
+      deadline: body.deadline ?? daysAfter('2026-08-14', 30),
+      status: 'pending',
+      createdAt: iso('2026-08-14'),
+    }
+    this.actions.push(action)
+    return { ...action }
+  }
+
+  updateAction(id: string, body: Partial<{ description: string; phase: Exclude<PdcaPhaseCode, 'completed'>; ownerId: string; deadline: string; status: PdcaActionStatus }>): PdcaAction {
+    const action = this.findAction(id)
+    if (body.description !== undefined) {
+      if (!body.description.trim()) throw new BadRequestException('description 不能为空')
+      action.description = body.description.trim()
+    }
+    if (body.phase !== undefined) {
+      if (!PDCA_PHASE_ORDER.includes(body.phase)) throw new BadRequestException('阶段不合法')
+      action.phase = body.phase
+    }
+    if (body.ownerId !== undefined) {
+      const owner = OWNERS.find((o) => o.id === body.ownerId)
+      if (owner) {
+        action.ownerId = owner.id
+        action.ownerName = owner.name
+      }
+    }
+    if (body.deadline !== undefined) action.deadline = body.deadline
+    if (body.status !== undefined) {
+      action.status = body.status
+      if (body.status === 'done') action.completedAt = action.completedAt ?? iso('2026-08-14')
+    }
+    return { ...action }
+  }
+
+  completeAction(id: string): PdcaAction {
+    const action = this.findAction(id)
+    if (action.status === 'done') throw new BadRequestException('整改措施已完成')
+    action.status = 'done'
+    action.completedAt = iso('2026-08-14')
+    return { ...action }
+  }
+
+  deleteAction(id: string): { id: string; deleted: true } {
+    this.findAction(id)
+    this.actions = this.actions.filter((a) => a.id !== id)
+    return { id, deleted: true }
+  }
+
+  listFindings(cycleId: string): PdcaFinding[] {
+    this.findCycle(cycleId)
+    return this.findings.filter((f) => f.cycleId === cycleId).map((f) => ({ ...f }))
+  }
+
+  addFinding(cycleId: string, body: { title: string; description?: string; severity?: PdcaFinding['severity']; source?: string }): PdcaFinding {
+    this.findCycle(cycleId)
+    if (!body.title?.trim()) throw new BadRequestException('title 不能为空')
+    const severity = body.severity ?? 'medium'
+    if (!['low', 'medium', 'high', 'critical'].includes(severity)) throw new BadRequestException('severity 不合法')
+    const finding: PdcaFinding = {
+      id: this.nextId('find'),
+      cycleId,
+      title: body.title.trim(),
+      description: body.description?.trim() ?? '',
+      severity,
+      source: body.source?.trim() ?? '质控发现',
+      createdAt: iso('2026-08-14'),
+    }
+    this.findings.push(finding)
+    return { ...finding }
+  }
+
+  async getMetrics(): Promise<{ source: 'database' | 'demo'; generatedAt: string; data: PdcaMetrics }> {
+    const actions = this.actions.map((a) => this.deriveActionStatus(a))
+    const done = actions.filter((a) => a.status === 'done').length
+    const overdue = actions.filter((a) => a.status === 'overdue').length
+    const byStatus: Record<PdcaActionStatus, number> = { pending: 0, in_progress: 0, done: 0, overdue: 0 }
+    const ownerMap = new Map<string, { ownerId: string; ownerName: string; total: number; done: number; overdue: number }>()
+    for (const a of actions) {
+      byStatus[a.status] = (byStatus[a.status] ?? 0) + 1
+      const e = ownerMap.get(a.ownerId) ?? { ownerId: a.ownerId, ownerName: a.ownerName, total: 0, done: 0, overdue: 0 }
+      e.total += 1
+      if (a.status === 'done') e.done += 1
+      if (a.status === 'overdue') e.overdue += 1
+      ownerMap.set(a.ownerId, e)
+    }
+    const linkedDefectCount = this.cycles.reduce((a, c) => a + c.defectIds.length, 0)
+    return {
+      source: 'demo',
+      generatedAt: new Date().toISOString(),
+      data: {
+        cycleCount: this.cycles.length,
+        actionCount: actions.length,
+        actionDone: done,
+        actionOverdue: overdue,
+        actionCompletionRate: actions.length > 0 ? Math.round((done / actions.length) * 1000) / 10 : 0,
+        findingCount: this.findings.length,
+        byOwner: [...ownerMap.values()],
+        byActionStatus: byStatus,
+        defectCount: SEED_DEFECTS.length,
+        linkedDefectCount,
+      },
+    }
   }
 }

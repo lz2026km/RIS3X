@@ -1,3 +1,36 @@
+## v3.0.6.12-2 (2026-09-27) — 专业级升级 第二阶段（W9–W14）
+
+> **目标**: 完成专业级升级剩余域（质量/集成/设备运营/患者服务/安全合规/前端专业度）
+> **范围**: W9–W14；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0 / **357 suites 3770 tests**；vite build 成功
+
+### W9 — 质量深化
+- 统一可配置评分 rubric（3 维/15 子项/权重/等级带/evaluate）；国标 2024 **40 指标计算引擎** + dashboard + snapshots；PDCA 落库闭环（actions/findings/metrics）；抽查+**双盲**引擎（随机/低产/分层 + kappa）；**设备质控 phantom**（CT/DR/MRI/MG 日/周/月）；缺陷库关系化 + 互评落库
+- 前端 **统一质控评分台** `/qc/scoring-center`（6 Tab）；增强 RqiIndicatorPage/QCPage
+
+### W10 — 集成互操作
+- **XDS.b**（ITI-18/41/43）、**XCA**（ITI-38/39）、**XDR**（ITI-41）真实注册库/存储库（替换 stub）；**发布→HIS ORU^R01**（MLLP/stub + 回执 + 重发）；**接口监控 + 持久重试队列**（退避/死信）；DICOM 传输队列持久化；**CDS Hooks**（discovery + order-select/sign 卡）
+- 前端 **接口监控台** `/integration/monitor`；增强 IheManagerPage（XDS/XCA/XDR）
+
+### W11 — 设备/运营
+- 设备**工单状态机**（7 态/SLA/回退）；**校准/认证**记录 + 到期；**资产财务生命周期**（折旧/残值/报废审批）；**OEE 由真实停机事件**推导 + 损失分解；**成本核算 + DRG** 分组/毛利；**多院区**持久化 + 联邦聚合；**定时 BI 报表**
+- 前端 **设备运维中心** `/device/ops-center`（5 Tab）+ **成本/DRG** `/ops/cost-drg` + 多院区联邦配置
+
+### W12 — 患者服务
+- **微信服务号/小程序后端**（oauth/bind/push/template/menu）；**支付**（下单/支付/退款/回调/对账，微信/支付宝/医保）；**短信/模板消息/语音**通道 + 模板 + 投递日志 + 重试；**满意度分析**（NPS/科室/模态/趋势/情感）；**自助登记**（识别/报到/问卷/同意/取号）
+- 前端 **患者服务平台** `/patient/service-center`（5 Tab）+ 门户/自助门户增强；恢复空 wechatHandlers
+
+### W13 — 安全合规
+- **CA/RA + OCSP + HSM 抽象**（软件/模拟提供者）+ 密钥轮换；**国密 SM2/SM4**（纯 JS，SM3 已有）；**字段级加密**（AES-256-GCM/SM4 + 掩码/装饰器）；**等保 2.0 实时评估**（6 域 31 控制项，源自真实信号，替换硬编码）；**灾难恢复**（备份/恢复点/RPO-RTO/演练/切换）；审计链端到端校验 + 6 月留存 + 冷归档
+- 前端 **安全与合规中心** `/security/compliance-center`（5 Tab）+ 证书中心/审计页增强
+
+### W14 — 前端专业度
+- 通用 **右键上下文菜单**；**列配置 + 保存视图**（ProTable/DataTable，localStorage）；关键列表**批量操作**（Appointment/Schedule/Device/ReportReview）；**全局快捷键注册表 + 帮助浮层**；**行内编辑 + 撤销**；**深色主题**覆盖（design-system 变量层）；a11y（图标按钮 aria-label/表单 label）；状态色统一
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.12-1` → `3.0.6.12-2`（无 BOM）
+
+---
+
 ## v3.0.6.12-1 (2026-09-26) — 专业级升级（对标联影/东软/飞利浦/GE + 数坤/医准概念）W1–W8
 
 > **目标**: 全面升级到专业放射 RIS 水平；引入数坤/医准扩展概念（概念 UI + 确定性模拟）

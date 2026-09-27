@@ -33,6 +33,10 @@ import { useMemo, useState } from "react";
 import { Inbox } from 'lucide-react'
 import { useNavigate } from "react-router-dom";
 import { t } from "../../i18n/appI18n";
+// [W14-UX] 右键上下文菜单
+import { useContextMenu, type ContextMenuItem } from "../../components/common/ContextMenu";
+// [W14-UX] 统一状态色 (消除本页重复色值映射, 与报告/审核域一致)
+import { getReportStatusColor } from "../../components/report/statusMeta";
 
 const STATUS_CONFIG: Record<
   string,
@@ -125,6 +129,16 @@ interface ListViewProps {
   transferStatus?: Record<string, string>;
   /** [G005 v3.0.6.11-99 Wave 10E-1] 列配置面板: 隐藏列 key 集合 (actions 列恒显示) */
   hiddenColumns?: string[];
+  /** [W14-UX] 右键上下文菜单动作 (查看/分配/打印/导出/危急值/重排/取消) */
+  contextActions?: {
+    onView?: (exam: RadiologyExam) => void;
+    onAssign?: (exam: RadiologyExam) => void;
+    onPrint?: (exam: RadiologyExam) => void;
+    onExport?: (exam: RadiologyExam) => void;
+    onCritical?: (exam: RadiologyExam) => void;
+    onReschedule?: (exam: RadiologyExam) => void;
+    onCancel?: (exam: RadiologyExam) => void;
+  };
 }
 
 // 影像缩略图预览: 有 thumbnail 用图, 无则显示模态图标 + 帧数
@@ -221,10 +235,30 @@ export function ListView({
   transferStatus,
   // [G005 v3.0.6.11-99 Wave 10E-1] 列配置面板: 隐藏列 key 集合 (由 WorklistPage 传入)
   hiddenColumns,
+  contextActions,
 }: ListViewProps) {
   // [W3-C] 受控分页: 工作列表 (全量数据前端切片)
   const listPagination = usePagination(exams, 10);
   const navigate = useNavigate();
+  // [W14-UX] 右键菜单
+  const { open: openContextMenu, menu: contextMenuNode } = useContextMenu("worklist-context-menu");
+
+  const buildContextItems = (exam: RadiologyExam): ContextMenuItem[] => [
+    { key: "view", label: t("w14Ux.contextMenu.view"), onSelect: () => (contextActions?.onView ?? onRowClick)(exam) },
+    { key: "assign", label: t("w14Ux.contextMenu.assignDoctor"), onSelect: () => onAssignDoctor?.(exam) },
+    { key: "print", label: t("w14Ux.contextMenu.printBarcode"), onSelect: () => contextActions?.onPrint?.(exam) },
+    { key: "export", label: t("w14Ux.contextMenu.export"), onSelect: () => contextActions?.onExport?.(exam) },
+    { key: "critical", label: t("w14Ux.contextMenu.markCritical"), onSelect: () => onCriticalValueClick?.(exam), dividerBefore: true },
+    { key: "reschedule", label: t("w14Ux.contextMenu.reschedule"), onSelect: () => contextActions?.onReschedule?.(exam) },
+    {
+      key: "cancel",
+      label: t("w14Ux.contextMenu.cancel"),
+      danger: true,
+      confirm: t("w14Ux.contextMenu.confirmDelete"),
+      dividerBefore: true,
+      onSelect: () => contextActions?.onCancel?.(exam),
+    },
+  ];
   const baseColumns = useMemo<ProColumn<RadiologyExam>[]>(() => [
     {
       title: t("wl.colPriority"),
@@ -389,8 +423,13 @@ export function ListView({
       filters: [...new Set(exams.map((exam) => exam.status))].map((value) => ({ text: displayExamStatus(value), value })),
       onFilter: (value, record) => record.status === value,
       render: (value) => {
-        const status = STATUS_CONFIG[String(value)] ?? { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: displayExamStatus(String(value)) };
-        return <span style={{ background: status.bg, color: status.color, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{t(status.label)}</span>;
+        // [W14-UX] 统一状态色回退: 命中本页 STATUS_CONFIG 时保留标签 i18n, 否则走共享状态色工具
+        const local = STATUS_CONFIG[String(value)];
+        if (local) {
+          return <span style={{ background: local.bg, color: local.color, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{t(local.label)}</span>;
+        }
+        const shared = getReportStatusColor(String(value));
+        return <span style={{ background: shared.bg, color: shared.color, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{shared.label || displayExamStatus(String(value))}</span>;
       },
     },
     {
@@ -565,26 +604,30 @@ export function ListView({
   }, [baseColumns, hiddenColumns]);
 
   return (
-    <DataTable<RadiologyExam>
-      columns={columns as unknown as TableColumnsType<RadiologyExam>}
-      dataSource={listPagination.pageData}
-      rowKey="id"
-      loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
-      sticky
-      pagination={listPagination.pagination}
-      scroll={{ x: 1800, y: "calc(100vh - 400px)" }}
-      rowSelection={{
-        preserveSelectedRowKeys: true,
-        selectedRowKeys: [...selectedIds],
-        onChange: (keys) => onSelect(new Set(keys.map(String))),
-      }}
-      locale={{
-        emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("wl.empty")} />,
-      }}
-      onRow={(exam) => ({
-        onClick: () => onRowClick(exam),
-        style: { cursor: "pointer" },
-      })}
-    />
+    <>
+      {contextMenuNode}
+      <DataTable<RadiologyExam>
+        columns={columns as unknown as TableColumnsType<RadiologyExam>}
+        dataSource={listPagination.pageData}
+        rowKey="id"
+        loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
+        sticky
+        pagination={listPagination.pagination}
+        scroll={{ x: 1800, y: "calc(100vh - 400px)" }}
+        rowSelection={{
+          preserveSelectedRowKeys: true,
+          selectedRowKeys: [...selectedIds],
+          onChange: (keys) => onSelect(new Set(keys.map(String))),
+        }}
+        locale={{
+          emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("wl.empty")} />,
+        }}
+        onRow={(exam) => ({
+          onClick: () => onRowClick(exam),
+          onContextMenu: (e) => openContextMenu(e, buildContextItems(exam)),
+          style: { cursor: "pointer" },
+        })}
+      />
+    </>
   );
 }

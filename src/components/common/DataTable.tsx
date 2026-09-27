@@ -11,6 +11,9 @@ import type { TableProps, TableColumnsType, TablePaginationConfig } from "antd";
 import type { ReactNode } from "react";
 import "../../styles/data-table.css";
 import { EmptyState } from "./EmptyState";
+// [W14-UX] 列配置/保存视图 + 右键上下文菜单
+import { useContextMenu, type ContextMenuItem } from "./ContextMenu";
+import { useTableColumnConfig, type ColumnLike } from "../data/useTableColumnConfig";
 
 export interface DataTableProps<RecordType extends object>
   extends Omit<TableProps<RecordType>, "size" | "pagination" | "locale" | "rowClassName"> {
@@ -33,8 +36,22 @@ export interface DataTableProps<RecordType extends object>
   emptyText?: ReactNode;
   /** 表格顶部工具栏 (可选) */
   toolbar?: ReactNode;
+  /** [W14-UX] 工具栏额外内容 (显示在列配置按钮左侧) */
+  toolbarExtra?: ReactNode;
   /** 固定表头滚动高度 (等价 scroll.y, 传 scroll 时以 scroll 为准) */
   fixedHeader?: number | string;
+  /** [W14-UX] 启用列显隐/排序 + 保存视图 (提供稳定 storageKey) */
+  columnConfigKey?: string;
+  /** [W14-UX] 列配置中始终显示的列 key */
+  alwaysVisibleColumns?: string[];
+  /** [W14-UX] 保存视图时读取当前 filter/sort 状态 */
+  getViewState?: () => Record<string, unknown>;
+  /** [W14-UX] 应用保存视图时恢复 filter/sort */
+  applyViewState?: (state: Record<string, unknown>) => void;
+  /** [W14-UX] 行右键菜单项 (danger + confirm 支持二次确认) */
+  contextMenuItems?: (record: RecordType, index: number) => ContextMenuItem[];
+  /** [W14-UX] 右键菜单测试 id */
+  contextMenuTestId?: string;
 }
 
 export const DEFAULT_TABLE_PAGE_SIZE = 20;
@@ -50,19 +67,45 @@ export function DataTable<RecordType extends object>({
   zebra = true,
   emptyText = "暂无数据",
   toolbar,
+  toolbarExtra,
   fixedHeader,
+  columnConfigKey,
+  alwaysVisibleColumns,
+  getViewState,
+  applyViewState,
+  contextMenuItems,
+  contextMenuTestId,
   pagination: paginationProp,
   locale,
   scroll,
   loading,
   className,
+  onRow: onRowProp,
   ...restProps
 }: DataTableProps<RecordType>) {
   const pagination = useMemoPagination(showPagination, paginationProp, pageSize, paginationSize);
+  // [W14-UX] 列配置 + 保存视图
+  const columnConfig = useTableColumnConfig<ColumnLike>({
+    columns: columns as unknown as ColumnLike[],
+    storageKey: columnConfigKey ?? "__datatable_default__",
+    getTitle: (c) => c.title ?? "",
+    alwaysVisible: alwaysVisibleColumns,
+    getViewState,
+    applyViewState,
+  });
+  const effectiveColumns = columnConfigKey
+    ? (columnConfig.visibleColumns as unknown as TableColumnsType<RecordType>)
+    : columns;
+  // [W14-UX] 右键上下文菜单
+  const { open: openContextMenu, menu: contextMenuNode } = useContextMenu(
+    contextMenuTestId ?? "data-table-context-menu",
+  );
+  const showToolbar = Boolean(toolbar || toolbarExtra || columnConfigKey);
 
   return (
     <div className={`data-table ${className ?? ""}`}>
-      {toolbar && (
+      {contextMenuNode}
+      {showToolbar && (
         <div
           style={{
             display: "flex",
@@ -75,12 +118,15 @@ export function DataTable<RecordType extends object>({
           }}
         >
           {toolbar}
+          <div style={{ flex: 1 }} />
+          {toolbarExtra}
+          {columnConfigKey && columnConfig.toolbar}
         </div>
       )}
       <Table<RecordType>
         {...restProps}
         rowKey={rowKey}
-        columns={columns}
+        columns={effectiveColumns}
         dataSource={dataSource}
         pagination={pagination}
         locale={{
@@ -113,6 +159,18 @@ export function DataTable<RecordType extends object>({
             ? (_record, index) => (index % 2 === 1 ? "dt-zebra" : "")
             : undefined
         }
+        onRow={(record, index) => {
+          const base = onRowProp?.(record, index) ?? {};
+          if (!contextMenuItems) return base;
+          return {
+            ...base,
+            onContextMenu: (event) => {
+              event.preventDefault();
+              const items = contextMenuItems(record, index ?? 0);
+              if (items.length > 0) openContextMenu(event, items);
+            },
+          };
+        }}
       />
     </div>
   );

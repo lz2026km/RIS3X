@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Param, Query, Req, Res } from '@nestjs/common'
+﻿import { Body, Controller, Get, HttpCode, HttpStatus, Post, Param, Query, Res } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -6,6 +6,13 @@ import { AuditService } from './audit.service'
 import { Response } from 'express'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { ListQuerySchema } from '../../common/dto/pagination.dto'
+import { AuditChainService } from '../security-center/audit-chain/audit-chain.service'
+
+// [G005 W13-Security] 冷归档请求体
+const ColdArchiveSchema = z.object({
+  before: z.string().max(40).optional(),
+  executedBy: z.string().max(120).optional(),
+})
 
 // [v3.0.6.11-104 Wave 1C] 审计列表查询校验 (分页上限 200 + 筛选)
 export const AuditListQuerySchema = ListQuerySchema.extend({
@@ -29,7 +36,10 @@ export const AuditExportQuerySchema = AuditListQuerySchema.omit({
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
 export class AuditController {
-  constructor(private readonly audit: AuditService) {}
+  constructor(
+    private readonly audit: AuditService,
+    private readonly auditChain: AuditChainService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: '瀹¤鏃ュ織鍒楄〃' })
@@ -103,9 +113,31 @@ export class AuditController {
     return this.audit.getHighRisk()
   }
 
+  // [G005 W13-Security] 审计链端到端校验 (逐条重算哈希)
+  @Get('verify-chain')
+  @ApiOperation({ summary: '审计链端到端校验 (hash-chain)' })
+  verifyChain() {
+    return this.auditChain.verifyChain()
+  }
+
+  // [G005 W13-Security] 审计留存策略 (6 个月 + 冷归档)
+  @Get('retention-policy')
+  @ApiOperation({ summary: '审计留存策略 (≥6 个月 + 冷归档)' })
+  retentionPolicy() {
+    return this.auditChain.getRetentionPolicy()
+  }
+
+  // [G005 W13-Security] 审计冷归档
+  @Post('cold-archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '审计日志冷归档' })
+  coldArchive(@Body(new ZodValidationPipe(ColdArchiveSchema)) body: z.infer<typeof ColdArchiveSchema>) {
+    return this.auditChain.coldArchive(body)
+  }
+
   // [W2-C] 详情 (静态路由 stats/export 已在上方声明, 不会被 :id 抢占)
   @Get(':id')
-  @ApiOperation({ summary: '瀹¤鏃ュ織璇︽儏' })
+  @ApiOperation({ summary: '瀹¤鏃ュ織璇︽儏' })
   getById(@Param('id') id: string) {
     return this.audit.getById(id)
   }

@@ -1,6 +1,9 @@
 import type { Dispatch, SetStateAction } from 'react'
-import { ChevronLeft, ChevronRight, Filter, Search, CalendarDays, List, Bell } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Filter, Search, CalendarDays, List, Bell, CheckCircle2, CalendarClock, X } from 'lucide-react'
 import { initialModalityDevices } from '../data/initialData'
+import { useContextMenu, type ContextMenuItem } from '../components/common/ContextMenu'
+import BatchActionBar from '../components/batch/BatchActionBar'
+import { t } from '../i18n/appI18n'
 
 const primaryBlue = '#1e40af'
 const textGray = '#64748b'
@@ -41,13 +44,47 @@ interface Props {
   filteredAppointments: Appointment[]
   filteredListAppointments: Appointment[]
   statsData: { label: string; value: number; color: string; bg: string }[]
+  // [W14-UX] 批量选择 + 右键上下文菜单
+  selectedIds?: Set<string>
+  onToggleSelect?: (id: string) => void
+  onToggleSelectAll?: (checked: boolean) => void
+  onBatchAction?: (action: string, ids: string[]) => void
+  contextActions?: {
+    onView?(apt: Appointment): void
+    onCheckIn?(apt: Appointment): void
+    onCancel?(apt: Appointment): void
+    onReschedule?(apt: Appointment): void
+    onPrint?(apt: Appointment): void
+  }
 }
 
 export default function AppointmentCalendar(props: Props) {
-  const { viewMode, setViewMode, calendarSubView, setCalendarSubView, weekDates, setCurrentWeekStart, currentWeekStart, selectedDevice, setSelectedDevice, searchKeyword, setSearchKeyword, appointments, getStatusConfig, formatDate, formatDateCht, timeSlots, openDetail, showWaitlist, setShowWaitlist, filteredListAppointments, statsData } = props
+  const { viewMode, setViewMode, calendarSubView, setCalendarSubView, weekDates, setCurrentWeekStart, currentWeekStart, selectedDevice, setSelectedDevice, searchKeyword, setSearchKeyword, appointments, getStatusConfig, formatDate, formatDateCht, timeSlots, openDetail, showWaitlist, setShowWaitlist, filteredListAppointments, statsData, selectedIds, onToggleSelect, onToggleSelectAll, onBatchAction, contextActions } = props
+
+  // [W14-UX] 右键上下文菜单
+  const { open: openContextMenu, menu: contextMenuNode } = useContextMenu('appointment-context-menu')
+  const buildContextItems = (apt: Appointment): ContextMenuItem[] => [
+    { key: 'view', label: '查看详情', onSelect: () => (contextActions?.onView ?? openDetail)(apt) },
+    { key: 'checkin', label: '签到', onSelect: () => contextActions?.onCheckIn?.(apt) },
+    { key: 'print', label: '打印', dividerBefore: true, onSelect: () => contextActions?.onPrint?.(apt) },
+    { key: 'reschedule', label: '重排/改约', onSelect: () => contextActions?.onReschedule?.(apt) },
+    {
+      key: 'cancel',
+      label: '取消预约',
+      danger: true,
+      confirm: '确认取消?',
+      dividerBefore: true,
+      onSelect: () => contextActions?.onCancel?.(apt),
+    },
+  ]
+  const someSelected = Boolean(selectedIds && selectedIds.size > 0)
+  const allSelected = Boolean(
+    selectedIds && filteredListAppointments.length > 0 && filteredListAppointments.every((a) => selectedIds.has(a.id)),
+  )
 
   return (
     <>
+      {contextMenuNode}
       {statsData.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 12 }}>
           {statsData.map(stat => (
@@ -183,12 +220,34 @@ export default function AppointmentCalendar(props: Props) {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 900 }}>
               <thead>
                 <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${borderGray}` }}>
+                  <th style={{ padding: '8px 10px', width: 36 }}>
+                    <input
+                      type="checkbox"
+                      aria-label="全选当前列表"
+                      checked={allSelected}
+                      onChange={(e) => onToggleSelectAll?.(e.target.checked)}
+                    />
+                  </th>
                   {['患者', '性别/年龄', '检查项目', '检查日期', '时段', '设备', '状态', '优先级', '操作'].map(h => <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: textGray, whiteSpace: 'nowrap' }}>{h}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {filteredListAppointments.map(apt => (
-                  <tr key={apt.id} style={{ borderBottom: `1px solid ${borderGray}`, cursor: 'pointer' }} onClick={() => openDetail(apt)}>
+                  <tr
+                    key={apt.id}
+                    style={{ borderBottom: `1px solid ${borderGray}`, cursor: 'pointer', background: selectedIds?.has(apt.id) ? 'var(--color-info-bg)' : undefined }}
+                    onClick={() => openDetail(apt)}
+                    onContextMenu={(e) => { e.preventDefault(); openContextMenu(e, buildContextItems(apt)) }}
+                  >
+                    <td style={{ padding: '8px 10px' }}>
+                      <input
+                        type="checkbox"
+                        aria-label={`选择预约 ${apt.patientName}`}
+                        checked={Boolean(selectedIds?.has(apt.id))}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => onToggleSelect?.(apt.id)}
+                      />
+                    </td>
                     <td style={{ padding: '8px 10px' }}><div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>{apt.patientName}</div></td>
                     <td style={{ padding: '8px 10px', color: textGray }}>{apt.gender}/{apt.age}岁</td>
                     <td style={{ padding: '8px 10px', color: primaryBlue, fontWeight: 600 }}>{apt.examItemName}</td>
@@ -208,6 +267,33 @@ export default function AppointmentCalendar(props: Props) {
             </table>
           </div>
         </div>
+      )}
+
+      {/* [W14-UX] 列表视图批量操作栏 (签到/改约/取消) */}
+      {viewMode === 'list' && someSelected && (
+        <BatchActionBar
+          selectedCount={selectedIds?.size ?? 0}
+          onClear={() => onToggleSelectAll?.(false)}
+          onAction={(action) => {
+            const ids = Array.from(selectedIds ?? [])
+            if (onBatchAction) {
+              onBatchAction(action, ids)
+              return
+            }
+            const targets = appointments.filter((a) => ids.includes(a.id))
+            for (const apt of targets) {
+              if (action === 'checkin') contextActions?.onCheckIn?.(apt)
+              else if (action === 'cancel') contextActions?.onCancel?.(apt)
+              else if (action === 'reschedule') contextActions?.onReschedule?.(apt)
+              else if (action === 'print') contextActions?.onPrint?.(apt)
+            }
+          }}
+          actions={[
+            { key: 'checkin', label: t('w14Ux.batch.checkIn'), icon: <CheckCircle2 size={13} /> },
+            { key: 'reschedule', label: t('w14Ux.batch.reschedule'), icon: <CalendarClock size={13} /> },
+            { key: 'cancel', label: t('w14Ux.batch.cancel'), icon: <X size={13} />, confirm: t('w14Ux.batch.confirm') },
+          ]}
+        />
       )}
     </>
   )

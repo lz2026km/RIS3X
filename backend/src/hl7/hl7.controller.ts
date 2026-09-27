@@ -1,7 +1,7 @@
 ﻿/**
  * G005 RIS v3.0.6.11-33 - HL7 Controller
  */
-import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -61,6 +61,14 @@ const DftSchema = z.object({
 })
 
 const PushOruSchema = z.object({ examId: z.string().min(1), reportId: z.string().min(1) })
+
+// [v3.0.6.13] Publish → HIS ORU^R01
+const PublishOruSchema = z.object({ reportId: z.string().min(1), examId: z.string().optional() })
+const HisEndpointSchema = z.object({
+  host: z.string().optional(),
+  port: z.number().int().positive().max(65535).optional(),
+  enabled: z.boolean().optional(),
+})
 
 const WhitelistSchema = z.object({ cidr: z.string().min(1) })
 const TlsSchema = z.object({ enabled: z.boolean() })
@@ -132,6 +140,55 @@ export class Hl7Controller {
   async pushOru(@Body(new ZodValidationPipe(PushOruSchema)) body: { examId: string; reportId: string }) {
     await this.service.pushOruById(body.examId, body.reportId)
     return { pushed: true, examId: body.examId, reportId: body.reportId }
+  }
+
+  // ============ [v3.0.6.13] 报告发布 → HIS ORU^R01 (build + send + ACK 日志 + 重发) ============
+
+  @Post('oru/publish')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: '发布报告 → 组装并投递 ORU^R01 到 HIC/HIS 端点 (记录 ACK)' })
+  publishOru(@Body(new ZodValidationPipe(PublishOruSchema)) body: { reportId: string; examId?: string }) {
+    return this.service.publishOruByReportId(body.reportId, body.examId)
+  }
+
+  @Get('oru/messages')
+  @ApiOperation({ summary: 'ORU^R01 消息日志 (可按 reportId/status/ackStatus 过滤)' })
+  listOruMessages(
+    @Query('reportId') reportId?: string,
+    @Query('status') status?: string,
+    @Query('ackStatus') ackStatus?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.listOruMessages({
+      reportId,
+      status: status as never,
+      ackStatus,
+      limit: limit ? Number(limit) : undefined,
+    })
+  }
+
+  @Get('oru/messages/:id')
+  @ApiOperation({ summary: 'ORU^R01 消息详情' })
+  getOruMessage(@Param('id') id: string) {
+    return this.service.getOruMessage(id)
+  }
+
+  @Post('oru/messages/:id/resend')
+  @ApiOperation({ summary: '重发 ORU^R01 消息' })
+  resendOru(@Param('id') id: string) {
+    return this.service.resendOru(id)
+  }
+
+  @Get('oru/endpoint')
+  @ApiOperation({ summary: 'HIS ORU 端点配置' })
+  getHisEndpoint() {
+    return this.service.getHisEndpoint()
+  }
+
+  @Post('oru/endpoint')
+  @ApiOperation({ summary: '设置 HIS ORU 端点 (host/port/enabled)' })
+  setHisEndpoint(@Body(new ZodValidationPipe(HisEndpointSchema)) body: { host?: string; port?: number; enabled?: boolean }) {
+    return this.service.setHisEndpoint(body)
   }
 
   // ============ [W3-B] 归档 + MLLP 管理端点 (integrationApi.hl7Api) ============

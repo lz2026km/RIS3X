@@ -13,6 +13,7 @@ import {
   type PortalImageStudyDto,
 } from '../../services/api'
 import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
+import { selfRegistrationApi, type SelfIdentifyResultDto, type SelfPatientDto, type SelfCheckInResultDto, type SelfQueueNumberDto } from '../../services/api/w12PatientApi'
 import { t } from '../../i18n/appI18n'
 
 // ===== Types =====
@@ -207,6 +208,14 @@ export default function SelfServicePortal() {
 
   // 宣教
   const [expandedEdu, setExpandedEdu] = useState<string | null>(null)
+
+  // [G005 W12-PatientService] 自助登记 (身份识别 / 签到 / 排队取号)
+  const [srQuery, setSrQuery] = useState('')
+  const [srIdentify, setSrIdentify] = useState<SelfIdentifyResultDto | null>(null)
+  const [srPatient, setSrPatient] = useState<SelfPatientDto | null>(null)
+  const [srCheckIn, setSrCheckIn] = useState<SelfCheckInResultDto | null>(null)
+  const [srQueue, setSrQueue] = useState<SelfQueueNumberDto | null>(null)
+  const [srBusy, setSrBusy] = useState(false)
 
   // [W2-B] 临床数据 (列表 + 详情 Drawer)
   const [clinicalData, setClinicalData] = useState<PortalClinicalDataDto[]>([])
@@ -703,6 +712,66 @@ export default function SelfServicePortal() {
         </div>
       </div>
     )
+  }
+
+  // [G005 W12-PatientService] 自助登记动作
+  const doIdentify = async () => {
+    const q = srQuery.trim()
+    if (!q) { message.warning(t('w12Patient.sr.identify')); return }
+    setSrBusy(true)
+    try {
+      const body = /^\d{11}$/.test(q) ? { phone: q } : (/^\d{17}[\dxX]$/.test(q) ? { idCard: q } : { empiId: q })
+      const res = await selfRegistrationApi.identify(body)
+      if (res.success && res.data) {
+        setSrIdentify(res.data)
+        const hit = res.data.matched ?? res.data.candidates[0] ?? null
+        setSrPatient(hit)
+        if (!hit) message.warning(t('w12Patient.sr.identifyFailed'))
+      } else {
+        message.warning(t('w12Patient.sr.identifyFailed'))
+      }
+    } catch {
+      message.error(t('w12Patient.loadFailed'))
+    } finally {
+      setSrBusy(false)
+    }
+  }
+
+  const doCheckIn = async () => {
+    if (!srPatient) return
+    setSrBusy(true)
+    try {
+      const res = await selfRegistrationApi.checkIn({ patientId: srPatient.patientId })
+      if (res.success && res.data) {
+        setSrCheckIn(res.data)
+        if (res.data.status === 'BLOCKED') message.warning(t('w12Patient.sr.checkIn.BLOCKED'))
+        else message.success(t('w12Patient.sr.checkInBtn'))
+      } else {
+        message.error(t('w12Patient.loadFailed'))
+      }
+    } catch {
+      message.error(t('w12Patient.loadFailed'))
+    } finally {
+      setSrBusy(false)
+    }
+  }
+
+  const doQueueNumber = async () => {
+    if (!srPatient) return
+    setSrBusy(true)
+    try {
+      const res = await selfRegistrationApi.issueQueueNumber({ patientId: srPatient.patientId, modality: 'CT' })
+      if (res.success && res.data) {
+        setSrQueue(res.data)
+        message.success(t('w12Patient.sr.issued'))
+      } else {
+        message.error(t('w12Patient.loadFailed'))
+      }
+    } catch {
+      message.error(t('w12Patient.loadFailed'))
+    } finally {
+      setSrBusy(false)
+    }
   }
 
   const tabItems = [
@@ -1342,6 +1411,77 @@ export default function SelfServicePortal() {
             {submitting ? t('selfService.feedback.submitting') : t('selfService.feedback.submit')}
           </button>
         </Card>
+      ),
+    },
+    // [G005 W12-PatientService] 自助登记 (身份识别 / 签到 / 排队取号)
+    {
+      key: 'checkin',
+      label: t('w12Patient.tab.selfReg'),
+      children: (
+        <div>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <h3 style={styles.subTitle}>{t('w12Patient.sr.identify')}</h3>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12, maxWidth: 480 }}>
+              <Input
+                value={srQuery}
+                onChange={e => setSrQuery(e.target.value)}
+                placeholder={t('w12Patient.sr.phone')}
+                onPressEnter={() => void doIdentify()}
+              />
+              <button style={{ ...styles.btn, padding: '6px 24px' }} disabled={srBusy} onClick={() => void doIdentify()}>
+                {t('w12Patient.sr.identifyBtn')}
+              </button>
+            </div>
+            {srPatient && (
+              <Descriptions
+                column={2}
+                size="small"
+                bordered
+                items={[
+                  { key: 'name', label: t('w12Patient.sr.matched'), children: srPatient.name },
+                  { key: 'pid', label: t('w12Patient.patientId'), children: srPatient.patientId },
+                  { key: 'phone', label: t('w12Patient.sr.phone'), children: srPatient.phone },
+                  { key: 'empi', label: t('w12Patient.sr.empi'), children: srPatient.empiId },
+                ]}
+              />
+            )}
+            {srIdentify && srIdentify.candidates.length > 1 && (
+              <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+                {t('w12Patient.sr.candidates')}: {srIdentify.candidates.map(c => c.name).join('、')}
+              </div>
+            )}
+          </Card>
+          {srPatient && (
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <button style={{ ...styles.btnGreen, padding: '6px 24px' }} disabled={srBusy} onClick={() => void doCheckIn()}>
+                  {t('w12Patient.sr.checkInBtn')}
+                </button>
+                <button style={{ ...styles.btn, padding: '6px 24px' }} disabled={srBusy || !srCheckIn} onClick={() => void doQueueNumber()}>
+                  {t('w12Patient.sr.queueBtn')}
+                </button>
+                {srCheckIn && (
+                  <Tag color={srCheckIn.status === 'BLOCKED' ? 'red' : srCheckIn.status === 'ALREADY_CHECKED_IN' ? 'blue' : 'green'}>
+                    {t(`w12Patient.sr.checkIn.${srCheckIn.status}`)}
+                  </Tag>
+                )}
+              </div>
+              {srCheckIn && srCheckIn.blockers.length > 0 && (
+                <div style={{ marginTop: 12, color: '#dc2626', fontSize: 13 }}>
+                  {t('w12Patient.sr.blockers')}: {srCheckIn.blockers.join('、')}
+                </div>
+              )}
+              {srQueue && (
+                <div style={{ marginTop: 16, display: 'flex', gap: 32, alignItems: 'center' }}>
+                  <Statistic title={t('w12Patient.sr.ticket')} value={srQueue.ticket} />
+                  <Statistic title={t('w12Patient.sr.position')} value={srQueue.position} />
+                  <Statistic title={t('w12Patient.sr.waitMinutes')} value={srQueue.estimatedWaitMinutes} />
+                  <Statistic title={t('w12Patient.sr.room')} value={srQueue.room} />
+                </div>
+              )}
+            </Card>
+          )}
+        </div>
       ),
     },
   ]

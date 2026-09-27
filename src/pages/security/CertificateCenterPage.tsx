@@ -3,8 +3,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Card, Descriptions, Input, message, Modal, Row, Col, Select, Space, Statistic, Table, Tag, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { ShieldCheck, Ban, RefreshCw, BadgeCheck, FileSearch, KeyRound } from 'lucide-react'
+import { ShieldCheck, Ban, RefreshCw, BadgeCheck, FileSearch, KeyRound, RotateCw, Search } from 'lucide-react'
 import { certificateApi, type CrlViewDto, type SignatureStatsDto } from '../../services/api/certificateApi'
+import { hsmApi, ocspApi, type OcspResponseDto } from '../../services/api/w13SecurityApi'
 import type { ReportCertificateDto, ReportSignatureVerificationDto } from '../../services/api/reportApi'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
@@ -33,6 +34,13 @@ export const CertificateCenterPage: React.FC = () => {
   const [verifyResult, setVerifyResult] = useState<ReportSignatureVerificationDto | null>(null)
   const [verifying, setVerifying] = useState(false)
 
+  // [G005 W13-Security] OCSP 在线状态查询 + HSM 密钥轮换
+  const [ocspSerial, setOcspSerial] = useState('')
+  const [ocspResult, setOcspResult] = useState<OcspResponseDto | null>(null)
+  const [ocspLoading, setOcspLoading] = useState(false)
+  const [activeKeyId, setActiveKeyId] = useState<string | null>(null)
+  const [rotating, setRotating] = useState(false)
+
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -46,6 +54,10 @@ export const CertificateCenterPage: React.FC = () => {
       else setError(t('w8Report.loadError'))
       if (statsRes.success && statsRes.data) setStats(statsRes.data)
       if (crlRes.success && crlRes.data) setCrl(crlRes.data)
+      try {
+        const keyRes = await hsmApi.keys('software-kms')
+        if (keyRes.success && keyRes.data) setActiveKeyId((keyRes.data.data ?? []).find((k) => k.status === 'active')?.keyId ?? null)
+      } catch { /* 回退: 不展示活动密钥 */ }
     } catch (e) {
       setError(e instanceof Error ? e.message : t('w8Report.loadError'))
     } finally {
@@ -73,6 +85,35 @@ export const CertificateCenterPage: React.FC = () => {
       message.error(t('w8Report.revokeFail'))
     } finally {
       setRevoking(false)
+    }
+  }
+
+  // [G005 W13-Security] OCSP 查询
+  const handleOcsp = async () => {
+    if (!ocspSerial.trim()) return
+    setOcspLoading(true)
+    try {
+      const res = await ocspApi.query(ocspSerial.trim())
+      if (res.success && res.data) setOcspResult(res.data)
+      else message.error(t('w8Report.loadError'))
+    } catch {
+      message.error(t('w8Report.loadError'))
+    } finally {
+      setOcspLoading(false)
+    }
+  }
+
+  // [G005 W13-Security] HSM 密钥轮换
+  const handleRotate = async () => {
+    setRotating(true)
+    try {
+      const res = await hsmApi.rotate({ reason: 'ui-rotation' })
+      if (res.success && res.data) { message.success(t('w13Sec.ca.hsm.rotated', { keyId: res.data.key.keyId })); await load() }
+      else message.error(t('w8Report.loadError'))
+    } catch {
+      message.error(t('w8Report.loadError'))
+    } finally {
+      setRotating(false)
     }
   }
 
@@ -126,6 +167,9 @@ export const CertificateCenterPage: React.FC = () => {
         <ShieldCheck size={22} color="#0891b2" />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{t('w8Report.certCenterTitle')}</h1>
         <Tag color="cyan">{t('w8Report.certCenterBadge')}</Tag>
+        <div style={{ flex: 1 }} />
+        {activeKeyId && <Tag icon={<KeyRound size={12} />} color="blue">{activeKeyId}</Tag>}
+        <Button size="small" icon={<RotateCw size={12} />} loading={rotating} onClick={() => void handleRotate()}>{t('w13Sec.ca.hsm.rotate')}</Button>
       </div>
       <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: -8, marginBottom: 16 }}>{t('w8Report.certCenterSubtitle')}</p>
 
@@ -197,6 +241,24 @@ export const CertificateCenterPage: React.FC = () => {
                       {verifyResult.reasons.length > 0 && <div style={{ color: '#b45309' }}>{verifyResult.reasons.join('; ')}</div>}
                     </div>
                   }
+                />
+              )}
+            </Space>
+          </Card>
+
+          {/* [G005 W13-Security] OCSP 在线状态查询 */}
+          <Card size="small" title={<span><Search size={14} /> {t('w13Sec.ca.ocsp')}</span>} style={{ marginTop: 16 }}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Space.Compact style={{ width: '100%' }}>
+                <Input value={ocspSerial} onChange={(e) => setOcspSerial(e.target.value)} placeholder={t('w13Sec.ca.ocspPlaceholder')} onPressEnter={() => void handleOcsp()} />
+                <Button type="primary" loading={ocspLoading} onClick={() => void handleOcsp()}>{t('w13Sec.ca.ocspQuery')}</Button>
+              </Space.Compact>
+              {ocspResult && (
+                <Alert
+                  type={ocspResult.status === 'good' ? 'success' : ocspResult.status === 'revoked' ? 'error' : 'warning'}
+                  showIcon
+                  message={<Space size={4}><Tag color={ocspResult.status === 'good' ? 'green' : ocspResult.status === 'revoked' ? 'red' : 'default'}>{t(`w13Sec.ca.ocsp.${ocspResult.status}`)}</Tag><Text code style={{ fontSize: 11 }}>{ocspResult.serial}</Text></Space>}
+                  description={<div style={{ fontSize: 12 }}>{t('w13Sec.ca.ocspProducedAt')}: {ocspResult.producedAt?.slice(0, 19).replace('T', ' ')}{ocspResult.responseSignature ? ` · ${t('w13Sec.ca.ocspSignature')}: ${ocspResult.responseSignature.slice(0, 16)}…` : ''}</div>}
                 />
               )}
             </Space>

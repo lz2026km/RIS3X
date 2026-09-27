@@ -56,6 +56,13 @@ import {
   type RqiTrendResult,
   type RqiWindowParams,
 } from '../../services/api/rqi2024Api'
+// [G005 W9-QC] 40 指标实时计算引擎
+import {
+  qualityScoringCenterApi,
+  type ComputedSnapshot,
+  type ComputedDashboard,
+  type ComputedIndicator,
+} from '../../services/api/qualityScoringCenterApi'
 import { t } from '../../i18n/appI18n'
 
 // ================= 元数据 =================
@@ -139,6 +146,9 @@ export default function RqiIndicatorPage() {
     mom: RqiMomItem[]
   } | null>(null)
   const [extended, setExtended] = useState<RqiQualityIndicator[]>([])
+  // [G005 W9-QC] 40 指标实时计算引擎 (compute/dashboard) — 替代静态镜像只读口径
+  const [computed, setComputed] = useState<ComputedSnapshot | null>(null)
+  const [computedDash, setComputedDash] = useState<ComputedDashboard | null>(null)
   const [source, setSource] = useState<'database' | 'seed' | 'offline'>('seed')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -175,11 +185,16 @@ export default function RqiIndicatorPage() {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const [indRes, dashRes, extRes] = await Promise.all([
+    const [indRes, dashRes, extRes, compRes, compDashRes] = await Promise.all([
       rqi2024Api.getIndicators(queryParams).catch(() => ({ success: false as const })),
       rqi2024Api.getDashboard(queryParams).catch(() => ({ success: false as const })),
       rqi2024Api.getExtendedIndicators().catch(() => ({ success: false as const })),
+      // [G005 W9-QC] 40 指标计算引擎 (可计算指标从真实数据派生)
+      qualityScoringCenterApi.computeIndicators(dateFrom && dateTo ? period : period).catch(() => ({ success: false as const })),
+      qualityScoringCenterApi.getIndicatorDashboard(dateFrom && dateTo ? period : period).catch(() => ({ success: false as const })),
     ])
+    if (compRes.success && compRes.data) setComputed(compRes.data)
+    if (compDashRes.success && compDashRes.data) setComputedDash(compDashRes.data)
 
     if (!indRes.success && !dashRes.success) {
       setError(t('rqi2024.loadFailed'))
@@ -744,6 +759,52 @@ export default function RqiIndicatorPage() {
                   ),
                 }))}
               />
+            </DashboardCard>
+          </div>
+
+          {/* [G005 W9-QC] 40 指标实时计算引擎 (可从报告/检查/危急值/设备数据派生) */}
+          <div style={{ marginTop: 16 }} data-testid="rqi-compute-engine">
+            <DashboardCard title={t('rqi2024.computeTitle')} icon={<Activity size={15} />}>
+              {computedDash && (
+                <StatCardGrid columns={4}>
+                  <StatCard title={t('rqi2024.computeTotal')} value={computedDash.total} icon={<Activity size={18} />} color="primary" />
+                  <StatCard title={t('rqi2024.computeComputable')} value={computedDash.computableCount} icon={<Target size={18} />} color="info" />
+                  <StatCard title={t('rqi2024.computePassRate')} value={computedDash.passRate} suffix="%" icon={<CheckCircle2 size={18} />} color="success" />
+                  <StatCard title={t('rqi2024.computePeriod')} value={computedDash.period} icon={<TrendingUp size={18} />} color="warning" />
+                </StatCardGrid>
+              )}
+              {computed && (
+                <div style={{ marginTop: 12 }}>
+                  <DataTable<ComputedIndicator>
+                    rowKey={(r) => r.code}
+                    pageSize={10}
+                    scroll={{ x: 'max-content' }}
+                    emptyText={t('rqi2024.computeEmpty')}
+                    columns={[
+                      { title: t('rqi2024.extColCode'), dataIndex: 'code', key: 'code', width: 110 },
+                      { title: t('rqi2024.extColName'), dataIndex: 'name', key: 'name' },
+                      { title: t('rqi2024.computeNumerator'), dataIndex: 'numerator', key: 'numerator', width: 80 },
+                      { title: t('rqi2024.computeDenominator'), dataIndex: 'denominator', key: 'denominator', width: 80 },
+                      { title: t('rqi2024.computeRate'), key: 'rate', width: 110, render: (_: unknown, r: ComputedIndicator) => `${r.rate}${r.unit}` },
+                      { title: t('rqi2024.extColTarget'), dataIndex: 'target', key: 'target', width: 100 },
+                      {
+                        title: t('rqi2024.computeStatus'), key: 'status', width: 100,
+                        render: (_: unknown, r: ComputedIndicator) => {
+                          const m = STATUS_META[r.status as RqiIndicatorStatus]
+                          if (!m) return <Tag>{r.status}</Tag>
+                          const Icon = m.icon
+                          return <Tag color={m.tag} icon={<Icon size={12} />}>{statusLabel(r.status as RqiIndicatorStatus)}</Tag>
+                        },
+                      },
+                      {
+                        title: t('rqi2024.computeSource'), key: 'computable', width: 100,
+                        render: (_: unknown, r: ComputedIndicator) => <Tag color={r.computable ? 'green' : 'default'}>{r.computable ? t('rqi2024.computeDerived') : t('rqi2024.computeEstimated')}</Tag>,
+                      },
+                    ]}
+                    dataSource={computed.indicators}
+                  />
+                </div>
+              )}
             </DashboardCard>
           </div>
         </StateView>

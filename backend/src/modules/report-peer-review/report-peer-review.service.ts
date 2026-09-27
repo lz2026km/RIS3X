@@ -7,8 +7,10 @@
  *   3. 评语 + 状态: 待评 pending / 已评 reviewed / 超时 overdue (读取时派生)
  *   4. 互评统计: 平均分 (各维度+总体) / 分数分布 / 完成率 / 按科室
  */
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException, Optional } from '@nestjs/common'
 import { hashString } from '../../common/utils/deterministic-hash'
+import { DefectLibraryService } from '../defect-library/defect-library.service'
+import type { DefectItem } from '../defect-library/defect-library.types'
 
 // ================= 类型定义 =================
 
@@ -37,6 +39,8 @@ export interface PeerReviewTask {
   reviewedAt?: string
   /** true = 确定性自动分配 */
   autoAssigned: boolean
+  /** [W9-QC] 关联规范化缺陷库编码 (relational) */
+  defectCodes: string[]
 }
 
 export interface PeerReviewStats {
@@ -118,6 +122,7 @@ function seedTasks(): PeerReviewTask[] {
       dueAt: new Date(base - 1 * day).toISOString(),
       status: 'pending',
       autoAssigned: true,
+      defectCodes: ['ST-01', 'TM-01'],
     },
     {
       id: 'PR-SEED-002',
@@ -130,6 +135,7 @@ function seedTasks(): PeerReviewTask[] {
       dueAt: new Date(base + 1 * day).toISOString(),
       status: 'pending',
       autoAssigned: true,
+      defectCodes: ['AC-01'],
     },
     {
       id: 'PR-SEED-003',
@@ -145,6 +151,7 @@ function seedTasks(): PeerReviewTask[] {
       comment: '所见与结论一致, 描述完整, 建议补充随访周期。',
       reviewedAt: new Date(base - 2 * day).toISOString(),
       autoAssigned: true,
+      defectCodes: ['ST-03'],
     },
     {
       id: 'PR-SEED-004',
@@ -160,6 +167,7 @@ function seedTasks(): PeerReviewTask[] {
       comment: '骨折描述基本准确, 欠缺对位对线表述。',
       reviewedAt: new Date(base - 3 * day).toISOString(),
       autoAssigned: true,
+      defectCodes: ['TM-03'],
     },
   ]
   return tasks
@@ -170,7 +178,7 @@ export class ReportPeerReviewService {
   private tasks: PeerReviewTask[] = []
   private seq = 0
 
-  constructor() {
+  constructor(@Optional() private readonly defectLibrary?: DefectLibraryService) {
     this.tasks = seedTasks()
   }
 
@@ -215,6 +223,7 @@ export class ReportPeerReviewService {
       dueAt,
       status: 'pending',
       autoAssigned,
+      defectCodes: [],
     }
     this.tasks.unshift(task)
     return this.cloneTask(task)
@@ -331,6 +340,63 @@ export class ReportPeerReviewService {
   }
 
   private cloneTask(t: PeerReviewTask): PeerReviewTask {
-    return { ...t, scores: t.scores ? { ...t.scores } : undefined }
+    return { ...t, scores: t.scores ? { ...t.scores } : undefined, defectCodes: [...(t.defectCodes ?? [])] }
+  }
+
+  // ================= [W9-QC] 缺陷库关联 (relational) =================
+
+  /** POST /report-peer-review/tasks/:id/defects — 关联缺陷库编码 (校验存在) */
+  linkDefects(id: string, body: { defectCodes: string[] }): PeerReviewTask {
+    const task = this.findTask(id)
+    const codes = Array.isArray(body.defectCodes) ? body.defectCodes.map((c) => String(c).trim().toUpperCase()).filter(Boolean) : []
+    if (codes.length === 0) throw new BadRequestException('defectCodes 不能为空')
+    if (this.defectLibrary) {
+      for (const code of codes) {
+        const exists = this.defectLibrary.listItems().some((i) => i.code === code)
+        if (!exists) throw new BadRequestException(`缺陷编码 ${code} 不在缺陷库中`)
+      }
+    }
+    task.defectCodes = Array.from(new Set([...(task.defectCodes ?? []), ...codes]))
+    return this.cloneTask(task)
+  }
+
+  /** GET /report-peer-review/tasks/:id/defects — 任务关联缺陷明细 */
+  listTaskDefects(id: string): DefectItem[] {
+    const task = this.findTask(id)
+    const all = this.defectLibrary ? this.defectLibrary.listItems() : []
+    const codes = new Set(task.defectCodes ?? [])
+    return all.filter((i) => codes.has(i.code)).map((i) => ({ ...i }))
+  }
+
+  /** GET /report-peer-review/defect-stats — 互评缺陷聚合 (按缺陷编码/类别) */
+  defectStats(): {
+    totalLinks: number
+    byCode: Array<{ code: string; count: number }>
+    byCategory: Array<{ categoryCode: string; count: number }>
+    bySeverity: Array<{ severity: string; count: number }>
+  } {
+    const all = this.defectLibrary ? this.defectLibrary.listItems() : []
+    const itemByCode = new Map(all.map((i) => [i.code, i]))
+    const codeCount = new Map<string, number>()
+    for (const t of this.tasks) {
+      for (const code of t.defectCodes ?? []) codeCount.set(code, (codeCount.get(code) ?? 0) + 1)
+    }
+    const catCount = new Map<string, number>()
+    const sevCount = new Map<string, number>()
+    let totalLinks = 0
+    for (const [code, count] of codeCount) {
+      totalLinks += count
+      const item = itemByCode.get(code)
+      const cat = item?.categoryCode ?? 'UNKNOWN'
+      const sev = item?.severity ?? 'medium'
+      catCount.set(cat, (catCount.get(cat) ?? 0) + count)
+      sevCount.set(sev, (sevCount.get(sev) ?? 0) + count)
+    }
+    return {
+      totalLinks,
+      byCode: [...codeCount.entries()].map(([code, count]) => ({ code, count })).sort((a, b) => b.count - a.count),
+      byCategory: [...catCount.entries()].map(([categoryCode, count]) => ({ categoryCode, count })),
+      bySeverity: [...sevCount.entries()].map(([severity, count]) => ({ severity, count })),
+    }
   }
 }

@@ -897,6 +897,7 @@
     "qcRadiologistAnnual": "医生年度档案",
     "qcPdca": "PDCA 质控闭环",
     "qcAnalytics": "质控闭环与趋势分析",
+    "qcScoringCenter": "统一质控评分台",
     "specialAssessment": "特殊评估",
     "statsDashboardV2": "统计大屏V2",
     "securityCompliance": "安全合规",

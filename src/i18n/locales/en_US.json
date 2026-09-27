@@ -897,6 +897,7 @@
     "qcRadiologistAnnual": "Radiologist Annual",
     "qcPdca": "QC PDCA Loop",
     "qcAnalytics": "QC Loop & Trend Analytics",
+    "qcScoringCenter": "Unified QC Scoring Center",
     "specialAssessment": "Special Assessment",
     "statsDashboardV2": "Stats Dashboard V2",
     "securityCompliance": "Security & Compliance",

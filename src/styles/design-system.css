@@ -720,3 +720,296 @@
     --border-color: #334155;
   }
 }
+
+/* ============================================================
+   13. [W14-UX] 深色模式共享组件主题层
+   -----------------------------------------------------------------
+   目标: 在不重构 30k+ 内联样式的前提下, 通过 CSS 变量 + 少量
+   针对性覆盖, 让共用组件 (卡片/表格/工具栏/表单/浮动菜单) 在
+   [data-theme="dark"] 下正确呈现。所有规则仅作用于 dark, 浅色零影响。
+   ============================================================ */
+[data-theme="dark"] {
+  /* 通用悬浮层 (菜单/Popover/下拉/浮层) */
+  --overlay-bg: var(--color-gray-800);
+  --overlay-fg: var(--color-gray-100);
+  --overlay-border: var(--border-default);
+  --overlay-hover: rgba(255, 255, 255, 0.08);
+
+  /* 输入类共享变量 */
+  --form-input-bg: var(--color-gray-900);
+  --form-input-border: var(--color-gray-700);
+  --form-input-disabled-bg: var(--color-gray-800);
+
+  /* Toast / 骨架 */
+  --skeleton-bg: var(--color-gray-700);
+  --skeleton-highlight: var(--color-gray-600);
+  --toast-success-bg: rgba(74, 222, 128, 0.12);
+  --toast-success-border: rgba(74, 222, 128, 0.32);
+  --toast-error-bg: rgba(248, 113, 113, 0.12);
+  --toast-error-border: rgba(248, 113, 113, 0.32);
+  --toast-warning-bg: rgba(251, 191, 36, 0.12);
+  --toast-warning-border: rgba(251, 191, 36, 0.32);
+  --toast-info-bg: rgba(96, 165, 250, 0.12);
+  --toast-info-border: rgba(96, 165, 250, 0.32);
+
+  color-scheme: dark;
+}
+
+/* 通用文档底色 / 滚动条 */
+[data-theme="dark"] body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--color-gray-800);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--color-gray-600);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-500);
+}
+
+/* antd Table / 数据表格: 覆盖内联白底容器 */
+[data-theme="dark"] .ant-table,
+[data-theme="dark"] .ant-table-tbody > tr > td,
+[data-theme="dark"] .ant-table-thead > tr > th,
+[data-theme="dark"] .ant-table-cell-fix-left,
+[data-theme="dark"] .ant-table-cell-fix-right {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .ant-table-thead > tr > th {
+  background: var(--table-header-bg);
+  color: var(--table-header-fg);
+}
+[data-theme="dark"] .ant-table-tbody > tr.dt-zebra > td,
+[data-theme="dark"] .ant-table-tbody > tr:hover > td {
+  background: var(--table-row-hover-bg) !important;
+}
+[data-theme="dark"] .ant-table-expanded-row > td {
+  background: var(--bg-deep);
+}
+[data-theme="dark"] .ant-table-placeholder:hover > td {
+  background: var(--bg-card) !important;
+}
+
+/* antd Card / Descriptions / Tabs / Collapse */
+[data-theme="dark"] .ant-card,
+[data-theme="dark"] .ant-card-head,
+[data-theme="dark"] .ant-descriptions-view,
+[data-theme="dark"] .ant-descriptions-item-label,
+[data-theme="dark"] .ant-collapse {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .ant-card-head-title,
+[data-theme="dark"] .ant-descriptions-item-content {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .ant-tabs-tab {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-accent);
+}
+[data-theme="dark"] .ant-tabs-ink-bar {
+  background: var(--color-accent);
+}
+
+/* antd Tabs (card type) / Collapse header */
+[data-theme="dark"] .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab,
+[data-theme="dark"] .ant-collapse-header {
+  background: var(--bg-elevated);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* antd 表单控件 */
+[data-theme="dark"] .ant-input,
+[data-theme="dark"] .ant-input-affix-wrapper,
+[data-theme="dark"] .ant-input-number,
+[data-theme="dark"] .ant-select-selector,
+[data-theme="dark"] .ant-picker,
+[data-theme="dark"] .ant-input-number-input,
+[data-theme="dark"] textarea.ant-input {
+  background: var(--form-input-bg);
+  border-color: var(--form-input-border);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .ant-input::placeholder,
+[data-theme="dark"] .ant-select-selection-placeholder,
+[data-theme="dark"] .ant-picker-input > input::placeholder {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .ant-select-selection-item,
+[data-theme="dark"] .ant-picker-input > input,
+[data-theme="dark"] .ant-input-number-input {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .ant-input-affix-wrapper > .ant-input-prefix,
+[data-theme="dark"] .ant-input-affix-wrapper > .ant-input-suffix,
+[data-theme="dark"] .ant-input-prefix,
+[data-theme="dark"] .ant-input-suffix {
+  color: var(--text-muted);
+}
+
+/* antd 下拉 / 浮层 / 菜单 / Tooltip */
+[data-theme="dark"] .ant-select-dropdown,
+[data-theme="dark"] .ant-dropdown-menu,
+[data-theme="dark"] .ant-picker-dropdown .ant-picker-panel-container,
+[data-theme="dark"] .ant-popover-inner,
+[data-theme="dark"] .ant-menu:not(.ant-menu-dark),
+[data-theme="dark"] .ant-modal-content,
+[data-theme="dark"] .ant-drawer-content {
+  background: var(--overlay-bg);
+  color: var(--overlay-fg);
+  border-color: var(--overlay-border);
+}
+[data-theme="dark"] .ant-select-item,
+[data-theme="dark"] .ant-dropdown-menu-item {
+  color: var(--overlay-fg);
+}
+[data-theme="dark"] .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+[data-theme="dark"] .ant-dropdown-menu-item:hover {
+  background: var(--overlay-hover);
+}
+[data-theme="dark"] .ant-select-item-option-selected {
+  background: rgba(96, 165, 250, 0.18);
+}
+
+/* antd 分页 / 空态 / 标签 / 徽标 */
+[data-theme="dark"] .ant-pagination-item,
+[data-theme="dark"] .ant-pagination-prev button,
+[data-theme="dark"] .ant-pagination-next button,
+[data-theme="dark"] .ant-pagination-options .ant-select-selector {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .ant-pagination-item a,
+[data-theme="dark"] .ant-pagination-prev,
+[data-theme="dark"] .ant-pagination-next,
+[data-theme="dark"] .ant-pagination-total-text,
+[data-theme="dark"] .ant-pagination-options-quick-jumper {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .ant-pagination-item-active {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: var(--color-accent);
+}
+[data-theme="dark"] .ant-empty-description {
+  color: var(--text-muted);
+}
+
+/* antd Table 排序/筛选图标 */
+[data-theme="dark"] .ant-table-column-sorter,
+[data-theme="dark"] .ant-table-filter-trigger {
+  color: var(--text-muted);
+}
+
+/* 自研共享组件 (BatchActionBar / ContextMenu 已走变量, 此处兜底) */
+[data-theme="dark"] [role="region"][aria-label="批量操作栏"],
+[data-theme="dark"] [role="menu"] {
+  border-color: var(--border-default);
+}
+
+/* 无障碍: 深色模式下 focus 环保持可见 */
+[data-theme="dark"] :focus-visible {
+  outline-color: var(--color-primary-400, #60a5fa);
+}
+
+/* ============================================================
+   13b. [W14-UX] 深色模式: 共享卡片/工具栏/表单/按钮/表格补充层
+   -----------------------------------------------------------------
+   仅作用于 [data-theme="dark"], 覆盖仍使用浅色硬编码的公用组件,
+   使工作列表/检查/报告/仪表盘在深色下无白底/灰字不可读问题。
+   ============================================================ */
+[data-theme="dark"] .ant-card-body,
+[data-theme="dark"] .ant-statistic-content,
+[data-theme="dark"] .ant-descriptions-title,
+[data-theme="dark"] .ant-collapse-content {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .ant-card-bordered,
+[data-theme="dark"] .ant-descriptions-bordered .ant-descriptions-view,
+[data-theme="dark"] .ant-descriptions-bordered .ant-descriptions-row {
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .ant-descriptions-item-label {
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+}
+
+/* 工具栏 / 状态条 / 浮动操作条 */
+[data-theme="dark"] [role="region"][aria-label*="批量"],
+[data-theme="dark"] [role="toolbar"] {
+  background: var(--overlay-bg);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+/* 原生表单控件在深色下继承变量 */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: var(--form-input-bg, var(--bg-secondary));
+  color: var(--text-primary);
+  border-color: var(--form-input-border, var(--border-color));
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* 表格斑马纹 / hover 在深色下统一 */
+[data-theme="dark"] .data-table,
+[data-theme="dark"] .data-table .ant-table {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .data-table .ant-table-tbody > tr.dt-zebra > td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* 按钮 (默认态) 深色适配 */
+[data-theme="dark"] .ant-btn-default {
+  background: var(--bg-secondary);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .ant-btn-default:hover {
+  background: var(--overlay-hover);
+  border-color: var(--color-primary-400, #60a5fa);
+  color: var(--color-primary-300, #93c5fd);
+}
+[data-theme="dark"] .ant-btn-text,
+[data-theme="dark"] .ant-btn-link {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .ant-btn-text:hover,
+[data-theme="dark"] .ant-btn-link:hover {
+  background: var(--overlay-hover);
+  color: var(--color-primary-300, #93c5fd);
+}
+[data-theme="dark"] .ant-tag {
+  border-color: var(--border-default);
+}
+
+/* Tooltip / Message 深色 */
+[data-theme="dark"] .ant-tooltip-inner,
+[data-theme="dark"] .ant-message-notice-content {
+  background: var(--overlay-bg);
+  color: var(--overlay-fg);
+  border: 1px solid var(--overlay-border);
+}
+
+/* 行内编辑单元格输入框 */
+[data-theme="dark"] [data-testid^="inline-edit-cell"] input,
+[data-theme="dark"] [data-testid^="inline-edit-cell"] select,
+[data-theme="dark"] [data-testid^="inline-edit-cell"] textarea {
+  background: var(--form-input-bg, var(--bg-secondary));
+  color: var(--text-primary);
+}

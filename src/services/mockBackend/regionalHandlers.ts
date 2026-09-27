@@ -384,7 +384,109 @@ export const regionalHandlers = [
       },
     });
   }),
+
+  // ── [G005 W11-MultiSite] 跨院区聚合统计 / 站点写入 / 院区 / 联邦配置 ──
+  // 静态子路径 sites/stats 必须先于任何 sites/:id
+
+  http.get(`${API}/sites/stats`, async () => {
+    await delay(delayMs());
+    const sites = ensureSites();
+    const byRegionMap = new Map();
+    for (const s of sites) {
+      const e = byRegionMap.get(s.region) ?? { region: s.region, sites: 0, studies: 0, patients: 0 };
+      e.sites += 1; e.studies += s.studies; e.patients += s.patients;
+      byRegionMap.set(s.region, e);
+    }
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalSites: sites.length,
+        activeSites: sites.filter((s) => s.status === 'active' || s.status === 'syncing').length,
+        offlineSites: sites.filter((s) => s.status === 'offline').length,
+        totalStudies: sites.reduce((a, s) => a + s.studies, 0),
+        totalPatients: sites.reduce((a, s) => a + s.patients, 0),
+        totalUsers: sites.reduce((a, s) => a + s.users, 0),
+        totalStorageGb: sites.reduce((a, s) => a + s.storage, 0),
+        totalBandwidthMbps: sites.reduce((a, s) => a + s.bandwidth, 0),
+        avgLatencyMs: sites.length ? Math.round((sites.reduce((a, s) => a + s.latencyMs, 0) / sites.length) * 10) / 10 : 0,
+        avgUptimePct: sites.length ? Math.round((sites.reduce((a, s) => a + s.uptimePct, 0) / sites.length) * 100) / 100 : 0,
+        byRegion: [...byRegionMap.values()],
+        generatedAt: new Date().toISOString(),
+      },
+    });
+  }),
+  http.post(`${API}/sites`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as Record<string, unknown>;
+    const sites = ensureSites();
+    const seq = sites.length + 1;
+    const site = {
+      id: String(body.id ?? `SITE-NEW-${seq}`),
+      name: String(body.name ?? ''), code: String(body.code ?? `NEW-${String(seq).padStart(2, '0')}`),
+      region: String(body.region ?? '华东'), city: String(body.city ?? '济南'),
+      status: String(body.status ?? 'active'), studies: Number(body.studies ?? 0), patients: Number(body.patients ?? 0),
+      users: Number(body.users ?? 0), storage: Number(body.storage ?? 0), bandwidth: Number(body.bandwidth ?? 600),
+      lastSync: new Date().toISOString(), latencyMs: Number(body.latencyMs ?? 15), uptimePct: Number(body.uptimePct ?? 99.9),
+      version: String(body.version ?? 'v3.0.6.12'), primary: Boolean(body.primary ?? false),
+    };
+    sites.push(site);
+    return HttpResponse.json({ success: true, data: { ...site } }, { status: 201 });
+  }),
+  http.put(`${API}/sites/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as Record<string, unknown>;
+    const site = ensureSites().find((s) => s.id === params.id);
+    if (!site) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '站点不存在' } }, { status: 404 });
+    Object.assign(site, body, { id: site.id });
+    return HttpResponse.json({ success: true, data: { ...site } });
+  }),
+  http.get(`${API}/campuses`, async () => {
+    await delay(delayMs());
+    const campuses = ensureSites().flatMap((site, idx) => ([
+      { id: `${site.id}-C1`, siteId: site.id, siteName: site.name, name: `${site.name} 主院区`, address: `${site.city}解放路 ${88 + idx} 号`, buildings: 3, devices: 24 + idx * 5, beds: 800 + idx * 120, isMain: true },
+      { id: `${site.id}-C2`, siteId: site.id, siteName: site.name, name: `${site.name} 分院区`, address: `${site.city}科园路 ${66 + idx} 号`, buildings: 1, devices: 8 + idx * 2, beds: 200 + idx * 40, isMain: false },
+    ]));
+    return HttpResponse.json({ success: true, data: { source: 'demo', generatedAt: new Date().toISOString(), data: campuses } });
+  }),
+  http.get(`${API}/federation/config`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: ensureFederation() });
+  }),
+  http.put(`${API}/federation/config`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as Record<string, unknown>;
+    const current = ensureFederation();
+    const next = { ...current, ...body, members: Array.isArray(body.members) ? (body.members as string[]) : current.members, updatedAt: new Date().toISOString() };
+    federationStore = next as typeof current;
+    return HttpResponse.json({ success: true, data: { ...next } });
+  }),
 ];
+
+// [G005 W11-MultiSite] 内存持久化 (模块级, 跨请求保留)
+let sitesStore: Array<Record<string, any>> | null = null;
+let federationStore: Record<string, any> | null = null;
+
+function ensureSites(): Array<Record<string, any>> {
+  if (!sitesStore) sitesStore = SEED_SITES.map((s) => ({ ...s }));
+  return sitesStore;
+}
+
+function ensureFederation(): Record<string, any> {
+  if (!federationStore) {
+    federationStore = {
+      federationId: 'FED-SDPH-001',
+      name: '山东省影像医联体',
+      mode: 'centralized',
+      syncIntervalSec: 60,
+      autoFailover: true,
+      crossSiteQueryEnabled: true,
+      sharedPatientIndex: true,
+      members: ensureSites().map((s) => s.id),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  return federationStore;
+}
 
 // [W3-A] 多站点演示数据 (静态, 来源标注 demo)
 

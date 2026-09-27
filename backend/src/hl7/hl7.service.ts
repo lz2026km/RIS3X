@@ -87,6 +87,39 @@ export interface Hl7MessageArchive {
   createdAt: Date
 }
 
+// ===== [v3.0.6.13] Publish → HIS ORU^R01 消息日志 (MLLP 或 stub) =====
+
+export interface HisEndpointConfig {
+  host: string
+  port: number
+  enabled: boolean
+}
+
+export interface OruPublishRecord {
+  id: string
+  reportId: string
+  examId?: string
+  controlId: string
+  messageType: 'ORU^R01'
+  message: string
+  ackStatus: string
+  ackMessage?: string
+  endpoint: string
+  mode: 'MLLP' | 'STUB'
+  attempts: number
+  status: 'SENT' | 'STUBBED' | 'FAILED'
+  error?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface OruPublishFilter {
+  reportId?: string
+  status?: OruPublishRecord['status']
+  ackStatus?: string
+  limit?: number
+}
+
 // ===== [W10E-3] 扩展端点 DTO (HL7 总览 / 错误分析 / 吞吐趋势 / 消息类型) =====
 
 export interface Hl7OverviewDto {
@@ -190,6 +223,11 @@ export class Hl7Service implements OnModuleInit {
 
   private pushConfig: Hl7PushConfig = { host: '', port: 2575, enabled: false }
 
+  // [v3.0.6.13] 报告发布 → HIS ORU^R01 端点 + 消息日志 (内存; DB-less-safe)
+  private hisEndpoint: HisEndpointConfig = { host: '', port: 2576, enabled: false }
+  private readonly oruLog: OruPublishRecord[] = []
+  private oruSeq = 0
+
   private static maskPii(value: string): string {
     if (!value || value.length <= 2) return '**'
     return value[0] + '*'.repeat(value.length - 2) + value[value.length - 1]
@@ -211,6 +249,11 @@ export class Hl7Service implements OnModuleInit {
       host: process.env['HL7_PUSH_HOST'] ?? '',
       port: Number(process.env['HL7_PUSH_PORT'] ?? 2575),
       enabled: process.env['HL7_PUSH_ENABLED'] === 'true',
+    }
+    this.hisEndpoint = {
+      host: process.env['HIS_ORU_HOST'] ?? process.env['HL7_PUSH_HOST'] ?? '',
+      port: Number(process.env['HIS_ORU_PORT'] ?? process.env['HL7_PUSH_PORT'] ?? 2576),
+      enabled: process.env['HIS_ORU_ENABLED'] === 'true',
     }
   }
 
@@ -887,10 +930,165 @@ export class Hl7Service implements OnModuleInit {
     }
   }
 
+  // ================= [v3.0.6.13] Publish → HIS ORU^R01 (MLLP / stub + 消息日志) =================
+
+  getHisEndpoint(): HisEndpointConfig {
+    return { ...this.hisEndpoint }
+  }
+
+  setHisEndpoint(dto: Partial<HisEndpointConfig>): HisEndpointConfig {
+    this.hisEndpoint = { ...this.hisEndpoint, ...dto }
+    return { ...this.hisEndpoint }
+  }
+
+  private buildOruPayload(exam: any, report: any): ReportForHL7 {
+    return {
+      accessionNumber: exam?.accessionNumber ?? '',
+      patientName: report?.patient?.name ?? '',
+      patientId: report?.patientId ?? exam?.patientId ?? '',
+      patientSex: report?.patient?.gender === 'MALE' ? 'M' : report?.patient?.gender === 'FEMALE' ? 'F' : 'O',
+      patientBirthDate: report?.patient?.birthDate?.toISOString?.().split('T')[0],
+      modality: exam?.modality ?? '',
+      studyDate: exam?.startedAt?.toISOString?.().split('T')[0] ?? new Date().toISOString().split('T')[0]!,
+      studyTime: exam?.startedAt?.toISOString?.().split('T')[1]?.split('.')[0] ?? '000000',
+      findings: report?.findings ?? '',
+      conclusion: report?.conclusion || report?.impression || '',
+      authorName: report?.authorName ?? report?.radiologist?.name ?? '',
+      authorId: report?.authorId ?? report?.radiologistId ?? '',
+      reportId: String(report?.id ?? ''),
+      radsCategory: undefined,
+    }
+  }
+
+  /** 报告发布时调用: 按 reportId 组装并投递 ORU^R01 到 HIS 端点 */
+  async publishOruByReportId(reportId: string, examId?: string): Promise<OruPublishRecord> {
+    const report = await this.prisma.report.findUnique({
+      where: { id: reportId },
+      include: { patient: true, exam: true },
+    }).catch(() => null)
+    if (!report) throw new NotFoundException(`Report ${reportId} not found`)
+    let exam = (report as any).exam ?? null
+    if (!exam && (examId || (report as any).examId)) {
+      exam = await this.prisma.exam.findUnique({ where: { id: examId ?? (report as any).examId } }).catch(() => null)
+    }
+    const payload = this.buildOruPayload(exam, report)
+    return this.publishOru(payload, { examId: exam?.id ?? examId })
+  }
+
+  /** 组装 + 投递 ORU^R01 (HIS MLLP 启用则真实发送, 否则 stub ACK) */
+  async publishOru(report: ReportForHL7, opts: { examId?: string } = {}): Promise<OruPublishRecord> {
+    const message = await this.buildORU(report)
+    const controlId = message.split('\r')[0]?.split('|')[9] ?? `G005-${report.reportId}-${Date.now()}`
+    const mode: 'MLLP' | 'STUB' = this.hisEndpoint.enabled && this.hisEndpoint.host ? 'MLLP' : 'STUB'
+    const endpoint = mode === 'MLLP' ? `${this.hisEndpoint.host}:${this.hisEndpoint.port}` : 'stub://his.local/oru'
+
+    let ackStatus = 'AA'
+    let ackMessage: string | undefined
+    let status: OruPublishRecord['status'] = 'STUBBED'
+    let error: string | undefined
+
+    if (mode === 'MLLP') {
+      try {
+        ackMessage = await this.sendMllpMessage(this.hisEndpoint.host, this.hisEndpoint.port, message)
+        ackStatus = ackMessage.split('\r').find((s) => s.startsWith('MSA'))?.split('|')[1] ?? 'AA'
+        status = ackStatus === 'AA' ? 'SENT' : 'FAILED'
+      } catch (err) {
+        ackStatus = 'FAILED'
+        status = 'FAILED'
+        error = (err as Error).message
+      }
+    } else {
+      // 确定性 stub ACK: 模拟 HIS 接收
+      ackMessage = `MSH|^~\\&|HIS|HIS_RECEIVER|G005|G005|${nowHL7()}||ACK^R01|ACK-${controlId}|P|2.5.1\rMSA|AA|${controlId}\r`
+    }
+
+    const now = new Date().toISOString()
+    const record: OruPublishRecord = {
+      id: `ORU-${String(++this.oruSeq).padStart(4, '0')}-${report.reportId}`,
+      reportId: report.reportId,
+      examId: opts.examId,
+      controlId,
+      messageType: 'ORU^R01',
+      message,
+      ackStatus,
+      ackMessage,
+      endpoint,
+      mode,
+      attempts: 1,
+      status,
+      error,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.oruLog.push(record)
+    if (this.oruLog.length > 2000) this.oruLog.shift()
+
+    await this.prisma.hl7MessageArchive.create({
+      data: {
+        tenantId: 'default',
+        messageType: 'ORU^R01',
+        controlId,
+        rawMessage: message,
+        parsed: { ackStatus, ackMessage, mode, endpoint, reportId: report.reportId },
+        direction: 'OUTBOUND',
+        ackStatus,
+        retryCount: 0,
+      },
+    }).catch((err) => this.logger.warn(`Failed to archive ORU publish: ${(err as Error).message}`))
+
+    if (status === 'FAILED') {
+      this.logger.error(`ORU^R01 publish FAILED for report ${report.reportId}: ${error}`)
+    } else {
+      this.logger.log(`ORU^R01 ${status} for report ${report.reportId} via ${mode} (${endpoint}) ack=${ackStatus}`)
+    }
+    return record
+  }
+
+  listOruMessages(filter: OruPublishFilter = {}): { total: number; entries: OruPublishRecord[] } {
+    let items = [...this.oruLog]
+    if (filter.reportId) items = items.filter((r) => r.reportId === filter.reportId)
+    if (filter.status) items = items.filter((r) => r.status === filter.status)
+    if (filter.ackStatus) items = items.filter((r) => r.ackStatus === filter.ackStatus)
+    items.reverse()
+    const limit = filter.limit ?? 100
+    return { total: items.length, entries: items.slice(0, Math.max(1, Math.min(limit, 500))) }
+  }
+
+  getOruMessage(id: string): OruPublishRecord | null {
+    return this.oruLog.find((r) => r.id === id) ?? null
+  }
+
+  /** 重发已归档的 ORU 消息 (同一 message 重新投递) */
+  async resendOru(id: string): Promise<OruPublishRecord> {
+    const record = this.getOruMessage(id)
+    if (!record) throw new NotFoundException(`ORU message ${id} not found`)
+    const mode: 'MLLP' | 'STUB' = this.hisEndpoint.enabled && this.hisEndpoint.host ? 'MLLP' : 'STUB'
+    record.attempts += 1
+    record.updatedAt = new Date().toISOString()
+    if (mode === 'MLLP') {
+      try {
+        const ackMessage = await this.sendMllpMessage(this.hisEndpoint.host, this.hisEndpoint.port, record.message)
+        record.ackMessage = ackMessage
+        record.ackStatus = ackMessage.split('\r').find((s) => s.startsWith('MSA'))?.split('|')[1] ?? 'AA'
+        record.status = record.ackStatus === 'AA' ? 'SENT' : 'FAILED'
+        record.error = undefined
+      } catch (err) {
+        record.ackStatus = 'FAILED'
+        record.status = 'FAILED'
+        record.error = (err as Error).message
+      }
+    } else {
+      record.ackMessage = `MSH|^~\\&|HIS|HIS_RECEIVER|G005|G005|${nowHL7()}||ACK^R01|ACK-${record.controlId}|P|2.5.1\rMSA|AA|${record.controlId}\r`
+      record.ackStatus = 'AA'
+      record.status = 'STUBBED'
+      record.error = undefined
+    }
+    return record
+  }
+
   // ================= [W10E-3] 扩展: HL7 总览 / 错误分析 / 吞吐趋势 / 消息类型 =================
 
-  async getOverview(): Promise<Hl7OverviewDto> {
-    try {
+  async getOverview(): Promise<Hl7OverviewDto> {    try {
       const rows = await this.prisma.hl7MessageArchive.findMany({
         where: { createdAt: { gte: new Date(Date.now() - 90 * 86400000) } },
         select: { id: true, messageType: true, direction: true, ackStatus: true, createdAt: true },

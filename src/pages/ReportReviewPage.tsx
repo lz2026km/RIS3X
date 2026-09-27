@@ -14,7 +14,7 @@ import {
   AlertTriangle, History, Eye, Edit2, Send,
   Award, ShieldCheck,
   ArrowRight, ThumbsUp, ThumbsDown,
-  ListChecks,
+  ListChecks, UserCheck,
 } from 'lucide-react';
 import {
   type ReviewTask,
@@ -30,6 +30,9 @@ import FollowupAutoBookPanel from '../components/report/v3/R3.WRITING/FollowupAu
 import { t } from '../i18n/appI18n';
 import { ActionButton } from '../components/common/ActionButton';
 import { DataTable } from '../components/common/DataTable';
+// [W14-UX] 右键上下文菜单 + 批量操作栏
+import type { ContextMenuItem } from '../components/common/ContextMenu';
+import BatchActionBar from '../components/batch/BatchActionBar';
 import { CheckCircle2, Siren, CalendarClock } from 'lucide-react';
 import ReportFlowBar from '../components/report/ReportFlowBar';
 // [v3.0.6.11-70] P0 真实化: 后端 ReportDto → 审核任务 (状态过滤/阶段映射)
@@ -128,6 +131,8 @@ export default function ReportReviewPage() {
   const [auditScore, setAuditScore] = useState(90);
   const [auditDecision, setAuditDecision] = useState<'approve' | 'reject' | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // [W14-UX] 批量审核选择
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   // 避免 TypeScript 警告
   void navigate;
 
@@ -207,6 +212,81 @@ export default function ReportReviewPage() {
     }
     setSubmitting(false);
   }, [selectedTask, auditSuggestion, loadTasks]);
+
+  // [W14-UX] 单条快捷通过 (右键菜单 / 批量复用)
+  const approveTaskById = useCallback(async (task: ReviewTask) => {
+    const res = await reportApi.review(task.reportId);
+    if (res.success) {
+      message.success(t('w9c.reportReview.approvedWithStage', { stage: STAGE_CONFIG[task.stage].label }));
+      await loadTasks();
+      return true;
+    }
+    message.error(res.error?.message ?? t('reportReviewPage.msgAuditFailed'));
+    return false;
+  }, [loadTasks]);
+
+  // [W14-UX] 批量审核 (通过/驳回/指派)
+  const runBatchReviewAction = useCallback(async (action: string) => {
+    const ids = Array.from(selectedTaskIds);
+    if (ids.length === 0) return;
+    const targets = tasks.filter((task) => ids.includes(task.id));
+    let ok = 0;
+    let fail = 0;
+    if (action === 'approve') {
+      for (const task of targets) {
+        const success = await approveTaskById(task);
+        if (success) ok += 1; else fail += 1;
+      }
+    } else if (action === 'reject') {
+      const reason = t('w14Ux.batch.rejectReason');
+      for (const task of targets) {
+        const res = await reportApi.reject(task.reportId, reason);
+        if (res.success) ok += 1; else fail += 1;
+      }
+      await loadTasks();
+    } else if (action === 'assign') {
+      setTasks((prev) => prev.map((task) => ids.includes(task.id)
+        ? { ...task, reportDoctorId: currentUser.id, reportDoctorName: currentUser.name }
+        : task));
+      ok = targets.length;
+    }
+    if (fail === 0) {
+      message.success(t('w14Ux.batch.done', { count: ok, action: t(`w14Ux.batch.${action === 'approve' ? 'review' : action === 'reject' ? 'reject' : 'assign'}`) }));
+    } else {
+      message.warning(t('w14Ux.batch.partial', { ok, fail }));
+    }
+    setSelectedTaskIds(new Set());
+  }, [selectedTaskIds, tasks, approveTaskById, loadTasks, currentUser.id, currentUser.name]);
+
+  // [W14-UX] 右键行操作
+  const buildTaskContextItems = useCallback((task: ReviewTask): ContextMenuItem[] => [
+    { key: 'view', label: t('w14Ux.contextMenu.view'), onSelect: () => setSelectedTaskId(task.id) },
+    { key: 'approve', label: t('w14Ux.contextMenu.approve'), onSelect: () => { void approveTaskById(task); } },
+    { key: 'reject', label: t('w14Ux.contextMenu.reject'), onSelect: () => setSelectedTaskId(task.id) },
+    {
+      key: 'assign',
+      label: t('w14Ux.contextMenu.assignDoctor'),
+      dividerBefore: true,
+      onSelect: () => setTasks((prev) => prev.map((x) => x.id === task.id
+        ? { ...x, reportDoctorId: currentUser.id, reportDoctorName: currentUser.name }
+        : x)),
+    },
+    { key: 'print', label: t('w14Ux.contextMenu.print'), onSelect: () => window.print() },
+    {
+      key: 'export',
+      label: t('w14Ux.contextMenu.export'),
+      onSelect: () => {
+        const csv = ['patient,reportId,modality,stage,status', `${task.patientName},${task.reportId},${task.modality},${task.stage},${task.status}`].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `审核任务_${task.reportId}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+    },
+  ], [approveTaskById, currentUser.id, currentUser.name, setTasks]);
 
   const taskColumns: ColumnsType<ReviewTask> = [
     {
@@ -382,6 +462,14 @@ export default function ReportReviewPage() {
             rowKey="id"
             showPagination={false}
             emptyText={t('reportReviewPage.noMatchingTask')}
+            columnConfigKey="report-review-table"
+            contextMenuTestId="review-context-menu"
+            contextMenuItems={(task) => buildTaskContextItems(task)}
+            rowSelection={{
+              preserveSelectedRowKeys: true,
+              selectedRowKeys: [...selectedTaskIds],
+              onChange: (keys) => setSelectedTaskIds(new Set(keys.map(String))),
+            }}
             onRow={(task) => ({
               onClick: () => setSelectedTaskId(task.id),
               style: {
@@ -392,6 +480,18 @@ export default function ReportReviewPage() {
             scroll={{ x: 'max-content' }}
           />
         </div>
+
+        {/* [W14-UX] 批量审核操作栏 */}
+        <BatchActionBar
+          selectedCount={selectedTaskIds.size}
+          onAction={(action) => void runBatchReviewAction(action)}
+          onClear={() => setSelectedTaskIds(new Set())}
+          actions={[
+            { key: 'approve', label: t('w14Ux.batch.review'), icon: <ThumbsUp size={13} /> },
+            { key: 'reject', label: t('w14Ux.batch.reject'), icon: <ThumbsDown size={13} />, confirm: t('w14Ux.batch.confirm') },
+            { key: 'assign', label: t('w14Ux.batch.assign'), icon: <UserCheck size={13} /> },
+          ]}
+        />
 
         {/* 右：任务详情 + 审核操作 */}
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>

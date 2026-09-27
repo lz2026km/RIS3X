@@ -35,6 +35,9 @@ import {
   DeviceMgmtDashboard,
 } from './device'
 import type { DeviceData } from './device'
+// [W14-UX] 批量设备操作栏 + 撤销
+import BatchActionBar from '../components/batch/BatchActionBar'
+import { useUndoActions } from '../components/UndoToast'
 // [v3.0.6.11-103 Wave 10] 重复页合并: DeviceFaultPage (故障登记/维修进度/统计) 嵌入为 DevicePage 新 Tab, 旧路由 /device-fault redirect → /devices
 import DeviceFaultPage from './DeviceFaultPage'
 
@@ -626,6 +629,10 @@ export default function DevicePage() {
   const [apiDevices, setApiDevices] = useState<DeviceEfficiencyData[]>([])
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
   const [apiStats, setApiStats] = useState<{ todayExams: number; totalExams: number; usageMinutes: number } | null>(null)
+  // [W14-UX] 批量设备选择 + 状态覆盖
+  const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set())
+  const [deviceStatusOverride, setDeviceStatusOverride] = useState<Record<string, string>>({})
+  const { showUndo } = useUndoActions()
 
   const { showFeedback } = useButtonFeedback()
 
@@ -808,6 +815,44 @@ export default function DevicePage() {
   const handleMaintenance = (device: DeviceData) => {
     setActiveTab(3)
     setMaintForm(f => ({ ...f, deviceId: device.id }))
+  }
+
+  // ====== [W14-UX] 批量设备操作 (状态/维保/导出) ======
+  const toggleDeviceSelect = (device: DeviceData) => {
+    setSelectedDeviceIds(prev => {
+      const next = new Set(prev)
+      if (next.has(device.id)) next.delete(device.id); else next.add(device.id)
+      return next
+    })
+  }
+
+  const handleDeviceBatch = (action: string) => {
+    const ids = Array.from(selectedDeviceIds)
+    if (ids.length === 0) return
+    if (action === 'status') {
+      const snapshot = deviceStatusOverride
+      setDeviceStatusOverride(prev => {
+        const next = { ...prev }
+        ids.forEach(id => { next[id] = '维护中' })
+        return next
+      })
+      showUndo(t('w14Ux.batch.done', { count: ids.length, action: t('w14Ux.batch.status') }), () => setDeviceStatusOverride(snapshot))
+    } else if (action === 'maintenance') {
+      setActiveTab(3)
+      setMaintForm(f => ({ ...f, deviceId: ids[0] ?? '' }))
+      showFeedback('success', t('devicePage.maintCreated', { deviceId: `${ids.length}`, date: '-' }))
+    } else if (action === 'export') {
+      const rows = [...apiDevices, ...filteredDevices].filter(d => ids.includes(d.id))
+      const csv = ['设备ID,名称,模态,状态,利用率(%)', ...rows.map(d => [d.id, d.name, d.modality, d.status, d.utilization].join(','))].join('\n')
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `设备批量导出_${ids.length}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+    setSelectedDeviceIds(new Set())
   }
 
   // [W4-B] 创建保养计划 → POST /device-mgmt/maintenance-plans (替换原 mock)
@@ -1162,13 +1207,28 @@ export default function DevicePage() {
         deviceCount={filteredDevices.length}
       />
       <DeviceList
-        devices={[...apiDevices, ...filteredDevices]}
+        devices={[...apiDevices, ...filteredDevices].map(d => deviceStatusOverride[d.id] ? { ...d, status: deviceStatusOverride[d.id] as string } : d)}
         examRooms={initialExamRooms}
         onDetail={handleDetail}
         onExam={handleExam}
         onMaintenance={handleMaintenance}
         onDelete={handleDeleteDevice}
+        selectedIds={selectedDeviceIds}
+        onToggleSelect={toggleDeviceSelect}
       />
+      {/* [W14-UX] 批量设备操作栏 */}
+      {selectedDeviceIds.size > 0 && (
+        <BatchActionBar
+          selectedCount={selectedDeviceIds.size}
+          onAction={handleDeviceBatch}
+          onClear={() => setSelectedDeviceIds(new Set())}
+          actions={[
+            { key: 'status', label: t('w14Ux.batch.status'), icon: <Settings size={13} /> },
+            { key: 'maintenance', label: t('w14Ux.batch.maintenance'), icon: <Wrench size={13} />, confirm: t('w14Ux.batch.confirm') },
+            { key: 'export', label: t('w14Ux.batch.export'), icon: <Download size={13} /> },
+          ]}
+        />
+      )}
     </div>
   )
 

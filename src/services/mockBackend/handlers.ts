@@ -8,6 +8,21 @@
  */
 
 import { w7ExecHandlers } from './w7ExecHandlers';
+// [G005 W10-Interop] 集成/互操作: XDS.b/XCA/XDR + 接口监控/重试队列 + CDS Hooks + HL7 ORU 发布
+//   必须最前置注册 (静态子路径需先于既有 /ihe/* 参数路由)
+import { w10InteropHandlers } from './w10InteropHandlers';
+// [G005 W11-DeviceOps] 设备运维中心: 工单状态机/校准认证/资产折旧/OEE/成本DRG/定时报表
+//   必须最前置注册 (静态子路径需先于既有通配路由)
+import { w11DeviceHandlers } from './w11DeviceHandlers';
+// [G005 W12-PatientService] 患者服务专业化: 微信/支付/通知渠道/满意度/自助登记
+//   必须最前置注册 (新增前缀, 需先于既有通配/参数路由)
+import { w12PatientHandlers } from './w12PatientHandlers';
+// [G005 W9-QC] 质量管理专业化: 统一量表/40指标计算/PDCA整改/抽查双盲/缺陷库/设备质控
+//   必须最前置注册 (静态子路径需先于既有 /quality-indicators/:code 、/qc-pdca/:id 参数路由)
+import { w9QcHandlers } from './w9QcHandlers';
+// [G005 W13-Security] 安全与合规中心: RA/OCSP/HSM/字段加密/等保评估/灾难恢复/审计链
+//   必须最前置注册 (/security、/ocsp、/compliance 子路径需先于既有通配/参数路由)
+import { w13SecurityHandlers } from './w13SecurityHandlers';
 import { http, HttpResponse, delay } from 'msw';
 import { newPagesHandlers } from './newPagesHandlers';
 // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
@@ -5310,6 +5325,17 @@ const advancedHandlers: any[] = [
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
+    // [G005 W13-Security] 最最最最最先注册: 安全与合规中心 (RA/OCSP/HSM/字段加密/等保/灾难恢复/审计链)
+    ...w13SecurityHandlers,
+    // [G005 W12-PatientService] 最最最最最先注册: 微信/支付/通知渠道/满意度/自助登记
+    ...w12PatientHandlers,
+    // [G005 W11-DeviceOps] 最最最最最先注册: 工单/校准/资产折旧/OEE/成本DRG/定时报表
+    ...w11DeviceHandlers,
+    // [G005 W10-Interop] 最最最最先注册: XDS.b/XCA/XDR + 接口监控/重试队列 + CDS Hooks + ORU 发布
+  //   (静态子路径必须最先, 避免被既有 /ihe/*、/hl7/* 参数/通配路由拦截)
+  ...w10InteropHandlers,
+  // [G005 W9-QC] 最最最先注册: 质量管理专业化 (静态子路径需先于既有参数/通配路由)
+  ...w9QcHandlers,
   // [G005 W8-Report] 最最先注册: 报告字段规范/内容版本/签名证书/召回/分级审核
   //   (静态 /reports/field-specs 与 /reports/:id/revisions 需先于 reportHandlers 的 /reports/:id)
   ...w8ReportHandlers,

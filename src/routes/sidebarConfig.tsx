@@ -195,6 +195,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
       {
+        path: "/patient/service-center",
+        icon: <Smartphone size={18} />,
+        labelKey: "nav.patientServiceCenter",
+        roles: ["医生", "技师", "护士", "主任", "管理员",],
+      },
+      {
         path: "/patients/:id/360",
         icon: <UserRound size={18} />,
         labelKey: "nav.patient360",
@@ -508,6 +514,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <TrendingUp size={18} />,
         labelKey: "nav.qcAnalytics",
         roles: ["主任", "管理员"],
+      },
+      // [G005 W9-QC] 统一质控评分台
+      {
+        path: "/qc/scoring-center",
+        icon: <Gauge size={18} />,
+        labelKey: "nav.qcScoringCenter",
+        roles: ["主任", "管理员", "医生"],
       },
       {
         path: "/cosign",
@@ -1276,6 +1289,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.mllpMonitor",
         roles: ["管理员", "技师"],
       },
+      // [G005 W10-Interop] 接口监控台 (HL7/FHIR/DICOM 消息日志 + 重试队列 + 死信)
+      {
+        path: "/integration/monitor",
+        icon: <Activity size={18} />,
+        labelKey: "nav.integrationMonitor",
+        roles: ["主任", "管理员", "技师"],
+      },
       {
         path: "/integration/mllp-config",
         icon: <Cable size={18} />,
@@ -1491,6 +1511,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/ops/devices",
         icon: <Monitor size={18} />,
         labelKey: "nav.deviceOps",
+        roles: ["主任", "管理员"],
+      },
+      // [G005 W11-DeviceOps] 设备运维中心 (工单/校准/资产折旧/OEE/成本;DRG)
+      {
+        path: "/device/ops-center",
+        icon: <Wrench size={18} />,
+        labelKey: "w11Device.title",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
+        path: "/ops/cost-drg",
+        icon: <DollarSign size={18} />,
+        labelKey: "costDrg.title",
         roles: ["主任", "管理员"],
       },
       // [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 (周视图/拖拽/冲突检测)
@@ -2346,6 +2379,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/security/certificate-center",
         icon: <ShieldCheck size={18} />,
         labelKey: "nav.certificateCenter",
+        roles: ["管理员", "主任", "医生"],
+      },
+      // [G005 W13-Security] 安全与合规中心 (CA/RA/OCSP/HSM · 字段加密 · 等保2.0 · 灾难恢复 · 审计链)
+      {
+        path: "/security/compliance-center",
+        icon: <ShieldCheck size={18} />,
+        labelKey: "nav.securityComplianceCenter",
         roles: ["管理员", "主任", "医生"],
       },
     ],

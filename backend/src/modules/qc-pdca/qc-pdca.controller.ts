@@ -42,6 +42,32 @@ const CompleteSchema = z.object({
   summary: z.string().optional(),
 })
 
+// [W9-QC] 整改措施 / 问题发现
+const PhaseSchema = z.enum(['plan', 'do', 'check', 'act'])
+const ActionStatusSchema = z.enum(['pending', 'in_progress', 'done', 'overdue'])
+
+const CreateActionSchema = z.object({
+  description: z.string().min(1),
+  phase: PhaseSchema.optional(),
+  ownerId: z.string().optional(),
+  deadline: z.string().optional(),
+})
+
+const UpdateActionSchema = z.object({
+  description: z.string().min(1).optional(),
+  phase: PhaseSchema.optional(),
+  ownerId: z.string().optional(),
+  deadline: z.string().optional(),
+  status: ActionStatusSchema.optional(),
+})
+
+const CreateFindingSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+  source: z.string().optional(),
+})
+
 @ApiTags('qc-pdca')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
@@ -110,6 +136,50 @@ export class QcPdcaController {
   @HttpCode(HttpStatus.CREATED)
   linkDefect(@Param('id') id: string, @Body(new ZodValidationPipe(LinkDefectSchema)) body: z.infer<typeof LinkDefectSchema>) {
     return this.service.linkDefect(id, body)
+  }
+
+  // [W9-QC] 整改措施 (actions)
+  @Get('cycles/:id/actions')
+  listActions(@Param('id') id: string) {
+    return this.service.listActions(id)
+  }
+
+  @Post('cycles/:id/actions')
+  @HttpCode(HttpStatus.CREATED)
+  addAction(@Param('id') id: string, @Body(new ZodValidationPipe(CreateActionSchema)) body: z.infer<typeof CreateActionSchema>) {
+    return this.service.addAction(id, body)
+  }
+
+  @Patch('actions/:actionId')
+  updateAction(@Param('actionId') actionId: string, @Body(new ZodValidationPipe(UpdateActionSchema)) body: z.infer<typeof UpdateActionSchema>) {
+    return this.service.updateAction(actionId, body)
+  }
+
+  @Delete('actions/:actionId')
+  deleteAction(@Param('actionId') actionId: string) {
+    return this.service.deleteAction(actionId)
+  }
+
+  @Post('actions/:actionId/complete')
+  completeAction(@Param('actionId') actionId: string) {
+    return this.service.completeAction(actionId)
+  }
+
+  // [W9-QC] 问题发现 (findings)
+  @Get('cycles/:id/findings')
+  listFindings(@Param('id') id: string) {
+    return this.service.listFindings(id)
+  }
+
+  @Post('cycles/:id/findings')
+  @HttpCode(HttpStatus.CREATED)
+  addFinding(@Param('id') id: string, @Body(new ZodValidationPipe(CreateFindingSchema)) body: z.infer<typeof CreateFindingSchema>) {
+    return this.service.addFinding(id, body)
+  }
+
+  @Get('metrics')
+  getMetrics() {
+    return this.service.getMetrics()
   }
 
   @Get('stats')

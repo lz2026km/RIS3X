@@ -112,3 +112,102 @@ export interface QualityStandardsResult {
   reportQualityStandards: ReportQualityItem[]
   workflowQcPoints: WorkflowQcPoint[]
 }
+
+// ------------------------- 2024 国标 40 指标计算引擎 -------------------------
+
+export type QiComputeStatus = 'pass' | 'warn' | 'fail' | 'nodata'
+
+export interface ComputedIndicator {
+  code: string
+  name: string
+  category: QICategory
+  categoryKey: QICategoryKey
+  formula: string
+  target: string
+  frequency: string
+  responsible: string
+  numerator: number
+  denominator: number
+  rate: number
+  unit: string
+  direction: 'higher' | 'lower'
+  status: QiComputeStatus
+  /** true = 由报告/检查/危急值/审计/设备数据实时计算; false = 管理类指标回退 seed 估计 */
+  computable: boolean
+  source: 'derived' | 'seed'
+}
+
+export interface ComputedSnapshot {
+  id: string
+  generatedAt: string
+  period: string
+  dateFrom: string
+  dateTo: string
+  indicatorCount: number
+  indicators: ComputedIndicator[]
+  persisted: true
+}
+
+export interface ComputedDashboard {
+  source: 'database' | 'seed'
+  generatedAt: string
+  period: string
+  standard: string
+  total: number
+  computableCount: number
+  passCount: number
+  warnCount: number
+  failCount: number
+  nodataCount: number
+  passRate: number
+  byCategory: Array<{
+    categoryKey: QICategoryKey
+    category: QICategory
+    total: number
+    passCount: number
+    warnCount: number
+    failCount: number
+    nodataCount: number
+    passRate: number
+  }>
+  indicators: ComputedIndicator[]
+}
+
+export interface QiSourceDataset {
+  reports: Array<{
+    id: string
+    modality: string
+    bodyPart: string
+    isEmergency: boolean
+    examStartedAt: string
+    reportIssuedAt: string
+    hasSignature: boolean
+    conclusionMatches: boolean
+    hasError: boolean
+    radsCategory: string
+    isEnhanced: boolean
+    extravasation: boolean
+    isProstateMr: boolean
+    isMammo: boolean
+    submittedAt: string
+    reviewedAt: string
+    qualityScore: number
+  }>
+  exams: Array<{
+    id: string
+    modality: string
+    bodyPart: string
+    startedAt: string
+    hasArtifact: boolean
+    doseRecorded: boolean
+  }>
+  criticals: Array<{
+    id: string
+    foundAt: string
+    notifiedAt?: string
+    hasCompleteRecord: boolean
+  }>
+  devices: Array<{ id: string; modality: string; inService: boolean; todayExams: number }>
+  generatedAt: string
+  source: 'database' | 'seed'
+}

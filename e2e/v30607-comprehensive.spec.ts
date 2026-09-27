@@ -137,7 +137,7 @@ test.describe('v3.0.6.11-7 综合验证', () => {
     await page.waitForTimeout(5000)
     const body = await page.locator('body').textContent() || ''
     const hasTable = body?.includes('待处理') || body?.includes('处理中') || body?.includes('已闭环') || body?.includes('危急值') || body?.includes('Critical')
-    console.log(`[8] 危急值表�? ${hasTable}, 长度=${body?.length}`)
+    console.log(`[8] 危急值表命中 ${hasTable}, 长度=${body?.length}`)
     // The page loads dynamically; if text not found, just check URL and no errors
     if (!hasTable) console.log('[8] 可能需要等待动态渲染')
     checkErrors()

@@ -4,10 +4,10 @@
  * [W3-A] 数据源改为 regionalApi (/regional/sites*, 后端 regional.service.listSites 已实现), 失败时回退 site.ts 静态数据
  */
 import { usePagination } from "../hooks/usePagination";
-import { regionalApi, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto } from "../services/api/regionalApi";
+import { regionalApi, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto, type CrossSiteStatsDto, type FederationConfigDto, type CampusDto } from "../services/api/regionalApi";
 import { SITES, SYNC_EVENTS, ROUTING_RULES, type Site, type SyncEvent, type RoutingRule } from "../services/site";
-import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Typography, Alert, Button } from "antd";
-import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield } from "lucide-react";
+import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Typography, Alert, Button, Modal, Form, Input, Switch, InputNumber, Select, message } from "antd";
+import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield, Plus } from "lucide-react";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { AppEmpty } from "../components/feedback";
 import { ActionButton, ExportButton } from "../components/common";
@@ -59,6 +59,13 @@ export default function MultiSiteDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
+  // [G005 W11-MultiSite] 联邦配置 / 院区 / 跨院区统计
+  const [crossStats, setCrossStats] = useState<CrossSiteStatsDto | null>(null);
+  const [campuses, setCampuses] = useState<CampusDto[]>([]);
+  const [federation, setFederation] = useState<FederationConfigDto | null>(null);
+  const [fedForm] = Form.useForm();
+  const [newSiteOpen, setNewSiteOpen] = useState(false);
+  const [siteForm] = Form.useForm();
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -88,9 +95,47 @@ export default function MultiSiteDashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+    // [G005 W11-MultiSite] 联邦/院区/统计 (独立失败不影响主站点列表)
+    const [statsRes, campusRes, fedRes] = await Promise.allSettled([
+      regionalApi.getCrossSiteStats(), regionalApi.listCampuses(), regionalApi.getFederationConfig(),
+    ])
+    if (statsRes.status === 'fulfilled' && statsRes.value.success) setCrossStats(statsRes.value.data ?? null)
+    if (campusRes.status === 'fulfilled' && campusRes.value.success) setCampuses(campusRes.value.data?.data ?? [])
+    if (fedRes.status === 'fulfilled' && fedRes.value.success) {
+      setFederation(fedRes.value.data ?? null)
+      if (fedRes.value.data) fedForm.setFieldsValue({
+        mode: fedRes.value.data.mode, syncIntervalSec: fedRes.value.data.syncIntervalSec,
+        autoFailover: fedRes.value.data.autoFailover, crossSiteQueryEnabled: fedRes.value.data.crossSiteQueryEnabled,
+        sharedPatientIndex: fedRes.value.data.sharedPatientIndex,
+      })
+    }
+  }, [fedForm])
 
   useEffect(() => { fetchAll() }, [fetchAll])
+
+  const saveFederation = async () => {
+    const values = await fedForm.validateFields()
+    const res = await regionalApi.updateFederationConfig(values)
+    if (res.success) {
+      message.success(t('multiSite.saved'))
+      setFederation(res.data ?? null)
+    } else {
+      message.error(res.error?.message ?? t('multiSiteDashboard.loadFailed'))
+    }
+  }
+
+  const createSite = async () => {
+    const values = await siteForm.validateFields()
+    const res = await regionalApi.createSite(values)
+    if (res.success) {
+      message.success(t('multiSite.createSite'))
+      setNewSiteOpen(false)
+      siteForm.resetFields()
+      void fetchAll()
+    } else {
+      message.error(res.error?.message ?? t('multiSiteDashboard.loadFailed'))
+    }
+  }
 
   // [W3-C] 受控分页: 同步事件表
   const eventsPagination = usePagination(syncEvents, 10);
@@ -149,6 +194,7 @@ export default function MultiSiteDashboardPage() {
             </div>
           </Space>
           <Space>
+            <Button size="small" icon={<Plus size={14} />} onClick={() => setNewSiteOpen(true)}>{t('multiSite.newSite')}</Button>
             <ActionButton action="refresh" loading={loading} onClick={() => void fetchAll()}>{t('w45.actions.refresh')}</ActionButton>
             <ExportButton
               data={() => sites}
@@ -249,9 +295,77 @@ export default function MultiSiteDashboardPage() {
                 />
               ),
             },
+            {
+              // [G005 W11-MultiSite] 联邦配置 / 院区 / 跨院区统计
+              key: "federation",
+              label: <><Globe size={14} /> {t('multiSite.federation')}</>,
+              children: (
+                <Row gutter={16}>
+                  <Col span={14}>
+                    <Card size="small" title={<Space><Network size={14} />{t('multiSite.crossSiteStats')}</Space>} style={{ marginBottom: 16 }}>
+                      <Row gutter={16}>
+                        <Col span={6}><Statistic title={t('multiSite.totalStudies')} value={crossStats?.totalStudies ?? 0} loading={loading} /></Col>
+                        <Col span={6}><Statistic title={t('multiSite.totalPatients')} value={crossStats?.totalPatients ?? 0} loading={loading} /></Col>
+                        <Col span={6}><Statistic title={t('multiSite.totalStorage')} value={crossStats?.totalStorageGb ?? 0} loading={loading} /></Col>
+                        <Col span={6}><Statistic title={t('multiSite.avgUptime')} value={crossStats?.avgUptimePct ?? 0} suffix="%" loading={loading} /></Col>
+                      </Row>
+                      <div style={{ marginTop: 12 }}>
+                        <Text type="secondary">{t('multiSite.byRegion')}: </Text>
+                        {(crossStats?.byRegion ?? []).map((r) => <Tag key={r.region} color="blue" style={{ marginBottom: 4 }}>{r.region} · {r.sites}站 · {r.studies.toLocaleString()}检查</Tag>)}
+                      </div>
+                    </Card>
+                    <Card size="small" title={<Space><Building2 size={14} />{t('multiSite.campus')}</Space>}>
+                      <Table scroll={{ x: 'max-content' }} dataSource={campuses} rowKey="id" size="small" pagination={{ pageSize: 6, showSizeChanger: false }} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={120} /> }}
+                        columns={[
+                          { title: t('multiSiteDashboard.colSite'), dataIndex: "name", key: "name" },
+                          { title: t('multiSiteDashboard.colRegion'), dataIndex: "address", key: "address" },
+                          { title: t('multiSiteDashboard.colDevices'), dataIndex: "devices", key: "devices", width: 90 },
+                          { title: t('multiSiteDashboard.colUsers'), dataIndex: "beds", key: "beds", width: 90 },
+                          { title: t('multiSiteDashboard.colStatus'), dataIndex: "isMain", key: "isMain", width: 90, render: (v: boolean) => <Tag color={v ? "blue" : "default"}>{v ? '★' : '—'}</Tag> },
+                        ]}
+                      />
+                    </Card>
+                  </Col>
+                  <Col span={10}>
+                    <Card size="small" title={<Space><Globe size={14} />{t('multiSite.federation')}</Space>}>
+                      <Form form={fedForm} layout="vertical">
+                        <Form.Item name="mode" label={t('multiSite.mode')}>
+                          <Select options={[{ value: 'centralized', label: t('multiSite.centralized') }, { value: 'federated', label: t('multiSite.federated') }]} />
+                        </Form.Item>
+                        <Form.Item name="syncIntervalSec" label={t('multiSite.syncInterval')}>
+                          <InputNumber min={5} max={3600} style={{ width: '100%' }} />
+                        </Form.Item>
+                        <Form.Item name="autoFailover" label={t('multiSite.autoFailover')} valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                        <Form.Item name="crossSiteQueryEnabled" label={t('multiSite.crossSiteQuery')} valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                        <Form.Item name="sharedPatientIndex" label={t('multiSite.sharedPatientIndex')} valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                        <Button type="primary" onClick={() => void saveFederation()}>{t('multiSite.save')}</Button>
+                        {federation && <Text type="secondary" style={{ marginLeft: 12 }}>{federation.federationId} · {federation.members.length} members</Text>}
+                      </Form>
+                    </Card>
+                  </Col>
+                </Row>
+              ),
+            },
           ]}
         />
       </Card>
+
+      <Modal title={t('multiSite.newSite')} open={newSiteOpen} onOk={() => void createSite()} onCancel={() => setNewSiteOpen(false)} okText={t('multiSite.createSite')} cancelText={t('w11Device.wo.cancel')} destroyOnHidden>
+        <Form form={siteForm} layout="vertical" initialValues={{ status: 'active', bandwidth: 600, latencyMs: 15, uptimePct: 99.9 }}>
+          <Form.Item name="name" label={t('multiSite.siteName')} rules={[{ required: true, message: t('multiSite.siteName') }]}><Input /></Form.Item>
+          <Form.Item name="city" label={t('multiSite.siteCity')}><Input /></Form.Item>
+          <Form.Item name="studies" label={t('multiSiteDashboard.colStudies')}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item>
+          <Form.Item name="status" label={t('multiSiteDashboard.colStatus')}>
+            <Select options={['active', 'syncing', 'offline', 'maintenance'].map((v) => ({ value: v, label: v }))} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

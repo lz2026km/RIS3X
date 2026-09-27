@@ -139,6 +139,47 @@ export interface RegionalSitesEnvelope<T> {
   data: T
 }
 
+// ── [G005 W11-MultiSite] 多院区真实模型持久化 (内存) + 联邦配置 + 跨院区统计 ──
+
+export interface CampusDto {
+  id: string
+  siteId: string
+  siteName: string
+  name: string
+  address: string
+  buildings: number
+  devices: number
+  beds: number
+  isMain: boolean
+}
+
+export interface FederationConfig {
+  federationId: string
+  name: string
+  mode: 'centralized' | 'federated'
+  syncIntervalSec: number
+  autoFailover: boolean
+  crossSiteQueryEnabled: boolean
+  sharedPatientIndex: boolean
+  members: string[]
+  updatedAt: string
+}
+
+export interface CrossSiteStats {
+  totalSites: number
+  activeSites: number
+  offlineSites: number
+  totalStudies: number
+  totalPatients: number
+  totalUsers: number
+  totalStorageGb: number
+  totalBandwidthMbps: number
+  avgLatencyMs: number
+  avgUptimePct: number
+  byRegion: Array<{ region: string; sites: number; studies: number; patients: number }>
+  generatedAt: string
+}
+
 const SEED_ACCESS_APPLICATIONS: AccessApplication[] = [
   { id: 'APP-202607-001', patientName: '张伟', patientId: 'P000023', hospital: '东华区第一医院', modality: 'CT', studyDate: '2026-07-06', reason: '肺癌术后复查,申请调阅外院基线片', status: 'pending', applyDate: '2026-07-08' },
   { id: 'APP-202607-002', patientName: '王芳', patientId: 'P000047', hospital: '西城区人民医院', modality: 'MRI', studyDate: '2026-07-05', reason: '腰椎间盘突出会诊,需要本院 MRI 原始图像', status: 'approved', applyDate: '2026-07-07' },
@@ -250,6 +291,11 @@ const SEED_REGIONAL_INSTITUTIONS: RegionalInstitution[] = [
 
 @Injectable()
 export class RegionalService {
+  // [G005 W11-MultiSite] 内存持久化站点/院区 + 联邦配置 (进程内跨请求保留)
+  private sitesStore: RegionalSite[] | null = null
+  private campusesStore: CampusDto[] | null = null
+  private federationStore: FederationConfig | null = null
+
   constructor(private readonly prisma: PrismaService) {}
 
   // ── 原有用例 (Prisma) ──
@@ -448,7 +494,8 @@ export class RegionalService {
   // ── [G005 Wave1A W9] 多站点/多院区仪表板: 站点 + 同步事件 + 路由规则 ──
   // 数据源: 机构/地区表派生 (SEED_INSTITUTIONS + SEED_REGIONAL_INSTITUTIONS), 内存 + 确定性 seed
 
-  listSites() {
+  /** 构建确定性站点种子 (默认总院 + 各成员机构) */
+  private buildSites(): RegionalSite[] {
     const now = Date.now()
     const iso = (offsetMs: number) => new Date(now - offsetMs).toISOString()
     const aggregate = (institutionId: string) =>
@@ -484,7 +531,167 @@ export class RegionalService {
         primary: false,
       }
     })
-    return { success: true, data: { source: 'database', generatedAt: iso(0), data: [main, ...members] } }
+    return [main, ...members]
+  }
+
+  private ensureSites(): RegionalSite[] {
+    if (!this.sitesStore) this.sitesStore = this.buildSites()
+    return this.sitesStore
+  }
+
+  listSites() {
+    return {
+      success: true,
+      data: { source: 'database' as const, generatedAt: new Date().toISOString(), data: this.ensureSites().map((s) => ({ ...s })) },
+    }
+  }
+
+  getSite(id: string) {
+    const site = this.ensureSites().find((s) => s.id === id)
+    return { success: true, data: site ? { ...site } : null }
+  }
+
+  /** [G005 W11-MultiSite] 新建院区站点 (内存持久化) */
+  createSite(body: Partial<RegionalSite>) {
+    if (!body.name?.trim()) return { success: false, error: { code: 'VALIDATION', message: '站点名称不能为空' } }
+    const sites = this.ensureSites()
+    const seq = sites.length + 1
+    const now = new Date().toISOString()
+    const site: RegionalSite = {
+      id: body.id?.trim() || `SITE-NEW-${seq}`,
+      name: body.name.trim(),
+      code: body.code?.trim() || `NEW-${String(seq).padStart(2, '0')}`,
+      region: body.region?.trim() || '华东',
+      city: body.city?.trim() || '济南',
+      status: body.status ?? 'active',
+      studies: body.studies ?? 0,
+      patients: body.patients ?? 0,
+      users: body.users ?? 0,
+      storage: body.storage ?? 0,
+      bandwidth: body.bandwidth ?? 600,
+      lastSync: body.lastSync ?? now,
+      latencyMs: body.latencyMs ?? 15,
+      uptimePct: body.uptimePct ?? 99.9,
+      version: body.version ?? 'v3.0.6.12',
+      primary: body.primary ?? false,
+    }
+    sites.push(site)
+    if (this.campusesStore) this.campusesStore = null
+    return { success: true, data: { ...site } }
+  }
+
+  /** [G005 W11-MultiSite] 更新院区站点 */
+  updateSite(id: string, body: Partial<RegionalSite>) {
+    const site = this.ensureSites().find((s) => s.id === id)
+    if (!site) return { success: false, error: { code: 'NOT_FOUND', message: `站点 ${id} 不存在` } }
+    const allowed: (keyof RegionalSite)[] = ['name', 'code', 'region', 'city', 'status', 'studies', 'patients', 'users', 'storage', 'bandwidth', 'lastSync', 'latencyMs', 'uptimePct', 'version', 'primary']
+    for (const key of allowed) {
+      const value = body[key]
+      if (value !== undefined) (site as unknown as Record<string, unknown>)[key] = value
+    }
+    if (this.campusesStore) this.campusesStore = null
+    return { success: true, data: { ...site } }
+  }
+
+  /** [G005 W11-MultiSite] 院区 (campus) 列表: 每个站点派生主/分校区 */
+  listCampuses(): { success: true; data: { source: string; generatedAt: string; data: CampusDto[] } } {
+    if (!this.campusesStore) {
+      const sites = this.ensureSites()
+      this.campusesStore = sites.flatMap((site, idx) => {
+        const main: CampusDto = {
+          id: `${site.id}-C1`,
+          siteId: site.id,
+          siteName: site.name,
+          name: `${site.name} 主院区`,
+          address: `${site.city}解放路 ${88 + idx} 号`,
+          buildings: 3,
+          devices: 24 + idx * 5,
+          beds: 800 + idx * 120,
+          isMain: true,
+        }
+        const branch: CampusDto = {
+          id: `${site.id}-C2`,
+          siteId: site.id,
+          siteName: site.name,
+          name: `${site.name} 分院区`,
+          address: `${site.city}科园路 ${66 + idx} 号`,
+          buildings: 1,
+          devices: 8 + idx * 2,
+          beds: 200 + idx * 40,
+          isMain: false,
+        }
+        return [main, branch]
+      })
+    }
+    return { success: true, data: { source: 'database', generatedAt: new Date().toISOString(), data: this.campusesStore.map((c) => ({ ...c })) } }
+  }
+
+  /** [G005 W11-MultiSite] 联邦配置读取 (默认集中式, 可切联邦式) */
+  getFederationConfig(): { success: true; data: FederationConfig } {
+    if (!this.federationStore) {
+      this.federationStore = {
+        federationId: 'FED-SDPH-001',
+        name: '山东省影像医联体',
+        mode: 'centralized',
+        syncIntervalSec: 60,
+        autoFailover: true,
+        crossSiteQueryEnabled: true,
+        sharedPatientIndex: true,
+        members: this.ensureSites().map((s) => s.id),
+        updatedAt: new Date().toISOString(),
+      }
+    }
+    return { success: true, data: { ...this.federationStore, members: [...this.federationStore.members] } }
+  }
+
+  updateFederationConfig(body: Partial<FederationConfig>): { success: true; data: FederationConfig } {
+    const current = this.getFederationConfig().data
+    const next: FederationConfig = {
+      ...current,
+      ...body,
+      members: body.members ? [...body.members] : [...current.members],
+      updatedAt: new Date().toISOString(),
+    }
+    this.federationStore = next
+    return { success: true, data: { ...next, members: [...next.members] } }
+  }
+
+  /** [G005 W11-MultiSite] 跨院区聚合统计 */
+  getCrossSiteStats(): { success: true; data: CrossSiteStats } {
+    const sites = this.ensureSites()
+    const active = sites.filter((s) => s.status === 'active' || s.status === 'syncing')
+    const byRegionMap = new Map<string, { region: string; sites: number; studies: number; patients: number }>()
+    for (const s of sites) {
+      const entry = byRegionMap.get(s.region) ?? { region: s.region, sites: 0, studies: 0, patients: 0 }
+      entry.sites += 1
+      entry.studies += s.studies
+      entry.patients += s.patients
+      byRegionMap.set(s.region, entry)
+    }
+    return {
+      success: true,
+      data: {
+        totalSites: sites.length,
+        activeSites: active.length,
+        offlineSites: sites.filter((s) => s.status === 'offline').length,
+        totalStudies: sites.reduce((a, s) => a + s.studies, 0),
+        totalPatients: sites.reduce((a, s) => a + s.patients, 0),
+        totalUsers: sites.reduce((a, s) => a + s.users, 0),
+        totalStorageGb: sites.reduce((a, s) => a + s.storage, 0),
+        totalBandwidthMbps: sites.reduce((a, s) => a + s.bandwidth, 0),
+        avgLatencyMs: sites.length ? Math.round((sites.reduce((a, s) => a + s.latencyMs, 0) / sites.length) * 10) / 10 : 0,
+        avgUptimePct: sites.length ? Math.round((sites.reduce((a, s) => a + s.uptimePct, 0) / sites.length) * 100) / 100 : 0,
+        byRegion: [...byRegionMap.values()],
+        generatedAt: new Date().toISOString(),
+      },
+    }
+  }
+
+  /** 测试隔离用: 重置内存持久化状态 */
+  resetSiteStore(): void {
+    this.sitesStore = null
+    this.campusesStore = null
+    this.federationStore = null
   }
 
   listSiteSyncEvents() {

@@ -51,6 +51,12 @@ export default {
     'schedulePage.thStaff': '人员',
     'schedulePage.workdayHint': '（调休上班）',
     'schedulePage.shiftLegend': '班次图例：',
+    // ---- [W14-UX] 批量排班 ----
+    'schedulePage.selectAllStaff': '全选人员',
+    'schedulePage.batchGenerate': '批量排班',
+    'schedulePage.batchSetOff': '批量置休',
+    'schedulePage.prevWeek': '上一周',
+    'schedulePage.nextWeek': '下一周',
     // ---- 节假日配置 ----
     'schedulePage.holidayTitle': '节假日配置',
     'schedulePage.addHoliday': '添加节假日',
@@ -243,6 +249,12 @@ export default {
     'schedulePage.thStaff': 'Staff',
     'schedulePage.workdayHint': '(Make-up workday)',
     'schedulePage.shiftLegend': 'Shift legend:',
+    // ---- [W14-UX] Batch scheduling ----
+    'schedulePage.selectAllStaff': 'Select all staff',
+    'schedulePage.batchGenerate': 'Batch schedule',
+    'schedulePage.batchSetOff': 'Batch set off',
+    'schedulePage.prevWeek': 'Previous week',
+    'schedulePage.nextWeek': 'Next week',
     // ---- Holiday configuration ----
     'schedulePage.holidayTitle': 'Holiday Configuration',
     'schedulePage.addHoliday': 'Add Holiday',

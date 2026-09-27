@@ -406,3 +406,273 @@ export const iheApi = {
   mockCrossReference: (localId: string, remoteDomain: string) =>
     api.post<{ localId: string; remoteDomain: string; remoteId: string }>('/ihe/mock/cross-reference', { localId, remoteDomain }),
 }
+
+// ─── XDS.b / XCA / XDR API [v3.0.6.13] ──────────────────────────────────────
+
+export interface XdsDocumentEntry {
+  uniqueId: string
+  id: string
+  patientId: string
+  repositoryUniqueId: string
+  homeCommunityId: string
+  title: string
+  classCode: string
+  formatCode: string
+  typeCode: string
+  mimeType: string
+  size: number
+  hash: string
+  creationTime: string
+  authorPerson?: string
+  authorInstitution?: string
+  availabilityStatus: 'APPROVED' | 'DEPRECATED'
+  source: 'SUBMISSION' | 'SEED'
+}
+
+export interface XdsProvideRequest {
+  patientId: string
+  repositoryUniqueId?: string
+  homeCommunityId?: string
+  documents: Array<{
+    uniqueId?: string
+    title?: string
+    mimeType?: string
+    classCode?: string
+    formatCode?: string
+    typeCode?: string
+    authorPerson?: string
+    content?: string
+    size?: number
+    creationTime?: string
+  }>
+}
+
+export interface XdsProvideResult {
+  success: boolean
+  transaction: 'ITI-41'
+  mode: 'repository' | 'direct'
+  repositoryUniqueId: string
+  homeCommunityId: string
+  documentIds: string[]
+  documents: XdsDocumentEntry[]
+  submittedAt: string
+}
+
+export interface XdsRetrieveResult {
+  repositoryUniqueId: string
+  documentUniqueId: string
+  homeCommunityId?: string
+  mimeType?: string
+  size?: number
+  hash?: string
+  content?: string
+  status: 'SUCCESS' | 'FAILURE'
+  error?: string
+}
+
+export interface XdsQueryResult {
+  transaction: string
+  total: number
+  documents: XdsDocumentEntry[]
+}
+
+export interface XdsStatsResponse {
+  transaction: string
+  communities: Array<{ homeCommunityId: string; count: number }>
+  stats: {
+    total: number
+    approved: number
+    deprecated: number
+    byCommunity: Array<{ homeCommunityId: string; count: number }>
+    byRepository: Array<{ repositoryUniqueId: string; count: number }>
+    bytes: number
+  }
+}
+
+export const XDS_HOME_COMMUNITY = 'urn:oid:1.2.840.113556.1.8000.2554.1'
+export const XDS_REMOTE_COMMUNITY = 'urn:oid:1.2.840.113556.1.8000.2554.2'
+export const XDS_HOME_REPOSITORY = '1.2.840.113556.1.8000.2554.1.100'
+
+export const xdsApi = {
+  provide: (data: XdsProvideRequest) => api.post<XdsProvideResult>('/ihe/xds/provide', data),
+
+  retrieve: (documents: Array<{ repositoryUniqueId: string; documentUniqueId: string }>, homeCommunityId?: string) =>
+    api.post<{ transaction: string; results: XdsRetrieveResult[]; successCount: number; failureCount: number }>(
+      '/ihe/xds/retrieve',
+      { documents, ...(homeCommunityId ? { homeCommunityId } : {}) },
+    ),
+
+  query: (params: {
+    patientId?: string
+    classCode?: string
+    formatCode?: string
+    typeCode?: string
+    homeCommunityId?: string
+    status?: 'APPROVED' | 'DEPRECATED' | 'ALL'
+    limit?: number
+  }) => api.post<XdsQueryResult>('/ihe/xds/query', params),
+
+  documents: (params?: { patientId?: string; classCode?: string; formatCode?: string; homeCommunityId?: string; limit?: number }) => {
+    const sp = new URLSearchParams()
+    if (params?.patientId) sp.set('patientId', params.patientId)
+    if (params?.classCode) sp.set('classCode', params.classCode)
+    if (params?.formatCode) sp.set('formatCode', params.formatCode)
+    if (params?.homeCommunityId) sp.set('homeCommunityId', params.homeCommunityId)
+    if (params?.limit) sp.set('limit', String(params.limit))
+    return api.get<XdsQueryResult>(`/ihe/xds/documents?${sp.toString()}`)
+  },
+
+  stats: () => api.get<XdsStatsResponse>('/ihe/xds/stats'),
+
+  crossGatewayQuery: (params: { homeCommunityId: string; patientId?: string; classCode?: string; formatCode?: string; limit?: number }) =>
+    api.post<{ transaction: string; homeCommunityId: string; total: number; communities: Array<{ homeCommunityId: string; count: number }>; documents: XdsDocumentEntry[] }>(
+      '/ihe/xca/query',
+      params,
+    ),
+
+  crossGatewayRetrieve: (homeCommunityId: string, documents: Array<{ repositoryUniqueId: string; documentUniqueId: string }>) =>
+    api.post<{ transaction: string; homeCommunityId: string; results: XdsRetrieveResult[]; successCount: number; failureCount: number }>(
+      '/ihe/xca/retrieve',
+      { homeCommunityId, documents },
+    ),
+
+  provideDirect: (data: XdsProvideRequest) => api.post<XdsProvideResult>('/ihe/xdr/provide', data),
+}
+
+// ─── 接口监控 + 重试队列 API [v3.0.6.13] ────────────────────────────────────
+
+export type InterfaceType = 'HL7' | 'FHIR' | 'DICOM' | 'ORU' | 'XDS'
+
+export interface InterfaceMessageRecord {
+  id: string
+  interfaceType: InterfaceType
+  direction: 'INBOUND' | 'OUTBOUND'
+  messageType: string
+  status: 'success' | 'fail' | 'retry' | 'pending'
+  ackStatus?: string
+  retryCount: number
+  patientId?: string
+  endpoint?: string
+  summary: string
+  createdAt: string
+}
+
+export interface RetryQueueRecord {
+  id: string
+  interfaceType: InterfaceType
+  endpoint: string
+  payload: Record<string, unknown>
+  status: 'pending' | 'retrying' | 'success' | 'dead_letter'
+  attempts: number
+  maxAttempts: number
+  nextAttemptAt: string
+  lastError?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface InterfaceStatsResponse {
+  totalMessages: number
+  success: number
+  fail: number
+  retry: number
+  pending: number
+  successRate: number
+  byInterface: Array<{ interfaceType: InterfaceType; total: number; success: number; fail: number; retry: number }>
+  queue: { total: number; pending: number; retrying: number; success: number; deadLetter: number }
+}
+
+export const interopApi = {
+  getMessages: (params?: { interfaceType?: InterfaceType; status?: string; limit?: number }) => {
+    const sp = new URLSearchParams()
+    if (params?.interfaceType) sp.set('interfaceType', params.interfaceType)
+    if (params?.status) sp.set('status', params.status)
+    if (params?.limit) sp.set('limit', String(params.limit))
+    return api.get<{ total: number; entries: InterfaceMessageRecord[] }>(`/interface-monitor/messages?${sp.toString()}`)
+  },
+
+  getStats: () => api.get<InterfaceStatsResponse>('/interface-monitor/stats'),
+
+  getQueue: (params?: { status?: string; interfaceType?: InterfaceType; limit?: number }) => {
+    const sp = new URLSearchParams()
+    if (params?.status) sp.set('status', params.status)
+    if (params?.interfaceType) sp.set('interfaceType', params.interfaceType)
+    if (params?.limit) sp.set('limit', String(params.limit))
+    return api.get<{ total: number; entries: RetryQueueRecord[] }>(`/interface-monitor/queue?${sp.toString()}`)
+  },
+
+  enqueue: (data: { interfaceType: InterfaceType; endpoint: string; payload?: Record<string, unknown>; maxAttempts?: number }) =>
+    api.post<RetryQueueRecord>('/interface-monitor/queue', data),
+
+  process: () => api.post<{ processed: number; succeeded: number; retried: number; deadLettered: number; entries: RetryQueueRecord[] }>('/interface-monitor/queue/process'),
+
+  retry: (id: string) => api.post<RetryQueueRecord>(`/interface-monitor/queue/${id}/retry`),
+  deadLetter: (id: string) => api.post<RetryQueueRecord>(`/interface-monitor/queue/${id}/dead-letter`),
+  requeue: (id: string) => api.post<RetryQueueRecord>(`/interface-monitor/queue/${id}/requeue`),
+
+  getDeadLetters: () => api.get<{ total: number; entries: RetryQueueRecord[] }>('/interface-monitor/dead-letter'),
+}
+
+// ─── CDS Hooks API [v3.0.6.13] ──────────────────────────────────────────────
+
+export interface CdsCard {
+  uuid: string
+  summary: string
+  indicator: 'info' | 'warning' | 'critical'
+  detail: string
+  source: { label: string; url?: string }
+  overrideReasons?: Array<{ code: string; display: string }>
+  suggestions?: Array<{ label: string; actions?: Array<{ type: string; description: string }> }>
+}
+
+export const cdsHooksApi = {
+  discovery: () =>
+    api.get<{ services: Array<{ hook: string; id: string; title: string; description: string }> }>('/cds-services'),
+
+  invoke: (serviceId: string, body: { hook?: string; hookInstance?: string; context?: Record<string, unknown>; prefetch?: Record<string, unknown> }) =>
+    api.post<{ cards: CdsCard[]; systemActions?: unknown[] }>(`/cds-services/${serviceId}`, body),
+
+  feedback: (body: { serviceId: string; hook?: string; cardUuid?: string; outcome: string; overrideReason?: unknown }) =>
+    api.post<{ id: string }>('/cds-services/feedback', body),
+}
+
+// ─── HL7 ORU publish → HIS 扩展 [v3.0.6.13] ─────────────────────────────────
+
+export interface OruPublishRecord {
+  id: string
+  reportId: string
+  examId?: string
+  controlId: string
+  messageType: 'ORU^R01'
+  message: string
+  ackStatus: string
+  ackMessage?: string
+  endpoint: string
+  mode: 'MLLP' | 'STUB'
+  attempts: number
+  status: 'SENT' | 'STUBBED' | 'FAILED'
+  error?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export const hl7OruApi = {
+  publish: (reportId: string, examId?: string) =>
+    api.post<OruPublishRecord>('/hl7/oru/publish', { reportId, examId }),
+
+  list: (params?: { reportId?: string; status?: string; ackStatus?: string; limit?: number }) => {
+    const sp = new URLSearchParams()
+    if (params?.reportId) sp.set('reportId', params.reportId)
+    if (params?.status) sp.set('status', params.status)
+    if (params?.ackStatus) sp.set('ackStatus', params.ackStatus)
+    if (params?.limit) sp.set('limit', String(params.limit))
+    return api.get<{ total: number; entries: OruPublishRecord[] }>(`/hl7/oru/messages?${sp.toString()}`)
+  },
+
+  resend: (id: string) => api.post<OruPublishRecord>(`/hl7/oru/messages/${id}/resend`),
+
+  getEndpoint: () => api.get<{ host: string; port: number; enabled: boolean }>('/hl7/oru/endpoint'),
+
+  setEndpoint: (data: { host?: string; port?: number; enabled?: boolean }) =>
+    api.post<{ host: string; port: number; enabled: boolean }>('/hl7/oru/endpoint', data),
+}

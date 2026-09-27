@@ -15,7 +15,7 @@ import {
   Bell, Target, Award, FileText, Zap, ThumbsUp, Plus, Minus, Save, RotateCcw,
   Building2, Globe, Download, FileBarChart, ChevronDown,
   ChevronUp, BarChart2, ClipboardCheck, ClipboardList,
-  Users, Activity, User
+  Users, Activity, User, Gauge
 } from 'lucide-react'
 import {
   PieChart as RechartsPie, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -44,6 +44,8 @@ import AIQCPage from './AIQCPage'
 import DepartmentQualityPage from './quality/DepartmentQualityPage'
 // [v3.0.6.11-105 Wave 2C] 国标指标(2024) Tab: 内嵌 W2B RqiIndicatorPage (深链 /qc?tab=rqi2024)
 import RqiIndicatorPage from './qc/RqiIndicatorPage'
+// [G005 W9-QC] 统一质控评分台 Tab: 内嵌量表+40指标+PDCA+抽查双盲+互评+设备质控 (深链 /qc?tab=scoringCenter)
+import QualityScoringCenterPage from './qc/QualityScoringCenterPage'
 
 const PRIMARY = '#1e40af'
 
@@ -85,6 +87,8 @@ const TABS = [
   { key: 'deptQuality', label: t("qcPage.deptQuality"), icon: <Building2 size={15} /> },
   // [v3.0.6.11-105 Wave 2C] 国标指标(2024) 7 指标; 深链 /qc?tab=rqi2024
   { key: 'rqi2024', label: t("qcPage.rqi2024"), icon: <Target size={15} /> },
+  // [G005 W9-QC] 统一质控评分台 (量表/40指标/PDCA/抽查双盲/互评/设备质控)
+  { key: 'scoringCenter', label: t("qcPage.qcScoringCenter"), icon: <Gauge size={15} /> },
 ]
 
 // [v3.0.6.8-28] 报告质控数据 - 来源: EXAM_REPORT_PRE (600 报告) + DOCTOR_MASTER + QUALITY_SCORE_PRE
@@ -3090,6 +3094,13 @@ export default function QCPage() {
       {activeTab === 'rqi2024' && (
         <div data-testid="qc-embedded-rqi-2024" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
           <RqiIndicatorPage />
+        </div>
+      )}
+
+      {/* [G005 W9-QC] 统一质控评分台: 嵌入 QualityScoringCenterPage; 深链 /qc?tab=scoringCenter */}
+      {activeTab === 'scoringCenter' && (
+        <div data-testid="qc-embedded-scoring-center" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+          <QualityScoringCenterPage />
         </div>
       )}
 

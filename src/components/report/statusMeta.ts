@@ -251,6 +251,34 @@ export const LEGACY_STATUS_ALIAS: Record<string, ReportStatus> = {
   '质控退回': '质控退回',
 };
 
+// ============================================================
+// [W14-UX] 统一状态色工具 (供工作列表/检查/报告/审核等高流页面复用)
+//   通过 normalizeReportStatus 归一后查 REPORT_STATUS_META, 消除各页重复的色值映射
+// ============================================================
+export interface SharedStatusColor {
+  label: string;
+  color: string;
+  bg: string;
+  border: string;
+  order: number;
+}
+
+/** 任一状态输入 (英文枚举/机器态/MSW/中文别名) → 统一显示色 (含描边) */
+export function getReportStatusColor(status: string | null | undefined): SharedStatusColor {
+  const key = normalizeReportStatus(String(status ?? ''));
+  const meta = REPORT_STATUS_META[key as ReportStatus];
+  if (!meta) {
+    return { label: key, color: 'var(--text-secondary, #475569)', bg: 'var(--bg-deep, #f1f5f9)', border: 'var(--border-color, #e2e8f0)', order: 99 };
+  }
+  return { label: meta.label, color: meta.color, bg: meta.bg, border: meta.border, order: meta.order };
+}
+
+/** 带透明度背景的紧凑徽标样式 (如 #3b82f622), 用于列表状态标签 */
+export function getReportStatusBadge(status: string | null | undefined): { label: string; color: string; bg: string; order: number } {
+  const c = getReportStatusColor(status);
+  return { label: c.label, color: c.color, bg: c.bg, order: c.order };
+}
+
 // 规范中文 → 后端英文 (toEnState 反查)
 const CN_TO_EN: Record<string, string> = Object.fromEntries(
   Object.entries(EN_STATE_TO_CN).map(([en, cn]) => [cn, en]),

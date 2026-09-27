@@ -64,6 +64,84 @@ interface MemoryReportLink extends DualReadReportLink {}
 
 const memoryReportLinks = new Map<string, MemoryReportLink>()
 
+// ================= [W9-QC] 抽查 + 双盲 + 一致性 (kappa) =================
+
+export type SamplingMethod = 'random' | 'low_yield' | 'stratified'
+export type SamplingReadingResult = 'positive' | 'negative' | 'indeterminate'
+
+export interface SamplingReading {
+  readerSlot: 1 | 2
+  readerId: string
+  readerName: string
+  result: SamplingReadingResult
+  report?: string
+  recordedAt: string
+}
+
+export interface SamplingItem {
+  itemId: string
+  reportId: string
+  studyId: string
+  patientId: string
+  patientName: string
+  modality: string
+  yielder: 'high' | 'low'
+  stratum: string
+  readings: SamplingReading[]
+}
+
+export interface SamplingBatch {
+  id: string
+  name: string
+  method: SamplingMethod
+  blind: boolean
+  targetSize: number
+  modality?: string
+  dateFrom?: string
+  dateTo?: string
+  status: 'open' | 'closed'
+  createdBy: string
+  createdAt: string
+  items: SamplingItem[]
+}
+
+/** 双盲视图: 隐藏评审人身份 + 已录入结果 (仅暴露已录入数量) */
+export interface SamplingItemView {
+  itemId: string
+  reportId: string
+  patientName: string
+  modality: string
+  yielder: 'high' | 'low'
+  stratum: string
+  recordedCount: number
+  readings: Array<{ readerSlot: 1 | 2; readerLabel: string; result: SamplingReadingResult | null; recordedAt: string }>
+}
+
+export interface SamplingBatchView {
+  id: string
+  name: string
+  method: SamplingMethod
+  blind: boolean
+  targetSize: number
+  modality?: string
+  status: 'open' | 'closed'
+  createdBy: string
+  createdAt: string
+  itemCount: number
+  items: SamplingItemView[]
+}
+
+export interface AgreementResult {
+  evaluatedItems: number
+  positiveAgreement: number
+  negativeAgreement: number
+  agreementRate: number
+  observedAgreement: number
+  expectedAgreement: number
+  kappa: number
+  interpretation: string
+}
+
 /** 双阅结论文本: 仲裁报告优先, 否则合并两位阅片医师结论 */
 export function dualReadConclusion(a: Pick<DualReadAssignment, 'arbitrationReport' | 'report1' | 'report2' | 'reader1Name' | 'reader2Name'>): string {
   if (a.arbitrationReport && a.arbitrationReport.trim()) return a.arbitrationReport.trim()
@@ -81,6 +159,58 @@ const doctors = [
   { id: 'dr-004', name: 'Dr. Liu' },
   { id: 'dr-005', name: 'Dr. Chen' },
 ]
+
+/** [W9-QC] 抽查报告种子池 (确定性, 供抽样) */
+const SAMPLING_POOL: Array<{ reportId: string; studyId: string; patientId: string; patientName: string; modality: string; yielder: 'high' | 'low' }> = (() => {
+  const pool: Array<{ reportId: string; studyId: string; patientId: string; patientName: string; modality: string; yielder: 'high' | 'low' }> = []
+  const names = ['张伟', '李秀英', '王建国', '刘敏', '陈杰', '赵敏', '孙丽', '周强', '吴静', '郑磊', '冯娜', '蒋涛']
+  const modalities = ['CT', 'MR', 'DR', 'MG']
+  for (let i = 1; i <= 120; i++) {
+    const modality = modalities[i % modalities.length]!
+    pool.push({
+      reportId: `RPT-QC-${String(i).padStart(3, '0')}`,
+      studyId: `STU-QC-${String(i).padStart(3, '0')}`,
+      patientId: `P${String(100 + i)}`,
+      patientName: names[i % names.length]!,
+      modality,
+      yielder: i % 6 === 0 ? 'low' : 'high',
+    })
+  }
+  return pool
+})()
+
+/** [W9-QC] Cohen's kappa (二分类) */
+export function computeKappa(pairs: Array<{ a: 'positive' | 'negative'; b: 'positive' | 'negative' }>): AgreementResult {
+  const n = pairs.length
+  if (n === 0) {
+    return { evaluatedItems: 0, positiveAgreement: 0, negativeAgreement: 0, agreementRate: 0, observedAgreement: 0, expectedAgreement: 0, kappa: 0, interpretation: '无可用双读结果' }
+  }
+  let bothPos = 0
+  let bothNeg = 0
+  let aPos = 0
+  let bPos = 0
+  for (const { a, b } of pairs) {
+    if (a === 'positive') aPos += 1
+    if (b === 'positive') bPos += 1
+    if (a === 'positive' && b === 'positive') bothPos += 1
+    if (a === 'negative' && b === 'negative') bothNeg += 1
+  }
+  const po = (bothPos + bothNeg) / n
+  const pe = (aPos / n) * (bPos / n) + (1 - aPos / n) * (1 - bPos / n)
+  const kappa = pe >= 1 ? 1 : Math.round(((po - pe) / (1 - pe)) * 1000) / 1000
+  const interpretation =
+    kappa >= 0.81 ? '几乎完全一致' : kappa >= 0.61 ? '高度一致' : kappa >= 0.41 ? '中度一致' : kappa >= 0.21 ? '一般一致' : kappa >= 0 ? '轻微一致' : '低于随机'
+  return {
+    evaluatedItems: n,
+    positiveAgreement: bothPos,
+    negativeAgreement: bothNeg,
+    agreementRate: Math.round((po * 100) * 10) / 10,
+    observedAgreement: Math.round(po * 1000) / 1000,
+    expectedAgreement: Math.round(pe * 1000) / 1000,
+    kappa,
+    interpretation,
+  }
+}
 
 const memoryAssignments: DualReadAssignment[] = [
   {
@@ -148,7 +278,12 @@ function toDto(row: DualReadRow, simulated: boolean): DualReadAssignment {
 
 @Injectable()
 export class DualReadService {
-  constructor(private readonly prisma: PrismaService) {}
+  private samplingBatches: SamplingBatch[] = []
+  private samplingSeq = 0
+
+  constructor(private readonly prisma: PrismaService) {
+    void this.prisma
+  }
 
   /** assign: 从 Report 表查待分配报告 (PENDING_ASSIGNMENT 或匹配 studyId/patient) 关联 reportId */
   async assign(studyId: string, patientName: string, patientId: string, modality: string): Promise<DualReadAssignment> {
@@ -403,6 +538,235 @@ export class DualReadService {
       const mem = memoryReportLinks.get(id)
       if (!mem) return { linked: false }
       return { linked: true, report: { ...mem } }
+    }
+  }
+
+  // ================= [W9-QC] 抽查抽样 + 双盲 + 一致性 =================
+
+  /** 抽样: random 均匀随机 / low_yield 低阳性率优先 / stratified 按模态分层 */
+  createSamplingBatch(input: {
+    name?: string
+    method?: SamplingMethod
+    size?: number
+    modality?: string
+    dateFrom?: string
+    dateTo?: string
+    blind?: boolean
+    createdBy?: string
+  }): SamplingBatch {
+    const method: SamplingMethod = input.method === 'low_yield' || input.method === 'stratified' ? input.method : 'random'
+    const targetSize = Math.max(1, Math.min(100, Math.floor(input.size ?? 20)))
+    let pool = SAMPLING_POOL
+    if (input.modality) pool = pool.filter((p) => p.modality.toUpperCase() === input.modality!.toUpperCase())
+    const items: SamplingItem[] = this.sampleItems(pool, method, targetSize)
+    this.samplingSeq += 1
+    const batch: SamplingBatch = {
+      id: `SB-${this.samplingSeq}`,
+      name: input.name?.trim() || `QC 抽查批次 ${this.samplingSeq}`,
+      method,
+      blind: input.blind !== false,
+      targetSize,
+      modality: input.modality,
+      dateFrom: input.dateFrom,
+      dateTo: input.dateTo,
+      status: 'open',
+      createdBy: input.createdBy?.trim() || '质控组',
+      createdAt: new Date().toISOString(),
+      items,
+    }
+    this.samplingBatches.unshift(batch)
+    return this.cloneBatch(batch)
+  }
+
+  private sampleItems(pool: typeof SAMPLING_POOL, method: SamplingMethod, size: number): SamplingItem[] {
+    const toItem = (p: (typeof SAMPLING_POOL)[number]): SamplingItem => ({
+      itemId: `IT-${p.reportId}`,
+      reportId: p.reportId,
+      studyId: p.studyId,
+      patientId: p.patientId,
+      patientName: p.patientName,
+      modality: p.modality,
+      yielder: p.yielder,
+      stratum: p.modality,
+      readings: [],
+    })
+    if (method === 'low_yield') {
+      const low = pool.filter((p) => p.yielder === 'low')
+      const high = pool.filter((p) => p.yielder === 'high')
+      // 低阳性率优先 (低产率报告更易出现漏诊)
+      const picked = [...low, ...high].slice(0, size)
+      return picked.map(toItem)
+    }
+    if (method === 'stratified') {
+      const strata = new Map<string, typeof pool>()
+      for (const p of pool) {
+        const list = strata.get(p.modality) ?? []
+        list.push(p)
+        strata.set(p.modality, list)
+      }
+      const keys = [...strata.keys()].sort()
+      const out: SamplingItem[] = []
+      let idx = 0
+      while (out.length < size && keys.length > 0) {
+        for (const k of keys) {
+          const list = strata.get(k)!
+          if (idx < list.length && out.length < size) out.push(toItem(list[idx]!))
+        }
+        idx += 1
+        if (keys.every((k) => idx >= strata.get(k)!.length)) break
+      }
+      return out
+    }
+    // random: 确定性打散取前 size
+    const sorted = [...pool].sort((a, b) => hashString(`s:${a.reportId}`) - hashString(`s:${b.reportId}`))
+    return sorted.slice(0, size).map(toItem)
+  }
+
+  private cloneBatch(b: SamplingBatch): SamplingBatch {
+    return {
+      ...b,
+      items: b.items.map((i) => ({ ...i, readings: i.readings.map((r) => ({ ...r })) })),
+    }
+  }
+
+  private blindView(batch: SamplingBatch, slotForViewer?: 1 | 2): SamplingBatchView {
+    return {
+      id: batch.id,
+      name: batch.name,
+      method: batch.method,
+      blind: batch.blind,
+      targetSize: batch.targetSize,
+      modality: batch.modality,
+      status: batch.status,
+      createdBy: batch.createdBy,
+      createdAt: batch.createdAt,
+      itemCount: batch.items.length,
+      items: batch.items.map((i) => ({
+        itemId: i.itemId,
+        reportId: i.reportId,
+        patientName: batch.blind ? '***' : i.patientName,
+        modality: i.modality,
+        yielder: i.yielder,
+        stratum: i.stratum,
+        recordedCount: i.readings.length,
+        readings: i.readings.map((r) => {
+          const masked = batch.blind && r.readerSlot !== slotForViewer
+          return {
+            readerSlot: r.readerSlot,
+            readerLabel: batch.blind ? `阅片医师${r.readerSlot === 1 ? '一' : '二'}` : r.readerName,
+            result: masked ? null : r.result,
+            recordedAt: batch.blind ? '' : r.recordedAt,
+          }
+        }),
+      })),
+    }
+  }
+
+  listSamplingBatches(): SamplingBatchView[] {
+    return this.samplingBatches.map((b) => this.blindView(b))
+  }
+
+  getSamplingBatch(id: string, unblind = false, viewerSlot?: 1 | 2): SamplingBatchView {
+    const batch = this.samplingBatches.find((b) => b.id === id)
+    if (!batch) throw new NotFoundException(`抽查批次 ${id} 不存在`)
+    if (unblind) {
+      const cloned = this.cloneBatch(batch)
+      cloned.blind = false
+      return this.blindView(cloned)
+    }
+    return this.blindView(batch, viewerSlot)
+  }
+
+  /** 录入双盲阅片结果: 同一 slot 重复录入覆盖; 双方完成后不自动解盲 */
+  recordSamplingReading(
+    id: string,
+    itemId: string,
+    body: { readerSlot: 1 | 2; readerId: string; readerName: string; result: SamplingReadingResult; report?: string },
+  ): SamplingBatchView {
+    const batch = this.samplingBatches.find((b) => b.id === id)
+    if (!batch) throw new NotFoundException(`抽查批次 ${id} 不存在`)
+    if (batch.status === 'closed') throw new BadRequestException('批次已关闭')
+    const item = batch.items.find((i) => i.itemId === itemId || i.reportId === itemId)
+    if (!item) throw new NotFoundException(`抽查条目 ${itemId} 不存在`)
+    if (![1, 2].includes(body.readerSlot)) throw new BadRequestException('readerSlot 必须为 1 或 2')
+    if (!['positive', 'negative', 'indeterminate'].includes(body.result)) throw new BadRequestException('result 不合法')
+    const existing = item.readings.find((r) => r.readerSlot === body.readerSlot)
+    if (existing) {
+      existing.readerId = body.readerId
+      existing.readerName = body.readerName
+      existing.result = body.result
+      existing.report = body.report
+      existing.recordedAt = new Date().toISOString()
+    } else {
+      item.readings.push({
+        readerSlot: body.readerSlot,
+        readerId: body.readerId,
+        readerName: body.readerName,
+        result: body.result,
+        report: body.report,
+        recordedAt: new Date().toISOString(),
+      })
+    }
+    return this.blindView(batch, body.readerSlot === 1 ? 1 : 2)
+  }
+
+  closeSamplingBatch(id: string): SamplingBatchView {
+    const batch = this.samplingBatches.find((b) => b.id === id)
+    if (!batch) throw new NotFoundException(`抽查批次 ${id} 不存在`)
+    batch.status = 'closed'
+    return this.blindView(batch)
+  }
+
+  /** 一致性: 对全部批次中已有双方结果 (positive/negative) 的条目计算 Cohen's kappa */
+  agreement(batchId?: string): AgreementResult {
+    const batches = batchId ? this.samplingBatches.filter((b) => b.id === batchId) : this.samplingBatches
+    const pairs: Array<{ a: 'positive' | 'negative'; b: 'positive' | 'negative' }> = []
+    for (const batch of batches) {
+      for (const item of batch.items) {
+        const r1 = item.readings.find((r) => r.readerSlot === 1)
+        const r2 = item.readings.find((r) => r.readerSlot === 2)
+        if (!r1 || !r2) continue
+        if (r1.result === 'indeterminate' || r2.result === 'indeterminate') continue
+        pairs.push({ a: r1.result, b: r2.result })
+      }
+    }
+    return computeKappa(pairs)
+  }
+
+  getSamplingStats(): {
+    batchCount: number
+    openBatchCount: number
+    itemCount: number
+    recordedPairs: number
+    pendingItems: number
+    agreement: AgreementResult
+    byModality: Array<{ modality: string; items: number; recordedPairs: number }>
+  } {
+    const byModalityMap = new Map<string, { items: number; recordedPairs: number }>()
+    let itemCount = 0
+    let recordedPairs = 0
+    for (const batch of this.samplingBatches) {
+      for (const item of batch.items) {
+        itemCount += 1
+        const entry = byModalityMap.get(item.modality) ?? { items: 0, recordedPairs: 0 }
+        entry.items += 1
+        const r1 = item.readings.find((r) => r.readerSlot === 1)
+        const r2 = item.readings.find((r) => r.readerSlot === 2)
+        if (r1 && r2 && r1.result !== 'indeterminate' && r2.result !== 'indeterminate') {
+          recordedPairs += 1
+          entry.recordedPairs += 1
+        }
+        byModalityMap.set(item.modality, entry)
+      }
+    }
+    return {
+      batchCount: this.samplingBatches.length,
+      openBatchCount: this.samplingBatches.filter((b) => b.status === 'open').length,
+      itemCount,
+      recordedPairs,
+      pendingItems: itemCount - recordedPairs,
+      agreement: this.agreement(),
+      byModality: [...byModalityMap.entries()].map(([modality, v]) => ({ modality, ...v })).sort((a, b) => a.modality.localeCompare(b.modality)),
     }
   }
 }

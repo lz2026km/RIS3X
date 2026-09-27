@@ -197,6 +197,47 @@ export interface RegionalSitesEnvelope<T> {
   data: T
 }
 
+// ── [G005 W11-MultiSite] 院区模型 / 联邦配置 / 跨院区统计 ──
+
+export interface CampusDto {
+  id: string
+  siteId: string
+  siteName: string
+  name: string
+  address: string
+  buildings: number
+  devices: number
+  beds: number
+  isMain: boolean
+}
+
+export interface FederationConfigDto {
+  federationId: string
+  name: string
+  mode: 'centralized' | 'federated'
+  syncIntervalSec: number
+  autoFailover: boolean
+  crossSiteQueryEnabled: boolean
+  sharedPatientIndex: boolean
+  members: string[]
+  updatedAt: string
+}
+
+export interface CrossSiteStatsDto {
+  totalSites: number
+  activeSites: number
+  offlineSites: number
+  totalStudies: number
+  totalPatients: number
+  totalUsers: number
+  totalStorageGb: number
+  totalBandwidthMbps: number
+  avgLatencyMs: number
+  avgUptimePct: number
+  byRegion: Array<{ region: string; sites: number; studies: number; patients: number }>
+  generatedAt: string
+}
+
 export const regionalApi = {
   // ── Multi-Site Dashboard endpoints ──
 
@@ -208,6 +249,34 @@ export const regionalApi = {
 
   listSiteRoutingRules: () =>
     api.get<RegionalSitesEnvelope<RegionalSiteRoutingRuleDto[]>>('/regional/sites/routing-rules'),
+
+  // [G005 W11-MultiSite] 站点管理 / 院区 / 联邦配置 / 跨院区统计
+  createSite: async (data: Partial<RegionalSiteDto>) => {
+    const res = await api.post<RegionalSiteDto>('/regional/sites', data)
+    await invalidateApiCacheByPrefix('/regional/sites')
+    return res
+  },
+
+  updateSite: async (id: string, data: Partial<RegionalSiteDto>) => {
+    const res = await api.put<RegionalSiteDto>(`/regional/sites/${encodeURIComponent(id)}`, data)
+    await invalidateApiCacheByPrefix('/regional/sites')
+    return res
+  },
+
+  getCrossSiteStats: () =>
+    api.get<CrossSiteStatsDto>('/regional/sites/stats'),
+
+  listCampuses: () =>
+    api.get<RegionalSitesEnvelope<CampusDto[]>>('/regional/campuses'),
+
+  getFederationConfig: () =>
+    api.get<FederationConfigDto>('/regional/federation/config'),
+
+  updateFederationConfig: async (data: Partial<FederationConfigDto>) => {
+    const res = await api.put<FederationConfigDto>('/regional/federation/config', data)
+    await invalidateApiCacheByPrefix('/regional/federation')
+    return res
+  },
 
   // ── Original endpoints ──
 

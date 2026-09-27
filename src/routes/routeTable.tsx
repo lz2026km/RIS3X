@@ -154,6 +154,10 @@ const SmartAuthPage = lazy(
 const DimseUploadPage = lazy(
   () => import("../pages/integration/DimseUploadPage"),
 );
+// [G005 W10-Interop] 接口监控台 (消息日志/重试队列/死信/按接口统计)
+const InterfaceMonitorPage = lazy(
+  () => import("../pages/integration/InterfaceMonitorPage"),
+);
 const NuclearStatsPage = lazy(() => import("../pages/NuclearStatsPage"));
 const AIMedicalDevicePage = lazy(() => import("../pages/AIMedicalDevicePage"));
 const TermSynonymGraphPage = lazy(
@@ -235,6 +239,9 @@ const CvOperationsPage = lazy(
 );
 const CvQcPage = lazy(() => import("../pages/cardiac/CvQcPage"));
 const DeviceOpsPage = lazy(() => import("../pages/ops/DeviceOpsPage"));
+// [G005 W11-DeviceOps] 设备运维中心 (工单/校准/资产折旧/OEE/成本;DRG)
+const DeviceOpsCenterPage = lazy(() => import("../pages/device/DeviceOpsCenterPage"));
+const CostDrgPage = lazy(() => import("../pages/ops/CostDrgPage"));
 const HrOperationsPage = lazy(() => import("../pages/ops/HrOperationsPage"));
 // [v3.0.6.11-104 Wave 5C] OpsDashboardPage 已收敛至 /operations-center, 旧路由 /ops/dashboard redirect (见下方)
 // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
@@ -274,6 +281,10 @@ const QualityManagementPage = lazy(
 );
 const SelfServicePortal = lazy(
   () => import("../pages/patient/SelfServicePortal"),
+);
+// [G005 W12-PatientService] 患者服务平台 (微信/支付/通知/满意度/自助登记)
+const PatientServiceCenterPage = lazy(
+  () => import("../pages/patient/PatientServiceCenterPage"),
 );
 const ServiceManagement = lazy(
   () => import("../pages/patient/ServiceManagement"),
@@ -348,6 +359,10 @@ const RqiReportCenterPage = lazy(
 );
 // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
 const QcAnalyticsPage = lazy(() => import("../pages/qc/QcAnalyticsPage"));
+// [G005 W9-QC] 统一质控评分台 (量表+40指标+PDCA+抽查双盲+互评+设备质控)
+const QualityScoringCenterPage = lazy(
+  () => import("../pages/qc/QualityScoringCenterPage"),
+);
 // [G005 v3.0.6.11-101 Wave 6A] 报告 V2: 质控规则引擎 (F11) + 水印签章 V2 (F8)
 const ReportRulesPage = lazy(() => import("../pages/qc/ReportRulesPage"));
 const ReportWatermarkPage = lazy(() => import("../pages/qc/ReportWatermarkPage"));
@@ -925,6 +940,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/integration/dimse/upload": ["技师", "管理员"],
   // [v3.0.6.11-21] 新页面路由角色映射
   "/security/mfa-setup": ["管理员", "主任", "医生", "技师", "护士"],
+  // [G005 W13-Security] 安全与合规中心
+  "/security/compliance-center": ["管理员", "主任", "医生"],
   "/system/audit": ["管理员"],
   "/system/backup": ["管理员"],
   "/system/tenant-config": ["管理员"],
@@ -1229,6 +1246,9 @@ export const routes: RouteObject[] = [
   wrapped("/cardiac/operations", React.createElement(CvOperationsPage)),
   wrapped("/cardiac/qc", React.createElement(CvQcPage)),
   wrapped("/ops/devices", React.createElement(DeviceOpsPage)),
+  // [G005 W11-DeviceOps] 设备运维中心 + 运营成本/DRG
+  wrapped("/device/ops-center", React.createElement(DeviceOpsCenterPage)),
+  wrapped("/ops/cost-drg", React.createElement(CostDrgPage)),
   // [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 (周视图/拖拽调整/冲突检测)
   wrapped("/ops/device-gantt", React.createElement(DeviceScheduleGanttPage)),
   wrapped("/ops/hr", React.createElement(HrOperationsPage)),
@@ -1288,6 +1308,11 @@ export const routes: RouteObject[] = [
     "/patient/service-management",
     React.createElement(ServiceManagement),
   ),
+  // [G005 W12-PatientService] 患者服务平台 (微信/支付/通知/满意度/自助登记)
+  wrapped(
+    "/patient/service-center",
+    React.createElement(PatientServiceCenterPage),
+  ),
   wrapped(
     "/education/patient-education",
     React.createElement(PatientEducationPage),
@@ -1299,6 +1324,11 @@ export const routes: RouteObject[] = [
     React.createElement(IheConnectathonPage),
   ),
   wrapped("/integration/mllp-monitor", React.createElement(MllpMonitorPage)),
+  // [G005 W10-Interop] 接口监控台
+  wrapped(
+    "/integration/monitor",
+    React.createElement(InterfaceMonitorPage),
+  ),
   wrapped("/integration/hl7-archive", React.createElement(Hl7ArchivePage)),
   wrapped("/integration/hl7-builder", React.createElement(Hl7BuilderPage)),
   wrapped("/integration/mllp-config", React.createElement(MllpConfigPage)),
@@ -1508,6 +1538,11 @@ export const routes: RouteObject[] = [
   ),
   // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
   wrapped("/qc/analytics", React.createElement(QcAnalyticsPage)),
+  // [G005 W9-QC] 统一质控评分台
+  wrapped(
+    "/qc/scoring-center",
+    React.createElement(QualityScoringCenterPage),
+  ),
   // [G005 v3.0.6.11-101 Wave 6A] 报告 V2: 质控规则引擎 + 水印签章 V2
   // [v3.0.6.11-104 Wave 5A] 质控收敛: canonical 路径迁至 /qc/rules, /qc/watermark; 旧路径 redirect 兼容
   wrapped("/qc/rules", React.createElement(ReportRulesPage)),
@@ -1559,6 +1594,11 @@ export const routes: RouteObject[] = [
   wrapped(
     "/security/certificate-center",
     React.createElement(lazy(() => import("../pages/security/CertificateCenterPage"))),
+  ),
+  // [G005 W13-Security] 安全与合规中心 (CA/RA/OCSP/HSM · 字段加密 · 等保2.0 · 灾难恢复 · 审计链)
+  wrapped(
+    "/security/compliance-center",
+    React.createElement(lazy(() => import("../pages/security/SecurityComplianceCenterPage"))),
   ),
   // [v3.0.6.11-21] P0 fix: 合规管理页接入路由
   wrapped(

@@ -3,7 +3,7 @@ import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RegionalService } from './regional.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { UpdateScheduleSchema, CreateAccessApplicationSchema, CreateConsultationRequestSchema, CreateAccessRecordSchema } from './regional.schema'
+import { UpdateScheduleSchema, CreateAccessApplicationSchema, CreateConsultationRequestSchema, CreateAccessRecordSchema, CreateSiteSchema, UpdateSiteSchema, UpdateFederationConfigSchema } from './regional.schema'
 
 @ApiTags('regional')
 @ApiBearerAuth()
@@ -84,11 +84,34 @@ export class RegionalController {
   @Get('sites')
   listSites() { return this.svc.listSites() }
 
+  // [G005 W11-MultiSite] 跨院区聚合统计 (静态子路由先于 sites/:id)
+  @Get('sites/stats')
+  crossSiteStats() { return this.svc.getCrossSiteStats() }
+
   @Get('sites/sync-events')
   listSiteSyncEvents() { return this.svc.listSiteSyncEvents() }
 
   @Get('sites/routing-rules')
   listSiteRoutingRules() { return this.svc.listSiteRoutingRules() }
+
+  @Post('sites')
+  createSite(@Body(new ZodValidationPipe(CreateSiteSchema)) body: Record<string, unknown>) { return this.svc.createSite(body as never) }
+
+  @Put('sites/:id')
+  updateSite(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateSiteSchema)) body: Record<string, unknown>) { return this.svc.updateSite(id, body as never) }
+
+  @Get('sites/:id')
+  getSite(@Param('id') id: string) { return this.svc.getSite(id) }
+
+  // [G005 W11-MultiSite] 院区 (campus) 模型 + 联邦配置
+  @Get('campuses')
+  listCampuses() { return this.svc.listCampuses() }
+
+  @Get('federation/config')
+  getFederationConfig() { return this.svc.getFederationConfig() }
+
+  @Put('federation/config')
+  updateFederationConfig(@Body(new ZodValidationPipe(UpdateFederationConfigSchema)) body: Record<string, unknown>) { return this.svc.updateFederationConfig(body as never) }
 
   // ── 原有用例 ──
 

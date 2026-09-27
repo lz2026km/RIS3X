@@ -18,6 +18,9 @@ import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartContainer } from '../components/charts'
 import { formatDateObj } from '../utils/date';
 import { t } from '../i18n/appI18n'
+// [W14-UX] 批量排班操作栏 + 撤销
+import BatchActionBar from '../components/batch/BatchActionBar'
+import { useUndoActions } from '../components/UndoToast'
 // [v3.0.6.11-103 Wave 10] 重复页合并: TechSchedulePage (技师排班/工作量/人员/设备) 嵌入为 SchedulePage 新 Tab, 旧路由 /ops/tech-schedule redirect → /schedule
 import TechSchedulePage from './ops/TechSchedulePage'
 
@@ -619,13 +622,13 @@ function WeekNavigator({ weekStart, onPrev, onNext, onToday }: {
   
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <button onClick={onPrev} style={btnStyle(C.primary)}>
+      <button onClick={onPrev} aria-label={t('schedulePage.prevWeek')} style={btnStyle(C.primary)}>
         <ChevronLeft size={16} />
       </button>
       <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark, minWidth: 180, textAlign: 'center' }}>
         {formatRange()}
       </span>
-      <button onClick={onNext} style={btnStyle(C.primary)}>
+      <button onClick={onNext} aria-label={t('schedulePage.nextWeek')} style={btnStyle(C.primary)}>
         <ChevronRight size={16} />
       </button>
       <button onClick={onToday} style={{ ...btnStyle(C.textMid), fontSize: 12 }}>
@@ -786,6 +789,61 @@ export default function SchedulePage() {
   
   // 统计数据
   const stats = useMemo(() => generateScheduleStats(allSchedules), [allSchedules])
+  
+  // ====== [W14-UX] 批量排班操作 (按人员多选) ======
+  const [selectedStaffIds, setSelectedStaffIds] = useState<Set<string>>(new Set())
+  const { showUndo } = useUndoActions()
+
+  const visibleStaff = useMemo(
+    () => (selectedStaff === 'all' ? STAFF_LIST : STAFF_LIST.filter(s => s.id === selectedStaff)),
+    [selectedStaff],
+  )
+
+  const toggleStaffSelect = (id: string) => {
+    setSelectedStaffIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  const handleBatchSchedule = (action: string) => {
+    const ids = Array.from(selectedStaffIds)
+    if (ids.length === 0) return
+    if (action === 'generate') {
+      const existing = new Set(allSchedules.map(s => `${s.staffId}|${s.date}`))
+      const additions: ScheduleRecord[] = []
+      weekDates.forEach((date, dayIdx) => {
+        const dateStr = formatDateObj(date)
+        visibleStaff.filter(s => ids.includes(s.id)).forEach(staff => {
+          if (existing.has(`${staff.id}|${dateStr}`)) return
+          additions.push({
+            id: `SCH-${dateStr}-${staff.id}`,
+            staffId: staff.id,
+            staffName: staff.name,
+            role: staff.role,
+            department: staff.department,
+            modality: dayIdx % 2 === 0 ? 'CT' : 'MR',
+            date: dateStr,
+            shift: dayIdx % 2 === 0 ? 'morning' : 'afternoon',
+            status: 'confirmed',
+          })
+        })
+      })
+      setAllSchedules(prev => [...prev, ...additions])
+      if (additions.length > 0) {
+        const snapshot = allSchedules
+        showUndo(t('w14Ux.batch.done', { count: additions.length, action: t('schedulePage.batchGenerate') }), () => setAllSchedules(snapshot))
+      }
+    } else if (action === 'off') {
+      const snapshot = allSchedules
+      setAllSchedules(prev => prev.map(s => ids.includes(s.staffId) ? { ...s, shift: 'off' as ShiftType } : s))
+      showUndo(t('w14Ux.batch.done', { count: ids.length, action: t('schedulePage.batchSetOff') }), () => setAllSchedules(snapshot))
+    } else if (action === 'export') {
+      handleExport()
+    }
+    setSelectedStaffIds(new Set())
+  }
   
   // 周导航函数
   const goToPrevWeek = () => {
@@ -1294,6 +1352,21 @@ export default function SchedulePage() {
               }}>
                 <thead>
                   <tr style={{ background: C.bgLight }}>
+                    <th style={{
+                      padding: '10px 12px',
+                      textAlign: 'left',
+                      borderBottom: `2px solid ${C.border}`,
+                      fontWeight: 600,
+                      color: C.textDark,
+                      width: 40,
+                    }}>
+                      <input
+                        type="checkbox"
+                        aria-label={t('schedulePage.selectAllStaff')}
+                        checked={visibleStaff.length > 0 && visibleStaff.every(s => selectedStaffIds.has(s.id))}
+                        onChange={(e) => setSelectedStaffIds(e.target.checked ? new Set(visibleStaff.map(s => s.id)) : new Set())}
+                      />
+                    </th>
                     <th style={{ 
                       padding: '10px 12px', 
                       textAlign: 'left',
@@ -1334,8 +1407,16 @@ export default function SchedulePage() {
                 <tbody>
                   {(selectedStaff === 'all' ? STAFF_LIST : STAFF_LIST.filter(s => s.id === selectedStaff)).map((staff, staffIdx) => (
                     <tr key={staff.id} style={{ 
-                      background: staffIdx % 2 === 0 ? 'var(--bg-card)' : C.bgLight,
+                      background: selectedStaffIds.has(staff.id) ? 'var(--color-info-bg)' : staffIdx % 2 === 0 ? 'var(--bg-card)' : C.bgLight,
                     }}>
+                      <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
+                        <input
+                          type="checkbox"
+                          aria-label={`选择 ${staff.name}`}
+                          checked={selectedStaffIds.has(staff.id)}
+                          onChange={() => toggleStaffSelect(staff.id)}
+                        />
+                      </td>
                       <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
                         <div style={{ fontWeight: 500, color: C.textDark }}>{staff.name}</div>
                         <div style={{ fontSize: 12, color: C.textMid }}>{staff.title}</div>
@@ -1405,6 +1486,20 @@ export default function SchedulePage() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* [W14-UX] 批量排班操作栏 */}
+        {activeTab === 'schedule' && selectedStaffIds.size > 0 && (
+          <BatchActionBar
+            selectedCount={selectedStaffIds.size}
+            onAction={handleBatchSchedule}
+            onClear={() => setSelectedStaffIds(new Set())}
+            actions={[
+              { key: 'generate', label: t('schedulePage.batchGenerate'), icon: <Zap size={13} /> },
+              { key: 'off', label: t('schedulePage.batchSetOff'), icon: <Coffee size={13} />, confirm: t('w14Ux.batch.confirm') },
+              { key: 'export', label: t('w14Ux.batch.export'), icon: <Download size={13} /> },
+            ]}
+          />
         )}
         
         {/* ========== 节假日配置视图 ========== */}

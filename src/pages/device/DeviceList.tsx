@@ -25,13 +25,16 @@ interface DeviceData {
   [key: string]: unknown
 }
 
-function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDelete }: {
+function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDelete, selectable, selected, onToggleSelect }: {
   device: DeviceData
   examRooms: ExamRoom[]
   onDetail: () => void
   onExam: () => void
   onMaintenance: () => void
   onDelete?: () => void
+  selectable?: boolean
+  selected?: boolean
+  onToggleSelect?: () => void
 }) {
   const [hovered, setHovered] = useState(false)
   const room = examRooms.find(r => r.deviceId === device.id)
@@ -44,8 +47,8 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: C.white, borderRadius: 12, border: `1px solid ${hovered ? C.accent : C.border}`,
-        boxShadow: hovered ? '0 4px 16px rgba(30,58,95,0.12)' : '0 1px 4px rgba(30,58,95,0.05)',
+        background: C.white, borderRadius: 12, border: `1px solid ${selected ? C.accent : hovered ? C.accent : C.border}`,
+        boxShadow: selected ? `0 0 0 2px ${C.accent}33` : hovered ? '0 4px 16px rgba(30,58,95,0.12)' : '0 1px 4px rgba(30,58,95,0.05)',
         overflow: 'hidden', transition: 'all 0.2s', transform: hovered ? 'translateY(-2px)' : 'none'
       }}
     >
@@ -55,6 +58,15 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+            {selectable && (
+              <input
+                type="checkbox"
+                aria-label={`选择设备 ${device.name}`}
+                checked={Boolean(selected)}
+                onChange={() => onToggleSelect?.()}
+                style={{ marginRight: 2 }}
+              />
+            )}
             <span style={{ fontSize: 13, fontWeight: 700, color: C.textDark, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {device.name.split('（')[0]}
             </span>
@@ -179,13 +191,16 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
 export { DeviceCard }
 export type { DeviceData, ExamRoom }
 
-export function DeviceList({ devices, examRooms, onDetail, onExam, onMaintenance, onDelete }: {
+export function DeviceList({ devices, examRooms, onDetail, onExam, onMaintenance, onDelete, selectedIds, onToggleSelect }: {
   devices: DeviceData[]
   examRooms: ExamRoom[]
   onDetail: (device: DeviceData) => void
   onExam: (device: DeviceData) => void
   onMaintenance: (device: DeviceData) => void
   onDelete?: (device: DeviceData) => void
+  // [W14-UX] 批量选择
+  selectedIds?: Set<string>
+  onToggleSelect?: (device: DeviceData) => void
 }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
@@ -198,6 +213,9 @@ export function DeviceList({ devices, examRooms, onDetail, onExam, onMaintenance
           onExam={() => onExam(device)}
           onMaintenance={() => onMaintenance(device)}
           onDelete={onDelete ? () => onDelete(device) : undefined}
+          selectable={Boolean(onToggleSelect)}
+          selected={Boolean(selectedIds?.has(device.id))}
+          onToggleSelect={() => onToggleSelect?.(device)}
         />
       ))}
     </div>

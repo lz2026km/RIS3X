@@ -14,13 +14,15 @@ import { LesionTrackingModule } from '../modules/lesion-tracking/lesion-tracking
 // [G005 W8-Report] 真实签名 (ReportSigningService) + 分级审核 (ReviewTierService)
 import { ReportSignV2Module } from '../modules/report-sign-v2/report-sign-v2.module'
 import { ReportRulesModule } from '../modules/report-rules/report-rules.module'
+// [v3.0.6.13] 报告发布 → HIS ORU^R01 (Hl7Service 通过 Hl7Module 注入)
+import { Hl7Module } from '../hl7/hl7.module'
 import { ReportsService } from './reports.service'
 import { ReportsController } from './reports.controller'
 import { ReportRevisionContentStore } from './report-revision-content.store'
 import { ReportRecallService } from './report-recall.service'
 
 @Module({
-  imports: [QueueModule, NotificationsModule, FollowUpModule, LesionTrackingModule, ReportSignV2Module, ReportRulesModule],
+  imports: [QueueModule, NotificationsModule, FollowUpModule, LesionTrackingModule, ReportSignV2Module, ReportRulesModule, Hl7Module],
   controllers: [ReportsController],
   providers: [ReportsService, ReportRevisionContentStore, ReportRecallService],
   exports: [ReportsService, ReportRevisionContentStore, ReportRecallService],

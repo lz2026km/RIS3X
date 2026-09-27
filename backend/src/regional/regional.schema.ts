@@ -35,3 +35,35 @@ export const CreateAccessRecordSchema = z.object({
   purpose: z.string().optional(),
   accessor: z.string().optional(),
 })
+
+// ── [G005 W11-MultiSite] 多院区站点/联邦配置 ──
+
+export const CreateSiteSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1),
+  code: z.string().optional(),
+  region: z.string().optional(),
+  city: z.string().optional(),
+  status: z.enum(['active', 'offline', 'syncing', 'maintenance']).optional(),
+  studies: z.number().nonnegative().optional(),
+  patients: z.number().nonnegative().optional(),
+  users: z.number().nonnegative().optional(),
+  storage: z.number().nonnegative().optional(),
+  bandwidth: z.number().nonnegative().optional(),
+  latencyMs: z.number().nonnegative().optional(),
+  uptimePct: z.number().min(0).max(100).optional(),
+  version: z.string().optional(),
+  primary: z.boolean().optional(),
+})
+
+export const UpdateSiteSchema = CreateSiteSchema.partial()
+
+export const UpdateFederationConfigSchema = z.object({
+  name: z.string().optional(),
+  mode: z.enum(['centralized', 'federated']).optional(),
+  syncIntervalSec: z.number().int().positive().optional(),
+  autoFailover: z.boolean().optional(),
+  crossSiteQueryEnabled: z.boolean().optional(),
+  sharedPatientIndex: z.boolean().optional(),
+  members: z.array(z.string()).optional(),
+})

@@ -4,6 +4,8 @@ import { Popconfirm } from 'antd';
 import type { TableColumnsType } from 'antd';
 // [v3.0.6.11-103 Wave 6] 表格统一: 自定义 table → DataTable (斑马纹/行高/列头/分页统一)
 import { DataTable } from "../../components/common/DataTable";
+// [W14-UX] 右键上下文菜单项类型
+import type { ContextMenuItem } from "../../components/common/ContextMenu";
 import type { Patient } from "../../types";
 import type { RadiologyExam } from "../../types";
 import type { DuplicateMatch, ToastInfo } from "./types";
@@ -251,6 +253,36 @@ export function PatientTable({
   };
 
   // [v3.0.6.11-103 Wave 6] 统一列配置 (DataTable), 复用原自定义表格单元格渲染
+  // [W14-UX] 右键行操作 (查看/编辑/导出/打印/删除)
+  const buildPatientContextItems = (p: Patient): ContextMenuItem[] => [
+    { key: "view", label: t("patientTable.action.view"), onSelect: () => onViewPatient(p) },
+    { key: "edit", label: t("patientTable.action.edit"), onSelect: () => onEditPatient(p) },
+    {
+      key: "export",
+      label: t("w14Ux.contextMenu.export"),
+      dividerBefore: true,
+      onSelect: () =>
+        onToast({ show: true, type: "success", message: `已导出患者 ${p.name} 档案` }),
+    },
+    {
+      key: "print",
+      label: t("w14Ux.contextMenu.print"),
+      onSelect: () =>
+        onToast({ show: true, type: "info", message: `已将 ${p.name} 标签发送到打印队列` }),
+    },
+    ...(onDeletePatient
+      ? [
+          {
+            key: "delete",
+            label: t("patientTable.action.delete"),
+            danger: true,
+            confirm: t("patientTable.deleteConfirmTitle"),
+            dividerBefore: true,
+            onSelect: () => onDeletePatient(p),
+          } as ContextMenuItem,
+        ]
+      : []),
+  ];
   const columns: TableColumnsType<Patient> = [
     {
       title: t("patientTable.col.id"),
@@ -706,6 +738,10 @@ export function PatientTable({
           rowKey="id"
           pagination={false}
           scroll={{ x: 1150, y: "calc(100vh - 320px)" }}
+          columnConfigKey="patient-table"
+          alwaysVisibleColumns={["actions"]}
+          contextMenuTestId="patient-context-menu"
+          contextMenuItems={buildPatientContextItems}
           rowSelection={{
             preserveSelectedRowKeys: true,
             selectedRowKeys: [...selectedPatientIds],

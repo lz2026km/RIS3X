@@ -14,5 +14,7 @@ export {
   EN_STATE_TO_CN,
   displayStatus,
   toEnState,
+  getReportStatusColor,
+  getReportStatusBadge,
 } from './statusMeta';
-export type { ReportStatusMeta } from './statusMeta';
+export type { ReportStatusMeta, SharedStatusColor } from './statusMeta';

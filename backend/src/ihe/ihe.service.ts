@@ -16,8 +16,9 @@
  *   - PAM 消息审计 → SysConfig (ihe_pam_log:list)
  */
 
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, BadRequestException, Optional } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { XdsService } from './xds.service'
 import type {
   PixFeedDto,
   PixQueryDto,
@@ -132,7 +133,13 @@ export class IheService {
   private readonly logger = new Logger(IheService.name)
   private seq = 0
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    // [v3.0.6.13] XDS.b 注册/仓储 (未注入时自建, 兼容单测构造)
+    @Optional() private readonly xds?: XdsService,
+  ) {
+    this.xds ??= new XdsService()
+  }
 
   // ===========================================================
   //  Affinity Domain 配置
@@ -496,36 +503,46 @@ export class IheService {
   }
 
   // ===========================================================
-  //  兼容既有前端 iheService 接口 (mock 行为保留契约)
+  //  XDS.b 兼容前端 iheService.mock* 接口 (委托真实 XDS 注册/仓储)
   // ===========================================================
 
-  async registerDocumentStub(document: Record<string, unknown>, _repository: string): Promise<string> {
-    await this.delay(300)
-    return `doc-${Date.now()}-${++this.seq}`
+  async registerDocumentStub(document: Record<string, unknown>, repository: string): Promise<string> {
+    const patientId = String(document?.patientId ?? '').trim() || 'UNKNOWN'
+    const homeCommunityId = repository.startsWith('urn:oid') ? repository : undefined
+    const result = this.xds!.provideAndRegister({
+      patientId,
+      repositoryUniqueId: repository.startsWith('urn:oid') ? undefined : repository,
+      homeCommunityId,
+      documents: [{
+        title: String(document?.title ?? '兼容登记文档'),
+        classCode: String(document?.classCode ?? 'RAD'),
+        formatCode: String(document?.formatCode ?? 'urn:ihe:rad:1'),
+        mimeType: String(document?.mimeType ?? 'application/dicom'),
+        authorPerson: typeof document?.authorPerson === 'string' ? document.authorPerson : undefined,
+      }],
+    })
+    return result.documentIds[0] ?? ''
   }
 
-  async queryDocumentsStub(patientId: string, _domain: string): Promise<Array<Record<string, unknown>>> {
-    await this.delay(200)
-    return [
-      {
-        documentId: `doc-${patientId}-001`,
-        patientId,
-        repositoryUniqueId: '1.2.840.113556.1.8000.2554.1.100',
-        classCode: 'RAD',
-        formatCode: 'urn:ihe:rad:1',
-        mimeType: 'application/dicom',
-        size: 1024,
-      },
-      {
-        documentId: `doc-${patientId}-002`,
-        patientId,
-        repositoryUniqueId: '1.2.840.113556.1.8000.2554.1.101',
-        classCode: 'RAD',
-        formatCode: 'urn:ihe:rad:2',
-        mimeType: 'application/pdf',
-        size: 512,
-      },
-    ]
+  async queryDocumentsStub(patientId: string, domain: string): Promise<Array<Record<string, unknown>>> {
+    const homeCommunityId = domain.startsWith('urn:oid') ? domain : undefined
+    const result = this.xds!.registryStoredQuery({ patientId, homeCommunityId, limit: 200 })
+    return result.documents.map((d) => ({
+      documentId: d.uniqueId,
+      uniqueId: d.uniqueId,
+      patientId: d.patientId,
+      repositoryUniqueId: d.repositoryUniqueId,
+      homeCommunityId: d.homeCommunityId,
+      classCode: d.classCode,
+      formatCode: d.formatCode,
+      typeCode: d.typeCode,
+      mimeType: d.mimeType,
+      size: d.size,
+      title: d.title,
+      authorPerson: d.authorPerson,
+      creationTime: d.creationTime,
+      availabilityStatus: d.availabilityStatus,
+    }))
   }
 
   async pdqQueryStub(patientId: string, assigningAuthority: string): Promise<IhePdqResult | null> {
@@ -545,7 +562,7 @@ export class IheService {
   async getStatus(): Promise<{
     profile: string
     affinityDomain: AffinityDomainDto
-    metrics: { pixRecords: number; pdqCache: number; pamLogSize: number }
+    metrics: { pixRecords: number; pdqCache: number; pamLogSize: number; xdsDocuments: number; xdsCommunities: number }
     transactions: string[]
   }> {
     const [domain, pixStore, pdqIndex, pamLog] = await Promise.all([
@@ -554,15 +571,18 @@ export class IheService {
       this.readPdqIndex(),
       this.readPamLog(),
     ])
+    const xdsStats = this.xds!.getStats()
     return {
-      profile: 'PAM/PIX/PDQ',
+      profile: 'XDS.b/XCA/XDR/PAM/PIX/PDQ',
       affinityDomain: domain,
       metrics: {
         pixRecords: Object.keys(pixStore).length,
         pdqCache: Object.keys(pdqIndex).length,
         pamLogSize: pamLog.length,
+        xdsDocuments: xdsStats.total,
+        xdsCommunities: xdsStats.byCommunity.length,
       },
-      transactions: ['ITI-8', 'ITI-9', 'ITI-10', 'ITI-21', 'ITI-22', 'ITI-30', 'ITI-31'],
+      transactions: ['ITI-8', 'ITI-9', 'ITI-10', 'ITI-18', 'ITI-21', 'ITI-22', 'ITI-30', 'ITI-31', 'ITI-38', 'ITI-39', 'ITI-41', 'ITI-43'],
     }
   }
 

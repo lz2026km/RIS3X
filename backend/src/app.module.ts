@@ -205,12 +205,30 @@ import { RegistrationModule } from "./modules/registration/registration.module";
 import { Rqi2024Module } from "./modules/rqi-2024/rqi-2024.module";
 // [v3.0.6.11-105 Wave 2A] 放射影像质控指标国家上报中心 (rqi-report-center): 周期上报→提交→回执闭环 (孤儿模块, 无 DB 可启动)
 import { RqiReportCenterModule } from "./modules/rqi-report-center/rqi-report-center.module";
+// [G005 W9-QC] 质量管理专业化: 统一可配置评分量表 (quality-rubric)
+import { QualityRubricModule } from "./modules/quality-rubric/quality-rubric.module";
+// [G005 W9-QC] 设备质控 (equipment-qc): CT/DR/MRI/MG 模体检测 + 排程 + 统计
+import { EquipmentQcModule } from "./modules/equipment-qc/equipment-qc.module";
+// [G005 W11-DeviceOps] 设备运维中心 (工单/校准/资产折旧/OEE/成本DRG/定时报表)
+import { DeviceOpsModule } from "./modules/device-ops/device-ops.module";
+// [G005 W9-QC] 规范化缺陷库 (defect-library): 分类 + 缺陷项 + 聚合
+import { DefectLibraryModule } from "./modules/defect-library/defect-library.module";
 // [G005 BackendParity] 注册孤儿模块: IHE 集成 + 危急值 V2 + 报告导出中心 V2 + 模板审批/模板库 V2
 import { IheModule } from "./ihe/ihe.module";
 import { CriticalV2Module } from "./modules/critical-v2/critical-v2.module";
 import { ReportExportCenterV2Module } from "./modules/report-export-center-v2/report-export-center-v2.module";
 import { TemplateApprovalModule } from "./modules/template-approval/template-approval.module";
 import { TemplateLibraryV2Module } from "./modules/template-library-v2/template-library-v2.module";
+// [v3.0.6.13] 接口监控 + 持久化重试队列
+import { InterfaceMonitorModule } from "./modules/interface-monitor/interface-monitor.module";
+// [G005 W12-PatientService] 患者服务专业化: 微信服务号/支付/通知渠道/满意度/自助登记 (孤儿模块, 无 DB 可启动)
+import { WechatModule } from "./modules/wechat/wechat.module";
+import { PaymentModule } from "./modules/payment/payment.module";
+import { NotificationChannelModule } from "./modules/notification-channel/notification-channel.module";
+import { SatisfactionModule } from "./modules/satisfaction/satisfaction.module";
+import { SelfRegistrationModule } from "./modules/self-registration/self-registration.module";
+// [G005 W13-Security] 安全与合规中心: RA/OCSP/HSM/字段加密/等保评估/灾难恢复/审计链
+import { SecurityCenterModule } from "./modules/security-center/security-center.module";
 
 @Module({
   imports: [
@@ -425,6 +443,12 @@ import { TemplateLibraryV2Module } from "./modules/template-library-v2/template-
     Rqi2024Module,
     // [v3.0.6.11-105 Wave 2A] 放射影像质控指标国家上报中心 (rqi-report-center): 周期上报→提交→回执闭环
     RqiReportCenterModule,
+    // [G005 W9-QC] 质量管理专业化模块
+    DefectLibraryModule,
+    QualityRubricModule,
+    EquipmentQcModule,
+    // [G005 W11-DeviceOps] 设备运维中心 (工单/校准/资产折旧/OEE/成本DRG/定时报表)
+    DeviceOpsModule,
     // [G005 W3-BackendParity] 前端已调用但后端缺失端点补齐 (孤儿模块, 无 DB 可启动)
     AiFusionWorkspaceModule,
     OrthoSpecialtyModule,
@@ -434,6 +458,16 @@ import { TemplateLibraryV2Module } from "./modules/template-library-v2/template-
     ReportExportCenterV2Module,
     TemplateApprovalModule,
     TemplateLibraryV2Module,
+    // [v3.0.6.13] 接口监控 + 持久化重试队列 (孤儿模块, 无 DB 可启动)
+    InterfaceMonitorModule,
+    // [G005 W12-PatientService] 患者服务专业化 (微信/支付/通知/满意度/自助登记)
+    WechatModule,
+    PaymentModule,
+    NotificationChannelModule,
+    SatisfactionModule,
+    SelfRegistrationModule,
+    // [G005 W13-Security] 安全与合规中心 (RA/OCSP/HSM/字段加密/灾难恢复/审计链)
+    SecurityCenterModule,
   ],
   controllers: [HealthController],
   providers: [

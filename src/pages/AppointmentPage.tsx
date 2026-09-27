@@ -50,6 +50,8 @@ import AppointmentOpsPanels from "../components/appointments/AppointmentOpsPanel
 import AppointmentManagementPage from "./AppointmentManagementPage";
 import { formatDateObj } from '../utils/date';
 import { ActionButton } from "../components/common/ActionButton";
+import { InlineEditCell } from "../components/common/InlineEditCell";
+import { useUndoActions } from "../components/UndoToast";
 import { t } from '../i18n/appI18n';
 
 // ==================== 类型定义 ====================
@@ -123,6 +125,8 @@ interface RescheduleRecord {
   newTime: string;
   reason: "patient" | "doctor" | "device";
   operateTime: string;
+  /** [W14-UX] 行内编辑备注 */
+  note?: string;
 }
 
 // 取消记录类型
@@ -134,6 +138,8 @@ interface CancellationRecord {
   cancelTime: string;
   reason: string;
   rebooked: "是" | "否" | "待确认";
+  /** [W14-UX] 行内编辑备注 */
+  note?: string;
 }
 
 // ==================== 批量导入工具 ====================
@@ -430,6 +436,9 @@ export default function AppointmentPage() {
   const [listFilterStatus] = useState<string>("all");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  // [W14-UX] 批量选择 + 撤销
+  const [selectedAptIds, setSelectedAptIds] = useState<Set<string>>(new Set());
+  const { showUndo } = useUndoActions();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -1035,6 +1044,62 @@ export default function AppointmentPage() {
     setShowDetailModal(true);
   };
 
+  // ====== [W14-UX] 右键上下文操作 + 批量操作 ======
+  const checkInAppointment = async (apt: { id: string }) => {
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === apt.id ? { ...a, status: "checked-in", updatedAt: new Date().toLocaleString("zh-CN") } : a)),
+    );
+    await appointmentApi.update(apt.id, { state: "CHECKED_IN" }).catch(() => null);
+    message.success(t("apptPage.status.checkedIn"));
+  };
+
+  const rescheduleAppointment = (apt: Appointment) => {
+    const d = new Date(apt.examDate);
+    if (!Number.isNaN(d.getTime())) d.setDate(d.getDate() + 1);
+    const newDate = Number.isNaN(d.getTime()) ? apt.examDate : formatDateObj(d);
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === apt.id ? { ...a, examDate: newDate, updatedAt: new Date().toLocaleString("zh-CN") } : a)),
+    );
+    message.success(t("w14Ux.batch.done", { count: 1, action: t("w14Ux.batch.reschedule") }));
+  };
+
+  const cancelAppointmentDirect = (apt: Appointment) => {
+    setSelectedAppointment(apt);
+    setShowCancelModal(true);
+  };
+
+  const printAppointment = () => {
+    window.print();
+  };
+
+  const handleAppointmentBatch = async (action: string, ids: string[]) => {
+    const targets = appointments.filter((a) => ids.includes(a.id));
+    if (action === "checkin") {
+      for (const apt of targets) {
+        await appointmentApi.update(apt.id, { state: "CHECKED_IN" }).catch(() => null);
+      }
+      setAppointments((prev) => prev.map((a) => (ids.includes(a.id) ? { ...a, status: "checked-in" } : a)));
+      message.success(t("w14Ux.batch.done", { count: targets.length, action: t("w14Ux.batch.checkIn") }));
+    } else if (action === "cancel") {
+      for (const apt of targets) {
+        await appointmentApi.cancel(apt.id).catch(() => null);
+      }
+      setAppointments((prev) => prev.map((a) => (ids.includes(a.id) ? { ...a, status: "cancelled" } : a)));
+      message.success(t("w14Ux.batch.done", { count: targets.length, action: t("w14Ux.batch.cancel") }));
+    } else if (action === "reschedule") {
+      setAppointments((prev) =>
+        prev.map((a) => {
+          if (!ids.includes(a.id)) return a;
+          const d = new Date(a.examDate);
+          if (!Number.isNaN(d.getTime())) d.setDate(d.getDate() + 1);
+          return { ...a, examDate: Number.isNaN(d.getTime()) ? a.examDate : formatDateObj(d) };
+        }),
+      );
+      message.success(t("w14Ux.batch.done", { count: targets.length, action: t("w14Ux.batch.reschedule") }));
+    }
+    setSelectedAptIds(new Set());
+  };
+
   // 颜色定义
   const primaryBlue = "#1e40af";
 const lightBlue = "var(--color-info-bg)";
@@ -1327,6 +1392,26 @@ const borderGray = "var(--border-color)";
               setShowWaitlist={setShowWaitlist}
               filteredAppointments={filteredAppointments}
               filteredListAppointments={filteredListAppointments}
+              selectedIds={selectedAptIds}
+              onToggleSelect={(id) =>
+                setSelectedAptIds((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(id)) next.delete(id);
+                  else next.add(id);
+                  return next;
+                })
+              }
+              onToggleSelectAll={(checked) =>
+                setSelectedAptIds(checked ? new Set(filteredListAppointments.map((a) => a.id)) : new Set())
+              }
+              onBatchAction={(action, ids) => void handleAppointmentBatch(action, ids)}
+              contextActions={{
+                onView: openDetail,
+                onCheckIn: (apt) => void checkInAppointment(apt),
+                onCancel: cancelAppointmentDirect,
+                onReschedule: rescheduleAppointment,
+                onPrint: printAppointment,
+              }}
               statsData={[
                 { label: t("apptPage.todayAppointments"), value: appointments.filter(a => a.examDate === formatDateObj(new Date())).length, color: primaryBlue, bg: lightBlue },
                 { label: t("apptPage.status.checkedIn"), value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#22c55e22" },
@@ -1420,7 +1505,7 @@ const borderGray = "var(--border-color)";
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
                       <thead>
                         <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
-                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colOriginalTime"), t("apptPage.colNewTime"), t("apptPage.colReason"), t("apptPage.colOperateTime")].map((h) => (
+                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colOriginalTime"), t("apptPage.colNewTime"), t("apptPage.colReason"), t("w14Ux.inline.save"), t("apptPage.colOperateTime")].map((h) => (
                             <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
                           ))}
                         </tr>
@@ -1436,12 +1521,25 @@ const borderGray = "var(--border-color)";
                             <td style={{ padding: "8px 10px" }}>
                               <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...getRescheduleReasonConfig(r.reason) }}>{getRescheduleReasonConfig(r.reason).label}</span>
                             </td>
+                            <td style={{ padding: "8px 10px", minWidth: 120 }}>
+                              <InlineEditCell
+                                value={r.note ?? ""}
+                                inputType="text"
+                                placeholder={t("w14Ux.inline.doubleClick")}
+                                ariaLabel={t("w14Ux.inline.save")}
+                                onSave={(next) => {
+                                  const snapshot = rescheduleRecords;
+                                  setRescheduleRecords((prev) => prev.map((x) => (x.id === r.id ? { ...x, note: next } : x)));
+                                  showUndo(t("w14Ux.undo.updated", { name: r.patientName }), () => setRescheduleRecords(snapshot));
+                                }}
+                              />
+                            </td>
                             <td style={{ padding: "8px 10px", color: textGray }}>{r.operateTime}</td>
                           </tr>
                         ))}
                         {rescheduleRecords.length === 0 && (
                           <tr>
-                            <td colSpan={7} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noReschedules")}</td>
+                            <td colSpan={8} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noReschedules")}</td>
                           </tr>
                         )}
                       </tbody>

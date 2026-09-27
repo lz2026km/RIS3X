@@ -1,12 +1,13 @@
 // [v3.0.6.11-35] 患者统一门户 - API接入版 · [W8] i18n + 刷新/搜索/分页整改
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Row, Col, Tabs, Timeline, Table, Spin, message, Empty, Input } from 'antd';
+import { Card, Space, Tag, Row, Col, Tabs, Timeline, Table, Spin, message, Empty, Input, Rate, Button, Descriptions } from 'antd';
 import { User, Calendar, Clock, RefreshCw } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
 import { ActionButton } from '../../components/common/ActionButton';
 import { ExportButton } from '../../components/common';
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi';
 import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
+import { paymentApi, satisfactionApi, wechatApi, type PaymentOrderDto, type SurveyDto } from '../../services/api/w12PatientApi';
 
 interface TimelineEvent {
   date: string;
@@ -30,6 +31,15 @@ export const PatientPortalPage: React.FC = () => {
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [nextAppts, setNextAppts] = useState<NextAppointment[]>([]);
   const [keyword, setKeyword] = useState('');
+
+  // [G005 W12-PatientService] 我的服务: 支付订单 / 满意度评价 / 微信服务
+  const [payOrders, setPayOrders] = useState<PaymentOrderDto[]>([]);
+  const [surveys, setSurveys] = useState<SurveyDto[]>([]);
+  const [wxAccount, setWxAccount] = useState('');
+  const [portalRating, setPortalRating] = useState(5);
+  const [portalNps, setPortalNps] = useState(9);
+  const [portalComment, setPortalComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -71,6 +81,22 @@ export const PatientPortalPage: React.FC = () => {
           })));
         }
       }
+
+      // [G005 W12-PatientService] 我的服务数据 (支付订单 / 满意度问卷 / 微信服务配置)
+      const [payRes, satRes, wxRes] = await Promise.allSettled([
+        paymentApi.listOrders({ patientId: 'P100001' }),
+        satisfactionApi.listSurveys({ status: 'OPEN' }),
+        wechatApi.getSubscribeConfig(),
+      ]);
+      if (payRes.status === 'fulfilled' && payRes.value.success && payRes.value.data) {
+        setPayOrders(payRes.value.data.items ?? []);
+      }
+      if (satRes.status === 'fulfilled' && satRes.value.success && satRes.value.data) {
+        setSurveys(satRes.value.data.items ?? []);
+      }
+      if (wxRes.status === 'fulfilled' && wxRes.value.success && wxRes.value.data) {
+        setWxAccount(wxRes.value.data.nickname);
+      }
     } catch {
       message.error(t('w8.patientPortal.loadFailed'));
     } finally {
@@ -100,6 +126,45 @@ export const PatientPortalPage: React.FC = () => {
       [a.date, a.dept, a.doctor, a.type].some((v) => (v || '').toLowerCase().includes(kw))
     );
   }, [nextAppts, keyword]);
+
+  // [G005 W12-PatientService] 支付 / 评价动作
+  const handlePay = useCallback(async (order: PaymentOrderDto) => {
+    try {
+      const res = await paymentApi.pay(order.id);
+      if (res.success && res.data) {
+        setPayOrders((prev) => prev.map((o) => (o.id === order.id ? res.data! : o)));
+        message.success(t('w12Patient.payment.paySuccess'));
+      } else {
+        message.error(t('w12Patient.loadFailed'));
+      }
+    } catch {
+      message.error(t('w12Patient.loadFailed'));
+    }
+  }, []);
+
+  const handleEvaluate = useCallback(async () => {
+    const survey = surveys[0];
+    if (!survey) return;
+    setSubmitting(true);
+    try {
+      const res = await satisfactionApi.respond(survey.id, {
+        rating: portalRating,
+        npsScore: portalNps,
+        comment: portalComment,
+        patientName: patientInfo.name,
+      });
+      if (res.success) {
+        message.success(t('w12Patient.sat.respondSuccess'));
+        setPortalComment('');
+      } else {
+        message.error(t('w12Patient.loadFailed'));
+      }
+    } catch {
+      message.error(t('w12Patient.loadFailed'));
+    } finally {
+      setSubmitting(false);
+    }
+  }, [surveys, portalRating, portalNps, portalComment, patientInfo.name]);
 
   if (loading) {
     return (
@@ -161,6 +226,39 @@ export const PatientPortalPage: React.FC = () => {
             label: ev.date,
             children: <div><Tag color={ev.type==='radiology'?'blue':'green'}>{ev.type==='radiology'?t('w8.patientPortal.radiology'):t('w8.patientPortal.dental')}</Tag>{ev.event}</div>,
           }))} />
+        },
+        { key:'services', label:t('w12Patient.portal.servicesTab'), children:
+          <Row gutter={16}>
+            <Col span={14}>
+              <Card size="small" title={t('w12Patient.payment.orders')}>
+                <Table dataSource={payOrders} rowKey={(r) => r.id} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }}
+                  locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
+                  columns={[
+                    { title: t('w12Patient.payment.orderNo'), dataIndex: 'orderNo' },
+                    { title: t('w12Patient.payment.subject'), dataIndex: 'subject' },
+                    { title: t('w12Patient.payment.amount'), dataIndex: 'amount', render: (v: number) => `¥${v}` },
+                    { title: t('w12Patient.payment.status'), dataIndex: 'status', render: (v: string) => <Tag>{t(`w12Patient.payment.status.${v}`)}</Tag> },
+                    { title: t('w12Patient.actions'), key: 'op', render: (_: unknown, r: PaymentOrderDto) => r.status === 'CREATED' ? <Button size="small" type="link" onClick={() => handlePay(r)}>{t('w12Patient.payment.pay')}</Button> : <span style={{ color: 'var(--text-secondary)' }}>{t('w12Patient.dash')}</span> },
+                  ]} />
+              </Card>
+            </Col>
+            <Col span={10}>
+              <Card size="small" title={t('w12Patient.portal.wechatStatus')} style={{ marginBottom: 16 }}>
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label={t('w12Patient.portal.account')}>{wxAccount || t('w12Patient.dash')}</Descriptions.Item>
+                  <Descriptions.Item label={t('w12Patient.wechat.subscribe')}>{wxAccount ? t('w12Patient.portal.opened') : t('w12Patient.wechat.unbound')}</Descriptions.Item>
+                </Descriptions>
+              </Card>
+              <Card size="small" title={t('w12Patient.portal.evaluate')}>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <div><span style={{ marginRight: 8 }}>{t('w12Patient.sat.rating')}</span><Rate value={portalRating} onChange={setPortalRating} /></div>
+                  <div><span style={{ marginRight: 8 }}>{t('w12Patient.sat.npsScore')}</span><Rate count={10} value={portalNps} onChange={setPortalNps} /></div>
+                  <Input.TextArea rows={2} value={portalComment} onChange={(e) => setPortalComment(e.target.value)} placeholder={t('w12Patient.sat.comment')} />
+                  <Button type="primary" size="small" loading={submitting} disabled={!surveys.length} onClick={handleEvaluate}>{t('w12Patient.sat.respond')}</Button>
+                </Space>
+              </Card>
+            </Col>
+          </Row>
         },
       ]} />
     </div>

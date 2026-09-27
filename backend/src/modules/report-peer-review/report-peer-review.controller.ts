@@ -34,6 +34,10 @@ const ScoreSchema = z.object({
   reviewerId: z.string().optional(),
 })
 
+const LinkDefectsSchema = z.object({
+  defectCodes: z.array(z.string().min(1)).min(1),
+})
+
 @ApiTags('report-peer-review')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
@@ -71,5 +75,21 @@ export class ReportPeerReviewController {
   @Get('dimensions')
   getDimensions() {
     return { success: true, data: this.service.getDimensions() }
+  }
+
+  @Post('tasks/:id/defects')
+  @HttpCode(200)
+  linkDefects(@Param('id') id: string, @Body(new ZodValidationPipe(LinkDefectsSchema)) body: z.infer<typeof LinkDefectsSchema>) {
+    return { success: true, data: this.service.linkDefects(id, body) }
+  }
+
+  @Get('tasks/:id/defects')
+  listTaskDefects(@Param('id') id: string) {
+    return { success: true, data: this.service.listTaskDefects(id) }
+  }
+
+  @Get('defect-stats')
+  defectStats() {
+    return { success: true, data: this.service.defectStats() }
   }
 }

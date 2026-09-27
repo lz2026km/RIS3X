@@ -18,6 +18,8 @@ import { ReportSigningService } from '../modules/report-sign-v2/report-signing.s
 import { ReportRevisionContentStore } from './report-revision-content.store'
 import { ReportRecallService } from './report-recall.service'
 import { ReviewTierService } from '../modules/report-rules/review-tier.service'
+// [v3.0.6.13] 报告发布 → HIS ORU^R01 (Hl7Service 可选注入, 失败不阻塞)
+import { Hl7Service } from '../hl7/hl7.service'
 import { REPORT_FIELD_SPECS, assertReportFieldsValid, validateReportFields } from './report-field-specs'
 import type { SignatureContentSnapshot, SignatureVerification } from '../modules/report-sign-v2/report-signing.types'
 import type { ReviewTierInput, ReviewTierResolution } from '../modules/report-rules/review-tier.types'
@@ -203,6 +205,8 @@ export class ReportsService {
     @Optional() private readonly recallService?: ReportRecallService,
     // [G005 W8-Report] 分级审核规则引擎, 可空
     @Optional() private readonly reviewTierService?: ReviewTierService,
+    // [v3.0.6.13] 报告发布 → HIS ORU^R01 (ReportsModule 导入 Hl7Module), 可空
+    @Optional() private readonly hl7?: Hl7Service,
   ) {
     this.gateway = gateway ?? createNoopGateway()
     this.revisions = revisionContent ?? new ReportRevisionContentStore()
@@ -566,6 +570,14 @@ export class ReportsService {
       // [v3.0.6.11-103 Wave 13] 触发点从 SUBMITTED 强化为 PUBLISHED: 报告发布后按规则自动创建随访计划
       if (to === 'PUBLISHED') {
         await this.maybeTriggerFollowUp(report, actorId)
+        // [v3.0.6.13] 报告发布 → 组装 ORU^R01 投递 HIS (MLLP/stub) + 记录 ACK; 失败不阻塞发布
+        if (this.hl7) {
+          try {
+            await this.hl7.publishOruByReportId(id, (report as any).examId ?? undefined)
+          } catch (e) {
+            this.logger.warn(`[HIS-ORU] publish ORU failed for report ${id}: ${(e as Error).message}`)
+          }
+        }
       }
       if (to === 'SIGNED' || to === 'PUBLISHED') {
         this.gateway.push('*', {

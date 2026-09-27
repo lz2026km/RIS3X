@@ -60,6 +60,8 @@ import type { TableColumnsType } from "antd";
 import TimeoutVerifyModal from "../components/worklist/TimeoutVerifyModal";
 // [v3.0.6.11-103 Wave 6] 表格统一: 自定义 table → DataTable (斑马纹/行高/列头/分页统一)
 import { DataTable } from "../components/common/DataTable";
+// [W14-UX] 右键上下文菜单
+import type { ContextMenuItem } from "../components/common/ContextMenu";
 import { StatCard } from "../components/common/StatCard";
 import { DashboardCard } from "../components/dashboard/DashboardCard";
 import { TrendChart } from "../components/dashboard/TrendChart";
@@ -1463,6 +1465,32 @@ export default function ExamPage() {
 
   // 表格
   const ExamTable = () => {
+    // [W14-UX] 右键行操作 (查看/阅片/开始/完成/打印/导出/拆分/删除)
+    const buildExamContextItems = (exam: RadiologyExam): ContextMenuItem[] => [
+      { key: "view", label: t("w14Ux.contextMenu.view"), onSelect: () => navigate(`/exam/${exam.id}`) },
+      {
+        key: "read",
+        label: t("examPage.readFilm"),
+        onSelect: () => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || "")}&examId=${exam.id}`),
+      },
+      ...(exam.status === "待检查"
+        ? [{ key: "start", label: t("w14Ux.contextMenu.start"), onSelect: () => openModal(exam, "start") }]
+        : []),
+      ...(exam.status === "检查中"
+        ? [{ key: "complete", label: t("w14Ux.contextMenu.complete"), onSelect: () => openModal(exam, "complete") }]
+        : []),
+      { key: "print", label: t("w14Ux.contextMenu.print"), dividerBefore: true, onSelect: () => void runBatchApiAction("print", [exam.id]) },
+      { key: "export", label: t("w14Ux.contextMenu.export"), onSelect: () => void runBatchApiAction("export", [exam.id]) },
+      { key: "split", label: t("examPage.split"), onSelect: () => handleOpenSplitModal(exam) },
+      {
+        key: "delete",
+        label: t("w14Ux.contextMenu.delete"),
+        danger: true,
+        confirm: t("examPage.deleteConfirm"),
+        dividerBefore: true,
+        onSelect: () => void handleDeleteExam(exam),
+      },
+    ];
     // [v3.0.6.11-103 Wave 6] 统一列配置 (DataTable)
     const columns: TableColumnsType<RadiologyExam> = [
       {
@@ -1708,6 +1736,10 @@ export default function ExamPage() {
           zebra
           emptyText={t("examPage.noMatches")}
           scroll={{ y: "calc(100vh - 420px)" }}
+          columnConfigKey="exam-table"
+          alwaysVisibleColumns={["actions"]}
+          contextMenuTestId="exam-context-menu"
+          contextMenuItems={buildExamContextItems}
           pagination={{
             current: page,
             pageSize,
@@ -2875,6 +2907,7 @@ export default function ExamPage() {
             </div>
             <button
               onClick={closeModal}
+              aria-label={t("common.close")}
               style={{
                 background: "none",
                 border: "none",

@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, Optional, Inject } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, BadRequestException, Optional, Inject, type OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as net from 'node:net'
 import { PrismaService } from '../prisma/prisma.service'
@@ -55,10 +55,13 @@ export interface TransferRecord {
   source: 'queue' | 'seed'
   examId?: string
   accessionNumber?: string
+  // [v3.0.6.13] 持久化重试: 尝试次数 + 下次重试时间 (指数退避)
+  attempts?: number
+  nextRetryAt?: string
 }
 
 @Injectable()
-export class DicomDimseService {
+export class DicomDimseService implements OnModuleInit {
   private readonly logger = new Logger(DicomDimseService.name)
   private readonly storageDir: string
   private readonly storage: StorageDriver
@@ -621,6 +624,78 @@ export class DicomDimseService {
   }
 
   // ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列 ═══════════
+  // [v3.0.6.13] 持久化 (SystemConfig JSON best-effort) + 指数退避重试
+
+  async onModuleInit(): Promise<void> {
+    await this.loadPersistedTransfers()
+  }
+
+  private async persistTransfers(): Promise<void> {
+    try {
+      const model = (this.prisma as any)?.systemConfig
+      if (!model?.upsert) return
+      const value = [...this.transfers.values()]
+      await model.upsert({
+        where: { key: 'dicom_transfer_queue' },
+        create: { key: 'dicom_transfer_queue', value },
+        update: { value },
+      })
+    } catch (err) {
+      this.logger.warn(`[DicomDimse] persist transfers failed: ${(err as Error).message}`)
+    }
+  }
+
+  private async loadPersistedTransfers(): Promise<void> {
+    try {
+      const model = (this.prisma as any)?.systemConfig
+      if (!model?.findUnique) return
+      const cfg = await model.findUnique({ where: { key: 'dicom_transfer_queue' } })
+      if (!Array.isArray(cfg?.value) || cfg.value.length === 0) return
+      this.transfers.clear()
+      for (const rec of cfg.value as TransferRecord[]) {
+        this.transfers.set(rec.id, rec)
+        const n = Number(String(rec.id).replace(/[^0-9]/g, ''))
+        if (Number.isFinite(n)) this.transferSeq = Math.max(this.transferSeq, n)
+      }
+      this.logger.log(`[DicomDimse] loaded ${this.transfers.size} persisted transfer(s)`)
+    } catch (err) {
+      this.logger.warn(`[DicomDimse] load transfers failed: ${(err as Error).message}`)
+    }
+  }
+
+  private backoffMs(attempts: number): number {
+    return Math.min(1000 * 2 ** Math.max(0, attempts - 1), 60_000)
+  }
+
+  /** [v3.0.6.13] 处理到期的 queued/retrying 传输 (模拟推进; 失败退避重试) */
+  async processTransferQueue(nowIso?: string): Promise<{ processed: number; advanced: number; retried: number; completed: number }> {
+    const now = nowIso ?? new Date().toISOString()
+    let processed = 0
+    let retried = 0
+    let completed = 0
+    for (const rec of this.transfers.values()) {
+      if (rec.status !== 'queued' && rec.status !== 'sending') continue
+      if (rec.nextRetryAt && rec.nextRetryAt > now) continue
+      processed += 1
+      rec.progress = Math.min(100, rec.progress + 50)
+      rec.completedInstances = Math.round((rec.progress / 100) * rec.totalInstances)
+      rec.updatedAt = now
+      if (rec.progress >= 100) {
+        rec.status = 'completed'
+        rec.error = undefined
+        completed += 1
+      } else if (rec.error) {
+        rec.attempts = (rec.attempts ?? 0) + 1
+        rec.nextRetryAt = new Date(Date.now() + this.backoffMs(rec.attempts)).toISOString()
+        rec.status = 'queued'
+        retried += 1
+      } else {
+        rec.status = 'sending'
+      }
+    }
+    if (processed > 0) await this.persistTransfers()
+    return { processed, advanced: processed - retried, retried, completed }
+  }
 
   listTransfers(): TransferRecord[] {
     return [...this.transfers.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
@@ -670,6 +745,7 @@ export class DicomDimseService {
     }
     this.transfers.set(id, record)
     this.logger.log(`Transfer enqueued: ${id} study=${dto.studyUid} -> ${dto.targetAe}${linked ? ` exam=${linked.examId}` : ''}`)
+    await this.persistTransfers()
     return { ...record }
   }
 
@@ -682,16 +758,20 @@ export class DicomDimseService {
   retryTransfer(id: string): TransferRecord {
     const record = this.findTransfer(id)
     if (record.status === 'sending') throw new BadRequestException(`传输 ${id} 正在进行中`)
+    const attempts = (record.attempts ?? 0) + 1
     const updated: TransferRecord = {
       ...record,
       status: 'sending',
       progress: record.status === 'failed' ? 0 : record.progress,
       completedInstances: record.status === 'failed' ? 0 : record.completedInstances,
       error: undefined,
+      attempts,
+      nextRetryAt: new Date(Date.now() + this.backoffMs(attempts)).toISOString(),
       updatedAt: new Date().toISOString(),
     }
     this.transfers.set(id, updated)
-    this.logger.log(`Transfer retried: ${id}`)
+    this.logger.log(`Transfer retried: ${id} (attempt ${attempts})`)
+    void this.persistTransfers()
     return { ...updated }
   }
 
@@ -702,6 +782,7 @@ export class DicomDimseService {
     }
     const updated: TransferRecord = { ...record, status: 'paused', updatedAt: new Date().toISOString() }
     this.transfers.set(id, updated)
+    void this.persistTransfers()
     return { ...updated }
   }
 
@@ -710,6 +791,7 @@ export class DicomDimseService {
     if (record.status !== 'paused') throw new BadRequestException(`仅 paused 状态可恢复, 当前: ${record.status}`)
     const updated: TransferRecord = { ...record, status: 'sending', updatedAt: new Date().toISOString() }
     this.transfers.set(id, updated)
+    void this.persistTransfers()
     return { ...updated }
   }
 
@@ -718,6 +800,7 @@ export class DicomDimseService {
     if (record.status === 'completed') throw new BadRequestException(`传输 ${id} 已完成, 不可取消`)
     const updated: TransferRecord = { ...record, status: 'canceled', updatedAt: new Date().toISOString() }
     this.transfers.set(id, updated)
+    void this.persistTransfers()
     return { ...updated }
   }
 
