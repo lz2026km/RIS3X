@@ -3,7 +3,7 @@
  * 对标 Siemens syngo.plaza 协议注册表
  */
 import React, { createContext, useContext, useMemo, useState, useCallback } from 'react'
-import { Select, Button, Tooltip, Modal, Form, Input, InputNumber, Space, Card } from 'antd'
+import { Select, Button, Tooltip, Modal, Form, Input, InputNumber, Space, Card, Popconfirm, message } from 'antd'
 import { Settings, Plus, Trash2, Star } from 'lucide-react'
 import { t } from '../../../i18n/appI18n'
 
@@ -143,9 +143,17 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
   onApply,
   showManager = false,
 }) => {
-  const { protocols, active, applyProtocol } = useHangingProtocol()
+  const { protocols, active, applyProtocol, removeProtocol } = useHangingProtocol()
   const [open, setOpen] = useState(false)
   const [form] = Form.useForm()
+
+  const handleDeleteProtocol = useCallback(
+    (p: HangingProtocol) => {
+      removeProtocol(p.id)
+      message.success(t('w1Buttons.hanging.deleted', { name: p.name }))
+    },
+    [removeProtocol]
+  )
 
   const handleApply = useCallback(
     (id: string) => {
@@ -200,9 +208,16 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
               }
               extra={
                 !p.builtin && (
-                  <Button danger size="small" icon={<Trash2 size={12} />}>
-                    {t('w9e.hangingProtocol.delete')}
-                  </Button>
+                  <Popconfirm
+                    title={t('w1Buttons.hanging.deleteConfirm', { name: p.name })}
+                    okText={t('w1Buttons.hanging.ok')}
+                    cancelText={t('w1Buttons.hanging.cancel')}
+                    onConfirm={() => handleDeleteProtocol(p)}
+                  >
+                    <Button danger size="small" icon={<Trash2 size={12} />}>
+                      {t('w9e.hangingProtocol.delete')}
+                    </Button>
+                  </Popconfirm>
                 )
               }
             >

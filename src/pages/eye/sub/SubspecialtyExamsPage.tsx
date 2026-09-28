@@ -479,19 +479,19 @@ export const LowVisionPage: React.FC = () => {
               <Row gutter={[16, 16]}>
                 <Col span={12}>
                   <Card size="small" title={t('eyeSub.odRightEye')}>
-                    <div>{t('eyeSub.far')}: {result.rightEye.distance}</div>
-                    <div>{t('eyeSub.near')}: {result.rightEye.near}</div>
-                    <div>{t('eyeSub.aid')}: {result.rightEye.device}</div>
+                    <div>{t('eyeSub.far')}: {result.rightEye?.distance ?? result.odDistance ?? '-'}</div>
+                    <div>{t('eyeSub.near')}: {result.rightEye?.near ?? result.odNear ?? '-'}</div>
+                    <div>{t('eyeSub.aid')}: {result.rightEye?.device ?? '-'}</div>
                   </Card>
                 </Col>
                 <Col span={12}>
                   <Card size="small" title={t('eyeSub.osLeftEye')}>
-                    <div>{t('eyeSub.far')}: {result.leftEye.distance}</div>
-                    <div>{t('eyeSub.near')}: {result.leftEye.near}</div>
-                    <div>{t('eyeSub.aid')}: {result.leftEye.device}</div>
+                    <div>{t('eyeSub.far')}: {result.leftEye?.distance ?? result.osDistance ?? '-'}</div>
+                    <div>{t('eyeSub.near')}: {result.leftEye?.near ?? result.osNear ?? '-'}</div>
+                    <div>{t('eyeSub.aid')}: {result.leftEye?.device ?? '-'}</div>
                   </Card>
                 </Col>
-                <Col span={24}><Alert title={t('eyeSub.recommendDevice')} description={result.deviceRecommendation} type="success" showIcon /></Col>
+                <Col span={24}><Alert title={t('eyeSub.recommendDevice')} description={result.deviceRecommendation ?? '-'} type="success" showIcon /></Col>
               </Row>
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>

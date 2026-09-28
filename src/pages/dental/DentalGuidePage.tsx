@@ -46,6 +46,7 @@ export const DentalGuidePage: React.FC = () => {
   });
   // [G005 Wave1A P1] 套筒配置: dentalApi.updateGuideSleeve (PUT /dental/guide/:id/sleeve)
   const [sleeveModal, setSleeveModal] = useState<{ open: boolean; guide: any; sleeveType: string; saving: boolean }>({ open: false, guide: null, sleeveType: "", saving: false });
+  const [previewGuide, setPreviewGuide] = useState<any | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
 
@@ -319,7 +320,7 @@ export const DentalGuidePage: React.FC = () => {
                           <Divider style={{ margin: "4px 0" }} />
                           <Space>
                             {g.status === "designing" && (
-                              <Button size="small" icon={<Eye size={10} />}>
+                              <Button size="small" icon={<Eye size={10} />} onClick={() => setPreviewGuide(g)}>
                                 {t('dentalGuide.preview')}
                               </Button>
                             )}
@@ -464,6 +465,41 @@ export const DentalGuidePage: React.FC = () => {
             label: `${s.type} (Ø${s.diameter}mm × ${s.height}mm)`,
           }))}
         />
+      </Modal>
+      <Modal
+        title={t('w1Buttons.dental.previewTitle')}
+        open={!!previewGuide}
+        onCancel={() => setPreviewGuide(null)}
+        footer={<Button onClick={() => setPreviewGuide(null)}>{t('w1Buttons.dental.close')}</Button>}
+        width={560}
+      >
+        {previewGuide && (
+          <div>
+            <div style={{ background: '#0f172a', borderRadius: 8, padding: 16, display: 'flex', justifyContent: 'center' }}>
+              <svg width="320" height="190" viewBox="0 0 320 190" aria-label={t('w1Buttons.dental.previewTitle')}>
+                <rect x="0" y="0" width="320" height="190" fill="#0f172a" />
+                <path d="M40 130 Q40 40 160 40 Q280 40 280 130" fill="none" stroke="#38bdf8" strokeWidth="3" />
+                <path d="M55 140 Q55 65 160 65 Q265 65 265 140" fill="none" stroke="#1d4ed8" strokeWidth="2" strokeDasharray="6 4" />
+                {[0, 1, 2, 3, 4, 5].map((i) => {
+                  const a = (-70 + i * 28) * (Math.PI / 180);
+                  const x = 160 + Math.sin(a) * 110;
+                  const y = 120 - Math.cos(a) * 80;
+                  const active = previewGuide.toothNo != null && (Number(previewGuide.toothNo) % 6) === i;
+                  return <circle key={i} cx={x} cy={y} r={active ? 11 : 8} fill={active ? '#f59e0b' : '#334155'} stroke="#94a3b8" strokeWidth="1" />;
+                })}
+                <text x="160" y="178" textAnchor="middle" fill="#94a3b8" fontSize="11">FDI #{previewGuide.toothNo ?? '-'} · {previewGuide.type}</text>
+              </svg>
+            </div>
+            <div style={{ marginTop: 12, fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)' }}>
+              <div>{t('dentalGuide.guideLabel')}: {previewGuide.patientName ?? '-'} - {previewGuide.createdBy ?? '-'}</div>
+              <div>{t('dentalGuide.guideType')}: {previewGuide.type}</div>
+              <div>{t('dentalGuide.material')}: {previewGuide.material}</div>
+              <div>{t('dentalGuide.metalSleeve')}: {previewGuide.sleeveType || t('dentalGuide.sleeveToSelect')}</div>
+              <div>{previewGuide.fixationPin ? t('dentalGuide.withPin') : t('dentalGuide.withoutPin')} · {previewGuide.createdAt?.slice(0, 10) ?? '-'}</div>
+            </div>
+            <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>{t('w1Buttons.dental.previewHint')}</div>
+          </div>
+        )}
       </Modal>
     </div>
   );

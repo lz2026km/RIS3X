@@ -233,7 +233,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       {
         path: "/reports/archived",
         icon: <Archive size={18} />,
-        labelKey: "w6Workflow.archive.nav",
+        labelKey: "nav.reportArchive",
         roles: ["医生", "主任", "管理员",],
       },
       {
@@ -1517,13 +1517,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       {
         path: "/device/ops-center",
         icon: <Wrench size={18} />,
-        labelKey: "w11Device.title",
+        labelKey: "nav.deviceOpsCenter",
         roles: ["主任", "管理员", "技师"],
       },
       {
         path: "/ops/cost-drg",
         icon: <DollarSign size={18} />,
-        labelKey: "costDrg.title",
+        labelKey: "nav.costDrg",
         roles: ["主任", "管理员"],
       },
       // [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 (周视图/拖拽/冲突检测)
@@ -1600,7 +1600,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   {
     path: "/tech/mwl",
     icon: <RadioTower size={18} />,
-    labelKey: "w7exec.mwlManagerTitle",
+    labelKey: "nav.mwlManager",
     roles: ["技师", "主任", "管理员"],
   },
       {

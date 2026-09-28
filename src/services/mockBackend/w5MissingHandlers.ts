@@ -823,7 +823,7 @@ const exportApprovalHandlers = [
 // 22) Eye (optometry / low-vision / subspecialty / pacs export)
 // ═══════════════════════════════════════════════════════════════════════════
 const eyeHandlers = [
-  http.get(`${API_BASE}/eye/low-vision/prescription`, () => HttpResponse.json({ id: 'LV-001', patientId: 'P001', odSphere: -2.5, osSphere: -2.25, odCylinder: -0.5, osCylinder: -0.75, add: 2.0, createdAt: nowIso() })),
+  http.get(`${API_BASE}/eye/low-vision/prescription`, () => HttpResponse.json({ success: true, data: { id: 'LV-001', patientId: 'P001', rightEye: { distance: '0.15', near: '0.4', device: '手持放大镜 4X' }, leftEye: { distance: '0.2', near: '0.5', device: '手持放大镜 4X' }, deviceRecommendation: '手持放大镜 4X', odSphere: -2.5, osSphere: -2.25, createdAt: nowIso() } })),
   http.get(`${API_BASE}/eye/optometry/ok-lens`, () => HttpResponse.json([{ id: 'OKL-001', patientId: 'P001', design: 'ortho-k', baseCurve: 8.6, returnZone: 0.5, diameter: 10.6, status: 'active' }])),
   http.get(`${API_BASE}/eye/optometry/refraction`, () => HttpResponse.json([{ id: 'RF-001', patientId: 'P001', odSphere: -2.5, osSphere: -2.25, method: 'auto', createdAt: nowIso() }])),
   http.get(`${API_BASE}/eye/optometry/orders/:id`, ({ params }) => HttpResponse.json({ id: String(params.id), patientId: 'P001', lensType: 'progressive', status: 'in_production', createdAt: nowIso() })),

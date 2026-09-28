@@ -62,6 +62,7 @@ export const TeleConsultPage: React.FC = () => {
   const [videoOn, setVideoOn] = useState(true);
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [callActive, setCallActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
     device: '内置摄像头 (HD)',
@@ -183,6 +184,21 @@ export const TeleConsultPage: React.FC = () => {
       }
     } catch (e: any) {
       message.error(e.message);
+    }
+  };
+
+  // [G005] 呼叫/挂断: 本地通话状态 + toast (会诊会话在线时可用)
+  const handleCall = () => {
+    if (!session) {
+      message.warning(t("eye.tele.emptyLive"));
+      return;
+    }
+    if (!callActive) {
+      setCallActive(true);
+      message.success(t("w1Buttons.tele.calling"));
+    } else {
+      setCallActive(false);
+      message.info(t("w1Buttons.tele.callEnded"));
     }
   };
 
@@ -546,6 +562,8 @@ export const TeleConsultPage: React.FC = () => {
                         icon={<Phone size={14} />}
                         danger
                         disabled={!session}
+                        onClick={handleCall}
+                        title={callActive ? t("w1Buttons.tele.callEnded") : t("w1Buttons.tele.call")}
                       />
                       <Button
                         shape="circle"

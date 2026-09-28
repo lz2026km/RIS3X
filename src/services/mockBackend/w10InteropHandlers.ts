@@ -313,6 +313,40 @@ const buildOru = (reportId: string): string =>
   `OBX|1|TX|FINDINGS||报告所见示例内容\r` +
   `OBX|2|TX|IMPRESSION||报告结论示例内容\r`;
 
+// [demo seed] HL7 ORU 消息日志 (幂等), 使报告发布监控列表非空
+function seedOruLog(): void {
+  if (oruLog.length > 0) return;
+  const now = Date.now();
+  const seeds: Array<{ reportId: string; examId?: string; mode: 'MLLP' | 'STUB'; status: 'SENT' | 'STUBBED' | 'FAILED'; attempts: number; error?: string }> = [
+    { reportId: 'RPT-2026-000101', examId: 'EX-2026-000101', mode: 'STUB', status: 'STUBBED', attempts: 1 },
+    { reportId: 'RPT-2026-000102', examId: 'EX-2026-000102', mode: 'MLLP', status: 'SENT', attempts: 2 },
+    { reportId: 'RPT-2026-000103', mode: 'MLLP', status: 'FAILED', attempts: 3, error: 'MLLP connection refused (his.g005.local:2576)' },
+  ];
+  seeds.forEach((s, i) => {
+    oruSeq += 1;
+    const createdAt = new Date(now - (seeds.length - i) * 3600_000).toISOString();
+    const controlId = `G005-${s.reportId}`;
+    oruLog.push({
+      id: `ORU-${String(oruSeq).padStart(4, '0')}-${s.reportId}`,
+      reportId: s.reportId,
+      examId: s.examId,
+      controlId,
+      messageType: 'ORU^R01',
+      message: buildOru(s.reportId),
+      ackStatus: s.status === 'FAILED' ? 'AE' : 'AA',
+      ackMessage: s.status === 'FAILED' ? undefined : `MSH|^~\\&|HIS|HIS_RECEIVER|G005|G005||ACK^R01|ACK-${controlId}|P|2.5.1\rMSA|AA|${controlId}\r`,
+      endpoint: s.mode === 'MLLP' ? 'his.g005.local:2576' : 'stub://his.local/oru',
+      mode: s.mode,
+      attempts: s.attempts,
+      status: s.status,
+      error: s.error,
+      createdAt,
+      updatedAt: createdAt,
+    });
+  });
+}
+seedOruLog();
+
 // ── CDS Hooks ──
 const CDS_SERVICES = [
   {
@@ -339,6 +373,22 @@ interface CdsFeedback {
   createdAt: string;
 }
 const cdsFeedback: CdsFeedback[] = [];
+
+// [demo seed] CDS Hooks 反馈记录 (幂等), 使反馈列表非空
+function seedCdsFeedback(): void {
+  if (cdsFeedback.length > 0) return;
+  const now = Date.now();
+  const seeds: Array<{ serviceId: string; hook: string; cardUuid: string; outcome: string; overrideReason?: unknown }> = [
+    { serviceId: 'contrast-appropriateness', hook: 'order-select', cardUuid: 'cds-card-egfr-ok', outcome: 'accepted' },
+    { serviceId: 'contrast-appropriateness', hook: 'order-select', cardUuid: 'cds-card-egfr-mid', outcome: 'overridden', overrideReason: { code: 'benefit-outweighs-risk', display: '临床收益大于风险' } },
+    { serviceId: 'contrast-sign-check', hook: 'order-sign', cardUuid: 'cds-card-egfr-low', outcome: 'overridden', overrideReason: { code: 'already-dialyzed', display: '患者已行透析' } },
+  ];
+  seeds.forEach((s, i) => {
+    const createdAt = new Date(now - (seeds.length - i) * 5400_000).toISOString();
+    cdsFeedback.unshift({ id: `CDSFB-${String(++seq).padStart(5, '0')}`, ...s, createdAt });
+  });
+}
+seedCdsFeedback();
 
 const isContrast = (ctx: Record<string, unknown>): boolean => {
   const orderText = JSON.stringify(ctx.draftOrders ?? ctx.orders ?? []).toLowerCase();

@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.12-2",
-  "description": "G005 Radiology RIS v3.0.6.12-2 - Professional Upgrade Phase 2 (quality/interop/device/patient/security/UX)",
+  "version": "3.0.6.12-3",
+  "description": "G005 Radiology RIS v3.0.6.12-3 - Click/empty-table/nav fixes",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

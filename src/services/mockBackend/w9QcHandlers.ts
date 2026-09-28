@@ -432,6 +432,43 @@ function sampleItems(method: 'random' | 'low_yield' | 'stratified', size: number
   return pool.sort((a, b) => seed(a.reportId) - seed(b.reportId)).slice(0, size).map(toItem);
 }
 
+// [demo seed] 双盲抽查批次 (幂等), 使批次列表与统计/kappa 首次加载非空
+function seedSamplingBatches(): void {
+  if (samplingBatches.length > 0) return;
+  const mk = (
+    id: string,
+    name: string,
+    method: 'random' | 'low_yield' | 'stratified',
+    blind: boolean,
+    targetSize: number,
+    modality: string | undefined,
+    status: 'open' | 'closed',
+    createdBy: string,
+    createdAt: string,
+  ): SamplingBatch => ({ id, name, method, blind, targetSize, modality, status, createdBy, createdAt, items: sampleItems(method, targetSize, modality) });
+  samplingBatches.push(
+    mk('SB-1', '2026-08 随机双盲抽查', 'random', true, 5, undefined, 'open', '质控组-张', '2026-08-01T08:00:00.000Z'),
+    mk('SB-2', 'CT 低阳性率专项抽查', 'low_yield', true, 4, 'CT', 'open', '质控组-李', '2026-08-03T08:30:00.000Z'),
+    mk('SB-3', '分层抽查 (7月, 已关闭)', 'stratified', false, 6, undefined, 'closed', '质控组-王', '2026-07-20T09:00:00.000Z'),
+  );
+  samplingSeq = samplingBatches.length;
+  const readers = [
+    { readerId: 'R-001', readerName: '李慧敏' },
+    { readerId: 'R-002', readerName: '王建华' },
+  ];
+  samplingBatches.forEach((batch, bi) => {
+    batch.items.forEach((item, ii) => {
+      if (batch.id === 'SB-3' && ii >= 4) return;
+      const base: 'positive' | 'negative' = ii % 3 === 0 ? 'positive' : 'negative';
+      const second: 'positive' | 'negative' = ii % 4 === 3 ? (base === 'positive' ? 'negative' : 'positive') : base;
+      const at = new Date(Date.UTC(2026, 7, 1 + bi, 9 + (ii % 6), 0, 0)).toISOString();
+      item.readings.push({ readerSlot: 1, readerId: readers[0]!.readerId, readerName: readers[0]!.readerName, result: base, recordedAt: at });
+      item.readings.push({ readerSlot: 2, readerId: readers[1]!.readerId, readerName: readers[1]!.readerName, result: second, recordedAt: at });
+    });
+  });
+}
+seedSamplingBatches();
+
 function blindBatch(batch: SamplingBatch, viewerSlot?: 1 | 2) {
   return {
     id: batch.id, name: batch.name, method: batch.method, blind: batch.blind, targetSize: batch.targetSize,

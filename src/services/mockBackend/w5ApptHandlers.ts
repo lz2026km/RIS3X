@@ -66,6 +66,18 @@ let noShowSeq = 1
 
 const greenChannelReservations: Array<Record<string, any>> = []
 
+// [demo seed] 急诊绿色通道预约 (幂等), 使绿色通道列表首次加载非空
+function seedGreenChannel(): void {
+  if (greenChannelReservations.length > 0) return
+  const seeds = [
+    { id: 'GC-SEED-001', patientName: '刘海', patientId: 'P-20101', modality: 'CT', bodyPart: '头颅', deviceId: 'DEV-CT-01', deviceName: 'CT-1 号机房', roomId: 'ROOM-CT-01', technicianId: 'TECH-CT-01', reservedStartAt: '2026-09-14T02:10:00.000Z', reservedEndAt: '2026-09-14T02:40:00.000Z' },
+    { id: 'GC-SEED-002', patientName: '王强', patientId: 'P-20102', modality: 'MR', bodyPart: '膝关节', deviceId: 'DEV-MR-01', deviceName: 'MR-1 号机房', roomId: 'ROOM-MR-01', technicianId: 'TECH-MR-01', reservedStartAt: '2026-09-14T03:00:00.000Z', reservedEndAt: '2026-09-14T03:30:00.000Z' },
+    { id: 'GC-SEED-003', patientName: '赵敏', patientId: 'P-20103', modality: 'DR', bodyPart: '胸部', deviceId: 'DEV-DR-01', deviceName: 'DR-1 号机房', roomId: 'ROOM-DR-01', technicianId: 'TECH-DR-01', reservedStartAt: '2026-09-15T01:30:00.000Z', reservedEndAt: '2026-09-15T02:00:00.000Z' },
+  ]
+  greenChannelReservations.push(...seeds.map((s) => ({ ...s, priority: 'STAT', greenChannel: true })))
+}
+seedGreenChannel()
+
 const REMINDER_TEMPLATES: Record<string, string> = {
   SMS: '【G005医院】{{patient}}您好，您预约的{{exam}}将于{{time}}在{{room}}进行，请携带身份证提前30分钟到达并完成准备：{{prep}}。回复TD退订。',
   WECHAT: '{{patient}}您好，预约提醒：{{exam}} · {{time}} · {{room}}。准备须知：{{prep}}。请点击确认。',

@@ -171,6 +171,43 @@ export default function ResearchExportCenterPage() {
     } catch { message.error(t('previewFailed', '预览失败')) }
   }
 
+  // [W1] 下载: 有 downloadUrl 直接下载; 否则拉取内容生成 Blob 本地下载
+  const handleDownload = async (task: ExportTaskDto) => {
+    if (task.downloadUrl) {
+      const a = document.createElement('a')
+      a.href = task.downloadUrl
+      a.download = ''
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      message.success(t('downloadStarted', '已开始下载'))
+      return
+    }
+    try {
+      const res = await researchExportApi.getTaskContent(task.id)
+      if (res.success && res.data) {
+        const content = res.data.content ?? ''
+        const mime = task.format === 'JSON' ? 'application/json' : task.format === 'CSV' ? 'text/csv' : 'application/vnd.ms-excel'
+        const ext = task.format === 'JSON' ? 'json' : task.format === 'CSV' ? 'csv' : 'xls'
+        const payload = task.format === 'CSV' ? '\ufeff' + content : content
+        const blob = new Blob([payload], { type: mime })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${task.name || task.id}.${ext}`
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
+        message.success(t('downloadStarted', '已开始下载'))
+      } else {
+        message.error(res.error?.message ?? t('downloadFailed', '下载失败'))
+      }
+    } catch (e) { message.error((e as Error)?.message || t('downloadFailed', '下载失败')) }
+  }
+
   const groupedFields = useMemo(() => {
     const groups: Array<{ group: string; items: ExportFieldDto[] }> = []
     for (const f of fields) {
@@ -437,7 +474,7 @@ export default function ResearchExportCenterPage() {
                     <Button size="small" icon={<FileText size={12} />} onClick={() => void handlePreview(r.id)}>
                       {t('preview', '预览')}
                     </Button>
-                    <Button size="small" type="link" icon={<Download size={12} />} disabled={!r.downloadUrl}>
+                    <Button size="small" type="link" icon={<Download size={12} />} disabled={r.status === 'failed'} title={r.status === 'failed' ? t('downloadUnavailable', '任务失败，无可用导出文件') : undefined} onClick={() => void handleDownload(r)}>
                       {t('download', '下载')}
                     </Button>
                   </Space>

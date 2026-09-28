@@ -7,7 +7,7 @@ import { DELIVERY_CHANNELS_CONFIG, DELIVERY_TASKS_MOCK, DELIVERY_QUEUE_MOCK } fr
 import { sendMultiChannel, retryDeliveryTask, cancelDeliveryTask } from '@services/distribution/distributionService';
 import type { DeliveryChannel, DeliveryChannelConfig, DeliveryTask, DeliveryStatus } from '@/types/R3/R3.DIST';
 import { DELIVERY_STATUS_COLORS as STATUS_COLORS } from '@utils/statusColors';
-import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Table, Empty, Statistic, Row, Col, Divider, Alert, List, Progress } from 'antd';
+import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Table, Empty, Statistic, Row, Col, Divider, Alert, List, Progress, Input, InputNumber } from 'antd';
 import { Send, MessageSquare, Smartphone, Mail, Bell, Database, Printer, Cloud, Film, CheckCircle2, XCircle, Loader2, RefreshCw, Settings, Eye, Filter, Layers, Inbox, Activity, Clock } from 'lucide-react';
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { t } from '../../../../i18n/appI18n';
@@ -159,6 +159,31 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
 
   // [v3.0.6.11-98 Wave3B P1] 队列行详情 Modal: 任务详情字段展示
   const [detailTask, setDetailTask] = useState<DeliveryTask | null>(null);
+
+  // [G005] 通道编辑 Modal: 本地保存 displayName/host/port/限流/重试
+  const [editChannel, setEditChannel] = useState<DeliveryChannelConfig | null>(null);
+  const [editChannelForm] = Form.useForm<{ displayName: string; host?: string; port?: number; rateLimitPerMin: number; maxRetries: number }>();
+
+  const openEditChannel = useCallback((c: DeliveryChannelConfig) => {
+    setEditChannel(c);
+    editChannelForm.setFieldsValue({
+      displayName: c.displayName,
+      host: c.host,
+      port: c.port,
+      rateLimitPerMin: c.rateLimitPerMin,
+      maxRetries: c.retryPolicy.maxRetries,
+    });
+  }, [editChannelForm]);
+
+  const handleSaveChannel = useCallback(async () => {
+    if (!editChannel) return;
+    const v = await editChannelForm.validateFields();
+    setChannels((arr) => arr.map((x) => x.channel === editChannel.channel
+      ? { ...x, displayName: v.displayName, host: v.host, port: v.port, rateLimitPerMin: v.rateLimitPerMin, retryPolicy: { ...x.retryPolicy, maxRetries: v.maxRetries } }
+      : x));
+    message.success(t('w1Buttons.channel.saved', { name: v.displayName }));
+    setEditChannel(null);
+  }, [editChannel, editChannelForm]);
 
   const columns = [
     { title: t('reportDist.col.channel'), dataIndex: 'channel', key: 'channel', width: 100, render: (c: DeliveryChannel) => {
@@ -336,7 +361,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
               <List.Item
                 actions={[
                   <Switch key="enabled" size="small" checked={c.enabled} onChange={(v) => setChannels((arr) => arr.map((x) => x.channel === c.channel ? { ...x, enabled: v } : x))} />,
-                  <Button key="edit" size="small" icon={<Settings className="w-3 h-3" />}>{t('reportDist.edit')}</Button>,
+                  <Button key="edit" size="small" icon={<Settings className="w-3 h-3" />} onClick={() => openEditChannel(c)}>{t('reportDist.edit')}</Button>,
                 ]}
               >
                 <List.Item.Meta
@@ -354,6 +379,48 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
             );
           }}
         />
+      </Modal>
+      {/* [G005] 通道编辑 Modal */}
+      <Modal
+        title={<Space><Settings className="w-4 h-4" /><span>{t('w1Buttons.channel.title')}{editChannel ? ` · ${editChannel.displayName}` : ''}</span></Space>}
+        open={editChannel !== null}
+        onCancel={() => setEditChannel(null)}
+        footer={null}
+        width={520}
+      >
+        <Form form={editChannelForm} layout="vertical" size="small">
+          <Form.Item name="displayName" label={t('w1Buttons.channel.name')} rules={[{ required: true, message: t('w1Buttons.channel.nameRequired') }]}>
+            <Input />
+          </Form.Item>
+          <Row gutter={8}>
+            <Col span={14}>
+              <Form.Item name="host" label={t('w1Buttons.channel.host')}>
+                <Input placeholder="mock / https://..." />
+              </Form.Item>
+            </Col>
+            <Col span={10}>
+              <Form.Item name="port" label={t('w1Buttons.channel.port')}>
+                <InputNumber min={0} max={65535} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item name="rateLimitPerMin" label={t('w1Buttons.channel.rateLimit')}>
+                <InputNumber min={1} max={100000} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="maxRetries" label={t('w1Buttons.channel.maxRetries')}>
+                <InputNumber min={0} max={10} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setEditChannel(null)}>{t('w1Buttons.channel.cancel')}</Button>
+            <Button type="primary" onClick={() => void handleSaveChannel()}>{t('w1Buttons.channel.save')}</Button>
+          </div>
+        </Form>
       </Modal>
       {/* [v3.0.6.11-98 Wave3B P1] 任务详情 Modal */}
       <Modal

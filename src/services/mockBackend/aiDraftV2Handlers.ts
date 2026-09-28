@@ -108,6 +108,14 @@ function generateDraft(modality: string, bodyPart: string, findings?: string, cl
   return result
 }
 
+// [demo seed] AI 草稿历史 (幂等), 使草稿列表首次加载非空
+;(function seedDrafts() {
+  if (drafts.length > 0) return
+  generateDraft('CT', '胸部', '右肺上叶见 8 mm 磨玻璃结节, 边缘尚清, 建议随访复查。', '咳嗽 2 周, 吸烟史 30 年')
+  generateDraft('MR', '颅脑', '双侧基底节区见多发点状缺血灶, 脑沟增宽。', '头晕 1 月')
+  generateDraft('DR', '腰椎', '', '腰背部疼痛')
+})()
+
 export const aiDraftV2Handlers = [
   http.post(`${API}/extract-fields`, async ({ request }) => {
     await delay(80)

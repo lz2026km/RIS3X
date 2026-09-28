@@ -154,6 +154,23 @@ pushBackupSet('incremental', isoOffsetMin(-240), 1_820_000, fullSet.id)
 pushBackupSet('incremental', isoOffsetMin(-120), 2_110_000, fullSet.id)
 pushBackupSet('incremental', isoOffsetMin(-15), 1_640_000, fullSet.id)
 
+// [demo seed] HSM 密钥轮换事件 (幂等); 备份集/恢复点已有模块加载 seed, 此处加守卫兜底
+function seedSecurityExtras(): void {
+  if (ROTATIONS.length === 0) {
+    const events: Array<Omit<RotationEventDto, 'id'>> = [
+      { provider: 'software-kms', algorithm: 'RSA-2048', fromKeyId: null, toKeyId: 'sw-rsa2048-0001', at: isoOffsetDays(-60), reason: 'initial-provisioning' },
+      { provider: 'mock-hsm', algorithm: 'RSA-2048', fromKeyId: null, toKeyId: 'mock-rsa2048-0001', at: isoOffsetDays(-30), reason: 'hsm-onboarding' },
+      { provider: 'software-kms', algorithm: 'RSA-2048', fromKeyId: 'sw-rsa2048-0000', toKeyId: 'sw-rsa2048-0001', at: isoOffsetDays(-7), reason: 'scheduled-rotation' },
+    ]
+    for (const e of events) { rotSeq += 1; ROTATIONS.unshift({ id: `rot-${rotSeq.toString().padStart(4, '0')}`, ...e }) }
+  }
+  if (BACKUP_SETS.length === 0) {
+    const base = pushBackupSet('full', isoOffsetMin(-1440), 18_420_000)
+    pushBackupSet('incremental', isoOffsetMin(-15), 1_640_000, base.id)
+  }
+}
+seedSecurityExtras()
+
 const DRILLS: DrillRecordDto[] = [
   { id: 'drill-0001', startedAt: isoOffsetDays(-7), finishedAt: isoOffsetDays(-7), durationSec: 300, scenario: 'site-failover', rtoTargetMin: 30, rtoActualMin: 28, rpoTargetMin: 15, rpoActualMin: 12, result: 'pass', steps: [
     { name: '备份完整性校验', status: 'ok', durationSec: 45, detail: '校验和一致' },

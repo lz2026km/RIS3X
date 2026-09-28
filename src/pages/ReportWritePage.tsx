@@ -39,6 +39,8 @@ import ReportAnnotationPanel from '@components/report/ReportAnnotationPanel';
 import CriticalValueCard from '@components/report/v3/R3.QUALITY/CriticalValueCard';
 import { criticalAlertApi, type CriticalAlert } from '@services/api/criticalAlertApi';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { buildGlobalShortcuts } from '../hooks/useGlobalShortcuts';
+import { ShortcutHelpModal } from '@components/common/ShortcutHelpModal';
 import { displayStatus, toEnState } from '@components/report/statusMeta';
 // [v3.0.6.11-103 Wave 12] 报告流程状态条 (7 态状态机 + 下一步一键流转)
 import ReportFlowBar from '@components/report/ReportFlowBar';
@@ -1952,6 +1954,10 @@ export default function ReportWritePage() {
     { key: 'F5', action: () => { setAiUi((u) => ({ ...u, open: true })); }, description: t("reportWrite.aiDraft") },
   ]);
 
+  // [G005] 快捷键帮助浮层: 顶栏键盘图标 → ShortcutHelpModal
+  const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false);
+  const globalShortcuts = useMemo(() => buildGlobalShortcuts({ navigate }), [navigate]);
+
   // [v3.0.6.11-95 Wave2B P1] 草稿超时提醒: 打开超过 24h 未更新的草稿显示提示条
   const staleHours = useMemo(() => {
     const lastEdited = context.document.lastEditedAt ?? context.document.updatedAt ?? '';
@@ -2226,7 +2232,7 @@ export default function ReportWritePage() {
           </span>
           {/* [v3.0.6.11-95 Wave2B P1] 快捷键提示 */}
           <Tooltip title={t("reportWrite.shortcuts2")}>
-            <Button type="text" size="small" className="v3-topbar-hide-mobile" icon={<Keyboard className="w-3.5 h-3.5" />} />
+            <Button type="text" size="small" className="v3-topbar-hide-mobile" icon={<Keyboard className="w-3.5 h-3.5" />} onClick={() => setShortcutHelpOpen(true)} />
           </Tooltip>
           <span className="v3-topbar-autosave">{autoSaveTip}</span>
           {/* [W2-2] 签署 / 发布入口 (按状态机显示) */}
@@ -2788,6 +2794,7 @@ export default function ReportWritePage() {
           </div>
         )}
       </Modal>
+      <ShortcutHelpModal open={shortcutHelpOpen} onClose={() => setShortcutHelpOpen(false)} shortcuts={globalShortcuts} />
     </Layout>
   );
 }

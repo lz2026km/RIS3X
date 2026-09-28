@@ -308,6 +308,21 @@ export const AiReportWriterPage: React.FC = () => {
     }
   }, [recording, transcribeAudio]);
 
+  // [G005] 保存 AI 报告草稿到本地 (演示: localStorage + toast)
+  const handleSave = useCallback(() => {
+    if (!aiText) return;
+    try {
+      const draft = {
+        patientId, patientName, condition, modality, findings, aiText,
+        savedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(`eye.aiReport.draft.${patientId}`, JSON.stringify(draft));
+      message.success(t('w1Buttons.aiReport.saved'));
+    } catch {
+      message.error(t('w1Buttons.aiReport.saveFailed'));
+    }
+  }, [aiText, patientId, patientName, condition, modality, findings]);
+
   // 反馈
   const handleFeedback = useCallback(
     async (suggestion: AISuggestion, rating: number) => {
@@ -488,7 +503,7 @@ export const AiReportWriterPage: React.FC = () => {
               >
                 {t('aiReportWriter.multiRewrite')}
               </Button>
-              <Button icon={<Save size={14} />} disabled={!aiText}>
+              <Button icon={<Save size={14} />} disabled={!aiText} onClick={handleSave}>
                 {t('aiReportWriter.saveReport')}
               </Button>
             </Space>

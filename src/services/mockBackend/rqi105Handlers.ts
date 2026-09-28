@@ -614,6 +614,38 @@ export const rqi105Handlers = [
   }),
   http.get(`${API}/devices/schedule/conflicts`, async () => {
     await delay(80)
-    return HttpResponse.json([])
+    // [demo seed] 确定性排程冲突 (与 /devices/schedule 的 BLK-* 区块对应), 使冲突表非空
+    return HttpResponse.json([
+      {
+        blockId: 'BLK-0-0',
+        deviceId: 'dev-ct-01',
+        deviceName: 'CT-1 号机房',
+        title: '患者1 · 常规',
+        start: '2026-09-14T09:00:00',
+        end: '2026-09-14T10:00:00',
+        overlapWith: ['BLK-0-1', 'BLK-1-0'],
+        suggestion: { start: '2026-09-14T13:00:00', end: '2026-09-14T14:00:00', reason: '移至同日 13:00 空闲时段, 避开预防性维护窗口' },
+      },
+      {
+        blockId: 'BLK-1-2',
+        deviceId: 'dev-mr-01',
+        deviceName: 'MR-1 号机房',
+        title: '患者3 · 常规',
+        start: '2026-09-15T09:00:00',
+        end: '2026-09-15T10:00:00',
+        overlapWith: ['BLK-2-0'],
+        suggestion: { start: '2026-09-15T15:00:00', end: '2026-09-15T16:00:00', reason: '顺延至当日下午, 与 DR 机房排程不再重叠' },
+      },
+      {
+        blockId: 'BLK-2-3',
+        deviceId: 'dev-dr-01',
+        deviceName: 'DR-1 号机房',
+        title: '患者4 · 常规',
+        start: '2026-09-15T11:00:00',
+        end: '2026-09-15T12:00:00',
+        overlapWith: ['BLK-0-3'],
+        suggestion: { start: '2026-09-16T09:00:00', end: '2026-09-16T10:00:00', reason: '改约至次日 09:00, 技师与机房均空闲' },
+      },
+    ])
   }),
 ]

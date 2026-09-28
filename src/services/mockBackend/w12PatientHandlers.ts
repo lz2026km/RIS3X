@@ -98,6 +98,56 @@ function wxRecord(input: Omit<WechatSendLogDto, 'id' | 'attempts' | 'createdAt'>
   return log
 }
 
+// [demo seed] 微信绑定用户 + 推送日志, 保证 demo 表格首次加载非空 (确定性, 幂等)
+function seedWx(): void {
+  if (wxUsers.size > 0 || wxLogs.length > 0) return
+  const now = Date.now()
+  const userSeeds: Array<{ patientIdx: number; channel: 'SERVICE_ACCOUNT' | 'MINI_PROGRAM'; subscribed: boolean }> = [
+    { patientIdx: 0, channel: 'SERVICE_ACCOUNT', subscribed: true },
+    { patientIdx: 1, channel: 'MINI_PROGRAM', subscribed: true },
+    { patientIdx: 2, channel: 'SERVICE_ACCOUNT', subscribed: false },
+    { patientIdx: 3, channel: 'MINI_PROGRAM', subscribed: true },
+  ]
+  const openids: string[] = []
+  userSeeds.forEach((s, i) => {
+    const p = PATIENTS[s.patientIdx]!
+    const openid = `o${hexFrom(`openid:${p.patientId}`, 27)}`
+    const unionid = `u${hexFrom(`unionid:${p.patientId}`, 27)}`
+    const createdAt = new Date(now - (userSeeds.length - i) * 86400_000).toISOString()
+    openids.push(openid)
+    wxUsers.set(openid, {
+      openid, unionid, nickname: `${p.name}的微信`, avatarUrl: 'https://mmsns.qpic.cn/default/avatar.png', gender: 'UNKNOWN', channel: s.channel,
+      phone: p.phone, boundPatientId: p.patientId, boundEmpiId: p.empiId, boundPatientName: p.name,
+      boundAt: createdAt, subscribed: s.subscribed, createdAt, updatedAt: createdAt,
+    })
+  })
+  const logSeeds: Array<{ userIdx: number; type: WechatSendLogDto['type']; title: string; content: string; status: WechatSendLogDto['status'] }> = [
+    { userIdx: 0, type: 'OAUTH', title: '微信授权登录', content: 'SERVICE_ACCOUNT 授权成功', status: 'SENT' },
+    { userIdx: 0, type: 'BIND', title: '绑定就诊人成功', content: '张伟 (P100001)', status: 'SENT' },
+    { userIdx: 1, type: 'TEMPLATE', title: '报告已出具', content: '李娜的 MR 颅脑报告已出具', status: 'SENT' },
+    { userIdx: 2, type: 'PUSH', title: '候诊提醒', content: '王芳请于 10:30 到 CT-2 检查', status: 'FAILED' },
+    { userIdx: 3, type: 'TEMPLATE', title: '缴费结果通知', content: '陈杰 CT 增强缴费成功', status: 'SENT' },
+    { userIdx: 1, type: 'PUSH', title: '预约提醒', content: 'MR 检查将于明日 09:00 进行', status: 'ARCHIVED' },
+  ]
+  logSeeds.forEach((s, i) => {
+    const createdAt = new Date(now - (logSeeds.length - i) * 3600_000).toISOString()
+    wxLogs.unshift({
+      id: `WXLOG-${String(++wxSeq).padStart(6, '0')}`,
+      type: s.type,
+      channel: wxUsers.get(openids[s.userIdx]!)!.channel,
+      openid: openids[s.userIdx]!,
+      title: s.title,
+      content: s.content,
+      status: s.status,
+      attempts: s.status === 'FAILED' ? 2 : 1,
+      createdAt,
+      ...(s.status === 'FAILED' ? { error: 'TEMPLATE_SEND_LIMIT' } : {}),
+      ...(s.status === 'ARCHIVED' ? { archivedAt: createdAt } : {}),
+    })
+  })
+}
+seedWx()
+
 // 微信服务号/小程序 handlers — 单一来源, 经 wechatHandlers.ts 重新导出注册
 const wxHandlers = [
   http.post(`${API}/wechat/oauth/callback`, async ({ request }) => {
@@ -255,6 +305,35 @@ function seedPay(): void {
   })
 }
 seedPay()
+
+// [demo seed] 退款记录, 保证 demo 退款列表首次加载非空 (确定性, 幂等)
+function seedPayRefunds(): void {
+  if (payRefunds.length > 0) return
+  const now = Date.now()
+  const seeds: Array<{ orderNo: string; amount: number; reason: string; operator: string; hoursAgo: number }> = [
+    { orderNo: 'PAY2026060005', amount: 200, reason: '检查项目调整, 差额退费', operator: '收费处-张', hoursAgo: 26 },
+    { orderNo: 'PAY2026060002', amount: 120, reason: '患者取消预约, 部分退费', operator: '收费处-李', hoursAgo: 12 },
+    { orderNo: 'PAY2026060003', amount: 60, reason: '重复收费退费', operator: '收费处-王', hoursAgo: 4 },
+  ]
+  for (const s of seeds) {
+    const order = payOrders.get(payOrderNoIndex.get(s.orderNo) ?? '')
+    if (!order) continue
+    order.refundedAmount += s.amount
+    order.status = order.refundedAmount >= order.paidAmount ? 'REFUNDED' : 'PARTIAL_REFUND'
+    order.refundedAt = new Date(now - s.hoursAgo * 3600_000).toISOString()
+    order.updatedAt = order.refundedAt
+    payRefunds.push({
+      id: `REF-${String(++payRefundSeq).padStart(6, '0')}`,
+      orderId: order.id,
+      orderNo: order.orderNo,
+      amount: s.amount,
+      reason: s.reason,
+      operator: s.operator,
+      createdAt: order.refundedAt,
+    })
+  }
+}
+seedPayRefunds()
 
 function createPayOrder(body: { patientId?: string; patientName?: string; itemType?: PaymentOrderDto['itemType']; refId?: string; amount?: number; method?: PaymentMethod; subject?: string }): PaymentOrderDto | { error: string } {
   if (!body.patientId) return { error: 'patientId 不能为空' }
@@ -482,6 +561,33 @@ function ncSend(body: { templateId?: string; templateCode?: string; channel?: De
   ncLogs.unshift(log)
   return log
 }
+
+// [demo seed] 通知投递日志, 保证 demo 投递列表与成功率统计首次加载非空 (确定性, 幂等)
+function seedNcLogs(): void {
+  if (ncLogs.length > 0) return
+  const now = Date.now()
+  const seeds: Array<{ templateCode: string; channel: DeliveryLogDto['channel']; recipient: string; patientId: string; variables: Record<string, string | number>; status: DeliveryLogDto['status']; error?: string }> = [
+    { templateCode: 'APPOINTMENT_REMINDER', channel: 'SMS', recipient: '13800001001', patientId: 'P100001', variables: { patientName: '张伟', modality: 'CT', scheduledAt: '2026-09-28 09:00', deviceName: 'CT-1 号机房' }, status: 'SENT' },
+    { templateCode: 'REPORT_READY', channel: 'WECHAT_TEMPLATE', recipient: `o${hexFrom('openid:P100002', 27)}`, patientId: 'P100002', variables: { patientName: '李娜', examDate: '2026-09-26', modality: 'MR', bodyPart: '颅脑' }, status: 'SENT' },
+    { templateCode: 'CRITICAL_ALERT', channel: 'VOICE', recipient: '13800001003', patientId: 'P100003', variables: { patientName: '王芳', modality: 'CT', criticalValue: '颅内出血' }, status: 'SENT' },
+    { templateCode: 'SATISFACTION_SURVEY', channel: 'SMS', recipient: '13800001004', patientId: 'P100004', variables: { patientName: '陈杰' }, status: 'FAILED', error: 'INVALID_PHONE' },
+    { templateCode: 'APPOINTMENT_REMINDER', channel: 'WECHAT_TEMPLATE', recipient: `o${hexFrom('openid:P100001', 27)}`, patientId: 'P100001', variables: { patientName: '张伟', modality: 'CT', scheduledAt: '2026-09-27 14:00', deviceName: 'CT-2 号机房' }, status: 'RETRYING' },
+  ]
+  seeds.forEach((s, i) => {
+    const tpl = [...ncTemplates.values()].find((t) => t.code === s.templateCode)
+    if (!tpl) return
+    const createdAt = new Date(now - (seeds.length - i) * 1800_000).toISOString()
+    ncLogs.unshift({
+      id: `NLOG-${String(++ncLogSeq).padStart(6, '0')}`,
+      templateId: tpl.id, templateCode: tpl.code, templateName: tpl.name,
+      channel: s.channel, recipient: s.recipient, patientId: s.patientId, title: tpl.title,
+      content: renderTpl(tpl.content, s.variables), variables: s.variables,
+      status: s.status, attempts: s.status === 'FAILED' ? 3 : 1, maxAttempts: 3,
+      lastError: s.error, createdAt, sentAt: s.status === 'SENT' ? createdAt : undefined,
+    })
+  })
+}
+seedNcLogs()
 
 const ncHandlers = [
   http.get(`${API}/notification-channel/templates`, async ({ request }) => {
@@ -774,6 +880,65 @@ const PREP_ITEMS = [
   { key: 'bowel', label: '肠道准备 (结肠相关检查)', required: false },
   { key: 'renal', label: '提供近期肾功能报告 (增强)', required: true },
 ]
+
+// [demo seed] 自助登记底层内存态, 保证问卷/同意/队列/状态接口首次加载非空 (确定性, 幂等)
+function seedSr(): void {
+  if (srCheckIns.size > 0 || srQuestionnaires.size > 0 || srConsents.size > 0 || srQueues.size > 0) return
+  const now = Date.now()
+  const iso = (hoursAgo: number) => new Date(now - hoursAgo * 3600_000).toISOString()
+  const prep = () => PREP_ITEMS.map((p) => ({ ...p }))
+
+  const questionnaire = (patientId: string, opts: { allergies?: string[]; implants?: string[]; pregnant?: boolean; claustrophobia?: boolean; hoursAgo: number }) => {
+    const allergies = opts.allergies ?? []
+    const implants = opts.implants ?? []
+    const riskNotes: string[] = []
+    if (allergies.length) riskNotes.push(`过敏史: ${allergies.join('、')}`)
+    if (opts.pregnant) riskNotes.push('妊娠状态, 慎用辐射/对比剂')
+    if (implants.length) riskNotes.push(`体内植入物: ${implants.join('、')}`)
+    if (opts.claustrophobia) riskNotes.push('幽闭恐惧, 需镇静评估')
+    return {
+      patientId,
+      answers: { fasting: true, metal: implants.length > 0 },
+      allergyFlag: allergies.length > 0,
+      pregnancyFlag: Boolean(opts.pregnant),
+      fastingConfirmed: true,
+      implantFlag: implants.length > 0,
+      riskLevel: allergies.length || opts.pregnant || implants.length ? 'HIGH' : riskNotes.length ? 'MEDIUM' : 'LOW',
+      riskNotes,
+      prepItems: prep(),
+      submittedAt: iso(opts.hoursAgo),
+    }
+  }
+  srQuestionnaires.set('P100001', questionnaire('P100001', { hoursAgo: 30 }))
+  srQuestionnaires.set('P100002', questionnaire('P100002', { allergies: ['青霉素'], hoursAgo: 8 }))
+  srQuestionnaires.set('P100003', questionnaire('P100003', { implants: ['心脏起搏器'], claustrophobia: true, hoursAgo: 5 }))
+
+  const consent = (patientId: string, visitId: string, procedure: string, signedBy: string, hoursAgo: number) => {
+    srConsentSeq += 1
+    const id = `SC-${String(srConsentSeq).padStart(6, '0')}`
+    return { id, patientId, visitId, consentType: 'contrast', procedure, agreed: true, status: 'signed', signedBy, witnessName: '护士-赵敏', signedAt: iso(hoursAgo), signatureHash: hashNum(`${patientId}:${signedBy}`).toString(16) }
+  }
+  srConsents.set('P100001', [consent('P100001', 'V202600001', 'CT 增强检查及碘对比剂使用', '张伟', 29)])
+  srConsents.set('P100002', [consent('P100002', 'V202600002', 'MR 增强检查及钆对比剂使用', '李娜', 7)])
+
+  const checkIn = (patientId: string, patientName: string, visitId: string, booth: string, hoursAgo: number) => {
+    srCheckInSeq += 1
+    return { id: `CI-${String(srCheckInSeq).padStart(6, '0')}`, patientId, patientName, visitId, status: 'CHECKED_IN', blockers: [], booth, checkedInAt: iso(hoursAgo) }
+  }
+  srCheckIns.set('P100001', checkIn('P100001', '张伟', 'V202600001', '自助机-2', 28))
+  srCheckIns.set('P100002', checkIn('P100002', '李娜', 'V202600002', '自助机-1', 6))
+
+  const queue = (patientId: string, patientName: string, visitId: string, modality: string, priority: 'NORMAL' | 'URGENT' | 'EMERGENCY', position: number, room: string, hoursAgo: number) => {
+    srTicketSeq += 1
+    return { ticket: `${modality.slice(0, 1)}${String(srTicketSeq).padStart(3, '0')}`, patientId, patientName, visitId, modality, priority, position, estimatedWaitMinutes: position * 8, room, issuedAt: iso(hoursAgo) }
+  }
+  srQueues.set('CT', [
+    queue('P100001', '张伟', 'V202600001', 'CT', 'NORMAL', 2, 'CT-1', 27),
+    queue('P100003', '王芳', 'V202600003', 'CT', 'URGENT', 1, 'CT-2', 4),
+  ])
+  srQueues.set('MR', [queue('P100002', '李娜', 'V202600002', 'MR', 'NORMAL', 1, 'MR-1', 5)])
+}
+seedSr()
 
 const srHandlers = [
   http.post(`${API}/self-registration/identify`, async ({ request }) => {

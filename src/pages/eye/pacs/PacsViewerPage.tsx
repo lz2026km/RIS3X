@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Tag, Button, Spin } from 'antd';
+import { Tag, Button, Spin, message } from 'antd';
 import { Image, ArrowLeft, Download } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
@@ -77,6 +77,35 @@ const PacsViewerPage: React.FC = () => {
     return () => { cancelled = true; };
   }, [studyId, reloadTick]);
 
+  // [G005] 导出 DICOM 检查清单 (演示: 生成本地 manifest JSON 下载)
+  const handleExportDicom = () => {
+    if (!study) return;
+    const manifest = {
+      format: 'DICOM-STUDY-MANIFEST',
+      exportedAt: new Date().toISOString(),
+      studyId: study.id ?? studyId,
+      patientId: study.patientId,
+      patientName: study.patientName,
+      eyeSide: study.eyeSide,
+      modality: study.modality,
+      studyDate: study.studyDate,
+      device: study.device,
+      measurements: study.measurements,
+      report: study.report,
+    };
+    try {
+      const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const name = `dicom-${study.id ?? studyId ?? 'study'}-manifest.json`;
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      message.success(t('w1Buttons.pacs.exported', { name }));
+    } catch {
+      message.error(t('w9.states.error'));
+    }
+  };
+
   if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip={t('w9d.viewerPro.loading')} /></div>;
   if (!study) return (
     <div style={{ padding: 16, textAlign: 'center', color: '#fff' }}>
@@ -126,6 +155,7 @@ const PacsViewerPage: React.FC = () => {
           type="text"
           style={{ color: "#fff" }}
           icon={<Download className="v4-icon" />}
+          onClick={handleExportDicom}
         >
           {t('w9d.pacsViewer.exportDicom')}
         </Button>

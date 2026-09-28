@@ -504,6 +504,18 @@ const ASSETS: Asset[] = [
 interface Retirement { id: string; assetId: string; deviceName: string; type: 'retire' | 'scrap'; reason: string; requestedBy: string; requestedAt: string; status: 'pending' | 'approved' | 'rejected'; approvedBy?: string; approvedAt?: string; scrapValue?: number }
 const RETIREMENTS: Retirement[] = []
 
+// [demo seed] 资产退役/报废审批 (幂等), 使资产列表与 stats.pendingRetirements 非零
+function seedRetirements(): void {
+  if (RETIREMENTS.length > 0) return
+  const seeds: Array<Omit<Retirement, 'id'>> = [
+    { assetId: 'AST-3005', deviceName: DEVICES[4]!.name, type: 'retire', reason: '使用超过 7 年, 球管老化维护成本升高', requestedBy: '设备科-王工', requestedAt: iso(-12), status: 'pending' },
+    { assetId: 'AST-3003', deviceName: DEVICES[2]!.name, type: 'retire', reason: '冷头故障频繁, 拟更新机型', requestedBy: '设备科-李工', requestedAt: iso(-5), status: 'pending' },
+    { assetId: 'AST-3006', deviceName: DEVICES[5]!.name, type: 'scrap', reason: '已停用两年, 申请报废处置', requestedBy: '设备科-陈工', requestedAt: iso(-20), status: 'approved', approvedBy: '设备科主任', approvedAt: iso(-18), scrapValue: 12000 },
+  ]
+  seeds.forEach((s, i) => RETIREMENTS.push({ id: `RET-${i + 1}`, ...s }))
+}
+seedRetirements()
+
 const monthKey = (v: string) => v.slice(0, 7)
 const addMonths = (key: string, m: number) => {
   const [y, mo] = key.split('-').map(Number)

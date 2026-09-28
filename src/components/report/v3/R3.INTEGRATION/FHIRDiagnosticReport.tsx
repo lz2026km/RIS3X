@@ -5,6 +5,7 @@
  */
 import { FHIR_DR_DOCUMENTS_MOCK, FHIR_DR_MOCK } from '@data/reportIntegrationMock';
 import { generateFhirDr, downloadFhirDr, sendFhirDr, validateFhir, buildFhirBundle } from '@services/integration/fhirDiagnosticService';
+import { smartAuthApi } from '@services/api/smartAuthApi';
 import type { FhirDiagnosticReport } from '@/types/R3/R3.INTEGRATION';
 import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Divider, Alert } from 'antd';
 import { Braces, Download, Send, Copy, CheckCircle2, FileJson, Layers, Server, Globe, Lock, Key, Plus } from 'lucide-react';
@@ -39,6 +40,8 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ success: boolean; statusCode: number; durationMs: number } | null>(null);
   const [showOAuth, setShowOAuth] = useState(false);
+  const [authorizing, setAuthorizing] = useState(false);
+  const [authCode, setAuthCode] = useState<string | null>(null);
   const [genForm, setGenForm] = useState({ modality: 'CT', bodyPart: '胸部', findings: '', impression: '' });
   const [fhirServerUrl, setFhirServerUrl] = useState('https://fhir.hospital.com/api/FHIR/R4');
 
@@ -102,6 +105,40 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
     navigator.clipboard.writeText(selected.json);
     message.success(t('reportIntegration.fhir.jsonCopied'));
   }, [selected]);
+
+  // [G005] SMART on FHIR 授权: 复用 smartAuthApi.authorize → 取回授权码; 无 code 时跳转授权页
+  const handleAuthorize = useCallback(async () => {
+    setAuthorizing(true);
+    try {
+      const redirectUri = typeof window !== 'undefined'
+        ? `${window.location.origin}${window.location.pathname}`
+        : 'https://ris.hospital.com/oauth/callback';
+      const res = await smartAuthApi.authorize({
+        client_id: 'g005-ris-client',
+        redirect_uri: redirectUri,
+        scope: 'patient/DiagnosticReport.read patient/Patient.read launch/patient offline_access',
+        state: Math.random().toString(36).slice(2),
+        patient: patientId,
+        user_id: reportId,
+      });
+      if (res.success && res.data?.redirectUrl) {
+        const match = res.data.redirectUrl.match(/[?&]code=([^&]+)/);
+        if (match) {
+          setAuthCode(decodeURIComponent(match[1] ?? ''));
+          message.success(t('smartAuth.authSuccess'));
+        } else {
+          window.open(res.data.redirectUrl, '_blank', 'noopener,noreferrer');
+          message.info(t('smartAuth.noCode'));
+        }
+      } else {
+        message.error(res.error?.message ?? t('smartAuth.authFailed'));
+      }
+    } catch {
+      message.error(t('smartAuth.authRequestFailed'));
+    } finally {
+      setAuthorizing(false);
+    }
+  }, [patientId, reportId]);
 
   return (
     <div className="space-y-3">
@@ -312,7 +349,14 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
             <div>{t('reportIntegration.fhir.clientId')} <span className="font-mono">g005-ris-client</span></div>
             <div>Scope: <Tag color="cyan">patient/DiagnosticReport.read patient/Patient.read launch/patient offline_access</Tag></div>
           </div>
-          <Button type="primary" block icon={<Key className="w-3 h-3" />}>{t('reportIntegration.fhir.authorize')}</Button>
+          <Button type="primary" block icon={<Key className="w-3 h-3" />} loading={authorizing} onClick={() => void handleAuthorize()}>{t('reportIntegration.fhir.authorize')}</Button>
+          {authCode && (
+            <Alert
+              type="success"
+              title={t('smartAuth.authSuccess')}
+              description={<span className="font-mono text-xs break-all">code = {authCode}</span>}
+            />
+          )}
         </div>
       </Modal>
     </div>

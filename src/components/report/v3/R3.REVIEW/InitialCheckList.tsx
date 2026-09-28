@@ -3,7 +3,7 @@
  */
 import { reviewService } from '../../../../services/review/reviewService';
 import type { ReviewTask, ReviewStage, ReviewFilter } from '../../../types/R3/R3.REVIEW';
-import { List, Tag, Space, Button, Empty, Input, Select, Statistic, Row, Col, Tooltip, message } from 'antd';
+import { List, Tag, Space, Button, Empty, Input, Select, Statistic, Row, Col, Tooltip, message, Modal } from 'antd';
 import { Eye, AlertTriangle, Search, FileText, Filter, Clock, User, AlertCircle, ListChecks, Sparkles, ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Inbox } from 'lucide-react'
@@ -68,6 +68,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ReviewFilter>({ stage: 'initial' });
   const [search, setSearch] = useState('');
+  const [detailTask, setDetailTask] = useState<ReviewTask | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -334,12 +335,53 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                   size="small"
                   icon={<ChevronRight size={14} />}
                   aria-label={t('reportReview.initial.viewDetail')}
+                  onClick={(e) => { e.stopPropagation(); setDetailTask(task); }}
                 />
               </Tooltip>
             </List.Item>
           );
         }}
       />
+
+      <Modal
+        title={t('w1Buttons.checklist.detailTitle')}
+        open={detailTask !== null}
+        onCancel={() => setDetailTask(null)}
+        footer={
+          <Space>
+            <Button onClick={() => setDetailTask(null)}>{t('w1Buttons.checklist.close')}</Button>
+            <Button type="primary" onClick={() => { if (detailTask) onSelect?.(detailTask); setDetailTask(null); }}>
+              {t('w1Buttons.checklist.openReport')}
+            </Button>
+          </Space>
+        }
+        width={640}
+      >
+        {detailTask && (
+          <Space orientation="vertical" style={{ width: '100%' }} size={6}>
+            {([
+              [t('w1Buttons.checklist.patient'), detailTask.patientName],
+              [t('w1Buttons.checklist.reportId'), detailTask.reportId],
+              [t('w1Buttons.checklist.modality'), detailTask.modality],
+              [t('w1Buttons.checklist.bodyPart'), detailTask.bodyPart],
+              [t('w1Buttons.checklist.priority'), t(PRIORITY_META[detailTask.priority]?.label ?? 'reportReview.priority.routine')],
+              [t('w1Buttons.checklist.status'), t((STATUS_META[detailTask.status] ?? STATUS_META.pending).label)],
+              [t('w1Buttons.checklist.qualityScore'), String(detailTask.qualityScore)],
+              [t('w1Buttons.checklist.author'), `${detailTask.authorTitle} ${detailTask.authorName}`],
+              [t('w1Buttons.checklist.submittedAt'), new Date(detailTask.submittedAt).toLocaleString()],
+              [t('w1Buttons.checklist.deadline'), deadlineInfo(detailTask.deadline, detailTask.isOverdue, detailTask.hoursToDeadline).label],
+              [t('w1Buttons.checklist.rectify'), `${detailTask.rectifyCount}/3`],
+              [t('w1Buttons.checklist.critical'), detailTask.criticalFinding ? t('w1Buttons.checklist.yes') : t('w1Buttons.checklist.no')],
+              [t('w1Buttons.checklist.cosign'), detailTask.needsCosign ? t('w1Buttons.checklist.yes') : t('w1Buttons.checklist.no')],
+            ] as Array<[string, string]>).map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', gap: 12, fontSize: 13, padding: '6px 8px', background: 'var(--bg-deep, #f8fafc)', borderRadius: 6 }}>
+                <span style={{ width: 110, color: 'var(--text-secondary, #64748b)', flexShrink: 0 }}>{k}</span>
+                <span style={{ color: 'var(--text-primary, #1e293b)' }}>{v}</span>
+              </div>
+            ))}
+          </Space>
+        )}
+      </Modal>
     </div>
   );
 };

@@ -1,3 +1,32 @@
+## v3.0.6.12-3 (2026-09-27) — 点击/空表/导航专项修复
+
+> **目标**: 全面点击检查——① 控件点击无响应/为空 ② 数据表格为空 ③ 导航栏页面未翻译
+> **范围**: W1–W4；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0（未改后端）；vite build 成功；click-all 406 路由回归
+
+### W1 — 死按钮修复（无 onClick）
+- 接入真实行为（能接接口接接口，纯演示用本地确定性动作 + toast，无从实现则 `disabled` + 原因提示）：SMART 授权、通道编辑、检查清单详情、挂屏协议删除、AI 报告保存、PACS 导出 DICOM、远程会诊呼叫、口腔导板预览、科研导出下载、报告快捷键帮助（复用 W14 ShortcutHelpModal）
+- 复核旧 E2E 标记的 11 条路由：均已有处理器（陈旧标记）
+
+### W2 — 空数据表格修复（MSW 未播种）
+- 为 ~18 个首次加载返回空的内存 store 加**模块加载确定性播种**：`wechat/{logs,users}`、`payment/refunds`、`notification-channel/logs`、`self-registration/{questionnaire,consent,queue,status}`、`security/hsm/rotations`、`security/dr/{backup-sets,restore-points}`、`device-ops/assets/retirements`、`hl7/oru/messages`、`cds-services/feedback`、`dual-read/sampling/batches`、`appointments/green-channel`、`ai-draft-v2/drafts`
+- 修复硬编码空 `GET /devices/schedule/conflicts` → 3 条种子冲突
+- 派生统计同步非零：`dual-read/sampling/stats`(κ 0.519)、`notification-channel/stats`、`device-ops/assets/stats`
+
+### W3 — 导航翻译
+- 补 `nav.qcScoringCenter`（zh 统一评分台 / en Scoring Center）——此前唯一缺失导航键
+- react-i18next `nav` 命名空间 **444 → 478 键**（回填 30 个仅在 appI18n 的 nav 键 + 4 个规范化 nav 键），zh/en 对齐
+- 规范化 4 个非 `nav.*` labelKey（`nav.reportArchive`/`nav.deviceOpsCenter`/`nav.costDrg`/`nav.mwlManager`）
+
+### W4 — 全量点击回归
+- click-all **406 路由**：`deadButtons` **0**、`pageErrors` **1**、`interactionErrors` **1**；154 条 `BODY_LEN=9~11` 经复测确认为**回归脚本时序伪报**（应用变重，捕获早于渲染；复测 `/qc`/`/exams`/`/patients`/`/reports` 均正常渲染 ≈2657 字符）
+- 修复真实缺陷：`/eye/sub/low-vision`「加载最近处方」→ `Cannot read properties of undefined (reading 'distance')`（MSW 形状不匹配 + 页面未防御）；已改 MSW 返回 `{rightEye,leftEye,deviceRecommendation}` + 页面可选链
+- `/quality-control`「收起」点击超时（重定向到 /qc，遮罩动画瞬态，处理器存在）低危
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.12-2` → `3.0.6.12-3`（无 BOM）
+
+---
+
 ## v3.0.6.12-2 (2026-09-27) — 专业级升级 第二阶段（W9–W14）
 
 > **目标**: 完成专业级升级剩余域（质量/集成/设备运营/患者服务/安全合规/前端专业度）
