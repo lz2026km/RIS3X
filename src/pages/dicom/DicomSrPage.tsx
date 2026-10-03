@@ -293,6 +293,34 @@ export const DicomSrPage: React.FC = () => {
     message.success(t('dicomSr.copied') || '已复制')
   }
 
+  // [G005 W4B] 从服务器下载生成的 SR (GET /dicom-sr/:id/download, application/dicom)
+  const [serverDownloading, setServerDownloading] = useState(false)
+  const downloadSrFromServer = async () => {
+    if (!srDoc) return
+    setServerDownloading(true)
+    try {
+      const dl = await srDocumentApi.downloadDocument(srDoc.id)
+      if (!dl || !dl.blob) {
+        message.error(t('w4b.sr.downloadFailed'))
+        return
+      }
+      const { blob, filename } = dl
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename || `${srDoc.id}.dcm`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      message.success(t('w4b.sr.downloaded'))
+    } catch {
+      message.error(t('w4b.sr.downloadFailed'))
+    } finally {
+      setServerDownloading(false)
+    }
+  }
+
   const downloadSr = () => {
     if (!srDoc) return
     const blob = new Blob([srDoc.content], { type: 'application/dicom+json' })
@@ -453,6 +481,10 @@ export const DicomSrPage: React.FC = () => {
               </Button>
               <Button size="small" icon={<Download size={12} />} onClick={downloadSr}>
                 {t('dicomSr.download') || '下载 SR'}
+              </Button>
+              {/* [G005 W4B] 服务器下载 (GET /dicom-sr/:id/download) */}
+              <Button size="small" type="primary" ghost icon={<Download size={12} />} loading={serverDownloading} onClick={() => void downloadSrFromServer()}>
+                {t('w4b.sr.downloadServer')}
               </Button>
             </Space>
           )
@@ -936,7 +968,7 @@ export const DicomSrPage: React.FC = () => {
               style={{ cursor: 'pointer', padding: '2px 10px' }}
               onClick={() => setMtFilter((f) => ({ ...f, category: f.category === c.category ? undefined : c.category }))}
             >
-              {c.category} ({c.count}) · {c.modalities.join('/')}
+              {c.category} ({c.count ?? 0}) · {Array.isArray(c.modalities) && c.modalities.length > 0 ? c.modalities.join('/') : '-'}
             </Tag>
           ))}
         </Space>
@@ -975,7 +1007,7 @@ export const DicomSrPage: React.FC = () => {
               { title: t('dicomSrPage.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
               { title: t('dicomSrPage.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', width: 80 },
               { title: t('dicomSrPage.category'), dataIndex: 'category', key: 'category', width: 100 },
-              { title: t('dicomSrPage.measurementsTitle'), dataIndex: 'measurements', key: 'measurements', width: 120, render: (v: MeasurementTemplate['measurements']) => t('w9d.dicomSr.itemCount', { n: v.length }) },
+              { title: t('dicomSrPage.measurementsTitle'), dataIndex: 'measurements', key: 'measurements', width: 120, render: (v: MeasurementTemplate['measurements']) => t('w9d.dicomSr.itemCount', { n: Array.isArray(v) ? v.length : 0 }) },
               {
                 title: t('dicomSr.mtView') || '查看',
                 key: 'action',
@@ -1014,11 +1046,11 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label={t('dicomSr.mtPurpose') || '用途'} span={2}>{mtDetail.purpose}</Descriptions.Item>
             </Descriptions>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
-              {t('dicomSr.mtMeasurements') || '测量项'} ({mtDetail.measurements.length})
+              {t('dicomSr.mtMeasurements') || '测量项'} ({mtDetail.measurements?.length ?? 0})
             </div>
             <Table
               size="small"
-              dataSource={mtDetail.measurements}
+              dataSource={mtDetail.measurements ?? []}
               rowKey={(r) => `${r.code}-${r.meaning}`}
               pagination={false}
               columns={[
@@ -1041,7 +1073,7 @@ export const DicomSrPage: React.FC = () => {
             <div style={{ marginTop: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>{t('dicomSr.mtSnomed') || 'SNOMED 发现编码'}:</span>
               <Space wrap size={4} style={{ marginTop: 4 }}>
-                {mtDetail.snomedFindings.map((c) => <Tag key={c} style={{ fontSize: 10, fontFamily: 'monospace' }}>{c}</Tag>)}
+                {(mtDetail.snomedFindings ?? []).map((c) => <Tag key={c} style={{ fontSize: 10, fontFamily: 'monospace' }}>{c}</Tag>)}
               </Space>
             </div>
           </div>

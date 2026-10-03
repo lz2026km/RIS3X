@@ -93,7 +93,7 @@ export interface ReportDetailDrawerProps {
 
 export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360, onOfflineSave, onCommittee, onCreateLesionTracking }: ReportDetailDrawerProps) {
   const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline' | 'annotations' | 'critical' | 'lesions' | 'related'>('content')
-  const [_showHistory, setShowHistory] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
   const [pendingReviewReport, setPendingReviewReport] = useState<RadiologyReport | null>(null)
   const navigate = useNavigate()
@@ -460,24 +460,39 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                 <History size={15} style={{ color: PRIMARY }} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.historyVersions')}</span>
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.versionCount', { count: historyVersions.length })}</span>
+                {/* [G005 W1-Controls P1-10] 历史版本显示/隐藏切换 */}
+                <button
+                  onClick={() => setShowHistory((v) => !v)}
+                  data-testid="toggle-history"
+                  style={{ marginLeft: 'auto', padding: '4px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: showHistory ? PRIMARY : 'var(--bg-card)', color: showHistory ? WHITE : PRIMARY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  {showHistory ? t('w1Controls.reportDetail.historyHide') : t('w1Controls.reportDetail.historyShow')}
+                </button>
               </div>
-              <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: 15, top: 0, bottom: 0, width: 2, background: 'var(--border-color)' }} />
-                {historyVersions.map((v, i) => (
-                  <div key={v.version} style={{ display: 'flex', gap: 16, marginBottom: 24, position: 'relative' }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: i === 0 ? PRIMARY : 'var(--border-color)', border: `2px solid ${i === 0 ? PRIMARY : 'var(--border-color)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 12, fontWeight: 700, flexShrink: 0, zIndex: 1 }}>{i + 1}</div>
-                    <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{v.version}</span>
-                        <span style={{ fontSize: 12, color: GRAY, marginLeft: 'auto' }}>{v.time}</span>
-                        <span style={{ fontSize: 12, color: GRAY }}>by {v.doctor}</span>
+              {!showHistory ? (
+                <div style={{ padding: '18px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'center', color: GRAY, fontSize: 12 }}>
+                  <History size={18} style={{ opacity: 0.35, marginBottom: 6 }} />
+                  <div>{t('w1Controls.reportDetail.historyShow')}</div>
+                </div>
+              ) : (
+                <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: 15, top: 0, bottom: 0, width: 2, background: 'var(--border-color)' }} />
+                  {historyVersions.map((v, i) => (
+                    <div key={v.version} style={{ display: 'flex', gap: 16, marginBottom: 24, position: 'relative' }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: i === 0 ? PRIMARY : 'var(--border-color)', border: `2px solid ${i === 0 ? PRIMARY : 'var(--border-color)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 12, fontWeight: 700, flexShrink: 0, zIndex: 1 }}>{i + 1}</div>
+                      <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{v.version}</span>
+                          <span style={{ fontSize: 12, color: GRAY, marginLeft: 'auto' }}>{v.time}</span>
+                          <span style={{ fontSize: 12, color: GRAY }}>by {v.doctor}</span>
+                        </div>
+                        {v.changes && <div style={{ fontSize: 12, color: 'var(--color-success)', marginBottom: 6, background: 'var(--color-success-bg)', padding: '4px 8px', borderRadius: 4 }}>{t('reportDetail.changeLabel')}{v.changes}</div>}
+                        {v.content && <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-color)' }}>{v.content}</div>}
                       </div>
-                      {v.changes && <div style={{ fontSize: 12, color: 'var(--color-success)', marginBottom: 6, background: 'var(--color-success-bg)', padding: '4px 8px', borderRadius: 4 }}>{t('reportDetail.changeLabel')}{v.changes}</div>}
-                      {v.content && <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-color)' }}>{v.content}</div>}
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

@@ -167,6 +167,8 @@ export const eyeApi = {
     params?.patientId
       ? api.get(`${EYE_API}/emr/${encodeURIComponent(String(params.patientId))}`)
       : api.get(`${EYE_API}/emr/records${buildQuery(params)}`),
+  // [G005 W1-Controls P0] 新建眼科病历: 后端无创建端点 → MSW POST /eye/emr/records 确定性兜底
+  createEmr: (data: Record<string, any>) => api.post<any>(`${EYE_API}/emr/records`, data),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getEmrById: (id: string) => api.get(`${EYE_API}/emr/${encodeURIComponent(id)}`),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */

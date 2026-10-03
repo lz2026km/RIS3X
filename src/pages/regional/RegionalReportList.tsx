@@ -289,7 +289,7 @@ export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport,
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.reportReview')}</span><div style={{ display: 'flex', gap: '8px' }}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onOpenQualityFilter}><Filter size={14} /> {t('regionalReportList.qualityFilter')}</button></div></div>
-      <div style={styles.tabContainer}>{[{ key: 'list', label: t('regionalReport.reportList'), icon: <FileText size={14} /> }].map(tab => <button key={tab.key} style={{ ...styles.tab, ...styles.tabActive }}>{tab.icon}{tab.label}</button>)}</div>
+      <div style={styles.tabContainer}>{[{ key: 'list', label: t('regionalReport.reportList'), icon: <FileText size={14} /> }].map(tab => <span key={tab.key} style={{ ...styles.tab, ...styles.tabActive, cursor: 'default' }}>{tab.icon}{tab.label}</span>)}</div>
       <div style={styles.searchBox}>
         <Search size={16} style={{ color: COLORS.textMuted }} />
         <input type="text" placeholder={t('regionalReport.searchReportPlaceholder')} style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }} value={searchKeyword} onChange={e => onSearchChange(e.target.value)} />
@@ -344,7 +344,7 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.remoteDiagnosis')}</span><div style={{ display: 'flex', gap: '8px' }}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onSync}><RefreshCw size={14} /></button></div></div>
-      <div style={styles.tabContainer}>{[{ key: 'list', label: t('regionalReport.remoteWritingList'), icon: <Monitor size={14} /> }].map(tab => <button key={tab.key} style={{ ...styles.tab, ...styles.tabActive }}>{tab.icon}{tab.label}</button>)}</div>
+      <div style={styles.tabContainer}>{[{ key: 'list', label: t('regionalReport.remoteWritingList'), icon: <Monitor size={14} /> }].map(tab => <span key={tab.key} style={{ ...styles.tab, ...styles.tabActive, cursor: 'default' }}>{tab.icon}{tab.label}</span>)}</div>
       <div style={styles.searchBox}>
         <Search size={16} style={{ color: COLORS.textMuted }} />
         <input type="text" placeholder={t('regionalReport.searchRemotePlaceholder')} style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }} value={searchKeyword} onChange={e => onSearchChange(e.target.value)} />
@@ -395,7 +395,7 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>{t('regionalReport.coSign')}</span><div style={{ display: 'flex', gap: '8px' }}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onAdd}><Plus size={14} /> {t('regionalReport.addNew')}</button></div></div>
-      <div style={styles.tabContainer}>{[{ key: 'list', label: t('regionalReport.coSignRecords'), icon: <FileSignature size={14} /> }].map(tab => <button key={tab.key} style={{ ...styles.tab, ...styles.tabActive }}>{tab.icon}{tab.label}</button>)}</div>
+      <div style={styles.tabContainer}>{[{ key: 'list', label: t('regionalReport.coSignRecords'), icon: <FileSignature size={14} /> }].map(tab => <span key={tab.key} style={{ ...styles.tab, ...styles.tabActive, cursor: 'default' }}>{tab.icon}{tab.label}</span>)}</div>
       <div style={styles.searchBox}>
         <Search size={16} style={{ color: COLORS.textMuted }} />
         <input type="text" placeholder={t('regionalReport.searchCoSignPlaceholder')} style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }} value={searchKeyword} onChange={e => onSearchChange(e.target.value)} />

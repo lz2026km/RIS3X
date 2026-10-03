@@ -3,8 +3,8 @@
 // 数据源: w13SecurityApi (后端 /security、/ocsp、/compliance; MSW 确定性回退)
 import React, { useCallback, useEffect, useState } from 'react'
 import {
-  Alert, Button, Card, Col, Descriptions, Input, InputNumber, List, message, Modal,
-  Progress, Row, Select, Space, Statistic, Table, Tabs, Tag, Typography,
+  Alert, Button, Card, Col, Descriptions, Drawer, Input, InputNumber, List, message, Modal,
+  Progress, Row, Select, Space, Spin, Statistic, Table, Tabs, Tag, Typography,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import {
@@ -256,6 +256,9 @@ const FieldEncryptionTab: React.FC = () => {
   const [decrypted, setDecrypted] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // [G005 W4B] 字段加密自检 (GET /security/field-encryption/selftest)
+  const [selfTestResult, setSelfTestResult] = useState<FieldEncryptionDemoDto | null>(null)
+  const [selfTesting, setSelfTesting] = useState(false)
 
   useEffect(() => {
     void (async () => {
@@ -264,6 +267,21 @@ const FieldEncryptionTab: React.FC = () => {
       if (d) setDemo(d)
     })()
   }, [])
+
+  const handleSelfTest = async () => {
+    setSelfTesting(true)
+    try {
+      const res = await fieldEncryptionApi.selfTest()
+      if (res.success && res.data) {
+        setSelfTestResult(res.data)
+        message.success(t('w4b.fe.selftestDone'))
+      } else message.error(t('w4b.fe.selftestFailed'))
+    } catch {
+      message.error(t('w4b.fe.selftestFailed'))
+    } finally {
+      setSelfTesting(false)
+    }
+  }
 
   const handleEncrypt = async () => {
     if (!plain) return
@@ -303,8 +321,20 @@ const FieldEncryptionTab: React.FC = () => {
       </Row>
       <Row gutter={16}>
         <Col span={12}>
-          <Card size="small" title={t('w13Sec.fe.demo')}>
+          <Card
+            size="small"
+            title={t('w13Sec.fe.demo')}
+            extra={<Button size="small" type="primary" ghost loading={selfTesting} onClick={() => void handleSelfTest()}>{t('w4b.fe.selftest')}</Button>}
+          >
             {demo ? <Table rowKey="field" size="small" pagination={false} dataSource={demo.samples} columns={demoColumns} /> : <LoadingBanner />}
+            {selfTestResult && (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
+                  {t('w4b.fe.selftestResult')} · <Tag color="purple">{selfTestResult.algorithm}</Tag>
+                </div>
+                <Table rowKey="field" size="small" pagination={false} dataSource={selfTestResult.samples} columns={demoColumns} />
+              </div>
+            )}
           </Card>
         </Col>
         <Col span={12}>
@@ -436,6 +466,25 @@ const DrTab: React.FC = () => {
   const [rpo, setRpo] = useState<number>(15)
   const [rto, setRto] = useState<number>(30)
   const [lastDrill, setLastDrill] = useState<DrillRecordDto | null>(null)
+  // [G005 W4B] 演练详情 (GET /security/dr/drills/:id)
+  const [drillDetail, setDrillDetail] = useState<DrillRecordDto | null>(null)
+  const [drillDetailOpen, setDrillDetailOpen] = useState(false)
+  const [drillDetailLoading, setDrillDetailLoading] = useState(false)
+
+  const openDrillDetail = async (id: string) => {
+    setDrillDetailOpen(true)
+    setDrillDetail(null)
+    setDrillDetailLoading(true)
+    try {
+      const res = await drApi.getDrill(id)
+      if (res.success && res.data) setDrillDetail(res.data)
+      else message.error(t('w4b.dr.loadFailed'))
+    } catch {
+      message.error(t('w4b.dr.loadFailed'))
+    } finally {
+      setDrillDetailLoading(false)
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true); setError(null)
@@ -508,6 +557,8 @@ const DrTab: React.FC = () => {
     { title: t('w13Sec.dr.col.rto'), key: 'rto', width: 110, render: (_v, r) => `${r.rtoActualMin}/${r.rtoTargetMin} min` },
     { title: t('w13Sec.dr.col.rpo'), key: 'rpo', width: 110, render: (_v, r) => `${r.rpoActualMin}/${r.rpoTargetMin} min` },
     { title: t('w13Sec.dr.col.at'), dataIndex: 'finishedAt', width: 160, render: (v: string) => v?.slice(0, 19).replace('T', ' ') },
+    // [G005 W4B] 演练详情 (GET /security/dr/drills/:id)
+    { title: t('w13Sec.ca.col.actions'), key: 'detail', width: 90, render: (_v, r) => <Button size="small" icon={<PlayCircle size={12} />} onClick={() => void openDrillDetail(r.id)}>{t('w4b.dr.detailTitle')}</Button> },
   ]
 
   if (loading) return <LoadingBanner />
@@ -579,6 +630,47 @@ const DrTab: React.FC = () => {
       <Card size="small" title={t('w13Sec.dr.drills')}>
         <Table<DrillRecordDto> rowKey="id" size="small" dataSource={drills} columns={drillColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />
       </Card>
+
+      {/* [G005 W4B] 演练详情抽屉 (GET /security/dr/drills/:id) */}
+      <Drawer
+        title={<span><PlayCircle size={14} /> {t('w4b.dr.detailTitle')} - {drillDetail?.id ?? ''}</span>}
+        open={drillDetailOpen}
+        onClose={() => setDrillDetailOpen(false)}
+        width={640}
+      >
+        {drillDetailLoading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+        ) : drillDetail ? (
+          <>
+            <Descriptions size="small" column={2} bordered style={{ marginBottom: 16 }}>
+              <Descriptions.Item label={t('w13Sec.cp.col.id')}><Text code>{drillDetail.id}</Text></Descriptions.Item>
+              <Descriptions.Item label={t('w4b.dr.scenario')}>{drillDetail.scenario}</Descriptions.Item>
+              <Descriptions.Item label={t('w13Sec.dr.col.result')}><Tag color={DRILL_COLOR[drillDetail.result]}>{t(`w13Sec.dr.drillResult.${drillDetail.result}`)}</Tag></Descriptions.Item>
+              <Descriptions.Item label={t('w4b.dr.executedBy')}>{drillDetail.executedBy ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('w13Sec.dr.col.rto')}>{`${drillDetail.rtoActualMin}/${drillDetail.rtoTargetMin} min`}</Descriptions.Item>
+              <Descriptions.Item label={t('w13Sec.dr.col.rpo')}>{`${drillDetail.rpoActualMin}/${drillDetail.rpoTargetMin} min`}</Descriptions.Item>
+              <Descriptions.Item label={t('w13Sec.dr.col.at')} span={2}>{drillDetail.finishedAt?.slice(0, 19).replace('T', ' ')}</Descriptions.Item>
+            </Descriptions>
+            <Table
+              rowKey="name"
+              size="small"
+              pagination={false}
+              dataSource={drillDetail.steps}
+              columns={[
+                { title: t('w4b.dr.thStep'), dataIndex: 'name', width: 180 },
+                {
+                  title: t('w4b.dr.thStepStatus'), dataIndex: 'status', width: 90,
+                  render: (s: string) => s === 'ok' ? <Tag color="green">{t('w13Sec.cp.status.implemented')}</Tag> : s === 'warn' ? <Tag color="gold">WARN</Tag> : <Tag color="red">FAIL</Tag>,
+                },
+                { title: t('w4b.dr.thDuration'), dataIndex: 'durationSec', width: 90, render: (v: number) => `${v}s` },
+                { title: t('w4b.dr.thDetail'), dataIndex: 'detail' },
+              ]}
+            />
+          </>
+        ) : (
+          <Text type="secondary">{t('w4b.dr.loadFailed')}</Text>
+        )}
+      </Drawer>
     </Space>
   )
 }

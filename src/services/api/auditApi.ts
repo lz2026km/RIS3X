@@ -1,5 +1,6 @@
 import { api, API_BASE } from './client'
 import { getToken } from '../../utils/auth'
+import type { AuditChainVerificationDto, RetentionPolicyDto, ColdArchiveResultDto } from './w13SecurityApi'
 
 export interface AuditEventDto {
   id: string; userId: string; username?: string; userRole?: string; action: string; resource: string; resourceId?: string;
@@ -76,6 +77,14 @@ export const auditApi = {
     api.get<AuditTrendPoint[]>(`/audit/action-trend${days ? `?days=${days}` : ''}`),
   // [Wave 4B] 高危操作清单 (后端 GET /audit/high-risk)
   getHighRisk: () => api.get<AuditHighRiskDto>('/audit/high-risk'),
+  // [G005 W4A] 审计链端到端校验 (后端 GET /audit/verify-chain; ?tamper=1 仅用于 MSW 演示断链)
+  verifyChain: (demoTamper?: boolean) =>
+    api.get<AuditChainVerificationDto>(`/audit/verify-chain${demoTamper ? '?tamper=1' : ''}`),
+  // [G005 W4A] 审计留存策略 (后端 GET /audit/retention-policy)
+  getRetentionPolicy: () => api.get<RetentionPolicyDto>('/audit/retention-policy'),
+  // [G005 W4A] 审计冷归档 (后端 POST /audit/cold-archive)
+  coldArchive: (body?: { before?: string; executedBy?: string }) =>
+    api.post<ColdArchiveResultDto>('/audit/cold-archive', body ?? {}),
   // 导出 CSV: 后端 GET /audit/export 返回 text/csv, 以 blob 下载
   // [W1-B] 去重: 与 systemApi.auditApi.exportCsv 为同一后端端点(重复封装)。
   // 本方法为保留实现 (systemApi.exportCsv 已委托调用本方法), 页面 import 兼容不受影响。

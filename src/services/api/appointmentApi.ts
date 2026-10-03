@@ -206,6 +206,15 @@ export interface CancellationRecordDto {
   rebooked: string
 }
 
+// [G005 W4B] 检查号解析结果 (GET /appointments/accession/parse)
+export interface AccessionParseResultDto {
+  valid: boolean
+  modality?: string
+  year?: number
+  seq?: number
+  check?: string
+}
+
 export interface AppointmentRulesDto {
   deviceId: string
   deviceName: string
@@ -255,6 +264,10 @@ export const appointmentApi = {
 
   getRescheduleRecords: () =>
     api.get<RescheduleRecordDto[]>('/appointments/reschedules'),
+
+  // [G005 W4B] 改期历史 (结构化, GET /appointments/reschedule-history)
+  getRescheduleHistory: () =>
+    api.get<RescheduleRecordDto[]>('/appointments/reschedule-history'),
 
   getCancellationRecords: () =>
     api.get<CancellationRecordDto[]>('/appointments/cancellations'),
@@ -337,6 +350,10 @@ export const appointmentApi = {
   // ===== [W5] 编号策略 / 审计 =====
   nextAccession: (modality: string, year?: number) =>
     api.get<{ accessionNumber: string }>(`/appointments/accession/next?modality=${encodeURIComponent(modality)}${year != null ? `&year=${year}` : ''}`),
+
+  // [G005 W4B] 解析检查号 → 结构化字段 (GET /appointments/accession/parse)
+  parseAccession: (accession: string) =>
+    api.get<AccessionParseResultDto>(`/appointments/accession/parse?accession=${encodeURIComponent(accession)}`),
 
   getAudit: (appointmentId?: string) =>
     api.get<Array<{ id: string; appointmentId: string; action: string; actorId: string | null; at: string }>>(`/appointments/audit${appointmentId ? `?appointmentId=${encodeURIComponent(appointmentId)}` : ''}`),

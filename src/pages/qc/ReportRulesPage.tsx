@@ -36,6 +36,7 @@ import {
   Tooltip,
   Checkbox,
   Drawer,
+  InputNumber,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from '../../components/common/PageContainer'
@@ -57,6 +58,15 @@ import {
   type RuleField,
   type RuleOperator,
   type EvaluateResult,
+  type ReviewTier,
+  type AuthorSeniority,
+  type CaseSeverity,
+  type ReviewTierRule,
+  type ReviewTierInput,
+  type ReviewTierResolution,
+  REVIEW_TIERS,
+  AUTHOR_SENIORITIES,
+  CASE_SEVERITIES,
 } from '../../services/api/reportRulesApi'
 
 const SEVERITY_COLORS: Record<string, string> = { error: 'red', warning: 'orange', info: 'blue' }
@@ -90,6 +100,43 @@ const EXAM_TYPE_OPTIONS = [
   { value: 'DR', label: 'DR' },
   { value: 'X-ray', label: 'X-ray' },
 ]
+
+// [G005 W4A] 分级审核规则
+const TIER_LABEL_KEYS: Record<ReviewTier, string> = {
+  none: 'w4a.tier.none',
+  initial: 'w4a.tier.initial',
+  final: 'w4a.tier.final',
+  'dual-sign': 'w4a.tier.dualSign',
+  'dual-read': 'w4a.tier.dualRead',
+}
+const TIER_COLORS: Record<ReviewTier, string> = { none: 'default', initial: 'blue', final: 'geekblue', 'dual-sign': 'purple', 'dual-read': 'magenta' }
+const SENIORITY_LABEL_KEYS: Record<AuthorSeniority, string> = {
+  resident: 'w4a.seniority.resident',
+  attending: 'w4a.seniority.attending',
+  senior: 'w4a.seniority.senior',
+  chief: 'w4a.seniority.chief',
+}
+const CASE_SEVERITY_LABEL_KEYS: Record<CaseSeverity, string> = {
+  low: 'w4a.severity.low',
+  normal: 'w4a.severity.normal',
+  high: 'w4a.severity.high',
+  critical: 'w4a.severity.critical',
+}
+const TIER_OPTIONS = REVIEW_TIERS.map((v) => ({ value: v, label: t(TIER_LABEL_KEYS[v]) }))
+const SENIORITY_OPTIONS = AUTHOR_SENIORITIES.map((v) => ({ value: v, label: t(SENIORITY_LABEL_KEYS[v]) }))
+const CASE_SEVERITY_OPTIONS = CASE_SEVERITIES.map((v) => ({ value: v, label: t(CASE_SEVERITY_LABEL_KEYS[v]) }))
+const MODALITY_OPTIONS = ['CT', 'MR', 'MRI', 'DR', 'MG', 'US'].map((v) => ({ value: v, label: v }))
+
+function tierWhenSummary(rule: ReviewTierRule): string {
+  const w = rule.when
+  const parts: string[] = []
+  if (w.modalities?.length) parts.push(`${t('w4a.tiers.fldModalities')}: ${w.modalities.join('/')}`)
+  if (w.radsCategoryGte !== undefined) parts.push(`${t('w4a.tiers.fldRadsGte')}${w.radsCategoryGte}`)
+  if (w.severities?.length) parts.push(`${t('w4a.tiers.fldSeverities')}: ${w.severities.map((s) => t(CASE_SEVERITY_LABEL_KEYS[s])).join('/')}`)
+  if (w.isCritical !== undefined) parts.push(`${t('w4a.tiers.fldCritical')}: ${w.isCritical ? '✓' : '✗'}`)
+  if (w.authorSeniorityIn?.length) parts.push(`${t('w4a.tiers.fldSeniority')}: ${w.authorSeniorityIn.map((s) => t(SENIORITY_LABEL_KEYS[s])).join('/')}`)
+  return parts.length > 0 ? parts.join(' · ') : '-'
+}
 
 const fmtDate = (s?: string) => (s ? s.slice(0, 10) : '-')
 
@@ -141,6 +188,22 @@ export default function ReportRulesPage() {
   const [fixOpen, setFixOpen] = useState(false)
   const [fixedFields, setFixedFields] = useState<ReportFields | null>(null)
 
+  // [G005 W4A] 分级审核规则
+  const [tiers, setTiers] = useState<ReviewTierRule[]>([])
+  const [tierLoading, setTierLoading] = useState(false)
+  const [tierEditorOpen, setTierEditorOpen] = useState(false)
+  const [editingTier, setEditingTier] = useState<ReviewTierRule | null>(null)
+  const [tierForm] = Form.useForm()
+  const [resolveInput, setResolveInput] = useState<ReviewTierInput>({
+    modality: 'CT',
+    radsCategory: 3,
+    severity: 'normal',
+    isCritical: false,
+    authorSeniority: 'attending',
+  })
+  const [resolveResult, setResolveResult] = useState<ReviewTierResolution | null>(null)
+  const [resolving, setResolving] = useState(false)
+
   const load = useCallback(async () => {
     setLoading(true)
     setLoadError(null)
@@ -166,6 +229,99 @@ export default function ReportRulesPage() {
   useEffect(() => {
     void load()
   }, [load])
+
+  // [G005 W4A] 分级审核规则加载
+  const loadTiers = useCallback(async () => {
+    setTierLoading(true)
+    const res = await reportRulesApi.listReviewTiers().catch(() => null)
+    if (res?.success && res.data?.data) setTiers(res.data.data)
+    else setTiers([])
+    setTierLoading(false)
+  }, [])
+
+  useEffect(() => {
+    void loadTiers()
+  }, [loadTiers])
+
+  const openTierCreate = () => {
+    setEditingTier(null)
+    tierForm.resetFields()
+    tierForm.setFieldsValue({ tier: 'final', priority: 50, enabled: true, whenIsCritical: undefined })
+    setTierEditorOpen(true)
+  }
+
+  const openTierEdit = (rule: ReviewTierRule) => {
+    setEditingTier(rule)
+    tierForm.setFieldsValue({
+      name: rule.name,
+      code: rule.code,
+      tier: rule.tier,
+      priority: rule.priority,
+      enabled: rule.enabled,
+      description: rule.description,
+      reason: rule.reason,
+      modalities: rule.when.modalities,
+      radsCategoryGte: rule.when.radsCategoryGte,
+      severities: rule.when.severities,
+      whenIsCritical: rule.when.isCritical,
+      authorSeniorityIn: rule.when.authorSeniorityIn,
+    })
+    setTierEditorOpen(true)
+  }
+
+  const saveTier = async () => {
+    const values = await tierForm.validateFields().catch(() => null)
+    if (!values) return
+    const when: ReviewTierRule['when'] = {}
+    if (values.modalities?.length) when.modalities = values.modalities
+    if (values.radsCategoryGte !== undefined && values.radsCategoryGte !== null) when.radsCategoryGte = Number(values.radsCategoryGte)
+    if (values.severities?.length) when.severities = values.severities
+    if (values.whenIsCritical !== undefined) when.isCritical = Boolean(values.whenIsCritical)
+    if (values.authorSeniorityIn?.length) when.authorSeniorityIn = values.authorSeniorityIn
+    const payload = {
+      name: values.name as string,
+      code: values.code as string | undefined,
+      tier: values.tier as ReviewTier,
+      priority: values.priority as number | undefined,
+      enabled: values.enabled as boolean | undefined,
+      description: values.description as string | undefined,
+      reason: values.reason as string | undefined,
+      when,
+    }
+    if (editingTier) {
+      const res = await reportRulesApi.updateReviewTier(editingTier.id, payload).catch(() => null)
+      if (res?.success) message.success(t('w4a.tiers.updated'))
+      else message.error(res?.error?.message ?? t('w4a.tiers.opFailed'))
+    } else {
+      const res = await reportRulesApi.createReviewTier(payload).catch(() => null)
+      if (res?.success) message.success(t('w4a.tiers.created'))
+      else message.error(res?.error?.message ?? t('w4a.tiers.opFailed'))
+    }
+    setTierEditorOpen(false)
+    void loadTiers()
+  }
+
+  const toggleTier = async (rule: ReviewTierRule, enabled: boolean) => {
+    const res = await reportRulesApi.updateReviewTier(rule.id, { enabled }).catch(() => null)
+    if (res?.success) message.success(enabled ? t('w4a.tiers.updated') : t('w4a.tiers.updated'))
+    else message.error(t('w4a.tiers.opFailed'))
+    void loadTiers()
+  }
+
+  const removeTier = async (rule: ReviewTierRule) => {
+    const res = await reportRulesApi.deleteReviewTier(rule.id).catch(() => null)
+    if (res?.success) message.success(t('w4a.tiers.deleted'))
+    else message.error(res?.error?.message ?? t('w4a.tiers.deleteDenied'))
+    void loadTiers()
+  }
+
+  const runResolve = async () => {
+    setResolving(true)
+    const res = await reportRulesApi.resolveReviewTier(resolveInput).catch(() => null)
+    if (res?.success && res.data) setResolveResult(res.data)
+    else message.error(t('w4a.tiers.resolveFailed'))
+    setResolving(false)
+  }
 
   const runEvaluate = async () => {
     setEvaluating(true)
@@ -420,6 +576,30 @@ export default function ReportRulesPage() {
     },
   ]
 
+  const tierColumns: ColumnsType<ReviewTierRule> = [
+    { title: t('w4a.tiers.thCode'), dataIndex: 'code', width: 130, render: (code: string) => <Tag>{code}</Tag> },
+    { title: t('w4a.tiers.thName'), dataIndex: 'name', width: 180 },
+    { title: t('w4a.tiers.thTier'), dataIndex: 'tier', width: 100, render: (tier: ReviewTier) => <Tag color={TIER_COLORS[tier]}>{t(TIER_LABEL_KEYS[tier])}</Tag> },
+    { title: t('w4a.tiers.thPriority'), dataIndex: 'priority', width: 80, sorter: (a, b) => a.priority - b.priority },
+    { title: t('w4a.tiers.thWhen'), key: 'when', ellipsis: true, render: (_, r) => <span style={{ fontSize: 12 }}>{tierWhenSummary(r)}</span> },
+    { title: t('w4a.tiers.thEnabled'), dataIndex: 'enabled', width: 80, render: (enabled: boolean, r) => <Switch size="small" checked={enabled} onChange={(v) => void toggleTier(r, v)} /> },
+    {
+      title: t('w4a.tiers.thActions'),
+      key: 'action',
+      width: 120,
+      render: (_, r) => (
+        <Space size={4}>
+          <Tooltip title={t('w4a.tiers.edit')}>
+            <Button size="small" type="text" icon={<Pencil size={14} />} onClick={() => openTierEdit(r)} />
+          </Tooltip>
+          <Tooltip title={t('w4a.tiers.delete')}>
+            <Button size="small" type="text" danger icon={<Trash2 size={14} />} onClick={() => void removeTier(r)} />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ]
+
   const statsCards = useMemo(() => {
     const s = stats
     return [
@@ -542,6 +722,103 @@ export default function ReportRulesPage() {
               </Card>
             ),
           },
+          {
+            key: 'reviewTiers',
+            label: t('w4a.tiers.tab'),
+            children: (
+              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Card
+                  size="small"
+                  title={t('w4a.tiers.listTitle', { count: tiers.length })}
+                  extra={<Button type="primary" size="small" icon={<Plus size={14} />} onClick={openTierCreate}>{t('w4a.tiers.newRule')}</Button>}
+                >
+                  <Table rowKey="id" size="small" loading={tierLoading} columns={tierColumns} dataSource={tiers} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
+                </Card>
+
+                <Card size="small" title={t('w4a.tiers.resolveTitle')}>
+                  <Space wrap style={{ marginBottom: 12 }}>
+                    <Select
+                      style={{ width: 110 }}
+                      value={resolveInput.modality}
+                      placeholder={t('w4a.tiers.fldModality')}
+                      options={MODALITY_OPTIONS}
+                      onChange={(v) => setResolveInput((p) => ({ ...p, modality: v }))}
+                      allowClear
+                    />
+                    <InputNumber
+                      style={{ width: 150 }}
+                      min={0}
+                      max={5}
+                      value={resolveInput.radsCategory}
+                      placeholder={t('w4a.tiers.fldRadsCategory')}
+                      onChange={(v) => setResolveInput((p) => ({ ...p, radsCategory: v ?? undefined }))}
+                      addonBefore="RADS≥"
+                    />
+                    <Select
+                      style={{ width: 130 }}
+                      value={resolveInput.severity}
+                      placeholder={t('w4a.tiers.fldSeverity')}
+                      options={CASE_SEVERITY_OPTIONS}
+                      onChange={(v) => setResolveInput((p) => ({ ...p, severity: v as CaseSeverity }))}
+                      allowClear
+                    />
+                    <Select
+                      style={{ width: 150 }}
+                      value={resolveInput.authorSeniority}
+                      placeholder={t('w4a.tiers.fldAuthorSeniority')}
+                      options={SENIORITY_OPTIONS}
+                      onChange={(v) => setResolveInput((p) => ({ ...p, authorSeniority: v as AuthorSeniority }))}
+                      allowClear
+                    />
+                    <Checkbox
+                      checked={Boolean(resolveInput.isCritical)}
+                      onChange={(e) => setResolveInput((p) => ({ ...p, isCritical: e.target.checked }))}
+                    >
+                      {t('w4a.tiers.fldCritical')}
+                    </Checkbox>
+                    <Button type="primary" icon={<Play size={14} />} loading={resolving} onClick={() => void runResolve()}>{t('w4a.tiers.resolve')}</Button>
+                  </Space>
+
+                  {resolveResult && (
+                    <Space direction="vertical" size={10} style={{ width: '100%' }}>
+                      <Space wrap>
+                        <span>{t('w4a.tiers.requiredTier')}:</span>
+                        <Tag color={TIER_COLORS[resolveResult.requiredTier]} style={{ fontSize: 14 }}>{t(TIER_LABEL_KEYS[resolveResult.requiredTier])}</Tag>
+                        {resolveResult.critical && <Tag color="red">{t('w4a.tiers.critical')}</Tag>}
+                      </Space>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('w4a.tiers.steps')}</div>
+                        <Table
+                          rowKey="order"
+                          size="small"
+                          pagination={false}
+                          dataSource={resolveResult.steps}
+                          columns={[
+                            { title: t('w4a.tiers.stepOrder'), dataIndex: 'order', width: 60 },
+                            { title: t('w4a.tiers.stepLabel'), dataIndex: 'label', width: 100 },
+                            { title: t('w4a.tiers.stepRole'), dataIndex: 'role', width: 140 },
+                            { title: t('w4a.tiers.stepReason'), dataIndex: 'reason' },
+                          ]}
+                        />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('w4a.tiers.matched')}</div>
+                        {resolveResult.matchedRules.length === 0 ? (
+                          <span style={{ fontSize: 12, color: '#999' }}>{t('w4a.tiers.noMatched')}</span>
+                        ) : (
+                          <Space wrap>
+                            {resolveResult.matchedRules.map((m) => (
+                              <Tag key={m.ruleId} color={TIER_COLORS[m.tier]}>{m.code} · {m.name}</Tag>
+                            ))}
+                          </Space>
+                        )}
+                      </div>
+                    </Space>
+                  )}
+                </Card>
+              </Space>
+            ),
+          },
         ]}
       />
 
@@ -599,6 +876,63 @@ export default function ReportRulesPage() {
           </Form.Item>
           <Form.Item name="examTypes" label={t('reportRules.fldExamTypes')}>
             <Select mode="multiple" allowClear options={EXAM_TYPE_OPTIONS} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* [G005 W4A] 分级审核规则编辑器 */}
+      <Modal
+        title={editingTier ? `${t('w4a.tiers.edit')} ${editingTier.code}` : t('w4a.tiers.newRule')}
+        open={tierEditorOpen}
+        onCancel={() => setTierEditorOpen(false)}
+        onOk={() => void saveTier()}
+        okText={t('w4a.tiers.save')}
+        cancelText={t('w4a.tiers.cancel')}
+        width={760}
+        destroyOnClose
+      >
+        <Form form={tierForm} layout="vertical">
+          <Space size={12} wrap>
+            <Form.Item name="name" label={t('w4a.tiers.fldName')} rules={[{ required: true }]} style={{ width: 280 }}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="code" label={t('w4a.tiers.fldCode')} style={{ width: 160 }}>
+              <Input placeholder="RT-CUSTOM-x" />
+            </Form.Item>
+            <Form.Item name="tier" label={t('w4a.tiers.fldTier')} rules={[{ required: true }]} style={{ width: 140 }}>
+              <Select options={TIER_OPTIONS} />
+            </Form.Item>
+            <Form.Item name="priority" label={t('w4a.tiers.fldPriority')} style={{ width: 120 }}>
+              <InputNumber min={0} max={1000} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item name="enabled" label={t('w4a.tiers.enabled')} valuePropName="checked" style={{ width: 90 }}>
+              <Switch />
+            </Form.Item>
+          </Space>
+          <Form.Item name="description" label={t('w4a.tiers.fldDescription')}>
+            <Input.TextArea rows={1} />
+          </Form.Item>
+          <Space size={12} wrap>
+            <Form.Item name="modalities" label={t('w4a.tiers.fldModalities')} style={{ width: 240 }}>
+              <Select mode="multiple" allowClear options={MODALITY_OPTIONS} />
+            </Form.Item>
+            <Form.Item name="radsCategoryGte" label={t('w4a.tiers.fldRadsGte')} style={{ width: 160 }}>
+              <InputNumber min={0} max={5} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item name="severities" label={t('w4a.tiers.fldSeverities')} style={{ width: 220 }}>
+              <Select mode="multiple" allowClear options={CASE_SEVERITY_OPTIONS} />
+            </Form.Item>
+          </Space>
+          <Space size={12} wrap>
+            <Form.Item name="whenIsCritical" label={t('w4a.tiers.fldCritical')} style={{ width: 160 }}>
+              <Select allowClear options={[{ value: true, label: t('w4a.severity.critical') }, { value: false, label: t('w4a.tiers.allTypes') }]} />
+            </Form.Item>
+            <Form.Item name="authorSeniorityIn" label={t('w4a.tiers.fldSeniority')} style={{ width: 260 }}>
+              <Select mode="multiple" allowClear options={SENIORITY_OPTIONS} />
+            </Form.Item>
+          </Space>
+          <Form.Item name="reason" label={t('w4a.tiers.fldReason')}>
+            <Input />
           </Form.Item>
         </Form>
       </Modal>

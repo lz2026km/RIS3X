@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
   Card, Button, Tag, Space, Modal, Input, Row, Col,
-  message, Alert, Select, Rate, Progress, Tooltip, Divider,
+  message, Alert, Select, Rate, Progress, Tooltip, Divider, Table,
 } from 'antd'
 import {
   Star, UserCheck, ClipboardCheck, RefreshCw, PlusCircle,
@@ -11,6 +11,7 @@ import {
   reportPeerReviewApi,
   type PeerReviewTask,
   type PeerReviewStats,
+  type PeerReviewDefectItem,
   type PeerScores,
 } from '../../services/api/reportPeerReviewApi'
 import { useAuth } from '../../hooks/useAuth'
@@ -59,6 +60,12 @@ const PeerReviewPanel: React.FC = () => {
   const [scores, setScores] = useState<PeerScores>({ accuracy: 4, completeness: 4, normativity: 4 })
   const [comment, setComment] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
+  // [G005 W4A] 任务关联缺陷
+  const [defectTask, setDefectTask] = useState<PeerReviewTask | null>(null)
+  const [defects, setDefects] = useState<PeerReviewDefectItem[]>([])
+  const [defectLoading, setDefectLoading] = useState(false)
+  const [defectCodes, setDefectCodes] = useState<string[]>([])
+  const [defectSaving, setDefectSaving] = useState(false)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -113,6 +120,43 @@ const PeerReviewPanel: React.FC = () => {
     setScoreTarget(task)
     setScores(task.scores ?? { accuracy: 4, completeness: 4, normativity: 4 })
     setComment(task.comment ?? '')
+  }
+
+  // [G005 W4A] 查看/添加关联缺陷
+  const openDefects = async (task: PeerReviewTask) => {
+    setDefectTask(task)
+    setDefectCodes(task.defectCodes ?? [])
+    setDefects([])
+    setDefectLoading(true)
+    try {
+      const res = await reportPeerReviewApi.listTaskDefects(task.id)
+      if (res.success && res.data) setDefects(res.data)
+    } catch {
+      message.error(t('w4a.peer.defectLoadFailed'))
+    } finally {
+      setDefectLoading(false)
+    }
+  }
+
+  const handleAddDefects = async () => {
+    if (!defectTask || defectCodes.length === 0) return
+    setDefectSaving(true)
+    try {
+      const res = await reportPeerReviewApi.addTaskDefects(defectTask.id, defectCodes)
+      if (res.success) {
+        message.success(t('w4a.peer.defectAdded'))
+        setDefectCodes([])
+        const refreshed = await reportPeerReviewApi.listTaskDefects(defectTask.id).catch(() => null)
+        if (refreshed?.success && refreshed.data) setDefects(refreshed.data)
+        void loadData()
+      } else {
+        message.error(res.error?.message ?? t('w4a.peer.defectAddFailed'))
+      }
+    } catch {
+      message.error(t('w4a.peer.defectAddFailed'))
+    } finally {
+      setDefectSaving(false)
+    }
   }
 
   const handleScore = async () => {
@@ -185,6 +229,7 @@ const PeerReviewPanel: React.FC = () => {
           {task.status !== 'reviewed'
             ? <Button size="small" type="primary" icon={<ClipboardCheck size={13} />} onClick={() => openScore(task)}>{t('peerReview.score')}</Button>
             : <Button size="small" onClick={() => openScore(task)}>{t('peerReview.viewEdit')}</Button>}
+          <Button size="small" icon={<FileText size={13} />} onClick={() => void openDefects(task)}>{t('w4a.peer.defects')}</Button>
         </Space>
       ),
     },
@@ -294,6 +339,45 @@ const PeerReviewPanel: React.FC = () => {
             ))}
             <TextArea rows={4} placeholder={t('peerReview.commentPlaceholder')} value={comment} onChange={e => setComment(e.target.value)} />
             <Alert type="warning" showIcon message={t('peerReview.scoreAlert')} />
+          </Space>
+        )}
+      </Modal>
+
+      {/* [G005 W4A] 关联缺陷 */}
+      <Modal
+        title={`${t('w4a.peer.defectsTitle')} - ${defectTask?.reportId ?? ''}`}
+        open={!!defectTask}
+        onCancel={() => setDefectTask(null)}
+        footer={<Button onClick={() => setDefectTask(null)}>{t('w4a.peer.close')}</Button>}
+        width={640}
+      >
+        {defectTask && (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Space style={{ width: '100%' }}>
+              <Select
+                mode="tags"
+                style={{ flex: 1 }}
+                placeholder={t('w4a.peer.defectCodesPlaceholder')}
+                value={defectCodes}
+                onChange={(v) => setDefectCodes(v)}
+                tokenSeparators={[',', ' ', '，']}
+                notFoundContent={null}
+              />
+              <Button type="primary" loading={defectSaving} onClick={() => void handleAddDefects()}>{t('w4a.peer.addDefect')}</Button>
+            </Space>
+            <Table<PeerReviewDefectItem>
+              rowKey="id"
+              size="small"
+              loading={defectLoading}
+              dataSource={defects}
+              pagination={false}
+              locale={{ emptyText: t('w4a.peer.defectEmpty') }}
+              columns={[
+                { title: t('w4a.peer.defectCode'), dataIndex: 'code', key: 'code', width: 100, render: (v: string) => <Tag>{v}</Tag> },
+                { title: t('w4a.peer.defectName'), dataIndex: 'name', key: 'name' },
+                { title: t('w4a.peer.defectSeverity'), dataIndex: 'severity', key: 'severity', width: 90, render: (v: string) => <Tag color={v === 'critical' ? 'red' : v === 'high' ? 'orange' : v === 'medium' ? 'blue' : 'default'}>{v}</Tag> },
+              ]}
+            />
           </Space>
         )}
       </Modal>

@@ -54,14 +54,14 @@ const claimStatusLabel = (status: string): string => ({
 export default function PatientFinancePage() {
   const [activeTab, setActiveTab] = useState<'bills' | 'payments' | 'claims'>('bills')
   const [bills, setBills] = useState<PatientBill[]>([])
-  const [_payments, _setPayments] = useState<PaymentRecord[]>([])
+  const [allPayments, setAllPayments] = useState<PaymentRecord[]>([])
   const [claims, setClaims] = useState<InsuranceClaim[]>([])
   const [selectedBill, setSelectedBill] = useState<PatientBill | null>(null)
   const [billPayments, setBillPayments] = useState<PaymentRecord[]>([])
   const [payMethod, setPayMethod] = useState<PaymentRecord['method']>('wechat')
 
   const svc = getFinanceService()
-  const [_invoices, setInvoices] = useState<InvoiceDto[]>([])
+  const [invoices, setInvoices] = useState<InvoiceDto[]>([])
 
   // [W1-B] 开票: financeApi.createInvoice (POST /finance/invoices)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
@@ -82,6 +82,11 @@ export default function PatientFinancePage() {
         if (cancelled) return
         setBills(b)
         setClaims(c)
+        // [G005 W1-Controls P1-8] 汇总各账单缴费流水 → 缴费记录渲染
+        try {
+          const paymentLists = await Promise.all(b.map((bill) => svc.getPayments(bill.id)))
+          if (!cancelled) setAllPayments(paymentLists.flat())
+        } catch { if (!cancelled) setAllPayments([]) }
         setLoadError(null)
       } catch {
         if (!cancelled) setLoadError(t('w9.states.error'))
@@ -170,22 +175,25 @@ export default function PatientFinancePage() {
     },
   ]
 
-  const paymentColumns: ColumnsType<PatientBill> = [
-    {
-      title: t('w3tables.col.examItem'), dataIndex: 'examItem', key: 'examItem',
-      render: (_: unknown, b) => (
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
-          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('patientFinance.paidOfTotal', { paid: b.paidAmount, total: b.totalAmount })}</div>
-        </div>
-      ),
-    },
-    { title: t('w3tables.col.paidAmount'), dataIndex: 'paidAmount', key: 'paidAmount', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600, color: '#059669' }}>¥{v}</span> },
-    { title: t('w3tables.col.balance'), dataIndex: 'balance', key: 'balance', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600, color: '#dc2626' }}>¥{v}</span> },
+  // [G005 W1-Controls P1-8] 缴费流水 (PaymentRecord) / 发票 (InvoiceDto)
+  const paymentRecordColumns: ColumnsType<PaymentRecord> = [
+    { title: t('w3tables.col.examItem'), key: 'billId', render: (_: unknown, p) => <div><div style={{ fontSize: 13, fontWeight: 600 }}>{p.transactionId}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{p.billId}</div></div> },
+    { title: t('patientFinance.payMethod'), key: 'method', width: 110, render: (_: unknown, p) => methodLabel(p.method) },
+    { title: t('w1Controls.patientFinance.colAmount'), dataIndex: 'amount', key: 'amount', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600, color: '#059669' }}>¥{v}</span> },
+    { title: t('w1Controls.patientFinance.colIssuedAt'), dataIndex: 'paidAt', key: 'paidAt', width: 170, render: (v: string) => new Date(v).toLocaleString() },
+    { title: t('w1Controls.patientFinance.colStatus'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <span style={s.badge(v === 'success' ? 'paid' : v)}>{v}</span> },
   ]
 
-  const claimColumns: ColumnsType<InsuranceClaim> = [
-    {
+  const invoiceColumns: ColumnsType<InvoiceDto> = [
+    { title: t('w1Controls.patientFinance.colInvoice'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
+    { title: t('w1Controls.patientFinance.colPatient'), key: 'patient', render: (_: unknown, r) => <div><div style={{ fontSize: 13 }}>{r.patientName ?? r.patientId}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{r.examItem}</div></div> },
+    { title: t('w1Controls.patientFinance.colAmount'), dataIndex: 'totalAmount', key: 'totalAmount', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600 }}>¥{v}</span> },
+    { title: t('w1Controls.patientFinance.colBalance'), dataIndex: 'balance', key: 'balance', width: 110, align: 'right', render: (v: number) => <span style={{ color: v > 0 ? '#dc2626' : '#059669' }}>¥{v}</span> },
+    { title: t('w1Controls.patientFinance.colIssuedAt'), dataIndex: 'createdAt', key: 'createdAt', width: 170, render: (v: string) => v ? new Date(v).toLocaleString() : '-' },
+    { title: t('w1Controls.patientFinance.colStatus'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <span style={s.badge(String(v).toLowerCase())}>{v}</span> },
+  ]
+
+  const claimColumns: ColumnsType<InsuranceClaim> = [    {
       title: t('w3tables.col.insuranceType'), dataIndex: 'insuranceType', key: 'insuranceType',
       render: (_: unknown, c) => (
         <div>
@@ -310,12 +318,22 @@ export default function PatientFinancePage() {
       {/* Payments Tab */}
       {activeTab === 'payments' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 16 }}>{t('patientFinance.paymentHistory')}</h3>
-          <DataTable<PatientBill>
-            columns={paymentColumns}
-            dataSource={bills.filter(b => b.paidAmount > 0)}
+          {/* [G005 W1-Controls P1-8] 缴费流水 (真实 PaymentRecord) */}
+          <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 16 }}>{t('w1Controls.patientFinance.paymentsMadeTitle')}</h3>
+          <DataTable<PaymentRecord>
+            columns={paymentRecordColumns}
+            dataSource={allPayments}
             rowKey="id"
             emptyText={t('patientFinance.noPaymentRecords')}
+            scroll={{ x: 'max-content' }}
+          />
+          {/* [G005 W1-Controls P1-8] 发票记录 (financeApi.listInvoices) */}
+          <h3 style={{ ...s.title, fontSize: 16, padding: '0 16px', paddingTop: 16, marginTop: 12 }}>{t('w1Controls.patientFinance.invoicesTitle')}</h3>
+          <DataTable<InvoiceDto>
+            columns={invoiceColumns}
+            dataSource={invoices}
+            rowKey="id"
+            emptyText={t('w1Controls.patientFinance.noInvoices')}
             scroll={{ x: 'max-content' }}
           />
         </Card>

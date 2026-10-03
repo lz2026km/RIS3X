@@ -348,7 +348,7 @@ export default function PatientPage() {
   const [pmiSearchResults, setPmiSearchResults] = useState<PMISearchResult[]>(
     [],
   );
-  const [_pmiSearchFocused, setPmiSearchFocused] = useState(false);
+  const [pmiSearchFocused, setPmiSearchFocused] = useState(false);
   const [pmiSelectedResult, setPmiSelectedResult] =
     useState<PMISearchResult | null>(null);
   const [showPMIPanel, setShowPMIPanel] = useState(false);
@@ -1108,6 +1108,8 @@ export default function PatientPage() {
               background: "var(--bg-card)",
               borderRadius: 10,
               border: "2px solid #1e40af",
+              boxShadow: pmiSearchFocused ? "0 0 0 4px rgba(30,64,175,0.18)" : "none",
+              transition: "box-shadow 0.15s",
               padding: "12px 16px",
             }}
           >
@@ -1117,6 +1119,7 @@ export default function PatientPage() {
                 value={pmiSearchQuery}
                 onChange={(e) => handlePMISearch(e.target.value)}
                 onFocus={() => setPmiSearchFocused(true)}
+                onBlur={() => setPmiSearchFocused(false)}
                 placeholder={t("patientPage.pmiSearchPlaceholder")}
                 autoFocus
                 style={{

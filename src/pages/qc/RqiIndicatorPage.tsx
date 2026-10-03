@@ -149,6 +149,10 @@ export default function RqiIndicatorPage() {
   // [G005 W9-QC] 40 指标实时计算引擎 (compute/dashboard) — 替代静态镜像只读口径
   const [computed, setComputed] = useState<ComputedSnapshot | null>(null)
   const [computedDash, setComputedDash] = useState<ComputedDashboard | null>(null)
+  // [G005 W4B] 指标快照历史 (GET /quality-indicators/snapshots)
+  const [snapshots, setSnapshots] = useState<ComputedSnapshot[]>([])
+  const [snapshotDetail, setSnapshotDetail] = useState<ComputedSnapshot | null>(null)
+  const [snapshotDetailOpen, setSnapshotDetailOpen] = useState(false)
   const [source, setSource] = useState<'database' | 'seed' | 'offline'>('seed')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -185,16 +189,19 @@ export default function RqiIndicatorPage() {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const [indRes, dashRes, extRes, compRes, compDashRes] = await Promise.all([
+    const [indRes, dashRes, extRes, compRes, compDashRes, snapRes] = await Promise.all([
       rqi2024Api.getIndicators(queryParams).catch(() => ({ success: false as const })),
       rqi2024Api.getDashboard(queryParams).catch(() => ({ success: false as const })),
       rqi2024Api.getExtendedIndicators().catch(() => ({ success: false as const })),
       // [G005 W9-QC] 40 指标计算引擎 (可计算指标从真实数据派生)
       qualityScoringCenterApi.computeIndicators(dateFrom && dateTo ? period : period).catch(() => ({ success: false as const })),
       qualityScoringCenterApi.getIndicatorDashboard(dateFrom && dateTo ? period : period).catch(() => ({ success: false as const })),
+      // [G005 W4B] 指标快照历史
+      qualityScoringCenterApi.listSnapshots().catch(() => ({ success: false as const })),
     ])
     if (compRes.success && compRes.data) setComputed(compRes.data)
     if (compDashRes.success && compDashRes.data) setComputedDash(compDashRes.data)
+    if (snapRes.success && Array.isArray(snapRes.data)) setSnapshots(snapRes.data)
 
     if (!indRes.success && !dashRes.success) {
       setError(t('rqi2024.loadFailed'))
@@ -807,6 +814,37 @@ export default function RqiIndicatorPage() {
               )}
             </DashboardCard>
           </div>
+
+          {/* [G005 W4B] 指标快照历史 (GET /quality-indicators/snapshots) */}
+          <div style={{ marginTop: 16 }} data-testid="rqi-snapshot-history">
+            <DashboardCard
+              title={t('w4b.qi.snapshotTitle')}
+              icon={<Activity size={15} />}
+              extra={<Tag color="blue">{snapshots.length}</Tag>}
+            >
+              <DataTable<ComputedSnapshot>
+                rowKey={(r) => r.id}
+                pageSize={10}
+                scroll={{ x: 'max-content' }}
+                emptyText={t('w4b.qi.empty')}
+                columns={[
+                  { title: t('w4b.qi.thSnapshotId'), dataIndex: 'id', key: 'id', width: 130 },
+                  { title: t('w4b.qi.thPeriod'), dataIndex: 'period', key: 'period', width: 120 },
+                  { title: t('w4b.qi.thGeneratedAt'), dataIndex: 'generatedAt', key: 'generatedAt', width: 170, render: (v: string) => v ? v.slice(0, 19).replace('T', ' ') : '-' },
+                  { title: t('w4b.qi.thCount'), dataIndex: 'indicatorCount', key: 'indicatorCount', width: 90 },
+                  { title: t('w4b.qi.thPersisted'), dataIndex: 'persisted', key: 'persisted', width: 100, render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? t('w4b.qi.yes') : t('w4b.qi.no')}</Tag> },
+                  {
+                    title: '',
+                    key: 'view', width: 90,
+                    render: (_: unknown, r: ComputedSnapshot) => (
+                      <Button size="small" type="link" onClick={() => { setSnapshotDetail(r); setSnapshotDetailOpen(true) }}>{t('w4b.qi.view')}</Button>
+                    ),
+                  },
+                ]}
+                dataSource={snapshots}
+              />
+            </DashboardCard>
+          </div>
         </StateView>
       </div>
 
@@ -870,6 +908,38 @@ export default function RqiIndicatorPage() {
               </div>
             ))}
           </Space>
+        )}
+      </Drawer>
+
+      {/* [G005 W4B] 快照指标明细抽屉 */}
+      <Drawer
+        title={snapshotDetail ? `${t('w4b.qi.detailTitle')} · ${snapshotDetail.id}` : t('w4b.qi.detailTitle')}
+        open={snapshotDetailOpen}
+        onClose={() => setSnapshotDetailOpen(false)}
+        width={720}
+      >
+        {snapshotDetail && (
+          <DataTable<ComputedIndicator>
+            rowKey={(r) => r.code}
+            pageSize={10}
+            scroll={{ x: 'max-content' }}
+            emptyText={t('w4b.qi.empty')}
+            columns={[
+              { title: t('w4b.qi.thCode'), dataIndex: 'code', key: 'code', width: 110 },
+              { title: t('w4b.qi.thName'), dataIndex: 'name', key: 'name' },
+              { title: t('w4b.qi.thRate'), key: 'rate', width: 110, render: (_: unknown, r: ComputedIndicator) => `${r.rate}${r.unit}` },
+              {
+                title: t('w4b.qi.thStatus'), key: 'status', width: 100,
+                render: (_: unknown, r: ComputedIndicator) => {
+                  const m = STATUS_META[r.status as RqiIndicatorStatus]
+                  if (!m) return <Tag>{r.status}</Tag>
+                  const Icon = m.icon
+                  return <Tag color={m.tag} icon={<Icon size={12} />}>{statusLabel(r.status as RqiIndicatorStatus)}</Tag>
+                },
+              },
+            ]}
+            dataSource={snapshotDetail.indicators}
+          />
         )}
       </Drawer>
     </PageContainer>

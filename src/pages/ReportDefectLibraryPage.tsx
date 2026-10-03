@@ -33,8 +33,37 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { DataTable } from "../components/common/DataTable";
 import type { ColumnsType } from "antd/es/table";
+import { Drawer, Tag } from "antd";
 import { reportQualityApi } from "../services/api";
+import { qualityScoringCenterApi } from "../services/api/qualityScoringCenterApi";
 import { t } from "../i18n/appI18n";
+
+// [G005 W4A] /defect-library/items/:id 详情形状 (后端 DefectItem)
+interface LibraryDefectDetail {
+  id: string;
+  code: string;
+  categoryCode: string;
+  name: string;
+  severity: string;
+  description: string;
+  standard?: string;
+  checkMethod?: string;
+}
+
+const PAGE_TO_LIBRARY_CATEGORY: Record<string, string> = {
+  description: 'STRUCT',
+  terminology: 'TERM',
+  format: 'STRUCT',
+  logic: 'ACCUR',
+  critical: 'PROC',
+  completeness: 'STRUCT',
+}
+
+const PAGE_TO_LIBRARY_SEVERITY: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
+  minor: 'low',
+  major: 'medium',
+  critical: 'critical',
+}
 
 // ============================================================
 // 分类配置
@@ -99,6 +128,10 @@ export default function ReportDefectLibraryPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showTriggersModal, setShowTriggersModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<DefectItem | null>(null);
+  // [G005 W4A] 缺陷库单项详情 (GET /defect-library/items/:id)
+  const [libraryDetail, setLibraryDetail] = useState<LibraryDefectDetail | null>(null);
+  const [libraryDetailOpen, setLibraryDetailOpen] = useState(false);
+  const [libraryDetailLoading, setLibraryDetailLoading] = useState(false);
   const [formState, setFormState] = useState({
     code: "",
     name: "",
@@ -191,6 +224,21 @@ export default function ReportDefectLibraryPage() {
     setShowEditModal(true);
   };
 
+  // [G005 W4A] 打开缺陷库单项详情 (GET /defect-library/items/:id)
+  const openLibraryDetail = async (d: DefectItem) => {
+    setLibraryDetailOpen(true)
+    setLibraryDetailLoading(true)
+    setLibraryDetail(null)
+    try {
+      const res = await qualityScoringCenterApi.getDefectItem(d.id)
+      if (res.success && res.data) setLibraryDetail(res.data as unknown as LibraryDefectDetail)
+    } catch {
+      setLibraryDetail(null)
+    } finally {
+      setLibraryDetailLoading(false)
+    }
+  }
+
   const handleSaveNew = async () => {
     if (!formState.code.trim() || !formState.name.trim()) {
       setToast({ show: true, type: "error", message: "编码与名称必填" });
@@ -249,6 +297,13 @@ export default function ReportDefectLibraryPage() {
       description: formState.description.trim(),
       solution: formState.solution.trim(),
     });
+    // [G005 W4A] 同步缺陷库单项 (PATCH /defect-library/items/:id)
+    await qualityScoringCenterApi.updateDefectItem(selectedDefect.id, {
+      name: formState.name.trim() || selectedDefect.name,
+      categoryCode: PAGE_TO_LIBRARY_CATEGORY[formState.category] ?? 'STRUCT',
+      severity: PAGE_TO_LIBRARY_SEVERITY[formState.severity] ?? 'medium',
+      description: formState.description.trim(),
+    }).catch(() => null);
   };
 
   const confirmDeleteDefect = (d: DefectItem) => {
@@ -261,8 +316,11 @@ export default function ReportDefectLibraryPage() {
     const name = confirmDelete.name;
     setDefects((prev) => prev.filter((x) => x.id !== confirmDelete.id));
     setSelectedDefect((prev) => (prev?.id === confirmDelete.id ? null : prev));
+    const deletedId = confirmDelete.id;
     setConfirmDelete(null);
     setToast({ show: true, type: "success", message: `已删除：${name}` });
+    // [G005 W4A] 同步删除缺陷库单项 (DELETE /defect-library/items/:id)
+    void qualityScoringCenterApi.deleteDefectItem(deletedId).catch(() => null);
   };
 
   // [G005 P1] 修复: filteredDefects 依赖 defectList (API 数据源), 否则 useMemo 不随 API 更新重算
@@ -818,6 +876,23 @@ export default function ReportDefectLibraryPage() {
                 <Edit2 size={11} /> {t('reportDefect.edit')}
               </button>
               <button
+                onClick={() => void openLibraryDetail(selectedDefect)}
+                style={{
+                  padding: "5px 10px",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: 4,
+                  background: "var(--bg-card)",
+                  color: "var(--text-secondary)",
+                  fontSize: 12,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                <Eye size={11} /> {t('w4a.defect.viewDetail')}
+              </button>
+              <button
                 onClick={() => {
                   setSelectedDefect(selectedDefect);
                   setShowTriggersModal(true);
@@ -861,6 +936,48 @@ export default function ReportDefectLibraryPage() {
           </div>
         )}
       </div>
+
+      {/* [G005 W4A] 缺陷库单项详情 Drawer (GET /defect-library/items/:id) */}
+      <Drawer
+        title={`${t('w4a.defect.viewDetail')}${libraryDetail ? ` · ${libraryDetail.code}` : ''}`}
+        width={460}
+        open={libraryDetailOpen}
+        onClose={() => setLibraryDetailOpen(false)}
+      >
+        {libraryDetailLoading ? (
+          <LoadingBanner message={t('w9.states.loading')} />
+        ) : libraryDetail ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{libraryDetail.name}</div>
+              <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
+                <Tag>{libraryDetail.code}</Tag>
+                <Tag color="geekblue">{libraryDetail.categoryCode}</Tag>
+                <Tag color={libraryDetail.severity === "critical" ? "red" : libraryDetail.severity === "high" ? "orange" : libraryDetail.severity === "medium" ? "blue" : "default"}>{libraryDetail.severity}</Tag>
+                <Tag color="green">{t('w4a.defect.libraryLoaded')}</Tag>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('reportDefect.description')}</div>
+              <div style={{ fontSize: 13, lineHeight: 1.7, color: "var(--text-primary)" }}>{libraryDetail.description}</div>
+            </div>
+            {libraryDetail.standard && (
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('w4a.defect.standard')}</div>
+                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>{libraryDetail.standard}</div>
+              </div>
+            )}
+            {libraryDetail.checkMethod && (
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('w4a.defect.checkMethod')}</div>
+                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>{libraryDetail.checkMethod}</div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", padding: 24, color: "var(--text-secondary)", fontSize: 12 }}>{t('w9.states.noResults')}</div>
+        )}
+      </Drawer>
 
       {/* 新增缺陷 Modal */}
       <AppModal

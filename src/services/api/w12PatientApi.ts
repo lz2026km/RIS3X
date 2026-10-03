@@ -88,6 +88,9 @@ export const wechatApi = {
 
   getUser: (openid: string) => api.get<WechatUserDto>(`/wechat/user/${encodeURIComponent(openid)}`),
 
+  // [G005 W4B] 已绑定关注者列表 (GET /wechat/users)
+  listUsers: () => api.get<{ items: WechatUserDto[]; total: number }>('/wechat/users'),
+
   push: (body: { openid: string; title?: string; content: string; channel?: WechatChannel }) =>
     api.post<WechatSendLogDto>('/wechat/push', body),
 
@@ -491,6 +494,22 @@ export interface SelfStatusDto {
   queue: SelfQueueNumberDto | null
 }
 
+// [G005 W1-Controls P0] 自助机影像领取凭证
+export interface SelfVoucherDto {
+  id: string
+  code: string
+  patientId: string | null
+  patientName: string | null
+  type: string
+  typeLabel: string
+  status: string
+  validHours: number
+  expiresAt: string
+  issuedAt: string
+  booth: string
+  instructions: string
+}
+
 export const selfRegistrationApi = {
   identify: (body: { idCard?: string; phone?: string; empiId?: string; name?: string }) =>
     api.post<SelfIdentifyResultDto>('/self-registration/identify', body),
@@ -518,6 +537,10 @@ export const selfRegistrationApi = {
 
   status: (patientId: string) =>
     api.get<SelfStatusDto>(`/self-registration/status/${encodeURIComponent(patientId)}`),
+
+  // [G005 W1-Controls P0] 自助机影像领取凭证: 后端无 voucher 端点 → MSW 确定性兜底
+  issueVoucher: (body: { patientId?: string; patientName?: string; idCard?: string; phone?: string }) =>
+    api.post<SelfVoucherDto>('/self-registration/voucher', body),
 }
 
 export type { ApiResponse }

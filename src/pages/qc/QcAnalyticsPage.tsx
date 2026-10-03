@@ -133,11 +133,12 @@ export default function QcAnalyticsPage() {
       setDashboard(dashRes.data)
       setSource(dashRes.data.source)
     }
-    if (trendRes.success && trendRes.data) setTrends(trendRes.data)
-    if (paretoRes.success && paretoRes.data) setPareto(paretoRes.data.items)
-    if (deptRes.success && deptRes.data) setDepartments(deptRes.data.data)
-    if (defectRes.success && defectRes.data?.data) setDefects(defectRes.data.data)
-    if (itemRes.success && itemRes.data?.data) setItems(itemRes.data.data)
+    if (trendRes.success && trendRes.data && Array.isArray(trendRes.data.points)) setTrends(trendRes.data)
+    // 防御: 后端/MSW 可能返回非数组或缺字段, 避免 pareto.map 崩溃
+    if (paretoRes.success && paretoRes.data && Array.isArray(paretoRes.data.items)) setPareto(paretoRes.data.items)
+    if (deptRes.success && deptRes.data && Array.isArray(deptRes.data.data)) setDepartments(deptRes.data.data)
+    if (defectRes.success && Array.isArray(defectRes.data?.data)) setDefects(defectRes.data.data)
+    if (itemRes.success && Array.isArray(itemRes.data?.data)) setItems(itemRes.data.data)
     if (statsRes.success && statsRes.data?.data) setLoopStats(statsRes.data.data)
     setLoading(false)
   }, [period])
@@ -321,8 +322,8 @@ export default function QcAnalyticsPage() {
   ]
 
   // ── 图表数据 ────────────────────────────────────────────────
-  const trendData = useMemo(() => trends?.points ?? [], [trends])
-  const paretoData = useMemo(() => pareto.map((p) => ({ ...p })), [pareto])
+  const trendData = useMemo(() => (Array.isArray(trends?.points) ? trends!.points : []), [trends])
+  const paretoData = useMemo(() => (Array.isArray(pareto) ? pareto : []).map((p) => ({ ...p })), [pareto])
 
   const statCards = useMemo(() => {
     const d = dashboard
@@ -606,11 +607,11 @@ export default function QcAnalyticsPage() {
             </div>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
               <b style={{ display: 'block', marginBottom: 12 }}>{t('qcAnalytics.historyTitle')}</b>
-              {detail.history.length === 0 ? (
+              {(detail.history ?? []).length === 0 ? (
                 <Empty description={t('qcAnalytics.noHistory')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
                 <Timeline
-                  items={detail.history.map((h) => ({
+                  items={(detail.history ?? []).map((h) => ({
                     color: h.action === 'closed' || h.action === 'rechecked' ? (detail.recheckResult === 'fail' && h.action === 'rechecked' ? 'red' : 'green') : 'blue',
                     children: (
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { auditApi, type AuditLogDto, type AuditStatsDto } from '../services/api/systemApi'
 import { auditApi as auditAggApi, type AuditOverviewDto, type AuditUserActivityDto, type AuditTrendPoint, type AuditHighRiskDto, type AuditHighRiskActionDto } from '../services/api/auditApi'
 import { auditChainApi, type AuditChainVerificationDto, type RetentionPolicyDto } from '../services/api/w13SecurityApi'
-import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List, Alert } from 'antd'
+import type { ColdArchiveResultDto } from '../services/api/w13SecurityApi'
+import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List, Alert, Checkbox } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
 import { PageHeader } from '../components/common/PageHeader'
 import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined, WarningOutlined, LineChartOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
@@ -33,6 +34,12 @@ export default function AuditPage() {
   const [chain, setChain] = useState<AuditChainVerificationDto | null>(null)
   const [chainRetention, setChainRetention] = useState<RetentionPolicyDto | null>(null)
   const [chainLoading, setChainLoading] = useState(false)
+  // [G005 W4A] 审计链与留存 (后端 /audit/verify-chain | /audit/retention-policy | /audit/cold-archive)
+  const [orphanChain, setOrphanChain] = useState<AuditChainVerificationDto | null>(null)
+  const [orphanRetention, setOrphanRetention] = useState<RetentionPolicyDto | null>(null)
+  const [orphanArchive, setOrphanArchive] = useState<ColdArchiveResultDto | null>(null)
+  const [orphanBusy, setOrphanBusy] = useState(false)
+  const [orphanTamper, setOrphanTamper] = useState(false)
 
   const fetchLogs = async (requestedPage?: number) => {
     const targetPage = requestedPage ?? page
@@ -96,6 +103,39 @@ export default function AuditPage() {
     }
   }
 
+  // [G005 W4A] 审计链校验 + 留存策略 (后端 /audit/*)
+  const fetchOrphanChain = async (tamper: boolean = orphanTamper) => {
+    setOrphanBusy(true)
+    try {
+      const [v, r] = await Promise.all([
+        auditAggApi.verifyChain(tamper),
+        auditAggApi.getRetentionPolicy(),
+      ])
+      if (v.success && v.data) setOrphanChain(v.data)
+      if (r.success && r.data) setOrphanRetention(r.data)
+    } catch { /* 回退: 不展示 */ } finally {
+      setOrphanBusy(false)
+    }
+  }
+
+  // [G005 W4A] 审计冷归档
+  const handleColdArchive = async () => {
+    setOrphanBusy(true)
+    try {
+      const res = await auditAggApi.coldArchive({ executedBy: 'admin' })
+      if (res.success && res.data) {
+        setOrphanArchive(res.data)
+        message.success(t('w4a.audit.archived', { count: res.data.archivedCount }))
+      } else {
+        message.error(res.error?.message ?? t('w9.states.error'))
+      }
+    } catch {
+      message.error(t('w9.states.error'))
+    } finally {
+      setOrphanBusy(false)
+    }
+  }
+
   // [W2-C] 审计记录详情: 操作者/资源/请求/响应/时间
   const handleViewDetail = async (id: string) => {
     setDetailOpen(true)
@@ -117,7 +157,7 @@ export default function AuditPage() {
     }
   }
 
-  useEffect(() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain() }, [])
+  useEffect(() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain(); fetchOrphanChain() }, [])
 
   const columns: ProColumn<AuditLogDto>[] = [
     { title: t('auditPage.colTime'), dataIndex: 'createdAt', key: 'createdAt', width: 180, sorter: (a, b) => a.createdAt.localeCompare(b.createdAt), defaultSortOrder: 'descend', render: (v) => new Date(String(v)).toLocaleString('zh-CN') },
@@ -161,7 +201,7 @@ export default function AuditPage() {
 <PageHeader variant="flex" icon={<AuditOutlined />} title={t('auditPage.title')} style={{ marginBottom: 0 }} />
             <Space>
               <Button icon={<DownloadOutlined />} onClick={handleExport}>{t('auditPage.export')}</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain() }}>{t('auditPage.refresh')}</Button>
+              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain(); fetchOrphanChain() }}>{t('auditPage.refresh')}</Button>
             </Space>
           </Row>
           <Tabs items={[
@@ -327,6 +367,67 @@ export default function AuditPage() {
                           <Descriptions.Item label={t('w13Sec.ac.immutable')}>{chainRetention.immutable ? '✓' : '✗'}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.lastArchive')}>{chainRetention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
                         </Descriptions>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: 24 }}><Spin tip={t('auditPage.loading')} /></div>
+                  )}
+                </Card>
+              ),
+            },
+            {
+              key: 'chainRetention',
+              label: <span><SafetyCertificateOutlined /> {t('w4a.audit.tab')}</span>,
+              children: (
+                <Card
+                  size="small"
+                  extra={
+                    <Space>
+                      <Checkbox
+                        checked={orphanTamper}
+                        onChange={(e) => { const v = e.target.checked; setOrphanTamper(v); void fetchOrphanChain(v) }}
+                      >
+                        {t('w4a.audit.simulateBroken')}
+                      </Checkbox>
+                      <Button size="small" icon={<ReloadOutlined />} loading={orphanBusy} onClick={() => void fetchOrphanChain()}>{t('w4a.audit.verify')}</Button>
+                      <Button size="small" type="primary" loading={orphanBusy} onClick={() => void handleColdArchive()}>{t('w4a.audit.coldArchive')}</Button>
+                    </Space>
+                  }
+                >
+                  {orphanChain ? (
+                    <>
+                      <Alert
+                        type={orphanChain.verified ? 'success' : 'error'}
+                        showIcon
+                        message={orphanChain.verified ? t('w4a.audit.verified') : t('w4a.audit.broken', { index: orphanChain.brokenAt ?? 0 })}
+                        description={orphanChain.reason ?? undefined}
+                      />
+                      <Row gutter={16} style={{ marginTop: 12 }}>
+                        <Col span={6}><Statistic title={t('w4a.audit.blocks')} value={orphanChain.totalBlocks} prefix={<SafetyCertificateOutlined />} /></Col>
+                        <Col span={6}><Statistic title={t('w4a.audit.checked')} value={orphanChain.checkedBlocks} /></Col>
+                        <Col span={6}><Statistic title={t('w4a.audit.source')} value={orphanChain.source === 'database' ? t('w4a.audit.sourceDatabase') : t('w4a.audit.sourceSeed')} /></Col>
+                        <Col span={6}><Card size="small"><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w4a.audit.headHash')}</div><Tooltip title={orphanChain.headHash}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanChain.headHash.slice(0, 20)}…</span></Tooltip></Card></Col>
+                      </Row>
+                      {orphanRetention && (
+                        <Descriptions title={t('w4a.audit.retention')} bordered size="small" column={3} style={{ marginTop: 12 }}>
+                          <Descriptions.Item label={t('w4a.audit.retentionMonths')}>{orphanRetention.retentionMonths}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.retentionDays')}>{orphanRetention.retentionDays}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanRetention.archiveLocation}</span></Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.encrypted')}>{orphanRetention.encrypted ? '✓' : '✗'}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.immutable')}>{orphanRetention.immutable ? '✓' : '✗'}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.lastArchive')}>{orphanRetention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.note')} span={3}>{orphanRetention.note}</Descriptions.Item>
+                        </Descriptions>
+                      )}
+                      {orphanArchive && (
+                        <Card size="small" title={t('w4a.audit.coldArchive')} style={{ marginTop: 12 }}>
+                          <Descriptions bordered size="small" column={3}>
+                            <Descriptions.Item label={t('w4a.audit.archiveId')}><span style={{ fontFamily: 'monospace' }}>{orphanArchive.archiveId}</span></Descriptions.Item>
+                            <Descriptions.Item label={t('w4a.audit.archived', { count: orphanArchive.archivedCount })}>{orphanArchive.archivedCount}</Descriptions.Item>
+                            <Descriptions.Item label={t('w4a.audit.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanArchive.location}</span></Descriptions.Item>
+                            <Descriptions.Item label={t('w4a.audit.checksum')} span={3}><span style={{ fontFamily: 'monospace', fontSize: 11, wordBreak: 'break-all' }}>{orphanArchive.checksum}</span></Descriptions.Item>
+                          </Descriptions>
+                        </Card>
                       )}
                     </>
                   ) : (

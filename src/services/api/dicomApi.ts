@@ -401,6 +401,12 @@ export const dicomDimseApi = {
 
   getTransferStats: () => api.get<TransferStats>('/dicom-dimse/transfers/stats'),
 
+  // [G005 W4B] 处理到期传输队列 (持久化 + 指数退避重试, POST /dicom-dimse/transfers/process)
+  processTransfers: (now?: string) =>
+    api.post<{ processed: number; advanced: number; retried: number; completed: number }>(
+      `/dicom-dimse/transfers/process${now ? `?now=${encodeURIComponent(now)}` : ''}`,
+    ),
+
   retryTransfer: (id: string) =>
     api.post<TransferRecord>(`/dicom-dimse/transfers/${encodeURIComponent(id)}/retry`),
 

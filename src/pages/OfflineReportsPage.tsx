@@ -27,6 +27,7 @@ export default function OfflineReportsPage() {
   const navigate = useNavigate()
   const [items, setItems] = useState<OfflineReport[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [preview, setPreview] = useState<OfflineReport | null>(null)
 
   const load = useCallback(async () => {
@@ -43,6 +44,17 @@ export default function OfflineReportsPage() {
 
   useEffect(() => {
     void load()
+  }, [load])
+
+  // [fix] 刷新按钮实际重新读取离线报告并给出可见反馈
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await load()
+      message.success(t('w4cFixes.offline.refreshed'))
+    } finally {
+      setRefreshing(false)
+    }
   }, [load])
 
   const handleDelete = async (r: OfflineReport) => {
@@ -78,8 +90,8 @@ export default function OfflineReportsPage() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => void load()} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <RefreshCw size={13} /> {t('offlineReports.refresh')}
+          <button onClick={() => void handleRefresh()} disabled={refreshing} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: refreshing ? 'default' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <RefreshCw size={13} /> {refreshing ? t('w4cFixes.offline.refreshing') : t('offlineReports.refresh')}
           </button>
           {items.length > 0 && (
             <Popconfirm title={t('offlineReports.clearConfirm')} okText={t('offlineReports.clear')} cancelText={t('offlineReports.cancel')} okButtonProps={{ danger: true }} onConfirm={() => void handleClearAll()}>

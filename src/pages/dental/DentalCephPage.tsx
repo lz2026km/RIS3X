@@ -21,6 +21,8 @@ import {
   Modal,
   Input,
   InputNumber,
+  Alert,
+  Spin,
 } from "antd";
 import {
   Crosshair,
@@ -30,6 +32,7 @@ import {
   RotateCcw,
   Target,
   TrendingUp,
+  ListTree,
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useRef } from "react";
@@ -59,6 +62,42 @@ export const DentalCephPage: React.FC = () => {
   const cephCanvasRef = useRef<HTMLCanvasElement>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
+  // [G005 W4B] 标定点定义/分析类型 (GET /dental/ceph/landmarks + /dental/ceph/:id/landmarks)
+  const [lmDefOpen, setLmDefOpen] = useState(false);
+  const [lmDefLoading, setLmDefLoading] = useState(false);
+  const [lmDefError, setLmDefError] = useState<string | null>(null);
+  const [globalLandmarks, setGlobalLandmarks] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
+  const [studyLandmarks, setStudyLandmarks] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
+  const [studyLandmarkSource, setStudyLandmarkSource] = useState<string>("default");
+
+  const openLandmarkDefs = async (studyId?: string) => {
+    setLmDefOpen(true);
+    setLmDefLoading(true);
+    setLmDefError(null);
+    try {
+      // GET /dental/ceph/landmarks — 全局默认标定点集
+      const g = await dentalApi.getCephLandmarks();
+      if (g.success) setGlobalLandmarks(g.data || {});
+      if (studyId) {
+        // GET /dental/ceph/:id/landmarks — 单检查标定点集
+        const s = await dentalApi.getCephLandmarks(studyId);
+        if (s.success) {
+          setStudyLandmarks(s.data || {});
+          setStudyLandmarkSource((s as { meta?: { source?: string } }).meta?.source ?? "default");
+        }
+      }
+    } catch (e) {
+      setLmDefError(
+        (e as Error)?.message ?? t("w4b.ceph.loadFailed"),
+      );
+    } finally {
+      setLmDefLoading(false);
+    }
+  };
 
   useEffect(() => {
     setLoadError(null);
@@ -493,6 +532,14 @@ export const DentalCephPage: React.FC = () => {
               >
                 {t("ceph.saveLandmarks")}
               </Button>
+              {/* [G005 W4B] 标定点定义/分析类型 (GET /dental/ceph/landmarks + /:id/landmarks) */}
+              <Button
+                size="small"
+                icon={<ListTree size={10} />}
+                onClick={() => void openLandmarkDefs(current?.id)}
+              >
+                {t("w4b.ceph.landmarks")}
+              </Button>
               <Select
                 value={selType}
                 onChange={setSelType}
@@ -591,6 +638,88 @@ export const DentalCephPage: React.FC = () => {
           )}
         </Col>
       </Row>
+
+      {/* [G005 W4B] 标定点定义/分析类型弹窗 */}
+      <Modal
+        title={t("w4b.ceph.landmarksTitle")}
+        open={lmDefOpen}
+        onCancel={() => setLmDefOpen(false)}
+        footer={null}
+        width={720}
+      >
+        {lmDefError && <Alert type="error" showIcon message={lmDefError} style={{ marginBottom: 12 }} />}
+        <Spin spinning={lmDefLoading}>
+          <div style={{ marginBottom: 16 }}>
+            <Space style={{ marginBottom: 8 }}>
+              <b>{t("w4b.ceph.analysisCount")}</b>
+              <Tag color="blue">{analysisTypes.length}</Tag>
+            </Space>
+            <Table
+              size="small"
+              rowKey="id"
+              pagination={false}
+              dataSource={analysisTypes}
+              columns={[
+                { title: t("ceph.colItem"), dataIndex: "name", width: 160 },
+                { title: t("ceph.analysis"), dataIndex: "description", ellipsis: true },
+                {
+                  title: t("w4b.ceph.landmarkCount"),
+                  key: "lm",
+                  width: 90,
+                  render: (_: unknown, r: any) => (r.landmarks?.length ?? 0),
+                },
+                {
+                  title: t("w4b.ceph.measurements"),
+                  dataIndex: "keyMeasurements",
+                  render: (v: string[]) => (
+                    <Space wrap size={4}>
+                      {(v ?? []).map((k) => (
+                        <Tag key={k} style={{ fontSize: 11 }}>{k}</Tag>
+                      ))}
+                    </Space>
+                  ),
+                },
+              ]}
+            />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <Space style={{ marginBottom: 8 }}>
+              <b>{t("w4b.ceph.currentLandmarks")}</b>
+              <Tag color={studyLandmarkSource === "saved" ? "green" : "default"}>
+                {t("w4b.ceph.source")}: {studyLandmarkSource === "saved" ? t("w4b.ceph.sourceSaved") : t("w4b.ceph.sourceDefault")}
+              </Tag>
+            </Space>
+            <Table
+              size="small"
+              rowKey="key"
+              pagination={false}
+              dataSource={Object.entries(studyLandmarks).map(([key, v]) => ({ key, ...v }))}
+              columns={[
+                { title: t("w4b.ceph.landmarkKey"), dataIndex: "key", width: 100 },
+                { title: t("w4b.ceph.coordX"), dataIndex: "x", width: 90 },
+                { title: t("w4b.ceph.coordY"), dataIndex: "y", width: 90 },
+              ]}
+            />
+          </div>
+          <div>
+            <Space style={{ marginBottom: 8 }}>
+              <b>{t("w4b.ceph.landmarks")} (18)</b>
+              <Tag>{Object.keys(globalLandmarks).length}</Tag>
+            </Space>
+            <Table
+              size="small"
+              rowKey="key"
+              pagination={false}
+              dataSource={Object.entries(globalLandmarks).map(([key, v]) => ({ key, ...v }))}
+              columns={[
+                { title: t("w4b.ceph.landmarkKey"), dataIndex: "key", width: 100 },
+                { title: t("w4b.ceph.coordX"), dataIndex: "x", width: 90 },
+                { title: t("w4b.ceph.coordY"), dataIndex: "y", width: 90 },
+              ]}
+            />
+          </div>
+        </Spin>
+      </Modal>
     </div>
   );
 };

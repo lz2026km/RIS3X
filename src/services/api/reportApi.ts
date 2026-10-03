@@ -100,6 +100,21 @@ export interface ReportPriorSummaryDto {
   source: 'db' | 'seed'
 }
 
+// [G005 W4A] 结构化字段预签校验 (POST /reports/:id/validate-fields)
+export interface ReportFieldValidationIssue {
+  field: string
+  label: string
+  severity: 'error' | 'warning'
+  message: string
+}
+
+export interface ReportFieldValidationResult {
+  reportId: string
+  valid: boolean
+  errors: ReportFieldValidationIssue[]
+  warnings: ReportFieldValidationIssue[]
+}
+
 export const reportApi = {
   list: (params?: ReportQueryParams) =>
     api.get<ListPayload<ReportDto>>(`/reports?${new URLSearchParams(params as Record<string, string>).toString()}`),
@@ -185,7 +200,27 @@ export const reportApi = {
 
   sign: async (id: string) => transitionIfChanged(id, 'SIGNED'),
 
+  // [G005 W1-Controls P0] 报告电子签名记录 (report-signing 流程):
+  //   后端 report-sign-v2 签名端点 + MSW /reports/:id/signature 确定性兜底
+  recordSignature: async (id: string, data: { signerName?: string; signedById?: string; algorithm?: 'SHA-256' | 'SM3'; reason?: string }) => {
+    const res = await api.post<{
+      reportId: string
+      signed: boolean
+      signature: ReportSignatureDto
+      history: ReportSignatureDto[]
+    }>(`/reports/${encodeURIComponent(id)}/signature`, data)
+    await invalidateApiCache(`/reports/${id}`)
+    return res
+  },
+
   reject: async (id: string, reason: string) => transition(id, 'REJECTED', reason),
+
+  // [G005 W4A] 预签结构化字段校验 (POST /reports/:id/validate-fields)
+  validateFields: (id: string, values?: Record<string, unknown>) =>
+    api.post<ReportFieldValidationResult>(
+      `/reports/${encodeURIComponent(id)}/validate-fields`,
+      values && Object.keys(values).length > 0 ? { values } : {},
+    ),
 
   // [G005 contract] 发布携带 qualityScore (后端 transition 接收并落库 Report.qualityScore)
   publish: async (id: string, qualityScore?: number) => {

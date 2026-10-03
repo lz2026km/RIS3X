@@ -7,7 +7,7 @@ import { IMAGE_ANCHORS_MOCK } from '@data/reportWritingMock';
 import { pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
 import type { ImageAnchor } from '@/types/R3/R3.WRITING';
 import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
-import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog , Type} from 'lucide-react';
+import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, Square, ArrowDown, Pen, Box, Activity, Info, Play, Pause, Cog , Type} from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { uniqueId } from '@utils/uniqueId';
@@ -104,7 +104,9 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
   const [activeTool, setActiveTool] = useState<'select' | 'arrow' | 'circle' | 'line' | 'text'>('select');
   const [zoom, setZoom] = useState(1);
   const [frameMode, setFrameMode] = useState<'single' | 'cine'>('single');
-  const [cineFrame, _setCineFrame] = useState(1);
+  const [cineFrame, setCineFrame] = useState(1);
+  // [G005 W1-Controls P0-3] cine 播放/暂停 (定时器循环帧)
+  const [cinePlaying, setCinePlaying] = useState(false);
   const viewerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -113,6 +115,28 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
     document.addEventListener('fullscreenchange', onFs);
     return () => document.removeEventListener('fullscreenchange', onFs);
   }, []);
+
+  const selected = useMemo(() => anchors.find((a) => a.id === selectedId) ?? null, [anchors, selectedId]);
+
+  const filtered = useMemo(() => {
+    if (!showOnlyKey) return anchors;
+    return anchors.filter((a) => a.keyImage);
+  }, [anchors, showOnlyKey]);
+
+  // [G005 W1-Controls P0-3] cine 播放: 每 300ms 循环推进帧号 (1..frameCount)
+  useEffect(() => {
+    if (!cinePlaying || frameMode !== 'cine') return;
+    const frameCount = Math.max(1, Number(selected?.frameNumber ?? 1) || 1);
+    const timer = setInterval(() => {
+      setCineFrame((f) => (f >= frameCount ? 1 : f + 1));
+    }, 300);
+    return () => clearInterval(timer);
+  }, [cinePlaying, frameMode, selected?.frameNumber]);
+
+  // 切回单帧模式时停止播放
+  useEffect(() => {
+    if (frameMode !== 'cine') setCinePlaying(false);
+  }, [frameMode]);
 
   const toggleFullscreen = useCallback(() => {
     const el = viewerRef.current;
@@ -123,13 +147,6 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
       document.exitFullscreen().catch(() => {});
     }
   }, []);
-
-  const filtered = useMemo(() => {
-    if (!showOnlyKey) return anchors;
-    return anchors.filter((a) => a.keyImage);
-  }, [anchors, showOnlyKey]);
-
-  const selected = useMemo(() => anchors.find((a) => a.id === selectedId) ?? null, [anchors, selectedId]);
 
   const handlePin = useCallback(async (id: string) => {
     const updated = await pinImageAnchor(id, 'u-001');
@@ -236,9 +253,15 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                   <Button size="small" type={isFullscreen ? 'primary' : 'default'} icon={<Maximize2 className="w-3 h-3" />} onClick={toggleFullscreen} />
                   {frameMode === 'cine' && (
                     <>
-                      {/* [v3.0.6.11-99 Wave8A P1] 动态序列暂无序列帧数据 → 保留 disabled + tooltip 标注 */}
-                      <Tooltip title={t('w9e.imageAnchor.cinePendingTip')}>
-                        <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info(t('w9e.imageAnchor.playNotImplemented'))} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+                      {/* [G005 W1-Controls P0-3] 真实播放/暂停 (每 300ms 循环帧) */}
+                      <Tooltip title={cinePlaying ? t('w1Controls.imageAnchor.pause') : t('w1Controls.imageAnchor.playTip')}>
+                        <Button
+                          size="small"
+                          type={cinePlaying ? 'primary' : 'default'}
+                          icon={cinePlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                          onClick={() => setCinePlaying((p) => !p)}
+                          data-testid="cine-toggle"
+                        />
                       </Tooltip>
                     </>
                   )}

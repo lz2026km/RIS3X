@@ -8,8 +8,10 @@ import {
   CalendarClock, ListOrdered, AlertTriangle, Search,
   Plus, XCircle, CheckCircle, Clock, X, ChevronLeft, ChevronRight,
   CalendarDays, User, Phone, Scan, MapPin,
-  Check, ArrowRightLeft, BarChart3, CalendarCheck
+  Check, ArrowRightLeft, BarChart3, CalendarCheck, ScanLine, History
 } from 'lucide-react'
+// [G005 W4B] 检查号解析 + 改期历史类型
+import type { AccessionParseResultDto, RescheduleRecordDto } from '../services/api/appointmentApi'
 import { formatDateObj } from '../utils/date';
 import { t } from '../i18n/appI18n';
 
@@ -283,6 +285,62 @@ export default function AppointmentManagementPage() {
   }
   const [cancelReason, setCancelReason] = useState('')
   const [rescheduleData, setRescheduleData] = useState({ examDate: '', examTime: '', deviceId: '' })
+
+  // [G005 W4B] 检查号解析 (GET /appointments/accession/parse)
+  const [showAccessionModal, setShowAccessionModal] = useState(false)
+  const [accessionInput, setAccessionInput] = useState('')
+  const [accessionParsing, setAccessionParsing] = useState(false)
+  const [accessionResult, setAccessionResult] = useState<AccessionParseResultDto | null>(null)
+  const [accessionError, setAccessionError] = useState<string | null>(null)
+  const handleParseAccession = async () => {
+    const value = accessionInput.trim()
+    if (!value) { setAccessionError(t('w4b.accession.needInput')); return }
+    setAccessionParsing(true)
+    setAccessionError(null)
+    setAccessionResult(null)
+    try {
+      const { appointmentApi } = await import('../services/api/appointmentApi')
+      const res = await appointmentApi.parseAccession(value)
+      if (res.success && res.data) setAccessionResult(res.data)
+      else setAccessionError(res.error?.message ?? t('w4b.accession.failed'))
+    } catch {
+      setAccessionError(t('w4b.accession.failed'))
+    } finally {
+      setAccessionParsing(false)
+    }
+  }
+
+  // [G005 W4B] 改期历史 (GET /appointments/reschedule-history)
+  const [showRescheduleHistory, setShowRescheduleHistory] = useState(false)
+  const [rescheduleHistory, setRescheduleHistory] = useState<RescheduleRecordDto[]>([])
+  const [rescheduleHistoryLoading, setRescheduleHistoryLoading] = useState(false)
+  const [rescheduleHistoryError, setRescheduleHistoryError] = useState<string | null>(null)
+  const loadRescheduleHistory = useCallback(async () => {
+    setRescheduleHistoryLoading(true)
+    setRescheduleHistoryError(null)
+    try {
+      const { appointmentApi } = await import('../services/api/appointmentApi')
+      const res = await appointmentApi.getRescheduleHistory()
+      if (res.success && Array.isArray(res.data)) setRescheduleHistory(res.data)
+      else setRescheduleHistoryError(res.error?.message ?? t('w4b.reschedule.loadFailed'))
+    } catch {
+      setRescheduleHistoryError(t('w4b.reschedule.loadFailed'))
+    } finally {
+      setRescheduleHistoryLoading(false)
+    }
+  }, [])
+  const openRescheduleHistory = () => {
+    setShowRescheduleHistory((v) => {
+      const next = !v
+      if (next) void loadRescheduleHistory()
+      return next
+    })
+  }
+  const reasonLabel = (r: string) => {
+    const key = `w4b.reason.${r}`
+    const label = t(key)
+    return label === key ? r : label
+  }
 
   // 统计信息
   const statistics: Statistics = useMemo(() => {
@@ -916,11 +974,55 @@ export default function AppointmentManagementPage() {
                 <CalendarDays size={16} /> {t('apptMgmt.calendar')}
               </button>
             </div>
+            {/* [G005 W4B] 检查号解析工具: GET /appointments/accession/parse */}
+            <button onClick={() => { setAccessionInput(''); setAccessionResult(null); setAccessionError(null); setShowAccessionModal(true) }} style={{ ...styles.actionBtn('secondary'), display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <ScanLine size={16} /> {t('w4b.accession.tool')}
+            </button>
+            {/* [G005 W4B] 改期历史: GET /appointments/reschedule-history */}
+            <button onClick={openRescheduleHistory} style={{ ...styles.actionBtn(showRescheduleHistory ? 'primary' : 'secondary'), display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <History size={16} /> {t('w4b.reschedule.tab')}
+            </button>
             <button onClick={() => setShowCreateModal(true)} style={{ ...styles.actionBtn('primary'), display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Plus size={16} /> {t('apptMgmt.newAppointment')}
             </button>
           </div>
         </div>
+
+        {/* [G005 W4B] 改期历史表 (GET /appointments/reschedule-history) */}
+        {showRescheduleHistory && (
+          <div style={{ ...styles.table, marginBottom: 16 }}>
+            <div style={styles.tableHeader}>
+              <div>{t('w4b.reschedule.thPatient')}</div>
+              <div>{t('w4b.reschedule.thPhone')}</div>
+              <div>{t('w4b.reschedule.thExam')}</div>
+              <div>{t('w4b.reschedule.thOriginal')}</div>
+              <div>{t('w4b.reschedule.thNew')}</div>
+              <div>{t('w4b.reschedule.thReason')}</div>
+              <div>{t('w4b.reschedule.thOperate')}</div>
+              <div>
+                <button style={{ ...styles.actionBtn('secondary'), padding: '2px 8px', fontSize: 12 }} onClick={() => void loadRescheduleHistory()}>{t('w4b.reschedule.refresh')}</button>
+              </div>
+            </div>
+            {rescheduleHistoryLoading ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: COLORS.textSecondary }}>{t('apptMgmt.loading')}</div>
+            ) : rescheduleHistoryError ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: COLORS.danger }}>{rescheduleHistoryError}</div>
+            ) : rescheduleHistory.length === 0 ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: COLORS.textSecondary }}>{t('w4b.reschedule.empty')}</div>
+            ) : rescheduleHistory.map((r, idx) => (
+              <div key={r.id} style={{ ...styles.tableRow, backgroundColor: idx % 2 === 0 ? 'white' : '#fafafa' }}>
+                <div style={{ fontWeight: 500 }}>{r.patientName}</div>
+                <div style={{ fontSize: 12, color: COLORS.textSecondary }}>{r.phone}</div>
+                <div>{r.examType}</div>
+                <div>{r.originalDate} {r.originalTime}</div>
+                <div style={{ color: COLORS.primary, fontWeight: 500 }}>{r.newDate} {r.newTime}</div>
+                <div><span style={styles.badge('#f59e0b22', '#ca8a04')}>{reasonLabel(r.reason)}</span></div>
+                <div style={{ fontSize: 12, color: COLORS.textSecondary }}>{r.operateTime}</div>
+                <div />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* 列表视图 */}
         {viewMode === 'list' && (
@@ -1525,6 +1627,52 @@ export default function AppointmentManagementPage() {
                   {creating ? t('apptMgmt.creating') : <><Plus size={14} /> {t('apptMgmt.confirmCreate')}</>}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [G005 W4B] 检查号解析弹窗 (GET /appointments/accession/parse) */}
+      {showAccessionModal && (
+        <div style={styles.modal} onClick={() => setShowAccessionModal(false)}>
+          <div style={{ ...styles.modalContent, maxWidth: 460 }} onClick={e => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div style={styles.modalTitle}>{t('w4b.accession.title')}</div>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowAccessionModal(false)} />
+            </div>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  style={{ ...styles.formInput, flex: 1 }}
+                  value={accessionInput}
+                  onChange={e => setAccessionInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') void handleParseAccession() }}
+                  placeholder={t('w4b.accession.placeholder')}
+                />
+                <button style={styles.actionBtn('primary')} onClick={() => void handleParseAccession()} disabled={accessionParsing}>
+                  <ScanLine size={14} /> {accessionParsing ? t('apptMgmt.loading') : t('w4b.accession.parse')}
+                </button>
+              </div>
+              {accessionError && <div style={{ color: COLORS.danger, fontSize: 13 }}>{accessionError}</div>}
+              {accessionResult && (
+                accessionResult.valid ? (
+                  <div style={{ padding: 12, borderRadius: 8, background: '#22c55e22', border: '1px solid #6ee7b7' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.success, fontWeight: 600, marginBottom: 8 }}>
+                      <CheckCircle size={16} /> {t('w4b.accession.valid')}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+                      <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.modality')}: </span><b>{accessionResult.modality}</b></div>
+                      <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.year')}: </span><b>{accessionResult.year}</b></div>
+                      <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.seq')}: </span><b>{accessionResult.seq}</b></div>
+                      <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.check')}: </span><b>{accessionResult.check}</b></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: COLORS.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <XCircle size={16} /> {t('w4b.accession.invalid')}
+                  </div>
+                )
+              )}
             </div>
           </div>
         </div>

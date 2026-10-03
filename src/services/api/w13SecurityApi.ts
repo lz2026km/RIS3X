@@ -184,6 +184,8 @@ export const fieldEncryptionApi = {
   encrypt: (value: string, algorithm?: string) => api.post<{ ciphertext: string }>('/security/field-encryption/encrypt', { value, algorithm }),
   decrypt: (ciphertext: string) => api.post<{ value: string }>('/security/field-encryption/decrypt', { ciphertext }),
   demo: () => api.post<FieldEncryptionDemoDto>('/security/field-encryption/demo', {}),
+  // [G005 W4B] 字段加密自检 (GET /security/field-encryption/selftest)
+  selfTest: () => api.get<FieldEncryptionDemoDto>('/security/field-encryption/selftest'),
 }
 
 export const drApi = {
@@ -196,6 +198,8 @@ export const drApi = {
   restore: (restorePointId: string) => api.post<{ restored: boolean; restorePointId: string; checksumOk: boolean; durationSec: number }>('/security/dr/restore', { restorePointId }),
   drill: (body?: { scenario?: string; executedBy?: string }) => api.post<DrillRecordDto>('/security/dr/drill', body ?? {}),
   listDrills: () => api.get<{ data: DrillRecordDto[] }>('/security/dr/drills'),
+  // [G005 W4B] 演练详情 (GET /security/dr/drills/:id)
+  getDrill: (id: string) => api.get<DrillRecordDto>(`/security/dr/drills/${encodeURIComponent(id)}`),
   failover: (body?: { targetSite?: string; mode?: 'dry-run' | 'live' }) => api.post<{ success: boolean; mode: string; targetSite: string; durationSec: number; steps: DrillStepDto[] }>('/security/dr/failover', body ?? {}),
 }
 

@@ -132,7 +132,7 @@ const LungCadPage: React.FC = () => {
       title: t("lungCad.colOverallRisk"),
       dataIndex: "overallRisk",
       key: "overallRisk",
-      render: (v: string) => <Tag color={riskColor[v]}>{t(riskLabel[v] ?? v)}</Tag>,
+      render: (v?: string) => (v ? <Tag color={riskColor[v] ?? "default"}>{t(riskLabel[v] ?? v)}</Tag> : <span>-</span>),
     },
     {
       title: t("lungCad.colStatus"),
@@ -263,7 +263,7 @@ const LungCadPage: React.FC = () => {
           <Card>
             <Statistic
               title={t("lungCad.statTotalNodules")}
-              value={results.reduce((s, r) => s + r.noduleCount, 0)}
+              value={results.reduce((s, r) => s + (r.noduleCount ?? 0), 0)}
               prefix={<Crosshair size={16} />}
             />
           </Card>

@@ -9,6 +9,7 @@ import {
   type InstitutionDto,
   type CrossInstitutionStudyDto,
   type DocumentRegistryEntryDto,
+  type RetrievedDocumentDto,
   type AuditTrailEntryDto,
   type RegionalImagingDto,
   type DepartmentScheduleDto,
@@ -854,6 +855,10 @@ const XDSIntegration: React.FC = () => {
   } | null>(null);
   const [auditTrail, setAuditTrail] = useState<AuditTrailEntryDto[]>([]);
   const [_loadingAudit, setLoadingAudit] = useState(true);
+  // [G005 W1-Controls P0-2] IHE XDS-I 文档调阅
+  const [retrieveOpen, setRetrieveOpen] = useState(false);
+  const [retrieving, setRetrieving] = useState(false);
+  const [retrievedDoc, setRetrievedDoc] = useState<RetrievedDocumentDto | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -884,9 +889,38 @@ const XDSIntegration: React.FC = () => {
     } catch { message.error(t('regionalImaging.pixQueryFailed')); }
   };
 
-  const handleRetrieveDoc = (_doc: DocumentEntry) => {
-    // [v3.0.6.11-92] xdsService 仅有 list/query/register 方法, 后端无 XDS.b Retrieve (ITI-43) 数据源
-    message.info(t('regionalImaging.retrievePending'));
+  const handleRetrieveDoc = async (doc: DocumentEntry) => {
+    // [G005 W1-Controls P0-2] IHE XDS-I Retrieve → regionalApi.retrieveDocument (MSW 确定性文档)
+    setRetrieveOpen(true);
+    setRetrievedDoc(null);
+    setRetrieving(true);
+    try {
+      const res = await regionalApi.retrieveDocument(doc.id);
+      if (res.success && res.data) {
+        setRetrievedDoc(res.data);
+        message.success(t('w1Controls.regional.retrieved', { title: res.data.title }));
+      } else {
+        message.error(res.error?.message ?? t('w1Controls.regional.retrieveFailed'));
+        setRetrieveOpen(false);
+      }
+    } catch {
+      message.error(t('w1Controls.regional.retrieveFailed'));
+      setRetrieveOpen(false);
+    } finally {
+      setRetrieving(false);
+    }
+  };
+
+  const handleDownloadDoc = () => {
+    if (!retrievedDoc) return;
+    const blob = new Blob([retrievedDoc.content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${retrievedDoc.documentId}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    message.success(t('w1Controls.regional.downloaded', { name: `${retrievedDoc.documentId}.txt` }));
   };
 
   return (
@@ -1088,6 +1122,45 @@ const XDSIntegration: React.FC = () => {
           </tbody>
         </table></div>
       </div>
+
+      {/* [G005 W1-Controls P0-2] 文档调阅预览 Modal (XDS-I Retrieve) */}
+      {retrieveOpen && (
+        <div
+          onClick={() => setRetrieveOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 10, width: "100%", maxWidth: 720, maxHeight: "85vh", overflow: "auto", padding: 20, color: "#e2e8f0" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ fontSize: 15, fontWeight: 700 }}>{t('w1Controls.regional.retrieveTitle')}</div>
+              <button onClick={() => setRetrieveOpen(false)} style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid #334155", background: "transparent", color: "#94a3b8", cursor: "pointer", fontSize: 12 }}>{t('w1Controls.regional.close')}</button>
+            </div>
+            {retrieving ? (
+              <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>{t('w1Controls.regional.retrieving')}</div>
+            ) : retrievedDoc ? (
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#93c5fd" }}>{retrievedDoc.title}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, fontSize: 12, marginBottom: 14 }}>
+                  <div><span style={{ color: "#94a3b8" }}>{t('w1Controls.regional.patient')}: </span>{retrievedDoc.patientName} ({retrievedDoc.patientId})</div>
+                  <div><span style={{ color: "#94a3b8" }}>{t('w1Controls.regional.institution')}: </span>{retrievedDoc.institution}</div>
+                  <div><span style={{ color: "#94a3b8" }}>{t('w1Controls.regional.reportDate')}: </span>{retrievedDoc.reportDate}</div>
+                  <div><span style={{ color: "#94a3b8" }}>{t('w1Controls.regional.size')}: </span>{retrievedDoc.sizeBytes} B</div>
+                  <div style={{ gridColumn: "1 / -1" }}><span style={{ color: "#94a3b8" }}>{t('w1Controls.regional.studyUid')}: </span><code style={{ fontSize: 11 }}>{retrievedDoc.studyUid}</code></div>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 6 }}>{t('w1Controls.regional.content')}</div>
+                <pre style={{ whiteSpace: "pre-wrap", background: "#1e293b", border: "1px solid #334155", borderRadius: 8, padding: 14, fontSize: 13, lineHeight: 1.7, margin: 0 }}>{retrievedDoc.content}</pre>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                  <button onClick={handleDownloadDoc} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "#10b981", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>{t('w1Controls.regional.download')}</button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>{t('w1Controls.regional.retrieveFailed')}</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

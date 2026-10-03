@@ -4,9 +4,10 @@ import {
   type IheStatus,
   type AffinityDomain,
   type XdsDocumentEntry,
+  type XdsDocumentDetail,
 } from '../../services/api/integrationApi'
-import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col, Statistic, Drawer, Form, Input, Alert, Popconfirm, Table, Select } from 'antd'
-import { Network, Activity, Users, Fingerprint, Globe, Edit3, RotateCcw, Save, RefreshCw, Send, Search, UploadCloud, Database, Download } from 'lucide-react'
+import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col, Statistic, Drawer, Form, Input, Alert, Popconfirm, Table, Select, Modal, Spin, Typography } from 'antd'
+import { Network, Activity, Users, Fingerprint, Globe, Edit3, RotateCcw, Save, RefreshCw, Send, Search, UploadCloud, Database, Download, Eye } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
@@ -40,6 +41,31 @@ export const IheManagerPage: React.FC = () => {
   const [xdsSelected, setXdsSelected] = useState<string[]>([])
   const [xdsRetrieved, setXdsRetrieved] = useState<Record<string, RetrievedPreview>>({})
   const [xdsStats, setXdsStats] = useState<{ total: number; bytes: number; byCommunity: Array<{ homeCommunityId: string; count: number }> } | null>(null)
+
+  // [G005 W4B] 按 uniqueId 调阅单份 XDS 文档 (GET /ihe/xds/documents/:uniqueId)
+  const [docDetail, setDocDetail] = useState<XdsDocumentDetail | null>(null)
+  const [docDetailOpen, setDocDetailOpen] = useState(false)
+  const [docDetailLoading, setDocDetailLoading] = useState(false)
+
+  const handleDocDetail = useCallback(async (uniqueId: string) => {
+    setDocDetailOpen(true)
+    setDocDetail(null)
+    setDocDetailLoading(true)
+    try {
+      const res = await xdsApi.getDocument(uniqueId)
+      if (res.success && res.data) setDocDetail(res.data)
+      else message.error(res.error?.message ?? t('w4b.xds.loadFailed'))
+    } catch {
+      message.error(t('w4b.xds.loadFailed'))
+    } finally {
+      setDocDetailLoading(false)
+    }
+  }, [])
+
+  const decodeContent = (content?: string): string => {
+    if (!content) return ''
+    try { return atob(content) } catch { return content }
+  }
 
   const [xcaScope, setXcaScope] = useState<string>('ALL')
   const [xcaCommunities, setXcaCommunities] = useState<Array<{ homeCommunityId: string; count: number }>>([])
@@ -315,6 +341,13 @@ export const IheManagerPage: React.FC = () => {
     {
       title: t('w10Interop.xds.status'), dataIndex: 'availabilityStatus', key: 'availabilityStatus', width: 110,
       render: (v: string) => <Tag color={v === 'APPROVED' ? 'green' : 'orange'}>{v}</Tag>,
+    },
+    // [G005 W4B] 按 id 调阅单份文档 (GET /ihe/xds/documents/:uniqueId)
+    {
+      title: t('w4b.xds.viewDetail'), key: 'retrieve', width: 100,
+      render: (_: unknown, r: XdsDocumentEntry) => (
+        <Button size="small" icon={<Eye size={12} />} onClick={() => void handleDocDetail(r.uniqueId)}>{t('w4b.xds.viewDetail')}</Button>
+      ),
     },
   ]
 
@@ -657,6 +690,38 @@ export const IheManagerPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Drawer>
+
+      {/* [G005 W4B] XDS 文档详情 (GET /ihe/xds/documents/:uniqueId) */}
+      <Modal
+        title={<Space><Eye size={14} />{t('w4b.xds.detailTitle')}</Space>}
+        open={docDetailOpen}
+        onCancel={() => setDocDetailOpen(false)}
+        footer={<Button onClick={() => setDocDetailOpen(false)}>{t('common.close')}</Button>}
+        width={720}
+      >
+        <Spin spinning={docDetailLoading}>
+          {docDetail && (
+            <Descriptions column={1} size="small" bordered>
+              <Descriptions.Item label="ID">{docDetail.id}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.uniqueId')}>{docDetail.uniqueId}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.docTitle')}>{docDetail.title}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.classCode')}>{docDetail.classCode}{docDetail.classDisplayName ? ` (${docDetail.classDisplayName})` : ''}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.formatCode')}>{docDetail.formatCode}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.community')}>{docDetail.homeCommunityId}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.repository')}>{docDetail.repositoryUniqueId}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.size')}>{docDetail.size}</Descriptions.Item>
+              <Descriptions.Item label={t('w10Interop.xds.creationTime')}>{docDetail.creationTime ? new Date(docDetail.creationTime).toLocaleString() : '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('w4b.xds.content')}>
+                {docDetail.content ? (
+                  <Typography.Paragraph style={{ marginBottom: 0 }}>
+                    <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{decodeContent(docDetail.content)}</pre>
+                  </Typography.Paragraph>
+                ) : <Tag>{t('w4b.xds.noContent')}</Tag>}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+        </Spin>
+      </Modal>
     </div>
   )
 }

@@ -23,6 +23,12 @@ import { w9QcHandlers } from './w9QcHandlers';
 // [G005 W13-Security] 安全与合规中心: RA/OCSP/HSM/字段加密/等保评估/灾难恢复/审计链
 //   必须最前置注册 (/security、/ocsp、/compliance 子路径需先于既有通配/参数路由)
 import { w13SecurityHandlers } from './w13SecurityHandlers';
+// [G005 W1-Controls] P0 无效果按钮真实化 (EMR 新建/XDS 文档调阅/自助凭证/报告签名) — 最前置注册
+import { w1ControlsHandlers } from './w1ControlsHandlers';
+// [G005 W4A] 报告/审计域 孤儿端点 (审计链/分级审核规则/互评缺陷/缺陷库单项/报告补发/预签校验) — 必须最前置注册
+import { w4aOrphansHandlers } from './w4aOrphansHandlers';
+// [G005 W4B] 临床/集成域 孤儿端点 (检查号解析/改期历史/XDS 文档调阅/传输队列处理/DR 演练详情/字段加密自检) — 必须更前置注册
+import { w4bOrphansHandlers } from './w4bOrphansHandlers';
 import { http, HttpResponse, delay } from 'msw';
 import { newPagesHandlers } from './newPagesHandlers';
 // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
@@ -5325,6 +5331,12 @@ const advancedHandlers: any[] = [
 // ============= 总 handlers =============
 // v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
+    // [G005 W4B] 最最最最最最最先注册: 临床/集成域孤儿端点 (检查号解析/改期历史/XDS 文档调阅/传输队列处理/DR 演练详情/字段加密自检)
+    ...w4bOrphansHandlers,
+    // [G005 W4A] 最最最最最最先注册: 报告/审计域孤儿端点 (审计链/分级审核规则/互评缺陷/缺陷库单项/报告补发/预签校验)
+    ...w4aOrphansHandlers,
+    // [G005 W1-Controls] 最最最最最最先注册: P0 控件真实化 (EMR 新建/XDS 文档调阅/自助凭证/报告签名)
+    ...w1ControlsHandlers,
     // [G005 W13-Security] 最最最最最先注册: 安全与合规中心 (RA/OCSP/HSM/字段加密/等保/灾难恢复/审计链)
     ...w13SecurityHandlers,
     // [G005 W12-PatientService] 最最最最最先注册: 微信/支付/通知渠道/满意度/自助登记
@@ -5350,6 +5362,8 @@ export const handlers = [
   ...w7MockHandlers,
   // [G005 W8-Dose] 最最先注册: 剂量页面本 wave 新增端点 (/rdsr/staff|breast|device/:id/history|overview)
   ...w8DoseHandlers,
+  // [W5-3125] AI CAD 具体路由必须先于 w3BackendParityHandlers 的通配 /ai-diagnosis/:model/results
+  ...aiDiagnosisHandlers,
   // [G005 W3-BackendParity] 最最先注册: 后端本次补齐的前端 parity 端点
   ...w3BackendParityHandlers,
   // [G005 W2] 最先注册: 后端有前端无 端点 (静态路径需先于既有参数/通配路由)
@@ -5481,7 +5495,7 @@ export const handlers = [
   // [W6] 修复: 原 `...aiDiagnosisHandlers,` 被上一行行尾注释吞掉 (-88 引入),
   //      ai-diagnosis (lung/breast/fracture/cardiac) 端点从未注册进 MSW,
   //      /api/v1/ai-diagnosis/* 请求落空到 vite proxy → 后端 → 500/401。
-  ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
+  // [W5-3125] aiDiagnosisHandlers 已前移至 w3BackendParityHandlers 之前 (避免通配 /ai-diagnosis/:model/results 遮蔽)
   ...reportDraftHandlers, // [v3.0.6.11-61] 环境式 AI 报告草稿 (/ai/report-draft/*)
   ...aiDraftAdvancedHandlers, // [v3.0.6.11-100 Wave 3A (G-19)] AI 草稿深化 (/ai-draft/providers|rag-context|generate-advanced|generate-structured)
   ...hl7Handlers, // [v3.0.6.11-75 W3-1] 注册 HL7 端点 (hl7Api: oru/orm/dft/batch/archive/mllp)

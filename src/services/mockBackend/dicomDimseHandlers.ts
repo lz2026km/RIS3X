@@ -58,6 +58,90 @@ let mockTlsConfig: any = {
 const mockNodeTls = new Map<string, boolean>();
 const mockMpps = new Map<string, any>();
 
+// [G005 demo] 模块加载幂等 seed: 空 Map 时注入确定性 MPPS 记录, 避免首次进入 MPPS tab 为空
+function seedMpps(): void {
+  if (mockMpps.size > 0) return;
+  const records: any[] = [
+    {
+      studyUid: '1.2.840.114350.1.1.20260801.101',
+      status: 'IN_PROGRESS',
+      startedAt: '2026-08-01T01:12:00.000Z',
+      completedAt: undefined,
+      performedSteps: [
+        { stepId: 'SPS-101-01', description: '患者摆位', stationAeTitle: 'CT_SCANNER_01', performedAt: '2026-08-01T01:12:00.000Z' },
+        { stepId: 'SPS-101-02', description: '定位像扫描', stationAeTitle: 'CT_SCANNER_01', performedAt: '2026-08-01T01:15:00.000Z' },
+      ],
+      updatedAt: '2026-08-01T01:15:00.000Z',
+      source: 'mpps',
+      patientName: '张明远',
+      patientId: 'P000001',
+      modality: 'CT',
+    },
+    {
+      studyUid: '1.2.840.114350.1.1.20260801.102',
+      status: 'IN_PROGRESS',
+      startedAt: '2026-08-01T02:05:00.000Z',
+      completedAt: undefined,
+      performedSteps: [
+        { stepId: 'SPS-102-01', description: '患者摆位', stationAeTitle: 'MR_SCANNER_02', performedAt: '2026-08-01T02:05:00.000Z' },
+      ],
+      updatedAt: '2026-08-01T02:05:00.000Z',
+      source: 'mpps',
+      patientName: '李静',
+      patientId: 'P000002',
+      modality: 'MR',
+    },
+    {
+      studyUid: '1.2.840.114350.1.1.20260731.103',
+      status: 'COMPLETED',
+      startedAt: '2026-07-31T06:30:00.000Z',
+      completedAt: '2026-07-31T06:52:00.000Z',
+      performedSteps: [
+        { stepId: 'SPS-103-01', description: '患者摆位', stationAeTitle: 'DR_ROOM_01', performedAt: '2026-07-31T06:30:00.000Z' },
+        { stepId: 'SPS-103-02', description: '正位曝光', stationAeTitle: 'DR_ROOM_01', performedAt: '2026-07-31T06:34:00.000Z' },
+        { stepId: 'SPS-103-03', description: '侧位曝光', stationAeTitle: 'DR_ROOM_01', performedAt: '2026-07-31T06:38:00.000Z' },
+      ],
+      updatedAt: '2026-07-31T06:52:00.000Z',
+      source: 'mpps',
+      patientName: '王芳',
+      patientId: 'P000003',
+      modality: 'DR',
+    },
+    {
+      studyUid: '1.2.840.114350.1.1.20260731.104',
+      status: 'COMPLETED',
+      startedAt: '2026-07-31T03:14:00.000Z',
+      completedAt: '2026-07-31T03:41:00.000Z',
+      performedSteps: [
+        { stepId: 'SPS-104-01', description: '患者摆位', stationAeTitle: 'US_UNIT_01', performedAt: '2026-07-31T03:14:00.000Z' },
+        { stepId: 'SPS-104-02', description: '肝脾扫查', stationAeTitle: 'US_UNIT_01', performedAt: '2026-07-31T03:22:00.000Z' },
+      ],
+      updatedAt: '2026-07-31T03:41:00.000Z',
+      source: 'exam',
+      patientName: '赵敏',
+      patientId: 'P000004',
+      modality: 'US',
+    },
+    {
+      studyUid: '1.2.840.114350.1.1.20260730.105',
+      status: 'DISCONTINUED',
+      startedAt: '2026-07-30T08:02:00.000Z',
+      completedAt: '2026-07-30T08:09:00.000Z',
+      performedSteps: [
+        { stepId: 'SPS-105-01', description: '患者摆位', stationAeTitle: 'XA_LAB_01', performedAt: '2026-07-30T08:02:00.000Z' },
+      ],
+      updatedAt: '2026-07-30T08:09:00.000Z',
+      source: 'mpps',
+      patientName: '陈杰',
+      patientId: 'P000005',
+      modality: 'XA',
+    },
+  ];
+  for (const record of records) mockMpps.set(record.studyUid, record);
+}
+
+seedMpps();
+
 // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] C-STORE 传输队列内存态 (与 backend seed 对齐)
 // [G005 v3.0.6.11-96 Wave 2B (D)] 传输记录支持 examId/accessionNumber (worklist 联动)
 let transferSeq = 0;

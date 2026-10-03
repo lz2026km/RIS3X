@@ -24,8 +24,8 @@ interface ReviewResult {
 
 const AiReviewPage: React.FC = () => {
   const [reportText, setReportText] = useState('')
-  const [_findings, _setFindings] = useState('')
-  const [_conclusion, _setConclusion] = useState('')
+  const [findings, setFindings] = useState('')
+  const [conclusion, setConclusion] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<ReviewResult | null>(null)
 
@@ -33,7 +33,11 @@ const AiReviewPage: React.FC = () => {
     if (!reportText.trim()) { message.warning(t('aiReviewPage.enterText')); return }
     setLoading(true)
     try {
-      const res = await v3AiPlatformApi.review({ reportText, findings: reportText, conclusion: reportText })
+      const res = await v3AiPlatformApi.review({
+        reportText,
+        findings: findings.trim() || reportText,
+        conclusion: conclusion.trim() || reportText,
+      })
       if (res.success && res.data) {
         const d = res.data as any
         setResult({
@@ -54,7 +58,7 @@ const AiReviewPage: React.FC = () => {
     } catch (err) { console.error('[AiReview] review failed:', err); message.error(t('aiReviewPage.requestFailed')) } finally {
       setLoading(false)
     }
-  }, [reportText])
+  }, [reportText, findings, conclusion])
 
   const severityColor = (s: string) => {
     if (s === 'error') return 'red'
@@ -102,10 +106,33 @@ const AiReviewPage: React.FC = () => {
               placeholder={t('aiReviewPage.placeholder')}
               style={{ fontFamily: 'monospace', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}
             />
+            {/* [G005 W1-Controls P1-9] 检查所见 / 诊断意见 (独立输入, 参与 AI 审核) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div>
+                <Text strong style={{ fontSize: 12 }}>{t('w1Controls.aiReview.findings')}</Text>
+                <TextArea
+                  value={findings}
+                  onChange={e => setFindings(e.target.value)}
+                  rows={4}
+                  placeholder={t('w1Controls.aiReview.findingsPlaceholder')}
+                  style={{ marginTop: 4, fontSize: 12 }}
+                />
+              </div>
+              <div>
+                <Text strong style={{ fontSize: 12 }}>{t('w1Controls.aiReview.conclusion')}</Text>
+                <TextArea
+                  value={conclusion}
+                  onChange={e => setConclusion(e.target.value)}
+                  rows={4}
+                  placeholder={t('w1Controls.aiReview.conclusionPlaceholder')}
+                  style={{ marginTop: 4, fontSize: 12 }}
+                />
+              </div>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Text type="secondary" style={{ fontSize: 12 }}>{reportText.length} {t('aiReviewPage.charsUnit')}</Text>
               {reportText && (
-                <Button size="small" onClick={() => { setReportText(''); setResult(null) }}>
+                <Button size="small" onClick={() => { setReportText(''); setFindings(''); setConclusion(''); setResult(null) }}>
                   {t('aiReviewPage.clear')}
                 </Button>
               )}

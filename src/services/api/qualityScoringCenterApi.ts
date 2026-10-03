@@ -417,6 +417,8 @@ export const qualityScoringCenterApi = {
     api.get<ComputedSnapshot>(`/quality-indicators/compute${buildQuery({ period })}`),
   getIndicatorDashboard: (period?: string) =>
     api.get<ComputedDashboard>(`/quality-indicators/dashboard${buildQuery({ period })}`),
+  // [G005 W4B] 指标快照历史 (GET /quality-indicators/snapshots)
+  listSnapshots: () => api.get<ComputedSnapshot[]>('/quality-indicators/snapshots'),
 
   // --- PDCA 整改措施 ---
   listActions: (cycleId: string) => api.get<PdcaAction[]>(`/qc-pdca/cycles/${cycleId}/actions`),
@@ -453,6 +455,18 @@ export const qualityScoringCenterApi = {
   listDefectCategories: () => api.get<DefectCategory[]>('/defect-library/categories'),
   listDefectItems: (params: { categoryCode?: string; severity?: string; keyword?: string } = {}) =>
     api.get<DefectItem[]>(`/defect-library/items${buildQuery(params)}`),
+  // [G005 W4A] 缺陷项详情 / 更新 / 删除
+  getDefectItem: (id: string) => api.get<DefectItem>(`/defect-library/items/${encodeURIComponent(id)}`),
+  updateDefectItem: async (id: string, data: Partial<Omit<DefectItem, 'id' | 'code'>>) => {
+    const res = await api.patch<DefectItem>(`/defect-library/items/${encodeURIComponent(id)}`, data)
+    await invalidateApiCache('/defect-library/items')
+    return res
+  },
+  deleteDefectItem: async (id: string) => {
+    const res = await api.delete<{ id: string; deleted: boolean }>(`/defect-library/items/${encodeURIComponent(id)}`)
+    await invalidateApiCache('/defect-library/items')
+    return res
+  },
   getDefectAggregation: () => api.get<DefectAggregation>('/defect-library/aggregation'),
   getPeerReviewDefectStats: () =>
     api.get<{ totalLinks: number; byCode: Array<{ code: string; count: number }>; byCategory: Array<{ categoryCode: string; count: number }>; bySeverity: Array<{ severity: string; count: number }> }>(
@@ -462,6 +476,8 @@ export const qualityScoringCenterApi = {
   // --- 设备质控 ---
   listEquipmentItems: (params: { modality?: EquipmentModality; frequency?: QcFrequency } = {}) =>
     api.get<PhantomTestItem[]>(`/equipment-qc/items${buildQuery(params)}`),
+  // [G005 W4B] 设备质控项详情 (GET /equipment-qc/items/:id)
+  getEquipmentItem: (id: string) => api.get<PhantomTestItem>(`/equipment-qc/items/${encodeURIComponent(id)}`),
   getEquipmentSchedule: () => api.get<Array<{ modality: EquipmentModality; frequency: QcFrequency; itemCount: number; deviceCount: number; items: Array<{ id: string; name: string; standard: string; threshold: string }> }>>('/equipment-qc/schedule'),
   listEquipmentRecords: (params: { deviceId?: string; modality?: EquipmentModality; frequency?: QcFrequency; onlyFailed?: boolean } = {}) =>
     api.get<EquipmentQcRecord[]>(`/equipment-qc/records${buildQuery(params)}`),

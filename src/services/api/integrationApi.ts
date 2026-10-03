@@ -489,6 +489,17 @@ export interface XdsStatsResponse {
   }
 }
 
+// [G005 W4B] 按 uniqueId 调阅单份 XDS 文档 (GET /ihe/xds/documents/:uniqueId)
+export interface XdsDocumentDetail extends XdsDocumentEntry {
+  classDisplayName?: string
+  formatDisplayName?: string
+  typeDisplayName?: string
+  hashAlgorithm?: string
+  content?: string
+  sourcePatientId?: string
+  submittedAt?: string
+}
+
 export const XDS_HOME_COMMUNITY = 'urn:oid:1.2.840.113556.1.8000.2554.1'
 export const XDS_REMOTE_COMMUNITY = 'urn:oid:1.2.840.113556.1.8000.2554.2'
 export const XDS_HOME_REPOSITORY = '1.2.840.113556.1.8000.2554.1.100'
@@ -523,6 +534,10 @@ export const xdsApi = {
   },
 
   stats: () => api.get<XdsStatsResponse>('/ihe/xds/stats'),
+
+  // [G005 W4B] 按 uniqueId 调阅单份文档 (GET /ihe/xds/documents/:uniqueId)
+  getDocument: (uniqueId: string) =>
+    api.get<XdsDocumentDetail>(`/ihe/xds/documents/${encodeURIComponent(uniqueId)}`),
 
   crossGatewayQuery: (params: { homeCommunityId: string; patientId?: string; classCode?: string; formatCode?: string; limit?: number }) =>
     api.post<{ transaction: string; homeCommunityId: string; total: number; communities: Array<{ homeCommunityId: string; count: number }>; documents: XdsDocumentEntry[] }>(

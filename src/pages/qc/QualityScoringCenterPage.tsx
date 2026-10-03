@@ -23,7 +23,7 @@ import {
   HardDrive,
   Search,
 } from 'lucide-react'
-import { Button, Tag, Space, Tabs, Select, Input, InputNumber, Table, Modal, Form, Drawer, Progress, Tooltip, Popconfirm, message, Radio } from 'antd'
+import { Button, Tag, Space, Tabs, Select, Input, InputNumber, Table, Modal, Form, Drawer, Progress, Tooltip, Popconfirm, message, Radio, Spin } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -48,6 +48,7 @@ import {
   type EquipmentModality,
   type QcFrequency,
 } from '../../services/api/qualityScoringCenterApi'
+import { reportQcV2Api, type QcTask, type QcTaskStatus } from '../../services/api/reportQcV2Api'
 import { t } from '../../i18n/appI18n'
 
 const QC_STATUS_META: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
@@ -109,6 +110,7 @@ export default function QualityScoringCenterPage() {
           { key: 'pdca', label: <span><GitBranch size={14} /> {t('w9Qc.tab.pdca')}</span>, children: <PdcaTab /> },
           { key: 'sampling', label: <span><EyeOff size={14} /> {t('w9Qc.tab.sampling')}</span>, children: <SamplingTab /> },
           { key: 'peerReview', label: <span><UsersRound size={14} /> {t('w9Qc.tab.peerReview')}</span>, children: <PeerReviewTab /> },
+          { key: 'reportQcTasks', label: <span><ListChecks size={14} /> {t('w4a.qcTask.tab')}</span>, children: <ReportQcTasksTab /> },
           { key: 'equipment', label: <span><Stethoscope size={14} /> {t('w9Qc.tab.equipment')}</span>, children: <EquipmentTab /> },
         ]}
       />
@@ -672,6 +674,79 @@ function PeerReviewTab() {
   )
 }
 
+// ================= Tab: 报告质控任务 (report-qc-v2) =================
+
+const QC_TASK_STATUS_META: Record<QcTaskStatus, { labelKey: string; color: string }> = {
+  pending: { labelKey: 'w4a.qcTask.status.pending', color: 'default' },
+  in_progress: { labelKey: 'w4a.qcTask.status.inProgress', color: 'processing' },
+  reviewing: { labelKey: 'w4a.qcTask.status.reviewing', color: 'blue' },
+  closed: { labelKey: 'w4a.qcTask.status.closed', color: 'success' },
+}
+
+const QC_GRADE_COLORS: Record<string, string> = { A: 'green', B: 'blue', C: 'orange', D: 'red' }
+
+function ReportQcTasksTab() {
+  const [tasks, setTasks] = useState<QcTask[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true); setError(null)
+    const res = await reportQcV2Api.listTasks().catch(() => null)
+    if (res?.success && res.data) setTasks(res.data)
+    else { setTasks([]); setError(t('w4a.qcTask.loadFailed')) }
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { void load() }, [load])
+
+  const summary = useMemo(() => {
+    const withScore = tasks.filter((x) => x.totalScore !== undefined)
+    const avg = withScore.length > 0 ? Math.round((withScore.reduce((a, x) => a + (x.totalScore ?? 0), 0) / withScore.length) * 10) / 10 : 0
+    return {
+      total: tasks.length,
+      closed: tasks.filter((x) => x.status === 'closed').length,
+      avg,
+      defects: tasks.reduce((a, x) => a + (x.defects?.length ?? 0), 0),
+    }
+  }, [tasks])
+
+  const columns: ColumnsType<QcTask> = [
+    { title: t('w4a.qcTask.thId'), dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <Tag>{v}</Tag> },
+    { title: t('w4a.qcTask.thReport'), dataIndex: 'reportId', key: 'reportId', width: 150 },
+    { title: t('w4a.qcTask.thPatient'), dataIndex: 'patientName', key: 'patientName', width: 90 },
+    { title: t('w4a.qcTask.thModality'), dataIndex: 'modality', key: 'modality', width: 80 },
+    { title: t('w4a.qcTask.thScore'), dataIndex: 'totalScore', key: 'totalScore', width: 80, sorter: (a, b) => (a.totalScore ?? 0) - (b.totalScore ?? 0), render: (v?: number) => (v === undefined ? '-' : v) },
+    { title: t('w4a.qcTask.thGrade'), dataIndex: 'grade', key: 'grade', width: 70, render: (g?: string) => (g ? <Tag color={QC_GRADE_COLORS[g]}>{g}</Tag> : '-') },
+    {
+      title: t('w4a.qcTask.thStatus'), dataIndex: 'status', key: 'status', width: 100,
+      render: (s: QcTaskStatus) => { const m = QC_TASK_STATUS_META[s]; return <Tag color={m.color}>{t(m.labelKey)}</Tag> },
+    },
+    { title: t('w4a.qcTask.thAssignee'), dataIndex: 'assigneeName', key: 'assigneeName', width: 100, render: (v?: string) => v ?? '-' },
+    { title: t('w4a.qcTask.thDefects'), key: 'defects', width: 80, render: (_, r) => <Tag color={(r.defects?.length ?? 0) > 0 ? 'red' : 'default'}>{r.defects?.length ?? 0}</Tag> },
+    { title: t('w4a.qcTask.thCreatedAt'), dataIndex: 'createdAt', key: 'createdAt', width: 110, render: (v: string) => fmtDate(v) },
+  ]
+
+  return (
+    <div style={{ display: 'grid', gap: 16 }}>
+      <StatCardGrid columns={4}>
+        <StatCard title={t('w4a.qcTask.thId')} value={summary.total} icon={<ListChecks size={18} />} color="primary" />
+        <StatCard title={t('w4a.qcTask.status.closed')} value={summary.closed} icon={<CheckCircle2 size={18} />} color="success" />
+        <StatCard title={t('w4a.qcTask.thScore')} value={summary.avg} icon={<Gauge size={18} />} color="info" />
+        <StatCard title={t('w4a.qcTask.thDefects')} value={summary.defects} icon={<AlertTriangle size={18} />} color="warning" />
+      </StatCardGrid>
+
+      <Space wrap>
+        <Button icon={<RefreshCw size={14} />} onClick={load}>{t('w4a.qcTask.refresh')}</Button>
+      </Space>
+
+      <StateView loading={loading} error={error} empty={!loading && !error && tasks.length === 0} onRetry={load} minHeight={240}>
+        <Table<QcTask> rowKey="id" size="small" columns={columns} dataSource={tasks} pagination={{ pageSize: 15, showSizeChanger: false }} scroll={{ x: 1000 }} />
+      </StateView>
+    </div>
+  )
+}
+
 // ================= Tab 6: 设备质控 =================
 
 function EquipmentTab() {
@@ -683,6 +758,23 @@ function EquipmentTab() {
   const [modality, setModality] = useState<EquipmentModality | 'all'>('all')
   const [recordOpen, setRecordOpen] = useState(false)
   const [form] = Form.useForm()
+  // [G005 W4B] 设备质控项详情 (GET /equipment-qc/items/:id)
+  const [itemDetail, setItemDetail] = useState<PhantomTestItem | null>(null)
+  const [itemDetailOpen, setItemDetailOpen] = useState(false)
+  const [itemDetailLoading, setItemDetailLoading] = useState(false)
+
+  const openItemDetail = async (id: string) => {
+    setItemDetailOpen(true)
+    setItemDetail(null)
+    setItemDetailLoading(true)
+    try {
+      const res = await api.getEquipmentItem(id).catch(() => null)
+      if (res?.success && res.data) setItemDetail(res.data)
+      else message.error(t('w4b.eqc.loadFailed'))
+    } finally {
+      setItemDetailLoading(false)
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true); setError(null)
@@ -712,6 +804,8 @@ function EquipmentTab() {
     { title: t('w9Qc.equipment.frequency'), dataIndex: 'frequency', key: 'frequency', width: 90, render: (v: QcFrequency) => FREQ_LABELS[v] },
     { title: t('w9Qc.equipment.standard'), dataIndex: 'standard', key: 'standard' },
     { title: t('w9Qc.equipment.threshold'), key: 'threshold', width: 120, render: (_, r) => `${r.threshold.op === 'lte' ? '≤' : r.threshold.op === 'gte' ? '≥' : '~'} ${r.threshold.limit}${r.threshold.limit2 ? `~${r.threshold.limit2}` : ''} ${r.threshold.unit}` },
+    // [G005 W4B] 质控项详情 (GET /equipment-qc/items/:id)
+    { title: t('w9Qc.actions'), key: 'detail', width: 90, render: (_, r) => <Button size="small" type="link" onClick={() => void openItemDetail(r.id)}>{t('w4b.eqc.view')}</Button> },
   ]
 
   const recordColumns: ColumnsType<EquipmentQcRecord> = [
@@ -758,6 +852,34 @@ function EquipmentTab() {
           <Form.Item name="testerName" label={t('w9Qc.equipment.tester')} initialValue="王技师"><Input /></Form.Item>
         </Form>
       </Modal>
+
+      {/* [G005 W4B] 质控项详情抽屉 (GET /equipment-qc/items/:id) */}
+      <Drawer title={itemDetail ? `${t('w4b.eqc.detailTitle')} · ${itemDetail.id}` : t('w4b.eqc.detailTitle')} open={itemDetailOpen} onClose={() => setItemDetailOpen(false)} width={520}>
+        {itemDetailLoading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+        ) : itemDetail ? (
+          <Table
+            rowKey="k"
+            size="small"
+            pagination={false}
+            showHeader={false}
+            columns={[
+              { dataIndex: 'k', width: 140, render: (v: string) => <span style={{ color: '#64748b' }}>{v}</span> },
+              { dataIndex: 'v' },
+            ]}
+            dataSource={[
+              { k: t('w4b.eqc.thId'), v: itemDetail.id },
+              { k: t('w4b.eqc.thName'), v: itemDetail.name },
+              { k: t('w4b.eqc.thModality'), v: itemDetail.modality },
+              { k: t('w4b.eqc.thFrequency'), v: FREQ_LABELS[itemDetail.frequency] },
+              { k: t('w4b.eqc.thStandard'), v: itemDetail.standard },
+              { k: t('w4b.eqc.thThreshold'), v: `${itemDetail.threshold.op === 'lte' ? '≤' : itemDetail.threshold.op === 'gte' ? '≥' : '~'} ${itemDetail.threshold.limit}${itemDetail.threshold.limit2 ? `~${itemDetail.threshold.limit2}` : ''} ${itemDetail.threshold.unit}` },
+            ]}
+          />
+        ) : (
+          <span style={{ color: '#94a3b8' }}>{t('w4b.eqc.loadFailed')}</span>
+        )}
+      </Drawer>
     </div>
   )
 }

@@ -615,12 +615,18 @@ export default function SelfServicePortal() {
 
   const generateVoucher = async () => {
     if (!user) return
-    // [G005 W1-C] 后端无 /patient-portal/voucher 端点, 凭证改为本地生成(标注: 待后端实现)
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let code = ''
-    for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)]
-    setVoucherCode(code)
-    message.info(t('ssp.voucher.localNotice'))
+    // [G005 W1-Controls P0-5] 凭证生成 → selfRegistrationApi.issueVoucher (MSW /self-registration/voucher 确定性)
+    try {
+      const res = await selfRegistrationApi.issueVoucher({ patientId: user.id, patientName: user.name })
+      if (res.success && res.data) {
+        setVoucherCode(res.data.code)
+        message.success(t('w1Controls.selfService.voucherSuccess', { code: res.data.code }))
+      } else {
+        message.error(res.error?.message ?? t('w1Controls.selfService.voucherFailed'))
+      }
+    } catch {
+      message.error(t('w1Controls.selfService.voucherFailed'))
+    }
   }
 
   const handleWindowChange = (id: string, type: 'width' | 'center', value: number) => {

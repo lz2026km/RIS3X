@@ -156,6 +156,39 @@ const SEED_V1_RESULTS = Array.from({ length: 12 }, (_, i) => ({
   createdAt: new Date(Date.now() - i * 86400000).toISOString(),
 }))
 
+// [G005 demo] V1 评分记录确定性 seed (与 SEED_V1_RESULTS 同实例集, 保证
+//   GET /qc/image-ai/result/:instanceId 对 seed 实例返回记录而非 404,
+//   并使 GET /qc/image-ai/stats 非零)
+const SEED_V1_SCORES = Array.from({ length: 12 }, (_, i) => ({
+  id: `qc-img-v1-${String(i + 1).padStart(3, '0')}`,
+  instanceId: `STU202607${String(i + 1).padStart(2, '0')}`,
+  modality: ['CT', 'MR', 'DR', 'CT', 'MG', 'DR'][i % 6],
+  motionArtifact: 4,
+  metalArtifact: 3 + (i % 2),
+  ringArtifact: 4,
+  exposureLow: 0,
+  exposureNormal: 1,
+  exposureOver: 0,
+  positioningCorrect: 4,
+  positioningMildRotation: 3 + (i % 2),
+  positioningSevereOffset: 0,
+  overall: Number((3.2 + ((i * 37) % 16) / 10).toFixed(1)),
+  operatorId: `op-${(i % 3) + 1}`,
+  createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+}))
+
+// [G005 demo] 模块加载幂等 seed: 空 store 时注入确定性评分, 避免 KPI/统计为 0
+function seedScoreStores(): void {
+  if (storeV2.size === 0) {
+    for (const r of SEED_V1_RESULTS) storeV2.set(r.id, r as unknown as ScoreRecordV2)
+  }
+  if (storeV1.size === 0) {
+    for (const r of SEED_V1_SCORES) storeV1.set(r.instanceId, r as unknown as Record<string, unknown>)
+  }
+}
+
+seedScoreStores()
+
 export const imageAiHandlers = [
   http.get(`${API_BASE}/qc/image-ai/result-v2`, async ({ request }) => {
     await delay(delayMs())

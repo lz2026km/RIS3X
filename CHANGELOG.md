@@ -1,3 +1,34 @@
+## v3.0.6.12-5 (2026-09-27) — 可销售商业演示版（控件/空表/导航/后端前端化）
+
+> **目标**: 全面点击检查 + 页面点击错误 + 空表格 + 导航未翻译 + 后端有前端无；**未接入接口一律以模拟数据呈现**，达到可销售演示标准
+> **范围**: W1–W4 + 回归修复；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功；click-all 406 路由回归
+
+### W1 — 控件修复（点了必有响应）
+- 5 个占位控件接实现/模拟：眼病新建病历、区域文档调阅、影像锚点动态播放、结构化字段签名、自助凭证生成（后端缺失的端点以 MSW 确定性模拟）
+- 6 个"拉取不渲染"控件修复：科室财务(收入/成本图)、设备页(故障/生命周期)、患者财务(支付/发票)、AI 审核(发现/结论)、报告详情抽屉(历史)、患者页(PMI 焦点)
+- 3 个装饰 tab 修复：区域报告列表
+
+### W2 — 空表修复
+- 播种 `dicom/compress/tasks`(+`/ratios`)、`dicom-dimse/mpps`、`qc/image-ai/stats-v2`(+V1 `stats`/`result/:id`)；补 `emptyText`/no-data 提示
+
+### W3 — 面包屑翻译（导航栏未翻译真因）
+- 补 30 个 `nav.*` 键（ai/asr/cds/contrast/device/education/export/finance/fusion/hie/hl7/ihe/kiosk/mobile/nlp/ops/pathology/regional/report/snomed/sub/system/teach/tech/tele/user/voice/admin/v4/:id）；`AppLayout` 面包屑增加侧边栏分区回退；修复 ~60 页 / 84 处面包屑英文
+
+### W4 — 后端功能前端化（36 孤儿端点）
+- **报告/审计域（W4a）**：审计链+留存+冷归档 Tab、报告分级审核 review-tiers CRUD+解析、互评 tasks+缺陷、报告质控任务 Tab、缺陷库条目详情/编辑/删除、补充报告、RQI 批次/历史/导出、结构化报告预签校验
+- **临床/集成域（W4b）**：预约检查号解析+改期历史、口腔头影地标+种植体目录、IHE XDS 文档调阅、DICOM SR 下载、DIMSE 传输推进、眼科像素直方图、危急值升级链、安全 DR 演练详情+字段加密自检、微信绑定用户、设备质控条目详情、指标快照历史
+- 新增 `w4aOrphansHandlers.ts` / `w4bOrphansHandlers.ts`（确定性 MSW，前置注册）
+
+### 回归修复（W4c，click-all 406 路由）
+- 修复真实运行时错误：`/qc/analytics`(map of undefined)、`/ai-cad`+`/ai/lung-cad`(includes of undefined)、`/dicom/sr-manager`(join of undefined)；`appI18n.t`/`humanizeKey` 对非字符串键加固
+- 死按钮：`/reports/offline` 刷新（可见反馈）
+- 修正 AI CAD mock 优先级（`aiDiagnosisHandlers` 前移，避免被通配 `/ai-diagnosis/:model/results` 遮蔽）
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.12-3` → `3.0.6.12-5`（无 BOM）
+
+---
+
 ## v3.0.6.12-3 (2026-09-27) — 点击/空表/导航专项修复
 
 > **目标**: 全面点击检查——① 控件点击无响应/为空 ② 数据表格为空 ③ 导航栏页面未翻译

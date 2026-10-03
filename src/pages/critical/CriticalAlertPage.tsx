@@ -6,6 +6,8 @@
 import {
   criticalAlertApi, type CriticalAlert, type CriticalAlertStats, type CriticalFlowStep,
 } from '../../services/api/criticalAlertApi'
+// [G005 W4B] 危急值升级链 (GET /critical-escalation/chains)
+import { criticalEscalationApi, type EscalationChain } from '../../services/api/criticalEscalationApi'
 import {
   Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message,
   Modal, Input, Select, Alert, Spin, Badge, Progress, Steps, Radio,
@@ -73,6 +75,28 @@ const CriticalAlertPage: React.FC = () => {
   const [aggregate, setAggregate] = useState<CriticalAlert[]>([])
   const [aggregateLoading, setAggregateLoading] = useState(false)
   const [aggregateError, setAggregateError] = useState('')
+
+  // [G005 W4B] 危急值升级链 (GET /critical-escalation/chains)
+  const [chains, setChains] = useState<EscalationChain[]>([])
+  const [chainsLoading, setChainsLoading] = useState(false)
+  const [chainsError, setChainsError] = useState('')
+  const [chainStatusFilter, setChainStatusFilter] = useState<string>()
+
+  const loadChains = useCallback(async () => {
+    setChainsLoading(true)
+    setChainsError('')
+    try {
+      const res = await criticalEscalationApi.listChains(chainStatusFilter)
+      if (res.success && Array.isArray(res.data)) setChains(res.data)
+      else setChainsError(res.error?.message ?? tr('w4b.esc.loadFailed'))
+    } catch {
+      setChainsError(tr('w4b.esc.loadFailed'))
+    } finally {
+      setChainsLoading(false)
+    }
+  }, [chainStatusFilter])
+
+  useEffect(() => { void loadChains() }, [loadChains])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -364,6 +388,53 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
               </Space>
             </div>
           </>
+        )}
+      </Card>
+
+      {/* [G005 W4B] 危急值升级链列表 (GET /critical-escalation/chains) */}
+      <Card
+        size="small"
+        title={<Space size={6}><ArrowUp size={13} color="#7c3aed" />{tr('w4b.esc.listTitle', { count: chains.length })}</Space>}
+        style={{ marginBottom: 16 }}
+        extra={
+          <Space>
+            <Select
+              size="small"
+              allowClear
+              placeholder={tr('w4b.esc.filterStatus')}
+              style={{ width: 140 }}
+              value={chainStatusFilter}
+              onChange={setChainStatusFilter}
+              options={['NOTIFYING', 'PENDING_CONFIRM', 'CONFIRMED', 'ESCALATED', 'CLOSED'].map((s) => ({ value: s, label: s }))}
+            />
+            <Button size="small" icon={<RefreshCw size={12} />} loading={chainsLoading} onClick={() => void loadChains()}>{tr('w4b.esc.refresh')}</Button>
+          </Space>
+        }
+        data-testid="critical-escalation-chains"
+      >
+        {chainsError ? (
+          <Alert type="warning" showIcon message={chainsError} action={<Button size="small" onClick={() => void loadChains()}>{tr('w4b.esc.refresh')}</Button>} />
+        ) : chains.length === 0 ? (
+          <EmptyState description={tr('w4b.esc.empty')} />
+        ) : (
+          <Table
+            rowKey="id"
+            size="small"
+            loading={chainsLoading}
+            dataSource={chains}
+            pagination={{ pageSize: 8, showSizeChanger: false }}
+            scroll={{ x: 'max-content' }}
+            columns={[
+              { title: tr('w4b.esc.thId'), dataIndex: 'id', key: 'id', width: 110, render: (v: string) => <Text code>{v}</Text> },
+              { title: tr('w4b.esc.thPatient'), dataIndex: 'patientName', key: 'patientName', width: 100 },
+              { title: tr('w4b.esc.thTitle'), dataIndex: 'title', key: 'title' },
+              { title: tr('w4b.esc.thSeverity'), dataIndex: 'severity', key: 'severity', width: 90, render: (v: string) => <Tag color={severityColor[v] ?? 'default'}>{v}</Tag> },
+              { title: tr('w4b.esc.thStatus'), dataIndex: 'status', key: 'status', width: 130, render: (v: string) => <Tag color={v === 'CLOSED' ? 'green' : v === 'ESCALATED' ? 'purple' : v === 'CONFIRMED' ? 'blue' : 'orange'}>{v}</Tag> },
+              { title: tr('w4b.esc.thLevel'), dataIndex: 'currentLevel', key: 'currentLevel', width: 90 },
+              { title: tr('w4b.esc.thEscalated'), dataIndex: 'escalatedCount', key: 'escalatedCount', width: 90 },
+              { title: tr('w4b.esc.thDeadline'), dataIndex: 'currentDeadline', key: 'currentDeadline', width: 160, render: (v: string) => v ? new Date(v).toLocaleString() : '—' },
+            ]}
+          />
         )}
       </Card>
 

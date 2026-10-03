@@ -53,6 +53,10 @@ export default function PatientServiceCenterPage() {
   const [wxBindValue, setWxBindValue] = useState('13800001001')
   const [wxPushContent, setWxPushContent] = useState('您的检查报告已出具, 请查看。')
   const [wxBusy, setWxBusy] = useState(false)
+  // [G005 W4B] 已绑定关注者列表 (GET /wechat/users)
+  const [wxUsers, setWxUsers] = useState<WechatUserDto[]>([])
+  const [wxUsersLoading, setWxUsersLoading] = useState(false)
+  const [wxUsersError, setWxUsersError] = useState('')
 
   // ── 支付 ──
   const [orders, setOrders] = useState<PaymentOrderDto[]>([])
@@ -106,6 +110,20 @@ export default function PatientServiceCenterPage() {
   const [srPriority, setSrPriority] = useState<'NORMAL' | 'URGENT' | 'EMERGENCY'>('NORMAL')
   const [srBusy, setSrBusy] = useState(false)
 
+  const loadWechatUsers = useCallback(async () => {
+    setWxUsersLoading(true)
+    setWxUsersError('')
+    try {
+      const res = await wechatApi.listUsers()
+      if (res.success && res.data) setWxUsers(res.data.items ?? [])
+      else setWxUsersError(res.error?.message ?? t('w4b.wx.loadFailed'))
+    } catch {
+      setWxUsersError(t('w4b.wx.loadFailed'))
+    } finally {
+      setWxUsersLoading(false)
+    }
+  }, [])
+
   const loadWechat = useCallback(async () => {
     const [cfg, logs] = await Promise.allSettled([
       wechatApi.getSubscribeConfig(),
@@ -113,8 +131,9 @@ export default function PatientServiceCenterPage() {
     ])
     if (cfg.status === 'fulfilled' && cfg.value.success && cfg.value.data) setWxConfig(cfg.value.data)
     if (logs.status === 'fulfilled' && logs.value.success && logs.value.data) setWxLogs(logs.value.data.items ?? [])
+    void loadWechatUsers()
     return [cfg, logs].some((r) => r.status === 'fulfilled' && r.value.success)
-  }, [])
+  }, [loadWechatUsers])
 
   const loadPayment = useCallback(async () => {
     const [list, stats, rec] = await Promise.allSettled([
@@ -421,7 +440,7 @@ export default function PatientServiceCenterPage() {
             ]} />
         </Card>
 
-        <Card size="small" title={`${t('w12Patient.wechat.logs')} (${wxLogs.length})`}>
+        <Card size="small" title={`${t('w12Patient.wechat.logs')} (${wxLogs.length})`} style={{ marginBottom: 16 }}>
           <Table size="small" rowKey="id" pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxLogs}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
@@ -431,9 +450,28 @@ export default function PatientServiceCenterPage() {
               { title: t('w12Patient.createdAt'), dataIndex: 'createdAt', width: 140, render: fmtTime },
             ]} />
         </Card>
+
+        {/* [G005 W4B] 已绑定微信用户 (GET /wechat/users) */}
+        <Card
+          size="small"
+          title={`${t('w4b.wx.usersTitle', { count: wxUsers.length })}`}
+          extra={<Button size="small" icon={<RefreshCw size={12} />} loading={wxUsersLoading} onClick={() => void loadWechatUsers()}>{t('w4b.wx.refresh')}</Button>}
+        >
+          {wxUsersError && <Alert type="warning" showIcon message={wxUsersError} style={{ marginBottom: 8 }} />}
+          <Table size="small" rowKey="openid" loading={wxUsersLoading} pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxUsers}
+            locale={{ emptyText: <Empty description={t('w4b.wx.empty')} /> }}
+            columns={[
+              { title: t('w4b.wx.thNickname'), dataIndex: 'nickname', width: 110 },
+              { title: t('w4b.wx.thOpenid'), dataIndex: 'openid', width: 150, ellipsis: true },
+              { title: t('w4b.wx.thChannel'), dataIndex: 'channel', width: 120, render: (v: string) => <Tag>{v}</Tag> },
+              { title: t('w4b.wx.thBound'), width: 140, render: (_: unknown, r: WechatUserDto) => r.boundPatientName ? `${r.boundPatientName} (${r.boundPatientId})` : <Tag>{t('w4b.wx.no')}</Tag> },
+              { title: t('w4b.wx.thSubscribed'), dataIndex: 'subscribed', width: 80, render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? t('w4b.wx.yes') : t('w4b.wx.no')}</Tag> },
+              { title: t('w4b.wx.thCreatedAt'), dataIndex: 'createdAt', width: 140, render: fmtTime },
+            ]} />
+        </Card>
       </Col>
     </Row>
-  ), [wxCode, wxOpenid, wxUser, wxBindMethod, wxBindValue, wxPushContent, wxBusy, wxConfig, wxLogs])
+  ), [wxCode, wxOpenid, wxUser, wxBindMethod, wxBindValue, wxPushContent, wxBusy, wxConfig, wxLogs, wxUsers, wxUsersLoading, wxUsersError, loadWechatUsers])
 
   const paymentTab = useMemo(() => (
     <div>

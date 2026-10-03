@@ -104,6 +104,14 @@ export interface AuditTrailEntryDto {
   time: string; details: string
 }
 
+// [G005 W1-Controls P0] IHE XDS-I 文档调阅结果
+export interface RetrievedDocumentDto {
+  id: string; documentId: string; patientId: string; patientName: string
+  studyUid: string; title: string; contentType: string; institution: string
+  reportDate: string; sizeBytes: number; content: string; retrievedAt: string
+  source: string
+}
+
 // ── Regional Report Page DTOs ──
 
 export interface RegionalConsultationDto {
@@ -356,6 +364,10 @@ export const regionalApi = {
 
   listDocumentRegistry: () =>
     api.get<DocumentRegistryEntryDto[]>('/regional/imaging/document-registry'),
+
+  // [G005 W1-Controls P0] IHE XDS-I 文档调阅: 后端无 Retrieve 数据源 → MSW 确定性文档
+  retrieveDocument: (id: string) =>
+    api.get<RetrievedDocumentDto>(`/regional/imaging/document-registry/${encodeURIComponent(id)}/retrieve`),
 
   pixQuery: (patientId: string) =>
     api.get<{ local: string; remote: string }>(`/regional/imaging/pix?patientId=${encodeURIComponent(patientId)}`),

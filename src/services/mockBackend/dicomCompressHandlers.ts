@@ -282,6 +282,63 @@ function createTask(fileId: string, transferSyntax: string, quality: number, upl
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// [G005 demo] 模块加载幂等 seed: store 为空时注入确定性压缩任务,
+//   避免首次进入 /dicom/compress 时 tasks / ratios / stats 全为空。
+// ────────────────────────────────────────────────────────────────────────────
+
+interface SeedTaskDef {
+  key: string;
+  fileId: string;
+  transferSyntax: string;
+  status: MswCompressTask['status'];
+  progress: number;
+  originalSize: number;
+  compressedSize: number | null;
+  elapsedMs?: number;
+  quality?: number;
+  source: NonNullable<MswCompressTask['source']>;
+  createdAt: string;
+}
+
+const SEED_TASK_DEFS: SeedTaskDef[] = [
+  { key: '001', fileId: 'CT_CHEST/CT_CHEST_001.dcm', transferSyntax: '1.2.840.10008.1.2.4.90', status: 'done', progress: 100, originalSize: 525474, compressedSize: 182930, elapsedMs: 431, quality: 100, source: 'real', createdAt: '2026-07-01T09:12:00.000Z' },
+  { key: '002', fileId: 'MR_BRAIN/MR_BRAIN_001.dcm', transferSyntax: '1.2.840.10008.1.2.4.201', status: 'done', progress: 100, originalSize: 139220, compressedSize: 38240, elapsedMs: 168, quality: 100, source: 'rle-approx', createdAt: '2026-07-01T08:47:00.000Z' },
+  { key: '003', fileId: 'DR_CHEST/DR_CHEST_001.dcm', transferSyntax: '1.2.840.10008.1.2.4.80', status: 'done', progress: 100, originalSize: 8389326, compressedSize: 2516798, elapsedMs: 204, quality: 100, source: 'rle-approx', createdAt: '2026-06-30T17:05:00.000Z' },
+  { key: '004', fileId: 'CT_HEAD/CT_HEAD_001.dcm', transferSyntax: '1.2.840.10008.1.2.4.91', status: 'done', progress: 100, originalSize: 525474, compressedSize: 121860, elapsedMs: 152, quality: 85, source: 'estimated', createdAt: '2026-06-30T16:22:00.000Z' },
+  { key: '005', fileId: 'CT_CHEST/CT_CHEST_005.dcm', transferSyntax: '1.2.840.10008.1.2.4.201', status: 'processing', progress: 45, originalSize: 525474, compressedSize: null, elapsedMs: undefined, quality: 100, source: 'rle-approx', createdAt: '2026-06-30T15:58:00.000Z' },
+  { key: '006', fileId: 'MR_BRAIN/MR_BRAIN_006.dcm', transferSyntax: '1.2.840.10008.1.2.5', status: 'pending', progress: 0, originalSize: 139220, compressedSize: null, elapsedMs: undefined, quality: 100, source: 'rle-approx', createdAt: '2026-06-30T15:40:00.000Z' },
+];
+
+function seedTaskStore(): void {
+  if (taskStore.size > 0) return;
+  for (const def of SEED_TASK_DEFS) {
+    const syntax = SYNTAXES.find(s => s.uid === def.transferSyntax);
+    const inst = INSTANCES.find(i => i.fileId === def.fileId);
+    taskStore.set(`msw-task-seed-${def.key}`, {
+      id: `msw-task-seed-${def.key}`,
+      fileId: def.fileId,
+      transferSyntax: def.transferSyntax,
+      status: def.status,
+      progress: def.progress,
+      originalSize: def.originalSize,
+      compressedSize: def.compressedSize,
+      ratio: def.compressedSize !== null ? Math.round((def.originalSize / def.compressedSize) * 100) / 100 : undefined,
+      modality: inst?.modality ?? 'UNKNOWN',
+      algorithmName: syntax?.name ?? def.transferSyntax,
+      lossless: syntax?.lossy === false,
+      quality: def.quality,
+      simulated: def.source !== 'real',
+      elapsedMs: def.elapsedMs,
+      source: def.source,
+      createdAt: def.createdAt,
+      updatedAt: def.createdAt,
+    });
+  }
+}
+
+seedTaskStore();
+
+// ────────────────────────────────────────────────────────────────────────────
 
 export const dicomCompressHandlers = [
   http.get(`${API}/syntaxes`, async () => {

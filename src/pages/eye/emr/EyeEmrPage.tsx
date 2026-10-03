@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Table, Tabs, Input, Descriptions, Alert, Space, Badge, Spin, message } from 'antd';
+import { Card, Row, Col, Tag, Table, Tabs, Input, Descriptions, Alert, Space, Badge, Spin, message, Modal, Form } from 'antd';
 import { BookOpen, User } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
@@ -15,6 +15,12 @@ const EyeEmrPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
+  // [G005 W1-Controls P0-1] 新建病历
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState<{ patientName: string; patientId: string; chiefComplaint: string; diagnosis: string; plan: string }>({
+    patientName: '', patientId: '', chiefComplaint: '', diagnosis: '', plan: '',
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +40,32 @@ const EyeEmrPage: React.FC = () => {
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
+
+  // [G005 W1-Controls P0-1] 新建病历 → eyeApi.createEmr (MSW /eye/emr/records POST) → 列表前置 + 选中
+  const handleCreateEmr = async () => {
+    if (!createForm.patientName.trim()) {
+      message.warning(t('w1Controls.emr.required'));
+      return;
+    }
+    setCreating(true);
+    try {
+      const res = await eyeApi.createEmr(createForm);
+      if (res.success && res.data) {
+        const created = res.data;
+        setEmrList((list) => [created, ...list]);
+        setSelected(created);
+        setCreateOpen(false);
+        setCreateForm({ patientName: '', patientId: '', chiefComplaint: '', diagnosis: '', plan: '' });
+        message.success(t('w1Controls.emr.created', { id: created.id }));
+      } else {
+        message.error(res.error?.message ?? t('w1Controls.emr.failed'));
+      }
+    } catch {
+      message.error(t('w1Controls.emr.failed'));
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const filtered = search
     ? emrList.filter(
@@ -59,7 +91,7 @@ const EyeEmrPage: React.FC = () => {
               style={{ width: 240 }}
             />
             <ActionButton action="refresh" loading={loading} onClick={() => setReloadTick((n) => n + 1)}>{t('w45.actions.refresh')}</ActionButton>
-            <ActionButton action="create" onClick={() => message.info(t('w45.eyeEmr.createHint'))}>{t('w45.eyeEmr.newRecord')}</ActionButton>
+            <ActionButton action="create" onClick={() => setCreateOpen(true)}>{t('w45.eyeEmr.newRecord')}</ActionButton>
             <ExportButton
               data={() => filtered}
               filename="eye-emr"
@@ -382,6 +414,36 @@ const EyeEmrPage: React.FC = () => {
         </Col>
       </Row>
       )}
+
+      {/* [G005 W1-Controls P0-1] 新建病历 Modal → eyeApi.createEmr */}
+      <Modal
+        open={createOpen}
+        title={t('w1Controls.emr.title')}
+        okText={creating ? t('w1Controls.emr.creating') : t('w1Controls.emr.create')}
+        cancelText={t('w1Controls.emr.cancel')}
+        confirmLoading={creating}
+        onOk={() => void handleCreateEmr()}
+        onCancel={() => setCreateOpen(false)}
+        destroyOnHidden
+      >
+        <Form layout="vertical" style={{ marginTop: 8 }}>
+          <Form.Item label={t('w1Controls.emr.patientName')} required>
+            <Input value={createForm.patientName} onChange={(e) => setCreateForm((f) => ({ ...f, patientName: e.target.value }))} placeholder={t('w1Controls.emr.patientNamePlaceholder')} />
+          </Form.Item>
+          <Form.Item label={t('w1Controls.emr.patientId')}>
+            <Input value={createForm.patientId} onChange={(e) => setCreateForm((f) => ({ ...f, patientId: e.target.value }))} placeholder={t('w1Controls.emr.patientIdPlaceholder')} />
+          </Form.Item>
+          <Form.Item label={t('w1Controls.emr.chiefComplaint')}>
+            <Input.TextArea rows={2} value={createForm.chiefComplaint} onChange={(e) => setCreateForm((f) => ({ ...f, chiefComplaint: e.target.value }))} placeholder={t('w1Controls.emr.chiefComplaintPlaceholder')} />
+          </Form.Item>
+          <Form.Item label={t('w1Controls.emr.diagnosis')}>
+            <Input value={createForm.diagnosis} onChange={(e) => setCreateForm((f) => ({ ...f, diagnosis: e.target.value }))} placeholder={t('w1Controls.emr.diagnosisPlaceholder')} />
+          </Form.Item>
+          <Form.Item label={t('w1Controls.emr.plan')}>
+            <Input.TextArea rows={2} value={createForm.plan} onChange={(e) => setCreateForm((f) => ({ ...f, plan: e.target.value }))} placeholder={t('w1Controls.emr.planPlaceholder')} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </PageContainer>
   );
 };

@@ -27,6 +27,20 @@ export interface PeerReviewTask {
   comment?: string
   reviewedAt?: string
   autoAssigned: boolean
+  /** [G005 W4A] 关联规范化缺陷库编码 */
+  defectCodes?: string[]
+}
+
+export interface PeerReviewDefectItem {
+  id: string
+  code: string
+  categoryCode: string
+  name: string
+  nameEn?: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  description: string
+  standard?: string
+  checkMethod?: string
 }
 
 export interface PeerReviewStats {
@@ -78,4 +92,13 @@ export const reportPeerReviewApi = {
   getStats: () => api.get<PeerReviewStats>(`${PREFIX}/stats`),
 
   getDimensions: () => api.get<PeerDimensionMeta[]>(`${PREFIX}/dimensions`),
+
+  // [G005 W4A] 任务关联缺陷 (GET 列表 / POST 关联)
+  listTaskDefects: (id: string) => api.get<PeerReviewDefectItem[]>(`${PREFIX}/tasks/${id}/defects`),
+
+  addTaskDefects: async (id: string, defectCodes: string[]) => {
+    const res = await api.post<PeerReviewTask>(`${PREFIX}/tasks/${id}/defects`, { defectCodes })
+    await invalidateApiCache(`${PREFIX}/tasks`)
+    return res
+  },
 }

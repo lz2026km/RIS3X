@@ -325,6 +325,25 @@ export const DicomDimsePage: React.FC = () => {
     }
   }
 
+  // [G005 W4B] 推进传输队列 (POST /dicom-dimse/transfers/process)
+  const [processingQueue, setProcessingQueue] = useState(false)
+  const handleProcessQueue = async () => {
+    setProcessingQueue(true)
+    try {
+      const res = await dicomDimseApi.processTransfers()
+      if (res.success && res.data) {
+        message.success(t('w4b.dimse.processed', { processed: res.data.processed, completed: res.data.completed, retried: res.data.retried }))
+        void loadTransfers()
+      } else {
+        message.error(res.error?.message ?? t('w4b.dimse.processFailed'))
+      }
+    } catch {
+      message.error(t('w4b.dimse.processFailed'))
+    } finally {
+      setProcessingQueue(false)
+    }
+  }
+
   const handleEnqueueTransfer = async () => {
     try {
       const values = await transferForm.validateFields()
@@ -661,7 +680,7 @@ export const DicomDimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title={t('dicomDimse.mppsProgressTitle2')}>
-            <Table scroll={{ x: 'max-content' }} dataSource={mppsPagination.pageData} rowKey="studyUid" columns={MPPS_COLUMNS} loading={mppsLoading} pagination={mppsPagination.pagination} />
+            <Table scroll={{ x: 'max-content' }} dataSource={mppsPagination.pageData} rowKey="studyUid" columns={MPPS_COLUMNS} loading={mppsLoading} pagination={mppsPagination.pagination} locale={{ emptyText: t('w2Empty.mppsEmpty') }} />
           </Card>
         </>
       ),
@@ -686,6 +705,8 @@ export const DicomDimsePage: React.FC = () => {
           <Card size="small" title={t('dicomDimse.transferQueueTitle')} extra={
             <Space>
               <Button size="small" icon={<RefreshCw size={14} />} onClick={() => void loadTransfers()} loading={transferLoading}>{t('dicomDimse.refresh')}</Button>
+              {/* [G005 W4B] 推进传输队列 (POST /dicom-dimse/transfers/process) */}
+              <Button size="small" icon={<Play size={14} />} loading={processingQueue} onClick={() => void handleProcessQueue()}>{t('w4b.dimse.process')}</Button>
               <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setTransferModal(true)}>{t('dicomDimse.newTransfer')}</Button>
             </Space>
           }>

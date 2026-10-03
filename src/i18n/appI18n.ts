@@ -2499,7 +2499,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.12-3 · 点击/空表/导航修复: 死按钮接实现/模拟/禁用 + MSW 空表播种(~18端点) + 导航翻译补齐 + click-all 回归",
+      "v3.0.6.12-5 · 商业演示版: 控件接实现/模拟 + 空表全播种 + 面包屑翻译 + 36 后端孤儿端点前端化 + 回归修复",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -31263,7 +31263,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.12-3 · Click/empty-table/nav fixes: dead buttons wired + MSW seeds (~18 endpoints) + nav i18n + click-all regression",
+      "v3.0.6.12-5 · Sellable demo: controls wired/simulated + empty tables seeded + breadcrumb i18n + 36 orphan endpoints surfaced + regression fixes",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -57596,6 +57596,9 @@ export const notifyLocaleChange = (locale: Locale): void => {
 
 /** [v3.0.6.11-106] 缺失键人性化兜底: 'cloudStorage.alertsTitle' -> 'Alerts Title' (避免直接显示原始键名) */
 const humanizeKey = (key: string): string => {
+  // [fix] 防御非字符串/空键: 数据字段缺失时 (如 t(undefined)) 不再抛
+  //   "Cannot read properties of undefined (reading 'includes')".
+  if (typeof key !== 'string' || key.length === 0) return ''
   const last = key.includes('.') ? key.slice(key.lastIndexOf('.') + 1) : key
   const words = last
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -57606,6 +57609,8 @@ const humanizeKey = (key: string): string => {
 }
 
 export const t = (key: string, params?: Record<string, unknown>): string => {
+  // [fix] 键可能来自 API/可选字段, 运行时为 undefined/null; 直接返回空串避免 humanizeKey 崩溃.
+  if (typeof key !== 'string') return ''
   const dict = translations[currentLocale] ?? translations[DEFAULT_LOCALE];
   let text = dict[key] ?? translations[DEFAULT_LOCALE][key] ?? humanizeKey(key);
   if (params) {

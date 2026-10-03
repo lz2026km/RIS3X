@@ -1,7 +1,7 @@
 // [W3-2] 种植计划: dentalApi.listImplantPlans3d 真实列表 + 新建/编辑 + 状态流转 (规划/已批准/已实施)
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
-import { Card, Tag, Button, Row, Col, Statistic, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge } from 'antd';
+import { Card, Tag, Button, Row, Col, Statistic, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge, Table } from 'antd';
 import { Plus, RefreshCw, CheckCircle2, Eye } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
@@ -31,6 +31,10 @@ export const DentalImplantPlanPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [detail, setDetail] = useState<any>(null);
   const [form] = Form.useForm();
+  // [G005 W4B] 种植体型号目录 (GET /dental/implant/inventory/models)
+  const [models, setModels] = useState<any[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsError, setModelsError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -50,7 +54,22 @@ export const DentalImplantPlanPage: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  // [G005 W4B] 种植体型号目录加载
+  const loadModels = useCallback(async () => {
+    setModelsLoading(true);
+    setModelsError('');
+    try {
+      const res = await dentalApi.getImplantModels();
+      if (res.success && Array.isArray(res.data)) setModels(res.data as any[]);
+      else setModelsError(res.error?.message ?? t('w4b.implant.loadFailed'));
+    } catch {
+      setModelsError(t('w4b.implant.loadFailed'));
+    } finally {
+      setModelsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); void loadModels(); }, [load, loadModels]);
 
   const handleCreate = async () => {
     try {
@@ -152,13 +171,29 @@ export const DentalImplantPlanPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={t('dentalImplantPlan.implantLibrary')}>
-            {[{ name: 'Straumann BLT', tag: 'RC', desc: '4.1×8/10/12mm · 4.8×10/12mm' }, { name: 'Nobel Active', tag: 'NP', desc: '3.5×10/13mm · 4.3×10/13mm' }, { name: 'Nobel CC', tag: 'RP', desc: '3.5×8/10mm · 4.3×10/12mm' }, { name: 'Straumann BLX', tag: 'RB', desc: '3.75×8/10/12/14mm · 4.5×10/12mm' }].map((b, i) => (
-              <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><b>{b.name}</b><Tag color={['blue', 'purple', 'cyan', 'green'][i]}>{b.tag}</Tag></div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{b.desc}</div>
-              </div>
-            ))}
+          {/* [G005 W4B] 种植体型号目录 (GET /dental/implant/inventory/models) */}
+          <Card
+            size="small"
+            title={t('w4b.implant.catalogTitle')}
+            extra={<Button size="small" icon={<RefreshCw size={11} />} loading={modelsLoading} onClick={() => void loadModels()} />}
+          >
+            {modelsError && <Alert type="warning" showIcon message={modelsError} style={{ marginBottom: 8 }} />}
+            <Table
+              size="small"
+              rowKey={(r: any) => r.id ?? `${r.brand}-${r.model}`}
+              loading={modelsLoading}
+              dataSource={models}
+              pagination={false}
+              locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('w4b.implant.empty')} /> }}
+              scroll={{ y: 240 }}
+              columns={[
+                { title: t('w4b.implant.thBrand'), dataIndex: 'brandId', width: 80, render: (v: string) => v || '-' },
+                { title: t('w4b.implant.thModel'), dataIndex: 'name', ellipsis: true, render: (v: string) => v || '-' },
+                { title: t('w4b.implant.thDiameter'), dataIndex: 'diameters', width: 90, render: (v: any[]) => (Array.isArray(v) && v.length ? `${v.join('/')}mm` : '-') },
+                { title: t('w4b.implant.thLength'), dataIndex: 'lengths', width: 100, render: (v: any[]) => (Array.isArray(v) && v.length ? `${v.join('/')}mm` : '-') },
+                { title: t('w4b.implant.thPlatform'), dataIndex: 'platform', width: 70, render: (v: string) => v || '-' },
+              ]}
+            />
           </Card>
           <Card size="small" title={t('dentalImplantPlan.boneAnalysis')} style={{ marginTop: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t('dentalImplantPlan.boneTypeA')}</span><Tag color='green'>42%</Tag></div>

@@ -38,6 +38,7 @@ import {
 } from "../routes/sidebarConfig";
 import {
   t,
+  translations,
   onLocaleChange,
   getCurrentLocale,
   getDirection,
@@ -122,13 +123,62 @@ const pathToItemMap: Map<string, SidebarItem> = (() => {
   return m;
 })();
 
+// [W3-breadcrumb] 真实存在翻译键判断: 避免 t() 的人性化英文兜底 (如 'Cds') 掩盖缺失键
+function hasTranslation(key: string): boolean {
+  return (
+    translations[getCurrentLocale()]?.[key] !== undefined ||
+    translations["zh-CN"][key] !== undefined
+  );
+}
+
+// 侧栏项路径前缀匹配: '/patients/:id/360' 可匹配目标 '/patients/123'
+function sidebarPathPrefixMatch(itemPath: string, target: string): boolean {
+  const a = itemPath.split("/").filter(Boolean);
+  const b = target.split("/").filter(Boolean);
+  if (a.length > b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const seg = a[i] ?? "";
+    if (seg.startsWith(":")) continue;
+    if (seg !== b[i]) return false;
+  }
+  return true;
+}
+
+// 缺失键兜底: 精确(含动态段)侧栏项 > 所属侧栏分组名 > 最近侧栏项
+function getBreadcrumbFallback(path: string): string | null {
+  const targetLen = path.split("/").filter(Boolean).length;
+  let best: SidebarItem | null = null;
+  let bestLen = -1;
+  for (const section of SIDEBAR_ITEMS) {
+    for (const item of section.items) {
+      if (!sidebarPathPrefixMatch(item.path, path)) continue;
+      const len = item.path.split("/").filter(Boolean).length;
+      if (len > bestLen) {
+        bestLen = len;
+        best = item;
+      }
+    }
+  }
+  if (best && bestLen === targetLen) return t(best.labelKey);
+  for (const section of SIDEBAR_ITEMS) {
+    if (section.items.some((item) => sidebarPathPrefixMatch(item.path, path))) {
+      return t(section.section);
+    }
+  }
+  return best ? t(best.labelKey) : null;
+}
+
 function getBreadcrumbLabel(path: string): string {
   if (path === "/") return t("nav.homeOverview");
   const item = pathToItemMap.get(path);
   if (item) return t(item.labelKey);
   const segments = path.split("/").filter(Boolean);
   const last = segments[segments.length - 1] ?? "";
-  return t(`nav.${last}`) || last;
+  const navKey = `nav.${last}`;
+  if (hasTranslation(navKey)) return t(navKey);
+  const fallback = getBreadcrumbFallback(path);
+  if (fallback) return fallback;
+  return last;
 }
 
 function getSectionForPath(path: string): string {

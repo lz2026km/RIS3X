@@ -70,6 +70,14 @@ export const amendApi = {
   startAmendment: (reportId: string, data: { reason: string }) =>
     api.post<AmendmentDto>('/amend/start', { reportId, ...data }),
 
+  // [G005 W4A] 报告补发: 创建与父报告关联的独立文档
+  createSupplement: (data: { parentReportId: string; reportId?: string; reason: string; changes?: string }) =>
+    api.post<AmendmentDto & { linkedTo?: string }>('/amend/supplement', data),
+
+  // [G005 W4A] 查询某父报告下的补发记录
+  listSupplements: (parentReportId: string) =>
+    api.get<AmendmentDto[]>(`/amend/supplements/${encodeURIComponent(parentReportId)}`),
+
   updateAmendment: (id: string, data: { changes?: string; status?: string }) =>
     api.put<AmendmentDto>(`/amend/${id}`, data),
 

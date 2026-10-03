@@ -30,6 +30,13 @@ export const SignAmendPage: React.FC = () => {
   const [amendModal, setAmendModal] = useState<{ type: 'start' | 'complete' | 'approve' | 'reject' | 'history' | null; data: any }>({ type: null, data: {} });
   const [amendHistory, setAmendHistory] = useState<any>(null);
 
+  // [G005 W4A] 报告补发 (POST /amend/supplement + GET /amend/supplements/:parentReportId)
+  const [supplementModal, setSupplementModal] = useState(false);
+  const [supplementForm, setSupplementForm] = useState({ parentReportId: 'RPT-001', reportId: '', reason: '', changes: '' });
+  const [supplements, setSupplements] = useState<any[]>([]);
+  const [supplementQuery, setSupplementQuery] = useState('RPT-001');
+  const [supplementLoading, setSupplementLoading] = useState(false);
+
   // 分页
   const PAGE_SIZE = 10;
   const [certPage, setCertPage] = useState(1);
@@ -139,6 +146,37 @@ export const SignAmendPage: React.FC = () => {
       const r = await amendApi.rejectAmendment(amendModal.data.id, { reason: amendModal.data.reason });
       if (r.success) { message.success(t('signAmend.rejected')); setAmendModal({ type: null, data: {} }); loadAmends(); }
     } catch (e: any) { message.error(e.message); }
+  };
+
+  // [G005 W4A] 创建报告补发
+  const handleCreateSupplement = async () => {
+    if (!supplementForm.parentReportId.trim() || !supplementForm.reason.trim()) { message.warning(t('signAmend.requiredReportIdAndReason')); return; }
+    try {
+      const r = await amendApi.createSupplement({
+        parentReportId: supplementForm.parentReportId.trim(),
+        reportId: supplementForm.reportId.trim() || undefined,
+        reason: supplementForm.reason.trim(),
+        changes: supplementForm.changes.trim() || undefined,
+      });
+      if (r.success) {
+        message.success(t('w4a.supplement.created'));
+        setSupplementModal(false);
+        setSupplementQuery(supplementForm.parentReportId.trim());
+        setSupplementForm({ parentReportId: supplementForm.parentReportId.trim(), reportId: '', reason: '', changes: '' });
+        void handleQuerySupplements(supplementForm.parentReportId.trim());
+      }
+    } catch (e: any) { message.error(e?.message ?? t('w4a.supplement.createFailed')); }
+  };
+
+  // [G005 W4A] 查询补发记录
+  const handleQuerySupplements = async (pid?: string) => {
+    const id = (pid ?? supplementQuery).trim();
+    if (!id) return;
+    setSupplementLoading(true);
+    try {
+      const r = await amendApi.listSupplements(id);
+      if (r.success) setSupplements(Array.isArray(r.data) ? r.data : []);
+    } catch { setSupplements([]); } finally { setSupplementLoading(false); }
   };
 
   const handleAmendHistory = async () => {
@@ -304,6 +342,45 @@ export const SignAmendPage: React.FC = () => {
             </Card>
           )}
         </Tabs.TabPane>
+
+        {/* [G005 W4A] 报告补发 */}
+        <Tabs.TabPane tab={<span><Send size={14} /> {t('w4a.supplement.button')}</span>} key="supplement">
+          <Card
+            title={t('w4a.supplement.listTitle')}
+            size="small"
+            extra={
+              <Space>
+                <Input.Search
+                  size="small"
+                  style={{ width: 240 }}
+                  placeholder={t('w4a.supplement.queryPlaceholder')}
+                  value={supplementQuery}
+                  onChange={e => setSupplementQuery(e.target.value)}
+                  enterButton={t('signAmend.query')}
+                  onSearch={(v) => void handleQuerySupplements(v)}
+                />
+                <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setSupplementModal(true)}>{t('w4a.supplement.submit')}</Button>
+              </Space>
+            }
+          >
+            <Table
+              size="small"
+              rowKey="id"
+              loading={supplementLoading}
+              dataSource={supplements}
+              locale={{ emptyText: <AppEmpty variant="no-data" minHeight={120} /> }}
+              pagination={{ pageSize: PAGE_SIZE, showSizeChanger: false }}
+              columns={[
+                { title: t('w4a.supplement.documentIdCol'), dataIndex: 'documentId', render: (v, r: any) => v ?? r.reportId },
+                { title: t('w4a.supplement.reasonCol'), dataIndex: 'reason', ellipsis: true },
+                { title: t('w4a.supplement.changeCol'), dataIndex: 'changes', ellipsis: true },
+                { title: t('w4a.supplement.createdAtCol'), dataIndex: 'startTime', width: 150, render: (v: string) => v?.slice(0, 16) },
+                { title: t('w4a.supplement.statusCol'), dataIndex: 'status', width: 100, render: (s: string) => <Tag color={s === 'completed' ? 'green' : 'blue'}>{AMEND_STATUS_LABEL[s] ?? s}</Tag> },
+              ]}
+              scroll={{ x: 'max-content' }}
+            />
+          </Card>
+        </Tabs.TabPane>
       </Tabs>
 
       {/* 证书申请/吊销/签名/验证 Modal */}
@@ -401,6 +478,31 @@ export const SignAmendPage: React.FC = () => {
             <Form.Item label={t('signAmend.reportId')}><Input.Search value={amendModal.data.reportId} onChange={e => setAmendModal({ ...amendModal, data: { ...amendModal.data, reportId: e.target.value } })} enterButton={t('signAmend.query')} onSearch={handleAmendHistory} /></Form.Item>
           </Form>
         )}
+      </Modal>
+
+      {/* [G005 W4A] 创建报告补发 Modal */}
+      <Modal
+        title={t('w4a.supplement.title')}
+        open={supplementModal}
+        onCancel={() => setSupplementModal(false)}
+        footer={null}
+        width={500}
+      >
+        <Form layout="vertical" size="small">
+          <Form.Item label={t('w4a.supplement.parentReportId')} required>
+            <Input value={supplementForm.parentReportId} onChange={e => setSupplementForm(p => ({ ...p, parentReportId: e.target.value }))} placeholder="RP20260601001" />
+          </Form.Item>
+          <Form.Item label={t('w4a.supplement.documentId')}>
+            <Input value={supplementForm.reportId} onChange={e => setSupplementForm(p => ({ ...p, reportId: e.target.value }))} placeholder="DOC-SUP-xxx" />
+          </Form.Item>
+          <Form.Item label={t('w4a.supplement.reason')} required>
+            <TextArea rows={2} value={supplementForm.reason} onChange={e => setSupplementForm(p => ({ ...p, reason: e.target.value }))} />
+          </Form.Item>
+          <Form.Item label={t('w4a.supplement.changes')}>
+            <TextArea rows={3} value={supplementForm.changes} onChange={e => setSupplementForm(p => ({ ...p, changes: e.target.value }))} />
+          </Form.Item>
+          <Button type="primary" block icon={<Send size={14} />} onClick={() => void handleCreateSupplement()}>{t('w4a.supplement.submit')}</Button>
+        </Form>
       </Modal>
     </div>
   );

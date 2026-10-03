@@ -76,8 +76,8 @@ const fmtDate = (iso?: string) => {
 export default function DepartmentFinancePage() {
   const [tab, setTab] = useState<PageTab>('overview')
   const [period, setPeriod] = useState<Period>('monthly')
-  const [_revenueData, setRevenueData] = useState<RevenueAnalysisDto | null>(null)
-  const [_costData, setCostData] = useState<CostAccountingDto | null>(null)
+  const [revenueData, setRevenueData] = useState<RevenueAnalysisDto | null>(null)
+  const [costData, setCostData] = useState<CostAccountingDto | null>(null)
 
   // 发票
   const [invoices, setInvoices] = useState<any[]>([])
@@ -234,6 +234,19 @@ export default function DepartmentFinancePage() {
   const totalProfit = MONTHLY_REVENUE.reduce((s, m) => s + m.profit, 0)
   const margin = ((totalProfit / totalRev) * 100).toFixed(1)
 
+  // [G005 W1-Controls P1-6] 真实接口数据派生 (revenue-analysis / cost-accounting)
+  const apiRevenue = revenueData
+  const apiCostItems = costData
+    ? [
+        { label: t('w1Controls.deptFinance.labor'), value: costData.laborCost, color: '#ef4444' },
+        { label: t('w1Controls.deptFinance.equipment'), value: costData.equipmentDepreciation, color: '#f59e0b' },
+        { label: t('w1Controls.deptFinance.material'), value: costData.materialCost, color: '#3b82f6' },
+        { label: t('w1Controls.deptFinance.maintenance'), value: costData.maintenanceCost, color: '#22c55e' },
+        { label: t('w1Controls.deptFinance.other'), value: costData.otherCost, color: '#8b5cf6' },
+      ]
+    : []
+  const apiCostTotal = costData?.total ?? apiCostItems.reduce((s, c) => s + c.value, 0)
+
   const invoiceColumns = [
     { title: t('deptFinance.colInvoiceNo'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#93c5fd' }}>{v}</span> },
     {
@@ -355,6 +368,79 @@ export default function DepartmentFinancePage() {
                 <div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc' }}>{k.unit}{k.value}</div>
               </div>
             ))}
+          </div>
+
+          {/* [G005 W1-Controls P1-6] 真实接口数据 (revenue-analysis / cost-accounting) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <span style={{ fontSize: 12, color: '#6e7681' }}>{t('w1Controls.deptFinance.apiSource')}</span>
+            <span style={{ fontSize: 12, color: '#6e7681' }}>· {t('w1Controls.deptFinance.periodLabel')}: {apiRevenue?.period ?? costData?.period ?? period}</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <TrendingUp size={16} color="#22c55e" />{t('w1Controls.deptFinance.revenueProfit')}
+              </div>
+              {apiRevenue ? (
+                <>
+                  <div style={{ display: 'flex', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
+                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('w1Controls.deptFinance.revenue')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#22c55e' }}>{fmtMoney(apiRevenue.totalRevenue)}</div></div>
+                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('w1Controls.deptFinance.cost')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#ef4444' }}>{fmtMoney(apiRevenue.totalCost)}</div></div>
+                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('w1Controls.deptFinance.profit')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#3b82f6' }}>{fmtMoney(apiRevenue.totalProfit)}</div></div>
+                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('deptFinance.profitMargin')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#8b5cf6' }}>{apiRevenue.profitMargin}%</div></div>
+                  </div>
+                  {apiRevenue.byModality.length > 0 && (
+                    <ChartContainer height={200}>
+                      <BarChart data={apiRevenue.byModality}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
+                        <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                        <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
+                        <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('w1Controls.deptFinance.revenue')]} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} />
+                        <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.revenue')} />
+                        <Bar dataKey="cost" fill="#ef4444" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.cost')} />
+                      </BarChart>
+                    </ChartContainer>
+                  )}
+                </>
+              ) : (
+                <div style={{ padding: 20, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+              )}
+            </div>
+
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <PieIcon size={16} color="#ef4444" />{t('w1Controls.deptFinance.costByItem')}
+              </div>
+              {costData ? (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <ChartContainer height={160} style={{ width: 160, flexShrink: 0 }}>
+                      <PieChart>
+                        <Pie data={apiCostItems} cx="50%" cy="50%" outerRadius={70} dataKey="value" nameKey="label">
+                          {apiCostItems.map((e, i) => <Cell key={i} fill={e.color} />)}
+                        </Pie>
+                        <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.amount')]} />
+                      </PieChart>
+                    </ChartContainer>
+                    <div style={{ flex: 1 }}>
+                      {apiCostItems.map((c) => (
+                        <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
+                          <span style={{ width: 10, height: 10, borderRadius: 2, background: c.color, display: 'inline-block' }} />
+                          <span style={{ color: '#8b949e', flex: 1 }}>{c.label}</span>
+                          <span style={{ color: '#f0f6fc', fontWeight: 600 }}>{fmtMoney(c.value)}</span>
+                        </div>
+                      ))}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #30363d', paddingTop: 6, marginTop: 4, fontSize: 13, fontWeight: 700 }}>
+                        <span style={{ color: '#8b949e' }}>{t('w1Controls.deptFinance.costTotal')}</span>
+                        <span>{fmtMoney(apiCostTotal)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div style={{ padding: 20, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+              )}
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>

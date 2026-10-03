@@ -224,7 +224,9 @@ function buildTrends(period: 'week' | 'month') {
       improvement,
     });
   }
-  return envelope('demo', { source: 'demo', generatedAt: new Date().toISOString(), period, points });
+  // [fix] 返回 AnalyticsTrends 顶层结构 (source/generatedAt/period/points);
+  //   原多包一层 envelope 导致 res.data.points 为 undefined (折线图空 + 潜在崩溃)。
+  return { source: 'demo' as const, generatedAt: new Date().toISOString(), period, points };
 }
 
 function buildPareto() {
@@ -238,7 +240,9 @@ function buildPareto() {
     const cumulativePercent = round1((cumulative / total) * 100);
     return { code, label: LABELS[code] ?? code, count, cumulativeCount: cumulative, cumulativePercent, isMain: cumulativePercent <= 80 };
   });
-  return envelope('demo', { source: 'demo', generatedAt: new Date().toISOString(), totalDefects: total, items });
+  // [fix] 返回 ParetoData 顶层结构 (source/generatedAt/totalDefects/items);
+  //   原多包一层 envelope 导致 res.data.items 为 undefined → pareto.map 崩溃。
+  return { source: 'demo' as const, generatedAt: new Date().toISOString(), totalDefects: total, items };
 }
 
 function buildDepartments() {

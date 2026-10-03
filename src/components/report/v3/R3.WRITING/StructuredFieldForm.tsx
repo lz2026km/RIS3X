@@ -6,11 +6,12 @@
 import { getStructuredTemplates, RECIST_RESPONSE, PIRADS_ASSESSMENT } from '@data/reportWritingMock';
 import { calcRecistResponse, getBiradsByCategory, evaluateFormula } from '@services/writing/writingService';
 import type { StructuredTemplate, StructuredFieldDefinition, StructuredFieldGroup, BiradsCategory, RecistResponse, PiradsScore } from '@/types/R3/R3.WRITING';
-import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload, message } from 'antd';
+import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload, message, Modal } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText, Table as TableIcon } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { reportApi } from '@services/api/reportApi';
 import { t } from '../../../../i18n/appI18n';
 
 const {  } = Input;
@@ -40,11 +41,18 @@ const TABS = [
 ] as const;
 
 export const StructuredFieldForm: React.FC<Props> = ({
-   initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false, onGenerateReportSection,
+   reportId, initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false, onGenerateReportSection,
 }) => {
   const [activeTab, setActiveTab] = useState<StructuredTemplate['id']>(initialTemplateId);
   const [values, setValues] = useState<Record<string, unknown>>(initialValues ?? {});
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  // [G005 W1-Controls P0-4] 电子签名对话框
+  const [signOpen, setSignOpen] = useState(false);
+  const [signing, setSigning] = useState(false);
+  const [signFieldKey, setSignFieldKey] = useState<string | null>(null);
+  const [signerName, setSignerName] = useState('');
+  const [signAlgorithm, setSignAlgorithm] = useState<'SHA-256' | 'SM3'>('SHA-256');
+  const [signReason, setSignReason] = useState('');
 
   const template = useMemo(() => getStructuredTemplates().find((tpl) => tpl.id === activeTab), [activeTab]);
   const activeTabMeta = useMemo(() => TABS.find((tab) => tab.id === activeTab) ?? TABS[0]!, [activeTab]);
@@ -79,6 +87,39 @@ export const StructuredFieldForm: React.FC<Props> = ({
     setValues(next);
     onChange?.(next);
   }, [values, onChange]);
+
+  // [G005 W1-Controls P0-4] 打开签名对话框
+  const openSignDialog = useCallback((key: string) => {
+    setSignFieldKey(key);
+    setSignerName('');
+    setSignAlgorithm('SHA-256');
+    setSignReason('');
+    setSignOpen(true);
+  }, []);
+
+  // [G005 W1-Controls P0-4] 确认签名 → reportApi.recordSignature (report-signing 流程 + MSW 兜底)
+  const handleConfirmSign = useCallback(async () => {
+    if (!signerName.trim()) { message.warning(t('w1Controls.structured.signerRequired')); return; }
+    setSigning(true);
+    try {
+      const res = await reportApi.recordSignature(reportId || 'DEMO-REPORT', {
+        signerName: signerName.trim(),
+        algorithm: signAlgorithm,
+        reason: signReason.trim() || undefined,
+      });
+      if (res.success && res.data?.signed) {
+        if (signFieldKey) handleValueChange(signFieldKey, signerName.trim());
+        message.success(t('w1Controls.structured.signSuccess', { algorithm: signAlgorithm }));
+        setSignOpen(false);
+      } else {
+        message.error(res.error?.message ?? t('w1Controls.structured.signFailed'));
+      }
+    } catch {
+      message.error(t('w1Controls.structured.signFailed'));
+    } finally {
+      setSigning(false);
+    }
+  }, [reportId, signerName, signAlgorithm, signReason, signFieldKey, handleValueChange]);
 
   // 完成度计算
   const completion = useMemo(() => {
@@ -369,11 +410,14 @@ export const StructuredFieldForm: React.FC<Props> = ({
           <Button
             icon={<Edit3 className="w-4 h-4" />}
             type="dashed"
-            disabled={isLocked}
-            // [v3.0.6.11-98 Wave3B P2] 未锁定时点击: 提示先完成表单 (签名需在表单锁定/提交后)
-            onClick={() => message.info(t('aiDraft.structuredForm.signatureHint'))}
+            disabled={readOnly}
+            // [G005 W1-Controls P0-4] 打开签名对话框 → reportApi.recordSignature
+            onClick={() => openSignDialog(f.key)}
+            data-testid={`sign-${f.key}`}
           >
-            {values[f.key] ? t('aiDraft.structuredForm.signed') : t('aiDraft.structuredForm.clickToSign')}
+            {values[f.key]
+              ? t('w1Controls.structured.signedBy', { name: String(values[f.key]) })
+              : t('aiDraft.structuredForm.clickToSign')}
           </Button>
         );
         break;
@@ -492,6 +536,41 @@ export const StructuredFieldForm: React.FC<Props> = ({
           children: template ? renderTab(template) : <Empty description={t('aiDraft.structuredForm.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />,
         }))}
       />
+
+      {/* [G005 W1-Controls P0-4] 报告电子签名对话框 */}
+      <Modal
+        open={signOpen}
+        title={t('w1Controls.structured.signTitle')}
+        okText={signing ? t('w1Controls.structured.signing') : t('w1Controls.structured.confirm')}
+        cancelText={t('w1Controls.structured.cancel')}
+        confirmLoading={signing}
+        onOk={() => void handleConfirmSign()}
+        onCancel={() => setSignOpen(false)}
+        destroyOnHidden
+      >
+        <div className="space-y-3" style={{ marginTop: 8 }}>
+          <div>
+            <div className="text-xs text-slate-500 mb-1">{t('w1Controls.structured.signerLabel')}</div>
+            <Input value={signerName} onChange={(e) => setSignerName(e.target.value)} placeholder={t('w1Controls.structured.signerPlaceholder')} />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500 mb-1">{t('w1Controls.structured.algorithm')}</div>
+            <Select
+              style={{ width: '100%' }}
+              value={signAlgorithm}
+              onChange={(v) => setSignAlgorithm(v)}
+              options={[
+                { value: 'SHA-256', label: t('w1Controls.structured.algorithmSha') },
+                { value: 'SM3', label: t('w1Controls.structured.algorithmSm3') },
+              ]}
+            />
+          </div>
+          <div>
+            <div className="text-xs text-slate-500 mb-1">{t('w1Controls.structured.reasonLabel')}</div>
+            <Input value={signReason} onChange={(e) => setSignReason(e.target.value)} placeholder={t('w1Controls.structured.reasonPlaceholder')} />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { QcImageAiScoreV2Result, QcImageAiScoreV1Result, QcImageAiStatsV2 } from
 import { t as tr } from "../../i18n/appI18n"
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-IIA-01 图像伪影率
 import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink"
-import { Button, Input, Select, Space, Alert, Spin } from 'antd'
+import { Button, Input, Select, Space, Alert, Spin, Tag } from 'antd'
 import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, Zap, Target, Eye, Sparkles, RefreshCw, Search } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from "react-i18next"
@@ -217,6 +217,13 @@ export default function QcImageAiPage() {
         {error && (
           <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
             action={<Button size="small" onClick={() => { setError(""); void loadStats(modality, dateFrom, dateTo) }}><RefreshCw size={14} /> 重试</Button>} />
+        )}
+
+        {stats && stats.totalScores === 0 && (
+          <div style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+            <Tag color="orange">{tr("w2Empty.demoData")}</Tag>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>{tr("w2Empty.noDataHint")}</span>
+          </div>
         )}
 
         <Spin spinning={loadingStats && !stats}>

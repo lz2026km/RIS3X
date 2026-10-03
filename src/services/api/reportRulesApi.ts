@@ -220,6 +220,91 @@ export interface RwsRateResult {
   results: Array<{ reportId?: string; compliant: boolean; failureCodes: string[] }>
 }
 
+// ── [G005 W4A] 分级审核规则 (review-tiers) ──
+export type ReviewTier = 'none' | 'initial' | 'final' | 'dual-sign' | 'dual-read'
+export type AuthorSeniority = 'resident' | 'attending' | 'senior' | 'chief'
+export type CaseSeverity = 'low' | 'normal' | 'high' | 'critical'
+
+export interface ReviewTierRuleWhen {
+  modalities?: string[]
+  radsCategoryGte?: number
+  severities?: CaseSeverity[]
+  isCritical?: boolean
+  authorSeniorityIn?: AuthorSeniority[]
+}
+
+export interface ReviewTierRule {
+  id: string
+  code: string
+  name: string
+  description: string
+  tier: ReviewTier
+  enabled: boolean
+  priority: number
+  when: ReviewTierRuleWhen
+  reason: string
+}
+
+export interface ReviewTierInput {
+  reportId?: string
+  modality?: string
+  radsCategory?: number
+  severity?: CaseSeverity
+  isCritical?: boolean
+  authorSeniority?: AuthorSeniority
+  authorId?: string
+}
+
+export interface ReviewTierStep {
+  order: number
+  step: string
+  role: string
+  label: string
+  reason: string
+}
+
+export interface ReviewTierMatch {
+  ruleId: string
+  code: string
+  name: string
+  tier: ReviewTier
+  reason: string
+}
+
+export interface ReviewTierResolution {
+  source: 'demo'
+  generatedAt: string
+  reportId?: string
+  input: ReviewTierInput
+  requiredTier: ReviewTier
+  tierLabel: string
+  steps: ReviewTierStep[]
+  matchedRules: ReviewTierMatch[]
+  critical: boolean
+}
+
+export interface ReviewTierListEnvelope {
+  source: 'demo'
+  generatedAt: string
+  total: number
+  data: ReviewTierRule[]
+}
+
+export interface CreateReviewTierInput {
+  code?: string
+  name: string
+  description?: string
+  tier: ReviewTier
+  enabled?: boolean
+  priority?: number
+  when: ReviewTierRuleWhen
+  reason?: string
+}
+
+export const REVIEW_TIERS: ReviewTier[] = ['none', 'initial', 'final', 'dual-sign', 'dual-read']
+export const AUTHOR_SENIORITIES: AuthorSeniority[] = ['resident', 'attending', 'senior', 'chief']
+export const CASE_SEVERITIES: CaseSeverity[] = ['low', 'normal', 'high', 'critical']
+
 export const RULE_TYPE_LABELS: Record<RuleType, string> = {
   missing_field: '必填字段缺失',
   terminology: '术语规范',
@@ -295,6 +380,30 @@ export const reportRulesApi = {
     api.get<RuleEnvelope<RuleViolationRecord[]>>(`/report-rules/history${reportId ? `?reportId=${encodeURIComponent(reportId)}` : ''}`),
 
   getStats: () => api.get<RuleEnvelope<RuleStats>>('/report-rules/stats'),
+
+  // [G005 W4A] 分级审核规则 CRUD + resolve
+  listReviewTiers: () => api.get<ReviewTierListEnvelope>('/report-rules/review-tiers'),
+
+  createReviewTier: async (data: CreateReviewTierInput) => {
+    const res = await api.post<ReviewTierRule>('/report-rules/review-tiers', data)
+    await invalidateApiCache('/report-rules/review-tiers')
+    return res
+  },
+
+  updateReviewTier: async (id: string, data: Partial<CreateReviewTierInput>) => {
+    const res = await api.put<ReviewTierRule>(`/report-rules/review-tiers/${id}`, data)
+    await invalidateApiCache('/report-rules/review-tiers')
+    return res
+  },
+
+  deleteReviewTier: async (id: string) => {
+    const res = await api.delete<{ id: string; deleted: boolean }>(`/report-rules/review-tiers/${id}`)
+    await invalidateApiCache('/report-rules/review-tiers')
+    return res
+  },
+
+  resolveReviewTier: (input: ReviewTierInput) =>
+    api.post<ReviewTierResolution>('/report-rules/review-tiers/resolve', input),
 
   // [v3.0.6.11-105 Wave 1C] 国标报告书写规范 (RQI-RWS-03)
   getNationalRwsRules: () =>

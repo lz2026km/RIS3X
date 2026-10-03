@@ -643,8 +643,8 @@ export default function DevicePage() {
   const [, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [_deviceFaults, setDeviceFaults] = useState<any[]>([])
-  const [_equipmentLifecycle, setEquipmentLifecycle] = useState<any[]>([])
+  const [deviceFaults, setDeviceFaults] = useState<any[]>([])
+  const [equipmentLifecycle, setEquipmentLifecycle] = useState<any[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -666,7 +666,7 @@ export default function DevicePage() {
   // 加载 device-mgmt 模块数据
   useEffect(() => {
     deviceMgmtApi.listDeviceFaults().then(res => {
-      if (res.success && res.data) setDeviceFaults(res.data);
+      if (res.success && res.data) setDeviceFaults(Array.isArray(res.data) ? res.data : ((res.data as any).items ?? []));
     }).catch((err) => { console.error('[F04]', err); });
     deviceMgmtApi.listEquipmentLifecycle().then(res => {
       if (res.success && res.data) setEquipmentLifecycle(res.data.items ?? []);
@@ -1988,7 +1988,42 @@ export default function DevicePage() {
         {activeTab === 6 && renderAETitleConfig()}
         {activeTab === 7 && renderQATestPlanner()}
         {/* [v3.0.6.11-103 Wave 10] 重复页合并: 嵌入 DeviceFaultPage */}
-        {activeTab === 8 && <DeviceFaultPage />}
+        {activeTab === 8 && (
+          <>
+            {/* [G005 W1-Controls P1-7] 设备故障记录 + 生命周期 (deviceMgmtApi 真实数据) */}
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, margin: '12px 0 8px' }}>{t('w1Controls.device.faultsTitle')}</div>
+            <DataTable<any>
+              rowKey="id"
+              dataSource={deviceFaults}
+              emptyText={t('w1Controls.device.faultsEmpty')}
+              columns={[
+                { title: t('w1Controls.device.colDevice'), dataIndex: 'deviceId', key: 'deviceId' },
+                { title: t('w1Controls.device.colFaultType'), key: 'description', render: (_: unknown, r: any) => r.faultType ?? r.description ?? '-' },
+                { title: t('w1Controls.device.colSeverity'), dataIndex: 'severity', key: 'severity', render: (v: string) => <span style={{ fontWeight: 600, color: v === 'CRITICAL' || v === 'HIGH' ? C.danger : C.warning }}>{v ?? '-'}</span> },
+                { title: t('w1Controls.device.colStatus'), dataIndex: 'status', key: 'status' },
+                { title: t('w1Controls.device.colOccurredAt'), key: 'occurredAt', render: (_: unknown, r: any) => (r.occurredAt ?? r.createdAt ?? '').toString().slice(0, 19).replace('T', ' ') || '-' },
+              ]}
+              scroll={{ x: 'max-content' }}
+            />
+            <div style={{ height: 16 }} />
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, margin: '12px 0 8px' }}>{t('w1Controls.device.lifecycleTitle')}</div>
+            <DataTable<any>
+              rowKey="id"
+              dataSource={equipmentLifecycle}
+              emptyText={t('w1Controls.device.lifecycleEmpty')}
+              columns={[
+                { title: t('w1Controls.device.colDevice'), key: 'name', render: (_: unknown, r: any) => <div><div style={{ fontWeight: 600 }}>{r.name ?? r.code ?? r.id}</div><div style={{ fontSize: 11, color: C.textLight }}>{r.department ?? r.location ?? ''}</div></div> },
+                { title: t('w1Controls.device.colModel'), key: 'model', render: (_: unknown, r: any) => r.model ?? r.modality ?? '-' },
+                { title: t('w1Controls.device.colStage'), dataIndex: 'status', key: 'status', render: (v: string) => v ?? '-' },
+                { title: t('w1Controls.device.colInstallDate'), dataIndex: 'installationDate', key: 'installationDate', render: (v: string) => (v ?? '-').toString().slice(0, 10) },
+                { title: t('w1Controls.device.colWarranty'), dataIndex: 'warrantyExpiry', key: 'warrantyExpiry', render: (v: string) => (v ?? '-').toString().slice(0, 10) },
+              ]}
+              scroll={{ x: 'max-content' }}
+            />
+            <div style={{ height: 16 }} />
+            <DeviceFaultPage />
+          </>
+        )}
       </div>
 
       {/* 设备详情弹窗 */}

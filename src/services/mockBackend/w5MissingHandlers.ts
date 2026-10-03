@@ -773,12 +773,52 @@ const deviceHandlers = [
 // ═══════════════════════════════════════════════════════════════════════════
 // 18) DICOM SR measurement templates
 // ═══════════════════════════════════════════════════════════════════════════
+// [fix] 与 MeasurementTemplate 结构对齐 (templateId/templateName/bodyPart/purpose/measurements/snomedFindings);
+//   原 stub { id, name, category, modality, unit, code } 缺少 measurements/snomedFindings,
+//   导致 DicomSrPage 表格 render v.length 及详情 measurements.length/snomedFindings.map 崩溃。
 const srTemplates: any[] = [
-  { id: 'SRT-001', name: '冠脉狭窄测量', category: 'cardiac', modality: 'CT', unit: 'mm', code: 'SRT-001' },
-  { id: 'SRT-002', name: '肺结节径线', category: 'chest', modality: 'CT', unit: 'mm', code: 'SRT-002' },
+  {
+    id: 'SRT-001', templateId: 'tid1500', templateName: '冠脉狭窄测量', modality: 'CT', bodyPart: '心脏',
+    category: 'cardiac', purpose: '冠状动脉 CTA 狭窄定量测量',
+    measurements: [
+      { code: '308036002', scheme: 'SCT', meaning: '管腔狭窄程度', unit: '%', normalRange: { max: 50, label: '< 50% (非显著)' }, description: '狭窄最重处管腔直径百分比' },
+      { code: '414661004', scheme: 'SCT', meaning: '最小管腔直径', unit: 'mm', normalRange: { min: 2 }, description: '狭窄段最小管腔直径 (参考血管) ' },
+    ],
+    snomedFindings: ['414024009'],
+  },
+  {
+    id: 'SRT-002', templateId: 'tid1500', templateName: '肺结节径线', modality: 'CT', bodyPart: '胸部',
+    category: 'chest', purpose: '肺结节长径/短径/体积测量',
+    measurements: [
+      { code: '414693000', scheme: 'SCT', meaning: '结节长径', unit: 'mm', normalRange: { max: 30 }, description: '结节最大径线' },
+      { code: '414700007', scheme: 'SCT', meaning: '结节体积', unit: 'mm³', normalRange: { max: 1000 }, description: '结节三维体积' },
+    ],
+    snomedFindings: ['396230008'],
+  },
+  {
+    id: 'SRT-003', templateId: 'tid2000', templateName: '脑出血定量', modality: 'CT', bodyPart: '头颅',
+    category: 'neuro', purpose: '脑出血体积与中线偏移测量',
+    measurements: [
+      { code: '274100004', scheme: 'SCT', meaning: '血肿体积', unit: 'mL', normalRange: { max: 30 }, description: '脑实质血肿体积' },
+      { code: '307277003', scheme: 'SCT', meaning: '中线偏移', unit: 'mm', normalRange: { max: 5 }, description: '中线结构偏移距离' },
+    ],
+    snomedFindings: ['274100004'],
+  },
 ]
+// [fix] categories 需与 MeasurementTemplateCategory { category, count, modalities } 对齐,
+//   原返回 { key, name } 导致 DicomSrPage 渲染 c.modalities.join('/') 崩溃 (reading 'join')。
+const srTemplateCategories = () => {
+  const map = new Map<string, { category: string; count: number; modalities: Set<string> }>()
+  for (const tpl of srTemplates) {
+    const entry = map.get(tpl.category) ?? { category: tpl.category, count: 0, modalities: new Set<string>() }
+    entry.count += 1
+    if (tpl.modality) entry.modalities.add(tpl.modality)
+    map.set(tpl.category, entry)
+  }
+  return [...map.values()].map((c) => ({ category: c.category, count: c.count, modalities: [...c.modalities] }))
+}
 const srHandlers = [
-  http.get(`${API_BASE}/dicom-sr/measurement-templates/categories`, () => HttpResponse.json([{ key: 'cardiac', name: '心血管' }, { key: 'chest', name: '胸部' }, { key: 'neuro', name: '神经' }])),
+  http.get(`${API_BASE}/dicom-sr/measurement-templates/categories`, () => HttpResponse.json(srTemplateCategories())),
   http.get(`${API_BASE}/dicom-sr/measurement-templates`, () => HttpResponse.json(srTemplates)),
   http.get(`${API_BASE}/dicom-sr/measurement-templates/:id`, ({ params }) => HttpResponse.json(srTemplates.find((t) => t.id === String(params.id)) ?? srTemplates[0])),
 ]
