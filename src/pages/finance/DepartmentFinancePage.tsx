@@ -1,4 +1,4 @@
-﻿// [W1-5] 科室财务管理 — 新增: 发票管理(详情Modal+支付) / 财务报告(汇总表+趋势)
+// [W1-5] 科室财务管理 — 新增: 发票管理(详情Modal+支付) / 财务报告(汇总表+趋势)
 import { useState, useEffect, useCallback } from 'react'
 import { Modal, Input, Select, message, Spin } from 'antd'
 import { financeApi, type RevenueAnalysisDto, type CostAccountingDto } from '../../services/api/financeApi'
@@ -9,6 +9,8 @@ import {
 import { DollarSign, TrendingUp, TrendingDown, PieChart as PieIcon, BarChart3, Download, FileText, Receipt, RefreshCw, Eye, CreditCard } from 'lucide-react'
 import { ChartContainer } from '../../components/charts'
 import { DataTable } from '../../components/common/DataTable'
+import { StatusTag } from '../../components/common/StatusTag'
+import { statusTone } from '../../theme/statusTokens'
 import FinanceAnalyticsSection from './FinanceAnalyticsSection'
 import { t } from '../../i18n/appI18n'
 
@@ -48,11 +50,18 @@ const INSURANCE_MIX = [
   { type: '商业保险', amount: 172000, percent: 12 },
 ]
 
-const STATUS_META: Record<string, { label: string; color: string }> = {
-  PAID: { label: t('deptFinance.statusPaid'), color: '#22c55e' },
-  UNPAID: { label: t('deptFinance.statusUnpaid'), color: '#f59e0b' },
-  PENDING: { label: t('deptFinance.statusPending'), color: '#f59e0b' },
-  REFUNDED: { label: t('deptFinance.statusRefunded'), color: '#ef4444' },
+// [UI] status colors unified via @/theme/statusTokens (single source)
+const STATUS_META: Record<string, { label: string; tone: string }> = {
+  PAID: { label: t('deptFinance.statusPaid'), tone: 'success' },
+  UNPAID: { label: t('deptFinance.statusUnpaid'), tone: 'warning' },
+  PENDING: { label: t('deptFinance.statusPending'), tone: 'warning' },
+  REFUNDED: { label: t('deptFinance.statusRefunded'), tone: 'critical' },
+}
+
+const statusMeta = (status: unknown) => {
+  const key = String(status ?? '')
+  const meta = STATUS_META[key]
+  return meta ?? { label: key, tone: key }
 }
 
 // ===== 发票/报告响应形状归一化 (MSW 裸数组 / Nest { items } / { data: [...] }) =====
@@ -248,7 +257,7 @@ export default function DepartmentFinancePage() {
   const apiCostTotal = costData?.total ?? apiCostItems.reduce((s, c) => s + c.value, 0)
 
   const invoiceColumns = [
-    { title: t('deptFinance.colInvoiceNo'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#93c5fd' }}>{v}</span> },
+    { title: t('deptFinance.colInvoiceNo'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--color-primary-300)' }}>{v}</span> },
     {
       title: t('deptFinance.colPatient'), key: 'patientName',
       render: (_: unknown, r: any) => invOf(r).patientName,
@@ -260,19 +269,19 @@ export default function DepartmentFinancePage() {
         return (
           <div>
             <div>{inv.examItem}</div>
-            <div style={{ fontSize: 11, color: '#6e7681' }}>{fmtDate(inv.issuedAt)}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{fmtDate(inv.issuedAt)}</div>
           </div>
         )
       },
     },
     { title: t('deptFinance.colTotal'), key: 'totalAmount', align: 'right' as const, render: (_: unknown, r: any) => <strong>{fmtMoney(invOf(r).totalAmount)}</strong> },
-    { title: t('deptFinance.colPaid'), key: 'paidAmount', align: 'right' as const, render: (_: unknown, r: any) => <span style={{ color: '#22c55e' }}>{fmtMoney(invOf(r).paidAmount)}</span> },
+    { title: t('deptFinance.colPaid'), key: 'paidAmount', align: 'right' as const, render: (_: unknown, r: any) => <span style={{ color: 'var(--color-success)' }}>{fmtMoney(invOf(r).paidAmount)}</span> },
     {
       title: t('deptFinance.colStatus'), key: 'status',
       render: (_: unknown, r: any) => {
         const inv = invOf(r)
-        const st = STATUS_META[inv.status] ?? { label: inv.status, color: '#8b949e' }
-        return <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${st.color}20`, color: st.color }}>{st.label}</span>
+        const st = statusMeta(inv.status)
+        return <StatusTag status={st.tone} size="md">{st.label}</StatusTag>
       },
     },
     {
@@ -281,11 +290,11 @@ export default function DepartmentFinancePage() {
         const inv = invOf(r)
         return (
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-            <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Eye size={12} />{t('deptFinance.detail')}</button>
+            <button onClick={() => void handleShowDetail(inv.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Eye size={12} />{t('deptFinance.detail')}</button>
             {inv.status === 'UNPAID' || inv.status === 'PENDING' ? (
-              <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />{t('deptFinance.pay')}</button>
+              <button onClick={() => handlePay(inv)} style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: 'var(--color-success)', color: 'var(--text-inverse)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}><CreditCard size={12} />{t('deptFinance.pay')}</button>
             ) : (
-              <span style={{ fontSize: 11, color: '#6e7681' }}>—</span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>—</span>
             )}
           </div>
         )
@@ -293,7 +302,7 @@ export default function DepartmentFinancePage() {
     },
   ]
 
-  const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
+  const modalStyle = { container: { background: 'var(--bg-card)', color: 'var(--text-primary)' }, header: { background: 'var(--bg-card)', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-default)' }, footer: { borderTop: '1px solid var(--border-default)' } }
 
   // [G005 2B] 导出真实化: 用已加载 financeApi 数据 (发票/财务流水) 生成 CSV, 空数据禁用+提示
   const exportRows = reports.length > 0 ? reports : invoices
@@ -319,17 +328,17 @@ export default function DepartmentFinancePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-900))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><DollarSign size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deptFinance.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
           {(['monthly', 'quarterly', 'yearly'] as const).map(p => (
             <button key={p} onClick={() => setPeriod(p)}
-              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: period === p ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: '#fff' }}>
+              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: period === p ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: 'var(--text-inverse)' }}>
               {p === 'monthly' ? t('deptFinance.periodMonthly') : p === 'quarterly' ? t('deptFinance.periodQuarterly') : t('deptFinance.periodYearly')}
             </button>
           ))}
-          <button onClick={handleExport} disabled={exportRows.length === 0} title={exportRows.length === 0 ? t('deptFinance.noDataCannotExport') : `${t('deptFinance.export')} ${exportRows.length} ${t('deptFinance.records')}`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer', fontSize: 13, background: exportRows.length === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)', color: exportRows.length === 0 ? 'rgba(255,255,255,0.45)' : '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={handleExport} disabled={exportRows.length === 0} title={exportRows.length === 0 ? t('deptFinance.noDataCannotExport') : `${t('deptFinance.export')} ${exportRows.length} ${t('deptFinance.records')}`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer', fontSize: 13, background: exportRows.length === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)', color: exportRows.length === 0 ? 'rgba(255,255,255,0.45)' : 'var(--text-inverse)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} />{t('deptFinance.export')}
           </button>
         </div>
@@ -343,11 +352,11 @@ export default function DepartmentFinancePage() {
           { key: 'reports', label: t('deptFinance.tabReports'), icon: FileText },
         ] as const).map(tabItem => (
           <button key={tabItem.key} onClick={() => setTab(tabItem.key)}
-            style={{ padding: '9px 18px', borderRadius: '6px 6px 0 0', border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: tab === tabItem.key ? '#161b22' : 'transparent', color: tab === tabItem.key ? '#f0f6fc' : '#8b949e', borderTop: tab === tabItem.key ? '2px solid #3b82f6' : '2px solid transparent', fontWeight: tab === tabItem.key ? 600 : 400 }}>
+            style={{ padding: '9px 18px', borderRadius: '6px 6px 0 0', border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: tab === tabItem.key ? 'var(--bg-card)' : 'transparent', color: tab === tabItem.key ? 'var(--text-primary)' : 'var(--text-secondary)', borderTop: tab === tabItem.key ? '2px solid var(--color-primary)' : '2px solid transparent', fontWeight: tab === tabItem.key ? 600 : 400 }}>
             <tabItem.icon size={14} />{tabItem.label}
           </button>
         ))}
-        <div style={{ flex: 1, borderBottom: '1px solid #21262d' }} />
+        <div style={{ flex: 1, borderBottom: '1px solid var(--border-default)' }} />
       </div>
 
       {tab === 'overview' && (
@@ -355,46 +364,46 @@ export default function DepartmentFinancePage() {
           <FinanceAnalyticsSection />
           <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
             {[
-              { title: t('deptFinance.totalRevenue'), value: totalRev.toLocaleString(), unit: '¥', icon: TrendingUp, trend: 'up', color: '#22c55e' },
-              { title: t('deptFinance.totalCost'), value: totalCost.toLocaleString(), unit: '¥', icon: TrendingDown, trend: 'up', color: '#ef4444' },
-              { title: t('deptFinance.netProfit'), value: totalProfit.toLocaleString(), unit: '¥', icon: DollarSign, trend: 'up', color: '#3b82f6' },
-              { title: t('deptFinance.profitMargin'), value: margin, unit: '%', icon: PieIcon, trend: 'up', color: '#8b5cf6' },
+              { title: t('deptFinance.totalRevenue'), value: totalRev.toLocaleString(), unit: '¥', icon: TrendingUp, trend: 'up', color: 'var(--color-success)' },
+              { title: t('deptFinance.totalCost'), value: totalCost.toLocaleString(), unit: '¥', icon: TrendingDown, trend: 'up', color: 'var(--color-error)' },
+              { title: t('deptFinance.netProfit'), value: totalProfit.toLocaleString(), unit: '¥', icon: DollarSign, trend: 'up', color: 'var(--color-primary)' },
+              { title: t('deptFinance.profitMargin'), value: margin, unit: '%', icon: PieIcon, trend: 'up', color: 'var(--color-modality-mr)' },
             ].map((k, i) => (
-              <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
+              <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, color: '#8b949e' }}>{k.title}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{k.title}</span>
                   <k.icon size={20} style={{ color: k.color }} />
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc' }}>{k.unit}{k.value}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)' }}>{k.unit}{k.value}</div>
               </div>
             ))}
           </div>
 
           {/* [G005 W1-Controls P1-6] 真实接口数据 (revenue-analysis / cost-accounting) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <span style={{ fontSize: 12, color: '#6e7681' }}>{t('w1Controls.deptFinance.apiSource')}</span>
-            <span style={{ fontSize: 12, color: '#6e7681' }}>· {t('w1Controls.deptFinance.periodLabel')}: {apiRevenue?.period ?? costData?.period ?? period}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('w1Controls.deptFinance.apiSource')}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>· {t('w1Controls.deptFinance.periodLabel')}: {apiRevenue?.period ?? costData?.period ?? period}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <TrendingUp size={16} color="#22c55e" />{t('w1Controls.deptFinance.revenueProfit')}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <TrendingUp size={16} color="var(--color-success)" />{t('w1Controls.deptFinance.revenueProfit')}
               </div>
               {apiRevenue ? (
                 <>
                   <div style={{ display: 'flex', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
-                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('w1Controls.deptFinance.revenue')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#22c55e' }}>{fmtMoney(apiRevenue.totalRevenue)}</div></div>
-                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('w1Controls.deptFinance.cost')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#ef4444' }}>{fmtMoney(apiRevenue.totalCost)}</div></div>
-                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('w1Controls.deptFinance.profit')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#3b82f6' }}>{fmtMoney(apiRevenue.totalProfit)}</div></div>
-                    <div><div style={{ fontSize: 11, color: '#8b949e' }}>{t('deptFinance.profitMargin')}</div><div style={{ fontSize: 18, fontWeight: 700, color: '#8b5cf6' }}>{apiRevenue.profitMargin}%</div></div>
+                    <div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.revenue')}</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-success)' }}>{fmtMoney(apiRevenue.totalRevenue)}</div></div>
+                    <div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.cost')}</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-error)' }}>{fmtMoney(apiRevenue.totalCost)}</div></div>
+                    <div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.profit')}</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-primary)' }}>{fmtMoney(apiRevenue.totalProfit)}</div></div>
+                    <div><div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('deptFinance.profitMargin')}</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-modality-mr)' }}>{apiRevenue.profitMargin}%</div></div>
                   </div>
                   {apiRevenue.byModality.length > 0 && (
                     <ChartContainer height={200}>
                       <BarChart data={apiRevenue.byModality}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                        <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                        <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
-                        <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('w1Controls.deptFinance.revenue')]} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+                        <XAxis dataKey="modality" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                        <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
+                        <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('w1Controls.deptFinance.revenue')]} />
                         <Legend wrapperStyle={{ fontSize: 12 }} />
                         <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.revenue')} />
                         <Bar dataKey="cost" fill="#ef4444" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.cost')} />
@@ -403,13 +412,13 @@ export default function DepartmentFinancePage() {
                   )}
                 </>
               ) : (
-                <div style={{ padding: 20, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
               )}
             </div>
 
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <PieIcon size={16} color="#ef4444" />{t('w1Controls.deptFinance.costByItem')}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <PieIcon size={16} color="var(--color-error)" />{t('w1Controls.deptFinance.costByItem')}
               </div>
               {costData ? (
                 <>
@@ -419,41 +428,41 @@ export default function DepartmentFinancePage() {
                         <Pie data={apiCostItems} cx="50%" cy="50%" outerRadius={70} dataKey="value" nameKey="label">
                           {apiCostItems.map((e, i) => <Cell key={i} fill={e.color} />)}
                         </Pie>
-                        <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.amount')]} />
+                        <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.amount')]} />
                       </PieChart>
                     </ChartContainer>
                     <div style={{ flex: 1 }}>
                       {apiCostItems.map((c) => (
                         <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
                           <span style={{ width: 10, height: 10, borderRadius: 2, background: c.color, display: 'inline-block' }} />
-                          <span style={{ color: '#8b949e', flex: 1 }}>{c.label}</span>
-                          <span style={{ color: '#f0f6fc', fontWeight: 600 }}>{fmtMoney(c.value)}</span>
+                          <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{c.label}</span>
+                          <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{fmtMoney(c.value)}</span>
                         </div>
                       ))}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #30363d', paddingTop: 6, marginTop: 4, fontSize: 13, fontWeight: 700 }}>
-                        <span style={{ color: '#8b949e' }}>{t('w1Controls.deptFinance.costTotal')}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-default)', paddingTop: 6, marginTop: 4, fontSize: 13, fontWeight: 700 }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.costTotal')}</span>
                         <span>{fmtMoney(apiCostTotal)}</span>
                       </div>
                     </div>
                   </div>
                 </>
               ) : (
-                <div style={{ padding: 20, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
               )}
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <TrendingUp size={16} color="#3b82f6" />{t('deptFinance.monthlyTrend')}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <TrendingUp size={16} color="var(--color-primary)" />{t('deptFinance.monthlyTrend')}
               </div>
               <ChartContainer height={260} state={MONTHLY_REVENUE.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noTrendData')}>
                 <LineChart data={MONTHLY_REVENUE}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} dot={false} name={t('deptFinance.revenue')} />
                   <Line type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} dot={false} name={t('deptFinance.cost')} />
@@ -462,16 +471,16 @@ export default function DepartmentFinancePage() {
               </ChartContainer>
             </div>
 
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={16} color="#f59e0b" />{t('deptFinance.revenueByModality')}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BarChart3 size={16} color="var(--color-warning)" />{t('deptFinance.revenueByModality')}
               </div>
               <ChartContainer height={260} state={REVENUE_BY_MODALITY.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noModalityData')}>
                 <BarChart data={REVENUE_BY_MODALITY}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.revenue')]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.revenue')]} />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                     {REVENUE_BY_MODALITY.map((e, i) => (
                       <Cell key={i} fill={e.color} />
@@ -483,9 +492,9 @@ export default function DepartmentFinancePage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <PieIcon size={16} color="#8b5cf6" />{t('deptFinance.costStructure')}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <PieIcon size={16} color="var(--color-modality-mr)" />{t('deptFinance.costStructure')}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                 <ChartContainer height={180} style={{ width: 180, flexShrink: 0 }}>
@@ -496,7 +505,7 @@ export default function DepartmentFinancePage() {
                         return <Cell key={i} fill={colors[i]} />
                       })}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.amount')]} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.amount')]} />
                   </PieChart>
                 </ChartContainer>
                 <div style={{ flex: 1 }}>
@@ -505,8 +514,8 @@ export default function DepartmentFinancePage() {
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
                         <span style={{ width: 10, height: 10, borderRadius: 2, background: colors[i], display: 'inline-block' }} />
-                        <span style={{ color: '#8b949e', flex: 1 }}>{c.category}</span>
-                        <span style={{ color: '#f0f6fc', fontWeight: 600 }}>{c.percent}%</span>
+                        <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{c.category}</span>
+                        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{c.percent}%</span>
                       </div>
                     )
                   })}
@@ -514,20 +523,20 @@ export default function DepartmentFinancePage() {
               </div>
             </div>
 
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={16} color="#22c55e" />{t('deptFinance.paymentMix')}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BarChart3 size={16} color="var(--color-success)" />{t('deptFinance.paymentMix')}
               </div>
               {INSURANCE_MIX.map((im, i) => (
                 <div key={i} style={{ marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-                    <span style={{ color: '#8b949e' }}>{im.type}</span>
-                    <span style={{ color: '#f0f6fc' }}>{im.percent}%</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{im.type}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{im.percent}%</span>
                   </div>
-                  <div style={{ height: 8, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ height: 8, background: 'var(--bg-secondary,#f8fafc)', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${im.percent}%`, background: i === 0 ? '#3b82f6' : i === 1 ? '#22c55e' : i === 2 ? '#f59e0b' : '#8b5cf6', borderRadius: 4 }} />
                   </div>
-                  <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>¥{im.amount.toLocaleString()}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>¥{im.amount.toLocaleString()}</div>
                 </div>
               ))}
             </div>
@@ -539,20 +548,20 @@ export default function DepartmentFinancePage() {
         <div style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 }}>
-              <Receipt size={16} color="#3b82f6" />{t('deptFinance.invoiceList')}
-              <span style={{ fontSize: 12, color: '#6e7681', fontWeight: 400 }}>{t('deptFinance.totalCount')} {invoices.length} {t('deptFinance.units')}</span>
+              <Receipt size={16} color="var(--color-primary)" />{t('deptFinance.invoiceList')}
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 400 }}>{t('deptFinance.totalCount')} {invoices.length} {t('deptFinance.units')}</span>
             </div>
-            <button onClick={() => void loadInvoices()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#21262d', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />{t('deptFinance.refresh')}</button>
+            <button onClick={() => void loadInvoices()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid var(--border-default)', background: 'var(--bg-secondary,#f8fafc)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />{t('deptFinance.refresh')}</button>
           </div>
 
           {invError && (
-            <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
+            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 13 }}>
               {t('deptFinance.loadFailed')}:{invError}
-              <button onClick={() => void loadInvoices()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
+              <button onClick={() => void loadInvoices()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
           )}
 
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, overflow: 'hidden' }}>
             <DataTable dataSource={invoices} rowKey={(r: any) => invOf(r).id} columns={invoiceColumns} loading={invLoading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('deptFinance.noInvoices')} />
           </div>
 
@@ -560,7 +569,7 @@ export default function DepartmentFinancePage() {
           <Modal
             open={detailOpen}
             title={t('deptFinance.invoiceDetail')}
-            footer={<button onClick={() => setDetailOpen(false)} style={{ padding: '6px 18px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>{t('deptFinance.close')}</button>}
+            footer={<button onClick={() => setDetailOpen(false)} style={{ padding: '6px 18px', borderRadius: 6, border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 13 }}>{t('deptFinance.close')}</button>}
             onCancel={() => setDetailOpen(false)}
             width={520}
             styles={modalStyle}
@@ -572,23 +581,23 @@ export default function DepartmentFinancePage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 700 }}>{detail.patientName}</div>
-                    <div style={{ fontSize: 12, color: '#8b949e', marginTop: 2 }}>{t('deptFinance.invoiceNo')}:{detail.id} · {fmtDate(detail.issuedAt)}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('deptFinance.invoiceNo')}:{detail.id} · {fmtDate(detail.issuedAt)}</div>
                   </div>
-                  <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${(STATUS_META[detail.status]?.color ?? '#8b949e')}20`, color: STATUS_META[detail.status]?.color ?? '#8b949e', height: 'fit-content' }}>
-                    {STATUS_META[detail.status]?.label ?? detail.status}
-                  </span>
+                  <StatusTag status={statusMeta(detail.status).tone} size="md" style={{ height: 'fit-content' }}>
+                    {statusMeta(detail.status).label}
+                  </StatusTag>
                 </div>
 
                 {Array.isArray(detail.items) && detail.items.length > 0 && (
-                  <div style={{ marginBottom: 12, border: '1px solid #21262d', borderRadius: 6, overflow: 'hidden' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', background: '#0d1117', color: '#8b949e', fontSize: 11, fontWeight: 600 }}>
+                  <div style={{ marginBottom: 12, border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', background: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 600 }}>
                       <span>{t('deptFinance.colItem')}</span><span>{t('deptFinance.quantity')}</span><span style={{ textAlign: 'right' }}>{t('deptFinance.unitPrice')}</span><span style={{ textAlign: 'right' }}>{t('deptFinance.subtotal')}</span>
                     </div>
                     {detail.items.map((it: any, i: number) => (
-                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', borderTop: '1px solid #21262d', fontSize: 12 }}>
+                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 90px 90px', gap: 8, padding: '8px 12px', borderTop: '1px solid var(--border-default)', fontSize: 12 }}>
                         <span>{it.itemName ?? it.name}</span>
-                        <span style={{ color: '#8b949e' }}>{it.quantity ?? 1}</span>
-                        <span style={{ textAlign: 'right', color: '#8b949e' }}>¥{Number(it.unitPrice ?? 0).toLocaleString()}</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{it.quantity ?? 1}</span>
+                        <span style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>¥{Number(it.unitPrice ?? 0).toLocaleString()}</span>
                         <span style={{ textAlign: 'right', fontWeight: 600 }}>¥{Number(it.totalPrice ?? it.unitPrice ?? 0).toLocaleString()}</span>
                       </div>
                     ))}
@@ -596,16 +605,16 @@ export default function DepartmentFinancePage() {
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.colTotal')}</span><span style={{ fontWeight: 700, fontSize: 15 }}>{fmtMoney(detail.totalAmount)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.paidAmount')}</span><span style={{ color: '#22c55e' }}>{fmtMoney(detail.paidAmount)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.insuranceCover')}</span><span style={{ color: '#3b82f6' }}>{fmtMoney(detail.insuranceCovered)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.selfPayAmount')}</span><span style={{ color: '#f59e0b' }}>{fmtMoney(detail.selfPayAmount)}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.issueTime')}</span><span>{fmtDate(detail.issuedAt)}</span></div>
-                  {detail.paidAt && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#8b949e' }}>{t('deptFinance.payTime')}</span><span>{fmtDate(detail.paidAt)}</span></div>}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.colTotal')}</span><span style={{ fontWeight: 700, fontSize: 15 }}>{fmtMoney(detail.totalAmount)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.paidAmount')}</span><span style={{ color: 'var(--color-success)' }}>{fmtMoney(detail.paidAmount)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.insuranceCover')}</span><span style={{ color: 'var(--color-primary)' }}>{fmtMoney(detail.insuranceCovered)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.selfPayAmount')}</span><span style={{ color: 'var(--color-warning)' }}>{fmtMoney(detail.selfPayAmount)}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.issueTime')}</span><span>{fmtDate(detail.issuedAt)}</span></div>
+                  {detail.paidAt && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.payTime')}</span><span>{fmtDate(detail.paidAt)}</span></div>}
                 </div>
               </div>
             ) : (
-              <div style={{ padding: 24, textAlign: 'center', color: '#6e7681' }}>{t('deptFinance.invoiceDetailNotFound')}</div>
+              <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)' }}>{t('deptFinance.invoiceDetailNotFound')}</div>
             )}
           </Modal>
 
@@ -624,18 +633,18 @@ export default function DepartmentFinancePage() {
             {payInvoice && (
               <div style={{ marginTop: 8 }}>
                 <div style={{ fontSize: 13, marginBottom: 4 }}>
-                  {t('deptFinance.invoice')} <span style={{ color: '#93c5fd', fontFamily: 'monospace' }}>{payInvoice.id}</span> · {payInvoice.patientName}
+                  {t('deptFinance.invoice')} <span style={{ color: 'var(--color-primary-300)', fontFamily: 'monospace' }}>{payInvoice.id}</span> · {payInvoice.patientName}
                 </div>
-                <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 16 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>
                   {payInvoice.examItem} · {t('deptFinance.colTotal')} {fmtMoney(payInvoice.totalAmount)} · {t('deptFinance.colPaid')} {fmtMoney(payInvoice.paidAmount)}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div>
-                    <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('deptFinance.payAmount')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('deptFinance.payAmount')}</div>
                     <Input type="number" min={0} value={payAmount} onChange={e => setPayAmount(e.target.value)} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('deptFinance.payMethod')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('deptFinance.payMethod')}</div>
                     <Select value={payMethod} onChange={setPayMethod} style={{ width: '100%' }}
                       options={[
                         { value: 'CASH', label: t('deptFinance.methodCash') },
@@ -656,76 +665,77 @@ export default function DepartmentFinancePage() {
         <div style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600 }}>
-              <FileText size={16} color="#3b82f6" />{t('deptFinance.tabReports')}
-              <span style={{ fontSize: 12, color: '#6e7681', fontWeight: 400 }}>getFinancialReports · {t('deptFinance.flowRecords')} {summary.total} {t('deptFinance.records')}</span>
+              <FileText size={16} color="var(--color-primary)" />{t('deptFinance.tabReports')}
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 400 }}>getFinancialReports · {t('deptFinance.flowRecords')} {summary.total} {t('deptFinance.records')}</span>
             </div>
-            <button onClick={() => void loadReports()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#21262d', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />{t('deptFinance.refresh')}</button>
+            <button onClick={() => void loadReports()} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid var(--border-default)', background: 'var(--bg-secondary,#f8fafc)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={13} />{t('deptFinance.refresh')}</button>
           </div>
 
           {repError && (
-            <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
+            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 13 }}>
               {t('deptFinance.loadFailed')}:{repError}
-              <button onClick={() => void loadReports()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
+              <button onClick={() => void loadReports()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
           )}
 
           {repLoading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
               <Spin size="large" />
               <div style={{ marginTop: 12, fontSize: 13 }}>{t('deptFinance.loadingReports')}</div>
             </div>
           ) : summary.total === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noReportsData')}</div>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('deptFinance.noReportsData')}</div>
           ) : (
             <>
               {/* 汇总 KPI */}
               <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
                 {[
-                  { title: t('deptFinance.statTotalRecords'), value: String(summary.total), color: '#3b82f6' },
-                  { title: t('deptFinance.statTotalReceivable'), value: fmtMoney(summary.totalAmount), color: '#f59e0b' },
-                  { title: t('deptFinance.statPaid'), value: fmtMoney(summary.paidAmount), color: '#22c55e' },
-                  { title: t('deptFinance.statBalance'), value: fmtMoney(summary.balance), color: '#ef4444' },
+                  { title: t('deptFinance.statTotalRecords'), value: String(summary.total), color: 'var(--color-primary)' },
+                  { title: t('deptFinance.statTotalReceivable'), value: fmtMoney(summary.totalAmount), color: 'var(--color-warning)' },
+                  { title: t('deptFinance.statPaid'), value: fmtMoney(summary.paidAmount), color: 'var(--color-success)' },
+                  { title: t('deptFinance.statBalance'), value: fmtMoney(summary.balance), color: 'var(--color-error)' },
                 ].map((k, i) => (
-                  <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '14px 20px', flex: 1, minWidth: 160 }}>
-                    <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{k.title}</div>
+                  <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '14px 20px', flex: 1, minWidth: 160 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>{k.title}</div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: k.color }}>{k.value}</div>
                   </div>
                 ))}
               </div>
 
               {/* 汇总表 */}
-              <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('deptFinance.statusSummary')}</div>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16, marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)' }}>{t('deptFinance.statusSummary')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
                   {Object.entries(summary.byStatus).map(([st, count]) => {
-                    const meta = STATUS_META[st] ?? { label: st, color: '#8b949e' }
+                    const meta = statusMeta(st)
+                    const tone = statusTone(meta.tone)
                     return (
-                      <div key={st} style={{ border: `1px solid ${meta.color}40`, borderRadius: 6, padding: '10px 14px', background: `${meta.color}10` }}>
-                        <div style={{ fontSize: 12, color: meta.color }}>{meta.label} ({st})</div>
-                        <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4 }}>{count}<span style={{ fontSize: 12, color: '#8b949e', fontWeight: 400, marginLeft: 4 }}>{t('deptFinance.units')}</span></div>
+                      <div key={st} style={{ border: `1px solid ${tone.border}`, borderRadius: 6, padding: '10px 14px', background: tone.bg }}>
+                        <div style={{ fontSize: 12, color: tone.color }}>{meta.label} ({st})</div>
+                        <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4 }}>{count}<span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 400, marginLeft: 4 }}>{t('deptFinance.units')}</span></div>
                       </div>
                     )
                   })}
                   {Object.keys(summary.byStatus).length === 0 && (
-                    <div style={{ color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noStatusStats')}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>{t('deptFinance.noStatusStats')}</div>
                   )}
                 </div>
               </div>
 
               {/* 趋势 */}
-              <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#22c55e" />{t('deptFinance.monthlyRevenueTrend')}
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <TrendingUp size={16} color="var(--color-success)" />{t('deptFinance.monthlyRevenueTrend')}
                 </div>
                 {trendData.length === 0 ? (
-                  <div style={{ padding: 24, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>{t('deptFinance.noTrendData')}</div>
+                  <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('deptFinance.noTrendData')}</div>
                 ) : (
                   <ChartContainer height={260}>
                     <LineChart data={trendData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                      <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                      <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
-                      <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+                      <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                      <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
+                      <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
                       <Legend wrapperStyle={{ fontSize: 12 }} />
                       <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} dot={false} name={t('deptFinance.receivable')} />
                       <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} dot={false} name={t('deptFinance.received')} />

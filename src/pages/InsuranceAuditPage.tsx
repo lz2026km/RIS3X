@@ -12,6 +12,8 @@ import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { DataTable } from "../components/common/DataTable";
+import { StatusTag } from "../components/common/StatusTag";
 import { VOUCHER_DATA } from '../data/initialData';
 import { ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle, Search, Filter, RefreshCw, ChevronLeft, ChevronRight, FileText, Pill, Stethoscope, Calendar, MessageSquare, Check, X, Send, BookOpen, ClipboardList, Activity, AlertOctagon, BarChart3, Settings, TrendingUp, Clock3, DollarSign, PieChart as PieChartIcon, AlertCircle, Percent, Upload, Loader2, Plus, ClipboardCheck, Target, Trash2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
@@ -2605,7 +2607,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cardDrug: {
     background: "var(--color-success-bg)",
-    border: "1px solid #bbf7d0",
+    border: "1px solid var(--color-success-bg)",
     borderRadius: 8,
     padding: "10px 14px",
     marginBottom: 10,
@@ -2613,11 +2615,11 @@ const styles: Record<string, React.CSSProperties> = {
   cardDrugName: {
     fontSize: 14,
     fontWeight: 600,
-    color: "#166534",
+    color: "var(--color-success)",
   },
   cardDrugSpec: {
     fontSize: 12,
-    color: "#16a34a",
+    color: "var(--color-success)",
     marginTop: 2,
   },
   cardCategory: {
@@ -2626,15 +2628,15 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "2px 8px",
     borderRadius: 4,
     background: "var(--color-info-bg)",
-    color: "#2563eb",
+    color: "var(--color-primary)",
     marginTop: 4,
     display: "inline-block",
   },
   cardRestriction: {
     fontSize: 12,
-    color: "#dc2626",
+    color: "var(--color-error)",
     background: "var(--color-error-bg)",
-    border: "1px solid #fecaca",
+    border: "1px solid var(--color-error-bg)",
     borderRadius: 6,
     padding: "6px 10px",
     marginBottom: 10,
@@ -2679,15 +2681,15 @@ const styles: Record<string, React.CSSProperties> = {
   },
   badgeSuccess: {
     background: "var(--color-success-bg)",
-    color: "#166534",
+    color: "var(--color-success)",
   },
   badgeDanger: {
     background: "var(--color-error-bg)",
-    color: "#dc2626",
+    color: "var(--color-error)",
   },
   badgeWarning: {
     background: "var(--color-warning-bg)",
-    color: "#d97706",
+    color: "var(--color-warning)",
   },
   btnGroup: {
     display: "flex",
@@ -2706,16 +2708,16 @@ const styles: Record<string, React.CSSProperties> = {
     border: "none",
   },
   btnPrimary: {
-    background: "#1e40af",
-    color: "#fff",
+    background: "var(--color-primary)",
+    color: "var(--text-inverse)",
   },
   btnSuccess: {
-    background: "#16a34a",
-    color: "#fff",
+    background: "var(--color-success)",
+    color: "var(--text-inverse)",
   },
   btnDanger: {
-    background: "#dc2626",
-    color: "#fff",
+    background: "var(--color-error)",
+    color: "var(--text-inverse)",
   },
   btnOutline: {
     background: "transparent",
@@ -2763,7 +2765,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 16,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
     marginBottom: 12,
-    borderLeft: "4px solid #1e40af",
+    borderLeft: "4px solid var(--color-primary)",
   },
   ruleHeader: {
     display: "flex",
@@ -2796,10 +2798,10 @@ const styles: Record<string, React.CSSProperties> = {
     color: "var(--text-secondary)",
   },
   voucherCard: {
-    background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
+    background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 100%)",
     borderRadius: 12,
     padding: "20px 24px",
-    color: "#fff",
+    color: "var(--text-inverse)",
     marginBottom: 20,
   },
   voucherCardTitle: {
@@ -2839,7 +2841,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
     marginBottom: 16,
-    border: "1px solid #dbeafe",
+    border: "1px solid var(--color-info-bg)",
   },
   voucherFilterBtn: {
     padding: "6px 16px",
@@ -2851,28 +2853,28 @@ const styles: Record<string, React.CSSProperties> = {
     border: "none",
   },
   voucherFilterActive: {
-    background: "#1e40af",
-    color: "#fff",
+    background: "var(--color-primary)",
+    color: "var(--text-inverse)",
   },
   voucherFilterInactive: {
     background: "var(--color-info-bg)",
-    color: "#3b82f6",
-    border: "1px solid #dbeafe",
+    color: "var(--color-primary)",
+    border: "1px solid var(--color-info-bg)",
   },
   voucherTableWrapper: {
     background: "var(--bg-card)",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
     overflow: "hidden",
-    border: "1px solid #dbeafe",
+    border: "1px solid var(--color-info-bg)",
   },
   voucherTh: {
     background: "var(--color-info-bg)",
     padding: "12px 16px",
     textAlign: "left" as const,
     fontWeight: 600,
-    color: "#1e40af",
-    borderBottom: "1px solid #dbeafe",
+    color: "var(--color-primary)",
+    borderBottom: "1px solid var(--color-info-bg)",
     fontSize: 13,
   },
   voucherTd: {
@@ -2933,16 +2935,16 @@ const styles: Record<string, React.CSSProperties> = {
     animation: "slideIn 0.3s ease",
   },
   toastSuccess: {
-    background: "#16a34a",
-    color: "#fff",
+    background: "var(--color-success)",
+    color: "var(--text-inverse)",
   },
   toastError: {
-    background: "#dc2626",
-    color: "#fff",
+    background: "var(--color-error)",
+    color: "var(--text-inverse)",
   },
   toastInfo: {
-    background: "#1e40af",
-    color: "#fff",
+    background: "var(--color-primary)",
+    color: "var(--text-inverse)",
   },
   modalOverlay: {
     position: "fixed",
@@ -3100,29 +3102,29 @@ const styles: Record<string, React.CSSProperties> = {
   },
   balanceWarningNormal: {
     background: "var(--color-success-bg)",
-    color: "#166534",
-    border: "1px solid #bbf7d0",
+    color: "var(--color-success)",
+    border: "1px solid var(--color-success-bg)",
   },
   balanceWarningWarning: {
     background: "var(--color-warning-bg)",
-    color: "#d97706",
-    border: "1px solid #fecaca",
+    color: "var(--color-warning)",
+    border: "1px solid var(--color-error-bg)",
   },
   balanceWarningCritical: {
     background: "var(--color-error-bg)",
-    color: "#dc2626",
-    border: "1px solid #fecaca",
+    color: "var(--color-error)",
+    border: "1px solid var(--color-error-bg)",
   },
 };
 
 // ---------- 组件 ----------
-const PRIMARY = "#1e40af";
-const ACCENT = "#3b82f6";
-const SUCCESS = "#16a34a";
-const WARNING = "#d97706";
-const DANGER = "#dc2626";
-const GRAY = "#64748b";
-const WHITE = "#ffffff";
+const PRIMARY = "var(--color-primary)";
+const ACCENT = "var(--color-primary-500)";
+const SUCCESS = "var(--color-success)";
+const WARNING = "var(--color-warning)";
+const DANGER = "var(--color-error)";
+const GRAY = "var(--text-secondary)";
+const WHITE = "var(--text-inverse)";
 
 type TabKey =
   | "pending"
@@ -3164,16 +3166,16 @@ const TAB_ICONS: Record<TabKey, React.ReactNode> = {
 
 // 紧急度颜色
 const urgencyColor: Record<string, string> = {
-  高: "#dc2626",
-  中: "#d97706",
-  低: "#16a34a",
+  高: "var(--color-error)",
+  中: "var(--color-warning)",
+  低: "var(--color-success)",
 };
 
-// 结果颜色
-const resultColors: Record<string, { bg: string; text: string }> = {
-  通过: { bg: "#22c55e22", text: "#166534" },
-  拒绝: { bg: "#ef444422", text: "#dc2626" },
-  补充资料: { bg: "#f59e0b22", text: "#d97706" },
+// 结果 → canonical statusTokens tone
+const resultTone: Record<string, string> = {
+  通过: "approved",
+  拒绝: "rejected",
+  补充资料: "warning",
 };
 
 // 结果图标
@@ -3264,7 +3266,7 @@ const PendingAuditCard: React.FC<{
       </PermissionGate>
       <div
         aria-hidden
-        style={{ width: 1, height: 20, background: "#cbd5e1", margin: "0 4px" }}
+        style={{ width: 1, height: 20, background: "var(--border-default)", margin: "0 4px" }}
       />
       <PermissionGate permission="audit.approve">
         <button
@@ -3294,35 +3296,18 @@ const PendingAuditCard: React.FC<{
 );
 
 // 审核历史表格行
-const HistoryRow: React.FC<{ record: AuditHistory }> = ({ record }) => {
+// 审核历史结果单元格
+const HistoryResultCell: React.FC<{ result: string }> = ({ result }) => {
   const { t } = useTranslation("insuranceAudit");
-  const colors = resultColors[record.result] ?? resultColors["补充资料"]!;
   return (
-    <tr>
-      <td style={styles.td}>{record.auditTime}</td>
-      <td style={styles.td}>{record.patientName}</td>
-      <td style={styles.td}>{record.patientId}</td>
-      <td style={styles.td}>{record.examItem}</td>
-      <td style={styles.td}>{record.drugName}</td>
-      <td style={styles.td}>
-        <span
-          style={{
-            ...styles.badge,
-            background: colors.bg,
-            color: colors.text,
-          }}
-        >
-          <ResultIcon result={record.result} />
-          {record.result === "通过"
-            ? t("passed")
-            : record.result === "拒绝"
-              ? t("rejected")
-              : t("supplement")}
-        </span>
-      </td>
-      <td style={styles.td}>{record.auditor}</td>
-      <td style={styles.td}>{record.reason || "-"}</td>
-    </tr>
+    <StatusTag status={resultTone[result] ?? "warning"}>
+      <ResultIcon result={result} />
+      {result === "通过"
+        ? t("passed")
+        : result === "拒绝"
+          ? t("rejected")
+          : t("supplement")}
+    </StatusTag>
   );
 };
 
@@ -3972,11 +3957,11 @@ export default function InsuranceAuditPage() {
   return (
     <div style={styles.root}>
       <PageHeader
-        icon={<ShieldCheck size={22} style={{ color: "#1e40af" }} />}
+        icon={<ShieldCheck size={22} style={{ color: "var(--color-primary)" }} />}
         title={t("title")}
         subtitle={
           /* [G005 Wave2B P2] statsData/fundTrendData 等大量硬编码 → 部分演示数据徽标 */
-          <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600 }}>{t("insuranceAudit.partialDemoData")}</span>
+          <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 10, background: "var(--color-warning-bg)", color: "var(--color-warning)", border: "1px solid var(--color-warning-border)", fontWeight: 600 }}>{t("insuranceAudit.partialDemoData")}</span>
         }
       />
 
@@ -4015,7 +4000,7 @@ export default function InsuranceAuditPage() {
       <div style={styles.fundMonitorSection}>
         <div style={styles.fundMonitorHeader}>
           <h3 style={styles.fundMonitorTitle}>
-            <DollarSign size={20} style={{ color: "#16a34a" }} />
+            <DollarSign size={20} style={{ color: "var(--color-success)" }} />
             {t("insuranceAudit.fundMonitorTitle")}
           </h3>
           <AppText size="xs" color="secondary" as="span">
@@ -4063,7 +4048,7 @@ export default function InsuranceAuditPage() {
                 style={{
                   marginRight: 6,
                   verticalAlign: "middle",
-                  color: "#16a34a",
+                  color: "var(--color-success)",
                 }}
               />
               {t("insuranceAudit.fundTrendRecent30d")}
@@ -4113,7 +4098,7 @@ export default function InsuranceAuditPage() {
                 style={{
                   marginRight: 6,
                   verticalAlign: "middle",
-                  color: "#f97316",
+                  color: "var(--color-warning)",
                 }}
               />
               {t("insuranceAudit.deptUsageDist")}
@@ -4194,7 +4179,7 @@ export default function InsuranceAuditPage() {
                 style={{
                   marginRight: 6,
                   verticalAlign: "middle",
-                  color: "#3b82f6",
+                  color: "var(--color-primary)",
                 }}
               />
               {t("insuranceAudit.fundTrendRecent12m")}
@@ -4239,7 +4224,7 @@ export default function InsuranceAuditPage() {
                 style={{
                   marginRight: 6,
                   verticalAlign: "middle",
-                  color: "#dc2626",
+                  color: "var(--color-error)",
                 }}
               />
               {t("insuranceAudit.violationWarning")}
@@ -4266,12 +4251,12 @@ export default function InsuranceAuditPage() {
                   <div
                     style={{ ...styles.violationIcon, background: "var(--color-error-bg)" }}
                   >
-                    <AlertOctagon size={16} color="#dc2626" />
+                    <AlertOctagon size={16} color="var(--color-error)" />
                   </div>
                   <div style={styles.violationContent}>
                     <div style={styles.violationHeader}>
                       <span
-                        style={{ ...styles.violationType, color: "#dc2626" }}
+                        style={{ ...styles.violationType, color: "var(--color-error)" }}
                       >
                         {violation.violationType}
                       </span>
@@ -4305,7 +4290,7 @@ export default function InsuranceAuditPage() {
               style={{
                 marginRight: 6,
                 verticalAlign: "middle",
-                color: "#8b5cf6",
+                color: "var(--color-modality-mr)",
               }}
             />
             {t("insuranceAudit.approvalTrendRecent30d")}
@@ -4346,7 +4331,7 @@ export default function InsuranceAuditPage() {
               ...styles.tab,
               ...(activeTab === key ? styles.tabActive : {}),
               ...(activeTab === key
-                ? { color: "#1e40af", borderBottomColor: "#1e40af" }
+                ? { color: "var(--color-primary)", borderBottomColor: "var(--color-primary)" }
                 : {}),
             }}
             onClick={() => setActiveTab(key)}
@@ -4356,8 +4341,8 @@ export default function InsuranceAuditPage() {
             {key === "pending" && (
               <span
                 style={{
-                  background: "#ef4444",
-                  color: "#fff",
+                  background: "var(--color-error)",
+                  color: "var(--text-inverse)",
                   fontSize: 12,
                   padding: "2px 6px",
                   borderRadius: 10,
@@ -4442,7 +4427,7 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.newAuditRecord")}
             </button>
             {auditLoading && (
-              <span style={{ fontSize: 12, color: "#1e40af", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 12, color: "var(--color-primary)", display: "flex", alignItems: "center", gap: 6 }}>
                 <Loader2 size={14} className="spin" /> {t("insuranceAudit.syncingPlatform")}
               </span>
             )}
@@ -4513,9 +4498,9 @@ export default function InsuranceAuditPage() {
                               ...styles.pageBtn,
                               ...(pendingPage === page
                                 ? {
-                                    background: "#1e40af",
-                                    color: "#fff",
-                                    borderColor: "#1e40af",
+                                    background: "var(--color-primary)",
+                                    color: "var(--text-inverse)",
+                                    borderColor: "var(--color-primary)",
                                   }
                                 : {}),
                             }}
@@ -4577,25 +4562,23 @@ export default function InsuranceAuditPage() {
           </div>
 
           <div style={styles.tableWrapper}>
-            <div style={{ overflowX: "auto" }}><table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>{t("history.auditTime")}</th>
-                  <th style={styles.th}>{t("history.patientName")}</th>
-                  <th style={styles.th}>{t("history.patientId")}</th>
-                  <th style={styles.th}>{t("history.examItem")}</th>
-                  <th style={styles.th}>{t("history.drugName")}</th>
-                  <th style={styles.th}>{t("history.result")}</th>
-                  <th style={styles.th}>{t("history.auditor")}</th>
-                  <th style={styles.th}>{t("history.notes")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedHistory.map((record) => (
-                  <HistoryRow key={record.id} record={record} />
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              dataSource={paginatedHistory}
+              rowKey={(record) => String(record.id)}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("history.auditTime"), dataIndex: "auditTime", key: "auditTime" },
+                { title: t("history.patientName"), dataIndex: "patientName", key: "patientName" },
+                { title: t("history.patientId"), dataIndex: "patientId", key: "patientId" },
+                { title: t("history.examItem"), dataIndex: "examItem", key: "examItem" },
+                { title: t("history.drugName"), dataIndex: "drugName", key: "drugName" },
+                { title: t("history.result"), key: "result", render: (_v, record) => <HistoryResultCell result={record.result} /> },
+                { title: t("history.auditor"), dataIndex: "auditor", key: "auditor" },
+                { title: t("history.notes"), key: "reason", render: (_v, record) => record.reason || "-" },
+              ]}
+            />
 
             <div style={styles.pagination}>
               <div style={styles.pageInfo}>
@@ -4630,9 +4613,9 @@ export default function InsuranceAuditPage() {
                         ...styles.pageBtn,
                         ...(historyPage === page
                           ? {
-                              background: "#1e40af",
-                              color: "#fff",
-                              borderColor: "#1e40af",
+                              background: "var(--color-primary)",
+                              color: "var(--text-inverse)",
+                              borderColor: "var(--color-primary)",
                             }
                           : {}),
                       }}
@@ -4665,7 +4648,7 @@ export default function InsuranceAuditPage() {
             <div style={styles.statCard}>
               <div style={styles.statTitle}>{t("stats.monthlyTotal")}</div>
               <div style={styles.statValue}>326</div>
-              <TrendingUp size={16} color="#16a34a" style={{ marginTop: 8 }} />
+              <TrendingUp size={16} color="var(--color-success)" style={{ marginTop: 8 }} />
               <AppText size="xs" color="success" as="span" style={{ marginLeft: 4 }}>
                 +12%
               </AppText>
@@ -4716,7 +4699,7 @@ export default function InsuranceAuditPage() {
                 >
                   <div
                     style={{
-                      background: "#16a34a",
+                      background: "var(--color-success)",
                       height: "100%",
                       width: "78.5%",
                       display: "flex",
@@ -4725,7 +4708,7 @@ export default function InsuranceAuditPage() {
                     }}
                   >
                     <span
-                      style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}
+                      style={{ color: "var(--text-inverse)", fontSize: 12, fontWeight: 600 }}
                     >
                       78.5%
                     </span>
@@ -4746,7 +4729,7 @@ export default function InsuranceAuditPage() {
                 >
                   <div
                     style={{
-                      background: "#dc2626",
+                      background: "var(--color-error)",
                       height: "100%",
                       width: "12.3%",
                       display: "flex",
@@ -4755,7 +4738,7 @@ export default function InsuranceAuditPage() {
                     }}
                   >
                     <span
-                      style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}
+                      style={{ color: "var(--text-inverse)", fontSize: 12, fontWeight: 600 }}
                     >
                       12.3%
                     </span>
@@ -4776,7 +4759,7 @@ export default function InsuranceAuditPage() {
                 >
                   <div
                     style={{
-                      background: "#d97706",
+                      background: "var(--color-warning)",
                       height: "100%",
                       width: "9.2%",
                       display: "flex",
@@ -4785,7 +4768,7 @@ export default function InsuranceAuditPage() {
                     }}
                   >
                     <span
-                      style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}
+                      style={{ color: "var(--text-inverse)", fontSize: 12, fontWeight: 600 }}
                     >
                       9.2%
                     </span>
@@ -4832,7 +4815,7 @@ export default function InsuranceAuditPage() {
                   >
                     <div
                       style={{
-                        background: "#1e40af",
+                        background: "var(--color-primary)",
                         height: "100%",
                         width: `${item.pct * 4}%`,
                       }}
@@ -4927,83 +4910,40 @@ export default function InsuranceAuditPage() {
 
           {/* 电子凭证列表 */}
           <div style={styles.voucherTableWrapper}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.voucherId")}</th>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.linkedAuditId")}</th>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.patientName")}</th>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.patientId")}</th>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.voucherType")}</th>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.amount")}</th>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.issueTime")}</th>
-                  <th style={styles.voucherTh}>{t("insuranceAudit.status")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredVouchers.slice(0, 50).map((voucher) => (
-                  <tr key={voucher.id}>
-                    <td style={styles.voucherTd}>{voucher.id}</td>
-                    <td style={styles.voucherTd}>{voucher.relatedAuditId}</td>
-                    <td style={styles.voucherTd}>{voucher.patientName}</td>
-                    <td style={styles.voucherTd}>{voucher.patientId}</td>
-                    <td style={styles.voucherTd}>
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          fontSize: 12,
-                          background:
-                            voucher.voucherType === "检查费"
-                              ? "#dbeafe"
-                              : voucher.voucherType === "药品费"
-                                ? "#dcfce7"
-                                : "#fef3c7",
-                          color:
-                            voucher.voucherType === "检查费"
-                              ? "#1e40af"
-                              : voucher.voucherType === "药品费"
-                                ? "#166534"
-                                : "#d97706",
-                        }}
-                      >
-                        {voucher.voucherType}
-                      </span>
-                    </td>
-                    <td style={styles.voucherTd}>
-                      ¥{voucher.amount.toFixed(2)}
-                    </td>
-                    <td style={styles.voucherTd}>{voucher.invoiceTime}</td>
-                    <td style={styles.voucherTd}>
-                      <span
-                        style={{
-                          ...styles.voucherStatusBadge,
-                          background:
-                            voucher.status === "已开票"
-                              ? "#dcfce7"
-                              : voucher.status === "待开票"
-                                ? "#fef3c7"
-                                : "#fee2e2",
-                          color:
-                            voucher.status === "已开票"
-                              ? "#166534"
-                              : voucher.status === "待开票"
-                                ? "#d97706"
-                                : "#dc2626",
-                        }}
-                      >
-                        {voucher.status === "已开票" && (
-                          <CheckCircle size={14} />
-                        )}
-                        {voucher.status === "待开票" && <Clock size={14} />}
-                        {voucher.status === "已作废" && <XCircle size={14} />}
-                        {voucher.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              dataSource={filteredVouchers.slice(0, 50)}
+              rowKey={(voucher) => String(voucher.id)}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("insuranceAudit.voucherId"), dataIndex: "id", key: "id" },
+                { title: t("insuranceAudit.linkedAuditId"), dataIndex: "relatedAuditId", key: "relatedAuditId" },
+                { title: t("insuranceAudit.patientName"), dataIndex: "patientName", key: "patientName" },
+                { title: t("insuranceAudit.patientId"), dataIndex: "patientId", key: "patientId" },
+                {
+                  title: t("insuranceAudit.voucherType"), key: "voucherType",
+                  render: (_v, voucher) => (
+                    <StatusTag status={voucher.voucherType === "检查费" ? "info" : voucher.voucherType === "药品费" ? "success" : "warning"}>
+                      {voucher.voucherType}
+                    </StatusTag>
+                  ),
+                },
+                { title: t("insuranceAudit.amount"), key: "amount", align: "right" as const, render: (_v, voucher) => `¥${voucher.amount.toFixed(2)}` },
+                { title: t("insuranceAudit.issueTime"), dataIndex: "invoiceTime", key: "invoiceTime" },
+                {
+                  title: t("insuranceAudit.status"), key: "status",
+                  render: (_v, voucher) => (
+                    <StatusTag status={voucher.status === "已开票" ? "success" : voucher.status === "待开票" ? "pending" : "cancelled"}>
+                      {voucher.status === "已开票" && <CheckCircle size={14} />}
+                      {voucher.status === "待开票" && <Clock size={14} />}
+                      {voucher.status === "已作废" && <XCircle size={14} />}
+                      {voucher.status}
+                    </StatusTag>
+                  ),
+                },
+              ]}
+            />
           </div>
           <div
             style={{
@@ -5118,165 +5058,35 @@ export default function InsuranceAuditPage() {
                 </button>
               ))}
             </div>
-            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr
-                  style={{
-                    background: "var(--content-bg)",
-                    borderBottom: "1px solid var(--border-color)",
-                  }}
-                >
-                  {[
-                    t("insuranceAudit.claimId"),
-                    t("insuranceAudit.patient"),
-                    t("insuranceAudit.examItem2"),
-                    "ICD-10",
-                    "CPT",
-                    t("insuranceAudit.amount"),
-                    t("insuranceAudit.insurer2"),
-                    t("insuranceAudit.submitDate"),
-                    t("insuranceAudit.status"),
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: "10px 12px",
-                        textAlign: "center",
-                        fontWeight: 700,
-                        color: PRIMARY,
-                        fontSize: 12,
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {claim837Data
-                  .filter(
-                    (c) =>
-                      claimStatusFilter === "全部" ||
-                      c.status === claimStatusFilter,
-                  )
-                  .map((c, idx) => (
-                    <tr
-                      key={c.id}
-                      style={{
-                        borderBottom: "1px solid var(--border-color)",
-                        background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
-                      }}
-                    >
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontSize: 12,
-                          color: GRAY,
-                        }}
-                      >
-                        {c.id}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontWeight: 700,
-                          color: PRIMARY,
-                        }}
-                      >
-                        {c.patientName}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontSize: 12,
-                        }}
-                      >
-                        {c.examItem}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontFamily: "monospace",
-                          fontSize: 12,
-                        }}
-                      >
-                        {c.icd10}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontFamily: "monospace",
-                          fontSize: 12,
-                        }}
-                      >
-                        {c.cpt}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontWeight: 700,
-                          color: PRIMARY,
-                        }}
-                      >
-                        ¥{c.amount}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontSize: 12,
-                          color: GRAY,
-                        }}
-                      >
-                        {c.carrier}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontSize: 12,
-                        }}
-                      >
-                        {c.submitDate || "-"}
-                      </td>
-                      <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                        <span
-                          style={{
-                            padding: "2px 10px",
-                            borderRadius: 10,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            background:
-                              c.status === "已支付"
-                                ? "var(--color-success-bg)"
-                                : c.status === "待提交"
-                                  ? "var(--color-warning-bg)"
-                                  : c.status === "被拒"
-                                    ? "var(--color-error-bg)"
-                                    : "var(--color-info-bg)",
-                            color:
-                              c.status === "已支付"
-                                ? SUCCESS
-                                : c.status === "待提交"
-                                  ? WARNING
-                                  : c.status === "被拒"
-                                    ? DANGER
-                                    : ACCENT,
-                          }}
-                        >
-                          {c.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              dataSource={claim837Data.filter(
+                (c) =>
+                  claimStatusFilter === "全部" ||
+                  c.status === claimStatusFilter,
+              )}
+              rowKey={(c) => String(c.id)}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("insuranceAudit.claimId"), key: "id", render: (_v, c) => <span style={{ color: GRAY }}>{c.id}</span> },
+                { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, c) => <span style={{ fontWeight: 700, color: PRIMARY }}>{c.patientName}</span> },
+                { title: t("insuranceAudit.examItem2"), key: "examItem", render: (_v, c) => <span style={{ fontSize: 12 }}>{c.examItem}</span> },
+                { title: "ICD-10", key: "icd10", render: (_v, c) => <span style={{ fontFamily: "monospace", fontSize: 12 }}>{c.icd10}</span> },
+                { title: "CPT", key: "cpt", render: (_v, c) => <span style={{ fontFamily: "monospace", fontSize: 12 }}>{c.cpt}</span> },
+                { title: t("insuranceAudit.amount"), key: "amount", align: "right" as const, render: (_v, c) => <span style={{ fontWeight: 700, color: PRIMARY }}>¥{c.amount}</span> },
+                { title: t("insuranceAudit.insurer2"), key: "carrier", render: (_v, c) => <span style={{ fontSize: 12, color: GRAY }}>{c.carrier}</span> },
+                { title: t("insuranceAudit.submitDate"), key: "submitDate", render: (_v, c) => c.submitDate || "-" },
+                {
+                  title: t("insuranceAudit.status"), key: "status",
+                  render: (_v, c) => (
+                    <StatusTag status={c.status === "已支付" ? "paid" : c.status === "待提交" ? "pending" : c.status === "被拒" ? "rejected" : "info"}>
+                      {c.status}
+                    </StatusTag>
+                  ),
+                },
+              ]}
+            />
           </div>
           <div
             style={{
@@ -5296,111 +5106,19 @@ export default function InsuranceAuditPage() {
             >
               {t("insuranceAudit.codeMappingTitle")}
             </h3>
-            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr
-                  style={{
-                    background: "var(--content-bg)",
-                    borderBottom: "1px solid var(--border-color)",
-                  }}
-                >
-                  <th
-                    style={{
-                      padding: "8px 12px",
-                      textAlign: "center",
-                      fontWeight: 700,
-                      color: PRIMARY,
-                      fontSize: 12,
-                    }}
-                  >
-                    ICD-10
-                  </th>
-                  <th
-                    style={{
-                      padding: "8px 12px",
-                      textAlign: "center",
-                      fontWeight: 700,
-                      color: PRIMARY,
-                      fontSize: 12,
-                    }}
-                  >
-                    {t("insuranceAudit.description")}
-                  </th>
-                  <th
-                    style={{
-                      padding: "8px 12px",
-                      textAlign: "center",
-                      fontWeight: 700,
-                      color: PRIMARY,
-                      fontSize: 12,
-                    }}
-                  >
-                    CPT
-                  </th>
-                  <th
-                    style={{
-                      padding: "8px 12px",
-                      textAlign: "center",
-                      fontWeight: 700,
-                      color: PRIMARY,
-                      fontSize: 12,
-                    }}
-                  >
-                    {t("insuranceAudit.applicableExam")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {icdCptMapping.map((m, idx) => (
-                  <tr
-                    key={m.icd10}
-                    style={{
-                      borderBottom: "1px solid var(--border-color)",
-                      background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
-                    }}
-                  >
-                    <td
-                      style={{
-                        padding: "8px 12px",
-                        textAlign: "center",
-                        fontFamily: "monospace",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {m.icd10}
-                    </td>
-                    <td
-                      style={{
-                        padding: "8px 12px",
-                        textAlign: "center",
-                        fontSize: 12,
-                      }}
-                    >
-                      {m.description}
-                    </td>
-                    <td
-                      style={{
-                        padding: "8px 12px",
-                        textAlign: "center",
-                        fontFamily: "monospace",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {m.cpt}
-                    </td>
-                    <td
-                      style={{
-                        padding: "8px 12px",
-                        textAlign: "center",
-                        fontSize: 12,
-                      }}
-                    >
-                      {m.exam}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              dataSource={icdCptMapping}
+              rowKey={(m) => m.icd10}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: "ICD-10", key: "icd10", render: (_v, m) => <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{m.icd10}</span> },
+                { title: t("insuranceAudit.description"), key: "description", render: (_v, m) => <span style={{ fontSize: 12 }}>{m.description}</span> },
+                { title: "CPT", key: "cpt", render: (_v, m) => <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{m.cpt}</span> },
+                { title: t("insuranceAudit.applicableExam"), key: "exam", render: (_v, m) => <span style={{ fontSize: 12 }}>{m.exam}</span> },
+              ]}
+            />
           </div>
         </div>
       )}
@@ -5421,7 +5139,7 @@ export default function InsuranceAuditPage() {
                 value: denialData.length,
                 icon: <XCircle size={18} />,
                 color: DANGER,
-                bg: "#ef444422",
+                bg: "var(--color-error-bg)",
               },
               {
                 label: t("insuranceAudit.statusPendingAppeal"),
@@ -5429,7 +5147,7 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <AlertTriangle size={18} />,
                 color: WARNING,
-                bg: "#f59e0b22",
+                bg: "var(--color-warning-bg)",
               },
               {
                 label: t("insuranceAudit.statusAppealing"),
@@ -5437,7 +5155,7 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <Loader2 size={18} />,
                 color: ACCENT,
-                bg: "#3b82f622",
+                bg: "var(--color-primary)22",
               },
               {
                 label: t("insuranceAudit.statusApproved"),
@@ -5445,7 +5163,7 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <CheckCircle size={18} />,
                 color: SUCCESS,
-                bg: "#22c55e22",
+                bg: "var(--color-success-bg)",
               },
             ].map((card) => (
               <div
@@ -5522,159 +5240,60 @@ export default function InsuranceAuditPage() {
                   </button>
                 ))}
               </div>
-              <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr
-                    style={{
-                      background: "var(--content-bg)",
-                      borderBottom: "1px solid var(--border-color)",
-                    }}
-                  >
-                    {[
-                      t("insuranceAudit.patient"),
-                      t("insuranceAudit.exam"),
-                      t("insuranceAudit.denialReason"),
-                      t("insuranceAudit.reasonNote"),
-                      t("insuranceAudit.amount"),
-                      t("insuranceAudit.appealStatus"),
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontWeight: 700,
-                          color: PRIMARY,
-                          fontSize: 12,
-                        }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {denialData
-                    .filter(
-                      (d) =>
-                        denialAppealFilter === "全部" ||
-                        d.appealStatus === denialAppealFilter,
-                    )
-                    .map((d, idx) => (
-                      <tr
-                        key={d.id}
-                        style={{
-                          borderBottom: "1px solid var(--border-color)",
-                          background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
-                        }}
-                      >
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            textAlign: "center",
-                            fontWeight: 600,
-                            color: PRIMARY,
-                          }}
-                        >
-                          {d.patientName}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            textAlign: "center",
-                            fontSize: 12,
-                          }}
-                        >
-                          {d.examItem}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            textAlign: "center",
-                            fontSize: 12,
-                          }}
-                        >
-                          {denialReasonLabels[d.denialReason] || d.denialReason}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            textAlign: "center",
-                            fontSize: 12,
-                            color: "var(--text-secondary)",
-                          }}
-                        >
-                          {d.description}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            textAlign: "center",
-                            fontWeight: 700,
-                          }}
-                        >
-                          ¥{d.amount}
-                        </td>
-                        <td
-                          style={{ padding: "10px 12px", textAlign: "center" }}
-                        >
-                          <span
+              <DataTable
+                dataSource={denialData.filter(
+                  (d) =>
+                    denialAppealFilter === "全部" ||
+                    d.appealStatus === denialAppealFilter,
+                )}
+                rowKey={(d) => String(d.id)}
+                pagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, d) => <span style={{ fontWeight: 600, color: PRIMARY }}>{d.patientName}</span> },
+                  { title: t("insuranceAudit.exam"), key: "examItem", render: (_v, d) => <span style={{ fontSize: 12 }}>{d.examItem}</span> },
+                  { title: t("insuranceAudit.denialReason"), key: "denialReason", render: (_v, d) => <span style={{ fontSize: 12 }}>{denialReasonLabels[d.denialReason] || d.denialReason}</span> },
+                  { title: t("insuranceAudit.reasonNote"), key: "description", render: (_v, d) => <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{d.description}</span> },
+                  { title: t("insuranceAudit.amount"), key: "amount", align: "right" as const, render: (_v, d) => <span style={{ fontWeight: 700 }}>¥{d.amount}</span> },
+                  {
+                    title: t("insuranceAudit.appealStatus"), key: "appealStatus",
+                    render: (_v, d) => (
+                      <>
+                        <StatusTag status={d.appealStatus === "已通过" ? "approved" : d.appealStatus === "申诉中" ? "info" : d.appealStatus === "已拒绝" ? "rejected" : "pending"}>
+                          {d.appealStatus === "待申诉"
+                            ? t("insuranceAudit.statusPendingAppeal")
+                            : d.appealStatus === "申诉中"
+                              ? t("insuranceAudit.statusAppealing")
+                              : d.appealStatus === "已通过"
+                                ? t("insuranceAudit.statusApproved")
+                                : t("insuranceAudit.statusRejected")}
+                        </StatusTag>
+                        {d.appealStatus === "待申诉" && (
+                          <button
+                            onClick={() => {
+                              setToastType("success");
+                              setToastMessage(t("insuranceAudit.appealLetterGenerated"));
+                            }}
                             style={{
-                              padding: "2px 10px",
-                              borderRadius: 10,
+                              marginLeft: 6,
+                              padding: "2px 8px",
+                              borderRadius: 4,
+                              border: "1px solid var(--border-color)",
+                              background: 'var(--bg-card)',
+                              color: ACCENT,
                               fontSize: 12,
-                              fontWeight: 700,
-                              background:
-                                d.appealStatus === "已通过"
-                                  ? "var(--color-success-bg)"
-                                  : d.appealStatus === "申诉中"
-                                    ? "var(--color-info-bg)"
-                                    : d.appealStatus === "已拒绝"
-                                      ? "var(--color-error-bg)"
-                                      : "var(--color-warning-bg)",
-                              color:
-                                d.appealStatus === "已通过"
-                                  ? SUCCESS
-                                  : d.appealStatus === "申诉中"
-                                    ? ACCENT
-                                    : d.appealStatus === "已拒绝"
-                                      ? DANGER
-                                      : WARNING,
+                              cursor: "pointer",
                             }}
                           >
-                            {d.appealStatus === "待申诉"
-                              ? t("insuranceAudit.statusPendingAppeal")
-                              : d.appealStatus === "申诉中"
-                                ? t("insuranceAudit.statusAppealing")
-                                : d.appealStatus === "已通过"
-                                  ? t("insuranceAudit.statusApproved")
-                                  : t("insuranceAudit.statusRejected")}
-                          </span>
-                          {d.appealStatus === "待申诉" && (
-                            <button
-                              onClick={() => {
-                                setToastType("success");
-                                setToastMessage(t("insuranceAudit.appealLetterGenerated"));
-                              }}
-                              style={{
-                                marginLeft: 6,
-                                padding: "2px 8px",
-                                borderRadius: 4,
-                                border: "1px solid var(--border-color)",
-                                background: 'var(--bg-card)',
-                                color: ACCENT,
-                                fontSize: 12,
-                                cursor: "pointer",
-                              }}
-                            >
-                              {t("insuranceAudit.appeal")}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table></div>
+                            {t("insuranceAudit.appeal")}
+                          </button>
+                        )}
+                      </>
+                    ),
+                  },
+                ]}
+              />
             </div>
             <div
               style={{
@@ -5768,14 +5387,14 @@ export default function InsuranceAuditPage() {
                 value: preAuthData.length,
                 icon: <ClipboardList size={18} />,
                 color: ACCENT,
-                bg: "#3b82f622",
+                bg: "var(--color-primary)22",
               },
               {
                 label: t("insuranceAudit.preauthPending"),
                 value: preAuthData.filter((p) => p.status === "pending").length,
                 icon: <Clock size={18} />,
                 color: WARNING,
-                bg: "#f59e0b22",
+                bg: "var(--color-warning-bg)",
               },
               {
                 label: t("insuranceAudit.preauthApproved"),
@@ -5783,14 +5402,14 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <CheckCircle size={18} />,
                 color: SUCCESS,
-                bg: "#22c55e22",
+                bg: "var(--color-success-bg)",
               },
               {
                 label: t("insuranceAudit.statusRejected"),
                 value: preAuthData.filter((p) => p.status === "denied").length,
                 icon: <XCircle size={18} />,
                 color: DANGER,
-                bg: "#ef444422",
+                bg: "var(--color-error-bg)",
               },
             ].map((card) => (
               <div
@@ -5901,12 +5520,8 @@ export default function InsuranceAuditPage() {
                     : p.status === "denied"
                       ? DANGER
                       : WARNING;
-                const statusBg =
-                  p.status === "approved"
-                    ? "var(--color-success-bg)"
-                    : p.status === "denied"
-                      ? "var(--color-error-bg)"
-                      : "var(--color-warning-bg)";
+                const statusToneKey =
+                  p.status === "approved" ? "approved" : p.status === "denied" ? "rejected" : "pending";
                 const statusLabel =
                   p.status === "pending"
                     ? t("insuranceAudit.preauthPending")
@@ -5953,18 +5568,7 @@ export default function InsuranceAuditPage() {
                           alignItems: "center",
                         }}
                       >
-                        <span
-                          style={{
-                            padding: "2px 10px",
-                            borderRadius: 10,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            background: statusBg,
-                            color: statusColor,
-                          }}
-                        >
-                          {statusLabel}
-                        </span>
+                        <StatusTag status={statusToneKey} size="md">{statusLabel}</StatusTag>
                         {p.status === "pending" && (
                           <>
                             <PermissionGate permission="audit.approve">
@@ -6099,21 +5703,21 @@ export default function InsuranceAuditPage() {
                 value: drgData.length,
                 icon: <BarChart3 size={18} />,
                 color: ACCENT,
-                bg: "#3b82f622",
+                bg: "var(--color-primary)22",
               },
               {
                 label: t("insuranceAudit.drgValid"),
                 value: drgData.filter((d) => d.validationScore >= 80).length,
                 icon: <CheckCircle size={18} />,
                 color: SUCCESS,
-                bg: "#22c55e22",
+                bg: "var(--color-success-bg)",
               },
               {
                 label: t("insuranceAudit.drgAbnormal"),
                 value: drgData.filter((d) => d.outlier).length,
                 icon: <AlertTriangle size={18} />,
                 color: WARNING,
-                bg: "#f59e0b22",
+                bg: "var(--color-warning-bg)",
               },
               {
                 label: t("insuranceAudit.drgAvgScore"),
@@ -6122,8 +5726,8 @@ export default function InsuranceAuditPage() {
                     drgData.length,
                 ),
                 icon: <Target size={18} />,
-                color: "#8b5cf6",
-                bg: "#8b5cf622",
+                color: "var(--color-modality-mr)",
+                bg: "var(--color-modality-mr)22",
               },
             ].map((card) => (
               <div
@@ -6170,149 +5774,46 @@ export default function InsuranceAuditPage() {
               overflow: "hidden",
             }}
           >
-            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr
-                  style={{
-                    background: "var(--content-bg)",
-                    borderBottom: "1px solid var(--border-color)",
-                  }}
-                >
-                  {[
-                    t("insuranceAudit.patient"),
-                    t("insuranceAudit.drgIcdCode"),
-                    t("insuranceAudit.drgGroup"),
-                    t("insuranceAudit.drgExpectedCost"),
-                    t("insuranceAudit.drgActualCost"),
-                    t("insuranceAudit.drgCostDeviation"),
-                    t("insuranceAudit.abnormal"),
-                    t("insuranceAudit.validationScore"),
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: "10px 12px",
-                        textAlign: "center",
-                        fontWeight: 700,
-                        color: PRIMARY,
-                        fontSize: 12,
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {drgData.map((d, idx) => {
-                  const costDiff = (
-                    ((d.actualCost - d.expectedCost) / d.expectedCost) *
-                    100
-                  ).toFixed(1);
-                  const diffColor =
-                    parseFloat(costDiff) > 10
-                      ? DANGER
-                      : parseFloat(costDiff) < -10
-                        ? SUCCESS
-                        : GRAY;
-                  return (
-                    <tr
-                      key={d.id}
-                      style={{
-                        borderBottom: "1px solid var(--border-color)",
-                        background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
-                      }}
-                    >
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontWeight: 600,
-                          color: PRIMARY,
-                        }}
-                      >
-                        {d.patientName}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontFamily: "monospace",
-                          fontSize: 12,
-                        }}
-                      >
-                        {d.icdCodes}
-                      </td>
-                      <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color: PRIMARY,
-                          }}
-                        >
-                          {d.drgCode}
-                        </div>
-                        <div style={{ fontSize: 12, color: GRAY }}>
-                          {d.drgName}
-                        </div>
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontSize: 12,
-                        }}
-                      >
-                        ¥{d.expectedCost.toLocaleString()}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontSize: 12,
-                        }}
-                      >
-                        ¥{d.actualCost.toLocaleString()}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "center",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: diffColor,
-                        }}
-                      >
-                        {costDiff}%
-                      </td>
-                      <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                        {d.outlier ? (
-                          <AlertTriangle size={14} color={WARNING} />
-                        ) : (
-                          <CheckCircle size={14} color={SUCCESS} />
-                        )}
-                      </td>
-                      <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                        <span
-                          style={{
-                            padding: "2px 10px",
-                            borderRadius: 10,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            background:
-                              d.validationScore >= 80 ? "var(--color-success-bg)" : "var(--color-warning-bg)",
-                            color: d.validationScore >= 80 ? SUCCESS : WARNING,
-                          }}
-                        >
-                          {d.validationScore}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table></div>
+            <DataTable
+              dataSource={drgData}
+              rowKey={(d) => String(d.id)}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("insuranceAudit.patient"), key: "patientName", render: (_v, d) => <span style={{ fontWeight: 600, color: PRIMARY }}>{d.patientName}</span> },
+                { title: t("insuranceAudit.drgIcdCode"), key: "icdCodes", render: (_v, d) => <span style={{ fontFamily: "monospace", fontSize: 12 }}>{d.icdCodes}</span> },
+                {
+                  title: t("insuranceAudit.drgGroup"), key: "drgCode",
+                  render: (_v, d) => (
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.drgCode}</div>
+                      <div style={{ fontSize: 12, color: GRAY }}>{d.drgName}</div>
+                    </div>
+                  ),
+                },
+                { title: t("insuranceAudit.drgExpectedCost"), key: "expectedCost", align: "right" as const, render: (_v, d) => `¥${d.expectedCost.toLocaleString()}` },
+                { title: t("insuranceAudit.drgActualCost"), key: "actualCost", align: "right" as const, render: (_v, d) => `¥${d.actualCost.toLocaleString()}` },
+                {
+                  title: t("insuranceAudit.drgCostDeviation"), key: "costDiff", align: "right" as const,
+                  render: (_v, d) => {
+                    const costDiff = (((d.actualCost - d.expectedCost) / d.expectedCost) * 100).toFixed(1);
+                    const diffColor = parseFloat(costDiff) > 10 ? DANGER : parseFloat(costDiff) < -10 ? SUCCESS : GRAY;
+                    return <span style={{ fontWeight: 700, color: diffColor }}>{costDiff}%</span>;
+                  },
+                },
+                {
+                  title: t("insuranceAudit.abnormal"), key: "outlier",
+                  render: (_v, d) => d.outlier ? <AlertTriangle size={14} color={WARNING} /> : <CheckCircle size={14} color={SUCCESS} />,
+                },
+                {
+                  title: t("insuranceAudit.validationScore"), key: "validationScore",
+                  render: (_v, d) => (
+                    <StatusTag status={d.validationScore >= 80 ? 'success' : 'warning'}>{d.validationScore}</StatusTag>
+                  ),
+                },
+              ]}
+            />
           </div>
           <div
             style={{
@@ -6442,7 +5943,7 @@ export default function InsuranceAuditPage() {
                     style={{
                       ...styles.cardCategory,
                       background: "var(--color-info-bg)",
-                      color: "#1e40af",
+                      color: "var(--color-primary)",
                     }}
                   >
                     {rule.drugCategory}
@@ -6481,7 +5982,7 @@ export default function InsuranceAuditPage() {
                   padding: "8px 12px",
                   background: "var(--color-warning-bg)",
                   borderRadius: 6,
-                  color: "#92400e",
+                  color: "var(--color-warning)",
                   marginBottom: 8,
                 }}
               >
@@ -6510,74 +6011,27 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.restrictedDrugLibrary")}
             </h3>
             <div style={styles.tableWrapper}>
-              <div style={{ overflowX: "auto" }}><table style={styles.drugTable}>
-                <thead>
-                  <tr>
-                    <th style={styles.drugTh}>{t("insuranceAudit.drugName")}</th>
-                    <th style={styles.drugTh}>{t("insuranceAudit.category")}</th>
-                    <th style={styles.drugTh}>{t("insuranceAudit.insuranceRestriction")}</th>
-                    <th style={styles.drugTh}>{t("insuranceAudit.applicableExam")}</th>
-                    <th style={styles.drugTh}>{t("insuranceAudit.cautions")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {restrictedDrugs.map((drug) => (
-                    <tr key={drug.id}>
-                      <td
-                        style={{
-                          ...styles.drugTd,
-                          fontWeight: 600,
-                          color: "var(--color-primary-800)",
-                        }}
-                      >
-                        {drug.name}
-                      </td>
-                      <td style={styles.drugTd}>
-                        <span
-                          style={{
-                            ...styles.cardCategory,
-                            background:
-                              drug.category === "CT对比剂"
-                                ? "#dbeafe"
-                                : drug.category === "MRI对比剂"
-                                  ? "#f3e8ff"
-                                  : "#fce7f3",
-                            color:
-                              drug.category === "CT对比剂"
-                                ? "#1e40af"
-                                : drug.category === "MRI对比剂"
-                                  ? "#7c3aed"
-                                  : "#be185d",
-                          }}
-                        >
-                          {drug.category}
-                        </span>
-                      </td>
-                      <td
-                        style={{
-                          ...styles.drugTd,
-                          color: "#dc2626",
-                          fontSize: 12,
-                        }}
-                      >
-                        {drug.restriction}
-                      </td>
-                      <td style={{ ...styles.drugTd, fontSize: 12 }}>
-                        {drug.applicableExams}
-                      </td>
-                      <td
-                        style={{
-                          ...styles.drugTd,
-                          fontSize: 12,
-                          color: "var(--text-secondary)",
-                        }}
-                      >
-                        {drug.notes}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                dataSource={restrictedDrugs}
+                rowKey={(drug) => String(drug.id)}
+                pagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t("insuranceAudit.drugName"), key: "name", render: (_v, drug) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{drug.name}</span> },
+                  {
+                    title: t("insuranceAudit.category"), key: "category",
+                    render: (_v, drug) => (
+                      <StatusTag status="info" bordered={false}>
+                        {drug.category}
+                      </StatusTag>
+                    ),
+                  },
+                  { title: t("insuranceAudit.insuranceRestriction"), key: "restriction", render: (_v, drug) => <span style={{ color: "var(--color-error)", fontSize: 12 }}>{drug.restriction}</span> },
+                  { title: t("insuranceAudit.applicableExam"), key: "applicableExams", render: (_v, drug) => <span style={{ fontSize: 12 }}>{drug.applicableExams}</span> },
+                  { title: t("insuranceAudit.cautions"), key: "notes", render: (_v, drug) => <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{drug.notes}</span> },
+                ]}
+              />
             </div>
           </div>
         </>
@@ -6663,15 +6117,15 @@ export default function InsuranceAuditPage() {
                       style={{
                         ...styles.badge,
                         background: (auditDetail.status || "").startsWith("REJ") || (auditDetail.status || "").toLowerCase() === "rejected"
-                          ? "#fee2e2"
+                          ? "var(--color-error-bg)"
                           : (auditDetail.status || "").startsWith("APP") || (auditDetail.status || "").toLowerCase() === "approved"
-                            ? "#dcfce7"
-                            : "#fef3c7",
+                            ? "var(--color-success-bg)"
+                            : "var(--color-warning-bg)",
                         color: (auditDetail.status || "").startsWith("REJ") || (auditDetail.status || "").toLowerCase() === "rejected"
-                          ? "#b91c1c"
+                          ? "var(--color-error)"
                           : (auditDetail.status || "").startsWith("APP") || (auditDetail.status || "").toLowerCase() === "approved"
-                            ? "#166534"
-                            : "#854d0e",
+                            ? "var(--color-success)"
+                            : "var(--color-warning)",
                       }}
                     >
                       {auditDetail.status ?? "-"}

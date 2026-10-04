@@ -28,18 +28,21 @@ import {
   Pie
 } from 'recharts'
 import { ChartContainer } from '../components/charts'
+import { DataTable } from '../components/common/DataTable'
+import { StatusTag } from '../components/common/StatusTag'
+import { severityTone } from '../theme/statusTokens'
 
 // ============ 样式常量 ============
 const COLORS = {
-  primary: '#1e40af',      // 深蓝主色
+  primary: 'var(--color-primary)',   // 深蓝主色
   secondary: '#0891b2',    // 青色辅色
-  success: '#16a34a',       // 成功绿
-  warning: '#d97706',      // 警告橙
-  danger: '#dc2626',        // 危险红
+  success: 'var(--color-success)',   // 成功绿
+  warning: 'var(--color-warning)',   // 警告橙
+  danger: 'var(--color-error)',      // 危险红
   bgGray: 'var(--content-bg)',        // 浅灰背景
   cardWhite: 'var(--bg-card)',     // 白色卡片
-  textDark: '#1f2937',      // 深色文字
-  textMuted: '#6b7280',     // 灰色文字
+  textDark: 'var(--text-primary)',   // 深色文字
+  textMuted: 'var(--text-secondary)', // 灰色文字
   border: 'var(--border-color)',        // 边框色
   ct: '#3b82f6',           // CT颜色
   mri: '#8b5cf6',          // MRI颜色
@@ -393,7 +396,7 @@ const styles = {
   // 进度条
   progressBar: {
     height: '8px',
-    backgroundColor: '#e5e8eb',
+    backgroundColor: 'var(--border-default)',
     borderRadius: '4px',
     overflow: 'hidden',
   },
@@ -684,22 +687,28 @@ const scheduledReports: ScheduledReportConfig[] = [
 ]
 
 // ============ 工具函数 ============
-const getStatusBadge = (status: string) => {
-  const statusMap: Record<string, { bg: string; color: string; label: string }> = {
-    '待上报': { bg: '#f59e0b22', color: '#f59e0b', label: t('nationalReportPage.statusPendingSubmit') },
-    '已上报': { bg: '#3b82f622', color: '#3b82f6', label: t('nationalReportPage.statusSubmitted') },
-    '已确认': { bg: '#22c55e22', color: '#16a34a', label: t('nationalReportPage.statusConfirmed') },
-    '已驳回': { bg: '#ef444422', color: '#ef4444', label: t('nationalReportPage.statusRejected') },
-    '待审核': { bg: '#f59e0b22', color: '#f59e0b', label: t('nationalReportPage.statusPendingReview') },
-    '已通过': { bg: '#22c55e22', color: '#16a34a', label: t('nationalReportPage.statusPassed') },
-  }
-  const style = statusMap[status] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: status }
-  return (
-    <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, backgroundColor: style.bg, color: style.color }}>
-      {style.label}
-    </span>
-  )
+// [UI] 上报状态颜色统一由 @/theme/statusTokens 提供 (单一来源)
+const NR_STATUS_LEVEL: Record<string, string> = {
+  '待上报': 'warning',
+  '已上报': 'info',
+  '已确认': 'success',
+  '已驳回': 'critical',
+  '待审核': 'warning',
+  '已通过': 'success',
 }
+const NR_STATUS_LABEL: Record<string, string> = {
+  '待上报': t('nationalReportPage.statusPendingSubmit'),
+  '已上报': t('nationalReportPage.statusSubmitted'),
+  '已确认': t('nationalReportPage.statusConfirmed'),
+  '已驳回': t('nationalReportPage.statusRejected'),
+  '待审核': t('nationalReportPage.statusPendingReview'),
+  '已通过': t('nationalReportPage.statusPassed'),
+}
+const getStatusBadge = (status: string) => (
+  <StatusTag status={status} tone={severityTone(NR_STATUS_LEVEL[status] ?? 'neutral')}>
+    {NR_STATUS_LABEL[status] ?? status}
+  </StatusTag>
+)
 
 const getModalityBadge = (modality: string) => {
   const color = modalityColors[modality] || COLORS.primary
@@ -854,14 +863,14 @@ const MultiRegulatorPanel = () => {
                 </div>
                 <div style={{
                   padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
-                  background: reg.status === 'online' ? '#d1fae5' : reg.status === 'degraded' ? '#fef3c7' : '#fee2e2',
-                  color: reg.status === 'online' ? '#16a34a' : reg.status === 'degraded' ? '#d97706' : '#dc2626'
+                background: reg.status === 'online' ? 'var(--color-success-bg)' : reg.status === 'degraded' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
+                color: reg.status === 'online' ? 'var(--color-success)' : reg.status === 'degraded' ? 'var(--color-warning)' : 'var(--color-error)'
                 }}>{reg.status === 'online' ? t('nationalReport.regOnline') : reg.status === 'degraded' ? t('nationalReport.regDegraded') : t('nationalReport.regOffline')}</div>
               </div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>{t('nationalReport.regEndpoint', { endpoint: reg.endpoint })}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.regLastSubmit', { time: reg.lastSubmission })}</div>
               {subStatus && (
-                <div style={{ marginTop: 8, padding: '6px 10px', background: subStatus.status === 'success' ? '#d1fae5' : '#fef3c7', borderRadius: 6, fontSize: 12, fontWeight: 600, color: subStatus.status === 'success' ? '#16a34a' : '#d97706' }}>
+                <div style={{ marginTop: 8, padding: '6px 10px', background: subStatus.status === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: subStatus.status === 'success' ? 'var(--color-success)' : 'var(--color-warning)' }}>
                   {subStatus.status === 'success' ? t('nationalReport.submittedOk') : t('nationalReport.submittingShort')}
                 </div>
               )}
@@ -915,7 +924,7 @@ const PreSubmissionValidation = () => {
               <span style={{
                 padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                 background: check.type === 'completeness' ? 'var(--color-info-bg)' : check.type === 'consistency' ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
-                color: check.type === 'completeness' ? '#2563eb' : check.type === 'consistency' ? '#7c3aed' : '#d97706'
+                color: check.type === 'completeness' ? 'var(--color-primary)' : check.type === 'consistency' ? '#7c3aed' : 'var(--color-warning)'
               }}>
                 {check.type === 'completeness' ? t('nationalReport.typeCompleteness') : check.type === 'consistency' ? t('nationalReport.typeConsistency') : t('nationalReport.typeBusiness')}
               </span>
@@ -946,37 +955,31 @@ const SubmissionAuditTrail = () => {
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={16} color={COLORS.primary} /> {t('nationalReport.auditHistory')}
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)' }}>
-                {[t('nationalReport.thReportType'), t('nationalReport.thSubmitTime'), t('nationalReport.thTarget'), t('nationalReport.thStatus'), t('nationalReport.thSignature'), t('nationalReport.thReceipt'), t('nationalReport.thVersion')].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid var(--border-color)', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {submissionHistory.map((s, i) => (
-                <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)', cursor: 'pointer' }}
-                  onClick={() => setSelectedSubmission(s)}>
-                  <td style={{ padding: '10px 12px', fontWeight: 600 }}>{s.reportType}</td>
-                  <td style={{ padding: '10px 12px', color: COLORS.textMuted }}>{s.submittedAt}</td>
-                  <td style={{ padding: '10px 12px' }}>{s.target}</td>
-                  <td style={{ padding: '10px 12px' }}>
-                    <span style={{
-                      padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
-                      background: s.status === 'success' ? '#d1fae5' : s.status === 'failed' ? '#fee2e2' : s.status === 'amended' ? '#fef3c7' : '#dbeafe',
-                      color: s.status === 'success' ? '#16a34a' : s.status === 'failed' ? '#dc2626' : s.status === 'amended' ? '#d97706' : '#2563eb'
-                    }}>{s.status === 'success' ? t('nationalReport.statusSuccess') : s.status === 'failed' ? t('nationalReport.statusFailed') : s.status === 'amended' ? t('nationalReport.statusAmended') : t('nationalReport.statusPending')}</span>
-                  </td>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: COLORS.textMuted, fontFamily: 'monospace' }}>{s.signature.substring(0, 12)}...</td>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: COLORS.textMuted }}>{s.receiptId || '-'}</td>
-                  <td style={{ padding: '10px 12px' }}>v{s.version}{s.amendedVersion ? ` ${t('nationalReport.origVersion', { version: s.amendedVersion })}` : ''}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
-        </div>
+        <DataTable
+          rowKey="id"
+          dataSource={submissionHistory}
+          showPagination={false}
+          showExport={false}
+          showDensity={false}
+          onRow={(record) => ({ onClick: () => setSelectedSubmission(record), style: { cursor: 'pointer' } })}
+          columns={[
+            { title: t('nationalReport.thReportType'), dataIndex: 'reportType', render: (value: string) => <span style={{ fontWeight: 600 }}>{value}</span> },
+            { title: t('nationalReport.thSubmitTime'), dataIndex: 'submittedAt', render: (value: string) => <span style={{ color: 'var(--text-secondary)' }}>{value}</span> },
+            { title: t('nationalReport.thTarget'), dataIndex: 'target' },
+            {
+              title: t('nationalReport.thStatus'),
+              key: 'status',
+              render: (_v, s) => {
+                const level = s.status === 'success' ? 'success' : s.status === 'failed' ? 'critical' : s.status === 'amended' ? 'warning' : 'info'
+                const label = s.status === 'success' ? t('nationalReport.statusSuccess') : s.status === 'failed' ? t('nationalReport.statusFailed') : s.status === 'amended' ? t('nationalReport.statusAmended') : t('nationalReport.statusPending')
+                return <StatusTag status={s.status} tone={severityTone(level)}>{label}</StatusTag>
+              },
+            },
+            { title: t('nationalReport.thSignature'), dataIndex: 'signature', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{value.substring(0, 12)}...</span> },
+            { title: t('nationalReport.thReceipt'), dataIndex: 'receiptId', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value || '-'}</span> },
+            { title: t('nationalReport.thVersion'), key: 'version', render: (_v, s) => <>v{s.version}{s.amendedVersion ? ` ${t('nationalReport.origVersion', { version: s.amendedVersion })}` : ''}</> },
+          ]}
+        />
       </div>
 
       {/* 数字签名详情 */}
@@ -1465,7 +1468,7 @@ export default function NationalReportPage() {
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
-            style={{ ...styles.button, background: '#16a34a', color: '#fff' }}
+              style={{ ...styles.button, background: 'var(--color-success)', color: '#fff' }}
             onClick={() => {
               setCreateType('national')
               setCreateForm(f => ({ ...f, reportMonth: new Date().toISOString().slice(0, 7) }))
@@ -1488,12 +1491,12 @@ export default function NationalReportPage() {
 
       {/* [W2-B] 加载/错误提示 */}
       {loadError && (
-        <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertTriangle size={14} /> {loadError}
         </div>
       )}
       {loading && (
-        <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 6, fontSize: 12, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 6, fontSize: 12, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <RefreshCw size={14} /> {t('nationalReport.loading')}
         </div>
       )}
@@ -1633,124 +1636,105 @@ export default function NationalReportPage() {
           <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
             {/* 检查统计表格 */}
             {activeTab === 'exam' && (
-              <div style={{ overflowX: "auto" }}><table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>{t('nationalReport.thModality')}</th>
-                    <th style={styles.th}>{t('nationalReport.thExamType')}</th>
-                    <th style={styles.th}>{t('nationalReport.thExamCount')}</th>
-                    <th style={styles.th}>{t('nationalReport.thPositive')}</th>
-                    <th style={styles.th}>{t('nationalReport.thPositiveRate')}</th>
-                    <th style={styles.th}>{t('nationalReport.thAvgTime')}</th>
-                    <th style={styles.th}>{t('nationalReport.thQualifiedRate')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredExamData.map(item => (
-                    <tr key={item.id}>
-                      <td style={styles.td}>{getModalityBadge(item.modality)}</td>
-                      <td style={styles.td}>{item.examType}</td>
-                      <td style={{ ...styles.td, fontWeight: 600 }}>{item.examCount.toLocaleString()}</td>
-                      <td style={{ ...styles.td, color: COLORS.warning }}>{item.positiveCount}</td>
-                      <td style={styles.td}>{item.positiveRate}%</td>
-                      <td style={styles.td}>{t('nationalReport.minutes', { count: item.avgReportTime })}</td>
-                      <td style={{ ...styles.td, color: item.qualifiedRate >= 95 ? COLORS.success : COLORS.warning }}>{item.qualifiedRate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                rowKey="id"
+                dataSource={filteredExamData}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('nationalReport.thModality'), dataIndex: 'modality', render: (value: string) => getModalityBadge(value) },
+                  { title: t('nationalReport.thExamType'), dataIndex: 'examType' },
+                  { title: t('nationalReport.thExamCount'), dataIndex: 'examCount', align: 'right', render: (value: number) => <span style={{ fontWeight: 600 }}>{value.toLocaleString()}</span> },
+                  { title: t('nationalReport.thPositive'), dataIndex: 'positiveCount', align: 'right', render: (value: number) => <span style={{ color: 'var(--color-warning)' }}>{value}</span> },
+                  { title: t('nationalReport.thPositiveRate'), dataIndex: 'positiveRate', align: 'right', render: (value: number) => `${value}%` },
+                  { title: t('nationalReport.thAvgTime'), dataIndex: 'avgReportTime', align: 'right', render: (value: number) => t('nationalReport.minutes', { count: value }) },
+                  {
+                    title: t('nationalReport.thQualifiedRate'),
+                    dataIndex: 'qualifiedRate',
+                    align: 'right',
+                    render: (value: number) => <span style={{ color: value >= 95 ? 'var(--color-success)' : 'var(--color-warning)' }}>{value}%</span>,
+                  },
+                ]}
+              />
             )}
 
             {/* 辐射剂量表格 */}
             {activeTab === 'dose' && (
-              <div style={{ overflowX: "auto" }}><table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>{t('nationalReport.thMonth')}</th>
-                    <th style={styles.th}>{t('nationalReport.thModality')}</th>
-                    <th style={styles.th}>{t('nationalReport.thTotalExams')}</th>
-                    <th style={styles.th}>{t('nationalReport.thTotalDlp')}</th>
-                    <th style={styles.th}>{t('nationalReport.thAvgDlp')}</th>
-                    <th style={styles.th}>{t('nationalReport.thAvgCtdi')}</th>
-                    <th style={styles.th}>{t('nationalReport.thAlertCount')}</th>
-                    <th style={styles.th}>{t('nationalReport.thHighDose')}</th>
-                    <th style={styles.th}>{t('nationalReport.thStatus')}</th>
-                    <th style={styles.th}>{t('nationalReport.thAction')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredDoseData.map(item => (
-                    <tr key={item.id}>
-                      <td style={styles.td}>{item.reportMonth}</td>
-                      <td style={styles.td}>{getModalityBadge(item.modality)}</td>
-                      <td style={{ ...styles.td, fontWeight: 600 }}>{item.totalExams.toLocaleString()}</td>
-                      <td style={styles.td}>{item.totalDLP > 0 ? item.totalDLP.toLocaleString() : '-'}</td>
-                      <td style={styles.td}>{item.avgDLP > 0 ? item.avgDLP : '-'}</td>
-                      <td style={styles.td}>{item.avgCTDI > 0 ? item.avgCTDI : '-'}</td>
-                      <td style={{ ...styles.td, color: item.alertCount > 0 ? COLORS.warning : COLORS.success }}>{item.alertCount}</td>
-                      <td style={styles.td}>{item.highDoseCount}</td>
-                      <td style={styles.td}>{getStatusBadge(item.status)}</td>
-                      <td style={styles.td}>
-                        <button
-                          style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                          onClick={() => void handleViewDetail('national', item.id)}
-                        >
-                          <Eye size={14} /> {t('nationalReport.detail')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                rowKey="id"
+                dataSource={filteredDoseData}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
+                  { title: t('nationalReport.thModality'), dataIndex: 'modality', render: (value: string) => getModalityBadge(value) },
+                  { title: t('nationalReport.thTotalExams'), dataIndex: 'totalExams', align: 'right', render: (value: number) => <span style={{ fontWeight: 600 }}>{value.toLocaleString()}</span> },
+                  { title: t('nationalReport.thTotalDlp'), dataIndex: 'totalDLP', align: 'right', render: (value: number) => (value > 0 ? value.toLocaleString() : '-') },
+                  { title: t('nationalReport.thAvgDlp'), dataIndex: 'avgDLP', align: 'right', render: (value: number) => (value > 0 ? value : '-') },
+                  { title: t('nationalReport.thAvgCtdi'), dataIndex: 'avgCTDI', align: 'right', render: (value: number) => (value > 0 ? value : '-') },
+                  { title: t('nationalReport.thAlertCount'), dataIndex: 'alertCount', align: 'right', render: (value: number) => <span style={{ color: value > 0 ? 'var(--color-warning)' : 'var(--color-success)' }}>{value}</span> },
+                  { title: t('nationalReport.thHighDose'), dataIndex: 'highDoseCount', align: 'right' },
+                  { title: t('nationalReport.thStatus'), key: 'status', render: (_v, item) => getStatusBadge(item.status) },
+                  {
+                    title: t('nationalReport.thAction'),
+                    key: 'action',
+                    render: (_v, item) => (
+                      <button
+                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                        onClick={() => void handleViewDetail('national', item.id)}
+                      >
+                        <Eye size={14} /> {t('nationalReport.detail')}
+                      </button>
+                    ),
+                  },
+                ]}
+              />
             )}
 
             {/* 报告质量表格 */}
             {activeTab === 'quality' && (
-              <div style={{ overflowX: "auto" }}><table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>{t('nationalReport.thMonth')}</th>
-                    <th style={styles.th}>{t('nationalReport.thTotalReports')}</th>
-                    <th style={styles.th}>{t('nationalReport.thQualified')}</th>
-                    <th style={styles.th}>{t('nationalReport.thExcellent')}</th>
-                    <th style={styles.th}>{t('nationalReport.thQualifiedRate')}</th>
-                    <th style={styles.th}>{t('nationalReport.thExcellentRate')}</th>
-                    <th style={styles.th}>{t('nationalReport.thAvgScore')}</th>
-                    <th style={styles.th}>{t('nationalReport.thIssues')}</th>
-                    <th style={styles.th}>{t('nationalReport.thStatus')}</th>
-                    <th style={styles.th}>{t('nationalReport.thAction')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {qualityData.map(item => (
-                    <tr key={item.id}>
-                      <td style={styles.td}>{item.reportMonth}</td>
-                      <td style={{ ...styles.td, fontWeight: 600 }}>{item.totalReports.toLocaleString()}</td>
-                      <td style={styles.td}>{item.qualifiedReports}</td>
-                      <td style={styles.td}>{item.excellentReports}</td>
-                      <td style={{ ...styles.td, color: item.qualifiedRate >= 95 ? COLORS.success : COLORS.warning }}>{item.qualifiedRate}%</td>
-                      <td style={styles.td}>{item.excellentRate}%</td>
-                      <td style={styles.td}>{item.avgScore}</td>
-                      <td style={styles.td}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                          {(item.commonIssues || []).slice(0, 2).map((issue, idx) => (
-                            <span key={idx} style={{ padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: '4px', fontSize: '10px' }}>{issue}</span>
-                          ))}
-                        </div>
-                      </td>
-                      <td style={styles.td}>{getStatusBadge(item.status)}</td>
-                      <td style={styles.td}>
-                        <button
-                          style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                          onClick={() => void handleViewDetail('data', item.id)}
-                        >
-                          <Eye size={14} /> {t('nationalReport.detail')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                rowKey="id"
+                dataSource={qualityData}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
+                  { title: t('nationalReport.thTotalReports'), dataIndex: 'totalReports', align: 'right', render: (value: number) => <span style={{ fontWeight: 600 }}>{value.toLocaleString()}</span> },
+                  { title: t('nationalReport.thQualified'), dataIndex: 'qualifiedReports', align: 'right' },
+                  { title: t('nationalReport.thExcellent'), dataIndex: 'excellentReports', align: 'right' },
+                  { title: t('nationalReport.thQualifiedRate'), dataIndex: 'qualifiedRate', align: 'right', render: (value: number) => <span style={{ color: value >= 95 ? 'var(--color-success)' : 'var(--color-warning)' }}>{value}%</span> },
+                  { title: t('nationalReport.thExcellentRate'), dataIndex: 'excellentRate', align: 'right', render: (value: number) => `${value}%` },
+                  { title: t('nationalReport.thAvgScore'), dataIndex: 'avgScore', align: 'right' },
+                  {
+                    title: t('nationalReport.thIssues'),
+                    dataIndex: 'commonIssues',
+                    render: (value: string[]) => (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {(value || []).slice(0, 2).map((issue, idx) => (
+                          <span key={idx} style={{ padding: '2px 6px', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderRadius: 4, fontSize: 10 }}>{issue}</span>
+                        ))}
+                      </div>
+                    ),
+                  },
+                  { title: t('nationalReport.thStatus'), key: 'status', render: (_v, item) => getStatusBadge(item.status) },
+                  {
+                    title: t('nationalReport.thAction'),
+                    key: 'action',
+                    render: (_v, item) => (
+                      <button
+                        style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                        onClick={() => void handleViewDetail('data', item.id)}
+                      >
+                        <Eye size={14} /> {t('nationalReport.detail')}
+                      </button>
+                    ),
+                  },
+                ]}
+              />
             )}
 
             {/* FHIR标准化报告 */}
@@ -1770,34 +1754,29 @@ export default function NationalReportPage() {
 
             {/* 上报记录 */}
             {activeTab === 'log' && (
-              <div style={{ overflowX: "auto" }}><table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>{t('nationalReport.thReportType')}</th>
-                    <th style={styles.th}>{t('nationalReport.thMonth')}</th>
-                    <th style={styles.th}>{t('nationalReport.thSubmitTime')}</th>
-                    <th style={styles.th}>{t('nationalReport.thOperator')}</th>
-                    <th style={styles.th}>{t('nationalReport.thStatus')}</th>
-                    <th style={styles.th}>{t('nationalReport.thNote')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reportLogs.map(item => (
-                    <tr key={item.id}>
-                      <td style={styles.td}>
-                        <span style={{ padding: '3px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, backgroundColor: item.reportType === 'dose' ? '#fef3c7' : item.reportType === 'exam' ? '#dbeafe' : '#d1fae5', color: item.reportType === 'dose' ? '#d97706' : item.reportType === 'exam' ? '#2563eb' : '#16a34a' }}>
-                          {item.reportType === 'dose' ? t('nationalReport.typeDose') : item.reportType === 'exam' ? t('nationalReport.typeExam') : t('nationalReport.typeQuality')}
-                        </span>
-                      </td>
-                      <td style={styles.td}>{item.reportMonth}</td>
-                      <td style={styles.td}>{item.submitTime}</td>
-                      <td style={styles.td}>{item.operator}</td>
-                      <td style={styles.td}>{getStatusBadge(item.status)}</td>
-                      <td style={styles.td}>{item.note || '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                rowKey="id"
+                dataSource={reportLogs}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  {
+                    title: t('nationalReport.thReportType'),
+                    dataIndex: 'reportType',
+                    render: (value: string) => (
+                      <StatusTag status={value} tone={severityTone(value === 'dose' ? 'warning' : value === 'exam' ? 'info' : 'success')}>
+                        {value === 'dose' ? t('nationalReport.typeDose') : value === 'exam' ? t('nationalReport.typeExam') : t('nationalReport.typeQuality')}
+                      </StatusTag>
+                    ),
+                  },
+                  { title: t('nationalReport.thMonth'), dataIndex: 'reportMonth' },
+                  { title: t('nationalReport.thSubmitTime'), dataIndex: 'submitTime' },
+                  { title: t('nationalReport.thOperator'), dataIndex: 'operator' },
+                  { title: t('nationalReport.thStatus'), key: 'status', render: (_v, item) => getStatusBadge(item.status) },
+                  { title: t('nationalReport.thNote'), dataIndex: 'note', render: (value: string) => value || '-' },
+                ]}
+              />
             )}
           </div>
 
@@ -1994,7 +1973,7 @@ export default function NationalReportPage() {
                           <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 4 }}>{t('nationalReport.commonIssues')}</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                             {detailItem.commonIssues.map((issue: string, idx: number) => (
-                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 4, fontSize: 12 }}>{issue}</span>
+                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderRadius: 4, fontSize: 12 }}>{issue}</span>
                             ))}
                           </div>
                         </div>
@@ -2004,7 +1983,7 @@ export default function NationalReportPage() {
                           <div style={{ fontWeight: 600, color: COLORS.success, marginBottom: 4 }}>{t('nationalReport.improvement')}</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                             {detailItem.improvementMeasures.map((m: string, idx: number) => (
-                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-success-bg)', color: '#16a34a', borderRadius: 4, fontSize: 12 }}>{m}</span>
+                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-success-bg)', color: 'var(--color-success)', borderRadius: 4, fontSize: 12 }}>{m}</span>
                             ))}
                           </div>
                         </div>

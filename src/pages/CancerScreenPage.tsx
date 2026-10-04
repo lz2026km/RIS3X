@@ -16,6 +16,10 @@ import { screeningApi, type ScreeningTrendDto } from '../services/api/screeningA
 import { t } from '../i18n/appI18n'
 import { uniqueId } from '../utils/uniqueId'
 import { StatCard as CommonStatCard } from '../components/common/StatCard'
+import { DataTable } from '../components/common/DataTable'
+import { StatusTag } from '../components/common/StatusTag'
+import { SeverityTag } from '../components/common/SeverityTag'
+import { severityColor, severityTone } from '../theme/statusTokens'
 
 // ---------- 统计数据 ----------
 const statsData = [
@@ -61,7 +65,7 @@ const s: Record<string, React.CSSProperties> = {
     background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex',
     alignItems: 'center', gap: 6, fontWeight: 500,
   },
-  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: 'var(--color-primary)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' },
   td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' },
@@ -126,7 +130,7 @@ const StatCard = ({ label, value, unit, sub, icon: Icon, color, bg, trend }: typ
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
           {sub}
           {trend && (
-            <span style={{ color: trend === 'up' ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
+            <span style={{ color: trend === 'up' ? severityColor('success') : severityColor('critical'), fontWeight: 600 }}>
               <ArrowUp size={12} />{trend === 'up' ? '↑' : '↓'}
             </span>
           )}
@@ -139,15 +143,25 @@ const StatCard = ({ label, value, unit, sub, icon: Icon, color, bg, trend }: typ
   />
 )
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const colors: Record<string, { bg: string; text: string }> = {
-    '招募中': { bg: '#f59e0b22', text: '#ca8a04' },
-    '进行中': { bg: '#3b82f622', text: '#2563eb' },
-    '已完成': { bg: '#22c55e22', text: '#16a34a' },
-    '已终止': { bg: '#ef444422', text: '#dc2626' },
-  }
-  const c = colors[status] || { bg: 'var(--bg-deep)', text: '#64748b' }
-  return <span style={{ ...s.statusBadge, background: c.bg, color: c.text }}>{status}</span>
+// [UI] task status colors unified via @/theme/statusTokens (single source)
+const TASK_STATUS_LEVEL: Record<string, string> = {
+  '招募中': 'warning',
+  '进行中': 'info',
+  '已完成': 'success',
+  '已终止': 'critical',
+}
+
+const StatusBadge = ({ status }: { status: string }) => (
+  <StatusTag status={status} tone={severityTone(TASK_STATUS_LEVEL[status] ?? 'neutral')}>{status}</StatusTag>
+)
+
+// [UI] queue workflow status → canonical level
+const QUEUE_STATUS_LEVEL: Record<string, string> = {
+  '已登记': 'info',
+  '筛查中': 'info',
+  '已完成': 'success',
+  '异常': 'critical',
+  '待审核': 'warning',
 }
 
 // 筛查类型图标与颜色
@@ -168,24 +182,23 @@ const ScreenTypeBadge = ({ type }: { type: string }) => {
   )
 }
 
-// Lung-RADS / BI-RADS 颜色
-const radsColors: Record<string, { bg: string; text: string }> = {
-  'Lung-RADS 2': { bg: '#22c55e22', text: '#16a34a' },
-  'Lung-RADS 3': { bg: '#f59e0b22', text: '#ca8a04' },
-  'Lung-RADS 4A': { bg: '#f9731622', text: '#ea580c' },
-  'Lung-RADS 4B': { bg: '#ef444422', text: '#dc2626' },
-  'BI-RADS 2': { bg: '#22c55e22', text: '#16a34a' },
-  'BI-RADS 3': { bg: '#f59e0b22', text: '#ca8a04' },
-  'BI-RADS 4A': { bg: '#f9731622', text: '#ea580c' },
-  'BI-RADS 4B': { bg: '#ef444422', text: '#dc2626' },
-  'BI-RADS 5': { bg: '#ef444422', text: '#dc2626' },
-  '待定': { bg: 'var(--bg-deep)', text: '#64748b' },
+// Lung-RADS / BI-RADS severity — mapped to the canonical severity ladder
+const RADS_LEVEL: Record<string, string> = {
+  'Lung-RADS 2': 'normal',
+  'Lung-RADS 3': 'warning',
+  'Lung-RADS 4A': 'high',
+  'Lung-RADS 4B': 'critical',
+  'BI-RADS 2': 'normal',
+  'BI-RADS 3': 'warning',
+  'BI-RADS 4A': 'high',
+  'BI-RADS 4B': 'critical',
+  'BI-RADS 5': 'critical',
+  '待定': 'neutral',
 }
 
-const RadsBadge = ({ rads }: { rads: string }) => {
-  const cfg = radsColors[rads] || { bg: 'var(--bg-deep)', text: '#64748b' }
-  return <span style={{ ...s.tag, background: cfg.bg, color: cfg.text }}>{rads}</span>
-}
+const RadsBadge = ({ rads }: { rads: string }) => (
+  <SeverityTag level={RADS_LEVEL[rads] ?? 'neutral'}>{rads}</SeverityTag>
+)
 
 const CancerScreenPage = () => {
   const [tab, setTab] = useState(1)
@@ -366,8 +379,10 @@ const CancerScreenPage = () => {
     }
   }))
 
-  const riskColors: Record<string, string> = { '低危': '#16a34a', '中危': '#ca8a04', '高危': '#ea580c', '极高危': '#dc2626' }
-  const riskBgColors: Record<string, string> = { '低危': '#f0fdf4', '中危': '#fefce8', '高危': '#fff7ed', '极高危': '#fef2f2' }
+  // [UI] risk severity colors unified via @/theme/statusTokens (single source)
+  const riskTone = (risk: string) => severityTone(
+    risk === '极高危' ? 'critical' : risk === '高危' ? 'high' : risk === '中危' ? 'warning' : 'normal'
+  )
   const names = ['王建国', '李明华', '张秀英', '刘德伟', '陈淑芳', '杨志国', '赵丽娟', '黄文博', '周玉珍', '吴洪亮', '徐海燕', '孙志远', '马晓东', '朱艳红', '胡金生', '郭彩云', '林国栋', '何秀兰', '高建新', '罗春梅', '郑成文', '梁晓燕', '宋立功', '唐桂英', '许志鹏', '韩素芳', '邓小刚', '冯翠花', '曹德华', '彭丽华']
 
   const assessments = useMemo(() => Array.from({ length: 30 }, (_, i) => {
@@ -418,12 +433,9 @@ const CancerScreenPage = () => {
     '待定': { bg: 'var(--bg-deep)', text: '#64748b' },
   }
   const followUpStatuses = ['随访中', '失访', '治愈', '进展']
-  const followUpColors: Record<string, { bg: string; text: string }> = {
-    '随访中': { bg: '#3b82f622', text: '#2563eb' },
-    '失访': { bg: '#ef444422', text: '#dc2626' },
-    '治愈': { bg: '#22c55e22', text: '#16a34a' },
-    '进展': { bg: '#ef444422', text: '#dc2626' },
-  }
+  // [UI] follow-up status colors unified via @/theme/statusTokens (single source)
+  const FOLLOWUP_LEVEL: Record<string, string> = { '随访中': 'info', '失访': 'critical', '治愈': 'success', '进展': 'high' }
+  const followUpTone = (status: string) => severityTone(FOLLOWUP_LEVEL[status] ?? 'neutral')
   const patientNames = ['李秀英', '王德明', '张建华', '刘玉兰', '陈国庆', '杨文军', '赵桂英', '黄伟东', '周丽娟', '吴洪波', '徐海峰', '孙桂芳', '马志远', '朱秀云', '胡金生', '郭彩霞', '林国强', '何春梅', '高建波', '罗素芳']
 
   const detections = useMemo(() => Array.from({ length: 25 }, (_, i) => {
@@ -487,7 +499,10 @@ const CancerScreenPage = () => {
     { month: '2026-03', screenings: 960, detections: 30, rate: 3.1 },
   ]
 
-  const coveredColors: Record<string, string> = { '已覆盖': '#16a34a', '覆盖中': '#ca8a04', '未覆盖': '#e2e8f0' }
+  // [UI] coverage status colors unified via @/theme/statusTokens (single source)
+  const coveredTone = (covered: string) => severityTone(
+    covered === '已覆盖' ? 'success' : covered === '覆盖中' ? 'warning' : 'neutral'
+  )
 
   const calcRisk = (score: number) => {
     if (score < 15) return '低危'
@@ -724,8 +739,8 @@ const CancerScreenPage = () => {
             onClick={() => setTab(i + 1)}
             style={{
               flex: 1, padding: '10px 16px', borderRadius: 8, border: 'none',
-              background: tab === i + 1 ? '#fff' : 'transparent',
-              color: tab === i + 1 ? '#2563eb' : '#64748b',
+              background: tab === i + 1 ? 'var(--bg-card)' : 'transparent',
+              color: tab === i + 1 ? 'var(--color-primary)' : 'var(--text-secondary)',
               fontWeight: tab === i + 1 ? 700 : 500, cursor: 'pointer',
               fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               boxShadow: tab === i + 1 ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
@@ -740,7 +755,7 @@ const CancerScreenPage = () => {
       {/* ========== 功能区1: 筛查任务管理 ========== */}
       {tab === 1 && (
         <div style={s.section}>
-          <div style={s.sectionTitle}><Target size={16} color='#dc2626' />{t('cancerScreen.tabTaskManage')}</div>
+          <div style={s.sectionTitle}><Target size={16} color={severityColor('critical')} />{t('cancerScreen.tabTaskManage')}</div>
           <div style={s.taskToolbar}>
             <input
               style={s.searchInput}
@@ -751,56 +766,52 @@ const CancerScreenPage = () => {
             <button style={{ ...s.btn, minHeight: 44, padding: '8px 16px', fontSize: 14 }} onClick={() => setShowFilterModal(true)}><Filter size={16} />{t('cancerScreen.filter')}</button>
             <button style={{ ...s.btnPrimary, minHeight: 44, padding: '8px 20px', fontSize: 14 }} onClick={() => setShowNewModal(true)}><Plus size={16} />{t('cancerScreen.newTask')}</button>
           </div>
-          <div style={s.scrollBox}>
-            <table style={s.table}>
-              <thead>
-                <tr>
-                  <th style={s.th}>{t('cancerScreen.thTaskName')}</th>
-                  <th style={s.th}>{t('cancerScreen.thScreenType')}</th>
-                  <th style={s.th}>{t('cancerScreen.thRegion')}</th>
-                  <th style={s.th}>{t('cancerScreen.thTarget')}</th>
-                  <th style={s.th}>{t('cancerScreen.thCompleted')}</th>
-                  <th style={s.th}>{t('cancerScreen.thRate')}</th>
-                  <th style={s.th}>{t('cancerScreen.thStatus')}</th>
-                  <th style={s.th}>{t('cancerScreen.thAction')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTasks.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} style={s.emptyState}>
-                      <FileSearch size={48} style={s.emptyStateIcon} />
-                      <div style={s.emptyStateText}>{t('cancerScreen.noTaskMatch')}</div>
-                      <div style={s.emptyStateHint}>{t('cancerScreen.taskMatchHint')}</div>
-                    </td>
-                  </tr>
-                ) : filteredTasks.slice(0, 15).map(task => (
-                  <tr key={task.id}>
-                    <td style={s.td}>{task.name}</td>
-                    <td style={s.td}><ScreenTypeBadge type={task.type} /></td>
-                    <td style={s.td}>{task.region}</td>
-                    <td style={s.td}>{task.target}</td>
-                    <td style={s.td}>{task.completed}</td>
-                    <td style={s.td}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 60, height: 6, background: 'var(--content-bg)', borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{ width: `${task.rate}%`, height: '100%', background: task.rate >= 100 ? '#16a34a' : task.rate >= 50 ? '#2563eb' : '#ca8a04', borderRadius: 3 }} />
-                        </div>
-                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.rate}%</span>
-                      </div>
-                    </td>
-                    <td style={s.td}><StatusBadge status={task.status} /></td>
-                    <td style={s.td}>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => setShowDetailModal(true)}><Eye size={12} /></button>
-                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => { setEditTaskForm({ id: task.id, name: task.name, type: task.type, region: task.region, target: task.target, status: task.status }); setShowEditModal(true) }}><Edit size={12} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            rowKey="id"
+            dataSource={filteredTasks.slice(0, 15)}
+            fixedHeader={320}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            emptyText={
+              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                <FileSearch size={40} style={s.emptyStateIcon} />
+                <span>{t('cancerScreen.noTaskMatch')}</span>
+                <span style={{ fontSize: 12 }}>{t('cancerScreen.taskMatchHint')}</span>
+              </span>
+            }
+            columns={[
+              { title: t('cancerScreen.thTaskName'), dataIndex: 'name' },
+              { title: t('cancerScreen.thScreenType'), key: 'type', render: (_v, task) => <ScreenTypeBadge type={task.type} /> },
+              { title: t('cancerScreen.thRegion'), dataIndex: 'region' },
+              { title: t('cancerScreen.thTarget'), dataIndex: 'target', align: 'right' },
+              { title: t('cancerScreen.thCompleted'), dataIndex: 'completed', align: 'right' },
+              {
+                title: t('cancerScreen.thRate'),
+                dataIndex: 'rate',
+                align: 'right',
+                render: (value: number) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                    <div style={{ width: 60, height: 6, background: 'var(--content-bg)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${value}%`, height: '100%', background: value >= 100 ? severityColor('success') : value >= 50 ? 'var(--color-primary)' : severityColor('warning'), borderRadius: 3 }} />
+                    </div>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}%</span>
+                  </div>
+                ),
+              },
+              { title: t('cancerScreen.thStatus'), key: 'status', render: (_v, task) => <StatusBadge status={task.status} /> },
+              {
+                title: t('cancerScreen.thAction'),
+                key: 'action',
+                render: (_v, task) => (
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => setShowDetailModal(true)}><Eye size={12} /></button>
+                    <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => { setEditTaskForm({ id: task.id, name: task.name, type: task.type, region: task.region, target: task.target, status: task.status }); setShowEditModal(true) }}><Edit size={12} /></button>
+                  </div>
+                ),
+              },
+            ]}
+          />
           <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
             {t('cancerScreen.showingTasks', { count: filteredTasks.length })}
           </div>
@@ -810,7 +821,7 @@ const CancerScreenPage = () => {
       {/* ========== 功能区2: 高危评估 ========== */}
       {tab === 2 && (
         <div style={s.section}>
-          <div style={s.sectionTitle}><AlertTriangle size={16} color='#ea580c' />{t('cancerScreen.riskAssess')}</div>
+          <div style={s.sectionTitle}><AlertTriangle size={16} color={severityColor('high')} />{t('cancerScreen.riskAssess')}</div>
           <div style={s.assessGrid}>
             {/* 左: 评估表单 */}
             <div>
@@ -828,10 +839,10 @@ const CancerScreenPage = () => {
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 16, padding: '12px 16px', background: riskBgColors[currentRisk], borderRadius: 10, textAlign: 'center', border: `2px solid ${riskColors[currentRisk]}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: riskColors[currentRisk] }}>{t('cancerScreen.assessResult')}</div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: riskColors[currentRisk], lineHeight: 1.2, marginTop: 4 }}>{currentRisk}</div>
-                <div style={{ fontSize: 12, color: riskColors[currentRisk], opacity: 0.8, marginTop: 4 }}>{t('cancerScreen.riskScore', { score: currentScore })}</div>
+              <div style={{ marginTop: 16, padding: '12px 16px', background: riskTone(currentRisk).bg, borderRadius: 10, textAlign: 'center', border: `2px solid ${riskTone(currentRisk).color}` }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: riskTone(currentRisk).color }}>{t('cancerScreen.assessResult')}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: riskTone(currentRisk).color, lineHeight: 1.2, marginTop: 4 }}>{currentRisk}</div>
+                <div style={{ fontSize: 12, color: riskTone(currentRisk).color, opacity: 0.8, marginTop: 4 }}>{t('cancerScreen.riskScore', { score: currentScore })}</div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
                 <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => setShowConfirmModal(true)}><CheckCircle size={16} />{t('cancerScreen.submitAssess')}</button>
@@ -854,7 +865,7 @@ const CancerScreenPage = () => {
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{a.name} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({t('cancerScreen.yearsOld', { age: a.age })})</span></div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{a.date} · {a.doctor}</div>
                     </div>
-                    <span style={{ ...s.tag, background: riskBgColors[a.risk], color: riskColors[a.risk] }}>{a.risk} {t('cancerScreen.scorePoints', { score: a.totalScore })}</span>
+                    <span style={{ ...s.tag, background: riskTone(a.risk).bg, color: riskTone(a.risk).color }}>{a.risk} {t('cancerScreen.scorePoints', { score: a.totalScore })}</span>
                   </div>
                 ))}
               </div>
@@ -866,7 +877,7 @@ const CancerScreenPage = () => {
       {/* ========== 功能区3: 早癌/结节检出追踪 ========== */}
       {tab === 3 && (
         <div style={s.section}>
-          <div style={s.sectionTitle}><Microscope size={16} color='#dc2626' />{t('cancerScreen.detectionTrack')}</div>
+          <div style={s.sectionTitle}><Microscope size={16} color={severityColor('critical')} />{t('cancerScreen.detectionTrack')}</div>
           {detections.length === 0 ? (
             <div style={s.emptyState}>
               <Inbox size={48} style={s.emptyStateIcon} />
@@ -888,11 +899,11 @@ const CancerScreenPage = () => {
                     <div style={{ fontSize: 12, fontWeight: 600 }}>{d.name}</div>
                     <div style={{ fontSize: 12 }}>{d.age}</div>
                     <div style={{ fontSize: 12 }}>{d.gender}</div>
-                    <div style={{ fontSize: 12, color: '#dc2626', fontWeight: 600 }}>{d.lesionType}</div>
+                    <div style={{ fontSize: 12, color: severityColor('critical'), fontWeight: 600 }}>{d.lesionType}</div>
                     <div style={{ fontSize: 12 }}>{d.location}</div>
                     <div><RadsBadge rads={d.rads} /></div>
                     <div><span style={{ ...s.tag, background: treatmentColors[d.treatment]?.bg, color: treatmentColors[d.treatment]?.text }}>{d.treatment}</span></div>
-                    <div><span style={{ ...s.tag, background: followUpColors[d.followUp]?.bg, color: followUpColors[d.followUp]?.text }}>{d.followUp}</span></div>
+                    <div><span style={{ ...s.tag, background: followUpTone(d.followUp).bg, color: followUpTone(d.followUp).color }}>{d.followUp}</span></div>
                   </div>
                 </div>
               ))}
@@ -910,32 +921,42 @@ const CancerScreenPage = () => {
             {/* 省份列表 */}
             <div style={s.mapSvg}>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.provinceCoverage')}</div>
-              <div style={{ overflowY: 'auto', maxHeight: 400 }}>
-                <table style={s.provinceTable}>
-                  <thead>
-                    <tr>
-                      <th style={s.provinceTh}>{t('cancerScreen.thProvince')}</th>
-                      <th style={s.provinceTh}>{t('cancerScreen.thCoverage')}</th>
-                      <th style={s.provinceTh}>{t('cancerScreen.thInstCount')}</th>
-                      <th style={s.provinceTh}>{t('cancerScreen.thTotalScreen')}</th>
-                      <th style={s.provinceTh}>{t('cancerScreen.thDetectionRate')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {provinces.map(p => (
-                      <tr key={p.name}>
-                        <td style={s.provinceTd}>{p.name}</td>
-                        <td style={s.provinceTd}>
-                          <span style={{ ...s.tag, background: coveredColors[p.covered] + '22', color: coveredColors[p.covered] }}>{p.covered}</span>
-                        </td>
-                        <td style={s.provinceTd}>{t('cancerScreen.instCountSuffix', { count: p.instCount })}</td>
-                        <td style={s.provinceTd}>{t('cancerScreen.peopleSuffix', { count: p.screenCount.toLocaleString() })}</td>
-                        <td style={s.provinceTd}>{p.rate > 0 ? `${p.rate}%` : '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                rowKey="name"
+                dataSource={provinces}
+                fixedHeader={400}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('cancerScreen.thProvince'), dataIndex: 'name' },
+                  {
+                    title: t('cancerScreen.thCoverage'),
+                    dataIndex: 'covered',
+                    render: (value: string) => (
+                      <span style={{ ...s.tag, background: coveredTone(value).bg, color: coveredTone(value).color }}>{value}</span>
+                    ),
+                  },
+                  {
+                    title: t('cancerScreen.thInstCount'),
+                    dataIndex: 'instCount',
+                    align: 'right',
+                    render: (value: number) => t('cancerScreen.instCountSuffix', { count: value }),
+                  },
+                  {
+                    title: t('cancerScreen.thTotalScreen'),
+                    dataIndex: 'screenCount',
+                    align: 'right',
+                    render: (value: number) => t('cancerScreen.peopleSuffix', { count: value.toLocaleString() }),
+                  },
+                  {
+                    title: t('cancerScreen.thDetectionRate'),
+                    dataIndex: 'rate',
+                    align: 'right',
+                    render: (value: number) => (value > 0 ? `${value}%` : '-'),
+                  },
+                ]}
+              />
               <div style={{ marginTop: 12, display: 'flex', gap: 16, fontSize: 12, color: 'var(--text-secondary)' }}>
                 <span>{t('cancerScreen.totalInsts')} <strong>404家</strong></span>
                 <span>{t('cancerScreen.totalScreenCount')} <strong>36,248人</strong></span>
@@ -975,7 +996,7 @@ const CancerScreenPage = () => {
 
                     return (
                       <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                        <div style={{ width: '100%', background: '#e2e8f0', borderRadius: 4, height: 50, position: 'relative' }}>
+                        <div style={{ width: '100%', background: 'var(--border-default)', borderRadius: 4, height: 50, position: 'relative' }}>
                           <div style={{ position: 'absolute', bottom: 0, width: '100%', background: '#2563eb', borderRadius: 4, height: `${(m.screenings / maxS) * 50}px` }} />
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.month.slice(5)}</div>
@@ -1084,7 +1105,7 @@ const CancerScreenPage = () => {
       {tab === 5 && (
         <div style={s.section}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={s.sectionTitle}><ListOrdered size={16} color='#2563eb' />{t('cancerScreen.queueTitle')}</div>
+            <div style={s.sectionTitle}><ListOrdered size={16} color="var(--color-primary)" />{t('cancerScreen.queueTitle')}</div>
             <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => void loadQueue()}><RefreshCw size={13} /> {t('cancerScreen.refresh')}</button>
           </div>
           <div style={s.taskToolbar}>
@@ -1098,77 +1119,89 @@ const CancerScreenPage = () => {
             <Select style={{ width: 140 }} value={queueStatusFilter} onChange={(v) => setQueueStatusFilter(v)} options={['全部', '已登记', '筛查中', '已完成', '异常', '待审核'].map(st => ({ value: st, label: st }))} />
             <Select style={{ width: 140 }} value={queueTypeFilter} onChange={(v) => setQueueTypeFilter(v)} options={['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(ty => ({ value: ty, label: ty }))} />
             <button style={{ ...s.btnPrimary, padding: '6px 14px' }} onClick={() => void loadQueue()}><Search size={13} /> {t('cancerScreen.query')}</button>
-            <button style={{ ...s.btnPrimary, padding: '6px 14px', background: '#059669' }} onClick={() => setShowRegisterModal(true)}><Plus size={13} /> {t('cancerScreen.registerScreenBtn')}</button>
+            <button style={{ ...s.btnPrimary, padding: '6px 14px', background: 'var(--color-success)' }} onClick={() => setShowRegisterModal(true)}><Plus size={13} /> {t('cancerScreen.registerScreenBtn')}</button>
           </div>
 
           {queueLoading ? (
             <div style={{ padding: 40, textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingQueue')}><div style={{ height: 40 }} /></Spin></div>
           ) : queueError ? (
-            <div style={{ padding: 24, textAlign: 'center', color: '#dc2626', fontSize: 13 }}>{queueError}</div>
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 13 }}>{queueError}</div>
           ) : (
-            <div style={s.scrollBox}>
-              <table style={s.table}>
-                <thead>
-                  <tr>
-                    <th style={s.th}>{t('cancerScreen.thRegNo')}</th>
-                    <th style={s.th}>{t('cancerScreen.thPatient')}</th>
-                    <th style={s.th}>{t('cancerScreen.thGenderAge')}</th>
-                    <th style={s.th}>{t('cancerScreen.thScreenType')}</th>
-                    <th style={s.th}>{t('cancerScreen.thExamDate')}</th>
-                    <th style={s.th}>{t('cancerScreen.thStatus')}</th>
-                    <th style={s.th}>{t('cancerScreen.thResult')}</th>
-                    <th style={s.th}>RADS</th>
-                    <th style={s.th}>{t('cancerScreen.thInstitution')}</th>
-                    <th style={s.th}>{t('cancerScreen.thAction')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {queue.map(item => (
-                    <tr key={item.id}>
-                      <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{item.examId || item.id}</span></td>
-                      <td style={{ ...s.td, fontWeight: 600 }}>{item.patientName}</td>
-                      <td style={s.td}>{item.gender} / {t('cancerScreen.yearsOld', { age: item.age })}</td>
-                      <td style={s.td}><ScreenTypeBadge type={item.screenType} /></td>
-                      <td style={s.td}>{item.screenDate}</td>
-                      <td style={s.td}>
-                        <span style={{
-                          ...s.statusBadge,
-                          background: item.status === '已完成' ? '#f0fdf4' : item.status === '异常' ? '#fef2f2' : item.status === '筛查中' ? '#eff6ff' : '#f1f5f9',
-                          color: item.status === '已完成' ? '#16a34a' : item.status === '异常' ? '#dc2626' : item.status === '筛查中' ? '#2563eb' : '#64748b',
-                        }}>{item.status}</span>
-                      </td>
-                      <td style={s.td}>
-                        {item.result && item.result !== '-'
-                          ? <span style={{ ...s.tag, background: item.result === '阳性' ? '#fef2f2' : '#f0fdf4', color: item.result === '阳性' ? '#dc2626' : '#16a34a' }}>{item.result}</span>
-                          : <span style={{ color: 'var(--text-secondary)' }}>-</span>}
-                      </td>
-                      <td style={s.td}>{item.rads && item.rads !== '-' ? <RadsBadge rads={item.rads} /> : <span style={{ color: 'var(--text-secondary)' }}>-</span>}</td>
-                      <td style={{ ...s.td, fontSize: 11 }}>{item.institution || '-'}</td>
-                      <td style={s.td}>
-                        <div style={{ display: 'flex', gap: 4 }}>
-                          <button style={{ ...s.tag, background: 'var(--color-info-bg)', color: '#2563eb', cursor: 'pointer', border: 'none' }} onClick={() => void handleMarkScreening(item)}>
-                            <Flag size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />{t('cancerScreen.mark')}
-                          </button>
-                          {item.status !== '已完成' && (
-                            <button style={{ ...s.tag, background: 'var(--color-success-bg)', color: '#16a34a', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '已完成')}>
-                              <CheckCircle size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />{t('cancerScreen.complete')}
-                            </button>
-                          )}
-                          {item.status !== '异常' && item.status !== '已完成' && (
-                            <button style={{ ...s.tag, background: 'var(--color-error-bg)', color: '#dc2626', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '异常')}>
-                              {t('cancerScreen.abnormal')}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {queue.length === 0 && (
-                    <tr><td colSpan={10} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)', padding: 32 }}>{t('cancerScreen.noQueue')}</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              rowKey="id"
+              dataSource={queue}
+              fixedHeader={320}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              emptyText={t('cancerScreen.noQueue')}
+              columns={[
+                {
+                  title: t('cancerScreen.thRegNo'),
+                  dataIndex: 'examId',
+                  render: (value: string, item: any) => (
+                    <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{value || item.id}</span>
+                  ),
+                },
+                {
+                  title: t('cancerScreen.thPatient'),
+                  dataIndex: 'patientName',
+                  render: (value: string) => <span style={{ fontWeight: 600 }}>{value}</span>,
+                },
+                {
+                  title: t('cancerScreen.thGenderAge'),
+                  key: 'genderAge',
+                  render: (_v, item: any) => <>{item.gender} / {t('cancerScreen.yearsOld', { age: item.age })}</>,
+                },
+                { title: t('cancerScreen.thScreenType'), key: 'screenType', render: (_v, item: any) => <ScreenTypeBadge type={item.screenType} /> },
+                { title: t('cancerScreen.thExamDate'), dataIndex: 'screenDate' },
+                {
+                  title: t('cancerScreen.thStatus'),
+                  key: 'status',
+                  render: (_v, item: any) => (
+                    <StatusTag status={item.status} tone={severityTone(QUEUE_STATUS_LEVEL[item.status] ?? 'neutral')}>{item.status}</StatusTag>
+                  ),
+                },
+                {
+                  title: t('cancerScreen.thResult'),
+                  key: 'result',
+                  render: (_v, item: any) =>
+                    item.result && item.result !== '-'
+                      ? <SeverityTag level={item.result === '阳性' ? 'critical' : 'normal'}>{item.result}</SeverityTag>
+                      : <span style={{ color: 'var(--text-secondary)' }}>-</span>,
+                },
+                {
+                  title: 'RADS',
+                  key: 'rads',
+                  render: (_v, item: any) =>
+                    item.rads && item.rads !== '-'
+                      ? <RadsBadge rads={item.rads} />
+                      : <span style={{ color: 'var(--text-secondary)' }}>-</span>,
+                },
+                { title: t('cancerScreen.thInstitution'), dataIndex: 'institution', render: (value: string) => value || '-' },
+                {
+                  title: t('cancerScreen.thAction'),
+                  key: 'action',
+                  render: (_v, item: any) => (
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button style={{ ...s.tag, background: 'var(--color-info-bg)', color: 'var(--color-primary)', cursor: 'pointer', border: 'none' }} onClick={() => void handleMarkScreening(item)}>
+                        <Flag size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />{t('cancerScreen.mark')}
+                      </button>
+                      {item.status !== '已完成' && (
+                        <button style={{ ...s.tag, background: 'var(--color-success-bg)', color: 'var(--color-success)', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '已完成')}>
+                          <CheckCircle size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />{t('cancerScreen.complete')}
+                        </button>
+                      )}
+                      {item.status !== '异常' && item.status !== '已完成' && (
+                        <button style={{ ...s.tag, background: 'var(--color-error-bg)', color: 'var(--color-error)', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '异常')}>
+                          {t('cancerScreen.abnormal')}
+                        </button>
+                      )}
+                    </div>
+                  ),
+                },
+              ]}
+            />
           )}
         </div>
       )}
@@ -1183,7 +1216,7 @@ const CancerScreenPage = () => {
           {trendLoading ? (
             <div style={{ padding: 40, textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingTrend')}><div style={{ height: 40 }} /></Spin></div>
           ) : trendError ? (
-            <div style={{ padding: 24, textAlign: 'center', color: '#dc2626', fontSize: 13 }}>{trendError}</div>
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 13 }}>{trendError}</div>
           ) : trend.length === 0 ? (
             <div style={s.emptyState}>
               <FileSearch size={48} style={s.emptyStateIcon} />
@@ -1233,28 +1266,42 @@ const CancerScreenPage = () => {
                 <span>{t('w3b.screenRate')}: {trend[trend.length - 1]?.rate ?? '-'}% ({t('w3b.screenMonth')})</span>
               </div>
               {/* 明细表 */}
-              <table style={{ ...s.table, marginTop: 20 }}>
-                <thead>
-                  <tr>
-                    <th style={s.th}>{t('w3b.screenMonth')}</th>
-                    <th style={s.th}>{t('w3b.screenCount')} (人)</th>
-                    <th style={s.th}>{t('w3b.screenDetections')} (例)</th>
-                    <th style={s.th}>{t('w3b.screenRate')} (%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {trend.map((t, i) => (
-                    <tr key={i}>
-                      <td style={s.td}><span style={{ fontWeight: 600 }}>{t.month}</span></td>
-                      <td style={s.td}>{t.screenings ?? 0}</td>
-                      <td style={s.td}>{t.detections ?? 0}</td>
-                      <td style={s.td}>
-                        <span style={{ ...s.tag, background: (t.rate ?? 0) >= 3 ? '#fef2f2' : '#f0fdf4', color: (t.rate ?? 0) >= 3 ? '#dc2626' : '#16a34a' }}>{(t.rate ?? 0).toFixed(2)}%</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div style={{ marginTop: 20 }}>
+                <DataTable
+                  rowKey="month"
+                  dataSource={trend}
+                  showPagination={false}
+                  showExport={false}
+                  showDensity={false}
+                  columns={[
+                    {
+                      title: t('w3b.screenMonth'),
+                      dataIndex: 'month',
+                      render: (value: string) => <span style={{ fontWeight: 600 }}>{value}</span>,
+                    },
+                    {
+                      title: `${t('w3b.screenCount')} (人)`,
+                      dataIndex: 'screenings',
+                      align: 'right',
+                      render: (value?: number) => value ?? 0,
+                    },
+                    {
+                      title: `${t('w3b.screenDetections')} (例)`,
+                      dataIndex: 'detections',
+                      align: 'right',
+                      render: (value?: number) => value ?? 0,
+                    },
+                    {
+                      title: `${t('w3b.screenRate')} (%)`,
+                      dataIndex: 'rate',
+                      align: 'right',
+                      render: (value?: number) => (
+                        <SeverityTag level={(value ?? 0) >= 3 ? 'critical' : 'normal'}>{(value ?? 0).toFixed(2)}%</SeverityTag>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
             </>
           )}
         </div>
@@ -1323,7 +1370,7 @@ const CancerScreenPage = () => {
       {/* Toast提示 */}
       {toast && (
         <div style={{
-          position: 'fixed', bottom: 24, right: 24, background: toast.type === 'success' ? '#16a34a' : '#dc2626',
+          position: 'fixed', bottom: 24, right: 24, background: toast.type === 'success' ? 'var(--color-success)' : 'var(--color-error)',
           color: '#fff', padding: '12px 20px', borderRadius: 8, fontSize: 13, fontWeight: 500, zIndex: 2000,
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)', animation: 'fadeIn 0.3s'
         }}>

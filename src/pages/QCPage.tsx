@@ -40,6 +40,8 @@ import { PageHeader } from '../components/common/PageHeader'
 import { PageTemplate } from '../components/common/PageTemplate'
 import { StatusTag } from '../components/common/StatusTag'
 import { SeverityTag } from '../components/common/SeverityTag'
+import { DataTable } from '../components/common/DataTable'
+import { severityColor, severityTone } from '../theme/statusTokens'
 // [v3.0.6.11-103 Wave 10] 重复页合并: QualityControlPage(评分/危急值/缺陷/月报) + RadiologyQCDashboardPage(放射质控总览) 嵌入为 QCPage 新 Tab
 import QualityControlPage from './QualityControlPage'
 import RadiologyQCDashboardPage from './qc/RadiologyQCDashboardPage'
@@ -62,12 +64,12 @@ const LIGHT_BG = 'var(--content-bg)'
 const BORDER = 'var(--border-color)'
 const WHITE = '#ffffff'
 
-// 甲乙丙丁等级颜色
+// 甲乙丙丁等级颜色 — [UI] sourced from @/theme/statusTokens (single source)
 const GRADE_COLORS: Record<string, { bg: string; color: string; border: string; label: string }> = {
-  '甲': { bg: '#22c55e22', color: '#059669', border: '#059669', label: t("qcPage.gradeAExcellent") },
-  '乙': { bg: '#3b82f622', color: '#1e40af', border: '#1e40af', label: t("qcPage.gradeBGood") },
-  '丙': { bg: '#f59e0b22', color: '#f59e0b', border: '#d97706', label: t("qcPage.gradeCPass") },
-  '丁': { bg: '#ef444422', color: '#ef4444', border: '#dc2626', label: t("qcPage.gradeDFail") },
+  '甲': { ...severityTone('success'), label: t("qcPage.gradeAExcellent") },
+  '乙': { ...severityTone('info'), label: t("qcPage.gradeBGood") },
+  '丙': { ...severityTone('warning'), label: t("qcPage.gradeCPass") },
+  '丁': { ...severityTone('critical'), label: t("qcPage.gradeDFail") },
 }
 
 const TABS = [
@@ -473,18 +475,19 @@ const qcRulesDefault = {
   peerReviewRate: 0.3,
 }
 
+// [UI] score / status colors unified via @/theme/statusTokens (single source)
 const SCORE_COLORS = {
-  '优秀': SUCCESS,
-  '良好': WARNING,
-  '一般': '#f97316',
-  '差': DANGER,
+  '优秀': severityColor('success'),
+  '良好': severityColor('warning'),
+  '一般': severityColor('high'),
+  '差': severityColor('critical'),
 }
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  '优秀': { bg: '#22c55e22', color: '#059669' },
-  '良好': { bg: '#f59e0b22', color: '#f59e0b' },
-  '一般': { bg: '#f9731622', color: '#c2410c' },
-  '差': { bg: '#ef444422', color: '#ef4444' },
+  '优秀': severityTone('success'),
+  '良好': severityTone('warning'),
+  '一般': severityTone('high'),
+  '差': severityTone('critical'),
 }
 
 const PIE_COLORS = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#8b5cf6', '#64748b']
@@ -965,58 +968,60 @@ export default function QCPage() {
               ))}
             </div>
             {/* 排行榜表格 */}
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {[t("qcPage.rank"), t("qcPage.doctorName"), t("qcPage.totalScore"), t("qcPage.formatScore"), t("qcPage.accuracyScore"), t("qcPage.timelinessScore"), t("qcPage.reportCount"), t("qcPage.perfGrade")].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {doctorScoreData.map((doctor, idx) => {
-                  const isTop3 = doctor.rank <= 3
-                  const rankBgColor = doctor.rank === 1 ? 'var(--color-warning-bg)' : doctor.rank === 2 ? 'var(--bg-card)' : doctor.rank === 3 ? 'var(--color-warning-bg)' : idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)'
-                  const rankColor = doctor.rank === 1 ? '#92400e' : doctor.rank === 2 ? '#475569' : doctor.rank === 3 ? '#92400e' : PRIMARY
-                  const gradeColor = doctor.totalScore >= 90 ? SUCCESS : doctor.totalScore >= 80 ? WARNING : doctor.totalScore >= 70 ? '#f97316' : DANGER
-                  const gradeLabel = doctor.totalScore >= 90 ? t("qcPage.excellent") : doctor.totalScore >= 80 ? t("qcPage.good") : doctor.totalScore >= 70 ? t("qcPage.pass") : t("qcPage.needsImprovement")
-                  return (
-                    <tr key={doctor.id} style={{ borderBottom: `1px solid ${BORDER}`, background: rankBgColor }}
-                      onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-info-bg)'}
-                      onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = rankBgColor}
-                    >
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        {isTop3 ? (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                            <Award size={16} color={doctor.rank === 1 ? '#fbbf24' : doctor.rank === 2 ? '#94a3b8' : '#cd7f32'} />
-                            <span style={{ fontWeight: 800, fontSize: 14, color: rankColor }}>{doctor.rank}</span>
-                          </div>
-                        ) : (
-                          <AppText size="sm" weight={700} color="secondary" as="span">{doctor.rank}</AppText>
-                        )}
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <AppText size="sm" weight={700} as="span" style={{ color: PRIMARY }}>{doctor.name}</AppText>
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ fontWeight: 800, fontSize: 15, color: gradeColor }}>{doctor.totalScore}</span>
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.formatScore)}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.accuracyScore)}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.timelinessScore)}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <AppText size="xs" color="secondary" as="span">{doctor.reportCount}{t("qcPage.reportUnit")}</AppText>
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ padding: '2px 10px', background: doctor.totalScore >= 90 ? 'var(--color-success-bg)' : doctor.totalScore >= 80 ? 'var(--color-warning-bg)' : doctor.totalScore >= 70 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: gradeColor, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
-                          {gradeLabel}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table></div>
+            <DataTable
+              rowKey="id"
+              dataSource={doctorScoreData}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                {
+                  title: t("qcPage.rank"),
+                  key: 'rank',
+                  align: 'center',
+                  render: (_v, doctor) => {
+                    const isTop3 = doctor.rank <= 3
+                    const rankColor = doctor.rank === 1 ? '#92400e' : doctor.rank === 2 ? '#475569' : doctor.rank === 3 ? '#92400e' : PRIMARY
+                    return isTop3 ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                        <Award size={16} color={doctor.rank === 1 ? '#fbbf24' : doctor.rank === 2 ? '#94a3b8' : '#cd7f32'} />
+                        <span style={{ fontWeight: 800, fontSize: 14, color: rankColor }}>{doctor.rank}</span>
+                      </div>
+                    ) : (
+                      <AppText size="sm" weight={700} color="secondary" as="span">{doctor.rank}</AppText>
+                    )
+                  },
+                },
+                { title: t("qcPage.doctorName"), dataIndex: 'name', align: 'center', render: (value: string) => <AppText size="sm" weight={700} as="span" style={{ color: PRIMARY }}>{value}</AppText> },
+                {
+                  title: t("qcPage.totalScore"),
+                  dataIndex: 'totalScore',
+                  align: 'center',
+                  render: (value: number) => {
+                    const gradeColor = value >= 90 ? SUCCESS : value >= 80 ? WARNING : value >= 70 ? '#f97316' : DANGER
+                    return <span style={{ fontWeight: 800, fontSize: 15, color: gradeColor }}>{value}</span>
+                  },
+                },
+                { title: t("qcPage.formatScore"), dataIndex: 'formatScore', align: 'center', render: (value: number) => renderScoreBar(value) },
+                { title: t("qcPage.accuracyScore"), dataIndex: 'accuracyScore', align: 'center', render: (value: number) => renderScoreBar(value) },
+                { title: t("qcPage.timelinessScore"), dataIndex: 'timelinessScore', align: 'center', render: (value: number) => renderScoreBar(value) },
+                { title: t("qcPage.reportCount"), dataIndex: 'reportCount', align: 'center', render: (value: number) => <AppText size="xs" color="secondary" as="span">{value}{t("qcPage.reportUnit")}</AppText> },
+                {
+                  title: t("qcPage.perfGrade"),
+                  key: 'grade',
+                  align: 'center',
+                  render: (_v, doctor) => {
+                    const gradeColor = doctor.totalScore >= 90 ? SUCCESS : doctor.totalScore >= 80 ? WARNING : doctor.totalScore >= 70 ? '#f97316' : DANGER
+                    const gradeLabel = doctor.totalScore >= 90 ? t("qcPage.excellent") : doctor.totalScore >= 80 ? t("qcPage.good") : doctor.totalScore >= 70 ? t("qcPage.pass") : t("qcPage.needsImprovement")
+                    return (
+                      <span style={{ padding: '2px 10px', background: doctor.totalScore >= 90 ? 'var(--color-success-bg)' : doctor.totalScore >= 80 ? 'var(--color-warning-bg)' : doctor.totalScore >= 70 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: gradeColor, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                        {gradeLabel}
+                      </span>
+                    )
+                  },
+                },
+              ]}
+            />
           </div>
 
           {/* 质控问题分布 */}
@@ -1136,49 +1141,58 @@ export default function QCPage() {
 
           {/* Report List */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {[t("qcPage.reportId"), t("qcPage.patientName"), t("qcPage.reportDoctor"), t("qcPage.reviewDoctor"), t("qcPage.grade"), t("qcPage.totalScore"), t("qcPage.completeness"), t("qcPage.accuracy"), t("qcPage.standardness"), t("qcPage.timeliness"), t("qcPage.status"), t("qcPage.actions")].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredReports.map((r, idx) => (
-                  <tr key={r.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-info-bg)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)'}
-                  >
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{r.id}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{r.patientName}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{r.reportDoctor}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{r.reviewDoctor}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: GRADE_COLORS[r.grade]?.bg, color: GRADE_COLORS[r.grade]?.color, fontWeight: 800, fontSize: 13, border: `2px solid ${GRADE_COLORS[r.grade]?.border}` }}>
-                        {r.grade}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ fontWeight: 800, fontSize: 14, color: SCORE_COLORS[r.status as keyof typeof SCORE_COLORS] }}>{r.score}</span>
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.completeness)}</td>
-                    <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.accuracy)}</td>
-                    <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.standardization)}</td>
-                    <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.timeliness)}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_COLORS[r.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_COLORS[r.status]?.color ?? GRAY, dot: STATUS_COLORS[r.status]?.color ?? GRAY }}>
-                        {r.status}
-                      </StatusTag>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
-                        <Eye size={14} />{t('qc.detail')}</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              rowKey="id"
+              dataSource={filteredReports}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("qcPage.reportId"), dataIndex: 'id', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                { title: t("qcPage.patientName"), dataIndex: 'patientName', align: 'center', render: (value: string) => <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{value}</span> },
+                { title: t("qcPage.reportDoctor"), dataIndex: 'reportDoctor', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                { title: t("qcPage.reviewDoctor"), dataIndex: 'reviewDoctor', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                {
+                  title: t("qcPage.grade"),
+                  dataIndex: 'grade',
+                  align: 'center',
+                  render: (value: string) => (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: GRADE_COLORS[value]?.bg, color: GRADE_COLORS[value]?.color, fontWeight: 800, fontSize: 13, border: `2px solid ${GRADE_COLORS[value]?.border}` }}>
+                      {value}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("qcPage.totalScore"),
+                  dataIndex: 'score',
+                  align: 'center',
+                  render: (value: number, r) => <span style={{ fontWeight: 800, fontSize: 14, color: SCORE_COLORS[r.status as keyof typeof SCORE_COLORS] }}>{value}</span>,
+                },
+                { title: t("qcPage.completeness"), dataIndex: 'completeness', align: 'center', render: (value: number) => renderScoreBar(value) },
+                { title: t("qcPage.accuracy"), dataIndex: 'accuracy', align: 'center', render: (value: number) => renderScoreBar(value) },
+                { title: t("qcPage.standardness"), dataIndex: 'standardization', align: 'center', render: (value: number) => renderScoreBar(value) },
+                { title: t("qcPage.timeliness"), dataIndex: 'timeliness', align: 'center', render: (value: number) => renderScoreBar(value) },
+                {
+                  title: t("qcPage.status"),
+                  key: 'status',
+                  align: 'center',
+                  render: (_v, r) => (
+                    <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_COLORS[r.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_COLORS[r.status]?.color ?? GRAY, dot: STATUS_COLORS[r.status]?.color ?? GRAY }}>
+                      {r.status}
+                    </StatusTag>
+                  ),
+                },
+                {
+                  title: t("qcPage.actions"),
+                  key: 'action',
+                  align: 'center',
+                  render: (_v, r) => (
+                    <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                      <Eye size={14} />{t('qc.detail')}</button>
+                  ),
+                },
+              ]}
+            />
           </div>
         </div>
       )}
@@ -1205,48 +1219,57 @@ export default function QCPage() {
 
           {/* Image QC Table */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {[t("qcPage.accessionNo"), t("qcPage.patient"), t("qcPage.device"), t("qcPage.imageScore"), t("qcPage.mainIssues"), t("qcPage.status"), t("qcPage.actions")].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {imageFiltered.map((img, idx) => (
-                  <tr key={img.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-info-bg)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)'}
-                  >
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{img.id}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{img.patientName}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{img.device.split('（')[0]}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ fontWeight: 800, fontSize: 14, color: SCORE_COLORS[img.status as keyof typeof SCORE_COLORS] }}>{img.score}</span>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
-                        {img.issues.length === 0 ? (
-                          <span style={{ fontSize: 12, color: SUCCESS }}>{t('qcimage.noIssues')}</span>
-                        ) : img.issues.map(issue => (
-                          <span key={issue} style={{ padding: '2px 6px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12 }}>{issue}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_COLORS[img.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_COLORS[img.status]?.color ?? GRAY, dot: STATUS_COLORS[img.status]?.color ?? GRAY }}>
-                        {img.status}
-                      </StatusTag>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.imageDetailTitle', { id: img.id }), content: t('w9b.qc.viewingImage', { id: img.id }) }) }} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
-                        <Image size={14} />{t('qcimage.viewImage')}</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              rowKey="id"
+              dataSource={imageFiltered}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("qcPage.accessionNo"), dataIndex: 'id', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                { title: t("qcPage.patient"), dataIndex: 'patientName', align: 'center', render: (value: string) => <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{value}</span> },
+                { title: t("qcPage.device"), dataIndex: 'device', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value.split('（')[0]}</span> },
+                {
+                  title: t("qcPage.imageScore"),
+                  dataIndex: 'score',
+                  align: 'center',
+                  render: (value: number, img) => <span style={{ fontWeight: 800, fontSize: 14, color: SCORE_COLORS[img.status as keyof typeof SCORE_COLORS] }}>{value}</span>,
+                },
+                {
+                  title: t("qcPage.mainIssues"),
+                  dataIndex: 'issues',
+                  align: 'center',
+                  render: (value: string[]) => (
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {value.length === 0 ? (
+                        <span style={{ fontSize: 12, color: SUCCESS }}>{t('qcimage.noIssues')}</span>
+                      ) : value.map(issue => (
+                        <span key={issue} style={{ padding: '2px 6px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12 }}>{issue}</span>
+                      ))}
+                    </div>
+                  ),
+                },
+                {
+                  title: t("qcPage.status"),
+                  key: 'status',
+                  align: 'center',
+                  render: (_v, img) => (
+                    <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_COLORS[img.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_COLORS[img.status]?.color ?? GRAY, dot: STATUS_COLORS[img.status]?.color ?? GRAY }}>
+                      {img.status}
+                    </StatusTag>
+                  ),
+                },
+                {
+                  title: t("qcPage.actions"),
+                  key: 'action',
+                  align: 'center',
+                  render: (_v, img) => (
+                    <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.imageDetailTitle', { id: img.id }), content: t('w9b.qc.viewingImage', { id: img.id }) }) }} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                      <Image size={14} />{t('qcimage.viewImage')}</button>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           {/* Waste Film Analysis Chart */}
@@ -1314,40 +1337,42 @@ export default function QCPage() {
 
           {/* Timeout List */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {[t("qcPage.accessionNo"), t("qcPage.patient"), t("qcPage.examItem"), t("qcPage.plannedTime"), t("qcPage.actualReport"), t("qcPage.delayMinutes"), t("qcPage.overdueReason"), t("qcPage.severity")].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {timeoutData.map((t, idx) => {
-                  const severityColor = t.severity === '严重' ? DANGER : t.severity === '中等' ? WARNING : GRAY
-                  return (
-                    <tr key={t.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{t.id}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY }}>{t.patientName}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{t.examItem}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{t.scheduledTime}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{t.actualReportTime}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ fontWeight: 800, color: t.delayMinutes > 180 ? DANGER : t.delayMinutes > 120 ? WARNING : GRAY }}>
-                          {t.delayMinutes}′
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{t.reason}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <SeverityTag size="md" style={{ fontWeight: 700 }} tone={{ bg: t.severity === '严重' ? 'var(--color-error-bg)' : t.severity === '中等' ? 'var(--color-warning-bg)' : 'var(--bg-card)', border: 'transparent', color: severityColor, dot: severityColor }}>
-                          {t.severity}
-                        </SeverityTag>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table></div>
+            <DataTable
+              rowKey="id"
+              dataSource={timeoutData}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("qcPage.accessionNo"), dataIndex: 'id', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                { title: t("qcPage.patient"), dataIndex: 'patientName', align: 'center', render: (value: string) => <span style={{ fontWeight: 700, color: PRIMARY }}>{value}</span> },
+                { title: t("qcPage.examItem"), dataIndex: 'examItem', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                { title: t("qcPage.plannedTime"), dataIndex: 'scheduledTime', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                { title: t("qcPage.actualReport"), dataIndex: 'actualReportTime', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                {
+                  title: t("qcPage.delayMinutes"),
+                  dataIndex: 'delayMinutes',
+                  align: 'center',
+                  render: (value: number) => (
+                    <span style={{ fontWeight: 800, color: value > 180 ? DANGER : value > 120 ? WARNING : GRAY }}>{value}′</span>
+                  ),
+                },
+                { title: t("qcPage.overdueReason"), dataIndex: 'reason', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                {
+                  title: t("qcPage.severity"),
+                  key: 'severity',
+                  align: 'center',
+                  render: (_v, row) => {
+                    const tone = row.severity === '严重' ? severityTone('critical') : row.severity === '中等' ? severityTone('warning') : severityTone('neutral')
+                    return (
+                      <SeverityTag size="md" style={{ fontWeight: 700 }} tone={{ ...tone, border: 'transparent' }}>
+                        {row.severity}
+                      </SeverityTag>
+                    )
+                  },
+                },
+              ]}
+            />
           </div>
 
           {/* Reason Analysis & Suggestions */}
@@ -1499,56 +1524,70 @@ export default function QCPage() {
               >
                 <Plus size={14} />{t('qcdefect.newInspection')}</button>
             </div>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {[t("qcPage.sampleId"), t("qcPage.reportId"), t("qcPage.patient"), t("qcPage.reportDoctor"), t("qcPage.sampleDoctor"), t("qcPage.sampleDate"), t("qcPage.grade"), t("qcPage.score"), t("qcPage.defect"), t("qcPage.reviewComment"), t("qcPage.status"), t("qcPage.actions")].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {inspectionRecordsData.map((record, idx) => (
-                  <tr key={record.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-info-bg)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)'}
-                  >
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{record.id}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: ACCENT }}>{record.reportId}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{record.patientName}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{record.reportDoctor}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{record.inspector}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{record.inspectionDate}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', background: GRADE_COLORS[record.grade]?.bg, color: GRADE_COLORS[record.grade]?.color, fontWeight: 800, fontSize: 12, border: `2px solid ${GRADE_COLORS[record.grade]?.border}` }}>
-                        {record.grade}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ fontWeight: 800, fontSize: 13, color: record.score >= 90 ? SUCCESS : record.score >= 80 ? WARNING : DANGER }}>{record.score}</span>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
-                        {record.defects.length === 0 ? (
-                          <span style={{ fontSize: 12, color: SUCCESS }}>{t('qcdefect.none')}</span>
-                        ) : record.defects.map(d => (
-                          <span key={d} style={{ padding: '1px 5px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12 }}>{d}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)', maxWidth: 150 }}>{record.inspectorComment}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: record.status === '已通过' ? 'var(--color-success-bg)' : record.status === '需整改' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', border: 'transparent', color: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER, dot: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER }}>
-                        {record.status}
-                      </StatusTag>
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.sampleDetailTitle', { id: record.id }), content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.detail')}</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              rowKey="id"
+              dataSource={inspectionRecordsData}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t("qcPage.sampleId"), dataIndex: 'id', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                { title: t("qcPage.reportId"), dataIndex: 'reportId', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: ACCENT }}>{value}</span> },
+                { title: t("qcPage.patient"), dataIndex: 'patientName', align: 'center', render: (value: string) => <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{value}</span> },
+                { title: t("qcPage.reportDoctor"), dataIndex: 'reportDoctor', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                { title: t("qcPage.sampleDoctor"), dataIndex: 'inspector', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                { title: t("qcPage.sampleDate"), dataIndex: 'inspectionDate', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                {
+                  title: t("qcPage.grade"),
+                  dataIndex: 'grade',
+                  align: 'center',
+                  render: (value: string) => (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', background: GRADE_COLORS[value]?.bg, color: GRADE_COLORS[value]?.color, fontWeight: 800, fontSize: 12, border: `2px solid ${GRADE_COLORS[value]?.border}` }}>
+                      {value}
+                    </span>
+                  ),
+                },
+                {
+                  title: t("qcPage.score"),
+                  dataIndex: 'score',
+                  align: 'center',
+                  render: (value: number) => <span style={{ fontWeight: 800, fontSize: 13, color: value >= 90 ? SUCCESS : value >= 80 ? WARNING : DANGER }}>{value}</span>,
+                },
+                {
+                  title: t("qcPage.defect"),
+                  dataIndex: 'defects',
+                  align: 'center',
+                  render: (value: string[]) => (
+                    <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {value.length === 0 ? (
+                        <span style={{ fontSize: 12, color: SUCCESS }}>{t('qcdefect.none')}</span>
+                      ) : value.map(d => (
+                        <span key={d} style={{ padding: '1px 5px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12 }}>{d}</span>
+                      ))}
+                    </div>
+                  ),
+                },
+                { title: t("qcPage.reviewComment"), dataIndex: 'inspectorComment', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)', display: 'inline-block', maxWidth: 150 }}>{value}</span> },
+                {
+                  title: t("qcPage.status"),
+                  key: 'status',
+                  align: 'center',
+                  render: (_v, record) => (
+                    <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: record.status === '已通过' ? 'var(--color-success-bg)' : record.status === '需整改' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', border: 'transparent', color: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER, dot: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER }}>
+                      {record.status}
+                    </StatusTag>
+                  ),
+                },
+                {
+                  title: t("qcPage.actions"),
+                  key: 'action',
+                  align: 'center',
+                  render: (_v, record) => (
+                    <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.sampleDetailTitle', { id: record.id }), content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.detail')}</button>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           {/* 抽检问题汇总与改进建议 */}
@@ -1908,62 +1947,61 @@ export default function QCPage() {
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Award size={16} color={ACCENT} />{t('qc.regionalRanking')}</h3>
-                <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                      {[t("qcPage.rank"), t("qcPage.institution"), t("qcPage.compositeScore"), t("qcPage.imageQuality"), t("qcPage.reportQuality"), t("qcPage.dimTimeliness"), t("qcPage.criticalReporting"), t("qcPage.trend")].map(h => (
-                        <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {regionalRanking.map((r, idx) => (
-                      <tr key={r.ranking} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}
-                        onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-info-bg)'}
-                        onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)'}
-                      >
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 24,
-                            height: 24,
-                            borderRadius: '50%',
-                            background: r.ranking === 1 ? 'var(--color-warning-bg)' : r.ranking === 2 ? 'var(--bg-card)' : r.ranking === 3 ? 'var(--color-warning-bg)' : 'var(--color-info-bg)',
-                            color: r.ranking === 1 ? '#92400e' : r.ranking === 2 ? '#475569' : r.ranking === 3 ? '#92400e' : ACCENT,
-                            fontWeight: 800,
-                            fontSize: 12,
-                          }}>
-                            {r.ranking}
-                          </span>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'left' }}>
-                          <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{r.institution}</span>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{ fontWeight: 800, fontSize: 14, color: r.score >= 85 ? SUCCESS : r.score >= 80 ? WARNING : DANGER }}>{r.score}</span>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(r.imageQuality)}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(r.reportQuality)}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(r.timeliness)}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{ fontWeight: 700, color: r.criticalValueReport >= 95 ? SUCCESS : r.criticalValueReport >= 90 ? WARNING : DANGER }}>{r.criticalValueReport}%</span>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                            {r.trend === 'up' ? <TrendingUp size={14} color={SUCCESS} /> : r.trend === 'down' ? <TrendingDown size={14} color={DANGER} /> : <Minus size={14} color={GRAY} />}
-                            {r.trend !== 'same' && (
-                              <span style={{ fontSize: 12, fontWeight: 600, color: r.trend === 'up' ? SUCCESS : DANGER }}>
-                                {r.trend === 'up' ? '+' : ''}{r.trendValue}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table></div>
+                <DataTable
+                  rowKey="ranking"
+                  dataSource={regionalRanking}
+                  showPagination={false}
+                  showExport={false}
+                  showDensity={false}
+                  columns={[
+                    {
+                      title: t("qcPage.rank"),
+                      dataIndex: 'ranking',
+                      align: 'center',
+                      render: (value: number) => (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%',
+                          background: value === 1 ? 'var(--color-warning-bg)' : value === 2 ? 'var(--bg-card)' : value === 3 ? 'var(--color-warning-bg)' : 'var(--color-info-bg)',
+                          color: value === 1 ? '#92400e' : value === 2 ? '#475569' : value === 3 ? '#92400e' : ACCENT,
+                          fontWeight: 800, fontSize: 12,
+                        }}>
+                          {value}
+                        </span>
+                      ),
+                    },
+                    { title: t("qcPage.institution"), dataIndex: 'institution', render: (value: string) => <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{value}</span> },
+                    {
+                      title: t("qcPage.compositeScore"),
+                      dataIndex: 'score',
+                      align: 'center',
+                      render: (value: number) => <span style={{ fontWeight: 800, fontSize: 14, color: value >= 85 ? SUCCESS : value >= 80 ? WARNING : DANGER }}>{value}</span>,
+                    },
+                    { title: t("qcPage.imageQuality"), dataIndex: 'imageQuality', align: 'center', render: (value: number) => renderScoreBar(value) },
+                    { title: t("qcPage.reportQuality"), dataIndex: 'reportQuality', align: 'center', render: (value: number) => renderScoreBar(value) },
+                    { title: t("qcPage.dimTimeliness"), dataIndex: 'timeliness', align: 'center', render: (value: number) => renderScoreBar(value) },
+                    {
+                      title: t("qcPage.criticalReporting"),
+                      dataIndex: 'criticalValueReport',
+                      align: 'center',
+                      render: (value: number) => <span style={{ fontWeight: 700, color: value >= 95 ? SUCCESS : value >= 90 ? WARNING : DANGER }}>{value}%</span>,
+                    },
+                    {
+                      title: t("qcPage.trend"),
+                      key: 'trend',
+                      align: 'center',
+                      render: (_v, r) => (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                          {r.trend === 'up' ? <TrendingUp size={14} color={SUCCESS} /> : r.trend === 'down' ? <TrendingDown size={14} color={DANGER} /> : <Minus size={14} color={GRAY} />}
+                          {r.trend !== 'same' && (
+                            <span style={{ fontSize: 12, fontWeight: 600, color: r.trend === 'up' ? SUCCESS : DANGER }}>
+                              {r.trend === 'up' ? '+' : ''}{r.trendValue}
+                            </span>
+                          )}
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
               </div>
 
               {/* 雷达图对比 */}
@@ -2411,28 +2449,29 @@ export default function QCPage() {
                 <button onClick={handleRandomAssign} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Zap size={14} />{t('qc.randomAssign')}</button>
               </div>
-              <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {[t("qcPage.caseId"), t("qcPage.patient"), t("qcPage.originalAuthor"), t("qcPage.reviewer"), t("qcPage.blindId"), t("qcPage.status"), t("qcPage.actions")].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
-                </tr></thead>
-                <tbody>
-                  {peerReviewAssignments.map((a, idx) => (
-                    <tr key={a.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{a.id}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{a.patientName}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{a.originalAuthor}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{a.reviewer}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>{a.blindedId}</span></td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <StatusTag size="md" style={{ fontWeight: 700 }} status={a.status === '待评分' ? 'warning' : 'success'}>{a.status}</StatusTag>
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <button onClick={() => handlePeerReviewScore(a)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.score')}</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                rowKey="id"
+                dataSource={peerReviewAssignments}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t("qcPage.caseId"), dataIndex: 'id', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                  { title: t("qcPage.patient"), dataIndex: 'patientName', align: 'center', render: (value: string) => <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{value}</span> },
+                  { title: t("qcPage.originalAuthor"), dataIndex: 'originalAuthor', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                  { title: t("qcPage.reviewer"), dataIndex: 'reviewer', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                  { title: t("qcPage.blindId"), dataIndex: 'blindedId', align: 'center', render: (value: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>{value}</span> },
+                  { title: t("qcPage.status"), key: 'status', align: 'center', render: (_v, a) => <StatusTag size="md" style={{ fontWeight: 700 }} status={a.status === '待评分' ? 'warning' : 'success'}>{a.status}</StatusTag> },
+                  {
+                    title: t("qcPage.actions"),
+                    key: 'action',
+                    align: 'center',
+                    render: (_v, a) => (
+                      <button onClick={() => handlePeerReviewScore(a)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.score')}</button>
+                    ),
+                  },
+                ]}
+              />
             </div>
           )}
           {peerReviewTab === 'scoring' && (
@@ -2633,31 +2672,30 @@ export default function QCPage() {
                   </AreaChart>
                 </ChartContainer>
               </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                <thead>
-                  <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                    {[t("qcPage.caseId"), t("qcPage.patient"), t("qcPage.imagingDiagnosis"), t("qcPage.pathologyResult"), t("qcPage.consistency"), t("qcPage.date")].map(h => (
-                      <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {radPathData.filter(d => d.concordance === 'concordant').map((d, idx) => (
-                    <tr key={d.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{d.id}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY }}>{d.patientName}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{d.radDiagnosis}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{d.pathResult}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <StatusTag size="md" style={{ fontWeight: 700 }} status={d.concordance === 'concordant' ? 'success' : d.concordance === 'discordant' ? 'critical' : 'neutral'}>
-                          {d.concordance === 'concordant' ? t("qcPage.consistent") : d.concordance === 'discordant' ? t("qcPage.inconsistent") : t("qcPage.pending")}
-                        </StatusTag>
-                      </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{d.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                rowKey="id"
+                dataSource={radPathData.filter(d => d.concordance === 'concordant')}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t("qcPage.caseId"), dataIndex: 'id', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                  { title: t("qcPage.patient"), dataIndex: 'patientName', align: 'center', render: (value: string) => <span style={{ fontWeight: 700, color: PRIMARY }}>{value}</span> },
+                  { title: t("qcPage.imagingDiagnosis"), dataIndex: 'radDiagnosis', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                  { title: t("qcPage.pathologyResult"), dataIndex: 'pathResult', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                  {
+                    title: t("qcPage.consistency"),
+                    key: 'concordance',
+                    align: 'center',
+                    render: (_v, d) => (
+                      <StatusTag size="md" style={{ fontWeight: 700 }} status={d.concordance === 'concordant' ? 'success' : d.concordance === 'discordant' ? 'critical' : 'neutral'}>
+                        {d.concordance === 'concordant' ? t("qcPage.consistent") : d.concordance === 'discordant' ? t("qcPage.inconsistent") : t("qcPage.pending")}
+                      </StatusTag>
+                    ),
+                  },
+                  { title: t("qcPage.date"), dataIndex: 'date', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                ]}
+              />
             </>
           )}
           {radPathTab === 'discordant' && (
@@ -2797,28 +2835,30 @@ export default function QCPage() {
               </div>
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.inspectionFindings')}</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                    {[t("qcPage.date"), t("qcPage.checkInstitution"), t("qcPage.foundItems"), t("qcPage.severity"), t("qcPage.status")].map(h => (
-                      <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                    ))}
-                  </tr></thead>
-                  <tbody>
-                    {inspectionFindings.map((f, idx) => (
-                      <tr key={f.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{f.date}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: PRIMARY }}>{f.inspector}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{f.findings}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <SeverityTag style={{ fontWeight: 700 }} level={f.severity === '高' ? 'high' : f.severity === '中' ? 'warning' : 'neutral'}>{f.severity}</SeverityTag>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <StatusTag size="md" style={{ fontWeight: 700 }} status={f.status === '已整改' ? 'success' : 'warning'}>{f.status}</StatusTag>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataTable
+                  rowKey="id"
+                  dataSource={inspectionFindings}
+                  showPagination={false}
+                  showExport={false}
+                  showDensity={false}
+                  columns={[
+                    { title: t("qcPage.date"), dataIndex: 'date', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{value}</span> },
+                    { title: t("qcPage.checkInstitution"), dataIndex: 'inspector', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: PRIMARY }}>{value}</span> },
+                    { title: t("qcPage.foundItems"), dataIndex: 'findings', align: 'center', render: (value: string) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value}</span> },
+                    {
+                      title: t("qcPage.severity"),
+                      dataIndex: 'severity',
+                      align: 'center',
+                      render: (value: string) => <SeverityTag style={{ fontWeight: 700 }} level={value === '高' ? 'high' : value === '中' ? 'warning' : 'neutral'}>{value}</SeverityTag>,
+                    },
+                    {
+                      title: t("qcPage.status"),
+                      dataIndex: 'status',
+                      align: 'center',
+                      render: (value: string) => <StatusTag size="md" style={{ fontWeight: 700 }} status={value === '已整改' ? 'success' : 'warning'}>{value}</StatusTag>,
+                    },
+                  ]}
+                />
               </div>
             </>
           )}

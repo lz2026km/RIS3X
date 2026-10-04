@@ -12,21 +12,23 @@ import { getOpsAnalyticsService } from '../../services/ops'
 import { Card } from 'antd'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common/DataTable'
+import { StatusTag } from '../../components/common/StatusTag'
 import { t } from '../../i18n/appI18n'
 
 const svc = getOpsAnalyticsService()
 
 const s: Record<string, React.CSSProperties> = {
-  root: { minHeight: '100vh', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' },
-  header: { background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  root: { minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' },
+  header: { background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-900))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   headerTitle: { display: 'flex', alignItems: 'center', gap: 12 },
   headerText: { fontSize: 20, fontWeight: 600 },
   content: { padding: '20px 24px' },
   grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 16, marginBottom: 24 },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 },
-  panel: { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 'var(--radius-md, 8px)', padding: 16 },
-  panelTitle: { fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 },
-  kpiCard: { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 'var(--radius-md, 8px)', padding: '16px 20px', flex: 1, minWidth: 180 },
+  panel: { background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md, 8px)', padding: 16 },
+  panelTitle: { fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 },
+  kpiCard: { background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md, 8px)', padding: '16px 20px', flex: 1, minWidth: 180 },
 }
 
 function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
@@ -35,14 +37,14 @@ function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
   return (
     <Card bordered={false} style={s.kpiCard} styles={{ body: { padding: 0 } }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-        <span style={{ fontSize: 12, color: '#8b949e' }}>{title}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{title}</span>
         <Icon size={20} style={{ color }} />
       </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc', marginBottom: 4 }}>
-        {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{unit}</span>}
+      <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+        {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 4 }}>{unit}</span>}
       </div>
       {trend && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? '#22c55e' : '#ef4444' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? 'var(--color-success-500)' : 'var(--color-error-500)' }}>
           {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}{t('opsDashboard.vsYesterday')}
         </div>
       )}
@@ -135,54 +137,49 @@ export default function OpsDashboardPage() {
       <div style={s.header}>
         <div style={s.headerTitle}><Activity size={24} /><span style={s.headerText}>{t('opsDashboard.title')}</span>
           {/* [G005 Wave4A P1] 数据源徽标 */}
-          <span style={{
-            fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
-            background: dataMode === 'real' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.25)',
-            color: dataMode === 'real' ? '#4ade80' : '#fbbf24',
-            border: `1px solid ${dataMode === 'real' ? '#22c55e' : '#f59e0b'}`,
-          }}>
+          <StatusTag status={dataMode === 'real' ? 'success' : 'warning'} dot>
             {dataMode === 'real' ? t('opsDashboard.realData') : t('opsDashboard.demoData')}
-          </span>
+          </StatusTag>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <span title={t('opsDashboard.refreshTitle')} style={{ cursor: 'pointer', display: 'inline-flex' }} onClick={() => void load()}>
-            <RefreshCw size={16} style={{ color: '#8b949e' }} />
+            <RefreshCw size={16} style={{ color: 'var(--text-secondary)' }} />
           </span>
-          <span style={{ fontSize: 12, color: '#8b949e' }}>{t('opsDashboard.autoRefresh')}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsDashboard.autoRefresh')}</span>
         </div>
       </div>
 
       <div style={s.content}>
         {loadError && (
-          <div style={{ padding: '8px 12px', marginBottom: 12, borderRadius: 6, background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning-500, #f59e0b)', fontSize: 12 }}>
+          <div style={{ padding: '8px 12px', marginBottom: 12, borderRadius: 6, background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning-500)', fontSize: 12 }}>
             {t('w2d.loadFailed')}: {loadError}
           </div>
         )}
         <StateView loading={loading} skeletonRows={6}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <KpiCard title={t('opsDashboard.kpiTotalExams')} value={totalExams} icon={TrendingUp} trend="up" color="var(--color-primary-500, #3b82f6)" />
-          <KpiCard title={t('opsDashboard.kpiAvgUtil')} value={avgUtil} unit="%" icon={Monitor} trend="up" color="var(--color-success-500, #22c55e)" />
-          <KpiCard title={t('opsDashboard.kpiTurnaround')} value={p50} unit="min" icon={Clock} color="var(--color-warning-500, #f59e0b)" />
-          <KpiCard title={t('opsDashboard.kpiActiveTechs')} value={operators.length} icon={Users} color="var(--color-modality-mr, #8b5cf6)" />
+          <KpiCard title={t('opsDashboard.kpiTotalExams')} value={totalExams} icon={TrendingUp} trend="up" color="var(--color-primary-500)" />
+          <KpiCard title={t('opsDashboard.kpiAvgUtil')} value={avgUtil} unit="%" icon={Monitor} trend="up" color="var(--color-success-500)" />
+          <KpiCard title={t('opsDashboard.kpiTurnaround')} value={p50} unit="min" icon={Clock} color="var(--color-warning-500)" />
+          <KpiCard title={t('opsDashboard.kpiActiveTechs')} value={operators.length} icon={Users} color="var(--color-modality-mr)" />
         </div>
 
         <div style={s.grid2}>
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><TrendingUp size={16} color="#3b82f6" />{t('opsDashboard.workloadTrend')}</div>
+            <div style={s.panelTitle}><TrendingUp size={16} color="var(--color-primary-500)" />{t('opsDashboard.workloadTrend')}</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               {[7, 14, 30].map(d => (
                 <button key={d} onClick={() => setDays(d)}
-                  style={{ padding: '4px 12px', borderRadius: 4, border: '1px solid #30363d', background: days === d ? '#1e40af' : 'transparent', color: '#f0f6fc', cursor: 'pointer', fontSize: 12 }}>
+                  style={{ padding: '4px 12px', borderRadius: 4, border: '1px solid var(--border-default)', background: days === d ? 'var(--color-primary-800)' : 'transparent', color: 'var(--text-primary)', cursor: 'pointer', fontSize: 12 }}>
                   {t('opsDashboard.days', { d })}
                 </button>
               ))}
             </div>
             <ChartContainer height={240} state={workload.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noWorkloadData')}>
               <LineChart data={workload}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => v.slice(5)} />
-                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+                <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => v.slice(5)} />
+                <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line type="monotone" dataKey="exams" stroke="#3b82f6" strokeWidth={2} dot={false} name={t('opsDashboard.thisPeriod')} />
                 <Line type="monotone" dataKey="previousExams" stroke="#6e7681" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name={t('opsDashboard.prevPeriod')} />
@@ -191,13 +188,13 @@ export default function OpsDashboardPage() {
           </Card>
 
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><Monitor size={16} color="#22c55e" />{t('opsDashboard.deviceUtilization')}</div>
+            <div style={s.panelTitle}><Monitor size={16} color="var(--color-success-500)" />{t('opsDashboard.deviceUtilization')}</div>
             <ChartContainer height={260} state={modUtil.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noDeviceUtilData')}>
               <BarChart data={modUtil}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} unit="%" />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}%`, t('opsDashboard.utilization')]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+                <XAxis dataKey="modality" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} unit="%" />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}%`, t('opsDashboard.utilization')]} />
                 <Bar dataKey="utilizationPercent" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('opsDashboard.utilization')} />
               </BarChart>
             </ChartContainer>
@@ -206,42 +203,52 @@ export default function OpsDashboardPage() {
 
         <div style={s.grid2}>
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><Clock size={16} color="#f59e0b" />{t('opsDashboard.peakTitle')} <span style={{ fontSize: 11, color: '#6e7681' }}>{t('opsDashboard.simulated')}</span></div>
+            <div style={s.panelTitle}><Clock size={16} color="var(--color-warning-500)" />{t('opsDashboard.peakTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('opsDashboard.simulated')}</span></div>
             <ChartContainer height={220} state={peakData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('opsDashboard.noPeakData')}>
               <BarChart data={peakData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
+                <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="examCount" fill="#f59e0b" radius={[4, 4, 0, 0]} name={t('opsDashboard.examVolume')} />
               </BarChart>
             </ChartContainer>
           </Card>
 
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><Users size={16} color="#8b5cf6" />{t('opsDashboard.techRanking')}</div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>#</th>
-                    <th style={{ textAlign: 'left', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('opsDashboard.colName')}</th>
-                    <th style={{ textAlign: 'right', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('opsDashboard.colExamCount')}</th>
-                    <th style={{ textAlign: 'right', padding: '8px 8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('opsDashboard.colAvgTime')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {operators.map((o, i) => (
-                    <tr key={o.operatorName}>
-                      <td style={{ padding: '8px 8px', borderBottom: '1px solid #21262d', color: i < 3 ? '#f59e0b' : '#8b949e', fontWeight: 700 }}>{i + 1}</td>
-                      <td style={{ padding: '8px 8px', borderBottom: '1px solid #21262d', color: '#f0f6fc' }}>{o.operatorName}</td>
-                      <td style={{ padding: '8px 8px', borderBottom: '1px solid #21262d', textAlign: 'right', fontWeight: 600 }}>{o.examsCompleted}</td>
-                      <td style={{ padding: '8px 8px', borderBottom: '1px solid #21262d', textAlign: 'right', color: '#8b949e' }}>{o.avgExamTimeMin} min</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <div style={s.panelTitle}><Users size={16} color="var(--color-modality-mr)" />{t('opsDashboard.techRanking')}</div>
+            <DataTable
+              dataSource={operators}
+              rowKey={(o) => o.operatorName}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                {
+                  title: '#',
+                  key: 'rank',
+                  width: 48,
+                  render: (_v, _r, i) => (
+                    <span style={{ color: i < 3 ? 'var(--color-warning-500)' : 'var(--text-secondary)', fontWeight: 700 }}>{i + 1}</span>
+                  ),
+                },
+                { title: t('opsDashboard.colName'), dataIndex: 'operatorName', key: 'operatorName' },
+                {
+                  title: t('opsDashboard.colExamCount'),
+                  dataIndex: 'examsCompleted',
+                  key: 'examsCompleted',
+                  align: 'right' as const,
+                  render: (v: number) => <span style={{ fontWeight: 600 }}>{v}</span>,
+                },
+                {
+                  title: t('opsDashboard.colAvgTime'),
+                  dataIndex: 'avgExamTimeMin',
+                  key: 'avgExamTimeMin',
+                  align: 'right' as const,
+                  render: (v: number) => <span style={{ color: 'var(--text-secondary)' }}>{v} min</span>,
+                },
+              ]}
+            />
           </Card>
         </div>
         </StateView>

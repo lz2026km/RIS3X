@@ -1,3 +1,24 @@
+## v3.0.6.12-7 (2026-09-28) — UI 迁移续（原生表格→DataTable + 硬编码色→令牌）
+
+> **目标**: 继续 UI-6 —— 消除残余"幼稚/不一致"UI（原生表格、硬编码色、状态色散乱）
+> **范围**: 14 页迁移；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功
+
+### 原生 `<table>` → `DataTable`（共 47 张）
+- `QCPage` 9/9、`qc/RadiologyQCDashboardPage` 5/5、`NationalReportPage` 5/5、`DirectorDashboardPage` 5/5、`CancerScreenPage` 4/4
+- `RegionalImagingPage` 9、`ResearchPage` 8、`tech/TechOpsPage` 6（+1 heatmap 保留）、`InsuranceAuditPage` 7、`CostAnalysisPage` 2、`DepartmentFinancePage` 1、`ops/OpsDashboardPage` 1
+- 保留：`OperationsCenterPage`（强制深色大屏视口，安全跳过）、`TechOpsPage.HourHeatmap`（矩阵非列表）、编辑型输入表
+
+### 硬编码色 → 设计令牌（状态/严重度单一来源）
+- 大批量替换：`CostAnalysisPage` 440、`DepartmentFinancePage` 207、`RadiologyQCDashboardPage` 107、`CancerScreenPage` 88、`NationalReportPage` 51、`DirectorDashboardPage` 36、`QCPage` 20 等
+- 文本/表面/边框/主色 → `--text-*`/`--bg-*`/`--border-*`/`--color-primary`；状态/严重度 → `src/theme/statusTokens.ts`；`OpsDashboardPage` 原 GitHub 暗色板整体令牌化（light/dark 均可）
+- 状态药丸统一 `StatusTag`/`SeverityTag`
+- 保留：图表 series/`stroke`/`fill`/渐变、DICOM 视口、颜色选择器色板（非主题）
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.12-6` → `3.0.6.12-7`（无 BOM）
+
+---
+
 ## v3.0.6.12-6 (2026-09-28) — 企业医疗级 UI 大升级（对标 联影/飞利浦/Sectra）
 
 > **目标**: UI/前端大规模审查与升级 —— 专业图标/专业表格/专业显示，大气商业化医疗级

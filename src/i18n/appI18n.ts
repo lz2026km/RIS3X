@@ -2499,7 +2499,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "电话",
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.12-6 · 企业医疗级 UI 大升级: 令牌治理/antd主题 + Tabler图标(清emoji) + 控件/徽标统一 + 专业表格 + 品牌外壳/页面模板",
+      "v3.0.6.12-7 · UI 迁移续: 原生表格→DataTable + 硬编码色→设计令牌(状态/严重度统一) + 主题全对",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -31263,7 +31263,7 @@ export const translations: Translations = {
     "notifExt.channel.PHONE": "Phone",
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.12-6 · Enterprise medical UI overhaul: token governance/antd theme + Tabler icons (emoji removed) + unified controls/badges + pro tables + brand shell/page template",
+      "v3.0.6.12-7 · UI migration: raw tables → DataTable + hardcoded colors → tokens (unified status/severity) + full theme",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

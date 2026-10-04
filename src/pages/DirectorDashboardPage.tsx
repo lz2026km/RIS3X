@@ -9,6 +9,9 @@ import {
 } from '../data/_generators';
 // [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
 import { KpiCard, KpiCardGrid, DashboardCard, TrendChart, ProgressRing, SkeletonKpi } from '../components/dashboard';
+import { DataTable } from '../components/common/DataTable';
+import { StatusTag } from '../components/common/StatusTag';
+import { severityColor, severityTone } from '../theme/statusTokens';
 import { Wrench, Trophy, Coins, Gauge, FileText, AlertOctagon, CheckCircle2, DollarSign, Scan, Activity, RefreshCw, Medal, LineChart as LineChartIcon } from 'lucide-react';
 import { t } from '../i18n/appI18n';
 
@@ -339,7 +342,7 @@ const DirectorDashboardPage: React.FC = () => {
       padding: '24px',
       marginBottom: '24px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      borderLeft: '4px solid #1e40af',
+      borderLeft: '4px solid var(--color-primary)',
     } as React.CSSProperties,
     headerTitle: {
       fontSize: '24px',
@@ -362,12 +365,12 @@ const DirectorDashboardPage: React.FC = () => {
       borderRadius: '12px',
       padding: '20px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      borderTop: '3px solid #1e40af',
+      borderTop: '3px solid var(--color-primary)',
     } as React.CSSProperties,
     statValue: {
       fontSize: '28px',
       fontWeight: '700',
-      color: '#1e40af',
+      color: 'var(--color-primary)',
       marginBottom: '4px',
     } as React.CSSProperties,
     statLabel: {
@@ -394,10 +397,10 @@ const DirectorDashboardPage: React.FC = () => {
       padding: '14px 24px',
       fontSize: '14px',
       fontWeight: active ? '600' : '500',
-      color: active ? '#1e40af' : '#64748b',
+      color: active ? 'var(--color-primary)' : 'var(--text-secondary)',
       backgroundColor: active ? 'var(--bg-card)' : 'transparent',
       border: 'none',
-      borderBottom: active ? '2px solid #1e40af' : '2px solid transparent',
+      borderBottom: active ? '2px solid var(--color-primary)' : '2px solid transparent',
       cursor: 'pointer',
       transition: 'all 0.2s',
     } as React.CSSProperties),
@@ -501,7 +504,7 @@ const DirectorDashboardPage: React.FC = () => {
     } as React.CSSProperties,
     progressBar: {
       height: '8px',
-      backgroundColor: '#e2e8f0',
+      backgroundColor: 'var(--border-default)',
       borderRadius: '4px',
       overflow: 'hidden',
       marginTop: '6px',
@@ -517,9 +520,9 @@ const DirectorDashboardPage: React.FC = () => {
   // 颜色
   const colors = ['#1e40af', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
   const utilizationColor = (rate: number) => {
-    if (rate > 85) return '#22c55e';
-    if (rate > 70) return '#eab308';
-    return '#ef4444';
+    if (rate > 85) return severityColor('success');
+    if (rate > 70) return severityColor('warning');
+    return severityColor('critical');
   };
 
   // 排名奖励
@@ -535,107 +538,131 @@ const DirectorDashboardPage: React.FC = () => {
     <div style={{ display: 'grid', gap: 16 }}>
       {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
       <DashboardCard title={t('directorDash.doctorRanking')} icon={<Trophy size={14} />} bodyPadding={0}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ ...styles.th, width: '50px' }}>{t('directorDash.colRank')}</th>
-              <th style={styles.th}>{t('directorDash.colName')}</th>
-              <th style={styles.th}>{t('directorDash.colTitle')}</th>
-              <th style={styles.th}>{t('directorDash.colExams')}</th>
-              <th style={styles.th}>{t('directorDash.colReports')}</th>
-              <th style={styles.th}>{t('directorDash.colPositiveRate')}</th>
-              <th style={styles.th}>{t('directorDash.colModifyRate')}</th>
-              <th style={styles.th}>{t('directorDash.colTotalScore')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {doctors.map((doc, idx) => {
-              const rank = getRankBadge(idx + 1);
-              const totalScore = (doc.formatScore + doc.diagScore + doc.timeScore) / 3;
-              return (
-                <tr key={doc.id}>
-                  <td style={styles.td}>
-                    {rank ? (
-                      <span style={styles.badge(rank.bg)}>{rank.icon}</span>
-                    ) : (
-                      <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
-                    )}
-                  </td>
-                  <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : 'var(--text-primary)' }}>
-                    {doc.name}
-                  </td>
-                  <td style={styles.td}>{doc.title}</td>
-                  <td style={styles.td}>{doc.exams}</td>
-                  <td style={styles.td}>{doc.reports}</td>
-                  <td style={{ ...styles.td, color: doc.positiveRate > 60 ? '#22c55e' : '#64748b' }}>
-                    {doc.positiveRate > 0 ? `${doc.positiveRate}%` : '—'}
-                  </td>
-                  <td style={{ ...styles.td, color: doc.modifyRate > 5 ? '#ef4444' : '#64748b' }}>
-                    {doc.modifyRate > 0 ? `${doc.modifyRate}%` : '—'}
-                  </td>
-                  <td style={styles.td}>
-                    <span style={{
-                      padding: '4px 8px',
-                      backgroundColor: totalScore > 92 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                      color: totalScore > 92 ? '#166534' : '#92400e',
-                      borderRadius: '4px',
-                      fontWeight: '600',
-                    }}>
-                      {totalScore.toFixed(1)}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table></div>
+        <DataTable
+          rowKey="id"
+          dataSource={doctors}
+          showPagination={false}
+          showExport={false}
+          showDensity={false}
+          columns={[
+            {
+              title: t('directorDash.colRank'),
+              key: 'rank',
+              width: 50,
+              render: (_v, _doc, idx) => {
+                const rank = getRankBadge(idx + 1);
+                return rank ? (
+                  <span style={styles.badge(rank.bg)}>{rank.icon}</span>
+                ) : (
+                  <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{idx + 1}</span>
+                );
+              },
+            },
+            {
+              title: t('directorDash.colName'),
+              dataIndex: 'name',
+              render: (value: string, _doc, idx) => {
+                const rank = getRankBadge(idx + 1);
+                return (
+                  <span style={{ fontWeight: 600, color: rank ? '#92400e' : 'var(--text-primary)' }}>{value}</span>
+                );
+              },
+            },
+            { title: t('directorDash.colTitle'), dataIndex: 'title' },
+            { title: t('directorDash.colExams'), dataIndex: 'exams', align: 'right' },
+            { title: t('directorDash.colReports'), dataIndex: 'reports', align: 'right' },
+            {
+              title: t('directorDash.colPositiveRate'),
+              dataIndex: 'positiveRate',
+              align: 'right',
+              render: (value: number) => (
+                <span style={{ color: value > 60 ? severityColor('success') : 'var(--text-secondary)' }}>
+                  {value > 0 ? `${value}%` : '—'}
+                </span>
+              ),
+            },
+            {
+              title: t('directorDash.colModifyRate'),
+              dataIndex: 'modifyRate',
+              align: 'right',
+              render: (value: number) => (
+                <span style={{ color: value > 5 ? severityColor('critical') : 'var(--text-secondary)' }}>
+                  {value > 0 ? `${value}%` : '—'}
+                </span>
+              ),
+            },
+            {
+              title: t('directorDash.colTotalScore'),
+              key: 'totalScore',
+              align: 'right',
+              render: (_v, doc) => {
+                const totalScore = (doc.formatScore + doc.diagScore + doc.timeScore) / 3;
+                return (
+                  <span style={{
+                    padding: '4px 8px',
+                    backgroundColor: totalScore > 92 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+                    color: totalScore > 92 ? 'var(--color-success)' : 'var(--color-warning)',
+                    borderRadius: '4px',
+                    fontWeight: 600,
+                  }}>
+                    {totalScore.toFixed(1)}
+                  </span>
+                );
+              },
+            },
+          ]}
+        />
       </DashboardCard>
 
       <DashboardCard title={t('directorDash.techRanking')} icon={<Wrench size={14} />} bodyPadding={0}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ ...styles.th, width: '50px' }}>{t('directorDash.colRank')}</th>
-              <th style={styles.th}>{t('directorDash.colName')}</th>
-              <th style={styles.th}>{t('directorDash.colTitle')}</th>
-              <th style={styles.th}>{t('directorDash.colExams')}</th>
-              <th style={styles.th}>{t('directorDash.colReports')}</th>
-              <th style={styles.th}>{t('directorDash.colDeviceUsage')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {technicians.map((tech, idx) => {
-              const rank = getRankBadge(idx + 1);
-              return (
-                <tr key={tech.id}>
-                  <td style={styles.td}>
-                    {rank ? (
-                      <span style={styles.badge(rank.bg)}>{rank.icon}</span>
-                    ) : (
-                      <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
-                    )}
-                  </td>
-                  <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : 'var(--text-primary)' }}>
-                    {tech.name}
-                  </td>
-                  <td style={styles.td}>{tech.title}</td>
-                  <td style={styles.td}>{tech.exams}</td>
-                  <td style={styles.td}>{tech.reports}</td>
-                  <td style={styles.td}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ ...styles.progressBar, width: '100px' }}>
-                        <div style={styles.progressFill(`${tech.utilization}%`, utilizationColor(tech.utilization))} />
-                      </div>
-                      <span style={{ color: utilizationColor(tech.utilization), fontWeight: '600' }}>
-                        {tech.utilization}%
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table></div>
+        <DataTable
+          rowKey="id"
+          dataSource={technicians}
+          showPagination={false}
+          showExport={false}
+          showDensity={false}
+          columns={[
+            {
+              title: t('directorDash.colRank'),
+              key: 'rank',
+              width: 50,
+              render: (_v, _doc, idx) => {
+                const rank = getRankBadge(idx + 1);
+                return rank ? (
+                  <span style={styles.badge(rank.bg)}>{rank.icon}</span>
+                ) : (
+                  <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{idx + 1}</span>
+                );
+              },
+            },
+            {
+              title: t('directorDash.colName'),
+              dataIndex: 'name',
+              render: (value: string, _doc, idx) => {
+                const rank = getRankBadge(idx + 1);
+                return (
+                  <span style={{ fontWeight: 600, color: rank ? '#92400e' : 'var(--text-primary)' }}>{value}</span>
+                );
+              },
+            },
+            { title: t('directorDash.colTitle'), dataIndex: 'title' },
+            { title: t('directorDash.colExams'), dataIndex: 'exams', align: 'right' },
+            { title: t('directorDash.colReports'), dataIndex: 'reports', align: 'right' },
+            {
+              title: t('directorDash.colDeviceUsage'),
+              dataIndex: 'utilization',
+              align: 'right',
+              render: (value: number) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                  <div style={{ ...styles.progressBar, width: '100px' }}>
+                    <div style={styles.progressFill(`${value}%`, utilizationColor(value))} />
+                  </div>
+                  <span style={{ color: utilizationColor(value), fontWeight: 600 }}>{value}%</span>
+                </div>
+              ),
+            },
+          ]}
+        />
       </DashboardCard>
     </div>
   );
@@ -671,15 +698,15 @@ const DirectorDashboardPage: React.FC = () => {
         />
         <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '12px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#22c55e', borderRadius: '2px' }}></span>
+            <span style={{ width: '12px', height: '12px', backgroundColor: severityColor('success'), borderRadius: '2px' }}></span>
             {t('directorDash.legendGood')}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#eab308', borderRadius: '2px' }}></span>
+            <span style={{ width: '12px', height: '12px', backgroundColor: severityColor('warning'), borderRadius: '2px' }}></span>
             {t('directorDash.legendNormal')}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#ef4444', borderRadius: '2px' }}></span>
+            <span style={{ width: '12px', height: '12px', backgroundColor: severityColor('critical'), borderRadius: '2px' }}></span>
             {t('directorDash.legendLow')}
           </span>
         </div>
@@ -687,76 +714,70 @@ const DirectorDashboardPage: React.FC = () => {
 
       <div style={styles.grid2Col}>
         <DashboardCard title={t('directorDash.deviceFullRateRank')} icon={<CheckCircle2 size={14} />} bodyPadding={0}>
-          <div style={{ overflowX: "auto" }}><table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>{t('directorDash.colDevice')}</th>
-                <th style={styles.th}>{t('directorDash.colFullRate')}</th>
-                <th style={styles.th}>{t('directorDash.colStatus')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...devices].sort((a, b) => b.fullRate - a.fullRate).map((device) => (
-                <tr key={device.id}>
-                  <td style={styles.td}>{device.name}</td>
-                  <td style={styles.td}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ ...styles.progressBar, width: '100px' }}>
-                        <div style={styles.progressFill(`${device.fullRate}%`, '#1e40af')} />
-                      </div>
-                      <span style={{ fontWeight: '600' }}>{device.fullRate}%</span>
+          <DataTable
+            rowKey="id"
+            dataSource={[...devices].sort((a, b) => b.fullRate - a.fullRate)}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            columns={[
+              { title: t('directorDash.colDevice'), dataIndex: 'name' },
+              {
+                title: t('directorDash.colFullRate'),
+                dataIndex: 'fullRate',
+                align: 'right',
+                render: (value: number) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                    <div style={{ ...styles.progressBar, width: '100px' }}>
+                      <div style={styles.progressFill(`${value}%`, 'var(--color-primary)')} />
                     </div>
-                  </td>
-                  <td style={styles.td}>
-                    <span style={{
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      backgroundColor: device.fullRate > 85 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                      color: device.fullRate > 85 ? '#166534' : '#92400e',
-                    }}>
-                      {device.fullRate > 85 ? t('directorDash.busy') : t('directorDash.available')}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+                    <span style={{ fontWeight: 600 }}>{value}%</span>
+                  </div>
+                ),
+              },
+              {
+                title: t('directorDash.colStatus'),
+                key: 'status',
+                render: (_v, device) => (
+                  <StatusTag size="sm" tone={severityTone(device.fullRate > 85 ? 'success' : 'warning')}>
+                    {device.fullRate > 85 ? t('directorDash.busy') : t('directorDash.available')}
+                  </StatusTag>
+                ),
+              },
+            ]}
+          />
         </DashboardCard>
 
         <DashboardCard title={t('directorDash.deviceFaultStats')} icon={<AlertOctagon size={14} />} bodyPadding={0}>
-          <div style={{ overflowX: "auto" }}><table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>{t('directorDash.colDevice')}</th>
-                <th style={styles.th}>{t('directorDash.colFaultRate')}</th>
-                <th style={styles.th}>{t('directorDash.colRiskLevel')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...devices].sort((a, b) => b.faultRate - a.faultRate).map((device) => (
-                <tr key={device.id}>
-                  <td style={styles.td}>{device.name}</td>
-                  <td style={styles.td}>
-                    <span style={{ fontWeight: '600', color: device.faultRate > 2 ? '#ef4444' : '#64748b' }}>
-                      {device.faultRate > 0 ? `${device.faultRate}%` : '—'}
-                    </span>
-                  </td>
-                  <td style={styles.td}>
-                    <span style={{
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      backgroundColor: device.faultRate > 2 ? 'var(--color-error-bg)' : device.faultRate > 1 ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
-                      color: device.faultRate > 2 ? '#991b1b' : device.faultRate > 1 ? '#92400e' : '#166534',
-                    }}>
-                      {device.faultRate > 2 ? t('directorDash.riskHigh') : device.faultRate > 1 ? t('directorDash.riskMid') : t('directorDash.riskLow')}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable
+            rowKey="id"
+            dataSource={[...devices].sort((a, b) => b.faultRate - a.faultRate)}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            columns={[
+              { title: t('directorDash.colDevice'), dataIndex: 'name' },
+              {
+                title: t('directorDash.colFaultRate'),
+                dataIndex: 'faultRate',
+                align: 'right',
+                render: (value: number) => (
+                  <span style={{ fontWeight: 600, color: value > 2 ? severityColor('critical') : 'var(--text-secondary)' }}>
+                    {value > 0 ? `${value}%` : '—'}
+                  </span>
+                ),
+              },
+              {
+                title: t('directorDash.colRiskLevel'),
+                key: 'risk',
+                render: (_v, device) => (
+                  <StatusTag size="sm" tone={severityTone(device.faultRate > 2 ? 'high' : device.faultRate > 1 ? 'warning' : 'success')}>
+                    {device.faultRate > 2 ? t('directorDash.riskHigh') : device.faultRate > 1 ? t('directorDash.riskMid') : t('directorDash.riskLow')}
+                  </StatusTag>
+                ),
+              },
+            ]}
+          />
         </DashboardCard>
       </div>
     </div>
@@ -767,81 +788,101 @@ const DirectorDashboardPage: React.FC = () => {
     <div style={{ display: 'grid', gap: 16 }}>
       {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
       <DashboardCard title={t('directorDash.reportQualityRank')} icon={<Trophy size={14} />} bodyPadding={0}>
-        <div style={{ overflowX: "auto" }}><table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ ...styles.th, width: '50px' }}>{t('directorDash.colRank')}</th>
-              <th style={styles.th}>{t('directorDash.colName')}</th>
-              <th style={styles.th}>{t('directorDash.colTotalScore')}</th>
-              <th style={styles.th}>{t('directorDash.colFormat')}</th>
-              <th style={styles.th}>{t('directorDash.colDiagnosis')}</th>
-              <th style={styles.th}>{t('directorDash.colTimeliness')}</th>
-              <th style={styles.th}>{t('directorDash.colThreeDim')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {doctors
-              .map(d => ({
-                ...d,
-                totalScore: (d.formatScore + d.diagScore + d.timeScore) / 3
-              }))
-              .sort((a, b) => b.totalScore - a.totalScore)
-              .map((doc, idx) => {
+        <DataTable
+          rowKey="id"
+          dataSource={doctors
+            .map(d => ({ ...d, totalScore: (d.formatScore + d.diagScore + d.timeScore) / 3 }))
+            .sort((a, b) => b.totalScore - a.totalScore)}
+          showPagination={false}
+          showExport={false}
+          showDensity={false}
+          columns={[
+            {
+              title: t('directorDash.colRank'),
+              key: 'rank',
+              width: 50,
+              render: (_v, _doc, idx) => {
+                const rank = getRankBadge(idx + 1);
+                return rank ? (
+                  <span style={styles.badge(rank.bg)}>{rank.icon}</span>
+                ) : (
+                  <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{idx + 1}</span>
+                );
+              },
+            },
+            {
+              title: t('directorDash.colName'),
+              dataIndex: 'name',
+              render: (value: string, _doc, idx) => {
                 const rank = getRankBadge(idx + 1);
                 return (
-                  <tr key={doc.id}>
-                    <td style={styles.td}>
-                      {rank ? (
-                        <span style={styles.badge(rank.bg)}>{rank.icon}</span>
-                      ) : (
-                        <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
-                      )}
-                    </td>
-                    <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : 'var(--text-primary)' }}>
-                      {doc.name}
-                    </td>
-                    <td style={styles.td}>
-                      <span style={{
-                        padding: '4px 12px',
-                        backgroundColor: doc.totalScore > 92 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                        color: doc.totalScore > 92 ? '#166534' : '#92400e',
-                        borderRadius: '4px',
-                        fontWeight: '700',
-                        fontSize: '14px',
-                      }}>
-                        {doc.totalScore.toFixed(1)}
-                      </span>
-                    </td>
-                    <td style={styles.td}>
-                      <div style={styles.scoreItem('#3b82f6')}>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#1e40af' }}>{doc.formatScore}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
-                      </div>
-                    </td>
-                    <td style={styles.td}>
-                      <div style={styles.scoreItem('#10b981')}>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#059669' }}>{doc.diagScore}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
-                      </div>
-                    </td>
-                    <td style={styles.td}>
-                      <div style={styles.scoreItem('#f59e0b')}>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#d97706' }}>{doc.timeScore}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
-                      </div>
-                    </td>
-                    <td style={styles.td}>
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <div style={{ width: '6px', height: '24px', backgroundColor: '#3b82f6', borderRadius: '2px' }} />
-                        <div style={{ width: '6px', height: '24px', backgroundColor: '#10b981', borderRadius: '2px' }} />
-                        <div style={{ width: '6px', height: '24px', backgroundColor: '#f59e0b', borderRadius: '2px' }} />
-                      </div>
-                    </td>
-                  </tr>
+                  <span style={{ fontWeight: 600, color: rank ? '#92400e' : 'var(--text-primary)' }}>{value}</span>
                 );
-              })}
-          </tbody>
-        </table></div>
+              },
+            },
+            {
+              title: t('directorDash.colTotalScore'),
+              dataIndex: 'totalScore',
+              align: 'right',
+              render: (value: number) => (
+                <span style={{
+                  padding: '4px 12px',
+                  backgroundColor: value > 92 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+                  color: value > 92 ? 'var(--color-success)' : 'var(--color-warning)',
+                  borderRadius: '4px',
+                  fontWeight: 700,
+                  fontSize: 14,
+                }}>
+                  {value.toFixed(1)}
+                </span>
+              ),
+            },
+            {
+              title: t('directorDash.colFormat'),
+              dataIndex: 'formatScore',
+              align: 'right',
+              render: (value: number) => (
+                <div style={styles.scoreItem('#3b82f6')}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary)' }}>{value}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
+                </div>
+              ),
+            },
+            {
+              title: t('directorDash.colDiagnosis'),
+              dataIndex: 'diagScore',
+              align: 'right',
+              render: (value: number) => (
+                <div style={styles.scoreItem('#10b981')}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-success)' }}>{value}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
+                </div>
+              ),
+            },
+            {
+              title: t('directorDash.colTimeliness'),
+              dataIndex: 'timeScore',
+              align: 'right',
+              render: (value: number) => (
+                <div style={styles.scoreItem('#f59e0b')}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-warning)' }}>{value}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
+                </div>
+              ),
+            },
+            {
+              title: t('directorDash.colThreeDim'),
+              key: 'threeDim',
+              render: () => (
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <div style={{ width: 6, height: 24, backgroundColor: '#3b82f6', borderRadius: 2 }} />
+                  <div style={{ width: 6, height: 24, backgroundColor: '#10b981', borderRadius: 2 }} />
+                  <div style={{ width: 6, height: 24, backgroundColor: '#f59e0b', borderRadius: 2 }} />
+                </div>
+              ),
+            },
+          ]}
+        />
       </DashboardCard>
 
       <DashboardCard title={t('directorDash.qcIssueMonth')} icon={<AlertOctagon size={14} />}>
@@ -854,7 +895,7 @@ const DirectorDashboardPage: React.FC = () => {
               border: '1px solid var(--border-color)',
               textAlign: 'center' as const,
             }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e40af' }}>{issue.count}</div>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--color-primary)' }}>{issue.count}</div>
               <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{issue.type}</div>
               <div style={{
                 marginTop: '8px',
@@ -904,7 +945,7 @@ const DirectorDashboardPage: React.FC = () => {
               ))}
             </div>
             <div style={{ marginTop: '16px', textAlign: 'center' as const, fontSize: '14px', color: 'var(--text-secondary)' }}>
-              {t('directorDash.totalRevenue')}: <span style={{ fontWeight: '700', color: '#1e40af' }}>¥{(examRevenue.reduce((a, b) => a + b.amount, 0) / 10000).toFixed(0)}{t('directorDash.tenThousandYuan')}</span>
+              {t('directorDash.totalRevenue')}: <span style={{ fontWeight: '700', color: 'var(--color-primary)' }}>¥{(examRevenue.reduce((a, b) => a + b.amount, 0) / 10000).toFixed(0)}{t('directorDash.tenThousandYuan')}</span>
             </div>
           </DashboardCard>
 
@@ -931,7 +972,7 @@ const DirectorDashboardPage: React.FC = () => {
                   <span style={{ color: 'var(--text-secondary)' }}>{t('directorDash.otherMaterials')}</span>
                   <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.other.toLocaleString()}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#1e40af', borderRadius: '6px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: 'var(--color-primary)', borderRadius: '6px', marginTop: '4px' }}>
                   <span style={{ fontWeight: '600', color: '#ffffff' }}>{t('directorDash.totalCost')}</span>
                   <span style={{ fontWeight: '700', color: '#ffffff' }}>¥{materialCost.total.toLocaleString()}</span>
                 </div>
@@ -990,7 +1031,7 @@ const DirectorDashboardPage: React.FC = () => {
             )}
             <button
               onClick={() => void load()}
-              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--color-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
               <RefreshCw size={14} /> {t('directorDash.refresh')}
             </button>

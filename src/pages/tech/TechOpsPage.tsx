@@ -16,32 +16,34 @@ import type {
   UtilizationHistory, UtilizationStats,
 } from '../../services/api/techOpsApi'
 import { invalidateApiCacheByPrefix } from '../../services/api/client'
+import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
 
 // ============================================================
 // 样式常量 (ops 深色主题)
 // ============================================================
+// [UI] retokenized ops palette — resolves correctly in light + dark themes
 const C = {
-  bg: '#0d1117',
-  panel: '#161b22',
-  border: '#30363d',
-  text: '#f0f6fc',
-  textMid: '#8b949e',
-  textLight: '#6e7681',
-  blue: '#3b82f6',
-  green: '#4ade80',
-  orange: '#fbbf24',
-  red: '#f87171',
-  purple: '#a78bfa',
-  teal: '#2dd4bf',
+  bg: 'var(--bg-primary)',
+  panel: 'var(--bg-card)',
+  border: 'var(--border-default)',
+  text: 'var(--text-primary)',
+  textMid: 'var(--text-secondary)',
+  textLight: 'var(--text-muted)',
+  blue: 'var(--color-primary)',
+  green: 'var(--color-success)',
+  orange: 'var(--color-warning)',
+  red: 'var(--color-error)',
+  purple: 'var(--color-modality-mr)',
+  teal: 'var(--color-info-500)',
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#3b82f6',
-  MR: '#a78bfa',
-  DR: '#4ade80',
-  DSA: '#fbbf24',
-  MG: '#f472b6',
+  CT: 'var(--color-modality-ct)',
+  MR: 'var(--color-modality-mr)',
+  DR: 'var(--color-modality-dr)',
+  DSA: 'var(--color-modality-dsa)',
+  MG: 'var(--color-modality-mg)',
 }
 
 const PRIORITY_COLORS: Record<ExamPriority, string> = {
@@ -83,7 +85,7 @@ const rateColor = (rate: number) => {
 }
 
 const inputStyle: React.CSSProperties = {
-  background: '#0d1117', color: C.text, border: `1px solid ${C.border}`,
+  background: 'var(--bg-primary)', color: C.text, border: `1px solid ${C.border}`,
   borderRadius: 6, padding: '4px 10px', fontSize: 13, outline: 'none',
 }
 
@@ -224,7 +226,7 @@ function RateLineChart({ rates, labels, height = 170 }: { rates: number[]; label
     <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
       {[0, 25, 50, 75, 100].map((g) => (
         <g key={g}>
-          <line x1={PAD_L} x2={W - PAD_R} y1={py(g)} y2={py(g)} stroke="#21262d" strokeDasharray="3 3" />
+          <line x1={PAD_L} x2={W - PAD_R} y1={py(g)} y2={py(g)} stroke="var(--border-default)" strokeDasharray="3 3" />
           <text x={PAD_L - 4} y={py(g) + 3} fill={C.textLight} fontSize={9} textAnchor="end">{g}%</text>
         </g>
       ))}
@@ -513,49 +515,53 @@ export default function TechOpsPage() {
             <Server size={16} color={C.teal} />
             <span style={{ fontWeight: 600 }}>{t('techOps.deviceCompare')}</span>
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 760, fontSize: 12 }}>
-              <thead>
-                <tr style={{ color: C.textMid, borderBottom: `1px solid ${C.border}` }}>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thDevice')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thTech')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px', minWidth: 200 }}>{t('techOps.thAvgRate')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thPeak')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thTrough')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thExamCount')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thBusyDays')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thAvgSession')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(util?.devices ?? []).map((dev) => (
-                  <tr key={dev.deviceId} style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
-                      <Tag color={MODALITY_COLORS[dev.modality]}>{dev.modality}</Tag>
-                      <span style={{ color: C.text }}>{dev.name}</span>
-                    </td>
-                    <td style={{ padding: '8px 10px', color: C.textMid }}>
-                      <User size={12} style={{ verticalAlign: -2, marginRight: 4 }} />
-                      {dev.technician}
-                    </td>
-                    <td style={{ padding: '8px 10px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ flex: 1, background: '#0d1117', borderRadius: 4, height: 8, overflow: 'hidden', minWidth: 80 }}>
-                          <div style={{ width: `${dev.meanRate}%`, height: 8, background: rateColor(dev.meanRate), borderRadius: 4 }} />
-                        </div>
-                        <span style={{ fontWeight: 700, color: rateColor(dev.meanRate), width: 40, textAlign: 'right' }}>{dev.meanRate}%</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '8px 10px', color: C.red }}>{dev.peakRate}%</td>
-                    <td style={{ padding: '8px 10px', color: C.green }}>{dev.troughRate}%</td>
-                    <td style={{ padding: '8px 10px', color: C.text }}>{dev.totalExams}</td>
-                    <td style={{ padding: '8px 10px', color: C.textMid }}>{t('techOps.busyDaysUnit', { count: dev.busyDays })}</td>
-                    <td style={{ padding: '8px 10px', color: C.textMid }}>{t('techOps.minUnit', { count: dev.avgSessionMin })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            dataSource={util?.devices ?? []}
+            rowKey={(dev) => dev.deviceId}
+            pagination={false}
+            showExport={false}
+            showDensity={false}
+            emptyText={t('common.empty.noData')}
+            columns={[
+              {
+                title: t('techOps.thDevice'),
+                key: 'device',
+                render: (_v, dev) => (
+                  <span style={{ whiteSpace: 'nowrap' }}>
+                    <Tag color={MODALITY_COLORS[dev.modality]}>{dev.modality}</Tag>
+                    <span style={{ color: C.text }}>{dev.name}</span>
+                  </span>
+                ),
+              },
+              {
+                title: t('techOps.thTech'),
+                key: 'technician',
+                render: (_v, dev) => (
+                  <span style={{ color: C.textMid }}>
+                    <User size={12} style={{ verticalAlign: -2, marginRight: 4 }} />
+                    {dev.technician}
+                  </span>
+                ),
+              },
+              {
+                title: t('techOps.thAvgRate'),
+                key: 'meanRate',
+                render: (_v, dev) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 120 }}>
+                    <div style={{ flex: 1, background: 'var(--bg-primary)', borderRadius: 4, height: 8, overflow: 'hidden', minWidth: 80 }}>
+                      <div style={{ width: `${dev.meanRate}%`, height: 8, background: rateColor(dev.meanRate), borderRadius: 4 }} />
+                    </div>
+                    <span style={{ fontWeight: 700, color: rateColor(dev.meanRate), width: 40, textAlign: 'right' }}>{dev.meanRate}%</span>
+                  </div>
+                ),
+              },
+              { title: t('techOps.thPeak'), key: 'peakRate', align: 'right' as const, render: (_v, dev) => <span style={{ color: C.red }}>{dev.peakRate}%</span> },
+              { title: t('techOps.thTrough'), key: 'troughRate', align: 'right' as const, render: (_v, dev) => <span style={{ color: C.green }}>{dev.troughRate}%</span> },
+              { title: t('techOps.thExamCount'), key: 'totalExams', align: 'right' as const, render: (_v, dev) => <span style={{ color: C.text }}>{dev.totalExams}</span> },
+              { title: t('techOps.thBusyDays'), key: 'busyDays', align: 'right' as const, render: (_v, dev) => <span style={{ color: C.textMid }}>{t('techOps.busyDaysUnit', { count: dev.busyDays })}</span> },
+              { title: t('techOps.thAvgSession'), key: 'avgSessionMin', align: 'right' as const, render: (_v, dev) => <span style={{ color: C.textMid }}>{t('techOps.minUnit', { count: dev.avgSessionMin })}</span> },
+            ]}
+          />
         </div>
       </div>
     )
@@ -621,7 +627,7 @@ export default function TechOpsPage() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 12 }}>
                 {suggestions.map((s) => (
-                  <div key={s.id} style={{ background: C.panel, border: `1px solid ${s.conflictCount > 0 ? '#f59e0b' : C.border}`, borderRadius: 8, padding: 14 }}>
+                  <div key={s.id} style={{ background: C.panel, border: `1px solid ${s.conflictCount > 0 ? 'var(--color-warning)' : C.border}`, borderRadius: 8, padding: 14 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
                       <Tag color={STRATEGY_COLORS[s.strategy]} style={{ marginRight: 0 }}>{s.strategyLabel}</Tag>
                       {s.conflictCount > 0
@@ -671,45 +677,36 @@ export default function TechOpsPage() {
           {records.length === 0 ? (
             <Empty description={t('techOps.noRecords')} style={{ color: C.textMid }} />
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 860, fontSize: 12 }}>
-                <thead>
-                  <tr style={{ color: C.textMid, borderBottom: `1px solid ${C.border}` }}>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thPatient')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thItem')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thDevice')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thStart')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thEnd')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thPriority')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thConflict')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thAdjust')}</th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thRemark')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {records.map((r) => (
-                    <tr key={r.id} style={{ borderBottom: `1px solid ${C.border}` }}>
-                      <td style={{ padding: '8px 10px', color: C.text, fontWeight: 500 }}>{r.patientName}</td>
-                      <td style={{ padding: '8px 10px' }}>{r.examItem}</td>
-                      <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
-                        <Tag color={MODALITY_COLORS[r.modality]}>{r.modality}</Tag>
-                        {r.deviceName}
-                      </td>
-                      <td style={{ padding: '8px 10px', color: C.green }}>{fmtTime(r.startAt)}</td>
-                      <td style={{ padding: '8px 10px', color: C.textLight }}>{fmtTime(r.endAt)}</td>
-                      <td style={{ padding: '8px 10px' }}>
-                        <Tag color={PRIORITY_COLORS[r.priority]}>{priorityLabel(r.priority)}</Tag>
-                      </td>
-                      <td style={{ padding: '8px 10px', color: r.conflictCount > 0 ? C.orange : C.green }}>
-                        {r.conflictCount > 0 ? `${r.conflictCount} 项` : t('techOps.none')}
-                      </td>
-                      <td style={{ padding: '8px 10px', color: C.textMid }}>{r.adjustments.length > 0 ? t('techOps.adjustCount', { count: r.adjustments.length }) : '—'}</td>
-                      <td style={{ padding: '8px 10px', color: C.textLight, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.reason ?? '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              dataSource={records}
+              rowKey={(r) => r.id}
+              pagination={false}
+              showExport={false}
+              showDensity={false}
+              emptyText={t('techOps.noRecords')}
+              columns={[
+                { title: t('techOps.thPatient'), key: 'patientName', render: (_v, r) => <span style={{ color: C.text, fontWeight: 500 }}>{r.patientName}</span> },
+                { title: t('techOps.thItem'), key: 'examItem', dataIndex: 'examItem' },
+                {
+                  title: t('techOps.thDevice'), key: 'device',
+                  render: (_v, r) => (
+                    <span style={{ whiteSpace: 'nowrap' }}>
+                      <Tag color={MODALITY_COLORS[r.modality]}>{r.modality}</Tag>
+                      {r.deviceName}
+                    </span>
+                  ),
+                },
+                { title: t('techOps.thStart'), key: 'startAt', render: (_v, r) => <span style={{ color: C.green }}>{fmtTime(r.startAt)}</span> },
+                { title: t('techOps.thEnd'), key: 'endAt', render: (_v, r) => <span style={{ color: C.textLight }}>{fmtTime(r.endAt)}</span> },
+                { title: t('techOps.thPriority'), key: 'priority', render: (_v, r) => <Tag color={PRIORITY_COLORS[r.priority]}>{priorityLabel(r.priority)}</Tag> },
+                {
+                  title: t('techOps.thConflict'), key: 'conflictCount',
+                  render: (_v, r) => <span style={{ color: r.conflictCount > 0 ? C.orange : C.green }}>{r.conflictCount > 0 ? `${r.conflictCount} 项` : t('techOps.none')}</span>,
+                },
+                { title: t('techOps.thAdjust'), key: 'adjustments', render: (_v, r) => <span style={{ color: C.textMid }}>{r.adjustments.length > 0 ? t('techOps.adjustCount', { count: r.adjustments.length }) : '—'}</span> },
+                { title: t('techOps.thRemark'), key: 'reason', render: (_v, r) => <span style={{ color: C.textLight, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>{r.reason ?? '—'}</span> },
+              ]}
+            />
           )}
         </div>
       </div>
@@ -753,32 +750,22 @@ export default function TechOpsPage() {
             {!optQueue ? (
               <Empty description={t('techOps.loadQueueHint')} style={{ color: C.textMid }} />
             ) : (
-              <div style={{ overflowX: 'auto', maxHeight: 420, overflowY: 'auto' }}>
-                <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 540, fontSize: 12 }}>
-                  <thead style={{ position: 'sticky', top: 0, background: C.panel }}>
-                    <tr style={{ color: C.textMid, borderBottom: `1px solid ${C.border}` }}>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thPatient')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thItem')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thModality')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thDuration')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thPriority')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thArrival')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...optQueue.exams].sort((a, b) => a.arrivalMin - b.arrivalMin).map((e) => (
-                      <tr key={e.id} style={{ borderBottom: `1px solid ${C.border}` }}>
-                        <td style={{ padding: '6px 8px', color: C.text }}>{e.patientName}</td>
-                        <td style={{ padding: '6px 8px' }}>{e.examItem}</td>
-                        <td style={{ padding: '6px 8px' }}><Tag color={MODALITY_COLORS[e.modality]}>{e.modality}</Tag></td>
-                        <td style={{ padding: '6px 8px', color: C.textMid }}>{t('techOps.minUnit', { count: e.durationMin })}</td>
-                        <td style={{ padding: '6px 8px' }}><Tag color={PRIORITY_COLORS[e.priority]}>{priorityLabel(e.priority)}</Tag></td>
-                        <td style={{ padding: '6px 8px', color: C.textLight }}>{fmtMin(e.arrivalMin)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                dataSource={[...optQueue.exams].sort((a, b) => a.arrivalMin - b.arrivalMin)}
+                rowKey={(e) => e.id}
+                pagination={false}
+                showExport={false}
+                showDensity={false}
+                scroll={{ y: 420 }}
+                columns={[
+                  { title: t('techOps.thPatient'), key: 'patientName', render: (_v, e) => <span style={{ color: C.text }}>{e.patientName}</span> },
+                  { title: t('techOps.thItem'), key: 'examItem', dataIndex: 'examItem' },
+                  { title: t('techOps.thModality'), key: 'modality', render: (_v, e) => <Tag color={MODALITY_COLORS[e.modality]}>{e.modality}</Tag> },
+                  { title: t('techOps.thDuration'), key: 'durationMin', align: 'right' as const, render: (_v, e) => <span style={{ color: C.textMid }}>{t('techOps.minUnit', { count: e.durationMin })}</span> },
+                  { title: t('techOps.thPriority'), key: 'priority', render: (_v, e) => <Tag color={PRIORITY_COLORS[e.priority]}>{priorityLabel(e.priority)}</Tag> },
+                  { title: t('techOps.thArrival'), key: 'arrivalMin', align: 'right' as const, render: (_v, e) => <span style={{ color: C.textLight }}>{fmtMin(e.arrivalMin)}</span> },
+                ]}
+              />
             )}
           </div>
 
@@ -791,30 +778,26 @@ export default function TechOpsPage() {
             {!optQueue ? (
               <Empty description={t('techOps.loadQueueHint')} style={{ color: C.textMid }} />
             ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 520, fontSize: 12 }}>
-                  <thead>
-                    <tr style={{ color: C.textMid, borderBottom: `1px solid ${C.border}` }}>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thDevice')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thModality')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thTech')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 8px' }}>{t('techOps.thAvailable')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {optQueue.devices.map((d) => (
-                      <tr key={d.id} style={{ borderBottom: `1px solid ${C.border}` }}>
-                        <td style={{ padding: '6px 8px', color: C.text }}>{d.name}</td>
-                        <td style={{ padding: '6px 8px' }}><Tag color={MODALITY_COLORS[d.modality]}>{d.modality}</Tag></td>
-                        <td style={{ padding: '6px 8px', color: C.textMid }}>{d.technician}</td>
-                        <td style={{ padding: '6px 8px', color: d.availableFrom > 0 ? C.orange : C.green }}>
-                          {d.availableFrom > 0 ? t('techOps.occupied', { time: fmtMin(d.availableFrom) }) : t('techOps.availableNow')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                dataSource={optQueue.devices}
+                rowKey={(d) => d.id}
+                pagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('techOps.thDevice'), key: 'name', render: (_v, d) => <span style={{ color: C.text }}>{d.name}</span> },
+                  { title: t('techOps.thModality'), key: 'modality', render: (_v, d) => <Tag color={MODALITY_COLORS[d.modality]}>{d.modality}</Tag> },
+                  { title: t('techOps.thTech'), key: 'technician', render: (_v, d) => <span style={{ color: C.textMid }}>{d.technician}</span> },
+                  {
+                    title: t('techOps.thAvailable'), key: 'availableFrom',
+                    render: (_v, d) => (
+                      <span style={{ color: d.availableFrom > 0 ? C.orange : C.green }}>
+                        {d.availableFrom > 0 ? t('techOps.occupied', { time: fmtMin(d.availableFrom) }) : t('techOps.availableNow')}
+                      </span>
+                    ),
+                  },
+                ]}
+              />
             )}
           </div>
         </div>
@@ -852,41 +835,38 @@ export default function TechOpsPage() {
                 <span style={{ fontWeight: 600 }}>{t('techOps.scheduleTitle')}</span>
                 <span style={{ fontSize: 12, color: C.textLight }}>{t('techOps.assignCount', { count: assignments.length })}</span>
               </div>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 900, fontSize: 12 }}>
-                  <thead>
-                    <tr style={{ color: C.textMid, borderBottom: `1px solid ${C.border}` }}>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thStart')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thEnd')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thPatient')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thItem')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thPriority')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thDevice')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thTech')}</th>
-                      <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thWait')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...assignments].sort((a, b) => a.startMin - b.startMin).map((a) => (
-                      <tr key={a.examId} style={{ borderBottom: `1px solid ${C.border}` }}>
-                        <td style={{ padding: '8px 10px', color: C.green, fontWeight: 600 }}>{fmtMin(a.startMin)}</td>
-                        <td style={{ padding: '8px 10px', color: C.textLight }}>{fmtMin(a.endMin)}</td>
-                        <td style={{ padding: '8px 10px', color: C.text }}>{a.patientName}</td>
-                        <td style={{ padding: '8px 10px' }}>{a.examItem}</td>
-                        <td style={{ padding: '8px 10px' }}><Tag color={PRIORITY_COLORS[a.priority]}>{priorityLabel(a.priority)}</Tag></td>
-                        <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
-                          <Tag color={MODALITY_COLORS[a.modality]}>{a.modality}</Tag>
-                          {a.deviceName}
-                        </td>
-                        <td style={{ padding: '8px 10px', color: C.textMid }}>{a.technician}</td>
-                        <td style={{ padding: '8px 10px', color: a.waitMin === 0 ? C.green : a.waitMin <= 30 ? C.orange : C.red, fontWeight: 600 }}>
-                          {a.waitMin === 0 ? t('techOps.immediate') : t('techOps.minUnit', { count: a.waitMin })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                dataSource={[...assignments].sort((a, b) => a.startMin - b.startMin)}
+                rowKey={(a) => a.examId}
+                pagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('techOps.thStart'), key: 'startMin', render: (_v, a) => <span style={{ color: C.green, fontWeight: 600 }}>{fmtMin(a.startMin)}</span> },
+                  { title: t('techOps.thEnd'), key: 'endMin', render: (_v, a) => <span style={{ color: C.textLight }}>{fmtMin(a.endMin)}</span> },
+                  { title: t('techOps.thPatient'), key: 'patientName', render: (_v, a) => <span style={{ color: C.text }}>{a.patientName}</span> },
+                  { title: t('techOps.thItem'), key: 'examItem', dataIndex: 'examItem' },
+                  { title: t('techOps.thPriority'), key: 'priority', render: (_v, a) => <Tag color={PRIORITY_COLORS[a.priority]}>{priorityLabel(a.priority)}</Tag> },
+                  {
+                    title: t('techOps.thDevice'), key: 'device',
+                    render: (_v, a) => (
+                      <span style={{ whiteSpace: 'nowrap' }}>
+                        <Tag color={MODALITY_COLORS[a.modality]}>{a.modality}</Tag>
+                        {a.deviceName}
+                      </span>
+                    ),
+                  },
+                  { title: t('techOps.thTech'), key: 'technician', render: (_v, a) => <span style={{ color: C.textMid }}>{a.technician}</span> },
+                  {
+                    title: t('techOps.thWait'), key: 'waitMin', align: 'right' as const,
+                    render: (_v, a) => (
+                      <span style={{ color: a.waitMin === 0 ? C.green : a.waitMin <= 30 ? C.orange : C.red, fontWeight: 600 }}>
+                        {a.waitMin === 0 ? t('techOps.immediate') : t('techOps.minUnit', { count: a.waitMin })}
+                      </span>
+                    ),
+                  },
+                ]}
+              />
             </div>
           </>
         )}
@@ -900,7 +880,7 @@ export default function TechOpsPage() {
   return (
     <div data-testid="tech-ops-page" style={{ minHeight: '100vh', background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#0f172a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-950))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <LayoutGrid size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('techOps.title')}</span>
@@ -908,7 +888,7 @@ export default function TechOpsPage() {
             fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
             background: dataSource === 'api' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.25)',
             color: dataSource === 'api' ? C.green : C.orange,
-            border: `1px solid ${dataSource === 'api' ? '#22c55e' : '#f59e0b'}`,
+            border: `1px solid ${dataSource === 'api' ? 'var(--color-success)' : 'var(--color-warning)'}`,
           }}>
             {dataSource === 'api' ? t('techOps.apiLive') : t('techOps.demoData')}
           </span>
@@ -997,7 +977,7 @@ export default function TechOpsPage() {
               <div style={{ marginBottom: 10 }}>
                 <div style={{ color: C.textMid, marginBottom: 6 }}>{t('techOps.conflictList')}</div>
                 {insertResult.conflicts.map((c) => (
-                  <div key={c.examId} style={{ background: '#0d1117', border: `1px solid ${C.border}`, borderRadius: 6, padding: '6px 10px', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
+                  <div key={c.examId} style={{ background: 'var(--bg-primary)', border: `1px solid ${C.border}`, borderRadius: 6, padding: '6px 10px', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
                     <span>{c.patientName} · {c.examItem} ({c.type === 'ONGOING' ? t('techOps.ongoing') : t('techOps.scheduled')})</span>
                     <span style={{ color: C.orange }}>{c.action === 'PREEMPT' ? t('techOps.preempt') : t('techOps.defer')} {t('techOps.overlapMin', { count: c.overlapMin })}</span>
                   </div>
@@ -1007,34 +987,28 @@ export default function TechOpsPage() {
             {insertResult.adjustments.length > 0 && (
               <div>
                 <div style={{ color: C.textMid, marginBottom: 6 }}>{t('techOps.adjustPlan')}</div>
-                <div style={{ maxHeight: 220, overflowY: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-                    <thead>
-                      <tr style={{ color: C.textMid }}>
-                        <th style={{ textAlign: 'left', padding: '4px 8px' }}>{t('techOps.thExam')}</th>
-                        <th style={{ textAlign: 'left', padding: '4px 8px' }}>{t('techOps.thOrigStart')}</th>
-                        <th style={{ textAlign: 'left', padding: '4px 8px' }}>{t('techOps.thAfter')}</th>
-                        <th style={{ textAlign: 'left', padding: '4px 8px' }}>{t('techOps.thDevice')}</th>
-                        <th style={{ textAlign: 'left', padding: '4px 8px' }}>{t('techOps.thPlan')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {insertResult.adjustments.map((a) => (
-                        <tr key={a.examId} style={{ borderTop: `1px solid ${C.border}` }}>
-                          <td style={{ padding: '4px 8px' }}>{a.patientName}</td>
-                          <td style={{ padding: '4px 8px', color: C.textLight }}>{fmtMin(a.originalStartMin)}</td>
-                          <td style={{ padding: '4px 8px', color: C.orange }}>{fmtMin(a.suggestedStartMin)}</td>
-                          <td style={{ padding: '4px 8px' }}>{a.suggestedDeviceName}</td>
-                          <td style={{ padding: '4px 8px' }}>
-                            <Tag color={a.action === 'MOVE_DEVICE' ? C.blue : C.orange}>
-                              {a.action === 'MOVE_DEVICE' ? t('techOps.useSpare') : a.action === 'DEFER' ? t('techOps.defer') : t('techOps.keepUnchanged')}
-                            </Tag>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  dataSource={insertResult.adjustments}
+                  rowKey={(a) => a.examId}
+                  pagination={false}
+                  showExport={false}
+                  showDensity={false}
+                  scroll={{ y: 220 }}
+                  columns={[
+                    { title: t('techOps.thExam'), key: 'patientName', dataIndex: 'patientName' },
+                    { title: t('techOps.thOrigStart'), key: 'originalStartMin', render: (_v, a) => <span style={{ color: C.textLight }}>{fmtMin(a.originalStartMin)}</span> },
+                    { title: t('techOps.thAfter'), key: 'suggestedStartMin', render: (_v, a) => <span style={{ color: C.orange }}>{fmtMin(a.suggestedStartMin)}</span> },
+                    { title: t('techOps.thDevice'), key: 'suggestedDeviceName', dataIndex: 'suggestedDeviceName' },
+                    {
+                      title: t('techOps.thPlan'), key: 'action',
+                      render: (_v, a) => (
+                        <Tag color={a.action === 'MOVE_DEVICE' ? C.blue : C.orange}>
+                          {a.action === 'MOVE_DEVICE' ? t('techOps.useSpare') : a.action === 'DEFER' ? t('techOps.defer') : t('techOps.keepUnchanged')}
+                        </Tag>
+                      ),
+                    },
+                  ]}
+                />
               </div>
             )}
           </div>

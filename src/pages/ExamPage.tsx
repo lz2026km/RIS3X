@@ -72,16 +72,20 @@ import { useOperationLog } from "../hooks/useOperationLog";
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 import { useNavigate } from "react-router-dom";
 import { t } from '../i18n/appI18n';
+import { statusTone } from "../theme/statusTokens";
 
 // ==================== 常量配置 ====================
-const PRIMARY = "#1e40af"; // 浅蓝
+const PRIMARY = "var(--color-primary)"; // 主品牌色
 const PRIMARY_BG = "var(--color-info-bg)"; // 深蓝背景
+
+// [UI] tone helper from the single authoritative palette
+const tone = (level: string) => statusTone(level);
 
 // 优先级配置
 const PRIORITY_CONFIG: Record<string, { color: string; bg: string }> = {
-  普通: { color: "var(--text-secondary)", bg: "var(--bg-deep)" },
-  紧急: { color: "#f59e0b", bg: "#f59e0b22" },
-  危重: { color: "#ef4444", bg: "#ef444422" },
+  普通: { color: tone("neutral").color, bg: tone("neutral").bg },
+  紧急: { color: tone("warning").color, bg: tone("warning").bg },
+  危重: { color: tone("critical").color, bg: tone("critical").bg },
 };
 
 // 状态配置
@@ -89,21 +93,21 @@ const STATUS_CONFIG: Record<
   string,
   { color: string; bg: string; label: string }
 > = {
-  待检查: { color: "#3b82f6", bg: "#3b82f622", label: t("examPage.statusPending") },
-  检查中: { color: "#f59e0b", bg: "#f59e0b22", label: t("examPage.statusInProgress") },
-  已报告: { color: "#16a34a", bg: "#22c55e22", label: t("examPage.statusReported") },
-  已发布: { color: "#7c3aed", bg: "#8b5cf622", label: t("examPage.statusPublished") },
-  待报告: { color: "#0891b2", bg: "#06b6d422", label: t("examPage.statusPendingReport") },
-  已登记: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusRegistered") },
-  已预约: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusScheduled") },
+  待检查: { color: tone("pending").color, bg: tone("pending").bg, label: t("examPage.statusPending") },
+  检查中: { color: tone("in_progress").color, bg: tone("in_progress").bg, label: t("examPage.statusInProgress") },
+  已报告: { color: tone("success").color, bg: tone("success").bg, label: t("examPage.statusReported") },
+  已发布: { color: tone("published").color, bg: tone("published").bg, label: t("examPage.statusPublished") },
+  待报告: { color: tone("info").color, bg: tone("info").bg, label: t("examPage.statusPendingReport") },
+  已登记: { color: tone("neutral").color, bg: tone("neutral").bg, label: t("examPage.statusRegistered") },
+  已预约: { color: tone("scheduled").color, bg: tone("scheduled").bg, label: t("examPage.statusScheduled") },
   // [audit-fix-2026-07-02] 报告状态 (mock backend 错误写入 exam.status)
-  draft: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusDraft") },
-  submitted: { color: "var(--color-success-bg)", bg: "#059669", label: t("examPage.statusSubmitted") },
-  reviewed: { color: "var(--color-success-bg)", bg: "#047857", label: t("examPage.statusReviewed") },
-  cosigned: { color: "var(--color-info-bg)", bg: "#2563eb", label: t("examPage.statusCosigned") },
-  published: { color: "var(--color-success-bg)", bg: "#047857", label: t("examPage.statusPublished") },
-  rejected: { color: "var(--color-error-bg)", bg: "#dc2626", label: t("examPage.statusRejected") },
-  revised: { color: "var(--color-warning-bg)", bg: "#f59e0b", label: t("examPage.statusRevised") },
+  draft: { color: tone("draft").color, bg: tone("draft").bg, label: t("examPage.statusDraft") },
+  submitted: { color: tone("submitted").color, bg: tone("submitted").bg, label: t("examPage.statusSubmitted") },
+  reviewed: { color: tone("reviewed").color, bg: tone("reviewed").bg, label: t("examPage.statusReviewed") },
+  cosigned: { color: tone("info").color, bg: tone("info").bg, label: t("examPage.statusCosigned") },
+  published: { color: tone("published").color, bg: tone("published").bg, label: t("examPage.statusPublished") },
+  rejected: { color: tone("rejected").color, bg: tone("rejected").bg, label: t("examPage.statusRejected") },
+  revised: { color: tone("warning").color, bg: tone("warning").bg, label: t("examPage.statusRevised") },
 };
 
 // 设备类型
@@ -210,29 +214,29 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
     {
       key: "registered",
       label: t("examPage.statusRegistered"),
-      color: "#22c55e",
+      color: "var(--color-success)",
       bgColor: "var(--color-success-bg)",
     },
     {
       key: "inProgress",
       label: t("examPage.statusInProgress"),
-      color: "#3b82f6",
+      color: "var(--color-primary)",
       bgColor: "var(--color-info-bg)",
     },
-    { key: "imaging", label: t("examPage.stageImageCapture"), color: "#eab308", bgColor: "var(--color-warning-bg)" },
+    { key: "imaging", label: t("examPage.stageImageCapture"), color: "var(--color-warning)", bgColor: "var(--color-warning-bg)" },
     {
       key: "reporting",
       label: t("examPage.stageReportWriting"),
-      color: "#f97316",
+      color: "var(--color-warning)",
       bgColor: "var(--color-warning-bg)",
     },
     {
       key: "reviewed",
       label: t("examPage.stageReportReview"),
-      color: "#22c55e",
+      color: "var(--color-success)",
       bgColor: "var(--color-success-bg)",
     },
-    { key: "published", label: t("examPage.statusPublished"), color: "#22c55e", bgColor: "var(--color-success-bg)" },
+    { key: "published", label: t("examPage.statusPublished"), color: "var(--color-success)", bgColor: "var(--color-success-bg)" },
   ];
   const statusMap: Record<string, number> = {
     已预约: 0,
@@ -252,7 +256,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
   nodes.forEach((node, index) => {
     if (index < currentIndex) {
       // 已完成节点
-      node.color = "#22c55e";
+      node.color = "var(--color-success)";
       node.bgColor = "var(--color-success-bg)";
       // 模拟时间戳
       const timestamp = new Date(examDate);
@@ -266,20 +270,20 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
     } else if (index === currentIndex) {
       // 当前节点
       if (["检查中", "待检查"].includes(exam.status)) {
-        node.color = "#3b82f6";
+        node.color = "var(--color-primary)";
         node.bgColor = "var(--color-info-bg)";
       } else if (["图像采集"].includes(exam.status)) {
-        node.color = "#eab308";
+        node.color = "var(--color-warning)";
         node.bgColor = "var(--color-warning-bg)";
       } else if (["报告书写", "待报告", "已报告"].includes(exam.status)) {
-        node.color = "#f97316";
+        node.color = "var(--color-warning)";
         node.bgColor = "var(--color-warning-bg)";
       }
       // 检查是否超时（超过预计时间30分钟以上）
       if (["检查中", "图像采集"].includes(exam.status)) {
         node.isOverdue = Math.random() > 0.7; // 模拟30%超时率
         if (node.isOverdue) {
-          node.color = "#dc2626";
+          node.color = "var(--color-error)";
           node.bgColor = "var(--color-error-bg)";
         }
       }
@@ -1193,7 +1197,7 @@ export default function ExamPage() {
           style={{
             padding: "14px 20px",
             borderBottom: `2px solid ${activeTab === tab.key ? PRIMARY : "transparent"}`,
-            color: activeTab === tab.key ? PRIMARY : "#64748b",
+            color: activeTab === tab.key ? PRIMARY : "var(--text-secondary)",
             borderRadius: 0,
           }}
         >
@@ -1203,7 +1207,7 @@ export default function ExamPage() {
             <span
               style={{
                 backgroundColor: PRIMARY,
-                color: "#fff",
+                color: "var(--text-inverse)",
                 fontSize: 12,
                 padding: "2px 6px",
                 borderRadius: 10,
@@ -1216,8 +1220,8 @@ export default function ExamPage() {
           {tab.key === "transfer" && (
             <span
               style={{
-                backgroundColor: "#f97316",
-                color: "#fff",
+                backgroundColor: "var(--color-warning)",
+                color: "var(--text-inverse)",
                 fontSize: 12,
                 padding: "2px 6px",
                 borderRadius: 10,
@@ -1265,7 +1269,7 @@ export default function ExamPage() {
             justifyContent: "center",
           }}
         >
-          <Activity size={16} style={{ color: "#fff" }} />
+          <Activity size={16} style={{ color: "var(--text-inverse)" }} />
         </div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
@@ -1809,7 +1813,7 @@ export default function ExamPage() {
                   padding: "4px 10px",
                   borderRadius: 20,
                   backgroundColor: execution.completed ? "var(--color-success-bg)" : "var(--color-info-bg)",
-                  color: execution.completed ? "#16a34a" : PRIMARY,
+                  color: execution.completed ? "var(--color-success)" : PRIMARY,
                   fontSize: 12,
                   fontWeight: 600,
                 }}
@@ -1953,7 +1957,7 @@ export default function ExamPage() {
                       fontSize: 14,
                       fontWeight: 700,
                       textAlign: "center",
-                      color: execution.completed ? "#94a3b8" : PRIMARY,
+                      color: execution.completed ? "var(--text-muted)" : PRIMARY,
                       backgroundColor: execution.completed ? "var(--bg-primary)" : "var(--bg-card)",
                     }}
                   />
@@ -1973,7 +1977,7 @@ export default function ExamPage() {
                   style={{
                     height: "100%",
                     width: `${Math.min(100, (execution.imagesAcquired / (execution.estimatedDuration * 15)) * 100)}%`,
-                    backgroundColor: execution.completed ? "#16a34a" : PRIMARY,
+                    backgroundColor: execution.completed ? "var(--color-success)" : PRIMARY,
                     borderRadius: 3,
                     transition: "width 0.3s",
                   }}
@@ -2018,7 +2022,7 @@ export default function ExamPage() {
                     justifyContent: "center",
                   }}
                 >
-                  <CheckCircle size={16} style={{ color: "#16a34a" }} />
+                  <CheckCircle size={16} style={{ color: "var(--color-success)" }} />
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -2028,7 +2032,7 @@ export default function ExamPage() {
                     style={{
                       fontSize: 14,
                       fontWeight: 700,
-                      color: "#16a34a",
+                      color: "var(--color-success)",
                       fontFamily: "cursive",
                     }}
                   >
@@ -2067,20 +2071,20 @@ export default function ExamPage() {
             value: transferRecords.filter(
               (r) => r.transferReason === "急诊→住院",
             ).length,
-            color: "#ef4444", bg: "#ef444422",
+            color: "var(--color-error)", bg: "var(--color-error)22",
           },
           {
             label: t("examPage.transferInpatientToDepartment"),
             value: transferRecords.filter(
               (r) => r.transferReason === "住院→转科",
             ).length,
-            color: "#f59e0b", bg: "#f59e0b22",
+            color: "var(--color-warning)", bg: "var(--color-warning)22",
           },
           {
             label: t("examPage.pendingExams"),
             value: transferRecords.filter((r) => !r.examCompleted).length,
-            color: "#f97316",
-            bg: "#f9731622",
+            color: "var(--color-warning)",
+            bg: "var(--color-warning)22",
           },
         ].map((stat) => (
           <div
@@ -2167,7 +2171,7 @@ export default function ExamPage() {
                     backgroundColor: record.examCompleted
                       ? "var(--color-success-bg)"
                       : "var(--color-warning-bg)",
-                    color: record.examCompleted ? "#16a34a" : "#d97706",
+                    color: record.examCompleted ? "var(--color-success)" : "var(--color-warning)",
                     fontSize: 12,
                     fontWeight: 600,
                   }}
@@ -2186,10 +2190,10 @@ export default function ExamPage() {
                           : "var(--color-info-bg)",
                     color:
                       record.transferReason === "急诊→住院"
-                        ? "#dc2626"
+                        ? "var(--color-error)"
                         : record.transferReason === "住院→转科"
-                          ? "#d97706"
-                          : "#2563eb",
+                          ? "var(--color-warning)"
+                          : "var(--color-primary)",
                     fontSize: 12,
                     fontWeight: 600,
                   }}
@@ -2218,7 +2222,7 @@ export default function ExamPage() {
                   borderRadius: 8,
                 }}
               >
-                <ArrowRight size={14} style={{ color: "#dc2626" }} />
+                <ArrowRight size={14} style={{ color: "var(--color-error)" }} />
                 <div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.fromDept")}</div>
                   <div
@@ -2238,7 +2242,7 @@ export default function ExamPage() {
                   borderRadius: 8,
                 }}
               >
-                <ArrowRight size={14} style={{ color: "#16a34a" }} />
+                <ArrowRight size={14} style={{ color: "var(--color-success)" }} />
                 <div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.toDept")}</div>
                   <div
@@ -2289,7 +2293,7 @@ export default function ExamPage() {
                   padding: "10px 14px",
                   backgroundColor: "var(--color-warning-bg)",
                   borderRadius: 8,
-                  borderLeft: "3px solid #eab308",
+                  borderLeft: "3px solid var(--color-warning)",
                   marginBottom: 12,
                 }}
               >
@@ -2297,13 +2301,13 @@ export default function ExamPage() {
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#a16207",
+                    color: "var(--color-warning)",
                     marginBottom: 4,
                   }}
                 >
                   {t("examPage.transferNote")}
                 </div>
-                <div style={{ fontSize: 12, color: "#78500b" }}>
+                <div style={{ fontSize: 12, color: "var(--color-warning)" }}>
                   {record.notes}
                 </div>
               </div>
@@ -2325,7 +2329,7 @@ export default function ExamPage() {
                 <ClipboardList
                   size={14}
                   style={{
-                    color: record.examCompleted ? "#16a34a" : "#f97316",
+                    color: record.examCompleted ? "var(--color-success)" : "var(--color-warning)",
                   }}
                 />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -2335,7 +2339,7 @@ export default function ExamPage() {
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: record.examCompleted ? "#16a34a" : "#f97316",
+                    color: record.examCompleted ? "var(--color-success)" : "var(--color-warning)",
                   }}
                 >
                   {record.examName}
@@ -2343,7 +2347,7 @@ export default function ExamPage() {
                 {record.examCompleted && (
                   <CheckCircle
                     size={14}
-                    style={{ color: "#16a34a", marginLeft: "auto" }}
+                    style={{ color: "var(--color-success)", marginLeft: "auto" }}
                   />
                 )}
               </div>
@@ -2374,12 +2378,12 @@ export default function ExamPage() {
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 12px', borderRadius: 999,
             fontWeight: 600,
             background: analyticsSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-            color: analyticsSource === 'real' ? '#065f46' : '#92400e',
+            color: analyticsSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)',
           }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: analyticsSource === 'real' ? '#059669' : '#d97706' }} />
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: analyticsSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)' }} />
             {t("examPage.dataSource")} {analyticsSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
           </span>
-          {analyticsLoading && <span style={{ color: '#d97706' }}>{t("examPage.syncing")}</span>}
+          {analyticsLoading && <span style={{ color: 'var(--color-warning)' }}>{t("examPage.syncing")}</span>}
           <ActionButton
             action="refresh"
             size="compact"
@@ -2391,8 +2395,8 @@ export default function ExamPage() {
         </div>
         {analyticsError && (
           <div style={{
-            padding: '8px 12px', borderRadius: 6, fontSize: 12, color: '#92400e',
-            background: 'var(--color-warning-bg)', border: '1px solid #fcd34d',
+            padding: '8px 12px', borderRadius: 6, fontSize: 12, color: 'var(--color-warning)',
+            background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)',
           }}>
             {analyticsError}
           </div>
@@ -2410,7 +2414,7 @@ export default function ExamPage() {
             <div style={{ position: 'relative', width: 130, height: 130, flexShrink: 0 }}>
               <svg viewBox="0 0 120 120" width={130} height={130}>
                 {(() => {
-                  const colors = ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ec4899', '#14b8a6', '#94a3b8']
+                  const colors = ['var(--color-primary)', 'var(--color-modality-mr)', 'var(--color-success)', 'var(--color-warning)', '#ec4899', '#14b8a6', 'var(--text-muted)']
                   let acc = 0
                   const R = 48
                   const C = 2 * Math.PI * R
@@ -2438,13 +2442,13 @@ export default function ExamPage() {
                 <text x="60" y="56" textAnchor="middle" fontSize="18" fontWeight="700" fill={PRIMARY}>
                   {totalDist}
                 </text>
-                <text x="60" y="72" textAnchor="middle" fontSize="9" fill="#94a3b8">{t("examPage.totalExams")}</text>
+                <text x="60" y="72" textAnchor="middle" fontSize="9" fill="var(--text-muted)">{t("examPage.totalExams")}</text>
               </svg>
             </div>
             {/* 图例 */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
               {modalityDist.slice(0, 7).map((d, i) => {
-                const colors = ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ec4899', '#14b8a6', '#94a3b8']
+                const colors = ['var(--color-primary)', 'var(--color-modality-mr)', 'var(--color-success)', 'var(--color-warning)', '#ec4899', '#14b8a6', 'var(--text-muted)']
                 const pct = totalDist > 0 ? Math.round((d.count / totalDist) * 1000) / 10 : 0
                 return (
                   <div key={d.modality} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2469,7 +2473,7 @@ export default function ExamPage() {
         {/* 2. 检查耗时分析 (按模态平均时长) */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <Timer size={16} color="#f59e0b" />
+            <Timer size={16} color="var(--color-warning)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.durationAnalysis")}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
               {analyticsSource === 'real' ? t("examPage.durationDerivedFrom") : t("examPage.localEstimate")}
@@ -2492,13 +2496,13 @@ export default function ExamPage() {
           </div>
           <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#22c55e' }} /> {t("examPage.durationFast")}
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--color-success)' }} /> {t("examPage.durationFast")}
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#3b82f6' }} /> {t("examPage.durationMedium")}
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--color-primary)' }} /> {t("examPage.durationMedium")}
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#f59e0b' }} /> {t("examPage.durationLong")}
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--color-warning)' }} /> {t("examPage.durationLong")}
             </span>
           </div>
         </div>
@@ -2506,12 +2510,12 @@ export default function ExamPage() {
         {/* 3. 重拍率统计 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
-            <TrendingUp size={16} color="#dc2626" />
+            <TrendingUp size={16} color="var(--color-error)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.retakeStats")}</span>
             <span style={{
               fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 999,
               background: retakeStats.avgRate <= 5 ? 'var(--color-success-bg)' : retakeStats.avgRate <= 8 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
-              color: retakeStats.avgRate <= 5 ? '#065f46' : retakeStats.avgRate <= 8 ? '#92400e' : '#991b1b',
+              color: retakeStats.avgRate <= 5 ? 'var(--color-success)' : retakeStats.avgRate <= 8 ? 'var(--color-warning)' : 'var(--color-error)',
             }}>
               {t("examPage.overallRetakeRate")} {retakeStats.avgRate.toFixed(1)}% ({retakeStats.totalRetakes}/{retakeStats.totalExams})
             </span>
@@ -2521,11 +2525,11 @@ export default function ExamPage() {
               <div key={r.modality}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                   <span style={{ color: 'var(--text-secondary)' }}>
-                    {r.modality} <span style={{ color: '#94a3b8' }}>({r.retakes} {t("examPage.timesPer")} {r.total} {t("examPage.casesSuffix")}</span>
+                    {r.modality} <span style={{ color: 'var(--text-muted)' }}>({r.retakes} {t("examPage.timesPer")} {r.total} {t("examPage.casesSuffix")}</span>
                   </span>
                   <span style={{
                     fontWeight: 700,
-                    color: r.rate <= 5 ? '#16a34a' : r.rate <= 8 ? '#d97706' : '#dc2626',
+                    color: r.rate <= 5 ? 'var(--color-success)' : r.rate <= 8 ? 'var(--color-warning)' : 'var(--color-error)',
                   }}>
                     {r.rate}%
                   </span>
@@ -2533,7 +2537,7 @@ export default function ExamPage() {
                 <div style={{ height: 8, background: 'var(--content-bg)', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{
                     width: `${(r.rate / maxRetake) * 100}%`, height: '100%', borderRadius: 4,
-                    background: r.rate <= 5 ? '#22c55e' : r.rate <= 8 ? '#f59e0b' : '#ef4444',
+                    background: r.rate <= 5 ? 'var(--color-success)' : r.rate <= 8 ? 'var(--color-warning)' : 'var(--color-error)',
                   }} />
                 </div>
               </div>
@@ -2547,13 +2551,13 @@ export default function ExamPage() {
         {/* 4. 检查时间线视图 (按患者) */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <Layers size={16} color="#7c3aed" />
+            <Layers size={16} color="var(--color-modality-mr)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.examTimeline")}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.lastPrefix")} {patientTimeline.length} {t("examPage.multiExamPatients")}</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 480, overflowY: 'auto' }}>
             {patientTimeline.length === 0 && (
-              <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>{t("examPage.noExamData")}</div>
+              <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 12 }}>{t("examPage.noExamData")}</div>
             )}
             {patientTimeline.map(g => (
               <div key={g.patientId} style={{ border: '1px solid var(--border-color)', borderRadius: 10, overflow: 'hidden' }}>
@@ -2570,7 +2574,7 @@ export default function ExamPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{g.patientName}</span>
-                    <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 8 }}>{g.patientId}</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 8 }}>{g.patientId}</span>
                   </div>
                   <span style={{
                     fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 999,
@@ -2591,9 +2595,9 @@ export default function ExamPage() {
                     }}>
                       <div style={{
                         width: 12, height: 12, borderRadius: '50%', flexShrink: 0, marginTop: 3, zIndex: 1,
-                        background: ex.status === '已报告' || ex.status === '已发布' ? '#22c55e'
-                          : ex.status === '检查中' ? '#f59e0b' : '#3b82f6',
-                        boxShadow: `0 0 0 3px ${ex.status === '已报告' || ex.status === '已发布' ? '#22c55e22' : ex.status === '检查中' ? '#f59e0b22' : '#3b82f622'}`,
+                        background: ex.status === '已报告' || ex.status === '已发布' ? 'var(--color-success)'
+                          : ex.status === '检查中' ? 'var(--color-warning)' : 'var(--color-primary)',
+                        boxShadow: `0 0 0 3px ${ex.status === '已报告' || ex.status === '已发布' ? 'var(--color-success)22' : ex.status === '检查中' ? 'var(--color-warning)22' : 'var(--color-primary)22'}`,
                       }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -2614,10 +2618,10 @@ export default function ExamPage() {
                             {STATUS_CONFIG[ex.status]?.label || ex.status}
                           </span>
                           {ex.priority === '危重' || ex.priority === '紧急' ? (
-                            <span style={{ fontSize: 11, fontWeight: 700, color: '#dc2626' }}>{ex.priority}</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-error)' }}>{ex.priority}</span>
                           ) : null}
                         </div>
-                        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
                           {ex.examDate} {ex.examTime} · {ex.roomName || '—'} · {ex.deviceName?.split('（')[0] || '—'}
                           {ex.imageCount ? t("w9a.examPage.imagesSuffix", { count: ex.imageCount }) : ''}
                         </div>
@@ -2633,7 +2637,7 @@ export default function ExamPage() {
                     </div>
                   ))}
                   {g.items.length > 6 && (
-                    <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: '4px 0' }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '4px 0' }}>
                       {t("examPage.additionalPrefix")} {g.items.length - 6} {t("examPage.earlierExams")}
                     </div>
                   )}
@@ -2661,7 +2665,7 @@ export default function ExamPage() {
               const days = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-14)
               const maxCount = Math.max(1, ...days.map(([, c]) => c))
               return days.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>{t("examPage.noDateData")}</div>
+                <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 12 }}>{t("examPage.noDateData")}</div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 120 }}>
                   {days.map(([day, count]) => (
@@ -2673,13 +2677,13 @@ export default function ExamPage() {
                         background: 'linear-gradient(180deg, #1e40af, #93c5fd)',
                         transition: 'height 0.3s',
                       }} title={t("w9a.examPage.dayCountTip", { day, count })} />
-                      <span style={{ fontSize: 9, color: '#94a3b8' }}>{day.slice(5)}</span>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{day.slice(5)}</span>
                     </div>
                   ))}
                 </div>
               )
             })()}
-            <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)' }}>
               {t("examPage.dailyAvg")} <strong style={{ color: PRIMARY }}>
                 {Math.round(allExams.length / Math.max(1, new Set(allExams.map(e => String(e.examDate || '').slice(0, 10))).size))}
               </strong> {t("examPage.casesUnit")}
@@ -2689,7 +2693,7 @@ export default function ExamPage() {
           {/* 状态/患者类型/优先级 分布 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <PieChartIcon size={16} color="#8b5cf6" />
+              <PieChartIcon size={16} color="var(--color-modality-mr)" />
               <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.distTitle")}</span>
             </div>
             {(() => {
@@ -2709,17 +2713,17 @@ export default function ExamPage() {
                 const max = Math.max(1, ...rows.map(([, c]) => c))
                 return (
                   <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>{title}</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{title}</div>
                     {rows.slice(0, 5).map(([k, v]) => (
                       <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                         <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 62, flexShrink: 0 }}>{k}</span>
                         <div style={{ flex: 1, height: 6, background: 'var(--content-bg)', borderRadius: 3, overflow: 'hidden' }}>
                           <div style={{
                             width: `${(v / max) * 100}%`, height: '100%', borderRadius: 3,
-                            background: colors[k] || '#3b82f6',
+                            background: colors[k] || 'var(--color-primary)',
                           }} />
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: '#334155', width: 34, textAlign: 'right' }}>{v}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', width: 34, textAlign: 'right' }}>{v}</span>
                       </div>
                     ))}
                   </div>
@@ -2728,10 +2732,10 @@ export default function ExamPage() {
               return (
                 <div>
                   {distRow(t("examPage.examStatus"), statusMap, {
-                    '待检查': '#3b82f6', '检查中': '#f59e0b', '已报告': '#16a34a', '已发布': '#8b5cf6', '待报告': '#06b6d4', '已登记': '#64748b',
+                    '待检查': 'var(--color-primary)', '检查中': 'var(--color-warning)', '已报告': 'var(--color-success)', '已发布': 'var(--color-modality-mr)', '待报告': '#06b6d4', '已登记': 'var(--text-secondary)',
                   })}
-                  {distRow(t("examPage.patientType"), typeMap, { '门诊': '#3b82f6', '住院': '#8b5cf6', '急诊': '#ef4444', '体检': '#10b981' })}
-                  {distRow(t("examPage.priority"), prioMap, { '普通': '#94a3b8', '紧急': '#f59e0b', '危重': '#ef4444' })}
+                  {distRow(t("examPage.patientType"), typeMap, { '门诊': 'var(--color-primary)', '住院': 'var(--color-modality-mr)', '急诊': 'var(--color-error)', '体检': '#10b981' })}
+                  {distRow(t("examPage.priority"), prioMap, { '普通': 'var(--text-muted)', '紧急': 'var(--color-warning)', '危重': 'var(--color-error)' })}
                 </div>
               )
             })()}
@@ -2747,8 +2751,8 @@ export default function ExamPage() {
     return map[String(m)] || '#64748b'
   }
   const MODALITY_COLOR_BG = (m: string): string => {
-    const map: Record<string, string> = { CT: '#3b82f622', MR: '#8b5cf622', DR: '#16a34a22', DSA: '#d9770622', MG: '#db277722' }
-    return map[String(m)] || '#64748b22'
+    const map: Record<string, string> = { CT: 'var(--color-primary)22', MR: 'var(--color-modality-mr)22', DR: 'var(--color-success)22', DSA: 'var(--color-warning)22', MG: '#db277722' }
+    return map[String(m)] || 'var(--text-secondary)22'
   }
 
   // 底部统计栏
@@ -2766,31 +2770,31 @@ export default function ExamPage() {
           label: t("examPage.allRecords"),
           value: stats.total,
           icon: FileText,
-          color: "#fff",
+          color: "var(--text-inverse)",
         },
         {
           label: t("examPage.statusPending"),
           value: stats.pending,
           icon: Clock,
-          color: "#60a5fa",
+          color: "var(--color-primary-400)",
         },
         {
           label: t("examPage.statusInProgress"),
           value: stats.inProgress,
           icon: Activity,
-          color: "#fbbf24",
+          color: "var(--color-warning-400)",
         },
         {
           label: t("examPage.completed"),
           value: stats.completed,
           icon: CheckCircle,
-          color: "#4ade80",
+          color: "var(--color-success-400)",
         },
         {
           label: t("examPage.priorityCritical"),
           value: stats.critical,
           icon: AlertCircle,
-          color: "#f87171",
+          color: "var(--color-error-400)",
         },
       ].map((item) => (
         <div
@@ -2807,7 +2811,7 @@ export default function ExamPage() {
               style={{
                 fontSize: 18,
                 fontWeight: 700,
-                color: "#fff",
+                color: "var(--text-inverse)",
                 lineHeight: 1,
               }}
             >
@@ -2841,19 +2845,19 @@ export default function ExamPage() {
       },
       complete: {
         title: t("examPage.completeExam"),
-        color: "#16a34a",
+        color: "var(--color-success)",
         confirmText: t("examPage.confirmComplete"),
         icon: CheckCircle2,
       },
       cancel: {
         title: t("examPage.cancelExam"),
-        color: "#dc2626",
+        color: "var(--color-error)",
         confirmText: t("examPage.confirmCancel"),
         icon: XCircle,
       },
       quality: {
         title: t("examPage.qualityAssessment"),
-        color: "#0891b2",
+        color: "var(--color-info-600)",
         confirmText: t("examPage.saveAssessment"),
         icon: Camera,
       },
@@ -2897,7 +2901,7 @@ export default function ExamPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                color: "#fff",
+                color: "var(--text-inverse)",
               }}
             >
               <actionConfig.icon size={18} />
@@ -3002,11 +3006,11 @@ export default function ExamPage() {
                         borderColor:
                           imageQuality === q
                             ? q === "优"
-                              ? "#16a34a"
+                              ? "var(--color-success)"
                               : q === "良"
-                                ? "#d97706"
-                                : "#dc2626"
-                            : "#e2e8f0",
+                                ? "var(--color-warning)"
+                                : "var(--color-error)"
+                            : "var(--border-default)",
                         backgroundColor:
                           imageQuality === q
                             ? q === "优"
@@ -3018,11 +3022,11 @@ export default function ExamPage() {
                         color:
                           imageQuality === q
                             ? q === "优"
-                              ? "#16a34a"
+                              ? "var(--color-success)"
                               : q === "良"
-                                ? "#d97706"
-                                : "#dc2626"
-                            : "#64748b",
+                                ? "var(--color-warning)"
+                                : "var(--color-error)"
+                            : "var(--text-secondary)",
                         fontWeight: 600,
                         cursor: "pointer",
                       }}
@@ -3123,12 +3127,12 @@ export default function ExamPage() {
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 12px', borderRadius: 999, fontWeight: 600,
             background: statSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-            color: statSource === 'real' ? '#065f46' : '#92400e',
+            color: statSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)',
           }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: statSource === 'real' ? '#059669' : '#d97706' }} />
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: statSource === 'real' ? 'var(--color-success)' : 'var(--color-warning)' }} />
             {t("examPage.dataSource")} {statSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
           </span>
-          {statLoading && <span style={{ color: '#d97706' }}>{t("examPage.syncing")}</span>}
+          {statLoading && <span style={{ color: 'var(--color-warning)' }}>{t("examPage.syncing")}</span>}
           <ActionButton
             action="refresh"
             size="compact"
@@ -3140,8 +3144,8 @@ export default function ExamPage() {
         </div>
         {statError && (
           <div style={{
-            padding: '8px 12px', borderRadius: 6, fontSize: 12, color: '#92400e',
-            background: 'var(--color-warning-bg)', border: '1px solid #fcd34d',
+            padding: '8px 12px', borderRadius: 6, fontSize: 12, color: 'var(--color-warning)',
+            background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)',
           }}>
             {statError}
           </div>
@@ -3306,12 +3310,12 @@ export default function ExamPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                background: "#7c3aed",
+                background: "var(--color-modality-mr)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <MergeIcon size={18} color="#fff" />
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                <MergeIcon size={18} color="var(--text-inverse)" />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-inverse)" }}>
                   {t("examPage.mergeExams")}
                 </span>
               </div>
@@ -3322,7 +3326,7 @@ export default function ExamPage() {
                   border: "none",
                   borderRadius: 6,
                   cursor: "pointer",
-                  color: "#fff",
+                  color: "var(--text-inverse)",
                   display: "flex",
                   alignItems: "center",
                   padding: 5,
@@ -3347,11 +3351,11 @@ export default function ExamPage() {
                         gap: 10,
                         padding: "10px 12px",
                         border: `1px solid ${
-                          mergeTargetId === e.id ? "#7c3aed" : "var(--border-color)"
+                          mergeTargetId === e.id ? "var(--color-modality-mr)" : "var(--border-color)"
                         }`,
                         borderRadius: 8,
                         background:
-                          mergeTargetId === e.id ? "#7c3aed18" : "var(--bg-card)",
+                          mergeTargetId === e.id ? "var(--color-modality-mr)18" : "var(--bg-card)",
                         cursor: "pointer",
                       }}
                     >
@@ -3384,8 +3388,8 @@ export default function ExamPage() {
                       ? "var(--color-success-bg)"
                       : "var(--color-error-bg)",
                     color: mergeResult.includes(t("examPage.success"))
-                      ? "#16a34a"
-                      : "#dc2626",
+                      ? "var(--color-success)"
+                      : "var(--color-error)",
                   }}
                 >
                   {mergeResult}
@@ -3408,7 +3412,7 @@ export default function ExamPage() {
                 action="submit"
                 loading={merging}
                 disabled={merging}
-                style={{ backgroundColor: "#7c3aed", borderColor: "#7c3aed" }}
+                style={{ backgroundColor: "var(--color-modality-mr)", borderColor: "var(--color-modality-mr)" }}
                 onClick={() => void handleMergeSubmit()}
               >
                 {merging ? t("examPage.merging") : t("examPage.confirmMerge")}
@@ -3458,12 +3462,12 @@ export default function ExamPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                background: "#d97706",
+                background: "var(--color-warning)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <SplitIcon size={18} color="#fff" />
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                <SplitIcon size={18} color="var(--text-inverse)" />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-inverse)" }}>
                   {t("examPage.splitExam")}
                 </span>
               </div>
@@ -3474,7 +3478,7 @@ export default function ExamPage() {
                   border: "none",
                   borderRadius: 6,
                   cursor: "pointer",
-                  color: "#fff",
+                  color: "var(--text-inverse)",
                   display: "flex",
                   alignItems: "center",
                   padding: 5,
@@ -3517,8 +3521,8 @@ export default function ExamPage() {
                       ? "var(--color-success-bg)"
                       : "var(--color-error-bg)",
                     color: splitResult.includes(t("examPage.success"))
-                      ? "#16a34a"
-                      : "#dc2626",
+                      ? "var(--color-success)"
+                      : "var(--color-error)",
                   }}
                 >
                   {splitResult}
@@ -3541,7 +3545,7 @@ export default function ExamPage() {
                 action="submit"
                 loading={splitting}
                 disabled={splitting}
-                style={{ backgroundColor: "#d97706", borderColor: "#d97706" }}
+                style={{ backgroundColor: "var(--color-warning)", borderColor: "var(--color-warning)" }}
                 onClick={() => void handleSplitSubmit()}
               >
                 {splitting ? t("examPage.splitting") : t("examPage.confirmSplit")}
@@ -3598,8 +3602,8 @@ export default function ExamPage() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <Upload size={18} color="#fff" />
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                <Upload size={18} color="var(--text-inverse)" />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-inverse)" }}>
                   {t("examPage.batchImportExam")}
                 </span>
               </div>
@@ -3610,7 +3614,7 @@ export default function ExamPage() {
                   border: "none",
                   borderRadius: 6,
                   cursor: "pointer",
-                  color: "#fff",
+                  color: "var(--text-inverse)",
                   display: "flex",
                   alignItems: "center",
                   padding: 5,
@@ -3686,13 +3690,13 @@ export default function ExamPage() {
                     background: importResult.errors.length > 0 ? "var(--color-warning-bg)" : "var(--color-success-bg)",
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "var(--color-warning)" : "var(--color-success)" }}>
                     {t("examPage.importDoneSuccess")} {importResult.imported} {t("examPage.skippedSuffix")} {importResult.skipped} {t("examPage.failedSuffix")} {importResult.errors.length}
                   </div>
                   {importResult.errors.length > 0 && (
                     <div style={{ marginTop: 6, maxHeight: 120, overflowY: "auto" }}>
                       {importResult.errors.map((err, i) => (
-                        <div key={i} style={{ fontSize: 12, color: "#d97706" }}>
+                        <div key={i} style={{ fontSize: 12, color: "var(--color-warning)" }}>
                           • {err.message}
                         </div>
                       ))}
