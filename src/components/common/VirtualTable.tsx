@@ -8,6 +8,7 @@
 import { Table } from "antd";
 import type { TableColumnsType, TablePaginationConfig } from "antd";
 import type { ReactNode } from "react";
+import "../../styles/data-table.css";
 
 export interface VirtualTableProps<RecordType extends object> {
   /** antd 列配置 */
@@ -57,19 +58,21 @@ export function VirtualTable<RecordType extends object>({
     : false;
 
   return (
-    <Table<RecordType>
-      rowKey={rowKey}
-      columns={columns}
-      dataSource={dataSource}
-      rowSelection={rowSelection}
-      loading={loading}
-      onRow={onRow}
-      pagination={pagination}
-      locale={emptyText ? { emptyText } : undefined}
-      scroll={{ y: height, x: width === "100%" ? undefined : width }}
-      size="middle"
-      style={{ width: "100%" }}
-    />
+    <div className="data-table virtual-table" style={{ width: "100%" }}>
+      <Table<RecordType>
+        rowKey={rowKey}
+        columns={columns}
+        dataSource={dataSource}
+        rowSelection={rowSelection}
+        loading={loading}
+        onRow={onRow}
+        pagination={pagination}
+        locale={emptyText ? { emptyText } : undefined}
+        scroll={{ y: height, x: width === "100%" ? undefined : width }}
+        size="small"
+        style={{ width: "100%" }}
+      />
+    </div>
   );
 }
 

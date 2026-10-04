@@ -27,17 +27,17 @@ import {
 import { statsApi, biApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartEmpty, ChartContainer } from '../components/charts'
-import { PageContainer } from '../components/common/PageContainer'
+import { PageTemplate } from '../components/common/PageTemplate'
 import { PageHeader } from '../components/common/PageHeader'
 import { StickyActionBar } from '../components/common/StickyActionBar'
 import { ExportButton } from '../components/common/ExportButton'
 import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { VirtualTable } from '../components/common/VirtualTable'
-import { t } from '../i18n/appI18n';
+import { StatCard as CommonStatCard } from '../components/common/StatCard'
 import { t as appT } from '../i18n/appI18n';
 
 // [v3.0.6.8-28] 派生工具 - 把 7-30 天 KPI 转成图表格式
-const DAY_NAMES = [t("statsPage.sunday"), t("statsPage.monday"), t("statsPage.tuesday"), t("statsPage.wednesday"), t("statsPage.thursday"), t("statsPage.friday"), t("statsPage.saturday")];
+const DAY_NAMES = [appT("statsPage.sunday"), appT("statsPage.monday"), appT("statsPage.tuesday"), appT("statsPage.wednesday"), appT("statsPage.thursday"), appT("statsPage.friday"), appT("statsPage.saturday")];
 function dayNameFromISO(iso: string): string {
   return DAY_NAMES[new Date(iso).getDay()]!;
 }
@@ -92,13 +92,13 @@ const sevenDayData = DAILY_KPI_PRE.slice(-7).map((d) => ({
 
 // 时段分布 - 来源: 7天数据 + 经验时段分布系数
 const timeSlotData = [
-  { slot: t("statsPage.slot0to6"), exams: 12 },
-  { slot: t("statsPage.slot6to9"), exams: 145 },
-  { slot: t("statsPage.slot9to12"), exams: 286 },
-  { slot: t("statsPage.slot12to15"), exams: 198 },
-  { slot: t("statsPage.slot15to18"), exams: 245 },
-  { slot: t("statsPage.slot18to21"), exams: 156 },
-  { slot: t("statsPage.slot21to24"), exams: 38 },
+  { slot: appT("statsPage.slot0to6"), exams: 12 },
+  { slot: appT("statsPage.slot6to9"), exams: 145 },
+  { slot: appT("statsPage.slot9to12"), exams: 286 },
+  { slot: appT("statsPage.slot12to15"), exams: 198 },
+  { slot: appT("statsPage.slot15to18"), exams: 245 },
+  { slot: appT("statsPage.slot18to21"), exams: 156 },
+  { slot: appT("statsPage.slot21to24"), exams: 38 },
 ]
 
 // 患者类型分布 - 来源: PATIENT_MASTER.type (1500 患者聚合)
@@ -190,10 +190,10 @@ const overtimeData = {
 }
 
 const modificationData = [
-  { times: t("statsPage.count0"), count: 420 },
-  { times: t("statsPage.count1"), count: 85 },
-  { times: t("statsPage.count2"), count: 32 },
-  { times: t("statsPage.count3plus"), count: 13 },
+  { times: appT("statsPage.count0"), count: 420 },
+  { times: appT("statsPage.count1"), count: 85 },
+  { times: appT("statsPage.count2"), count: 32 },
+  { times: appT("statsPage.count3plus"), count: 13 },
 ]
 
 const deviceEfficiencyData = DEVICE_MASTER.slice(0, 9).map((d) => ({
@@ -202,7 +202,7 @@ const deviceEfficiencyData = DEVICE_MASTER.slice(0, 9).map((d) => ({
   avgTime: Math.round(d.avgScanDurationMin),
   utilization: Math.round(100 - (d.monthlyDowntime / 720) * 100),
   faults: Math.round(d.defectRate * 100),
-  status: d.status === '运行中' ? t("statsPage.normal") : d.status === '维护中' ? appT("w9a.statsPage.maintenance") : t("statsPage.standby"),
+  status: d.status === '运行中' ? appT("statsPage.normal") : d.status === '维护中' ? appT("w9a.statsPage.maintenance") : appT("statsPage.standby"),
 }))
 
 const heatmapData = [
@@ -217,16 +217,16 @@ const heatmapData = [
 ]
 
 const maintenanceData = [
-  { device: t("statsPage.deviceMr2Short"), nextDate: '2026-05-15', daysLeft: 14, type: t("statsPage.routineMaintenance") },
-  { device: t("statsPage.deviceCt2"), nextDate: '2026-05-20', daysLeft: 19, type: t("statsPage.performanceCheck") },
-  { device: 'DR-2（GE Optima）', nextDate: '2026-05-28', daysLeft: 27, type: t("statsPage.routineMaintenance") },
-  { device: t("statsPage.deviceDsa1Short"), nextDate: '2026-06-05', daysLeft: 35, type: t("statsPage.softwareUpgrade") },
+  { device: appT("statsPage.deviceMr2Short"), nextDate: '2026-05-15', daysLeft: 14, type: appT("statsPage.routineMaintenance") },
+  { device: appT("statsPage.deviceCt2"), nextDate: '2026-05-20', daysLeft: 19, type: appT("statsPage.performanceCheck") },
+  { device: 'DR-2（GE Optima）', nextDate: '2026-05-28', daysLeft: 27, type: appT("statsPage.routineMaintenance") },
+  { device: appT("statsPage.deviceDsa1Short"), nextDate: '2026-06-05', daysLeft: 35, type: appT("statsPage.softwareUpgrade") },
 ]
 
 const patientSourceData = [
-  { source: t("statsPage.localCity"), count: 68, color: '#3b82f6' },
-  { source: t("statsPage.otherProvince"), count: 25, color: '#8b5cf6' },
-  { source: t("statsPage.overseas"), count: 7, color: '#22c55e' },
+  { source: appT("statsPage.localCity"), count: 68, color: '#3b82f6' },
+  { source: appT("statsPage.otherProvince"), count: 25, color: '#8b5cf6' },
+  { source: appT("statsPage.overseas"), count: 7, color: '#22c55e' },
 ]
 
 const ageDistributionData = [
@@ -239,8 +239,8 @@ const ageDistributionData = [
 ]
 
 const genderDistribution = [
-  { name: t("statsPage.male"), value: 55, color: '#3b82f6' },
-  { name: t("statsPage.female"), value: 45, color: '#ec4899' },
+  { name: appT("statsPage.male"), value: 55, color: '#3b82f6' },
+  { name: appT("statsPage.female"), value: 45, color: '#ec4899' },
 ]
 
 function getPositiveRateData() {
@@ -258,25 +258,25 @@ function getPositiveRateData() {
 const positiveRateData = getPositiveRateData()
 
 const positiveTrendData = [
-  { day: t("statsPage.monday"), rate: 38.5 },
-  { day: t("statsPage.tuesday"), rate: 42.1 },
-  { day: t("statsPage.wednesday"), rate: 39.8 },
-  { day: t("statsPage.thursday"), rate: 41.5 },
-  { day: t("statsPage.friday"), rate: 40.2 },
-  { day: t("statsPage.saturday"), rate: 37.8 },
-  { day: t("statsPage.sunday"), rate: 36.5 },
+  { day: appT("statsPage.monday"), rate: 38.5 },
+  { day: appT("statsPage.tuesday"), rate: 42.1 },
+  { day: appT("statsPage.wednesday"), rate: 39.8 },
+  { day: appT("statsPage.thursday"), rate: 41.5 },
+  { day: appT("statsPage.friday"), rate: 40.2 },
+  { day: appT("statsPage.saturday"), rate: 37.8 },
+  { day: appT("statsPage.sunday"), rate: 36.5 },
 ]
 
 // ============================================================
 // 阳性率统计扩展数据（复查率、排名等）
 // ============================================================
 const reexaminationData = [
-  { type: t("statsPage.ctEnhance"), reexamRate: 8.5, avgDays: 3.2, reason: t("statsPage.imageUnclear") },
-  { type: t("statsPage.mrPlain"), reexamRate: 6.2, avgDays: 4.5, reason: t("statsPage.badSliceSelection") },
-  { type: t("statsPage.coronaryCta"), reexamRate: 12.8, avgDays: 2.1, reason: t("statsPage.heartRateFluctuation") },
-  { type: t("statsPage.abdominalCt"), reexamRate: 5.5, avgDays: 5.0, reason: t("statsPage.fastingNotPrepared") },
-  { type: t("statsPage.headMr"), reexamRate: 3.8, avgDays: 6.0, reason: t("statsPage.motionArtifact") },
-  { type: t("statsPage.chestDr"), reexamRate: 4.2, avgDays: 1.5, reason: t("statsPage.badExposureParams") },
+  { type: appT("statsPage.ctEnhance"), reexamRate: 8.5, avgDays: 3.2, reason: appT("statsPage.imageUnclear") },
+  { type: appT("statsPage.mrPlain"), reexamRate: 6.2, avgDays: 4.5, reason: appT("statsPage.badSliceSelection") },
+  { type: appT("statsPage.coronaryCta"), reexamRate: 12.8, avgDays: 2.1, reason: appT("statsPage.heartRateFluctuation") },
+  { type: appT("statsPage.abdominalCt"), reexamRate: 5.5, avgDays: 5.0, reason: appT("statsPage.fastingNotPrepared") },
+  { type: appT("statsPage.headMr"), reexamRate: 3.8, avgDays: 6.0, reason: appT("statsPage.motionArtifact") },
+  { type: appT("statsPage.chestDr"), reexamRate: 4.2, avgDays: 1.5, reason: appT("statsPage.badExposureParams") },
 ]
 
 function getPositiveRateRanking() {
@@ -290,7 +290,7 @@ function getPositiveRateRanking() {
     const rate = e.modality === 'DSA' ? 68.5 : e.modality === 'MG' ? 52.3 : e.modality === 'CT' ? 42 - idx : 35 - idx * 2;
     return {
       rank: idx + 1, type: e.name, rate: Math.max(5, Math.round(rate * 10) / 10),
-      count: estCount, trend: ['↑2.1%', '↓1.5%', '↑3.2%', '↑0.8%', '↓0.5%', t("statsPage.flat"), '↑1.2%', '↓0.3%'][idx] || t("statsPage.flat"),
+      count: estCount, trend: ['↑2.1%', '↓1.5%', '↑3.2%', '↑0.8%', '↓0.5%', appT("statsPage.flat"), '↑1.2%', '↓0.3%'][idx] || appT("statsPage.flat"),
     };
   });
 }
@@ -318,39 +318,39 @@ const businessStats = {
 }
 
 const costBreakdown = [
-  { name: t("statsPage.equipmentDepreciation"), value: 420000, color: '#3b82f6', percent: 29.6 },
-  { name: t("statsPage.laborCost"), value: 380000, color: '#8b5cf6', percent: 26.8 },
-  { name: t("statsPage.consumables"), value: 280000, color: '#22c55e', percent: 19.7 },
-  { name: t("statsPage.maintenanceCost"), value: 180000, color: '#f59e0b', percent: 12.7 },
-  { name: t("statsPage.utilities"), value: 120000, color: '#ec4899', percent: 8.5 },
-  { name: t("statsPage.otherExpenses"), value: 40000, color: '#14b8a6', percent: 2.8 },
+  { name: appT("statsPage.equipmentDepreciation"), value: 420000, color: '#3b82f6', percent: 29.6 },
+  { name: appT("statsPage.laborCost"), value: 380000, color: '#8b5cf6', percent: 26.8 },
+  { name: appT("statsPage.consumables"), value: 280000, color: '#22c55e', percent: 19.7 },
+  { name: appT("statsPage.maintenanceCost"), value: 180000, color: '#f59e0b', percent: 12.7 },
+  { name: appT("statsPage.utilities"), value: 120000, color: '#ec4899', percent: 8.5 },
+  { name: appT("statsPage.otherExpenses"), value: 40000, color: '#14b8a6', percent: 2.8 },
 ]
 
 const monthlyProfitData = [
-  { month: t("statsPage.jan"), revenue: 238, cost: 128, profit: 110 },
-  { month: t("statsPage.feb"), revenue: 215, cost: 125, profit: 90 },
-  { month: t("statsPage.mar"), revenue: 256, cost: 135, profit: 121 },
-  { month: t("statsPage.apr"), revenue: 268, cost: 140, profit: 128 },
-  { month: t("statsPage.may"), revenue: 282, cost: 145, profit: 137 },
-  { month: t("statsPage.jun"), revenue: 298, cost: 152, profit: 146 },
+  { month: appT("statsPage.jan"), revenue: 238, cost: 128, profit: 110 },
+  { month: appT("statsPage.feb"), revenue: 215, cost: 125, profit: 90 },
+  { month: appT("statsPage.mar"), revenue: 256, cost: 135, profit: 121 },
+  { month: appT("statsPage.apr"), revenue: 268, cost: 140, profit: 128 },
+  { month: appT("statsPage.may"), revenue: 282, cost: 145, profit: 137 },
+  { month: appT("statsPage.jun"), revenue: 298, cost: 152, profit: 146 },
 ]
 
 const perCapitaTrend = [
-  { month: t("statsPage.jan"), revenue: 165000, profit: 76000 },
-  { month: t("statsPage.feb"), revenue: 152000, profit: 65000 },
-  { month: t("statsPage.mar"), revenue: 178000, profit: 84000 },
-  { month: t("statsPage.apr"), revenue: 186000, profit: 89000 },
-  { month: t("statsPage.may"), revenue: 192000, profit: 92000 },
-  { month: t("statsPage.jun"), revenue: 198000, profit: 95000 },
+  { month: appT("statsPage.jan"), revenue: 165000, profit: 76000 },
+  { month: appT("statsPage.feb"), revenue: 152000, profit: 65000 },
+  { month: appT("statsPage.mar"), revenue: 178000, profit: 84000 },
+  { month: appT("statsPage.apr"), revenue: 186000, profit: 89000 },
+  { month: appT("statsPage.may"), revenue: 192000, profit: 92000 },
+  { month: appT("statsPage.jun"), revenue: 198000, profit: 95000 },
 ]
 
 const efficiencyMetrics = [
-  { dept: t("statsPage.roomCt"), revenue: 428000, cost: 218000, profit: 210000, staff: 6, perCapita: 71000 },
-  { dept: t("statsPage.roomMr"), revenue: 296000, cost: 165000, profit: 131000, staff: 5, perCapita: 59200 },
-  { dept: t("statsPage.roomDr"), revenue: 98000, cost: 48000, profit: 50000, staff: 4, perCapita: 24500 },
-  { dept: t("statsPage.roomDsa"), revenue: 156000, cost: 92000, profit: 64000, staff: 3, perCapita: 52000 },
-  { dept: t("statsPage.roomMammo"), revenue: 28000, cost: 15000, profit: 13000, staff: 2, perCapita: 14000 },
-  { dept: t("statsPage.roomFluoro"), revenue: 42000, cost: 22000, profit: 20000, staff: 2, perCapita: 20000 },
+  { dept: appT("statsPage.roomCt"), revenue: 428000, cost: 218000, profit: 210000, staff: 6, perCapita: 71000 },
+  { dept: appT("statsPage.roomMr"), revenue: 296000, cost: 165000, profit: 131000, staff: 5, perCapita: 59200 },
+  { dept: appT("statsPage.roomDr"), revenue: 98000, cost: 48000, profit: 50000, staff: 4, perCapita: 24500 },
+  { dept: appT("statsPage.roomDsa"), revenue: 156000, cost: 92000, profit: 64000, staff: 3, perCapita: 52000 },
+  { dept: appT("statsPage.roomMammo"), revenue: 28000, cost: 15000, profit: 13000, staff: 2, perCapita: 14000 },
+  { dept: appT("statsPage.roomFluoro"), revenue: 42000, cost: 22000, profit: 20000, staff: 2, perCapita: 20000 },
 ]
 
 // ============================================================
@@ -361,7 +361,7 @@ const deviceStartupData = DEVICE_MASTER.slice(0, 9).map((d) => ({
   startupRate: Math.round((100 - d.defectRate * 50) * 10) / 10,
   avgStartupTime: Math.round(d.avgScanDurationMin * 0.5),
   faults: Math.round(d.defectRate * 100),
-  status: d.status === '运行中' ? t("statsPage.normal") : d.status === '维护中' ? appT("w9a.statsPage.maintenance") : t("statsPage.standby"),
+  status: d.status === '运行中' ? appT("statsPage.normal") : d.status === '维护中' ? appT("w9a.statsPage.maintenance") : appT("statsPage.standby"),
 }))
 
 const examCompletionTimeData = DEVICE_MASTER.slice(0, 9).map((d) => ({
@@ -421,58 +421,56 @@ function getExamTypeRevenue() {
 const examTypeRevenue = getExamTypeRevenue()
 
 const deptRevenueTarget = [
-  { dept: t("statsPage.roomCt"), target: 500000, actual: 428000, rate: 85.6 },
-  { dept: t("statsPage.roomMr"), target: 350000, actual: 296000, rate: 84.6 },
-  { dept: t("statsPage.roomDr"), target: 120000, actual: 98000, rate: 81.7 },
-  { dept: t("statsPage.roomDsa"), target: 180000, actual: 156000, rate: 86.7 },
-  { dept: t("statsPage.roomMammo"), target: 35000, actual: 28000, rate: 80.0 },
-  { dept: t("statsPage.roomFluoro"), target: 50000, actual: 42000, rate: 84.0 },
+  { dept: appT("statsPage.roomCt"), target: 500000, actual: 428000, rate: 85.6 },
+  { dept: appT("statsPage.roomMr"), target: 350000, actual: 296000, rate: 84.6 },
+  { dept: appT("statsPage.roomDr"), target: 120000, actual: 98000, rate: 81.7 },
+  { dept: appT("statsPage.roomDsa"), target: 180000, actual: 156000, rate: 86.7 },
+  { dept: appT("statsPage.roomMammo"), target: 35000, actual: 28000, rate: 80.0 },
+  { dept: appT("statsPage.roomFluoro"), target: 50000, actual: 42000, rate: 84.0 },
 ]
 
 // [G005 Wave2B P2] 导出数据 = 当前统计各维度聚合 (替代 data={[]} 空导出)
 function buildStatisticsExportRows(): any[] {
   const rows: any[] = []
-  sevenDayData.forEach((d) => rows.push({ 维度: t("statsPage.trendLast7d"), 日期: d.day, 检查量: d.exams, 报告量: d.reports, 危急值: d.critical, 收入: d.revenue }))
-  timeSlotData.forEach((d) => rows.push({ 维度: t("statsPage.timeSlotDist"), 时段: d.slot, 检查量: d.exams }))
-  bodyPartData.forEach((d) => rows.push({ 维度: t("statsPage.bodyPart"), 部位: d.part, 检查量: d.count }))
-  doctorWorkloadData.forEach((d) => rows.push({ 维度: t("statsPage.doctorWorkload"), 医生: d.name, 书写: d.written, 审核: d.reviewed, 平均耗时: d.avgTime }))
-  positiveRateData.forEach((d) => rows.push({ 维度: t("statsPage.positiveRate"), 模态: d.modality, 阳性率: d.rate }))
-  deviceEfficiencyData.forEach((d) => rows.push({ 维度: t("statsPage.equipmentEfficiency"), 设备: d.name, 日均检查: d.exams, 使用率: d.utilization, 状态: d.status }))
-  revenueByModality.forEach((d) => rows.push({ 维度: t("statsPage.revenueComposition"), 模态: d.name, 收入: d.value }))
+  sevenDayData.forEach((d) => rows.push({ 维度: appT("statsPage.trendLast7d"), 日期: d.day, 检查量: d.exams, 报告量: d.reports, 危急值: d.critical, 收入: d.revenue }))
+  timeSlotData.forEach((d) => rows.push({ 维度: appT("statsPage.timeSlotDist"), 时段: d.slot, 检查量: d.exams }))
+  bodyPartData.forEach((d) => rows.push({ 维度: appT("statsPage.bodyPart"), 部位: d.part, 检查量: d.count }))
+  doctorWorkloadData.forEach((d) => rows.push({ 维度: appT("statsPage.doctorWorkload"), 医生: d.name, 书写: d.written, 审核: d.reviewed, 平均耗时: d.avgTime }))
+  positiveRateData.forEach((d) => rows.push({ 维度: appT("statsPage.positiveRate"), 模态: d.modality, 阳性率: d.rate }))
+  deviceEfficiencyData.forEach((d) => rows.push({ 维度: appT("statsPage.equipmentEfficiency"), 设备: d.name, 日均检查: d.exams, 使用率: d.utilization, 状态: d.status }))
+  revenueByModality.forEach((d) => rows.push({ 维度: appT("statsPage.revenueComposition"), 模态: d.name, 收入: d.value }))
   return rows
 }
 
 // ============================================================
 // 通用卡片组件
 // ============================================================
+// [UI-4] 收敛至公共 StatCard (保留数值/副标题/趋势)
 function StatCard({ label, value, subValue, icon, color, bg, trend }: {
   label: string; value: string | number; subValue?: string; icon: React.ReactNode;
   color: string; bg: string; trend?: { value: string; up: boolean };
 }) {
+  const sub = (subValue || trend) ? (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+      {subValue}
+      {trend && (
+        <span style={{ color: trend.up ? C.success : C.danger, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+          {trend.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+          {trend.value}
+        </span>
+      )}
+    </span>
+  ) : undefined;
   return (
-    <Card bordered={false} style={{
-      background: C.white, borderRadius: 12, padding: '16px 18px',
-      border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-    }} styles={{ body: { padding: 0 } }}>
-      <div>
-        <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>{label}</div>
-        <div style={{ fontSize: 28, fontWeight: 800, color: C.primary, lineHeight: 1.2 }}>{value}</div>
-        {subValue && <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>{subValue}</div>}
-        {trend && (
-          <div style={{ fontSize: 12, color: trend.up ? C.success : C.danger, marginTop: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-            {trend.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-            {trend.value}
-          </div>
-        )}
-      </div>
-      <div style={{
-        width: 48, height: 48, borderRadius: 12, background: bg,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', color
-      }}>
-        {icon}
-      </div>
-    </Card>
+    <CommonStatCard
+      title={label}
+      value={value}
+      sub={sub}
+      icon={icon}
+      color={color}
+      iconBg={bg}
+      style={{ padding: '16px 18px' }}
+    />
   )
 }
 
@@ -568,7 +566,7 @@ function ExamVolumeTab() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Filter size={14} color={C.textMuted} aria-hidden="true" />
           <label htmlFor="modality-filter" style={{ position: 'absolute', left: -9999 }}>{t('statistics.examVolume.filterModality')}</label>
-          <Select id="modality-filter" aria-label={t("statsPage.deviceFilter")} size="small" style={{ minWidth: 120 }} value={modalityFilter} onChange={(v) => setModalityFilter(v)} options={modalities.map(m => ({ value: m, label: m }))} />
+          <Select id="modality-filter" aria-label={appT("statsPage.deviceFilter")} size="small" style={{ minWidth: 120 }} value={modalityFilter} onChange={(v) => setModalityFilter(v)} options={modalities.map(m => ({ value: m, label: m }))} />
         </div>
       </div>
 
@@ -576,11 +574,11 @@ function ExamVolumeTab() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
         <StatCard label={t('statistics.examVolume.total')} value={stats.total.toLocaleString()} subValue={timeRange === 'today' ? t('statistics.examVolume.todayCumulative') : timeRange === 'week' ? t('statistics.examVolume.weekCumulative') : timeRange}
           icon={<Activity size={20} />} color={C.info} bg={C.infoBg} trend={{ value: stats.yoy, up: true }} />
-        <StatCard label={t("statsPage.yoyGrowth")} value={stats.yoy} subValue={t("statsPage.vsLastYear")}
+        <StatCard label={appT("statsPage.yoyGrowth")} value={stats.yoy} subValue={appT("statsPage.vsLastYear")}
           icon={<TrendingUp size={20} />} color={C.success} bg={C.successBg} trend={{ value: '+2.1%', up: true }} />
-        <StatCard label={t("statsPage.momGrowth")} value={stats.mom} subValue={t("statsPage.vsLastPeriod")}
+        <StatCard label={appT("statsPage.momGrowth")} value={stats.mom} subValue={appT("statsPage.vsLastPeriod")}
           icon={<TrendingDown size={20} />} color={C.warning} bg={C.warningBg} trend={{ value: '-0.5%', up: false }} />
-        <StatCard label={t("statsPage.expectedToday")} value={stats.todayEstimate} subValue={t("statsPage.expectedBeforeEod")}
+        <StatCard label={appT("statsPage.expectedToday")} value={stats.todayEstimate} subValue={appT("statsPage.expectedBeforeEod")}
           icon={<Target size={20} />} color={C.purple} bg={C.purpleBg} trend={{ value: '+15', up: true }} />
       </div>
 
@@ -591,20 +589,20 @@ function ExamVolumeTab() {
             <ComposedChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
-              <YAxis yAxisId="left" tick={{ fontSize: 12, fill: C.textMuted }} label={{ value: t("statsPage.examVolume"), angle: -90, position: 'insideLeft', fontSize: 12, fill: C.textMuted }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} label={{ value: t("statsPage.growthRatePct"), angle: 90, position: 'insideRight', fontSize: 12, fill: C.textMuted }} />
+              <YAxis yAxisId="left" tick={{ fontSize: 12, fill: C.textMuted }} label={{ value: appT("statsPage.examVolume"), angle: -90, position: 'insideLeft', fontSize: 12, fill: C.textMuted }} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} label={{ value: appT("statsPage.growthRatePct"), angle: 90, position: 'insideRight', fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name={t("statsPage.chart.examCount")} radius={[4, 4, 0, 0]} opacity={0.7} />
-              <Line yAxisId="right" type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.criticalCount")} />
-              <Line yAxisId="right" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.reportCount")} />
+              <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name={appT("statsPage.chart.examCount")} radius={[4, 4, 0, 0]} opacity={0.7} />
+              <Line yAxisId="right" type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.criticalCount")} />
+              <Line yAxisId="right" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.reportCount")} />
             </ComposedChart>
           </ChartContainer>
         </ChartCard>
       </div>
 
       {/* 副图区 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 按设备类型分组柱状图 */}
         <ChartCard title={t('statistics.examVolume.modalityDistribution')}>
           <ChartContainer height={220}>
@@ -623,10 +621,10 @@ function ExamVolumeTab() {
         </ChartCard>
 
         {/* 按患者类型饼图 */}
-        <ChartCard title={t("statsPage.patientTypeDist")}>
+        <ChartCard title={appT("statsPage.patientTypeDist")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 160, height: 160, flexShrink: 0 }}>
-            <ChartContainer height={160} state={patientTypeData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPatientTypeData")}>
+            <ChartContainer height={160} state={patientTypeData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPatientTypeData")}>
               <StatPieChart>
                 <Pie data={patientTypeData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {patientTypeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -656,16 +654,16 @@ function ExamVolumeTab() {
       </div>
 
       {/* 副图2区 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
         {/* 检查部位分布 */}
-        <ChartCard title={t("statsPage.bodyPartDistTop10B")}>
-          <ChartContainer height={220} state={bodyPartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noBodyPartData")}>
+        <ChartCard title={appT("statsPage.bodyPartDistTop10B")}>
+          <ChartContainer height={220} state={bodyPartData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noBodyPartData")}>
             <StatBarChart data={bodyPartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis dataKey="part" type="category" tick={{ fontSize: 12, fill: C.textMuted }} width={60} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="count" fill="#3b82f6" name={t("statsPage.chart.examCount")} radius={[0, 4, 4, 0]}>
+              <Bar dataKey="count" fill="#3b82f6" name={appT("statsPage.chart.examCount")} radius={[0, 4, 4, 0]}>
                 {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', 'MG', 'GI'][i % 6] ?? 'CT']} />)}
               </Bar>
             </StatBarChart>
@@ -673,14 +671,14 @@ function ExamVolumeTab() {
         </ChartCard>
 
         {/* 时段分布 */}
-        <ChartCard title={t("statsPage.timeSlotDist2")}>
-          <ChartContainer height={220} state={timeSlotData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noTimeSlotData")}>
+        <ChartCard title={appT("statsPage.timeSlotDist2")}>
+          <ChartContainer height={220} state={timeSlotData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noTimeSlotData")}>
             <StatBarChart data={timeSlotData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="slot" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="exams" name={t("statsPage.chart.examCount")} radius={[4, 4, 0, 0]}>
+              <Bar dataKey="exams" name={appT("statsPage.chart.examCount")} radius={[4, 4, 0, 0]}>
                 {timeSlotData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i % RAD_COLORS.length]} />)}
               </Bar>
             </StatBarChart>
@@ -700,7 +698,7 @@ function WorkloadTab() {
   const [dimension, setDimension] = useState('doctor')
   const [viewMode, setViewMode] = useState('table')
 
-  const doctors = [t('statistics.examVolume.allModalities'), t("statsPage.doctorLiMinghui"), t("statsPage.doctorWangXiufeng"), t("statsPage.doctorZhangHaitao"), t("statsPage.doctorLiu")]
+  const doctors = [t('statistics.examVolume.allModalities'), appT("statsPage.doctorLiMinghui"), appT("statsPage.doctorWangXiufeng"), appT("statsPage.doctorZhangHaitao"), appT("statsPage.doctorLiu")]
   const dimensions = [
     { key: 'doctor', label: t('statistics.workload.dimensions.doctor') },
     { key: 'device', label: t('statistics.workload.dimensions.device') },
@@ -718,8 +716,8 @@ function WorkloadTab() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <UserCheck size={14} color={C.textMuted} aria-hidden="true" />
-          <label htmlFor="doctor-filter" style={{ position: 'absolute', left: -9999 }}>{t("statsPage.doctorFilter")}</label>
-          <Select id="doctor-filter" aria-label={t("statsPage.doctorFilter")} size="small" style={{ minWidth: 140 }} value={doctorFilter} onChange={(v) => setDoctorFilter(v)} options={doctors.map(d => ({ value: d, label: d }))} />
+          <label htmlFor="doctor-filter" style={{ position: 'absolute', left: -9999 }}>{appT("statsPage.doctorFilter")}</label>
+          <Select id="doctor-filter" aria-label={appT("statsPage.doctorFilter")} size="small" style={{ minWidth: 140 }} value={doctorFilter} onChange={(v) => setDoctorFilter(v)} options={doctors.map(d => ({ value: d, label: d }))} />
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <BarChart3 size={14} color={C.textMuted} />
@@ -730,16 +728,16 @@ function WorkloadTab() {
       {/* 医生工作量表格 */}
       <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
         <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{t("statsPage.workloadReportTitle2")}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.workloadReportTitle2")}</div>
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => setViewMode('table')} style={{
               padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
               background: viewMode === 'table' ? C.infoBg : 'transparent', color: viewMode === 'table' ? C.info : C.textMuted
-            }}>{t("statsPage.table")}</button>
+            }}>{appT("statsPage.table")}</button>
             <button onClick={() => setViewMode('chart')} style={{
               padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
               background: viewMode === 'chart' ? C.infoBg : 'transparent', color: viewMode === 'chart' ? C.info : C.textMuted
-            }}>{t("statsPage.chart")}</button>
+            }}>{appT("statsPage.chart")}</button>
           </div>
         </div>
         {viewMode === 'table' ? (
@@ -766,15 +764,15 @@ function WorkloadTab() {
           </table></div>
         ) : (
           <div style={{ padding: 20 }}>
-          <ChartContainer height={280} state={doctorWorkloadData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noDoctorWorkloadData")}>
+          <ChartContainer height={280} state={doctorWorkloadData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noDoctorWorkloadData")}>
             <StatBarChart data={doctorWorkloadData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                 <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                 <Legend iconSize={10} verticalAlign="bottom" align="center" />
-                <Bar dataKey="written" fill="#3b82f6" name={t("statsPage.chart.writtenReports")} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="reviewed" fill="#8b5cf6" name={t("statsPage.chart.reviewedReports")} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="written" fill="#3b82f6" name={appT("statsPage.chart.writtenReports")} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="reviewed" fill="#8b5cf6" name={appT("statsPage.chart.reviewedReports")} radius={[4, 4, 0, 0]} />
               </StatBarChart>
             </ChartContainer>
           </div>
@@ -783,8 +781,8 @@ function WorkloadTab() {
 
       {/* 7天趋势图 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', marginBottom: 20 }}>
-        <ChartCard title={t("statsPage.doctor7dTrend")}>
-          <ChartContainer height={260} state={doctorTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noDoctorTrendData")}>
+        <ChartCard title={appT("statsPage.doctor7dTrend")}>
+          <ChartContainer height={260} state={doctorTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noDoctorTrendData")}>
             <LineChart data={doctorTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -803,7 +801,7 @@ function WorkloadTab() {
       {/* TOP10排行榜 */}
       <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', padding: 20 }} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{t("statsPage.workloadTop10Board")}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.workloadTop10Board")}</div>
           <Award size={16} color={C.warning} />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
@@ -823,9 +821,9 @@ function WorkloadTab() {
               </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{d.name}</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.info, marginTop: 6 }}>{d.written}</div>
-              <div style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.reportsUnit")}</div>
-              <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>{t("statsPage.avgScore")}{d.avgTime}min</div>
-              {idx === 0 && <div style={{ fontSize: 12, color: C.warning, marginTop: 2 }}>{t("statsPage.starOfMonthStar")}</div>}
+              <div style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.reportsUnit")}</div>
+              <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>{appT("statsPage.avgScore")}{d.avgTime}min</div>
+              {idx === 0 && <div style={{ fontSize: 12, color: C.warning, marginTop: 2 }}>{appT("statsPage.starOfMonthStar")}</div>}
             </div>
           ))}
         </div>
@@ -875,33 +873,33 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
           border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
         }}>
-          <Download size={13} /> {t("statsPage.exportReport")}
+          <Download size={13} /> {appT("statsPage.exportReport")}
         </button>
       </div>
 
       {/* 收入统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.todayRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.today / 10000).toFixed(1) })}
+        <StatCard label={appT("statsPage.todayRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.today / 10000).toFixed(1) })}
           icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: '+8.2%', up: true }} />
-        <StatCard label={t("statsPage.weekRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.week / 10000).toFixed(0) })}
+        <StatCard label={appT("statsPage.weekRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.week / 10000).toFixed(0) })}
           icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: '+12.5%', up: true }} />
-        <StatCard label={t("statsPage.monthRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.month / 10000).toFixed(0) })}
+        <StatCard label={appT("statsPage.monthRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.month / 10000).toFixed(0) })}
           icon={<BarChart3 size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: '+15.6%', up: true }} />
-        <StatCard label={t("statsPage.quarterRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.quarter / 10000).toFixed(0) })}
+        <StatCard label={appT("statsPage.quarterRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (revenueStats.quarter / 10000).toFixed(0) })}
           icon={<Activity size={20} />} color={C.purple} bg={C.purpleBg}
           trend={{ value: '+18.3%', up: true }} />
-        <StatCard label={t("statsPage.yoyGrowth")} value={revenueStats.yoy}
+        <StatCard label={appT("statsPage.yoyGrowth")} value={revenueStats.yoy}
           icon={<Target size={20} />} color={C.danger} bg={C.dangerBg}
           trend={{ value: '+3.2%', up: true }} />
       </div>
 
       {/* 收入趋势面积图 */}
       <div style={{ marginBottom: 16 }}>
-        <ChartCard title={t("statsPage.revenueTrend")}>
-          <ChartContainer height={280} state={(chartView === '7days' ? revenueTrend7 : revenueTrend30).length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noRevenueTrend")}>
+        <ChartCard title={appT("statsPage.revenueTrend")}>
+          <ChartContainer height={280} state={(chartView === '7days' ? revenueTrend7 : revenueTrend30).length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noRevenueTrend")}>
             <AreaChart data={chartView === '7days' ? revenueTrend7 : revenueTrend30}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -913,20 +911,20 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, maxRevenue * 1.2]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
-                formatter={(value: number) => [appT("w9a.statsPage.currencyWan", { value: (value / 10000).toFixed(1) }), t("statsPage.revenue")]} />
-              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name={t("statsPage.chart.revenue")} />
+                formatter={(value: number) => [appT("w9a.statsPage.currencyWan", { value: (value / 10000).toFixed(1) }), appT("statsPage.revenue")]} />
+              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name={appT("statsPage.chart.revenue")} />
             </AreaChart>
           </ChartContainer>
         </ChartCard>
       </div>
 
       {/* 下半区 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 按设备类型收入分布 */}
-        <ChartCard title={t("statsPage.revenueByDeviceType")}>
+        <ChartCard title={appT("statsPage.revenueByDeviceType")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 150, height: 150, flexShrink: 0 }}>
-            <ChartContainer height={150} state={revenueByModality.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noModalityRevenue")}>
+            <ChartContainer height={150} state={revenueByModality.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noModalityRevenue")}>
               <StatPieChart>
                 <Pie data={revenueByModality} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {revenueByModality.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -942,7 +940,7 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.color }} />
                     <span style={{ fontSize: 12, color: C.text }}>{item.name}</span>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}{t("statsPage.tenThousand")}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}{appT("statsPage.tenThousand")}</span>
                 </div>
               ))}
             </div>
@@ -950,7 +948,7 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
         </ChartCard>
 
         {/* 检查类型收入排名 */}
-        <ChartCard title={t("statsPage.revenueRankByType")}>
+        <ChartCard title={appT("statsPage.revenueRankByType")}>
           <div style={{ maxHeight: 200, overflowY: 'auto' }}>
             {examTypeRevenue.map((item, i) => (
               <div key={item.type} style={{ display: 'flex', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -959,9 +957,9 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: C.text, fontWeight: 600 }}>{item.type}</div>
-                  <div style={{ fontSize: 12, color: C.textMuted }}>{item.exams}{t("statsPage.examUnit")}</div>
+                  <div style={{ fontSize: 12, color: C.textMuted }}>{item.exams}{appT("statsPage.examUnit")}</div>
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.revenue / 10000).toFixed(0)}{t("statsPage.tenThousand")}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.revenue / 10000).toFixed(0)}{appT("statsPage.tenThousand")}</div>
               </div>
             ))}
           </div>
@@ -969,7 +967,7 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
       </div>
 
       {/* 科室收入目标进度 */}
-      <ChartCard title={t("statsPage.deptTargetProgress")}>
+      <ChartCard title={appT("statsPage.deptTargetProgress")}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
           {deptRevenueTarget.map(dept => (
             <div key={dept.dept} style={{ padding: '12px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -985,8 +983,8 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.actualYuan")}{(dept.actual / 10000).toFixed(0)}{t("statsPage.tenThousand")}</span>
-                <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.targetYuan")}{(dept.target / 10000).toFixed(0)}{t("statsPage.tenThousand")}</span>
+                <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.actualYuan")}{(dept.actual / 10000).toFixed(0)}{appT("statsPage.tenThousand")}</span>
+                <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.targetYuan")}{(dept.target / 10000).toFixed(0)}{appT("statsPage.tenThousand")}</span>
               </div>
             </div>
           ))}
@@ -1000,7 +998,6 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
 // 标签页4：质量控制
 // ============================================================
 function QualityControlTab() {
-  const { t } = useTranslation('v3stats')
   const [trendRange, setTrendRange] = useState('7days')
 
   const qualityStats = {
@@ -1023,26 +1020,26 @@ function QualityControlTab() {
     <div>
       {/* 质控概览卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.avgQcScore")} value={appT("w9a.statsPage.scoreSuffix", { score: qualityStats.avgScore })}
-          subValue={t("statsPage.maxScore100")} icon={<Award size={20} />} color={C.success} bg={C.successBg}
-          trend={{ value: t("statsPage.plus12"), up: true }} />
-        <StatCard label={t("statsPage.overdueReports")} value={qualityStats.overtimeCount}
+        <StatCard label={appT("statsPage.avgQcScore")} value={appT("w9a.statsPage.scoreSuffix", { score: qualityStats.avgScore })}
+          subValue={appT("statsPage.maxScore100")} icon={<Award size={20} />} color={C.success} bg={C.successBg}
+          trend={{ value: appT("statsPage.plus12"), up: true }} />
+        <StatCard label={appT("statsPage.overdueReports")} value={qualityStats.overtimeCount}
           subValue={appT("w9a.statsPage.overtimeRate", { rate: qualityStats.overtimeRate })} icon={<Clock size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: '-8%', up: true }} />
-        <StatCard label={t("statsPage.criticalAlerts")} value={qualityStats.criticalCount}
-          subValue={t("statsPage.handlingRate978")} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
-          trend={{ value: t("statsPage.plus5Cases"), up: false }} />
-        <StatCard label={t("statsPage.revisionRate")} value="12.3%"
-          subValue={t("statsPage.down21Pct")} icon={<Edit3 size={20} />} color={C.purple} bg={C.purpleBg}
+        <StatCard label={appT("statsPage.criticalAlerts")} value={qualityStats.criticalCount}
+          subValue={appT("statsPage.handlingRate978")} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
+          trend={{ value: appT("statsPage.plus5Cases"), up: false }} />
+        <StatCard label={appT("statsPage.revisionRate")} value="12.3%"
+          subValue={appT("statsPage.down21Pct")} icon={<Edit3 size={20} />} color={C.purple} bg={C.purpleBg}
           trend={{ value: '-2.1%', up: true }} />
       </div>
 
       {/* 质量评分分布 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <ChartCard title={t("statsPage.reportQualityScoreDist")}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <ChartCard title={appT("statsPage.reportQualityScoreDist")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 150, height: 150, flexShrink: 0 }}>
-            <ChartContainer height={150} state={qualityDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noQualityDist")}>
+            <ChartContainer height={150} state={qualityDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noQualityDist")}>
               <StatPieChart>
                 <Pie data={qualityDistribution} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {qualityDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -1064,7 +1061,7 @@ function QualityControlTab() {
             </div>
           </div>
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{t("statsPage.scoreDistProgress")}</div>
+            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{appT("statsPage.scoreDistProgress")}</div>
             {qualityDistribution.map(item => (
               <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <div style={{ width: 50, fontSize: 12, color: C.textMuted }}>{item.name}</div>
@@ -1078,67 +1075,67 @@ function QualityControlTab() {
         </ChartCard>
 
         {/* 超时与危急值统计 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 12 }}>
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <Clock size={16} color={C.warning} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{t("statsPage.overdueStats")}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{appT("statsPage.overdueStats")}</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 700, color: C.warning }}>{overtimeData.total}</div>
-            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{t("statsPage.overdueTotal")}</div>
+            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{appT("statsPage.overdueTotal")}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.overdueRate")}</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.overdueRate")}</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.warning }}>{overtimeData.rate}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.avgOverdue")}</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.avgOverdue")}</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{overtimeData.avgHours}h</span>
             </div>
           </Card>
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <AlertTriangle size={16} color={C.danger} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{t("statsPage.criticalStats")}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{appT("statsPage.criticalStats")}</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 700, color: C.danger }}>{qualityStats.criticalCount}</div>
-            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{t("statsPage.criticalThisMonth")}</div>
+            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{appT("statsPage.criticalThisMonth")}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.criticalTimelyRate")}</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.criticalTimelyRate")}</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.success }}>{qualityStats.criticalTimelyRate}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.criticalOverdue")}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.danger }}>{qualityStats.criticalOvertime}{t("statsPage.caseUnit")}</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.criticalOverdue")}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.danger }}>{qualityStats.criticalOvertime}{appT("statsPage.caseUnit")}</span>
             </div>
           </Card>
         </div>
       </div>
 
       {/* 报告修改次数分布 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <ChartCard title={t("statsPage.revisionDist")}>
-          <ChartContainer height={200} state={modificationData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noRevisionData")}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <ChartCard title={appT("statsPage.revisionDist")}>
+          <ChartContainer height={200} state={modificationData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noRevisionData")}>
             <StatBarChart data={modificationData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="times" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="count" name={t("statsPage.chart.reportCount")} radius={[4, 4, 0, 0]}>
+              <Bar dataKey="count" name={appT("statsPage.chart.reportCount")} radius={[4, 4, 0, 0]}>
                 {modificationData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i]} />)}
               </Bar>
             </StatBarChart>
           </ChartContainer>
         </ChartCard>
 
-        <ChartCard title={t("statsPage.overdueTimelyTrend")}>
-          <ChartContainer height={200} state={sevenDayData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.no7dData")}>
+        <ChartCard title={appT("statsPage.overdueTimelyTrend")}>
+          <ChartContainer height={200} state={sevenDayData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.no7dData")}>
             <LineChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 10]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.criticalCount")} />
+              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.criticalCount")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -1146,25 +1143,25 @@ function QualityControlTab() {
 
       {/* 质控评分趋势 */}
       <ChartCard
-        title={t("statsPage.qcScoreTrend")}
+        title={appT("statsPage.qcScoreTrend")}
         action={
           <div style={{ display: 'flex', gap: 4 }}>
             {['7days', '30days'].map(r => (
               <button key={r} onClick={() => setTrendRange(r)} style={{
                 padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 background: trendRange === r ? C.infoBg : 'transparent', color: trendRange === r ? C.info : C.textMuted
-              }}>{r === '7days' ? t("statsPage.sevenDays") : t("statsPage.thirtyDays")}</button>
+              }}>{r === '7days' ? appT("statsPage.sevenDays") : appT("statsPage.thirtyDays")}</button>
             ))}
           </div>
         }
       >
-          <ChartContainer height={240} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noTrendData")}>
+          <ChartContainer height={240} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noTrendData")}>
             <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
             <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
             <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[93, 100]} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-            <Line type="monotone" dataKey="score" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.qcScore")} />
+            <Line type="monotone" dataKey="score" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.qcScore")} />
           </LineChart>
         </ChartContainer>
       </ChartCard>
@@ -1176,11 +1173,10 @@ function QualityControlTab() {
 // 标签页5：设备效能（扩充版）
 // ============================================================
 function DeviceEfficiencyTab() {
-  const { t } = useTranslation('v3stats')
   const [deviceFilter, setDeviceFilter] = useState('全部')
   const [deviceView, setDeviceView] = useState('utilization')
 
-  const extendedHeaders = [t("statsPage.deviceName"), t("statsPage.completedToday"), t("statsPage.avgTime"), t("statsPage.shortest"), t("statsPage.longest"), t("statsPage.overdueCount"), t("statsPage.status")]
+  const extendedHeaders = [appT("statsPage.deviceName"), appT("statsPage.completedToday"), appT("statsPage.avgTime"), appT("statsPage.shortest"), appT("statsPage.longest"), appT("statsPage.overdueCount"), appT("statsPage.status")]
 
   const utilizationAvg = Math.round(deviceEfficiencyData.reduce((sum, d) => sum + d.utilization, 0) / deviceEfficiencyData.length)
   const startupAvg = Math.round(deviceStartupData.reduce((sum, d) => sum + d.startupRate, 0) / deviceStartupData.length)
@@ -1190,26 +1186,26 @@ function DeviceEfficiencyTab() {
     <div>
       {/* 设备效能概览 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.totalDevices")} value={deviceEfficiencyData.length}
-          subValue={t("statsPage.running8")} icon={<Monitor size={20} />} color={C.info} bg={C.infoBg} />
-        <StatCard label={t("statsPage.avgUtilization")} value={`${utilizationAvg}%`}
-          subValue={t("statsPage.target80")} icon={<Percent size={20} />} color={C.success} bg={C.successBg}
+        <StatCard label={appT("statsPage.totalDevices")} value={deviceEfficiencyData.length}
+          subValue={appT("statsPage.running8")} icon={<Monitor size={20} />} color={C.info} bg={C.infoBg} />
+        <StatCard label={appT("statsPage.avgUtilization")} value={`${utilizationAvg}%`}
+          subValue={appT("statsPage.target80")} icon={<Percent size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: '+3.2%', up: true }} />
-        <StatCard label={t("statsPage.avgPowerOnRate")} value={`${startupAvg}%`}
-          subValue={t("statsPage.target95")} icon={<Zap size={20} />} color={C.purple} bg={C.purpleBg}
+        <StatCard label={appT("statsPage.avgPowerOnRate")} value={`${startupAvg}%`}
+          subValue={appT("statsPage.target95")} icon={<Zap size={20} />} color={C.purple} bg={C.purpleBg}
           trend={{ value: '+1.5%', up: true }} />
-        <StatCard label={t("statsPage.avgApptWait")} value={appT("w9a.statsPage.daysSuffix", { count: waitAvg })}
-          subValue={t("statsPage.ctMrBusy")} icon={<Clock size={20} />} color={C.warning} bg={C.warningBg}
-          trend={{ value: t("statsPage.plus03days"), up: false }} />
-        <StatCard label={t("statsPage.totalFaults")} value={deviceEfficiencyData.reduce((s, d) => s + d.faults, 0)}
-          subValue={t("statsPage.maint1")} icon={<Wrench size={20} />} color={C.danger} bg={C.dangerBg}
-          trend={{ value: t("statsPage.minus2"), up: true }} />
+        <StatCard label={appT("statsPage.avgApptWait")} value={appT("w9a.statsPage.daysSuffix", { count: waitAvg })}
+          subValue={appT("statsPage.ctMrBusy")} icon={<Clock size={20} />} color={C.warning} bg={C.warningBg}
+          trend={{ value: appT("statsPage.plus03days"), up: false }} />
+        <StatCard label={appT("statsPage.totalFaults")} value={deviceEfficiencyData.reduce((s, d) => s + d.faults, 0)}
+          subValue={appT("statsPage.maint1")} icon={<Wrench size={20} />} color={C.danger} bg={C.dangerBg}
+          trend={{ value: appT("statsPage.minus2"), up: true }} />
       </div>
 
       {/* 设备视图切换 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div style={{ display: 'flex', gap: 4, background: C.background, borderRadius: 8, padding: 4 }}>
-          {[{ key: 'utilization', label: t("statsPage.utilization") }, { key: 'startup', label: t("statsPage.powerOnRate") }, { key: 'completion', label: t("statsPage.completionTime") }, { key: 'wait', label: t("statsPage.waitTime") }].map(v => (
+          {[{ key: 'utilization', label: appT("statsPage.utilization") }, { key: 'startup', label: appT("statsPage.powerOnRate") }, { key: 'completion', label: appT("statsPage.completionTime") }, { key: 'wait', label: appT("statsPage.waitTime") }].map(v => (
             <button key={v.key} onClick={() => setDeviceView(v.key)} style={{
               padding: '5px 12px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', background: deviceView === v.key ? C.white : 'transparent',
@@ -1218,8 +1214,8 @@ function DeviceEfficiencyTab() {
             }}>{v.label}</button>
           ))}
         </div>
-        <label htmlFor="device-filter" style={{ position: 'absolute', left: -9999 }}>{t("statsPage.deviceTypeFilter")}</label>
-        <Select id="device-filter" aria-label={t("statsPage.deviceTypeFilter")} size="small" style={{ minWidth: 120 }} value={deviceFilter} onChange={(v) => setDeviceFilter(v)} options={['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI'].map(m => ({ value: m, label: m }))} />
+        <label htmlFor="device-filter" style={{ position: 'absolute', left: -9999 }}>{appT("statsPage.deviceTypeFilter")}</label>
+        <Select id="device-filter" aria-label={appT("statsPage.deviceTypeFilter")} size="small" style={{ minWidth: 120 }} value={deviceFilter} onChange={(v) => setDeviceFilter(v)} options={['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI'].map(m => ({ value: m, label: m }))} />
       </div>
 
       {/* 设备利用率视图 */}
@@ -1227,16 +1223,16 @@ function DeviceEfficiencyTab() {
         <>
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{t("statsPage.deviceList")}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.deviceList")}</div>
             </div>
             <VirtualTable
               columns={[
-                { title: t("statsPage.deviceName"), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{v}</span> },
-                { title: t("statsPage.deviceType"), dataIndex: 'name', key: 'type', render: (v: string) => <span style={{ fontSize: 12 }}>{v.split('-')[0]}</span> },
-                { title: t("statsPage.examVolume"), dataIndex: 'exams', key: 'exams', width: 90, render: (v: number) => <span style={{ fontSize: 12, fontWeight: 700, color: C.info }}>{v}</span> },
-                { title: t("statsPage.avgDuration"), dataIndex: 'avgTime', key: 'avgTime', width: 100, render: (v: number) => <span style={{ fontSize: 12 }}>{v}min</span> },
+                { title: appT("statsPage.deviceName"), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{v}</span> },
+                { title: appT("statsPage.deviceType"), dataIndex: 'name', key: 'type', render: (v: string) => <span style={{ fontSize: 12 }}>{v.split('-')[0]}</span> },
+                { title: appT("statsPage.examVolume"), dataIndex: 'exams', key: 'exams', width: 90, render: (v: number) => <span style={{ fontSize: 12, fontWeight: 700, color: C.info }}>{v}</span> },
+                { title: appT("statsPage.avgDuration"), dataIndex: 'avgTime', key: 'avgTime', width: 100, render: (v: number) => <span style={{ fontSize: 12 }}>{v}min</span> },
                 {
-                  title: t("statsPage.utilizationRate"), dataIndex: 'utilization', key: 'utilization', width: 160,
+                  title: appT("statsPage.utilizationRate"), dataIndex: 'utilization', key: 'utilization', width: 160,
                   render: (v: number) => (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
                       <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
@@ -1246,9 +1242,9 @@ function DeviceEfficiencyTab() {
                     </div>
                   ),
                 },
-                { title: t("statsPage.faultCount"), dataIndex: 'faults', key: 'faults', width: 90, render: (v: number) => <span style={{ fontSize: 12, color: v > 0 ? C.danger : C.success }}>{v}</span> },
+                { title: appT("statsPage.faultCount"), dataIndex: 'faults', key: 'faults', width: 90, render: (v: number) => <span style={{ fontSize: 12, color: v > 0 ? C.danger : C.success }}>{v}</span> },
                 {
-                  title: t("statsPage.maintenanceStatus"), dataIndex: 'status', key: 'status', width: 100,
+                  title: appT("statsPage.maintenanceStatus"), dataIndex: 'status', key: 'status', width: 100,
                   render: (v: string) => (
                     <span style={{
                       padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
@@ -1265,15 +1261,15 @@ function DeviceEfficiencyTab() {
             />
           </Card>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-            <ChartCard title={t("statsPage.utilizationCompare")}>
-          <ChartContainer height={240} state={deviceEfficiencyData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noDeviceEfficiency")}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
+            <ChartCard title={appT("statsPage.utilizationCompare")}>
+          <ChartContainer height={240} state={deviceEfficiencyData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noDeviceEfficiency")}>
             <StatBarChart data={deviceEfficiencyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                  <Bar dataKey="utilization" name={t("statsPage.chart.utilizationPct")} radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="utilization" name={appT("statsPage.chart.utilizationPct")} radius={[4, 4, 0, 0]}>
                     {deviceEfficiencyData.map((entry, i) => (
                       <Cell key={i} fill={entry.utilization >= 80 ? C.success : entry.utilization >= 60 ? C.warning : C.danger} />
                     ))}
@@ -1282,7 +1278,7 @@ function DeviceEfficiencyTab() {
               </ChartContainer>
             </ChartCard>
 
-            <ChartCard title={t("statsPage.maintenancePlanList")}>
+            <ChartCard title={appT("statsPage.maintenancePlanList")}>
               <div style={{ maxHeight: 240, overflowY: 'auto' }}>
                 {maintenanceData.map(m => (
                   <div key={m.device} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1293,14 +1289,14 @@ function DeviceEfficiencyTab() {
                         background: m.daysLeft <= 14 ? C.dangerBg : m.daysLeft <= 30 ? C.warningBg : C.infoBg,
                         color: m.daysLeft <= 14 ? C.danger : m.daysLeft <= 30 ? C.warning : C.info
                       }}>
-                        {m.daysLeft <= 14 ? t("statsPage.urgent") : m.daysLeft <= 30 ? t("statsPage.dueSoon") : t("statsPage.normal")}
+                        {m.daysLeft <= 14 ? appT("statsPage.urgent") : m.daysLeft <= 30 ? appT("statsPage.dueSoon") : appT("statsPage.normal")}
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 12, color: C.textMuted }}>{m.type}</span>
-                      <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.remaining")} <strong style={{ color: m.daysLeft <= 14 ? C.danger : C.text }}>{m.daysLeft}</strong> {t("statsPage.daysUnit")}</span>
+                      <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.remaining")} <strong style={{ color: m.daysLeft <= 14 ? C.danger : C.text }}>{m.daysLeft}</strong> {appT("statsPage.daysUnit")}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: C.textMuted, marginTop: 2 }}>{t("statsPage.plannedDate")} {m.nextDate}</div>
+                    <div style={{ fontSize: 12, color: C.textMuted, marginTop: 2 }}>{appT("statsPage.plannedDate")} {m.nextDate}</div>
                   </div>
                 ))}
               </div>
@@ -1314,12 +1310,12 @@ function DeviceEfficiencyTab() {
         <>
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{t("statsPage.powerOnDetail")}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.powerOnDetail")}</div>
             </div>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: C.background }}>
-                  {[t("statsPage.deviceName"), t("statsPage.powerOnRate"), t("statsPage.avgStartupTime"), t("statsPage.faultCount"), t("statsPage.status")].map(h => (
+                  {[appT("statsPage.deviceName"), appT("statsPage.powerOnRate"), appT("statsPage.avgStartupTime"), appT("statsPage.faultCount"), appT("statsPage.status")].map(h => (
                     <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
                   ))}
                 </tr>
@@ -1351,14 +1347,14 @@ function DeviceEfficiencyTab() {
             </table></div>
           </Card>
 
-          <ChartCard title={t("statsPage.powerOnCompare")}>
-          <ChartContainer height={280} state={deviceStartupData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPowerOnData")}>
+          <ChartCard title={appT("statsPage.powerOnCompare")}>
+          <ChartContainer height={280} state={deviceStartupData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPowerOnData")}>
             <StatBarChart data={deviceStartupData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                 <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[80, 100]} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                <Bar dataKey="startupRate" name={t("statsPage.chart.startupRatePct")} radius={[4, 4, 0, 0]}>
+                <Bar dataKey="startupRate" name={appT("statsPage.chart.startupRatePct")} radius={[4, 4, 0, 0]}>
                   {deviceStartupData.map((entry, i) => (
                     <Cell key={i} fill={entry.startupRate >= 95 ? C.success : entry.startupRate >= 90 ? C.warning : C.danger} />
                   ))}
@@ -1374,7 +1370,7 @@ function DeviceEfficiencyTab() {
         <>
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{t("statsPage.completionStats")}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.completionStats")}</div>
             </div>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -1399,7 +1395,7 @@ function DeviceEfficiencyTab() {
                         background: d.overtimeCount === 0 ? C.successBg : d.overtimeCount <= 2 ? C.warningBg : C.dangerBg,
                         color: d.overtimeCount === 0 ? C.success : d.overtimeCount <= 2 ? C.warning : C.danger
                       }}>
-                        {d.overtimeCount === 0 ? t("statsPage.normal") : d.overtimeCount <= 2 ? t("statsPage.minor") : t("statsPage.overdue")}
+                        {d.overtimeCount === 0 ? appT("statsPage.normal") : d.overtimeCount <= 2 ? appT("statsPage.minor") : appT("statsPage.overdue")}
                       </span>
                     </td>
                   </tr>
@@ -1408,15 +1404,15 @@ function DeviceEfficiencyTab() {
             </table></div>
           </Card>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <ChartCard title={t("statsPage.avgTimeCompare")}>
-          <ChartContainer height={240} state={examCompletionTimeData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noDurationData")}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+            <ChartCard title={appT("statsPage.avgTimeCompare")}>
+          <ChartContainer height={240} state={examCompletionTimeData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noDurationData")}>
             <StatBarChart data={examCompletionTimeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                  <Bar dataKey="avgTime" name={t("statsPage.chart.avgTimeMin")} radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="avgTime" name={appT("statsPage.chart.avgTimeMin")} radius={[4, 4, 0, 0]}>
                     {examCompletionTimeData.map((entry, i) => (
                       <Cell key={i} fill={entry.avgTime <= 15 ? C.success : entry.avgTime <= 30 ? C.warning : C.danger} />
                     ))}
@@ -1425,16 +1421,16 @@ function DeviceEfficiencyTab() {
               </ChartContainer>
             </ChartCard>
 
-            <ChartCard title={t("statsPage.completionDist")}>
-          <ChartContainer height={240} state={examCompletionTimeData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noDurationData")}>
+            <ChartCard title={appT("statsPage.completionDist")}>
+          <ChartContainer height={240} state={examCompletionTimeData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noDurationData")}>
             <StatBarChart data={examCompletionTimeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Legend iconSize={10} verticalAlign="bottom" align="center" />
-                  <Bar dataKey="minTime" name={t("statsPage.chart.minTime")} fill="#059669" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="maxTime" name={t("statsPage.chart.maxTime")} fill="#dc2626" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="minTime" name={appT("statsPage.chart.minTime")} fill="#059669" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="maxTime" name={appT("statsPage.chart.maxTime")} fill="#dc2626" radius={[4, 4, 0, 0]} />
                 </StatBarChart>
               </ChartContainer>
             </ChartCard>
@@ -1447,12 +1443,12 @@ function DeviceEfficiencyTab() {
         <>
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{t("statsPage.apptWaitStats")}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.apptWaitStats")}</div>
             </div>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: C.background }}>
-                  {[t("statsPage.equipmentType"), t("statsPage.avgWait"), t("statsPage.maxWait"), t("statsPage.todayAppointments"), t("statsPage.completed"), t("statsPage.pending"), t("statsPage.completionRate")].map(h => (
+                  {[appT("statsPage.equipmentType"), appT("statsPage.avgWait"), appT("statsPage.maxWait"), appT("statsPage.todayAppointments"), appT("statsPage.completed"), appT("statsPage.pending"), appT("statsPage.completionRate")].map(h => (
                     <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
                   ))}
                 </tr>
@@ -1463,8 +1459,8 @@ function DeviceEfficiencyTab() {
                   return (
                     <tr key={d.modality} style={{ borderBottom: `1px solid ${C.border}` }}>
                       <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.modality}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.avgWait > 3 ? C.warning : C.success }}>{d.avgWait}{t("statsPage.daysUnit")}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.maxWait > 7 ? C.danger : C.text }}>{d.maxWait}{t("statsPage.daysUnit")}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.avgWait > 3 ? C.warning : C.success }}>{d.avgWait}{appT("statsPage.daysUnit")}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.maxWait > 7 ? C.danger : C.text }}>{d.maxWait}{appT("statsPage.daysUnit")}</td>
                       <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.todayAppointments}</td>
                       <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: C.success }}>{d.completed}</td>
                       <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.pending > 10 ? C.warning : C.text }}>{d.pending}</td>
@@ -1482,15 +1478,15 @@ function DeviceEfficiencyTab() {
             </table></div>
           </Card>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <ChartCard title={t("statsPage.apptWaitByDevice2")}>
-          <ChartContainer height={240} state={appointmentWaitData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noApptWaitData")}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+            <ChartCard title={appT("statsPage.apptWaitByDevice2")}>
+          <ChartContainer height={240} state={appointmentWaitData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noApptWaitData")}>
             <StatBarChart data={appointmentWaitData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-                  <Bar dataKey="avgWait" name={t("statsPage.chart.avgWaitDays")} radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="avgWait" name={appT("statsPage.chart.avgWaitDays")} radius={[4, 4, 0, 0]}>
                     {appointmentWaitData.map((entry, i) => (
                       <Cell key={i} fill={entry.avgWait <= 2 ? C.success : entry.avgWait <= 4 ? C.warning : C.danger} />
                     ))}
@@ -1499,8 +1495,8 @@ function DeviceEfficiencyTab() {
               </ChartContainer>
             </ChartCard>
 
-            <ChartCard title={t("statsPage.waitTrendBySlot")}>
-          <ChartContainer height={240} state={waitTimeTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noWaitTrend")}>
+            <ChartCard title={appT("statsPage.waitTrendBySlot")}>
+          <ChartContainer height={240} state={waitTimeTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noWaitTrend")}>
             <LineChart data={waitTimeTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="slot" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1519,11 +1515,11 @@ function DeviceEfficiencyTab() {
 
       {/* 设备使用时段热力图 - 显示在利用率视图底部 */}
       {deviceView === 'utilization' && (
-        <ChartCard title={t("statsPage.heatmapTitle")}>
+        <ChartCard title={appT("statsPage.heatmapTitle")}>
           <div style={{ overflowX: 'auto' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: 2, minWidth: 500 }}>
               <div style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4 }}></div>
-              {[t("statsPage.monday"), t("statsPage.tuesday"), t("statsPage.wednesday"), t("statsPage.thursday"), t("statsPage.friday"), t("statsPage.saturday"), t("statsPage.sunday")].map(d => (
+              {[appT("statsPage.monday"), appT("statsPage.tuesday"), appT("statsPage.wednesday"), appT("statsPage.thursday"), appT("statsPage.friday"), appT("statsPage.saturday"), appT("statsPage.sunday")].map(d => (
                 <div key={d} style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4, fontWeight: 600 }}>{d}</div>
               ))}
               {heatmapData.map(row => (
@@ -1546,10 +1542,10 @@ function DeviceEfficiencyTab() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, justifyContent: 'flex-end' }}>
-            <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.intensityLabel")}</span>
+            <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.intensityLabel")}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.1)', borderRadius: 2 }} />
-              <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.low")}</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.low")}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.4)', borderRadius: 2 }} />
@@ -1559,7 +1555,7 @@ function DeviceEfficiencyTab() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,1)', borderRadius: 2 }} />
-              <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.high")}</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.high")}</span>
             </div>
           </div>
         </ChartCard>
@@ -1572,8 +1568,6 @@ function DeviceEfficiencyTab() {
 // 标签页6：患者分析
 // ============================================================
 function PatientAnalysisTab() {
-  const { t } = useTranslation('v3stats')
-
   const patientStats = {
     total: 568,
     avgAge: 48.5,
@@ -1585,26 +1579,26 @@ function PatientAnalysisTab() {
     <div>
       {/* 患者分析概览 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.patientsThisMonth")} value={patientStats.total}
-          subValue={t("statsPage.patientMix")} icon={<Users size={20} />} color={C.info} bg={C.infoBg}
+        <StatCard label={appT("statsPage.patientsThisMonth")} value={patientStats.total}
+          subValue={appT("statsPage.patientMix")} icon={<Users size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: '+6.8%', up: true }} />
-        <StatCard label={t("statsPage.avgAge")} value={appT("w9a.statsPage.yearsSuffix", { count: patientStats.avgAge })}
-          subValue={t("statsPage.genderRatio5545")} icon={<UserCheck size={20} />} color={C.purple} bg={C.purpleBg} />
-        <StatCard label={t("statsPage.overallPositiveRate")} value={`${patientStats.positiveRate}%`}
-          subValue={t("statsPage.aboveNationalAvg")} icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
+        <StatCard label={appT("statsPage.avgAge")} value={appT("w9a.statsPage.yearsSuffix", { count: patientStats.avgAge })}
+          subValue={appT("statsPage.genderRatio5545")} icon={<UserCheck size={20} />} color={C.purple} bg={C.purpleBg} />
+        <StatCard label={appT("statsPage.overallPositiveRate")} value={`${patientStats.positiveRate}%`}
+          subValue={appT("statsPage.aboveNationalAvg")} icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: '+2.1%', up: false }} />
-        <StatCard label={t("statsPage.criticalPatients")} value={patientStats.criticalCount}
-          subValue={t("statsPage.timelyHandle978")} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
-          trend={{ value: t("statsPage.plus5Cases"), up: false }} />
+        <StatCard label={appT("statsPage.criticalPatients")} value={patientStats.criticalCount}
+          subValue={appT("statsPage.timelyHandle978")} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
+          trend={{ value: appT("statsPage.plus5Cases"), up: false }} />
       </div>
 
       {/* 患者来源与年龄分布 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 患者来源分布 */}
-        <ChartCard title={t("statsPage.patientSourceDist")}>
+        <ChartCard title={appT("statsPage.patientSourceDist")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 160, height: 160, flexShrink: 0 }}>
-            <ChartContainer height={160} state={patientSourceData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPatientSource")}>
+            <ChartContainer height={160} state={patientSourceData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPatientSource")}>
               <StatPieChart>
                 <Pie data={patientSourceData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {patientSourceData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -1633,10 +1627,10 @@ function PatientAnalysisTab() {
         </ChartCard>
 
         {/* 性别分布 */}
-        <ChartCard title={t("statsPage.genderDist")}>
+        <ChartCard title={appT("statsPage.genderDist")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 160, height: 160, flexShrink: 0 }}>
-            <ChartContainer height={160} state={genderDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noGenderDist")}>
+            <ChartContainer height={160} state={genderDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noGenderDist")}>
               <StatPieChart>
                 <Pie data={genderDistribution} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {genderDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -1656,7 +1650,7 @@ function PatientAnalysisTab() {
                 </div>
               ))}
               <div style={{ marginTop: 12, padding: 8, background: C.background, borderRadius: 8, textAlign: 'center' }}>
-                <div style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.genderRatio")}</div>
+                <div style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.genderRatio")}</div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: C.primary }}>55 : 45</div>
               </div>
             </div>
@@ -1666,32 +1660,32 @@ function PatientAnalysisTab() {
 
       {/* 年龄分布柱状图 */}
       <div style={{ marginBottom: 16 }}>
-        <ChartCard title={t("statsPage.ageDist")}>
-          <ChartContainer height={240} state={ageDistributionData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noAgeDist")}>
+        <ChartCard title={appT("statsPage.ageDist")}>
+          <ChartContainer height={240} state={ageDistributionData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noAgeDist")}>
             <StatBarChart data={ageDistributionData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="range" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Bar dataKey="male" name={t("statsPage.chart.male")} fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="female" name={t("statsPage.chart.female")} fill="#ec4899" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="male" name={appT("statsPage.chart.male")} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="female" name={appT("statsPage.chart.female")} fill="#ec4899" radius={[4, 4, 0, 0]} />
             </StatBarChart>
           </ChartContainer>
         </ChartCard>
       </div>
 
       {/* 阳性率对比与趋势 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
         {/* 各设备阳性率 */}
-        <ChartCard title={t("statsPage.positiveByDevice")}>
-          <ChartContainer height={220} state={positiveRateData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPositiveRate")}>
+        <ChartCard title={appT("statsPage.positiveByDevice")}>
+          <ChartContainer height={220} state={positiveRateData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPositiveRate")}>
             <StatBarChart data={positiveRateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="rate" name={t("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
+              <Bar dataKey="rate" name={appT("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
                 ))}
@@ -1701,14 +1695,14 @@ function PatientAnalysisTab() {
         </ChartCard>
 
         {/* 阳性率趋势 */}
-        <ChartCard title={t("statsPage.positive7dTrend")}>
-          <ChartContainer height={220} state={positiveTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPositiveTrend")}>
+        <ChartCard title={appT("statsPage.positive7dTrend")}>
+          <ChartContainer height={220} state={positiveTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPositiveTrend")}>
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.positiveRatePct")} />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.positiveRatePct")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -1721,14 +1715,13 @@ function PatientAnalysisTab() {
 // 标签页：阳性率统计（扩充版）
 // ============================================================
 function PositiveRateTab() {
-  const { t } = useTranslation('v3stats')
   const [timeRange, setTimeRange] = useState('week')
   const [positiveType, setPositiveType] = useState('all')
 
   const timeRanges = [
-    { key: 'today', label: t("statsPage.today") },
-    { key: 'week', label: t("statsPage.thisWeek") },
-    { key: 'month', label: t("statsPage.thisMonth") },
+    { key: 'today', label: appT("statsPage.today") },
+    { key: 'week', label: appT("statsPage.thisWeek") },
+    { key: 'month', label: appT("statsPage.thisMonth") },
   ]
 
   const positiveStats = {
@@ -1759,9 +1752,9 @@ function PositiveRateTab() {
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Filter size={14} color={C.textMuted} aria-hidden="true" />
-          <label htmlFor="positive-type-filter" style={{ position: 'absolute', left: -9999 }}>{t("statsPage.positiveTypeFilter")}</label>
-          <Select id="positive-type-filter" aria-label={t("statsPage.positiveTypeFilter")} size="small" style={{ minWidth: 120 }} value={positiveType} onChange={(v) => setPositiveType(v)} options={[
-            { value: 'all', label: t("statsPage.allTypes") },
+          <label htmlFor="positive-type-filter" style={{ position: 'absolute', left: -9999 }}>{appT("statsPage.positiveTypeFilter")}</label>
+          <Select id="positive-type-filter" aria-label={appT("statsPage.positiveTypeFilter")} size="small" style={{ minWidth: 120 }} value={positiveType} onChange={(v) => setPositiveType(v)} options={[
+            { value: 'all', label: appT("statsPage.allTypes") },
             { value: 'CT', label: 'CT' },
             { value: 'MR', label: 'MR' },
             { value: 'DR', label: 'DR' },
@@ -1772,41 +1765,41 @@ function PositiveRateTab() {
 
       {/* 阳性率概览卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.overallPositiveRate")} value={`${positiveStats.overallRate}%`}
-          subValue={t("statsPage.monthlyStats")} icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
+        <StatCard label={appT("statsPage.overallPositiveRate")} value={`${positiveStats.overallRate}%`}
+          subValue={appT("statsPage.monthlyStats")} icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: positiveStats.momChange, up: false }} />
-        <StatCard label={t("statsPage.positiveCases")} value={positiveStats.positiveCount}
+        <StatCard label={appT("statsPage.positiveCases")} value={positiveStats.positiveCount}
           subValue={appT("w9a.statsPage.examsSuffix", { count: positiveStats.totalExams })} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
-          trend={{ value: t("statsPage.plus32"), up: false }} />
-        <StatCard label={t("statsPage.retakeRate")} value={`${positiveStats.reexamRate}%`}
-          subValue={t("statsPage.dueToImageQuality")} icon={<RefreshCw size={20} />} color={C.warning} bg={C.warningBg}
+          trend={{ value: appT("statsPage.plus32"), up: false }} />
+        <StatCard label={appT("statsPage.retakeRate")} value={`${positiveStats.reexamRate}%`}
+          subValue={appT("statsPage.dueToImageQuality")} icon={<RefreshCw size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: '-0.5%', up: true }} />
-        <StatCard label={t("statsPage.yoyChange")} value={positiveStats.yoyChange}
-          subValue={t("statsPage.vsLastYear")} icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
+        <StatCard label={appT("statsPage.yoyChange")} value={positiveStats.yoyChange}
+          subValue={appT("statsPage.vsLastYear")} icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: '+0.8%', up: true }} />
       </div>
 
       {/* 阳性率趋势图（30天） */}
       <div style={{ marginBottom: 16 }}>
-        <ChartCard title={t("statsPage.positive30dTrend")}>
-          <ChartContainer height={260} state={positiveRateTrend30Days.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.no30dPositive")}>
+        <ChartCard title={appT("statsPage.positive30dTrend")}>
+          <ChartContainer height={260} state={positiveRateTrend30Days.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.no30dPositive")}>
             <LineChart data={positiveRateTrend30Days}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name={t("statsPage.chart.positiveRatePct")} />
-              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name={t("statsPage.chart.criticalCount")} />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name={appT("statsPage.chart.positiveRatePct")} />
+              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name={appT("statsPage.chart.criticalCount")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
       </div>
 
       {/* 阳性率排名与复查率 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 阳性率排名 */}
-        <ChartCard title={t("statsPage.positiveTop8")}>
+        <ChartCard title={appT("statsPage.positiveTop8")}>
           <div style={{ maxHeight: 300, overflowY: 'auto' }}>
             {positiveRateRanking.map(item => (
               <div key={item.rank} style={{
@@ -1825,7 +1818,7 @@ function PositiveRateTab() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.type}</div>
-                  <div style={{ fontSize: 12, color: C.textMuted }}>{item.count} {t("statsPage.examUnit")}</div>
+                  <div style={{ fontSize: 12, color: C.textMuted }}>{item.count} {appT("statsPage.examUnit")}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: item.rate >= 50 ? C.danger : item.rate >= 30 ? C.warning : C.success }}>
@@ -1841,7 +1834,7 @@ function PositiveRateTab() {
         </ChartCard>
 
         {/* 复查率统计 */}
-        <ChartCard title={t("statsPage.retakeByType")}>
+        <ChartCard title={appT("statsPage.retakeByType")}>
           <div style={{ maxHeight: 300, overflowY: 'auto' }}>
             {reexaminationData.map((item) => (
               <div key={item.type} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1852,7 +1845,7 @@ function PositiveRateTab() {
                     background: item.reexamRate >= 10 ? C.dangerBg : item.reexamRate >= 5 ? C.warningBg : C.successBg,
                     color: item.reexamRate >= 10 ? C.danger : item.reexamRate >= 5 ? C.warning : C.success
                   }}>
-                    {t("statsPage.retakeRate")} {item.reexamRate}%
+                    {appT("statsPage.retakeRate")} {item.reexamRate}%
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -1866,8 +1859,8 @@ function PositiveRateTab() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.avgInterval")} {item.avgDays} {t("statsPage.daysUnit")}</span>
-                  <span style={{ fontSize: 12, color: C.textMuted }}>{t("statsPage.reasonLabel")} {item.reason}</span>
+                  <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.avgInterval")} {item.avgDays} {appT("statsPage.daysUnit")}</span>
+                  <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.reasonLabel")} {item.reason}</span>
                 </div>
               </div>
             ))}
@@ -1876,15 +1869,15 @@ function PositiveRateTab() {
       </div>
 
       {/* 各设备阳性率与复查率对比 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <ChartCard title={t("statsPage.positiveDistByDevice")}>
-          <ChartContainer height={240} state={positiveRateData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPositiveRate")}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+        <ChartCard title={appT("statsPage.positiveDistByDevice")}>
+          <ChartContainer height={240} state={positiveRateData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPositiveRate")}>
             <StatBarChart data={positiveRateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="rate" name={t("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
+              <Bar dataKey="rate" name={appT("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
                 ))}
@@ -1893,14 +1886,14 @@ function PositiveRateTab() {
           </ChartContainer>
         </ChartCard>
 
-        <ChartCard title={t("statsPage.positive7dTrend2")}>
-          <ChartContainer height={240} state={positiveTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPositiveTrend")}>
+        <ChartCard title={appT("statsPage.positive7dTrend2")}>
+          <ChartContainer height={240} state={positiveTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPositiveTrend")}>
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.positiveRatePct")} />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.positiveRatePct")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -1917,9 +1910,9 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
   const [timeRange, setTimeRange] = useState('month')
 
   const timeRanges = [
-    { key: 'month', label: t("statsPage.thisMonth") },
-    { key: 'quarter', label: t("statsPage.thisQuarter") },
-    { key: 'year', label: t("statsPage.thisYear") },
+    { key: 'month', label: appT("statsPage.thisMonth") },
+    { key: 'quarter', label: appT("statsPage.thisQuarter") },
+    { key: 'year', label: appT("statsPage.thisYear") },
   ]
 
   const profitMargin = ((businessStats.netProfit / businessStats.totalRevenue) * 100).toFixed(1)
@@ -1952,24 +1945,24 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
 
       {/* 经营概览卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard label={t("statsPage.totalRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.totalRevenue / 10000).toFixed(0) })}
-          subValue={t("statsPage.monthCumulative")} icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
+        <StatCard label={appT("statsPage.totalRevenue")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.totalRevenue / 10000).toFixed(0) })}
+          subValue={appT("statsPage.monthCumulative")} icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: businessStats.yoyRevenue, up: true }} />
-        <StatCard label={t("statsPage.totalCost")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.totalCost / 10000).toFixed(0) })}
-          subValue={t("statsPage.costRate53B")} icon={<BarChart3 size={20} />} color={C.warning} bg={C.warningBg}
+        <StatCard label={appT("statsPage.totalCost")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.totalCost / 10000).toFixed(0) })}
+          subValue={appT("statsPage.costRate53B")} icon={<BarChart3 size={20} />} color={C.warning} bg={C.warningBg}
           trend={{ value: '+8.2%', up: false }} />
-        <StatCard label={t("statsPage.netProfit")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.netProfit / 10000).toFixed(0) })}
+        <StatCard label={appT("statsPage.netProfit")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.netProfit / 10000).toFixed(0) })}
           subValue={appT("w9a.statsPage.profitMargin", { rate: profitMargin })} icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: businessStats.yoyProfit, up: true }} />
-        <StatCard label={t("statsPage.perCapitaOutput")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.perCapitaRevenue / 10000).toFixed(1) })}
-          subValue={t("statsPage.perCapitaProfit875")} icon={<Award size={20} />} color={C.purple} bg={C.purpleBg}
+        <StatCard label={appT("statsPage.perCapitaOutput")} value={appT("w9a.statsPage.currencyWan", { value: (businessStats.perCapitaRevenue / 10000).toFixed(1) })}
+          subValue={appT("statsPage.perCapitaProfit875")} icon={<Award size={20} />} color={C.purple} bg={C.purpleBg}
           trend={{ value: '+12.3%', up: true }} />
       </div>
 
       {/* 月度利润趋势（面积图） */}
       <div style={{ marginBottom: 16 }}>
-        <ChartCard title={t("statsPage.monthlyProfitTrend")}>
-          <ChartContainer height={280} state={monthlyProfitData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noMonthlyProfit")}>
+        <ChartCard title={appT("statsPage.monthlyProfitTrend")}>
+          <ChartContainer height={280} state={monthlyProfitData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noMonthlyProfit")}>
             <AreaChart data={monthlyProfitData}>
               <defs>
                 <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1986,21 +1979,21 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name={t("statsPage.chart.revenue")} />
-              <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name={t("statsPage.chart.cost")} />
-              <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name={t("statsPage.chart.profit")} />
+              <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name={appT("statsPage.chart.revenue")} />
+              <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name={appT("statsPage.chart.cost")} />
+              <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.profit")} />
             </AreaChart>
           </ChartContainer>
         </ChartCard>
       </div>
 
       {/* 成本结构与人均产出 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 成本结构饼图 */}
-        <ChartCard title={t("statsPage.costStructure")}>
+        <ChartCard title={appT("statsPage.costStructure")}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 150, height: 150, flexShrink: 0 }}>
-            <ChartContainer height={150} state={costBreakdown.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noCostComposition")}>
+            <ChartContainer height={150} state={costBreakdown.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noCostComposition")}>
               <StatPieChart>
                 <Pie data={costBreakdown} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {costBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -2017,7 +2010,7 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
                     <span style={{ fontSize: 12, color: C.text }}>{item.name}</span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}{t("statsPage.tenThousand")}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}{appT("statsPage.tenThousand")}</span>
                     <span style={{ fontSize: 12, color: C.textMuted, marginLeft: 4 }}>({item.percent}%)</span>
                   </div>
                 </div>
@@ -2027,8 +2020,8 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
         </ChartCard>
 
         {/* 人均产出趋势 */}
-        <ChartCard title={t("statsPage.perCapitaTrend")}>
-          <ChartContainer height={220} state={perCapitaTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t("statsPage.noPerCapitaCost")}>
+        <ChartCard title={appT("statsPage.perCapitaTrend")}>
+          <ChartContainer height={220} state={perCapitaTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPerCapitaCost")}>
             <LineChart data={perCapitaTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -2036,19 +2029,19 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => appT("w9a.statsPage.currencyWan", { value: (value / 10000).toFixed(1) })} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.perCapitaRevenue")} />
-              <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={t("statsPage.chart.perCapitaProfit")} />
+              <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.perCapitaRevenue")} />
+              <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.perCapitaProfit")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
       </div>
 
       {/* 科室效益排名表 */}
-      <ChartCard title={t("statsPage.deptProfitAnalysis")}>
+      <ChartCard title={appT("statsPage.deptProfitAnalysis")}>
         <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: C.background }}>
-              {[t("statsPage.department"), t("statsPage.revenueWan"), t("statsPage.costWan"), t("statsPage.profitWan"), t("statsPage.staffCount"), t("statsPage.perCapitaProfitWan"), t("statsPage.profitRate")].map(h => (
+              {[appT("statsPage.department"), appT("statsPage.revenueWan"), appT("statsPage.costWan"), appT("statsPage.profitWan"), appT("statsPage.staffCount"), appT("statsPage.perCapitaProfitWan"), appT("statsPage.profitRate")].map(h => (
                 <th key={h} style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
               ))}
             </tr>
@@ -2089,15 +2082,15 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
 //   D4. 危急值响应时间分布
 // 数据源: biApi + statsApi 真实接口优先, 失败回退派生数据 (徽标标注)
 // ============================================================
-const DEEP_DEPTS = [t("statsPage.radiologyDept"), t("statsPage.roomCt"), t("statsPage.roomMri"), t("statsPage.emergencyDept"), t("statsPage.cathLabDept")]
+const DEEP_DEPTS = [appT("statsPage.radiologyDept"), appT("statsPage.roomCt"), appT("statsPage.roomMri"), appT("statsPage.emergencyDept"), appT("statsPage.cathLabDept")]
 
 const DEEP_RADAR_INDICATORS = [
-  { key: 'volume', label: t("statsPage.examVolume") },
-  { key: 'positiveRate', label: t("statsPage.positiveRate") },
-  { key: 'timeliness', label: t("statsPage.timeliness") },
-  { key: 'quality', label: t("statsPage.qcScore") },
-  { key: 'critical', label: t("statsPage.criticalHandling") },
-  { key: 'utilization', label: t("statsPage.deviceUtilization") },
+  { key: 'volume', label: appT("statsPage.examVolume") },
+  { key: 'positiveRate', label: appT("statsPage.positiveRate") },
+  { key: 'timeliness', label: appT("statsPage.timeliness") },
+  { key: 'quality', label: appT("statsPage.qcScore") },
+  { key: 'critical', label: appT("statsPage.criticalHandling") },
+  { key: 'utilization', label: appT("statsPage.deviceUtilization") },
 ]
 
 const DeepAnalysisTab: React.FC = () => {
@@ -2148,10 +2141,10 @@ const DeepAnalysisTab: React.FC = () => {
     ])
     setCriticalMeta({ complianceRate: 92, avgResponseMinutes: 18, total: 36 })
     setOverdueList([
-      { id: 'CV-1042', severity: t("statsPage.critical"), state: t("statsPage.pendingConfirm"), responseMinutes: 82, createdAt: '2026-08-14 09:12' },
-      { id: 'CV-1047', severity: t("statsPage.highRisk"), state: t("statsPage.confirmed"), responseMinutes: 64, createdAt: '2026-08-14 10:45' },
-      { id: 'CV-1051', severity: t("statsPage.critical"), state: t("statsPage.pendingConfirm"), responseMinutes: 71, createdAt: '2026-08-14 11:20' },
-      { id: 'CV-1055', severity: t("statsPage.highRisk"), state: t("statsPage.pendingConfirm"), responseMinutes: 58, createdAt: '2026-08-14 13:02' },
+      { id: 'CV-1042', severity: appT("statsPage.critical"), state: appT("statsPage.pendingConfirm"), responseMinutes: 82, createdAt: '2026-08-14 09:12' },
+      { id: 'CV-1047', severity: appT("statsPage.highRisk"), state: appT("statsPage.confirmed"), responseMinutes: 64, createdAt: '2026-08-14 10:45' },
+      { id: 'CV-1051', severity: appT("statsPage.critical"), state: appT("statsPage.pendingConfirm"), responseMinutes: 71, createdAt: '2026-08-14 11:20' },
+      { id: 'CV-1055', severity: appT("statsPage.highRisk"), state: appT("statsPage.pendingConfirm"), responseMinutes: 58, createdAt: '2026-08-14 13:02' },
     ])
   }, [])
 
@@ -2227,7 +2220,7 @@ const DeepAnalysisTab: React.FC = () => {
         const physicians: any[] = Array.isArray(rvuData?.physicians) ? rvuData.physicians : []
         if (physicians.length > 0) {
           setDoctorStack(physicians.slice(0, 7).map((p: any) => ({
-            name: p.doctorName ?? t("statsPage.doctor"),
+            name: p.doctorName ?? appT("statsPage.doctor"),
             初核: Math.round((p.reportCount ?? 0) * 0.62),
             终核: Math.round((p.reportCount ?? 0) * 0.27),
             双签: Math.round((p.reportCount ?? 0) * 0.11),
@@ -2260,8 +2253,8 @@ const DeepAnalysisTab: React.FC = () => {
           })
           setOverdueList(Array.isArray(slaData.overdue) ? slaData.overdue.map((o: any, i: number) => ({
             id: o.id ?? `CV-OV-${i}`,
-            severity: o.severity ?? t("statsPage.critical"),
-            state: o.state ?? t("statsPage.pendingConfirm"),
+            severity: o.severity ?? appT("statsPage.critical"),
+            state: o.state ?? appT("statsPage.pendingConfirm"),
             responseMinutes: Number(o.responseMinutes ?? 0),
             createdAt: o.createdAt ?? '',
           })).slice(0, 10) : [])
@@ -2286,15 +2279,15 @@ const DeepAnalysisTab: React.FC = () => {
         border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
         color: source === 'api' ? '#059669' : '#d97706',
       }} data-testid="deep-analysis-source-badge">
-        {source === 'api' ? t("statsPage.sourceRealApi") : t("statsPage.sourceDemoFallback")}
+        {source === 'api' ? appT("statsPage.sourceRealApi") : appT("statsPage.sourceDemoFallback")}
         {sourceDetail && <span style={{ opacity: 0.8 }}>· {sourceDetail}</span>}
-        <span style={{ marginLeft: 'auto', opacity: 0.7 }}>{t("statsPage.updatedAt2")} {new Date().toLocaleTimeString('zh-CN')}</span>
+        <span style={{ marginLeft: 'auto', opacity: 0.7 }}>{appT("statsPage.updatedAt2")} {new Date().toLocaleTimeString('zh-CN')}</span>
       </div>
 
       {/* D1. 科室对比雷达 */}
-      <ChartCard title={t("statsPage.deptRadar6")} color="#1e40af">
+      <ChartCard title={appT("statsPage.deptRadar6")} color="#1e40af">
         {radarTotal === 0 ? (
-          <ChartEmpty description={t("statsPage.noDeptMetrics")} height={260} />
+          <ChartEmpty description={appT("statsPage.noDeptMetrics")} height={260} />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 12 }}>
             <ChartContainer height={300} state="ready">
@@ -2317,7 +2310,7 @@ const DeepAnalysisTab: React.FC = () => {
                   <div key={dept} style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{dept}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
-                      {t("statsPage.bestMetricLabel")} <b style={{ color: '#059669' }}>{best.k}</b> {best.value}
+                      {appT("statsPage.bestMetricLabel")} <b style={{ color: '#059669' }}>{best.k}</b> {best.value}
                     </div>
                   </div>
                 )
@@ -2328,10 +2321,10 @@ const DeepAnalysisTab: React.FC = () => {
       </ChartCard>
 
       {/* D2. 设备 TOP 排行 双榜 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <ChartCard title={t("statsPage.oeeTop")} color="#059669">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <ChartCard title={appT("statsPage.oeeTop")} color="#059669">
           {deviceUtilRank.length === 0 ? (
-            <ChartEmpty description={t("statsPage.noOeeData")} height={220} />
+            <ChartEmpty description={appT("statsPage.noOeeData")} height={220} />
           ) : (
             <div>
               <ChartContainer height={210} state="ready">
@@ -2339,21 +2332,21 @@ const DeepAnalysisTab: React.FC = () => {
                   <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} />
                   <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                  <Tooltip formatter={(v: any) => [`${v}%`, t("statsPage.usageRate")]} />
+                  <Tooltip formatter={(v: any) => [`${v}%`, appT("statsPage.usageRate")]} />
                   <Bar dataKey="utilization" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={14} />
                 </StatBarChart>
               </ChartContainer>
               <div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-                <span>{t("statsPage.highest")} {deviceUtilRank[0]?.name} ({deviceUtilRank[0]?.utilization}%)</span>
-                <span>{t("statsPage.lowest")} {deviceUtilRank[deviceUtilRank.length - 1]?.name} ({deviceUtilRank[deviceUtilRank.length - 1]?.utilization}%)</span>
+                <span>{appT("statsPage.highest")} {deviceUtilRank[0]?.name} ({deviceUtilRank[0]?.utilization}%)</span>
+                <span>{appT("statsPage.lowest")} {deviceUtilRank[deviceUtilRank.length - 1]?.name} ({deviceUtilRank[deviceUtilRank.length - 1]?.utilization}%)</span>
               </div>
             </div>
           )}
         </ChartCard>
 
-        <ChartCard title={t("statsPage.deviceVolumeTop")} color="#2563eb">
+        <ChartCard title={appT("statsPage.deviceVolumeTop")} color="#2563eb">
           {deviceVolumeRank.length === 0 ? (
-            <ChartEmpty description={t("statsPage.noDeviceVolume")} height={220} />
+            <ChartEmpty description={appT("statsPage.noDeviceVolume")} height={220} />
           ) : (
             <div>
               <ChartContainer height={210} state="ready">
@@ -2361,13 +2354,13 @@ const DeepAnalysisTab: React.FC = () => {
                   <XAxis type="number" tick={{ fontSize: 10 }} />
                   <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                  <Tooltip formatter={(v: any) => [v, t("statsPage.examVolume")]} />
+                  <Tooltip formatter={(v: any) => [v, appT("statsPage.examVolume")]} />
                   <Bar dataKey="exams" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={14} />
                 </StatBarChart>
               </ChartContainer>
               <div style={{ marginTop: 6, fontSize: 11, color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t("statsPage.cumulativeLabel")} {deviceVolumeRank.reduce((s, d) => s + d.exams, 0)} {t("statsPage.itemUnit")}</span>
-                <span>{t("statsPage.topDevice")} {deviceVolumeRank[0]?.name}</span>
+                <span>{appT("statsPage.cumulativeLabel")} {deviceVolumeRank.reduce((s, d) => s + d.exams, 0)} {appT("statsPage.itemUnit")}</span>
+                <span>{appT("statsPage.topDevice")} {deviceVolumeRank[0]?.name}</span>
               </div>
             </div>
           )}
@@ -2375,9 +2368,9 @@ const DeepAnalysisTab: React.FC = () => {
       </div>
 
       {/* D3. 医生工作量构成 (堆叠) */}
-      <ChartCard title={t("statsPage.workloadComposition")} color="#7c3aed">
+      <ChartCard title={appT("statsPage.workloadComposition")} color="#7c3aed">
         {doctorStack.length === 0 ? (
-          <ChartEmpty description={t("statsPage.noDoctorWorkloadData2")} height={240} />
+          <ChartEmpty description={appT("statsPage.noDoctorWorkloadData2")} height={240} />
         ) : (
           <div>
             <ChartContainer height={260} state="ready">
@@ -2393,24 +2386,24 @@ const DeepAnalysisTab: React.FC = () => {
               </StatBarChart>
             </ChartContainer>
             <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
-              <span>{t("statsPage.initialReviewLabel")} <b style={{ color: '#3b82f6' }}>{doctorStack.reduce((s, d) => s + d.初核, 0)}</b></span>
-              <span>{t("statsPage.finalReviewLabel")} <b style={{ color: '#8b5cf6' }}>{doctorStack.reduce((s, d) => s + d.终核, 0)}</b></span>
-              <span>{t("statsPage.cosignLabel")} <b style={{ color: '#ec4899' }}>{doctorStack.reduce((s, d) => s + d.双签, 0)}</b></span>
-              <span style={{ marginLeft: 'auto' }}>{t("statsPage.totalPrefix")} {doctorStack.length} {t("statsPage.doctorCountUnit")}</span>
+              <span>{appT("statsPage.initialReviewLabel")} <b style={{ color: '#3b82f6' }}>{doctorStack.reduce((s, d) => s + d.初核, 0)}</b></span>
+              <span>{appT("statsPage.finalReviewLabel")} <b style={{ color: '#8b5cf6' }}>{doctorStack.reduce((s, d) => s + d.终核, 0)}</b></span>
+              <span>{appT("statsPage.cosignLabel")} <b style={{ color: '#ec4899' }}>{doctorStack.reduce((s, d) => s + d.双签, 0)}</b></span>
+              <span style={{ marginLeft: 'auto' }}>{appT("statsPage.totalPrefix")} {doctorStack.length} {appT("statsPage.doctorCountUnit")}</span>
             </div>
           </div>
         )}
       </ChartCard>
 
       {/* D4. 危急值响应时间分布 */}
-      <ChartCard title={t("statsPage.criticalResponseDist")} color="#dc2626">
+      <ChartCard title={appT("statsPage.criticalResponseDist")} color="#dc2626">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 12 }}>
           <ChartContainer height={230} state="ready">
             <StatBarChart data={criticalDist} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
               <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 10 }} />
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-              <Tooltip formatter={(v: any) => [v, t("statsPage.caseCount")]} />
+              <Tooltip formatter={(v: any) => [v, appT("statsPage.caseCount")]} />
               <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={36}>
                 {criticalDist.map((d: any, i: number) => <Cell key={i} fill={d.color} />)}
               </Bar>
@@ -2418,23 +2411,23 @@ const DeepAnalysisTab: React.FC = () => {
           </ChartContainer>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("statsPage.slaRate")}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{appT("statsPage.slaRate")}</div>
               <div style={{ fontSize: 30, fontWeight: 800, color: criticalMeta.complianceRate >= 90 ? '#059669' : '#d97706' }}>
                 {criticalMeta.complianceRate}%
               </div>
             </div>
             <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("statsPage.avgResponseTime")}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{appT("statsPage.avgResponseTime")}</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: criticalMeta.avgResponseMinutes <= 30 ? '#059669' : '#dc2626' }}>
                 {criticalMeta.avgResponseMinutes} <span style={{ fontSize: 12 }}>min</span>
               </div>
             </div>
             <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("statsPage.criticalTotal")}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{appT("statsPage.criticalTotal")}</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626' }}>{criticalMeta.total}</div>
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              {t("statsPage.criticalStatsNote2")}
+              {appT("statsPage.criticalStatsNote2")}
             </div>
           </div>
         </div>
@@ -2442,7 +2435,7 @@ const DeepAnalysisTab: React.FC = () => {
         {overdueList.length > 0 && (
           <div style={{ marginTop: 14, borderTop: '1px dashed var(--border-color)', paddingTop: 12 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <AlertTriangle size={13} /> {t("statsPage.unclosedCritical")}{overdueList.length})
+              <AlertTriangle size={13} /> {appT("statsPage.unclosedCritical")}{overdueList.length})
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {overdueList.map((o: any) => (
@@ -2462,19 +2455,19 @@ const DeepAnalysisTab: React.FC = () => {
       </ChartCard>
 
       {/* D5. 科室 6 指标明细表 */}
-      <ChartCard title={t("statsPage.dept6MetricsDetail")} color="#475569">
+      <ChartCard title={appT("statsPage.dept6MetricsDetail")} color="#475569">
         {radarTotal === 0 ? (
-          <ChartEmpty description={t("statsPage.noDeptData")} height={120} />
+          <ChartEmpty description={appT("statsPage.noDeptData")} height={120} />
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>{t("statsPage.department")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.department")}</th>
                   {radarSeries.map(k => (
                     <th key={k} style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>{k}</th>
                   ))}
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: 'var(--text-secondary)' }}>{t("statsPage.compositeScore")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.compositeScore")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -2503,9 +2496,9 @@ const DeepAnalysisTab: React.FC = () => {
       </ChartCard>
 
       {/* D6. 设备使用率周趋势 (OEE 双榜联动) */}
-      <ChartCard title={t("statsPage.oeeWeeklyTrend")} color="#0891b2">
+      <ChartCard title={appT("statsPage.oeeWeeklyTrend")} color="#0891b2">
         {deviceUtilRank.length === 0 ? (
-          <ChartEmpty description={t("statsPage.noOeeTrend")} height={200} />
+          <ChartEmpty description={appT("statsPage.noOeeTrend")} height={200} />
         ) : (
           <ChartContainer height={220} state="ready">
             <LineChart data={deviceUtilRank.slice(0, 5).map((d, i) => ({
@@ -2523,7 +2516,7 @@ const DeepAnalysisTab: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <Tooltip formatter={(v: any) => [`${v}%`, 'OEE']} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              {[t("statsPage.day1"), t("statsPage.day2"), t("statsPage.day3"), t("statsPage.day4"), t("statsPage.day5"), t("statsPage.day6"), t("statsPage.day7")].map((day, i) => (
+              {[appT("statsPage.day1"), appT("statsPage.day2"), appT("statsPage.day3"), appT("statsPage.day4"), appT("statsPage.day5"), appT("statsPage.day6"), appT("statsPage.day7")].map((day, i) => (
                 <Line key={day} type="monotone" dataKey={day} stroke={RAD_COLORS[i % RAD_COLORS.length]} strokeWidth={1.6} dot={false} />
               ))}
             </LineChart>
@@ -2532,20 +2525,20 @@ const DeepAnalysisTab: React.FC = () => {
       </ChartCard>
 
       {/* D7. 医生工作量构成明细表 */}
-      <ChartCard title={t("statsPage.workloadCompositionDetail")} color="#7c3aed">
+      <ChartCard title={appT("statsPage.workloadCompositionDetail")} color="#7c3aed">
         {doctorStack.length === 0 ? (
-          <ChartEmpty description={t("statsPage.noData")} height={100} />
+          <ChartEmpty description={appT("statsPage.noData")} height={100} />
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>{t("statsPage.doctor")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#3b82f6' }}>{t("statsPage.initialReview")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#8b5cf6' }}>{t("statsPage.finalReview")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#ec4899' }}>{t("statsPage.cosign")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>{t("statsPage.total")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', width: 160 }}>{t("statsPage.compositionShare")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.doctor")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#3b82f6' }}>{appT("statsPage.initialReview")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#8b5cf6' }}>{appT("statsPage.finalReview")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#ec4899' }}>{appT("statsPage.cosign")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.total")}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', width: 160 }}>{appT("statsPage.compositionShare")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -2577,7 +2570,7 @@ const DeepAnalysisTab: React.FC = () => {
 
       {/* 数据口径说明 */}
       <div style={{ marginTop: 8, padding: '10px 14px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-        <b style={{ color: '#1e40af' }}>{t("statsPage.scopeNote")}</b> {t("statsPage.radarNoteLong")}
+        <b style={{ color: '#1e40af' }}>{appT("statsPage.scopeNote")}</b> {appT("statsPage.radarNoteLong")}
       </div>
     </div>
   )
@@ -2651,46 +2644,46 @@ export default function StatisticsPage() {
     setExportModal({ visible: true, text: t('statistics.exporting') })
     setTimeout(() => {
       try {
-        downloadCsv(t("statsPage.csvNameStats"), [
+        downloadCsv(appT("statsPage.csvNameStats"), [
           {
-            title: t("statsPage.csvExamTrend7d"),
-            rows: [[t("statsPage.date"), t("statsPage.examVolume"), t("statsPage.reportVolume"), t("statsPage.criticalCount")], ...sevenDayData.map((d) => [d.day, d.exams, d.reports, d.critical])],
+            title: appT("statsPage.csvExamTrend7d"),
+            rows: [[appT("statsPage.date"), appT("statsPage.examVolume"), appT("statsPage.reportVolume"), appT("statsPage.criticalCount")], ...sevenDayData.map((d) => [d.day, d.exams, d.reports, d.critical])],
           },
           {
-            title: t("statsPage.timeSlotDist"),
-            rows: [[t("statsPage.timeSlot"), t("statsPage.examVolume")], ...timeSlotData.map((d) => [d.slot, d.exams])],
+            title: appT("statsPage.timeSlotDist"),
+            rows: [[appT("statsPage.timeSlot"), appT("statsPage.examVolume")], ...timeSlotData.map((d) => [d.slot, d.exams])],
           },
           {
-            title: t("statsPage.csvBodyPartDist"),
-            rows: [[t("statsPage.bodyPart2"), t("statsPage.quantity")], ...bodyPartData.map((d) => [d.part, d.count])],
+            title: appT("statsPage.csvBodyPartDist"),
+            rows: [[appT("statsPage.bodyPart2"), appT("statsPage.quantity")], ...bodyPartData.map((d) => [d.part, d.count])],
           },
           {
-            title: t("statsPage.csvPatientType"),
-            rows: [[t("statsPage.deviceType"), t("statsPage.sharePct")], ...patientTypeData.map((d) => [d.name, d.value])],
+            title: appT("statsPage.csvPatientType"),
+            rows: [[appT("statsPage.deviceType"), appT("statsPage.sharePct")], ...patientTypeData.map((d) => [d.name, d.value])],
           },
           {
-            title: t("statsPage.csvModalityPositive"),
-            rows: [[t("statsPage.modality"), t("statsPage.positiveRatePct")], ...positiveRateData.map((d) => [d.modality, d.rate])],
+            title: appT("statsPage.csvModalityPositive"),
+            rows: [[appT("statsPage.modality"), appT("statsPage.positiveRatePct")], ...positiveRateData.map((d) => [d.modality, d.rate])],
           },
           {
-            title: t("statsPage.csvPositiveTop8"),
-            rows: [[t("statsPage.rank"), t("statsPage.examType"), t("statsPage.positiveRatePct"), t("statsPage.estimatedVolume"), t("statsPage.trend")], ...positiveRateRanking.map((d) => [d.rank, d.type, d.rate, d.count, d.trend])],
+            title: appT("statsPage.csvPositiveTop8"),
+            rows: [[appT("statsPage.rank"), appT("statsPage.examType"), appT("statsPage.positiveRatePct"), appT("statsPage.estimatedVolume"), appT("statsPage.trend")], ...positiveRateRanking.map((d) => [d.rank, d.type, d.rate, d.count, d.trend])],
           },
           {
-            title: t("statsPage.csvDoctorTop7"),
-            rows: [[t("statsPage.doctor"), t("statsPage.reportVolume"), t("statsPage.reviewVolume"), t("statsPage.avgMinutes"), t("statsPage.criticalCount")], ...doctorWorkloadData.map((d) => [d.name, d.written, d.reviewed, d.avgTime, d.critical])],
+            title: appT("statsPage.csvDoctorTop7"),
+            rows: [[appT("statsPage.doctor"), appT("statsPage.reportVolume"), appT("statsPage.reviewVolume"), appT("statsPage.avgMinutes"), appT("statsPage.criticalCount")], ...doctorWorkloadData.map((d) => [d.name, d.written, d.reviewed, d.avgTime, d.critical])],
           },
           {
-            title: t("statsPage.csvQcTrend7d"),
-            rows: [[t("statsPage.date"), t("statsPage.avgScore")], ...qualityScoreData.map((d) => [d.day, d.score])],
+            title: appT("statsPage.csvQcTrend7d"),
+            rows: [[appT("statsPage.date"), appT("statsPage.avgScore")], ...qualityScoreData.map((d) => [d.day, d.score])],
           },
           {
-            title: t("statsPage.csvQcGradeDist"),
-            rows: [[t("statsPage.grade"), t("statsPage.sharePct")], ...qualityDistribution.map((d) => [d.name, d.value])],
+            title: appT("statsPage.csvQcGradeDist"),
+            rows: [[appT("statsPage.grade"), appT("statsPage.sharePct")], ...qualityDistribution.map((d) => [d.name, d.value])],
           },
           {
-            title: t("statsPage.equipmentEfficiency"),
-            rows: [[t("statsPage.device"), t("statsPage.dailyVolume"), t("statsPage.avgMinutes"), t("statsPage.utilizationPct"), t("statsPage.faultCount2"), t("statsPage.status")], ...deviceEfficiencyData.map((d) => [d.name, d.exams, d.avgTime, d.utilization, d.faults, d.status])],
+            title: appT("statsPage.equipmentEfficiency"),
+            rows: [[appT("statsPage.device"), appT("statsPage.dailyVolume"), appT("statsPage.avgMinutes"), appT("statsPage.utilizationPct"), appT("statsPage.faultCount2"), appT("statsPage.status")], ...deviceEfficiencyData.map((d) => [d.name, d.exams, d.avgTime, d.utilization, d.faults, d.status])],
           },
         ])
         showToast(t('statistics.exportSuccess'), 'success')
@@ -2707,37 +2700,37 @@ export default function StatisticsPage() {
     setExportModal({ visible: true, text: t('statistics.exportingBusiness') })
     setTimeout(() => {
       try {
-        downloadCsv(t("statsPage.csvNameFinance"), [
+        downloadCsv(appT("statsPage.csvNameFinance"), [
           {
-            title: t("statsPage.financeOverview"),
+            title: appT("statsPage.financeOverview"),
             rows: [
-              [t("statsPage.metric"), t("statsPage.value")],
-              [t("statsPage.totalRevenueYuan"), businessStats.totalRevenue],
-              [t("statsPage.totalCostYuan"), businessStats.totalCost],
-              [t("statsPage.netProfitYuan"), businessStats.netProfit],
-              [t("statsPage.profitRatePct"), businessStats.profitRate],
-              [t("statsPage.perCapitaRevenueYuan"), businessStats.perCapitaRevenue],
-              [t("statsPage.perCapitaProfitYuan"), businessStats.perCapitaProfit],
-              [t("statsPage.costRatePct"), businessStats.costRate],
-              [t("statsPage.revenueYoy"), businessStats.yoyRevenue],
-              [t("statsPage.profitYoy"), businessStats.yoyProfit],
+              [appT("statsPage.metric"), appT("statsPage.value")],
+              [appT("statsPage.totalRevenueYuan"), businessStats.totalRevenue],
+              [appT("statsPage.totalCostYuan"), businessStats.totalCost],
+              [appT("statsPage.netProfitYuan"), businessStats.netProfit],
+              [appT("statsPage.profitRatePct"), businessStats.profitRate],
+              [appT("statsPage.perCapitaRevenueYuan"), businessStats.perCapitaRevenue],
+              [appT("statsPage.perCapitaProfitYuan"), businessStats.perCapitaProfit],
+              [appT("statsPage.costRatePct"), businessStats.costRate],
+              [appT("statsPage.revenueYoy"), businessStats.yoyRevenue],
+              [appT("statsPage.profitYoy"), businessStats.yoyProfit],
             ],
           },
           {
-            title: t("statsPage.costComposition"),
-            rows: [[t("statsPage.item"), t("statsPage.amountYuan"), t("statsPage.sharePct")], ...costBreakdown.map((d) => [d.name, d.value, d.percent])],
+            title: appT("statsPage.costComposition"),
+            rows: [[appT("statsPage.item"), appT("statsPage.amountYuan"), appT("statsPage.sharePct")], ...costBreakdown.map((d) => [d.name, d.value, d.percent])],
           },
           {
-            title: t("statsPage.csvMonthlyFinance"),
-            rows: [[t("statsPage.month"), t("statsPage.revenue"), t("statsPage.chart.cost"), t("statsPage.chart.profit")], ...monthlyProfitData.map((d) => [d.month, d.revenue, d.cost, d.profit])],
+            title: appT("statsPage.csvMonthlyFinance"),
+            rows: [[appT("statsPage.month"), appT("statsPage.revenue"), appT("statsPage.chart.cost"), appT("statsPage.chart.profit")], ...monthlyProfitData.map((d) => [d.month, d.revenue, d.cost, d.profit])],
           },
           {
-            title: t("statsPage.csvPerCapitaTrend"),
-            rows: [[t("statsPage.month"), t("statsPage.chart.perCapitaRevenue"), t("statsPage.chart.perCapitaProfit")], ...perCapitaTrend.map((d) => [d.month, d.revenue / 10000, d.profit / 10000])],
+            title: appT("statsPage.csvPerCapitaTrend"),
+            rows: [[appT("statsPage.month"), appT("statsPage.chart.perCapitaRevenue"), appT("statsPage.chart.perCapitaProfit")], ...perCapitaTrend.map((d) => [d.month, d.revenue / 10000, d.profit / 10000])],
           },
           {
-            title: t("statsPage.deptProfit"),
-            rows: [[t("statsPage.department"), t("statsPage.revenueYuan"), t("statsPage.costYuan"), t("statsPage.profitYuan"), t("statsPage.staffCount"), t("statsPage.perCapitaProfitYuan"), t("statsPage.profitRatePct")], ...efficiencyMetrics.map((dept) => [dept.dept, dept.revenue, dept.cost, dept.profit, dept.staff, dept.perCapita, ((dept.profit / dept.revenue) * 100).toFixed(1)])],
+            title: appT("statsPage.deptProfit"),
+            rows: [[appT("statsPage.department"), appT("statsPage.revenueYuan"), appT("statsPage.costYuan"), appT("statsPage.profitYuan"), appT("statsPage.staffCount"), appT("statsPage.perCapitaProfitYuan"), appT("statsPage.profitRatePct")], ...efficiencyMetrics.map((dept) => [dept.dept, dept.revenue, dept.cost, dept.profit, dept.staff, dept.perCapita, ((dept.profit / dept.revenue) * 100).toFixed(1)])],
           },
         ])
         showToast(t('statistics.exportBusinessSuccess'), 'success')
@@ -2785,7 +2778,7 @@ export default function StatisticsPage() {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = t("statsPage.jsonName")
+        a.download = appT("statsPage.jsonName")
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
@@ -2809,24 +2802,24 @@ export default function StatisticsPage() {
     { key: 'device', label: t('statistics.tabs.device'), icon: <Monitor size={14} /> },
     { key: 'patient', label: t('statistics.tabs.patient'), icon: <UserCheck size={14} /> },
     // [G005 v3.0.6.11-99 Wave 10E-1] 深度分析 (雷达/设备双榜/工作量构成/危急值分布)
-    { key: 'deep', label: t("statsPage.deepAnalysis"), icon: <Target size={14} /> },
+    { key: 'deep', label: appT("statsPage.deepAnalysis"), icon: <Target size={14} /> },
   ]
 
   return (
-    <PageContainer background="default" maxWidth="wide" data-testid="statistics-page" style={{ padding: 0 }}>
+    <PageTemplate background="default" maxWidth="wide" showHeader={false} testId="statistics-page" style={{ padding: 0 }}>
       <PageHeader
         icon={<BarChart3 size={20} />}
-        title={t("statsPage.pageTitle")}
-        subtitle={t("statsPage.pageSubtitle")}
+        title={appT("statsPage.pageTitle")}
+        subtitle={appT("statsPage.pageSubtitle")}
         actions={
-          <ExportButton data={() => buildStatisticsExportRows()} filename={t("statsPage.statsReports")} label={t("statsPage.exportReport")} ariaLabel={t("statsPage.exportStatsAria")} />
+          <ExportButton data={() => buildStatisticsExportRows()} filename={appT("statsPage.statsReports")} label={appT("statsPage.exportReport")} ariaLabel={appT("statsPage.exportStatsAria")} />
         }
       />
       <StickyActionBar
         actions={[
-          { key: 'refresh', label: t("statsPage.refreshData"), onClick: () => setLoading(true), type: 'default', ariaLabel: t("statsPage.refreshAria") },
-          { key: 'export-csv', label: t("statsPage.exportCsv"), onClick: handleExportReport, type: 'default', ariaLabel: t("statsPage.exportCsv") },
-          { key: 'export-json', label: t("statsPage.exportJson"), onClick: handleExportJson, type: 'default', ariaLabel: t("statsPage.exportJson") },
+          { key: 'refresh', label: appT("statsPage.refreshData"), onClick: () => setLoading(true), type: 'default', ariaLabel: appT("statsPage.refreshAria") },
+          { key: 'export-csv', label: appT("statsPage.exportCsv"), onClick: handleExportReport, type: 'default', ariaLabel: appT("statsPage.exportCsv") },
+          { key: 'export-json', label: appT("statsPage.exportJson"), onClick: handleExportJson, type: 'default', ariaLabel: appT("statsPage.exportJson") },
         ]}
         theme="light"
       />
@@ -2952,6 +2945,6 @@ export default function StatisticsPage() {
       </div>
       </div>
       </div>
-    </PageContainer>
+    </PageTemplate>
   )
 }

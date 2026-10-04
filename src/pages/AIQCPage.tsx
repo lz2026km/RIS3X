@@ -639,7 +639,7 @@ export default function AIQCPage() {
         borderRadius: 10, padding: 12, marginBottom: 16,
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
-        <div style={{ fontSize: 18 }}>✨</div>
+        <div style={{ fontSize: 18 }}></div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>
             {t('aiQcPage.bannerTitle')}
@@ -656,7 +656,7 @@ export default function AIQCPage() {
             display: 'flex', alignItems: 'center', gap: 4,
           }}
         >
-          ✨ {t('aiQcPage.oneClickDraft')}
+          {t('aiQcPage.oneClickDraft')}
         </button>
       </div>
 

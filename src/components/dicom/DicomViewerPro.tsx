@@ -9,6 +9,7 @@ import {
   Crosshair, RotateCcw, Trash2,
   Sun, Move, ZoomIn, Ruler, Triangle, Circle, ArrowRight, Type, Minus, Layers,
   PlayCircle, PauseCircle,
+  Magnet, Scan, Microscope, Radio, Atom, Camera, CheckCircle2, XCircle, AlertTriangle,
 } from 'lucide-react';
 import { useCornerstone3D, useViewport, useDicomMetadata } from '../../hooks/useCornerstone';
 import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
@@ -409,7 +410,7 @@ export default function DicomViewerPro({
         </select>
         {cinePlaying && (
           <span style={{ color: '#fbbf24', fontFamily: 'monospace', minWidth: 64 }} data-testid="cine-status">
-            ▶ {currentIndex + 1}/{imageIds.length}
+            {currentIndex + 1}/{imageIds.length}
           </span>
         )}
       </div>
@@ -430,7 +431,7 @@ export default function DicomViewerPro({
                 }}
               >
                 <div style={{ height: 50, background: '#0a0a0a', borderRadius: 2, marginBottom: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-                  {s.modality === 'CT' ? '🫁' : s.modality === 'MR' ? '🧠' : s.modality === 'DR' ? '🩻' : s.modality === 'MG' ? '🟣' : s.modality === 'US' ? '🔊' : '⚛️'}
+                    {s.modality === 'CT' ? <Scan size={12} /> : s.modality === 'MR' ? <Magnet size={12} /> : s.modality === 'DR' ? <Camera size={12} /> : s.modality === 'MG' ? <Microscope size={12} /> : s.modality === 'US' ? <Radio size={12} /> : <Atom size={12} />}
                 </div>
                 <div style={{ fontWeight: 600 }}>{s.modality} {s.bodyPart}</div>
                 <div style={{ color: '#64748b' }}>{t('w9d.viewerPro.slicesCount', { count: s.sliceCount })}</div>
@@ -461,7 +462,7 @@ export default function DicomViewerPro({
             }}>
               {displayError ? (
                 <>
-                  <div style={{ color: '#ef4444', fontSize: 14 }}>⚠ {displayError}</div>
+                  <div style={{ color: '#ef4444', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={14} /> {displayError}</div>
                   <div style={{ fontSize: 12 }}>{t('w9d.viewerPro.usingPlaceholder')}</div>
                 </>
               ) : (
@@ -586,7 +587,7 @@ export default function DicomViewerPro({
             <div style={{ fontWeight: 600, color: '#fff' }}>{currentSample?.studyDescription || 'DICOM Viewer Pro'}</div>
             <div>{t('w9d.viewerPro.modalityLabel')}<span style={{ color: '#fbbf24' }}>{currentSample?.modality}</span> | {t('w9d.viewerPro.bodyPartLabel')}{currentSample?.bodyPart}</div>
             <div>{t('w9d.viewerPro.acquisitionTimeLabel')}{currentSample?.acquisitionDate} | ID: {currentSample?.studyId}</div>
-            <div style={{ color: '#64748b' }}>{t('w9d.viewerPro.engineLabel')}Cornerstone3D {cornerstoneReady ? '✓' : '✗'}</div>
+            <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>{t('w9d.viewerPro.engineLabel')}Cornerstone3D {cornerstoneReady ? <CheckCircle2 size={11} color="#16a34a" /> : <XCircle size={11} color="#dc2626" />}</div>
           </div>
         </div>
 

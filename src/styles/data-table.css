@@ -1,41 +1,127 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-103 Wave 6 - 表格统一规范样式
- * DataTable 专用: 斑马纹 / 行高 / 列头 / hover 高亮 / 分页器对齐
+ * G005 放射RIS系统 v3.0.6.11-103 Wave 6 - 表格统一规范样式 (UI-4)
+ * DataTable / ProTable / VirtualTable 共用:
+ *   - 专业列头 (neutral / 600 / sticky) / 高密度行 (36-40px) / 斑马纹
+ *   - hover + 选中染色 / 数值列右对齐 + tabular-nums
+ *   - 深色 / 高对比自适应 (全部走 CSS 变量, 无字面色)
  */
-.data-table .ant-table-thead > tr > th {
-  background: var(--bg-deep, #f8fafc);
-  color: var(--text-secondary, #475569);
+.data-table {
+  --dt-row-height: 38px;
+  --dt-cell-pad-y: 8px;
+  --dt-cell-pad-x: 12px;
+  --dt-zebra-bg: var(--color-gray-50, #f8fafc);
+  --dt-hover-bg: var(--color-primary-50, #eff6ff);
+  --dt-selected-bg: var(--color-primary-50, #eff6ff);
+  width: 100%;
+}
+
+.data-table--compact {
+  --dt-row-height: 36px;
+  --dt-cell-pad-y: 6px;
+}
+
+.data-table--comfortable {
+  --dt-row-height: 44px;
+  --dt-cell-pad-y: 10px;
+}
+
+[data-theme="dark"] .data-table {
+  --dt-zebra-bg: rgba(255, 255, 255, 0.03);
+  --dt-hover-bg: rgba(59, 130, 246, 0.14);
+  --dt-selected-bg: rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="high-contrast"] .data-table {
+  --dt-zebra-bg: rgba(255, 255, 255, 0.1);
+  --dt-hover-bg: rgba(255, 255, 0, 0.22);
+  --dt-selected-bg: rgba(255, 255, 0, 0.3);
+}
+
+/* ---------- 列头 ---------- */
+.data-table .ant-table-thead > tr > th,
+.data-table .ant-table-thead > tr > td {
+  background: var(--table-header-bg, var(--color-gray-50, #f8fafc)) !important;
+  color: var(--table-header-fg, var(--text-secondary, #475569)) !important;
   font-weight: 600;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  padding: 8px var(--dt-cell-pad-x);
+  border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+  white-space: nowrap;
+}
+
+/* 移除 antd 默认列头竖分隔线 */
+.data-table .ant-table-thead > tr > th::before {
+  display: none !important;
+}
+
+/* ---------- 行 / 单元格 ---------- */
+.data-table .ant-table {
+  font-size: 13px;
+  color: var(--text-primary, #1e293b);
 }
 
 .data-table .ant-table-tbody > tr > td {
-  padding: 12px 14px;
+  padding: var(--dt-cell-pad-y) var(--dt-cell-pad-x);
+  min-height: var(--dt-row-height);
+  height: var(--dt-row-height);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-light, #f1f5f9);
+  background: transparent;
+  transition: background 0.15s ease;
 }
 
+/* ---------- 斑马纹 ---------- */
 .data-table .ant-table-tbody > tr.dt-zebra > td {
-  background: var(--bg-primary, #f8fafc);
+  background: var(--dt-zebra-bg);
 }
 
-.data-table .ant-table-tbody > tr.dt-zebra:hover > td,
-.data-table .ant-table-tbody > tr.dt-zebra.ant-table-row-selected:hover > td {
-  background: var(--color-primary-50, #eff6ff) !important;
+/* ---------- hover / 选中 ---------- */
+.data-table .ant-table-tbody > tr > td.ant-table-cell-row-hover,
+.data-table .ant-table-tbody > tr.ant-table-row:hover > td,
+.data-table .ant-table-tbody > tr:hover > td {
+  background: var(--dt-hover-bg) !important;
 }
 
-.data-table .ant-table-tbody > tr > td.ant-table-cell-row-hover {
-  background: var(--color-primary-50, #eff6ff) !important;
+.data-table .ant-table-tbody > tr.ant-table-row-selected > td,
+.data-table .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+  background: var(--dt-selected-bg) !important;
 }
 
-.data-table .ant-table-tbody > tr.ant-table-row-selected > td {
-  background: var(--color-primary-50, #eff6ff);
+/* ---------- 数值列右对齐 + 等宽数字 ---------- */
+.data-table .ant-table-cell.dt-num,
+.data-table .ant-table-thead > tr > th.dt-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
+/* ---------- sticky 表头 ---------- */
+.data-table .ant-table-sticky-holder,
+.data-table .ant-table-header.ant-table-sticky-holder {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 3;
+}
+
+[data-theme="dark"] .data-table .ant-table-sticky-holder,
+[data-theme="high-contrast"] .data-table .ant-table-sticky-holder {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- 分页器 ---------- */
 .data-table .ant-table-pagination.ant-pagination {
-  margin: 16px 0 0;
+  margin: 12px 16px;
   justify-content: flex-end;
 }
 
-.data-table .ant-table-wrapper .ant-table {
-  font-size: 13px;
+/* ---------- 空态 ---------- */
+.data-table .ant-table-placeholder:hover > td,
+.data-table .ant-table-placeholder > td {
+  background: transparent !important;
+}
+
+/* ---------- 工具栏 ---------- */
+[data-theme="dark"] .data-table [data-testid="data-table-toolbar"] {
+  border-bottom-color: var(--border-default, rgba(255, 255, 255, 0.1)) !important;
 }

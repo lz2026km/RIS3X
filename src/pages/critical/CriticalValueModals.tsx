@@ -4,6 +4,7 @@ import {
   AlertTriangle, X, Phone, MessageSquare, Bell, Mail, Smartphone, MessageCircle,
   CheckCircle, Timer, ArrowUp, Settings, Plus, Edit3,
 } from 'lucide-react'
+import { Switch } from 'antd'
 import type { CriticalValue } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import type { NotificationMethod } from '../../services/api/criticalApi'
@@ -246,7 +247,7 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.signatureConfirm')}</div>
             <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '12px 16px', border: '2px dashed var(--color-success-border)', textAlign: 'center' }}>
-              <div style={{ fontSize: 28, marginBottom: 4 }}>✍️</div>
+              <div style={{ fontSize: 28, marginBottom: 4 }}></div>
               <div style={{ fontSize: 12, color: '#16a34a' }}>{t('cvModals.clickToSign')}</div>
             </div>
           </div>
@@ -640,15 +641,11 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{method.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{method.desc}</div>
                     </div>
-                    <div
-                      role="switch"
-                      aria-checked={enabled}
+                    <Switch
+                      checked={enabled}
                       aria-label={`${method.name}开关`}
-                      onClick={() => setNotifyChannels(prev => ({ ...prev, [method.key]: !enabled }))}
-                      style={{ width: 48, height: 24, borderRadius: 12, background: enabled ? PRIMARY_COLOR : 'var(--border-color)', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}
-                    >
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, right: enabled ? 2 : 26, transition: 'right 0.2s' }} />
-                    </div>
+                      onChange={() => setNotifyChannels(prev => ({ ...prev, [method.key]: !enabled }))}
+                    />
                   </div>
                 )
               })}

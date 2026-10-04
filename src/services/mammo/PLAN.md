@@ -4,12 +4,12 @@
 
 | # | Sub-module | Points | File | Status |
 |---|-----------|--------|------|--------|
-| 6.1 | Mammography Workflow | 35 | `src/services/mammo/mammoWorkflow.ts` | ✅ |
-| 6.2 | Breast Ultrasound | 25 | `src/services/mammo/breastUltrasound.ts` | ✅ |
-| 6.3 | Breast MRI | 25 | `src/services/mammo/breastMri.ts` | ✅ |
-| 6.4 | Breast Cancer Screening | 30 | `src/services/mammo/breastCancerScreening.ts` | ✅ |
-| 6.5 | Breast Biopsy & Pathology | 20 | `src/services/mammo/breastBiopsy.ts` | ✅ |
-| 6.6 | Post-Op Follow-up | 20 | `src/services/mammo/postOpFollowUp.ts` | ✅ |
+| 6.1 | Mammography Workflow | 35 | `src/services/mammo/mammoWorkflow.ts` | 完成 |
+| 6.2 | Breast Ultrasound | 25 | `src/services/mammo/breastUltrasound.ts` | 完成 |
+| 6.3 | Breast MRI | 25 | `src/services/mammo/breastMri.ts` | 完成 |
+| 6.4 | Breast Cancer Screening | 30 | `src/services/mammo/breastCancerScreening.ts` | 完成 |
+| 6.5 | Breast Biopsy & Pathology | 20 | `src/services/mammo/breastBiopsy.ts` | 完成 |
+| 6.6 | Post-Op Follow-up | 20 | `src/services/mammo/postOpFollowUp.ts` | 完成 |
 
 ## Implementation Details
 

@@ -1017,7 +1017,7 @@ export default function EquipmentLifecyclePage() {
                               border: `2px solid ${p.done ? p.color : '#cbd5e1'}`,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
-                              {p.done && <span style={{ color: '#fff', fontSize: 10, fontWeight: 800 }}>✓</span>}
+                              {p.done && <span style={{ color: '#fff', fontSize: 10, fontWeight: 800 }}></span>}
                             </div>
                             <span style={{ fontSize: 11, fontWeight: 600, color: p.done ? p.color : 'var(--text-secondary)' }}>{p.label}</span>
                             <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{p.date}</span>

@@ -436,7 +436,7 @@ const MontagePage: React.FC = () => {
                 <>
                   {gridItems.slice(0, 3).map((s, i) => (
                     <span key={s.id}>
-                      • {formatDate(s.acquisitionDate)} {t("montage.montageShort")} #{i + 1} ({t(MODALITY_LABELS[s.modality] ?? s.modality)}) ✓
+                      • {formatDate(s.acquisitionDate)} {t("montage.montageShort")} #{i + 1} ({t(MODALITY_LABELS[s.modality] ?? s.modality)}) 
                       {i < 2 && <><br /></>}
                     </span>
                   ))}

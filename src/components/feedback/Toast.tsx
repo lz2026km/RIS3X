@@ -79,7 +79,7 @@ export function useNotification() {
     // 业务:危急值通知
     criticalValue: (patientName: string, finding: string) => {
       notification.error({
-        message: `🚨 ${t('title')}: ${patientName}`,
+        message: `${t('title')}: ${patientName}`,
         description: finding,
         placement: 'topRight',
         duration: 0,  // 不自动关闭

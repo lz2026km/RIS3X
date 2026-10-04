@@ -2,8 +2,7 @@
 // [W3-C] 刷新按钮: 真实刷新 — 上传记录持久化到 localStorage, 刷新时从存储重新加载
 import React, { useEffect, useState } from 'react';
 import { Card, Upload, Button, message, Table, Tag, Space, Alert, Typography, Progress, Select, Popconfirm, Empty, Statistic, Row, Col } from 'antd';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Upload as UploadIcon, Trash2 } from 'lucide-react';
 import { dicomDimseApi } from '../../services/api/dicomApi';
 import { t } from '../../i18n/appI18n';
 
@@ -150,7 +149,7 @@ export const DimseUploadPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <UploadOutlined style={{ fontSize: 20, color: '#2563eb' }} />
+        <UploadIcon style={{ fontSize: 20, color: '#2563eb' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimseUpload.title')}</span>
         <Tag color="blue">v3.0.6.11-75 W3-2</Tag>
       </Space>
@@ -178,7 +177,7 @@ export const DimseUploadPage: React.FC = () => {
               beforeUpload={(file) => { void handleUpload(file); return false; }}
               disabled={uploading}
             >
-              <Button type="primary" icon={<UploadOutlined />} loading={uploading} disabled={uploading}>
+              <Button type="primary" icon={<UploadIcon />} loading={uploading} disabled={uploading}>
                 {uploading ? t('dimseUpload.uploadingEllipsis') : t('dimseUpload.selectDicomFiles')}
               </Button>
             </Upload>
@@ -198,7 +197,7 @@ export const DimseUploadPage: React.FC = () => {
           rowKey="key"
           columns={[...uploadColumns(), {
             title: t('dimseUpload.colActions'), key: 'actions', width: 70,
-            render: (_: unknown, r: UploadRecord) => <Popconfirm title={t('dimseUpload.removeConfirm')} onConfirm={() => handleRemove(r.key)}><Button size="small" danger icon={<DeleteOutlined />} /></Popconfirm>,
+            render: (_: unknown, r: UploadRecord) => <Popconfirm title={t('dimseUpload.removeConfirm')} onConfirm={() => handleRemove(r.key)}><Button size="small" danger icon={<Trash2 />} /></Popconfirm>,
           }]}
           pagination={false}
           scroll={{ x: 'max-content' }}

@@ -14,7 +14,7 @@
  *   - object-src 'none'            防 Flash / Java
  *   - upgrade-insecure-requests    HTTP → HTTPS
  *
- * ⚠️ 开发模式需要 'unsafe-eval' 用于 Vite,生产禁用
+ * 开发模式需要 'unsafe-eval' 用于 Vite,生产禁用
  */
 
 import type { MetaTagDescriptor } from './types';

@@ -197,7 +197,7 @@ export default function KeywordCheckPage() {
       render: (v: string, issue) => (
         <div style={{ minWidth: 220 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{v}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>💡 {issue.suggestion}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{issue.suggestion}</div>
           {issue.matched && issue.matched !== '未找到' && (
             <div style={{ fontSize: 12, padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#78350f', borderRadius: 3, marginTop: 4, display: 'inline-block', fontFamily: 'monospace' }}>"{issue.matched}"</div>
           )}

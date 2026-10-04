@@ -11,6 +11,7 @@ import { initialConsultations, initialRadiologyExams, initialPatients } from '..
 import { consultationApi, type ConsultationDto } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { t } from '../i18n/appI18n'
+import { StatusTag } from '../components/common/StatusTag'
 
 const PRIMARY = '#1e40af'
 const ACCENT = '#3b82f6'
@@ -329,9 +330,9 @@ export default function ConsultationPage() {
         <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{c.patientName || '—'} <span style={{ fontWeight: 400, color: GRAY, fontSize: 12 }}>#{c.id}</span></div>
         <div style={{ fontSize: 12, color: GRAY }}>{c.modality} · {c.bodyPart} · {c.consultationType || c.type}</div>
       </div>
-      <span style={{ padding: '2px 10px', background: STATUS_CONFIG[c.status]?.bg ?? '#f1f5f9', color: STATUS_CONFIG[c.status]?.color ?? GRAY, borderRadius: 10, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
+      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_CONFIG[c.status]?.bg ?? '#f1f5f9', border: 'transparent', color: STATUS_CONFIG[c.status]?.color ?? GRAY, dot: STATUS_CONFIG[c.status]?.color ?? GRAY }}>
         {STATUS_CONFIG[c.status]?.label ?? c.status}
-      </span>
+      </StatusTag>
     </div>
   )
 
@@ -877,13 +878,13 @@ export default function ConsultationPage() {
                               }}
                               title={t('consultation.playRecording')}
                             >
-                              📹{t('consultation.video')}
+                              {t('consultation.video')}
                             </span>
                           )}
                         </div>
-                        <span style={{ padding: '2px 10px', background: sc.bg, color: sc.color, borderRadius: 10, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                        <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: sc.bg, border: 'transparent', color: sc.color, dot: sc.color }}>
                           {sc.label}
-                        </span>
+                        </StatusTag>
                       </div>
                       <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
                         <span style={{ padding: '1px 8px', background: 'var(--color-info-bg)', color: ACCENT, borderRadius: 4, fontSize: 12 }}>{c.modality}</span>
@@ -931,9 +932,9 @@ export default function ConsultationPage() {
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                           <h2 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{selected.patientName}</h2>
-                          <span style={{ padding: '2px 10px', background: STATUS_CONFIG[selected.status]?.bg, color: STATUS_CONFIG[selected.status]?.color, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                          <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_CONFIG[selected.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_CONFIG[selected.status]?.color ?? GRAY, dot: STATUS_CONFIG[selected.status]?.color ?? GRAY }}>
                             {STATUS_CONFIG[selected.status]?.label}
-                          </span>
+                          </StatusTag>
                           {selected.isRemote && (
                             <span style={{ padding: '2px 8px', background: '#8b5cf622', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
                               <Video size={11} />{t('consultation.remoteConsultation')}
@@ -951,7 +952,7 @@ export default function ConsultationPage() {
                                 }
                               }}
                             >
-                              <Film size={11} />📹{t('consultation.hasVideo')}
+                              <Film size={11} />{t('consultation.hasVideo')}
                             </span>
                           )}
                         </div>

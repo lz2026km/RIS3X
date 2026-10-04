@@ -816,7 +816,7 @@ export default function ReportDefectLibraryPage() {
                     color: "#7f1d1d",
                   }}
                 >
-                  ❌ {ex}
+                  {ex}
                 </div>
               ))}
             </div>

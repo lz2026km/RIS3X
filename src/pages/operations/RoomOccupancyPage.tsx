@@ -154,7 +154,7 @@ export const RoomOccupancyPage: React.FC = () => {
                         }}
                       >
                         <div style={{ fontWeight: 600, fontSize: 13 }}>{r.roomNo}</div>
-                        <div style={{ fontSize: 11 }}>{meta.label}{isOverdue && ' ⚠'}</div>
+                        <div style={{ fontSize: 11 }}>{meta.label}{isOverdue && ' '}</div>
                       </div>
                     </Tooltip>
                   );

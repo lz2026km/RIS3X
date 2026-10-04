@@ -29,7 +29,8 @@ import {
   Route,
 } from "react-router-dom";
 import { Menu, X, Radio, Activity, Bell, ChevronRight, Search, Sun, Moon, Contrast, Settings, LayoutDashboard, Users, FileText, ShieldCheck, GitBranch, Printer, Sparkles, Network, UserCheck, BarChart3, DollarSign, FileSpreadsheet, Eye, LayoutGrid, Package, Stethoscope } from "lucide-react";
-import { Badge } from "antd";
+import { Badge, Drawer } from "antd";
+import { BrandMark } from "../components/common/BrandMark";
 import {
   SIDEBAR_ITEMS,
   type Role,
@@ -142,6 +143,26 @@ function sidebarPathPrefixMatch(itemPath: string, target: string): boolean {
     if (seg !== b[i]) return false;
   }
   return true;
+}
+
+// [UI-5] 侧栏激活项: 前缀匹配 (详情路由 /patients/123 高亮 /patients), 最长匹配优先
+function computeActivePath(pathname: string): string | null {
+  if (pathname === "/") return "/";
+  let best: string | null = null;
+  let bestLen = -1;
+  for (const section of SIDEBAR_ITEMS) {
+    for (const item of section.items) {
+      if (item.path === "/") continue;
+      if (sidebarPathPrefixMatch(item.path, pathname)) {
+        const len = item.path.split("/").filter(Boolean).length;
+        if (len > bestLen) {
+          bestLen = len;
+          best = item.path;
+        }
+      }
+    }
+  }
+  return best;
 }
 
 // 缺失键兜底: 精确(含动态段)侧栏项 > 所属侧栏分组名 > 最近侧栏项
@@ -263,7 +284,7 @@ const s: Record<string, React.CSSProperties> = {
     minWidth: 0,
   },
   header: {
-    height: 52,
+    height: "var(--header-h, 52px)",
     background: "var(--bg-header, #1e293b)",
     borderBottom: "1px solid var(--border-color, #475569)",
     display: "flex",
@@ -488,6 +509,8 @@ const NavItem = React.memo(function NavItem({
   badgeCount,
 }: NavItemProps) {
   const label = t(labelKey);
+  // [UI-5] 折叠态 hover 飞出标签 (fixed 定位, 不受侧栏 overflow:hidden 裁剪)
+  const [flyoutTop, setFlyoutTop] = useState<number | null>(null);
   return (
     <a
       href={path}
@@ -507,13 +530,42 @@ const NavItem = React.memo(function NavItem({
         if (!active)
           e.currentTarget.style.background =
             "var(--sidebar-item-hover-bg, rgba(37, 99, 235, 0.14))";
+        if (!open) setFlyoutTop(e.currentTarget.getBoundingClientRect().top);
       }}
       onMouseLeave={(e) => {
         if (!active) e.currentTarget.style.background = "transparent";
+        setFlyoutTop(null);
       }}
     >
       <span style={{ flexShrink: 0, display: "inline-flex" }}>{icon}</span>
       {open && <span>{label}</span>}
+      {!open && flyoutTop !== null && (
+        <span
+          className="no-print"
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            top: flyoutTop,
+            left: "calc(var(--sidebar-w-collapsed, 60px) + 6px)",
+            zIndex: "var(--z-tooltip, 400)" as unknown as number,
+            background: "var(--bg-deep, #0f172a)",
+            color: "var(--text-header, #f1f5f9)",
+            border: "1px solid var(--border-color, #475569)",
+            borderRadius: 6,
+            padding: "5px 10px",
+            fontSize: 12,
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            boxShadow: "var(--shadow-md, 0 4px 8px rgba(0,0,0,0.15))",
+            pointerEvents: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          {label}
+        </span>
+      )}
       {badgeCount !== undefined && badgeCount > 0 && (
         <span
           style={{
@@ -545,10 +597,14 @@ export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(
     () => !userConfig.config.sidebarCollapsed,
   );
+  // [UI-5] 移动/平板抽屉开合 (窄屏用 Drawer 替代禁用折叠轨道)
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [locale, setLocale] = useState<Locale>(getCurrentLocale());
   const navigate = useNavigate();
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
+  // [UI-5] 侧栏激活态改为前缀匹配 (详情路由高亮父级) — 最长匹配优先, 精确匹配天然胜出
+  const activePath = useMemo(() => computeActivePath(location.pathname), [location.pathname]);
+  const isActive = (path: string) => activePath === path;
   const { isOnline } = useNetworkStatus();
   const { user, isAuthenticated } = useAuth();
   const bp = useBreakpoint();
@@ -593,16 +649,23 @@ export function AppLayout() {
   useEffect(() => onLocaleChange((l) => setLocale(l)), []);
 
   useEffect(() => {
-    if (isNarrow) setSidebarOpen(false);
+    // [UI-5] 离开窄屏时收起抽屉
+    if (!isNarrow) setDrawerOpen(false);
   }, [isNarrow]);
 
   const toggleSidebar = () => {
+    if (isNarrow) {
+      setDrawerOpen((prev) => !prev);
+      return;
+    }
     setSidebarOpen((prev) => {
       const next = !prev;
       userConfig.updateField("sidebarCollapsed", !next);
       return next;
     });
   };
+
+  const closeDrawer = () => setDrawerOpen(false);
 
   // [W1-B] 铃铛未读数 (GET /notifications/unread/:userId, 后端限定 ADMIN/DIRECTOR), 点击跳转通知中心
   // [W1-107] Hook 必须早于任何提前 return, 否则登录态切换时 "Rendered fewer hooks" 全站崩溃
@@ -656,6 +719,146 @@ export function AppLayout() {
     return meta ? `${appVersion} (${meta})` : appVersion;
   })();
 
+  // [UI-5] 共享侧栏内容 (桌面 aside / 窄屏 Drawer 复用)
+  const renderSidebarContent = (open: boolean, closeFn?: () => void) => (
+    <>
+      <div style={s.logoWrap}>
+        <BrandMark size={open ? 32 : 28} title={t("ui5Shell.brandMark")} testId="brand-mark" />
+        {open && (
+          <div style={{ minWidth: 0, overflow: "hidden" }}>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 700,
+                color: "var(--text-header, #f0f2f5)",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+              }}
+            >
+              {t("app.title")}
+            </div>
+            <div
+              style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
+              title={versionTooltip}
+            >
+              {appVersion}
+            </div>
+          </div>
+        )}
+        {closeFn && (
+          <button
+            onClick={closeFn}
+            style={{ ...s.headerBtn, marginLeft: "auto" }}
+            aria-label={t("ui5Shell.closeMenu")}
+          >
+            <X size={18} />
+          </button>
+        )}
+      </div>
+      <nav style={s.nav} aria-label={t("app.nav")}>
+        {filteredItems.map((section, idx) => (
+          <div key={idx} style={{ marginBottom: 16 }}>
+            <div
+              style={sectionTitleStyle(open)}
+              aria-hidden={!open}
+            >
+              <span
+                style={{
+                  width: 3,
+                  height: 12,
+                  borderRadius: 2,
+                  background: "var(--color-primary-500, #3b82f6)",
+                  flexShrink: 0,
+                  opacity: open ? 1 : 0,
+                }}
+              />
+              {SECTION_ICONS[section.section] ?? null}
+              <span>{t(section.section)}</span>
+            </div>
+            {section.items.map((item) => (
+              <NavItem
+                key={item.path}
+                path={item.path}
+                labelKey={item.labelKey}
+                icon={item.icon}
+                active={isActive(item.path)}
+                open={open}
+                onNavigate={(p) => {
+                  navigate(p);
+                  closeFn?.();
+                }}
+                onKeyNav={handleNavKey}
+                badgeCount={(item as any).badgeCount}
+              />
+            ))}
+          </div>
+        ))}
+      </nav>
+      <div style={s.profileBottom}>
+        <div
+          style={s.userCard}
+          aria-label={currentUser.name}
+          title={currentUser.name}
+        >
+          <div style={s.avatar}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>
+              {currentUser.name.slice(0, 1)}
+            </span>
+          </div>
+          {open && (
+            <div style={{ overflow: "hidden" }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "var(--text-header, #f1f5f9)",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                }}
+              >
+                {currentUser.name}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-muted, #94a3b8)",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                }}
+              >
+                {currentUser.title || currentUser.role}
+              </div>
+            </div>
+          )}
+        </div>
+        {!closeFn && (
+          <button
+            onClick={toggleSidebar}
+            style={s.collapseBtn}
+            aria-label={
+              effectiveSidebarOpen ? t("app.collapse") : t("app.expand")
+            }
+          >
+            {effectiveSidebarOpen ? (
+              <>
+                <X size={14} />
+                {t("app.collapse")}
+              </>
+            ) : (
+              <>
+                <Menu size={14} />
+                {t("app.expand")}
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <div style={{ ...s.root, direction }}>
       <SkipLink />
@@ -665,133 +868,33 @@ export function AppLayout() {
           className="app-sidebar no-print"
           style={{
             ...s.sidebar,
+            display: isNarrow ? "none" : "flex",
             width: effectiveSidebarOpen
               ? "var(--sidebar-w, 260px)"
               : "var(--sidebar-w-collapsed, 60px)",
           }}
           aria-label={t("app.sidebar")}
         >
-          <div style={s.logoWrap}>
-            <div style={s.logoIcon}>
-              <Radio size={18} color="#fff" />
-            </div>
-            {effectiveSidebarOpen && (
-              <div>
-                <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: "var(--text-header, #f0f2f5)",
-                  }}
-                >
-                  {t("app.title")}
-                </div>
-                <div
-                  style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
-                  title={versionTooltip}
-                >
-                  {appVersion}
-                </div>
-              </div>
-            )}
-          </div>
-          <nav style={s.nav} aria-label={t("app.nav")}>
-            {filteredItems.map((section, idx) => (
-              <div key={idx} style={{ marginBottom: 16 }}>
-                <div
-                  style={sectionTitleStyle(effectiveSidebarOpen)}
-                  aria-hidden={!effectiveSidebarOpen}
-                >
-                  <span
-                    style={{
-                      width: 3,
-                      height: 12,
-                      borderRadius: 2,
-                      background: "var(--color-primary-500, #3b82f6)",
-                      flexShrink: 0,
-                      opacity: effectiveSidebarOpen ? 1 : 0,
-                    }}
-                  />
-                  {SECTION_ICONS[section.section] ?? null}
-                  <span>{t(section.section)}</span>
-                </div>
-                {section.items.map((item) => (
-                  <NavItem
-                    key={item.path}
-                    path={item.path}
-                    labelKey={item.labelKey}
-                    icon={item.icon}
-                    active={isActive(item.path)}
-                    open={effectiveSidebarOpen}
-                    onNavigate={navigate}
-                    onKeyNav={handleNavKey}
-                    badgeCount={(item as any).badgeCount}
-                  />
-                ))}
-              </div>
-            ))}
-          </nav>
-          <div style={s.profileBottom}>
-            <div
-              style={s.userCard}
-              aria-label={currentUser.name}
-              title={currentUser.name}
-            >
-              <div style={s.avatar}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>
-                  {currentUser.name.slice(0, 1)}
-                </span>
-              </div>
-              {effectiveSidebarOpen && (
-                <div style={{ overflow: "hidden" }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: "var(--text-header, #f1f5f9)",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {currentUser.name}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: "var(--text-muted, #94a3b8)",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {currentUser.title || currentUser.role}
-                  </div>
-                </div>
-              )}
-            </div>
-            <button
-              onClick={toggleSidebar}
-              style={s.collapseBtn}
-              aria-label={
-                effectiveSidebarOpen ? t("app.collapse") : t("app.expand")
-              }
-              disabled={isNarrow}
-            >
-              {effectiveSidebarOpen ? (
-                <>
-                  <X size={14} />
-                  {t("app.collapse")}
-                </>
-              ) : (
-                <>
-                  <Menu size={14} />
-                  {t("app.expand")}
-                </>
-              )}
-            </button>
-          </div>
+          {renderSidebarContent(effectiveSidebarOpen)}
         </aside>
+        <Drawer
+          open={isNarrow && drawerOpen}
+          onClose={closeDrawer}
+          placement={direction === "rtl" ? "right" : "left"}
+          width={272}
+          closable={false}
+          rootClassName="app-sidebar-drawer"
+          styles={{ body: { padding: 0, background: "var(--bg-sidebar, #172554)" } }}
+          title={null}
+        >
+          <div
+            className="app-sidebar no-print"
+            style={{ ...s.sidebar, width: "100%", height: "100%", borderRight: "none" }}
+            aria-label={t("ui5Shell.navDrawer")}
+          >
+            {renderSidebarContent(true, closeDrawer)}
+          </div>
+        </Drawer>
       </NavigateCtx.Provider>
       <div style={s.main}>
         <header className="app-header no-print" style={s.header}>
@@ -808,10 +911,22 @@ export function AppLayout() {
               onClick={toggleSidebar}
               style={s.headerBtn}
               aria-label={
-                effectiveSidebarOpen ? t("app.collapse") : t("app.expand")
+                isNarrow
+                  ? drawerOpen
+                    ? t("ui5Shell.closeMenu")
+                    : t("ui5Shell.openMenu")
+                  : effectiveSidebarOpen
+                    ? t("app.collapse")
+                    : t("app.expand")
               }
             >
-              {effectiveSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+              {isNarrow ? (
+                <Menu size={18} />
+              ) : effectiveSidebarOpen ? (
+                <X size={18} />
+              ) : (
+                <Menu size={18} />
+              )}
             </button>
             <span
               style={{

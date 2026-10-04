@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 // [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
 import { KpiCard, KpiCardGrid, DashboardCard, ProgressRing, SkeletonKpi } from '../components/dashboard';
-import { Users, FileCheck2, AlertTriangle, Clock3, Monitor, Cpu, Activity } from 'lucide-react';
+import { Users, FileCheck2, AlertTriangle, Clock3, Monitor, Cpu, Activity, Scan, Magnet, Camera, Radio, Syringe, Microscope, Atom } from 'lucide-react';
 import { t } from '../i18n/appI18n';
 
 const DEVICE_STATUS_I18N: Record<string, string> = { '运行中': 'deptDash.status.running', '空闲': 'deptDash.status.idle', '维护中': 'deptDash.status.maintenance' }
@@ -235,14 +235,14 @@ const DepartmentDashboardPage: React.FC = () => {
   };
 
   const getExamIcon = (type: string) => {
-    switch (type) {
-      case 'CT': return '🩻';
-      case 'MRI': return '🧲';
-      case 'X线': return '📷';
-      case '超声': return '📡';
-      case 'DSA': return '💉';
-      default: return '🔬';
-    }
+    const Ico = type.startsWith('CT') ? Scan
+      : type.startsWith('MRI') || type.startsWith('MR') ? Magnet
+      : type.startsWith('X线') ? Camera
+      : type.startsWith('超声') ? Radio
+      : type.startsWith('DSA') ? Syringe
+      : type.startsWith('PET') || type.startsWith('SPECT') ? Atom
+      : Microscope;
+    return <Ico size={18} />;
   };
 
   const getExamColor = (type: string) => {

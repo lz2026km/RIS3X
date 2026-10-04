@@ -166,7 +166,7 @@ export default function ReportToolbar({
           >
             <AlertOctagon size={13} style={{ color: DANGER }} />
             <span style={{ fontSize: 12, fontWeight: 700, color: DANGER }}>
-              ⚠ 危急值 {criticalCount} 例
+              危急值 {criticalCount} 例
             </span>
           </div>
         )}

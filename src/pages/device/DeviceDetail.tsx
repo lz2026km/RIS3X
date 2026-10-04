@@ -178,13 +178,13 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                   }} onClick={async () => {
                     const btn = document.activeElement as HTMLButtonElement;
                     const originalText = btn.innerHTML;
-                    btn.innerHTML = `⏳ ${t('deviceDetail.uploading')}`;
+                    btn.innerHTML = `${t('deviceDetail.uploading')}`;
                     btn.disabled = true;
                     await new Promise(r => setTimeout(r, 1500));
                     const photos = (() => { try { return JSON.parse(localStorage.getItem('g005_device_photos') || '[]') } catch { return [] } })();
                     photos.push({ deviceId: device.id, timestamp: new Date().toISOString() });
                     localStorage.setItem('g005_device_photos', JSON.stringify(photos));
-                    btn.innerHTML = `✅ ${t('deviceDetail.uploaded')}`;
+                    btn.innerHTML = `${t('deviceDetail.uploaded')}`;
                     btn.style.color = C.success;
                     setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.color = ''; }, 2000);
                   }}>

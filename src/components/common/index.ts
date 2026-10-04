@@ -1,5 +1,12 @@
 export { PageHeader } from "./PageHeader";
 export type { PageHeaderProps, PageHeaderVariant } from "./PageHeader";
+// [UI-5] 专业应用外壳 + 统一卡片 / 页面模板
+export { BrandMark } from "./BrandMark";
+export type { BrandMarkProps } from "./BrandMark";
+export { Card } from "./Card";
+export type { CardProps, CardVariant, CardPadding } from "./Card";
+export { PageTemplate } from "./PageTemplate";
+export type { PageTemplateProps } from "./PageTemplate";
 export { PageContainer } from "./PageContainer";
 export type {
   PageContainerProps,
@@ -56,3 +63,24 @@ export type { PageHeaderSize, PageHeaderAlign, PageHeaderCrumb } from "./PageHea
 // [v3.0.6.11-103 Wave 5] 放射专属图标集 + 专业主题包
 export * from "../icons/radiologyIcons";
 export type { RadiologyIconProps } from "../icons/radiologyIcons";
+// [UI-2] 统一医疗图标层 (Tabler 封装 + 语义映射)
+export {
+  Icon,
+  MedicalIcon,
+  ICON_SIZES,
+  resolveIconSize,
+  createIcon,
+} from "./Icon";
+export type {
+  IconProps,
+  IconSize,
+  IconSizeValue,
+  MedicalIconName,
+  TablerIconComponent,
+  BoundIconProps,
+} from "./Icon";
+// [UI-3] 统一状态 / 严重度徽标 (antd Tag + statusTokens)
+export { StatusTag } from "./StatusTag";
+export type { StatusTagProps, StatusTagSize } from "./StatusTag";
+export { SeverityTag } from "./SeverityTag";
+export type { SeverityTagProps, SeverityTagSize } from "./SeverityTag";

@@ -217,7 +217,7 @@ export const createButtonFeedback = (
 
   const showSuccess = () => {
     loading = false;
-    setFeedbackState({ visible: true, type: "success", message: "✓ 成功" });
+    setFeedbackState({ visible: true, type: "success", message: "成功" });
     setTimeout(
       () => setFeedbackState({ visible: false, type: "loading", message: "" }),
       clearDelay,
@@ -229,7 +229,7 @@ export const createButtonFeedback = (
     setFeedbackState({
       visible: true,
       type: "error",
-      message: msg || "✗ 失败",
+      message: msg || "失败",
     });
     setTimeout(
       () => setFeedbackState({ visible: false, type: "loading", message: "" }),
@@ -246,8 +246,8 @@ export const createButtonFeedback = (
 export const withFeedback = async <T>(
   handler: FeedbackHandler,
   operation: () => Promise<T>,
-  _successMessage = "✓ 成功",
-  errorMessage = "✗ 失败",
+  _successMessage = "成功",
+  errorMessage = "失败",
 ): Promise<T | undefined> => {
   handler.showLoading();
   try {

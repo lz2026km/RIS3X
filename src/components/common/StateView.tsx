@@ -54,8 +54,8 @@ export function StateView({
           minHeight,
           padding: "24px 16px",
           background: "var(--bg-card)",
-          borderRadius: 12,
-          border: "1px solid var(--border-color)",
+          borderRadius: "var(--radius-md, 8px)",
+          border: "1px solid var(--border-default, var(--border-color))",
         }}
         role="status"
         aria-label="加载中"

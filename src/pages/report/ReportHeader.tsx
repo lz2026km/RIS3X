@@ -166,10 +166,10 @@ export default function ReportHeader({
             style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
         </div>
         <button onClick={() => setCriticalOnly(!criticalOnly)} style={btnStyle(criticalOnly, '#dc2626')}>
-          {criticalOnly ? '✓' : ''} 仅危急值
+          {criticalOnly ? '' : ''} 仅危急值
         </button>
         <button onClick={() => setPositiveOnly(!positiveOnly)} style={btnStyle(positiveOnly, '#d97706')}>
-          {positiveOnly ? '✓' : ''} 仅阳性
+          {positiveOnly ? '' : ''} 仅阳性
         </button>
         <button onClick={onReset} style={{ ...btnStyle(false, GRAY), color: GRAY }}>
           <X size={12} /> 清空

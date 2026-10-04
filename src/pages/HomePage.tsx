@@ -43,13 +43,13 @@ import { reportApi } from '../services/api/reportApi'
 import { worklistApi } from '../services/api/worklistApi'
 import { deptApi, type DeptAnnouncement, type OnCallSchedule } from '../services/api/deptApi'
 import { criticalApi } from '../services/api/criticalApi'
-import { PageContainer } from '../components/common/PageContainer'
+import { PageTemplate } from '../components/common/PageTemplate'
 import { t } from '../i18n/appI18n'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartContainer } from '../components/charts'
 // [v3.0.6.11-103 Wave 5] 放射专业主题组件接入
 import { PageHeader } from '../components/common/PageHeader'
-import { StatCard as KpiCard, EmptyState } from '../components/common'
+import { StatCard as KpiCard, EmptyState, Card } from '../components/common'
 import {
   IconScanning, IconPending, IconNormal, IconCritical,
   IconDr, IconXRayBeam, IconReview, IconRadiationSign,
@@ -1264,7 +1264,7 @@ const HomePage: FC = () => {
   const renderExamTrendCharts = () => (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
       gap: 20,
       marginBottom: 24,
     }}>
@@ -2397,7 +2397,7 @@ const HomePage: FC = () => {
               }}
             >
               {item.period}
-              {item.value >= item.target ? ' ✓' : ''}
+              {item.value >= item.target ? ' ' : ''}
             </span>
           ))}
         </div>
@@ -2723,7 +2723,7 @@ const HomePage: FC = () => {
                       {CATEGORY_LABEL[a.category] ?? a.category}
                     </span>
                     <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {a.pinned ? '📌 ' : ''}{a.title}
+                      {a.pinned ? '' : ''}{a.title}
                     </span>
                     <span style={{ fontSize: 11, color: COLORS.textLight, flexShrink: 0 }}>
                       {(a.createdAt ?? '').slice(5, 16).replace('T', ' ')}
@@ -2810,15 +2810,14 @@ const HomePage: FC = () => {
       { icon: <BookOpen size={20} />, label: t('homePage.actCases'), color: '#a855f7', bg: '#a855f722', href: '/typical-cases' },
     ]
     return (
-      <div style={{ ...cardStyle, marginBottom: 24, padding: 16 }}>
-        <div style={headerStyle}>
-          <span style={cardTitleStyle}>
-            <LayoutDashboard size={16} color={COLORS.primary} />
-            {t('homePage.moreActions')}
-          </span>
-          <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.moreActionsHint')}</span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 10 }}>
+      <Card
+        style={{ marginBottom: 24 }}
+        title={t('homePage.moreActions')}
+        icon={<LayoutDashboard size={16} color={COLORS.primary} />}
+        extra={<span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.moreActionsHint')}</span>}
+        testId="home-more-actions"
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 10 }}>
           {moreActions.map(a => (
             <QuickActionButton
               key={a.label}
@@ -2830,7 +2829,7 @@ const HomePage: FC = () => {
             />
           ))}
         </div>
-      </div>
+      </Card>
     )
   }
 
@@ -3065,9 +3064,12 @@ const HomePage: FC = () => {
   // 渲染主页面
   // ============================================================
   return (
-    <PageContainer
+    <PageTemplate
       background="slate"
       maxWidth="standard"
+      showHeader={false}
+      loading={loading}
+      error={loadError}
       testId="home-page"
     >
       {/* [v3.0.6.11-103 Wave 5] 页面头: 面包屑 + 标题图标 + 子标题 */}
@@ -3113,7 +3115,7 @@ const HomePage: FC = () => {
       {/* 区块5：设备状态监控 & 区块6：待处理检查 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
         gap: 20,
         marginBottom: 24,
       }}>
@@ -3127,7 +3129,7 @@ const HomePage: FC = () => {
       {/* 区块8：医生排班表 & 区块9：影像质量统计 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
         gap: 20,
         marginBottom: 24,
       }}>
@@ -3165,7 +3167,7 @@ const HomePage: FC = () => {
       }}>
         {t('homePage.footer', { hospital: HOSPITAL_NAME, date: BUILD_DATE })}
       </div>
-    </PageContainer>
+    </PageTemplate>
   )
 }
 

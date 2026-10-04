@@ -60,7 +60,7 @@ export const FINAL_CHECK_TEMPLATES: FinalCheckItem[] = [
   buildCheckItem('FCHK-004', 'image-consistency', '图像所见一致性', '报告描述与 PACS 影像所见一致', 'passed', 'blocker', 8, 8, '所见与图像逐项比对一致', true, true),
   buildCheckItem('FCHK-005', 'findings-completeness', '关键所见完整性', '包含部位/形态/大小/密度/边缘/周围关系 6 要素', 'warning', 'major', 7, 7, '建议补充肿块与胸膜关系', true, true),
   buildCheckItem('FCHK-006', 'diagnosis-accuracy', '诊断准确性', '诊断结论与影像所见逻辑自洽', 'passed', 'critical', 9, 9, '诊断 左肺下叶周围型肺癌 与所见一致', true, true),
-  buildCheckItem('FCHK-007', 'critical-marking', '危急值标注', '危急发现按规范醒目标注', 'passed', 'blocker', 10, 10, '已按 ⚠ Critical 标注', true, true),
+  buildCheckItem('FCHK-007', 'critical-marking', '危急值标注', '危急发现按规范醒目标注', 'passed', 'blocker', 10, 10, '已按 Critical 标注', true, true),
   buildCheckItem('FCHK-008', 'laterality', '左右侧核对', '报告中左右侧描述与图像符合', 'passed', 'blocker', 8, 8, '左肺下叶 与图像一致', true, true),
   buildCheckItem('FCHK-009', 'modality-consistency', '检查方式一致性', '报告模态与申请检查方式一致', 'passed', 'minor', 4, 4, 'CT 胸部平扫+增强 与申请一致', true, true),
   buildCheckItem('FCHK-010', 'icd-coding', 'ICD-10 编码', '主诊断 ICD-10 编码有效', 'passed', 'major', 5, 5, 'C34.31 下叶支气管或肺', true, true),
@@ -329,7 +329,7 @@ export const FINAL_REVIEW_NOTES: FinalReviewNote[] = [
   {
     id: 'frn-003', taskId: 'rt-003', reportId: 'RP20260615003',
     authorId: 'D001', authorName: '张明远', authorRole: 'chief',
-    content: '⚠ 驳回:危急值未按规范标注,已直接退回起草环节,请重新阅片后提交。',
+    content: '驳回:危急值未按规范标注,已直接退回起草环节,请重新阅片后提交。',
     type: 'warning', pinned: true, visibility: 'all', mentions: ['D001'],
     attachments: [], createdAt: isoOffset(-0.4),
   },

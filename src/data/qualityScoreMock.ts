@@ -38,7 +38,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 20, condition: '< 50% 字段填写' },
     ],
     color: '#3b82f6',
-    icon: '📋',
+    icon: '',
   },
   {
     id: 'dim-standardization',
@@ -60,7 +60,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 30, condition: '> 10 处不规范' },
     ],
     color: '#7c3aed',
-    icon: '📐',
+    icon: '',
   },
   {
     id: 'dim-accuracy',
@@ -82,7 +82,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 20, condition: '存在严重错误' },
     ],
     color: '#10b981',
-    icon: '🎯',
+    icon: '',
   },
   {
     id: 'dim-timeliness',
@@ -104,7 +104,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 20, condition: '超时 > 24 小时' },
     ],
     color: '#f59e0b',
-    icon: '⏱️',
+    icon: '',
   },
   {
     id: 'dim-terminology',
@@ -126,7 +126,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 30, condition: '大量不规范' },
     ],
     color: '#0891b2',
-    icon: '📚',
+    icon: '',
   },
 ];
 
@@ -259,8 +259,8 @@ export const DEFECT_LIBRARY: DefectItem[] = [
   // 危急值
   { id: 'd-040', code: 'CRI-001', name: '危急值未标识', category: 'critical', severity: 'critical',
     description: '危急值报告未明确标识',
-    examples: ['未在开头标注"⚠ 危急值"'],
-    solution: '在报告开头加"⚠ 危急值"标识',
+    examples: ['未在开头标注"危急值"'],
+    solution: '在报告开头加"危急值"标识',
     count: 5 },
   { id: 'd-041', code: 'CRI-002', name: '危急值未通报', category: 'critical', severity: 'critical',
     description: '危急值未及时通知临床',
@@ -407,7 +407,7 @@ export const AI_DRAFT_TEMPLATES: AIDraftTemplate[] = [
     clinicalHistory: '70 岁男性，突发右侧肢体无力 3 小时。',
     generatedFindings: '左侧基底节区见片状低密度影，边界欠清，CT 值约 22HU。脑室系统无扩大、变形、移位。中线结构居中。颅骨骨质完整。',
     generatedDiagnosis: '左侧基底节区脑梗死（急性期可能）。',
-    generatedImpression: '左侧基底节区低密度灶，符合急性脑梗死表现。⚠ 危急值，建议立即神经内科会诊，评估静脉溶栓 / 机械取栓适应症。',
+    generatedImpression: '左侧基底节区低密度灶，符合急性脑梗死表现。危急值，建议立即神经内科会诊，评估静脉溶栓 / 机械取栓适应症。',
     confidence: 0.93,
     sources: ['AI 模型 v2.3', 'ESO 急性缺血性卒中指南 2021', 'AHA/ASA 指南'],
   },

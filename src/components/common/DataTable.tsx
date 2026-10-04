@@ -1,19 +1,33 @@
 /**
  * G005 放射RIS系统 v3.0.6.11-103 Wave 6 - DataTable
- * 表格统一规范封装 (antd Table 默认配置):
- *   - size="middle" / 斑马纹 / 统一行高 / 列头样式 / hover 高亮
- *   - scroll 处理 (横向 max-content, 纵向固定表头由调用方 scroll.y 控制)
- *   - 空态 (EmptyState) / 加载态 (Skeleton) / 分页器统一 (showTotal + 每页条数)
+ * UI-4 表格统一规范封装 (antd Table 默认配置):
+ *   - 专业列头 (neutral gray / 600 字重 / sticky) / 36-40px 高密度行 / 斑马纹 / hover + 选中染色
+ *   - 数值列自动右对齐 + tabular-nums (列 meta align 支持, 或按 dataIndex 结尾自动推断 Amount/Count/Rate/Score/数量/率/分/量)
+ *   - scroll 处理 (横向 max-content, 纵向 scroll.y 时表头自动 sticky)
+ *   - 空态 (EmptyState) / 加载态 (Skeleton) / 分页器统一 (共 N 条, 10/20/50/100)
+ *   - 内置工具栏: 导出 CSV (当前视图) + 密度切换 (compact/comfortable)
  * 兼容 ProTable / VirtualTable 常用调用方式。
  */
-import { Table, Skeleton } from "antd";
-import type { TableProps, TableColumnsType, TablePaginationConfig } from "antd";
-import type { ReactNode } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { Table, Skeleton, Button, Tooltip, Segmented } from "antd";
+import type {
+  TableProps,
+  TableColumnsType,
+  TablePaginationConfig,
+  TableColumnType,
+  TableColumnGroupType,
+} from "antd";
+import type { ReactNode, CSSProperties } from "react";
+import { Download, Rows3, Rows4 } from "lucide-react";
 import "../../styles/data-table.css";
 import { EmptyState } from "./EmptyState";
 // [W14-UX] 列配置/保存视图 + 右键上下文菜单
 import { useContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { useTableColumnConfig, type ColumnLike } from "../data/useTableColumnConfig";
+import { t } from "../../i18n/appI18n";
+
+type AnyColumn<RecordType extends object> = TableColumnType<RecordType> | TableColumnGroupType<RecordType>;
+type HiddenColumn = { hidden?: boolean };
 
 export interface DataTableProps<RecordType extends object>
   extends Omit<TableProps<RecordType>, "size" | "pagination" | "locale" | "rowClassName"> {
@@ -52,10 +66,130 @@ export interface DataTableProps<RecordType extends object>
   contextMenuItems?: (record: RecordType, index: number) => ContextMenuItem[];
   /** [W14-UX] 右键菜单测试 id */
   contextMenuTestId?: string;
+  /** [UI-4] 显示导出 CSV 按钮 (默认 true, 有数据时显示) */
+  showExport?: boolean;
+  /** [UI-4] 导出文件名 (不含扩展名, 默认 table) */
+  exportFileName?: string;
+  /** [UI-4] 显示密度切换 (默认 true) */
+  showDensity?: boolean;
+  /** [UI-4] 受控密度 */
+  density?: TableDensity;
+  /** [UI-4] 非受控默认密度 (默认 compact) */
+  defaultDensity?: TableDensity;
+  /** [UI-4] 密度变化回调 */
+  onDensityChange?: (density: TableDensity) => void;
+  /** [UI-4] 关闭数值列自动右对齐 */
+  disableAutoNumericAlign?: boolean;
 }
+
+export type TableDensity = "compact" | "comfortable";
 
 export const DEFAULT_TABLE_PAGE_SIZE = 20;
 export const TABLE_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+
+/** 数值列识别: dataIndex 以 Amount/Count/Rate/Score/数量/率/分/量 等结尾 */
+const NUMERIC_SUFFIX_RE =
+  /(amount|count|rate|score|qty|quantity|total|num|number|percent|ratio|数量|总数|金额|次数|例数|率|分|量|数)$/i;
+
+function lastDataIndexSegment(dataIndex: unknown): string {
+  if (Array.isArray(dataIndex)) return String(dataIndex[dataIndex.length - 1] ?? "");
+  return dataIndex === undefined || dataIndex === null ? "" : String(dataIndex);
+}
+
+function isNumericColumn<RecordType extends object>(col: AnyColumn<RecordType>): boolean {
+  const keyBase = String((col as TableColumnType<RecordType>).key ?? "");
+  const base = lastDataIndexSegment((col as TableColumnType<RecordType>).dataIndex) || keyBase;
+  if (!base) return false;
+  return NUMERIC_SUFFIX_RE.test(base);
+}
+
+/** 为数值列补齐 align:'right' + dt-num (tabular-nums), 递归处理分组列 */
+function applyNumericAlign<RecordType extends object>(
+  columns: TableColumnsType<RecordType>,
+  enabled: boolean,
+): TableColumnsType<RecordType> {
+  return columns.map((col) => {
+    const anyCol = col as TableColumnType<RecordType> & {
+      children?: TableColumnsType<RecordType>;
+    };
+    const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
+    if (Array.isArray(anyCol.children)) {
+      next.children = applyNumericAlign(anyCol.children, enabled);
+    }
+    if (enabled) {
+      const numeric = isNumericColumn(anyCol);
+      const alignRight = anyCol.align === "right";
+      if (numeric && !anyCol.align) next.align = "right";
+      if ((numeric || alignRight) && !String(anyCol.className ?? "").includes("dt-num")) {
+        next.className = anyCol.className ? `${anyCol.className} dt-num` : "dt-num";
+      }
+    }
+    return next;
+  }) as TableColumnsType<RecordType>;
+}
+
+function getColumnValue(row: object, dataIndex: unknown): unknown {
+  if (dataIndex === undefined || dataIndex === null) return undefined;
+  const path = Array.isArray(dataIndex) ? dataIndex : String(dataIndex).split(".");
+  return path.reduce<unknown>(
+    (value, key) =>
+      value && typeof value === "object" ? (value as Record<string, unknown>)[key] : undefined,
+    row,
+  );
+}
+
+function isActionColumn(col: AnyColumn<object>): boolean {
+  const c = col as TableColumnType<object>;
+  const key = String(c.key ?? lastDataIndexSegment(c.dataIndex) ?? "").toLowerCase();
+  return ["action", "actions", "operation", "operations", "操作"].includes(key);
+}
+
+function csvCell(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  const raw = typeof value === "object" ? JSON.stringify(value) : String(value);
+  return `"${raw.replace(/"/g, '""')}"`;
+}
+
+/** 从可见列 + 当前数据导出 CSV (当前视图) */
+function exportCsv<RecordType extends object>(
+  columns: TableColumnsType<RecordType>,
+  dataSource: RecordType[],
+  fileName: string,
+): void {
+  type FlatCol = { title: unknown; dataIndex: unknown };
+  const flat: FlatCol[] = [];
+  const walk = (cols: TableColumnsType<RecordType>): void => {
+    for (const col of cols) {
+      const c = col as TableColumnType<RecordType> & {
+        children?: TableColumnsType<RecordType>;
+      };
+      if (Array.isArray(c.children)) {
+        walk(c.children);
+        continue;
+      }
+      if (c.dataIndex === undefined || c.dataIndex === null) continue;
+      if ((c as HiddenColumn).hidden) continue;
+      if (isActionColumn(c as AnyColumn<object>)) continue;
+      flat.push({ title: c.title, dataIndex: c.dataIndex });
+    }
+  };
+  walk(columns);
+
+  const header = flat.map((c) => csvCell(typeof c.title === "string" ? c.title : "")).join(",");
+  const body = dataSource
+    .map((row) => flat.map((c) => csvCell(getColumnValue(row, c.dataIndex))).join(","))
+    .join("\r\n");
+  const csv = `\uFEFF${header}\r\n${body}`;
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${fileName}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 export function DataTable<RecordType extends object>({
   columns,
@@ -75,6 +209,13 @@ export function DataTable<RecordType extends object>({
   applyViewState,
   contextMenuItems,
   contextMenuTestId,
+  showExport = true,
+  exportFileName = "table",
+  showDensity = true,
+  density: densityProp,
+  defaultDensity = "compact",
+  onDensityChange,
+  disableAutoNumericAlign = false,
   pagination: paginationProp,
   locale,
   scroll,
@@ -83,6 +224,17 @@ export function DataTable<RecordType extends object>({
   onRow: onRowProp,
   ...restProps
 }: DataTableProps<RecordType>) {
+  const [internalDensity, setInternalDensity] = useState<TableDensity>(defaultDensity);
+  const density = densityProp ?? internalDensity;
+
+  const handleDensityChange = useCallback(
+    (value: TableDensity) => {
+      if (densityProp === undefined) setInternalDensity(value);
+      onDensityChange?.(value);
+    },
+    [densityProp, onDensityChange],
+  );
+
   const pagination = useMemoPagination(showPagination, paginationProp, pageSize, paginationSize);
   // [W14-UX] 列配置 + 保存视图
   const columnConfig = useTableColumnConfig<ColumnLike>({
@@ -93,34 +245,91 @@ export function DataTable<RecordType extends object>({
     getViewState,
     applyViewState,
   });
-  const effectiveColumns = columnConfigKey
+  const baseColumns = columnConfigKey
     ? (columnConfig.visibleColumns as unknown as TableColumnsType<RecordType>)
     : columns;
+  const effectiveColumns = useMemo(
+    () => applyNumericAlign(baseColumns, !disableAutoNumericAlign),
+    [baseColumns, disableAutoNumericAlign],
+  );
   // [W14-UX] 右键上下文菜单
   const { open: openContextMenu, menu: contextMenuNode } = useContextMenu(
     contextMenuTestId ?? "data-table-context-menu",
   );
-  const showToolbar = Boolean(toolbar || toolbarExtra || columnConfigKey);
+
+  const hasData = dataSource.length > 0;
+  const handleExport = useCallback(() => {
+    exportCsv(effectiveColumns, dataSource, exportFileName);
+  }, [effectiveColumns, dataSource, exportFileName]);
+
+  const showExportBtn = showExport && hasData;
+  const showDensityToggle = showDensity;
+  const showAuditActions = showExportBtn || showDensityToggle;
+  const showToolbar = Boolean(toolbar || toolbarExtra || columnConfigKey || showAuditActions);
+
+  const toolbarStyle: CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "8px 12px",
+    borderBottom: "1px solid var(--border-color, #e2e8f0)",
+    background: "var(--bg-card)",
+    flexWrap: "wrap",
+  };
 
   return (
-    <div className={`data-table ${className ?? ""}`}>
+    <div className={`data-table data-table--${density} ${className ?? ""}`}>
       {contextMenuNode}
       {showToolbar && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "12px 16px",
-            borderBottom: "1px solid var(--border-color, #e2e8f0)",
-            background: "var(--bg-card)",
-            flexWrap: "wrap",
-          }}
-        >
+        <div style={toolbarStyle} data-testid="data-table-toolbar">
           {toolbar}
           <div style={{ flex: 1 }} />
           {toolbarExtra}
           {columnConfigKey && columnConfig.toolbar}
+          {showExportBtn && (
+            <Tooltip title={t("ui4Tables.export.tooltip")}>
+              <Button
+                size="small"
+                type="text"
+                icon={<Download size={14} />}
+                onClick={handleExport}
+                data-testid="data-table-export"
+                aria-label={t("ui4Tables.export.label")}
+              >
+                {t("ui4Tables.export.label")}
+              </Button>
+            </Tooltip>
+          )}
+          {showDensityToggle && (
+            <Tooltip title={t("ui4Tables.density.tooltip")}>
+              <Segmented<string>
+                size="small"
+                value={density}
+                onChange={(v) => handleDensityChange(v as TableDensity)}
+                data-testid="data-table-density"
+                options={[
+                  {
+                    value: "compact",
+                    label: (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        <Rows3 size={14} />
+                        {t("ui4Tables.density.compact")}
+                      </span>
+                    ),
+                  },
+                  {
+                    value: "comfortable",
+                    label: (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        <Rows4 size={14} />
+                        {t("ui4Tables.density.comfortable")}
+                      </span>
+                    ),
+                  },
+                ]}
+              />
+            </Tooltip>
+          )}
         </div>
       )}
       <Table<RecordType>
@@ -140,7 +349,7 @@ export function DataTable<RecordType extends object>({
           ...locale,
         }}
         scroll={{ x: "max-content", y: fixedHeader, ...scroll }}
-        size="middle"
+        size={density === "compact" ? "small" : "middle"}
         loading={
           loading
             ? {

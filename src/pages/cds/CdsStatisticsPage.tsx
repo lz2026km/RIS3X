@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { BarChart3, TrendingUp, Download, AlertTriangle, CheckCircle, Activity, ArrowUp, ArrowDown } from 'lucide-react'
+import { BarChart3, TrendingUp, Download, AlertTriangle, CheckCircle, Activity, ArrowUp, ArrowDown, Route } from 'lucide-react'
 import type { CdsStatsOverview } from '../../services/cds'
 import { cdsApi } from '../../services/api/cdsApi'
 import { StateView } from '../../components/common/StateView'
@@ -199,5 +199,5 @@ export default function CdsStatisticsPage() {
 }
 
 function RouteIcon({ color }: { color: string }) {
-  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+  return <Route size={18} color={color} />
 }

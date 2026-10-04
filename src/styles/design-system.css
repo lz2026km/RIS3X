@@ -1013,3 +1013,164 @@
   background: var(--form-input-bg, var(--bg-secondary));
   color: var(--text-primary);
 }
+
+/* ============================================================
+   14. [UI-1] Enterprise Medical High-Density — Authoritative Layer
+   -----------------------------------------------------------------
+   Appended LAST so it wins the cascade. Additive / override only:
+   - no existing token name is removed or renamed
+   - legacy blocks above stay untouched for rollback safety
+   Tokens here are the single source consumed by Provider.tsx and the
+   shared components (AppButton / AppLayout / ThemeTokens).
+   ============================================================ */
+
+/* --- 14.1 Token contract aliases (missing --c-* used by AppButton) --- */
+:root {
+  --c-primary: var(--color-primary, #1d4ed8);
+  --c-primary-hover: var(--color-primary-hover, #2563eb);
+  --c-danger: var(--color-error-600, #dc2626);
+  --c-border: var(--border-color, #e2e8f0);
+  --c-text: var(--text-primary, #1e293b);
+  --c-bg: var(--bg-card, #ffffff);
+
+  /* sidebar item states (AppLayout reads these names) */
+  --sidebar-item-active-bg: rgba(37, 99, 235, 0.22);
+  --sidebar-item-hover-bg: rgba(37, 99, 235, 0.14);
+
+  /* unify collapsed sidebar width to a single 64px value */
+  --sidebar-w-collapsed: var(--size-sidebar-collapsed, 64px);
+}
+
+/* --- 14.2 Authoritative enterprise root (light) --- */
+:root,
+[data-theme='light'] {
+  /* single enterprise deep-blue primary */
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #2563eb;
+  --color-primary-active: #1e40af;
+  --color-primary-bg: #eff6ff;
+
+  /* system-first UI stack (Inter + Noto Sans SC + system-ui, no webfont) */
+  --font-family-ui:
+    Inter, "Noto Sans SC", "Source Han Sans SC", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-family-sans: var(--font-family-ui);
+
+  /* elevation scale (enterprise elevation-1..4) */
+  --elevation-1: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+  --elevation-2: 0 2px 4px -1px rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.06);
+  --elevation-3: 0 4px 8px -2px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.06);
+  --elevation-4: 0 8px 16px -4px rgb(15 23 42 / 0.12), 0 4px 8px -4px rgb(15 23 42 / 0.08);
+
+  /* focus ring aligned to the enterprise primary */
+  --shadow-focus: 0 0 0 3px rgb(29 78 216 / 0.4);
+  --shadow-focus-error: 0 0 0 3px rgb(220 38 38 / 0.4);
+  --shadow-focus-ring: var(--shadow-focus);
+
+  /* high-density tokens */
+  --density-row-h: var(--size-table-row-md, 44px);
+  --density-row-compact: var(--size-table-row-sm, 36px);
+  --density-row-tall: var(--size-table-row-lg, 56px);
+  --density-cell-pad-y: 8px;
+  --density-cell-pad-x: 12px;
+  --density-control-h: var(--size-control-md, 32px);
+  --density-control-h-sm: var(--size-control-sm, 24px);
+  --density-control-h-lg: var(--size-control-lg, 40px);
+  --density-gap: var(--space-2, 8px);
+  --density-font-size: var(--font-size-base, 14px);
+  --density-font-size-sm: var(--font-size-sm, 12px);
+
+  /* [UI-5] header height token — AppLayout app-header + sticky feedback banners */
+  --header-h: 56px;
+
+  /* [UI-5] 语义状态底色 (浅色) — 供 Loading/Error/StateView 使用 */
+  --state-loading-bg: var(--color-primary-50, #dbeafe);
+  --state-loading-fg: var(--color-primary-800, #1e40af);
+  --state-loading-border: var(--color-primary-200, #bfdbfe);
+  --state-warning-bg: var(--color-warning-100, #fef3c7);
+  --state-warning-fg: var(--color-warning-800, #92400e);
+  --state-warning-border: #fde68a;
+}
+
+/* [UI-5] 语义状态底色 (深色 / 高对比) */
+[data-theme="dark"] {
+  --state-loading-bg: rgba(37, 99, 235, 0.16);
+  --state-loading-fg: #93c5fd;
+  --state-loading-border: rgba(96, 165, 250, 0.4);
+  --state-warning-bg: rgba(217, 119, 6, 0.16);
+  --state-warning-fg: #fbbf24;
+  --state-warning-border: rgba(251, 191, 36, 0.4);
+}
+
+[data-theme="high-contrast"] {
+  --state-loading-bg: #001a33;
+  --state-loading-fg: #66ccff;
+  --state-loading-border: #66ccff;
+  --state-warning-bg: #332600;
+  --state-warning-fg: #ffcc00;
+  --state-warning-border: #ffcc00;
+}
+
+/* --- 14.3 Authoritative enterprise dark (gray scale remap) ---
+   In dark mode the neutral ramp is inverted so components that reference
+   --color-gray-* directly (inline styles in pages) stay legible. All
+   semantic aliases that previously pointed at the gray ramp are re-pinned
+   to explicit values so the earlier dark blocks keep their exact look. */
+[data-theme="dark"] {
+  /* inverted neutral ramp (0 = darkest, 1000 = lightest) */
+  --color-gray-0: #020617;
+  --color-gray-50: #0f172a;
+  --color-gray-100: #1e293b;
+  --color-gray-200: #334155;
+  --color-gray-300: #475569;
+  --color-gray-400: #64748b;
+  --color-gray-500: #94a3b8;
+  --color-gray-600: #cbd5e1;
+  --color-gray-700: #e2e8f0;
+  --color-gray-800: #f1f5f9;
+  --color-gray-900: #f8fafc;
+  --color-gray-1000: #ffffff;
+
+  /* enterprise primary stays deep blue in dark as well */
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #2563eb;
+  --color-primary-active: #1e40af;
+
+  /* re-pin semantic tokens previously derived from the gray ramp */
+  --bg-deepest: #020617;
+  --bg-deep: #020617;
+  --bg-card: #1e293b;
+  --bg-elevated: #334155;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+  --header-bg: #1e293b;
+  --header-fg: #f1f5f9;
+  --header-border: #334155;
+  --content-bg: #0f172a;
+  --content-fg: #f1f5f9;
+  --table-header-bg: #1e293b;
+  --table-header-fg: #cbd5e1;
+  --overlay-bg: #1e293b;
+  --overlay-fg: #f1f5f9;
+  --form-input-bg: #0f172a;
+  --form-input-border: #334155;
+  --form-input-disabled-bg: #1e293b;
+  --skeleton-bg: #334155;
+  --skeleton-highlight: #475569;
+
+  /* dark elevation scale (heavier, night-reading friendly) */
+  --elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --elevation-2: 0 2px 4px -1px rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --elevation-3: 0 4px 8px -2px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.35);
+  --elevation-4: 0 8px 16px -4px rgb(0 0 0 / 0.55), 0 4px 8px -4px rgb(0 0 0 / 0.4);
+  --shadow-focus: 0 0 0 3px rgb(37 99 235 / 0.55);
+  --shadow-focus-ring: var(--shadow-focus);
+
+  /* density tokens resolve from the same values in dark */
+  --density-cell-pad-y: 8px;
+  --density-cell-pad-x: 12px;
+}

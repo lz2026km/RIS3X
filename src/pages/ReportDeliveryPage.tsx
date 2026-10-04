@@ -22,6 +22,7 @@ import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
 import { LoadingBanner } from '../components/feedback';
 import { DataTable } from '../components/common/DataTable';
+import { StatusTag } from '../components/common/StatusTag';
 import { t } from '../i18n/appI18n';
 
 // [G005 W2-B] reportApi 无 delivery 端点 → 由 reportApi.list 派生推送记录 + 页面标注
@@ -284,11 +285,11 @@ export default function ReportDeliveryPage() {
               {r.patientPhone || r.patientEmail || r.patientWechat} · {t('reportDelivery.templateLabel')}{TEMPLATE_LABEL[r.template] ?? r.template}
             </div>
             {r.failureReason && !recall && (
-              <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · {t('reportDelivery.retry')} {r.retryCount} {t('reportDelivery.times')}</div>
+              <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>{r.failureReason} · {t('reportDelivery.retry')} {r.retryCount} {t('reportDelivery.times')}</div>
             )}
             {recall && (
               <div style={{ fontSize: 12, color: '#7c3aed', marginTop: 2 }}>
-                ↩ {t('reportDelivery.recalledLabel')}: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>{t('reportDelivery.localState')}</span>
+                {t('reportDelivery.recalledLabel')}: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>{t('reportDelivery.localState')}</span>
               </div>
             )}
           </div>
@@ -399,8 +400,8 @@ export default function ReportDeliveryPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Send size={20} color="#07c160" /> {t('reportDelivery.title')}
-            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
-            <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.DIST v3.0.5.1</span>
+            <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
+            <StatusTag status="info" style={{ fontWeight: 700 }}>R3.DIST v3.0.5.1</StatusTag>
             {recordsSource === 'api' ? (
               <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1d4ed8', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
                 {recordsLoading ? t('reportDelivery.loading') : `${t('reportDelivery.apiDerived')} · ${records.length} ${t('reportDelivery.items')}`}

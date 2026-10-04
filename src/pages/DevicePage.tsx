@@ -26,6 +26,7 @@ import { VirtualTable } from '../components/common/VirtualTable'
 import { DataTable } from '../components/common/DataTable'
 import { Select } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
+import { PageTemplate } from '../components/common/PageTemplate'
 import { ActionButton } from '../components/common/ActionButton'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
 import {
@@ -342,7 +343,7 @@ function AETitleConfigPanel() {
 
   return (
     <div style={{ marginTop: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
         {/* AE 列表 */}
         <div style={{
           background: C.white, borderRadius: 12, padding: 16,
@@ -414,7 +415,7 @@ function AETitleConfigPanel() {
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Settings2 size={14} style={{ color: C.accent }} /> {t('devicePage.aeOverview')}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 10, marginBottom: 16 }}>
             {[
               { label: t('devicePage.aeOnline'), value: aeConfigs.filter((a: any) => a.status === 'online').length, color: C.success },
               { label: t('devicePage.aeOffline'), value: aeConfigs.filter((a: any) => a.status === 'offline').length, color: C.danger },
@@ -560,7 +561,7 @@ function QATestPlannerPanel() {
       )}
 
       {activeQATab === 'compliance' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
           <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Activity size={14} style={{ color: C.accent }} /> {t('devicePage.qaDeviceRate')}
@@ -1057,7 +1058,7 @@ export default function DevicePage() {
       </div>
 
       {/* 实时状态概览 + 使用时长 + 故障率 + 开机率 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 实时状态看板 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1109,7 +1110,7 @@ export default function DevicePage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 故障率统计 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1330,7 +1331,7 @@ export default function DevicePage() {
       <MaintenanceHistoryTable records={maintHistory} />
       {maintPlansLoading && (
         <div style={{ padding: '8px 12px', marginBottom: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
-          ⏳ {t('devicePage.loadingPlans')}
+          {t('devicePage.loadingPlans')}
         </div>
       )}
       <MaintenancePlanTable
@@ -1463,7 +1464,7 @@ export default function DevicePage() {
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertCircle size={14} style={{ color: C.danger }} /> {t('devicePage.faultCodeAnalysis')}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
           {/* 故障趋势图 */}
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>{t('devicePage.faultTrend')}</div>
@@ -1571,7 +1572,7 @@ export default function DevicePage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
         {/* 检查量趋势图 LineChart */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1887,15 +1888,15 @@ export default function DevicePage() {
   // 渲染入口
   // ============================================================
   return (
-    <div style={{ padding: '0 24px 24px', minHeight: '100vh', background: C.bg }}>
+    <PageTemplate container={false} showHeader={false} testId="device-page" style={{ padding: '0 24px 24px', minHeight: '100vh', background: C.bg }}>
       {loading && (
         <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
-          ⏳ {t('devicePage.loadingStats')}
+          {t('devicePage.loadingStats')}
         </div>
       )}
       {loadError && !loading && (
         <div style={{ padding: 8, margin: 12, background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
-          ⚠️ {loadError}
+          {loadError}
         </div>
       )}
       {/* 页面标题 */}
@@ -2043,7 +2044,7 @@ export default function DevicePage() {
       {renderMaintenanceFormModal()}
       {/* 新增设备弹窗 */}
       {renderDeviceModal()}
-    </div>
+    </PageTemplate>
   )
 }
 

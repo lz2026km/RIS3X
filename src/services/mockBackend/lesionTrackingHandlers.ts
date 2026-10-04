@@ -184,7 +184,7 @@ function findMockReport(reportId: string): any {
 }
 
 export const lesionTrackingHandlers = [
-  // ⚠️ stats 必须先于 lesions/:id
+  // stats 必须先于 lesions/:id
   http.get(`${API}/stats`, async ({ request }) => {
     await delay(delayMs())
     const url = new URL(request.url)

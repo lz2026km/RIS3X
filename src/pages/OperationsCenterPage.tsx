@@ -9,7 +9,7 @@ import {
   CheckCircle, RefreshCw, Monitor, Users,
   Zap, Wrench, MessageSquare, Gauge, Minus, Scan, Film,
   // [v3.0.6.11-99 Wave10B] 运营指挥中心深化: 多Tab看板/12KPI/预警/急诊通道
-  LayoutDashboard, ShieldCheck, Siren, WifiOff, TimerReset,
+  LayoutDashboard, ShieldCheck, Siren, WifiOff, TimerReset, Shield as ShieldGlyph,
   BadgeAlert, Stethoscope, HeartPulse
 } from 'lucide-react'
 // [W2-A] 真实 API 接入: statsApi/occupancyApi/biApi/oeeApi/criticalExtApi/deviceMgmtApi
@@ -1983,9 +1983,5 @@ export default function OperationsCenterPage() {
 
 // 添加缺失的Shield图标组件
 function Shield({ size = 24, color = '#fff' }: { size?: number, color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
-  )
+  return <ShieldGlyph size={size} color={color} />
 }

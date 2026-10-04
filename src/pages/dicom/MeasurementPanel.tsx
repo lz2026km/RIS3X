@@ -1,7 +1,7 @@
 // [G005 v3.0.6.11-101 Wave 3B] 影像测量 V2 (多工具测量族完整化) + 标注 V2 (双向同步深化)
 //  - 完整 8 工具工具栏: 直线/角度/椭圆面积/矩形面积/多边形面积/折线长度/Cobb角/钙化评分
 //  - 属性面板: 数值/单位/标签 (可编辑) / 公式 / 确定性
-//  - 标注双向同步: 前端 canvas 绘制 ↔ 后端标注对象 (measurement-v2 模块)
+//  - 标注双向同步: 前端 canvas 绘制 后端标注对象 (measurement-v2 模块)
 //  - 历史版本: 每次更新快照, 支持回滚
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Ruler, Triangle, Circle as CircleIcon, Square, Activity, Trash2, Eye as EyeIcon, EyeOff, FileText, Bone, ScanLine, Route, History, RotateCcw, Link2, PenTool, RefreshCw, HeartPulse, Database, Zap, Repeat2 } from 'lucide-react'
@@ -627,7 +627,7 @@ export default function MeasurementPanel(props: Props) {
     }
   }, [showToast])
 
-  // ── 标注 ↔ 测量 关联 ──
+  // ── 标注 测量 关联 ──
   const linkAnnToMeasurement = useCallback(async (annId: string) => {
     const sel = selectedV2
     if (!sel) {
@@ -669,7 +669,7 @@ export default function MeasurementPanel(props: Props) {
     }
   }, [serverComputeType])
 
-  // [v3.0.6.11-103 Wave 2B] 像素 ↔ 世界坐标换算: POST /measurement-v2/coordinates/convert
+  // [v3.0.6.11-103 Wave 2B] 像素 世界坐标换算: POST /measurement-v2/coordinates/convert
   const runCoordConvert = useCallback(async () => {
     setConvBusy(true)
     setConvResult(null)
@@ -823,7 +823,7 @@ export default function MeasurementPanel(props: Props) {
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 110 }}>{m.label}</span>
                     <span style={{ ...s.badge, background: '#dbeafe', color: PRIMARY }}>{t(MEASURE_V2_META_LABEL_KEYS[m.type])}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{m.value} {m.unit} · v{m.version}{m.annotationId ? ' · 🔗' : ''}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{m.value} {m.unit} · v{m.version}{m.annotationId ? ' · ' : ''}</div>
                 </div>
                 <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   onClick={e => { e.stopPropagation(); void removeV2Measurement(m.id) }}><Trash2 size={12} color="#ef4444" /></button>
@@ -845,7 +845,7 @@ export default function MeasurementPanel(props: Props) {
           {(Object.keys(ANN_TYPE_LABEL) as AnnotationV2Type[]).map(ty => (
             <button key={ty} style={{ ...s.v2ToolBtn, minWidth: 48, padding: '4px 2px', ...(annType === ty ? s.v2ToolBtnActive : {}) }}
               onClick={() => { setAnnType(annType === ty ? null : ty); setAnnDraft([]) }}>
-              {ty === 'text' ? 'T' : ty === 'arrow' ? '↗' : ty === 'rect' ? '▭' : ty === 'ellipse' ? '◯' : '✎'}
+              {ty === 'text' ? 'T' : ty === 'arrow' ? '' : ty === 'rect' ? '▭' : ty === 'ellipse' ? '◯' : '✎'}
               {t(ANN_TYPE_LABEL[ty])}
             </button>
           ))}
@@ -874,7 +874,7 @@ export default function MeasurementPanel(props: Props) {
                 <div style={{ ...s.measureItemColor, background: a.color, borderRadius: 2 }} />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ fontWeight: 700, color: '#1e293b' }}>{a.text || t(ANN_TYPE_LABEL[a.type])}</span>
-                  <span style={{ color: '#94a3b8', marginLeft: 4 }}>{t(ANN_TYPE_LABEL[a.type])} · {a.pixelPoints.length}{t('measPanel.points')}{a.measurementId ? ' · 🔗' : ''}</span>
+                  <span style={{ color: '#94a3b8', marginLeft: 4 }}>{t(ANN_TYPE_LABEL[a.type])} · {a.pixelPoints.length}{t('measPanel.points')}{a.measurementId ? ' · ' : ''}</span>
                 </span>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.editAnnTitle')} onClick={() => startEditAnn(a)}>✎</button>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.linkAnnTitle')} onClick={() => void linkAnnToMeasurement(a.id)}><Link2 size={10} /></button>

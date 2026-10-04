@@ -23,6 +23,7 @@ import { useSearchParams } from 'react-router-dom';
 import { resolveTemplateVariables, describeTemplateVariables } from '../utils/templateVariables';
 import { LoadingBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
+import { StatusTag } from '../components/common/StatusTag';
 
 const CATEGORY_LABEL_TO_KEY: Record<string, PhraseCategory> = {
   '正常': 'normal',
@@ -333,7 +334,7 @@ export default function ReportPhraseBankPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <MessageSquare size={20} color="#3b82f6" /> {t('rpb.title')}
-            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <StatusTag status="success" style={{ fontWeight: 700 }}>R7</StatusTag>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
               background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
@@ -427,7 +428,7 @@ export default function ReportPhraseBankPage() {
                     {p.content.slice(0, 60)}...
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                    <span>{'⭐'.repeat(p.rating)}</span>
+                    <span>{''.repeat(p.rating)}</span>
                     <span>· ×{p.usageCount}</span>
                     {p.placeholders.length > 0 && <span style={{ padding: '0 4px', background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 2 }}>{t('rpb.placeholderCount', { count: p.placeholders.length })}</span>}
                   </div>
@@ -452,7 +453,7 @@ export default function ReportPhraseBankPage() {
                     {PHRASE_CATEGORIES.find(c => c.key === selected.category)!.label}
                   </span>
                   <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: 'var(--color-warning-bg)', color: '#92400e' }}>
-                    {'⭐'.repeat(selected.rating)}
+                    {''.repeat(selected.rating)}
                   </span>
                 </div>
               </div>
@@ -502,7 +503,7 @@ export default function ReportPhraseBankPage() {
                 </div>
                 {variableNote && (
                   <div style={{ marginTop: 6, fontSize: 11, color: '#92400e', padding: '4px 8px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 4 }}>
-                    ℹ️ {variableNote}
+                    {variableNote}
                   </div>
                 )}
               </div>

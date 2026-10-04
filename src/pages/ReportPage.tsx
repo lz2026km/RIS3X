@@ -7,7 +7,8 @@ import {
 } from "lucide-react";
 import { message, Modal, Input, Tag } from "antd";
 import type { RadiologyReport } from "../types";
-import { PageContainer } from "../components/common/PageContainer";
+import { PageTemplate } from "../components/common/PageTemplate";
+import { Card } from "../components/common/Card";
 import { ActionButton } from "../components/common/ActionButton";
 import { LoadingBanner, ErrorBanner, AppEmpty } from "../components/feedback";
 import { useNavigate } from "react-router-dom";
@@ -555,7 +556,7 @@ export default function ReportPage() {
   };
 
   return (
-    <PageContainer background="slate" maxWidth="wide" padding={0} testId="report-page">
+    <PageTemplate background="slate" maxWidth="wide" padding={0} showHeader={false} testId="report-page">
       {accessDenied && <div style={{ padding: 24, margin: 24, background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>{t("reportPage.accessDenied")}</div>}
       {loading && <LoadingBanner message={t("reportPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
@@ -564,7 +565,7 @@ export default function ReportPage() {
       <ReportPageHeader selectedIds={selectedIds} allReports={allReports} setReviewReport={setReviewReport} showToast={showToast} />
 
       <div className="no-print" style={{ maxWidth: 1440, margin: "0 auto", padding: "20px 24px" }}>
-        <div className="report-stats" style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 14 }}>
+        <div className="report-stats" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 14 }}>
           <StatCard label={t("reportPage.stat.todayReports")} value={stats.todayTotal} icon={<FileText size={20} />} color={ACCENT} sub={t('w9c.reportPage.weekTotalSub', { count: stats.thisWeekTotal })} />
           <StatCard label={t("reportPage.stat.pendingReview")} value={stats.pendingReview} icon={<Clock size={20} />} color={PURPLE} sub={t('w9c.reportPage.pendingShareSub', { pct: stats.pendingReview > 0 ? Math.round((stats.pendingReview / allReports.length) * 100) : 0 })} />
           <StatCard label={t("reportPage.stat.criticalReports")} value={stats.criticalCount} icon={<Zap size={20} />} color={DANGER} sub={t('w9c.reportPage.criticalPositiveSub', { count: filteredStats.critical })} />
@@ -588,14 +589,14 @@ export default function ReportPage() {
         <ReportBanners />
 
         {/* [v3.0.6.11-95 Wave2B P1] 快捷队列 + 筛选预置持久化 */}
-        <div className="report-queues" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10, background: WHITE, borderRadius: 10, padding: "10px 14px", border: "1px solid var(--border-color)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+        <Card padding="sm" testId="report-queues-card" style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 700, marginRight: 4 }}>{t("reportPage.quickQueue")}</span>
           {QUEUE_DEFS.map(q => (
             <button key={q.key} onClick={() => toggleQueue(q.key)} style={{
               padding: "4px 10px", borderRadius: 6, border: `1px solid ${quickQueue === q.key ? q.color : "var(--border-color)"}`,
               background: quickQueue === q.key ? `${q.color}18` : WHITE, color: quickQueue === q.key ? q.color : GRAY,
               fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
-            }}>{quickQueue === q.key ? "✓ " : ""}{t(q.labelKey)}</button>
+            }}>{quickQueue === q.key ? "" : ""}{t(q.labelKey)}</button>
           ))}
           <span style={{ width: 1, height: 18, background: "var(--border-color)", margin: "0 6px" }} />
           <ActionButton
@@ -613,7 +614,7 @@ export default function ReportPage() {
             >{p.name}</Tag>
           ))}
           {activeQueue && <Tag color="blue" closable onClose={() => setQuickQueue(null)}>{t("reportPage.currentQueue")}: {t(activeQueue.labelKey)}</Tag>}
-        </div>
+        </Card>
 
         <div className="report-filters"><ReportHeader search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} modalityFilter={modalityFilter} setModalityFilter={setModalityFilter} reportDoctorFilter={reportDoctorFilter} setReportDoctorFilter={setReportDoctorFilter} auditorFilter={auditorFilter} setAuditorFilter={setAuditorFilter} dateFrom={dateFrom} setDateFrom={setDateFrom} dateTo={dateTo} setDateTo={setDateTo} criticalOnly={criticalOnly} setCriticalOnly={setCriticalOnly} positiveOnly={positiveOnly} setPositiveOnly={setPositiveOnly} onReset={handleReset} onExport={handleExport} onPrint={handlePrint} /></div>
 
@@ -761,6 +762,6 @@ export default function ReportPage() {
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
         showToast(t('w9c.reportPage.bulkArchiveComplete', { done, failSuffix: failed > 0 ? t('w9c.reportPage.exportFailSuffix', { failed }) : '' }), failed > 0 ? 'info' : 'success');
         return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(t('w9c.reportPage.actionSuccessGeneric', { action: action === 'publish' ? t('w9c.reportPage.actionNamePublish') : t('w9c.reportPage.actionNameDelete') }), 'success'); }} />
-    </PageContainer>
+    </PageTemplate>
   );
 }

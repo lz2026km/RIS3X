@@ -2111,7 +2111,7 @@ export const worklistHandlers = [
 
 // ============= Patients(14) - v3.0.6.8-32 接入 PATIENT_MASTER =============
 export const patientHandlers = [
-  // ⚠️ 具体路径必须在 :id 之前注册, 否则 /patients/stats 会被 :id 拦截
+  // 具体路径必须在 :id 之前注册, 否则 /patients/stats 会被 :id 拦截
   // 列表 (接入 PATIENT_MASTER 1500 + 分页/搜索/过滤)
   http.get(`${API_BASE}/patients`, async ({ request }) => {
     await delay(80);

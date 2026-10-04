@@ -60,7 +60,7 @@ export const deviceMgmtHandlers = [
   }),
 
   // [v3.0.6.11-104 Wave 2A] 设备管理看板: overview / usage-trend / by-room / maintenance-calendar
-  // ⚠️ 静态路径必须注册在 GET /:id 通配之前
+  // 静态路径必须注册在 GET /:id 通配之前
   http.get(`${API}/overview`, async () => {
     await delay(delayMs());
     return HttpResponse.json({

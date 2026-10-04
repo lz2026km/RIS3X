@@ -412,7 +412,7 @@ export const REJECT_TEMPLATES: RejectTemplate[] = [
   {
     id: 'rt-tpl-007', category: 'critical-not-marked', title: '危急值未标',
     body: '危急值未在报告中明确标识',
-    presetComment: '⚠ 危急值未在报告中明确标识，请按规范标注。',
+    presetComment: '危急值未在报告中明确标识，请按规范标注。',
     requiredMinLength: 5, suggestedScore: 30, isSystem: true,
   },
   {

@@ -393,7 +393,7 @@ export default function CriticalValuePage() {
       <style>{'@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }'}</style>
 
       <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 100%)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, color: '#fff' }}>
-        <div style={{ fontSize: 18 }}>🚨</div>
+        <div style={{ fontSize: 18 }}></div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700 }}>{t("criticalValuePage.bannerTitle")}</div>
           <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>{t("criticalValuePage.bannerDesc")}</div>

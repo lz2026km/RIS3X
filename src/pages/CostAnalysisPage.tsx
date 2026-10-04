@@ -16,6 +16,7 @@ import { financeApi } from '../services/api/financeApi'
 import { statsApi } from '../services/api/statsApi'
 import { ChartContainer } from '../components/charts'
 import { CostFilter, CostOverview } from './cost'
+import { StatusTag } from '../components/common/StatusTag'
 import { CostCard, SimplePieChart, SimpleBarChart, SimpleHorizontalBarChart } from './cost/CostChart'
 import {
   EquipmentRow, ConsumableRow, LaborRow, MedicalConsumableRow,
@@ -252,15 +253,13 @@ export default function CostAnalysisPage() {
       {/* [W3-B] 数据源状态条 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
         {live ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: '#22c55e20', color: '#22c55e', fontWeight: 600 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
+          <StatusTag status="success" dot size="md">
             {t('costAnalysis.dataSource')} {live.source} · 收入 ¥{(live.revenue / 10000).toFixed(1)}万 / 成本 ¥{(live.cost / 10000).toFixed(1)}万
-          </span>
+          </StatusTag>
         ) : (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: '#f59e0b20', color: '#f59e0b', fontWeight: 600 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />
+          <StatusTag status="warning" dot size="md">
             {t('costAnalysis.dataSource')} {t('costAnalysis.demoData')} — 设备/耗材/人力/DRG/盈亏平衡等区块为内置演示数据
-          </span>
+          </StatusTag>
         )}
         {error && (
           <span style={{ color: '#ef4444' }}>
@@ -536,7 +535,7 @@ export default function CostAnalysisPage() {
 
           {profitMarginStats.lossExams.length > 0 && (
             <div style={{ background: '#ef444420', border: '1px solid #ef4444', borderRadius: 8, padding: 20 }}>
-              <div style={sectionTitleStyle}><TrendingDown size={16} color="#ef4444" />⚠️ {t('costAnalysis.lossItemWarning')}</div>
+              <div style={sectionTitleStyle}><TrendingDown size={16} color="#ef4444" />{t('costAnalysis.lossItemWarning')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12 }}>
                 {profitMarginStats.lossExams.map(exam => (
                   <div key={exam.id} style={{ background: '#161b22', borderRadius: 6, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

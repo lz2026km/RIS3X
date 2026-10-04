@@ -65,7 +65,7 @@ export default function ReportScoreRulePage() {
             evaluationCriteria: [],
             scoringRules: [{ score: d.max, condition: `${d.label} 达标` }],
             color: ['#3b82f6', '#7c3aed', '#10b981', '#f59e0b', '#0891b2', '#dc2626', '#8b5cf6', '#06b6d4'][i % 8] ?? '#3b82f6',
-            icon: '📊',
+            icon: '',
           }));
           setDimensions(mapped);
         }
@@ -192,7 +192,7 @@ export default function ReportScoreRulePage() {
               </div>
             ))}
             <button
-              onClick={() => setDimensions(prev => [...prev, { id: `dim-${Date.now()}`, name: `新维度${prev.length + 1}`, description: '请编辑', weight: 0.1, icon: '⭐', color: '#3b82f6', evaluationCriteria: [], scoringRules: [] } as ScoreDimension])}
+              onClick={() => setDimensions(prev => [...prev, { id: `dim-${Date.now()}`, name: `新维度${prev.length + 1}`, description: '请编辑', weight: 0.1, icon: '', color: '#3b82f6', evaluationCriteria: [], scoringRules: [] } as ScoreDimension])}
               style={{
                 width: '100%', padding: 10, border: 'none', background: 'var(--bg-card)',
                 color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex',

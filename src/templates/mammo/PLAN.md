@@ -2,7 +2,7 @@
 
 | # | Sub-module | Points | File | Status |
 |---|-----------|--------|------|--------|
-| 6.9 | Structured Reports | 15 | `src/templates/mammo/structuredReports.ts` | ✅ |
+| 6.9 | Structured Reports | 15 | `src/templates/mammo/structuredReports.ts` | 完成 |
 
 ### 6.9 Structured Reports (15 pts)
 - 3 BI-RADS report templates (Screening Mammography, Breast Ultrasound, Breast MRI)

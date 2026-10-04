@@ -329,7 +329,7 @@ export default function ReportReviewPage() {
       title: t('reportReviewPage.infoDeadline'), key: 'deadline', width: 100,
       render: (_: unknown, task) => {
         const deadline = deadlineInfo(task.deadline, task.isOverdue, task.hoursToDeadline);
-        return <span style={{ fontSize: 12, color: deadline.color, fontWeight: 600 }}>⏱ {deadline.label}</span>;
+        return <span style={{ fontSize: 12, color: deadline.color, fontWeight: 600 }}>{deadline.label}</span>;
       },
     },
   ];
@@ -766,7 +766,7 @@ const ReviewTaskDetail: React.FC<{
               fontSize: 12, fontWeight: 600,
             }}>{statusConf.label}</span>
             <span style={{ fontSize: 12, color: deadline.color, fontWeight: 700, padding: '3px 10px', background: 'var(--content-bg)', borderRadius: 4 }}>
-              ⏱ {deadline.label}
+              {deadline.label}
             </span>
           </div>
         </div>
@@ -822,7 +822,7 @@ const ReviewTaskDetail: React.FC<{
               <FileText size={14} /> {t('reportReviewPage.reportContent')}
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              {/* [v3.0.6.11-103 Wave 12] 修改痕迹开关: 原文 ↔ diff 高亮 */}
+              {/* [v3.0.6.11-103 Wave 12] 修改痕迹开关: 原文 diff 高亮 */}
               <button
                 onClick={() => void loadDiff()}
                 style={{
@@ -913,7 +913,7 @@ const ReviewTaskDetail: React.FC<{
           {task.initialAuditCompletedAt && (
             <div style={{ padding: 10, background: 'var(--color-info-bg)', border: '1px solid #bae6fd', borderRadius: 6, marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <strong style={{ color: '#0369a1', fontSize: 12 }}>✓ {t('reportReviewPage.initialAuditDone')}</strong>
+                <strong style={{ color: '#0369a1', fontSize: 12 }}>{t('reportReviewPage.initialAuditDone')}</strong>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.initialAuditCompletedAt}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
@@ -921,7 +921,7 @@ const ReviewTaskDetail: React.FC<{
               </div>
               {task.initialAuditSuggestion && (
                 <div style={{ fontSize: 12, color: '#0c4a6e', padding: 6, background: 'var(--bg-card)', borderRadius: 4 }}>
-                  💬 {task.initialAuditSuggestion}
+                  {task.initialAuditSuggestion}
                 </div>
               )}
             </div>
@@ -929,7 +929,7 @@ const ReviewTaskDetail: React.FC<{
           {task.finalAuditCompletedAt && (
             <div style={{ padding: 10, background: '#8b5cf622', border: '1px solid #f0abfc', borderRadius: 6 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <strong style={{ color: '#86198f', fontSize: 12 }}>✓ {t('reportReviewPage.finalAuditDone')}</strong>
+                <strong style={{ color: '#86198f', fontSize: 12 }}>{t('reportReviewPage.finalAuditDone')}</strong>
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.finalAuditCompletedAt}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
@@ -937,7 +937,7 @@ const ReviewTaskDetail: React.FC<{
               </div>
               {task.finalAuditSuggestion && (
                 <div style={{ fontSize: 12, color: '#86198f', padding: 6, background: 'var(--bg-card)', borderRadius: 4 }}>
-                  💬 {task.finalAuditSuggestion}
+                  {task.finalAuditSuggestion}
                 </div>
               )}
             </div>

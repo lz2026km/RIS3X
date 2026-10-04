@@ -9,6 +9,7 @@ import {
   Link2,
   Users,
   Send,
+  MousePointer2,
 } from "lucide-react";
 import { teleApi } from "../../services/api";
 
@@ -511,14 +512,12 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
                   zIndex: 1000,
                 }}
               >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path
-                    d="M1 1L5 11L6.5 6.5L11 5L1 1Z"
-                    fill={c.color}
-                    stroke="white"
-                    strokeWidth="0.5"
-                  />
-                </svg>
+                <MousePointer2
+                  size={12}
+                  fill={c.color}
+                  stroke="white"
+                  strokeWidth={0.5}
+                />
                 <span
                   style={{
                     marginLeft: 4,

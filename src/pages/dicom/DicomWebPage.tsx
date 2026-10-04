@@ -4,12 +4,11 @@
  */
 import WadoRsViewer from '../../components/dicom/WadoRsViewer'
 import { dicomWebApi, type DicomWebCapabilities, type DicomWebStudy } from '../../services/api/dicomApi'
-import { UploadOutlined, SearchOutlined, EyeOutlined, DownloadOutlined } from '@ant-design/icons'
 import {
   Card, Input, Select, Upload, Button, message, Typography, Space, Divider, Table, Tag, Alert, Spin, Modal,
 } from 'antd'
 import { EmptyState } from '../../components/common/EmptyState'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Upload as UploadIcon, Search, Eye, Download } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { t } from '../../i18n/appI18n'
 
@@ -122,8 +121,8 @@ export default function DicomWebPage() {
       title: t('dw.colActions'), key: 'actions', width: 170,
       render: (_: unknown, r: DicomWebStudy) => (
         <Space size={4}>
-          <Button size="small" icon={<EyeOutlined />} onClick={() => { setLoadedUID(r.studyInstanceUID); setPreviewStudy(r.studyInstanceUID) }}>{t('dw.wadoPreview')}</Button>
-          <Button size="small" icon={<DownloadOutlined />} onClick={() => {
+          <Button size="small" icon={<Eye />} onClick={() => { setLoadedUID(r.studyInstanceUID); setPreviewStudy(r.studyInstanceUID) }}>{t('dw.wadoPreview')}</Button>
+          <Button size="small" icon={<Download />} onClick={() => {
             if (r.modalitiesInStudy?.[0]) {
               window.open(`/api/v1/dicom-web/studies/${encodeURIComponent(r.studyInstanceUID)}`, '_blank')
             } else {
@@ -151,14 +150,14 @@ export default function DicomWebPage() {
 
       <Card size="small" title={t('dw.qidoTitle')} style={{ marginBottom: 16 }} extra={capabilities && (
         <Text type="secondary" style={{ fontSize: 12 }}>
-          QIDO-RS: {capabilities.qidors ? '✓' : '✗'} | WADO-RS: {capabilities.wadors ? '✓' : '✗'} | STOW-RS: {capabilities.stowrs ? '✓' : '✗'} | v{capabilities.version}
+          QIDO-RS: {capabilities.qidors ? '' : ''} | WADO-RS: {capabilities.wadors ? '' : ''} | STOW-RS: {capabilities.stowrs ? '' : ''} | v{capabilities.version}
         </Text>
       )}>
         <Space wrap style={{ width: '100%', marginBottom: 12 }}>
           <Input placeholder={t('dw.colPatientId')} value={qidopatient} onChange={(e) => setQidopatient(e.target.value)} style={{ width: 150 }} />
           <Select placeholder={t('dw.colModality')} allowClear style={{ width: 100 }} options={MODALITY_OPTIONS} value={qidomodality || undefined} onChange={(v) => setQidomodality(v ?? '')} />
           <Input placeholder={t('dw.descKeywordPlaceholder')} value={qidokeyword} onChange={(e) => setQidokeyword(e.target.value)} style={{ width: 220 }} onPressEnter={() => void handleQidoSearch()} />
-          <Button type="primary" icon={<SearchOutlined />} onClick={() => void handleQidoSearch()} loading={searchLoading}>{t('dw.qidoSearch')}</Button>
+          <Button type="primary" icon={<Search />} onClick={() => void handleQidoSearch()} loading={searchLoading}>{t('dw.qidoSearch')}</Button>
         </Space>
         {searchLoading ? (
           <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
@@ -179,7 +178,7 @@ export default function DicomWebPage() {
             style={{ width: 360 }}
             onPressEnter={handleLoad}
           />
-          <Button type="primary" icon={<SearchOutlined />} onClick={handleLoad}>WADO-RS</Button>
+          <Button type="primary" icon={<Search />} onClick={handleLoad}>WADO-RS</Button>
         </Space>
       </Card>
 
@@ -189,7 +188,7 @@ export default function DicomWebPage() {
 
       <Card title={t('dw.stowTitle')} size="small">
         <Upload.Dragger accept=".dcm" showUploadList={false} beforeUpload={handleUpload} disabled={uploading}>
-          <p className="ant-upload-drag-icon"><UploadOutlined /></p>
+          <p className="ant-upload-drag-icon"><UploadIcon /></p>
           <p className="ant-upload-text">{t('dw.dragHint')}</p>
         </Upload.Dragger>
       </Card>

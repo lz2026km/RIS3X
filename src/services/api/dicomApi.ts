@@ -328,7 +328,7 @@ export interface TransferRecord {
   updatedAt: string
   error?: string
   source: 'queue' | 'seed'
-  // [v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 关联检查
+  // [v3.0.6.11-96 Wave 2B (D)] C-STORE worklist 联动: 关联检查
   examId?: string
   accessionNumber?: string
 }
@@ -350,7 +350,7 @@ export interface EnqueueTransferRequest {
   studyUid: string
   targetAe: string
   priority?: 'HIGH' | 'NORMAL' | 'LOW'
-  // [v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 可选关联检查
+  // [v3.0.6.11-96 Wave 2B (D)] C-STORE worklist 联动: 可选关联检查
   examId?: string
   accessionNumber?: string
 }

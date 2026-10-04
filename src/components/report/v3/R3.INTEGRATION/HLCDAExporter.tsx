@@ -192,7 +192,7 @@ export const HLCDAExporter: React.FC<Props> = ({ reportId, patientId, onExport }
                           description={
                             <div className="space-y-1 mt-1">
                               {validationResult.errors.length > 0 && validationResult.errors.map((e, i) => <div key={i} className="text-xs text-red-600">• {e}</div>)}
-                              {validationResult.warnings.length > 0 && validationResult.warnings.map((w, i) => <div key={i} className="text-xs text-amber-600">⚠ {w}</div>)}
+                              {validationResult.warnings.length > 0 && validationResult.warnings.map((w, i) => <div key={i} className="text-xs text-amber-600">{w}</div>)}
                             </div>
                           }
                         />

@@ -541,16 +541,16 @@ export const REPORT_TEMPLATES_MOCK: ReportTemplate[] = [
 ];
 
 export const TEMPLATE_CATEGORIES_MOCK: TemplateCategory[] = [
-  { id: 'tc-1', name: 'CT', nameEn: 'CT', childrenIds: ['tc-1-1', 'tc-1-2', 'tc-1-3'], icon: '🖥', order: 1 },
-  { id: 'tc-1-1', name: '胸部', nameEn: 'Chest', parentId: 'tc-1', childrenIds: [], icon: '🫁', order: 1 },
-  { id: 'tc-1-2', name: '腹部', nameEn: 'Abdomen', parentId: 'tc-1', childrenIds: [], icon: '🩺', order: 2 },
-  { id: 'tc-1-3', name: '头颅', nameEn: 'Head', parentId: 'tc-1', childrenIds: [], icon: '🧠', order: 3 },
-  { id: 'tc-2', name: 'MR', nameEn: 'MR', childrenIds: ['tc-2-1', 'tc-2-2'], icon: '🧲', order: 2 },
-  { id: 'tc-2-1', name: '头颅', nameEn: 'Brain', parentId: 'tc-2', childrenIds: [], icon: '🧠', order: 1 },
-  { id: 'tc-2-2', name: '脊柱', nameEn: 'Spine', parentId: 'tc-2', childrenIds: [], icon: '🦴', order: 2 },
-  { id: 'tc-3', name: 'DR/CR', nameEn: 'X-Ray', childrenIds: [], icon: '📷', order: 3 },
-  { id: 'tc-4', name: 'MG(乳腺)', nameEn: 'Mammography', childrenIds: [], icon: '🎀', order: 4 },
-  { id: 'tc-5', name: 'US(超声)', nameEn: 'Ultrasound', childrenIds: [], icon: '🔊', order: 5 },
+  { id: 'tc-1', name: 'CT', nameEn: 'CT', childrenIds: ['tc-1-1', 'tc-1-2', 'tc-1-3'], icon: '', order: 1 },
+  { id: 'tc-1-1', name: '胸部', nameEn: 'Chest', parentId: 'tc-1', childrenIds: [], icon: '', order: 1 },
+  { id: 'tc-1-2', name: '腹部', nameEn: 'Abdomen', parentId: 'tc-1', childrenIds: [], icon: '', order: 2 },
+  { id: 'tc-1-3', name: '头颅', nameEn: 'Head', parentId: 'tc-1', childrenIds: [], icon: '', order: 3 },
+  { id: 'tc-2', name: 'MR', nameEn: 'MR', childrenIds: ['tc-2-1', 'tc-2-2'], icon: '', order: 2 },
+  { id: 'tc-2-1', name: '头颅', nameEn: 'Brain', parentId: 'tc-2', childrenIds: [], icon: '', order: 1 },
+  { id: 'tc-2-2', name: '脊柱', nameEn: 'Spine', parentId: 'tc-2', childrenIds: [], icon: '', order: 2 },
+  { id: 'tc-3', name: 'DR/CR', nameEn: 'X-Ray', childrenIds: [], icon: '', order: 3 },
+  { id: 'tc-4', name: 'MG(乳腺)', nameEn: 'Mammography', childrenIds: [], icon: '', order: 4 },
+  { id: 'tc-5', name: 'US(超声)', nameEn: 'Ultrasound', childrenIds: [], icon: '', order: 5 },
 ];
 
 // ============================================================

@@ -112,7 +112,7 @@ const SEED_ANNOTATIONS: ReportAnnotation[] = [
     authorId: 'D001',
     authorName: '张海涛',
     content: '危急值报告需在 30 分钟内电话确认并留档。',
-    quote: '⚠ 危急值: 右侧基底节区急性脑梗死。',
+    quote: '危急值: 右侧基底节区急性脑梗死。',
     status: 'open',
     createdAt: iso(30),
     updatedAt: iso(30),

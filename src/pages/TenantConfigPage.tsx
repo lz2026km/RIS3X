@@ -1,16 +1,11 @@
 import { useAuth } from '../hooks/useAuth'
 import { tenantApi, type TenantProfile, type TenantUsage, type TenantFeatures } from '../services/api/tenantApi'
 import {
-  SafetyCertificateOutlined, ReloadOutlined, SettingOutlined, TeamOutlined,
-  DashboardOutlined, ThunderboltOutlined, PlusOutlined,
-  PoweroffOutlined, PlayCircleOutlined, AuditOutlined,
-} from '@ant-design/icons'
-import {
   Card, Table, Tag, Statistic, Row, Col, Button, Spin, Alert, Tabs, Descriptions, Space,
   Badge, Progress, Switch, Form, Input, InputNumber, Modal, message, Popconfirm, List,
 } from 'antd'
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, ShieldCheck, Settings, Users, LayoutDashboard, Zap, Plus, Power, PlayCircle, ClipboardList } from 'lucide-react'
 import { usePagination } from '../hooks/usePagination'
 import { t } from '../i18n/appI18n'
 
@@ -211,10 +206,10 @@ export default function TenantConfigPage() {
       title: t('tenantConfig.colActions'), key: 'action',
       render: (_: string, r: TenantProfile) => r.status === 'ACTIVE' ? (
         <Popconfirm title={`${r.name} ?`} onConfirm={() => void toggleTenantStatus(r)}>
-          <Button size="small" danger icon={<PoweroffOutlined />} loading={statusBusy === r.id}>{t('tenantConfig.disabled')}</Button>
+          <Button size="small" danger icon={<Power />} loading={statusBusy === r.id}>{t('tenantConfig.disabled')}</Button>
         </Popconfirm>
       ) : (
-        <Button size="small" type="primary" icon={<PlayCircleOutlined />} loading={statusBusy === r.id} onClick={() => void toggleTenantStatus(r)}>{t('tenantConfig.enabled')}</Button>
+        <Button size="small" type="primary" icon={<PlayCircle />} loading={statusBusy === r.id} onClick={() => void toggleTenantStatus(r)}>{t('tenantConfig.enabled')}</Button>
       ),
     },
   ]
@@ -223,10 +218,10 @@ export default function TenantConfigPage() {
     <div style={{ padding: 24 }}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
-          <h2 style={{ margin: 0 }}><SafetyCertificateOutlined /> {t('tenantConfig.pageTitle')}</h2>
+          <h2 style={{ margin: 0 }}><ShieldCheck /> {t('tenantConfig.pageTitle')}</h2>
           <Space>
-            <Button icon={<AuditOutlined />} loading={complianceLoading} onClick={() => void loadCompliance()}>{t('tenantConfig.complianceReport')}</Button>
-            <Button icon={<ReloadOutlined />} onClick={() => void fetchAll()} loading={loading}>{t('tenantConfig.refresh')}</Button>
+            <Button icon={<ClipboardList />} loading={complianceLoading} onClick={() => void loadCompliance()}>{t('tenantConfig.complianceReport')}</Button>
+            <Button icon={<RefreshCw />} onClick={() => void fetchAll()} loading={loading}>{t('tenantConfig.refresh')}</Button>
           </Space>
         </Row>
 
@@ -236,14 +231,14 @@ export default function TenantConfigPage() {
           <Tabs items={[
             {
               key: 'overview',
-              label: <span><SettingOutlined /> {t('tenantConfig.tabOverview')}</span>,
+              label: <span><Settings /> {t('tenantConfig.tabOverview')}</span>,
               children: (
                 <Row gutter={16}>
                   <Col span={14}>
                     <Card
                       title={t('tenantConfig.currentTenant')}
                       size="small"
-                      extra={<Button size="small" icon={<SettingOutlined />} onClick={openEdit}>{t('tenantConfig.edit')}</Button>}
+                      extra={<Button size="small" icon={<Settings />} onClick={openEdit}>{t('tenantConfig.edit')}</Button>}
                     >
                       {tenant ? (
                         <Descriptions column={2} size="small" bordered>
@@ -287,7 +282,7 @@ export default function TenantConfigPage() {
             },
             {
               key: 'usage',
-              label: <span><DashboardOutlined /> {t('tenantConfig.tabUsage')}</span>,
+              label: <span><LayoutDashboard /> {t('tenantConfig.tabUsage')}</span>,
               children: usage ? (
                 <Row gutter={16}>
                   <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statUsers')} value={usage.users} /></Card></Col>
@@ -308,7 +303,7 @@ export default function TenantConfigPage() {
             },
             {
               key: 'features',
-              label: <span><ThunderboltOutlined /> {t('tenantConfig.tabFeatures')} ({features ? Object.values(features).filter(Boolean).length : 0}/{FEATURE_DEFS.length})</span>,
+              label: <span><Zap /> {t('tenantConfig.tabFeatures')} ({features ? Object.values(features).filter(Boolean).length : 0}/{FEATURE_DEFS.length})</span>,
               children: (
                 <Row gutter={[16, 16]}>
                   {FEATURE_DEFS.map((f) => (
@@ -334,10 +329,10 @@ export default function TenantConfigPage() {
             },
             ...(isAdmin ? [{
               key: 'tenants',
-              label: <span><TeamOutlined /> {t('tenantConfig.tabTenants')}</span>,
+              label: <span><Users /> {t('tenantConfig.tabTenants')}</span>,
               children: (
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>{t('tenantConfig.newTenant')}</Button>
+                  <Button type="primary" icon={<Plus />} onClick={() => setCreating(true)}>{t('tenantConfig.newTenant')}</Button>
                   <Table rowKey="id" columns={columns} dataSource={pagedTenants} pagination={tenantsPagination} size="small" scroll={{ x: 'max-content' }}/>
                 </Space>
               ),

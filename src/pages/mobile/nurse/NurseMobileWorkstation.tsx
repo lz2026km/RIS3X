@@ -201,7 +201,7 @@ export default function NurseMobileWorkstation() {
 
       {usingMock && (
         <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
-          ⚠ {t('nurse.mockNotice')}
+          {t('nurse.mockNotice')}
         </div>
       )}
 
@@ -249,7 +249,7 @@ export default function NurseMobileWorkstation() {
                       <span>{item.modality}</span>
                     </div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.appointmentTime}</div>
-                    {item.notes && <div style={{ fontSize: 12, color: '#d97706', marginTop: 2 }}>⚠ {item.notes}</div>}
+                    {item.notes && <div style={{ fontSize: 12, color: '#d97706', marginTop: 2 }}>{item.notes}</div>}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: sc.bg, color: sc.color }}>{sc.label}</span>

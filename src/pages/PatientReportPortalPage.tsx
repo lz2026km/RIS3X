@@ -16,6 +16,7 @@ import {
 import ShareDialog from '../components/portal/ShareDialog';
 import QrShareButton from '../components/portal/QrShareButton';
 import { DataTable } from '../components/common/DataTable';
+import { StatusTag } from '../components/common/StatusTag';
 import type { ColumnsType } from 'antd/es/table';
 import { patientPortalApi } from '../services/api/patientPortalApi';
 import { shareApi } from '../services/api/shareApi';
@@ -196,9 +197,9 @@ export default function PatientReportPortalPage() {
       title: t('patientPortal.accessList'), key: 'counts', width: 130,
       render: (_: unknown, a) => (
         <div style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
-          <span>👁 {a.viewCount}</span>
-          <span>📥 {a.downloadCount}</span>
-          <span>↗ {a.shareCount}</span>
+          <span>{a.viewCount}</span>
+          <span>{a.downloadCount}</span>
+          <span>{a.shareCount}</span>
         </div>
       ),
     },
@@ -211,15 +212,15 @@ export default function PatientReportPortalPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Smartphone size={20} color="#0ea5e9" /> {t('patientPortal.pageTitle')}
-            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
             {accessSource === 'api' ? (
-              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1d4ed8', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
+              <StatusTag status="info" size="md" style={{ fontWeight: 700 }}>
                 {accessLoading ? t('patientPortal.loading') : `${t('patientPortal.apiPrefix')} · ${access.length} ${t('patientPortal.accessibleReports')}`}
-              </span>
+              </StatusTag>
             ) : (
-              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 10, fontWeight: 700, border: '1px solid #fde68a' }}>
+              <StatusTag status="warning" size="md" style={{ fontWeight: 700 }}>
                 {t('patientPortal.staticData')}
-              </span>
+              </StatusTag>
             )}
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
@@ -263,10 +264,10 @@ export default function PatientReportPortalPage() {
       {/* [G005 Wave1A P0] 患者端 mobile 摘要 (GET /patient-portal/mobile/{patients,doctors,nurses,techs}) */}
       {mobileSummary && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, padding: 10, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid #bae6fd' }}>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>👤 {t('patientPortal.patient')} <b style={{ marginLeft: 4 }}>{mobileSummary.patients}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>🩺 {t('patientPortal.doctor')} <b style={{ marginLeft: 4 }}>{mobileSummary.doctors}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>💉 {t('patientPortal.nurse')} <b style={{ marginLeft: 4 }}>{mobileSummary.nurses}</b></div>
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>⚙️ {t('patientPortal.technician')} <b style={{ marginLeft: 4 }}>{mobileSummary.techs}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.patient')} <b style={{ marginLeft: 4 }}>{mobileSummary.patients}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.doctor')} <b style={{ marginLeft: 4 }}>{mobileSummary.doctors}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.nurse')} <b style={{ marginLeft: 4 }}>{mobileSummary.nurses}</b></div>
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>{t('patientPortal.technician')} <b style={{ marginLeft: 4 }}>{mobileSummary.techs}</b></div>
         </div>
       )}
 
@@ -344,14 +345,14 @@ export default function PatientReportPortalPage() {
               </button>
 
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>📱 {t('patientPortal.deviceFingerprint')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.deviceFingerprint')}</div>
                 <div style={{ padding: 6, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                   {selectedAccess.deviceFingerprint}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>🌐 {t('patientPortal.ipHistory')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.ipHistory')}</div>
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   {selectedAccess.ipHistory.map((ip, i) => (
                     <span key={i} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', fontSize: 12, borderRadius: 10, fontFamily: 'monospace' }}>
@@ -453,10 +454,10 @@ export default function PatientReportPortalPage() {
             ) : (
               <>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
-                  {reportDetail.modality && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', borderRadius: 10 }}>{reportDetail.modality}</span>}
-                  {reportDetail.bodyPart && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', borderRadius: 10 }}>{reportDetail.bodyPart}</span>}
-                  {reportDetail.examDate && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--bg-card)', color: 'var(--text-secondary)', borderRadius: 10 }}>{String(reportDetail.examDate).slice(0, 10)}</span>}
-                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: reportDetail.isCritical ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: reportDetail.isCritical ? '#dc2626' : '#047857' }}>{reportDetail.isCritical ? t('patientPortal.critical') : `${t('patientPortal.stateLabel')}: ${reportDetail.state ?? '-'}`}</span>
+                  {reportDetail.modality && <StatusTag status="info">{reportDetail.modality}</StatusTag>}
+                  {reportDetail.bodyPart && <StatusTag status="info">{reportDetail.bodyPart}</StatusTag>}
+                  {reportDetail.examDate && <StatusTag status="neutral">{String(reportDetail.examDate).slice(0, 10)}</StatusTag>}
+                  <StatusTag status={reportDetail.isCritical ? 'critical' : 'success'}>{reportDetail.isCritical ? t('patientPortal.critical') : `${t('patientPortal.stateLabel')}: ${reportDetail.state ?? '-'}`}</StatusTag>
                 </div>
                 {reportDetail.findings && <DetailBlock label={t('patientPortal.detailFindings')} value={reportDetail.findings} />}
                 {reportDetail.impression && <DetailBlock label={t('patientPortal.detailImpression')} value={reportDetail.impression} />}
@@ -559,7 +560,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
         <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: '8px 12px', fontSize: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>9:41</span>
-            <span>📶 🔋</span>
+            <span></span>
           </div>
         </div>
 
@@ -575,19 +576,19 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                 </button>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 8, borderRadius: 6, marginBottom: 6 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>📋 {t('patientPortal.myReports')}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.myReports')}</div>
                 <div style={{ padding: 6, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12 }}>
                   <div>胸部 CT 平扫</div>
                   <div style={{ color: 'var(--text-secondary)', marginTop: 2 }}>2026-06-04 · 14:30</div>
                 </div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 8, borderRadius: 6 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>⚙️ {t('patientPortal.quickEntry')}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('patientPortal.quickEntry')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, fontSize: 12 }}>
-                  <div style={{ textAlign: 'center' }}>📥<br/>{t('patientPortal.download')}</div>
-                  <div style={{ textAlign: 'center' }}>↗<br/>{t('patientPortal.share')}</div>
-                  <div style={{ textAlign: 'center' }}>🖼️<br/>{t('patientPortal.image')}</div>
-                  <div style={{ textAlign: 'center' }}>👤<br/>{t('patientPortal.consult')}</div>
+                  <div style={{ textAlign: 'center' }}><br/>{t('patientPortal.download')}</div>
+                  <div style={{ textAlign: 'center' }}><br/>{t('patientPortal.share')}</div>
+                  <div style={{ textAlign: 'center' }}><br/>{t('patientPortal.image')}</div>
+                  <div style={{ textAlign: 'center' }}><br/>{t('patientPortal.consult')}</div>
                 </div>
               </div>
             </div>
@@ -598,7 +599,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 6, marginBottom: 6 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>胸部 CT 平扫</div>
                 <div style={{ padding: 6, background: 'var(--color-success-bg)', borderRadius: 4, fontSize: 12, color: '#047857', marginBottom: 6 }}>
-                  ✓ {t('patientPortal.reportApproved')}
+                  {t('patientPortal.reportApproved')}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   <div style={{ marginBottom: 4 }}>
@@ -613,13 +614,13 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
                   <button onClick={handleDownloadPdf} style={{ flex: 1, padding: '4px 8px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
-                    📥 PDF
+                    PDF
                   </button>
                   <button onClick={() => setTab('image')} style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
-                    🖼️ {t('patientPortal.image')}
+                    {t('patientPortal.image')}
                   </button>
                   <button onClick={() => void handleShare()} style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
-                    ↗ {t('patientPortal.share')}
+                    {t('patientPortal.share')}
                   </button>
                 </div>
               </div>
@@ -647,15 +648,15 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                 </div>
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700 }}>{access.patientName}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('patientPortal.realNameVerified')} ✓</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('patientPortal.realNameVerified')} </div>
                 </div>
               </div>
               {[
-                { icon: '🔒', label: t('patientPortal.accountSecurity') },
-                { icon: '📱', label: t('patientPortal.deviceManagement') },
-                { icon: '🌐', label: t('patientPortal.loginHistory') },
-                { icon: '⚙️', label: t('patientPortal.settings') },
-                { icon: 'ℹ️', label: t('patientPortal.about') },
+                { icon: '', label: t('patientPortal.accountSecurity') },
+                { icon: '', label: t('patientPortal.deviceManagement') },
+                { icon: '', label: t('patientPortal.loginHistory') },
+                { icon: '', label: t('patientPortal.settings') },
+                { icon: '', label: t('patientPortal.about') },
               ].map((m, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '8px 4px', borderBottom: '1px solid var(--border-light)', fontSize: 12 }}>
                   <span style={{ marginRight: 6 }}>{m.icon}</span>
@@ -670,10 +671,10 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
         {/* 底部 Tab */}
         <div style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', display: 'flex' }}>
           {([
-            { key: 'home',   icon: '🏠', label: t('patientPortal.tabHome') },
-            { key: 'report', icon: '📋', label: t('patientPortal.tabReport') },
-            { key: 'image',  icon: '🖼️', label: t('patientPortal.tabImage') },
-            { key: 'me',     icon: '👤', label: t('patientPortal.tabMe') },
+            { key: 'home',   icon: '', label: t('patientPortal.tabHome') },
+            { key: 'report', icon: '', label: t('patientPortal.tabReport') },
+            { key: 'image',  icon: '', label: t('patientPortal.tabImage') },
+            { key: 'me',     icon: '', label: t('patientPortal.tabMe') },
           ] as const).map(t => (
             <button
               key={t.key}

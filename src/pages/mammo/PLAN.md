@@ -2,8 +2,8 @@
 
 | # | Sub-module | Points | File | Status |
 |---|-----------|--------|------|--------|
-| 6.7 | Quality Management | 20 | `src/pages/mammo/QualityManagementPage.tsx` | ✅ |
-| 6.8 | Department Operations | 20 | `src/pages/mammo/DepartmentOperationsPage.tsx` | ✅ |
+| 6.7 | Quality Management | 20 | `src/pages/mammo/QualityManagementPage.tsx` | 完成 |
+| 6.8 | Department Operations | 20 | `src/pages/mammo/DepartmentOperationsPage.tsx` | 完成 |
 
 ### 6.7 Quality Management (20 pts)
 - 6 KPI stat cards (quality score, ACR compliance, recall rate, avg dose, rejection rate, technologist consistency)

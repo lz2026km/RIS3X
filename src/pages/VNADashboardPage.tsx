@@ -11,7 +11,6 @@ import {
   type VnaOverview, type VnaStorageTrendPoint, type VnaTierStat, type VnaVerification,
   type DuplicateAnalysis,
 } from '../services/api/vnaApi'
-import { UploadOutlined } from '@ant-design/icons'
 import {
   Alert, Button, Card, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, Modal, Popconfirm,
   Row, Select, Space, Statistic, Table, Tabs, Tag, Timeline, Typography, Upload, message,
@@ -29,6 +28,7 @@ import {
   Search,
   ShieldCheck,
   User,
+  Upload as UploadIcon,
   Database as DatabaseIcon,
   Layers as LayersIcon,
 } from 'lucide-react'
@@ -914,7 +914,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               maxCount={1}
               onRemove={() => setUploadFile(null)}
             >
-              <Button icon={<UploadOutlined />}>{t('vnaPage.selectFile')}</Button>
+              <Button icon={<UploadIcon />}>{t('vnaPage.selectFile')}</Button>
             </Upload>
           </Form.Item>
         </Form>

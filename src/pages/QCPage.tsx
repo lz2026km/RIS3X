@@ -1,4 +1,5 @@
 import { t } from '../i18n/appI18n'
+import { Switch } from 'antd'
 // NOTE: 未解决 - 此文件超过 2000 行（2933行），需要拆分为子组件
 // v3.0.4 重构目标：
 // 1. 提取页面头部 (title + breadcrumb + actions)
@@ -20,7 +21,7 @@ import {
 import {
   PieChart as RechartsPie, Pie, Cell, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, Line,
-  ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
   AreaChart, Area
 } from 'recharts'
 import { examApi, consultationApi, userApi } from '../services/api'
@@ -36,6 +37,9 @@ import {
 import { AppText } from '../components/common/AppText'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { PageHeader } from '../components/common/PageHeader'
+import { PageTemplate } from '../components/common/PageTemplate'
+import { StatusTag } from '../components/common/StatusTag'
+import { SeverityTag } from '../components/common/SeverityTag'
 // [v3.0.6.11-103 Wave 10] 重复页合并: QualityControlPage(评分/危急值/缺陷/月报) + RadiologyQCDashboardPage(放射质控总览) 嵌入为 QCPage 新 Tab
 import QualityControlPage from './QualityControlPage'
 import RadiologyQCDashboardPage from './qc/RadiologyQCDashboardPage'
@@ -828,7 +832,7 @@ export default function QCPage() {
   }
 
   return (
-    <div data-testid="qc-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageTemplate container={false} showHeader={false} testId="qc-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)', minHeight: '100vh' }}>
       {loading && <LoadingBanner message={t("qcPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
@@ -882,7 +886,7 @@ export default function QCPage() {
             border: '1px solid #86efac', borderRadius: 10, padding: '10px 16px',
             display: 'flex', alignItems: 'center', gap: 12,
           }}>
-            <div style={{ fontSize: 18 }}>🚀</div>
+            <div style={{ fontSize: 18 }}></div>
               <div style={{ flex: 1 }}>
               <AppText size="xs" weight={700} color="success" as="div">{t("qcPage.versionBadge")}</AppText>
               <AppText size="xs" color="success" as="div" style={{ marginTop: 2 }}>{t("qcPage.pageSubtitle2")}</AppText>
@@ -1016,7 +1020,7 @@ export default function QCPage() {
           </div>
 
           {/* 质控问题分布 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {/* 问题类型统计 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1163,9 +1167,9 @@ export default function QCPage() {
                     <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.standardization)}</td>
                     <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.timeliness)}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ padding: '2px 10px', background: STATUS_COLORS[r.status]?.bg, color: STATUS_COLORS[r.status]?.color, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_COLORS[r.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_COLORS[r.status]?.color ?? GRAY, dot: STATUS_COLORS[r.status]?.color ?? GRAY }}>
                         {r.status}
-                      </span>
+                      </StatusTag>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
@@ -1231,9 +1235,9 @@ export default function QCPage() {
                       </div>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ padding: '2px 10px', background: STATUS_COLORS[img.status]?.bg, color: STATUS_COLORS[img.status]?.color, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_COLORS[img.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_COLORS[img.status]?.color ?? GRAY, dot: STATUS_COLORS[img.status]?.color ?? GRAY }}>
                         {img.status}
-                      </span>
+                      </StatusTag>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.imageDetailTitle', { id: img.id }), content: t('w9b.qc.viewingImage', { id: img.id }) }) }} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
@@ -1249,8 +1253,8 @@ export default function QCPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <PieChart size={16} color={ACCENT} />{t('qcimage.rejectDistribution')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'center' }}>
-              <ResponsiveContainer width='100%' height={220}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, alignItems: 'center' }}>
+              <ChartContainer height={220}>
                 <RechartsPie>
                   <Pie data={dashboardData.issueDistribution} cx='50%' cy='50%' innerRadius={55} outerRadius={90} paddingAngle={3} dataKey='value' label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
                     {dashboardData.issueDistribution.map((entry, _idx) => (
@@ -1259,7 +1263,7 @@ export default function QCPage() {
                   </Pie>
                   <Tooltip formatter={(value) => `${value}例`} />
                 </RechartsPie>
-              </ResponsiveContainer>
+              </ChartContainer>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {dashboardData.issueDistribution.map(item => (
                   <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1335,9 +1339,9 @@ export default function QCPage() {
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{t.reason}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ padding: '2px 10px', background: t.severity === '严重' ? 'var(--color-error-bg)' : t.severity === '中等' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: severityColor, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                        <SeverityTag size="md" style={{ fontWeight: 700 }} tone={{ bg: t.severity === '严重' ? 'var(--color-error-bg)' : t.severity === '中等' ? 'var(--color-warning-bg)' : 'var(--bg-card)', border: 'transparent', color: severityColor, dot: severityColor }}>
                           {t.severity}
-                        </span>
+                        </SeverityTag>
                       </td>
                     </tr>
                   )
@@ -1347,7 +1351,7 @@ export default function QCPage() {
           </div>
 
           {/* Reason Analysis & Suggestions */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qc.timeoutAnalysis')}</h3>
@@ -1423,7 +1427,7 @@ export default function QCPage() {
           </div>
 
           {/* 抽检结果等级分布 + 缺陷统计 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {/* 抽检等级分布 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1438,7 +1442,7 @@ export default function QCPage() {
                   </div>
                 ))}
               </div>
-              <ResponsiveContainer width='100%' height={130}>
+              <ChartContainer height={130}>
                 <RechartsPie>
                   <Pie data={gradeDistributionData} cx='50%' cy='50%' innerRadius={40} outerRadius={65} paddingAngle={3} dataKey='count' label={({ grade, percent }) => `${grade}级 ${(percent * 100).toFixed(0)}%`}>
                     {gradeDistributionData.map(entry => (
@@ -1447,7 +1451,7 @@ export default function QCPage() {
                   </Pie>
                   <Tooltip formatter={(v) => `${v}份`} />
                 </RechartsPie>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
 
             {/* 抽检缺陷类型分布 */}
@@ -1534,9 +1538,9 @@ export default function QCPage() {
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)', maxWidth: 150 }}>{record.inspectorComment}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ padding: '2px 8px', background: record.status === '已通过' ? 'var(--color-success-bg)' : record.status === '需整改' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER, borderRadius: 8, fontSize: 12, fontWeight: 700 }}>
+                      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: record.status === '已通过' ? 'var(--color-success-bg)' : record.status === '需整改' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', border: 'transparent', color: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER, dot: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER }}>
                         {record.status}
-                      </span>
+                      </StatusTag>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <button onClick={() => { setDetailModal({ show: true, title: t('w9b.qc.sampleDetailTitle', { id: record.id }), content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.detail')}</button>
@@ -1548,7 +1552,7 @@ export default function QCPage() {
           </div>
 
           {/* 抽检问题汇总与改进建议 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qcdefect.issueSummary')}</h3>
@@ -1619,29 +1623,29 @@ export default function QCPage() {
           </div>
 
           {/* Charts Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {/* Pass Rate Ring */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t("qcPage.complianceExcellentRate2")}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                <ResponsiveContainer width='100%' height={180}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+                <ChartContainer height={180}>
                   <RechartsPie>
                     <Pie data={[{ name: t("qcPage.compliant"), value: dashboardData.passRate }, { name: t("qcPage.notCompliant"), value: 100 - dashboardData.passRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
                       <Cell fill={SUCCESS} /><Cell fill='var(--border-color)' />
                     </Pie>
                     <Tooltip formatter={(v) => `${v}%`} />
                   </RechartsPie>
-                </ResponsiveContainer>
-                <ResponsiveContainer width='100%' height={180}>
+                </ChartContainer>
+                <ChartContainer height={180}>
                   <RechartsPie>
                     <Pie data={[{ name: t("qcPage.excellentGood"), value: dashboardData.excellentRate }, { name: t("qcPage.notExcellentGood"), value: 100 - dashboardData.excellentRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
                       <Cell fill={'#f59e0b'} /><Cell fill='var(--border-color)' />
                     </Pie>
                     <Tooltip formatter={(v) => `${v}%`} />
                   </RechartsPie>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 12, marginTop: 8 }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: SUCCESS }}>{dashboardData.passRate}%</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{t('qc.passRate')}</div>
@@ -1656,7 +1660,7 @@ export default function QCPage() {
             {/* Issue Distribution */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.imageIssueDist')}</h3>
-              <ResponsiveContainer width='100%' height={200}>
+              <ChartContainer height={200}>
                 <BarChart data={dashboardData.issueDistribution} layout='vertical'>
                   <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                   <XAxis type='number' tick={{ fontSize: 12, color: GRAY }} />
@@ -1668,7 +1672,7 @@ export default function QCPage() {
                     ))}
                   </Bar>
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
 
@@ -1681,7 +1685,7 @@ export default function QCPage() {
                 <button onClick={() => setTrendRange('30d')} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${trendRange === '30d' ? ACCENT : BORDER}`, background: trendRange === '30d' ? ACCENT : 'var(--bg-card)', color: trendRange === '30d' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.thirtyDays')}</button>
               </div>
             </div>
-            <ResponsiveContainer width='100%' height={240}>
+            <ChartContainer height={240}>
               <AreaChart data={trendData}>
                 <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                 <XAxis dataKey='date' tick={{ fontSize: 12, color: GRAY }} />
@@ -1690,11 +1694,11 @@ export default function QCPage() {
                 <Area type='monotone' dataKey='score' stroke={ACCENT} fill='#3b82f622' strokeWidth={2} name='score' />
                 <Line type='monotone' dataKey='count' stroke={SUCCESS} strokeWidth={1.5} dot={false} name='count' />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
           {/* Weak Links & Target Comparison */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qc.weakLinks')}</h3>
@@ -1787,7 +1791,7 @@ export default function QCPage() {
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <TrendingUp size={16} color={ACCENT} />{t('qc.regionalTrend')}</h3>
-                <ResponsiveContainer width='100%' height={260}>
+                <ChartContainer height={260}>
                   <AreaChart data={regionalOverallScores}>
                     <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                     <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
@@ -1802,7 +1806,7 @@ export default function QCPage() {
                     <Line type='monotone' dataKey='excellentRate' stroke={SUCCESS} strokeWidth={1.5} dot={false} name='excellentRate' />
                     <Line type='monotone' dataKey='passRate' stroke={WARNING} strokeWidth={1.5} dot={false} name='passRate' />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div style={{ display: 'flex', gap: 20, justifyContent: 'center', marginTop: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 12, height: 3, background: ACCENT, borderRadius: 2 }} />
@@ -1870,9 +1874,9 @@ export default function QCPage() {
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <AlertTriangle size={16} color={WARNING} />{t('qc.unqualifiedAnalysis')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
                   <div>
-                    <ResponsiveContainer width='100%' height={200}>
+                    <ChartContainer height={200}>
                       <BarChart data={unqualifiedReasonData} layout='vertical'>
                         <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                         <XAxis type='number' tick={{ fontSize: 12, color: GRAY }} />
@@ -1880,7 +1884,7 @@ export default function QCPage() {
                         <Tooltip formatter={(v) => [`${v}例`, t("qcPage.quantity")]} />
                         <Bar dataKey='count' fill={WARNING} radius={[0, 4, 4, 0]} />
                       </BarChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {unqualifiedReasonData.map(item => (
@@ -1965,8 +1969,8 @@ export default function QCPage() {
               {/* 雷达图对比 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.top3Comparison')}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-                  <ResponsiveContainer width='100%' height={280}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                  <ChartContainer height={280}>
                     <RadarChart data={[
                       { subject: t("qcPage.imageQuality"), top1: 93, top2: 91, top3: 89 },
                       { subject: t("qcPage.reportQuality"), top1: 90, top2: 88, top3: 88 },
@@ -1980,7 +1984,7 @@ export default function QCPage() {
                       <Radar name={t('qcPage.hospitalCity3')} dataKey='top3' stroke={PIE_COLORS[2]} fill={PIE_COLORS[2]} fillOpacity={0.2} />
                       <Legend />
                     </RadarChart>
-                  </ResponsiveContainer>
+                  </ChartContainer>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {[
                       { name: t("qcPage.hospitalCity1"), score: 91.2, color: PIE_COLORS[0], rank: 1 },
@@ -2175,7 +2179,7 @@ export default function QCPage() {
                         </div>
                       ))}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
                       <div>
                         <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.excellentReportsLabel")} {reportSummaryData.monthly.excellentCount.toLocaleString()}</h4>
                         <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
@@ -2196,8 +2200,8 @@ export default function QCPage() {
                   {/* 问题分布 */}
                   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px' }}>{t('qc.monthlyIssues')}</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-                      <ResponsiveContainer width='100%' height={180}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                      <ChartContainer height={180}>
                         <PieChart>
                           <Pie data={reportSummaryData.monthly.issues} cx='50%' cy='50%' innerRadius={45} outerRadius={75} paddingAngle={3} dataKey='count' label={({ type, percent }) => `${type} ${(percent * 100).toFixed(0)}%`}>
                             {reportSummaryData.monthly.issues.map((entry, idx) => (
@@ -2206,7 +2210,7 @@ export default function QCPage() {
                           </Pie>
                           <Tooltip formatter={(v) => `${v}例`} />
                         </PieChart>
-                      </ResponsiveContainer>
+                      </ChartContainer>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {reportSummaryData.monthly.issues.map((item, idx) => (
                           <div key={item.type} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2330,16 +2334,16 @@ export default function QCPage() {
                     { title: t("qcPage.institution2"), dataIndex: 'institution', key: 'institution', render: (v: string) => <span style={{ fontWeight: 600, color: PRIMARY, fontSize: 12 }}>{v}</span> },
                     {
                       title: t("qcPage.issueType"), dataIndex: 'issueType', key: 'issueType',
-                      render: (v: string) => <span style={{ padding: '2px 8px', background: v.includes(t("qcPage.criticalValue")) ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: v.includes(t("qcPage.criticalValue")) ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                      render: (v: string) => <StatusTag status={v.includes(t("qcPage.criticalValue")) ? 'critical' : 'warning'}>{v}</StatusTag>,
                     },
                     { title: t("qcPage.issueDescription"), dataIndex: 'description', key: 'description', ellipsis: true, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
                     {
                       title: t("qcPage.severity"), dataIndex: 'severity', key: 'severity', width: 90,
-                      render: (v: string) => <span style={{ padding: '2px 8px', background: v === '高' ? 'var(--color-error-bg)' : v === '中' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: v === '高' ? DANGER : v === '中' ? WARNING : GRAY, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                      render: (v: string) => <SeverityTag level={v === '高' ? 'high' : v === '中' ? 'warning' : 'neutral'}>{v}</SeverityTag>,
                     },
                     {
                       title: t("qcPage.status"), dataIndex: 'status', key: 'status', width: 90,
-                      render: (v: string) => <span style={{ padding: '2px 8px', background: v === '已整改' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: v === '已整改' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                      render: (v: string) => <StatusTag status={v === '已整改' ? 'success' : 'warning'}>{v}</StatusTag>,
                     },
                     { title: t("qcPage.reportedAt"), dataIndex: 'reportedDate', key: 'reportedDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
                     { title: t("qcPage.correctionDeadline"), dataIndex: 'dueDate', key: 'dueDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
@@ -2420,7 +2424,7 @@ export default function QCPage() {
                       <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{a.reviewer}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>{a.blindedId}</span></td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: a.status === '待评分' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', color: a.status === '待评分' ? WARNING : SUCCESS }}>{a.status}</span>
+                        <StatusTag size="md" style={{ fontWeight: 700 }} status={a.status === '待评分' ? 'warning' : 'success'}>{a.status}</StatusTag>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <button onClick={() => handlePeerReviewScore(a)} style={{ padding: '4px 10px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.score')}</button>
@@ -2454,7 +2458,7 @@ export default function QCPage() {
           {peerReviewTab === 'reliability' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.kappa')}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
                 <div style={{ background: LIGHT_BG, borderRadius: 10, padding: 20, textAlign: 'center' }}>
                   <div style={{ fontSize: 48, fontWeight: 800, color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>{kappaData.kappaValue.toFixed(2)}</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginTop: 8 }}>Cohen's Kappa</div>
@@ -2534,7 +2538,7 @@ export default function QCPage() {
                         <div style={{ fontSize: 12, color: GRAY }}>{rule.description}</div>
                       </div>
                       <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: `${catColor}15`, color: catColor }}>{rule.category === 'structure' ? t("qcPage.structure") : rule.category === 'content' ? t("qcPage.content") : rule.category === 'terminology' ? t("qcPage.terminology") : t("qcPage.compliance")}</span>
-                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: rule.passed ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: rule.passed ? SUCCESS : DANGER }}>{rule.passed ? t("qcPage.pass2") : t("qcPage.notPassed")}</span>
+                      <StatusTag size="md" style={{ fontWeight: 700 }} status={rule.passed ? 'success' : 'critical'}>{rule.passed ? t("qcPage.pass2") : t("qcPage.notPassed")}</StatusTag>
                     </div>
                   )
                 })}
@@ -2544,7 +2548,7 @@ export default function QCPage() {
           {ruleCheckerTab === 'results' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.scoreDashboard')}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, alignItems: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="200" height="120" viewBox="0 0 200 120">
@@ -2619,7 +2623,7 @@ export default function QCPage() {
             <>
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.concordanceTrend')}</h3>
-                <ResponsiveContainer width='100%' height={240}>
+                <ChartContainer height={240}>
                   <AreaChart data={radPathTrend}>
                     <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                     <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
@@ -2627,7 +2631,7 @@ export default function QCPage() {
                     <Tooltip formatter={(v) => [`${v}%`, t("qcPage.agreementRate")]} />
                     <Area type='monotone' dataKey='rate' stroke={SUCCESS} fill='var(--color-success-bg)' strokeWidth={2} />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                 <thead>
@@ -2645,9 +2649,9 @@ export default function QCPage() {
                       <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{d.radDiagnosis}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{d.pathResult}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: SUCCESS }}>
+                        <StatusTag size="md" style={{ fontWeight: 700 }} status={d.concordance === 'concordant' ? 'success' : d.concordance === 'discordant' ? 'critical' : 'neutral'}>
                           {d.concordance === 'concordant' ? t("qcPage.consistent") : d.concordance === 'discordant' ? t("qcPage.inconsistent") : t("qcPage.pending")}
-                        </span>
+                        </StatusTag>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{d.date}</td>
                     </tr>
@@ -2671,7 +2675,7 @@ export default function QCPage() {
                         <span style={{ fontWeight: 700, color: PRIMARY }}>{d.patientName} ({d.id})</span>
                         <span style={{ fontSize: 12, color: GRAY }}>{d.date}</span>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 12 }}>
                         <div style={{ background: 'var(--color-info-bg)', borderRadius: 6, padding: '8px 10px' }}>
                           <div style={{ fontSize: 12, color: ACCENT, fontWeight: 600, marginBottom: 2 }}>{t('qc.radDiagnosis')}</div>
                           <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{d.radDiagnosis}</div>
@@ -2743,7 +2747,7 @@ export default function QCPage() {
                         <span style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>{mod.modality}</span>
                         <span style={{ fontSize: 12, color: GRAY }}>{mod.completed}/{mod.total} {t("qcPage.itemsCompliant")}</span>
                       </div>
-                      <span style={{ padding: '3px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: statusBg, color: statusColor }}>{mod.status}</span>
+                      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: statusBg, border: 'transparent', color: statusColor, dot: statusColor }}>{mod.status}</StatusTag>
                     </div>
                     <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4, marginBottom: 12 }}>
                       <div style={{ width: `${(mod.completed / mod.total) * 100}%`, height: '100%', background: statusColor, borderRadius: 4 }} />
@@ -2806,10 +2810,10 @@ export default function QCPage() {
                         <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: PRIMARY }}>{f.inspector}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{f.findings}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: f.severity === '高' ? 'var(--color-error-bg)' : f.severity === '中' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: f.severity === '高' ? DANGER : f.severity === '中' ? WARNING : GRAY }}>{f.severity}</span>
+                          <SeverityTag style={{ fontWeight: 700 }} level={f.severity === '高' ? 'high' : f.severity === '中' ? 'warning' : 'neutral'}>{f.severity}</SeverityTag>
                         </td>
                         <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: f.status === '已整改' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: f.status === '已整改' ? SUCCESS : WARNING }}>{f.status}</span>
+                          <StatusTag size="md" style={{ fontWeight: 700 }} status={f.status === '已整改' ? 'success' : 'warning'}>{f.status}</StatusTag>
                         </td>
                       </tr>
                     ))}
@@ -2857,7 +2861,7 @@ export default function QCPage() {
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <TrendingUp size={16} color={ACCENT} />{t('qc.spcChart')}</h3>
-                <ResponsiveContainer width='100%' height={280}>
+                <ChartContainer height={280}>
                   <AreaChart data={monthlyQualityData}>
                     <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                     <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
@@ -2871,7 +2875,7 @@ export default function QCPage() {
                       <Line key={i} dataKey='deptAvg' data={[d]} stroke={DANGER} strokeWidth={0} dot={{ r: 6, fill: DANGER, stroke: WHITE, strokeWidth: 2 }} />
                     ))}
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               {controlAlerts.length > 0 && (
                 <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
@@ -2890,7 +2894,7 @@ export default function QCPage() {
           {trendAnalysisTab === 'individual' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.doctorTrendComparison')}</h3>
-              <ResponsiveContainer width='100%' height={280}>
+              <ChartContainer height={280}>
                 <AreaChart data={monthlyQualityData}>
                   <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                   <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
@@ -2902,7 +2906,7 @@ export default function QCPage() {
                   <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={false} name={t('qcPage.hospitalAvgScore')} />
                   <Line type='monotone' dataKey='indivAvg' stroke={SUCCESS} strokeWidth={2} dot={{ r: 4, fill: SUCCESS }} name={t('qcPage.individualAvgScore')} />
                 </AreaChart>
-              </ResponsiveContainer>
+              </ChartContainer>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
                 {indivDoctorTrendData.map((doc, idx) => (
                   <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: idx % 2 === 0 ? 'var(--color-info-bg)' : 'var(--color-success-bg)', borderRadius: 8 }}>
@@ -2926,7 +2930,7 @@ export default function QCPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={16} color={ACCENT} />{t('qc.reviewTimeoutSettings')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.reportTimeoutLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2978,7 +2982,7 @@ export default function QCPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Image size={16} color={ACCENT} />{t('qc.imageScoreStandard')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.excellentStandard')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3037,9 +3041,7 @@ export default function QCPage() {
                     <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{rule.label}</div>
                     <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>{rule.desc}</div>
                   </div>
-                  <div style={{ width: 44, height: 24, borderRadius: 12, background: rule.enabled ? SUCCESS : BORDER, position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, left: rule.enabled ? 22 : 2, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-                  </div>
+                  <Switch size="small" checked={rule.enabled} aria-label={rule.label} />
                 </div>
               ))}
             </div>
@@ -3242,6 +3244,6 @@ export default function QCPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageTemplate>
   )
 }

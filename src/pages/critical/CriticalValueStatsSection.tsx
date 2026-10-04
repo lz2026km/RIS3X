@@ -7,33 +7,32 @@ import type { CriticalValue } from './types'
 import { toStoreStatus, PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import { criticalStatsApi, type MissedReportStats, type NotificationCompletionStats } from '../../services/api/criticalStatsApi'
 import { criticalApi, type CriticalStatsDto } from '../../services/api/criticalApi'
+import { StatCard as CommonStatCard } from '../../components/common/StatCard'
 import { t } from '../../i18n/appI18n'
 
 interface ChartData {
   label: string; value: number; color: string
 }
 
+// [UI-4] 收敛至公共 StatCard (保留数值/后缀/趋势)
 const StatCard = ({ label, value, icon: Icon, color, bgColor, trend, suffix }: {
   label: string; value: number | string; icon: React.ComponentType<any>; color: string; bgColor: string; trend?: string; suffix?: string
 }) => (
-  <div
-    style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 16, transition: 'box-shadow 0.2s', cursor: 'pointer' }}
-    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)')}
-    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)')}
-  >
-    <div style={{ width: 48, height: 48, borderRadius: 12, background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Icon size={24} style={{ color }} />
-    </div>
-    <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 28, fontWeight: 700, color: '#1e40af', lineHeight: 1 }}>{value}{suffix || ''}</div>
-      <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{label}</div>
-    </div>
-    {trend && (
-      <div style={{ fontSize: 12, color: trend.startsWith('+') ? '#059669' : '#dc2626', background: trend.startsWith('+') ? 'var(--color-success-bg)' : 'var(--color-error-bg)', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
-        {trend}
-      </div>
-    )}
-  </div>
+  <CommonStatCard
+    title={label}
+    value={value}
+    suffix={suffix}
+    icon={<Icon size={24} style={{ color }} />}
+    color={color}
+    iconBg={bgColor}
+    sub={
+      trend ? (
+        <span style={{ fontSize: 12, color: trend.startsWith('+') ? '#059669' : '#dc2626', background: trend.startsWith('+') ? 'var(--color-success-bg)' : 'var(--color-error-bg)', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
+          {trend}
+        </span>
+      ) : undefined
+    }
+  />
 )
 
 const StatisticsCharts = ({ data, missedStats, notificationStats }: {
@@ -145,7 +144,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
             <svg viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
               {modalityData.reduce((acc, d) => {
                 const pct = d.value / totalModality; const dashArray = pct * 377
-                acc.elements.push(<circle key={d.label} cx="60" cy="60" r="50" fill="none" stroke={d.color} strokeWidth="20" strokeDasharray={`${dashArray} ${377 - dashArray}`} strokeDashoffset={-acc.offset} />)
+                acc.elements.push(<circle key={d.label} cx="60" cy="60" r="50" fill="none" stroke={d.color} strokeWidth="14" strokeDasharray={`${dashArray} ${377 - dashArray}`} strokeDashoffset={-acc.offset} />)
                 acc.offset += dashArray; return acc
               }, { elements: [] as React.ReactNode[], offset: 0 }).elements}
             </svg>

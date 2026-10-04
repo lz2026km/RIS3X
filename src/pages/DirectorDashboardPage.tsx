@@ -9,7 +9,7 @@ import {
 } from '../data/_generators';
 // [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
 import { KpiCard, KpiCardGrid, DashboardCard, TrendChart, ProgressRing, SkeletonKpi } from '../components/dashboard';
-import { Wrench, Trophy, Coins, Gauge, FileText, AlertOctagon, CheckCircle2, DollarSign, Scan, Activity, LineChart as LineChartIcon } from 'lucide-react';
+import { Wrench, Trophy, Coins, Gauge, FileText, AlertOctagon, CheckCircle2, DollarSign, Scan, Activity, RefreshCw, Medal, LineChart as LineChartIcon } from 'lucide-react';
 import { t } from '../i18n/appI18n';
 
 // ============================================================
@@ -524,9 +524,9 @@ const DirectorDashboardPage: React.FC = () => {
 
   // 排名奖励
   const getRankBadge = (rank: number) => {
-    if (rank === 1) return { emoji: '🥇', text: t('directorDash.gold'), bg: '#f59e0b22', color: '#92400e' };
-    if (rank === 2) return { emoji: '🥈', text: t('directorDash.silver'), bg: 'var(--bg-deep)', color: 'var(--text-secondary)' };
-    if (rank === 3) return { emoji: '🥉', text: t('directorDash.bronze'), bg: '#f9731622', color: '#9a3412' };
+    if (rank === 1) return { icon: <Trophy size={14} />, text: t('directorDash.gold'), bg: '#f59e0b22', color: '#92400e' };
+    if (rank === 2) return { icon: <Medal size={14} />, text: t('directorDash.silver'), bg: 'var(--bg-deep)', color: 'var(--text-secondary)' };
+    if (rank === 3) return { icon: <Medal size={14} />, text: t('directorDash.bronze'), bg: '#f9731622', color: '#9a3412' };
     return null;
   };
 
@@ -556,9 +556,7 @@ const DirectorDashboardPage: React.FC = () => {
                 <tr key={doc.id}>
                   <td style={styles.td}>
                     {rank ? (
-                      <span style={styles.badge(rank.bg)}>
-                        <span>{rank.emoji}</span>
-                      </span>
+                      <span style={styles.badge(rank.bg)}>{rank.icon}</span>
                     ) : (
                       <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
                     )}
@@ -612,7 +610,7 @@ const DirectorDashboardPage: React.FC = () => {
                 <tr key={tech.id}>
                   <td style={styles.td}>
                     {rank ? (
-                      <span style={styles.badge(rank.bg)}>{rank.emoji}</span>
+                      <span style={styles.badge(rank.bg)}>{rank.icon}</span>
                     ) : (
                       <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
                     )}
@@ -794,7 +792,7 @@ const DirectorDashboardPage: React.FC = () => {
                   <tr key={doc.id}>
                     <td style={styles.td}>
                       {rank ? (
-                        <span style={styles.badge(rank.bg)}>{rank.emoji}</span>
+                        <span style={styles.badge(rank.bg)}>{rank.icon}</span>
                       ) : (
                         <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
                       )}
@@ -992,9 +990,9 @@ const DirectorDashboardPage: React.FC = () => {
             )}
             <button
               onClick={() => void load()}
-              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
-              🔄 {t('directorDash.refresh')}
+              <RefreshCw size={14} /> {t('directorDash.refresh')}
             </button>
           </div>
         </div>
@@ -1038,25 +1036,25 @@ const DirectorDashboardPage: React.FC = () => {
             style={styles.tabButton(activeTab === 'workload')}
             onClick={() => setActiveTab('workload')}
           >
-            📊 {t('directorDash.tabWorkload')}
+            <LineChartIcon size={14} /> {t('directorDash.tabWorkload')}
           </button>
           <button
             style={styles.tabButton(activeTab === 'equipment')}
             onClick={() => setActiveTab('equipment')}
           >
-            🔧 {t('directorDash.tabEquipment')}
+            <Wrench size={14} /> {t('directorDash.tabEquipment')}
           </button>
           <button
             style={styles.tabButton(activeTab === 'quality')}
             onClick={() => setActiveTab('quality')}
           >
-            🏆 {t('directorDash.tabQuality')}
+            <Trophy size={14} /> {t('directorDash.tabQuality')}
           </button>
           <button
             style={styles.tabButton(activeTab === 'revenue')}
             onClick={() => setActiveTab('revenue')}
           >
-            💰 {t('directorDash.tabRevenue')}
+            <Coins size={14} /> {t('directorDash.tabRevenue')}
           </button>
         </div>
         <div style={styles.tabContent}>

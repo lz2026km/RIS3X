@@ -3,7 +3,6 @@
  * Phase T2-W4: ProTable / Statistic / Descriptions / Tabs / Collapse
  */
 
-import { SearchOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useDebounce } from '@utils/performance';
 import {
   Table,
@@ -21,8 +20,9 @@ import {
 import type { ColumnType } from 'antd/es/table';
 import { useState, useMemo, type ReactNode, type ComponentType, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Inbox } from 'lucide-react'
+import { Inbox, Search, RefreshCw, Download } from 'lucide-react'
 import { useTableColumnConfig } from './useTableColumnConfig';
+import '../../styles/data-table.css';
 
 // antd Statistic 类型未声明 children, 但运行时支持 (趋势区); 放宽类型以保留原渲染
 const StatisticWithChildren = AntStatistic as unknown as ComponentType<
@@ -170,7 +170,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
   }, [pageSize, paginationProp, t]);
 
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)' }}>
+    <div className="data-table pro-table" style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)' }}>
       {showToolbar && (
         <div
           style={{
@@ -183,7 +183,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
           }}
         >
           <Input
-            prefix={<SearchOutlined />}
+            prefix={<Search />}
             placeholder={searchPlaceholder ?? t('common.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -210,7 +210,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
               }}
               aria-label={t('common.refresh')}
             >
-              <ReloadOutlined /> {t('common.refresh')}
+              <RefreshCw /> {t('common.refresh')}
             </button>
           )}
           {onExport && filteredData.length > 0 && (
@@ -229,7 +229,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
               }}
               aria-label={t('common.export')}
             >
-              <DownloadOutlined /> {t('common.export')}
+              <Download /> {t('common.export')}
             </button>
           )}
         </div>

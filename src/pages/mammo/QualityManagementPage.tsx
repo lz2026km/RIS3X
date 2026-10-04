@@ -6,6 +6,8 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Shield, CheckCircle, XCircle, Download, RefreshCw, Target, BarChart3, Activity, Users, FileText, ClipboardList, BookOpen, PieChart, AlertTriangle, Scale } from 'lucide-react'
 import { mammoQcApi, type MammoQcOverview, type MammoQcRecord, type MammoQcTest, type MammoQcStandard, type MammoQcStats, type BreastQcRule, type BreastQcImageInput, type BreastQcEvaluateResult } from '../../services/api/mammoQcApi'
 import { Card, Tabs, message } from 'antd'
+import type { TableColumnsType } from 'antd'
+import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCR-07 BI-RADS 分类率
 import { RqiIndicatorLink } from '../../components/qc/RqiIndicatorLink'
@@ -166,6 +168,41 @@ const QualityManagementPage = () => {
     return records.filter(r => r.patient.toLowerCase().includes(q) || r.technologist.toLowerCase().includes(q))
   }, [records, search])
 
+  // [UI-4] 迁移原始 <table> → DataTable (统一列头/密度/分页/空态)
+  const recordColumns = useMemo<TableColumnsType<MammoQcRecord>>(() => [
+    { title: t('mammoQc.colDate'), dataIndex: 'date', key: 'date' },
+    { title: t('mammoQc.colPatient'), dataIndex: 'patient', key: 'patient' },
+    { title: t('mammoQc.colDevice'), dataIndex: 'modality', key: 'modality' },
+    { title: t('mammoQc.colScore'), dataIndex: 'score', key: 'score', align: 'right', render: (v: number) => <span style={{ fontWeight: 700, color: v >= 80 ? '#16a34a' : v >= 60 ? '#ca8a04' : '#dc2626' }}>{v}</span> },
+    { title: t('mammoQc.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <StatusBadge status={v} /> },
+    { title: t('mammoQc.colTechnologist'), dataIndex: 'technologist', key: 'technologist' },
+    { title: t('mammoQc.colIssue'), dataIndex: 'issue', key: 'issue', render: (v: string) => v || '-' },
+  ], [])
+
+  const testColumns = useMemo<TableColumnsType<MammoQcTest>>(() => [
+    { title: t('mammoQc.colTestItem'), dataIndex: 'name', key: 'name' },
+    { title: t('mammoQc.colCategory'), dataIndex: 'category', key: 'category' },
+    { title: t('mammoQc.colFrequency'), dataIndex: 'frequency', key: 'frequency' },
+    { title: t('mammoQc.colTarget'), dataIndex: 'target', key: 'target' },
+    { title: t('mammoQc.colLastResult'), dataIndex: 'lastResult', key: 'lastResult', align: 'right', render: (v: number) => <span style={{ fontWeight: 700 }}>{v}</span> },
+    { title: t('mammoQc.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <StatusBadge status={v} /> },
+    { title: t('mammoQc.colNextDue'), dataIndex: 'nextDue', key: 'nextDue' },
+  ], [])
+
+  const standardColumns = useMemo<TableColumnsType<MammoQcStandard>>(() => [
+    { title: t('mammoQc.colStandard'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('mammoQc.colRequirement'), dataIndex: 'requirement', key: 'requirement' },
+    { title: t('mammoQc.colSource'), dataIndex: 'source', key: 'source' },
+    { title: t('mammoQc.colScope'), dataIndex: 'scope', key: 'scope' },
+  ], [])
+
+  const ruleColumns = useMemo<TableColumnsType<BreastQcRule>>(() => [
+    { title: t('mammoQc.colRule'), key: 'rule', render: (_v, r) => <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{r.id} {r.name}</span> },
+    { title: t('mammoQc.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 10, background: v === '剂量' ? '#fef3c7' : v === '投照质量' ? '#dbeafe' : '#dcfce7', color: v === '剂量' ? '#b45309' : v === '投照质量' ? '#1d4ed8' : '#15803d', fontSize: 11, fontWeight: 600 }}>{v}</span> },
+    { title: t('mammoQc.colLevel'), dataIndex: 'level', key: 'level', render: (v: string) => v === 'required' ? <span style={{ color: '#dc2626', fontWeight: 600 }}>{t('mammoQc.required')}</span> : <span style={{ color: '#64748b' }}>{t('mammoQc.suggested')}</span> },
+    { title: t('mammoQc.colRequirement'), dataIndex: 'description', key: 'description' },
+  ], [])
+
   return (
     <div style={s.root}>
       <div style={s.header}>
@@ -228,29 +265,15 @@ const QualityManagementPage = () => {
           <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none' }} placeholder={t('mammoQc.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
           <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> {t('mammoQc.refresh')}</button>
         </div>
-        <div style={s.scrollBox}>
-          <table style={s.table}>
-            <thead><tr>
-              <th style={s.th}>{t('mammoQc.colDate')}</th><th style={s.th}>{t('mammoQc.colPatient')}</th><th style={s.th}>{t('mammoQc.colDevice')}</th>
-              <th style={s.th}>{t('mammoQc.colScore')}</th><th style={s.th}>{t('mammoQc.colStatus')}</th><th style={s.th}>{t('mammoQc.colTechnologist')}</th><th style={s.th}>{t('mammoQc.colIssue')}</th>
-            </tr></thead>
-            <tbody>
-              {loading && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.loading')}</td></tr>}
-              {!loading && filtered.slice(0, 12).map(r => (
-                <tr key={r.id}>
-                  <td style={s.td}>{r.date}</td>
-                  <td style={s.td}>{r.patient}</td>
-                  <td style={s.td}>{r.modality}</td>
-                  <td style={s.td}><span style={{ fontWeight: 700, color: r.score >= 80 ? '#16a34a' : r.score >= 60 ? '#ca8a04' : '#dc2626' }}>{r.score}</span></td>
-                  <td style={s.td}><StatusBadge status={r.status} /></td>
-                  <td style={s.td}>{r.technologist}</td>
-                  <td style={{ ...s.td, color: 'var(--text-secondary)' }}>{r.issue || '-'}</td>
-                </tr>
-              ))}
-              {!loading && filtered.length === 0 && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.noMatch')}</td></tr>}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<MammoQcRecord>
+          rowKey="id"
+          columns={recordColumns}
+          dataSource={filtered}
+          loading={loading}
+          emptyText={t('mammoQc.noMatch')}
+          pageSize={12}
+          scroll={{ x: 'max-content' }}
+        />
       </Card>
 
       {/* [G-21 Wave3C] 乳腺质控评估: 影像质量参数表单 → 规则命中评估 */}
@@ -316,25 +339,15 @@ const QualityManagementPage = () => {
       {/* [G-21 Wave3C] 乳腺质控规则库 (15 条 seed) */}
       <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
         <div style={s.sectionTitle}><BookOpen size={16} color='#0d9488' />{t('mammoQc.ruleLibrary')} ({breastRules.length})</div>
-        <div style={s.scrollBox}>
-          <table style={s.table}>
-            <thead><tr>
-              <th style={s.th}>{t('mammoQc.colRule')}</th><th style={s.th}>{t('mammoQc.colCategory')}</th><th style={s.th}>{t('mammoQc.colLevel')}</th><th style={s.th}>{t('mammoQc.colRequirement')}</th>
-            </tr></thead>
-            <tbody>
-              {ruleLoading && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.loading')}</td></tr>}
-              {!ruleLoading && breastRules.map(r => (
-                <tr key={r.id}>
-                  <td style={{ ...s.td, fontWeight: 600, whiteSpace: 'nowrap' }}>{r.id} {r.name}</td>
-                  <td style={s.td}><span style={{ padding: '2px 8px', borderRadius: 10, background: r.category === '剂量' ? '#fef3c7' : r.category === '投照质量' ? '#dbeafe' : '#dcfce7', color: r.category === '剂量' ? '#b45309' : r.category === '投照质量' ? '#1d4ed8' : '#15803d', fontSize: 11, fontWeight: 600 }}>{r.category}</span></td>
-                  <td style={s.td}>{r.level === 'required' ? <span style={{ color: '#dc2626', fontWeight: 600 }}>{t('mammoQc.required')}</span> : <span style={{ color: '#64748b' }}>{t('mammoQc.suggested')}</span>}</td>
-                  <td style={{ ...s.td, color: 'var(--text-secondary)' }}>{r.description}</td>
-                </tr>
-              ))}
-              {!ruleLoading && breastRules.length === 0 && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.noRules')}</td></tr>}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<BreastQcRule>
+          rowKey="id"
+          columns={ruleColumns}
+          dataSource={breastRules}
+          loading={ruleLoading}
+          emptyText={t('mammoQc.noRules')}
+          pageSize={15}
+          scroll={{ x: 'max-content' }}
+        />
       </Card>
 
       {/* [G005 Wave1A W9] 测试计划 / 标准 / 统计 (后端 GET /mammo-qc/tests|standards|stats) */}
@@ -347,54 +360,28 @@ const QualityManagementPage = () => {
               key: 'tests',
               label: <span><ClipboardList size={12} /> {t('mammoQc.testPlan')} ({tests.length})</span>,
               children: (
-                <div style={s.scrollBox}>
-                  <table style={s.table}>
-                    <thead><tr>
-                      <th style={s.th}>{t('mammoQc.colTestItem')}</th><th style={s.th}>{t('mammoQc.colCategory')}</th><th style={s.th}>{t('mammoQc.colFrequency')}</th>
-                      <th style={s.th}>{t('mammoQc.colTarget')}</th><th style={s.th}>{t('mammoQc.colLastResult')}</th><th style={s.th}>{t('mammoQc.colStatus')}</th><th style={s.th}>{t('mammoQc.colNextDue')}</th>
-                    </tr></thead>
-                    <tbody>
-                      {extLoading && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.loading')}</td></tr>}
-                      {!extLoading && tests.map(test => (
-                        <tr key={test.id}>
-                          <td style={s.td}>{test.name}</td>
-                          <td style={s.td}>{test.category}</td>
-                          <td style={s.td}>{test.frequency}</td>
-                          <td style={s.td}>{test.target}</td>
-                          <td style={s.td}><span style={{ fontWeight: 700 }}>{test.lastResult}</span></td>
-                          <td style={s.td}><StatusBadge status={test.status} /></td>
-                          <td style={s.td}>{test.nextDue}</td>
-                        </tr>
-                      ))}
-                      {!extLoading && tests.length === 0 && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.noTests')}</td></tr>}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable<MammoQcTest>
+                  rowKey="id"
+                  columns={testColumns}
+                  dataSource={tests}
+                  loading={extLoading}
+                  emptyText={t('mammoQc.noTests')}
+                  scroll={{ x: 'max-content' }}
+                />
               ),
             },
             {
               key: 'standards',
               label: <span><BookOpen size={12} /> {t('mammoQc.qcStandards')} ({standards.length})</span>,
               children: (
-                <div style={s.scrollBox}>
-                  <table style={s.table}>
-                    <thead><tr>
-                      <th style={s.th}>{t('mammoQc.colStandard')}</th><th style={s.th}>{t('mammoQc.colRequirement')}</th><th style={s.th}>{t('mammoQc.colSource')}</th><th style={s.th}>{t('mammoQc.colScope')}</th>
-                    </tr></thead>
-                    <tbody>
-                      {extLoading && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.loading')}</td></tr>}
-                      {!extLoading && standards.map(st => (
-                        <tr key={st.id}>
-                          <td style={{ ...s.td, fontWeight: 600 }}>{st.name}</td>
-                          <td style={s.td}>{st.requirement}</td>
-                          <td style={s.td}><span style={{ padding: '2px 8px', borderRadius: 10, background: 'var(--color-info-bg)', color: '#1e40af', fontSize: 11, fontWeight: 600 }}>{st.source}</span></td>
-                          <td style={s.td}>{st.scope}</td>
-                        </tr>
-                      ))}
-                      {!extLoading && standards.length === 0 && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.noStandards')}</td></tr>}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable<MammoQcStandard>
+                  rowKey="id"
+                  columns={standardColumns}
+                  dataSource={standards}
+                  loading={extLoading}
+                  emptyText={t('mammoQc.noStandards')}
+                  scroll={{ x: 'max-content' }}
+                />
               ),
             },
             {
@@ -415,19 +402,17 @@ const QualityManagementPage = () => {
                   ))}
                   <div style={{ gridColumn: '1 / -1' }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 8 }}>{t('mammoQc.techDim')}</div>
-                    <table style={s.table}>
-                      <thead><tr><th style={s.th}>{t('mammoQc.colTechnologist')}</th><th style={s.th}>{t('mammoQc.colRecordCount')}</th><th style={s.th}>{t('mammoQc.colAvgScore')}</th></tr></thead>
-                      <tbody>
-                        {(qcStats?.byTechnologist ?? []).map((tech, i) => (
-                          <tr key={i}>
-                            <td style={s.td}>{tech.technologist}</td>
-                            <td style={s.td}>{tech.count}</td>
-                            <td style={s.td}><span style={{ fontWeight: 700, color: tech.avgScore >= 80 ? '#16a34a' : '#ca8a04' }}>{tech.avgScore}</span></td>
-                          </tr>
-                        ))}
-                        {(qcStats?.byTechnologist ?? []).length === 0 && <tr><td colSpan={3} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('mammoQc.noStats')}</td></tr>}
-                      </tbody>
-                    </table>
+                    <DataTable<{ technologist: string; count: number; avgScore: number }>
+                      rowKey={(r) => r.technologist}
+                      columns={[
+                        { title: t('mammoQc.colTechnologist'), dataIndex: 'technologist', key: 'technologist' },
+                        { title: t('mammoQc.colRecordCount'), dataIndex: 'count', key: 'count', align: 'right' },
+                        { title: t('mammoQc.colAvgScore'), dataIndex: 'avgScore', key: 'avgScore', align: 'right', render: (v: number) => <span style={{ fontWeight: 700, color: v >= 80 ? '#16a34a' : '#ca8a04' }}>{v}</span> },
+                      ]}
+                      dataSource={qcStats?.byTechnologist ?? []}
+                      emptyText={t('mammoQc.noStats')}
+                      showPagination={false}
+                    />
                   </div>
                 </div>
               ),

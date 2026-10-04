@@ -120,11 +120,11 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
   const currentStageIndex = getCurrentStageIndex()
 
   const stages: ClosedLoopStage5[] = [
-    { key: '发现', label: '🔴 发现', time: cv.reportedTime, user: cv.reportedByName, measure: cv.findingDetails?.substring(0, 20) + '...', done: !!cv.reportedTime, active: currentStageIndex === 0 },
-    { key: '电话通知', label: '🟠 电话通知', time: cv.voiceCalledAt || cv.receivingTime, user: cv.voiceCalledBy || cv.receivingDoctorName, measure: '电话通知临床', done: !!(cv.voiceCalledAt || cv.receivingTime), active: currentStageIndex === 1 },
-    { key: '临床确认', label: '🟡 临床确认', time: cv.acknowledgedTime, user: cv.acknowledgedBy, measure: '临床已确认', done: !!(cv.acknowledgedBy || cv.acknowledgedTime), active: currentStageIndex === 2 },
-    { key: '临床回执', label: '🟢 临床回执', time: cv.confirmedAt, user: cv.confirmedBy, measure: cv.confirmedComment?.substring(0, 20) || '已签字回传', done: !!(cv.confirmedBy || cv.confirmedAt), active: currentStageIndex === 3 },
-    { key: '闭环完成', label: '🔵 闭环完成', time: cv.transferredToFollowUp ? cv.followUpDate : undefined, user: cv.transferredToFollowUp ? '系统' : undefined, measure: cv.transferredToFollowUp ? `随访编号：${cv.followUpId}` : (cv.status === '已处理' || cv.status === 'resolved' ? '已闭环' : '处理中'), done: !!(cv.transferredToFollowUp || cv.status === '已处理' || cv.status === 'resolved'), active: currentStageIndex === 4 },
+    { key: '发现', label: '发现', time: cv.reportedTime, user: cv.reportedByName, measure: cv.findingDetails?.substring(0, 20) + '...', done: !!cv.reportedTime, active: currentStageIndex === 0 },
+    { key: '电话通知', label: '电话通知', time: cv.voiceCalledAt || cv.receivingTime, user: cv.voiceCalledBy || cv.receivingDoctorName, measure: '电话通知临床', done: !!(cv.voiceCalledAt || cv.receivingTime), active: currentStageIndex === 1 },
+    { key: '临床确认', label: '临床确认', time: cv.acknowledgedTime, user: cv.acknowledgedBy, measure: '临床已确认', done: !!(cv.acknowledgedBy || cv.acknowledgedTime), active: currentStageIndex === 2 },
+    { key: '临床回执', label: '临床回执', time: cv.confirmedAt, user: cv.confirmedBy, measure: cv.confirmedComment?.substring(0, 20) || '已签字回传', done: !!(cv.confirmedBy || cv.confirmedAt), active: currentStageIndex === 3 },
+    { key: '闭环完成', label: '闭环完成', time: cv.transferredToFollowUp ? cv.followUpDate : undefined, user: cv.transferredToFollowUp ? '系统' : undefined, measure: cv.transferredToFollowUp ? `随访编号：${cv.followUpId}` : (cv.status === '已处理' || cv.status === 'resolved' ? '已闭环' : '处理中'), done: !!(cv.transferredToFollowUp || cv.status === '已处理' || cv.status === 'resolved'), active: currentStageIndex === 4 },
   ]
 
   return (
@@ -157,9 +157,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
                   {isActive && (
                     <div style={{ position: 'absolute', top: -2, right: -2, width: 16, height: 16, borderRadius: '50%', background: '#f59e0b', border: '3px solid #fff', animation: 'pulse 1.5s infinite' }} />
                   )}
-                  <span style={{ fontSize: 20 }}>
-                    {stage.key === '发现' ? '🔴' : stage.key === '电话通知' ? '🟠' : stage.key === '临床确认' ? '🟡' : stage.key === '临床回执' ? '🟢' : '🔵'}
-                  </span>
+                  <span style={{ width: 18, height: 18, borderRadius: '50%', background: isDone ? cfg.color : '#cbd5e1', boxShadow: isDone ? `0 0 8px ${cfg.glowColor}` : 'none' }} />
                 </div>
                 <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: isDone ? cfg.color : '#94a3b8', textAlign: 'center', whiteSpace: 'nowrap' }}>
                   {stage.key}

@@ -1147,7 +1147,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                 }}
               >
                 <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                  💡 {t("templateDesigner.dragTipTitle")}
+                  {t("templateDesigner.dragTipTitle")}
                 </div>
                 <div>{t("templateDesigner.dragTipBody")}</div>
               </div>
@@ -1244,7 +1244,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                           border: "1px dashed var(--border-color)",
                         }}
                       >
-                        📦 {t("templateDesigner.dropHere")}
+                        {t("templateDesigner.dropHere")}
                       </div>
                     ) : (
                       section.fields.map((field) => {

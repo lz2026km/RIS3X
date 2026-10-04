@@ -5,7 +5,7 @@ import { Card } from 'antd'
 // ============================================================
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { PageContainer } from "../components/common/PageContainer";
+import { PageTemplate } from "../components/common/PageTemplate";
 import { DataTable } from "../components/common/DataTable";
 import { ActionButton } from "../components/common/ActionButton";
 import { StatCard as CommonStatCard } from "../components/common/StatCard";
@@ -175,7 +175,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
                     r="40"
                     fill="none"
                     stroke={item.color}
-                    strokeWidth="20"
+                    strokeWidth="12"
                     strokeDasharray={item.dashArray}
                     strokeDashoffset={100 - item.prevPercent}
                   />
@@ -1909,7 +1909,7 @@ export default function PatientPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
           gap: 16,
           marginBottom: 16,
         }}
@@ -1923,7 +1923,7 @@ export default function PatientPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
           gap: 16,
           marginBottom: 16,
         }}
@@ -2021,7 +2021,7 @@ export default function PatientPage() {
 
   // ==================== 主渲染 ====================
   return (
-    <PageContainer background="slate" maxWidth="standard" testId="patient-page">
+    <PageTemplate background="slate" maxWidth="standard" showHeader={false} loading={loading} error={loadError} testId="patient-page">
       {accessDenied && (
         <div
           style={{
@@ -2514,6 +2514,6 @@ export default function PatientPage() {
           </div>
         </div>
       )}
-    </PageContainer>
+    </PageTemplate>
   );
 }

@@ -15,16 +15,16 @@ import type { QualityDefect } from '../types/R3/R3.QUALITY';
 const isoDaysAgo = (d: number) => new Date(Date.now() - d * 86400000).toISOString();
 
 export const DEFECT_CATEGORIES: DefectCategory[] = [
-  { code: 'DSC', name: '描述问题', nameEn: 'Description', description: '报告描述相关缺陷', descriptionEn: 'Description defects', color: '#3b82f6', icon: '📝', childCount: 6, totalCount: 415, level: 1, sortOrder: 1 },
-  { code: 'TER', name: '术语问题', nameEn: 'Terminology', description: '医学术语使用问题', descriptionEn: 'Terminology issues', color: '#8b5cf6', icon: '📚', childCount: 4, totalCount: 285, level: 1, sortOrder: 2 },
-  { code: 'FMT', name: '格式问题', nameEn: 'Format', description: '报告格式问题', descriptionEn: 'Format issues', color: '#f59e0b', icon: '📐', childCount: 4, totalCount: 466, level: 1, sortOrder: 3 },
-  { code: 'LOG', name: '逻辑问题', nameEn: 'Logic', description: '报告中逻辑问题', descriptionEn: 'Logic issues', color: '#dc2626', icon: '🧠', childCount: 4, totalCount: 105, level: 1, sortOrder: 4 },
-  { code: 'CRI', name: '危急值', nameEn: 'Critical', description: '危急值处理问题', descriptionEn: 'Critical value issues', color: '#7f1d1d', icon: '⚠️', childCount: 2, totalCount: 8, level: 1, sortOrder: 5 },
-  { code: 'CMP', name: '完整性', nameEn: 'Completeness', description: '报告完整性问题', descriptionEn: 'Completeness issues', color: '#10b981', icon: '📋', childCount: 4, totalCount: 185, level: 1, sortOrder: 6 },
-  { code: 'CON', name: '一致性', nameEn: 'Consistency', description: '图像报告一致性', descriptionEn: 'Image report consistency', color: '#0891b2', icon: '🔄', childCount: 1, totalCount: 12, level: 1, sortOrder: 7 },
-  { code: 'IMG', name: '图像质量', nameEn: 'Image Quality', description: '图像质量相关', descriptionEn: 'Image quality issues', color: '#06b6d4', icon: '🖼️', childCount: 1, totalCount: 23, level: 1, sortOrder: 8 },
-  { code: 'TIM', name: '时效', nameEn: 'Timeliness', description: '报告时效问题', descriptionEn: 'Timeliness issues', color: '#7c3aed', icon: '⏱️', childCount: 1, totalCount: 45, level: 1, sortOrder: 9 },
-  { code: 'OTH', name: '其他', nameEn: 'Other', description: '其他缺陷', descriptionEn: 'Other defects', color: '#64748b', icon: '📦', childCount: 0, totalCount: 12, level: 1, sortOrder: 10 },
+  { code: 'DSC', name: '描述问题', nameEn: 'Description', description: '报告描述相关缺陷', descriptionEn: 'Description defects', color: '#3b82f6', icon: '', childCount: 6, totalCount: 415, level: 1, sortOrder: 1 },
+  { code: 'TER', name: '术语问题', nameEn: 'Terminology', description: '医学术语使用问题', descriptionEn: 'Terminology issues', color: '#8b5cf6', icon: '', childCount: 4, totalCount: 285, level: 1, sortOrder: 2 },
+  { code: 'FMT', name: '格式问题', nameEn: 'Format', description: '报告格式问题', descriptionEn: 'Format issues', color: '#f59e0b', icon: '', childCount: 4, totalCount: 466, level: 1, sortOrder: 3 },
+  { code: 'LOG', name: '逻辑问题', nameEn: 'Logic', description: '报告中逻辑问题', descriptionEn: 'Logic issues', color: '#dc2626', icon: '', childCount: 4, totalCount: 105, level: 1, sortOrder: 4 },
+  { code: 'CRI', name: '危急值', nameEn: 'Critical', description: '危急值处理问题', descriptionEn: 'Critical value issues', color: '#7f1d1d', icon: '', childCount: 2, totalCount: 8, level: 1, sortOrder: 5 },
+  { code: 'CMP', name: '完整性', nameEn: 'Completeness', description: '报告完整性问题', descriptionEn: 'Completeness issues', color: '#10b981', icon: '', childCount: 4, totalCount: 185, level: 1, sortOrder: 6 },
+  { code: 'CON', name: '一致性', nameEn: 'Consistency', description: '图像报告一致性', descriptionEn: 'Image report consistency', color: '#0891b2', icon: '', childCount: 1, totalCount: 12, level: 1, sortOrder: 7 },
+  { code: 'IMG', name: '图像质量', nameEn: 'Image Quality', description: '图像质量相关', descriptionEn: 'Image quality issues', color: '#06b6d4', icon: '', childCount: 1, totalCount: 23, level: 1, sortOrder: 8 },
+  { code: 'TIM', name: '时效', nameEn: 'Timeliness', description: '报告时效问题', descriptionEn: 'Timeliness issues', color: '#7c3aed', icon: '', childCount: 1, totalCount: 45, level: 1, sortOrder: 9 },
+  { code: 'OTH', name: '其他', nameEn: 'Other', description: '其他缺陷', descriptionEn: 'Other defects', color: '#64748b', icon: '', childCount: 0, totalCount: 12, level: 1, sortOrder: 10 },
 ];
 
 export const DEFECT_DETAILS: DefectDetail[] = QUALITY_DEFECTS.map((d: QualityDefect) => ({

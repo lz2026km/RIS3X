@@ -306,7 +306,7 @@ const FieldEncryptionTab: React.FC = () => {
     { title: t('w13Sec.fe.col.field'), dataIndex: 'field', width: 90 },
     { title: t('w13Sec.fe.col.masked'), dataIndex: 'plainMasked', render: (v: string) => <Text code>{v}</Text> },
     { title: t('w13Sec.fe.col.ciphertext'), dataIndex: 'ciphertextPrefix', render: (v: string) => <Text code style={{ fontSize: 11 }}>{v}…</Text> },
-    { title: t('w13Sec.fe.col.roundtrip'), dataIndex: 'decryptedMatches', width: 100, render: (v: boolean) => v ? <Tag color="green">✓</Tag> : <Tag color="red">✗</Tag> },
+    { title: t('w13Sec.fe.col.roundtrip'), dataIndex: 'decryptedMatches', width: 100, render: (v: boolean) => v ? <Tag color="green"></Tag> : <Tag color="red"></Tag> },
     { title: t('w13Sec.fe.col.maskedRead'), dataIndex: 'maskedRead', render: (v: string) => <Text code>{v}</Text> },
   ]
 
@@ -741,8 +741,8 @@ const AuditChainTab: React.FC = () => {
             <Descriptions.Item label={t('w13Sec.ac.retentionMonths')}>{retention.retentionMonths}</Descriptions.Item>
             <Descriptions.Item label={t('w13Sec.ac.retentionDays')}>{retention.retentionDays}</Descriptions.Item>
             <Descriptions.Item label={t('w13Sec.ac.archiveLocation')}><Text code style={{ fontSize: 12 }}>{retention.archiveLocation}</Text></Descriptions.Item>
-            <Descriptions.Item label={t('w13Sec.ac.encrypted')}>{retention.encrypted ? <Tag color="green">✓</Tag> : <Tag>✗</Tag>}</Descriptions.Item>
-            <Descriptions.Item label={t('w13Sec.ac.immutable')}>{retention.immutable ? <Tag color="green">✓</Tag> : <Tag>✗</Tag>}</Descriptions.Item>
+            <Descriptions.Item label={t('w13Sec.ac.encrypted')}>{retention.encrypted ? <Tag color="green"></Tag> : <Tag></Tag>}</Descriptions.Item>
+            <Descriptions.Item label={t('w13Sec.ac.immutable')}>{retention.immutable ? <Tag color="green"></Tag> : <Tag></Tag>}</Descriptions.Item>
             <Descriptions.Item label={t('w13Sec.ac.lastArchive')}>{retention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
           </Descriptions>
           <Paragraph type="secondary" style={{ fontSize: 12, marginBottom: 0 }}>{retention.note}</Paragraph>

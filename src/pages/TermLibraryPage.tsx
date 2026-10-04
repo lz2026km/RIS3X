@@ -11,6 +11,7 @@ import type { TableColumnsType } from 'antd'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { DataTable } from '../components/common/DataTable'
 import { ActionButton } from '../components/common/ActionButton'
+import { StatusTag } from '../components/common/StatusTag'
 import { t as t9 } from '../i18n/appI18n'
 import { uniqueId } from '../utils/uniqueId'
 
@@ -494,7 +495,7 @@ export default function TermLibraryPage() {
     },
     {
       title: t9('termLibrary.thCategory'), dataIndex: 'category', key: 'category',
-      render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{v}</span>,
+      render: (v: string) => <StatusTag tone={{ bg: '#8b5cf622', border: 'transparent', color: '#6d28d9', dot: '#6d28d9' }}>{v}</StatusTag>,
     },
     {
       title: t9('termLibrary.thModality'), dataIndex: 'modality', key: 'modality',
@@ -511,7 +512,7 @@ export default function TermLibraryPage() {
     { title: t9('termLibrary.thLastUsed'), dataIndex: 'lastUsed', key: 'lastUsed', render: (v?: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v || '-'}</span> },
     {
       title: t9('termLibrary.thStandardMapping'), dataIndex: 'wsStandardCode', key: 'wsStandardCode',
-      render: (v?: string) => v ? <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'var(--color-success-bg)', color: '#16a34a' }}>{v}</span> : <span style={{ fontSize: 12, color: '#d97706', fontWeight: 600 }}>—</span>,
+      render: (v?: string) => v ? <StatusTag status="success" style={{ fontFamily: 'monospace', fontWeight: 700 }}>{v}</StatusTag> : <span style={{ fontSize: 12, color: '#d97706', fontWeight: 600 }}>—</span>,
     },
     {
       title: t9('termLibrary.thActions'), key: 'actions', width: 160,
@@ -769,7 +770,7 @@ export default function TermLibraryPage() {
               title: t9('termLibrary.thSuggestedCategory'),
               dataIndex: 'suggestedCategory',
               key: 'suggestedCategory',
-              render: (v: string) => <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{v}</span>,
+              render: (v: string) => <StatusTag tone={{ bg: '#8b5cf622', border: 'transparent', color: '#6d28d9', dot: '#6d28d9' }}>{v}</StatusTag>,
             },
             {
               title: t9('termLibrary.thStatus'),
@@ -777,13 +778,13 @@ export default function TermLibraryPage() {
               key: 'status',
               width: 90,
               render: (v: string) => (
-                <span style={{
-                  padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700,
-                  background: v === 'approved' ? 'var(--color-success-bg)' : v === 'rejected' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)',
-                  color: v === 'approved' ? '#16a34a' : v === 'rejected' ? '#dc2626' : '#d97706',
-                }}>
+                <StatusTag
+                  size="md"
+                  style={{ fontWeight: 700 }}
+                  status={v === 'approved' ? 'success' : v === 'rejected' ? 'critical' : 'warning'}
+                >
                   {v === 'approved' ? t9('termLibrary.adopted') : v === 'rejected' ? t9('termLibrary.rejected') : t9('termLibrary.pendingReview')}
-                </span>
+                </StatusTag>
               ),
             },
             {
@@ -940,7 +941,7 @@ export default function TermLibraryPage() {
           }}
         >
           {node.children.length > 0 ? (
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{expandedNodes.has(node.id) ? '▼' : '▶'}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{expandedNodes.has(node.id) ? '▼' : ''}</span>
           ) : <span style={{ width: 10 }} />}
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: node.color, flexShrink: 0 }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{node.name}</span>
@@ -1192,14 +1193,14 @@ export default function TermLibraryPage() {
                             onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-hover)'}
                             onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'}
                           >
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1e40af', background: 'var(--color-info-bg)', padding: '2px 8px', borderRadius: 4 }}>{ws.code}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><StatusTag status="info" style={{ fontFamily: 'monospace', fontWeight: 700 }}>{ws.code}</StatusTag></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 180 }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{ws.standardName}</span></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{ws.aliases.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)' }}>{a}</span>)}</div></td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: MODALITY_BG[ws.department] || 'var(--content-bg)', color: MODALITY_COLORS[ws.department] || 'var(--text-muted)' }}>{ws.department}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><StatusTag style={{ fontWeight: 700 }} tone={{ bg: MODALITY_BG[ws.department] || 'var(--content-bg)', border: 'transparent', color: MODALITY_COLORS[ws.department] || 'var(--text-muted)', dot: MODALITY_COLORS[ws.department] || 'var(--text-muted)' }}>{ws.department}</StatusTag></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ws.subClass}</span></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 250 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240 }}>{ws.reportTemplate}</div></td>
                             <td style={{ padding: '9px 12px' }}>
-                              {isMapped ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: '#16a34a' }}><CheckCircle2 size={10} /> {t9('termLibrary.mappedStatus')}</span> : <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-warning-bg)', color: '#d97706' }}>{t9('termLibrary.unmapped')}</span>}
+                              {isMapped ? <StatusTag status="success" style={{ fontWeight: 700 }}><CheckCircle2 size={10} /> {t9('termLibrary.mappedStatus')}</StatusTag> : <StatusTag status="warning">{t9('termLibrary.unmapped')}</StatusTag>}
                             </td>
                           </tr>
                         )

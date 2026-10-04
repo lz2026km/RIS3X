@@ -388,7 +388,7 @@ export default function LoginPage() {
         </form>
 
         <footer style={{ position: 'absolute', bottom: 20, left: 0, right: 0, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>
-          © {new Date().getFullYear()} {HOSPITAL_NAME} · {t('login.footerSuffix')}
+          <span>{'\u00A9'}</span> {new Date().getFullYear()} {HOSPITAL_NAME} · {t('login.footerSuffix')}
         </footer>
       </section>
     </main>

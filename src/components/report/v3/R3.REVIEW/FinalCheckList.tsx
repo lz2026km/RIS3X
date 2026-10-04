@@ -432,12 +432,12 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{it.description}</div>
                       {it.evidence && (
                         <div style={{ fontSize: 12, color: 'var(--color-info)', background: 'var(--color-info-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
-                          🔍 {it.evidence}
+                          {it.evidence}
                         </div>
                       )}
                       {it.remark && (
                         <div style={{ fontSize: 12, color: 'var(--color-warning)', background: 'var(--color-warning-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
-                          💬 {it.remark}
+                          {it.remark}
                         </div>
                       )}
                       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
@@ -570,7 +570,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <span style={{ fontSize: 12, fontWeight: 600 }}>{t('reportReview.final.weighted')} {d.weighted}</span>
                   </Space>
                 </Space>
-                {d.comment && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>💬 {d.comment}</div>}
+                {d.comment && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{d.comment}</div>}
               </div>
             ))}
             {scoring.hardFailures.length > 0 && (
@@ -736,7 +736,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <span style={{ color: 'var(--text-muted)', margin: '0 6px' }}>→</span>
                       <span style={{ color: 'var(--text-muted)' }}>{t('reportReview.final.priorLabel')}</span> <span style={{ color: 'var(--color-warning)' }}>{f.priorValue}</span>
                     </div>
-                    {f.detail && <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>📝 {f.detail}</div>}
+                    {f.detail && <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{f.detail}</div>}
                   </Space>
                 </List.Item>
               )}
@@ -764,7 +764,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <Tag color={m.status === 'completed' ? 'green' : m.status === 'in-progress' ? 'blue' : 'default'}>{m.status === 'completed' ? t('reportReview.status.completed') : m.status === 'in-progress' ? t('reportReview.final.inProgress') : t('reportReview.final.pending')}</Tag>
                   <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('reportReview.final.deadline')} {fmtTime(m.expiresAt)}</span>
                 </Space>
-                <div style={{ fontSize: 12 }}>📝 {m.reason}</div>
+                <div style={{ fontSize: 12 }}>{m.reason}</div>
                 <Timeline style={{ marginTop: 8 }}>
                   {m.slots.map((s) => (
                     <Timeline.Item key={s.id} color={s.status === 'signed' ? 'green' : s.status === 'rejected' ? 'red' : 'gray'} dot={
@@ -876,7 +876,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <strong style={{ fontSize: 12 }}>{r.patientName || r.patientId}</strong>
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{fmtTime(r.triggeredAt)} · {r.triggeredBy}</span>
                   </Space>
-                  <div style={{ fontSize: 12 }}>📝 {r.reason}</div>
+                  <div style={{ fontSize: 12 }}>{r.reason}</div>
                   <Space wrap>
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('reportReview.final.channelsLabel')}</span>
                     {(r.channels ?? []).map((c) => <Tag key={c} color={CHANNEL_META[c].color}>{t(CHANNEL_META[c].label)}</Tag>)}
@@ -913,7 +913,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('reportReview.final.targetsLabel')}</span>
                   {(e.targets ?? []).map((t) => (
                     <Tag key={t.reviewerId} color={t.acknowledgedAt ? 'green' : 'orange'}>
-                      {t.reviewerName} {t.acknowledgedAt ? `✓ ${timeAgo(t.acknowledgedAt)}` : '⏳'}
+                      {t.reviewerName} {t.acknowledgedAt ? `${timeAgo(t.acknowledgedAt)}` : ''}
                     </Tag>
                   ))}
                 </Space>

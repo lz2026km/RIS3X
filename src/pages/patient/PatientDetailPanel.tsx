@@ -18,6 +18,8 @@ import { invalidateApiCacheByPrefix } from '../../services/api/client'
 import type { ReportDto, ExamDto, InvoiceDto } from '../../types/dto'
 import { useAuth } from '../../hooks/useAuth'
 import { t } from '../../i18n/appI18n'
+import { StatusTag } from '../../components/common/StatusTag'
+import { SeverityTag } from '../../components/common/SeverityTag'
 
 const TIMELINE_ICONS: Record<string, React.ReactNode> = {
   exam: <Image size={14} />,
@@ -112,10 +114,10 @@ function PatientTimeline({ events }: PatientTimelineProps) {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 13 }}>
-                    {evt.type === 'exam' && '📷 '}
-                    {evt.type === 'report' && '📄 '}
-                    {evt.type === 'appointment' && '🗓 '}
-                    {evt.type === 'critical' && '🚨 '}
+                    {evt.type === 'exam' && ''}
+                    {evt.type === 'report' && ''}
+                    {evt.type === 'appointment' && ''}
+                    {evt.type === 'critical' && ''}
                     {evt.title}
                   </span>
                   <span style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace' }}>{evt.date}</span>
@@ -123,9 +125,9 @@ function PatientTimeline({ events }: PatientTimelineProps) {
                 <div style={{ fontSize: 12, color: '#64748b' }}>{evt.description}</div>
                 <div style={{ marginTop: 6, display: 'flex', gap: 6, alignItems: 'center' }}>
                   {evt.status && (
-                    <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: evt.type === 'critical' ? 'var(--color-error-bg)' : 'var(--color-info-bg)', color: evt.type === 'critical' ? 'var(--color-error)' : 'var(--color-info)' }}>
+                    <StatusTag status={evt.type === 'critical' ? 'critical' : 'info'} size="md">
                       {evt.status}
-                    </span>
+                    </StatusTag>
                   )}
                   {evt.extra && <span style={{ fontSize: 11, color: '#94a3b8' }}>{evt.extra}</span>}
                   {evt.link && <span style={{ fontSize: 11, color: '#2563eb', marginLeft: 'auto' }}>{t('patientDetailPanel.viewArrow')}</span>}
@@ -616,12 +618,12 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                       </td>
                       <td style={{ padding: '10px 12px', color: '#64748b', fontSize: 12 }}>{deviceName}</td>
                       <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--content-bg)', color: '#475569' }}>{ex.patientType || t('patientDetailPanel.outpatient')}</span>
+                        <StatusTag status="neutral" size="md">{ex.patientType || t('patientDetailPanel.outpatient')}</StatusTag>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: ex.priority === '危重' || ex.priority === '紧急' ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: ex.priority === '危重' || ex.priority === '紧急' ? 'var(--color-error)' : 'var(--color-success)' }}>
+                        <StatusTag status={ex.priority === '危重' || ex.priority === '紧急' ? 'critical' : 'success'} size="md" style={{ fontWeight: 700 }}>
                           {ex.priority || t('patientDetailPanel.normal')}
-                        </span>
+                        </StatusTag>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
                         <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: 'var(--color-info)' }}>
@@ -677,14 +679,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                     <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: 12 }}>{String(cv.triggeredAt ?? cv.createdAt ?? '').slice(0, 16) || '-'}</td>
                     <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{cv.finding || cv.description || cv.category || '-'}</td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: 'var(--color-error-bg)', color: 'var(--color-error)' }}>
+                      <SeverityTag level={cv.severity || 'neutral'} size="md" style={{ fontWeight: 700 }}>
                         {cv.severity || '-'}
-                      </span>
+                      </SeverityTag>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--content-bg)', color: '#475569' }}>
+                      <StatusTag status="neutral" size="md">
                         {normalizeStatus(cv.state ?? cv.status)}
-                      </span>
+                      </StatusTag>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       {criticalClosed(cv) ? (
@@ -732,9 +734,9 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                     <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#64748b', fontSize: 12 }}>{r.reportId || r.id}</td>
                     <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{r.modality} {r.bodyPart}</td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: 'var(--color-info)' }}>
+                      <StatusTag status="info" size="md">
                         {normalizeStatus(r.status)}
-                      </span>
+                      </StatusTag>
                     </td>
                     <td style={{ padding: '10px 12px', color: '#64748b' }}>{String(r.createdTime ?? r.updatedTime ?? '').slice(0, 16) || '-'}</td>
                     <td style={{ padding: '10px 12px', color: '#64748b' }}>{r.doctorId || '-'}</td>
@@ -799,9 +801,9 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                       <td style={{ padding: '10px 12px', color: '#16a34a' }}>¥{paid.toFixed(2)}</td>
                       <td style={{ padding: '10px 12px', color: balance > 0 ? '#dc2626' : '#94a3b8', fontWeight: 600 }}>¥{balance.toFixed(2)}</td>
                       <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: status === 'PAID' ? 'var(--color-success-bg)' : status === 'PARTIAL' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: status === 'PAID' ? 'var(--color-success)' : status === 'PARTIAL' ? 'var(--color-warning)' : 'var(--color-error)' }}>
+                        <StatusTag status={status === 'PAID' ? 'success' : status === 'PARTIAL' ? 'warning' : 'failed'} size="md">
                           {status === 'PAID' ? t('patientDetailPanel.settled') : status === 'PARTIAL' ? t('patientDetailPanel.partialPaid') : t('patientDetailPanel.unpaid')}
-                        </span>
+                        </StatusTag>
                       </td>
                     </tr>
                   )

@@ -4,12 +4,12 @@
 
 | # | Sub-module | Points | Pages | Services | Status |
 |---|-----------|--------|-------|----------|--------|
-| 15.1 | Adverse Event Reporting | 30 | `AdverseEventPage.tsx` | `adverseEventService.ts` | ✅ |
-| 15.2 | Radiation Safety & Protection | 30 | `RadiationSafetyPage.tsx` | `radiationSafetyService.ts` | ✅ |
-| 15.3 | Patient Safety Goals | 25 | `PatientSafetyGoalsPage.tsx` | — | ✅ |
-| 15.4 | RCA Analysis | 20 | `RCAAnalysisPage.tsx` | `rcaService.ts` | ✅ |
-| 15.5 | Risk Management | 20 | `RiskManagementPage.tsx` | `riskManagementService.ts` | ✅ |
-| 15.6 | CQI | 15 | `CQIPage.tsx` | `cqiService.ts` | ✅ |
+| 15.1 | Adverse Event Reporting | 30 | `AdverseEventPage.tsx` | `adverseEventService.ts` | 完成 |
+| 15.2 | Radiation Safety & Protection | 30 | `RadiationSafetyPage.tsx` | `radiationSafetyService.ts` | 完成 |
+| 15.3 | Patient Safety Goals | 25 | `PatientSafetyGoalsPage.tsx` | — | 完成 |
+| 15.4 | RCA Analysis | 20 | `RCAAnalysisPage.tsx` | `rcaService.ts` | 完成 |
+| 15.5 | Risk Management | 20 | `RiskManagementPage.tsx` | `riskManagementService.ts` | 完成 |
+| 15.6 | CQI | 15 | `CQIPage.tsx` | `cqiService.ts` | 完成 |
 
 ## Implementation Details
 

@@ -121,7 +121,7 @@ export interface DictionaryItemDto {
 //     PUT  /dictionary/:category/:key   -> 更新条目
 //     DELETE /dictionary/:category/:key -> 删除条目
 //   原扁平协议 POST /dictionary、PUT|DELETE /dictionary/:id 后端不存在 (404), 已废弃。
-//   字段映射: 后端 key/value/sort/active/extra ↔ 前端 code/name/sortOrder/isActive/enName/description。
+//   字段映射: 后端 key/value/sort/active/extra 前端 code/name/sortOrder/isActive/enName/description。
 interface RawDictEntry {
   category?: string;
   key?: string;

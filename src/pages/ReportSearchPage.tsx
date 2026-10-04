@@ -24,6 +24,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SearchX } from 'lucide-react'
 import { DataTable } from '../components/common/DataTable';
+import { StatusTag } from '../components/common/StatusTag';
 import { t } from '../i18n/appI18n';
 
 interface SearchReport extends ReportDto {
@@ -380,7 +381,7 @@ export default function ReportSearchPage() {
       <div style={{ marginBottom: 16 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Search size={20} color="#1e40af" /> {t('reportSearch.title')}
-          <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+          <StatusTag status="success" style={{ fontWeight: 700 }}>R7</StatusTag>
         </h1>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
           {t('reportSearch.subtitle')}
@@ -443,7 +444,7 @@ export default function ReportSearchPage() {
                       padding: '3px 8px', borderRadius: 999, border: `1px solid ${on ? '#3b82f6' : 'var(--border-color)'}`,
                       background: on ? '#eff6ff' : 'var(--bg-card)', color: on ? '#1e40af' : 'var(--text-secondary)',
                       fontSize: 12, fontWeight: on ? 700 : 400, cursor: 'pointer',
-                    }}>{m}{on ? ' ✓' : ''}</button>
+                    }}>{m}{on ? ' ' : ''}</button>
                   );
                 })}
               </div>
@@ -464,7 +465,7 @@ export default function ReportSearchPage() {
                       padding: '3px 8px', borderRadius: 999, border: `1px solid ${on ? '#10b981' : 'var(--border-color)'}`,
                       background: on ? '#ecfdf5' : 'var(--bg-card)', color: on ? '#059669' : 'var(--text-secondary)',
                       fontSize: 12, fontWeight: on ? 700 : 400, cursor: 'pointer',
-                    }}>{st}{on ? ' ✓' : ''}</button>
+                    }}>{st}{on ? ' ' : ''}</button>
                   );
                 })}
               </div>

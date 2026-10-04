@@ -34,5 +34,5 @@
 31. VNA metrics collector
 32. VNA health check endpoint
 33. Study retention policy enforcer
-34. External PACS adapter (DICOM ↔ REST)
+34. External PACS adapter (DICOM <-> REST)
 35. VNA dashboard data provider

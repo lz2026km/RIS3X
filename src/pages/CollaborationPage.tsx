@@ -533,7 +533,7 @@ export default function CollaborationPage() {
                       border: '1px solid #c4b5fd', borderRadius: 3,
                       fontSize: 12, color: '#5b21b6', fontStyle: 'italic',
                     }}>
-                      📌 {t('collab.selection')}{comment.selectionRef}
+                      {t('collab.selection')}{comment.selectionRef}
                     </div>
                   )}
 

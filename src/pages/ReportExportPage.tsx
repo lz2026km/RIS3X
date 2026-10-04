@@ -348,10 +348,10 @@ export default function ReportExportPage() {
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{tpl.description}</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    {tpl.hasImages && <Tag color="#3b82f6">📷 {t('rex.tagImage')}</Tag>}
-                    {tpl.hasSignature && <Tag color="#7c3aed">✍️ {t('rex.tagSignature')}</Tag>}
-                    {tpl.hasQRCode && <Tag color="#10b981">📱 {t('rex.tagQr')}</Tag>}
-                    {tpl.hasWatermark && <Tag color="#f59e0b">💧 {t('rex.tagWatermark')}</Tag>}
+                    {tpl.hasImages && <Tag color="#3b82f6">{t('rex.tagImage')}</Tag>}
+                    {tpl.hasSignature && <Tag color="#7c3aed">{t('rex.tagSignature')}</Tag>}
+                    {tpl.hasQRCode && <Tag color="#10b981">{t('rex.tagQr')}</Tag>}
+                    {tpl.hasWatermark && <Tag color="#f59e0b">{t('rex.tagWatermark')}</Tag>}
                   </div>
                 </div>
               );
@@ -447,7 +447,7 @@ export default function ReportExportPage() {
                 {/* [W4-B] 批量导出结果: 错误提示 + 完成后下载列表 */}
                 {batchError && !exporting && (
                   <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-error-bg)', borderRadius: 6, fontSize: 12, color: '#b91c1c' }}>
-                    ⚠️ {batchError}
+                    {batchError}
                   </div>
                 )}
                 {batchDownloads.length > 0 && !exporting && (

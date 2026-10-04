@@ -98,7 +98,7 @@ function reportToConsole(metric: Metric): void {
     metric.value,
   );
   const emoji =
-    rating === "good" ? "✅" : rating === "needs-improvement" ? "⚠️" : "❌";
+    rating === "good" ? "" : rating === "needs-improvement" ? "" : "";
   console.info(
     `${emoji} ${metric.name}: ${metric.value.toFixed(1)} (${rating})`,
     { id: metric.id, page: window.location.pathname },

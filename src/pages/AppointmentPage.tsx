@@ -2403,7 +2403,7 @@ const borderGray = "var(--border-color)";
                           }}
                         >
                           {waitlistNotifyLoading === w.id ? (
-                            "⏳"
+                            ""
                           ) : (
                             <Bell size={10} />
                           )}{" "}

@@ -23,7 +23,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'completeness', name: '完整性', nameEn: 'Completeness',
     description: '报告内容是否完整、字段无遗漏', descriptionEn: 'Report completeness - all required fields filled',
-    weight: 0.20, enabled: true, color: '#3b82f6', icon: '📋',
+    weight: 0.20, enabled: true, color: '#3b82f6', icon: '',
     subCriteria: [
       { key: 'has-findings', name: '包含检查所见', nameEn: 'Has findings', weight: 0.30, description: '包含完整的检查所见段落', evaluator: 'auto', passingRule: '必须存在"检查所见"或"影像表现"段落' },
       { key: 'has-diagnosis', name: '包含诊断意见', nameEn: 'Has diagnosis', weight: 0.30, description: '包含完整的诊断意见段落', evaluator: 'auto', passingRule: '必须存在"诊断意见"或"诊断"段落' },
@@ -35,7 +35,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'standardization', name: '规范性', nameEn: 'Standardization',
     description: '报告格式、单位、术语是否规范', descriptionEn: 'Format, units and terminology compliance',
-    weight: 0.15, enabled: true, color: '#7c3aed', icon: '📐',
+    weight: 0.15, enabled: true, color: '#7c3aed', icon: '',
     subCriteria: [
       { key: 'unit-ct-hu', name: 'CT值含HU', nameEn: 'CT value has HU', weight: 0.25, description: 'CT值后注明HU单位', evaluator: 'auto', passingRule: 'CT值后必须有HU单位' },
       { key: 'size-format', name: '尺寸规范', nameEn: 'Size format', weight: 0.25, description: '尺寸使用mm×mm格式', evaluator: 'auto', passingRule: '应使用"长×宽mm"格式' },
@@ -47,7 +47,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'accuracy', name: '准确性', nameEn: 'Accuracy',
     description: '诊断结论与影像所见是否一致', descriptionEn: 'Findings-diagnosis consistency',
-    weight: 0.20, enabled: true, color: '#10b981', icon: '🎯',
+    weight: 0.20, enabled: true, color: '#10b981', icon: '',
     subCriteria: [
       { key: 'findings-match', name: '所见-结论一致', nameEn: 'Findings match', weight: 0.30, description: '结论与所见一致', evaluator: 'ai', passingRule: '诊断与所见描述一致' },
       { key: 'differential', name: '鉴别诊断', nameEn: 'Differential', weight: 0.20, description: '鉴别诊断充分', evaluator: 'ai', passingRule: '关键疾病需有鉴别' },
@@ -59,7 +59,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'timeliness', name: '及时性', nameEn: 'Timeliness',
     description: '报告是否在规定时间内完成', descriptionEn: 'Completion within TAT',
-    weight: 0.10, enabled: true, color: '#f59e0b', icon: '⏱️',
+    weight: 0.10, enabled: true, color: '#f59e0b', icon: '',
     subCriteria: [
       { key: 'tat-met', name: 'TAT达标', nameEn: 'TAT met', weight: 0.50, description: '在规定时间内完成', evaluator: 'auto', passingRule: '门急诊<2h/住院<24h/CT<4h' },
       { key: 'tat-priority', name: '优先级处理', nameEn: 'Priority handling', weight: 0.30, description: '按优先级处理', evaluator: 'auto', passingRule: 'STAT/急诊优先处理' },
@@ -69,7 +69,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'terminology', name: '术语规范', nameEn: 'Terminology',
     description: '医学术语使用是否准确规范', descriptionEn: 'Standard terminology usage',
-    weight: 0.10, enabled: true, color: '#0891b2', icon: '📚',
+    weight: 0.10, enabled: true, color: '#0891b2', icon: '',
     subCriteria: [
       { key: 'icd10-used', name: 'ICD-10 编码', nameEn: 'ICD-10', weight: 0.20, description: '使用 ICD-10 编码', evaluator: 'auto', passingRule: '诊断使用 ICD-10 编码' },
       { key: 'snomed-used', name: 'SNOMED CT', nameEn: 'SNOMED', weight: 0.15, description: '使用 SNOMED CT', evaluator: 'auto', passingRule: '关键概念使用 SNOMED' },
@@ -81,7 +81,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'criticalMarking', name: '危急值标注', nameEn: 'Critical Marking',
     description: '危急值是否正确标注与通报', descriptionEn: 'Critical finding marking and notification',
-    weight: 0.10, enabled: true, color: '#dc2626', icon: '⚠️',
+    weight: 0.10, enabled: true, color: '#dc2626', icon: '',
     subCriteria: [
       { key: 'critical-mark', name: '标识危急值', nameEn: 'Mark critical', weight: 0.30, description: '报告开头标识危急值', evaluator: 'ai', passingRule: '报告开头有危急值标记' },
       { key: 'critical-notify', name: '通报临床', nameEn: 'Notify clinic', weight: 0.30, description: '10 分钟内通报临床', evaluator: 'auto', passingRule: '10 分钟内通报' },
@@ -92,7 +92,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'consistency', name: '一致性', nameEn: 'Consistency',
     description: '与既往报告/病理结果一致', descriptionEn: 'Consistency with prior/pathology',
-    weight: 0.05, enabled: true, color: '#8b5cf6', icon: '🔄',
+    weight: 0.05, enabled: true, color: '#8b5cf6', icon: '',
     subCriteria: [
       { key: 'prior-consistent', name: '与既往一致', nameEn: 'Prior consistent', weight: 0.50, description: '与既往报告一致', evaluator: 'ai', passingRule: '与既往报告趋势一致' },
       { key: 'pathology-match', name: '与病理一致', nameEn: 'Pathology match', weight: 0.50, description: '与病理结果一致', evaluator: 'ai', passingRule: '与病理结果一致' },
@@ -101,7 +101,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'imageQuality', name: '图像质量', nameEn: 'Image Quality',
     description: '影像质量是否符合诊断要求', descriptionEn: 'Image diagnostic quality',
-    weight: 0.10, enabled: true, color: '#06b6d4', icon: '🖼️',
+    weight: 0.10, enabled: true, color: '#06b6d4', icon: '',
     subCriteria: [
       { key: 'snr', name: '信噪比', nameEn: 'SNR', weight: 0.20, description: '信噪比达标', evaluator: 'ai', passingRule: 'SNR >= 30dB' },
       { key: 'cnr', name: '对比度', nameEn: 'CNR', weight: 0.20, description: '对比度达标', evaluator: 'ai', passingRule: 'CNR >= 3' },
@@ -270,7 +270,7 @@ export const QUALITY_DEFECTS: QualityDefect[] = [
   { id: 'd-031', code: 'LOG-002', name: '左右混淆', nameEn: 'Left-right confusion', category: 'LOG', severity: 'critical', description: '左右侧描述与图像不符', descriptionEn: 'Left-right description inconsistent with image', examples: ['描述"右肺"但图像为左肺'], solution: '核对图像重新阅片', solutionEn: 'Re-verify with image', references: [], count: 8, isActive: true, customDefect: false, level: 1, tags: ['逻辑', '严重'], sla: 4, trainingRequired: true, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },
   { id: 'd-032', code: 'LOG-003', name: '否定词歧义', nameEn: 'Negation ambiguity', category: 'LOG', severity: 'major', description: '"未见"等否定词未配合修饰词', descriptionEn: 'Ambiguous negation', examples: ['单独使用"未见异常"过于绝对'], solution: '改为"未见明显异常"等修饰性表述', solutionEn: 'Use modified negation', references: [], count: 67, isActive: true, customDefect: false, level: 1, tags: ['逻辑'], sla: 24, trainingRequired: true, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },
   { id: 'd-033', code: 'LOG-004', name: '逻辑矛盾', nameEn: 'Logical contradiction', category: 'LOG', severity: 'major', description: '报告中存在逻辑矛盾', descriptionEn: 'Logical contradictions', examples: ['前面说阴性，后面说阳性'], solution: '统一逻辑', solutionEn: 'Unify logic', references: [], count: 18, isActive: true, customDefect: false, level: 2, parentId: 'LOG', tags: ['逻辑'], sla: 24, trainingRequired: false, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },
-  { id: 'd-040', code: 'CRI-001', name: '危急值未标识', nameEn: 'Critical not marked', category: 'CRI', severity: 'critical', description: '危急值报告未明确标识', descriptionEn: 'Critical finding not marked', examples: ['未在开头标记"危急值"'], solution: '在报告开头加"⚠ 危急值"标识', solutionEn: 'Add warning mark', references: [], count: 5, isActive: true, customDefect: false, level: 1, tags: ['危急值', '严重'], sla: 1, trainingRequired: true, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },
+  { id: 'd-040', code: 'CRI-001', name: '危急值未标识', nameEn: 'Critical not marked', category: 'CRI', severity: 'critical', description: '危急值报告未明确标识', descriptionEn: 'Critical finding not marked', examples: ['未在开头标记"危急值"'], solution: '在报告开头加"危急值"标识', solutionEn: 'Add warning mark', references: [], count: 5, isActive: true, customDefect: false, level: 1, tags: ['危急值', '严重'], sla: 1, trainingRequired: true, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },
   { id: 'd-041', code: 'CRI-002', name: '危急值未通报', nameEn: 'Critical not notified', category: 'CRI', severity: 'critical', description: '危急值未及时通知临床', descriptionEn: 'Critical finding not notified in time', examples: ['未在10分钟内通报'], solution: '立即电话/短信通知临床并记录', solutionEn: 'Notify immediately', references: [], count: 3, isActive: true, customDefect: false, level: 1, tags: ['危急值', '严重'], sla: 1, trainingRequired: true, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },
   { id: 'd-050', code: 'CMP-001', name: '缺检查所见', nameEn: 'Missing findings', category: 'CMP', severity: 'major', description: '缺少"检查所见"段落', descriptionEn: 'Missing findings section', examples: ['仅有诊断意见没有所见'], solution: '补充检查所见段落', solutionEn: 'Add findings section', references: [], count: 34, isActive: true, customDefect: false, level: 1, tags: ['完整性'], sla: 24, trainingRequired: false, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },
   { id: 'd-051', code: 'CMP-002', name: '缺诊断意见', nameEn: 'Missing diagnosis', category: 'CMP', severity: 'major', description: '缺少"诊断意见"段落', descriptionEn: 'Missing diagnosis section', examples: ['仅有检查所见没有诊断'], solution: '补充诊断意见段落', solutionEn: 'Add diagnosis section', references: [], count: 28, isActive: true, customDefect: false, level: 1, tags: ['完整性'], sla: 24, trainingRequired: false, createdBy: 'system', createdAt: isoDaysAgo(180), updatedAt: isoDaysAgo(30) },

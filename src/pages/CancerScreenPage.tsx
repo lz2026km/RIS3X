@@ -15,6 +15,7 @@ import {
 import { screeningApi, type ScreeningTrendDto } from '../services/api/screeningApi'
 import { t } from '../i18n/appI18n'
 import { uniqueId } from '../utils/uniqueId'
+import { StatCard as CommonStatCard } from '../components/common/StatCard'
 
 // ---------- 统计数据 ----------
 const statsData = [
@@ -114,16 +115,28 @@ const s: Record<string, React.CSSProperties> = {
 }
 
 // ---------- 组件 ----------
+// [UI-4] 收敛至公共 StatCard (保留数值/单位/标签/趋势)
 const StatCard = ({ label, value, unit, sub, icon: Icon, color, bg, trend }: typeof statsData[0]) => (
-  <div style={s.statCard}>
-    <div style={{ ...s.statIcon, background: bg }}>
-      <Icon size={20} color={color} />
-    </div>
-    <div style={s.statValue}>{value}<span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-secondary)' }}>{unit}</span></div>
-    <div style={s.statLabel}>{label}</div>
-    {sub && <div style={s.statSub}>{sub}</div>}
-    {trend && <div style={{ ...s.statTrend, color: trend === 'up' ? '#16a34a' : '#dc2626' }}><ArrowUp size={12} />{trend === 'up' ? '↑' : '↓'}</div>}
-  </div>
+  <CommonStatCard
+    title={label}
+    value={value}
+    suffix={unit}
+    sub={
+      (sub || trend) ? (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          {sub}
+          {trend && (
+            <span style={{ color: trend === 'up' ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
+              <ArrowUp size={12} />{trend === 'up' ? '↑' : '↓'}
+            </span>
+          )}
+        </span>
+      ) : undefined
+    }
+    icon={<Icon size={20} color={color} />}
+    color={color}
+    iconBg={bg}
+  />
 )
 
 const StatusBadge = ({ status }: { status: string }) => {

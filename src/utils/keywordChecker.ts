@@ -275,7 +275,7 @@ function checkCriticalValueFlags(text: string): KeywordIssue[] {
       severity: 'warning',
       category: 'critical',
       message: '危急值报告应在报告中明确标注"危急值"、"紧急"、"立即"或"尽快"等提示',
-      suggestion: '在报告开头添加"⚠ 危急值"标识',
+      suggestion: '在报告开头添加"危急值"标识',
       matched: '未找到',
       position: -1,
     });

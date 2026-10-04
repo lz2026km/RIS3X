@@ -324,7 +324,7 @@ export default function TechWorkbenchPage() {
         return
       }
       await saveNoteIfAny(state.exam.id, state.note)
-      message.success(state.action === 'checkin' ? t('techWorkbench.actionCheckin') + ' ✓' : t('techWorkbench.actionStart') + ' ✓')
+      message.success(state.action === 'checkin' ? t('techWorkbench.actionCheckin') + ' ' : t('techWorkbench.actionStart') + ' ')
       setTransitionModal(null)
       await refresh()
     } catch (err) {
@@ -441,7 +441,7 @@ export default function TechWorkbenchPage() {
         try {
           const res = await worklistApi.resumeExam(exam.id)
           if (res.success) {
-            message.success(t('techWorkbench.actionStart') + ' ✓')
+            message.success(t('techWorkbench.actionStart') + ' ')
             await refresh()
           } else {
             message.error(res.error?.message ?? '操作失败')
@@ -1257,7 +1257,7 @@ export default function TechWorkbenchPage() {
             </div>
             {examStatusToStep(String(selectedExam.state ?? selectedExam.status)) >= 3 && (
               <div style={{ marginTop: 10, fontSize: 11, color: '#059669' }}>
-                ✓ {t('techWorkbench.completedMsg')}
+                {t('techWorkbench.completedMsg')}
               </div>
             )}
           </div>

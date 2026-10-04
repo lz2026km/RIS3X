@@ -16,6 +16,7 @@ import {
 } from '../services/api/caApi';
 import { PermissionGate } from '../components/common/PermissionGate';
 import { DataTable } from '../components/common/DataTable';
+import { StatusTag } from '../components/common/StatusTag';
 import { ActionButton } from '../components/common/ActionButton';
 import { t } from '../i18n/appI18n';
 
@@ -310,7 +311,7 @@ export default function CASignaturePage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Stamp size={20} color="#7c3aed" /> {t('caSignature.title')}
-            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('caSignature.subtitle')}
@@ -601,7 +602,7 @@ export default function CASignaturePage() {
                         }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.name}</div>
                           <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{c.desc}</div>
-                          <div style={{ marginTop: 4, fontSize: 12, color: '#10b981' }}>✓ {t('caSignature.verified')}</div>
+                          <div style={{ marginTop: 4, fontSize: 12, color: '#10b981' }}>{t('caSignature.verified')}</div>
                         </div>
                         {i < 2 && <ChevronRight size={14} color="var(--text-secondary)" />}
                       </React.Fragment>

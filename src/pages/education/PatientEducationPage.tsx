@@ -245,7 +245,7 @@ export default function PatientEducationPage() {
               {/* 播放器 */}
               {(selectedMaterial.contentType === 'video' || selectedMaterial.contentType === 'audio') && (
                 <div style={{ marginTop: 16, background: '#0f172a', borderRadius: 8, padding: 16, textAlign: 'center' }}>
-                  <div style={{ fontSize: 40, marginBottom: 8 }}>{selectedMaterial.contentType === 'video' ? '🎬' : '🎧'}</div>
+                  <div style={{ fontSize: 40, marginBottom: 8 }}>{selectedMaterial.contentType === 'video' ? '' : ''}</div>
                   <div style={{ fontSize: 13, color: '#e2e8f0', marginBottom: 12 }}>{selectedMaterial.title}</div>
                   <div style={{ background: '#1e293b', borderRadius: 4, height: 8, overflow: 'hidden', marginBottom: 12 }}>
                     <div style={{ width: `${playerProgress}%`, height: '100%', background: '#3b82f6', transition: 'width 0.3s' }} />
@@ -284,7 +284,7 @@ export default function PatientEducationPage() {
                     onClick={e => { e.stopPropagation(); void handleDeleteMaterial(m) }}
                   >×</button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 20 }}>{m.contentType === 'video' ? '🎬' : m.contentType === 'audio' ? '🎧' : m.contentType === 'pdf' ? '📄' : '📖'}</span>
+                    <span style={{ fontSize: 20 }}>{m.contentType === 'video' ? '' : m.contentType === 'audio' ? '' : m.contentType === 'pdf' ? '' : ''}</span>
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{m.title}</div>
                   </div>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{m.summary}</div>

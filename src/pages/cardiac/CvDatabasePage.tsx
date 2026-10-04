@@ -387,7 +387,7 @@ export default function CvDatabasePage() {
                   </td>
                   <td style={{ padding: "10px 12px", textAlign: "center" }}>
                     {c.hasSrReport ? (
-                      <span style={{ color: "#16a34a" }}>✓</span>
+                      <span style={{ color: "#16a34a" }}></span>
                     ) : (
                       <span style={{ color: "#94a3b8" }}>—</span>
                     )}

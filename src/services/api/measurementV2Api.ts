@@ -1,6 +1,6 @@
 /**
  * G005 RIS v3.0.6.11-101 Wave 3B (影像测量 V2 + 标注 V2 双向同步) - measurementV2Api
- * 8 工具确定性测量 / 标注对象 CRUD / 像素↔世界坐标换算 / 历史版本回滚
+ * 8 工具确定性测量 / 标注对象 CRUD / 像素世界坐标换算 / 历史版本回滚
  */
 import { api } from './client'
 import type { ApiResponse } from './types'

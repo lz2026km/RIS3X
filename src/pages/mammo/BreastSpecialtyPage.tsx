@@ -14,6 +14,7 @@ import { screeningApi, type ScreeningStatsDto } from '@/services/api/screeningAp
 import { dbtApi, type DbtStudyDto } from '@/services/api/dbtApi';
 import { dualReadApi, type DualReadAssignment } from '@/services/api/dualReadApi';
 import { t } from '../../i18n/appI18n';
+import { SeverityTag } from '../../components/common/SeverityTag';
 import { uniqueId } from '../../utils/uniqueId';
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
@@ -60,7 +61,15 @@ const DUAL_STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 const BiradsTag = ({ v }: { v: string | number }) => {
   const color = BIRADS_COLORS[String(v)] ?? '#94a3b8';
-  return <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: `${color}18`, color, border: `1px solid ${color}40` }}>BI-RADS {v}</span>;
+  return (
+    <SeverityTag
+      size="md"
+      tone={{ bg: `${color}18`, border: `${color}40`, color, dot: color }}
+      style={{ fontWeight: 700 }}
+    >
+      BI-RADS {v}
+    </SeverityTag>
+  );
 };
 
 // [G005 Wave4A G-21] 真实接口映射辅助
@@ -703,7 +712,7 @@ const BreastSpecialtyPage = () => {
                       <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.modality}</td>
                       <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.reader1Name} / {a.reader2Name}</td>
                       <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
-                        <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: `${st.color}18`, color: st.color, border: `1px solid ${st.color}40` }}>{t(st.label)}</span>
+                        <SeverityTag tone={{ bg: `${st.color}18`, border: `${st.color}40`, color: st.color, dot: st.color }}>{t(st.label)}</SeverityTag>
                         {a.status === 'arbitrated' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 6 }}>{t('breastSpecialty.arbitrationBy')}: {a.arbitratorName}</span>}
                       </td>
                       <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.discrepancyScore != null ? `${(a.discrepancyScore * 100).toFixed(0)}%` : '-'}</td>

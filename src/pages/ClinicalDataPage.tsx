@@ -2364,7 +2364,7 @@ export default function ClinicalDataPage() {
           <button style={styles.headerBtn} onClick={async (evt) => {
             const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
             const orig = btn.innerHTML;
-            btn.innerHTML = '⏳...';
+            btn.innerHTML = '...';
             btn.disabled = true;
             await new Promise(r => setTimeout(r, 1500));
             const reminders: any = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_reminders') || '{"enabled":false}') } catch { return { enabled: false } } })();
@@ -2379,7 +2379,7 @@ export default function ClinicalDataPage() {
           <button style={styles.headerBtn} onClick={async (evt) => {
             const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
             const orig = btn.innerHTML;
-            btn.innerHTML = '⏳...';
+            btn.innerHTML = '...';
             btn.disabled = true;
             await new Promise(r => setTimeout(r, 1500));
             const settings: any = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_settings') || '{}') } catch { return {} } })();

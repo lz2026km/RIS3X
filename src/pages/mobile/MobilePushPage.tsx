@@ -371,7 +371,7 @@ export default function MobilePushPage() {
                   opacity: opt.key === 'CRITICAL' && !checked ? 0.5 : 1,
                 }}
               >
-                {checked ? '✓ ' : ''}{opt.label}
+                {checked ? '' : ''}{opt.label}
               </button>
             )
           })}

@@ -81,7 +81,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
     mentions: ['D002'], fieldRef: 'findings', selectionRef: '增强扫描示不均匀强化',
     position: { x: 120, y: 280 }, status: 'open',
     createdAt: isoMinutesAgo(15), updatedAt: isoMinutesAgo(15),
-    replyCount: 2, reactions: [{ emoji: '👍', userIds: ['D006', 'D018'] }],
+    replyCount: 2, reactions: [{ emoji: 'like', userIds: ['D006', 'D018'] }],
   },
   {
     id: 'cmt-102', threadId: 'th-101', reportId: 'RP20260619013',
@@ -91,7 +91,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
     mentions: ['D001'], fieldRef: 'findings',
     position: { x: 120, y: 320 }, status: 'open',
     createdAt: isoMinutesAgo(12), updatedAt: isoMinutesAgo(12),
-    replyCount: 0, reactions: [{ emoji: '✅', userIds: ['D001'] }],
+    replyCount: 0, reactions: [{ emoji: 'approve', userIds: ['D001'] }],
   },
   {
     id: 'cmt-103', threadId: 'th-101', reportId: 'RP20260619013',
@@ -111,7 +111,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
     mentions: ['D002', 'D020'], fieldRef: 'findings', selectionRef: '纵隔内见肿大淋巴结,短径约 12mm',
     position: { x: 220, y: 380 }, status: 'open',
     createdAt: isoMinutesAgo(25), updatedAt: isoMinutesAgo(25),
-    replyCount: 1, reactions: [{ emoji: '🤔', userIds: ['D020'] }],
+    replyCount: 1, reactions: [{ emoji: 'think', userIds: ['D020'] }],
   },
   {
     id: 'cmt-202', threadId: 'th-201', reportId: 'RP20260619013',
@@ -132,7 +132,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
     position: { x: 380, y: 450 }, status: 'resolved',
     createdAt: isoHoursAgo(2), updatedAt: isoHoursAgo(1),
     resolvedAt: isoHoursAgo(1), resolvedBy: 'D001', resolvedByName: '张明远',
-    replyCount: 1, reactions: [{ emoji: '👌', userIds: ['D001', 'D002'] }],
+    replyCount: 1, reactions: [{ emoji: 'ok', userIds: ['D001', 'D002'] }],
   },
   {
     id: 'cmt-302', threadId: 'th-301', reportId: 'RP20260619013',
@@ -163,7 +163,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
     mentions: ['D005'],
     status: 'open',
     createdAt: isoMinutesAgo(28), updatedAt: isoMinutesAgo(28),
-    replyCount: 0, reactions: [{ emoji: '👍', userIds: ['D005'] }],
+    replyCount: 0, reactions: [{ emoji: 'like', userIds: ['D005'] }],
   },
   // Thread 5: 报告用语规范性
   {
@@ -174,7 +174,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
     mentions: ['D002'], fieldRef: 'impression',
     position: { x: 240, y: 500 }, status: 'open',
     createdAt: isoMinutesAgo(45), updatedAt: isoMinutesAgo(45),
-    replyCount: 0, reactions: [{ emoji: '📝', userIds: ['D001'] }],
+    replyCount: 0, reactions: [{ emoji: 'note', userIds: ['D001'] }],
   },
 ];
 
@@ -285,16 +285,16 @@ export const COLLAB_CHAT_MESSAGES: ChatMessage[] = [
     reactions: [], createdAt: isoMinutesAgo(15), recalled: false },
   { id: 'msg-002', roomId: 'cr-013', authorId: 'D002', authorName: '李慧敏', authorColor: COLORS[1],
     type: 'text', content: '好的,我马上补充 CT 值测量。', mentions: [], replyToId: 'msg-001',
-    reactions: [{ emoji: '👍', userIds: ['D001'] }], createdAt: isoMinutesAgo(14), recalled: false },
+    reactions: [{ emoji: 'like', userIds: ['D001'] }], createdAt: isoMinutesAgo(14), recalled: false },
   { id: 'msg-003', roomId: 'cr-013', authorId: 'D018', authorName: '高志远', authorColor: COLORS[3],
     type: 'text', content: '我看了图像,同意 D001 的意见,需要明确分期。', mentions: [],
     reactions: [], createdAt: isoMinutesAgo(10), recalled: false },
   { id: 'msg-004', roomId: 'cr-013', authorId: 'D006', authorName: '赵雪琴', authorColor: COLORS[5],
     type: 'mention', content: '@全体 建议加快进度,这例是 green channel', mentions: ['D001', 'D002', 'D017', 'D018'],
-    reactions: [{ emoji: '⏰', userIds: ['D001', 'D017'] }], createdAt: isoMinutesAgo(7), recalled: false },
+    reactions: [{ emoji: 'reminder', userIds: ['D001', 'D017'] }], createdAt: isoMinutesAgo(7), recalled: false },
   { id: 'msg-005', roomId: 'cr-013', authorId: 'D002', authorName: '李慧敏', authorColor: COLORS[1],
     type: 'text', content: '强化数据已补充:动脉期 78HU,静脉期 95HU,延迟期 82HU。', mentions: [],
-    reactions: [{ emoji: '✅', userIds: ['D001'] }], createdAt: isoMinutesAgo(5), recalled: false },
+    reactions: [{ emoji: 'approve', userIds: ['D001'] }], createdAt: isoMinutesAgo(5), recalled: false },
   { id: 'msg-006', roomId: 'cr-013', authorId: 'D017', authorName: '宋建军', authorColor: COLORS[1],
     type: 'text', content: '我把分期建议写在便签里了,请 D002 看一下。', mentions: ['D002'],
     reactions: [], createdAt: isoMinutesAgo(3), recalled: false },

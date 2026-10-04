@@ -297,7 +297,7 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
                     <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}><BadgeCheck size={12} style={{ color: COLORS.primary }} /> {sig.institution}</div>
                     <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>{sig.doctorName}</div>
                     <div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{sig.signTime}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>{sig.certificateStatus === '已认证' ? <><CheckCircle size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '10px', color: COLORS.success }}>✓{t('regionalReport.certified')}</span></> : <><XCircle size={12} style={{ color: COLORS.danger }} /><span style={{ fontSize: '10px', color: COLORS.danger }}>{t('regionalReport.uncertified')}</span></>}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>{sig.certificateStatus === '已认证' ? <><CheckCircle size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '10px', color: COLORS.success }}>{t('regionalReport.certified')}</span></> : <><XCircle size={12} style={{ color: COLORS.danger }} /><span style={{ fontSize: '10px', color: COLORS.danger }}>{t('regionalReport.uncertified')}</span></>}</div>
                   </div>
                   {idx < cs.signatures.length - 1 && <ArrowRight size={20} style={{ color: COLORS.textMuted }} />}
                 </React.Fragment>

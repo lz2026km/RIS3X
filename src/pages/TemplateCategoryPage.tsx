@@ -11,6 +11,7 @@ import { message } from 'antd';
 import { templatesApi, type TemplateCategoryDto, type TemplateDto } from '../services/api/templatesApi';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
+import { StatusTag } from '../components/common/StatusTag';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
   ChevronRight, ChevronDown, Search, Tag, Layers,
@@ -435,7 +436,7 @@ export default function TemplateCategoryPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <FolderTree size={20} color="#0891b2" /> {t('tplCategory.title')}
-            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
+            <StatusTag status="success" style={{ fontWeight: 700 }}>R2</StatusTag>
             {categorySource === 'api'
               ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{t('tplCategory.realtimeTag')}</span>
               : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('tplCategory.staticTag')}</span>}
@@ -658,7 +659,7 @@ export default function TemplateCategoryPage() {
                           onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-info-bg)'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
                         >
-                          <span style={{ fontSize: 16 }}>{c.icon || '📁'}</span>
+                          <span style={{ fontSize: 16 }}>{c.icon || ''}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.name}</div>
                             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.code}</div>

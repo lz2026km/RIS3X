@@ -141,7 +141,7 @@ export default function CQIPage() {
                     <div><span style={{ color: '#8b5cf6' }}>{t('cqi.act')}</span> {pd.act}</div>
                   </div>
                   <div style={{ marginTop: 6, fontSize: 12, color: pd.success ? '#22c55e' : '#ef4444' }}>
-                    {pd.outcome} {pd.success ? '✅' : '❌'}
+                    {pd.outcome} {pd.success ? '' : ''}
                   </div>
                 </div>
               )) : (

@@ -1,3 +1,4 @@
+import { Trophy } from 'lucide-react'
 import { formatCurrency } from './index'
 import type { EquipmentCost, ConsumableCost, LaborCost, MedicalConsumableDetail, EquipmentDepreciation, ExamProfitMargin, DeptRevenue } from './index'
 
@@ -317,7 +318,11 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
   return (
     <div style={rowStyle}>
       <span style={{ color: '#6e7681', fontSize: 12 }}>
-        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+        {index < 3 ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#f59e0b', fontWeight: 700 }}>
+            <Trophy size={12} />{index + 1}
+          </span>
+        ) : index + 1}
       </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{

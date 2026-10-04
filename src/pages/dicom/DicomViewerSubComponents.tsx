@@ -1,37 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import type { Tool, PseudoColorMode, Series, MipDirection } from './DicomViewerTypes'
 import { applyGSOFToGray, type GsofMode } from '../../utils/gsdf'
 
-export function Tooltip({ children, title }: { children: React.ReactNode; title: string }) {
-  const [show, setShow] = useState(false)
-  return (
-    <div style={{ position: 'relative' }}
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
-    >
-      {children}
-      {show && (
-        <div style={{
-          position: 'absolute',
-          left: '100%',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          marginLeft: 8,
-          background: 'rgba(0,0,0,0.85)',
-          color: '#fff',
-          padding: '4px 8px',
-          borderRadius: 4,
-          fontSize: 12,
-          whiteSpace: 'nowrap',
-          zIndex: 1000,
-          pointerEvents: 'none',
-        }}>
-          {title}
-        </div>
-      )}
-    </div>
-  )
-}
+// [UI-3] 统一使用 antd Tooltip, 移除本地手写气泡
+export { Tooltip } from 'antd'
 
 export function MIPCanvas({
   mipDirection, mipFrame, ww, wl, gsofEnabled, gsofMode,

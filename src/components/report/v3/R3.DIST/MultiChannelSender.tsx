@@ -369,9 +369,9 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
                   title={<Space><span className="font-semibold">{c.displayName}</span><Tag>{c.template}</Tag>{c.credentialConfigured ? <Tag color="green" icon={<CheckCircle2 className="w-3 h-3" />}>{t('reportDist.configured')}</Tag> : <Tag color="red">{t('reportDist.notConfigured')}</Tag>}</Space>}
                   description={
                     <div className="text-xs text-slate-500 space-y-1">
-                      <div>📡 {c.host ?? 'mock'}:{c.port ?? '-'}</div>
-                      <div>🔁 {t('reportDist.retry')} {c.retryPolicy.maxRetries} {t('reportDist.timesUnit')} · {c.retryPolicy.backoffStrategy === 'exponential' ? t('reportDist.backoff.exponential') : t('reportDist.backoff.fixed')} · {t('reportDist.rateLimit')} {c.rateLimitPerMin}/min</div>
-                      <div>📋 {t('reportDist.supports')} {c.supportedFormats.join(', ')}</div>
+                      <div>{c.host ?? 'mock'}:{c.port ?? '-'}</div>
+                      <div>{t('reportDist.retry')} {c.retryPolicy.maxRetries} {t('reportDist.timesUnit')} · {c.retryPolicy.backoffStrategy === 'exponential' ? t('reportDist.backoff.exponential') : t('reportDist.backoff.fixed')} · {t('reportDist.rateLimit')} {c.rateLimitPerMin}/min</div>
+                      <div>{t('reportDist.supports')} {c.supportedFormats.join(', ')}</div>
                     </div>
                   }
                 />

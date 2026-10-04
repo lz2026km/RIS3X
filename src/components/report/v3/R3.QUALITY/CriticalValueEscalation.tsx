@@ -360,7 +360,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                           border: '1px dashed var(--border-color)',
                         }}
                       >
-                        📧 {rule.messageTemplate}
+                        {rule.messageTemplate}
                       </div>
                       <div style={{ marginTop: 6 }}>
                         <Space size={4} wrap>

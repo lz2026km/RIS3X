@@ -50,7 +50,7 @@ const FONT_FAMILIES = [
 
 const FONT_SIZES = [9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 36];
 
-const RAD_SPECIALS = ['±', '≤', '≥', '≠', '≈', '°', 'μ', 'α', 'β', 'γ', '→', '↑', '↓', '®', '©', '™', '×10⁹', '×10¹²'];
+const RAD_SPECIALS = ['±', '≤', '≥', '≠', '≈', '°', 'μ', 'α', 'β', 'γ', '→', '↑', '↓', '\u00AE', '\u00A9', '\u2122', '×10⁹', '×10¹²'];
 
 export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(({
   reportId, initialHtml, initialPlainText, onChange, onSave, readOnly = false,

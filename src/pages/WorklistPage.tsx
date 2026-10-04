@@ -48,7 +48,7 @@ import {
   RequisitionDrawer,
 } from './worklist'
 import type { FilterState, BatchState } from './worklist'
-import { PageContainer } from '../components/common/PageContainer'
+import { PageTemplate } from '../components/common/PageTemplate'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import BatchActionBar from '../components/batch/BatchActionBar'
 import { AppButton } from '../components/common/AppButton'
@@ -679,7 +679,7 @@ export default function WorklistPage() {
   useEffect(() => { void refreshPrefetchStatus() }, [refreshPrefetchStatus])
 
   // ============================================================
-  // [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 行内「传输」状态列
+  // [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE worklist 联动: 行内「传输」状态列
   // 从 dicomDimseApi.listTransfers 派生 examId/检查号 → 队列状态映射
   // ============================================================
   const [transferStatusMap, setTransferStatusMap] = useState<Record<string, string>>({})
@@ -1557,10 +1557,13 @@ export default function WorklistPage() {
   ])
 
   return (
-    <PageContainer
+    <PageTemplate
       background="slate"
       maxWidth="full"
       fabPadding
+      showHeader={false}
+      loading={loading}
+      error={loadError}
       testId="worklist-page"
     >
       {loading && <LoadingBanner message={t('worklist.loadingApi')} />}
@@ -1911,7 +1914,7 @@ export default function WorklistPage() {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <UserCheck size={13} /> {t('worklistPage.todayBatch.title')}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 10, marginBottom: 12 }}>
             <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '8px 10px' }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#2563eb', lineHeight: 1.2 }}>{todayBatchCounts.checkedIn}</div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{t('worklistPage.todayBatch.checkedIn')}</div>
@@ -1937,7 +1940,7 @@ export default function WorklistPage() {
       {/* [G005 v3.0.6.11-99 Wave 10E-1] B5/B6/B7. 模态 SLA + 今日小时分布 + 批量动态 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
         gap: 16,
         marginBottom: 16,
       }} data-testid="worklist-deep-row2">
@@ -2086,7 +2089,7 @@ export default function WorklistPage() {
       {(overview || byModality.length > 0 || technicianStats) && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
           gap: 16,
           marginBottom: 16,
         }} data-testid="worklist-overview-panel">
@@ -2104,7 +2107,7 @@ export default function WorklistPage() {
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('worklistPage.noData')}</div>
             ) : (
               <div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 8, marginBottom: 10 }}>
                   {[
                     [t('worklist.overview.todayExams'), `${overview.todayTotal}`],
                     [t('worklist.overview.todayCompleted'), `${overview.completedToday}`],
@@ -2771,7 +2774,7 @@ export default function WorklistPage() {
                 </div>
               )}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 6, marginBottom: 16 }}>
               {WORKLIST_COLUMNS.map(c => {
                 const isOn = c.key in columnConfig ? columnConfig[c.key] : c.default
                 return (
@@ -2799,6 +2802,6 @@ export default function WorklistPage() {
           </Card>
         </div>
       )}
-    </PageContainer>
+    </PageTemplate>
   )
 }

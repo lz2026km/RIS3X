@@ -6,8 +6,7 @@ import type { ColdArchiveResultDto } from '../services/api/w13SecurityApi'
 import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List, Alert, Checkbox } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
 import { PageHeader } from '../components/common/PageHeader'
-import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined, WarningOutlined, LineChartOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
-import { Search } from 'lucide-react'
+import { Search, ClipboardList, BarChart3, RefreshCw, Download, Filter, User, Eye, AlertTriangle, LineChart, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react'
 import { t } from '../i18n/appI18n'
 import { ErrorBanner } from '../components/feedback'
 
@@ -170,7 +169,7 @@ export default function AuditPage() {
     { title: t('auditPage.colIp'), dataIndex: 'ip', key: 'ip', width: 130, render: (v) => <Tooltip title={String(v ?? '-')}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{String(v ?? '-')}</span></Tooltip> },
     { title: t('auditPage.colDetails'), dataIndex: 'details', key: 'details', ellipsis: true, render: (value) => String(value ?? '-') },
     { title: t('auditPage.colActions'), key: 'actions', width: 90, render: (_value, record) => (
-      <Button size="small" type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(record.id)}>{t('auditPage.viewDetail')}</Button>
+      <Button size="small" type="link" icon={<Eye />} onClick={() => handleViewDetail(record.id)}>{t('auditPage.viewDetail')}</Button>
     ) },
   ]
 
@@ -198,26 +197,26 @@ export default function AuditPage() {
         <Space orientation="vertical" style={{ width: '100%' }}>
 {loadError && !loading && <ErrorBanner message={loadError} />}
 <Row justify="space-between" align="middle">
-<PageHeader variant="flex" icon={<AuditOutlined />} title={t('auditPage.title')} style={{ marginBottom: 0 }} />
+<PageHeader variant="flex" icon={<ClipboardList />} title={t('auditPage.title')} style={{ marginBottom: 0 }} />
             <Space>
-              <Button icon={<DownloadOutlined />} onClick={handleExport}>{t('auditPage.export')}</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain(); fetchOrphanChain() }}>{t('auditPage.refresh')}</Button>
+              <Button icon={<Download />} onClick={handleExport}>{t('auditPage.export')}</Button>
+              <Button icon={<RefreshCw />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain(); fetchOrphanChain() }}>{t('auditPage.refresh')}</Button>
             </Space>
           </Row>
           <Tabs items={[
             {
               key: 'overview',
-              label: <span><BarChartOutlined /> {t('auditPage.tabOverview')}</span>,
+              label: <span><BarChart3 /> {t('auditPage.tabOverview')}</span>,
               children: stats ? (
                 <>
                   <Row gutter={16}>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTotalLogs')} value={stats.total} prefix={<AuditOutlined />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statLast24h')} value={stats.last24h} prefix={<BarChartOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTotalLogs')} value={stats.total} prefix={<ClipboardList />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statLast24h')} value={stats.last24h} prefix={<BarChart3 />} /></Card></Col>
                     {/* [Wave 4B] 后端 GET /audit/overview 真实数据 */}
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTodayOps')} value={overview?.todayOperations ?? '-'} prefix={<LineChartOutlined />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statActiveUsers')} value={overview?.activeUsers ?? '-'} prefix={<UserOutlined />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statHighRisk')} value={overview?.highRiskCount ?? '-'} prefix={<WarningOutlined />} styles={{ content: { color: (overview?.highRiskCount ?? 0) > 0 ? '#fa8c16' : '#52c41a' } }} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statSuccessRate')} value={overview ? `${overview.successRate}%` : '-'} prefix={<SafetyCertificateOutlined />} styles={{ content: { color: (overview?.successRate ?? 0) >= 90 ? '#52c41a' : '#fa8c16' } }} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTodayOps')} value={overview?.todayOperations ?? '-'} prefix={<LineChart />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statActiveUsers')} value={overview?.activeUsers ?? '-'} prefix={<User />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statHighRisk')} value={overview?.highRiskCount ?? '-'} prefix={<AlertTriangle />} styles={{ content: { color: (overview?.highRiskCount ?? 0) > 0 ? '#fa8c16' : '#52c41a' } }} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statSuccessRate')} value={overview ? `${overview.successRate}%` : '-'} prefix={<ShieldCheck />} styles={{ content: { color: (overview?.successRate ?? 0) >= 90 ? '#52c41a' : '#fa8c16' } }} /></Card></Col>
                     {overview?.seeded === true && (
                       <Col span={24} style={{ marginTop: 4 }}>
                         <Tag color="gold" style={{ fontSize: 11 }}>{t('auditPage.seededTag')}</Tag>
@@ -242,7 +241,7 @@ export default function AuditPage() {
                   </Row>
                   {/* [Wave 4B] 近 30 日操作趋势 (GET /audit/action-trend) */}
                   {trend.length > 0 && (
-                    <Card size="small" title={<span><LineChartOutlined /> {t('auditPage.trendTitle')}</span>} style={{ marginTop: 12 }}>
+                    <Card size="small" title={<span><LineChart /> {t('auditPage.trendTitle')}</span>} style={{ marginTop: 12 }}>
                       <Row gutter={[8, 8]}>
                         {trend.slice(-14).map((p) => {
                           const max = Math.max(...trend.map((t) => t.total), 1)
@@ -268,7 +267,7 @@ export default function AuditPage() {
                   <Row gutter={16} style={{ marginTop: 12 }}>
                     {/* [Wave 4B] 用户活跃排行 (GET /audit/user-activity) */}
                     <Col span={12}>
-                      <Card size="small" title={<span><UserOutlined /> {t('auditPage.userActivityTitle')}</span>}>
+                      <Card size="small" title={<span><User /> {t('auditPage.userActivityTitle')}</span>}>
                         {userActivity.length === 0 ? (
                           <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>{t('auditPage.noData')}</div>
                         ) : (
@@ -292,7 +291,7 @@ export default function AuditPage() {
                     </Col>
                     {/* [Wave 4B] 高危操作清单 (GET /audit/high-risk) */}
                     <Col span={12}>
-                      <Card size="small" title={<span><WarningOutlined /> {t('auditPage.highRiskTitle')}</span>} extra={highRisk ? <Tag color="red">{t('auditPage.totalTimes', { total: highRisk.total })}</Tag> : null}>
+                      <Card size="small" title={<span><AlertTriangle /> {t('auditPage.highRiskTitle')}</span>} extra={highRisk ? <Tag color="red">{t('auditPage.totalTimes', { total: highRisk.total })}</Tag> : null}>
                         {!highRisk || highRisk.actions.length === 0 ? (
                           <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>{t('auditPage.noHighRisk')}</div>
                         ) : (
@@ -319,7 +318,7 @@ export default function AuditPage() {
             },
             {
               key: 'logs',
-              label: <span><FilterOutlined /> {t('auditPage.tabLogs')}</span>,
+              label: <span><Filter /> {t('auditPage.tabLogs')}</span>,
               children: (
                 <>
                   <Space style={{ marginBottom: 16 }}>
@@ -341,9 +340,9 @@ export default function AuditPage() {
             },
             {
               key: 'chain',
-              label: <span><SafetyCertificateOutlined /> {t('w13Sec.ac.title')}</span>,
+              label: <span><ShieldCheck /> {t('w13Sec.ac.title')}</span>,
               children: (
-                <Card size="small" extra={<Button size="small" type="primary" icon={<ReloadOutlined />} loading={chainLoading} onClick={() => void fetchChain()}>{t('w13Sec.ac.verify')}</Button>}>
+                <Card size="small" extra={<Button size="small" type="primary" icon={<RefreshCw />} loading={chainLoading} onClick={() => void fetchChain()}>{t('w13Sec.ac.verify')}</Button>}>
                   {chain ? (
                     <>
                       <Alert
@@ -353,7 +352,7 @@ export default function AuditPage() {
                         description={chain.reason ?? undefined}
                       />
                       <Row gutter={16} style={{ marginTop: 12 }}>
-                        <Col span={6}><Statistic title={t('w13Sec.ac.blocks')} value={chain.totalBlocks} prefix={<SafetyCertificateOutlined />} /></Col>
+                        <Col span={6}><Statistic title={t('w13Sec.ac.blocks')} value={chain.totalBlocks} prefix={<ShieldCheck />} /></Col>
                         <Col span={6}><Statistic title={t('w13Sec.ac.checked')} value={chain.checkedBlocks} /></Col>
                         <Col span={6}><Statistic title={t('w13Sec.ac.source')} value={t(`w13Sec.ac.source.${chain.source}`)} /></Col>
                         <Col span={6}><Card size="small"><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w13Sec.ac.headHash')}</div><Tooltip title={chain.headHash}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{chain.headHash.slice(0, 20)}…</span></Tooltip></Card></Col>
@@ -363,8 +362,8 @@ export default function AuditPage() {
                           <Descriptions.Item label={t('w13Sec.ac.retentionMonths')}>{chainRetention.retentionMonths}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.retentionDays')}>{chainRetention.retentionDays}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{chainRetention.archiveLocation}</span></Descriptions.Item>
-                          <Descriptions.Item label={t('w13Sec.ac.encrypted')}>{chainRetention.encrypted ? '✓' : '✗'}</Descriptions.Item>
-                          <Descriptions.Item label={t('w13Sec.ac.immutable')}>{chainRetention.immutable ? '✓' : '✗'}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.encrypted')}>{chainRetention.encrypted ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.immutable')}>{chainRetention.immutable ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.lastArchive')}>{chainRetention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
                         </Descriptions>
                       )}
@@ -377,7 +376,7 @@ export default function AuditPage() {
             },
             {
               key: 'chainRetention',
-              label: <span><SafetyCertificateOutlined /> {t('w4a.audit.tab')}</span>,
+              label: <span><ShieldCheck /> {t('w4a.audit.tab')}</span>,
               children: (
                 <Card
                   size="small"
@@ -389,7 +388,7 @@ export default function AuditPage() {
                       >
                         {t('w4a.audit.simulateBroken')}
                       </Checkbox>
-                      <Button size="small" icon={<ReloadOutlined />} loading={orphanBusy} onClick={() => void fetchOrphanChain()}>{t('w4a.audit.verify')}</Button>
+                      <Button size="small" icon={<RefreshCw />} loading={orphanBusy} onClick={() => void fetchOrphanChain()}>{t('w4a.audit.verify')}</Button>
                       <Button size="small" type="primary" loading={orphanBusy} onClick={() => void handleColdArchive()}>{t('w4a.audit.coldArchive')}</Button>
                     </Space>
                   }
@@ -403,7 +402,7 @@ export default function AuditPage() {
                         description={orphanChain.reason ?? undefined}
                       />
                       <Row gutter={16} style={{ marginTop: 12 }}>
-                        <Col span={6}><Statistic title={t('w4a.audit.blocks')} value={orphanChain.totalBlocks} prefix={<SafetyCertificateOutlined />} /></Col>
+                        <Col span={6}><Statistic title={t('w4a.audit.blocks')} value={orphanChain.totalBlocks} prefix={<ShieldCheck />} /></Col>
                         <Col span={6}><Statistic title={t('w4a.audit.checked')} value={orphanChain.checkedBlocks} /></Col>
                         <Col span={6}><Statistic title={t('w4a.audit.source')} value={orphanChain.source === 'database' ? t('w4a.audit.sourceDatabase') : t('w4a.audit.sourceSeed')} /></Col>
                         <Col span={6}><Card size="small"><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w4a.audit.headHash')}</div><Tooltip title={orphanChain.headHash}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanChain.headHash.slice(0, 20)}…</span></Tooltip></Card></Col>
@@ -413,8 +412,8 @@ export default function AuditPage() {
                           <Descriptions.Item label={t('w4a.audit.retentionMonths')}>{orphanRetention.retentionMonths}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.retentionDays')}>{orphanRetention.retentionDays}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanRetention.archiveLocation}</span></Descriptions.Item>
-                          <Descriptions.Item label={t('w4a.audit.encrypted')}>{orphanRetention.encrypted ? '✓' : '✗'}</Descriptions.Item>
-                          <Descriptions.Item label={t('w4a.audit.immutable')}>{orphanRetention.immutable ? '✓' : '✗'}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.encrypted')}>{orphanRetention.encrypted ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.immutable')}>{orphanRetention.immutable ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.lastArchive')}>{orphanRetention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.note')} span={3}>{orphanRetention.note}</Descriptions.Item>
                         </Descriptions>
@@ -438,7 +437,7 @@ export default function AuditPage() {
             },
             {
               key: 'policy',
-              label: <span><AuditOutlined /> {t('auditPage.tabPolicy')}</span>,
+              label: <span><ClipboardList /> {t('auditPage.tabPolicy')}</span>,
               children: (
                 <Card size="small">
                   <Descriptions bordered column={2}>
@@ -455,7 +454,7 @@ export default function AuditPage() {
       </Card>
       {/* [W2-C] 审计记录详情 Drawer */}
       <Drawer
-        title={<Space><EyeOutlined /> {t('auditPage.detailTitle')}</Space>}
+        title={<Space><Eye /> {t('auditPage.detailTitle')}</Space>}
         width={520}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}

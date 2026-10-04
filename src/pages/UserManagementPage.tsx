@@ -165,7 +165,7 @@ export default function UserManagementPage() {
               fontSize: 14,
             }}
           >
-            🔒 您当前角色没有用户管理权限,无法新增/编辑/删除用户。请联系系统管理员。
+            您当前角色没有用户管理权限,无法新增/编辑/删除用户。请联系系统管理员。
           </div>
         }
       >

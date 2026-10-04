@@ -32,7 +32,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '检查所见完整性', nameEn: 'Findings Completeness',
     description: '检查所见段落是否包含部位/形态/大小/密度/信号/增强 6 要素',
     descriptionEn: 'Findings section covers location/morphology/size/density/signal/enhancement',
-    weight: 0.04, enabled: true, color: '#3b82f6', icon: '📋',
+    weight: 0.04, enabled: true, color: '#3b82f6', icon: '',
     passingRule: '所见长度 >= 80 字符且包含 4 项关键要素',
     passingRuleEn: 'Findings length >= 80 chars and includes 4 key elements',
     rules: [
@@ -48,7 +48,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '诊断印象完整性', nameEn: 'Impression Completeness',
     description: '诊断印象段落是否主次有序、结论明确',
     descriptionEn: 'Impression ordered and unambiguous',
-    weight: 0.04, enabled: true, color: '#1d4ed8', icon: '🩺',
+    weight: 0.04, enabled: true, color: '#1d4ed8', icon: '',
     passingRule: '印象长度 >= 30 字符且包含主要诊断',
     passingRuleEn: 'Impression length >= 30 chars and includes primary diagnosis',
     rules: [
@@ -63,7 +63,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '建议完整性', nameEn: 'Recommendation Completeness',
     description: '是否包含随访/复查/治疗建议',
     descriptionEn: 'Contains follow-up/review/treatment recommendations',
-    weight: 0.03, enabled: true, color: '#0ea5e9', icon: '💡',
+    weight: 0.03, enabled: true, color: '#0ea5e9', icon: '',
     passingRule: '包含随访/复查/治疗 关键词',
     passingRuleEn: 'Contains follow-up/review/treatment keywords',
     rules: [
@@ -76,7 +76,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '结构化字段完整', nameEn: 'Structured Fields',
     description: '结构化字段填写率',
     descriptionEn: 'Structured field fill rate',
-    weight: 0.05, enabled: true, color: '#06b6d4', icon: '📝',
+    weight: 0.05, enabled: true, color: '#06b6d4', icon: '',
     passingRule: '结构化字段填写率 >= 80%',
     passingRuleEn: 'Structured field fill rate >= 80%',
     rules: [
@@ -89,7 +89,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '签名完整', nameEn: 'Signature',
     description: '报告签名是否完整',
     descriptionEn: 'Report signature complete',
-    weight: 0.04, enabled: true, color: '#0d9488', icon: '✍️',
+    weight: 0.04, enabled: true, color: '#0d9488', icon: '',
     passingRule: '包含医生签名 + 审核签名',
     passingRuleEn: 'Includes doctor + reviewer signatures',
     rules: [
@@ -103,7 +103,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '所见-诊断一致', nameEn: 'Findings-Diagnosis Match',
     description: '诊断结论与检查所见是否一致',
     descriptionEn: 'Diagnosis consistent with findings',
-    weight: 0.06, enabled: true, color: '#10b981', icon: '🎯',
+    weight: 0.06, enabled: true, color: '#10b981', icon: '',
     passingRule: 'AI 相似度 >= 0.85',
     passingRuleEn: 'AI similarity >= 0.85',
     rules: [
@@ -116,7 +116,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '解剖方位正确', nameEn: 'Anatomy & Laterality',
     description: '左右侧/解剖部位描述准确',
     descriptionEn: 'Left/right and anatomy description accurate',
-    weight: 0.04, enabled: true, color: '#059669', icon: '🧭',
+    weight: 0.04, enabled: true, color: '#059669', icon: '',
     passingRule: '方位词与图像标注一致',
     passingRuleEn: 'Laterality matches image annotation',
     rules: [
@@ -129,7 +129,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '结合临床', nameEn: 'Clinical Reference',
     description: '是否结合临床病史/化验',
     descriptionEn: 'References clinical history/labs',
-    weight: 0.04, enabled: true, color: '#16a34a', icon: '🧪',
+    weight: 0.04, enabled: true, color: '#16a34a', icon: '',
     passingRule: '包含临床病史或化验引用',
     passingRuleEn: 'Includes clinical history or lab reference',
     rules: [
@@ -142,7 +142,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '危急值标记', nameEn: 'Critical Marking',
     description: '危急值是否标记并通报',
     descriptionEn: 'Critical value marked and notified',
-    weight: 0.04, enabled: true, color: '#dc2626', icon: '⚠️',
+    weight: 0.04, enabled: true, color: '#dc2626', icon: '',
     passingRule: '危急值 10 分钟内通报',
     passingRuleEn: 'Critical notified within 10 minutes',
     rules: [
@@ -156,7 +156,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '无逻辑矛盾', nameEn: 'No Contradiction',
     description: '全文无阴阳/前后矛盾',
     descriptionEn: 'No positive/negative or internal contradictions',
-    weight: 0.02, enabled: true, color: '#ea580c', icon: '⚖️',
+    weight: 0.02, enabled: true, color: '#ea580c', icon: '',
     passingRule: '矛盾检测器返回 0 条矛盾',
     passingRuleEn: 'Contradiction detector returns 0 contradictions',
     rules: [
@@ -170,7 +170,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: 'TAT 达标', nameEn: 'TAT Met',
     description: '报告是否在 TAT 阈值内完成',
     descriptionEn: 'Report completed within TAT threshold',
-    weight: 0.08, enabled: true, color: '#f59e0b', icon: '⏱️',
+    weight: 0.08, enabled: true, color: '#f59e0b', icon: '',
     passingRule: '危急<=30min/急诊<=2h/普通<=24h',
     passingRuleEn: 'Critical<=30min/Urgent<=2h/Routine<=24h',
     rules: [
@@ -184,7 +184,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '优先级处理', nameEn: 'Priority Handling',
     description: '按优先级处理',
     descriptionEn: 'Processed by priority',
-    weight: 0.04, enabled: true, color: '#d97706', icon: '🚦',
+    weight: 0.04, enabled: true, color: '#d97706', icon: '',
     passingRule: 'STAT 优先于普通',
     passingRuleEn: 'STAT handled before routine',
     rules: [
@@ -197,7 +197,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '个人按时率', nameEn: 'On-Time Rate',
     description: '医生近 30 天按时率',
     descriptionEn: 'Doctor 30-day on-time rate',
-    weight: 0.04, enabled: true, color: '#b45309', icon: '📈',
+    weight: 0.04, enabled: true, color: '#b45309', icon: '',
     passingRule: '按时率 >= 90%',
     passingRuleEn: 'On-time rate >= 90%',
     rules: [
@@ -209,7 +209,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '提交及时', nameEn: 'Submit Within Window',
     description: '从书写完成到提交审核时长',
     descriptionEn: 'Time from writing to submit',
-    weight: 0.02, enabled: true, color: '#ca8a04', icon: '🚀',
+    weight: 0.02, enabled: true, color: '#ca8a04', icon: '',
     passingRule: '提交间隔 <= 15 分钟',
     passingRuleEn: 'Submit interval <= 15 minutes',
     rules: [
@@ -221,7 +221,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '签发及时', nameEn: 'Sign Within Window',
     description: '从审核完成到签发时长',
     descriptionEn: 'Time from review complete to sign',
-    weight: 0.02, enabled: true, color: '#a16207', icon: '🖋️',
+    weight: 0.02, enabled: true, color: '#a16207', icon: '',
     passingRule: '签发间隔 <= 30 分钟',
     passingRuleEn: 'Sign interval <= 30 minutes',
     rules: [

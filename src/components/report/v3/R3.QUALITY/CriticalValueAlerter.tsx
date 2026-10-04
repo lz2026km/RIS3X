@@ -534,7 +534,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     <div style={{ fontSize: 12, color: '#334155' }}>
                       <strong>{e.ruleCode}</strong> · {e.ruleName}
                     </div>
-                    <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>📋 {e.detail}</div>
+                    <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{e.detail}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                       <Clock size={10} /> {t('criticalValue.report')} {timeAgo(e.reportedAt)} by {e.reportedByName}(
                       {e.reportedByTitle})
@@ -807,7 +807,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                           color={a.success ? 'green' : 'red'}
                           icon={<Icon size={10} color={cm.color} />}
                         >
-                          {cm.label} {a.success ? '✓' : '✗'} {formatHM(a.attemptedAt)}
+                          {cm.label} {a.success ? '' : ''} {formatHM(a.attemptedAt)}
                         </Tag>
                       );
                     })}

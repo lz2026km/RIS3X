@@ -78,7 +78,7 @@ function drawBeatingHeart(
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.fillStyle = '#ef4444'
-  ctx.fillText('♥', w / 2, h / 2)
+  ctx.fillText('', w / 2, h / 2)
   ctx.restore()
 }
 
@@ -510,7 +510,7 @@ export default function Dicom4dPage() {
             </span>
           )}
           {seriesLoadError && (
-            <span style={{ fontSize: 11, color: '#f87171' }}>⚠ {seriesLoadError}</span>
+            <span style={{ fontSize: 11, color: '#f87171' }}>{seriesLoadError}</span>
           )}
         </div>
       </Card>

@@ -169,7 +169,7 @@ const OctViewerPage: React.FC = () => {
   const [measuring, setMeasuring] = useState(false);
   const [measureMode, setMeasureMode] = useState<'none' | 'distance'>('none');
   // [v3.0.6.11-99 Wave8A P1] 真实测量: canvas 取点 (两点距离 → μm 换算)
-  // 页面无真实 OCT 比例尺数据 → 从合成影像派生「示例比例」: 560px ↔ 6mm 扫描宽度 (Macular Cube 典型值)
+  // 页面无真实 OCT 比例尺数据 → 从合成影像派生「示例比例」: 560px 6mm 扫描宽度 (Macular Cube 典型值)
   const [measurePoints, setMeasurePoints] = useState<Array<{ x: number; y: number }>>([]);
   const [measureResult, setMeasureResult] = useState<{ px: number; um: number } | null>(null);
   const UM_PER_PX = 6000 / 560;

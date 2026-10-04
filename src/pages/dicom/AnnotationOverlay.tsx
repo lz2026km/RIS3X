@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { X, Eye, EyeOff, Lock, Unlock, Trash2 } from 'lucide-react'
 import type { Annotation, AnnotationType } from './DicomViewerTypes'
 import { useFocusTrap } from '../../a11y/SkipLink'
 import { useEscape } from '../../hooks/useEscape'
@@ -76,7 +77,7 @@ export default function AnnotationOverlay(props: Props) {
         <div ref={panelRef} role="dialog" aria-modal="true" aria-label={t('w9d.annotation.panelTitle')} style={{ position: 'absolute' as const, left: 60, top: 200, width: 200, background: 'var(--bg-card)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('w9d.annotation.panelTitle')}</span>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} onClick={closePanel} aria-label={t('w9d.annotation.closePanelAria')}>✕</button>
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} onClick={closePanel} aria-label={t('w9d.annotation.closePanelAria')}><X size={13} /></button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 }}>
             {annotationTypes.map(({ type, icon, label }) => (
@@ -109,9 +110,9 @@ export default function AnnotationOverlay(props: Props) {
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>{ann.type} | {ann.visible ? t('w9d.annotation.visible') : t('w9d.annotation.hidden')}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={e => { e.stopPropagation(); toggleAnnotationVisibility(ann.id) }}>{ann.visible ? '👁' : '👁‍🗨'}</button>
-                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={e => { e.stopPropagation(); toggleAnnotationLock(ann.id) }}>{ann.locked ? '🔒' : '🔓'}</button>
-                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={e => { e.stopPropagation(); deleteAnnotation(ann.id) }}>🗑</button>
+                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }} onClick={e => { e.stopPropagation(); toggleAnnotationVisibility(ann.id) }}>{ann.visible ? <Eye size={13} /> : <EyeOff size={13} />}</button>
+                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }} onClick={e => { e.stopPropagation(); toggleAnnotationLock(ann.id) }}>{ann.locked ? <Lock size={12} /> : <Unlock size={12} />}</button>
+                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }} onClick={e => { e.stopPropagation(); deleteAnnotation(ann.id) }}><Trash2 size={13} /></button>
                   </div>
                 </div>
               ))

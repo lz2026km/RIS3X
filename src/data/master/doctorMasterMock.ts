@@ -155,7 +155,7 @@ function makeDoctor(
     defectRate: defectRate as unknown as number, // type hack
     timelyRate: timelyRate as unknown as number,
     joinedAt: `${2026 - years}-${String(Math.floor(seededRandom() * 12) + 1).padStart(2, "0")}-${String(Math.floor(seededRandom() * 28) + 1).padStart(2, "0")}`,
-    avatar: ["👨‍⚕️", "👩‍⚕️", "🧑‍⚕️", "👨‍🔬", "👩‍🔬"][Math.floor(seededRandom() * 5)]!,
+    avatar: ["", "", "", "", ""][Math.floor(seededRandom() * 5)]!,
     signature: `sign_${id}_${Math.floor(seededRandom() * 1e6).toString(36)}`,
     active: seededRandom() > 0.05,
   };

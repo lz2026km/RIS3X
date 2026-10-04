@@ -166,7 +166,7 @@ export default {
     'w9d.annotation.ellipseAnnotation': '椭圆标注',
     'w9d.annotation.visible': '可见',
     'w9d.annotation.hidden': '隐藏',
-    'w9d.annotation.clearAll': '🗑 清除全部标注',
+    'w9d.annotation.clearAll': '清除全部标注',
     'w9d.annotation.closeEsc': '关闭 (Esc)',
 
     // ---- ToolbarSection ----
@@ -377,7 +377,7 @@ export default {
     'w9d.postproc.processing': '处理中...',
     'w9d.postproc.apply': '应用',
     'w9d.postproc.export': '导出',
-    'w9d.postproc.appliedAt': '✓ 已于 {{at}} 应用 {{label}} {{intensity}}%',
+    'w9d.postproc.appliedAt': '已于 {{at}} 应用 {{label}} {{intensity}}%',
     'w9d.postproc.canvasOverlay': '后处理 | {{label}} | {{intensity}}%{{applied}}',
     'w9d.postproc.appliedSuffix': ' | 已应用',
     'w9d.postproc.sharpen': '锐化',
@@ -584,7 +584,7 @@ export default {
     'w9d.pacsViewer.back': '返回',
     'w9d.pacsViewer.exportDicom': '导出 DICOM',
     'w9d.pacsViewer.imageArea': '影像显示区',
-    'w9d.pacsViewer.criticalWarning': '⚠ 危急值 - 请立即审核',
+    'w9d.pacsViewer.criticalWarning': '危急值 - 请立即审核',
     'w9d.pacsViewer.measurements': '测量数据',
     'w9d.pacsViewer.report': '报告',
 
@@ -1101,7 +1101,7 @@ export default {
     'w9d.annotation.ellipseAnnotation': 'Ellipse Annotation',
     'w9d.annotation.visible': 'Visible',
     'w9d.annotation.hidden': 'Hidden',
-    'w9d.annotation.clearAll': '🗑 Clear All Annotations',
+    'w9d.annotation.clearAll': 'Clear All Annotations',
     'w9d.annotation.closeEsc': 'Close (Esc)',
 
     // ---- ToolbarSection ----
@@ -1312,7 +1312,7 @@ export default {
     'w9d.postproc.processing': 'Processing...',
     'w9d.postproc.apply': 'Apply',
     'w9d.postproc.export': 'Export',
-    'w9d.postproc.appliedAt': '✓ Applied {{label}} {{intensity}}% at {{at}}',
+    'w9d.postproc.appliedAt': 'Applied {{label}} {{intensity}}% at {{at}}',
     'w9d.postproc.canvasOverlay': 'Post-Processing | {{label}} | {{intensity}}%{{applied}}',
     'w9d.postproc.appliedSuffix': ' | Applied',
     'w9d.postproc.sharpen': 'Sharpen',
@@ -1519,7 +1519,7 @@ export default {
     'w9d.pacsViewer.back': 'Back',
     'w9d.pacsViewer.exportDicom': 'Export DICOM',
     'w9d.pacsViewer.imageArea': 'Image Display Area',
-    'w9d.pacsViewer.criticalWarning': '⚠ Critical value - review immediately',
+    'w9d.pacsViewer.criticalWarning': 'Critical value - review immediately',
     'w9d.pacsViewer.measurements': 'Measurements',
     'w9d.pacsViewer.report': 'Report',
 

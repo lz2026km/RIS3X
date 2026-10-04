@@ -7,7 +7,7 @@
  *   initSentry();
  *   captureError(new Error('something went wrong'));
  *
- * ⚠️ 医疗数据合规:
+ * 医疗数据合规:
  *   - 严禁上报患者姓名 / 身份证 / 诊断内容
  *   - 用 beforeSend 过滤敏感字段
  *   - DSN 应使用国内 Sentry 替代品(阿里云 ARMS / 听云)

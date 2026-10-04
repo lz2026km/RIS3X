@@ -5,6 +5,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { Bot, Loader2, CheckCircle2, Play } from 'lucide-react';
 import { useDeepSeek, type LLMTask } from '../../hooks/useDeepSeek';
 import type { RadiologyContext } from '../../services/deepseekPrompts';
 import { aiService } from '../../services/ai/aiService';
@@ -82,7 +83,8 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
   return (
     <div data-testid="ai-assistant-panel" style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 8, padding: 12, height, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>🤖 AI 助手</span>
+        <Bot size={15} style={{ color: '#818cf8' }} />
+        <span style={{ fontSize: 14, fontWeight: 600 }}>AI 助手</span>
         <span style={{ fontSize: 12, color: llm.ready ? '#10b981' : '#94a3b8' }}>{llm.ready ? 'DeepSeek 已就绪' : '未配置'}</span>
         <div style={{ flex: 1 }} />
         {tab === 'tasks' && (
@@ -162,7 +164,11 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
               fontSize: 12, cursor: llm.streaming ? 'not-allowed' : 'pointer', marginBottom: 10,
             }}
           >
-            {llm.streaming ? '⏳ 生成中...' : `▶ ${TASK_LABELS[task]}`}
+            {llm.streaming ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Loader2 size={12} /> 生成中...</span>
+            ) : (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Play size={12} /> {TASK_LABELS[task]}</span>
+            )}
           </button>
 
           <div data-testid="ai-output" style={{ flex: 1, background: '#020617', border: '1px solid #1e293b', borderRadius: 4, padding: 10, fontSize: 12, whiteSpace: 'pre-wrap', overflow: 'auto', fontFamily: 'ui-monospace, monospace' }}>
@@ -215,7 +221,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
                       <div style={{ fontSize: 12, color: '#94a3b8' }}>{l.algorithm.vendor} · {l.algorithm.type} · Acc {(l.algorithm.accuracy * 100).toFixed(0)}%</div>
                     </div>
                     {l.installed ? (
-                      <span style={{ fontSize: 12, color: '#10b981' }}>✓ 已安装</span>
+                      <span style={{ fontSize: 12, color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={12} /> 已安装</span>
                     ) : (
                       <button
                         data-testid={`ai-install-${l.algorithm.id}`}

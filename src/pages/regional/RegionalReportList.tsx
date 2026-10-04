@@ -165,7 +165,7 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
     {
       title: t('regionalReport.colCaseId'), dataIndex: 'caseId', key: 'caseId',
       render: (v: string, c: Consultation) => (
-        <div><div style={{ fontWeight: 500 }}>{v}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('regionalReport.priorityLabel')} {c.priority === '立即' ? '🔥' : c.priority === '紧急' ? '⚠️' : ''}{c.priority}</div></div>
+        <div><div style={{ fontWeight: 500 }}>{v}</div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('regionalReport.priorityLabel')} {c.priority === '立即' ? '' : c.priority === '紧急' ? '' : ''}{c.priority}</div></div>
       ),
     },
     {
@@ -328,7 +328,7 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
       render: (v: string, rd: RemoteDiagnosis) => (
         <>
           <span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(v)}20`, color: getStatusColor(v) }}><Circle size={6} fill={getStatusColor(v)} /> {v}</span>
-          {rd.isOtherTyping && <div style={{ fontSize: 10, color: COLORS.inProgress, marginTop: 2 }}>📝 {rd.otherTypingName}{t('regionalReport.typing')}</div>}
+          {rd.isOtherTyping && <div style={{ fontSize: 10, color: COLORS.inProgress, marginTop: 2 }}>{rd.otherTypingName}{t('regionalReport.typing')}</div>}
         </>
       ),
     },
@@ -521,7 +521,7 @@ export const ReportSharingSection: React.FC = () => {
     { title: t('regionalReport.colSharedBy'), dataIndex: 'sharedBy', key: 'sharedBy' },
     {
       title: t('regionalReport.colConsent'), dataIndex: 'consent', key: 'consent',
-      render: (v: boolean) => v ? <span style={{ color: COLORS.success }}>✓ {t('regionalReport.consentObtained')}</span> : <span style={{ color: COLORS.warning }}>⏳ {t('regionalReport.consentPending')}</span>,
+      render: (v: boolean) => v ? <span style={{ color: COLORS.success }}>{t('regionalReport.consentObtained')}</span> : <span style={{ color: COLORS.warning }}>{t('regionalReport.consentPending')}</span>,
     },
     { title: t('regionalReport.colAccessCount'), dataIndex: 'accessCount', key: 'accessCount' },
     {

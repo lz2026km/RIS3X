@@ -23,11 +23,11 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
   Cell,
   PieChart,
   Pie
 } from 'recharts'
+import { ChartContainer } from '../components/charts'
 
 // ============ 样式常量 ============
 const COLORS = {
@@ -1596,7 +1596,7 @@ export default function NationalReportPage() {
           <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: COLORS.textDark }}>{t('nationalReport.examTrend')}</div>
             <div style={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={160}>
+              <ChartContainer height={160}>
                 <LineChart data={monthlyTrends}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
@@ -1607,7 +1607,7 @@ export default function NationalReportPage() {
                   <Line type="monotone" dataKey="MRI" stroke={COLORS.mri} strokeWidth={2} dot={{ r: 3 }} />
                   <Line type="monotone" dataKey="DR" stroke={COLORS.dr} strokeWidth={2} dot={{ r: 3 }} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
         </div>
@@ -1821,7 +1821,7 @@ export default function NationalReportPage() {
             <PieChartIcon size={14} />
           </div>
           <div style={styles.chartContainer}>
-            <ResponsiveContainer width="100%" height={180}>
+            <ChartContainer height={180}>
               <PieChart>
                 <Pie
                   data={deviceDistribution}
@@ -1838,7 +1838,7 @@ export default function NationalReportPage() {
                 </Pie>
                 <Tooltip contentStyle={{ fontSize: 12 }} />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '0 12px 12px' }}>
             {deviceDistribution.map(item => (
@@ -1919,7 +1919,7 @@ export default function NationalReportPage() {
           <BarChart3 size={14} />
         </div>
         <div style={{ padding: '16px' }}>
-          <ResponsiveContainer width="100%" height={200}>
+          <ChartContainer height={200}>
             <BarChart data={monthlyTrends}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
@@ -1932,7 +1932,7 @@ export default function NationalReportPage() {
               <Bar dataKey="MG" fill={COLORS.mg} radius={[4, 4, 0, 0]} />
               <Bar dataKey="DSA" fill={COLORS.dsa} radius={[4, 4, 0, 0]} />
             </BarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </div>
 

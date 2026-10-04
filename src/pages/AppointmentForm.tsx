@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Checkbox } from 'antd'
 import { Plus, X, Monitor, User, Scan, ShieldCheck, CreditCard, ClipboardCheck, ChevronLeft, ChevronRight } from 'lucide-react'
 import { initialModalityDevices, initialExamItems, initialUsers } from '../data/initialData'
 import { FormField } from '../components/common/FormField'
@@ -279,13 +280,13 @@ export default function AppointmentForm(props: AppointmentFormProps) {
             </div>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 12, color: primaryBlue }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <input type="checkbox" checked={!!formData.pregnant} onChange={(e) => set({ pregnant: e.target.checked })} /> {t('w5Appt.pregnant')}
+                <Checkbox checked={!!formData.pregnant} onChange={(e) => set({ pregnant: e.target.checked })} /> {t('w5Appt.pregnant')}
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <input type="checkbox" checked={!!formData.contrastAgent} onChange={(e) => set({ contrastAgent: e.target.checked })} /> {t('w5Appt.contrastAgent')}
+                <Checkbox checked={!!formData.contrastAgent} onChange={(e) => set({ contrastAgent: e.target.checked })} /> {t('w5Appt.contrastAgent')}
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <input type="checkbox" checked={!!formData.consentRequired} onChange={(e) => set({ consentRequired: e.target.checked })} /> {t('w5Appt.consentRequired')}
+                <Checkbox checked={!!formData.consentRequired} onChange={(e) => set({ consentRequired: e.target.checked })} /> {t('w5Appt.consentRequired')}
               </label>
             </div>
             <FormField label={t('w5Appt.prepInstruction')}>
@@ -310,7 +311,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
               </FormField>
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: formData.greenChannel ? '#dc2626' : primaryBlue, fontWeight: 700 }}>
-              <input type="checkbox" checked={!!formData.greenChannel} onChange={(e) => set({ greenChannel: e.target.checked, priority: e.target.checked ? 'critical' : formData.priority })} /> {t('w5Appt.greenChannel')}
+              <Checkbox checked={!!formData.greenChannel} onChange={(e) => set({ greenChannel: e.target.checked, priority: e.target.checked ? 'critical' : formData.priority })} /> {t('w5Appt.greenChannel')}
             </label>
             <div style={{ fontSize: 11, color: textGray }}>{t('w5Appt.greenChannelHint')}</div>
             <FormField label={t('w8.appointmentForm.notes')}>

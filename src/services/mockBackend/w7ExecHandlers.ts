@@ -228,7 +228,7 @@ export const w7ExecHandlers = [
     })
   }),
 
-  // ═══ MPPS ↔ accession (增强, 覆盖基础 dicomDimseHandlers) ═══
+  // ═══ MPPS accession (增强, 覆盖基础 dicomDimseHandlers) ═══
   http.post(`${API}/dicom-dimse/mpps`, async ({ request }) => {
     const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
     const studyUid = String(body.studyUid ?? '')

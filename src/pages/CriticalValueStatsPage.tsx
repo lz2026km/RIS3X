@@ -305,7 +305,7 @@ export default function CriticalValueStatsPage() {
                     }}>{sConf.label}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{e.ruleCode}</span>
                     {e.onTimeNotification ? (
-                      <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-success-bg)', color: '#047857', borderRadius: 2, fontWeight: 700 }}>✓ 及时</span>
+                      <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-success-bg)', color: '#047857', borderRadius: 2, fontWeight: 700 }}>及时</span>
                     ) : (
                       <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-error-bg)', color: '#b91c1c', borderRadius: 2, fontWeight: 700 }}>超时</span>
                     )}

@@ -142,7 +142,7 @@ export default function AppointmentOpsPanels() {
                         <button onClick={() => void assign(w.id)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${primaryBlue}`, background: 'var(--bg-card)', color: primaryBlue, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                           <Check size={11} /> {t('w5Appt.opsAssign')}
                         </button>
-                      ) : <span style={{ color: '#059669' }}>✓</span>,
+                      ) : <span style={{ color: '#059669' }}></span>,
                       'act')}
                   </tr>
                 ))}
@@ -173,7 +173,7 @@ export default function AppointmentOpsPanels() {
                         <button onClick={() => void fireOne(r.id)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${primaryBlue}`, background: 'var(--bg-card)', color: primaryBlue, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                           <Send size={11} /> {t('w5Appt.opsFire')}
                         </button>
-                      ) : <span style={{ color: '#059669' }}>✓</span>,
+                      ) : <span style={{ color: '#059669' }}></span>,
                       'act')}
                   </tr>
                 ))}

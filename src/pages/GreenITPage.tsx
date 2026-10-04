@@ -17,6 +17,7 @@ import { statsApi } from '../services/api/statsApi'
 import { deviceApi } from '../services/api/deviceApi'
 import { ChartContainer } from '../components/charts'
 import { PageHeader } from '../components/common/PageHeader'
+import { StatCard as CommonStatCard } from '../components/common/StatCard'
 import { t } from '../i18n/appI18n'
 
 // ============================================================
@@ -342,52 +343,25 @@ interface StatCardProps {
 }
 
 function StatCard({ title, value, unit, icon, trend, trendValue, color = C.primary }: StatCardProps) {
+  // [UI-4] 收敛至公共 StatCard (保留数值/单位/趋势文案)
+  const trendNode = trend && trendValue ? (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: trend === 'up' ? C.success : '#ef4444', fontWeight: 600 }}>
+      {trend === 'up' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+      <span>{trendValue}</span>
+      <span style={{ color: C.textLight, fontWeight: 400 }}>{t('greenIt.vsLastMonth')}</span>
+    </span>
+  ) : undefined;
   return (
-    <div style={{
-      background: 'var(--bg-card)',
-      borderRadius: 12,
-      padding: '20px 24px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-      border: '1px solid var(--border-color)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 16,
-    }}>
-      <div style={{
-        width: 56,
-        height: 56,
-        borderRadius: 12,
-        background: `${color}15`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: color,
-      }}>
-        {icon}
-      </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 13, color: C.textMuted, marginBottom: 4 }}>{title}</div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-          <span style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{value}</span>
-          <span style={{ fontSize: 14, color: C.textMuted }}>{unit}</span>
-        </div>
-        {trend && trendValue && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            marginTop: 4,
-            fontSize: 12,
-            color: trend === 'up' ? C.success : '#ef4444',
-          }}>
-            {trend === 'up' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-            <span>{trendValue}</span>
-            <span style={{ color: C.textLight }}>{t('greenIt.vsLastMonth')}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  )
+    <CommonStatCard
+      title={title}
+      value={value}
+      suffix={unit}
+      icon={icon}
+      color={color}
+      sub={trendNode}
+      style={{ padding: '20px 24px' }}
+    />
+  );
 }
 
 interface TabButtonProps {

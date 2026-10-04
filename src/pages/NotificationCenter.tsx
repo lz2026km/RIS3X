@@ -10,6 +10,7 @@ import {
   AlertCircle, Zap,
   Mail, Smartphone, BarChart3, Send
 } from 'lucide-react'
+import { Switch } from 'antd'
 import { notificationsApi } from '../services/api'
 import type { NotificationDto, NotificationSubscriptionType } from '../services/api/notificationsApi'
 import { realtime, type RealtimePayload } from '../services/realtime'
@@ -554,20 +555,7 @@ interface SettingsPanelProps {
 
 function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
   const ToggleSwitch = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
-    <div
-      onClick={() => onChange(!checked)}
-      style={{
-        width: 40, height: 22, borderRadius: 11, cursor: 'pointer',
-        background: checked ? ACCENT : '#e2e8f0', position: 'relative',
-        transition: 'background 0.2s',
-      }}
-    >
-      <div style={{
-        width: 18, height: 18, borderRadius: '50%', background: 'var(--bg-card)',
-        position: 'absolute', top: 2, transition: 'left 0.2s',
-        left: checked ? 20 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-      }} />
-    </div>
+    <Switch size="small" checked={checked} onChange={onChange} />
   )
 
   const SectionTitle = ({ children }: { children: React.ReactNode }) => (
@@ -849,7 +837,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
                       cx="50" cy="50" r={R}
                       fill="none"
                       stroke={colors[i % colors.length]}
-                      strokeWidth="13"
+                      strokeWidth="10"
                       strokeDasharray={`${dash} ${C - dash}`}
                       strokeDashoffset={offset}
                       transform="rotate(-90 50 50)"
@@ -1028,9 +1016,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div onClick={() => onToggle(rule.id)} style={{ width: 36, height: 20, borderRadius: 10, background: rule.enabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
-              <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, left: rule.enabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-            </div>
+            <Switch size="small" checked={rule.enabled} onChange={() => onToggle(rule.id)} />
             <button onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><Trash2 size={14} /></button>
           </div>
         </div>

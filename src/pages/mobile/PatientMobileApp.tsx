@@ -131,7 +131,7 @@ export default function PatientMobileApp() {
     }
   }
 
-  const [mobileUser, setMobileUser] = useState<MobileUser>({ id: 'P001', name: t('mobileApp.loading'), avatar: '👤', verified: false, phone: '' })
+  const [mobileUser, setMobileUser] = useState<MobileUser>({ id: 'P001', name: t('mobileApp.loading'), avatar: '', verified: false, phone: '' })
   const [mobileReports, setMobileReports] = useState<MobileReport[]>([])
   const [mobileNotifications, setMobileNotifications] = useState<MobileNotification[]>([])
 
@@ -151,7 +151,7 @@ export default function PatientMobileApp() {
             setMobileUser({
               id: p.id || 'P001',
               name: p.name || t('mobileApp.unknown'),
-              avatar: '👤',
+              avatar: '',
               verified: true,
               phone: p.phone ? `${p.phone.slice(0, 3)}****${p.phone.slice(-4)}` : '***',
             })
@@ -305,9 +305,9 @@ export default function PatientMobileApp() {
       {/* Quick Actions */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
         {[
-          { icon: '📋', labelKey: 'mobileApp.action.myReports', tab: 'reports' as const },
-          { icon: '🖼️', labelKey: 'mobileApp.action.viewImages', tab: 'reports' as const },
-          { icon: '🔔', labelKey: 'mobileApp.action.messageCenter', tab: 'notifications' as const },
+          { icon: '', labelKey: 'mobileApp.action.myReports', tab: 'reports' as const },
+          { icon: '', labelKey: 'mobileApp.action.viewImages', tab: 'reports' as const },
+          { icon: '', labelKey: 'mobileApp.action.messageCenter', tab: 'notifications' as const },
         ].map(action => (
           <div key={action.labelKey} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid var(--border-color)', cursor: 'pointer' }}
             onClick={() => setActiveTab(action.tab)}>
@@ -456,10 +456,10 @@ export default function PatientMobileApp() {
       </Card>
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         {[
-          { icon: '🔒', labelKey: 'mobileApp.profile.security' },
-          { icon: '📱', labelKey: 'mobileApp.profile.devices' },
-          { icon: '⚙️', labelKey: 'mobileApp.profile.settings' },
-          { icon: 'ℹ️', labelKey: 'mobileApp.profile.about' },
+          { icon: '', labelKey: 'mobileApp.profile.security' },
+          { icon: '', labelKey: 'mobileApp.profile.devices' },
+          { icon: '', labelKey: 'mobileApp.profile.settings' },
+          { icon: '', labelKey: 'mobileApp.profile.about' },
         ].map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--border-color)' : 'none', cursor: 'pointer' }}>
             <span style={{ marginRight: 10, fontSize: 16 }}>{item.icon}</span>
@@ -548,13 +548,13 @@ export default function PatientMobileApp() {
       {/* Status Bar */}
       <div style={{ background: '#1e40af', color: '#fff', padding: '6px 16px', fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
         <span>9:41</span>
-        <span>📶 🔋 100%</span>
+        <span>100%</span>
       </div>
       {/* Header */}
       <div style={s.header}>
         <div style={s.headerTop}>
           <div style={s.userRow}>
-            <div style={s.avatar}>👤</div>
+            <div style={s.avatar}></div>
             <div>
               <div style={s.userName}>{mobileUser.name}</div>
               <span style={s.verifiedBadge}>{t('mobileApp.verified')}</span>
@@ -584,11 +584,11 @@ export default function PatientMobileApp() {
       {/* Bottom Nav */}
       <div style={s.nav}>
         {[
-          { key: 'home' as const, icon: '🏠', labelKey: 'mobileApp.tab.home' },
-          { key: 'reports' as const, icon: '📋', labelKey: 'mobileApp.tab.reports' },
-          { key: 'notifications' as const, icon: '🔔', labelKey: 'mobileApp.tab.notifications' },
-          { key: 'profile' as const, icon: '👤', labelKey: 'mobileApp.tab.profile' },
-          { key: 'login' as const, icon: '🔑', labelKey: 'mobileApp.tab.login' },
+          { key: 'home' as const, icon: '', labelKey: 'mobileApp.tab.home' },
+          { key: 'reports' as const, icon: '', labelKey: 'mobileApp.tab.reports' },
+          { key: 'notifications' as const, icon: '', labelKey: 'mobileApp.tab.notifications' },
+          { key: 'profile' as const, icon: '', labelKey: 'mobileApp.tab.profile' },
+          { key: 'login' as const, icon: '', labelKey: 'mobileApp.tab.login' },
         ].map(n => (
           <div key={n.key} style={s.navItem(activeTab === n.key)} onClick={() => setActiveTab(n.key)}>
             <div style={{ fontSize: 18 }}>{n.icon}</div>
@@ -611,7 +611,7 @@ export default function PatientMobileApp() {
               <>
                 <div style={{ height: 260, background: 'linear-gradient(135deg,#1e293b,#0f172a)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #334155' }}>
                   <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-                    <div style={{ fontSize: 40, marginBottom: 8 }}>🩻</div>
+                    <div style={{ fontSize: 40, marginBottom: 8 }}></div>
                     <div style={{ fontSize: 13 }}>{imageViewer.report.examType} · {imageViewer.report.examDate}</div>
                     <div style={{ fontSize: 11, marginTop: 6, color: 'rgba(255,255,255,0.4)' }}>
                       {imageViewer.study ? `序列 ${imageViewer.study.series?.length ?? 0} 组 · ${imageViewer.study.studyInstanceUid?.slice(0, 12) ?? ''}...` : t('mobileApp.dicomPreview')}

@@ -1,3 +1,36 @@
+## v3.0.6.12-6 (2026-09-28) — 企业医疗级 UI 大升级（对标 联影/飞利浦/Sectra）
+
+> **目标**: UI/前端大规模审查与升级 —— 专业图标/专业表格/专业显示，大气商业化医疗级
+> **范围**: UI-1…UI-5；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功；引入 `@tabler/icons-react`
+
+### UI-1 — 令牌治理 + antd 主题
+- 新增 `src/theme/statusTokens.ts`（**医学严重度/状态色单一来源**：危重/紧急/警告/信息/正常 + 状态 tone，light/dark）
+- `design-system.css` 追加权威层：修 `--c-*` 契约、`--sidebar-item-*` 别名、统一折叠宽 64px、企业主色 `#1d4ed8`、dark 灰阶重映射、elevation/密度/focus；字体栈统一 `Inter/Noto Sans SC/system-ui`
+- `Provider.tsx` 接入完整 antd 主题（Button/Card/Table/Form/Input/Select/Tabs/Tag/Badge/Pagination/Tooltip/Menu/Layout/Typography/Segmented）+ `cssVar` + `compactAlgorithm`（高密度）+ 启用 `radiologyTheme` 表格 tokens
+
+### UI-2 — 图标体系（大气/精炼/医疗化）
+- 引入 **`@tabler/icons-react`**（24×24，描边 1.5）；新增 `src/components/common/Icon.tsx`（尺寸 token 14/16/18/20 + 医学图标语义映射）
+- **清除全部 emoji**：674 处 / 120 文件 → **0**（含 `appI18n.ts` 196 处）+ 366 处遗留空格清理；审计页 ✓/✗→图标、危急值彩色圆点→状态点、科室模态图标→医学图标、Kanban→状态图标、成本排名奖牌→图标+序号
+- 图标库统一（消除 6 处 lucide+antd-icons 混用）；替换 7 处手绘 SVG glyph 图标；修正 strokeWidth 异常（24→16 等）
+
+### UI-3 — 控件/徽标统一
+- 新增 `StatusTag`/`SeverityTag`（由 `statusTokens` 驱动）；迁移 47 个手搓药丸 → 统一标签；替换 7 处硬编码 R-score 药丸
+- 手搓开关 → antd `Switch`（4）；原生 checkbox → `Checkbox`（8）；移除重复本地 `Tooltip`
+
+### UI-4 — 专业表格/数据展示
+- `DataTable` v2：中性粘性表头、36–40px 高密度行、zebra、数值列自动右对齐 + `tabular-nums`、统一分页、骨架/空态、**内置导出(CSV)/密度切换**；`ProTable`/`VirtualTable` 共享同一 `data-table.css`
+- 迁移原生 `<table>`（`QualityManagementPage` 5 等）；统一 `StatCard`（替换 `StatisticsPage`/`DepartmentStats`/`CancerScreenPage`/`GreenITPage`/`CriticalValueStatsSection` 克隆）；`ChartContainer` 替换 17 处裸 `ResponsiveContainer`
+- 修复 `StatisticsPage` **原始键显示**（`statsPage.*` 被 react-i18next `t` 遮蔽 → 走 appI18n）
+
+### UI-5 — 品牌外壳 + 页面模板
+- 品牌标识 `BrandMark`（孔径+医学十字+生命波形）替换通用图标；侧边栏**前缀高亮**（详情页回亮父项）+ **悬浮展开** + **移动抽屉**
+- 统一 `Card` primitive + `PageTemplate`（PageContainer>PageHeader>Card）；`LoadingBanner/ErrorBanner/StateView` **主题化**（去硬编码浅色 + 去 `top:52`）；7 个旗舰页套用模板；63 处固定栅格 → `auto-fit`
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.12-5` → `3.0.6.12-6`（无 BOM）；`build` 脚本加 `--max-old-space-size=8192`
+
+---
+
 ## v3.0.6.12-5 (2026-09-27) — 可销售商业演示版（控件/空表/导航/后端前端化）
 
 > **目标**: 全面点击检查 + 页面点击错误 + 空表格 + 导航未翻译 + 后端有前端无；**未接入接口一律以模拟数据呈现**，达到可销售演示标准

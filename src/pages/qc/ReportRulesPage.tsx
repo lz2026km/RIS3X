@@ -133,7 +133,7 @@ function tierWhenSummary(rule: ReviewTierRule): string {
   if (w.modalities?.length) parts.push(`${t('w4a.tiers.fldModalities')}: ${w.modalities.join('/')}`)
   if (w.radsCategoryGte !== undefined) parts.push(`${t('w4a.tiers.fldRadsGte')}${w.radsCategoryGte}`)
   if (w.severities?.length) parts.push(`${t('w4a.tiers.fldSeverities')}: ${w.severities.map((s) => t(CASE_SEVERITY_LABEL_KEYS[s])).join('/')}`)
-  if (w.isCritical !== undefined) parts.push(`${t('w4a.tiers.fldCritical')}: ${w.isCritical ? '✓' : '✗'}`)
+  if (w.isCritical !== undefined) parts.push(`${t('w4a.tiers.fldCritical')}: ${w.isCritical ? '' : ''}`)
   if (w.authorSeniorityIn?.length) parts.push(`${t('w4a.tiers.fldSeniority')}: ${w.authorSeniorityIn.map((s) => t(SENIORITY_LABEL_KEYS[s])).join('/')}`)
   return parts.length > 0 ? parts.join(' · ') : '-'
 }

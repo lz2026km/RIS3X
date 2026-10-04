@@ -18,6 +18,12 @@ import {
   AtSign,
   Smile,
   Trash2,
+  ThumbsUp,
+  HelpCircle,
+  Sparkles,
+  Heart,
+  StickyNote,
+  type LucideIcon,
 } from 'lucide-react';
 import { commentService } from '../../services/collab/CommentService';
 import type {
@@ -42,7 +48,21 @@ export interface CommentThreadProps {
   testIdPrefix?: string;
 }
 
-const EMOJI_OPTIONS = ['👍', '✅', '👌', '🤔', '🎉', '🙏'];
+type ReactionIcon = LucideIcon;
+
+const REACTION_OPTIONS: { key: string; Icon: ReactionIcon; label: string }[] = [
+  { key: 'like', Icon: ThumbsUp, label: '赞同' },
+  { key: 'approve', Icon: CheckCircle2, label: '认可' },
+  { key: 'ok', Icon: Sparkles, label: '支持' },
+  { key: 'think', Icon: HelpCircle, label: '待议' },
+  { key: 'note', Icon: StickyNote, label: '备注' },
+  { key: 'thanks', Icon: Heart, label: '感谢' },
+];
+
+const REACTION_ICON_MAP: Record<string, ReactionIcon> = REACTION_OPTIONS.reduce(
+  (acc, r) => ({ ...acc, [r.key]: r.Icon }),
+  {},
+);
 
 const timeAgo = (iso: string): string => {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -194,23 +214,29 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
             )}
             {c.reactions.length > 0 && (
               <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                {c.reactions.map((r) => (
-                  <span
-                    key={r.emoji}
-                    data-testid={`${testIdPrefix}-reaction-${c.id}-${r.emoji}`}
-                    onClick={() => commentService.removeReaction(c.id, r.emoji, currentUser.id)}
-                    style={{
-                      padding: '2px 8px',
-                      background: 'var(--bg-primary)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: 12,
-                      fontSize: 12,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {r.emoji} {r.userIds.length}
-                  </span>
-                ))}
+                {c.reactions.map((r) => {
+                  const ReactionIco = REACTION_ICON_MAP[r.emoji];
+                  return (
+                    <span
+                      key={r.emoji}
+                      data-testid={`${testIdPrefix}-reaction-${c.id}-${r.emoji}`}
+                      onClick={() => commentService.removeReaction(c.id, r.emoji, currentUser.id)}
+                      style={{
+                        padding: '2px 8px',
+                        background: 'var(--bg-primary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 12,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 3,
+                      }}
+                    >
+                      {ReactionIco ? <ReactionIco size={12} /> : r.emoji} {r.userIds.length}
+                    </span>
+                  );
+                })}
               </div>
             )}
             <Space size={4} style={{ marginTop: 4 }}>
@@ -275,24 +301,27 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
             </Space>
             {activeEmojiFor === c.id && (
               <div style={{ marginTop: 4, display: 'flex', gap: 4 }}>
-                {EMOJI_OPTIONS.map((e) => (
+                {REACTION_OPTIONS.map(({ key, Icon: ReactionIco, label }) => (
                   <button
-                    key={e}
+                    key={key}
                     type="button"
+                    aria-label={label}
                     onClick={() => {
-                      commentService.addReaction(c.id, e, currentUser.id);
+                      commentService.addReaction(c.id, key, currentUser.id);
                       setActiveEmojiFor(null);
                     }}
                     style={{
                       background: 'var(--bg-primary)',
                       border: '1px solid var(--border-color)',
                       borderRadius: 6,
-                      padding: '2px 6px',
+                      padding: '3px 7px',
                       cursor: 'pointer',
-                      fontSize: 14,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      color: 'var(--text-secondary)',
                     }}
                   >
-                    {e}
+                    <ReactionIco size={13} />
                   </button>
                 ))}
               </div>

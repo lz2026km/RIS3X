@@ -365,7 +365,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                     <Edit3 className="w-3.5 h-3.5 text-blue-600 cursor-pointer" onClick={() => handleEditSentence(s.text)} />
                   </Tooltip>
                   <Tooltip title={t('aiDraft.sentence.reject')}>
-                    <span className="text-red-500 cursor-pointer text-xs font-bold leading-none" onClick={() => handleRejectSentence(key)}>✕</span>
+                    <span className="text-red-500 cursor-pointer text-xs font-bold leading-none" onClick={() => handleRejectSentence(key)}></span>
                   </Tooltip>
                 </div>
               </>
@@ -552,7 +552,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
               {showRefine ? (
                 <div className="space-y-2 p-2 bg-blue-50 rounded">
-                  <div className="text-xs font-semibold text-blue-700">🔧 {t('aiDraft.refine.title')}</div>
+                  <div className="text-xs font-semibold text-blue-700">{t('aiDraft.refine.title')}</div>
                   <textarea
                     value={refineText}
                     onChange={(e) => setRefineText(e.target.value)}
@@ -736,8 +736,8 @@ export const AIDraftPanel: React.FC<Props> = ({
               <Switch size="small" checked={includeRag} onChange={setIncludeRag} />
             </div>
             <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded">
-              <div>📋 <span className="font-medium">{t('aiDraft.clinicalInfo')}</span> {clinicalInfo}</div>
-              <div>🩻 <span className="font-medium">{t('aiDraft.exam')}</span> {modality} - {bodyPart}</div>
+              <div><span className="font-medium">{t('aiDraft.clinicalInfo')}</span> {clinicalInfo}</div>
+              <div><span className="font-medium">{t('aiDraft.exam')}</span> {modality} - {bodyPart}</div>
             </div>
           </div>
 
@@ -806,7 +806,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                   color: '#94a3b8', fontSize: 12, gap: 8,
                 }}>
-                  <div style={{ fontSize: 32, opacity: 0.6 }}>🩻</div>
+                  <div style={{ fontSize: 32, opacity: 0.6 }}></div>
                   <div>{modality} · {bodyPart}</div>
                   <div style={{ fontSize: 11 }}>{t('aiDraft.compareModal.report')} {reportId}</div>
                   <Alert type="warning" showIcon style={{ fontSize: 11, maxWidth: 220 }} message={t('aiDraft.compareModal.noImage')} />

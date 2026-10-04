@@ -226,7 +226,7 @@ export default function FinancialReportsPage() {
               {plData.map((r, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #21262d', fontSize: 13 }}>
                   <span style={{ color: r.type === 'revenue' ? 'var(--color-success-500, #22c55e)' : r.type === 'cost' ? 'var(--color-error-500, #ef4444)' : 'var(--color-warning-500, #f59e0b)' }}>
-                    {r.type === 'revenue' ? '📈' : r.type === 'cost' ? '📉' : '📊'} {t(r.itemKey)}
+                    {r.type === 'revenue' ? '' : r.type === 'cost' ? '' : ''} {t(r.itemKey)}
                   </span>
                   <span style={{ fontWeight: 600, color: r.amount >= 0 ? '#f0f6fc' : 'var(--color-error-500, #ef4444)' }}>
                     {r.amount >= 0 ? '+' : ''}¥{r.amount.toLocaleString()}

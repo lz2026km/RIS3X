@@ -668,7 +668,7 @@ export default function CriticalValueRulePage() {
                   marginBottom: 4,
                 }}
               >
-                📋 {t("cvRule.clinicalSignificance")}
+                {t("cvRule.clinicalSignificance")}
               </div>
               <div style={{ fontSize: 12, color: "#78350f" }}>
                 {selectedRule.description}
@@ -686,7 +686,7 @@ export default function CriticalValueRulePage() {
                 color: "#1e40af",
               }}
             >
-              📖 {selectedRule.reference}
+              {selectedRule.reference}
             </div>
 
             {/* 操作 */}

@@ -1513,7 +1513,7 @@ export default function DictionaryPage() {
                               color: isSelected ? (modalityColors[m]?.color || '#1e40af') : '#94a3b8',
                             }}>
                               <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || '#1e40af') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || '#1e40af') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                {isSelected && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
+                                {isSelected && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                               </div>
                               {m}
                             </label>
@@ -1524,7 +1524,7 @@ export default function DictionaryPage() {
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
                         <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? '#16a34a' : '#cbd5e1'}`, background: editingDictionary.isActive ? '#16a34a' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
+                          {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                         </div>
                         {t('dictionary.activeLabel')}
                       </label>

@@ -5,18 +5,18 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Tag, Space, Row, Col, Statistic, message, Alert, Progress, Badge, Segmented } from 'antd';
-import { AlertTriangle, Layers, Clock, Zap, Bell, ChevronRight, Target, Timer, Gauge } from 'lucide-react';
+import { AlertTriangle, Layers, Clock, Zap, Bell, ChevronRight, Target, Timer, Gauge, Phone, Mail, MessageSquare, MessageCircle, BellRing, type LucideIcon } from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import type { CriticalLevel, CriticalLevelConfig, NotificationChannel, CriticalKPI } from '../../../../types/R3/R3.CRITICAL';
 import { t } from '../../../../i18n/appI18n';
 
-const CHANNEL_META: Record<NotificationChannel, { label: string; color: string; icon: string }> = {
-  phone: { label: t('w9e.criticalLevelSelector.channelPhone'), color: 'green', icon: '☎' },
-  sms: { label: t('w9e.criticalLevelSelector.channelSms'), color: 'blue', icon: '✉' },
-  wechat: { label: t('w9e.criticalLevelSelector.channelWechat'), color: 'cyan', icon: '💬' },
-  inApp: { label: t('w9e.criticalLevelSelector.channelInApp'), color: 'purple', icon: '🔔' },
-  email: { label: t('w9e.criticalLevelSelector.channelEmail'), color: 'orange', icon: '📧' },
-  pager: { label: t('w9e.criticalLevelSelector.channelPager'), color: 'red', icon: '📟' },
+const CHANNEL_META: Record<NotificationChannel, { label: string; color: string; icon: LucideIcon }> = {
+  phone: { label: t('w9e.criticalLevelSelector.channelPhone'), color: 'green', icon: Phone },
+  sms: { label: t('w9e.criticalLevelSelector.channelSms'), color: 'blue', icon: MessageSquare },
+  wechat: { label: t('w9e.criticalLevelSelector.channelWechat'), color: 'cyan', icon: MessageCircle },
+  inApp: { label: t('w9e.criticalLevelSelector.channelInApp'), color: 'purple', icon: Bell },
+  email: { label: t('w9e.criticalLevelSelector.channelEmail'), color: 'orange', icon: Mail },
+  pager: { label: t('w9e.criticalLevelSelector.channelPager'), color: 'red', icon: BellRing },
 };
 
 const LEVEL_ORDER: CriticalLevel[] = ['critical', 'urgent', 'warning', 'info'];
@@ -218,7 +218,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                         <Space size={3} wrap>
                           {l.defaultChannels.map((ch) => (
                             <Tag key={ch} color={CHANNEL_META[ch].color} style={{ fontSize: 12, padding: '0 4px' }}>
-                              {CHANNEL_META[ch].icon} {CHANNEL_META[ch].label}
+                              {React.createElement(CHANNEL_META[ch].icon, { size: 12 })} {CHANNEL_META[ch].label}
                             </Tag>
                           ))}
                         </Space>

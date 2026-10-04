@@ -104,7 +104,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
 
           {description && (
             <div style={{ marginTop: 10, padding: '8px 12px', background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', borderRadius: 8, fontSize: 12, color: 'var(--color-error)' }}>
-              ⚠ 转入后将以 <strong>{selected?.label}</strong> 等级发起 {METHOD_OPTIONS.find(m => m.value === method)?.label} 通知, 并进入危急值闭环流程。
+              转入后将以 <strong>{selected?.label}</strong> 等级发起 {METHOD_OPTIONS.find(m => m.value === method)?.label} 通知, 并进入危急值闭环流程。
             </div>
           )}
         </div>

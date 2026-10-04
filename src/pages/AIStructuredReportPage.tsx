@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Save, Printer } from "lucide-react";
+import { Save, Printer, Mic, Square } from "lucide-react";
 import { PageHeader } from "../components/common/PageHeader";
 import { t } from "../i18n/appI18n";
 // [G005 Wave2A P1] 真实保存: aiPlatformApi.createStructuredReport (POST /ai-platform/structured-reports, 后端 GenerateStructuredReportSchema)
@@ -1218,14 +1218,7 @@ const AIStructuredReportPage: React.FC = () => {
             {t("aiStructured.currentUser")}
           </span>
           <button style={styles.voiceButton} onClick={handleVoiceRecord}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              {isRecording ? (
-                <rect x="6" y="6" width="12" height="12" rx="2" />
-              ) : (
-                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-              )}
-              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-            </svg>
+            {isRecording ? <Square size={16} /> : <Mic size={16} />}
             {isRecording ? t("aiStructured.stopRecording") : t("aiStructured.voiceInput")}
           </button>
         </div>

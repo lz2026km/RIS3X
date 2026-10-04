@@ -150,7 +150,7 @@ export const followupTriggerRulesHandlers = [
 ]
 
 export const followupHandlers = [
-  // ⚠️ due/stats/from-exam 必须先于 :id
+  // due/stats/from-exam 必须先于 :id
   http.get(`${API}/due`, async ({ request }) => {
     await delay(delayMs())
     const url = new URL(request.url)

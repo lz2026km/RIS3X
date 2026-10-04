@@ -30,6 +30,10 @@ import { reportWebVitals, performanceMarks } from "@/observability/webVitals";
 import { injectCSP, injectSecurityMetaTags } from "@/security/csp";
 import { useScreenReaderAnnouncer } from "@/a11y/SkipLink";
 import { THEME_TOKENS } from "./common/ThemeTokens";
+import {
+  RADIOLOGY_COMPONENT_TOKENS,
+  RADIOLOGY_COMPONENT_TOKENS_DARK,
+} from "@/theme/radiologyTheme";
 
 export type ThemeMode = "light" | "dark" | "high-contrast";
 export const THEME_STORAGE_KEY = "g005-ris-theme";
@@ -123,8 +127,16 @@ function useThemeMode(): [ThemeMode, (m: ThemeMode) => void, () => void] {
   return [mode, setMode, cycle];
 }
 
+/** UI-1: system-first UI stack — Inter + Noto Sans SC + system-ui (no webfont). */
+const FONT_FAMILY =
+  'Inter, "Noto Sans SC", "Source Han Sans SC", system-ui, -apple-system, ' +
+  'BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", ' +
+  '"Helvetica Neue", Arial, sans-serif';
+
 const LIGHT_TOKENS = {
-  colorPrimary: "#1e40af",
+  colorPrimary: "#1d4ed8",
+  colorPrimaryHover: "#2563eb",
+  colorPrimaryActive: "#1e40af",
   colorSuccess: "#059669",
   colorWarning: "#d97706",
   colorError: "#dc2626",
@@ -132,8 +144,7 @@ const LIGHT_TOKENS = {
   colorBgLayout: "#f1f5f9",
   colorTextBase: "#0f172a",
   borderRadius: 8,
-  fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Roboto, sans-serif",
+  fontFamily: FONT_FAMILY,
   fontSize: 14,
 };
 
@@ -176,6 +187,163 @@ const HIGH_CONTRAST_TOKENS: ThemeTokens = {
   borderRadius: 6,
 };
 
+/**
+ * UI-1: enterprise high-density component tokens.
+ * Wires the shared semantic palette + radiology component tokens (previously
+ * dead) into antd for light / dark / high-contrast. Kept as a plain inferred
+ * object so component-token keys stay decoupled from antd's mapped type.
+ */
+function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
+  const rad = isDark ? RADIOLOGY_COMPONENT_TOKENS_DARK : RADIOLOGY_COMPONENT_TOKENS;
+  const primary = isHighContrast ? "#ffff00" : "#1d4ed8";
+  const border = isHighContrast ? "#ffffff" : isDark ? "#334155" : "#e2e8f0";
+  const text = isHighContrast ? "#ffffff" : isDark ? "#f1f5f9" : "#0f172a";
+  const textSecondary = isHighContrast ? "#f0f0f0" : isDark ? "#cbd5e1" : "#475569";
+  const containerBg = isHighContrast ? "#1a1a1a" : isDark ? "#1e293b" : "#ffffff";
+  const layoutBg = isHighContrast ? "#000000" : isDark ? "#0f172a" : "#f1f5f9";
+  const headerBg = isHighContrast ? "#0a0a0a" : isDark ? "#1e293b" : "#ffffff";
+  const selectedBg = isHighContrast
+    ? "#333300"
+    : isDark
+      ? "rgba(29, 78, 216, 0.28)"
+      : "#eff6ff";
+
+  return {
+    Layout: {
+      headerBg,
+      siderBg: isHighContrast ? "#000000" : isDark ? "#0f172a" : "#1e40af",
+      bodyBg: layoutBg,
+      footerBg: isHighContrast ? "#0a0a0a" : isDark ? "#1e293b" : "#f8fafc",
+      headerHeight: 56,
+      headerPadding: "0 16px",
+    },
+    Menu: {
+      darkItemBg: rad.Menu.darkItemBg,
+      darkSubMenuItemBg: rad.Menu.darkSubMenuItemBg,
+      darkItemSelectedBg: isHighContrast ? "#ffff00" : rad.Menu.darkItemSelectedBg,
+      darkItemColor: rad.Menu.darkItemColor,
+      itemHeight: 36,
+      itemMarginBlock: 2,
+      itemMarginInline: 8,
+      itemBorderRadius: 6,
+      itemSelectedBg: selectedBg,
+      itemSelectedColor: text,
+      itemColor: textSecondary,
+    },
+    Button: {
+      borderRadius: rad.Button.borderRadius,
+      controlHeight: rad.Button.controlHeight,
+      controlHeightSM: 24,
+      controlHeightLG: 40,
+      contentFontSize: 13,
+      contentFontSizeSM: 12,
+      contentFontSizeLG: 14,
+      fontWeight: 600,
+      defaultBorderColor: border,
+      defaultColor: text,
+    },
+    Card: {
+      borderRadiusLG: rad.Card.borderRadiusLG,
+      boxShadowTertiary: rad.Card.boxShadowTertiary,
+      headerBg: isDark ? "#1e293b" : "#ffffff",
+      headerFontSize: 14,
+      bodyPadding: 16,
+      colorBorderSecondary: border,
+    },
+    Table: {
+      headerBg: isHighContrast ? "#000000" : rad.Table.headerBg,
+      headerColor: isHighContrast ? "#ffffff" : rad.Table.headerColor,
+      rowHoverBg: rad.Table.rowHoverBg,
+      borderRadius: rad.Table.borderRadius,
+      headerBorderRadius: rad.Table.borderRadius,
+      cellPaddingBlock: 8,
+      cellPaddingInline: 12,
+      cellFontSize: 13,
+      fontSize: 13,
+      borderColor: border,
+    },
+    Form: {
+      labelFontSize: 13,
+      itemMarginBottom: 16,
+      verticalLabelPadding: "0 0 4px",
+      labelColor: textSecondary,
+      labelRequiredMarkColor: "#dc2626",
+    },
+    Input: {
+      borderRadius: rad.Input.borderRadius,
+      paddingBlock: 5,
+      paddingInline: 10,
+      fontSize: 13,
+      controlHeight: 32,
+      colorBgContainer: containerBg,
+      colorBorder: border,
+    },
+    Select: {
+      borderRadius: rad.Select.borderRadius,
+      optionSelectedBg: selectedBg,
+      optionSelectedColor: text,
+      optionHeight: 30,
+      fontSize: 13,
+      controlHeight: 32,
+      colorBgContainer: containerBg,
+      colorBorder: border,
+    },
+    Tabs: {
+      titleFontSize: 13,
+      horizontalItemPadding: "10px 0",
+      horizontalMargin: "0 0 12px 0",
+      itemSelectedColor: primary,
+      inkBarColor: primary,
+      cardBg: containerBg,
+      colorBorderSecondary: border,
+    },
+    Tag: {
+      borderRadiusSM: rad.Tag.borderRadiusSM,
+      defaultBg: isDark ? "rgba(148, 163, 184, 0.14)" : "#f8fafc",
+      defaultColor: textSecondary,
+      fontSizeSM: 12,
+      lineHeightSM: 18,
+    },
+    Badge: {
+      textFontSize: 12,
+      indicatorHeight: 18,
+      dotSize: 8,
+      colorBorderBg: containerBg,
+    },
+    Pagination: {
+      itemSize: 30,
+      itemSizeSM: 24,
+      borderRadius: 6,
+      itemActiveBg: selectedBg,
+      fontSize: 13,
+    },
+    Tooltip: {
+      borderRadius: 6,
+      colorBgSpotlight: isDark ? "#334155" : "#1e293b",
+      colorTextLightSolid: "#ffffff",
+      fontSize: 12,
+    },
+    Typography: {
+      fontSize: 14,
+      titleMarginBottom: 8,
+      fontWeightStrong: 600,
+      colorText: text,
+      colorTextSecondary: textSecondary,
+      colorTextDescription: textSecondary,
+    },
+    Segmented: {
+      itemSelectedBg: containerBg,
+      itemSelectedColor: primary,
+      itemColor: textSecondary,
+      itemHoverColor: text,
+      trackBg: isDark ? "#0f172a" : "#f1f5f9",
+      trackPadding: 2,
+      controlHeight: 30,
+      borderRadius: 6,
+    },
+  };
+}
+
 function ErrorFallback({
   error,
   resetErrorBoundary,
@@ -196,12 +364,13 @@ function ErrorFallback({
         alignItems: "center",
         justifyContent: "center",
         padding: 24,
-        background: "#fef2f2",
+        background: "var(--color-error-bg, #fef2f2)",
+        color: "var(--text-primary, #0f172a)",
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      <h1 style={{ color: "#dc2626", fontSize: 24, marginBottom: 16 }}>
-        ⚠️ 出现错误
+      <h1 style={{ color: "var(--color-error, #dc2626)", fontSize: 24, marginBottom: 16 }}>
+        出现错误
       </h1>
       <pre
         style={{
@@ -221,8 +390,8 @@ function ErrorFallback({
         onClick={resetErrorBoundary}
         style={{
           padding: "8px 16px",
-          background: "#1e40af",
-          color: "#fff",
+          background: "var(--color-primary-700, #1e40af)",
+          color: "var(--color-gray-0, #fff)",
           border: "none",
           borderRadius: 6,
           cursor: "pointer",
@@ -299,39 +468,22 @@ export function Provider({ children }: ProviderProps): JSX.Element {
         <ConfigProvider
           locale={antLocale}
           theme={{
-            algorithm:
+            // UI-1: CSS variable mode + single-version hashed=false (safe)
+            cssVar: { key: "g005-ris" },
+            hashed: false,
+            // UI-1: enterprise high-density = compact + (dark|default) algorithm
+            algorithm: [
+              theme.compactAlgorithm,
               isDark || isHighContrast
                 ? theme.darkAlgorithm
                 : theme.defaultAlgorithm,
+            ],
             token: isHighContrast
               ? HIGH_CONTRAST_TOKENS
               : isDark
                 ? DARK_TOKENS
                 : LIGHT_TOKENS,
-            components: {
-              Layout: {
-                headerBg: isHighContrast
-                  ? "#0a0a0a"
-                  : isDark
-                    ? "#1e293b"
-                    : "#ffffff",
-                siderBg: isHighContrast
-                  ? "#000000"
-                  : isDark
-                    ? "#0f172a"
-                    : "#1e40af",
-                bodyBg: isHighContrast
-                  ? "#000000"
-                  : isDark
-                    ? "#0f172a"
-                    : "#f1f5f9",
-              },
-              Menu: {
-                darkItemBg: isHighContrast ? "#000000" : "#0f172a",
-                darkSubMenuItemBg: isHighContrast ? "#000000" : "#0f172a",
-                darkItemSelectedBg: isHighContrast ? "#ffff00" : "#1e40af",
-              },
-            },
+            components: buildThemeComponents(isDark, isHighContrast),
           }}
         >
           <AntdApp

@@ -249,7 +249,7 @@ export default function TermSynonymGraphPage() {
         {selected && (
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>
-              📚 {t('termSyn.standardDetail')}
+              {t('termSyn.standardDetail')}
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selected.term}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>@{selected.pinyin || '—'}</div>
@@ -273,7 +273,7 @@ export default function TermSynonymGraphPage() {
 
             {selected.synonyms.length > 0 && (
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>🔄 {t('termSyn.synonyms')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('termSyn.synonyms')}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.synonyms.map(s => (
                     <span key={s} style={{ padding: '2px 8px', background: '#8b5cf622', color: '#5b21b6', fontSize: 12, borderRadius: 10, fontWeight: 600 }}>{s}</span>
@@ -284,7 +284,7 @@ export default function TermSynonymGraphPage() {
 
             {selected.relatedTerms.length > 0 && (
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>🔗 {t('termSyn.relatedTerms')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('termSyn.relatedTerms')}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.relatedTerms.map(r => (
                     <span key={r} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1e40af', fontSize: 12, borderRadius: 10 }}>{r}</span>

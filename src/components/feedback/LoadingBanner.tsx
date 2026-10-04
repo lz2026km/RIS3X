@@ -2,12 +2,13 @@ import type { CSSProperties } from 'react'
 
 const containerStyle: CSSProperties = {
   position: 'sticky',
-  top: 52,
+  top: 'var(--header-h, 52px)',
   zIndex: 10,
   padding: 8,
   marginBottom: 12,
-  background: '#dbeafe',
-  color: '#1e40af',
+  background: 'var(--state-loading-bg, #dbeafe)',
+  color: 'var(--state-loading-fg, #1e40af)',
+  border: '1px solid var(--state-loading-border, #bfdbfe)',
   borderRadius: 6,
   fontSize: 13,
   display: 'flex',
@@ -18,8 +19,8 @@ const containerStyle: CSSProperties = {
 const spinnerStyle: CSSProperties = {
   width: 14,
   height: 14,
-  border: '2px solid #93c5fd',
-  borderTopColor: '#1e40af',
+  border: '2px solid var(--state-loading-border, #93c5fd)',
+  borderTopColor: 'var(--state-loading-fg, #1e40af)',
   borderRadius: '50%',
   animation: 'spin 0.8s linear infinite',
   display: 'inline-block',

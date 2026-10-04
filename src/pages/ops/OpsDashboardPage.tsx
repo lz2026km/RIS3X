@@ -17,16 +17,16 @@ import { t } from '../../i18n/appI18n'
 const svc = getOpsAnalyticsService()
 
 const s: Record<string, React.CSSProperties> = {
-  root: { minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' },
+  root: { minHeight: '100vh', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' },
   header: { background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   headerTitle: { display: 'flex', alignItems: 'center', gap: 12 },
   headerText: { fontSize: 20, fontWeight: 600 },
   content: { padding: '20px 24px' },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 },
-  grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 24 },
-  panel: { background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 },
-  panelTitle: { fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 },
-  kpiCard: { background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 },
+  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 16, marginBottom: 24 },
+  grid3: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 },
+  panel: { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 'var(--radius-md, 8px)', padding: 16 },
+  panelTitle: { fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 },
+  kpiCard: { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 'var(--radius-md, 8px)', padding: '16px 20px', flex: 1, minWidth: 180 },
 }
 
 function KpiCard({ title, value, unit, icon: Icon, trend, color }: {

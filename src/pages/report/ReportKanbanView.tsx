@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { Zap, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Zap, CheckCircle2, AlertTriangle, FileText, Eye, PenLine, Globe, Settings } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { formatDateTime } from '../../utils/date';
 import { toEnState } from '../../components/report/statusMeta'
@@ -35,27 +35,27 @@ function highlightAnomalies(text: string | undefined): React.ReactNode {
 
 const KANBAN_COLUMNS = [
   {
-    key: '草稿组', label: '📝 草稿',
+    key: '草稿组', label: '草稿', Icon: FileText,
     subStatus: ['待分配', '已分配', '书写中'] as readonly string[],
     color: '#1e40af', bg: 'var(--color-info-bg)', border: 'var(--color-info-border)',
   },
   {
-    key: '审核组', label: '👁️ 审核',
+    key: '审核组', label: '审核', Icon: Eye,
     subStatus: ['已提交', '初审中', '初审通过', '终审中', '已审核'] as readonly string[],
     color: '#7c2d12', bg: 'rgba(249,115,22,0.12)', border: '#fed7aa',
   },
   {
-    key: '签发组', label: '✍️ 签发',
+    key: '签发组', label: '签发', Icon: PenLine,
     subStatus: ['签发中', '已签发'] as readonly string[],
     color: '#be185d', bg: 'rgba(244,114,182,0.12)', border: '#fbcfe8',
   },
   {
-    key: '已发布', label: '🌐 已发布',
+    key: '已发布', label: '已发布', Icon: Globe,
     subStatus: ['已发布'] as readonly string[],
     color: '#059669', bg: 'var(--color-success-bg)', border: 'var(--color-success-border)',
   },
   {
-    key: '特殊', label: '⚙️ 特殊',
+    key: '特殊', label: '特殊', Icon: Settings,
     subStatus: ['修订中', '已修订', '已撤回', '已驳回', '已归档'] as readonly string[],
     color: '#475569', bg: 'var(--bg-card)', border: 'var(--border-color)',
   },
@@ -103,6 +103,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
         <div key={col.key} style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '10px 14px', borderRadius: '10px 10px 0 0', background: col.bg, border: `1px solid ${col.border}`, borderBottom: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.color }} />
+            <col.Icon size={14} style={{ color: col.color }} />
             <span style={{ fontSize: 13, fontWeight: 700, color: col.color }}>{col.label}</span>
             <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 10, background: col.color, color: WHITE, fontSize: 12, fontWeight: 700 }}>{col.items.length}</span>
           </div>

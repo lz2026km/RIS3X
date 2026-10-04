@@ -718,7 +718,7 @@ export const DicomDimsePage: React.FC = () => {
               columns={[
                 { title: t('dicomDimse.colTaskId'), dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                 { title: t('dicomDimse.colStudyUid'), dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? t('dicomDimse.sourceSeed') : t('dicomDimse.sourceQueue')}</Tag></Space> },
-                // [v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 关联检查列
+                // [v3.0.6.11-96 Wave 2B (D)] C-STORE worklist 联动: 关联检查列
                 { title: t('dicomDimse.colRelatedExam'), key: 'exam', width: 150, render: (_: unknown, r: TransferRecord) => r.examId ? <Tag color="geekblue">{r.examId}{r.accessionNumber ? ` · ${r.accessionNumber}` : ''}</Tag> : <span style={{ color: '#94a3b8', fontSize: 12 }}>-</span> },
                 { title: t('dicomDimse.colDestAe'), dataIndex: 'targetAe', key: 'targetAe', width: 150, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                 { title: t('dicomDimse.colPriority'), dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{TRANSFER_PRIORITY_LABEL[v] ?? v}</Tag> },

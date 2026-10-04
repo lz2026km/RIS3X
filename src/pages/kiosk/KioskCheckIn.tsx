@@ -147,7 +147,7 @@ const s = {
                 <div className="kiosk-marquee" style={{ padding: '10px 0' }}>
                   {activeMessages.map(m => (
                     <div key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, paddingRight: 48, fontSize: 13 }}>
-                      <span style={{ fontWeight: 700, color: m.level === 'urgent' ? '#f87171' : m.level === 'warning' ? '#fbbf24' : '#60a5fa' }}>📣 {m.title}</span>
+                      <span style={{ fontWeight: 700, color: m.level === 'urgent' ? '#f87171' : m.level === 'warning' ? '#fbbf24' : '#60a5fa' }}>{m.title}</span>
                       <span style={{ color: '#cbd5e1' }}>{m.content}</span>
                     </div>
                   ))}
@@ -203,7 +203,7 @@ const s = {
         {step === 'result' && result && (
           <>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 60, marginBottom: 8 }}>✅</div>
+              <div style={{ fontSize: 60, marginBottom: 8 }}></div>
               <div style={s.title}>{t('kiosk.successTitle')}</div>
               <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>{result.patientName} · {t('kiosk.keepQueueNumber')}</div>
             </div>

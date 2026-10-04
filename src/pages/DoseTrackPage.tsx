@@ -1024,10 +1024,10 @@ function DoseAnalyticsSection({
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {[
-            { icon: '⚡', title: t('doseTrack.sug1Title'), desc: t('doseTrack.sug1Desc', { dlp: statsTrend.length > 0 ? Math.round(statsTrend.reduce((s, tr) => s + tr.avgDlp, 0) / statsTrend.length) : 620 }), priority: t('doseTrack.priorityHigh') },
-            { icon: '🎯', title: t('doseTrack.sug2Title'), desc: t('doseTrack.sug2Desc'), priority: t('doseTrack.priorityMedium') },
-            { icon: '🛡️', title: t('doseTrack.sug3Title'), desc: t('doseTrack.sug3Desc', { rate: Math.min(96, 82 + overTotal) }), priority: t('doseTrack.priorityHigh') },
-            { icon: '📉', title: t('doseTrack.sug4Title'), desc: t('doseTrack.sug4Desc'), priority: t('doseTrack.priorityMedium') },
+            { icon: '', title: t('doseTrack.sug1Title'), desc: t('doseTrack.sug1Desc', { dlp: statsTrend.length > 0 ? Math.round(statsTrend.reduce((s, tr) => s + tr.avgDlp, 0) / statsTrend.length) : 620 }), priority: t('doseTrack.priorityHigh') },
+            { icon: '', title: t('doseTrack.sug2Title'), desc: t('doseTrack.sug2Desc'), priority: t('doseTrack.priorityMedium') },
+            { icon: '', title: t('doseTrack.sug3Title'), desc: t('doseTrack.sug3Desc', { rate: Math.min(96, 82 + overTotal) }), priority: t('doseTrack.priorityHigh') },
+            { icon: '', title: t('doseTrack.sug4Title'), desc: t('doseTrack.sug4Desc'), priority: t('doseTrack.priorityMedium') },
           ].map(s => (
             <div key={s.title} style={{ padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
